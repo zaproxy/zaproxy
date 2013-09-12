@@ -28,6 +28,7 @@ import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -38,8 +39,11 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.extension.userauth.auth.ExtensionAuthentication;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.utils.ApiUtils;
 
 /**
  * The API for manipulating {@link User Users}.
@@ -52,6 +56,7 @@ public class UsersAPI extends ApiImplementor {
 
 	private static final String VIEW_USERS_LIST = "usersList";
 	private static final String VIEW_GET_USER_BY_ID = "getUserById";
+	private static final String VIEW_GET_AUTHENTICATION_CREDENTIALS = "getAuthenticationCredentials";
 
 	private static final String ACTION_NEW_USER = "newUser";
 	private static final String ACTION_SET_ENABLED = "setUserEnabled";
@@ -63,6 +68,7 @@ public class UsersAPI extends ApiImplementor {
 	private static final String PARAM_ENABLED = "enabled";
 
 	private ExtensionUserManagement extension;
+	private Map<String, AuthenticationMethodType> loadedAuthenticationCredentialsActions;
 
 	public UsersAPI(ExtensionUserManagement extension) {
 		super();
@@ -71,12 +77,25 @@ public class UsersAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_USERS_LIST, null, new String[] { PARAM_CONTEXT_ID }));
 		this.addApiView(new ApiView(VIEW_GET_USER_BY_ID, null,
 				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
+		this.addApiView(new ApiView(VIEW_GET_AUTHENTICATION_CREDENTIALS, new String[] { PARAM_CONTEXT_ID,
+				PARAM_USER_ID }));
 
 		this.addApiAction(new ApiAction(ACTION_NEW_USER, new String[] { PARAM_CONTEXT_ID, PARAM_USER_NAME }));
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_ENABLED }));
 		this.addApiAction(new ApiAction(ACTION_SET_NAME, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_USER_NAME }));
+
+		ExtensionAuthentication authenticationExtension = (ExtensionAuthentication) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionAuthentication.NAME);
+		this.loadedAuthenticationCredentialsActions = new HashMap<String, AuthenticationMethodType>();
+		for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {
+			ApiAction action = t.getSetCredentialsForUserApiAction();
+			if (action != null) {
+				loadedAuthenticationCredentialsActions.put(action.getName(), t);
+				this.addApiAction(action);
+			}
+		}
 
 	}
 
@@ -90,7 +109,6 @@ public class UsersAPI extends ApiImplementor {
 		log.debug("handleApiView " + name + " " + params.toString());
 
 		switch (name) {
-
 		case VIEW_USERS_LIST:
 			ApiResponseList usersListResponse = new ApiResponseList(name);
 			// Get the users
@@ -109,12 +127,10 @@ public class UsersAPI extends ApiImplementor {
 			return usersListResponse;
 
 		case VIEW_GET_USER_BY_ID:
-			int contextId = getContextId(params);
-			int userId = getUserId(params);
-			User user = extension.getContextUserAuthManager(contextId).getUserById(userId);
-			if (user == null)
-				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
-			return buildResponseFromUser(user);
+			return buildResponseFromUser(getUser(params));
+
+		case VIEW_GET_AUTHENTICATION_CREDENTIALS:
+			return getUser(params).getAuthenticationCredentials().getApiResponseRepresentation();
 
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
@@ -125,53 +141,37 @@ public class UsersAPI extends ApiImplementor {
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
 
-		int contextId;
-		int userId;
 		User user;
 		Context context;
 		switch (name) {
 		case ACTION_NEW_USER:
-			contextId = getContextId(params);
-			context = Model.getSingleton().getSession().getContext(contextId);
-			if (context == null)
-				throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
-			String userName = params.getString(PARAM_USER_NAME);
-			if (userName == null || userName.isEmpty()) {
-				throw new ApiException(Type.MISSING_PARAMETER, PARAM_USER_NAME);
-			}
-			user = new User(contextId, userName);
-			// TODO: Handle Authentication Credentials
+			context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+			String userName = ApiUtils.getNonEmptyStringParam(params, PARAM_USER_NAME);
+			user = new User(context.getIndex(), userName);
 			user.setAuthenticationCredentials(context.getAuthenticationMethod()
 					.createAuthenticationCredentials());
-			extension.getContextUserAuthManager(contextId).addUser(user);
+			extension.getContextUserAuthManager(context.getIndex()).addUser(user);
 			return ApiResponseElement.OK;
 		case ACTION_SET_ENABLED:
-			contextId = getContextId(params);
-			userId = getUserId(params);
 			boolean enabled = false;
 			try {
 				enabled = params.getBoolean(PARAM_ENABLED);
 			} catch (JSONException e) {
 				throw new ApiException(Type.BAD_FORMAT, PARAM_ENABLED + " - should be boolean");
 			}
-			user = extension.getContextUserAuthManager(contextId).getUserById(userId);
-			if (user == null)
-				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
-			user.setEnabled(enabled);
+			getUser(params).setEnabled(enabled);
 			return ApiResponseElement.OK;
 		case ACTION_SET_NAME:
-			contextId = getContextId(params);
-			userId = getUserId(params);
 			String nameSN = params.getString(PARAM_USER_NAME);
 			if (nameSN == null || nameSN.isEmpty())
 				throw new ApiException(Type.MISSING_PARAMETER, PARAM_USER_NAME);
-			user = extension.getContextUserAuthManager(contextId).getUserById(userId);
-			if (user == null)
-				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
-			user.setName(nameSN);
+			getUser(params).setName(nameSN);
 			return ApiResponseElement.OK;
 		default:
-			throw new ApiException(ApiException.Type.BAD_ACTION);
+			if (!loadedAuthenticationCredentialsActions.containsKey(name))
+				throw new ApiException(Type.BAD_ACTION);
+			loadedAuthenticationCredentialsActions.get(name).handleSetCredentialsForUserApiAction(params);
+			return ApiResponseElement.OK;
 		}
 
 	}
@@ -188,24 +188,39 @@ public class UsersAPI extends ApiImplementor {
 		fields.put("id", Integer.toString(u.getId()));
 		fields.put("contextId", Integer.toString(u.getContextId()));
 		fields.put("enabled", Boolean.toString(u.isEnabled()));
+		fields.put("credentials", u.getAuthenticationCredentials().getApiResponseRepresentation().toJSON()
+				.toString());
 		ApiResponseSet response = new ApiResponseSet("user", fields);
 		return response;
 	}
 
 	/**
 	 * Gets the user id from the parameters or throws a Missing Parameter exception, if any problems
-	 * occured.
+	 * occurred.
 	 * 
 	 * @param params the params
 	 * @return the user id
 	 * @throws ApiException the api exception
 	 */
 	private int getUserId(JSONObject params) throws ApiException {
-		try {
-			return params.getInt(PARAM_USER_ID);
-		} catch (JSONException ex) {
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
-		}
+		return ApiUtils.getIntParam(params, PARAM_USER_ID);
+	}
+
+	/**
+	 * Gets the user corresponding to the id provided in the parameters or throws an ApiException id
+	 * any problems occurred.
+	 * 
+	 * @param params the params
+	 * @return the user
+	 * @throws ApiException the api exception
+	 */
+	private User getUser(JSONObject params) throws ApiException {
+		int contextId = getContextId(params);
+		int userId = getUserId(params);
+		User user = extension.getContextUserAuthManager(contextId).getUserById(userId);
+		if (user == null)
+			throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
+		return user;
 	}
 
 	/**
@@ -217,11 +232,7 @@ public class UsersAPI extends ApiImplementor {
 	 * @throws ApiException the api exception
 	 */
 	private int getContextId(JSONObject params) throws ApiException {
-		try {
-			return params.getInt(PARAM_CONTEXT_ID);
-		} catch (JSONException ex) {
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
-		}
+		return ApiUtils.getIntParam(params, PARAM_CONTEXT_ID);
 	}
 
 	private boolean hasContextId(JSONObject params) {

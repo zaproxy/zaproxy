@@ -28,6 +28,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.userauth.User;
 
 /**
  * A type of authentication method. This class also acts as a factory for creating
@@ -185,6 +186,30 @@ public abstract class AuthenticationMethodType {
 	 * @param params the params
 	 */
 	public abstract void handleSetMethodForContextApiAction(JSONObject params) throws ApiException;
+
+	/**
+	 * Gets the {@link ApiAction} that can be used to set the authentication credentials of the
+	 * corresponding type for an {@link User} of a context.
+	 * <p>
+	 * This api action will be handled by executing the
+	 * {@link #handleSetCredentialsForUserApiAction(JSONObject)} method.
+	 * </p>
+	 * 
+	 * @return the api action, or null if there is no way to set this method type through the API
+	 */
+	public abstract ApiAction getSetCredentialsForUserApiAction();
+
+	/**
+	 * Handle the execution of the {@link ApiAction} used to set the authentication credentials of
+	 * the corresponding type for an {@link User} of a context.
+	 * <p>
+	 * The ApiAction for which this method is called is the one returned by the
+	 * {@link #getSetCredentialsForUserApiAction()}.
+	 * </p>
+	 * 
+	 * @param params the params
+	 */
+	public abstract void handleSetCredentialsForUserApiAction(JSONObject params) throws ApiException;
 
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .

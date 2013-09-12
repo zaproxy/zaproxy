@@ -91,7 +91,7 @@ public interface SessionManagementMethod {
 	public void clearWebSessionIdentifiers(HttpMessage msg);
 	
 	/**
-	 * Gets an api response that represents the Authentication Method.
+	 * Gets an api response that represents the Session Management Method.
 	 * 
 	 * @return the api response representation
 	 */

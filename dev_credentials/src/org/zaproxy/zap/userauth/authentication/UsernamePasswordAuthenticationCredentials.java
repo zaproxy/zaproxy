@@ -2,6 +2,8 @@ package org.zaproxy.zap.userauth.authentication;
 
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -9,6 +11,8 @@ import javax.swing.JPasswordField;
 
 import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -17,6 +21,8 @@ import org.zaproxy.zap.view.LayoutHelper;
  * combination for authentication.
  */
 class UsernamePasswordAuthenticationCredentials implements AuthenticationCredentials {
+
+	private static final String API_NAME = "UsernamePasswordAuthenticationCredentials";
 
 	private static String FIELD_SEPARATOR = "~";
 	String username;
@@ -100,5 +106,14 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 			getCredentials().password = new String(passwordTextField.getPassword());
 		}
 
+	}
+
+	@Override
+	public ApiResponse getApiResponseRepresentation() {
+		Map<String, String> values = new HashMap<>();
+		values.put("type", API_NAME);
+		values.put("username", username);
+		values.put("password", password);
+		return new ApiResponseSet("credentials", values);
 	}
 }

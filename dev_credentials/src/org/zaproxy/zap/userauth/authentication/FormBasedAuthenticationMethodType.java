@@ -42,7 +42,6 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.URI;
@@ -72,6 +71,7 @@ import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
+import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.httputils.HtmlParametersUtils;
 import org.zaproxy.zap.model.Context;
@@ -79,6 +79,7 @@ import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.authentication.UsernamePasswordAuthenticationCredentials.UsernamePasswordAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -667,14 +668,20 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	@Override
-	public AuthenticationCredentials createAuthenticationCredentials() {
+	public UsernamePasswordAuthenticationCredentials createAuthenticationCredentials() {
 		return new UsernamePasswordAuthenticationCredentials();
 	}
 
+	/* API related constants and methods. */
+
 	private static final String ACTION_SET_METHOD = "setFormBasedAuthenticationMethod";
+	private static final String ACTION_SET_CREDENTIALS = "setFormBasedAuthenticationCredentials";
 	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String PARAM_USER_ID = "userId";
 	private static final String PARAM_LOGIN_URL = "loginUrl";
 	private static final String PARAM_POST_DATA = "postData";
+	private static final String PARAM_USERNAME = "username";
+	private static final String PARAM_PASSWORD = "password";
 
 	@Override
 	public ApiAction getSetMethodForContextApiAction() {
@@ -684,30 +691,19 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 	@Override
 	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
-		int contextId;
-		try {
-			contextId = params.getInt(PARAM_CONTEXT_ID);
-		} catch (JSONException ex) {
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
-		}
-		Context context = Model.getSingleton().getSession().getContext(contextId);
-		if (context == null)
-			throw new ApiException(ApiException.Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
-
-		String loginUrl = params.getString(PARAM_LOGIN_URL);
-		if (loginUrl == null || loginUrl.isEmpty())
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_LOGIN_URL);
+		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+		String loginUrl = ApiUtils.getNonEmptyStringParam(params, PARAM_LOGIN_URL);
 		try {
 			new URL(loginUrl);
 		} catch (Exception ex) {
 			throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_LOGIN_URL);
 		}
-
 		String postData = "";
 		if (params.containsKey(PARAM_POST_DATA))
 			postData = params.getString(PARAM_POST_DATA);
 
-		FormBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
+		// Set the method
+		FormBasedAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
 		try {
 			method.setLoginRequest(loginUrl, postData);
 		} catch (Exception e) {
@@ -715,5 +711,36 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 		}
 		context.setAuthenticationMethod(method);
+	}
+
+	@Override
+	public ApiAction getSetCredentialsForUserApiAction() {
+		return new ApiAction(ACTION_SET_CREDENTIALS, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
+				PARAM_USERNAME, PARAM_PASSWORD });
+	}
+
+	@Override
+	public void handleSetCredentialsForUserApiAction(JSONObject params) throws ApiException {
+		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+		int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
+		// Make sure the type of authentication method is compatible
+		if (!this.isTypeForMethod(context.getAuthenticationMethod()))
+			throw new ApiException(ApiException.Type.BAD_TYPE,
+					"User's credentials should match authentication method type of the context: "
+							+ context.getAuthenticationMethod().getType().getName());
+
+		// NOTE: no need to check if extension is loaded as this method is called only if the Users
+		// extension is loaded
+		ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+		User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
+		if (user == null)
+			throw new ApiException(ApiException.Type.USER_NOT_FOUND, PARAM_USER_ID);
+		// Build and set the credentials
+		UsernamePasswordAuthenticationCredentials credentials = createAuthenticationCredentials();
+		credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
+		credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
+		user.setAuthenticationCredentials(credentials);
+
 	}
 }

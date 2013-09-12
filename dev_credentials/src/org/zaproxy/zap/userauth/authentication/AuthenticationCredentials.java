@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.userauth.authentication;
 
+import org.zaproxy.zap.extension.api.ApiResponse;
+
 
 /**
  * The Credentials is an entity, corresponding to an Authentication Method, that has all the
@@ -59,4 +61,11 @@ public interface AuthenticationCredentials {
 	 * @param encodedCredentials the encoded credentials
 	 */
 	void decode(String encodedCredentials);
+	
+	/**
+	 * Gets an api response that represents the Credentials.
+	 * 
+	 * @return the api response representation
+	 */
+	public abstract ApiResponse getApiResponseRepresentation();
 }
