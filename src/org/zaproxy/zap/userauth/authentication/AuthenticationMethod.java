@@ -94,8 +94,13 @@ public abstract class AuthenticationMethod {
 	public abstract WebSession authenticate(SessionManagementMethod sessionManagementMethod,
 			AuthenticationCredentials credentials, User user) throws UnsupportedAuthenticationCredentialsException;
 
-	
+	/**
+	 * Gets an api response that represents the Authentication Method.
+	 * 
+	 * @return the api response representation
+	 */
 	public abstract ApiResponse getApiResponseRepresentation();
+
 	/**
 	 * Called when the Authentication Method is persisted/saved in a Context. For example, in this
 	 * method, UI elements can be marked accordingly.

@@ -21,7 +21,9 @@ package org.zaproxy.zap.userauth.authentication;
 
 import java.awt.Component;
 import java.awt.GridBagLayout;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -29,7 +31,6 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.codec.binary.Base64;
@@ -37,19 +38,21 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
-import org.zaproxy.zap.extension.api.ApiException.Type;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
+import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
 import org.zaproxy.zap.userauth.session.WebSession;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
@@ -138,6 +141,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	 */
 	private static class ManualAuthenticationCredentials implements AuthenticationCredentials {
 
+		/** The Constant defining the name/type in api calls. Should not be localized. */
+		private static final String API_NAME = "ManualAuthenticationCredentials";
+
 		private WebSession selectedSession;
 
 		protected WebSession getSelectedSession() {
@@ -162,6 +168,14 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		public void decode(String encodedCredentials) {
 			// TODO: Currently, cannot be decoded as HttpSessions are not persisted.
 			throw new IllegalStateException("Manual Authentication Credentials cannot be decoded.");
+		}
+
+		@Override
+		public ApiResponse getApiResponseRepresentation() {
+			Map<String, String> values = new HashMap<>();
+			values.put("type", API_NAME);
+			values.put("sessionName", selectedSession != null ? selectedSession.getName() : "");
+			return new ApiResponseSet("credentials", values);
 		}
 	}
 
@@ -311,14 +325,17 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	}
 
 	@Override
-	public AuthenticationCredentials createAuthenticationCredentials() {
+	public ManualAuthenticationCredentials createAuthenticationCredentials() {
 		return new ManualAuthenticationCredentials();
 	}
 
-	private static final String ACTION_SET_METHOD = "setManualAuthentication";
-	private static final String PARAM_CONTEXT_ID = "contextId";
+	/* API related constants and methods */
 
-	// private static final String PARAM_SESSION_NAME = "sessionName";
+	private static final String ACTION_SET_METHOD = "setManualAuthentication";
+	private static final String ACTION_SET_CREDENTIALS = "setManualAuthenticationCredentials";
+	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String PARAM_USER_ID = "userId";
+	private static final String PARAM_SESSION_NAME = "sessionName";
 
 	@Override
 	public ApiAction getSetMethodForContextApiAction() {
@@ -327,35 +344,54 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 	@Override
 	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
-		int contextId;
-		try {
-			contextId = params.getInt(PARAM_CONTEXT_ID);
-		} catch (JSONException ex) {
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
-		}
-		Context context = Model.getSingleton().getSession().getContext(contextId);
-		if (context == null)
-			throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
-
-		// String sessionName = params.getString(PARAM_SESSION_NAME);
-		// if (sessionName == null || sessionName.isEmpty())
-		// throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_SESSION_NAME);
-		//
-		// ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions)
-		// Control.getSingleton()
-		// .getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
-		// List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
-		// HttpSession matchedSession = null;
-		// for (HttpSession session : sessions)
-		// if (session.getName().equals(sessionName)) {
-		// matchedSession = session;
-		// break;
-		// }
-		// if (matchedSession == null)
-		// throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SESSION_NAME);
-		ManualAuthenticationMethod method = this.createAuthenticationMethod(contextId);
+		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+		ManualAuthenticationMethod method = this.createAuthenticationMethod(context.getIndex());
 		context.setAuthenticationMethod(method);
 
 	}
 
+	@Override
+	public ApiAction getSetCredentialsForUserApiAction() {
+		return new ApiAction(ACTION_SET_CREDENTIALS, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
+				PARAM_SESSION_NAME });
+	}
+
+	@Override
+	public void handleSetCredentialsForUserApiAction(JSONObject params) throws ApiException {
+		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+		int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
+		// Make sure the type of authentication method is compatible
+		if (!this.isTypeForMethod(context.getAuthenticationMethod()))
+			throw new ApiException(ApiException.Type.BAD_TYPE,
+					"User's credentials should match authentication method type of the context: "
+							+ context.getAuthenticationMethod().getType().getName());
+		// NOTE: no need to check if extension is loaded as this method is called only if the Users
+		// extension is loaded
+		ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+		User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
+		if (user == null)
+			throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
+		String sessionName = ApiUtils.getNonEmptyStringParam(params, PARAM_SESSION_NAME);
+
+		// Get the matching session
+		ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
+		if (extensionHttpSessions == null)
+			throw new ApiException(Type.NO_IMPLEMENTOR, "HttpSessions extension is not loaded.");
+		List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
+		HttpSession matchedSession = null;
+		for (HttpSession session : sessions)
+			if (session.getName().equals(sessionName)) {
+				matchedSession = session;
+				break;
+			}
+		if (matchedSession == null)
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SESSION_NAME);
+
+		// Set the credentials
+		ManualAuthenticationCredentials credentials = createAuthenticationCredentials();
+		credentials.setSelectedSession(matchedSession);
+		user.setAuthenticationCredentials(credentials);
+	}
 }
