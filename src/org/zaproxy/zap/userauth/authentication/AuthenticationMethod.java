@@ -92,7 +92,8 @@ public abstract class AuthenticationMethod {
 	 *             credentials exception {@link WebSession}.
 	 */
 	public abstract WebSession authenticate(SessionManagementMethod sessionManagementMethod,
-			AuthenticationCredentials credentials, User user) throws UnsupportedAuthenticationCredentialsException;
+			AuthenticationCredentials credentials, User user)
+			throws UnsupportedAuthenticationCredentialsException;
 
 	/**
 	 * Gets an api response that represents the Authentication Method.
