@@ -186,6 +186,7 @@ public final class Constant {
     public String FUZZER_CUSTOM_DIR = FUZZER_DIR;
     
     public static String FOLDER_LOCAL_PLUGIN = FOLDER_PLUGIN;
+    public static String FOLDER_LOCAL_SCRIPTS = FOLDER_SCRIPTS;
 
 
 	public static final URL OK_FLAG_IMAGE_URL = Constant.class.getResource("/resource/icon/10/072.png"); 		// Green
@@ -266,6 +267,7 @@ public final class Constant {
 		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
 		FUZZER_CUSTOM_DIR = zapHome + FUZZER_CUSTOM_DIR;
 		FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_LOCAL_PLUGIN;
+		FOLDER_LOCAL_SCRIPTS = zapHome + FOLDER_LOCAL_SCRIPTS;
 
         try {
             System.setProperty(SYSTEM_PAROS_USER_LOG, zapHome);
@@ -339,9 +341,9 @@ public final class Constant {
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
-            f = new File(FOLDER_SCRIPTS);
+            f = new File(FOLDER_LOCAL_SCRIPTS);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FOLDER_SCRIPTS);
+                log.info("Creating directory " + FOLDER_LOCAL_SCRIPTS);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
