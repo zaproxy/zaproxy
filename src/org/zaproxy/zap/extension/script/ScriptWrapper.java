@@ -35,7 +35,7 @@ public class ScriptWrapper {
 	private String typeName;
 	private String contents = "";
 	private String lastOutput = "";
-	private boolean changed;
+	private boolean changed = false;
 	private boolean enabled = false;
 	private boolean error = false;
 	private boolean loadOnStart = false;
@@ -157,7 +157,10 @@ public class ScriptWrapper {
 	}
 
 	public void setEnabled(boolean enabled) {
-		this.enabled = enabled;
+		if (this.enabled != enabled) {
+			this.enabled = enabled;
+			this.changed = true;
+		}
 	}
 
 	public String getLastErrorDetails() {

@@ -963,6 +963,7 @@ is divided into following sections:
         <j2seproject1:jar manifest="${manifest.file}">
             <j2seproject1:manifest>
                 <j2seproject1:attribute name="Main-Class" value="${main.class}"/>
+                <j2seproject1:attribute name="Implementation-Version" value="${version}" />
             </j2seproject1:manifest>
         </j2seproject1:jar>
         <echo level="info">To run this application from the command line without Ant, try:</echo>
@@ -985,6 +986,7 @@ is divided into following sections:
     <target depends="init,-do-jar-with-libraries-create-manifest,-do-jar-with-libraries-copy-manifest" if="do.archive+main.class.available" name="-do-jar-with-libraries-set-main">
         <manifest file="${tmp.manifest.file}" mode="update">
             <attribute name="Main-Class" value="${main.class}"/>
+            <attribute name="Implementation-Version" value="${version}"/>
         </manifest>
     </target>
     <target depends="init,-do-jar-with-libraries-create-manifest,-do-jar-with-libraries-copy-manifest" if="do.archive+splashscreen.available" name="-do-jar-with-libraries-set-splashscreen">

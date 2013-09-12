@@ -241,7 +241,7 @@ public class BreakPanelToolbarFactory {
 		if (forceSerialize || isBreakRequest() || isBreakResponse()) {
 			Control.getSingleton().getProxy().setSerialize(true);
 		} else {
-			Control.getSingleton().getProxy().setSerialize(true);
+			Control.getSingleton().getProxy().setSerialize(false);
 		}
 	}
 

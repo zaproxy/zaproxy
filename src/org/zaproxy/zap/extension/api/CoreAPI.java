@@ -277,7 +277,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 
 		} else if (ACTION_NEW_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
-			String sessionName = params.getString(PARAM_SESSION);
+			String sessionName = null;
+			try {
+				sessionName = params.getString(PARAM_SESSION);
+			} catch (Exception e1) {
+				// Ignore
+			}
 			if (sessionName == null || sessionName.length() == 0) {
 				// Create a new 'unnamed' session
 				Control.getSingleton().discardSession();

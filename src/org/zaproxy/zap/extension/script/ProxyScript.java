@@ -17,13 +17,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.ascan;
+
+package org.zaproxy.zap.extension.script;
 
 import javax.script.ScriptException;
 
 import org.parosproxy.paros.network.HttpMessage;
 
-public interface ActiveScript {
+public interface ProxyScript {
 
-	void scan(ScriptsActiveScanner sas, HttpMessage msg, String param, String value) throws ScriptException;
+	boolean proxyRequest (HttpMessage msg) throws ScriptException;
+
+	boolean proxyResponse (HttpMessage msg) throws ScriptException;
 }

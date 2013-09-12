@@ -23,6 +23,7 @@
 // ZAP: 2012/11/01 Issue 411: Allow proxy port to be specified on the command line
 // ZAP: 2012/12/27 Added method addPersistentConnectionListener(...)
 // ZAP: 2013/01/25 Added method removeProxyListener()
+// ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 package org.parosproxy.paros.control;
  
 import java.util.List;
@@ -76,10 +77,18 @@ public class Proxy {
 
 //		    int sslPort = proxyServerSSL.startServer(model.getOptionsParam().getProxyParam().getProxyIp(), model.getOptionsParam().getProxyParam().getProxySSLPort(), true);
 //			proxyServer.setForwardPort(sslPort);
-			
+
+			String proxyHost = null;
 		    int proxyPort = -1;
 		    if (this.overrides != null) {
+		    	proxyHost = this.overrides.getProxyHost();
 		    	proxyPort = this.overrides.getProxyPort();
+		    }
+		    if (proxyHost != null) {
+		    	// Save the override in the configs
+		    	model.getOptionsParam().getProxyParam().setProxyIp(proxyHost);
+		    } else {
+		    	proxyHost = model.getOptionsParam().getProxyParam().getProxyIp();
 		    }
 		    if (proxyPort > 0) {
 		    	// Save the override in the configs
@@ -88,7 +97,7 @@ public class Proxy {
 		    	proxyPort = model.getOptionsParam().getProxyParam().getProxyPort();
 		    }
 
-			proxyServer.startServer(model.getOptionsParam().getProxyParam().getProxyIp(), proxyPort, false);
+			proxyServer.startServer(proxyHost, proxyPort, false);
 		    
 		}
 	}

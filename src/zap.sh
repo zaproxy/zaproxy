@@ -3,7 +3,7 @@
 #Check the java version (min java 7)
 JAVAV=`java -version 2>&1 |awk 'NR==1{ gsub(/"/,""); print $3 }'`
 
-if [[ $JAVAV == 1.7* ]]; then
+if [[ $JAVAV == 1.[78]* ]]; then
     # OK
     echo "Using Java version: $JAVAV"
 else

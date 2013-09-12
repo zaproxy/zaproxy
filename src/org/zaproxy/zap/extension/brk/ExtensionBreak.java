@@ -407,4 +407,14 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		this.mode = mode;
 		this.getBreakPanel().sessionModeChanged(mode);
 	}
+
+
+	public void setBreakOnId(String id, boolean enable) {
+		logger.debug("setBreakOnId " + id + " " + enable);
+		if (enable) {
+			breakpointMessageHandler.getEnabledKeyBreakpoints().add(id);
+		} else {
+			breakpointMessageHandler.getEnabledKeyBreakpoints().remove(id);
+		}
+	}
 }

@@ -31,6 +31,7 @@
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
+// ZAP: 2013/09/08 Issue 691: Handle old plugins
 
 package org.parosproxy.paros.core.scanner;
 
@@ -153,7 +154,21 @@ public class Alert implements Comparable<Object>  {
 	}
 	
 	
+	/**
+	 * @deprecated (2.2.0) Replaced by
+	 *             {@link #setDetail(String, String, String, String, String, String, String, String, int, int, HttpMessage)}. It
+	 *             will be removed in a future release.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
+	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
+			String solution, String reference, HttpMessage msg) {
+		setDetail(description, uri, param, attack, otherInfo, solution, reference, "", -1, -1, msg);
+	}
 
+	/**
+	 * @since 2.2.0
+	 */
 	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
 			String solution, String reference, String evidence, int cweId, int wascId, HttpMessage msg) {
 		setDescription(description);

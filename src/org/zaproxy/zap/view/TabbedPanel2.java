@@ -13,6 +13,8 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -41,6 +43,29 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	public TabbedPanel2() {
 		super();
+		
+		this.addChangeListener(new ChangeListener() {
+		    public void stateChanged(ChangeEvent e) {
+		    	setCloseButtonStates();
+		    }
+		});
+	}
+	
+	private void setCloseButtonStates() {
+		// Hide all 'close' buttons except for the selected tab
+        for (int i = 0; i < this.getTabCount(); i++) {
+        	Component tabCom = this.getTabComponentAt(i);
+        	if (tabCom != null && tabCom instanceof JPanel) {
+        		JPanel jp = (JPanel) tabCom;
+        		if (jp.getComponentCount() > 1) {
+            		Component c = ((JPanel)tabCom).getComponent(1);
+        			if (c != null && c instanceof JButton) {
+        				((JButton)c).setEnabled(i == getSelectedIndex());
+        				((JButton)c).setVisible(i == getSelectedIndex());
+        			}
+        		}
+        	}
+        }
 	}
 
 	/**
@@ -159,6 +184,10 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		// Make sure the button can't get focus, otherwise it looks funny
 		btnClose.setFocusable(false);
+		
+		// All close buttons start off hidden and disabled - they are enabled when the tab is selected
+		btnClose.setEnabled(false);
+		btnClose.setVisible(false);
 
 		// Put the panel together
 		pnlTab.add(lblTitle);
@@ -189,6 +218,16 @@ public class TabbedPanel2 extends TabbedPanel {
 		}
 
 	}
+	
+    public void setIconAt(int index, Icon icon) {
+    	Component tabCom = this.getTabComponentAt(index);
+    	if (tabCom != null && tabCom instanceof JPanel) {
+    		Component c = ((JPanel)tabCom).getComponent(0);
+			if (c != null && c instanceof JLabel) {
+				((JLabel)c).setIcon(icon);
+			}
+    	}
+    }
 	
 	public List<Component> getTabList() {
 		return Collections.unmodifiableList(this.fullTabList);

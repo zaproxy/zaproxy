@@ -19,6 +19,7 @@
  */
 // ZAP: 2013/07/10 Escaped all special characters inside the regex patterns + updated regex for non capturing groups
 // ZAP: 2013/08/02 Added new XML content type to the Variant
+// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -71,12 +72,21 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
      * 
      * @param value
      * @param toQuote
-     * @param escaped
      * @return 
      */
     @Override
-    public String encodeParameter(String value, boolean toQuote, boolean escaped) {
+    public String getEscapedValue(String value, boolean toQuote) {
         return StringEscapeUtils.escapeXml(value);
+    }
+    
+    /**
+     * 
+     * @param value
+     * @return 
+     */
+    @Override
+    public String getUnescapedValue(String value) {
+        return StringEscapeUtils.unescapeXml(value);
     }
 
     /**
@@ -92,7 +102,7 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
         while (matcher.find()) {
             bidx = matcher.start(2) + 1;
             eidx = matcher.end(2) - 1;
-            addParameter(matcher.group(1), bidx, eidx, false);
+            addParameter(matcher.group(1), bidx, eidx, false, false);
         }
         
         matcher = tagPattern.matcher(content);
@@ -102,13 +112,13 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
             if (matcher.group(2).startsWith("<![CDATA[")) {
                 bidx = matcher.start(2) + 9;    //<![CDATA[
                 eidx = matcher.end(2) - 3;       //]]>
+                addParameter(matcher.group(1), bidx, eidx, false, false);
                 
             } else {
                 bidx = matcher.start(2);
                 eidx = matcher.end(2);
-            }
-            
-            addParameter(matcher.group(1), bidx, eidx, false);
+                addParameter(matcher.group(1), bidx, eidx, false, true);
+            }            
         }
     }
 }

@@ -128,7 +128,7 @@ public class SiteMap extends DefaultTreeModel {
             log.error(e.getMessage(), e);
         }
         
-        if (resultNode == null) {
+        if (resultNode == null || resultNode.getHistoryReference() == null) {
             return null;
         }
         
