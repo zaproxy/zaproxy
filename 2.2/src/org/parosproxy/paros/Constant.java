@@ -94,9 +94,10 @@ public final class Constant {
     // Note: Change this before building a release!
     //public static final String PROGRAM_VERSION = "1.4.0.1";
     
-    private static final long VERSION_TAG = 2002000;
+    private static final long VERSION_TAG = 2002001;
     
     // Old version numbers - for upgrade
+    private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
     private static final long V_2_0_0_TAG = 2000000;
 	private static final long V_1_4_1_TAG = 1004001;
@@ -130,6 +131,7 @@ public final class Constant {
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
+    public static final String FOLDER_SCRIPTS = "scripts";
     public static final String FOLDER_FILTER = "filter";
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
@@ -337,6 +339,14 @@ public final class Constant {
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
+            f = new File(FOLDER_SCRIPTS);
+            if (!f.isDirectory()) {
+                log.info("Creating directory " + FOLDER_SCRIPTS);
+                if (! f.mkdir() ) {
+                	// ZAP: report failure to create directory
+                	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
 
         } catch (Exception e) {
             System.err.println("Unable to initialize home directory! " + e.getMessage());
@@ -401,6 +411,9 @@ public final class Constant {
 	            		upgradeFrom2_0_0(config);
 	            	}
 	            	if (ver <= V_2_1_0_TAG) {
+	            		// Nothing to do
+	            	}
+	            	if (ver <= V_2_2_0_TAG) {
 	            		// Nothing to do
 	            	}
 	            	log.info("Upgraded from " + ver);
