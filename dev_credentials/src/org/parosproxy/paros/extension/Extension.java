@@ -23,6 +23,7 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor() and getURL();
 // ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
+// ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 
 package org.parosproxy.paros.extension;
 
@@ -129,4 +130,10 @@ public interface Extension {
 	
 	void unload();
 
+	/**
+	 * Extensions should return the user friendly names of any unsaved resources - if there are any the user will be
+	 * given the option not to exit.
+	 * @return
+	 */
+	List<String> getUnsavedResources();
 }

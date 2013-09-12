@@ -32,8 +32,8 @@ public class BreakAPI extends ApiImplementor {
 
 	private static final String PREFIX = "break";
 
-	private static final String ACTION_BREAK_ALL_REQUESTS = "breakOnAllRequests";
-	private static final String ACTION_BREAK_ALL_RESPONSES = "breakOnAllResponses";
+	private static final String ACTION_BREAK = "break";
+	private static final String ACTION_BREAK_ON_ID = "breakOnId";
 	private static final String ACTION_ADD_HTTP_BREAK_POINT = "addHttpBreakpoint";
 	private static final String ACTION_REM_HTTP_BREAK_POINT = "removeHttpBreakpoint";
 
@@ -42,7 +42,14 @@ public class BreakAPI extends ApiImplementor {
 	private static final String PARAM_MATCH = "match";
 	private static final String PARAM_INVERSE = "inverse";
 	private static final String PARAM_IGNORECASE = "ignorecase";
+	private static final String PARAM_KEY = "key";
+	private static final String PARAM_SCOPE = "scope";
+	private static final String PARAM_STATE = "state";
+	private static final String PARAM_TYPE = "type";
 
+	private static final String VALUE_TYPE_HTTP_ALL = "http-all";
+	private static final String VALUE_TYPE_HTTP_REQUESTS = "http-requests";
+	private static final String VALUE_TYPE_HTTP_RESPONSES = "http-responses";
 	
 
 	private ExtensionBreak extension = null;
@@ -50,8 +57,9 @@ public class BreakAPI extends ApiImplementor {
 	public BreakAPI(ExtensionBreak ext) {
 		extension = ext;
 		
-		this.addApiAction(new ApiAction(ACTION_BREAK_ALL_REQUESTS));
-		this.addApiAction(new ApiAction(ACTION_BREAK_ALL_RESPONSES));
+		this.addApiAction(new ApiAction(ACTION_BREAK, new String[] {PARAM_TYPE, PARAM_SCOPE, PARAM_STATE}));
+		// Disable pending other changes
+		//this.addApiAction(new ApiAction(ACTION_BREAK_ON_ID, new String[] {PARAM_KEY, PARAM_STATE}));
 		this.addApiAction(new ApiAction(ACTION_ADD_HTTP_BREAK_POINT, 
 				new String[] {PARAM_STRING, PARAM_LOCATION, PARAM_MATCH, PARAM_INVERSE, PARAM_IGNORECASE}));
 		this.addApiAction(new ApiAction(ACTION_REM_HTTP_BREAK_POINT, 
@@ -66,11 +74,23 @@ public class BreakAPI extends ApiImplementor {
 
 	@Override
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
-		if (ACTION_BREAK_ALL_REQUESTS.equals(name)) {
-			extension.setBreakAllRequests(true);
+		if (ACTION_BREAK.equals(name)) {
+			String type = params.getString(PARAM_TYPE).toLowerCase();
+			if (type.equals(VALUE_TYPE_HTTP_ALL)) {
+				extension.setBreakAllRequests(params.getBoolean(PARAM_STATE));
+				extension.setBreakAllResponses(params.getBoolean(PARAM_STATE));
+			} else if (type.equals(VALUE_TYPE_HTTP_REQUESTS)) {
+				extension.setBreakAllRequests(params.getBoolean(PARAM_STATE));
+			} else if (type.equals(VALUE_TYPE_HTTP_RESPONSES)) {
+				extension.setBreakAllResponses(params.getBoolean(PARAM_STATE));
+			} else {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_TYPE +
+						" not in [" + VALUE_TYPE_HTTP_ALL +"," + VALUE_TYPE_HTTP_REQUESTS +"," +
+						VALUE_TYPE_HTTP_RESPONSES +"]");
+			}
 			
-		} else if (ACTION_BREAK_ALL_RESPONSES.equals(name)) {
-			extension.setBreakAllResponses(true);
+		} else if (ACTION_BREAK_ON_ID.equals(name)) {
+			extension.setBreakOnId(params.getString(PARAM_KEY), params.getString(PARAM_STATE).toLowerCase().equals("on"));
 
 		} else if (ACTION_ADD_HTTP_BREAK_POINT.equals(name)) {
 			try {

@@ -26,6 +26,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ContextExcludePanel;
@@ -34,36 +35,44 @@ import org.zaproxy.zap.view.PopupMenuSiteNode;
 public class PopupExcludeFromContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;
-	
+
 	protected Context context;
 
 	public PopupExcludeFromContextMenu(Context context) {
 		super(context.getName(), true);
 		this.context = context;
 	}
-	
-    @Override
-    public String getParentMenuName() {
-    	return Constant.messages.getString("context.exclude.popup");
-    }
-    
-    @Override
-    public boolean isSubMenu() {
-    	return true;
-    }
 
 	@Override
-	public void performAction(SiteNode sn) throws Exception {
-		
-        Session session = Model.getSingleton().getSession();
-        context.excludeFromContext(sn, ! sn.isLeaf());
-
-        View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()));
-
+	public String getParentMenuName() {
+		return Constant.messages.getString("context.exclude.popup");
 	}
 
 	@Override
-    public void performActions (List<HistoryReference> hrefs) throws Exception {
+	public boolean isSubMenu() {
+		return true;
+	}
+
+	@Override
+	public void performAction(SiteNode sn) throws Exception {
+
+		Session session = Model.getSingleton().getSession();
+
+		// Manually create the UI shared contexts so any modifications are done
+		// on an UI shared Context, so changes can be undone by pressing Cancel
+		SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
+		sessionDialog.recreateUISharedContexts(session);
+		Context uiSharedContext = sessionDialog.getUISharedContext(context.getIndex());
+
+		uiSharedContext.excludeFromContext(sn, !sn.isLeaf());
+
+		// Show the session dialog without recreating UI Shared contexts
+		View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()),
+				false);
+	}
+
+	@Override
+	public void performActions(List<HistoryReference> hrefs) throws Exception {
 		super.performActions(hrefs);
 	}
 
@@ -71,18 +80,19 @@ public class PopupExcludeFromContextMenu extends PopupMenuSiteNode {
 	public boolean isEnableForInvoker(Invoker invoker) {
 		return true;
 	}
-	
+
 	@Override
-    public boolean isEnabledForSiteNode (SiteNode sn) {
-		if ( ! context.isIncluded(sn) || context.isExcluded(sn)) {
-			// Either not included or excluded, so would have to change that regex in a non trivial way to include!
+	public boolean isEnabledForSiteNode(SiteNode sn) {
+		if (!context.isIncluded(sn) || context.isExcluded(sn)) {
+			// Either not included or excluded, so would have to change that regex in a non trivial
+			// way to include!
 			return false;
 		}
-    	return true;
-    }
+		return true;
+	}
 
-    @Override
-    public boolean isSafe() {
-    	return true;
-    }
+	@Override
+	public boolean isSafe() {
+		return true;
+	}
 }

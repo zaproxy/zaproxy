@@ -20,6 +20,8 @@
 
 package org.zaproxy.zap.extension.pscan;
 
+import javax.script.ScriptException;
+
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpMessage;
@@ -27,7 +29,7 @@ import org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner;
 
 public interface PassiveScript {
 
-	public void scan(ScriptsPassiveScanner scriptsPassiveScanner,
-			HttpMessage msg, Source source);
+	void scan(ScriptsPassiveScanner scriptsPassiveScanner,
+			HttpMessage msg, Source source) throws ScriptException;
 
 }

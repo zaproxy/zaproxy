@@ -38,31 +38,50 @@ public class ScriptTreeModel extends DefaultTreeModel {
 
 	//private static final Logger logger = Logger.getLogger(ScriptTreeModel.class);
 	
-	private Map<String, ScriptNode> nodeMap = new HashMap<String, ScriptNode>(); 
+	private Map<String, ScriptNode> scriptsNodeMap = new HashMap<String, ScriptNode>(); 
+	private Map<String, ScriptNode> templatesNodeMap = new HashMap<String, ScriptNode>(); 
+	private ScriptNode scriptsNode;
+	private ScriptNode templatesNode;
+	
 
     ScriptTreeModel() {
         super(new ScriptNode());
+        this.scriptsNode = new ScriptNode(false);
+        this.templatesNode = new ScriptNode(true);
+        this.getRoot().add(scriptsNode);
+        this.getRoot().add(templatesNode);
     }
     
     protected void addType(ScriptType type) {
-        ScriptNode node = new ScriptNode(type);
-        nodeMap.put(type.getName(), node);
-        this.getRoot().add(node);
+        ScriptNode sNode = new ScriptNode(type, false);
+        scriptsNodeMap.put(type.getName(), sNode);
+        this.scriptsNode.add(sNode);
     	
+        ScriptNode tNode = new ScriptNode(type, true);
+        templatesNodeMap.put(type.getName(), tNode);
+        this.templatesNode.add(tNode);
     }
     
     public ScriptNode getTypeNode(String type) {
-    	return nodeMap.get(type);
+    	return scriptsNodeMap.get(type);
     }
     
     @Override
     public ScriptNode getRoot() {
     	return (ScriptNode)this.root;
     }
-    
+
+    public ScriptNode getScriptsNode() {
+    	return this.scriptsNode;
+    }
+
+    public ScriptNode getTemplatesNode() {
+    	return this.templatesNode;
+    }
+
     public List<ScriptNode> getNodes(String type) {
 		List<ScriptNode> list = new ArrayList<ScriptNode>();
-		ScriptNode parent = nodeMap.get(type);
+		ScriptNode parent = scriptsNodeMap.get(type);
 		if (parent != null) {
 			for (int i=0; i < parent.getChildCount(); i++) {
 				list.add((ScriptNode)parent.getChildAt(i));
@@ -80,7 +99,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		}
 		
 		ScriptNode node = new ScriptNode(script);
-		ScriptNode parent = nodeMap.get(script.getType().getName());
+		ScriptNode parent = scriptsNodeMap.get(script.getType().getName());
 		
 		if (parent != null) {
 			parent.add(node);
@@ -105,9 +124,9 @@ public class ScriptTreeModel extends DefaultTreeModel {
 	}
 	
 	public ScriptNode getNodeForScript(ScriptWrapper script) {
-		ScriptNode parent = nodeMap.get(script.getType().getName());
+		ScriptNode parent = scriptsNodeMap.get(script.getType().getName());
 		
-		if (parent != null) {
+		if (parent != null && parent.getChildCount() > 0) {
 			ScriptNode node = (ScriptNode) parent.getFirstChild();
 			while (node != null) {
 				if (script.equals(node.getUserObject())) {
@@ -128,7 +147,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 	}
 
 	public ScriptWrapper getScript(String name) {
-		ScriptNode typeNode = (ScriptNode) getRoot().getFirstChild();
+		ScriptNode typeNode = (ScriptNode) this.scriptsNode.getFirstChild();
 		while (typeNode != null) {
 			// Loop through their children
 			if (typeNode.getChildCount() > 0) {
@@ -140,9 +159,92 @@ public class ScriptTreeModel extends DefaultTreeModel {
 					scriptNode = (ScriptNode) typeNode.getChildAfter(scriptNode);
 				}
 			}
-			typeNode = (ScriptNode) getRoot().getChildAfter(typeNode);
+			typeNode = (ScriptNode) this.scriptsNode.getChildAfter(typeNode);
 		}
 		return null;
+	}
+
+	public ScriptNode addTemplate(ScriptWrapper template) {
+		if (template == null) {
+			return null;
+		}
+		if (this.getTemplate(template.getName()) != null) {
+			throw new InvalidParameterException("A template with the same name already exists: " + template.getName());
+		}
+		
+		ScriptNode node = new ScriptNode(template, true);
+		ScriptNode parent = templatesNodeMap.get(template.getType().getName());
+		
+		if (parent != null) {
+			parent.add(node);
+			this.nodeStructureChanged(parent);
+			return node;
+		} else {
+			throw new InvalidParameterException("Unrecognised type: " + template.getType());
+		}
+	}
+
+	public void removeTemplate(ScriptWrapper template) {
+		if (template == null) {
+			return;
+		}
+		
+		ScriptNode node = this.getNodeForTemplate(template);
+		ScriptNode parent = node.getParent();
+		if (parent != null) {
+			parent.remove(node);
+			this.nodeStructureChanged(parent);
+		}
+	}
+	
+	public ScriptWrapper getTemplate(String name) {
+		ScriptNode typeNode = (ScriptNode) this.templatesNode.getFirstChild();
+		while (typeNode != null) {
+			// Loop through their children
+			if (typeNode.getChildCount() > 0) {
+				ScriptNode scriptNode = (ScriptNode) typeNode.getFirstChild();
+				while (scriptNode != null) {
+					if (((ScriptWrapper)scriptNode.getUserObject()).getName().equals(name)) {
+						return (ScriptWrapper)scriptNode.getUserObject();
+					}
+					scriptNode = (ScriptNode) typeNode.getChildAfter(scriptNode);
+				}
+			}
+			typeNode = (ScriptNode) this.templatesNode.getChildAfter(typeNode);
+		}
+		return null;
+	}
+
+	public ScriptNode getNodeForTemplate(ScriptWrapper script) {
+		ScriptNode parent = templatesNodeMap.get(script.getType().getName());
+		
+		if (parent != null) {
+			ScriptNode node = (ScriptNode) parent.getFirstChild();
+			while (node != null) {
+				if (script.equals(node.getUserObject())) {
+					return node;
+				}
+				node = (ScriptNode) parent.getChildAfter(node);
+			}
+		}
+		return null;
+	}
+
+	public List<ScriptWrapper> getTemplates(ScriptType type) {
+		List<ScriptWrapper> list = new ArrayList<ScriptWrapper>();
+		ScriptNode typeNode = (ScriptNode) this.templatesNode.getFirstChild();
+		while (typeNode != null) {
+			// Loop through their children
+			if ((type == null || type.equals(typeNode.getType())) && typeNode.getChildCount() > 0) {
+				ScriptNode scriptNode = (ScriptNode) typeNode.getFirstChild();
+				while (scriptNode != null) {
+					list.add((ScriptWrapper)scriptNode.getUserObject());
+					scriptNode = (ScriptNode) typeNode.getChildAfter(scriptNode);
+				}
+			}
+			typeNode = (ScriptNode) this.templatesNode.getChildAfter(typeNode);
+		}
+		return list;
 	}
 
 }

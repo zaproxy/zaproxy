@@ -20,6 +20,7 @@
 // ZAP: 2013/07/03 Improved encapsulation for quoting and content type checking
 // ZAP: 2013/07/10 Added some features and method encapsulation
 // ZAP: 2013/07/21 Added XML parameters ordering on tag position inside the overall content
+// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -52,15 +53,17 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
     /**
      * 
-     * @param name
-     * @param beginOffset
-     * @param endOffset
-     * @param quote
+     * @param name the name of the parameter
+     * @param beginOffset the begin offset of the parameter value inside the RPC content body
+     * @param endOffset the ending offset of the parameter value inside the RPC content body
+     * @param toQuote the parameter need to be quoted when used
+     * @param escaped the parameter value should be escaped so it has to be unescaped before
      */
-    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote) {
+    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote, boolean escaped) {
         RPCParameter param = new RPCParameter();
+        String value = requestContent.substring(beginOffset, endOffset);
         param.setName(name);
-        param.setValue(requestContent.substring(beginOffset, endOffset));
+        param.setValue((escaped) ? getUnescapedValue(value) : value);
         param.setBeginOffset(beginOffset);
         param.setEndOffset(endOffset);
         param.setToQuote(toQuote);
@@ -123,7 +126,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         RPCParameter param = listParam.get(originalPair.getPosition());
         StringBuilder sb = new StringBuilder();
         sb.append(requestContent.substring(0, param.getBeginOffset()));
-        sb.append(encodeParameter(value, param.isToQuote(), escaped));
+        sb.append(escaped ? value : getEscapedValue(value, param.isToQuote()));
         sb.append(requestContent.substring(param.getEndOffset()));
         
         String query = sb.toString();
@@ -189,10 +192,16 @@ public abstract class VariantAbstractRPCQuery implements Variant {
      * 
      * @param value
      * @param toQuote
-     * @param escaped
      * @return 
      */
-    public abstract String encodeParameter(String value, boolean toQuote, boolean escaped);
+    public abstract String getEscapedValue(String value, boolean toQuote);
+
+    /**
+     * 
+     * @param value
+     * @return 
+     */
+    public abstract String getUnescapedValue(String value);
     
     /**
      * Inner support class

@@ -45,7 +45,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
-import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -70,6 +69,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	private JPanel mainPanel = null;
 	private List<JPanel> tabPanels = null;
 	private List<Integer> tabOffsets = null;
+	private JTabbedPane tabbedPane = null;
 
 	private JButton cancelButton = null;
 	private JButton saveButton = null;
@@ -126,9 +126,9 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		contentPanel.setPreferredSize(dim);
 		this.setContentPane(contentPanel);
 		
-		JTabbedPane jTabbed = new JTabbedPane();
+		tabbedPane = new JTabbedPane();
 		
-		contentPanel.add(jTabbed, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
+		contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
 		contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
 		contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
 		contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
@@ -136,7 +136,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		for (String label : tabLabels) {
 			JPanel tabPanel = new JPanel();
 			tabPanel.setLayout(new GridBagLayout());
-			jTabbed.addTab(Constant.messages.getString(label), tabPanel);
+			tabbedPane.addTab(Constant.messages.getString(label), tabPanel);
 			this.tabPanels.add(tabPanel);
 			this.tabOffsets.add(0);
 		}
@@ -411,15 +411,15 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 		this.addField(fieldLabel, field, field, 0.0D);
 	}
-	
-	public void addTableField(int tabIndex, AbstractTableModel model) {
-		if (!isTabbed()) {
-			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+
+	public void addTableField(String fieldLabel, JTable field) {
+		this.addTableField(fieldLabel, field, null);
+	}
+
+	public void addTableField(String fieldLabel, JTable field, List<JButton> buttons) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
-		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
-			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
-		}
-		JTable field = new JTable(model);
 		JScrollPane scrollPane = new JScrollPane();
 		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		scrollPane.setViewportView(field);
@@ -429,8 +429,81 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (this.fieldList.contains(field)) {
 			throw new IllegalArgumentException("Field already added: " + field);
 		}
-		this.tabPanels.get(tabIndex).add(scrollPane, 
+		
+		if (buttons == null || buttons.size() == 0) {
+			this.addField(fieldLabel, field, scrollPane, 1.0D);
+		} else {
+			JPanel tablePanel = new JPanel();
+			tablePanel.setLayout(new GridBagLayout());
+			tablePanel.add(scrollPane,
+					LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new GridBagLayout());
+			int buttonId = 0;
+			for (JButton button : buttons) {
+				buttonPanel.add(button,
+						LayoutHelper.getGBC(0, buttonId++, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+			}
+			// Add spacer to force buttons to the top
+			buttonPanel.add(new JLabel(),
+					LayoutHelper.getGBC(0, buttonId++, 1, 0D, 1.0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+			
+			tablePanel.add(buttonPanel,
+					LayoutHelper.getGBC(1, 0, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+
+			this.addField(fieldLabel, field, tablePanel, 1.0D);
+		}
+		this.fieldList.add(field);
+	}
+	
+
+	public void addTableField(int tabIndex, JTable field) {
+		this.addTableField(tabIndex, field, null);
+	}
+
+	public void addTableField(int tabIndex, JTable field, List<JButton> buttons) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		JScrollPane scrollPane = new JScrollPane();
+		scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		scrollPane.setViewportView(field);
+		field.setFillsViewportHeight(true);
+		
+		// Tables are a special case - they dont have labels and are accessed via the model
+		if (this.fieldList.contains(field)) {
+			throw new IllegalArgumentException("Field already added: " + field);
+		}
+		if (buttons == null || buttons.size() == 0) {
+			this.tabPanels.get(tabIndex).add(scrollPane, 
 				LayoutHelper.getGBC(1, this.tabOffsets.get(tabIndex), 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		} else {
+			JPanel tablePanel = new JPanel();
+			tablePanel.setLayout(new GridBagLayout());
+			tablePanel.add(scrollPane,
+					LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+
+			JPanel buttonPanel = new JPanel();
+			buttonPanel.setLayout(new GridBagLayout());
+			int buttonId = 0;
+			for (JButton button : buttons) {
+				buttonPanel.add(button,
+						LayoutHelper.getGBC(0, buttonId++, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+			}
+			// Add spacer to force buttons to the top
+			buttonPanel.add(new JLabel(),
+					LayoutHelper.getGBC(0, buttonId++, 1, 0D, 1.0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+			
+			tablePanel.add(buttonPanel,
+					LayoutHelper.getGBC(1, 0, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+
+			this.tabPanels.get(tabIndex).add(tablePanel, 
+					LayoutHelper.getGBC(1, this.tabOffsets.get(tabIndex), 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		}
 		this.fieldList.add(field);
 		this.incTabOffset(tabIndex);
 	}
@@ -651,7 +724,17 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		this.fieldList.clear();
 		this.fieldMap.clear();
 	}
-	
+
+	public void requestTabFocus(int tabIndex) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		tabbedPane.setSelectedComponent(this.tabPanels.get(tabIndex));
+	}
+
 	public abstract void save();
 
 	public abstract String validateFields();

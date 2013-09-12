@@ -97,6 +97,7 @@ class ProxyThread implements Runnable {
 	private boolean keepSocketOpen = false;
 	
 	private static Object semaphoreSingleton = new Object();
+	private static int id = 1;
     
     private static Vector<Thread> proxyThreadList = new Vector<>();
     
@@ -115,7 +116,7 @@ class ProxyThread implements Runnable {
 			log.warn(e.getMessage(), e);
 		}
 
-		thread = new Thread(this, "ZAP-ProxyThread"); // ZAP: Set the name of the thread.
+		thread = new Thread(this, "ZAP-ProxyThread-" + id++); // ZAP: Set the name of the thread.
 		thread.setDaemon(true);
 		thread.setPriority(Thread.NORM_PRIORITY-1);
 	}

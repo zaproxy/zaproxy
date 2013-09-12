@@ -46,11 +46,28 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
 	
-	public static String getPanelName(int contextId) {
-		// Panel names have to be unique, so precede with the context id
-		return contextId + ": " + PANEL_NAME;
+    /**
+     * Returns the name of the panel "Exclude from context" for the given {@code contextIndex}.
+     * 
+     * @param contextIndex the context index that will be used to create the name of the panel
+     * @return the name of the panel "Exclude from context" for the given {@code contextIndex}
+     * @since 2.2.0
+     * @see Context#getIndex()
+     */
+	public static String getPanelName(int contextIndex) {
+		// Panel names have to be unique, so precede with the context index
+		return contextIndex + ": " + PANEL_NAME;
 	}
 	
+    /**
+     * @deprecated (2.2.0) Replaced by {@link #getPanelName(int)}. It will be removed in a future release.
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
+    public static String getPanelName(Context context) {
+        return getPanelName(context.getIndex());
+    }
+
     public ContextExcludePanel(Context context) {
         super(context.getIndex());
  		initialize();

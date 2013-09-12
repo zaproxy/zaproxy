@@ -94,9 +94,10 @@ public final class Constant {
     // Note: Change this before building a release!
     //public static final String PROGRAM_VERSION = "1.4.0.1";
     
-    private static final long VERSION_TAG = 1004001;
+    private static final long VERSION_TAG = 2002000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_1_0_TAG = 2001000;
     private static final long V_2_0_0_TAG = 2000000;
 	private static final long V_1_4_1_TAG = 1004001;
     private static final long V_1_3_1_TAG = 1003001;
@@ -398,6 +399,9 @@ public final class Constant {
 	            	}
 	            	if (ver <= V_2_0_0_TAG) {
 	            		upgradeFrom2_0_0(config);
+	            	}
+	            	if (ver <= V_2_1_0_TAG) {
+	            		// Nothing to do
 	            	}
 	            	log.info("Upgraded from " + ver);
             		

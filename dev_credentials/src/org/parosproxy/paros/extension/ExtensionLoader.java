@@ -42,6 +42,7 @@
 
 package org.parosproxy.paros.extension;
 
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
@@ -861,6 +862,19 @@ public class ExtensionLoader {
 		removeView(view, hook);
 		
 		removeMenu(view, hook);
+	}
+
+	public List<String> getUnsavedResources() {
+		List<String> list = new ArrayList<String>();
+		List<String> l;
+		
+        for (int i=0; i<getExtensionCount(); i++) {
+            l = getExtension(i).getUnsavedResources();
+            if (l != null) {
+            	list.addAll(l);
+            }
+        }
+		return list;
 	}
 
 }

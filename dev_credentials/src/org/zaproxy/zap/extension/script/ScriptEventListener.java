@@ -35,4 +35,8 @@ public interface ScriptEventListener {
 
 	void scriptSaved(ScriptWrapper script);
 
+	void templateAdded(ScriptWrapper script, boolean display);
+
+	void templateRemoved(ScriptWrapper script);
+
 }

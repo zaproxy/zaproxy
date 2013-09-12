@@ -33,6 +33,7 @@
 // ZAP: 2013/04/14 Issue 611: Log the exceptions thrown by active scanners as error
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
+// ZAP: 2013/09/08 Issue 691: Handle old plugins
 
 package org.parosproxy.paros.core.scanner;
 
@@ -119,13 +120,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     
     @Override
     public abstract String getReference();
-    
-    @Override
-    public abstract int getCweId();
-    
-    @Override
-    public abstract int getWascId();
-
     
     @Override
     public void init(HttpMessage msg, HostProcess parent) {
@@ -708,6 +702,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 		return false;
 	}
 
+	/**
+	 * @since 2.2.0
+	 */
+	@Override
+	public int getRisk () {
+		return Alert.RISK_MEDIUM;
+	}
+
 	@Override
 	public int getDelayInMs() {
 		return delayInMs;
@@ -747,6 +749,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	@Override
 	public void setTimeFinished() {
 		this.finished = new Date();
+	}
+
+	@Override
+	public int getCweId() {
+		// Default 'unknown' value
+		return 0;
+	}
+	
+	@Override
+	public int getWascId() {
+		// Default 'unknown' value
+		return 0;
 	}
 
 }

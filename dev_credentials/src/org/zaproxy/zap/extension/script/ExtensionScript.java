@@ -29,6 +29,7 @@ import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidParameterException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -61,20 +62,24 @@ public class ExtensionScript extends ExtensionAdaptor {
 	private static final String LANG_ENGINE_SEP = " : ";
 	protected static final String SCRIPT_CONSOLE_HOME_PAGE = "http://code.google.com/p/zaproxy/wiki/ScriptConsole";
 
+	public static final String TYPE_PROXY = "proxy";
 	public static final String TYPE_STANDALONE = "standalone";
 	public static final String TYPE_TARGETED = "targeted";
 
+	private static final ImageIcon PROXY_ICON = 
+			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-proxy.png"));
 	private static final ImageIcon STANDALONE_ICON = 
 			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-standalone.png"));
 	private static final ImageIcon TARGETED_ICON = 
 			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-targeted.png"));
-
+	
 	private ScriptEngineManager mgr = new ScriptEngineManager();
 	private ScriptParam scriptParam = null;
 
 	private ScriptTreeModel treeModel = null;
 	private List <ScriptEngineWrapper> engineWrappers = new ArrayList<ScriptEngineWrapper>();
 	private Map<String, ScriptType> typeMap = new HashMap<String, ScriptType>();
+	private ProxyListenerScript proxyListener = null;
 	
 	private List<ScriptEventListener> listeners = new ArrayList<ScriptEventListener>();
 	private MultipleWriters writers = new MultipleWriters();
@@ -114,10 +119,19 @@ public class ExtensionScript extends ExtensionAdaptor {
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
+		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", PROXY_ICON, true));
 		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false));
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
 
+		extensionHook.addProxyListener(this.getProxyListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
+	}
+	
+	private ProxyListenerScript getProxyListener() {
+		if (this.proxyListener == null) {
+			this.proxyListener = new ProxyListenerScript(this);
+		}
+		return this.proxyListener;
 	}
 	
 	public List<String> getScriptingEngines() {
@@ -137,11 +151,14 @@ public class ExtensionScript extends ExtensionAdaptor {
 	}
 	
 	public void registerScriptEngineWrapper(ScriptEngineWrapper wrapper) {
+		logger.debug("registerEngineWrapper " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		this.engineWrappers.add(wrapper);
+		// Templates for this engine might not have been loaded
+		this.loadTemplates(wrapper);
+
 	}
 	
 	public ScriptEngineWrapper getEngineWrapper(String name) {
-		
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
 			// In the configs we just use the engine name, in the UI we use the language name as well
 			if (name.indexOf(LANG_ENGINE_SEP) > 0) {
@@ -154,6 +171,19 @@ public class ExtensionScript extends ExtensionAdaptor {
 				}
 			}
 		}
+
+		for (ScriptEngineWrapper sew : this.engineWrappers) {
+			// Nasty, but sometime the engine names are reported differently, eg 'Mozilla Rhino' vs 'Rhino'
+			if (name.indexOf(LANG_ENGINE_SEP) < 0) {
+				if (name.endsWith(sew.getEngineName())) {
+					return sew;
+				}
+				if (sew.getEngineName().endsWith(name)) {
+					return sew;
+				}
+			}
+		}
+
 		// Not one we know of, create a default wrapper
 		List<ScriptEngineFactory> engines = mgr.getEngineFactories();
 		ScriptEngine engine = null;
@@ -181,7 +211,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	public String getEngineNameForExtension(String ext) {
 		ScriptEngine engine = mgr.getEngineByExtension(ext);
 		if (engine != null) {
-			return (String)engine.get(ScriptEngine.LANGUAGE) + LANG_ENGINE_SEP + (String)engine.get(ScriptEngine.ENGINE);
+			return engine.getFactory().getLanguageName() + LANG_ENGINE_SEP + engine.getFactory().getEngineName();
 		}
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
 			if (sew.getExtensions() != null) {
@@ -280,13 +310,14 @@ public class ExtensionScript extends ExtensionAdaptor {
         fw.append(script.getContents());
         fw.close();
         this.setChanged(script, false);
+        // The removal is required for script that use wrappers, like Zest
+		this.getScriptParam().removeScript(script);
 		this.getScriptParam().addScript(script);
 		this.getScriptParam().saveScripts();
 		
 		for (ScriptEventListener listener : this.listeners) {
 			listener.scriptSaved(script);
 		}
-
 	}
 
 	public void removeScript(ScriptWrapper script) {
@@ -296,7 +327,29 @@ public class ExtensionScript extends ExtensionAdaptor {
 		for (ScriptEventListener listener : this.listeners) {
 			listener.scriptRemoved(script);
 		}
+	}
 
+	public void removeTemplate(ScriptWrapper template) {
+		this.getTreeModel().removeTemplate(template);
+		for (ScriptEventListener listener : this.listeners) {
+			listener.templateRemoved(template);
+		}
+	}
+
+	public ScriptNode addTemplate(ScriptWrapper template) {
+		return this.addTemplate(template, true);
+	}
+	
+	public ScriptNode addTemplate(ScriptWrapper template, boolean display) {
+		if (template == null) {
+			return null;
+		}
+		ScriptNode node = this.getTreeModel().addTemplate(template);
+		
+		for (ScriptEventListener listener : this.listeners) {
+			listener.templateAdded(template, display);
+		}
+		return node;
 	}
 
 	@Override
@@ -308,6 +361,47 @@ public class ExtensionScript extends ExtensionAdaptor {
 				
 			} catch (IOException e) {
 				logger.error(e.getMessage(), e);
+			}
+		}
+		this.loadTemplates();
+	}
+
+	private void loadTemplates() {
+		this.loadTemplates(null);
+	}
+
+	private void loadTemplates(ScriptEngineWrapper engine) {
+		for (ScriptType type : this.getScriptTypes()) {
+			File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
+			File stdDir = new File("." + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
+			
+			// Load local files first, as these override any one included in the release
+			if (locDir.exists()) {
+				for (File f : locDir.listFiles()) {
+					loadTemplate(f, type, engine);
+				}
+			}
+			for (File f : stdDir.listFiles()) {
+				loadTemplate(f, type, engine);
+			}
+		}
+	}
+
+	private void loadTemplate(File f, ScriptType type, ScriptEngineWrapper engine) {
+		if (f.getName().indexOf(".") > 0) {
+			if (this.getTreeModel().getTemplate(f.getName()) == null) {
+				String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
+				String engineName = this.getEngineNameForExtension(ext);
+				if (engineName != null && (engine == null || engine.getEngine().getFactory().getExtensions().contains(ext))) {
+					try {
+						ScriptWrapper template = new ScriptWrapper(f.getName(), "", 
+								this.getEngineWrapper(engineName), type, false, f);
+						this.loadScript(template);
+						this.addTemplate(template);
+					} catch (IOException e) {
+						logger.error(e.getMessage(), e);
+					}
+				}
 			}
 		}
 	}
@@ -377,6 +471,10 @@ public class ExtensionScript extends ExtensionAdaptor {
 	    try {
 	    	se.eval(script.getContents());
 	    } catch (Exception e) {
+	    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
+	    		// Dereference one level
+	    		e = (Exception)e.getCause();
+	    	}
 	    	writers.append(e.toString());
 	    	this.setError(script, e);
 	    	this.setEnabled(script, false);
@@ -405,6 +503,10 @@ public class ExtensionScript extends ExtensionAdaptor {
 				}
 			
 			} catch (Exception e) {
+		    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
+		    		// Dereference one level
+		    		e = (Exception)e.getCause();
+		    	}
 				try {
 					writers.append(e.toString());
 				} catch (IOException e1) {
@@ -416,6 +518,45 @@ public class ExtensionScript extends ExtensionAdaptor {
 		} else {
 			throw new InvalidParameterException("Script " + script.getName() + " is not a targeted script: " + script.getTypeName());
 		}
+	}
+
+    public boolean invokeProxyScript(ScriptWrapper script, HttpMessage msg, boolean request) {
+    	if (TYPE_PROXY.equals(script.getTypeName())) {
+			try {
+				// Dont need to check if enabled as it can only be invoked manually
+				ProxyScript s = this.getInterface(script, ProxyScript.class);
+				
+				if (s != null) {
+					if (request) {
+						return s.proxyRequest(msg);
+					} else {
+						return s.proxyResponse(msg);
+					}
+					
+				} else {
+					writers.append(Constant.messages.getString("script.interface.proxy.error"));
+					this.setError(script, writers.toString());
+					this.setEnabled(script, false);
+				}
+			
+			} catch (Exception e) {
+		    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
+		    		// Dereference one level
+		    		e = (Exception)e.getCause();
+		    	}
+				try {
+					writers.append(e.toString());
+				} catch (IOException e1) {
+					logger.error(e.getMessage(), e);
+				}
+				this.setError(script, e);
+				this.setEnabled(script, false);
+			}
+		} else {
+			throw new InvalidParameterException("Script " + script.getName() + " is not a proxy script: " + script.getTypeName());
+		}
+    	// Return true so that the request is submitted - if we returned false all proxying would fail on script errors
+    	return true;
 	}
 
 
@@ -502,5 +643,18 @@ public class ExtensionScript extends ExtensionAdaptor {
 		return invokeScript(script).getInterface(class1);
 
 	}
-	
+
+	@Override
+    public List<String> getUnsavedResources() {
+		// Report all of the unsaved scripts
+		List<String> list = new ArrayList<String>();
+		for (ScriptType type : this.getScriptTypes()) {
+			for (ScriptWrapper script : this.getScripts(type)) {
+				if (script.isChanged()) {
+					list.add(MessageFormat.format(Constant.messages.getString("script.resource"), script.getName()));
+				}
+			}
+		}
+    	return list;
+    }
 }

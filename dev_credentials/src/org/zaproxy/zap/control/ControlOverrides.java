@@ -27,6 +27,7 @@ package org.zaproxy.zap.control;
  */
 public class ControlOverrides {
 	private int proxyPort = -1;
+	private String proxyHost = null;
 
 	public int getProxyPort() {
 		return proxyPort;
@@ -35,4 +36,14 @@ public class ControlOverrides {
 	public void setProxyPort(int proxyPort) {
 		this.proxyPort = proxyPort;
 	}
+
+	public String getProxyHost() {
+		return proxyHost;
+	}
+
+	public void setProxyHost(String proxyHost) {
+		this.proxyHost = proxyHost;
+	}
+	
+	
 }
