@@ -58,7 +58,7 @@ public abstract class AbstractMultipleOptionsTablePanel<E extends Enableable> ex
     
     private JButton disableAllButton;
 
-    private AbstractMultipleOptionsTableModel<E> model;
+    protected AbstractMultipleOptionsTableModel<E> model;
     
     private GridBagConstraints gbcFooterPanel;
     

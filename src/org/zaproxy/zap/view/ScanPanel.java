@@ -60,6 +60,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 public abstract class ScanPanel extends AbstractPanel {
@@ -414,16 +415,20 @@ public abstract class ScanPanel extends AbstractPanel {
  		log.debug("scanSite (all in scope)");
 		this.setTabFocus();
 		if (this.getStartScanButton().isEnabled()) {
-			this.startScan(null, true, true, null);
+			this.startScan(null, true, true, null, null);
 		}
 	}
 	
 	public void scanAllInContext(Context context){
+		this.scanAllInContext(context, null);
+	}
+	
+	public void scanAllInContext(Context context, User user){
 		log.debug("Scan all in context: "+context.getName());
 		this.setTabFocus();
 		if (this.getStartScanButton().isEnabled()) {
 			
-			this.startScan(null, true, true, context);
+			this.startScan(null, true, true, context, user);
 		}
 	}
 	
@@ -432,16 +437,36 @@ public abstract class ScanPanel extends AbstractPanel {
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node, false, true, null);
+			startScan(node, false, true, null, null);
 		}
 	}
 	
+	/**
+	 * Scans a node (URL). Equivalent to calling {@link #scanNode(SiteNode, boolean, User)} with a
+	 * null user.
+	 * 
+	 * @param node the node
+	 * @param incPort the inc port
+	 * @param user the user
+	 */
 	public void scanNode(SiteNode node, boolean incPort) {
+		this.scanNode(node, incPort, null);
+	}
+	
+	/**
+	 * Scans a node (URL). If a User is specified, the scan should be done from the point of view of
+	 * the user.
+	 * 
+	 * @param node the node
+	 * @param incPort the inc port
+	 * @param user the user
+	 */
+	public void scanNode(SiteNode node, boolean incPort, User user) {
  		log.debug("scanNode" + prefix + " node=" + node.getNodeName());
 		this.setTabFocus();
 		nodeSelected(node, incPort);
 		if (currentSite != null && this.getStartScanButton().isEnabled()) {
-			startScan(node, false, false, null);
+			startScan(node, false, false, null, user);
 		}
 	}
 	
@@ -606,10 +631,14 @@ public abstract class ScanPanel extends AbstractPanel {
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
 
 	protected void startScan() {
-		this.startScan(null, false, true, null);
+		this.startScan(null, false, true, null, null);
 	}
 	
-	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext) {
+	protected void startSan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext){
+		this.startScan(startNode, justScanInScope, scanChildren, scanContext, null);
+	}
+	
+	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext, User scanUser) {
  		log.debug("startScan " + prefix + " " + startNode);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
@@ -635,6 +664,9 @@ public abstract class ScanPanel extends AbstractPanel {
 				scanThread.setStartNode(startNode);
 			}
 		}
+		if(scanUser!=null)
+			scanThread.setScanAsUser(scanUser);
+		
 		scanThread.setScanChildren(scanChildren);
 		scanThread.start();
 		scanMap.put(currentSite, scanThread);

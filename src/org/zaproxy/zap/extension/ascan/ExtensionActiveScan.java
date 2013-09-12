@@ -172,7 +172,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	public void startScanNode(SiteNode startNode) {
-		this.getActiveScanPanel().scanNode(startNode, true);
+		this.getActiveScanPanel().scanNode(startNode, true, null);
 	}
 
     public void scannerComplete() {

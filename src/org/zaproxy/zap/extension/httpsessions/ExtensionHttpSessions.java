@@ -24,12 +24,16 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.json.HTTPTokener;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -40,6 +44,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -63,8 +68,8 @@ import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
  * </p>
  * 
  */
-public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener, SiteMapListener,
-		HttpSenderListener {
+public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionChangedListener,
+		SiteMapListener, HttpSenderListener {
 
 	/** The Constant NAME. */
 	public static final String NAME = "ExtensionHttpSessions";
@@ -82,7 +87,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	private Map<String, HttpSessionsSite> sessions;
 
 	/** The map of session tokens corresponding to each site. */
-	private Map<String, LinkedHashSet<String>> sessionTokens;
+	private Map<String, HttpSessionTokensSet> sessionTokens;
 
 	/**
 	 * The map of default tokens that were removed by the user for some sites and should not be
@@ -313,10 +318,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (!site.contains(":")) {
 			site = site + (":80");
 		}
-		HashSet<String> siteTokens = sessionTokens.get(site);
+		HttpSessionTokensSet siteTokens = sessionTokens.get(site);
 		if (siteTokens == null)
 			return false;
-		return siteTokens.contains(token);
+		return siteTokens.isSessionToken(token);
 	}
 
 	/**
@@ -332,13 +337,13 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (!site.contains(":")) {
 			site = site + (":80");
 		}
-		LinkedHashSet<String> siteTokens = sessionTokens.get(site);
+		HttpSessionTokensSet siteTokens = sessionTokens.get(site);
 		if (siteTokens == null) {
-			siteTokens = new LinkedHashSet<>();
+			siteTokens = new HttpSessionTokensSet();
 			sessionTokens.put(site, siteTokens);
 		}
 		log.info("Added new session token for site '" + site + "': " + token);
-		siteTokens.add(token);
+		siteTokens.addToken(token);
 		// If the session token is a default token and was previously marked as remove, undo that
 		unmarkRemovedDefaultSessionToken(site, token);
 	}
@@ -365,10 +370,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		if (!site.contains(":")) {
 			site = site + (":80");
 		}
-		HashSet<String> siteTokens = sessionTokens.get(site);
+		HttpSessionTokensSet siteTokens = sessionTokens.get(site);
 		if (siteTokens != null) {
 			// Remove the token from the tokens associated with the site
-			siteTokens.remove(token);
+			siteTokens.removeToken(token);
 			if (siteTokens.isEmpty())
 				sessionTokens.remove(site);
 			// Cleanup the existing sessions
@@ -382,29 +387,24 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	/**
-	 * Gets the set of session tokens for a particular site.
-	 * <p>
-	 * The set of session tokens returned is read-only view of the internal session tokens and any
-	 * modifications will result in {@link UnsupportedOperationException}. The current
-	 * implementation of the set is using {@link LinkedHashSet}, thus iterating through the set is
-	 * done in constant time.
-	 * </p>
+	 * Gets the set of session tokens for a particular site. No modifications should be done to the
+	 * returned object. Instead, any modifications should be done through the corresponding methods
+	 * in the {@link ExtensionHttpSessions}.
 	 * 
 	 * @param site the site. This parameter has to be formed as defined in the
 	 *            {@link ExtensionHttpSessions} class documentation. However, if the protocol is
 	 *            missing, a default protocol of 80 is used.
-	 * @return the read-only session tokens set, if any have been set, or null, if there are no
-	 *         session tokens for this site
+	 * @return the session tokens set, if any have been set, or null, if there are no session tokens
+	 *         for this site
+	 * @see ExtensionHttpSessions#addHttpSessionToken(String, String)
+	 * @see ExtensionHttpSessions#removeHttpSessionToken(String, String)
 	 */
-	public final Set<String> getHttpSessionTokens(String site) {
+	public final HttpSessionTokensSet getHttpSessionTokensSet(String site) {
 		// Add a default port
 		if (!site.contains(":")) {
 			site = site + (":80");
 		}
-		Set<String> internalSet = sessionTokens.get(site);
-		if (internalSet == null)
-			return null;
-		return Collections.unmodifiableSet(internalSet);
+		return sessionTokens.get(site);
 	}
 
 	/**
@@ -488,6 +488,44 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	@Override
 	public void sessionModeChanged(Mode mode) {
+	}
+
+	/**
+	 * Builds and returns a list of http sessions that correspond to a given context.
+	 * 
+	 * @param context the context
+	 * @return the http sessions for context
+	 */
+	public List<HttpSession> getHttpSessionsForContext(Context context) {
+		List<HttpSession> sessions = new LinkedList<HttpSession>();
+		if (this.sessions == null)
+			return sessions;
+
+		for (Entry<String, HttpSessionsSite> e : this.sessions.entrySet()) {
+			String siteName = e.getKey();
+			siteName = "http://" + siteName;
+			if (context.isInContext(siteName))
+				sessions.addAll(e.getValue().getHttpSessions());
+		}
+
+		return sessions;
+	}
+	
+	/**
+	 * Gets the http session tokens set for the first site matching a given Context. 
+	 *
+	 * @param context the context
+	 * @return the http session tokens set for context
+	 */
+	public HttpSessionTokensSet getHttpSessionTokensSetForContext(Context context){
+		//TODO: Proper implementation. Hack for now
+		for (Entry<String, HttpSessionTokensSet> e : this.sessionTokens.entrySet()) {
+			String siteName = e.getKey();
+			siteName = "http://" + siteName;
+			if (context.isInContext(siteName))
+				return e.getValue();
+		}
+		return null;
 	}
 
 	@Override

@@ -21,8 +21,10 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 
 public class ExtensionStdMenus extends ExtensionAdaptor {
 
@@ -35,7 +37,9 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	private PopupMenuSpiderScope popupMenuSpiderScope = null;
 	private PopupMenuSpiderSite popupMenuSpiderSite = null;
 	private PopupMenuSpiderContext popupMenuSpiderContext = null;
+	private PopupMenuSpiderContextAsUser popupMenuSpiderContextAsUser =null;
 	private PopupMenuSpiderSubtree popupMenuSpiderSubtree = null;
+	private PopupMenuSpiderURLAsUser popupMenuSpiderURLAsUser = null;
 	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
@@ -81,6 +85,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
+			//Enable some popup menus only if some extensions are enabled 
+			if(Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME)!=null){
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContextAsUser(3));
+			}
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
@@ -105,6 +114,20 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			popupMenuSpiderContext = new PopupMenuSpiderContext(Constant.messages.getString("spider.context.popup"));
 		}
 		return popupMenuSpiderContext;
+	}
+	
+	private PopupMenuSpiderURLAsUser getPopupMenuSpiderURLAsUser(int menuIndex) {
+		if (popupMenuSpiderURLAsUser == null) {
+			popupMenuSpiderURLAsUser = new PopupMenuSpiderURLAsUser(Constant.messages.getString("spider.url.user.popup"));
+		}
+		return popupMenuSpiderURLAsUser;
+	}
+	
+	private PopupMenuSpiderContextAsUser getPopupMenuSpiderContextAsUser(int menuIndex) {
+		if (popupMenuSpiderContextAsUser == null) {
+			popupMenuSpiderContextAsUser = new PopupMenuSpiderContextAsUser(Constant.messages.getString("spider.context.user.popup"));
+		}
+		return popupMenuSpiderContextAsUser;
 	}
 
 	private PopupMenuSpiderSite getPopupMenuSpiderSite(int menuIndex) {

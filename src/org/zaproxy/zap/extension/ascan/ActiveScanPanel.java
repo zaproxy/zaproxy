@@ -55,6 +55,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
+import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {
@@ -338,8 +339,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	}
 
 	@Override
-	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext) {
-		super.startScan(startNode, justScanInScope, scanChildren, scanContext);
+	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext, User user) {
+		super.startScan(startNode, justScanInScope, scanChildren, scanContext, user);
 		this.getProgressButton().setEnabled(true);
 	}
 

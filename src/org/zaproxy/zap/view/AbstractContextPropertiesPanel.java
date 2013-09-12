@@ -96,7 +96,7 @@ public abstract class AbstractContextPropertiesPanel extends AbstractParamPanel 
 	 * Inits the data shown on the panel. This method is the equivalent of
 	 * {@link AbstractParamPanel#initParam(Object)}.
 	 * <p>
-	 * The @{code uiSharedContext} parameter provided is a duplicate of the Context to which the
+	 * The {@code uiSharedContext} parameter provided is a duplicate of the Context to which the
 	 * panel corresponds and should be used to load any data in the UI and store any changes done in
 	 * the UI until saving. This Context is shared between all the
 	 * {@link AbstractContextPropertiesPanel Context Properties Panels} so any change in one of the

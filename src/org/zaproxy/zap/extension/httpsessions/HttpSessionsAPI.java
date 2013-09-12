@@ -280,7 +280,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			}
 		case VIEW_SESSION_TOKENS:
 			// Get session tokens
-			Set<String> tokens = extension.getHttpSessionTokens(cleanSite(params.getString(VIEW_PARAM_SITE)));
+			Set<String> tokens = extension.getHttpSessionTokensSet(cleanSite(params.getString(VIEW_PARAM_SITE))).getTokensSet();
 			ApiResponseList responseST = new ApiResponseList("session_tokens");
 
 			// Build response list

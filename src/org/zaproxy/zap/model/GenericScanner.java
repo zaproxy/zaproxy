@@ -24,6 +24,7 @@ package org.zaproxy.zap.model;
 import javax.swing.ListModel;
 
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.userauth.User;
 
 public interface GenericScanner extends Runnable {
 
@@ -71,12 +72,14 @@ public interface GenericScanner extends Runnable {
 	 * Sets the {@link Context} that should be scanned. The value should be used only if
 	 * {@code JustScanInScope} is enabled. If the {@code justScanInScope} property is set, when the scan is
 	 * started, it should be scan all the nodes in scope, if this StartContext is <code>null</code>, or all
-	 * the nodes in context, if this StartContext is null.
+	 * the nodes in context, if this StartContext is not null.
 	 * 
 	 * @param context the new scan context. If null, the scan will be run for all the nodes in scope.
 	 * @see GenericScanner#setJustScanInScope(boolean)
 	 * @see GenericScanner#getJustScanInScope()
 	 */
 	void setScanContext(Context context);
+	
+	void setScanAsUser(User user);
 
 }

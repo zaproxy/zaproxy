@@ -95,6 +95,12 @@ public class ExtensionAuth extends ExtensionAdaptor implements HttpSenderListene
  		initialize();
     }
     
+	@Override
+	public boolean isDepreciated() {
+		// Deprecated due to the new Authentication/Forced-User extensions
+		return true;
+	}
+
 	private void initialize() {
         this.setName(NAME);
         this.setOrder(160);

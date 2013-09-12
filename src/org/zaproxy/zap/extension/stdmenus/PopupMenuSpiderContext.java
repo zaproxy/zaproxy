@@ -64,9 +64,11 @@ public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
 	public ExtensionPopupMenuItem getPopupContextMenu(Context context, String parentName) {
 		return new PopupContextMenu(context, parentName, context.getName()) {
 
+			private static final long serialVersionUID = -2524944630833835369L;
+
 			@Override
 			public void performAction(SiteNode sn) throws Exception {
-				getExtensionSpider().startScanAllInContext(getContext());
+				getExtensionSpider().startScanAllInContext(getContext(), null);
 			}
 		};
 	}

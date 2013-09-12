@@ -45,6 +45,7 @@
 // ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 // ZAP: 2013/07/14 Issue 725: Clear alert's panel fields
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
+// ZAP: 2013/08/07 Also show Authentication messages
 
 package org.parosproxy.paros.extension.history;
 
@@ -301,7 +302,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void addHistory (HistoryReference historyRef) {
         try {
             synchronized (getHistoryList()) {
-                if (historyRef.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+                if (historyRef.getHistoryType() == HistoryReference.TYPE_MANUAL 
+                		|| historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
 	            			historyRef.getURI().toString())) {
 	            		// Not in scope
