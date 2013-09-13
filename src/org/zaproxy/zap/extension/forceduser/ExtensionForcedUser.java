@@ -40,6 +40,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.auth.ExtensionAuth;
 import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
@@ -88,6 +89,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private boolean forcedUserModeEnabled = false;
 
 	private JToggleButton forcedUserModeButton;
+	private ForcedUserAPI api;
 
 	/**
 	 * Instantiates a new forced user extension.
@@ -118,6 +120,10 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 		// Register as Http Sender listener
 		HttpSender.addListener(this);
+
+		// Prepare API
+		this.api = new ForcedUserAPI(this);
+		API.getInstance().registerApiImplementor(api);
 	}
 
 	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
@@ -200,6 +206,20 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		else
 			this.contextForcedUsersMap.remove(contextId);
 		this.updateForcedUserModeToggleButtonState();
+	}
+
+	/**
+	 * Sets the forced user for a context, based on the user id.
+	 * 
+	 * @param contextId the context id
+	 * @param userId the user id
+	 * @throws IllegalStateException if no user was found that matches the provided id.
+	 */
+	public void setForcedUser(int contextId, int userId) throws IllegalStateException {
+		User user = getUserManagementExtension().getContextUserAuthManager(contextId).getUserById(userId);
+		if (user == null)
+			throw new IllegalStateException("No user matching the provided id was found.");
+		setForcedUser(contextId, user);
 	}
 
 	/**
