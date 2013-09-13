@@ -117,7 +117,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	 */
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(102);
+		this.setOrder(104);
 	}
 
 	@Override
