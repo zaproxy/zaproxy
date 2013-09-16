@@ -42,6 +42,7 @@
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
+// ZAP: 2013/09/16 Issue 791: Saved sessions are discarded on ZAP's exit
 
 package org.parosproxy.paros.control;
 
@@ -171,11 +172,11 @@ public class Control extends AbstractControl implements SessionListener {
 	    boolean isNewState = model.getSession().isNewState();
 	    int rootCount = model.getSession().getSiteTree().getChildCount(model.getSession().getSiteTree().getRoot());
 	    boolean askOnExit = view != null && Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
-	    boolean sessionUnsaved = isNewState && rootCount > 0 && askOnExit;
+	    boolean sessionUnsaved = isNewState && rootCount > 0;
 	    		
 	    if (! noPrompt) {
 		    List<String> list = getExtensionLoader().getUnsavedResources();
-		    if (sessionUnsaved) {
+		    if (sessionUnsaved && askOnExit) {
 		    	list.add(0, Constant.messages.getString("menu.file.sessionResNotSaved"));
 		    }
 		    if (list.size() > 0) {
@@ -193,7 +194,10 @@ public class Control extends AbstractControl implements SessionListener {
 				}
 		    }
 	    }
-		control.discardSession();
+
+	    if (sessionUnsaved) {
+		    control.discardSession();
+	    }
 
 	    Thread t = new Thread(new Runnable() {
 	        @Override
