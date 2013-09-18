@@ -40,6 +40,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -48,6 +49,7 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.userauth.auth.AuthenticationAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -66,6 +68,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages
 			.getString("authentication.method.manual.name");
+
+	private static final String API_METHOD_NAME = "manualAuthentication";
 
 	/**
 	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates
@@ -131,7 +135,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
-			return new ApiResponseElement("type", METHOD_NAME);
+			return new ApiResponseElement("methodName", API_METHOD_NAME);
 		}
 	}
 
@@ -331,23 +335,22 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 	/* API related constants and methods */
 
-	private static final String ACTION_SET_METHOD = "setManualAuthentication";
 	private static final String ACTION_SET_CREDENTIALS = "setManualAuthenticationCredentials";
 	private static final String PARAM_CONTEXT_ID = "contextId";
 	private static final String PARAM_USER_ID = "userId";
 	private static final String PARAM_SESSION_NAME = "sessionName";
 
 	@Override
-	public ApiAction getSetMethodForContextApiAction() {
-		return new ApiAction(ACTION_SET_METHOD, new String[] { PARAM_CONTEXT_ID });
-	}
+	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
+		return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
+				ManualAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
+				context.setAuthenticationMethod(method);
 
-	@Override
-	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
-		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-		ManualAuthenticationMethod method = this.createAuthenticationMethod(context.getIndex());
-		context.setAuthenticationMethod(method);
-
+			}
+		};
 	}
 
 	@Override
@@ -393,5 +396,10 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		ManualAuthenticationCredentials credentials = createAuthenticationCredentials();
 		credentials.setSelectedSession(matchedSession);
 		user.setAuthenticationCredentials(credentials);
+	}
+
+	@Override
+	public String getAPIName() {
+		return API_METHOD_NAME;
 	}
 }

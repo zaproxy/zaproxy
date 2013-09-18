@@ -65,7 +65,7 @@ public class API {
 	private Map<String, ApiImplementor> shortcuts = new HashMap<>();
 
 	private Random random = new Random();
-    private Logger logger = Logger.getLogger(this.getClass());
+    private static final Logger logger = Logger.getLogger(API.class);
 
 	private static synchronized API newInstance() {
 		if (api == null) {
@@ -385,7 +385,7 @@ public class API {
 		return "";
 	}
 
-	private JSONObject getParams (String params) throws ApiException {
+	public static JSONObject getParams (String params) throws ApiException {
 		JSONObject jp = new JSONObject();
 		if (params == null || params.length() == 0) {
 			return jp;

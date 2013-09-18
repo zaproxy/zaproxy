@@ -60,6 +60,8 @@ public class ApiUtils {
 	 * @throws ApiException the api exception thown if param not found or string empty
 	 */
 	public static String getNonEmptyStringParam(JSONObject params, String paramName) throws ApiException {
+		if (!params.containsKey(paramName))
+			throw new ApiException(Type.MISSING_PARAMETER, paramName);
 		String value = params.getString(paramName);
 		if (value == null || value.isEmpty())
 			throw new ApiException(Type.MISSING_PARAMETER, paramName);

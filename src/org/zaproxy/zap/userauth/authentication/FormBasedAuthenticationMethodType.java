@@ -66,12 +66,14 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.userauth.auth.AuthenticationAPI;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.httputils.HtmlParametersUtils;
 import org.zaproxy.zap.model.Context;
@@ -93,6 +95,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 	/** The Authentication method's name. */
 	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.fb.name");
+
+	private static final String API_METHOD_NAME = "formBasedAuthentication";
 
 	private static final Logger log = Logger.getLogger(FormBasedAuthenticationMethodType.class);
 
@@ -357,7 +361,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
 			Map<String, String> values = new HashMap<>();
-			values.put("type", METHOD_NAME);
+			values.put("methodName", API_METHOD_NAME);
 			values.put("loginUrl", loginRequestURL);
 			values.put("loginRequestData", this.loginRequestBody);
 			return new ApiResponseSet("method", values);
@@ -674,43 +678,43 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 	/* API related constants and methods. */
 
-	private static final String ACTION_SET_METHOD = "setFormBasedAuthenticationMethod";
 	private static final String ACTION_SET_CREDENTIALS = "setFormBasedAuthenticationCredentials";
 	private static final String PARAM_CONTEXT_ID = "contextId";
 	private static final String PARAM_USER_ID = "userId";
 	private static final String PARAM_LOGIN_URL = "loginUrl";
-	private static final String PARAM_POST_DATA = "postData";
+	private static final String PARAM_LOGIN_REQUEST_DATA = "loginRequestData";
 	private static final String PARAM_USERNAME = "username";
 	private static final String PARAM_PASSWORD = "password";
 
 	@Override
-	public ApiAction getSetMethodForContextApiAction() {
-		return new ApiAction(ACTION_SET_METHOD, new String[] { PARAM_CONTEXT_ID, PARAM_LOGIN_URL },
-				new String[] { PARAM_POST_DATA });
-	}
+	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
+		return new ApiDynamicActionImplementor(API_METHOD_NAME, new String[] { PARAM_LOGIN_URL },
+				new String[] { PARAM_LOGIN_REQUEST_DATA }) {
 
-	@Override
-	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
-		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-		String loginUrl = ApiUtils.getNonEmptyStringParam(params, PARAM_LOGIN_URL);
-		try {
-			new URL(loginUrl);
-		} catch (Exception ex) {
-			throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_LOGIN_URL);
-		}
-		String postData = "";
-		if (params.containsKey(PARAM_POST_DATA))
-			postData = params.getString(PARAM_POST_DATA);
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
+				String loginUrl = ApiUtils.getNonEmptyStringParam(params, PARAM_LOGIN_URL);
+				try {
+					new URL(loginUrl);
+				} catch (Exception ex) {
+					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_LOGIN_URL);
+				}
+				String postData = "";
+				if (params.containsKey(PARAM_LOGIN_REQUEST_DATA))
+					postData = params.getString(PARAM_LOGIN_REQUEST_DATA);
 
-		// Set the method
-		FormBasedAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
-		try {
-			method.setLoginRequest(loginUrl, postData);
-		} catch (Exception e) {
-			e.printStackTrace();
-			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-		}
-		context.setAuthenticationMethod(method);
+				// Set the method
+				FormBasedAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
+				try {
+					method.setLoginRequest(loginUrl, postData);
+				} catch (Exception e) {
+					e.printStackTrace();
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
+				context.setAuthenticationMethod(method);
+			}
+		};
 	}
 
 	@Override
@@ -742,5 +746,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
 		user.setAuthenticationCredentials(credentials);
 
+	}
+
+	@Override
+	public String getAPIName() {
+		return API_METHOD_NAME;
 	}
 }
