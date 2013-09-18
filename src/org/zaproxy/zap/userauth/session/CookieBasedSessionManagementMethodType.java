@@ -6,7 +6,6 @@ import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
-import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
@@ -17,15 +16,16 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
-import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
+import org.zaproxy.zap.extension.userauth.sessions.SessionManagementAPI;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.utils.ApiUtils;
 
 /**
  * The type corresponding to a {@link SessionManagementMethod} for web applications that use cookies
@@ -155,7 +155,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
-			return new ApiResponseElement("type", METHOD_NAME);
+			return new ApiResponseElement("methodName", API_METHOD_NAME);
 		}
 	}
 
@@ -207,26 +207,17 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 	}
 
-	private static final String ACTION_SET_METHOD = "setCookieBasedSessionManagementMethod";
-	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String API_METHOD_NAME = "cookieBasedSessionManagement";
 
 	@Override
-	public ApiAction getSetMethodForContextApiAction() {
-		return new ApiAction(ACTION_SET_METHOD, new String[] { PARAM_CONTEXT_ID });
-	}
+	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
+		return new ApiDynamicActionImplementor(API_METHOD_NAME, null, null) {
 
-	@Override
-	public void handleSetMethodForContextApiAction(JSONObject params) throws ApiException {
-		int contextId;
-		try {
-			contextId = params.getInt(PARAM_CONTEXT_ID);
-		} catch (JSONException ex) {
-			throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_CONTEXT_ID);
-		}
-		Context context = Model.getSingleton().getSession().getContext(contextId);
-		if (context == null)
-			throw new ApiException(Type.CONTEXT_NOT_FOUND, PARAM_CONTEXT_ID);
-
-		context.setSessionManagementMethod(createSessionManagementMethod(contextId));
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, SessionManagementAPI.PARAM_CONTEXT_ID);
+				context.setSessionManagementMethod(createSessionManagementMethod(context.getIndex()));
+			}
+		};
 	}
 }
