@@ -33,6 +33,8 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
+import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
@@ -56,19 +58,22 @@ public class UsersAPI extends ApiImplementor {
 
 	private static final String VIEW_USERS_LIST = "usersList";
 	private static final String VIEW_GET_USER_BY_ID = "getUserById";
-	private static final String VIEW_GET_AUTHENTICATION_CREDENTIALS = "getAuthenticationCredentials";
+	private static final String VIEW_GET_AUTH_CREDENTIALS = "getAuthenticationCredentials";
+	private static final String VIEW_GET_AUTH_CREDENTIALS_CONFIG_PARAMETERS = "getAuthenticationCredentialsConfigParams";
 
 	private static final String ACTION_NEW_USER = "newUser";
 	private static final String ACTION_SET_ENABLED = "setUserEnabled";
 	private static final String ACTION_SET_NAME = "setUserName";
+	private static final String ACTION_SET_AUTH_CREDENTIALS = "setAuthenticationCredentials";
 
-	private static final String PARAM_CONTEXT_ID = "contextId";
-	private static final String PARAM_USER_ID = "userId";
+	public static final String PARAM_CONTEXT_ID = "contextId";
+	public static final String PARAM_USER_ID = "userId";
 	private static final String PARAM_USER_NAME = "name";
 	private static final String PARAM_ENABLED = "enabled";
+	private static final String PARAM_CREDENTIALS_CONFIG_PARAMS = "authCredentialsConfigParams";
 
 	private ExtensionUserManagement extension;
-	private Map<String, AuthenticationMethodType> loadedAuthenticationCredentialsActions;
+	private Map<Integer, ApiDynamicActionImplementor> loadedAuthenticationMethodActions;
 
 	public UsersAPI(ExtensionUserManagement extension) {
 		super();
@@ -77,23 +82,29 @@ public class UsersAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_USERS_LIST, null, new String[] { PARAM_CONTEXT_ID }));
 		this.addApiView(new ApiView(VIEW_GET_USER_BY_ID, null,
 				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
-		this.addApiView(new ApiView(VIEW_GET_AUTHENTICATION_CREDENTIALS, new String[] { PARAM_CONTEXT_ID,
-				PARAM_USER_ID }));
+		this.addApiView(new ApiView(VIEW_GET_AUTH_CREDENTIALS_CONFIG_PARAMETERS,
+				new String[] { PARAM_CONTEXT_ID }));
+		this.addApiView(new ApiView(VIEW_GET_AUTH_CREDENTIALS,
+				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
 
 		this.addApiAction(new ApiAction(ACTION_NEW_USER, new String[] { PARAM_CONTEXT_ID, PARAM_USER_NAME }));
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_ENABLED }));
 		this.addApiAction(new ApiAction(ACTION_SET_NAME, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_USER_NAME }));
+		this.addApiAction(new ApiAction(ACTION_SET_AUTH_CREDENTIALS, new String[] { PARAM_CONTEXT_ID,
+				PARAM_USER_ID }, new String[] { PARAM_CREDENTIALS_CONFIG_PARAMS }));
 
+		// Load the authentication method actions
 		ExtensionAuthentication authenticationExtension = (ExtensionAuthentication) Control.getSingleton()
 				.getExtensionLoader().getExtension(ExtensionAuthentication.NAME);
-		this.loadedAuthenticationCredentialsActions = new HashMap<String, AuthenticationMethodType>();
-		for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {
-			ApiAction action = t.getSetCredentialsForUserApiAction();
-			if (action != null) {
-				loadedAuthenticationCredentialsActions.put(action.getName(), t);
-				this.addApiAction(action);
+		this.loadedAuthenticationMethodActions = new HashMap<Integer, ApiDynamicActionImplementor>();
+		if (authenticationExtension != null) {
+			for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {
+				ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
+				if (i != null) {
+					loadedAuthenticationMethodActions.put(t.getUniqueIdentifier(), i);
+				}
 			}
 		}
 
@@ -102,6 +113,13 @@ public class UsersAPI extends ApiImplementor {
 	@Override
 	public String getPrefix() {
 		return PREFIX;
+	}
+
+	private ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
+		Map<String, String> m = new HashMap<String, String>();
+		m.put("name", paramName);
+		m.put("mandatory", mandatory ? "true" : "false");
+		return new ApiResponseSet("param", m);
 	}
 
 	@Override
@@ -129,9 +147,19 @@ public class UsersAPI extends ApiImplementor {
 		case VIEW_GET_USER_BY_ID:
 			return buildResponseFromUser(getUser(params));
 
-		case VIEW_GET_AUTHENTICATION_CREDENTIALS:
+		case VIEW_GET_AUTH_CREDENTIALS:
 			return getUser(params).getAuthenticationCredentials().getApiResponseRepresentation();
 
+		case VIEW_GET_AUTH_CREDENTIALS_CONFIG_PARAMETERS:
+			AuthenticationMethodType type = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID)
+					.getAuthenticationMethod().getType();
+			ApiDynamicActionImplementor a = loadedAuthenticationMethodActions.get(type.getUniqueIdentifier());
+			ApiResponseList configParams = new ApiResponseList("credentialsConfigParams");
+			for (String param : a.getMandatoryParamNames())
+				configParams.addItem(buildParamMap(param, true));
+			for (String param : a.getOptionalParamNames())
+				configParams.addItem(buildParamMap(param, false));
+			return configParams;
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
@@ -167,11 +195,24 @@ public class UsersAPI extends ApiImplementor {
 				throw new ApiException(Type.MISSING_PARAMETER, PARAM_USER_NAME);
 			getUser(params).setName(nameSN);
 			return ApiResponseElement.OK;
-		default:
-			if (!loadedAuthenticationCredentialsActions.containsKey(name))
-				throw new ApiException(Type.BAD_ACTION);
-			loadedAuthenticationCredentialsActions.get(name).handleSetCredentialsForUserApiAction(params);
+		case ACTION_SET_AUTH_CREDENTIALS:
+			// Prepare the params
+			JSONObject actionParams;
+			if (params.has(PARAM_CREDENTIALS_CONFIG_PARAMS))
+				actionParams = API.getParams(params.getString(PARAM_CREDENTIALS_CONFIG_PARAMS));
+			else
+				actionParams = new JSONObject();
+			context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+			actionParams.put(PARAM_CONTEXT_ID, context.getIndex());
+			actionParams.put(PARAM_USER_ID, getUserId(params));
+			// Run the method
+			ApiDynamicActionImplementor a = loadedAuthenticationMethodActions.get(context
+					.getAuthenticationMethod().getType().getUniqueIdentifier());
+			a.handleAction(actionParams);
 			return ApiResponseElement.OK;
+
+		default:
+			throw new ApiException(Type.BAD_ACTION);
 		}
 
 	}

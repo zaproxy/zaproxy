@@ -174,7 +174,11 @@ public class AuthenticationAPI extends ApiImplementor {
 
 		case ACTION_SET_METHOD:
 			// Prepare the params
-			JSONObject actionParams = API.getParams(params.getString(PARAM_METHOD_CONFIG_PARAMS));
+			JSONObject actionParams;
+			if (params.has(PARAM_METHOD_CONFIG_PARAMS))
+				actionParams = API.getParams(params.getString(PARAM_METHOD_CONFIG_PARAMS));
+			else
+				actionParams = new JSONObject();
 			actionParams.put(PARAM_CONTEXT_ID, getContextId(params));
 			getSetMethodActionImplementor(params).handleAction(actionParams);
 			return ApiResponseElement.OK;

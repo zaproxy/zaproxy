@@ -27,7 +27,6 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
-import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
 
@@ -58,13 +57,6 @@ public abstract class AuthenticationMethodType {
 	 * @return the name
 	 */
 	public abstract String getName();
-
-	/**
-	 * Gets the name of the authentication method used in the API.
-	 * 
-	 * @return the API method name
-	 */
-	public abstract String getAPIName();
 
 	/**
 	 * Gets the unique identifier of this Authentication Method Type. It has to be unique among all
@@ -188,24 +180,12 @@ public abstract class AuthenticationMethodType {
 	 * credentials of the corresponding type for an {@link User} of a context.
 	 * <p>
 	 * This api action will be handled by executing the
-	 * {@link #handleSetCredentialsForUserApiAction(JSONObject)} method.
+	 * {@link ApiDynamicActionImplementor#handleAction(JSONObject)} method.
 	 * </p>
 	 * 
 	 * @return the api action, or null if there is no way to set this method type through the API
 	 */
-	public abstract ApiAction getSetCredentialsForUserApiAction();
-
-	/**
-	 * Handle the execution of the {@link ApiAction} used to set the authentication credentials of
-	 * the corresponding type for an {@link User} of a context.
-	 * <p>
-	 * The ApiAction for which this method is called is the one returned by the
-	 * {@link #getSetCredentialsForUserApiAction()}.
-	 * </p>
-	 * 
-	 * @param params the params
-	 */
-	public abstract void handleSetCredentialsForUserApiAction(JSONObject params) throws ApiException;
+	public abstract ApiDynamicActionImplementor getSetCredentialsForUserApiAction();
 
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .

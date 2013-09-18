@@ -65,7 +65,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -73,6 +72,7 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.userauth.UsersAPI;
 import org.zaproxy.zap.extension.userauth.auth.AuthenticationAPI;
 import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 import org.zaproxy.zap.httputils.HtmlParametersUtils;
@@ -677,10 +677,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	/* API related constants and methods. */
-
-	private static final String ACTION_SET_CREDENTIALS = "setFormBasedAuthenticationCredentials";
-	private static final String PARAM_CONTEXT_ID = "contextId";
-	private static final String PARAM_USER_ID = "userId";
+	private static final String ACTION_SET_CREDENTIALS = "formBasedAuthenticationCredentials";
 	private static final String PARAM_LOGIN_URL = "loginUrl";
 	private static final String PARAM_LOGIN_REQUEST_DATA = "loginRequestData";
 	private static final String PARAM_USERNAME = "username";
@@ -718,38 +715,36 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	@Override
-	public ApiAction getSetCredentialsForUserApiAction() {
-		return new ApiAction(ACTION_SET_CREDENTIALS, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
-				PARAM_USERNAME, PARAM_PASSWORD });
+	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
+		return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, new String[] { PARAM_USERNAME,
+				PARAM_PASSWORD }, null) {
+
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, UsersAPI.PARAM_CONTEXT_ID);
+				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
+				// Make sure the type of authentication method is compatible
+				if (!isTypeForMethod(context.getAuthenticationMethod()))
+					throw new ApiException(ApiException.Type.BAD_TYPE,
+							"User's credentials should match authentication method type of the context: "
+									+ context.getAuthenticationMethod().getType().getName());
+
+				// NOTE: no need to check if extension is loaded as this method is called only if
+				// the Users
+				// extension is loaded
+				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control
+						.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex())
+						.getUserById(userId);
+				if (user == null)
+					throw new ApiException(ApiException.Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
+				// Build and set the credentials
+				UsernamePasswordAuthenticationCredentials credentials = createAuthenticationCredentials();
+				credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
+				credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
+				user.setAuthenticationCredentials(credentials);
+			}
+		};
 	}
 
-	@Override
-	public void handleSetCredentialsForUserApiAction(JSONObject params) throws ApiException {
-		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-		int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
-		// Make sure the type of authentication method is compatible
-		if (!this.isTypeForMethod(context.getAuthenticationMethod()))
-			throw new ApiException(ApiException.Type.BAD_TYPE,
-					"User's credentials should match authentication method type of the context: "
-							+ context.getAuthenticationMethod().getType().getName());
-
-		// NOTE: no need to check if extension is loaded as this method is called only if the Users
-		// extension is loaded
-		ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
-				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
-		User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
-		if (user == null)
-			throw new ApiException(ApiException.Type.USER_NOT_FOUND, PARAM_USER_ID);
-		// Build and set the credentials
-		UsernamePasswordAuthenticationCredentials credentials = createAuthenticationCredentials();
-		credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
-		credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
-		user.setAuthenticationCredentials(credentials);
-
-	}
-
-	@Override
-	public String getAPIName() {
-		return API_METHOD_NAME;
-	}
 }

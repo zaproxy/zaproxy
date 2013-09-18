@@ -39,7 +39,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -49,6 +48,7 @@ import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.userauth.UsersAPI;
 import org.zaproxy.zap.extension.userauth.auth.AuthenticationAPI;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.User;
@@ -335,9 +335,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 	/* API related constants and methods */
 
-	private static final String ACTION_SET_CREDENTIALS = "setManualAuthenticationCredentials";
-	private static final String PARAM_CONTEXT_ID = "contextId";
-	private static final String PARAM_USER_ID = "userId";
+	private static final String ACTION_SET_CREDENTIALS = "manualAuthenticationCredentials";
 	private static final String PARAM_SESSION_NAME = "sessionName";
 
 	@Override
@@ -354,52 +352,50 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	}
 
 	@Override
-	public ApiAction getSetCredentialsForUserApiAction() {
-		return new ApiAction(ACTION_SET_CREDENTIALS, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
-				PARAM_SESSION_NAME });
-	}
+	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
+		return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, new String[] { PARAM_SESSION_NAME },
+				null) {
 
-	@Override
-	public void handleSetCredentialsForUserApiAction(JSONObject params) throws ApiException {
-		Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-		int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
-		// Make sure the type of authentication method is compatible
-		if (!this.isTypeForMethod(context.getAuthenticationMethod()))
-			throw new ApiException(ApiException.Type.BAD_TYPE,
-					"User's credentials should match authentication method type of the context: "
-							+ context.getAuthenticationMethod().getType().getName());
-		// NOTE: no need to check if extension is loaded as this method is called only if the Users
-		// extension is loaded
-		ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
-				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
-		User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
-		if (user == null)
-			throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
-		String sessionName = ApiUtils.getNonEmptyStringParam(params, PARAM_SESSION_NAME);
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, UsersAPI.PARAM_CONTEXT_ID);
+				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
+				// Make sure the type of authentication method is compatible
+				if (!isTypeForMethod(context.getAuthenticationMethod()))
+					throw new ApiException(ApiException.Type.BAD_TYPE,
+							"User's credentials should match authentication method type of the context: "
+									+ context.getAuthenticationMethod().getType().getName());
+				// NOTE: no need to check if extension is loaded as this method is called only if
+				// the Users
+				// extension is loaded
+				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control
+						.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex())
+						.getUserById(userId);
+				if (user == null)
+					throw new ApiException(Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
+				String sessionName = ApiUtils.getNonEmptyStringParam(params, PARAM_SESSION_NAME);
 
-		// Get the matching session
-		ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton()
-				.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
-		if (extensionHttpSessions == null)
-			throw new ApiException(Type.NO_IMPLEMENTOR, "HttpSessions extension is not loaded.");
-		List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
-		HttpSession matchedSession = null;
-		for (HttpSession session : sessions)
-			if (session.getName().equals(sessionName)) {
-				matchedSession = session;
-				break;
+				// Get the matching session
+				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton()
+						.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
+				if (extensionHttpSessions == null)
+					throw new ApiException(Type.NO_IMPLEMENTOR, "HttpSessions extension is not loaded.");
+				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
+				HttpSession matchedSession = null;
+				for (HttpSession session : sessions)
+					if (session.getName().equals(sessionName)) {
+						matchedSession = session;
+						break;
+					}
+				if (matchedSession == null)
+					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SESSION_NAME);
+
+				// Set the credentials
+				ManualAuthenticationCredentials credentials = createAuthenticationCredentials();
+				credentials.setSelectedSession(matchedSession);
+				user.setAuthenticationCredentials(credentials);
 			}
-		if (matchedSession == null)
-			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SESSION_NAME);
-
-		// Set the credentials
-		ManualAuthenticationCredentials credentials = createAuthenticationCredentials();
-		credentials.setSelectedSession(matchedSession);
-		user.setAuthenticationCredentials(credentials);
-	}
-
-	@Override
-	public String getAPIName() {
-		return API_METHOD_NAME;
+		};
 	}
 }
