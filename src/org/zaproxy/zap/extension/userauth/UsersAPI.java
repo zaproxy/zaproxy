@@ -115,13 +115,6 @@ public class UsersAPI extends ApiImplementor {
 		return PREFIX;
 	}
 
-	private ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
-		Map<String, String> m = new HashMap<String, String>();
-		m.put("name", paramName);
-		m.put("mandatory", mandatory ? "true" : "false");
-		return new ApiResponseSet("param", m);
-	}
-
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiView " + name + " " + params.toString());
@@ -154,12 +147,7 @@ public class UsersAPI extends ApiImplementor {
 			AuthenticationMethodType type = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID)
 					.getAuthenticationMethod().getType();
 			ApiDynamicActionImplementor a = loadedAuthenticationMethodActions.get(type.getUniqueIdentifier());
-			ApiResponseList configParams = new ApiResponseList("credentialsConfigParams");
-			for (String param : a.getMandatoryParamNames())
-				configParams.addItem(buildParamMap(param, true));
-			for (String param : a.getOptionalParamNames())
-				configParams.addItem(buildParamMap(param, false));
-			return configParams;
+			return a.buildParamsDescription();
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

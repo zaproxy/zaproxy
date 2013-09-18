@@ -37,7 +37,6 @@ import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.authentication.AuthenticationMethodType;
@@ -68,12 +67,10 @@ public class AuthenticationAPI extends ApiImplementor {
 	private static final String PARAM_METHOD_NAME = "authMethodName";
 	private static final String PARAM_METHOD_CONFIG_PARAMS = "authMethodConfigParams";
 
-	private ExtensionAuthentication extension;
 	private Map<String, ApiDynamicActionImplementor> loadedAuthenticationMethodActions;
 
 	public AuthenticationAPI(ExtensionAuthentication extension) {
 		super();
-		this.extension = extension;
 
 		this.addApiView(new ApiView(VIEW_GET_SUPPORTED_METHODS));
 		this.addApiView(new ApiView(VIEW_GET_METHOD_CONFIG_PARAMETERS, new String[] { PARAM_METHOD_NAME }));
@@ -106,13 +103,6 @@ public class AuthenticationAPI extends ApiImplementor {
 		return PREFIX;
 	}
 
-	private ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
-		Map<String, String> m = new HashMap<String, String>();
-		m.put("name", paramName);
-		m.put("mandatory", mandatory ? "true" : "false");
-		return new ApiResponseSet("param", m);
-	}
-
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiView " + name + " " + params.toString());
@@ -136,18 +126,12 @@ public class AuthenticationAPI extends ApiImplementor {
 				return new ApiResponseElement("logged_out_regex", "");
 		case VIEW_GET_SUPPORTED_METHODS:
 			ApiResponseList supportedMethods = new ApiResponseList("supportedMethods");
-			for (AuthenticationMethodType t : extension.getAuthenticationMethodTypes())
-				supportedMethods.addItem(new ApiResponseElement("methodName", t
-						.getSetMethodForContextApiAction().getName()));
+			for (ApiDynamicActionImplementor a : loadedAuthenticationMethodActions.values())
+				supportedMethods.addItem(new ApiResponseElement("methodName", a.getName()));
 			return supportedMethods;
 		case VIEW_GET_METHOD_CONFIG_PARAMETERS:
 			ApiDynamicActionImplementor a = getSetMethodActionImplementor(params);
-			ApiResponseList configParams = new ApiResponseList("methodConfigParams");
-			for (String param : a.getMandatoryParamNames())
-				configParams.addItem(buildParamMap(param, true));
-			for (String param : a.getOptionalParamNames())
-				configParams.addItem(buildParamMap(param, false));
-			return configParams;
+			return a.buildParamsDescription();
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
@@ -180,6 +164,7 @@ public class AuthenticationAPI extends ApiImplementor {
 			else
 				actionParams = new JSONObject();
 			actionParams.put(PARAM_CONTEXT_ID, getContextId(params));
+			// Run the method
 			getSetMethodActionImplementor(params).handleAction(actionParams);
 			return ApiResponseElement.OK;
 		default:

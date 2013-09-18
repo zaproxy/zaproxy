@@ -28,15 +28,14 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
-import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.userauth.session.SessionManagementMethod;
@@ -97,13 +96,6 @@ public class SessionManagementAPI extends ApiImplementor {
 		return PREFIX;
 	}
 
-	private ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
-		Map<String, String> m = new HashMap<String, String>();
-		m.put("name", paramName);
-		m.put("mandatory", mandatory ? "true" : "false");
-		return new ApiResponseSet("param", m);
-	}
-
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiView " + name + " " + params.toString());
@@ -118,12 +110,7 @@ public class SessionManagementAPI extends ApiImplementor {
 			return supportedMethods;
 		case VIEW_GET_METHOD_CONFIG_PARAMETERS:
 			ApiDynamicActionImplementor a = getSetMethodActionImplementor(params);
-			ApiResponseList configParams = new ApiResponseList("methodConfigParams");
-			for (String param : a.getMandatoryParamNames())
-				configParams.addItem(buildParamMap(param, true));
-			for (String param : a.getOptionalParamNames())
-				configParams.addItem(buildParamMap(param, false));
-			return configParams;
+			return a.buildParamsDescription();
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
