@@ -28,11 +28,15 @@ import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
 import org.zaproxy.zap.extension.auth.AuthAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
+import org.zaproxy.zap.extension.forceduser.ForcedUserAPI;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
 import org.zaproxy.zap.extension.pscan.PassiveScanAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.spider.SpiderAPI;
+import org.zaproxy.zap.extension.userauth.UsersAPI;
+import org.zaproxy.zap.extension.userauth.auth.AuthenticationAPI;
+import org.zaproxy.zap.extension.userauth.sessions.SessionManagementAPI;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /**
@@ -82,6 +86,14 @@ public class ApiGeneratorUtils {
 		imps.add(new AuthAPI(null));
 
 		imps.add(new HttpSessionsAPI(null));
+		
+		imps.add(new AuthenticationAPI(null));
+		
+		imps.add(new SessionManagementAPI(null));
+		
+		imps.add(new UsersAPI(null));
+		
+		imps.add(new ForcedUserAPI(null));
 
 		return imps;
 	}

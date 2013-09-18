@@ -30,11 +30,11 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
-import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
@@ -96,14 +96,16 @@ public class UsersAPI extends ApiImplementor {
 				PARAM_USER_ID }, new String[] { PARAM_CREDENTIALS_CONFIG_PARAMS }));
 
 		// Load the authentication method actions
-		ExtensionAuthentication authenticationExtension = (ExtensionAuthentication) Control.getSingleton()
-				.getExtensionLoader().getExtension(ExtensionAuthentication.NAME);
-		this.loadedAuthenticationMethodActions = new HashMap<Integer, ApiDynamicActionImplementor>();
-		if (authenticationExtension != null) {
-			for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {
-				ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
-				if (i != null) {
-					loadedAuthenticationMethodActions.put(t.getUniqueIdentifier(), i);
+		if (Control.getSingleton() != null) {
+			ExtensionAuthentication authenticationExtension = (ExtensionAuthentication) Control
+					.getSingleton().getExtensionLoader().getExtension(ExtensionAuthentication.NAME);
+			this.loadedAuthenticationMethodActions = new HashMap<Integer, ApiDynamicActionImplementor>();
+			if (authenticationExtension != null) {
+				for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {
+					ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
+					if (i != null) {
+						loadedAuthenticationMethodActions.put(t.getUniqueIdentifier(), i);
+					}
 				}
 			}
 		}
