@@ -214,8 +214,7 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 
 	@Override
 	public String getHelpIndex() {
-		// TODO Auto-generated method stub
-		return null;
+		return "ui.dialogs.contexts";
 	}
 
 	@Override
