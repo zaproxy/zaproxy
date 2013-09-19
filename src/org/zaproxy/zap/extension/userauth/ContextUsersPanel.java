@@ -74,8 +74,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public String getHelpIndex() {
-		// TODO Auto-generated method stub
-		return null;
+		return "ui.dialogs.contexts";
 	}
 
 	public static class UsersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<User> {
