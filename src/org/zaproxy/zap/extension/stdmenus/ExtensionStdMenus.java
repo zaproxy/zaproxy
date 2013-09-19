@@ -24,7 +24,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 
 public class ExtensionStdMenus extends ExtensionAdaptor {
 

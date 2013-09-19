@@ -32,7 +32,7 @@ import java.util.Set;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementHelper;
+import org.zaproxy.zap.session.CookieBasedSessionManagementHelper;
 
 /**
  * The Class SiteHttpSessions stores all the information regarding the sessions for a particular

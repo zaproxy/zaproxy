@@ -55,7 +55,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {

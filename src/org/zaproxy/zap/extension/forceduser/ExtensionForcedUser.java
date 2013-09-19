@@ -41,11 +41,11 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.auth.ExtensionAuth;
-import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.reauth.ExtensionAuth;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 

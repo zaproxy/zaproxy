@@ -39,9 +39,9 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.extension.userauth.UsersTableModel;
+import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 

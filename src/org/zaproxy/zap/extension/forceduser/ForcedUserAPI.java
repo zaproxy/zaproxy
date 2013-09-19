@@ -29,9 +29,9 @@ import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
-import org.zaproxy.zap.extension.userauth.auth.AuthenticationAPI;
+import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
 /**

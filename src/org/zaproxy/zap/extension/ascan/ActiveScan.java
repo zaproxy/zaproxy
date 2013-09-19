@@ -42,7 +42,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner, ScannerListener {

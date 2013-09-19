@@ -30,10 +30,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.userauth.authentication.AuthenticationMethod;
-import org.zaproxy.zap.userauth.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
-import org.zaproxy.zap.userauth.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
-import org.zaproxy.zap.userauth.session.SessionManagementMethod;
+import org.zaproxy.zap.authentication.AuthenticationMethod;
+import org.zaproxy.zap.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
+import org.zaproxy.zap.session.SessionManagementMethod;
+import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 
 public class Context {
 

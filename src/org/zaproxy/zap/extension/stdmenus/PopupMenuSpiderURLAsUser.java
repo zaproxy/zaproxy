@@ -25,7 +25,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 
 /**
  * The Class PopupMenuSpiderURLAsUser.

@@ -40,7 +40,7 @@ import org.zaproxy.zap.spider.filters.DefaultParseFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 
 /**
  * The Class Spider.

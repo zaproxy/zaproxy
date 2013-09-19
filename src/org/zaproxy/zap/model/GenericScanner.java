@@ -24,7 +24,7 @@ package org.zaproxy.zap.model;
 import javax.swing.ListModel;
 
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 
 public interface GenericScanner extends Runnable {
 

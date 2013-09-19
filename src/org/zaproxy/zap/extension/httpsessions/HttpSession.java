@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.userauth.session.WebSession;
+import org.zaproxy.zap.session.WebSession;
 
 /**
  * The Class HttpSession defines the data that is stored regarding an existing HTTP session on a

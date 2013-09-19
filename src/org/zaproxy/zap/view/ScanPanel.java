@@ -60,7 +60,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 public abstract class ScanPanel extends AbstractPanel {

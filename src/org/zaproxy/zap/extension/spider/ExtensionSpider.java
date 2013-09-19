@@ -44,7 +44,7 @@ import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 

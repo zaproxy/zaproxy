@@ -54,7 +54,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 
 
 /**

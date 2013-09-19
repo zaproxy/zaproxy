@@ -38,7 +38,7 @@ import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 
 /**
  * The Class SpiderThread that controls the spidering process on a particular site. Being a

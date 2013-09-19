@@ -29,7 +29,6 @@ import javax.swing.JEditorPane;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
-import org.zaproxy.zap.extension.userauth.auth.ContextAuthenticationPanel;
 
 /**
  * A panel that can be used to show a summary of an entity and a button to configure the entity.
@@ -62,7 +61,7 @@ public class SummaryAndConfigPanel extends JPanel {
 		this.summaryTitleText = summaryTitleText;
 
 		configButton = new JButton(configButtonText);
-		configButton.setIcon(new ImageIcon(ContextAuthenticationPanel.class
+		configButton.setIcon(new ImageIcon(SummaryAndConfigPanel.class
 				.getResource("/resource/icon/16/041.png")));
 		configButton.addActionListener(configButtonActionListener);
 		this.add(configButton, LayoutHelper.getGBC(1, 0, 1, 1, 0.0D, 0.0D));

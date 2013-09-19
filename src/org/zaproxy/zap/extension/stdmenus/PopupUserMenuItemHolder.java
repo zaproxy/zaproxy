@@ -32,10 +32,10 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
-import org.zaproxy.zap.extension.userauth.ContextUserAuthManager;
-import org.zaproxy.zap.extension.userauth.ExtensionUserManagement;
+import org.zaproxy.zap.extension.users.ContextUserAuthManager;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
 /**

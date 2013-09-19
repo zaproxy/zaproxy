@@ -24,7 +24,7 @@ import java.util.List;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.userauth.User;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
 /**
