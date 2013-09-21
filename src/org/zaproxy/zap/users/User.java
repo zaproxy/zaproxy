@@ -35,13 +35,16 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.utils.Enableable;
 
+// TODO: Auto-generated Javadoc
 /**
  * ZAP representation of a web application user.
  */
 public class User extends Enableable {
 
+	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(User.class);
 
+	/** The id source. */
 	private static int ID_SOURCE = 0;
 
 	/** The Constant FIELD_SEPARATOR used for separating Users's field during serialization. */
@@ -64,6 +67,7 @@ public class User extends Enableable {
 	/** The authenticated session. */
 	private WebSession authenticatedSession;
 
+	/** The user http state. */
 	private HttpState userHttpState;
 
 	/** The authentication credentials that can be used for configuring the user. */
@@ -72,11 +76,18 @@ public class User extends Enableable {
 	/** The extension auth. */
 	private static ExtensionAuthentication extensionAuth;
 
+	/** The last successful auth time. */
 	private long lastSuccessfulAuthTime;
 
 	/** The context. */
 	private Context context;
 
+	/**
+	 * Instantiates a new user.
+	 * 
+	 * @param contextId the context id
+	 * @param name the name
+	 */
 	public User(int contextId, String name) {
 		super();
 		this.id = ID_SOURCE++;
@@ -84,9 +95,18 @@ public class User extends Enableable {
 		this.name = name;
 	}
 
+	/**
+	 * Instantiates a new user.
+	 * 
+	 * @param contextId the context id
+	 * @param name the name
+	 * @param id the id
+	 */
 	public User(int contextId, String name, int id) {
 		super();
 		this.id = id;
+		if (this.id >= ID_SOURCE)
+			ID_SOURCE = this.id + 1;
 		this.contextId = contextId;
 		this.name = name;
 	}
@@ -109,6 +129,11 @@ public class User extends Enableable {
 		return contextId;
 	}
 
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see java.lang.Object#toString()
+	 */
 	@Override
 	public String toString() {
 		return "User [id=" + id + ", name=" + name + ", contextId=" + contextId + ", enabled=" + isEnabled()
@@ -120,7 +145,7 @@ public class User extends Enableable {
 	 * 
 	 * @return the context
 	 */
-	private Context getContext() {
+	protected Context getContext() {
 		if (context == null) {
 			context = Model.getSingleton().getSession().getContext(this.contextId);
 		}
@@ -146,9 +171,9 @@ public class User extends Enableable {
 		// If the user is not yet authenticated, authenticate now
 		// Make sure there are no simultaneous authentications for the same user
 		synchronized (this) {
-			if (!this.hasAuthenticatedSession()) {
+			if (this.requiresAuthentication()) {
 				this.authenticate();
-				if (!this.hasAuthenticatedSession()) {
+				if (!this.requiresAuthentication()) {
 					log.info("Authentication failed for user: " + name);
 					return;
 				}
@@ -159,6 +184,11 @@ public class User extends Enableable {
 		getContext().getSessionManagementMethod().processMessageToMatchSession(message, authenticatedSession);
 	}
 
+	/**
+	 * Gets the user http state.
+	 * 
+	 * @return the user http state
+	 */
 	public HttpState getUserHttpState() {
 		if (userHttpState == null) {
 			// TODO: Make sure this gets copied on duplicate
@@ -187,23 +217,46 @@ public class User extends Enableable {
 	}
 
 	/**
-	 * Checks if the user has a corresponding authenticated session
+	 * Checks if an authentication is needed and will be performed at the next call to
+	 * {@link #processMessageToMatchUser(HttpMessage)}.
 	 * 
-	 * @return true, if is authenticated
+	 * @return true, if requires authentication
 	 */
-	public boolean hasAuthenticatedSession() {
-		return authenticatedSession != null;
+	public boolean requiresAuthentication() {
+		return authenticatedSession == null;
 	}
 
 	/**
 	 * Resets the existing authenticated session, causing subsequent calls to
 	 * {@link #processMessageToMatchUser(HttpMessage)} to reauthenticate.
+	 * 
+	 * @param unauthenticatedMessage the unauthenticated message
+	 * 
 	 */
 	public void queueAuthentication(HttpMessage unauthenticatedMessage) {
 		synchronized (this) {
-			if (unauthenticatedMessage.getTimeSentMillis() >= lastSuccessfulAuthTime)
+			if (unauthenticatedMessage.getTimeSentMillis() >= getLastSuccessfulAuthTime())
 				authenticatedSession = null;
 		}
+	}
+
+	/**
+	 * Sets the authenticated session.
+	 * 
+	 * @param session the new authenticated session
+	 */
+	protected void setAuthenticatedSession(WebSession session) {
+		// NOTE: Used in testing
+		this.authenticatedSession = session;
+	}
+	
+	/**
+	 * Gets the last successful auth time.
+	 *
+	 * @param lastSuccessfulAuthTime the new last successful auth time
+	 */
+	protected long getLastSuccessfulAuthTime() {
+		return lastSuccessfulAuthTime;
 	}
 
 	/**
@@ -276,6 +329,18 @@ public class User extends Enableable {
 	 * @return the user
 	 */
 	public static User decode(String encodedString) {
+		// Added proxy call to help in testing
+		return decode(encodedString, User.getAuthenticationExtension());
+	}
+
+	/**
+	 * Helper method for decoding an user from an encoded string. See {@link #decode(String)}.
+	 * 
+	 * @param encodedString the encoded string
+	 * @param authenticationExtension the authentication extension
+	 * @return the user
+	 */
+	protected static User decode(String encodedString, ExtensionAuthentication authenticationExtension) {
 		String[] pieces = encodedString.split(FIELD_SEPARATOR);
 		User user = null;
 		try {
@@ -286,12 +351,13 @@ public class User extends Enableable {
 			boolean enabled = pieces[2].equals("true");
 			String name = new String(Base64.decodeBase64(pieces[3]));
 			int authTypeId = Integer.parseInt(pieces[4]);
-			AuthenticationCredentials cred = getAuthenticationExtension()
+			user = new User(contextId, name, id);
+			user.setEnabled(enabled);
+
+			AuthenticationCredentials cred = authenticationExtension
 					.getAuthenticationMethodTypeForIdentifier(authTypeId).createAuthenticationCredentials();
 			cred.decode(pieces[5]);
-			user = new User(contextId, name, id);
 			user.setAuthenticationCredentials(cred);
-			user.setEnabled(enabled);
 		} catch (Exception ex) {
 			log.error("An error occured while decoding user from: " + encodedString, ex);
 			return null;
@@ -301,28 +367,33 @@ public class User extends Enableable {
 		return user;
 	}
 
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = super.hashCode();
-		result = prime * result + id;
-		return result;
-	}
+	// @Override
+	// public int hashCode() {
+	// final int prime = 31;
+	// int result = super.hashCode();
+	// result = prime * result + id;
+	// return result;
+	// }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (!super.equals(obj))
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		User other = (User) obj;
-		if (id != other.id)
-			return false;
-		return true;
-	}
+	// @Override
+	// public boolean equals(Object obj) {
+	// if (this == obj)
+	// return true;
+	// if (!super.equals(obj))
+	// return false;
+	// if (getClass() != obj.getClass())
+	// return false;
+	// User other = (User) obj;
+	// if (id != other.id)
+	// return false;
+	// return true;
+	// }
 
+	/**
+	 * Sets the name.
+	 * 
+	 * @param name the new name
+	 */
 	public void setName(String name) {
 		this.name = name;
 	}
