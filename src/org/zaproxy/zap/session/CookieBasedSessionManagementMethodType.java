@@ -34,6 +34,8 @@ import org.zaproxy.zap.utils.ApiUtils;
 public class CookieBasedSessionManagementMethodType extends SessionManagementMethodType {
 
 	private static final int METHOD_IDENTIFIER = 0;
+	private static final Logger log = Logger.getLogger(CookieBasedSessionManagementMethod.class);
+	
 	/** The Constant METHOD_NAME. */
 	private static final String METHOD_NAME = Constant.messages.getString("sessionmanagement.method.cb.name");
 
@@ -42,8 +44,6 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 	 * cookies for session management.
 	 */
 	public static class CookieBasedSessionManagementMethod implements SessionManagementMethod {
-
-		private static final Logger log = Logger.getLogger(CookieBasedSessionManagementMethod.class);
 
 		private int contextId;
 
@@ -156,6 +156,28 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
 			return new ApiResponseElement("methodName", API_METHOD_NAME);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + contextId;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			CookieBasedSessionManagementMethod other = (CookieBasedSessionManagementMethod) obj;
+			if (contextId != other.contextId)
+				return false;
+			return true;
 		}
 	}
 
