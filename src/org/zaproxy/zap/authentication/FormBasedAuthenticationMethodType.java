@@ -331,6 +331,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				this.loginSiteNode = Model.getSingleton().getSession().getSiteTree()
 						.findNode(uri, method, postData);
 			}
+
 		}
 
 		@Override
@@ -367,6 +368,36 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			return new ApiResponseSet("method", values);
 		}
 
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + ((loginRequestBody == null) ? 0 : loginRequestBody.hashCode());
+			result = prime * result + ((loginRequestURL == null) ? 0 : loginRequestURL.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!super.equals(obj))
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			FormBasedAuthenticationMethod other = (FormBasedAuthenticationMethod) obj;
+			if (loginRequestBody == null) {
+				if (other.loginRequestBody != null)
+					return false;
+			} else if (!loginRequestBody.equals(other.loginRequestBody))
+				return false;
+			if (loginRequestURL == null) {
+				if (other.loginRequestURL != null)
+					return false;
+			} else if (!loginRequestURL.equals(other.loginRequestURL))
+				return false;
+			return true;
+		}
 	}
 
 	/**

@@ -137,6 +137,29 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		public ApiResponse getApiResponseRepresentation() {
 			return new ApiResponseElement("methodName", API_METHOD_NAME);
 		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = super.hashCode();
+			result = prime * result + contextId;
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (!super.equals(obj))
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			ManualAuthenticationMethod other = (ManualAuthenticationMethod) obj;
+			if (contextId != other.contextId)
+				return false;
+			return true;
+		}
+
 	}
 
 	/**

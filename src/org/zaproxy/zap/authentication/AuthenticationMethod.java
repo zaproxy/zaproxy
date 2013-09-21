@@ -221,6 +221,39 @@ public abstract class AuthenticationMethod {
 		}
 	}
 
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result
+				+ ((loggedInIndicatorPattern == null) ? 0 : loggedInIndicatorPattern.pattern().hashCode());
+		result = prime * result
+				+ ((loggedOutIndicatorPattern == null) ? 0 : loggedOutIndicatorPattern.pattern().hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		AuthenticationMethod other = (AuthenticationMethod) obj;
+		if (loggedInIndicatorPattern == null) {
+			if (other.loggedInIndicatorPattern != null)
+				return false;
+		} else if (!loggedInIndicatorPattern.pattern().equals(other.loggedInIndicatorPattern.pattern()))
+			return false;
+		if (loggedOutIndicatorPattern == null) {
+			if (other.loggedOutIndicatorPattern != null)
+				return false;
+		} else if (!loggedOutIndicatorPattern.pattern().equals(other.loggedOutIndicatorPattern.pattern()))
+			return false;
+		return true;
+	}
+
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .
 	 */
