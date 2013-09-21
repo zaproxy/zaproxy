@@ -104,7 +104,7 @@ public abstract class AuthenticationMethod {
 
 	/**
 	 * Called when the Authentication Method is persisted/saved in a Context. For example, in this
-	 * method, UI elements can be marked accordingly.
+	 * method, UI elements can be marked accordingly.Description
 	 */
 	public void onMethodPersisted() {
 
@@ -127,9 +127,14 @@ public abstract class AuthenticationMethod {
 	/**
 	 * Checks if the response received by the Http Message corresponds to an authenticated Web
 	 * Session.
+	 * <p>
+	 * If none of the indicators are set up, the method defaults to returning true, so that no
+	 * authentications are tried when there is no way to check authentication. A message is also
+	 * shown on the output console in this case.
+	 * </p>
 	 * 
 	 * @param msg the http message
-	 * @return true, if is authenticated
+	 * @return true, if is authenticated or no indicators have been set, and false otherwise
 	 */
 	public boolean isAuthenticated(HttpMessage msg) {
 		if (msg == null || msg.getResponseBody() == null) {
