@@ -368,8 +368,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 			public void handleAction(JSONObject params) throws ApiException {
 				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
 				ManualAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
+				if(!context.getAuthenticationMethod().isSameType(method))
+					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
-
 			}
 		};
 	}

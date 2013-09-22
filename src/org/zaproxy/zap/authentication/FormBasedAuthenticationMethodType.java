@@ -740,6 +740,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					e.printStackTrace();
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
+				if(!context.getAuthenticationMethod().isSameType(method))
+					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}
 		};

@@ -31,15 +31,18 @@ import java.util.regex.PatternSyntaxException;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AbstractAuthenticationMethodOptionsPanel;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -81,6 +84,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	private ZapTextField loggedInIndicaterRegexField = null;
 	private ZapTextField loggedOutIndicaterRegexField = null;
+
+	/** Hacked used to make sure a confirmation is not needed if changes where done during init. */
+	private boolean needsConfirm = true;
 
 	/**
 	 * Instantiates a new context authentication configuration panel.
@@ -186,9 +192,17 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 				@Override
 				public void itemStateChanged(ItemEvent e) {
-					if (e.getStateChange() == ItemEvent.SELECTED) {
-						// Prepare the new authentication method
+					if (e.getStateChange() == ItemEvent.SELECTED && !e.getItem().equals(shownMethodType)) {
 						log.debug("Selected new Authentication type: " + e.getItem());
+
+						if (needsConfirm && !confirmAndExecuteUsersDeletion()) {
+							log.debug("Cancelled change of authentication type.");
+
+							authenticationMethodsComboBox.setSelectedItem(shownMethodType);
+							return;
+						}
+
+						// Prepare the new authentication method
 						AuthenticationMethodType type = ((AuthenticationMethodType) e.getItem());
 
 						// If no authentication method was previously selected or it's a different
@@ -210,11 +224,37 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		return authenticationMethodsComboBox;
 	}
 
+	/**
+	 * Make sure the user acknowledges the Users corresponding to this context will be deleted.
+	 * 
+	 * @return true, if successful
+	 */
+	private boolean confirmAndExecuteUsersDeletion() {
+		ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+		if (usersExtension != null) {
+			if (usersExtension.getSharedContextUsers(getUISharedContext()).size() > 0) {
+				authenticationMethodsComboBox.transferFocus();
+				int choice = JOptionPane.showConfirmDialog(this,
+						Constant.messages.getString("authentication.dialog.confirmChange.label"),
+						Constant.messages.getString("authentication.dialog.confirmChange.title"),
+						JOptionPane.OK_CANCEL_OPTION);
+				if (choice == JOptionPane.CANCEL_OPTION) {
+					return false;
+				}
+				// Removing the users from the 'shared context' (the UI) will cause their removal at
+				// save as well
+				usersExtension.removeSharedContextUsers(getUISharedContext());
+			}
+		}
+		return true;
+	}
+
 	private JPanel getConfigContainerPanel() {
 		if (configContainerPanel == null) {
 			configContainerPanel = new JPanel(new BorderLayout());
 			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
-					Constant.messages.getString("authentication.dialog.title"),
+					Constant.messages.getString("authentication.panel.label.configTitle"),
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
 							java.awt.Font.BOLD, 12), java.awt.Color.black));
@@ -277,7 +317,11 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 					// change the config panel accordingly
 					log.debug("Binding authentication method to new panel of proper type for context "
 							+ uiSharedContext.getName());
+					// Add hack to make sure no confirmation is needed if a change has been done
+					// somewhere else (e.g. API)
+					needsConfirm = false;
 					getAuthenticationMethodsComboBox().setSelectedItem(type);
+					needsConfirm = true;
 					break;
 				}
 		}

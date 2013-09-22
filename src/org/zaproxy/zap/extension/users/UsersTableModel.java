@@ -110,6 +110,14 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 		this.users = new ArrayList<>(users);
 		this.fireTableDataChanged();
 	}
+	
+	/**
+	 * Removes all the users for this model.
+	 */
+	public void removeAllUsers(){
+		this.users=new ArrayList<User>();
+		this.fireTableDataChanged();
+	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {

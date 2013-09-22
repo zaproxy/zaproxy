@@ -221,6 +221,18 @@ public abstract class AuthenticationMethod {
 		}
 	}
 
+	/**
+	 * Checks if another method is of the same type.
+	 * 
+	 * @param other the other
+	 * @return true, if is same type
+	 */
+	public boolean isSameType(AuthenticationMethod other) {
+		if (other == null)
+			return false;
+		return other.getClass().equals(this.getClass());
+	}
+
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -23,10 +23,12 @@ import java.sql.SQLException;
 
 import net.sf.json.JSONObject;
 
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 
@@ -170,6 +172,11 @@ public abstract class AuthenticationMethodType {
 	 * This api action will be handled by executing the
 	 * {@link ApiDynamicActionImplementor#handleAction(JSONObject)} method.
 	 * </p>
+	 * <p>
+	 * In the {@link ApiDynamicActionImplementor#handleAction(JSONObject)} method, if the new type
+	 * of method differs from the current type of method, a call should be made to
+	 * {@link #apiChangedAuthenticationMethodForContext(int)} to make sure changes are propagated.
+	 * </p>
 	 * 
 	 * @return the api action, or null if there is no way to set this method type through the API
 	 */
@@ -186,6 +193,40 @@ public abstract class AuthenticationMethodType {
 	 * @return the api action, or null if there is no way to set this method type through the API
 	 */
 	public abstract ApiDynamicActionImplementor getSetCredentialsForUserApiAction();
+
+	/**
+	 * Called when the authentication method for a context is changed through an API call.
+	 * <p>
+	 * Makes sure the Users are wiped so the authentication credentials for them match the Method.
+	 * </p>
+	 * 
+	 * @param contextId the context id
+	 */
+	protected static void apiChangedAuthenticationMethodForContext(int contextId) {
+		// Make sure the Users are wiped so the authentication credentials for them match the
+		// Method.
+		ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+		if (usersExtension != null) {
+			if (usersExtension.getContextUserAuthManager(contextId).getUsers().size() > 0) {
+				usersExtension.removeContextUsers(contextId);
+			}
+		}
+	}
+
+	@Override
+	public int hashCode() {
+		return getUniqueIdentifier();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		return true;
+	}
 
 	/**
 	 * Thrown when an unsupported type of credentials is used with a {@link AuthenticationMethod} .

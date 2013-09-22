@@ -71,7 +71,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 
 	/** The context managers, mapped to each context. */
 	private Map<Integer, ContextUserAuthManager> contextManagers = new HashMap<>();
-	
+
 	private UsersAPI api;
 
 	/** The Constant EXTENSION DEPENDENCIES. */
@@ -135,8 +135,8 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 			// Factory for generating Session Context Users panels
 			getView().addContextPanelFactory(this);
 		}
-		
-		//Prepare API
+
+		// Prepare API
 		this.api = new UsersAPI(this);
 		API.getInstance().registerApiImplementor(api);
 	}
@@ -249,5 +249,28 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		} catch (Exception ex) {
 			log.error("Unable to persist Users.", ex);
 		}
+	}
+
+	/**
+	 * Removes all the users that are shown in the UI (for the Users context panel) and correspond
+	 * to a particular shared Context.
+	 * 
+	 * @param sharedContext the shared context
+	 */
+	public void removeSharedContextUsers(Context sharedContext) {
+		this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().removeAllUsers();
+	}
+	
+	public List<User> getSharedContextUsers(Context sharedContext){
+		return getContextPanel(sharedContext.getIndex()).getUsersTableModel().getUsers();
+	}
+
+	/**
+	 * Removes all the that correspond to a Context with a given id.
+	 * 
+	 * @param contextId the context id
+	 */
+	public void removeContextUsers(int contextId) {
+		this.getContextUserAuthManager(contextId).removeAllUsers();
 	}
 }

@@ -128,4 +128,11 @@ public class ContextUserAuthManager {
 			}
 		return false;
 	}
+	
+	/**
+	 * Removes all the users.
+	 */
+	public void removeAllUsers(){
+		this.users.clear();
+	}
 }
