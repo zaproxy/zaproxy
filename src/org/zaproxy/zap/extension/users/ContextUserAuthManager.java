@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.users;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Iterator;
 import java.util.List;
 
 import org.zaproxy.zap.model.Context;
@@ -110,5 +111,21 @@ public class ContextUserAuthManager {
 			if (u.getId() == id)
 				return u;
 		return null;
+	}
+
+	/**
+	 * Removes the user with a given id.
+	 * 
+	 * @param id the id
+	 * @return true, if successful
+	 */
+	public boolean removeUserById(int id) {
+		Iterator<User> it = users.iterator();
+		while (it.hasNext())
+			if (it.next().getId() == id) {
+				it.remove();
+				return true;
+			}
+		return false;
 	}
 }

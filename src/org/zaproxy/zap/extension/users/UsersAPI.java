@@ -62,6 +62,7 @@ public class UsersAPI extends ApiImplementor {
 	private static final String VIEW_GET_AUTH_CREDENTIALS_CONFIG_PARAMETERS = "getAuthenticationCredentialsConfigParams";
 
 	private static final String ACTION_NEW_USER = "newUser";
+	private static final String ACTION_REMOVE_USER = "removeUser";
 	private static final String ACTION_SET_ENABLED = "setUserEnabled";
 	private static final String ACTION_SET_NAME = "setUserName";
 	private static final String ACTION_SET_AUTH_CREDENTIALS = "setAuthenticationCredentials";
@@ -88,6 +89,7 @@ public class UsersAPI extends ApiImplementor {
 				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
 
 		this.addApiAction(new ApiAction(ACTION_NEW_USER, new String[] { PARAM_CONTEXT_ID, PARAM_USER_NAME }));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_USER, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID }));
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
 				PARAM_ENABLED }));
 		this.addApiAction(new ApiAction(ACTION_SET_NAME, new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID,
@@ -170,6 +172,14 @@ public class UsersAPI extends ApiImplementor {
 					.createAuthenticationCredentials());
 			extension.getContextUserAuthManager(context.getIndex()).addUser(user);
 			return ApiResponseElement.OK;
+		case ACTION_REMOVE_USER:
+			int contextId = ApiUtils.getIntParam(params, PARAM_CONTEXT_ID);
+			int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);
+			boolean deleted = extension.getContextUserAuthManager(contextId).removeUserById(userId);
+			if (deleted)
+				return ApiResponseElement.OK;
+			else
+				return ApiResponseElement.FAIL;
 		case ACTION_SET_ENABLED:
 			boolean enabled = false;
 			try {
