@@ -8,6 +8,7 @@ src/zapv2/acsrf.py
 src/zapv2/ascan.py
 src/zapv2/auth.py
 src/zapv2/autoupdate.py
+src/zapv2/brk.py
 src/zapv2/context.py
 src/zapv2/core.py
 src/zapv2/httpSessions.py
