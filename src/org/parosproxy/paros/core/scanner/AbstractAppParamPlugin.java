@@ -25,6 +25,7 @@
 // ZAP: 2013/07/02 Changed Vector to generic List and added new varaints for GWT, JSON and Headers
 // ZAP: 2013/07/03 Added variant handling attributes and data contained in XML requests 
 // ZAP: 2013/07/14 Issue 726: Catch active scan variants' exceptions
+// ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
 
 package org.parosproxy.paros.core.scanner;
 
@@ -43,13 +44,28 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     
     @Override
     public void scan() {
-        listVariant.add(new VariantURLQuery());
-        listVariant.add(new VariantFormQuery());
-        listVariant.add(new VariantMultipartFormQuery());
-        listVariant.add(new VariantGWTQuery());
-        listVariant.add(new VariantXMLQuery());
-        listVariant.add(new VariantJSONQuery());
-        listVariant.add(new VariantHeader());
+        if (this.getParent().getScannerParam().isTargetParamsUrl()) {
+        	listVariant.add(new VariantURLQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsForm()) {
+        	listVariant.add(new VariantFormQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsMultiPartForm()) {
+            listVariant.add(new VariantMultipartFormQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsGWT()) {
+            listVariant.add(new VariantGWTQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsXML()) {
+            listVariant.add(new VariantXMLQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsJSON()) {
+            listVariant.add(new VariantJSONQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsHeader()) {
+            listVariant.add(new VariantHeader());
+        }
+
         // Currently usual plugins seems not 
         // suitable to cookie vulnerabilities
         // 'cause the character RFC limitation
@@ -57,20 +73,12 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         //listVariant.add(new VariantCookie());
 
         // ZAP: To handle parameters in OData urls
-        listVariant.add(new VariantODataIdQuery());
-        listVariant.add(new VariantODataFilterQuery());
-
-        /* Work in progress
-         if (this.getParent().getScannerParam().isTargetParamsUrl()) {
-         listVariant.add(new VariantURLQuery());
-         }
-         if (this.getParent().getScannerParam().isTargetParamsForm()) {
-         listVariant.add(new VariantFormQuery());
-         }
-         if (this.getParent().getScannerParam().isTargetParamsCookie()) {
-         listVariant.add(new VariantCookie());
-         }
-         */
+        if (this.getParent().getScannerParam().isTargetParamsODataId()) {
+            listVariant.add(new VariantODataIdQuery());
+        }
+        if (this.getParent().getScannerParam().isTargetParamsODataFilter()) {
+            listVariant.add(new VariantODataFilterQuery());
+        }
 
         for (int i = 0; i < listVariant.size() && !isStop(); i++) {
             HttpMessage msg = getNewMsg();

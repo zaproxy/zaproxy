@@ -58,10 +58,16 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JLabel labelThresholdNotes = null;
 	private JComboBox<String> comboStrength = null;
 	private JLabel labelStrengthNotes = null;
-	// Not enabled yet - not sure how helpful they are, and can yet show that the cookie scanning finds any issues!
-	//private JCheckBox chkTargetParamsUrl = null;
-	//private JCheckBox chkTargetParamsForm = null;
+	private JCheckBox chkTargetParamsUrl = null;
+	private JCheckBox chkTargetParamsForm = null;
+	// Not currently used
 	//private JCheckBox chkTargetParamsCookie = null;
+	private JCheckBox chkTargetParamsHeader = null;
+	private JCheckBox chkTargetParamsGWT = null;
+	private JCheckBox chkTargetParamsXML = null;
+	private JCheckBox chkTargetParamsJSON = null;
+	private JCheckBox chkTargetParamsODataId = null;
+	private JCheckBox chkTargetParamsODataFilter = null;
 
     public OptionsScannerPanel() {
         super();
@@ -122,15 +128,29 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			panelScanner.add(getStrengthNotes(), 
 					LayoutHelper.getGBC(2, 9, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
-			/*
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.params.label")), 
-					LayoutHelper.getGBC(0, 9, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getChkTargetParamsUrl(), LayoutHelper.getGBC(1, 8, 2,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getChkTargetParamsForm(), LayoutHelper.getGBC(1, 9, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getChkTargetParamsCookie(), LayoutHelper.getGBC(1, 10, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			*/
+					LayoutHelper.getGBC(0, 10, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
-			panelScanner.add(new JLabel(), LayoutHelper.getGBC(0, 20, 2, 1.0D, 1.0D, GridBagConstraints.BOTH));
+			JPanel panelParams = new JPanel();
+			panelParams.setLayout(new GridBagLayout());
+			
+			panelParams.add(getChkTargetParamsUrl(), LayoutHelper.getGBC(0, 0, 1,  0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelParams.add(getChkTargetParamsForm(), LayoutHelper.getGBC(1, 0, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelParams.add(getChkTargetParamsHeader(), LayoutHelper.getGBC(2, 0, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			//panelParams.add(getChkTargetParamsCookie(), LayoutHelper.getGBC(3, 0, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			
+			panelParams.add(getChkTargetParamsGWT(), LayoutHelper.getGBC(0, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelParams.add(getChkTargetParamsXML(), LayoutHelper.getGBC(1, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelParams.add(getChkTargetParamsJSON(), LayoutHelper.getGBC(2, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			
+			panelParams.add(getChkTargetParamsODataId(), LayoutHelper.getGBC(0, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelParams.add(getChkTargetParamsODataFilter(), LayoutHelper.getGBC(1, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+
+			panelScanner.add(panelParams, 
+					LayoutHelper.getGBC(0, 11, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+
+
+			panelScanner.add(new JLabel(), LayoutHelper.getGBC(0, 30, 2, 1.0D, 1.0D, GridBagConstraints.BOTH));
 
 		}
 		return panelScanner;
@@ -242,11 +262,15 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    	getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.insane.label"));
 	    	break;
 	    }
-	    /*
 	    this.getChkTargetParamsUrl().setSelected(param.isTargetParamsUrl());
 	    this.getChkTargetParamsForm().setSelected(param.isTargetParamsForm());
-	    this.getChkTargetParamsCookie().setSelected(param.isTargetParamsCookie());
-	    */
+	    //this.getChkTargetParamsCookie().setSelected(param.isTargetParamsCookie());
+	    this.getChkTargetParamsHeader().setSelected(param.isTargetParamsHeader());
+	    this.getChkTargetParamsGWT().setSelected(param.isTargetParamsGWT());
+	    this.getChkTargetParamsXML().setSelected(param.isTargetParamsXML());
+	    this.getChkTargetParamsJSON().setSelected(param.isTargetParamsJSON());
+	    this.getChkTargetParamsODataId().setSelected(param.isTargetParamsODataId());
+	    this.getChkTargetParamsODataFilter().setSelected(param.isTargetParamsODataFilter());
 	}
 	
 	@Override
@@ -285,10 +309,15 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    	strength = AttackStrength.INSANE;
 	    }
 	    param.setAttackStrength(strength);
-	    // Not enabled yet
-	    //param.setTargetParamsUrl(getChkTargetParamsUrl().isSelected());
-	    //param.setTargetParamsForm(getChkTargetParamsForm().isSelected());
+	    param.setTargetParamsUrl(getChkTargetParamsUrl().isSelected());
+	    param.setTargetParamsForm(getChkTargetParamsForm().isSelected());
 	    //param.setTargetParamsCookie(getChkTargetParamsCookie().isSelected());
+	    param.setTargetParamsHeader(getChkTargetParamsHeader().isSelected());
+	    param.setTargetParamsGWT(getChkTargetParamsGWT().isSelected());
+	    param.setTargetParamsXML(getChkTargetParamsXML().isSelected());
+	    param.setTargetParamsJSON(getChkTargetParamsJSON().isSelected());
+	    param.setTargetParamsODataId(getChkTargetParamsODataId().isSelected());
+	    param.setTargetParamsODataFilter(getChkTargetParamsODataFilter().isSelected());
 	}
 	
 	/**
@@ -433,8 +462,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		return chkDeleteRequestsOnShutdown;
 	}
 
-	// Not enabled yet
-	/*
 	private JCheckBox getChkTargetParamsUrl() {
 		if (chkTargetParamsUrl == null) {
 			chkTargetParamsUrl = new JCheckBox();
@@ -450,7 +477,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		}
 		return chkTargetParamsForm;
 	}
-
+	
+	/* Not currently used
 	private JCheckBox getChkTargetParamsCookie() {
 		if (chkTargetParamsCookie == null) {
 			chkTargetParamsCookie = new JCheckBox();
@@ -459,5 +487,54 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		return chkTargetParamsCookie;
 	}
 	*/
+
+	private JCheckBox getChkTargetParamsHeader() {
+		if (chkTargetParamsHeader == null) {
+			chkTargetParamsHeader = new JCheckBox();
+			chkTargetParamsHeader.setText(Constant.messages.getString("ascan.options.params.header.label"));
+		}
+		return chkTargetParamsHeader;
+	}
+
+	private JCheckBox getChkTargetParamsGWT() {
+		if (chkTargetParamsGWT == null) {
+			chkTargetParamsGWT = new JCheckBox();
+			chkTargetParamsGWT.setText(Constant.messages.getString("ascan.options.params.gwt.label"));
+		}
+		return chkTargetParamsGWT;
+	}
+
+	private JCheckBox getChkTargetParamsXML() {
+		if (chkTargetParamsXML == null) {
+			chkTargetParamsXML = new JCheckBox();
+			chkTargetParamsXML.setText(Constant.messages.getString("ascan.options.params.xml.label"));
+		}
+		return chkTargetParamsXML;
+	}
+
+	private JCheckBox getChkTargetParamsJSON() {
+		if (chkTargetParamsJSON == null) {
+			chkTargetParamsJSON = new JCheckBox();
+			chkTargetParamsJSON.setText(Constant.messages.getString("ascan.options.params.json.label"));
+		}
+		return chkTargetParamsJSON;
+	}
+
+	private JCheckBox getChkTargetParamsODataId() {
+		if (chkTargetParamsODataId == null) {
+			chkTargetParamsODataId = new JCheckBox();
+			chkTargetParamsODataId.setText(Constant.messages.getString("ascan.options.params.odata.id.label"));
+		}
+		return chkTargetParamsODataId;
+	}
+
+	private JCheckBox getChkTargetParamsODataFilter() {
+		if (chkTargetParamsODataFilter == null) {
+			chkTargetParamsODataFilter = new JCheckBox();
+			chkTargetParamsODataFilter.setText(Constant.messages.getString("ascan.options.params.odata.filter.label"));
+		}
+		return chkTargetParamsODataFilter;
+	}
+
 
 }
