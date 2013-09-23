@@ -59,7 +59,11 @@ abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'Password Autocomplete in browser' : 'Auto',\
 		'Path Traversal' : 'PathTrav',\
 		'Remote File Inclusion' : 'RFI',\
+		'SQL Injection' : 'SQLi',\
+		'SQL Injection - MySQL' : 'SqlMySql',\
+		'SQL Injection - Generic SQL RDBMS' : 'SqlGen',\
 		'SQL Injection - Boolean Based' : 'SqlBool',\
+		'SQL Injection - Error Based - Generic SQL RDBMS' : 'SqlGenE',\
 		'SQL Injection - Error Based - MySQL' : 'SqlMySqlE',\
 		'SQL Injection - Error Based - Java' : 'SqlJavaE',\
 		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyperT',\
@@ -104,12 +108,18 @@ rules = [ \
 		['SInjection-Detection-Evaluation', 'SQLi', 'pass'], \
 		#['SInjection-Detection-Evaluation', 'SqlHyper', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SqlBool', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlGen', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlGenE', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlMySql', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SqlMySqlE', 'pass'], \
 		#['SInjection-Detection-Evaluation', 'SqlOracle', 'pass'], \
 		#['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
 		['SInjection-FalsePositives', 'SQLfp', 'fail'], \
 		['SInjection-FalsePositives', 'SQLi', 'fail'], \
 		['SInjection-FalsePositives', 'SqlBool', 'fail'], \
+		['SInjection-FalsePositives', 'SqlGen', 'fail'], \
+		['SInjection-FalsePositives', 'SqlGenE', 'fail'], \
+		['SInjection-FalsePositives', 'SqlMySql', 'fail'], \
 		['SInjection-FalsePositives', 'SqlMySqlE', 'fail'], \
 		['SInjection-FalsePositives', 'SqlHyper', 'fail'], \
 		['SInjection-FalsePositives', 'SqlMySql', 'fail'], \
