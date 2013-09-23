@@ -125,14 +125,14 @@ class core(object):
         """
         return self.zap._request(self.zap.base + 'core/action/shutdown/').get('shutdown')
 
-    def new_session(self, name=''):
-        return self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name})
+    def new_session(self, name='', overwrite=''):
+        return self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name, 'overwrite' : overwrite})
 
     def load_session(self, name):
         return self.zap._request(self.zap.base + 'core/action/loadSession/', {'name' : name})
 
-    def save_session(self, name):
-        return self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name})
+    def save_session(self, name, overwrite=''):
+        return self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name, 'overwrite' : overwrite})
 
     @property
     def snapshot_session(self):
@@ -198,5 +198,9 @@ class core(object):
 
     def setproxy(self, proxy):
         return self.zap._request(self.zap.base + 'core/other/setproxy/', {'proxy' : proxy})
+
+    @property
+    def xmlreport(self):
+        return self.zap._request(self.zap.base + 'core/other/xmlreport/').get('xmlreport')
 
 

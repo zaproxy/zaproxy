@@ -49,6 +49,10 @@ class ascan(object):
         return self.zap._request(self.zap.base + 'ascan/view/optionHandleAntiCSRFTokens/').get('HandleAntiCSRFTokens')
 
     @property
+    def option_delete_requests_on_shutdown(self):
+        return self.zap._request(self.zap.base + 'ascan/view/optionDeleteRequestsOnShutdown/').get('DeleteRequestsOnShutdown')
+
+    @property
     def option_alert_threshold(self):
         return self.zap._request(self.zap.base + 'ascan/view/optionAlertThreshold/').get('AlertThreshold')
 
@@ -83,5 +87,8 @@ class ascan(object):
 
     def set_option_handle_anti_csrf_tokens(self, boolean):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionHandleAntiCSRFTokens/', {'Boolean' : boolean})
+
+    def set_option_delete_requests_on_shutdown(self, boolean):
+        return self.zap._request(self.zap.base + 'ascan/action/setOptionDeleteRequestsOnShutdown/', {'Boolean' : boolean})
 
 
