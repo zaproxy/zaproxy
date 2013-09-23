@@ -45,7 +45,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = -3920598166129639573L;
-	private static final String PANEL_NAME = Constant.messages.getString("userauth.user.panel.title");
+	private static final String PANEL_NAME = Constant.messages.getString("users.panel.title");
 
 	public ContextUsersPanel(ExtensionUserManagement extension, int contextId) {
 		super(contextId);
@@ -64,7 +64,7 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		this.setName(getPanelName(getContextIndex()));
 		this.setLayout(new GridBagLayout());
 
-		this.add(new JLabel(Constant.messages.getString("userauth.user.panel.description")),
+		this.add(new JLabel(Constant.messages.getString("users.panel.description")),
 				LayoutHelper.getGBC(0, 0, 1, 1.0d, 0.0d));
 
 		usersTableModel = new UsersTableModel();
@@ -84,17 +84,17 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 		 */
 		private static final long serialVersionUID = -7216673905642941770L;
 		private static final String REMOVE_DIALOG_TITLE = Constant.messages
-				.getString("userauth.user.dialog.remove.title");
+				.getString("users.dialog.remove.title");
 		private static final String REMOVE_DIALOG_TEXT = Constant.messages
-				.getString("userauth.user.dialog.remove.text");
+				.getString("users.dialog.remove.text");
 
 		private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages
-				.getString("userauth.user.dialog.remove.button.confirm");
+				.getString("users.dialog.remove.button.confirm");
 		private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages
-				.getString("userauth.user.dialog.remove.button.cancel");
+				.getString("users.dialog.remove.button.cancel");
 
 		private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages
-				.getString("userauth.user.dialog.remove.checkbox.label");
+				.getString("users.dialog.remove.checkbox.label");
 
 		private DialogAddUser addDialog = null;
 		private DialogModifyUser modifyDialog = null;
@@ -106,8 +106,10 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 			super(model);
 			this.extension = extension;
 
-			getTable().getColumnExt(0).setPreferredWidth(20);
-			getTable().setSortOrder(1, SortOrder.ASCENDING);
+			getTable().getColumnExt(0).setPreferredWidth(40);
+			getTable().getColumnExt(1).setPreferredWidth(30);
+			getTable().getColumnExt(1).setMaxWidth(50);
+			getTable().setSortOrder(2, SortOrder.ASCENDING);
 		}
 
 		@Override

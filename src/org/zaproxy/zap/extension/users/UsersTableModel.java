@@ -34,8 +34,9 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 
 	/** The Constant defining the table column names. */
 	private static final String[] COLUMN_NAMES = {
-			Constant.messages.getString("userauth.user.table.header.enabled"),
-			Constant.messages.getString("userauth.user.table.header.name") };
+			Constant.messages.getString("users.table.header.enabled"),
+			Constant.messages.getString("users.table.header.id"),
+			Constant.messages.getString("users.table.header.name") };
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 4463944219657112162L;
@@ -75,6 +76,8 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 		case 0:
 			return users.get(rowIndex).isEnabled();
 		case 1:
+			return users.get(rowIndex).getId();
+		case 2:
 			return users.get(rowIndex).getName();
 		default:
 			return null;
@@ -125,6 +128,8 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 		case 0:
 			return Boolean.class;
 		case 1:
+			return Integer.class;
+		case 2:
 			return String.class;
 		default:
 			return null;

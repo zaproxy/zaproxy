@@ -12,7 +12,7 @@ public class DialogModifyUser extends DialogAddUser {
 	 */
 	private static final long serialVersionUID = 7828871270310672334L;
 	private static final String DIALOG_TITLE = Constant.messages
-			.getString("userauth.user.dialog.modify.title");
+			.getString("users.dialog.modify.title");
 
 	public DialogModifyUser(Dialog owner, ExtensionUserManagement extension) {
 		super(owner, extension, DIALOG_TITLE);
@@ -24,7 +24,7 @@ public class DialogModifyUser extends DialogAddUser {
 
 	@Override
 	protected String getConfirmButtonLabel() {
-		return Constant.messages.getString("userauth.user.dialog.modify.button.confirm");
+		return Constant.messages.getString("users.dialog.modify.button.confirm");
 	}
 
 	@Override

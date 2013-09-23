@@ -52,9 +52,9 @@ public class DialogAddUser extends AbstractFormDialog {
 	/** The Constant logger. */
 	protected static final Logger log = Logger.getLogger(DialogAddUser.class);
 
-	private static final String DIALOG_TITLE = Constant.messages.getString("userauth.user.dialog.add.title");
+	private static final String DIALOG_TITLE = Constant.messages.getString("users.dialog.add.title");
 	private static final String CONFIRM_BUTTON_LABEL = Constant.messages
-			.getString("userauth.user.dialog.add.button.confirm");
+			.getString("users.dialog.add.button.confirm");
 
 	private JPanel fieldsPanel;
 	private AbstractCredentialsOptionsPanel<?> credentialsPanel;
@@ -174,9 +174,9 @@ public class DialogAddUser extends AbstractFormDialog {
 			Insets insets = new Insets(4, 8, 2, 4);
 
 			JLabel nameLabel = new JLabel(
-					Constant.messages.getString("userauth.user.dialog.add.field.label.name"));
+					Constant.messages.getString("users.dialog.add.field.label.name"));
 			JLabel enabledLabel = new JLabel(
-					Constant.messages.getString("userauth.user.dialog.add.field.label.enabled"));
+					Constant.messages.getString("users.dialog.add.field.label.enabled"));
 
 			fieldsPanel.add(nameLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D, insets));
 			fieldsPanel.add(getNameTextField(), LayoutHelper.getGBC(1, 0, 1, 0.5D, insets));
