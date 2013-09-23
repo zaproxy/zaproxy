@@ -21,7 +21,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
@@ -52,6 +55,17 @@ public class PythonAPIGenerator {
 			"\"\"\"\n\n";
 
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
+	
+	/**
+	 * Map any names which are reserved in python to something legal
+	 */
+	private static final Map<String, String> nameMap;
+    static {
+        Map<String, String> initMap = new HashMap<String, String>();
+        initMap.put("break", "brk");
+        nameMap = Collections.unmodifiableMap(initMap);
+    }
+
 
 	public void generatePythonFiles() throws IOException {
 		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
@@ -144,7 +158,7 @@ public class PythonAPIGenerator {
 	}
 
 	private void generatePythonComponent(ApiImplementor imp) throws IOException {
-		File f = new File(this.dir, imp.getPrefix() + ".py");
+		File f = new File(this.dir, createFileName(imp.getPrefix()));
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(HEADER);
@@ -166,7 +180,17 @@ public class PythonAPIGenerator {
 		out.close();
 	}
 	
+	private static String createFileName(String name) {
+		if (nameMap.containsKey(name)) {
+			name = nameMap.get(name);
+		}
+		return name + ".py";
+	}
+	
 	private static String createFunctionName(String name) {
+		if (nameMap.containsKey(name)) {
+			name = nameMap.get(name);
+		}
 		return removeAllFullStopCharacters(camelCaseToLcUnderscores(name));
 	}
 
@@ -176,6 +200,9 @@ public class PythonAPIGenerator {
 
 	public static String camelCaseToLcUnderscores(String s) {
 		// Ripped off / inspired by http://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
+		if (nameMap.containsKey(s)) {
+			s = nameMap.get(s);
+		}
 		return s.replaceAll(
 			      String.format("%s|%s|%s",
 			         "(?<=[A-Z])(?=[A-Z][a-z])",
