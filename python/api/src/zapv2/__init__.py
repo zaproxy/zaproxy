@@ -26,14 +26,19 @@ import urllib
 from acsrf import acsrf
 from ascan import ascan
 from auth import auth
+from authentication import authentication
 from autoupdate import autoupdate
+from brk import brk
 from context import context
 from core import core
+from forcedUser import forcedUser
 from httpSessions import httpSessions
 from params import params
 from pscan import pscan
 from search import search
+from sessionManagement import sessionManagement
 from spider import spider
+from users import users
 
 class ZapError(Exception):
     """
@@ -66,14 +71,19 @@ class ZAPv2(object):
         self.acsrf = acsrf(self)
         self.ascan = ascan(self)
         self.auth = auth(self)
+        self.authentication = authentication(self)
         self.autoupdate = autoupdate(self)
+        self.brk = brk(self)
         self.context = context(self)
         self.core = core(self)
+        self.forcedUser = forcedUser(self)
         self.httpsessions = httpSessions(self)
         self.params = params(self)
         self.pscan = pscan(self)
         self.search = search(self)
+        self.sessionManagement = sessionManagement(self)
         self.spider = spider(self)
+        self.users = users(self)
 
     def _expect_ok(self, json_data):
         """

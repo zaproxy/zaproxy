@@ -33,8 +33,8 @@ class httpSessions(object):
     def session_tokens(self, site):
         return self.zap._request(self.zap.base + 'httpSessions/view/sessionTokens/', {'site' : site})
 
-    def create_empty_session(self, site):
-        return self.zap._request(self.zap.base + 'httpSessions/action/createEmptySession/', {'site' : site})
+    def create_empty_session(self, site, session=''):
+        return self.zap._request(self.zap.base + 'httpSessions/action/createEmptySession/', {'site' : site, 'session' : session})
 
     def remove_session(self, site, session):
         return self.zap._request(self.zap.base + 'httpSessions/action/removeSession/', {'site' : site, 'session' : session})
