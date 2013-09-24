@@ -56,6 +56,11 @@ public class LayoutHelper {
 		return getGBC(x, y, width, 1, weightx, weighty, fill, DEFAULT_ANCHOR, insets);
 	}
 	
+	public static GridBagConstraints getGBC(int x, int y, int width, double weightx, double weighty, int fill, int anchor, 
+			Insets insets) {
+		return getGBC(x, y, width, 1, weightx, weighty, fill, anchor, insets);
+	}
+
 	public static GridBagConstraints getGBC(int x, int y, int width, int height, double weightx, double weighty, int fill, int anchor, 
 			Insets insets) {
 		GridBagConstraints gbc = new GridBagConstraints();
