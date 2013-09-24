@@ -41,6 +41,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsScannerPanel extends AbstractParamPanel {
@@ -52,6 +53,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	private JSlider sliderDelayInMs = null;
 	private JLabel labelThreadsPerHostValue = null;
 	private JLabel labelDelayInMsValue = null;
+	private ZapNumberSpinner spinnerMaxResultsList = null;
 	private JCheckBox chkHandleAntiCrsfTokens = null;
 	private JCheckBox chkDeleteRequestsOnShutdown = null;
 	private JComboBox<String> comboThreshold = null;
@@ -102,34 +104,37 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(2, 2, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(getSliderThreadsPerHost(), 
 					LayoutHelper.getGBC(0, 3, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			
+			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxRes.label")), 
+					LayoutHelper.getGBC(0, 4, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(this.getSpinnerMaxResultsList(), 
+					LayoutHelper.getGBC(1, 4, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.delayInMs.label")), 
-					LayoutHelper.getGBC(0, 4, 2,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 5, 2,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(getLabelDelayInMsValue(), 
-					LayoutHelper.getGBC(2, 4, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+					LayoutHelper.getGBC(2, 5, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			panelScanner.add(getSliderDelayInMs(), 
-					LayoutHelper.getGBC(0, 5, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getChkHandleAntiCSRFTokens(), 
 					LayoutHelper.getGBC(0, 6, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getChkDeleteRequestsOnShutdown(), 
+			panelScanner.add(getChkHandleAntiCSRFTokens(), 
 					LayoutHelper.getGBC(0, 7, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getChkDeleteRequestsOnShutdown(), 
+					LayoutHelper.getGBC(0, 8, 3,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.level.label")), 
-					LayoutHelper.getGBC(0, 8, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getComboThreshold(), 
-					LayoutHelper.getGBC(1, 8, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getThresholdNotes(), 
-					LayoutHelper.getGBC(2, 8, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			
-			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.strength.label")), 
 					LayoutHelper.getGBC(0, 9, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getComboStrength(), 
+			panelScanner.add(getComboThreshold(), 
 					LayoutHelper.getGBC(1, 9, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
-			panelScanner.add(getStrengthNotes(), 
+			panelScanner.add(getThresholdNotes(), 
 					LayoutHelper.getGBC(2, 9, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
+			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.strength.label")), 
+					LayoutHelper.getGBC(0, 10, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getComboStrength(), 
+					LayoutHelper.getGBC(1, 10, 1,  0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			panelScanner.add(getStrengthNotes(), 
+					LayoutHelper.getGBC(2, 10, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+			
 			panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.params.label")), 
-					LayoutHelper.getGBC(0, 10, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 11, 1,  1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2,2,2,2)));
 			
 			JPanel panelParams = new JPanel();
 			panelParams.setLayout(new GridBagLayout());
@@ -228,6 +233,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    getSliderThreadsPerHost().setValue(param.getThreadPerHost());
 	    getSliderDelayInMs().setValue(param.getDelayInMs());
 	    setLabelDelayInMsValue(param.getDelayInMs());
+	    getSpinnerMaxResultsList().setValue(param.getMaxResultsToList());
 	    getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
 	    getChkDeleteRequestsOnShutdown().setSelected(param.isDeleteRequestsOnShutdown());
 	    switch (param.getAlertThreshold()) {
@@ -235,23 +241,20 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    	getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.low"));
 	    	getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
 	    	break;
-	    case MEDIUM: 
-	    	getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.medium")); 
-	    	getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
-	    	break;
 	    case HIGH: 
 	    	getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.high")); 
 	    	getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
+	    	break;
+	    case MEDIUM: 
+	    default:
+	    	getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.medium")); 
+	    	getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
 	    	break;
 	    }
 	    switch (param.getAttackStrength()) {
 	    case LOW: 
 	    	getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.low"));
 	    	getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.low.label"));
-	    	break;
-	    case MEDIUM: 
-	    	getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.medium")); 
-	    	getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
 	    	break;
 	    case HIGH: 
 	    	getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.high")); 
@@ -260,6 +263,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    case INSANE: 
 	    	getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.insane")); 
 	    	getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.insane.label"));
+	    	break;
+	    case MEDIUM: 
+	    default:
+	    	getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.medium")); 
+	    	getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
 	    	break;
 	    }
 	    this.getChkTargetParamsUrl().setSelected(param.isTargetParamsUrl());
@@ -285,6 +293,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 	    param.setHostPerScan(getSliderHostPerScan().getValue());
 	    param.setThreadPerHost(getSliderThreadsPerHost().getValue());
 	    param.setDelayInMs(getDelayInMs());
+	    param.setMaxResultsToList(this.getSpinnerMaxResultsList().getValue());
 	    param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
 	    param.setDeleteRequestsOnShutdown(this.getChkDeleteRequestsOnShutdown().isSelected());
 	    
@@ -439,6 +448,14 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 			setLabelThreadsPerHostValue(getSliderThreadsPerHost().getValue());
 		}
 		return labelThreadsPerHostValue;
+	}
+
+	private ZapNumberSpinner getSpinnerMaxResultsList() {
+		if (spinnerMaxResultsList == null) {
+			spinnerMaxResultsList = new ZapNumberSpinner(); 
+			spinnerMaxResultsList.setToolTipText(Constant.messages.getString("ascan.options.maxRes.tooltip"));
+		}
+		return spinnerMaxResultsList;
 	}
 
 	@Override

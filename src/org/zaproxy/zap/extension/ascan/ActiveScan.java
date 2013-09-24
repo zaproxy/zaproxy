@@ -58,6 +58,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private boolean deleteRecordsOnExit = true;
+	private int maxResultsToList = 0;
 	
     /**
      * A list containing all the {@code HistoryReference} IDs that are added to
@@ -71,6 +72,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
 		super(scannerParam, param);
 		this.site = site;
+		this.maxResultsToList = scannerParam.getMaxResultsToList();
 		this.deleteRecordsOnExit = scannerParam.isDeleteRequestsOnShutdown();
 		if (activeScanPanel != null) {
 			this.activeScanPanel = activeScanPanel;
@@ -192,26 +194,30 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	    synchronized (list) {
 	        HistoryReference hRef = msg.getHistoryRef();
         	this.totalRequests++;
-            if (hRef == null) {
-                try {
-                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
-                    // If an alert is raised because of the HttpMessage msg a new HistoryReference must be created 
-                    // (because hRef is temporary), and the condition to create it is when the HistoryReference of the 
-                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
-                    msg.setHistoryRef(null);
-                    this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
-                    this.list.addElement(hRef);
-                } catch (HttpMalformedHeaderException e) {
-                    log.error(e.getMessage(), e);
-                } catch (SQLException e) {
-                    log.error(e.getMessage(), e);
-                }
-            } else {
-                this.list.addElement(hRef);
-            }
+        	if (this.totalRequests <= this.maxResultsToList) {
+        		// Very large lists significantly impact the UI responsiveness
+        		// limiting them makes large scans _much_ quicker
+	            if (hRef == null) {
+	                try {
+	                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
+	                    // If an alert is raised because of the HttpMessage msg a new HistoryReference must be created 
+	                    // (because hRef is temporary), and the condition to create it is when the HistoryReference of the 
+	                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
+	                    msg.setHistoryRef(null);
+	                    this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
+	                    this.list.addElement(hRef);
+	                } catch (HttpMalformedHeaderException e) {
+	                    log.error(e.getMessage(), e);
+	                } catch (SQLException e) {
+	                    log.error(e.getMessage(), e);
+	                }
+	            } else {
+	                this.list.addElement(hRef);
+	            }
+        	}
         }
 	}
-
+	
 	@Override
 	public SiteNode getStartNode() {
 		return this.startNode;

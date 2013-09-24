@@ -30,6 +30,7 @@ import java.util.Map;
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -74,6 +75,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 	private JButton optionsButton = null;
 	private JButton progressButton = null;
+	private JLabel numRequests;
 
     private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
     
@@ -93,6 +95,10 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		}
 		if (Location.beforeProgressBar.equals(loc)) {
 			panelToolbar.add(getProgressButton(), getGBC(x++,0));
+		}
+		if (Location.afterProgressBar.equals(loc)) {
+			panelToolbar.add(new JLabel(Constant.messages.getString("ascan.toolbar.requests.label")), getGBC(x++,0));
+			panelToolbar.add(getNumRequests(), getGBC(x++,0));
 		}
 		return x;
 	}
@@ -130,6 +136,13 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			});
 		}
 		return progressButton;
+	}
+	
+	private JLabel getNumRequests() {
+		if (numRequests == null) {
+			numRequests = new JLabel();
+		}
+		return numRequests;
 	}
 	
 	private void showScanProgressDialog() {
@@ -290,13 +303,19 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	@Override
 	public void hostProgress(String hostAndPort, String msg, int percentage) {
 		this.scanProgress(cleanSiteName(hostAndPort, true), percentage, 100);
+		updateRequestCount();
 	}
-
 
 	@Override
 	public void scannerComplete() {
 	}
-
+	
+	private void updateRequestCount() {
+		GenericScanner gs = this.getScanThread(this.getCurrentSite());
+		if (gs != null && gs instanceof ActiveScan) {
+			this.getNumRequests().setText(Integer.toString(((ActiveScan) gs).getTotalRequests()));
+		}
+	}
 
 	@Override
 	public void notifyNewMessage(HttpMessage msg) {
@@ -328,10 +347,15 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	@Override
 	protected void siteSelected(String site, boolean forceRefresh) {
 		super.siteSelected(site, forceRefresh);
+		// Clear the number of requests - will set below if applicable
+		this.getNumRequests().setText("");
 
 		GenericScanner gs = this.getScanThread(this.getCurrentSite());
 		if (gs != null && (gs.isRunning() || gs.isStopped())) {
 			this.getProgressButton().setEnabled(true);
+			if (gs instanceof ActiveScan) {
+				this.getNumRequests().setText(Integer.toString(((ActiveScan) gs).getTotalRequests()));
+			}
 		} else {
 			this.getProgressButton().setEnabled(false);
 		}

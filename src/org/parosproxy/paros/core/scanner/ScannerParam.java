@@ -27,6 +27,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/04/26 Issue 652: Added option to not delete records on shutdown
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
+// ZAP: 2013/09/24 Issue 797: Limit number of ascan results listed to speed up scans
 
 package org.parosproxy.paros.core.scanner;
 
@@ -44,6 +45,7 @@ public class ScannerParam extends AbstractParam {
 	private static final String DELETE_RECORDS_ON_SHUTDOWN = "scanner.deleteOnShutdown";
 	private static final String LEVEL = "scanner.level";
 	private static final String STRENGTH = "scanner.strength";
+	private static final String MAX_RESULTS_LIST = "scanner.maxResults";
 	private static final String TARGET_PARAMS_URL = "scanner.params.url";
 	private static final String TARGET_PARAMS_FORM = "scanner.params.form";
 	private static final String TARGET_PARAMS_COOKIE = "scanner.params.cookie";
@@ -59,6 +61,7 @@ public class ScannerParam extends AbstractParam {
 	private int hostPerScan = 2;
 	private int threadPerHost = 1;
 	private int delayInMs = 0;
+	private int maxResultsToList = 1000;
 	private boolean handleAntiCSRFTokens = false;
 	private boolean deleteRequestsOnShutdown = true;
 	private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM; 
@@ -89,6 +92,9 @@ public class ScannerParam extends AbstractParam {
 		} catch (Exception e) {}
 		try {
 			this.delayInMs = getConfig().getInt(DELAY_IN_MS, 0);
+		} catch (Exception e) {}
+		try {
+			this.maxResultsToList = getConfig().getInt(MAX_RESULTS_LIST, 1000);
 		} catch (Exception e) {}
 		try {
 			this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
@@ -160,6 +166,15 @@ public class ScannerParam extends AbstractParam {
 		getConfig().setProperty(HOST_PER_SCAN, Integer.toString(this.hostPerScan));
 
     }
+
+	public int getMaxResultsToList() {
+		return maxResultsToList;
+	}
+
+	public void setMaxResultsToList(int maxResultsToList) {
+		this.maxResultsToList = maxResultsToList;
+        getConfig().setProperty(MAX_RESULTS_LIST, Integer.toString(this.maxResultsToList));
+	}
 
 	public void setDelayInMs(int delayInMs) {
 		this.delayInMs = delayInMs;
