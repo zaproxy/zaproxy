@@ -47,7 +47,8 @@ public class ScannerParam extends AbstractParam {
 	private static final String TARGET_PARAMS_URL = "scanner.params.url";
 	private static final String TARGET_PARAMS_FORM = "scanner.params.form";
 	private static final String TARGET_PARAMS_COOKIE = "scanner.params.cookie";
-	private static final String TARGET_PARAMS_MULTIPART_FORM = "scanner.params.multiform";
+	// Currently included in TARGET_PARAMS_FORM
+	//private static final String TARGET_PARAMS_MULTIPART_FORM = "scanner.params.multiform";
 	private static final String TARGET_PARAMS_GWT = "scanner.params.gwt";
 	private static final String TARGET_PARAMS_XML = "scanner.params.xml";
 	private static final String TARGET_PARAMS_JSON = "scanner.params.json";
@@ -101,7 +102,6 @@ public class ScannerParam extends AbstractParam {
 		try {
 			this.attackStrength = AttackStrength.valueOf(getConfig().getString(STRENGTH, AttackStrength.MEDIUM.name()));
 		} catch (Exception e) {}
-		
 		try {
 			this.targetParamsUrl = getConfig().getBoolean(TARGET_PARAMS_URL, true);
 		} catch (Exception e) {}
@@ -112,7 +112,8 @@ public class ScannerParam extends AbstractParam {
 			this.targetParamsCookie = getConfig().getBoolean(TARGET_PARAMS_COOKIE, true);
 		} catch (Exception e) {}
 		try {
-			this.targetParamsMultiPartForm = getConfig().getBoolean(TARGET_PARAMS_MULTIPART_FORM, true);
+			// Currently reuses TARGET_PARAMS_FORM
+			this.targetParamsMultiPartForm = getConfig().getBoolean(TARGET_PARAMS_FORM, true);
 		} catch (Exception e) {}
 		try {
 			this.targetParamsGWT = getConfig().getBoolean(TARGET_PARAMS_GWT, true);
@@ -244,10 +245,12 @@ public class ScannerParam extends AbstractParam {
 		return targetParamsMultiPartForm;
 	}
 
+	/*
 	public void setTargetParamsMultiPartForm(boolean targetParamsMultiPartForm) {
 		this.targetParamsMultiPartForm = targetParamsMultiPartForm;
 		getConfig().setProperty(TARGET_PARAMS_MULTIPART_FORM, this.targetParamsMultiPartForm);
 	}
+	*/
 
 	public boolean isTargetParamsGWT() {
 		return targetParamsGWT;
