@@ -1,0 +1,123 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Change all POSTs to GETs",
+  "description": "This script changes all POST requests to GET requests, moving the request body to the URL.",
+  "prefix": "",
+  "type": "Targeted",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {},
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "This script changes all POST requests to GET requests, moving the request body to the URL.",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "rootExpression": {
+        "length": 0,
+        "approx": 0,
+        "variableName": "response.url",
+        "not": false,
+        "elementType": "ZestExpressionLength"
+      },
+      "ifStatements": [
+        {
+          "comment": "Called for the request. Check to see if its a POST.",
+          "index": 3,
+          "elementType": "ZestComment"
+        },
+        {
+          "rootExpression": {
+            "value": "POST",
+            "variableName": "request.method",
+            "caseExact": false,
+            "not": false,
+            "elementType": "ZestExpressionEquals"
+          },
+          "ifStatements": [
+            {
+              "comment": "Its a POST - move the body to the URL and change the method.",
+              "index": 5,
+              "elementType": "ZestComment"
+            },
+            {
+              "string": "GET",
+              "variableName": "request.method",
+              "index": 6,
+              "elementType": "ZestAssignString"
+            },
+            {
+              "rootExpression": {
+                "regex": "\\?",
+                "variableName": "request.url",
+                "caseExact": false,
+                "not": false,
+                "elementType": "ZestExpressionRegex"
+              },
+              "ifStatements": [
+                {
+                  "comment": "URL already includes parameters",
+                  "index": 8,
+                  "elementType": "ZestComment"
+                },
+                {
+                  "string": "{{request.url}}\u0026{{request.body}}",
+                  "variableName": "request.url",
+                  "index": 9,
+                  "elementType": "ZestAssignString"
+                }
+              ],
+              "elseStatements": [
+                {
+                  "comment": "URL doesnt include parameters",
+                  "index": 10,
+                  "elementType": "ZestComment"
+                },
+                {
+                  "string": "{{request.url}}?{{request.body}}",
+                  "variableName": "request.url",
+                  "index": 11,
+                  "elementType": "ZestAssignString"
+                }
+              ],
+              "index": 7,
+              "elementType": "ZestConditional"
+            },
+            {
+              "string": "",
+              "variableName": "request.body",
+              "index": 8,
+              "elementType": "ZestAssignString"
+            }
+          ],
+          "elseStatements": [
+            {
+              "comment": "Its not a POST - do nothing",
+              "index": 9,
+              "elementType": "ZestComment"
+            }
+          ],
+          "index": 4,
+          "elementType": "ZestConditional"
+        }
+      ],
+      "elseStatements": [
+        {
+          "comment": "Called for the response - do nothing.\n",
+          "index": 6,
+          "elementType": "ZestComment"
+        }
+      ],
+      "index": 2,
+      "elementType": "ZestConditional"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}

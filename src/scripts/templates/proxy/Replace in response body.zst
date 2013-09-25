@@ -1,0 +1,58 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Replace in response body",
+  "description": "Change the \u0027assign\u0027 statement to match your required \u0027original\u0027 and \u0027replacement\u0027 strings.",
+  "prefix": "",
+  "type": "Targeted",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {},
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "Change the \u0027assign\u0027 statement to match your required \u0027original\u0027 and \u0027replacement\u0027 strings.",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "rootExpression": {
+        "length": 0,
+        "approx": 0,
+        "variableName": "response.url",
+        "not": false,
+        "elementType": "ZestExpressionLength"
+      },
+      "ifStatements": [
+        {
+          "comment": "Called for the request - do nothing.",
+          "index": 3,
+          "elementType": "ZestComment"
+        }
+      ],
+      "elseStatements": [
+        {
+          "comment": "Called for the response - perform the replacement",
+          "index": 6,
+          "elementType": "ZestComment"
+        },
+        {
+          "replace": "_change_for_original_string_",
+          "replacement": "_change_for_replacement_string_",
+          "regex": false,
+          "caseExact": false,
+          "variableName": "response.body",
+          "index": 7,
+          "elementType": "ZestAssignReplace"
+        }
+      ],
+      "index": 2,
+      "elementType": "ZestConditional"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}
