@@ -49,6 +49,7 @@ zapUrl = 'http://127.0.0.1:8090'
 # Dictionary of abbreviation to keep the output a bit shorter
 abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
+		'Anti CSRF tokens scanner' : 'ACSRF',\
 		'Cookie set without HttpOnly flag' : 'HttpOnly',\
 		'Cross Site Request Forgery' : 'CSRF',\
 		'HTTP Parameter Override' : 'ParamOver',\
@@ -85,6 +86,7 @@ rules = [ \
 		# All these appear to be valid ;)
 		['-', 'InfoDebug', 'ignore'], \
 		['-', 'InfoUrl', 'ignore'], \
+		['-', 'ACSRF', 'ignore'], \
 		['-', 'NoCSRF', 'ignore'], \
 		['-', 'NoCSRF2', 'ignore'], \
 		['-', 'ParamOver', 'ignore'], \
