@@ -26,43 +26,63 @@
 // ZAP: 2013/07/03 Added variant handling attributes and data contained in XML requests 
 // ZAP: 2013/07/14 Issue 726: Catch active scan variants' exceptions
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
-
+// ZAP: 2013/09/26 Reviewed Variant Panel configuration
+//
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     private static final Logger logger = Logger.getLogger(AbstractAppParamPlugin.class);
-
-    private ArrayList<Variant> listVariant = new ArrayList<>();    
+    private ArrayList<Variant> listVariant = new ArrayList();
     private NameValuePair originalPair = null;
     private Variant variant = null;
-    
+
     @Override
     public void scan() {
-        if (this.getParent().getScannerParam().isTargetParamsUrl()) {
-        	listVariant.add(new VariantURLQuery());
+        int targets = this.getParent().getScannerParam().getTargetParamsInjectable();
+        int enabledRPC = this.getParent().getScannerParam().getTargetParamsEnabledRPC();
+
+        // First check URL query-string target configuration
+        if ((targets & ScannerParam.TARGET_QUERYSTRING) != 0) {
+            listVariant.add(new VariantURLQuery());
+            
+            // ZAP: To handle parameters in OData urls
+            if ((enabledRPC & ScannerParam.RPC_ODATA) != 0) {
+                listVariant.add(new VariantODataIdQuery());
+                listVariant.add(new VariantODataFilterQuery());
+            }
         }
-        if (this.getParent().getScannerParam().isTargetParamsForm()) {
-        	listVariant.add(new VariantFormQuery());
+        
+        // Then check POST data target configuration and RPC enabled methods
+        if ((targets & ScannerParam.TARGET_POSTDATA) != 0) {
+            listVariant.add(new VariantFormQuery());
+
+            // ZAP: To handle Multipart Form-Data POST requests
+            if ((enabledRPC & ScannerParam.RPC_MULTIPART) != 0) {
+                listVariant.add(new VariantMultipartFormQuery());            
+            }
+            
+            // ZAP: To handle XML based POST requests
+            if ((enabledRPC & ScannerParam.RPC_XML) != 0) {
+                listVariant.add(new VariantXMLQuery());
+            }
+
+            // ZAP: To handle JSON based POST requests
+            if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
+                listVariant.add(new VariantJSONQuery());
+            }
+            
+            // ZAP: To handle GWT Serialized POST requests
+            if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {
+                listVariant.add(new VariantGWTQuery());
+            }            
         }
-        if (this.getParent().getScannerParam().isTargetParamsMultiPartForm()) {
-            listVariant.add(new VariantMultipartFormQuery());
-        }
-        if (this.getParent().getScannerParam().isTargetParamsGWT()) {
-            listVariant.add(new VariantGWTQuery());
-        }
-        if (this.getParent().getScannerParam().isTargetParamsXML()) {
-            listVariant.add(new VariantXMLQuery());
-        }
-        if (this.getParent().getScannerParam().isTargetParamsJSON()) {
-            listVariant.add(new VariantJSONQuery());
-        }
-        if (this.getParent().getScannerParam().isTargetParamsHeader()) {
+        
+        if ((targets & ScannerParam.TARGET_HTTPHEADERS) != 0) {
             listVariant.add(new VariantHeader());
         }
 
@@ -70,14 +90,8 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         // suitable to cookie vulnerabilities
         // 'cause the character RFC limitation
         // is it useful?
-        //listVariant.add(new VariantCookie());
-
-        // ZAP: To handle parameters in OData urls
-        if (this.getParent().getScannerParam().isTargetParamsODataId()) {
-            listVariant.add(new VariantODataIdQuery());
-        }
-        if (this.getParent().getScannerParam().isTargetParamsODataFilter()) {
-            listVariant.add(new VariantODataFilterQuery());
+        if ((targets & ScannerParam.TARGET_COOKIE) != 0) {
+            listVariant.add(new VariantCookie());
         }
 
         for (int i = 0; i < listVariant.size() && !isStop(); i++) {
@@ -87,7 +101,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             try {
                 variant.setMessage(msg);
                 scanVariant();
-                
+
             } catch (Exception e) {
                 logger.error("Error occurred while scanning with variant " + variant.getClass().getCanonicalName(), e);
             }
@@ -105,10 +119,10 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
 
     /**
-     * 
+     *
      * @param msg
      * @param param
-     * @param value 
+     * @param value
      */
     public abstract void scan(HttpMessage msg, String param, String value);
 
@@ -127,11 +141,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
 
     /**
-     * 
+     *
      * @param msg
      * @param param
      * @param value
-     * @return 
+     * @return
      */
     protected String setEscapedParameter(HttpMessage msg, String param, String value) {
         return variant.setEscapedParameter(msg, originalPair, param, value);
