@@ -36,6 +36,7 @@
 // ZAP: 2013/07/25 Added support for sending the message from the perspective of a User
 // ZAP: 2013/08/31 Reauthentication when sending a message from the perspective of a User
 // ZAP: 2013/09/07 Switched to using HttpState for requesting User for cookie management
+// ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 
 package org.parosproxy.paros.network;
 
@@ -416,6 +417,7 @@ public class HttpSender {
 			if (!msg.isEventStream()) {
 				msg.getResponseBody().append(method.getResponseBody());
 			}
+			msg.setResponseFromTargetHost(true);
 
 			// ZAP: set method to retrieve upgraded channel later
 			if (method instanceof ZapGetMethod) {

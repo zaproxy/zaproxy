@@ -33,6 +33,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/04/08 Issue 605: Force intercepts via header
 // ZAP: 2013/07/25 Added support for sending the message from the perspective of a User
+// ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 
 package org.parosproxy.paros.network;
 
@@ -85,6 +86,13 @@ public class HttpMessage implements Message {
 	private HttpSession httpSession = null;
 	// ZAP: Added support for requesting the message to be sent as a particular User
 	private User requestUser;
+
+    /**
+     * Flag that indicates if the response has been received or not from the target host.
+     * <p>
+     * Default is {@code false}.
+     */
+    private boolean responseFromTargetHost = false;
 
 
     public HistoryReference getHistoryRef() {
@@ -891,4 +899,26 @@ public class HttpMessage implements Message {
 	}
 	
 	
+    /**
+     * Tells whether or not the response has been received from the target host.
+     * <p>
+     * <strong>Note:</strong> No distinction is done between responses from intermediate proxy servers (if any) and the target
+     * host.
+     * </p>
+     * 
+     * @return {@code true} if the response has been received from the target host, {@code false} otherwise.
+     */
+    public boolean isResponseFromTargetHost() {
+        return this.responseFromTargetHost;
+    }
+
+    /**
+     * Sets if the response has been received or not from the target host.
+     * 
+     * @param responseFromTargetHost {@code true} if the response has been received from the target host, {@code false}
+     *            otherwise.
+     */
+    public void setResponseFromTargetHost(final boolean responseFromTargetHost) {
+        this.responseFromTargetHost = responseFromTargetHost;
+    }
 }
