@@ -173,9 +173,7 @@ public class API {
 					try {
 						format = Format.valueOf(elements[3].toUpperCase());
 						switch (format) {
-						case JSON: 	// Browsers will prompt for you to save application/json format, which is a pain
-									//contentType = "application/json"; 
-									contentType = "text/plain";
+						case JSON: 	contentType = "application/json"; 
 									break;
 						case JSONP: contentType = "application/javascript";
 									break;
