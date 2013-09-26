@@ -30,6 +30,7 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSlider;
 import javax.swing.filechooser.FileFilter;
@@ -270,34 +271,59 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 							return true;
 						}
 					} );
-
+					
 					// Copy the file into the 'home' dirbuster directory
 					int state = fcCommand.showOpenDialog( null );
 
-					if ( state == JFileChooser.APPROVE_OPTION )
-					{
-				    	FileCopier copier = new FileCopier();
-				    	File newFile = new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator + 
-				    							fcCommand.getSelectedFile().getName());
+					if (state == JFileChooser.APPROVE_OPTION) {
+						final File selectedFile = fcCommand.getSelectedFile();
+						final File newFile = new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator
+								+ selectedFile.getName());
 
-				    	if (newFile.exists()) {
-							View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.duplicate.error"));
-				    		
-				    	} else if ( ! newFile.getParentFile().canWrite()) {
-							View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.dirperms.error") +
-									newFile.getParentFile().getAbsolutePath());
-				    		
-				    	} else {
-				    		try {
-								copier.copy(fcCommand.getSelectedFile(), newFile);
-								View.getSingleton().showMessageDialog(Constant.messages.getString("fuzz.add.ok"));
-							} catch (IOException e1) {
-								View.getSingleton().showWarningDialog(Constant.messages.getString("fuzz.add.fail.error") +
-										e1.getMessage());
-							}
-				    	}
+						boolean copyFile = false;
+						if (newFile.exists()) {
+						    copyFile = confirmOverwrite();
+						} else if (!newFile.getParentFile().canWrite()) {
+							View.getSingleton().showWarningDialog(
+									Constant.messages.getString("fuzz.add.dirperms.error")
+											+ newFile.getParentFile().getAbsolutePath());
+
+						} else {
+							copyFile = true;
+						}
+
+						if (copyFile) {
+							copyFile(selectedFile, newFile);
+						}
 					}
 				}
+
+                private boolean confirmOverwrite() {
+                    int option = JOptionPane.showOptionDialog(
+                            View.getSingleton().getMainFrame(),
+                            Constant.messages.getString("fuzz.add.duplicate.error"),
+                            Constant.messages.getString("fuzz.add.duplicate.error.title"),
+                            JOptionPane.OK_CANCEL_OPTION,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            new String[] {
+                                    Constant.messages.getString("fuzz.add.duplicate.error.button.confirm"),
+                                    Constant.messages.getString("all.button.cancel") },
+                            null);
+
+                    return option == JOptionPane.OK_OPTION;
+                }
+
+                private void copyFile(final File source, final File dest) {
+                    final FileCopier copier = new FileCopier();
+                    try {
+                        copier.copy(source, dest);
+                        View.getSingleton().showMessageDialog(Constant.messages.getString("fuzz.add.ok"));
+                    } catch (IOException e) {
+                        View.getSingleton().showWarningDialog(
+                                Constant.messages.getString("fuzz.add.fail.error") + e.getMessage());
+                    }
+                }
 			});
 		}
 		return addFileButton;
