@@ -458,6 +458,34 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
     	
+		if (View.isInitialised()) {
+			if (getModel().getOptionsParam().getCheckForUpdatesParam().isCheckOnStartUnset()) {
+				// First time in
+				OptionsParamCheckForUpdates param = getModel().getOptionsParam().getCheckForUpdatesParam();
+                int result = getView().showConfirmDialog(
+                		Constant.messages.getString("cfu.confirm.startCheck"));
+                if (result == JOptionPane.OK_OPTION) {
+                	param.setCheckOnStart(1);
+                	param.setCheckAddonUpdates(true);
+                	param.setDownloadNewRelease(true);
+                } else {
+                	param.setCheckOnStart(0);
+                }
+                // Save
+			    try {
+			    	this.getModel().getOptionsParam().getConfig().save();
+	            } catch (ConfigurationException ce) {
+	            	logger.error(ce.getMessage(), ce);
+	                getView().showWarningDialog(
+	                		Constant.messages.getString("cfu.confirm.error"));
+	                return;
+	            }
+			}
+			if (! getModel().getOptionsParam().getCheckForUpdatesParam().isCheckOnStart()) {
+				return;
+			}
+		}
+    	
 		if (! options.isCheckOnStart()) {
 			// Top level option not set, dont do anything, unless already downloaded last release
 			if (View.isInitialised() && this.getPreviousVersionInfo() != null) {
