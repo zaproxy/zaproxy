@@ -33,6 +33,7 @@
 // a single Cookie request header and set it as the default
 // ZAP: 2013/07/10 Issue 720: Cannot send non standard http methods 
 // ZAP: 2013/07/14 Issue 729: Update NTLM authentication code
+// ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 
 package org.parosproxy.paros.network;
 
@@ -363,6 +364,7 @@ public class HttpSender {
 	        if (!msg.isEventStream()) {
 	        	msg.getResponseBody().append(method.getResponseBody());
 	        }
+	        msg.setResponseFromTargetHost(true);
             
             // ZAP: set method to retrieve upgraded channel later
             if (method instanceof ZapGetMethod) {
