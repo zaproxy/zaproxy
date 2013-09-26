@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.request;
 
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 
@@ -37,6 +38,7 @@ public class RequestBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPanel
 		}
 		
 		httpMessage.getRequestBody().setBody(data);
+		HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
 	}
 
 }
