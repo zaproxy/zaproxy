@@ -556,10 +556,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						"Access-Control-Allow-Origin: *\r\n" + 
 						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
 						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-						"Content-Length: " + response.length() + 
-						"\r\nContent-Type: text/xml;");
+						"Content-Length: 0\r\n" + 
+						"Content-Type: text/xml; charset=UTF-8");
 				
 				msg.setResponseBody(response);
+				msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 		        
 				return msg;
 			} catch (Exception e) {
