@@ -153,7 +153,7 @@ public class API {
 		String component = null;
 		ApiImplementor impl = null;
 		RequestType reqType = null;
-		String contentType = "text/plain";
+		String contentType = "text/plain; charset=UTF-8";
 		String response = "";
 		String name = null;
 		
@@ -173,15 +173,15 @@ public class API {
 					try {
 						format = Format.valueOf(elements[3].toUpperCase());
 						switch (format) {
-						case JSON: 	contentType = "application/json"; 
+						case JSON: 	contentType = "application/json; charset=UTF-8";
 									break;
-						case JSONP: contentType = "application/javascript";
+						case JSONP: contentType = "application/javascript; charset=UTF-8";
 									break;
-						case XML:	contentType = "text/xml";
+						case XML:	contentType = "text/xml; charset=UTF-8";
 									break;
-						case HTML:	contentType = "text/html";
+						case HTML:	contentType = "text/html; charset=UTF-8";
 									break;
-						case UI:	contentType = "text/html";
+						case UI:	contentType = "text/html; charset=UTF-8";
 									break;
 						default:
 									break;
@@ -217,7 +217,7 @@ public class API {
 					}
 
 					response = webUI.handleRequest(component, impl, reqType, name);
-					contentType = "text/html";
+					contentType = "text/html; charset=UTF-8";
 				} else if (name != null) {
 					if ( ! isEnabled()) {
 						throw new ApiException(ApiException.Type.DISABLED);
@@ -315,7 +315,7 @@ public class API {
 					// Handle default front page, even if the API is disabled
 					response = webUI.handleRequest(requestHeader.getURI(), this.isEnabled());
 					format = Format.UI;
-					contentType = "text/html";
+					contentType = "text/html; charset=UTF-8";
 				}
 			}
 			logger.debug("handleApiRequest returning: " + response);
@@ -333,13 +333,14 @@ public class API {
 	  				"Access-Control-Allow-Origin: *\r\n" + 
 	  				"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
 	  				"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-	    			"Content-Length: " + response.length() + 
-	    			"\r\nContent-Type: " + contentType + ";");
+	    			"Content-Length: 0\r\n" + 
+	    			"Content-Type: " + contentType);
 	    	msg.setResponseBody(response);
+	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 		}
 
     	httpOut.write(msg.getResponseHeader());
-    	httpOut.write(msg.getResponseBody());
+    	httpOut.write(msg.getResponseBody().getBytes());
 		httpOut.flush();
 		httpOut.close();
 		httpIn.close();
