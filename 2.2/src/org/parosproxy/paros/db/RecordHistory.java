@@ -21,6 +21,7 @@
 // ZAP: 2012/03/15 Changed the RecordHistory constructor to receive a byte[]
 //      instead of String in the parameters reqBody and resBody.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 
 
 package org.parosproxy.paros.db;
@@ -43,7 +44,7 @@ public class RecordHistory {
 	}
 
 	// ZAP: Added note to RecordHistory constructor
-	public RecordHistory(int historyId, int historyType, long sessionId, long timeSentMillis, int timeElapsedMillis, String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note) throws HttpMalformedHeaderException {
+	public RecordHistory(int historyId, int historyType, long sessionId, long timeSentMillis, int timeElapsedMillis, String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note, boolean responseFromTargetHost) throws HttpMalformedHeaderException {
 		setHistoryId(historyId);
 		setHistoryType(historyType);
         setSessionId(sessionId);
@@ -57,6 +58,7 @@ public class RecordHistory {
 			//httpMessage.addTag(tag);
 		}
         httpMessage.setNote(note);
+        httpMessage.setResponseFromTargetHost(responseFromTargetHost);
 	}
 	
 	/**

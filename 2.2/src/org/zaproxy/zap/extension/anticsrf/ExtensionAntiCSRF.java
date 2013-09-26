@@ -265,7 +265,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 						msg.getResponseBody().toString();
 					Source src = new Source(response);
 
-					scanner.scanHttpResponseReceive(msg, hRef.getHistoryId(), src);
+					if (msg.isResponseFromTargetHost()) {
+						scanner.scanHttpResponseReceive(msg, hRef.getHistoryId(), src);
+					}
 				}
 			}
 		} catch (SQLException | HttpMalformedHeaderException e) {

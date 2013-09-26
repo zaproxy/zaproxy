@@ -115,7 +115,9 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 							if (scanner.isEnabled()) {
 								scanner.setParent(this);
 								scanner.scanHttpRequestSend(msg, href.getHistoryId());
-								scanner.scanHttpResponseReceive(msg, href.getHistoryId(), src);
+								if (msg.isResponseFromTargetHost()) {
+									scanner.scanHttpResponseReceive(msg, href.getHistoryId(), src);
+								}
 							}
 							if (shutDown) {
 								return;

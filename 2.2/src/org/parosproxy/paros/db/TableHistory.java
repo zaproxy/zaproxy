@@ -25,6 +25,7 @@
 // ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
 // ZAP: 2012/06/11 Added method delete(List<Integer>).
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (Added updateTable() and refactored names)
+// ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 
 package org.parosproxy.paros.db;
 
@@ -67,6 +68,7 @@ public class TableHistory extends AbstractTable {
     private static final String TAG         = "TAG";
     // ZAP: Added NOTE field to history table
     private static final String NOTE        = "NOTE";
+    private static final String RESPONSE_FROM_TARGET_HOST = "RESPONSEFROMTARGETHOST";
 
     private PreparedStatement psRead = null;
     private PreparedStatement psInsert = null;
@@ -111,14 +113,16 @@ public class TableHistory extends AbstractTable {
             psInsert = conn.prepareStatement("INSERT INTO HISTORY ("
                     + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
                     TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE + "," + NOTE
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?)");
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + ", " + STATUSCODE + "," + NOTE + ", " +
+                    RESPONSE_FROM_TARGET_HOST
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ?, ?, ?, ?, ?)");
         } else {
             psInsert = conn.prepareStatement("INSERT INTO HISTORY ("
                     + SESSIONID + "," + HISTTYPE + "," + TIMESENTMILLIS + "," + 
                     TIMEELAPSEDMILLIS + "," + METHOD + "," + URI + "," + REQHEADER + "," + 
-                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + "," + NOTE
-                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?)");
+                    REQBODY + "," + RESHEADER + "," + RESBODY + "," + TAG + "," + NOTE + ", " +
+                    RESPONSE_FROM_TARGET_HOST
+                    + ") VALUES (?, ? ,?, ?, ?, ?, ?, ? ,? , ? , ?, ?, ?)");
             
         }
         psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
@@ -170,6 +174,13 @@ public class TableHistory extends AbstractTable {
         	// but the new version doesn't, it throws the following exception:
         	// incompatible data type in conversion: from SQL type VARCHAR
         }
+
+        if (!DbUtils.hasColumn(connection, TABLE_NAME, RESPONSE_FROM_TARGET_HOST)) {
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE " + TABLE_NAME + " ADD COLUMN "
+                    + RESPONSE_FROM_TARGET_HOST + " BOOLEAN DEFAULT FALSE"));
+            DbUtils.executeUpdateAndClose(connection.prepareStatement("UPDATE " + TABLE_NAME + " SET " + RESPONSE_FROM_TARGET_HOST
+                    + " = TRUE "));
+        }
     }
     
 	public synchronized RecordHistory read(int historyId) throws HttpMalformedHeaderException, SQLException {
@@ -211,13 +222,13 @@ public class TableHistory extends AbstractTable {
 	    }
 	    
 	    //return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, msg.getTag());
-	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null, note);
+	    return write(sessionId, histType, msg.getTimeSentMillis(), msg.getTimeElapsedMillis(), method, uri, statusCode, reqHeader, reqBody, resHeader, resBody, null, note, msg.isResponseFromTargetHost());
 	    
 	}
 	
 	private synchronized RecordHistory write(long sessionId, int histType, long timeSentMillis, int timeElapsedMillis,
 	        String method, String uri, int statusCode,
-	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note) throws HttpMalformedHeaderException, SQLException {
+	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note, boolean responseFromTargetHost) throws HttpMalformedHeaderException, SQLException {
 
 	    psInsert.setLong(1, sessionId);
 	    psInsert.setInt(2, histType);
@@ -240,16 +251,19 @@ public class TableHistory extends AbstractTable {
 	    psInsert.setString(11, tag);
 
 	    // ZAP: Added the statement.
-	    int noteIdx = 12;
+	    int currentIdx = 12;
 	    
         if (isExistStatusCode) {
-            psInsert.setInt(12, statusCode);
+            psInsert.setInt(currentIdx, statusCode);
             // ZAP: Added the statement.
-            ++noteIdx;
+            ++currentIdx;
         }
         
         // ZAP: Added the statement.
-        psInsert.setString(noteIdx, note);
+        psInsert.setString(currentIdx, note);
+        ++currentIdx;
+        
+        psInsert.setBoolean(currentIdx, responseFromTargetHost);
         
         psInsert.executeUpdate();
 				
@@ -299,7 +313,8 @@ public class TableHistory extends AbstractTable {
 						rs.getString(RESHEADER),
 						resBody,
 	                    rs.getString(TAG),
-	                    rs.getString(NOTE)			// ZAP: Added note
+	                    rs.getString(NOTE),			// ZAP: Added note
+                        rs.getBoolean(RESPONSE_FROM_TARGET_HOST)
 				);
 			}
 		} finally {

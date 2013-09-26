@@ -170,5 +170,27 @@ public class DbUtils {
             }
         }
     }
-    
+
+    /**
+     * Executes (update) and closes the given {@code preparedStatement}.
+     * 
+     * @param preparedStatement the statement that will be executed and immediately closed
+     * @throws SQLException if error occurred while executing the given {@code preparedStatement}
+     * @see PreparedStatement#close()
+     * @see PreparedStatement#executeUpdate()
+     */
+    public static void executeUpdateAndClose(PreparedStatement preparedStatement) throws SQLException {
+        try {
+            preparedStatement.executeUpdate();
+        } finally {
+            try {
+                preparedStatement.close();
+            } catch (SQLException e) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
 }
