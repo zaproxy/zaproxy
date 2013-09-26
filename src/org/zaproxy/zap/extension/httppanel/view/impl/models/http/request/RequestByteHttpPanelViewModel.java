@@ -21,6 +21,7 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelViewModel {
 	
@@ -59,6 +60,7 @@ public class RequestByteHttpPanelViewModel extends AbstractHttpByteHttpPanelView
 		}
 		
 		httpMessage.getRequestBody().setBody(ArrayUtils.subarray(data, pos, data.length));
+		HttpPanelViewModelUtils.updateRequestContentLength(httpMessage);
 	}
 	
 	private int findHeaderLimit(byte[] data) {

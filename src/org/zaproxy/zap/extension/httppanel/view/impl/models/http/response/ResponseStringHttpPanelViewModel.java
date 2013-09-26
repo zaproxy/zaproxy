@@ -21,6 +21,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class ResponseStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 	
@@ -52,5 +53,6 @@ public class ResponseStringHttpPanelViewModel extends AbstractHttpStringHttpPane
 		} else {
 			httpMessage.setResponseBody("");
 		}
+		HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
 	}
 }

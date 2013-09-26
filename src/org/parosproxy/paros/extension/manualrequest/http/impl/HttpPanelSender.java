@@ -83,7 +83,6 @@ public class HttpPanelSender implements MessageSender {
 	public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
 		final HttpMessage httpMessage = (HttpMessage) aMessage;
 		try {
-			httpMessage.getRequestHeader().setContentLength(httpMessage.getRequestBody().length());
 			getDelegate().sendAndReceive(httpMessage, getButtonFollowRedirects().isSelected());
 			
 			EventQueue.invokeAndWait(new Runnable() {

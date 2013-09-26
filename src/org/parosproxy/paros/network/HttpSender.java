@@ -34,6 +34,7 @@
 // ZAP: 2013/07/10 Issue 720: Cannot send non standard http methods 
 // ZAP: 2013/07/14 Issue 729: Update NTLM authentication code
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
+// ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 
 package org.parosproxy.paros.network;
 
@@ -311,7 +312,7 @@ public class HttpSender {
                 temp.getRequestHeader().setURI(newLocation);
                 
                 temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-                temp.getRequestHeader().setContentLength(0);
+                temp.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
                 send(temp, true);
             }
             

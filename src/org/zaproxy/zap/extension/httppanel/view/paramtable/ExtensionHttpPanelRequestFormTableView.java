@@ -120,6 +120,7 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 			}
 			
 			httpMessage.setFormParams(form);
+			httpMessage.getRequestHeader().setContentLength(httpMessage.getRequestBody().length());
 		}
 
 		@Override
