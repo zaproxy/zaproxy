@@ -109,8 +109,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private static final String ENCODING = "UTF-8";
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
 		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
-		private static final String MSG_USER_PATTERN = "{%username%}";
-		private static final String MSG_PASS_PATTERN = "{%password%}";
+		public static final String MSG_USER_PATTERN = "{%username%}";
+		public static final String MSG_PASS_PATTERN = "{%password%}";
 
 		private HttpSender httpSender;
 		private SiteNode markedLoginSiteNode;
@@ -134,7 +134,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			return new FormBasedAuthenticationMethodType();
 		}
 
-		private HttpSender getHttpSender() {
+		protected HttpSender getHttpSender() {
 			if (this.httpSender == null) {
 				this.httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(),
 						true, HttpSender.AUTHENTICATION_INITIATOR);
@@ -158,18 +158,18 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 			// Replace the username and password in the uri
 			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN,
-					URLEncoder.encode(credentials.username, ENCODING));
+					URLEncoder.encode(credentials.getUsername(), ENCODING));
 			requestURL = requestURL.replace(MSG_PASS_PATTERN,
-					URLEncoder.encode(credentials.password, ENCODING));
+					URLEncoder.encode(credentials.getPassword(), ENCODING));
 			URI requestURI = new URI(requestURL, false);
 
 			// Replace the username and password in the post data of the request, if needed
 			String requestBody = null;
 			if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
 				requestBody = loginRequestBody.replace(MSG_USER_PATTERN,
-						URLEncoder.encode(credentials.username, ENCODING));
+						URLEncoder.encode(credentials.getUsername(), ENCODING));
 				requestBody = requestBody.replace(MSG_PASS_PATTERN,
-						URLEncoder.encode(credentials.password, ENCODING));
+						URLEncoder.encode(credentials.getPassword(), ENCODING));
 			}
 
 			// Prepare the actual message, either based on the existing one, or create a new one
@@ -250,7 +250,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				ref.addTag(HISTORY_TAG_AUTHENTICATION);
 				extHistory.addHistory(ref);
 			} catch (Exception ex) {
-				ex.printStackTrace();
+				log.error("Cannot add authentication message to History tab.", ex);
 			}
 
 			// Return the web session as extracted by the session management method
@@ -740,7 +740,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					e.printStackTrace();
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
-				if(!context.getAuthenticationMethod().isSameType(method))
+
+				if (!context.getAuthenticationMethod().isSameType(method))
 					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}
