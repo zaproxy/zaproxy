@@ -34,7 +34,9 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
@@ -197,7 +199,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 	private PassiveScanThread getPassiveScanThread() {
 		if (pst == null) {
-	        pst = new PassiveScanThread(getPassiveScannerList());
+            final ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
+            final ExtensionHistory extHist = (ExtensionHistory) extensionLoader.getExtension(ExtensionHistory.NAME);
+            final ExtensionAlert extAlert = (ExtensionAlert) extensionLoader.getExtension(ExtensionAlert.NAME);
+
+	        pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert);
 	        
 	        pst.start();
 		}
