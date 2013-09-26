@@ -51,6 +51,7 @@ import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.extension.report.ReportLastScan;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -546,7 +547,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				ReportLastScan rls = new ReportLastScan();
 		        StringBuilder report = new StringBuilder();
 				rls.generate(report, Model.getSingleton());
-				String response = report.toString();
+		        String response =  ReportGenerator.stringToHtml(report.toString(), "xml/report.xml.xsl");
 				
 				msg.setResponseHeader(
 						"HTTP/1.1 200 OK\r\n" +
