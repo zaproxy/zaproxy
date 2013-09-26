@@ -37,6 +37,7 @@
 // ZAP: 2013/08/31 Reauthentication when sending a message from the perspective of a User
 // ZAP: 2013/09/07 Switched to using HttpState for requesting User for cookie management
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
+// ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 
 package org.parosproxy.paros.network;
 
@@ -338,7 +339,7 @@ public class HttpSender {
 				temp.getRequestHeader().setURI(newLocation);
 
 				temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-				temp.getRequestHeader().setContentLength(0);
+				temp.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
 				// ZAP: Reauthentication when sending a message from the perspective of a User
 				sendAuthenticated(temp, true);
 			}

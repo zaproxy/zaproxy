@@ -29,6 +29,7 @@
 // ZAP: 2012/07/29 Issue 43: Added support for Scope
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
 // ZAP: 2013/01/29 Handle structural nodes in findNode
+// ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 
 package org.parosproxy.paros.model;
 
@@ -574,7 +575,7 @@ public class SiteMap extends DefaultTreeModel {
         newMsg.getRequestHeader().setURI(uri);
         newMsg.getRequestHeader().setMethod(HttpRequestHeader.GET);
         newMsg.getRequestBody().setBody("");
-        newMsg.getRequestHeader().setContentLength(0);
+        newMsg.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
         
 		//HistoryReference historyRef = new HistoryReference(model.getSession(), baseRef.getHistoryType(), newMsg);
 		HistoryReference historyRef = new HistoryReference(model.getSession(), HistoryReference.TYPE_TEMPORARY, newMsg);

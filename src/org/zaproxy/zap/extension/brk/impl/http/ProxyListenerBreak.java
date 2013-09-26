@@ -54,7 +54,6 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
 		
 		if (extension.messageReceivedFromClient(msg)) {
-	        msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 		    return true;
 		}
 
@@ -68,11 +67,6 @@ public class ProxyListenerBreak implements ProxyListener {
 		}
 		
 		if (extension.messageReceivedFromServer(msg)) {
-			if (!msg.isEventStream()) {
-				// do not set content-length to 0 for Server-Sent Event streams,
-				// as its response body will be read later
-				msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
-			}
 		    return true;
 		}
 		

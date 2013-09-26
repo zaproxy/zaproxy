@@ -25,6 +25,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.parosproxy.paros.network.HttpHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.impl.models.http.HttpPanelViewModelUtils;
 
 public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttpPanelViewModel {
 
@@ -67,5 +68,6 @@ public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttp
 		}
 		
 		httpMessage.getResponseBody().setBody(data);
+		HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
 	}
 }
