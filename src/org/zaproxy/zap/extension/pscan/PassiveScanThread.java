@@ -1,12 +1,13 @@
 package org.zaproxy.zap.extension.pscan;
 
+import java.sql.SQLException;
+
 import net.htmlparser.jericho.MasonTagTypes;
 import net.htmlparser.jericho.MicrosoftTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
 import net.htmlparser.jericho.Source;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -17,6 +18,7 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 
@@ -36,14 +38,19 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private int postSleep = 200;
 	private boolean shutDown = false;
 	
-	private ExtensionHistory extHist = null; 
+	private final ExtensionHistory extHist;
+	private final ExtensionAlert extAlert;
 
 	private TableHistory historyTable = null;
 	private HistoryReference href = null;
 
-	public PassiveScanThread (PassiveScannerList passiveScannerList) {
+	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert) {
 		super("ZAP-PassiveScanner");
 		this.setDaemon(true);
+		
+		if (extensionAlert == null) {
+			throw new IllegalArgumentException("Parameter extensionAlert must not be null.");
+		}
 		
 		this.scannerList = passiveScannerList;
 		
@@ -52,6 +59,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		PHPTagTypes.PHP_SHORT.deregister(); // remove PHP short tags otherwise they override processing instructions
 		MasonTagTypes.register();
 
+		extAlert = extensionAlert;
+		this.extHist = extHist;
 	}
 	
 	@Override
@@ -83,7 +92,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					}
 				}
 				try {
-					href = this.getExtensionHistory().getHistoryReference(currentId);
+					href = getHistoryReference(currentId);
 					//historyRecord = historyTable.read(currentId);
 				} catch (Exception e) {
 					if (shutDown) {
@@ -130,7 +139,19 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 		
 	}
-	
+
+    private HistoryReference getHistoryReference(final int historyReferenceId) {
+        if (extHist != null) {
+            return extHist.getHistoryReference(historyReferenceId);
+        }
+
+        try {
+            return new HistoryReference(historyReferenceId);
+        } catch (HttpMalformedHeaderException | SQLException e) {
+            return null;
+        }
+    }
+
 	private int getLastHistoryId() {
 		return historyTable.lastIndex();
 	}
@@ -145,14 +166,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		}
 		return currentId;
 	}
-	
-	private ExtensionHistory getExtensionHistory() {
-		if (extHist == null) {
-			extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-		}
-		return extHist;
-	}
-	
+
 	public void raiseAlert(int id, Alert alert) {
 		if (currentId != id) {
 			logger.error("Alert id != crurentId! " + id + " " + currentId);
@@ -161,23 +175,26 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 		
 		try {
 			href.addAlert(alert);
-			this.getExtensionHistory().notifyHistoryItemChanged(href);
+			notifyHistoryItemChanged(href);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
 	    // Raise the alert
-		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
-		if (extAlert != null) {
-			extAlert.alertFound(alert, href);
-		}
+		extAlert.alertFound(alert, href);
 
 	}
+
+    private void notifyHistoryItemChanged(HistoryReference historyReference) {
+        if (extHist != null) {
+            extHist.notifyHistoryItemChanged(historyReference);
+        }
+    }
 	
 	public void addTag(int id, String tag) {
 		try {
 			if (! href.getTags().contains(tag)) {
 				href.addTag(tag);
-				this.getExtensionHistory().notifyHistoryItemChanged(href);
+				notifyHistoryItemChanged(href);
 			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
