@@ -131,6 +131,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             panelScanner.add(getChkDeleteRequestsOnShutdown(),
                     LayoutHelper.getGBC(0, 8, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
+
+            // Add Attack settings section
+            // ---------------------------------------------
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.level.label")),
                     LayoutHelper.getGBC(0, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getComboThreshold(),
@@ -198,7 +201,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             panelScanner.add(
                     panelRPC,
                     LayoutHelper.getGBC(2, 11, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-
 
             // Close Panel
             panelScanner.add(
