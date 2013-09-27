@@ -1,0 +1,112 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Resend as GET request",
+  "description": "Resend the selected request as GET request, moving the request body to the URL for POSTs.",
+  "prefix": "",
+  "type": "Targeted",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {
+      "request.body": "",
+      "request.header": "",
+      "request.url": "",
+      "request.method": ""
+    },
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "This script resends the selected request as GET request, moving the request body to the URL for POSTs.",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "message": "Called {{request.url}}",
+      "index": 2,
+      "elementType": "ZestActionPrint"
+    },
+    {
+      "rootExpression": {
+        "value": "POST",
+        "variableName": "request.method",
+        "caseExact": false,
+        "not": false,
+        "elementType": "ZestExpressionEquals"
+      },
+      "ifStatements": [
+        {
+          "comment": "Its a POST - move the body to the URL and change the method.",
+          "index": 0,
+          "elementType": "ZestComment"
+        },
+        {
+          "rootExpression": {
+            "regex": "\\?",
+            "variableName": "request.url",
+            "caseExact": false,
+            "not": false,
+            "elementType": "ZestExpressionRegex"
+          },
+          "ifStatements": [
+            {
+              "comment": "URL already includes parameters",
+              "index": 0,
+              "elementType": "ZestComment"
+            },
+            {
+              "string": "{{request.url}}\u0026{{request.body}}",
+              "variableName": "request.url",
+              "index": 0,
+              "elementType": "ZestAssignString"
+            }
+          ],
+          "elseStatements": [
+            {
+              "comment": "URL doesnt include parameters",
+              "index": 0,
+              "elementType": "ZestComment"
+            },
+            {
+              "string": "{{request.url}}?{{request.body}}",
+              "variableName": "request.url",
+              "index": 0,
+              "elementType": "ZestAssignString"
+            }
+          ],
+          "index": 7,
+          "elementType": "ZestConditional"
+        },
+        {
+          "string": "",
+          "variableName": "request.body",
+          "index": 0,
+          "elementType": "ZestAssignString"
+        }
+      ],
+      "elseStatements": [],
+      "index": 4,
+      "elementType": "ZestConditional"
+    },
+    {
+      "string": "GET",
+      "variableName": "request.method",
+      "index": 5,
+      "elementType": "ZestAssignString"
+    },
+    {
+      "urlToken": "{{request.url}}",
+      "data": "{{request.body}}",
+      "method": "{{request.method}}",
+      "headers": "{{request.header}}",
+      "assertions": [],
+      "followRedirects": true,
+      "index": 6,
+      "elementType": "ZestRequest"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}
