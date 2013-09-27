@@ -55,8 +55,8 @@ public class VariantURLQuery extends VariantAbstractQuery {
     
     @Override
     protected String getUnescapedValue(String value) {
-        return value;
-        //return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
+        //return value;
+        return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
     }
 
     @Override
