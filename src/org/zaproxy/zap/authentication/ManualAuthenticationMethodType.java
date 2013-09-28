@@ -24,6 +24,7 @@ import java.awt.GridBagLayout;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -34,6 +35,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.httpclient.Cookie;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -51,6 +53,7 @@ import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.extension.users.UsersAPI;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
@@ -108,9 +111,18 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				throw new UnsupportedAuthenticationCredentialsException(
 						"Manual authentication credentials should be used for Manual authentication.");
 			}
-
+			// Build a new WebSession based on the values from the HttpSession
+			// TODO: Changes in either the WebSession or the HttpSession are not
+			// visible in the other
 			ManualAuthenticationCredentials mc = (ManualAuthenticationCredentials) credentials;
-			return mc.getSelectedSession();
+			WebSession session = new CookieBasedSessionManagementMethodType.CookieBasedSession();
+			for (Entry<String, String> v : mc.getSelectedSession().getTokenValuesUnmodifiableMap().entrySet()) {
+				Cookie c = new Cookie();
+				c.setName(v.getKey());
+				c.setValue(v.getValue());
+				session.getHttpState().addCookie(c);
+			}
+			return session;
 		}
 
 		@Override
@@ -168,12 +180,14 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	 */
 	private static class ManualAuthenticationCredentials implements AuthenticationCredentials {
 
-		/** The Constant defining the name/type in api calls. Should not be localized. */
+		/**
+		 * The Constant defining the name/type in api calls. Should not be localized.
+		 */
 		private static final String API_NAME = "ManualAuthenticationCredentials";
 
-		private WebSession selectedSession;
+		private HttpSession selectedSession;
 
-		protected WebSession getSelectedSession() {
+		protected HttpSession getSelectedSession() {
 			return selectedSession;
 		}
 
@@ -182,7 +196,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 			return selectedSession != null;
 		}
 
-		protected void setSelectedSession(WebSession selectedSession) {
+		protected void setSelectedSession(HttpSession selectedSession) {
 			this.selectedSession = selectedSession;
 		}
 
@@ -193,7 +207,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		@Override
 		public void decode(String encodedCredentials) {
-			// TODO: Currently, cannot be decoded as HttpSessions are not persisted.
+			// TODO: Currently, cannot be decoded as HttpSessions are not
+			// persisted.
 			throw new IllegalStateException("Manual Authentication Credentials cannot be decoded.");
 		}
 
@@ -288,7 +303,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		@Override
 		public void saveCredentials() {
 			log.info("Saving Manual Authentication Method: " + getSessionsComboBox().getSelectedItem());
-			getCredentials().setSelectedSession((WebSession) getSessionsComboBox().getSelectedItem());
+			getCredentials().setSelectedSession((HttpSession) getSessionsComboBox().getSelectedItem());
 		}
 	}
 
@@ -368,7 +383,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 			public void handleAction(JSONObject params) throws ApiException {
 				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
 				ManualAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
-				if(!context.getAuthenticationMethod().isSameType(method))
+				if (!context.getAuthenticationMethod().isSameType(method))
 					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}
@@ -389,7 +404,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 					throw new ApiException(ApiException.Type.BAD_TYPE,
 							"User's credentials should match authentication method type of the context: "
 									+ context.getAuthenticationMethod().getType().getName());
-				// NOTE: no need to check if extension is loaded as this method is called only if
+				// NOTE: no need to check if extension is loaded as this method
+				// is called only if
 				// the Users
 				// extension is loaded
 				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control

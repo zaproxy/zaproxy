@@ -154,7 +154,7 @@ public class HttpSender {
 		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", value);
 
 	}
-	
+
 	private void checkState() {
 		if (param.isHttpStateEnabled()) {
 			client.setState(param.getHttpState());
@@ -228,21 +228,20 @@ public class HttpSender {
 			// ZAP: try to apply original handling of ParosProxy
 			requestClient = client;
 			if (isUpgrade) {
-				// Unless upgrade, when using another client that allows us to expose the socket connection.
+				// Unless upgrade, when using another client that allows us to expose the socket
+				// connection.
 				requestClient = new HttpClient(new ZapHttpConnectionManager());
 			}
 		}
-		
+
 		// ZAP: Check if a custom state is being used
-		if (state != null)
-		{
+		if (state != null) {
 			// Make sure cookies are enabled and restore the cookie policy afterwards
 			String originalCookiePolicy = requestClient.getParams().getCookiePolicy();
 			requestClient.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 			responseCode = requestClient.executeMethod(null, method, state);
 			requestClient.getParams().setCookiePolicy(originalCookiePolicy);
-		}
-		else
+		} else
 			responseCode = requestClient.executeMethod(method);
 
 		return responseCode;
@@ -379,24 +378,26 @@ public class HttpSender {
 	// ZAP: Make sure a message that needs to be authenticated is authenticated
 	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 		// Modify the request message if a 'Requesting User' has been set
-		if (initiator!=AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null)
+		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null)
 			msg.getRequestingUser().processMessageToMatchUser(msg);
 
+		log.info("Sending message to: " + msg.getRequestHeader().getURI().toString());
 		// Send the message
 		send(msg, isFollowRedirect);
 
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
-		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null) {
-			if (msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
-					&& !msg.getRequestingUser().isAuthenticated(msg)) {
-				log.debug("First try to send authenticated message failed for "
-						+ msg.getRequestHeader().getURI() + ". Authenticating and trying again...");
-				msg.getRequestingUser().queueAuthentication(msg);
-				msg.getRequestingUser().processMessageToMatchUser(msg);
-				send(msg, isFollowRedirect);
-			}
-		}
+		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null
+				&& msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
+				&& !msg.getRequestingUser().isAuthenticated(msg)) {
+			log.info("First try to send authenticated message failed for " + msg.getRequestHeader().getURI()
+					+ ". Authenticating and trying again...");
+			msg.getRequestingUser().queueAuthentication(msg);
+			msg.getRequestingUser().processMessageToMatchUser(msg);
+			send(msg, isFollowRedirect);
+		} else
+			log.info("SUCCESSFUL");
+
 	}
 
 	private void send(HttpMessage msg, boolean isFollowRedirect) throws IOException {
@@ -442,7 +443,7 @@ public class HttpSender {
 		}
 		// ZAP: Use custom HttpState if needed
 		if (msg.getRequestingUser() != null)
-			this.executeMethod(method, msg.getRequestingUser().getUserHttpState());
+			this.executeMethod(method, msg.getRequestingUser().getCorrespondingHttpState());
 		else
 			this.executeMethod(method, null);
 		// ZAP: If the state is enabled or there's a requesting user (so state is automatically

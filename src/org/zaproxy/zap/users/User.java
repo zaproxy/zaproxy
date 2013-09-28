@@ -67,9 +67,6 @@ public class User extends Enableable {
 	/** The authenticated session. */
 	private WebSession authenticatedSession;
 
-	/** The user http state. */
-	private HttpState userHttpState;
-
 	/** The authentication credentials that can be used for configuring the user. */
 	private AuthenticationCredentials authenticationCredentials;
 
@@ -145,7 +142,7 @@ public class User extends Enableable {
 	 * 
 	 * @return the context
 	 */
-	protected Context getContext() {
+	public Context getContext() {
 		if (context == null) {
 			context = Model.getSingleton().getSession().getContext(this.contextId);
 		}
@@ -173,7 +170,7 @@ public class User extends Enableable {
 		synchronized (this) {
 			if (this.requiresAuthentication()) {
 				this.authenticate();
-				if (!this.requiresAuthentication()) {
+				if (this.requiresAuthentication()) {
 					log.info("Authentication failed for user: " + name);
 					return;
 				}
@@ -182,19 +179,6 @@ public class User extends Enableable {
 
 		// Modify the message accordingly
 		getContext().getSessionManagementMethod().processMessageToMatchSession(message, authenticatedSession);
-	}
-
-	/**
-	 * Gets the user http state.
-	 * 
-	 * @return the user http state
-	 */
-	public HttpState getUserHttpState() {
-		if (userHttpState == null) {
-			// TODO: Make sure this gets copied on duplicate
-			userHttpState = new HttpState();
-		}
-		return userHttpState;
 	}
 
 	/**
@@ -241,18 +225,8 @@ public class User extends Enableable {
 	}
 
 	/**
-	 * Sets the authenticated session.
-	 * 
-	 * @param session the new authenticated session
-	 */
-	protected void setAuthenticatedSession(WebSession session) {
-		// NOTE: Used in testing
-		this.authenticatedSession = session;
-	}
-	
-	/**
 	 * Gets the last successful auth time.
-	 *
+	 * 
 	 * @param lastSuccessfulAuthTime the new last successful auth time
 	 */
 	protected long getLastSuccessfulAuthTime() {
@@ -396,6 +370,21 @@ public class User extends Enableable {
 	 */
 	public void setName(String name) {
 		this.name = name;
+	}
+
+	public HttpState getCorrespondingHttpState() {
+		if (authenticatedSession != null)
+			return authenticatedSession.getHttpState();
+		else
+			return null;
+	}
+
+	public WebSession getAuthenticatedSession() {
+		return authenticatedSession;
+	}
+
+	public void setAuthenticatedSession(WebSession session) {
+		this.authenticatedSession = session;
 	}
 
 }

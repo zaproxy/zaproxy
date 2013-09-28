@@ -216,11 +216,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				return null;
 			}
 
+			// Make sure the message will be sent with a good WebSession that can record the changes
+			if (user.getAuthenticatedSession() == null)
+				user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
 			msg.setRequestingUser(user);
 
 			// Clear any session identifiers
-			msg.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
-			// sessionManagementMethod.clearWebSessionIdentifiers(msg);
+			 msg.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
 
 			if (log.isDebugEnabled()) {
 				log.debug("Authentication request header: \n" + msg.getRequestHeader());

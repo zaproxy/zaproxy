@@ -19,8 +19,6 @@
  */
 package org.zaproxy.zap.session;
 
-import java.util.List;
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiResponse;
 
@@ -66,8 +64,8 @@ public interface SessionManagementMethod {
 	 * @return the matching Web Session, if any, or {@code null} otherwise
 	 * @throws UnsupportedWebSessionException if the web session type is unsupported
 	 */
-	public WebSession identifyMatchingWebSession(List<WebSession> sessions, HttpMessage msg)
-			throws UnsupportedWebSessionException;
+	// public WebSession identifyMatchingWebSession(List<WebSession> sessions, HttpMessage msg)
+	// throws UnsupportedWebSessionException;
 
 	/**
 	 * Extracts the web session information from a Http Message, creating a {@link WebSession}
@@ -81,6 +79,13 @@ public interface SessionManagementMethod {
 	 * @return the web session
 	 */
 	public WebSession extractWebSession(HttpMessage msg);
+	
+	/**
+	 * Creates an empty web session.
+	 *
+	 * @return the web session
+	 */
+	public WebSession createEmptyWebSession();
 
 	/**
 	 * Clears any tokens or elements that can link the HttpMessage provided as a parameter to a

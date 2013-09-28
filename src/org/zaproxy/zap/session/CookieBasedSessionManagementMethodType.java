@@ -8,6 +8,8 @@ import java.util.List;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.httpclient.Cookie;
+import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -15,13 +17,11 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
-import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionTokensSet;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
 import org.zaproxy.zap.model.Context;
@@ -35,7 +35,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 	private static final int METHOD_IDENTIFIER = 0;
 	private static final Logger log = Logger.getLogger(CookieBasedSessionManagementMethod.class);
-	
+
 	/** The Constant METHOD_NAME. */
 	private static final String METHOD_NAME = Constant.messages.getString("sessionmanagement.method.cb.name");
 
@@ -66,44 +66,51 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 			return true;
 		}
 
+		private Cookie convertCookie(HttpCookie cookie) {
+			Cookie c = new Cookie(cookie.getDomain(), cookie.getName(), cookie.getValue(), cookie.getPath(),
+					(int) cookie.getMaxAge(), cookie.getSecure());
+			c.setVersion(cookie.getVersion());
+			c.setComment(cookie.getComment());
+			return c;
+		}
+
 		@Override
 		public WebSession extractWebSession(HttpMessage msg) {
-			// TODO: Based on the already identified http session. This is based on the assumption
-			// that the HttpSessions Extension has already identified the session
-			return msg.getHttpSession();
-			// return identifyMatchingWebSession(getSessionsForContext(), msg);
+			if (msg.getRequestingUser() != null)
+				return msg.getRequestingUser().getAuthenticatedSession();
+			else {
+				// Make sure any cookies in the message are put in the session
+				CookieBasedSession session = new CookieBasedSession();
+				session.getHttpState();
+				for (HttpCookie c : msg.getRequestHeader().getHttpCookies())
+					session.getHttpState().addCookie(convertCookie(c));
+				for (HttpCookie c : msg.getResponseHeader().getHttpCookies())
+					session.getHttpState().addCookie(convertCookie(c));
+				return session;
+			}
 		}
 
 		@Override
 		public void processMessageToMatchSession(HttpMessage message, WebSession session)
 				throws UnsupportedWebSessionException {
-			message.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
+			if (session.getHttpState() == null)
+				return;
+			
+			session.getHttpState().purgeExpiredCookies();
 
-			// TODO: Fix this
-			// if (session != null && message.getHttpSession() != session) {
-			// if (log.isDebugEnabled()) {
-			// log.debug("Modifying message to match session: " + session);
-			// }
-			//
-			// // make sure it's the right type
-			// if (!(session instanceof HttpSession)) {
-			// throw new UnsupportedWebSessionException(
-			// "The WebSession type provided is unsupported. Cookie based session management only supports "
-			// + HttpSession.class + " type of WebSession.");
-			// }
-			//
-			// CookieBasedSessionManagementHelper.processMessageToMatchSession(message,
-			// (HttpSession) session);
-			// }
-		}
-
-		@Override
-		public WebSession identifyMatchingWebSession(List<WebSession> sessions, HttpMessage msg)
-				throws UnsupportedWebSessionException {
-			// TODO: Proper implementation. Now it's hacked and does not work in all scenarios
-			return CookieBasedSessionManagementHelper.getMatchingHttpSession(getSessionsForContext(), msg
-					.getRequestHeader().getHttpCookies(), getHttpSessionsExtension()
-					.getHttpSessionTokensSetForContext(getContext()));
+			// Remove any cookies that will be added by the HttpState from the message
+			List<HttpCookie> cookies = message.getRequestHeader().getHttpCookies();
+			Iterator<HttpCookie> it = cookies.iterator();
+			while (it.hasNext()) {
+				HttpCookie c = it.next();
+				for (Cookie sc : session.getHttpState().getCookies())
+					if (sc.getName().equals(c)) {
+						it.remove();
+						break;
+					}
+			}
+			if (cookies.size() > 0)
+				message.setCookies(cookies);
 		}
 
 		private ExtensionHttpSessions getHttpSessionsExtension() {
@@ -121,10 +128,6 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 				context = Model.getSingleton().getSession().getContext(contextId);
 			}
 			return context;
-		}
-
-		private List<HttpSession> getSessionsForContext() {
-			return getHttpSessionsExtension().getHttpSessionsForContext(getContext());
 		}
 
 		@Override
@@ -179,6 +182,29 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 				return false;
 			return true;
 		}
+
+		@Override
+		public WebSession createEmptyWebSession() {
+			return new CookieBasedSession();
+		}
+	}
+
+	/**
+	 * The implementation for a {@link WebSession} used in cases where sessions are managed using
+	 * cookies.
+	 */
+	public static class CookieBasedSession extends WebSession {
+
+		private static int generatedNameIndex;
+
+		public CookieBasedSession(String name) {
+			super(name, new HttpState());
+		}
+
+		public CookieBasedSession() {
+			super("Cookie Based Session " + generatedNameIndex, new HttpState());
+		}
+
 	}
 
 	@Override

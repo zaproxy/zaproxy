@@ -1,20 +1,42 @@
 package org.zaproxy.zap.session;
 
-import org.parosproxy.paros.network.HttpMessage;
+import org.apache.commons.httpclient.HttpState;
 
-public interface WebSession {
+/**
+ * A WebSession is the ZAP implementation for a session maintained during the communication with a
+ * webapp/website.
+ */
+public abstract class WebSession {
+
+	private String name;
+	private HttpState state;
 
 	/**
-	 * Modifies a message so its Request Header/Body match the web session.
+	 * Instantiates a new web session.
 	 * 
-	 * @param message the message
+	 * @param name the name
+	 * @param state the state
 	 */
-	public void processMessageToMatch(HttpMessage message);
+	public WebSession(String name, HttpState state) {
+		this.name = name;
+		this.state = state;
+	}
+
+	/**
+	 * Gets the http state that will be used to send messages corresponding to this session.
+	 * 
+	 * @return the http state
+	 */
+	public HttpState getHttpState() {
+		return state;
+	}
 
 	/**
 	 * Gets the name of the web session, if set.
 	 * 
 	 * @return the name
 	 */
-	public String getName();
+	public String getName() {
+		return name;
+	}
 }
