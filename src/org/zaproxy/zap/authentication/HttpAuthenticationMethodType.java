@@ -2,7 +2,9 @@ package org.zaproxy.zap.authentication;
 
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.net.URL;
+import java.net.InetAddress;
+import java.net.URI;
+import java.net.UnknownHostException;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -12,6 +14,8 @@ import javax.swing.JLabel;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.httpclient.NTCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordContext;
@@ -93,8 +97,32 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 		public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
 				AuthenticationCredentials credentials, User user)
 				throws UnsupportedAuthenticationCredentialsException {
-			// Nothing to do?
-			return null;
+
+			WebSession session = user.getAuthenticatedSession();
+			if (session == null)
+				session = sessionManagementMethod.createEmptyWebSession();
+
+			// type check
+			if (!(credentials instanceof UsernamePasswordAuthenticationCredentials)) {
+				throw new UnsupportedAuthenticationCredentialsException(
+						"Form based authentication method only supports "
+								+ UsernamePasswordAuthenticationCredentials.class.getSimpleName());
+			}
+			UsernamePasswordAuthenticationCredentials userCredentials = (UsernamePasswordAuthenticationCredentials) credentials;
+
+			AuthScope stateAuthScope = null;
+			NTCredentials stateCredentials = null;
+			try {
+				stateAuthScope = new AuthScope(this.hostname, this.port,
+						(this.realm == null || this.realm.isEmpty()) ? AuthScope.ANY_REALM : this.realm);
+				stateCredentials = new NTCredentials(userCredentials.getUsername(),
+						userCredentials.getPassword(), InetAddress.getLocalHost().getCanonicalHostName(),
+						this.hostname);
+				session.getHttpState().setCredentials(stateAuthScope, stateCredentials);
+			} catch (UnknownHostException e1) {
+				log.error(e1.getMessage(), e1);
+			}
+			return session;
 		}
 
 		@Override
@@ -153,16 +181,11 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 		@Override
 		public void validateFields() throws IllegalStateException {
 			try {
-				new URL(hostnameField.getText());
+				new URI(hostnameField.getText());
 			} catch (Exception ex) {
 				hostnameField.requestFocusInWindow();
 				throw new IllegalStateException(
 						Constant.messages.getString("authentication.method.http.dialog.error.url.text"));
-			}
-			if (realmField.getText().isEmpty()) {
-				realmField.requestFocus();
-				throw new IllegalStateException(
-						Constant.messages.getString("authentication.method.http.dialog.error.realm.text"));
 			}
 		}
 
@@ -298,12 +321,13 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 
 				method.hostname = ApiUtils.getNonEmptyStringParam(params, PARAM_HOSTNAME);
 				try {
-					new URL(method.hostname);
+					new URI(method.hostname);
 				} catch (Exception ex) {
 					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_HOSTNAME);
 				}
 
-				method.realm = ApiUtils.getNonEmptyStringParam(params, PARAM_REALM);
+				if(params.containsKey(PARAM_REALM))
+					method.realm=params.getString(PARAM_REALM);
 
 				if (params.containsKey(PARAM_PORT))
 					try {
@@ -312,8 +336,8 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 					} catch (Exception ex) {
 						throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_PORT);
 					}
-				
-				if(!context.getAuthenticationMethod().isSameType(method))
+
+				if (!context.getAuthenticationMethod().isSameType(method))
 					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 

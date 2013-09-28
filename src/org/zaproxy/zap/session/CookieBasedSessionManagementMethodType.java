@@ -202,7 +202,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 		}
 
 		public CookieBasedSession() {
-			super("Cookie Based Session " + generatedNameIndex, new HttpState());
+			super("Cookie Based Session " + generatedNameIndex++, new HttpState());
 		}
 
 	}
