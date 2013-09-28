@@ -9,10 +9,20 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 
+import net.sf.json.JSONObject;
+
 import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
+import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
+import org.zaproxy.zap.extension.users.UsersAPI;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -127,6 +137,8 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 
 	}
 
+	/* API related constants and methods. */
+
 	@Override
 	public ApiResponse getApiResponseRepresentation() {
 		Map<String, String> values = new HashMap<>();
@@ -134,5 +146,49 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 		values.put("username", username);
 		values.put("password", password);
 		return new ApiResponseSet("credentials", values);
+	}
+
+	private static final String ACTION_SET_CREDENTIALS = "formBasedAuthenticationCredentials";
+	private static final String PARAM_USERNAME = "username";
+	private static final String PARAM_PASSWORD = "password";
+
+	/**
+	 * Gets the api action for setting a {@link UsernamePasswordAuthenticationCredentials} for an
+	 * User.
+	 * 
+	 * @param methodType the method type for which this is called
+	 * @return the sets the credentials for user api action
+	 */
+	public static ApiDynamicActionImplementor getSetCredentialsForUserApiAction(
+			final AuthenticationMethodType methodType) {
+		return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, new String[] { PARAM_USERNAME,
+				PARAM_PASSWORD }, null) {
+
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, UsersAPI.PARAM_CONTEXT_ID);
+				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
+				// Make sure the type of authentication method is compatible
+				if (!methodType.isTypeForMethod(context.getAuthenticationMethod()))
+					throw new ApiException(ApiException.Type.BAD_TYPE,
+							"User's credentials should match authentication method type of the context: "
+									+ context.getAuthenticationMethod().getType().getName());
+
+				// NOTE: no need to check if extension is loaded as this method is called only if
+				// the Users
+				// extension is loaded
+				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control
+						.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex())
+						.getUserById(userId);
+				if (user == null)
+					throw new ApiException(ApiException.Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
+				// Build and set the credentials
+				UsernamePasswordAuthenticationCredentials credentials = new UsernamePasswordAuthenticationCredentials();
+				credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
+				credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
+				user.setAuthenticationCredentials(credentials);
+			}
+		};
 	}
 }

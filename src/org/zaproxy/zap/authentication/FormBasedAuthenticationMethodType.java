@@ -74,8 +74,6 @@ import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
-import org.zaproxy.zap.extension.users.ExtensionUserManagement;
-import org.zaproxy.zap.extension.users.UsersAPI;
 import org.zaproxy.zap.httputils.HtmlParametersUtils;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
@@ -710,11 +708,9 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	/* API related constants and methods. */
-	private static final String ACTION_SET_CREDENTIALS = "formBasedAuthenticationCredentials";
 	private static final String PARAM_LOGIN_URL = "loginUrl";
 	private static final String PARAM_LOGIN_REQUEST_DATA = "loginRequestData";
-	private static final String PARAM_USERNAME = "username";
-	private static final String PARAM_PASSWORD = "password";
+
 
 	@Override
 	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
@@ -743,7 +739,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 
-				if (!context.getAuthenticationMethod().isSameType(method))
+				if(!context.getAuthenticationMethod().isSameType(method))
 					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}
@@ -752,35 +748,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 	@Override
 	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
-		return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, new String[] { PARAM_USERNAME,
-				PARAM_PASSWORD }, null) {
-
-			@Override
-			public void handleAction(JSONObject params) throws ApiException {
-				Context context = ApiUtils.getContextByParamId(params, UsersAPI.PARAM_CONTEXT_ID);
-				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
-				// Make sure the type of authentication method is compatible
-				if (!isTypeForMethod(context.getAuthenticationMethod()))
-					throw new ApiException(ApiException.Type.BAD_TYPE,
-							"User's credentials should match authentication method type of the context: "
-									+ context.getAuthenticationMethod().getType().getName());
-
-				// NOTE: no need to check if extension is loaded as this method is called only if
-				// the Users
-				// extension is loaded
-				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control
-						.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
-				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex())
-						.getUserById(userId);
-				if (user == null)
-					throw new ApiException(ApiException.Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
-				// Build and set the credentials
-				UsernamePasswordAuthenticationCredentials credentials = createAuthenticationCredentials();
-				credentials.username = ApiUtils.getNonEmptyStringParam(params, PARAM_USERNAME);
-				credentials.password = ApiUtils.getNonEmptyStringParam(params, PARAM_PASSWORD);
-				user.setAuthenticationCredentials(credentials);
-			}
-		};
+		return UsernamePasswordAuthenticationCredentials.getSetCredentialsForUserApiAction(this);
 	}
 
 }
