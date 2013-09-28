@@ -39,6 +39,16 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 	private String password;
 	
 
+	public UsernamePasswordAuthenticationCredentials() {
+		super();
+	}
+
+	public UsernamePasswordAuthenticationCredentials(String username, String password) {
+		super();
+		this.username = username;
+		this.password = password;
+	}
+
 	/**
 	 * Gets the username.
 	 *
