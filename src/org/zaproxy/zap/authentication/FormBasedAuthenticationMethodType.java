@@ -711,7 +711,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	private static final String PARAM_LOGIN_URL = "loginUrl";
 	private static final String PARAM_LOGIN_REQUEST_DATA = "loginRequestData";
 
-
 	@Override
 	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
 		return new ApiDynamicActionImplementor(API_METHOD_NAME, new String[] { PARAM_LOGIN_URL },
@@ -739,7 +738,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 
-				if(!context.getAuthenticationMethod().isSameType(method))
+				if (!context.getAuthenticationMethod().isSameType(method))
 					apiChangedAuthenticationMethodForContext(context.getIndex());
 				context.setAuthenticationMethod(method);
 			}

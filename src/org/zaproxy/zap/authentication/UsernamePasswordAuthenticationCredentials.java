@@ -35,8 +35,8 @@ class UsernamePasswordAuthenticationCredentials implements AuthenticationCredent
 	private static final String API_NAME = "UsernamePasswordAuthenticationCredentials";
 
 	private static String FIELD_SEPARATOR = "~";
-	protected String username;
-	protected String password;
+	private String username;
+	private String password;
 	
 
 	/**
