@@ -25,7 +25,6 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;

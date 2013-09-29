@@ -130,18 +130,17 @@ public abstract class VariantAbstractQuery implements Variant {
 
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
         StringBuilder sb = new StringBuilder();
-        String encodedValue;
+        String encodedValue = (escaped) ? value : getEscapedValue(msg, value);
         NameValuePair pair;
         boolean isAppended;
         
         for (int i = 0; i < getParamList().size(); i++) {
             pair = getParamList().get(i);
             if (i == originalPair.getPosition()) {
-                encodedValue = (escaped) ? value : getEscapedValue(msg, value);
                 isAppended = paramAppend(sb, name, encodedValue);
 
             } else {
-                isAppended = paramAppend(sb, pair.getName(), pair.getValue());
+                isAppended = paramAppend(sb, pair.getName(), getEscapedValue(msg, pair.getValue()));
             }
 
             if (isAppended && i < getParamList().size() - 1) {

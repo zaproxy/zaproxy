@@ -45,10 +45,31 @@ public class VariantCookie implements Variant {
         int idx = 0;
         
         for (HtmlParameter param : cp) {
-            params.add(new NameValuePair(param.getName(), param.getValue(), idx++));
+            // ZAP: the parameter could be encoded so decode it
+            params.add(new NameValuePair(param.getName(), getUnescapedValue(param.getValue()), idx++));
         }
     }
 
+    /**
+     * Encode the parameter
+     * @param value the value that need to be encoded
+     * @return the Encoded value
+     */
+    private String getEscapedValue(String value) {
+        return (value != null) ? 
+                AbstractPlugin.getURLEncode(value) : "";
+    }
+    
+    /**
+     * Decode the parameter
+     * @param value
+     * @return 
+     */
+    private String getUnescapedValue(String value) {
+        //return value;
+        return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
+    }
+    
     /**
      * 
      * @return 
@@ -95,19 +116,20 @@ public class VariantCookie implements Variant {
      */
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
         List<HttpCookie> cookies = new ArrayList();
+        String encodedValue = (escaped) ? value : getEscapedValue(value);
         NameValuePair param;
         
         for (int idx = 0; idx < params.size(); idx++) {
             param = params.get(idx);
             if (idx == originalPair.getPosition()) {
-                cookies.add(new HttpCookie(name, value));
+                cookies.add(new HttpCookie(name, encodedValue));
                 
             } else {
-                cookies.add(new HttpCookie(param.getName(), param.getValue()));
+                cookies.add(new HttpCookie(param.getName(), getEscapedValue(param.getValue())));
             }
         }
         
         msg.getRequestHeader().setCookies(cookies);
-        return name + "=" + value;
+        return name + "=" + encodedValue;
     }    
 }
