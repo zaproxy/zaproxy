@@ -38,6 +38,7 @@
 // ZAP: 2013/09/07 Switched to using HttpState for requesting User for cookie management
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
+// ZAP: 2013/09/29 Deprecating configuring HTTP Authentication through Options
 
 package org.parosproxy.paros.network;
 
@@ -256,6 +257,8 @@ public class HttpSender {
 		}
 	}
 
+	// ZAP: Deprecating configuring HTTP Authentication through Options
+	@Deprecated
 	private void addAuth(HttpClient client) {
 		List<HostAuthentication> list = param.getListAuthEnabled();
 		for (int i = 0; i < list.size(); i++) {

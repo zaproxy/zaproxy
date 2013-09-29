@@ -24,6 +24,7 @@
 // throughout ZAP and enhance the usability of some options.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/09/29 Deprecating configuring HTTP Authentication through Options
 
 package org.parosproxy.paros.extension.option;
 
@@ -148,37 +149,54 @@ public class OptionsAuthenticationPanel extends AbstractParamPanel {
 
         @Override
         public HostAuthentication showAddDialogue() {
-            if (addDialog == null) {
-                addDialog = new DialogAddHostAuthentication(View.getSingleton().getOptionsDialog(null));
-                addDialog.pack();
-            }
-            addDialog.setAuthentications(model.getElements());
-            addDialog.setVisible(true);
-            
-            HostAuthentication hostAuthentication = addDialog.getToken();
-            addDialog.clear();
-            
-            return hostAuthentication;
+			// ZAP: Deprecating configuring HTTP Authentication through Options instead of
+			// Authentication section of Session Properties
+			JOptionPane
+					.showMessageDialog(
+							View.getSingleton().getMainFrame(),
+							"Configuring HTTP Authentication through this panel has been deprecated. Please use the Authentication section in the Session Properties.",
+							"Deprecated", JOptionPane.INFORMATION_MESSAGE);
+			return null;
+        	
+//            if (addDialog == null) {
+//                addDialog = new DialogAddHostAuthentication(View.getSingleton().getOptionsDialog(null));
+//                addDialog.pack();
+//            }
+//            addDialog.setAuthentications(model.getElements());
+//            addDialog.setVisible(true);
+//            
+//            HostAuthentication hostAuthentication = addDialog.getToken();
+//            addDialog.clear();
+//            
+//            return hostAuthentication;
         }
         
         @Override
         public HostAuthentication showModifyDialogue(HostAuthentication e) {
-            if (modifyDialog == null) {
-                modifyDialog = new DialogModifyHostAuthentication(View.getSingleton().getOptionsDialog(null));
-                modifyDialog.pack();
-            }
-            modifyDialog.setAuthentications(model.getElements());
-            modifyDialog.setHostAuthentication(e);
-            modifyDialog.setVisible(true);
-            
-            HostAuthentication hostAuthentication = modifyDialog.getToken();
-            modifyDialog.clear();
-            
-            if (!hostAuthentication.equals(e)) {
-                return hostAuthentication;
-            }
-            
-            return null;
+        	// ZAP: Deprecating configuring HTTP Authentication through Options instead of
+			// Authentication section of Session Properties
+			JOptionPane
+					.showMessageDialog(
+							View.getSingleton().getMainFrame(),
+							"Configuring HTTP Authentication through this panel has been deprecated. Please use the Authentication section in the Session Properties.",
+							"Deprecated", JOptionPane.INFORMATION_MESSAGE);
+			return null;
+//            if (modifyDialog == null) {
+//                modifyDialog = new DialogModifyHostAuthentication(View.getSingleton().getOptionsDialog(null));
+//                modifyDialog.pack();
+//            }
+//            modifyDialog.setAuthentications(model.getElements());
+//            modifyDialog.setHostAuthentication(e);
+//            modifyDialog.setVisible(true);
+//            
+//            HostAuthentication hostAuthentication = modifyDialog.getToken();
+//            modifyDialog.clear();
+//            
+//            if (!hostAuthentication.equals(e)) {
+//                return hostAuthentication;
+//            }
+//            
+//            return null;
         }
         
         @Override
