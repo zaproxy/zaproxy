@@ -45,13 +45,14 @@ import org.zaproxy.clientapi.gen.Acsrf;
 import org.zaproxy.clientapi.gen.Ascan;
 import org.zaproxy.clientapi.gen.Auth;
 import org.zaproxy.clientapi.gen.Autoupdate;
+import org.zaproxy.clientapi.gen.Break;
+import org.zaproxy.clientapi.gen.Context;
 import org.zaproxy.clientapi.gen.Core;
 import org.zaproxy.clientapi.gen.HttpSessions;
 import org.zaproxy.clientapi.gen.Params;
 import org.zaproxy.clientapi.gen.Pscan;
 import org.zaproxy.clientapi.gen.Search;
 import org.zaproxy.clientapi.gen.Spider;
-import org.zaproxy.clientapi.gen.Context;
 
 public class ClientApi {
 	private Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8090));
@@ -70,6 +71,7 @@ public class ClientApi {
 	public Search search = new Search(this);
 	public Spider spider = new Spider(this);
     public Context context = new Context(this);
+    public Break brk = new Break(this);
 
 	public ClientApi (String zapAddress, int zapPort) {
 		this(zapAddress, zapPort, false);
@@ -158,7 +160,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void newSession () throws ClientApiException {
-		core.newSession("");
+		core.newSession("", "true");
 	}
 
 	/**
@@ -166,7 +168,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void newSession (String name) throws ClientApiException {
-		core.newSession(name);
+		core.newSession(name, "true");
 	}
 
 	/**
@@ -182,7 +184,7 @@ public class ClientApi {
 	 */
 	@Deprecated
 	public void saveSession (String name) throws ClientApiException {
-		core.saveSession(name);
+		core.saveSession(name, "true");
 	}
 
 	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws ClientApiException {

@@ -21,7 +21,10 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
@@ -51,6 +54,16 @@ public class JavaAPIGenerator {
 			"\n\n";
 
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
+
+	/**
+	 * Map any names which are reserved in java to something legal
+	 */
+	private static final Map<String, String> nameMap;
+    static {
+        Map<String, String> initMap = new HashMap<String, String>();
+        initMap.put("break", "brk");
+        nameMap = Collections.unmodifiableMap(initMap);
+    }
 
 	public void generateJavaFiles() throws IOException {
 		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
@@ -158,6 +171,9 @@ public class JavaAPIGenerator {
 	}
 
 	private static String createMethodName(String name) {
+		if (nameMap.containsKey(name)) {
+			name = nameMap.get(name);
+		}
 		return removeAllFullStopCharacters(name);
 	}
 
