@@ -41,7 +41,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.reauth.ExtensionAuth;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
@@ -131,11 +130,11 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		if (getView() != null) {
 			forcedUserModeButton.setSelected(forcedUserModeEnabled);
 			if (forcedUserModeEnabled) {
-				forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
+				forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 						.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
 				forcedUserModeButton.setToolTipText(BUTTON_LABEL_ON);
 			} else {
-				forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
+				forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 						.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
 				forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
 			}
@@ -145,13 +144,13 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private void setForcedUserModeToggleButtonState(boolean enabled) {
 		if (enabled) {
 			this.getForcedUserModeToggleButton().setIcon(
-					new ImageIcon(ExtensionAuth.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+					new ImageIcon(ExtensionForcedUser.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
 			this.getForcedUserModeToggleButton().setToolTipText(BUTTON_LABEL_OFF);
 			this.getForcedUserModeToggleButton().setEnabled(true);
 		} else {
 			this.forcedUserModeEnabled = false;
 			this.getForcedUserModeToggleButton().setIcon(
-					new ImageIcon(ExtensionAuth.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+					new ImageIcon(ExtensionForcedUser.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
 			this.getForcedUserModeToggleButton().setToolTipText(BUTTON_LABEL_DISABLED);
 			this.getForcedUserModeToggleButton().setSelected(false);
 			this.getForcedUserModeToggleButton().setEnabled(false);
@@ -171,7 +170,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private JToggleButton getForcedUserModeToggleButton() {
 		if (forcedUserModeButton == null) {
 			forcedUserModeButton = new JToggleButton();
-			forcedUserModeButton.setIcon(new ImageIcon(ExtensionAuth.class
+			forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
 			forcedUserModeButton.setToolTipText(BUTTON_LABEL_DISABLED);
 			forcedUserModeButton.setEnabled(false); // Disable until login and one indicator flagged
