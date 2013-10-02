@@ -70,6 +70,7 @@ import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
+import org.zaproxy.zap.extension.auth.ExtensionAuth;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
@@ -220,7 +221,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			msg.setRequestingUser(user);
 
 			// Clear any session identifiers
-			 msg.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
+			msg.getRequestHeader().setHeader(HttpRequestHeader.COOKIE, null);
 
 			if (log.isDebugEnabled()) {
 				log.debug("Authentication request header: \n" + msg.getRequestHeader());
@@ -271,6 +272,31 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				this.loginRequestBody = requestMessage.getRequestBody().toString();
 			else
 				this.loginRequestBody = null;
+		}
+
+		/**
+		 * Gets the login request message.
+		 * 
+		 * Method added for use with the 'mock' up {@link ExtensionAuth}. Should be eliminated after
+		 * ZAP 2.3 is released.
+		 * 
+		 */
+		@Deprecated
+		public HttpMessage getLoginRequestMessage() throws HttpMalformedHeaderException, SQLException,
+				URIException, NullPointerException {
+			HttpMessage requestMessage = null;
+			if (this.loginSiteNode != null)
+				requestMessage = this.loginSiteNode.getHistoryReference().getHttpMessage();
+			else {
+				String method = (loginRequestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
+				requestMessage = new HttpMessage();
+				requestMessage.setRequestHeader(new HttpRequestHeader(method, new URI(loginRequestURL, true),
+						HttpHeader.HTTP10));
+				if (loginRequestBody != null) {
+					requestMessage.getRequestBody().setBody(loginRequestBody);
+				}
+			}
+			return requestMessage;
 		}
 
 		/**

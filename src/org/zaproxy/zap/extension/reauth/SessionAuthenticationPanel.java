@@ -165,8 +165,8 @@ public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveContextData(Session session) throws Exception {
-		ExtensionAuth ext = (ExtensionAuth) Control.getSingleton().getExtensionLoader()
-				.getExtension(ExtensionAuth.NAME);
+		ExtensionReauth ext = (ExtensionReauth) Control.getSingleton().getExtensionLoader()
+				.getExtension(ExtensionReauth.NAME);
 		if (ext != null) {
 			ext.setLoginRequest(getContextIndex(), this.getTxtLoginUrl().getText(), this.getTxtLoginPostData()
 					.getText());

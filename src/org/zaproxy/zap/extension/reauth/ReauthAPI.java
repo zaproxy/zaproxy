@@ -31,9 +31,9 @@ import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
 
-public class AuthAPI extends ApiImplementor {
+public class ReauthAPI extends ApiImplementor {
 
-    private static Logger log = Logger.getLogger(AuthAPI.class);
+    private static Logger log = Logger.getLogger(ReauthAPI.class);
 
 	private static final String PREFIX = "auth";
 	
@@ -60,9 +60,9 @@ public class AuthAPI extends ApiImplementor {
 	private static final String ACTION_PARAM_DATA = "postData";
 	private static final String ACTION_PARAM_INDICATOR = "indicator";
 	
-	private ExtensionAuth extension;
+	private ExtensionReauth extension;
 	
-	public AuthAPI (ExtensionAuth extension) {
+	public ReauthAPI (ExtensionReauth extension) {
 		this.extension = extension;
 		
 		this.addApiView(new ApiView(VIEW_LOGIN_URL, 
