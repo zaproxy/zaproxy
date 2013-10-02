@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordContext;
@@ -35,6 +37,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
@@ -212,6 +215,25 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 			if (t.getUniqueIdentifier() == id)
 				return t;
 		return null;
+	}
+
+	/**
+	 * Gets the URI for the login request that corresponds to a given context, if any.
+	 * 
+	 * @param ctx the context
+	 * @return the login request uri for context, or <code>null</code>, if the context does not have
+	 *         a 'login request' configured
+	 */
+	public URI getLoginRequestURIForContext(Context ctx) {
+		if (!(ctx.getAuthenticationMethod() instanceof FormBasedAuthenticationMethod))
+			return null;
+		FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) ctx.getAuthenticationMethod();
+		try {
+			return new URI(method.getLoginRequestURL(), false);
+		} catch (URIException | NullPointerException e) {
+			e.printStackTrace();
+			return null;
+		}
 	}
 
 	@Override

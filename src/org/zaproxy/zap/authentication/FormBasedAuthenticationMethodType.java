@@ -300,6 +300,15 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		}
 
 		/**
+		 * Gets the login request url.
+		 * 
+		 * @return the login request url
+		 */
+		public String getLoginRequestURL() {
+			return loginRequestURL;
+		}
+
+		/**
 		 * Marks the provided Site Login as being a Login request. If {@code null} is provided, no
 		 * site node will be marked as login request (for the {@link Context} corresponding to this
 		 * AuthenticationMethod).
