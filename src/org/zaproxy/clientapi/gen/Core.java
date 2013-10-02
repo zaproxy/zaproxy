@@ -174,10 +174,11 @@ public class Core {
 		return api.callApi("core", "action", "shutdown", map);
 	}
 
-	public ApiResponse newSession(String name) throws ClientApiException {
+	public ApiResponse newSession(String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("name", name);
+		map.put("overwrite", overwrite);
 		return api.callApi("core", "action", "newSession", map);
 	}
 
@@ -188,10 +189,11 @@ public class Core {
 		return api.callApi("core", "action", "loadSession", map);
 	}
 
-	public ApiResponse saveSession(String name) throws ClientApiException {
+	public ApiResponse saveSession(String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("name", name);
+		map.put("overwrite", overwrite);
 		return api.callApi("core", "action", "saveSession", map);
 	}
 
@@ -323,6 +325,11 @@ public class Core {
 		map = new HashMap<String, String>();
 		map.put("proxy", proxy);
 		return api.callApi("core", "other", "setproxy", map);
+	}
+
+	public ApiResponse xmlreport() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "other", "xmlreport", map);
 	}
 
 }

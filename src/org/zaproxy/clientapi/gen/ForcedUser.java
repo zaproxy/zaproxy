@@ -30,20 +30,27 @@ import org.zaproxy.clientapi.core.ClientApiException;
 /**
  * This file was automatically generated.
  */
-public class Pscan {
+public class ForcedUser {
 
 	private ClientApi api = null;
 
-	public Pscan(ClientApi api) {
+	public ForcedUser(ClientApi api) {
 		this.api = api;
 	}
 
-	/**
-	 * The number of records the passive scanner still has to scan
-	 */
-	public ApiResponse recordsToScan() throws ClientApiException {
+	public ApiResponse getForcedUser(String contextid) throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("pscan", "view", "recordsToScan", map);
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		return api.callApi("forcedUser", "view", "getForcedUser", map);
+	}
+
+	public ApiResponse setForcedUser(String contextid, String userid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextId", contextid);
+		map.put("userId", userid);
+		return api.callApi("forcedUser", "action", "setForcedUser", map);
 	}
 
 }

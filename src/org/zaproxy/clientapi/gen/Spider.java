@@ -125,6 +125,15 @@ public class Spider {
 		return api.callApi("spider", "action", "scan", map);
 	}
 
+	public ApiResponse scanAsUser(String url, String contextid, String userid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("url", url);
+		map.put("contextId", contextid);
+		map.put("userId", userid);
+		return api.callApi("spider", "action", "scanAsUser", map);
+	}
+
 	public ApiResponse stop() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("spider", "action", "stop", map);
