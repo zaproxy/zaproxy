@@ -14,7 +14,7 @@
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
-    <property name="zap.java.api.version" value="5" />
+    <property name="zap.java.api.version" value="6" />
 
     <!-- mac specific properties -->
     <property name="dist-mac" location="zap-mac" />
@@ -281,13 +281,16 @@
     </target>
 
     <target name="generate-language-file" description="generates the language file (note the X should be changed;)">
-        <property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
+        <!-- Load the version from a file -->
+        <loadfile property="version" srcfile="version.txt" />
+
+    	<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
         <!-- delete the previous one (if present) -->
         <delete file="${langfile}" />
         <!-- Zip up the language files -->
         <zip destfile="${langfile}"
              basedir="${src}"
-             includes="/lang/**"
+             includes="lang/**"
              excludes="**/.svn/**"
                 />
     </target>
@@ -423,7 +426,9 @@
         </exec>
     </target>
 
-    <target name="copy-jar-to-extension-projects" depends="dist">
+    <target name="copy-jar-to-extension-projects">
+        <loadfile property="version" srcfile="version.txt" />
+        <antcall target="dist" />
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
@@ -450,7 +455,7 @@
         </tar>
     </target>
 
-    <target name="package-macosx" if="isMac" description="package the Mac OS X release">
+    <target name="package-macosx" description="package the Mac OS X release">
         <echo message="Packaging the Mac OS X build..." />
 
         <delete dir="${dist-mac}" includeEmptyDirs="true" />

@@ -58,6 +58,11 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionHostPerScan", map);
 	}
 
+	public ApiResponse optionMaxResultsToList() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionMaxResultsToList", map);
+	}
+
 	public ApiResponse optionDelayInMs() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionDelayInMs", map);
@@ -81,6 +86,56 @@ public class Ascan {
 	public ApiResponse optionAttackStrength() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionAttackStrength", map);
+	}
+
+	public ApiResponse optionTargetParamsUrl() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsUrl", map);
+	}
+
+	public ApiResponse optionTargetParamsForm() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsForm", map);
+	}
+
+	public ApiResponse optionTargetParamsCookie() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsCookie", map);
+	}
+
+	public ApiResponse optionTargetParamsMultiPartForm() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsMultiPartForm", map);
+	}
+
+	public ApiResponse optionTargetParamsGWT() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsGWT", map);
+	}
+
+	public ApiResponse optionTargetParamsXML() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsXML", map);
+	}
+
+	public ApiResponse optionTargetParamsJSON() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsJSON", map);
+	}
+
+	public ApiResponse optionTargetParamsHeader() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsHeader", map);
+	}
+
+	public ApiResponse optionTargetParamsODataId() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsODataId", map);
+	}
+
+	public ApiResponse optionTargetParamsODataFilter() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsODataFilter", map);
 	}
 
 	public ApiResponse scan(String url, String recurse, String inscopeonly) throws ClientApiException {
@@ -132,6 +187,13 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionHostPerScan", map);
 	}
 
+	public ApiResponse setOptionMaxResultsToList(int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionMaxResultsToList", map);
+	}
+
 	public ApiResponse setOptionDelayInMs(int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -151,6 +213,69 @@ public class Ascan {
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("ascan", "action", "setOptionDeleteRequestsOnShutdown", map);
+	}
+
+	public ApiResponse setOptionTargetParamsUrl(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsUrl", map);
+	}
+
+	public ApiResponse setOptionTargetParamsForm(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsForm", map);
+	}
+
+	public ApiResponse setOptionTargetParamsCookie(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsCookie", map);
+	}
+
+	public ApiResponse setOptionTargetParamsGWT(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsGWT", map);
+	}
+
+	public ApiResponse setOptionTargetParamsXML(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsXML", map);
+	}
+
+	public ApiResponse setOptionTargetParamsJSON(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsJSON", map);
+	}
+
+	public ApiResponse setOptionTargetParamsHeader(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsHeader", map);
+	}
+
+	public ApiResponse setOptionTargetParamsODataId(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsODataId", map);
+	}
+
+	public ApiResponse setOptionTargetParamsODataFilter(boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionTargetParamsODataFilter", map);
 	}
 
 }

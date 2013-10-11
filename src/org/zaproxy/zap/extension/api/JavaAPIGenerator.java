@@ -91,8 +91,11 @@ public class JavaAPIGenerator {
 			System.out.println("No i18n for: " + descTag);
 		}
 
-		out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
-		//out.write("\t\t\t");
+		if (type.equals("other")) {
+			out.write("\tpublic byte[] " + createMethodName(element.getName()) + "(");
+		} else {
+			out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
+		}
 
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
@@ -163,8 +166,13 @@ public class JavaAPIGenerator {
 			}
 		}
 		
-		out.write("\t\treturn api.callApi(\"" + 
-				component + "\", \"" + type + "\", \"" + element.getName() + "\", map);\n"); 
+		if (type.equals("other")) {
+			out.write("\t\treturn api.callApiOther(\"" + 
+					component + "\", \"" + type + "\", \"" + element.getName() + "\", map);\n"); 
+		} else {
+			out.write("\t\treturn api.callApi(\"" + 
+					component + "\", \"" + type + "\", \"" + element.getName() + "\", map);\n"); 
+		}
 		
 		out.write("\t}\n\n");
 		

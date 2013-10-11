@@ -22,8 +22,10 @@ package org.zaproxy.clientapi.core;
 import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
@@ -386,6 +388,55 @@ public class ClientApi {
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			//parse using builder to get DOM representation of the XML file
 			return db.parse(uc.getInputStream());
+		} catch (Exception e) {
+			throw new ClientApiException(e);
+		}
+	}
+
+	public byte[] callApiOther (String component, String type, String method,
+			Map<String, String> params) throws ClientApiException {
+		StringBuilder sb = new StringBuilder();
+		sb.append("http://zap/other/");
+		sb.append(component);
+		sb.append("/");
+		sb.append(type);
+		sb.append("/");
+		sb.append(method);
+		sb.append("/");
+		if (params != null) {
+			sb.append("?");
+			for (Map.Entry<String, String>p : params.entrySet()) {
+				sb.append(p.getKey());
+				sb.append("=");
+				if (p.getValue() != null) {
+					sb.append(p.getValue());
+				}
+				sb.append("&");
+			}
+		}
+
+		try {
+			URL url = new URL(sb.toString());
+			if (debug) {
+				debugStream.println("Open URL: " + url);
+			}
+			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
+			InputStream in = uc.getInputStream();
+			ByteArrayOutputStream out = new ByteArrayOutputStream();
+			byte[] buffer = new byte[8 * 1024];
+			try {
+				int bytesRead;
+			    while ((bytesRead = in.read(buffer)) != -1) {
+			    	out.write(buffer, 0, bytesRead);
+			    }
+			} catch (IOException e) {
+				throw new ClientApiException(e);
+			} finally {
+				out.close();
+				in.close();
+			}
+			return out.toByteArray();
+			
 		} catch (Exception e) {
 			throw new ClientApiException(e);
 		}
