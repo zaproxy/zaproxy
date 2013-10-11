@@ -77,11 +77,11 @@ public class Acsrf {
 	/**
 	 * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
 	 */
-	public ApiResponse genForm(String hrefid) throws ClientApiException {
+	public byte[] genForm(String hrefid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("hrefId", hrefid);
-		return api.callApi("acsrf", "other", "genForm", map);
+		return api.callApiOther("acsrf", "other", "genForm", map);
 	}
 
 }

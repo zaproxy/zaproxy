@@ -310,26 +310,26 @@ public class Core {
 		return api.callApi("core", "action", "setOptionSingleCookieRequestHeader", map);
 	}
 
-	public ApiResponse proxypac() throws ClientApiException {
+	public byte[] proxypac() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("core", "other", "proxy.pac", map);
+		return api.callApiOther("core", "other", "proxy.pac", map);
 	}
 
-	public ApiResponse rootcert() throws ClientApiException {
+	public byte[] rootcert() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("core", "other", "rootcert", map);
+		return api.callApiOther("core", "other", "rootcert", map);
 	}
 
-	public ApiResponse setproxy(String proxy) throws ClientApiException {
+	public byte[] setproxy(String proxy) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("proxy", proxy);
-		return api.callApi("core", "other", "setproxy", map);
+		return api.callApiOther("core", "other", "setproxy", map);
 	}
 
-	public ApiResponse xmlreport() throws ClientApiException {
+	public byte[] xmlreport() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("core", "other", "xmlreport", map);
+		return api.callApiOther("core", "other", "xmlreport", map);
 	}
 
 }
