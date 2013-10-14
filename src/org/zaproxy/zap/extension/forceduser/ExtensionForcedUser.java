@@ -125,8 +125,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		API.getInstance().registerApiImplementor(api);
 	}
 
-	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
-		this.forcedUserModeEnabled = forcedUserModeEnabled;
+	private void updateForcedUserModeToggleButtonEnabledState() {
 		if (getView() != null) {
 			forcedUserModeButton.setSelected(forcedUserModeEnabled);
 			if (forcedUserModeEnabled) {
@@ -141,11 +140,14 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		}
 	}
 
+	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
+		this.forcedUserModeEnabled = forcedUserModeEnabled;
+		updateForcedUserModeToggleButtonEnabledState();
+	}
+
 	private void setForcedUserModeToggleButtonState(boolean enabled) {
 		if (enabled) {
-			this.getForcedUserModeToggleButton().setIcon(
-					new ImageIcon(ExtensionForcedUser.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			this.getForcedUserModeToggleButton().setToolTipText(BUTTON_LABEL_OFF);
+			updateForcedUserModeToggleButtonEnabledState();
 			this.getForcedUserModeToggleButton().setEnabled(true);
 		} else {
 			this.forcedUserModeEnabled = false;
@@ -191,6 +193,10 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 					.getExtension(ExtensionUserManagement.NAME);
 		}
 		return extensionUserManagement;
+	}
+
+	public boolean isForcedUserModeEnabled() {
+		return forcedUserModeEnabled;
 	}
 
 	/**
