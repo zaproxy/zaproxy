@@ -79,6 +79,7 @@ This list the alerts
 20005	BEA WebLogic example files (Depreciated)
 20006	IBM WebSphere default files (Depreciated)
 20010	URL Redirector Abuse
+20014	HTTP Parameter Pollution
 
 30000	External redirect 
 
@@ -94,9 +95,26 @@ This list the alerts
 40009	Server side include
 40010	Cross site scripting in TAG
 40011	Cross Site Scripting in TAG Attribute
+40012	CSRF Token missing
+40013	Session Fixation
+40014	Persistent XSS (Attack)
+40015	LDAP Injection
+40016	Persistent XSS (Prime)
+40017	Persistent XSS (Spider)
+40018	SQL Injection
+40019	SQL Injection MySQL
+40020	SQL Injection Hypersonic
+40021	SQL Injection Oracle
+40022	SQL Injection Postgresql
+40023	Username Enumeration
+
 
 50000	Active Scan scripts
 50001	Passive Scan scripts
+
+90019	Code Injection
+90020	Command Injection
+90021	Xpath Injection
 
 To be developed:
 .	Check session cookie for secured
