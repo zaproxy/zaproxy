@@ -63,8 +63,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
 	}
 
-	private static final String FORCED_USER_MODE_OFF_ICON_RESOURCE = "/resource/icon/fugue/door-half-open.png";
-	private static final String FORCED_USER_MODE_ON_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-loop-arrow.png";
+	private static final String FORCED_USER_MODE_OFF_ICON_RESOURCE = "/resource/icon/16/forcedUserOff.png";
+	private static final String FORCED_USER_MODE_ON_ICON_RESOURCE = "/resource/icon/16/forcedUserOn.png";
 	private static final String BUTTON_LABEL_ON = Constant.messages.getString("forceduser.toolbar.button.on");
 	private static final String BUTTON_LABEL_OFF = Constant.messages
 			.getString("forceduser.toolbar.button.off");
