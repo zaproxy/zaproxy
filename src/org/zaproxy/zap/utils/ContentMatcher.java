@@ -42,7 +42,7 @@ public class ContentMatcher {
     private static final String TAG_PATTERN_TYPE_STRING = "string";
     private static final String TAG_PATTERN_TYPE_REGEX = "regex";
     
-    private List<String> strings;
+    private List<BoyerMooreMatcher> strings;
     private List<Pattern> patterns;
         
     /**
@@ -94,7 +94,7 @@ public class ContentMatcher {
                 
                 // Otherwise it's by default an exact match model
                 } else {
-                    strings.add(el.getText());
+                    strings.add(new BoyerMooreMatcher(el.getText()));
                 }
             }
         }
@@ -108,9 +108,9 @@ public class ContentMatcher {
     public String findInContent(String content) {
         
         // First check for a simple exact occurrence
-        for (String str : strings) {
-            if (content.contains(str))
-                return str;
+        for (BoyerMooreMatcher matcher : strings) {
+            if (matcher.findInContent(content) >= 0)
+                return matcher.getPattern();
         }
         
         // Then check for a regex occurrence
@@ -136,9 +136,9 @@ public class ContentMatcher {
         List<String> results = new LinkedList();
         
         // First check for all simple exact occurrences
-        for (String str : strings) {
-            if (content.contains(str))
-                results.add(str);
+        for (BoyerMooreMatcher matcher : strings) {
+            if (matcher.findInContent(content) >= 0)
+                results.add(matcher.getPattern());
         }
         
         // Then check for all regex occurrences
