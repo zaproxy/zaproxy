@@ -34,13 +34,7 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseSet extends ApiResponse {
 	
-	private String[] attributes = null;
 	private Map<String, String> values = null;
-
-	public ApiResponseSet(String name, String[] attributes) {
-		super(name);
-		this.attributes = attributes;
-	}
 
 	public ApiResponseSet(String name, Map<String, String> values) {
 		super(name);
@@ -56,14 +50,6 @@ public class ApiResponseSet extends ApiResponse {
 			values.put(elem.getName(), elem.getValue());
 			child = child.getNextSibling();
 		}
-	}
-
-	public String[] getAttributes() {
-		return attributes;
-	}
-	
-	public String getAttribute(String name) {
-		return this.values.get(name);
 	}
 
 	@Override
