@@ -17,46 +17,44 @@
  */
 package org.zaproxy.zap.utils;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * Reads in two strings, the pattern and the input text, and
- * searches for the pattern in the input text using the
- * bad-character rule part of the Boyer-Moore algorithm.
- * 
+ * Reads in two strings, the pattern and the input text, and searches for the
+ * pattern in the input text using the bad-character rule part of the
+ * Boyer-Moore algorithm.
+ *
  * Adapded from the implementation found in:
- * https://weblogs.java.net/blog/potty/archive/2012/05/21/string-searching-algorithms-part-iii
- * 
+ * http://www.params.me/2013/06/boyer-moore-string-search.html
+ *
  * @author yhawke 2013
  */
 public class BoyerMooreMatcher {
 
-    private final static int BASE = 256;
-    private int[] occurrence;
+    private Map<Character, Integer> occurrence;
     private String pattern;
 
     /**
      * Prepare the Matcher with the string that need to be searched
+     *
      * @param pattern the pattern we've to search for
      */
     public BoyerMooreMatcher(String pattern) {
         // Create internal structures
         this.pattern = pattern;
-        this.occurrence = new int[BASE];
-        
-        // Prepare the jump table
-        for (int c = 0; c < BASE; c++) {
-            occurrence[c] = -1;
-        }
+        this.occurrence = new HashMap<Character, Integer>();
 
-        // Fill the internal jump table
-        for (int j = 0; j < pattern.length(); j++) {
-            occurrence[pattern.charAt(j)] = j;
+        // Bad character Skip : Moore Table Construction
+        for (int i = 0; i < pattern.length(); i++) {
+            occurrence.put(pattern.charAt(i), i);
         }
     }
 
     /**
      * Returns the index within this string of the first occurrence of the
      * specified substring. If it is not a substring, return -1.
-     * 
+     *
      * @param content the content where we've to search into
      * @return the index of the occurrence or -1 if no occurrence has been found
      */
@@ -64,16 +62,22 @@ public class BoyerMooreMatcher {
         int n = content.length();
         int m = pattern.length();
         int skip;
-        
-        for (int i = 0; i <= n - m; i += skip) {
+        int val;
+
+        for (int i = 0; i <= n - m; i = i + skip) {
             skip = 0;
             for (int j = m - 1; j >= 0; j--) {
                 if (pattern.charAt(j) != content.charAt(i + j)) {
-                    skip = Math.max(1, j - occurrence[content.charAt(i + j)]);
+                    val = content.charAt(i + j);
+
+                    skip = (occurrence.get(val) != null) ?
+                            Math.max(1, j - occurrence.get(val)) :
+                            j + 1;
+
                     break;
                 }
             }
-            
+
             if (skip == 0) {
                 return i;
             }
@@ -84,9 +88,10 @@ public class BoyerMooreMatcher {
 
     /**
      * Get back the pattern used by this matcher
+     *
      * @return the string pattern
      */
     public String getPattern() {
         return pattern;
-    }    
+    }
 }

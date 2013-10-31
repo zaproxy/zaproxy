@@ -18,6 +18,7 @@
 package org.zaproxy.zap.utils;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
@@ -47,6 +48,8 @@ public class ContentMatcher {
         
     /**
      * Direct method for a complete ContentMatcher instance creation.
+     * Use the ClassLoader for the resource detection and loading, be careful regarding the 
+     * relative file name use (this class is in another package).
      * @param xmlfileName the name of the XML file that need to be used for initialization
      * @return a ContentMatcher instance
      */
@@ -55,7 +58,7 @@ public class ContentMatcher {
 
         // Load the pattern definitions from an XML file
         try {
-            cm.loadXMLPatternDefinitions(xmlFileName);
+            cm.loadXMLPatternDefinitions(cm.getClass().getResourceAsStream(xmlFileName));
             
         } catch (JDOMException | IOException ex) {
             throw new IllegalArgumentException("Failed to initialize the ContentMatcher object using: " + xmlFileName, ex);
@@ -63,6 +66,25 @@ public class ContentMatcher {
         
         return cm;
     }
+
+    /**
+     * Direct method for a complete ContentMatcher instance creation.
+     * @param xmlInputStream the stream of the XML file that need to be used for initialization
+     * @return a ContentMatcher instance
+     */
+    public static ContentMatcher getInstance(InputStream xmlInputStream) {
+        ContentMatcher cm = new ContentMatcher();
+
+        // Load the pattern definitions from an XML file
+        try {
+            cm.loadXMLPatternDefinitions(xmlInputStream);
+            
+        } catch (JDOMException | IOException ex) {
+            throw new IllegalArgumentException("Failed to initialize the ContentMatcher object using that stream", ex);
+        }
+        
+        return cm;
+    }    
     
     /**
      * Load a pattern list from an XML formatted file.
@@ -70,12 +92,12 @@ public class ContentMatcher {
      * defined as <Pattern type="xxx"></Pattern>. Use "regex" to define
      * a Regex formatted pattern or "string" for an exact matching pattern.
      */
-    public void loadXMLPatternDefinitions(String xmlFileName) throws JDOMException, IOException {
+    protected void loadXMLPatternDefinitions(InputStream xmlInputStream) throws JDOMException, IOException {
         strings = new ArrayList();
         patterns = new ArrayList();
         
         SAXBuilder builder = new SAXBuilder();
-        Document doc = builder.build(this.getClass().getResourceAsStream(xmlFileName));
+        Document doc = builder.build(xmlInputStream);
         Element el = doc.getRootElement();
         String value;
         
