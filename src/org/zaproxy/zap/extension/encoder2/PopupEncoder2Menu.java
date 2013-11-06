@@ -53,25 +53,35 @@ public class PopupEncoder2Menu extends ExtensionPopupMenuItem {
 	private void initialize() {
         this.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
 
-
-			
 	}
+
     @Override
     public boolean isEnableForComponent(Component invoker) {
-        if (invoker instanceof JTextComponent) {
-        	JTextComponent txt = (JTextComponent) invoker;
-        	String sel = txt.getSelectedText();
-        	if (sel == null || sel.length() == 0) {
-        		this.setEnabled(false);
-        	} else {
-        		this.setEnabled(true);
-        	}
-        	
+        if (invoker instanceof JTextComponent && !isInvokerFromEncodeDecode(invoker)) {
+
+            JTextComponent txt = (JTextComponent) invoker;
+            String sel = txt.getSelectedText();
+            if (sel == null || sel.length() == 0) {
+                this.setEnabled(false);
+            } else {
+                this.setEnabled(true);
+            }
+
             setLastInvoker((JTextComponent) invoker);
             return true;
         } else {
             setLastInvoker(null);
             return false;
+        }
+
+    }
+
+    private boolean isInvokerFromEncodeDecode(Component invoker) {
+        if (invoker.getName() == null) {
+            return false;
+        } else {
+            return invoker.getName().equals(EncodeDecodeDialog.ENCODE_DECODE_FIELD)
+                    || invoker.getName().equals(EncodeDecodeDialog.ENCODE_DECODE_RESULTFIELD);
         }
 
     }

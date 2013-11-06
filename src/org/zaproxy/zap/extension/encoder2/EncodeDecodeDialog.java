@@ -19,33 +19,30 @@
  */
 package org.zaproxy.zap.extension.encoder2;
 
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.HeadlessException;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
+import java.awt.*;
 import java.io.IOException;
 
-import javax.swing.BorderFactory;
-import javax.swing.JComponent;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTabbedPane;
-import javax.swing.ScrollPaneConstants;
+import javax.swing.*;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 public class EncodeDecodeDialog extends AbstractFrame {
 
 	private static final long serialVersionUID = 1L;
-	
+
+    public static final String ENCODE_DECODE_FIELD = "EncodeDecodeInputField";
+    public static final String ENCODE_DECODE_RESULTFIELD = "EncodeDecodeResultField";
+
 	private static final Logger log = Logger.getLogger(EncodeDecodeDialog.class);
-	
+
 	private JTabbedPane jTabbed = null;
 	private JPanel jPanel = null;
 
@@ -213,28 +210,51 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		field.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
 		field.setBorder(BorderFactory.createEtchedBorder());
 		field.setEditable(editable);
+        field.setName(ENCODE_DECODE_RESULTFIELD);
+
+        field.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mousePressed(java.awt.event.MouseEvent e) {
+                if (SwingUtilities.isRightMouseButton(e)) {
+                    View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                }
+            }
+        });
+
 		return field;
 	}
+
+
 
 	private ZapTextArea getInputField() {
 		if (inputField == null) {
 			inputField = newField(true);
+            inputField.setName(ENCODE_DECODE_FIELD);
 
-			inputField.addKeyListener(new KeyListener() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-				}
+            inputField.getDocument().addDocumentListener(new DocumentListener() {
+               @Override
+               public void insertUpdate(DocumentEvent documentEvent) {
+                   updateEncodeDecodeFields();
+               }
 
-				@Override
-				public void keyReleased(KeyEvent e) {
-					updateEncodeDecodeFields();
-				}
+               @Override
+               public void removeUpdate(DocumentEvent documentEvent) {
+                   updateEncodeDecodeFields();
+               }
 
-				@Override
-				public void keyTyped(KeyEvent e) {
-				}
+               @Override
+               public void changedUpdate(DocumentEvent documentEvent) {
+               }
+           });
 
-			});
+            inputField.addMouseListener(new java.awt.event.MouseAdapter() {
+                @Override
+                public void mousePressed(java.awt.event.MouseEvent e) {
+                    if (SwingUtilities.isRightMouseButton(e)) {
+                        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                    }
+                }
+            });
 		}
 		return inputField;
 	}
@@ -353,7 +373,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
 		}
-		
+
 		try {
 			base64DecodeField.setText(getEncoder().getBase64Decode(getInputField().getText()));
 			base64DecodeField.setEnabled(base64DecodeField.getText().length() > 0);
@@ -441,7 +461,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	public void updateOptions(EncodeDecodeParam options) {
 		getEncoder().setBase64Charset(options.getBase64Charset());
 		getEncoder().setBase64DoBreakLines(options.isBase64DoBreakLines());
-		
+
 		updateEncodeDecodeFields();
 	}
 
