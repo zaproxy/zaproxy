@@ -150,18 +150,19 @@ public class MainPopupMenu extends JPopupMenu {
             } else {
 	            if (menuItem.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
 	            	if (menuItem.isSubMenu()) {
+	            	    final JMenu superMenu = getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex());
 	            		if (menuItem.precedeWithSeparator()) {
-	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).addSeparator();
+	            			superMenu.addSeparator();
 	            		}
 	            		if (menuItem.isDummyItem()) {
 	            			// This assumes the dummy item is the first of the children - non dummy children will enable this
-	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).setEnabled(false);
+	            			superMenu.setEnabled(false);
 	            		} else {
-	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
-	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).setEnabled(true);
+	            			superMenu.add(menuItem);
+	            			superMenu.setEnabled(true);
 	            		}
 	            		if (menuItem.succeedWithSeparator()) {
-	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).add(menuItem);
+	            			superMenu.add(menuItem);
 	            		}
 	            		
 	            	} else {
@@ -193,12 +194,13 @@ public class MainPopupMenu extends JPopupMenu {
 		try {
             if (menu.isEnableForComponent(invoker)) {
             	if (menu.isSubMenu()) {
+            	    final JMenu superMenu = getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex());
             		if (menu.precedeWithSeparator()) {
-            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+            			superMenu.addSeparator();
             		}
-            		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
+            		superMenu.add(menu);
             		if (menu.succeedWithSeparator()) {
-            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
+            			superMenu.addSeparator();
             		}
             		
             	} else {
