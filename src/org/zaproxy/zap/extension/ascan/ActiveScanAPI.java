@@ -63,11 +63,14 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
 	private static final String VIEW_SCANNERS = "scanners";
+	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
+	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_RECURSE = "recurse";
     private static final String PARAM_JUST_IN_SCOPE = "inScopeOnly";
+	private static final String PARAM_IDS = "ids";
 
 	private ExtensionActiveScan extension;
 	private ActiveScan activeScan = null;
@@ -80,6 +83,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_SCANNERS));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
+		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
+		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
 
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
@@ -127,10 +132,32 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		case ACTION_DISABLE_ALL_SCANNERS:
 			PluginFactory.setAllPluginEnabled(false);
 			break;
+		case ACTION_ENABLE_SCANNERS:
+			setScannersEnabled(params, true);
+			break;
+		case ACTION_DISABLE_SCANNERS:
+			setScannersEnabled(params, false);
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private void setScannersEnabled(JSONObject params, boolean enabled) {
+		String[] ids = getParam(params, PARAM_IDS, "").split(",");
+		if (ids.length > 0) {
+			for (String id : ids) {
+				try {
+					Plugin scanner = PluginFactory.getPlugin(Integer.valueOf(id.trim()).intValue());
+					if (scanner != null) {
+						scanner.setEnabled(enabled);
+					}
+				} catch (NumberFormatException e) {
+					log.error("Failed to parse scanner ID: " + e.getMessage(), e);
+				}
+			}
+		}
 	}
 
 	private void scanURL(String url, boolean scanChildren, boolean scanJustInScope) throws ApiException {
