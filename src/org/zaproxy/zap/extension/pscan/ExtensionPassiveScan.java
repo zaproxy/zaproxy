@@ -192,6 +192,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		return scannerList;
 	}
 	
+	List<PluginPassiveScanner> getPluginPassiveScanners() {
+		List<PluginPassiveScanner> pluginPassiveScanners = new ArrayList<>();
+		for (PassiveScanner scanner : getPassiveScannerList().list()) {
+			if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
+				pluginPassiveScanners.add((PluginPassiveScanner)scanner);
+			}
+		}
+		return pluginPassiveScanners;
+	}
+
 	public PolicyPassiveScanPanel getPolicyPanel() {
 		if (policyPanel == null) {
     		policyPanel = new PolicyPassiveScanPanel();

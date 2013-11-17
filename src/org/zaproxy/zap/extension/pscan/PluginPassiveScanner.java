@@ -63,4 +63,14 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	public void setDefaultLevel(AlertThreshold level) {
 		this.defaultLevel = level;
 	}
+
+	/**
+	 * Returns the ID of the plug-in.
+	 *
+	 * @return the id of the plug-in.
+	 * @since TODO add version
+	 */
+	public int getPluginId() {
+		return -1;
+	}
 }

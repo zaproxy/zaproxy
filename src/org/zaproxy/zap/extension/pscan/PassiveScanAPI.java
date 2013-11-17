@@ -17,6 +17,10 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import net.sf.json.JSONObject;
 
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -25,6 +29,7 @@ import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 
 public class PassiveScanAPI extends ApiImplementor {
@@ -32,6 +37,7 @@ public class PassiveScanAPI extends ApiImplementor {
 	private static final String PREFIX = "pscan";
 	
 	private static final String VIEW_RECORDS_TO_SCAN = "recordsToScan";
+	private static final String VIEW_SCANNERS = "scanners";
 
 	private static final String ACTION_SET_ENABLED = "setEnabled";
 
@@ -45,6 +51,7 @@ public class PassiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] {PARAM_ENABLED}));
 
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
+		this.addApiView(new ApiView(VIEW_SCANNERS));
 
 	}
 	
@@ -73,10 +80,25 @@ public class PassiveScanAPI extends ApiImplementor {
 			throws ApiException {
 		ApiResponse result;
 
-		if (VIEW_RECORDS_TO_SCAN.equals(name)) {
+		switch (name) {
+		case VIEW_RECORDS_TO_SCAN:
 			result = new ApiResponseList(name);
 			result = new ApiResponseElement(name, String.valueOf(extension.getRecordsToScan()));
-		} else {
+			break;
+		case VIEW_SCANNERS:
+			List<PluginPassiveScanner> scanners = extension.getPluginPassiveScanners();
+			
+			ApiResponseList resultList = new ApiResponseList(name);
+			for (PluginPassiveScanner scanner : scanners) {
+				Map<String, String> map = new HashMap<>();
+				map.put("id", String.valueOf(scanner.getPluginId()));
+				map.put("name", scanner.getName());
+				resultList.addItem(new ApiResponseSet("scanner", map));
+			}
+			
+			result = resultList;
+			break;
+		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
