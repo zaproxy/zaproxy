@@ -23,8 +23,11 @@ package org.zaproxy.zap.view;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
+import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -57,6 +60,7 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnSession = null;
 	private JButton btnOptions = null;
 
+	private ButtonGroup expandButtons;
 	private JToggleButton btnExpandSites = null;
 	private JToggleButton btnExpandReports = null;
 
@@ -70,6 +74,8 @@ public class MainToolbarPanel extends JPanel {
 		setPreferredSize(new java.awt.Dimension(80000,25));
 		setMaximumSize(new java.awt.Dimension(80000,25));
 		this.setBorder(BorderFactory.createEtchedBorder());
+
+		expandButtons = new ButtonGroup();
 
 		GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -318,67 +324,33 @@ public class MainToolbarPanel extends JPanel {
 
 	private JToggleButton getBtnExpandSites() {
 		if (btnExpandSites == null) {
-			btnExpandSites = new JToggleButton();
-			btnExpandSites.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/expand_sites.png")));
+			btnExpandSites = new JToggleButton(new ChangeDisplayOptionAction(
+					MainToolbarPanel.class.getResource("/resource/icon/expand_sites.png"),
+					View.DISPLAY_OPTION_LEFT_FULL));
 			btnExpandSites.setToolTipText(Constant.messages.getString("view.toolbar.expandSites"));
 			
-			btnExpandSites.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption() != View.DISPLAY_OPTION_LEFT_FULL) {
-						getBtnExpandReports().setSelected(false);
-						
-						View.getSingleton().getMainFrame().changeDisplayOption(View.DISPLAY_OPTION_LEFT_FULL);
-						try {
-							Model.getSingleton().getOptionsParam().getConfig().save();
-						} catch (ConfigurationException ex) {
-							logger.error(ex.getMessage(), ex);
-						}
-					} else {
-						((JToggleButton)e.getSource()).setSelected(true);
-					}
-				}
-			});
+			expandButtons.add(btnExpandSites);
 		}
 		return btnExpandSites;
 	}
 
 	private JToggleButton getBtnExpandReports() {
 		if (btnExpandReports == null) {
-			btnExpandReports = new JToggleButton();
-			btnExpandReports.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/expand_info.png")));
+			btnExpandReports = new JToggleButton(new ChangeDisplayOptionAction(
+					MainToolbarPanel.class.getResource("/resource/icon/expand_info.png"),
+					View.DISPLAY_OPTION_BOTTOM_FULL));
 			btnExpandReports.setToolTipText(Constant.messages.getString("view.toolbar.expandInfo"));
 
-			btnExpandReports.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption() != View.DISPLAY_OPTION_BOTTOM_FULL) {
-						getBtnExpandSites().setSelected(false);
-						
-						View.getSingleton().getMainFrame().changeDisplayOption(View.DISPLAY_OPTION_BOTTOM_FULL);
-						try {
-							Model.getSingleton().getOptionsParam().getConfig().save();
-						} catch (ConfigurationException ex) {
-							logger.error(ex.getMessage(), ex);
-						}
-					} else {
-						((JToggleButton)e.getSource()).setSelected(true);
-					}
-				}
-			});
+			expandButtons.add(btnExpandReports);
 		}
 		return btnExpandReports;
 	}
 	
 	public void setDisplayOption(int option) {
 		if (option == View.DISPLAY_OPTION_BOTTOM_FULL) {
-			btnExpandSites.setSelected(false);
 			btnExpandReports.setSelected(true);
 		} else if (option == View.DISPLAY_OPTION_LEFT_FULL) {
 			btnExpandSites.setSelected(true);
-			btnExpandReports.setSelected(false);
 		}
 	}
 
@@ -389,5 +361,29 @@ public class MainToolbarPanel extends JPanel {
 		}
 	}
 
+    private static class ChangeDisplayOptionAction extends AbstractAction {
+
+        private static final long serialVersionUID = 8323387638733162321L;
+
+        private final int displayOption;
+
+        public ChangeDisplayOptionAction(URL iconURL, int displayOption) {
+            super("", new ImageIcon(iconURL));
+
+            this.displayOption = displayOption;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent evt) {
+            if (Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption() != displayOption) {
+                View.getSingleton().getMainFrame().changeDisplayOption(displayOption);
+                try {
+                    Model.getSingleton().getOptionsParam().getConfig().save();
+                } catch (ConfigurationException e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
 
 }
