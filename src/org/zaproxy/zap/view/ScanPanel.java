@@ -535,10 +535,7 @@ public abstract class ScanPanel extends AbstractPanel {
 				}
 				getProgressBar().setEnabled(true);
 			} else {
-				getStartScanButton().setEnabled(true);
-				getStopScanButton().setEnabled(false);
-				getPauseScanButton().setEnabled(false);
-				getProgressBar().setEnabled(false);
+				resetScanButtonsAndProgressBarStates(true);
 			}
 			
 			getProgressBar().setValue(scanThread.getProgress());
@@ -549,14 +546,19 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (Mode.protect.equals(this.mode)) {
 			// Check to see if in scope
 			if (! Model.getSingleton().getSession().isInScope(this.getSiteNode(currentSite))) {
-				getStartScanButton().setEnabled(false);
-				getStopScanButton().setEnabled(false);
-				getPauseScanButton().setEnabled(false);
-				getProgressBar().setEnabled(false);
+				resetScanButtonsAndProgressBarStates(false);
 			}
 		}
 	}
 	
+	private void resetScanButtonsAndProgressBarStates(boolean allowStartScan) {
+		getStartScanButton().setEnabled(allowStartScan);
+		getStopScanButton().setEnabled(false);
+		getPauseScanButton().setEnabled(false);
+		getPauseScanButton().setSelected(false);
+		getProgressBar().setEnabled(false);
+	}
+
 	public static String cleanSiteName(String site, boolean incPort) {
 		boolean ssl = false;
 		if (site.toLowerCase().startsWith("https:")) {
@@ -722,11 +724,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	private void scanFinshedEventHandler(String host) {
 		log.debug("scanFinished " + prefix + " on " + currentSite);
 		if (host != null && host.equals(currentSite)) {
-			getStartScanButton().setEnabled(true);
-			getStopScanButton().setEnabled(false);
-			getPauseScanButton().setEnabled(false);
-			getPauseScanButton().setSelected(false);
-			getProgressBar().setEnabled(false);
+			resetScanButtonsAndProgressBarStates(true);
 		}
 		this.activeScans.remove(host);
 		// Note the label is not now changed back from bold - so you can see which sites have been scanned
@@ -800,9 +798,7 @@ public abstract class ScanPanel extends AbstractPanel {
 		currentSite = null;
 		
 		setActiveScanLabels();
-		getStartScanButton().setEnabled(false);
-		getStopScanButton().setEnabled(false);
-		getProgressBar().setEnabled(false);
+		resetScanButtonsAndProgressBarStates(false);
 		getProgressBar().setValue(0);
 	}
 
@@ -846,11 +842,6 @@ public abstract class ScanPanel extends AbstractPanel {
 			// Stop all scans
 			reset();
 			// And disable everything
-			getStartScanButton().setEnabled(false);
-			getStopScanButton().setEnabled(false);
-			getPauseScanButton().setEnabled(false);
-			getPauseScanButton().setSelected(false);
-			getProgressBar().setEnabled(false);
 			getSiteSelect().setSelectedIndex(0);
 			getSiteSelect().setEnabled(false);
 		}
