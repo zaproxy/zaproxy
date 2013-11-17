@@ -388,22 +388,12 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
             }
 	    }
             
-	    BufferedOutputStream fw = null;
-        try {
-            fw = new BufferedOutputStream(new FileOutputStream(file));
+	    try (BufferedOutputStream fw = new BufferedOutputStream(new FileOutputStream(file))) {
 	        fw.write(getBytes());
 
         } catch (Exception e1) {
         	View.getSingleton().showWarningDialog(MessageFormat.format(ERROR_SAVE, file.getAbsolutePath()));
         	log.warn(e1.getMessage(), e1);
-        } finally {
-    	    try {
-    	    	if (fw != null) {
-    	    		fw.close();
-    	    	}
-    	    } catch (Exception e2) {
-            	log.warn(e2.getMessage(), e2);
-    	    }
         }
         
         
