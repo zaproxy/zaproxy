@@ -49,6 +49,7 @@ import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.extension.report.ReportLastScan;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
@@ -703,6 +704,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					continue;
 				}
 				RecordHistory recHistory = tableHistory.read(historyId);
+
+				if (HistoryReference.TYPE_TEMPORARY == recHistory.getHistoryType()) {
+				    continue;
+				}
+
 				HttpMessage msg = recHistory.getHttpMessage();
 
 				if (msg.getRequestHeader().isImage() || msg.getResponseHeader().isImage()) {
