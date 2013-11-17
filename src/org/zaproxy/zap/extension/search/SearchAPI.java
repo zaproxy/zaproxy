@@ -17,14 +17,20 @@
  */
 package org.zaproxy.zap.extension.search;
 
-import java.util.ArrayList;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.RecordHistory;
+import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -32,7 +38,7 @@ import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 
-public class SearchAPI extends ApiImplementor implements SearchListenner {
+public class SearchAPI extends ApiImplementor {
 
     private static Logger log = Logger.getLogger(SearchAPI.class);
 
@@ -51,9 +57,6 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 
 	private ExtensionSearch extension;
 
-	private List<SearchResult> results = null;
-	private boolean searchInProgress = false;
-	
 	public SearchAPI (ExtensionSearch extension) {
 		this.extension = extension;
 		
@@ -78,12 +81,6 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 			throws ApiException {
 		ApiResponseList result = new ApiResponseList(name);
 		try {
-			if (this.searchInProgress) {
-				// TODO better exception
-				throw new ApiException(ApiException.Type.BAD_VIEW);
-			}
-			this.searchInProgress = true;
-			this.results = new ArrayList<>();
 			ExtensionSearch.Type type;
 			
 			if (VIEW_URLS_BY_URL_REGEX.equals(name)) {
@@ -98,27 +95,35 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 				throw new ApiException(ApiException.Type.BAD_VIEW);
 			}
 
+			ApiSearchListener searchListener = new ApiSearchListener();
 			// The search kicks off a background thread
 			extension.search(
 					params.getString(PARAM_REGEX), 
-					this, type, false, false, 
+					searchListener, type, false, false, 
 					this.getParam(params, PARAM_BASE_URL, (String)null),
 					this.getParam(params, PARAM_START, -1),
 					this.getParam(params, PARAM_COUNT, -1));
 			
-			while(this.searchInProgress) {
+			while(!searchListener.isSearchComplete()) {
 				Thread.sleep(100);
 			}
 
-			for (SearchResult sr : this.results) {
-				Map<String, String> map = new HashMap<>();
-				map.put("id", String.valueOf(sr.getMessage().getHistoryRef().getHistoryId()));
-				map.put("type", String.valueOf(sr.getMessage().getHistoryRef().getHistoryType()));
-				map.put("method", sr.getMessage().getRequestHeader().getMethod());
-				map.put("url", sr.getMessage().getRequestHeader().getURI().toString());
-				map.put("code", String.valueOf(sr.getMessage().getResponseHeader().getStatusCode()));
-				map.put("time", String.valueOf(sr.getMessage().getTimeElapsedMillis()));
-				result.addItem(new ApiResponseSet(name, map));
+			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+			for (Integer hRefId : searchListener.getHistoryReferencesIds()) {
+				try {
+					final RecordHistory recHistory = tableHistory.read(hRefId.intValue());
+					final HttpMessage msg = recHistory.getHttpMessage();
+					Map<String, String> map = new HashMap<>();
+					map.put("id", String.valueOf(recHistory.getHistoryId()));
+					map.put("type", String.valueOf(recHistory.getHistoryType()));
+					map.put("method", msg.getRequestHeader().getMethod());
+					map.put("url", msg.getRequestHeader().getURI().toString());
+					map.put("code", String.valueOf(msg.getResponseHeader().getStatusCode()));
+					map.put("time", String.valueOf(msg.getTimeElapsedMillis()));
+					result.addItem(new ApiResponseSet(name, map));
+				} catch (SQLException | HttpMalformedHeaderException e) {
+					log.error(e.getMessage(), e);
+				}
 			}
 			
 		} catch (Exception e) {
@@ -147,14 +152,35 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 	}
 	*/
 
-	@Override
-	public void addSearchResult(SearchResult res) {
-		this.results.add(res);
-	}
+	private static class ApiSearchListener implements SearchListenner {
 
-	@Override
-	public void searchComplete() {
-		this.searchInProgress = false;
+		private boolean searchComplete;
+
+		private List<Integer> historyReferencesIds;
+
+		public ApiSearchListener() {
+			super();
+			searchComplete = false;
+			historyReferencesIds = new LinkedList<>();
+		}
+
+		@Override
+		public void addSearchResult(SearchResult sr) {
+			historyReferencesIds.add(Integer.valueOf(sr.getMessage().getHistoryRef().getHistoryId()));
+		}
+
+		@Override
+		public void searchComplete() {
+			this.searchComplete = true;
+		}
+
+		public boolean isSearchComplete() {
+			return searchComplete;
+		}
+
+		public List<Integer> getHistoryReferencesIds() {
+			return historyReferencesIds;
+		}
 	}
 
 }
