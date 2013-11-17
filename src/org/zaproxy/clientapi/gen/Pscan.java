@@ -20,7 +20,6 @@
 
 package org.zaproxy.clientapi.gen;
 
-import java.util.HashMap;
 import java.util.Map;
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ClientApi;

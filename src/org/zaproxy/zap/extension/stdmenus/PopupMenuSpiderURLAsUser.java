@@ -19,7 +19,6 @@ package org.zaproxy.zap.extension.stdmenus;
 
 import javax.swing.ImageIcon;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;

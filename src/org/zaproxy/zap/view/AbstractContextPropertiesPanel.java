@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.view;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.SessionDialog;

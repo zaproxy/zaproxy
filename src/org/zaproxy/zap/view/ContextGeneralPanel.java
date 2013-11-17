@@ -2,14 +2,10 @@ package org.zaproxy.zap.view;
 
 import java.awt.CardLayout;
 import java.awt.GridBagLayout;
-import java.awt.event.FocusEvent;
-import java.awt.event.FocusListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
