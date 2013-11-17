@@ -294,12 +294,7 @@ public class MainToolbarPanel extends JPanel {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					try {
-						View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), null);
-					} catch (Exception ex) {
-						logger.error(ex.getMessage(), ex);
-						View.getSingleton().showWarningDialog(Constant.messages.getString("menu.file.SessionSession.error"));
-					}
+					View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), null);
 				}
 			});
 		}
