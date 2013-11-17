@@ -90,6 +90,9 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public void scan(HttpMessage msg, String param, String value) {
+        if (this.getExtension() == null) {
+            return;
+        }
 		List<ScriptWrapper> scripts = this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
 			
 		for (ScriptWrapper script : scripts) {
