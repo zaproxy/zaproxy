@@ -39,6 +39,7 @@
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 // ZAP: 2013/09/29 Deprecating configuring HTTP Authentication through Options
+// ZAP: 2013/11/16 Issue 837: Update, always, the HTTP request sent/forward by ZAP's proxy
 
 package org.parosproxy.paros.network;
 
@@ -449,11 +450,9 @@ public class HttpSender {
 			this.executeMethod(method, msg.getRequestingUser().getCorrespondingHttpState());
 		else
 			this.executeMethod(method, null);
-		// ZAP: If the state is enabled or there's a requesting user (so state is automatically
-		// used), update the request message according to what the HttpState contains
-		if ((allowState && param.isHttpStateEnabled()) || msg.getRequestingUser() != null) {
-			HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
-		}
+
+		HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
+
 		return method;
 	}
 
