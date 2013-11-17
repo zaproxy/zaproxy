@@ -33,7 +33,9 @@
 // the request body is not "x-www-form-urlencoded"
 package org.parosproxy.paros.network;
 
+import java.util.ArrayList;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -186,6 +188,19 @@ public abstract class HttpHeader implements java.io.Serializable {
     public Vector<String> getHeaders(String name) {
         Vector<String> v = mHeaderFields.get(name.toUpperCase());
         return v;
+    }
+
+    public List<HttpHeaderField> getHeaders() {
+        List<HttpHeaderField> headerFields = new ArrayList<>();
+        String[] headers = mMsgHeader.split(Pattern.quote(mLineDelimiter));
+
+        for (int i = 0; i < headers.length; ++i) {
+            String[] headerField = headers[i].split(":", 2);
+            if (headerField.length == 2) {
+                headerFields.add(new HttpHeaderField(headerField[0].trim(), headerField[1].trim()));
+            }
+        }
+        return headerFields;
     }
 
     /**

@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.search;
 
+import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -31,13 +32,19 @@ import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiOther;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseConversionUtils;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.utils.HarUtils;
+
+import edu.umass.cs.benchlab.har.HarEntries;
+import edu.umass.cs.benchlab.har.HarLog;
 
 public class SearchAPI extends ApiImplementor {
 
@@ -54,6 +61,11 @@ public class SearchAPI extends ApiImplementor {
 	private static final String VIEW_MESSAGES_BY_REQUEST_REGEX = "messagesByRequestRegex";
 	private static final String VIEW_MESSAGES_BY_RESPONSE_REGEX = "messagesByResponseRegex";
 	private static final String VIEW_MESSAGES_BY_HEADER_REGEX = "messagesByHeaderRegex";
+	
+	private static final String OTHER_HAR_BY_URL_REGEX = "harByUrlRegex";
+	private static final String OTHER_HAR_BY_REQUEST_REGEX = "harByRequestRegex";
+	private static final String OTHER_HAR_BY_RESPONSE_REGEX = "harByResponseRegex";
+	private static final String OTHER_HAR_BY_HEADER_REGEX = "harByHeaderRegex";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	//private static final String PARAM_CONTEXT_ID = "contextId";	TODO: implement 
@@ -83,6 +95,11 @@ public class SearchAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_MESSAGES_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
 		this.addApiView(new ApiView(VIEW_MESSAGES_BY_RESPONSE_REGEX, searchMandatoryParams, searchOptionalParams));
 		this.addApiView(new ApiView(VIEW_MESSAGES_BY_HEADER_REGEX, searchMandatoryParams, searchOptionalParams));
+
+		this.addApiOthers(new ApiOther(OTHER_HAR_BY_URL_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiOthers(new ApiOther(OTHER_HAR_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiOthers(new ApiOther(OTHER_HAR_BY_RESPONSE_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiOthers(new ApiOther(OTHER_HAR_BY_HEADER_REGEX, searchMandatoryParams, searchOptionalParams));
 	}
 	
 	@Override
@@ -96,7 +113,6 @@ public class SearchAPI extends ApiImplementor {
 		final ApiResponseList result = new ApiResponseList(name);
 		try {
 			ExtensionSearch.Type searchType;
-			
 			SearchViewResponseType responseType;
 
 			switch (name) {
@@ -174,6 +190,60 @@ public class SearchAPI extends ApiImplementor {
 					e.getMessage());
 		}
 		return result;
+	}
+
+	@Override
+	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
+		byte responseBody[] = {};
+		try {
+			ExtensionSearch.Type searchType;
+
+			switch (name) {
+			case OTHER_HAR_BY_URL_REGEX:
+				searchType = ExtensionSearch.Type.URL;
+				break;
+			case OTHER_HAR_BY_REQUEST_REGEX:
+				searchType = ExtensionSearch.Type.Request;
+				break;
+			case OTHER_HAR_BY_RESPONSE_REGEX:
+				searchType = ExtensionSearch.Type.Response;
+				break;
+			case OTHER_HAR_BY_HEADER_REGEX:
+				searchType = ExtensionSearch.Type.Header;
+				break;
+			default:
+				throw new ApiException(ApiException.Type.BAD_OTHER);
+			}
+
+			final HarEntries entries = new HarEntries();
+			search(params, searchType, new SearchResultsProcessor() {
+
+				@Override
+				public void processRecordHistory(RecordHistory recordHistory) {
+					entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+				}
+			});
+
+			HarLog harLog = HarUtils.createZapHarLog();
+			harLog.setEntries(entries);
+
+			responseBody = HarUtils.harLogToByteArray(harLog);
+
+		} catch (Exception e) {
+			log.error(e.getMessage(), e);
+
+			ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+		}
+
+		try {
+			msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
+		} catch (HttpMalformedHeaderException e) {
+			log.error("Failed to create response header: " + e.getMessage(), e);
+		}
+		msg.setResponseBody(responseBody);
+
+		return msg;
 	}
 
 	private void search(JSONObject params, ExtensionSearch.Type searchType, SearchResultsProcessor processor)
