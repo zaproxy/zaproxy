@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.util.List;
-
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
@@ -59,11 +56,6 @@ public abstract class PopupContextMenu extends PopupMenuSiteNode {
     public boolean isSubMenu() {
     	return true;
     }
-
-	@Override
-    public void performActions (List<HistoryReference> hrefs) throws Exception {
-		super.performActions(hrefs);
-	}
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker) {

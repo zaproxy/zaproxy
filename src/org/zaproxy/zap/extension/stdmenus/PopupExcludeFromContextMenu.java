@@ -19,10 +19,7 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.util.List;
-
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -69,11 +66,6 @@ public class PopupExcludeFromContextMenu extends PopupMenuSiteNode {
 		// Show the session dialog without recreating UI Shared contexts
 		View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()),
 				false);
-	}
-
-	@Override
-	public void performActions(List<HistoryReference> hrefs) throws Exception {
-		super.performActions(hrefs);
 	}
 
 	@Override

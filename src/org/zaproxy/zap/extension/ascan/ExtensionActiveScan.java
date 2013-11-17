@@ -44,7 +44,6 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -228,11 +227,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
     
-	@Override
-    public void initView(ViewDelegate view) {
-    	super.initView(view);
-    }
-
 
 	@Override
 	public void sessionChanged(final Session session)  {

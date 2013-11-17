@@ -243,16 +243,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	@Override
-	public void setJustScanInScope(boolean scanInScope) {
-		super.setJustScanInScope(scanInScope);
-	}
-
-	@Override
-	public boolean getJustScanInScope() {
-		return super.getJustScanInScope();
-	}
-
-	@Override
 	public void setScanContext(Context context) {
 		this.startContext=context;		
 		//TODO: Use this context to start the active scan only on Nodes in scope

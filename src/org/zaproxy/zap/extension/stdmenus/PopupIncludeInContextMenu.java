@@ -20,12 +20,10 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.sql.SQLException;
-import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -97,11 +95,6 @@ public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
 		// Show the session dialog without recreating UI Shared contexts
 		View.getSingleton().showSessionDialog(session, ContextIncludePanel.getPanelName(context.getIndex()),
 				false);
-	}
-
-	@Override
-	public void performActions(List<HistoryReference> hrefs) throws Exception {
-		super.performActions(hrefs);
 	}
 
 	@Override
