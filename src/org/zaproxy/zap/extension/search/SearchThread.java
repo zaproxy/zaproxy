@@ -44,8 +44,7 @@ public class SearchThread extends Thread {
 	private boolean inverse = false;
 	private boolean searchJustInScope = false;
 	private String baseUrl;
-	private int start;
-	private int count;
+	private PaginationConstraintsChecker pcc;
 	
     private boolean searchAllOccurrences;
 
@@ -65,8 +64,7 @@ public class SearchThread extends Thread {
 		this.inverse = inverse;
 		this.searchJustInScope = searchJustInScope;
 		this.baseUrl = baseUrl;
-		this.start = start;
-		this.count = count;
+		pcc = new PaginationConstraintsChecker(start, count);
 		
 		this.searchAllOccurrences = searchAllOccurrences;
 	}
@@ -99,16 +97,11 @@ public class SearchThread extends Thread {
 
 			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
 			int last = list.size();
-			int c = 0;
 			for (int index=0;index < last;index++){
 				if (stopSearch) {
 					break;
 				}
 			    int v = list.get(index).intValue();
-			    if (this.start > 0 && v < start) {
-			    	// Before the specified start
-			    	continue;
-			    }
 			    try {
 			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
 			        if (hr.getHistoryType() == HistoryReference.TYPE_PROXIED || 
@@ -131,19 +124,12 @@ public class SearchThread extends Thread {
 				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, "", 
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-							        						0, 0))); 
-							        c++;
+							        notifyInverseMatchFound(message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(), 
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()); 
 					            	
 							        if (!searchAllOccurrences) {
 							            break;
@@ -157,19 +143,12 @@ public class SearchThread extends Thread {
 				            matcher = pattern.matcher(message.getRequestHeader().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, "",
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-							        						0, 0))); 
-							        c++;
+							        notifyInverseMatchFound(message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(),
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
 								    }
@@ -179,19 +158,12 @@ public class SearchThread extends Thread {
 				            matcher = pattern.matcher(message.getResponseHeader().toString());
 				            if (inverse) {
 					            if (! matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, "",
-							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
-							        						0, 0))); 
-							        c++;
+							        notifyInverseMatchFound(message, SearchMatch.Location.RESPONSE_HEAD); 
 					            }
 				            } else {
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(),
-							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
+							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
 								    }
@@ -204,21 +176,14 @@ public class SearchThread extends Thread {
 					            // Check for no matches in either Request Header or Body 
 					            if (! pattern.matcher(message.getRequestHeader().toString()).find() && 
 					            		! pattern.matcher(message.getRequestBody().toString()).find()) {    
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, "",
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-							        						0, 0))); 
-							        c++;
+							        notifyInverseMatchFound(message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
 					            // Request Header 
 					            matcher = pattern.matcher(message.getRequestHeader().toString());    
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(),
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
+							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
 								    }
@@ -226,11 +191,8 @@ public class SearchThread extends Thread {
 					            // Request Body
 					            matcher = pattern.matcher(message.getRequestBody().toString());    
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(),
-							        				new SearchMatch(message, SearchMatch.Location.REQUEST_BODY, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_BODY, 
+							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
 								    }
@@ -243,21 +205,14 @@ public class SearchThread extends Thread {
 					            // Check for no matches in either Response Header or Body 
 					            if (! pattern.matcher(message.getResponseHeader().toString()).find() && 
 					            		! pattern.matcher(message.getResponseBody().toString()).find()) {    
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, "",
-							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
-							        						0, 0))); 
-							        c++;
+							        notifyInverseMatchFound(message, SearchMatch.Location.RESPONSE_HEAD); 
 					            }
 				            } else {
 					            // Response header
 					            matcher = pattern.matcher(message.getResponseHeader().toString());    
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(),
-							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
+							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
 								    }
@@ -265,11 +220,8 @@ public class SearchThread extends Thread {
 					            // Response body
 					            matcher = pattern.matcher(message.getResponseBody().toString());    
 					            while (matcher.find()) {
-							        searchListenner.addSearchResult(
-							        		new SearchResult(reqType, filter, matcher.group(),
-							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_BODY, 
-							        						matcher.start(), matcher.end()))); 
-							        c++;
+							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.RESPONSE_BODY, 
+							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
 								    }
@@ -281,7 +233,7 @@ public class SearchThread extends Thread {
 			    } catch (HttpMalformedHeaderException e1) {
 			        log.error(e1.getMessage(), e1);
 			    }
-			    if (this.count > 0 && c >= count) {
+			    if (pcc.hasPageEnded()) {
 			    	break;
 			    }
 			}	            
@@ -289,5 +241,74 @@ public class SearchThread extends Thread {
 	        log.error(e.getMessage(), e);
 		}
 		this.searchListenner.searchComplete();
+	}
+
+	private void notifyInverseMatchFound(HttpMessage message, SearchMatch.Location location) {
+		notifyMatchFound("", message, location, 0, 0);
+	}
+
+	private void notifyMatchFound(String stringFound, HttpMessage message, SearchMatch.Location location, int start, int end) {
+		pcc.recordProcessed();
+		if (!pcc.hasPageStarted()) {
+			// Before the specified start
+			return;
+		}
+
+		searchListenner.addSearchResult(new SearchResult(reqType, filter, stringFound, new SearchMatch(
+				message,
+				location,
+				start,
+				end)));
+	}
+
+	private static class PaginationConstraintsChecker {
+
+		private boolean pageStarted;
+		private boolean pageEnded;
+		private final int startRecord;
+		private final boolean hasEnd;
+		private final int finalRecord;
+		private int recordsProcessed;
+
+		public PaginationConstraintsChecker(int start, int count) {
+			recordsProcessed = 0;
+
+			if (start > 0) {
+				pageStarted = false;
+				startRecord = start;
+			} else {
+				pageStarted = true;
+				startRecord = 0;
+			}
+
+			if (count > 0) {
+				hasEnd = true;
+				finalRecord = !pageStarted ? start + count - 1 : count;
+			} else {
+				hasEnd = false;
+				finalRecord = 0;
+			}
+			pageEnded = false;
+		}
+
+		public void recordProcessed() {
+			++recordsProcessed;
+
+			if (!pageStarted) {
+				pageStarted = recordsProcessed >= startRecord;
+			}
+
+			if (hasEnd && !pageEnded) {
+				pageEnded = recordsProcessed >= finalRecord;
+			}
+		}
+
+		public boolean hasPageStarted() {
+			return pageStarted;
+		}
+
+		public boolean hasPageEnded() {
+			return pageEnded;
+		}
 	}
 }
