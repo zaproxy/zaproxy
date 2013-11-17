@@ -93,8 +93,10 @@ public class HttpPanelSender implements MessageSender {
 						final Thread t = new Thread(new Runnable() {
 							@Override
 							public void run() {
-								getHistoryExtension().addHistory(httpMessage,
-										finalType);
+								final ExtensionHistory extHistory = getHistoryExtension();
+								if (extHistory != null) {
+									extHistory.addHistory(httpMessage, finalType);
+								}
 							}
 						});
 						t.start();
