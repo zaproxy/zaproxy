@@ -82,6 +82,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
 	private static final String VIEW_MESSAGES = "messages";
+	private static final String VIEW_NUMBER_OF_MESSAGES = "numberOfMessages";
 	private static final String VIEW_VERSION = "version";
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
@@ -124,6 +125,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_URLS));
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] { PARAM_BASE_URL }));
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
@@ -416,6 +418,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						}
 					});
 			result = resultList;
+		} else if (VIEW_NUMBER_OF_MESSAGES.equals(name)) {
+			CounterProcessor<RecordHistory> counter = new CounterProcessor<>();
+			processHttpMessages(
+					this.getParam(params, PARAM_BASE_URL, (String) null),
+					this.getParam(params, PARAM_START, -1),
+					this.getParam(params, PARAM_COUNT, -1),
+					counter);
+
+			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
 		} else if (VIEW_VERSION.equals(name)) {
 			result = new ApiResponseList(name);
 			result = new ApiResponseElement(name, Constant.PROGRAM_VERSION);
@@ -717,6 +728,24 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private interface Processor<T> {
 
 		void process(T object);
+	}
+
+	private static class CounterProcessor<T> implements Processor<T> {
+
+		private int count;
+
+		public CounterProcessor() {
+			count = 0;
+		}
+
+		@Override
+		public void process(T object) {
+			++count;
+		}
+
+		public int getCount() {
+			return count;
+		}
 	}
 
 	@Override
