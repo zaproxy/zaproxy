@@ -4,15 +4,12 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JMenuItem;
-
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
 /**
  * The Class PopupContextMenuItemHolder is used as a holder for multiple {@link PopupContextMenu}. Depending
@@ -89,17 +86,10 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
 
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
-		if (visibleItself)
+		if (visibleItself) {
 			return super.isEnableForComponent(invoker);
-		else {
-			for (JMenuItem item : subMenuItems) {
-				if (item instanceof PopupMenuHistoryReference) {
-					PopupMenuHistoryReference itemRef = (PopupMenuHistoryReference) item;
-					itemRef.isEnableForComponent(invoker);
-				}
-			}
-			return false;
 		}
+		return false;
 	}
 
 	@Override

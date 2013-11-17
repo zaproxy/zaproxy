@@ -23,8 +23,6 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JMenuItem;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
@@ -36,7 +34,6 @@ import org.zaproxy.zap.extension.users.ContextUserAuthManager;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
 
 /**
  * The Class PopupUserMenuItemHolder is used as a holder for multiple {@link PopupUserMenu}.
@@ -128,17 +125,10 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenu {
 		if (extensionUserAuth == null) {
 			return false;
 		}
-		if (visibleItself)
+		if (visibleItself) {
 			return super.isEnableForComponent(invoker);
-		else {
-			for (JMenuItem item : subMenuItems) {
-				if (item instanceof PopupMenuHistoryReference) {
-					PopupMenuHistoryReference itemRef = (PopupMenuHistoryReference) item;
-					itemRef.isEnableForComponent(invoker);
-				}
-			}
-			return false;
 		}
+		return false;
 	}
 
 	@Override
