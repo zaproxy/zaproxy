@@ -47,10 +47,17 @@ public class SearchThread extends Thread {
 	private int start;
 	private int count;
 	
+    private boolean searchAllOccurrences;
+
     private static Logger log = Logger.getLogger(SearchThread.class);
 	
     public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
     		String baseUrl, int start, int count) {
+        this(filter, reqType, searchListenner, inverse, searchJustInScope, baseUrl, start, count, true);
+    }
+
+    public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
+    		String baseUrl, int start, int count, boolean searchAllOccurrences) {
 		super();
 		this.filter = filter;
 		this.reqType = reqType;
@@ -60,6 +67,8 @@ public class SearchThread extends Thread {
 		this.baseUrl = baseUrl;
 		this.start = start;
 		this.count = count;
+		
+		this.searchAllOccurrences = searchAllOccurrences;
 	}
 
     public void stopSearch() {
@@ -135,6 +144,9 @@ public class SearchThread extends Thread {
 							        						matcher.start(), matcher.end()))); 
 							        c++;
 					            	
+							        if (!searchAllOccurrences) {
+							            break;
+							        }
 					            }
 				            }
 						}
@@ -157,7 +169,7 @@ public class SearchThread extends Thread {
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()))); 
 							        c++;
-								    if (this.count > 0 && c >= count) {
+								    if (!searchAllOccurrences) {
 								    	break;
 								    }
 					            }
@@ -179,7 +191,7 @@ public class SearchThread extends Thread {
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()))); 
 							        c++;
-								    if (this.count > 0 && c >= count) {
+								    if (!searchAllOccurrences) {
 								    	break;
 								    }
 					            }
@@ -206,7 +218,7 @@ public class SearchThread extends Thread {
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()))); 
 							        c++;
-								    if (this.count > 0 && c >= count) {
+								    if (!searchAllOccurrences) {
 								    	break;
 								    }
 					            }
@@ -218,7 +230,7 @@ public class SearchThread extends Thread {
 							        				new SearchMatch(message, SearchMatch.Location.REQUEST_BODY, 
 							        						matcher.start(), matcher.end()))); 
 							        c++;
-								    if (this.count > 0 && c >= count) {
+								    if (!searchAllOccurrences) {
 								    	break;
 								    }
 					            }
@@ -245,7 +257,7 @@ public class SearchThread extends Thread {
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()))); 
 							        c++;
-								    if (this.count > 0 && c >= count) {
+								    if (!searchAllOccurrences) {
 								    	break;
 								    }
 					            }
@@ -257,7 +269,7 @@ public class SearchThread extends Thread {
 							        				new SearchMatch(message, SearchMatch.Location.RESPONSE_BODY, 
 							        						matcher.start(), matcher.end()))); 
 							        c++;
-								    if (this.count > 0 && c >= count) {
+								    if (!searchAllOccurrences) {
 								    	break;
 								    }
 					            }

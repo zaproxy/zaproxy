@@ -102,7 +102,8 @@ public class SearchAPI extends ApiImplementor {
 					searchListener, type, false, false, 
 					this.getParam(params, PARAM_BASE_URL, (String)null),
 					this.getParam(params, PARAM_START, -1),
-					this.getParam(params, PARAM_COUNT, -1));
+					this.getParam(params, PARAM_COUNT, -1),
+					false);
 			
 			while(!searchListener.isSearchComplete()) {
 				Thread.sleep(100);

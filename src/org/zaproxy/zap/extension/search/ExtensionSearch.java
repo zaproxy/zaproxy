@@ -140,6 +140,11 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	
 	public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse,
 			String baseUrl, int start, int count){
+		search(filter, listenner, reqType, setToolbar, inverse, baseUrl, start, count, true);
+	}
+	
+	public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse,
+			String baseUrl, int start, int count, boolean searchAllOccurrences){
 		if (setToolbar) {
 			this.getSearchPanel().searchFocus();
 			this.getSearchPanel().getRegExField().setText(filter);
@@ -158,7 +163,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 					}
 	    		}
 	    	}
-    		searchThread = new SearchThread(filter, reqType, listenner, inverse, searchJustInScope, baseUrl, start, count);
+    		searchThread = new SearchThread(filter, reqType, listenner, inverse, searchJustInScope, baseUrl, start, count, searchAllOccurrences);
 	    	searchThread.start();
 	    	
 	    }
