@@ -405,7 +405,8 @@ public class HttpSessionsPanel extends AbstractPanel {
 		siteModel.removeAllElements();
 		siteModel.addElement(Constant.messages.getString("httpsessions.toolbar.site.select"));
 
-		sessionsModel.removeAllElements();
+		sessionsModel = new HttpSessionsTableModel(null);
+		getHttpSessionsTable().setModel(sessionsModel);
 	}
 
 	/**

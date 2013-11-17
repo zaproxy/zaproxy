@@ -475,6 +475,13 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	@Override
 	public void sessionAboutToChange(Session session) {
+		sessionTokens = new HashMap<>();
+		sessions = null;
+		removedDefaultTokens = null;
+		if (getView() != null) {
+			getHttpSessionsPanel().reset();
+		}
+		HttpSessionsSite.resetLastGeneratedSessionId();
 	}
 
 	@Override
