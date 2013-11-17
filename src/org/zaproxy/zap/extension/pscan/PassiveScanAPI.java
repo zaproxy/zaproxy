@@ -23,6 +23,7 @@ import java.util.Map;
 
 import net.sf.json.JSONObject;
 
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -34,6 +35,8 @@ import org.zaproxy.zap.extension.api.ApiView;
 
 public class PassiveScanAPI extends ApiImplementor {
 
+	private static final Logger logger = Logger.getLogger(PassiveScanAPI.class);
+
 	private static final String PREFIX = "pscan";
 	
 	private static final String VIEW_RECORDS_TO_SCAN = "recordsToScan";
@@ -42,8 +45,11 @@ public class PassiveScanAPI extends ApiImplementor {
 	private static final String ACTION_SET_ENABLED = "setEnabled";
 	private static final String ACTION_ENABLE_ALL_SCANNERS = "enableAllScanners";
 	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
+	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
+	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
 
 	private static final String PARAM_ENABLED = "enabled";
+	private static final String PARAM_IDS = "ids";
 
 	private ExtensionPassiveScan extension;
 	
@@ -53,6 +59,8 @@ public class PassiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] {PARAM_ENABLED}));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_SCANNERS));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
+		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
+		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
 
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS));
@@ -78,11 +86,33 @@ public class PassiveScanAPI extends ApiImplementor {
 		case ACTION_DISABLE_ALL_SCANNERS:
 			extension.setAllPluginPassiveScannersEnabled(false);
 			break;
+		case ACTION_ENABLE_SCANNERS:
+			setPluginPassiveScannersEnabled(params, true);
+			break;
+		case ACTION_DISABLE_SCANNERS:
+			setPluginPassiveScannersEnabled(params, false);
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 
 		return ApiResponseElement.OK;
+	}
+
+	private void setPluginPassiveScannersEnabled(JSONObject params, boolean enabled) {
+		String[] ids = getParam(params, PARAM_IDS, "").split(",");
+		if (ids.length > 0) {
+			for (String id : ids) {
+				try {
+					int pluginId = Integer.valueOf(id.trim()).intValue();
+					if (pluginId > 0) {
+						extension.setPluginPassiveScannerEnabled(pluginId, enabled);
+					}
+				} catch (NumberFormatException e) {
+					logger.error("Failed to parse scanner ID: " + e.getMessage(), e);
+				}
+			}
+		}
 	}
 
 	@Override

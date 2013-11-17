@@ -208,6 +208,14 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 		}
 	}
 
+	void setPluginPassiveScannerEnabled(int pluginId, boolean enabled) {
+		for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
+			if (pluginId == scanner.getPluginId()) {
+				scanner.setEnabled(enabled);
+			}
+		}
+	}
+
 	public PolicyPassiveScanPanel getPolicyPanel() {
 		if (policyPanel == null) {
     		policyPanel = new PolicyPassiveScanPanel();
