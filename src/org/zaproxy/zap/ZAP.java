@@ -253,6 +253,7 @@ public class ZAP {
 			    if (dynsslparam.getRootca() == null) {
 			    	// Create a new root cert in a background thread
 			    	new Thread(new Runnable() {
+			            @Override
 			            public void run() {
 					    	try {
 								extension.createNewRootCa();

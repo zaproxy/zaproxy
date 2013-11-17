@@ -120,14 +120,17 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     	return super.setParameter(msg, param, value);
     }
 
+    @Override
     public void sendAndReceive(HttpMessage msg) throws HttpException, IOException {
         super.sendAndReceive(msg);
     }
     
+    @Override
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws HttpException, IOException {
     	super.sendAndReceive(msg, isFollowRedirect);
     }
 
+    @Override
     public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect, boolean handleAntiCSRF) throws HttpException, IOException {
     	super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }

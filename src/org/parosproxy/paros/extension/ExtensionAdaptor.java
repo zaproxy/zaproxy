@@ -229,6 +229,7 @@ public abstract class ExtensionAdaptor implements Extension {
 		extLoader.removeExtension(this, hook);
 	}
 
+    @Override
     public List<String> getUnsavedResources() {
     	return null;
     }

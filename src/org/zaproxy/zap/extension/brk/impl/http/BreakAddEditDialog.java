@@ -112,6 +112,7 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 		return null;
 	}
 
+	@Override
 	public void save() {
 		HttpBreakpointMessage brk = 
 				new HttpBreakpointMessage(

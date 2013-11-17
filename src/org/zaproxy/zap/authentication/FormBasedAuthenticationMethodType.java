@@ -584,6 +584,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private static final long serialVersionUID = 3654541772447187317L;
 		private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
 
+		@Override
 		@SuppressWarnings("rawtypes")
 		public Component getListCellRendererComponent(JList list, Object value, int index,
 				boolean isSelected, boolean cellHasFocus) {

@@ -45,6 +45,7 @@ public class TabbedPanel2 extends TabbedPanel {
 		super();
 		
 		this.addChangeListener(new ChangeListener() {
+		    @Override
 		    public void stateChanged(ChangeEvent e) {
 		    	setCloseButtonStates();
 		    }
@@ -219,6 +220,7 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	}
 	
+    @Override
     public void setIconAt(int index, Icon icon) {
     	Component tabCom = this.getTabComponentAt(index);
     	if (tabCom != null && tabCom instanceof JPanel) {

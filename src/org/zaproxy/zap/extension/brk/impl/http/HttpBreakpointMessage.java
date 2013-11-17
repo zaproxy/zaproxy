@@ -226,6 +226,7 @@ public class HttpBreakpointMessage extends AbstractBreakPointMessage {
         		this.isInverse() == hbm.isInverse();
     }
 
+    @Override
     public int hashCode() {
     	return new HashCodeBuilder(349, 631). // two 'randomly' chosen prime numbers
             append(string).

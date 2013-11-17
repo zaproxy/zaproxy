@@ -48,6 +48,7 @@ public abstract class AuthenticationMethod {
 	 * 
 	 * @return a deep copy of the authentication method
 	 */
+	@Override
 	public AuthenticationMethod clone() {
 		AuthenticationMethod method = duplicate();
 		method.loggedInIndicatorPattern = this.loggedInIndicatorPattern;

@@ -262,6 +262,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		private static class HttpSessionRenderer extends BasicComboBoxRenderer {
 			private static final long serialVersionUID = 3654541772447187317L;
 
+			@Override
 			@SuppressWarnings("rawtypes")
 			public Component getListCellRendererComponent(JList list, Object value, int index,
 					boolean isSelected, boolean cellHasFocus) {
