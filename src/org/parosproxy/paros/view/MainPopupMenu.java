@@ -148,7 +148,7 @@ public class MainPopupMenu extends JPopupMenu {
             if (menuItem == ExtensionHookMenu.POPUP_MENU_SEPARATOR) {
                 this.addSeparator();
             } else {
-	            if (menuItem.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
+	            if (menuItem.isEnableForComponent(invoker)) {
 	            	if (menuItem.isSubMenu()) {
 	            	    final JMenu superMenu = getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex());
 	            		if (menuItem.precedeWithSeparator()) {
