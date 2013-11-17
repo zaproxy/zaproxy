@@ -321,7 +321,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	                    }
 	
 	                	addHistoryInEventQueue(historyRef);
-	                    historyList.notifyItemChanged(historyRef);
 	        	    }
                 }
             }
