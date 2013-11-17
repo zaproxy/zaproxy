@@ -83,6 +83,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_HOSTS = "hosts";
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
+	private static final String VIEW_MESSAGE = "message";
 	private static final String VIEW_MESSAGES = "messages";
 	private static final String VIEW_NUMBER_OF_MESSAGES = "numberOfMessages";
 	private static final String VIEW_VERSION = "version";
@@ -104,6 +105,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
 	private static final String PARAM_PROXY_DETAILS = "proxy";
+	private static final String PARAM_ID = "id";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -126,6 +128,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS));
+		this.addApiView(new ApiView(VIEW_MESSAGE, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] { PARAM_BASE_URL }));
@@ -417,6 +420,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					this.getParam(params, PARAM_COUNT, -1), counter);
 			
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+		} else if (VIEW_MESSAGE.equals(name)) {
+			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+			RecordHistory recordHistory;
+			try {
+				recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
+			} catch (HttpMalformedHeaderException | SQLException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
+			if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
+			}
+			result = ApiResponseConversionUtils.httpMessageToSet(recordHistory.getHistoryId(), recordHistory.getHttpMessage());
 		} else if (VIEW_MESSAGES.equals(name)) {
 			final ApiResponseList resultList = new ApiResponseList(name);
 			processHttpMessages(
