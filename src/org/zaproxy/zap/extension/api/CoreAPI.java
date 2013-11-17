@@ -710,16 +710,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private void processHttpMessages(String baseUrl, int start, int count, Processor<RecordHistory> processor) throws ApiException {
 		try {
-			int c = 0;
 			TableHistory tableHistory = Model.getSingleton().getDb()
 					.getTableHistory();
 			Vector<Integer> v = tableHistory.getHistoryList(Model
 					.getSingleton().getSession().getSessionId());
+
+			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
 			for (int i = 0; i < v.size(); i++) {
 				int historyId = v.get(i).intValue();
-				if (start >= 0 && historyId < start) {
-					continue;
-				}
 				RecordHistory recHistory = tableHistory.read(historyId);
 
 				if (HistoryReference.TYPE_TEMPORARY == recHistory.getHistoryType()) {
@@ -737,8 +735,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					continue;
 				}
 
+				pcc.recordProcessed();
+				if (!pcc.hasPageStarted()) {
+					continue;
+				}
+
 				processor.process(recHistory);
-				if (count > 0 && c >= count) {
+				if (pcc.hasPageEnded()) {
 					break;
 				}
 			}
