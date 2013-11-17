@@ -99,12 +99,11 @@ public class MainPopupMenu extends JPopupMenu {
 	@Override
 	public synchronized void show(Component invoker, int x, int y) {
 	    
-	    ExtensionPopupMenuItem menuItem = null;
-	    
 	    for (int i=0; i<getComponentCount(); i++) {
+	        final Component component = getComponent(i);
 	        try {
-	            if (getComponent(i) != null && getComponent(i) instanceof ExtensionPopupMenuItem) {
-	                menuItem = (ExtensionPopupMenuItem) getComponent(i);
+	            if (component != null && component instanceof ExtensionPopupMenuItem) {
+	                ExtensionPopupMenuItem menuItem = (ExtensionPopupMenuItem) component;
 	                // ZAP: prevents a NullPointerException when the treeSite doesn't have a node selected and a popup menu option (Delete/Purge) is selected
 	                menuItem.setVisible(menuItem.isEnableForComponent(invoker));
 	                
@@ -119,10 +118,11 @@ public class MainPopupMenu extends JPopupMenu {
 	    }
 	    
 	    for (int i=0; i<itemList.size(); i++) {
-			if (itemList.get(i) instanceof ExtensionPopupMenuItem) {
-				handleMenuItem(invoker, (ExtensionPopupMenuItem) itemList.get(i));
-			} else if (itemList.get(i) instanceof ExtensionPopupMenu) {
-				ExtensionPopupMenu item = (ExtensionPopupMenu) itemList.get(i);
+	        final JMenuItem menuItem = itemList.get(i);
+			if (menuItem instanceof ExtensionPopupMenuItem) {
+				handleMenuItem(invoker, (ExtensionPopupMenuItem) menuItem);
+			} else if (menuItem instanceof ExtensionPopupMenu) {
+				ExtensionPopupMenu item = (ExtensionPopupMenu) menuItem;
 				item.prepareShow();
 				handleMenu(invoker, item);
 			}
