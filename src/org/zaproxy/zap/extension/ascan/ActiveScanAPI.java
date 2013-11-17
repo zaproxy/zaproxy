@@ -19,7 +19,9 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import net.sf.json.JSONObject;
 
@@ -29,6 +31,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
+import org.parosproxy.paros.core.scanner.Plugin;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -41,6 +45,7 @@ import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
 
 public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
@@ -55,6 +60,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
     
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
+	private static final String VIEW_SCANNERS = "scanners";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
@@ -73,6 +79,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
+		this.addApiView(new ApiView(VIEW_SCANNERS));
 
 	}
 	
@@ -145,16 +152,32 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			throws ApiException {
 		ApiResponse result;
 
-		if (VIEW_STATUS.equals(name)) {
+		switch(name) {
+		case VIEW_STATUS:
 			result = new ApiResponseElement(name, String.valueOf(progress));
-		} else if (VIEW_EXCLUDED_FROM_SCAN.equals(name)) {
+			break;
+		case VIEW_EXCLUDED_FROM_SCAN:
 			result = new ApiResponseList(name);
 			Session session = Model.getSingleton().getSession();
 			List<String> regexs = session.getExcludeFromScanRegexs();
 			for (String regex : regexs) {
 				((ApiResponseList)result).addItem(new ApiResponseElement("regex", regex));
 			}
-		} else {
+			break;
+		case VIEW_SCANNERS:
+			List<Plugin> scanners = PluginFactory.getAllPlugin();
+
+			ApiResponseList resultList = new ApiResponseList(name);
+			for (Plugin scanner : scanners) {
+				Map<String, String> map = new HashMap<>();
+				map.put("id", String.valueOf(scanner.getId()));
+				map.put("name", scanner.getName());
+				resultList.addItem(new ApiResponseSet("scanner", map));
+			}
+
+			result = resultList;
+			break;
+		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
