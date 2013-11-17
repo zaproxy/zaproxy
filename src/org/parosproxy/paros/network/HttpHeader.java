@@ -43,12 +43,12 @@ public abstract class HttpHeader implements java.io.Serializable {
     private static final long serialVersionUID = 7922279497679304778L;
     public static final String CRLF = "\r\n";
     public static final String LF = "\n";
-    public static final String CONTENT_LENGTH = "Content-length";
-    public static final String TRANSFER_ENCODING = "Transfer-encoding";
-    public static final String CONTENT_ENCODING = "Content-encoding";
+    public static final String CONTENT_LENGTH = "Content-Length";
+    public static final String TRANSFER_ENCODING = "Transfer-Encoding";
+    public static final String CONTENT_ENCODING = "Content-Encoding";
     public static final String CONTENT_TYPE = "Content-Type";
     public static final String PROXY_CONNECTION = "Proxy-Connection";
-    public static final String PROXY_AUTHENTICATE = "Proxy-authenticate";
+    public static final String PROXY_AUTHENTICATE = "Proxy-Authenticate";
     public static final String CONNECTION = "Connection";
     public static final String AUTHORIZATION = "Authorization";
     public static final String WWW_AUTHENTICATE = "WWW-Authenticate";
@@ -73,7 +73,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String HTTP10 = "HTTP/1.0";
     public static final String HTTP11 = "HTTP/1.1";
     public static final String _CLOSE = "Close";
-    public static final String _KEEP_ALIVE = "Keep-alive";
+    public static final String _KEEP_ALIVE = "Keep-Alive";
     public static final String _CHUNKED = "Chunked";
     public static final String SCHEME_HTTP = "http://";
     public static final String SCHEME_HTTPS = "https://";
