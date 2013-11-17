@@ -294,7 +294,7 @@ public class MainToolbarPanel extends JPanel {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), null);
+					Control.getSingleton().getMenuFileControl().properties();
 				}
 			});
 		}
