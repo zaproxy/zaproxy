@@ -112,8 +112,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent e) {
 				if (SwingUtilities.isRightMouseButton(e)) { 
-					View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-					
 					// Select list item on right click
 				    int Idx = resultsList.locationToIndex( e.getPoint() );
 				    if ( Idx >= 0 ) {
@@ -126,6 +124,8 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 				    		resultsList.getSelectionModel().setSelectionInterval( Idx, Idx );
 				    	}
 				    }
+
+				    View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 				}
 			}
 		});
