@@ -46,7 +46,7 @@ class DialogModifyToken extends DialogAddToken {
     
     @Override
     protected boolean validateFields() {
-        if (token.getName().equals(getNameTextField().getText())) {
+        if (token.getName().equals(getNormalisedName())) {
             return true;
         }
         return super.validateFields();

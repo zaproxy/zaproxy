@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.Dialog;
 import java.util.List;
+import java.util.Locale;
 
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
@@ -109,9 +110,9 @@ class DialogAddToken extends AbstractFormDialog {
 
     @Override
     protected boolean validateFields() {
-        String tokenName = getNameTextField().getText();
+        String tokenName = getNormalisedName();
         for (HttpSessionToken t : tokens) {
-            if (tokenName.equalsIgnoreCase(t.getName())) {
+            if (tokenName.equals(t.getName())) {
                 JOptionPane.showMessageDialog(this, TEXT_NAME_REPEATED_DIALOG,
                         TITLE_NAME_REPEATED_DIALOG,
                         JOptionPane.INFORMATION_MESSAGE);
@@ -125,7 +126,7 @@ class DialogAddToken extends AbstractFormDialog {
     
     @Override
     protected void performAction() {
-        token = new HttpSessionToken(getNameTextField().getText(), getEnabledCheckBox().isSelected());
+        token = new HttpSessionToken(getNormalisedName(), getEnabledCheckBox().isSelected());
     }
     
     @Override
@@ -184,4 +185,8 @@ class DialogAddToken extends AbstractFormDialog {
         this.token = null;
     }
     
+    protected String getNormalisedName() {
+        return getNameTextField().getText().toLowerCase(Locale.ROOT);
+    }
+
 }
