@@ -258,7 +258,7 @@ public class API {
 									break;
 						case XML:	response = this.responseToXml(name, res);
 									break;
-						case HTML:	this.responseToHtml(name, res);
+						case HTML:	response = this.responseToHtml(name, res);
 									break;
 						default:
 									break;
