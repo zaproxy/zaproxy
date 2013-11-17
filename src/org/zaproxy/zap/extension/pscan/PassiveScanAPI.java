@@ -40,6 +40,8 @@ public class PassiveScanAPI extends ApiImplementor {
 	private static final String VIEW_SCANNERS = "scanners";
 
 	private static final String ACTION_SET_ENABLED = "setEnabled";
+	private static final String ACTION_ENABLE_ALL_SCANNERS = "enableAllScanners";
+	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
 
 	private static final String PARAM_ENABLED = "enabled";
 
@@ -49,6 +51,8 @@ public class PassiveScanAPI extends ApiImplementor {
 		this.extension = extension;
 
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] {PARAM_ENABLED}));
+		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_SCANNERS));
+		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
 
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS));
@@ -67,6 +71,12 @@ public class PassiveScanAPI extends ApiImplementor {
 			boolean enabled = getParam(params, PARAM_ENABLED, false);
 			
 			extension.setPassiveScanEnabled(enabled);
+			break;
+		case ACTION_ENABLE_ALL_SCANNERS:
+			extension.setAllPluginPassiveScannersEnabled(true);
+			break;
+		case ACTION_DISABLE_ALL_SCANNERS:
+			extension.setAllPluginPassiveScannersEnabled(false);
 			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
