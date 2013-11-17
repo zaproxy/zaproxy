@@ -25,8 +25,8 @@ public class TechSet {
 	
 	public static final TechSet AllTech = new TechSet(Tech.builtInTopLevelTech);
 	
-	private TreeSet<Tech> includeTech = new TreeSet<Tech>();
-	private TreeSet<Tech> excludeTech = new TreeSet<Tech>();
+	private TreeSet<Tech> includeTech = new TreeSet<>();
+	private TreeSet<Tech> excludeTech = new TreeSet<>();
 
 	public TechSet () {
 	}
@@ -77,13 +77,13 @@ public class TechSet {
 	}
 	
 	public TreeSet<Tech> getIncludeTech() {
-		TreeSet<Tech> copy = new TreeSet<Tech>();
+		TreeSet<Tech> copy = new TreeSet<>();
 		copy.addAll(this.includeTech);
 		return copy;
 	}
 	
 	public TreeSet<Tech> getExcludeTech() {
-		TreeSet<Tech> copy = new TreeSet<Tech>();
+		TreeSet<Tech> copy = new TreeSet<>();
 		copy.addAll(this.excludeTech);
 		return copy;
 	}

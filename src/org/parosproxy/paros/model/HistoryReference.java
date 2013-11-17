@@ -102,7 +102,7 @@ public class HistoryReference {
 	private int statusCode = -1;
 	private int rtt = -1;
 	private String reason = null;
-	private List<String> tags = new ArrayList<String>();
+	private List<String> tags = new ArrayList<>();
 	private boolean hasNote = false;
 	private Boolean webSocketUpgrade = null;	// Deliberately a Boolean so we can initialise it from the msg
 	private int responseBodyLength = -1;

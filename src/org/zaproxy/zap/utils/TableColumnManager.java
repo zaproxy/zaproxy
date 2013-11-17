@@ -89,7 +89,7 @@ public class TableColumnManager implements MouseListener, ActionListener,
 		// Keep a duplicate TableColumns for managing hidden TableColumns
 
 		int count = columnModel.getColumnCount();
-		allColumns = new ArrayList<TableColumn>(count);
+		allColumns = new ArrayList<>(count);
 
 		for (int i = 0; i < count; i++) {
 			allColumns.add(columnModel.getColumn(i));

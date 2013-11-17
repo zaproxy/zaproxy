@@ -84,11 +84,11 @@ public class Session extends FileXML {
 	private Model model = null;
 	private String fileName = "";
 	private String sessionDesc = "";
-	private List<String> excludeFromProxyRegexs = new ArrayList<String>();
-	private List<String> excludeFromScanRegexs = new ArrayList<String>();
-	private List<String> excludeFromSpiderRegexs = new ArrayList<String>();
+	private List<String> excludeFromProxyRegexs = new ArrayList<>();
+	private List<String> excludeFromScanRegexs = new ArrayList<>();
+	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
     
-    private List<Context> contexts = new ArrayList<Context>();
+    private List<Context> contexts = new ArrayList<>();
     private int nextContextIndex = 1;
 
 	// parameters in XML
@@ -798,7 +798,7 @@ public class Session extends FileXML {
 	
 	public List<String> getContextDataStrings(int contextId, int type) throws SQLException {
 	    List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (RecordContext data : dataList) {
 			list.add(data.getData());
 		}
@@ -806,7 +806,7 @@ public class Session extends FileXML {
 	}
 
 	public void setContextData(int contextId, int type, String data) throws SQLException {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		list.add(data);
 		this.setContextData(contextId, type, list);
 	}
@@ -816,7 +816,7 @@ public class Session extends FileXML {
 	}
 	
 	private List<String> techListToStringList (TreeSet<Tech> techList) {
-		List<String> strList = new ArrayList<String>();
+		List<String> strList = new ArrayList<>();
 		Iterator<Tech> iter = techList.iterator();
 		while (iter.hasNext()) {
 			strList.add(iter.next().toString());
@@ -878,13 +878,13 @@ public class Session extends FileXML {
 
 	public List<Context> getContextsFortNode(SiteNode sn) {
 		if (sn == null) {
-			return new ArrayList<Context>();
+			return new ArrayList<>();
 		}
 		return getContextsForUrl(sn.getHierarchicNodeName());
 	}
 	
 	public List<Context> getContextsForUrl(String url) {
-		List<Context> ctxList = new ArrayList<Context>();
+		List<Context> ctxList = new ArrayList<>();
 		if (url.indexOf("?") > 0) {
 			// String off any parameters
 			url = url.substring(0, url.indexOf("?"));

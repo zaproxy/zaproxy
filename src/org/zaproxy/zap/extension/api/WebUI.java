@@ -262,7 +262,7 @@ public class WebUI {
 				sb.append("</form>\n");
 
 			} else {
-				List<ApiElement> elementList = new ArrayList<ApiElement>();
+				List<ApiElement> elementList = new ArrayList<>();
 				List<ApiView> viewList = impl.getApiViews();
 				if (viewList != null && viewList.size() > 0) {
 					sb.append("<h3>");
@@ -277,7 +277,7 @@ public class WebUI {
 					sb.append("<h3>");
 					sb.append(Constant.messages.getString("api.html.actions"));
 					sb.append("</h3>\n");
-					elementList = new ArrayList<ApiElement>();
+					elementList = new ArrayList<>();
 					elementList.addAll(actionList);
 					this.appendElements(sb, component, RequestType.action.name(), elementList);
 				}
@@ -287,7 +287,7 @@ public class WebUI {
 					sb.append("<h3>");
 					sb.append(Constant.messages.getString("api.html.others"));
 					sb.append("</h3>\n");
-					elementList = new ArrayList<ApiElement>();
+					elementList = new ArrayList<>();
 					elementList.addAll(otherList);
 					this.appendElements(sb, component, RequestType.other.name(), elementList);
 				}

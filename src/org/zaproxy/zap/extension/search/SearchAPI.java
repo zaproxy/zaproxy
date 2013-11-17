@@ -83,7 +83,7 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 				throw new ApiException(ApiException.Type.BAD_VIEW);
 			}
 			this.searchInProgress = true;
-			this.results = new ArrayList<SearchResult>();
+			this.results = new ArrayList<>();
 			ExtensionSearch.Type type;
 			
 			if (VIEW_URLS_BY_URL_REGEX.equals(name)) {
@@ -111,7 +111,7 @@ public class SearchAPI extends ApiImplementor implements SearchListenner {
 			}
 
 			for (SearchResult sr : this.results) {
-				Map<String, String> map = new HashMap<String, String>();
+				Map<String, String> map = new HashMap<>();
 				map.put("id", String.valueOf(sr.getMessage().getHistoryRef().getHistoryId()));
 				map.put("type", String.valueOf(sr.getMessage().getHistoryRef().getHistoryType()));
 				map.put("method", sr.getMessage().getRequestHeader().getMethod());

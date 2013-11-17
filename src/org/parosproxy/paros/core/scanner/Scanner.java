@@ -64,7 +64,7 @@ public class Scanner implements Runnable {
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
 	
-	private List<HostProcess> hostProcesses = new ArrayList<HostProcess>();
+	private List<HostProcess> hostProcesses = new ArrayList<>();
 
     /**
      * 

@@ -36,8 +36,8 @@ public class TabbedPanel2 extends TabbedPanel {
 	private static final Icon CLOSE_TAB_RED_ICON = new ImageIcon(
 			TabbedPanel2.class.getResource("/resource/icon/fugue/cross-small-red.png"));
 
-	private List<Component> fullTabList = new ArrayList<Component>();
-	private List<Component> removedTabList = new ArrayList<Component>();
+	private List<Component> fullTabList = new ArrayList<>();
+	private List<Component> removedTabList = new ArrayList<>();
 
 	private final Logger logger = Logger.getLogger(TabbedPanel2.class);
 

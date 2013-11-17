@@ -34,7 +34,7 @@ import org.parosproxy.paros.Constant;
 
 public class DefaultEngineWrapper extends ScriptEngineWrapper {
 
-    private Map<String, String> templateMap = new HashMap<String, String>();
+    private Map<String, String> templateMap = new HashMap<>();
 
     private static Logger logger = Logger.getLogger(DefaultEngineWrapper.class);
 

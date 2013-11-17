@@ -60,7 +60,7 @@ public class JavaAPIGenerator {
 	 */
 	private static final Map<String, String> nameMap;
     static {
-        Map<String, String> initMap = new HashMap<String, String>();
+        Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
         nameMap = Collections.unmodifiableMap(initMap);
     }

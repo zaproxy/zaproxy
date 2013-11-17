@@ -42,7 +42,7 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 	private static final long serialVersionUID = 4463944219657112162L;
 
 	/** The users. */
-	private List<User> users = new ArrayList<User>();
+	private List<User> users = new ArrayList<>();
 
 	/**
 	 * Instantiates a new users table model. An internal copy of the provided list is stored.
@@ -57,7 +57,7 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 	 * Instantiates a new user table model.
 	 */
 	public UsersTableModel() {
-		this.users = new ArrayList<User>();
+		this.users = new ArrayList<>();
 	}
 
 	@Override
@@ -118,7 +118,7 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 	 * Removes all the users for this model.
 	 */
 	public void removeAllUsers(){
-		this.users=new ArrayList<User>();
+		this.users=new ArrayList<>();
 		this.fireTableDataChanged();
 	}
 

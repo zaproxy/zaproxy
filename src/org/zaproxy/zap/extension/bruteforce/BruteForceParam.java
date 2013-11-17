@@ -162,7 +162,7 @@ public class BruteForceParam extends AbstractParam {
 	    	return Collections.emptyList();
 	    }
 	    
-	    List<String> fileExtensionsList = new ArrayList<String>();
+	    List<String> fileExtensionsList = new ArrayList<>();
 	    for (String fileExtension: fileExtensions.replaceAll("\\s", 
 	    		EMPTY_STRING).split(",")) {
 	    	if (!fileExtension.equals(EMPTY_STRING)) {

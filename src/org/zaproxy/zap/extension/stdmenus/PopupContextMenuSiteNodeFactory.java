@@ -35,7 +35,7 @@ public abstract class PopupContextMenuSiteNodeFactory extends PopupMenuSiteNode 
 
 	private static final long serialVersionUID = 2282358266003940700L;
 
-    private List<ExtensionPopupMenuItem> subMenus = new ArrayList<ExtensionPopupMenuItem>();
+    private List<ExtensionPopupMenuItem> subMenus = new ArrayList<>();
     private String parentMenu;
 
 	/**

@@ -91,7 +91,7 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 
 	public Set<String> getFlags() {
 		if (this.flags == null)
-			this.flags = new HashSet<String>();
+			this.flags = new HashSet<>();
 		return this.flags;
 	}
 

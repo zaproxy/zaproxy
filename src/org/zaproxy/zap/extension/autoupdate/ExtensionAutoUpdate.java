@@ -94,7 +94,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     private AutoUpdateAPI api = null;
 
     // Files currently being downloaded
-	private List<Downloader> downloadFiles = new ArrayList<Downloader>();
+	private List<Downloader> downloadFiles = new ArrayList<>();
 
     /**
      * 
@@ -262,7 +262,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 
 	private List <AddOnWrapper> getInstalledAddOns() {
-		List <AddOnWrapper> list = new ArrayList <AddOnWrapper>();
+		List <AddOnWrapper> list = new ArrayList <>();
 		
 		for (AddOn ao : this.getLocalVersionInfo().getAddOns()) {
 			list.add(new AddOnWrapper(ao, AddOnWrapper.Status.installed));
@@ -326,7 +326,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
 	public void installNewExtensions() {
-		List<Downloader> handledFiles = new ArrayList<Downloader>();
+		List<Downloader> handledFiles = new ArrayList<>();
 		
 		for (Downloader dl : downloadFiles) {
 			if (dl.getFinished() == null) {

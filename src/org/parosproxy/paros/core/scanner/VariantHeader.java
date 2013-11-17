@@ -45,7 +45,7 @@ public class VariantHeader implements Variant {
         HttpRequestHeader.HOST
     };
     
-    private List<NameValuePair> params = new ArrayList();
+    private List<NameValuePair> params = new ArrayList<>();
     private static Logger log = Logger.getLogger(VariantHeader.class);
 
     /**

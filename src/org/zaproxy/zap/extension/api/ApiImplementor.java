@@ -38,7 +38,7 @@ public abstract class ApiImplementor {
 	private List<ApiAction> apiActions = new ArrayList<>();
 	private List<ApiView> apiViews = new ArrayList<>();
 	private List<ApiOther> apiOthers = new ArrayList<>();
-	private List<String> apiShortcuts = new ArrayList<String>();
+	private List<String> apiShortcuts = new ArrayList<>();
 	private AbstractParam param = null;
 	
 	public List<ApiView> getApiViews() {
@@ -73,7 +73,7 @@ public abstract class ApiImplementor {
 		// Add option parameter getters and setters via reflection
 		this.param = param;
 		Method[] methods = param.getClass().getDeclaredMethods();
-		List<String> addedActions = new ArrayList<String>();
+		List<String> addedActions = new ArrayList<>();
 		// Check for string setters (which take precedence)
 		for (Method method : methods) {
 			if (method.getName().startsWith("get") && method.getParameterTypes().length == 0) {

@@ -72,7 +72,7 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 	}
 	
 	private List<String> getLocations() {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		for (Location loc : HttpBreakpointMessage.Location.values()) {
 			list.add(this.locToStr(loc));
 		}
@@ -93,7 +93,7 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 	}
 
 	private List<String> getMatches() {
-		ArrayList<String> list = new ArrayList<String>();
+		ArrayList<String> list = new ArrayList<>();
 		for (Match match : HttpBreakpointMessage.Match.values()) {
 			list.add(this.matchToStr(match));
 		}

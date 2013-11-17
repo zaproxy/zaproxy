@@ -19,7 +19,7 @@ public class I18N {
 
     private ResourceBundle stdMessages = null;
     private Locale locale = null;
-    private Map<String, ResourceBundle> addonMessages = new HashMap<String, ResourceBundle>();
+    private Map<String, ResourceBundle> addonMessages = new HashMap<>();
     
 	private static final Logger logger = Logger.getLogger(I18N.class);
 

@@ -53,7 +53,7 @@ public class ApiGeneratorUtils {
 	 * @return all of the available ApiImplementors.
 	 */
 	public static List<ApiImplementor> getAllImplementors() {
-		List<ApiImplementor> imps = new ArrayList<ApiImplementor>();
+		List<ApiImplementor> imps = new ArrayList<>();
 		
 		ApiImplementor api;
 

@@ -40,7 +40,7 @@ public class SessionDialog extends AbstractParamDialog {
 	private static final long serialVersionUID = 2078860056416521552L;
 
 	/** The map of duplicate of the contexts, used for temporary changes in the UI. */
-	private Map<Integer, Context> uiContexts = new HashMap<Integer, Context>();
+	private Map<Integer, Context> uiContexts = new HashMap<>();
 
 	public SessionDialog() {
 		super();

@@ -110,8 +110,8 @@ public class View implements ViewDelegate {
 
 	private JMenu menuShowTabs = null;
 
-    private List<AbstractParamPanel> contextPanels = new ArrayList<AbstractParamPanel>();
-    private List<ContextPanelFactory> contextPanelFactories = new ArrayList<ContextPanelFactory>();
+    private List<AbstractParamPanel> contextPanels = new ArrayList<>();
+    private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
 
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 

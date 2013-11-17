@@ -78,7 +78,7 @@ public class SessionManagementAPI extends ApiImplementor {
 				new String[] { PARAM_CONTEXT_ID, PARAM_METHOD_NAME },
 				new String[] { PARAM_METHOD_CONFIG_PARAMS }));
 
-		this.loadedSessionManagementMethodActions = new HashMap<String, ApiDynamicActionImplementor>();
+		this.loadedSessionManagementMethodActions = new HashMap<>();
 		// Load the session management method actions
 		if (extension != null) {
 			for (SessionManagementMethodType t : extension.getSessionManagementMethodTypes()) {

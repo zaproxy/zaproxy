@@ -39,7 +39,7 @@ public class OverlayIcon extends ImageIcon {
 	public OverlayIcon(ImageIcon base) {
 		super(base.getImage());
 		this.base = base;
-		this.overlays = new ArrayList<ImageIcon>();
+		this.overlays = new ArrayList<>();
 	}
 	
 	public void add(ImageIcon overlay) {

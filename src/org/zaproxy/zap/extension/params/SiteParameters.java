@@ -66,7 +66,7 @@ public class SiteParameters {
 	}
 
 	public List<HtmlParameterStats> getParams(HtmlParameter.Type type) {
-		List<HtmlParameterStats> params = new ArrayList<HtmlParameterStats>();
+		List<HtmlParameterStats> params = new ArrayList<>();
 		switch (type) {
 		case cookie:
 			for (HtmlParameterStats param : this.cookieParams.values()) {
@@ -88,7 +88,7 @@ public class SiteParameters {
 	}
 
 	public List<HtmlParameterStats> getParams() {
-		List<HtmlParameterStats> params = new ArrayList<HtmlParameterStats>();
+		List<HtmlParameterStats> params = new ArrayList<>();
 		for (HtmlParameterStats param : this.cookieParams.values()) {
 			params.add(param);
 		}

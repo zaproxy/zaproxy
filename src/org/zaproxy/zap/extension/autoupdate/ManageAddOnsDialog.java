@@ -338,7 +338,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		getCorePanel(true);
 		
 		if (latestInfo != null) {
-			this.uninstalledAddOns = new ArrayList<AddOnWrapper>();
+			this.uninstalledAddOns = new ArrayList<>();
 
 			for (AddOn addOn : latestInfo.getAddOns()) {
 				boolean found = false;

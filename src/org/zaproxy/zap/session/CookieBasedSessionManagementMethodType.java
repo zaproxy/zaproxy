@@ -115,7 +115,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 		private ExtensionHttpSessions getHttpSessionsExtension() {
 			if (extHttpSessions == null || extHttpSessions.get() == null) {
-				extHttpSessions = new WeakReference<ExtensionHttpSessions>((ExtensionHttpSessions) Control
+				extHttpSessions = new WeakReference<>((ExtensionHttpSessions) Control
 						.getSingleton().getExtensionLoader().getExtension(ExtensionHttpSessions.class));
 				if (extHttpSessions == null)
 					log.error("An error occured while loading the ExtensionHttpSessions.");

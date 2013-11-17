@@ -36,8 +36,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantMultipartFormQuery implements Variant {
 
-    private List<NameValuePair> stringParam = new ArrayList();
-    private List<MultipartParam> fileParam = new ArrayList();
+    private List<NameValuePair> stringParam = new ArrayList<>();
+    private List<MultipartParam> fileParam = new ArrayList<>();
     private String boundary = null;
 
     /**

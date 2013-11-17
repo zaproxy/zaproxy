@@ -58,7 +58,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	private JPanel panelSession = null;
 	private JScrollPane jScrollPane = null;
 	private TreeModel model = null;
-	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<Tech, DefaultMutableTreeNode>();
+	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
 
 	private CheckboxTree techTree = null;
 
@@ -123,7 +123,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	}
 
 	private TreePath getPath(TreeNode node) {
-		List<TreeNode> list = new ArrayList<TreeNode>();
+		List<TreeNode> list = new ArrayList<>();
 
 		// Add all nodes to list
 		while (node != null) {

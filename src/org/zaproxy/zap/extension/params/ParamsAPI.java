@@ -62,7 +62,7 @@ public class ParamsAPI extends ApiImplementor {
 			for (SiteParameters siteParam : siteParams) {
 				for (HtmlParameterStats param : siteParam.getParams()) {
 					ApiResponseList stats = new ApiResponseList("Parameter");
-					Map<String, String> map = new HashMap<String, String>();
+					Map<String, String> map = new HashMap<>();
 					map.put("site", param.getSite());
 					map.put("name", param.getName());
 					map.put("type", param.getType().name());

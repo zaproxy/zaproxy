@@ -44,7 +44,7 @@ public class ApiResponseSet extends ApiResponse {
 	public ApiResponseSet(Node node) throws ClientApiException {
 		super(node.getNodeName());
 		Node child = node.getFirstChild();
-		this.values = new HashMap<String, String>();
+		this.values = new HashMap<>();
 		while (child != null) {
 			ApiResponseElement elem = (ApiResponseElement) ApiResponseFactory.getResponse(child);
 			values.put(elem.getName(), elem.getValue());

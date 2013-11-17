@@ -74,8 +74,8 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	private JButton cancelButton = null;
 	private JButton saveButton = null;
 
-	private List<Component> fieldList = new ArrayList<Component>();
-	private Map<String, Component> fieldMap = new HashMap<String, Component> ();
+	private List<Component> fieldList = new ArrayList<>();
+	private Map<String, Component> fieldMap = new HashMap<> ();
 
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim) {
 		this(owner, titleLabel, dim, null);
@@ -118,8 +118,8 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 
 	private void initializeTabbed(Dimension dim, String[] tabLabels) {
 
-		this.tabPanels = new ArrayList<JPanel>();
-		this.tabOffsets = new ArrayList<Integer>();
+		this.tabPanels = new ArrayList<>();
+		this.tabOffsets = new ArrayList<>();
 		
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new GridBagLayout());
@@ -322,7 +322,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
-		JComboBox<String> field = new JComboBox<String>();
+		JComboBox<String> field = new JComboBox<>();
 		field.setEditable(editable);
 		for (String label : choices) {
 			field.addItem(label);
@@ -341,7 +341,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
-		JComboBox<String> field = new JComboBox<String>();
+		JComboBox<String> field = new JComboBox<>();
 		field.setEditable(editable);
 		for (String label : choices) {
 			field.addItem(label);
@@ -363,7 +363,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
 			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
 		}
-		JComboBox<String> field = new JComboBox<String>();
+		JComboBox<String> field = new JComboBox<>();
 		field.setEditable(editable);
 		for (String label : choices) {
 			field.addItem(label);
@@ -386,7 +386,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
 			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
 		}
-		JComboBox<String> field = new JComboBox<String>();
+		JComboBox<String> field = new JComboBox<>();
 		field.setEditable(editable);
 		for (String label : choices) {
 			field.addItem(label);
@@ -402,7 +402,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
-		JComboBox<Integer> field = new JComboBox<Integer>();
+		JComboBox<Integer> field = new JComboBox<>();
 		for (int label : choices) {
 			field.addItem(label);
 		}

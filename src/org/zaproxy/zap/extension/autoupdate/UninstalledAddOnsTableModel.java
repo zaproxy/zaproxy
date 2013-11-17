@@ -39,7 +39,7 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
     
-	private List <AddOnWrapper> addOns = new ArrayList<AddOnWrapper>();
+	private List <AddOnWrapper> addOns = new ArrayList<>();
     
     /**
      * 

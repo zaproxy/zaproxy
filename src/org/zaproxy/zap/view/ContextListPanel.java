@@ -156,7 +156,7 @@ public class ContextListPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
 	    
-	    List<Object[]> values = new ArrayList<Object[]>();
+	    List<Object[]> values = new ArrayList<>();
 	    List<Context> contexts = session.getContexts();
 	    for (Context context : contexts) {
 	    	values.add(new Object[] {context.getIndex(), context.getName(), context.isInScope()});

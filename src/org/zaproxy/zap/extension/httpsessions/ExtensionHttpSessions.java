@@ -492,7 +492,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * @return the http sessions for context
 	 */
 	public List<HttpSession> getHttpSessionsForContext(Context context) {
-		List<HttpSession> sessions = new LinkedList<HttpSession>();
+		List<HttpSession> sessions = new LinkedList<>();
 		if (this.sessions == null)
 			return sessions;
 

@@ -34,8 +34,8 @@ import org.parosproxy.paros.network.ConnectionParam;
 
 public class DownloadManager extends Thread {
 	private Logger logger = Logger.getLogger(DownloadManager.class);
-	private List<Downloader> currentDownloads = new ArrayList<Downloader>();
-	private List<Downloader> completedDownloads = new ArrayList<Downloader>();
+	private List<Downloader> currentDownloads = new ArrayList<>();
+	private List<Downloader> completedDownloads = new ArrayList<>();
 	private boolean shutdown = false;
 	private boolean cancelDownloads = false;
 	private ConnectionParam connectionParam;
@@ -68,7 +68,7 @@ public class DownloadManager extends Thread {
 	public void run () {
 		while (getCurrentDownloadCount() > 0 || !shutdown) {
 			//logger.debug("# downloads " + this.currentDownloads.size() + " shutdown " + shutdown);
-			List<Downloader> finishedDownloads = new ArrayList<Downloader>();
+			List<Downloader> finishedDownloads = new ArrayList<>();
 			for (Downloader dl : this.currentDownloads) {
 				if (!dl.isAlive()) {
 					logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
@@ -127,7 +127,7 @@ public class DownloadManager extends Thread {
 	}
 	
 	public List<Downloader> getProgress() {
-		List<Downloader> allDownloads = new ArrayList<Downloader>();
+		List<Downloader> allDownloads = new ArrayList<>();
 		for (Downloader d : this.currentDownloads) {
 			allDownloads.add(d);
 		}

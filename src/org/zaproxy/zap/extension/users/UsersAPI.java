@@ -101,7 +101,7 @@ public class UsersAPI extends ApiImplementor {
 		if (Control.getSingleton() != null) {
 			ExtensionAuthentication authenticationExtension = (ExtensionAuthentication) Control
 					.getSingleton().getExtensionLoader().getExtension(ExtensionAuthentication.NAME);
-			this.loadedAuthenticationMethodActions = new HashMap<Integer, ApiDynamicActionImplementor>();
+			this.loadedAuthenticationMethodActions = new HashMap<>();
 			if (authenticationExtension != null) {
 				for (AuthenticationMethodType t : authenticationExtension.getAuthenticationMethodTypes()) {
 					ApiDynamicActionImplementor i = t.getSetCredentialsForUserApiAction();
@@ -131,7 +131,7 @@ public class UsersAPI extends ApiImplementor {
 			if (hasContextId(params))
 				users = extension.getContextUserAuthManager(getContextId(params)).getUsers();
 			else {
-				users = new ArrayList<User>();
+				users = new ArrayList<>();
 				for (Context c : Model.getSingleton().getSession().getContexts())
 					users.addAll(extension.getContextUserAuthManager(c.getIndex()).getUsers());
 			}

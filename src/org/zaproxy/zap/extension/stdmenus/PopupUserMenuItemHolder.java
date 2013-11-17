@@ -119,7 +119,7 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenu {
 	 */
 	private List<ExtensionPopupMenuItem> getSubmenuItems() {
 		if (subMenuItems == null)
-			subMenuItems = new ArrayList<ExtensionPopupMenuItem>();
+			subMenuItems = new ArrayList<>();
 		return subMenuItems;
 	}
 

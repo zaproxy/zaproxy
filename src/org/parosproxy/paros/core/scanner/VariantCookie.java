@@ -33,7 +33,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantCookie implements Variant {
 
-    private List<NameValuePair> params = new ArrayList();
+    private List<NameValuePair> params = new ArrayList<>();
 
     /**
      * 
@@ -115,7 +115,7 @@ public class VariantCookie implements Variant {
      * @return 
      */
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
-        List<HttpCookie> cookies = new ArrayList();
+        List<HttpCookie> cookies = new ArrayList<>();
         String encodedValue = (escaped) ? value : getEscapedValue(value);
         NameValuePair param;
         

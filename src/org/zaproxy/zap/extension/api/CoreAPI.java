@@ -618,7 +618,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	}
 
 	private ApiResponseSet alertToSet(Alert alert) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("id", String.valueOf(alert.getAlertId()));
 		map.put("alert", alert.getAlert());
 		map.put("description", alert.getDescription());
@@ -645,7 +645,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	 * @return
 	 */
 	private ApiResponseSet httpMessageToSet(HttpMessage msg) {
-		Map<String, String> map = new HashMap<String, String>();
+		Map<String, String> map = new HashMap<>();
 		map.put("id", String.valueOf(msg.getHistoryRef().getHistoryId()));
 		map.put("cookieParams", msg.getCookieParamsAsString());
 		map.put("note", msg.getNote());

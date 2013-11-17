@@ -148,7 +148,7 @@ public class HistoryReferenceTable extends JTable {
 	public List<HistoryReference> getSelectedValues() {
 		int [] rows = this.getSelectedRows();
 		if (rows != null) {
-			List<HistoryReference> hrefList = new ArrayList<HistoryReference>(rows.length);
+			List<HistoryReference> hrefList = new ArrayList<>(rows.length);
 			for (int row : rows) {
 				hrefList.add(this.getHrefModel().getHistoryReference(row));
 			}

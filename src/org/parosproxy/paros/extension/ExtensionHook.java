@@ -51,7 +51,7 @@ public class ExtensionHook {
     // ZAP: Added support for site map listeners
     private Vector<SiteMapListener> siteMapListenerList = new Vector<>();
     private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
-    private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<AddonFilesChangedListener>(); 
+    private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<>(); 
     
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];

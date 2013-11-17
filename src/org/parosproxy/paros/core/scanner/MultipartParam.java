@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class MultipartParam {
 
-    private List<String> headers = new ArrayList();
+    private List<String> headers = new ArrayList<>();
     private String name;
     private String fileName;
     private String content;

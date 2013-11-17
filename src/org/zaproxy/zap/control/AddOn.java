@@ -152,7 +152,7 @@ public class AddOn  {
 		List<String> list = null;
 		NodeList nl = dom.getElementsByTagName(element);
 		if (nl.getLength() > 0) {
-			list = new ArrayList<String>();
+			list = new ArrayList<>();
 			for (int i=0; i < nl.getLength(); i++) {
 				list.add(nl.item(i).getTextContent());
 			}

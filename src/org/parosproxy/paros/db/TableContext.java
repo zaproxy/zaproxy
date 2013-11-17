@@ -109,7 +109,7 @@ public class TableContext extends AbstractTable {
     
 
     public List<RecordContext> getAllData () throws SQLException {
-    	List<RecordContext> result = new ArrayList<RecordContext>();
+    	List<RecordContext> result = new ArrayList<>();
     	ResultSet rs = psGetAllData.executeQuery();
     	while (rs.next()) {
     		result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
@@ -120,7 +120,7 @@ public class TableContext extends AbstractTable {
     }
                 
     public List<RecordContext> getDataForContext (int contextId) throws SQLException {
-    	List<RecordContext> result = new ArrayList<RecordContext>();
+    	List<RecordContext> result = new ArrayList<>();
     	psGetAllDataForContext.setInt(1, contextId);
     	ResultSet rs = psGetAllDataForContext.executeQuery();
     	while (rs.next()) {
@@ -132,7 +132,7 @@ public class TableContext extends AbstractTable {
     }
                 
     public List<RecordContext> getDataForContextAndType (int contextId, int type) throws SQLException {
-    	List<RecordContext> result = new ArrayList<RecordContext>();
+    	List<RecordContext> result = new ArrayList<>();
     	psGetAllDataForContextAndType.setInt(1, contextId);
     	psGetAllDataForContextAndType.setInt(2, type);
     	ResultSet rs = psGetAllDataForContextAndType.executeQuery();

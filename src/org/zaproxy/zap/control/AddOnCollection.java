@@ -181,7 +181,7 @@ public class AddOnCollection {
      * @return a list of addons from the supplied collection that are newer than the equivalent ones in this collection
      */
     public List <AddOn> getUpdatedAddOns(AddOnCollection aoc) {
-        List<AddOn> updatedAddOns = new ArrayList<AddOn>();
+        List<AddOn> updatedAddOns = new ArrayList<>();
 
     	for (AddOn ao : aoc.getAddOns()) {
         	for (AddOn addOn : addOns) {
@@ -204,7 +204,7 @@ public class AddOnCollection {
      * @return a list of addons from the supplied collection that are newer than the equivalent ones in this collection
      */
     public List <AddOn> getNewAddOns(AddOnCollection aoc) {
-        List<AddOn> newAddOns = new ArrayList<AddOn>();
+        List<AddOn> newAddOns = new ArrayList<>();
 
     	for (AddOn ao : aoc.getAddOns()) {
     		boolean isNew = true;

@@ -62,8 +62,8 @@ public class Model {
 	private String currentDBNameUntitled = "";
 	// ZAP: Added logger
 	private Logger logger = Logger.getLogger(Model.class);
-	private List <SessionListener> sessionListeners = new ArrayList<SessionListener>();
-	private List <ContextDataFactory> contextDataFactories = new ArrayList <ContextDataFactory>(); 
+	private List <SessionListener> sessionListeners = new ArrayList<>();
+	private List <ContextDataFactory> contextDataFactories = new ArrayList <>(); 
 	
 	public Model() {
 	    // make sure the variable here will not refer back to model itself.

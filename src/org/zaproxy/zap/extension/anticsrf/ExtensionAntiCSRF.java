@@ -195,7 +195,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 
 	public List<AntiCsrfToken> getTokensFromResponse(HttpMessage msg, Source source) {
-		List<AntiCsrfToken> list = new ArrayList<AntiCsrfToken>();
+		List<AntiCsrfToken> list = new ArrayList<>();
 		List<Element> formElements = source.getAllElements(HTMLElementName.FORM);
 
 		if (formElements != null && formElements.size() > 0) {

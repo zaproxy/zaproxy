@@ -38,8 +38,8 @@ public class ScriptTreeModel extends DefaultTreeModel {
 
 	//private static final Logger logger = Logger.getLogger(ScriptTreeModel.class);
 	
-	private Map<String, ScriptNode> scriptsNodeMap = new HashMap<String, ScriptNode>(); 
-	private Map<String, ScriptNode> templatesNodeMap = new HashMap<String, ScriptNode>(); 
+	private Map<String, ScriptNode> scriptsNodeMap = new HashMap<>(); 
+	private Map<String, ScriptNode> templatesNodeMap = new HashMap<>(); 
 	private ScriptNode scriptsNode;
 	private ScriptNode templatesNode;
 	
@@ -80,7 +80,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
     }
 
     public List<ScriptNode> getNodes(String type) {
-		List<ScriptNode> list = new ArrayList<ScriptNode>();
+		List<ScriptNode> list = new ArrayList<>();
 		ScriptNode parent = scriptsNodeMap.get(type);
 		if (parent != null) {
 			for (int i=0; i < parent.getChildCount(); i++) {
@@ -231,7 +231,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 	}
 
 	public List<ScriptWrapper> getTemplates(ScriptType type) {
-		List<ScriptWrapper> list = new ArrayList<ScriptWrapper>();
+		List<ScriptWrapper> list = new ArrayList<>();
 		ScriptNode typeNode = (ScriptNode) this.templatesNode.getFirstChild();
 		while (typeNode != null) {
 			// Loop through their children

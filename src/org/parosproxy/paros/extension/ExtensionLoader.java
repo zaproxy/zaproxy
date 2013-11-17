@@ -865,7 +865,7 @@ public class ExtensionLoader {
 	}
 
 	public List<String> getUnsavedResources() {
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		List<String> l;
 		
         for (int i=0; i<getExtensionCount(); i++) {

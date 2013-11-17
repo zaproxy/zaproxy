@@ -83,8 +83,8 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 	private boolean reauthenticate = false;
 	private ReauthAPI api = null;
 	
-	private Map<Integer,SessionAuthenticationPanel> authPanelMap = new HashMap<Integer,SessionAuthenticationPanel>();
-	private Map<Integer,ContextAuth> contextAuthMap = new HashMap<Integer,ContextAuth>();
+	private Map<Integer,SessionAuthenticationPanel> authPanelMap = new HashMap<>();
+	private Map<Integer,ContextAuth> contextAuthMap = new HashMap<>();
 	
 	private Logger logger = Logger.getLogger(this.getClass());
 	

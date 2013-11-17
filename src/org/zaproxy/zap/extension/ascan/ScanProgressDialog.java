@@ -157,7 +157,7 @@ public class ScanProgressDialog extends AbstractDialog {
 	private void showProgress() {
 		
 		List<HostProcess> list = scan.getHostProcesses();
-		List<String[]> values = new ArrayList<String[]>();
+		List<String[]> values = new ArrayList<>();
 		boolean completed = true;
 		
 		if (list != null) {

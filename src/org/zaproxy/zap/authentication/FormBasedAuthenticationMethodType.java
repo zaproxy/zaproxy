@@ -559,8 +559,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			Set<HtmlParameter> params = HtmlParametersUtils.getParamsSet(Type.form,
 					this.postDataField.getText());
 			HtmlParameter paramsArray[] = params.toArray(new HtmlParameter[params.size()]);
-			this.usernameParameterCombo.setModel(new DefaultComboBoxModel<HtmlParameter>(paramsArray));
-			this.passwordParameterCombo.setModel(new DefaultComboBoxModel<HtmlParameter>(paramsArray));
+			this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
+			this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
 
 			int index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_USER_PATTERN);
 			if (index >= 0)

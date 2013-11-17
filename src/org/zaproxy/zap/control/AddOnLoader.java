@@ -73,13 +73,13 @@ public class AddOnLoader extends URLClassLoader {
 	
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
     private AddOnCollection aoc = null;
-    private List<File> jars = new ArrayList<File>();
+    private List<File> jars = new ArrayList<>();
     /**
      * Addons can be included in the ZAP release, in which case the user might not have permissions to delete the files.
      * To support the removal of such addons we just maintain a 'block list' in the configs which is a comma separated
      * list of the addon ids that the user has uninstalled
      */
-    private List<String> blockList = new ArrayList<String>();
+    private List<String> blockList = new ArrayList<>();
     /*
      * Using sub-classloaders means we can unload and reload addons
      */
@@ -498,13 +498,13 @@ public class AddOnLoader extends URLClassLoader {
     private <T> List<String> getLocalClassNames (String packageName) {
     
         if (packageName == null || packageName.equals("")) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         
         String folder = packageName.replace('.', '/');
         URL local = AddOnLoader.class.getClassLoader().getResource(folder);
         if (local == null) {
-            return new ArrayList<String>();
+            return new ArrayList<>();
         }
         String jarFile = null;
         if (local.getProtocol().equals("jar")) {
@@ -529,13 +529,13 @@ public class AddOnLoader extends URLClassLoader {
             	logger.error(e.getMessage(), e);
             }
         }
-        return new ArrayList<String>();
+        return new ArrayList<>();
     }
 
     // ZAP: Changed to use only one FileFilter and the packageName is already
     // passed with the dots replaced.
     private List<String> parseClassDir(File file, String packageName, FileFilter fileFilter) {
-    	List<String> classNames = new ArrayList<String> ();
+    	List<String> classNames = new ArrayList<> ();
         File[] listFile = file.listFiles(fileFilter);
         
         for (int i=0; i<listFile.length; i++) {
@@ -556,7 +556,7 @@ public class AddOnLoader extends URLClassLoader {
     
     // ZAP: Added to take into account the package name
     private List<String> getJarClassNames(File file, String packageName) {
-    	List<String> classNames = new ArrayList<String> ();
+    	List<String> classNames = new ArrayList<> ();
         JarFile jarFile = null;
         ZipEntry entry = null;
         String className = "";

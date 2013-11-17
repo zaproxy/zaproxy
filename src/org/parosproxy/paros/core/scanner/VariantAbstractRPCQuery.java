@@ -37,8 +37,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public abstract class VariantAbstractRPCQuery implements Variant {
     
-    private List<RPCParameter> listParam = new ArrayList();
-    private List<NameValuePair> params = new ArrayList();
+    private List<RPCParameter> listParam = new ArrayList<>();
+    private List<NameValuePair> params = new ArrayList<>();
     private String requestContent;
 
     @Override

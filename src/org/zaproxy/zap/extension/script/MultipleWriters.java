@@ -31,7 +31,7 @@ import java.util.List;
  */
 public class MultipleWriters extends Writer {
 	
-	private List<Writer> writers = new ArrayList<Writer>();
+	private List<Writer> writers = new ArrayList<>();
 
 	@Override
 	public void write(char[] cbuf, int off, int len) throws IOException {

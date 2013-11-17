@@ -44,10 +44,10 @@ public class Context {
 	private String name;
 	private String description = "";
 
-	private List<String> includeInRegexs = new ArrayList<String>();
-	private List<String> excludeFromRegexs = new ArrayList<String>();
-	private List<Pattern> includeInPatterns = new ArrayList<Pattern>();
-	private List<Pattern> excludeFromPatterns = new ArrayList<Pattern>();
+	private List<String> includeInRegexs = new ArrayList<>();
+	private List<String> excludeFromRegexs = new ArrayList<>();
+	private List<Pattern> includeInPatterns = new ArrayList<>();
+	private List<Pattern> excludeFromPatterns = new ArrayList<>();
 
 	/** The authentication method. */
 	private AuthenticationMethod authenticationMethod = null;
@@ -180,7 +180,7 @@ public class Context {
 	 * @return the nodes in scope from site tree
 	 */
 	public List<SiteNode> getNodesInContextFromSiteTree() {
-		List<SiteNode> nodes = new LinkedList<SiteNode>();
+		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
 		fillNodesInContext(rootNode, nodes);
 		return nodes;
@@ -399,9 +399,9 @@ public class Context {
 		newContext.description = this.description;
 		newContext.name = this.name;
 		newContext.includeInRegexs = new ArrayList<>(this.includeInRegexs);
-		newContext.includeInPatterns = new ArrayList<Pattern>(this.includeInPatterns);
+		newContext.includeInPatterns = new ArrayList<>(this.includeInPatterns);
 		newContext.excludeFromRegexs = new ArrayList<>(this.excludeFromRegexs);
-		newContext.excludeFromPatterns = new ArrayList<Pattern>(this.excludeFromPatterns);
+		newContext.excludeFromPatterns = new ArrayList<>(this.excludeFromPatterns);
 		newContext.inScope = this.inScope;
 		newContext.techSet = new TechSet(this.techSet);
 		newContext.authenticationMethod = this.authenticationMethod.clone();

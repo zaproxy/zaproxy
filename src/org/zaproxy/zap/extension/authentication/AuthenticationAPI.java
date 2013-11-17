@@ -78,7 +78,7 @@ public class AuthenticationAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_GET_LOGGED_IN_INDICATOR, new String[] { PARAM_CONTEXT_ID }));
 		this.addApiView(new ApiView(VIEW_GET_LOGGED_OUT_INDICATOR, new String[] { PARAM_CONTEXT_ID }));
 
-		this.loadedAuthenticationMethodActions = new HashMap<String, ApiDynamicActionImplementor>();
+		this.loadedAuthenticationMethodActions = new HashMap<>();
 		// Load the authentication method actions
 		if (extension != null) {
 			for (AuthenticationMethodType t : extension.getAuthenticationMethodTypes()) {

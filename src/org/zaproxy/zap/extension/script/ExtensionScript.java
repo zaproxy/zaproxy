@@ -77,11 +77,11 @@ public class ExtensionScript extends ExtensionAdaptor {
 	private ScriptParam scriptParam = null;
 
 	private ScriptTreeModel treeModel = null;
-	private List <ScriptEngineWrapper> engineWrappers = new ArrayList<ScriptEngineWrapper>();
-	private Map<String, ScriptType> typeMap = new HashMap<String, ScriptType>();
+	private List <ScriptEngineWrapper> engineWrappers = new ArrayList<>();
+	private Map<String, ScriptType> typeMap = new HashMap<>();
 	private ProxyListenerScript proxyListener = null;
 	
-	private List<ScriptEventListener> listeners = new ArrayList<ScriptEventListener>();
+	private List<ScriptEventListener> listeners = new ArrayList<>();
 	private MultipleWriters writers = new MultipleWriters();
 	private ScriptUI scriptUI = null;
 
@@ -434,7 +434,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	}
 
 	public List<ScriptWrapper> getScripts(ScriptType type) {
-		List<ScriptWrapper> scripts = new ArrayList<ScriptWrapper>();
+		List<ScriptWrapper> scripts = new ArrayList<>();
 		if (type == null) {
 			return scripts;
 		}
@@ -647,7 +647,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 	@Override
     public List<String> getUnsavedResources() {
 		// Report all of the unsaved scripts
-		List<String> list = new ArrayList<String>();
+		List<String> list = new ArrayList<>();
 		for (ScriptType type : this.getScriptTypes()) {
 			for (ScriptWrapper script : this.getScripts(type)) {
 				if (script.isChanged()) {

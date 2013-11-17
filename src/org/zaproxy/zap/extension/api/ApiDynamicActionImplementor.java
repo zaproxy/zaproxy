@@ -48,7 +48,7 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
 	}
 
 	private static ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
-		Map<String, String> m = new HashMap<String, String>();
+		Map<String, String> m = new HashMap<>();
 		m.put("name", paramName);
 		m.put("mandatory", mandatory ? "true" : "false");
 		return new ApiResponseSet("param", m);
