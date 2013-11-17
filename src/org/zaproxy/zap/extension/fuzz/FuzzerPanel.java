@@ -39,11 +39,16 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
 
 public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 	
+	/**
+	 * @deprecated Use {@link HttpFuzzerContentPanel#PANEL_NAME} instead.
+	 */
+	@Deprecated
 	public static final String PANEL_NAME = "fuzzpanel";
 	
     private static final long serialVersionUID = 1L;

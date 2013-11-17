@@ -43,14 +43,13 @@ import org.zaproxy.zap.extension.alert.AlertNode;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.bruteforce.BruteForceItem;
 import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
-import org.zaproxy.zap.extension.fuzz.FuzzerPanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
 
 public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
-	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, fuzz2, bruteforce, hreftable};
+	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce, hreftable};
 	
 	private static final long serialVersionUID = 1L;
 	private JTree treeInvoker = null;
@@ -133,12 +132,11 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
                 break;
 
     		case ascan:
-            case fuzz:
     		case history:
         	    ref = (HistoryReference) listInvoker.getSelectedValue();
 				break;
 
-			case fuzz2:
+			case fuzz:
             	int row = tableInvoker.getSelectedRow();
             	if (row >=0) {
             		ref = ((HttpFuzzTableModel)tableInvoker.getModel()).getHistoryReferenceAtRow(row);
@@ -196,7 +194,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
                 break;
 
     		case ascan:
-            case fuzz:
     		case history:
         	    selectedValues = listInvoker.getSelectedValuesList();
         	    if (selectedValues != null) {
@@ -206,7 +203,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    }
 				break;
 
-            case fuzz2:
+            case fuzz:
             	int[] rows = tableInvoker.getSelectedRows();
             	for (int row : rows) {
             		refs.add(((HttpFuzzTableModel)tableInvoker.getModel()).getHistoryReferenceAtRow(row));
@@ -302,14 +299,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
-        	// this might well not be needed..
-        	this.lastInvoker = Invoker.fuzz;
-            this.listInvoker = (JList<?>) invoker;
-            this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
-            display = true;
         } else if (invoker.getName().equals(HttpFuzzerContentPanel.PANEL_NAME)) {
-        	this.lastInvoker = Invoker.fuzz2;
+        	this.lastInvoker = Invoker.fuzz;
             this.tableInvoker = (JTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;

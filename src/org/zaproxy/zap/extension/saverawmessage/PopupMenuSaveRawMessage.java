@@ -30,6 +30,7 @@ import javax.swing.JList;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
@@ -49,7 +50,8 @@ import org.zaproxy.zap.extension.alert.AlertNode;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.bruteforce.BruteForceItem;
 import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
-import org.zaproxy.zap.extension.fuzz.FuzzerPanel;
+import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
+import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
 
@@ -74,6 +76,7 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
 
 	private JTree treeInvoker = null;
     private JList<?> listInvoker = null;
+    private JTable tableInvoker = null;
     private HttpPanel httpPanelInvoker = null;
     private Invoker lastInvoker = null;
 
@@ -215,7 +218,6 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
                 break;
 
             case ascan:
-    		case fuzz:
     		case history:
     			HistoryReference ref = (HistoryReference) listInvoker.getSelectedValue();
     			if (ref != null) {
@@ -253,6 +255,12 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
     		        httpMessage = (HttpMessage) message;
     		    }
     			break;
+            case fuzz:
+                int row = tableInvoker.getSelectedRow();
+                if (row >=0) {
+                    httpMessage = ((HttpFuzzTableModel)tableInvoker.getModel()).getHistoryReferenceAtRow(row).getHttpMessage();
+                }
+                break;
     			
     		}
     		
@@ -312,9 +320,9 @@ class PopupMenuSaveRawMessage extends ExtensionPopupMenu {
             this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
-        } else if (invoker.getName() != null && invoker.getName().equals(FuzzerPanel.PANEL_NAME)) {
-        	this.lastInvoker = Invoker.fuzz;
-            this.listInvoker = (JList<?>) invoker;
+        } else if (invoker.getName() != null && invoker.getName().equals(HttpFuzzerContentPanel.PANEL_NAME)) {
+            this.lastInvoker = Invoker.fuzz;
+            this.tableInvoker = (JTable) invoker;
             this.setEnabled(isEnabledForHttpMessage(getSelectedHttpMessage()));
             display = true;
         } else if (invoker.getName() != null && invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
