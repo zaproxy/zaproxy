@@ -79,6 +79,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	
 	private static final String VIEW_ALERTS = "alerts";
+	private static final String VIEW_NUMBER_OF_ALERTS= "numberOfAlerts";
 	private static final String VIEW_HOSTS = "hosts";
 	private static final String VIEW_SITES = "sites";
 	private static final String VIEW_URLS = "urls";
@@ -121,6 +122,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL }));
 		this.addApiView(new ApiView(VIEW_HOSTS));
 		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_URLS));
@@ -395,14 +397,26 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			this.getURLs(root, (ApiResponseList)result);
 		} else if (VIEW_ALERTS.equals(name)) {
-			result = new ApiResponseList(name);
-			List<Alert> alerts = getAlerts(
+			final ApiResponseList resultList = new ApiResponseList(name);
+			processAlerts(
 					this.getParam(params, PARAM_BASE_URL, (String) null), 
 					this.getParam(params, PARAM_START, -1), 
-					this.getParam(params, PARAM_COUNT, -1));
-			for (Alert alert : alerts) {
-				((ApiResponseList)result).addItem(this.alertToSet(alert));
-			}
+					this.getParam(params, PARAM_COUNT, -1), new Processor<Alert>() {
+
+						@Override
+						public void process(Alert alert) {
+							resultList.addItem(alertToSet(alert));
+						}
+					});
+			result = resultList;
+		} else if (VIEW_NUMBER_OF_ALERTS.equals(name)) {
+			CounterProcessor<Alert> counter = new CounterProcessor<>();
+			processAlerts(
+					this.getParam(params, PARAM_BASE_URL, (String) null), 
+					this.getParam(params, PARAM_START, -1), 
+					this.getParam(params, PARAM_COUNT, -1), counter);
+			
+			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
 		} else if (VIEW_MESSAGES.equals(name)) {
 			final ApiResponseList resultList = new ApiResponseList(name);
 			processHttpMessages(
@@ -655,7 +669,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return new ApiResponseSet("alert", map);
 	}
 
-	private List<Alert> getAlerts(String baseUrl, int start, int count) throws ApiException {
+	private void processAlerts(String baseUrl, int start, int count, Processor<Alert> processor) throws ApiException {
 		List<Alert> alerts = new ArrayList<>();
 		int c = 0;
 		try {
@@ -677,6 +691,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						// Not subordinate to the specified URL
 						continue;
 					}
+					processor.process(alert);
 					alerts.add(alert);
 					c ++;
 					if (count > 0 && c >= count) {
@@ -684,7 +699,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					}
 				}
 			}
-			return alerts;
 		} catch (SQLException e) {
 			logger.error(e.getMessage(), e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
