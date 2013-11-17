@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.api;
 
 import java.io.File;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.security.cert.Certificate;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -48,7 +49,6 @@ import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.extension.report.ReportLastScan;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
@@ -56,6 +56,10 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.utils.HarUtils;
+
+import edu.umass.cs.benchlab.har.HarEntries;
+import edu.umass.cs.benchlab.har.HarLog;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
@@ -86,6 +90,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_SET_PROXY = "setproxy";
 	private static final String OTHER_ROOT_CERT = "rootcert";
 	private static final String OTHER_XML_REPORT = "xmlreport";
+	private static final String OTHER_MESSAGES_HAR = "messagesHar";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
@@ -127,6 +132,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
+		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		
 		this.addApiShortcut(OTHER_PROXY_PAC);
 		// this.addApiShortcut(OTHER_ROOT_CERT);
@@ -395,20 +401,20 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				((ApiResponseList)result).addItem(this.alertToSet(alert));
 			}
 		} else if (VIEW_MESSAGES.equals(name)) {
-			ApiResponseList resultList = new ApiResponseList(name);
+			final ApiResponseList resultList = new ApiResponseList(name);
+			processHttpMessages(
+					this.getParam(params, PARAM_BASE_URL, (String) null),
+					this.getParam(params, PARAM_START, -1),
+					this.getParam(params, PARAM_COUNT, -1),
+					new Processor<RecordHistory>() {
 
-			ArrayList<HttpMessage> hm = null;
-			try {
-				hm = getHttpMessages(
-						this.getParam(params, PARAM_BASE_URL, (String) null), 
-						this.getParam(params, PARAM_START, -1), 
-						this.getParam(params, PARAM_COUNT, -1));
-				for (HttpMessage httpm : hm) {
-					resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(httpm.getHistoryRef().getHistoryId(), httpm));
-				}
-			} catch (HttpMalformedHeaderException e) {
-				logger.error(e.getMessage(), e);
-			}
+						@Override
+						public void process(RecordHistory recordHistory) {
+							resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(
+									recordHistory.getHistoryId(),
+									recordHistory.getHttpMessage()));
+						}
+					});
 			result = resultList;
 		} else if (VIEW_VERSION.equals(name)) {
 			result = new ApiResponseList(name);
@@ -530,6 +536,41 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
+		} else if (OTHER_MESSAGES_HAR.equals(name)) {
+			byte[] responseBody;
+			try {
+				final HarEntries entries = new HarEntries();
+				processHttpMessages(
+						this.getParam(params, PARAM_BASE_URL, (String) null),
+						this.getParam(params, PARAM_START, -1),
+						this.getParam(params, PARAM_COUNT, -1),
+						new Processor<RecordHistory>() {
+
+							@Override
+							public void process(RecordHistory recordHistory) {
+								entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+							}
+						});
+
+				HarLog harLog = HarUtils.createZapHarLog();
+				harLog.setEntries(entries);
+
+				responseBody = HarUtils.harLogToByteArray(harLog);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+
+				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+			}
+
+			try {
+				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
+			} catch (HttpMalformedHeaderException e) {
+				log.error("Failed to create response header: " + e.getMessage(), e);
+			}
+			msg.setResponseBody(responseBody);
+			
+			return msg;
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
@@ -638,18 +679,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		}
 	}
 
-	/**
-	 * @throws HttpMalformedHeaderException
-	 */
-	private ArrayList<HttpMessage> getHttpMessages(String baseUrl, int start, int count) throws ApiException,
-			HttpMalformedHeaderException {
+	private void processHttpMessages(String baseUrl, int start, int count, Processor<RecordHistory> processor) throws ApiException {
 		try {
 			int c = 0;
 			TableHistory tableHistory = Model.getSingleton().getDb()
 					.getTableHistory();
 			Vector<Integer> v = tableHistory.getHistoryList(Model
 					.getSingleton().getSession().getSessionId());
-			ArrayList<HttpMessage> mgss = new ArrayList<>();
 			for (int i = 0; i < v.size(); i++) {
 				int historyId = v.get(i).intValue();
 				if (start >= 0 && historyId < start) {
@@ -657,26 +693,30 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				}
 				RecordHistory recHistory = tableHistory.read(historyId);
 				HttpMessage msg = recHistory.getHttpMessage();
+
+				if (msg.getRequestHeader().isImage() || msg.getResponseHeader().isImage()) {
+					continue;
+				}
+
 				if (baseUrl != null && ! msg.getRequestHeader().getURI().toString().startsWith(baseUrl)) {
 					// Not subordinate to the specified URL
 					continue;
 				}
-				if ( ! msg.getRequestHeader().isImage() && ! msg.getResponseHeader().isImage()) {
-					
-					msg.setHistoryRef(new HistoryReference(historyId));
-					
-					mgss.add(msg);
-					c ++;
-					if (count > 0 && c >= count) {
-						break;
-					}
+
+				processor.process(recHistory);
+				if (count > 0 && c >= count) {
+					break;
 				}
 			}
-			return mgss;
-		} catch (SQLException e) {
+		} catch (HttpMalformedHeaderException | SQLException e) {
 			logger.error(e.getMessage(), e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 		}
+	}
+
+	private interface Processor<T> {
+
+		void process(T object);
 	}
 
 	@Override
