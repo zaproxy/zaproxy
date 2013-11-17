@@ -48,6 +48,10 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 		ExtensionAntiCSRF extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 
+		if (extAntiCSRF == null) {
+			return;
+		}
+
 		List<AntiCsrfToken> list = extAntiCSRF.getTokensFromResponse(msg, source);
 		for (AntiCsrfToken token : list) {
 			if (parent != null) {
