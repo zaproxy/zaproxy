@@ -437,15 +437,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			final int port = proxyParam.getProxyPort();
 			try {
 				String response = this.getPacFile(domain, port);
-				msg.setResponseHeader(
-						"HTTP/1.1 200 OK\r\n" +
-						"Pragma: no-cache\r\n" +
-						"Cache-Control: no-cache\r\n" + 
-						"Access-Control-Allow-Origin: *\r\n" + 
-						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
-						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-						"Content-Length: " + response.length() + 
-						"\r\nContent-Type: text/html;");
+				msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 				
 		    	msg.setResponseBody(response);
 		    	
@@ -484,15 +476,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				} catch (JSONException e) {
 					throw new ApiException(ApiException.Type.BAD_FORMAT);
 				}
-				msg.setResponseHeader(
-						"HTTP/1.1 200 OK\r\n" +
-						"Pragma: no-cache\r\n" +
-						"Cache-Control: no-cache\r\n" + 
-						"Access-Control-Allow-Origin: *\r\n" + 
-						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
-						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-						"Content-Length: " + response.length() + 
-						"\r\nContent-Type: text/html;");
+				msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 				
 		    	msg.setResponseBody(response);
 		    	
@@ -516,15 +500,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						pw.flush();
 					}
 					String response = sw.toString();
-					msg.setResponseHeader(
-							"HTTP/1.1 200 OK\r\n" +
-							"Pragma: no-cache\r\n" +
-							"Cache-Control: no-cache\r\n" + 
-							"Access-Control-Allow-Origin: *\r\n" + 
-							"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
-							"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-							"Content-Length: " + response.length() + 
-							"\r\nContent-Type: application/pkix-cert;");
+					msg.setResponseHeader(API.getDefaultResponseHeader("application/pkix-cert;", response.length()));
 					
 					msg.setResponseBody(response);
 				} catch (Exception e) {
@@ -544,15 +520,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				rls.generate(report, Model.getSingleton());
 		        String response =  ReportGenerator.stringToHtml(report.toString(), "xml/report.xml.xsl");
 				
-				msg.setResponseHeader(
-						"HTTP/1.1 200 OK\r\n" +
-						"Pragma: no-cache\r\n" +
-						"Cache-Control: no-cache\r\n" + 
-						"Access-Control-Allow-Origin: *\r\n" + 
-						"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
-						"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-						"Content-Length: 0\r\n" + 
-						"Content-Type: text/xml; charset=UTF-8");
+				msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
 				
 				msg.setResponseBody(response);
 				msg.getResponseHeader().setContentLength(msg.getResponseBody().length());

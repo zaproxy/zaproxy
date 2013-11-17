@@ -326,15 +326,7 @@ public class API {
 		}
 		
 		if (format == null || ! format.equals(Format.OTHER) && shortcutImpl == null) {
-	    	msg.setResponseHeader(
-	    			"HTTP/1.1 200 OK\r\n" +
-	    			"Pragma: no-cache\r\n" +
-	  				"Cache-Control: no-cache\r\n" + 
-	  				"Access-Control-Allow-Origin: *\r\n" + 
-	  				"Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
-	  				"Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-	    			"Content-Length: 0\r\n" + 
-	    			"Content-Type: " + contentType);
+	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
 	    	msg.setResponseBody(response);
 	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 		}
@@ -430,4 +422,22 @@ public class API {
 		return url;
 	}
 	
+    public static String getDefaultResponseHeader(String contentType) {
+        return getDefaultResponseHeader(contentType, 0);
+    }
+
+    public static String getDefaultResponseHeader(String contentType, int contentLength) {
+        StringBuilder sb = new StringBuilder(250);
+
+        sb.append("HTTP/1.1 200 OK\r\n");
+        sb.append("Pragma: no-cache\r\n");
+        sb.append("Cache-Control: no-cache\r\n");
+        sb.append("Access-Control-Allow-Origin: *\r\n");
+        sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
+        sb.append("Access-Control-Allow-Headers: ZAP-Header\r\n");
+        sb.append("Content-Length: ").append(contentLength).append("\r\n");
+        sb.append("Content-Type: ").append(contentType).append("\r\n");
+
+        return sb.toString();
+    }
 }
