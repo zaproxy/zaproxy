@@ -279,14 +279,22 @@ public class HttpSessionsAPI extends ApiImplementor {
 				return new ApiResponseElement("active_session", "");
 			}
 		case VIEW_SESSION_TOKENS:
+			final String siteName = cleanSite(params.getString(ACTION_PARAM_SITE));
+			// Check if the site exists
+			if (extension.getHttpSessionsSite(siteName, false) == null) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
+			}
 			// Get session tokens
-			Set<String> tokens = extension.getHttpSessionTokensSet(cleanSite(params.getString(VIEW_PARAM_SITE))).getTokensSet();
+			HttpSessionTokensSet sessionTokens = extension.getHttpSessionTokensSet(siteName);
 			ApiResponseList responseST = new ApiResponseList("session_tokens");
 
-			// Build response list
-			if (tokens != null) {
-				for (String token : tokens) {
-					responseST.addItem(new ApiResponseElement("token", token));
+			if (sessionTokens != null) {
+				Set<String> tokens = sessionTokens.getTokensSet();
+				// Build response list
+				if (tokens != null) {
+					for (String token : tokens) {
+						responseST.addItem(new ApiResponseElement("token", token));
+					}
 				}
 			}
 			return responseST;
