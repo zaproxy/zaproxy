@@ -31,6 +31,7 @@
 // ZAP: 2012/10/08 Added check for PopupMenu safeness
 // ZAP: 2013/04/14 Issue 592: Do not show the main pop up menu if it doesn't have visible pop up menu items
 // ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
+// ZAP: 2013/11/16 Issue 878: ExtensionPopupMenuItem#getMenuIndex() as no effect in MainPopupMenu
 
 package org.parosproxy.paros.view;
 
@@ -169,7 +170,7 @@ public class MainPopupMenu extends JPopupMenu {
 	            		if (menuItem.precedeWithSeparator()) {
 	    	                this.addSeparator();
 	            		}
-						if (menuItem.getMenuIndex() > menuItem.getComponentCount()) {
+						if (menuItem.getMenuIndex() > this.getComponentCount()) {
 							this.add(menuItem);
 						} else {
 							this.add(menuItem, menuItem.getMenuIndex());
