@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
+import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
 import java.util.ArrayList;
@@ -356,28 +357,8 @@ public class ClientApi {
 
 	private Document callApiDom (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("http://zap/xml/");
-		sb.append(component);
-		sb.append("/");
-		sb.append(type);
-		sb.append("/");
-		sb.append(method);
-		sb.append("/");
-		if (params != null) {
-			sb.append("?");
-			for (Map.Entry<String, String>p : params.entrySet()) {
-				sb.append(p.getKey());
-				sb.append("=");
-				if (p.getValue() != null) {
-					sb.append(p.getValue());
-				}
-				sb.append("&");
-			}
-		}
-
 		try {
-			URL url = new URL(sb.toString());
+			URL url = buildZapRequestUrl("xml", component, type, method, params);
 			if (debug) {
 				debugStream.println("Open URL: " + url);
 			}
@@ -395,28 +376,8 @@ public class ClientApi {
 
 	public byte[] callApiOther (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
-		StringBuilder sb = new StringBuilder();
-		sb.append("http://zap/other/");
-		sb.append(component);
-		sb.append("/");
-		sb.append(type);
-		sb.append("/");
-		sb.append(method);
-		sb.append("/");
-		if (params != null) {
-			sb.append("?");
-			for (Map.Entry<String, String>p : params.entrySet()) {
-				sb.append(p.getKey());
-				sb.append("=");
-				if (p.getValue() != null) {
-					sb.append(p.getValue());
-				}
-				sb.append("&");
-			}
-		}
-
 		try {
-			URL url = new URL(sb.toString());
+			URL url = buildZapRequestUrl("other", component, type, method, params);
 			if (debug) {
 				debugStream.println("Open URL: " + url);
 			}
@@ -441,6 +402,37 @@ public class ClientApi {
 			throw new ClientApiException(e);
 		}
 	}
+
+    private static URL buildZapRequestUrl(
+            String format,
+            String component,
+            String type,
+            String method,
+            Map<String, String> params) throws MalformedURLException {
+        StringBuilder sb = new StringBuilder();
+        sb.append("http://zap/");
+        sb.append(format);
+        sb.append('/');
+        sb.append(component);
+        sb.append('/');
+        sb.append(type);
+        sb.append('/');
+        sb.append(method);
+        sb.append('/');
+        if (params != null) {
+            sb.append('?');
+            for (Map.Entry<String, String> p : params.entrySet()) {
+                sb.append(p.getKey());
+                sb.append('=');
+                if (p.getValue() != null) {
+                    sb.append(p.getValue());
+                }
+                sb.append('&');
+            }
+        }
+
+        return new URL(sb.toString());
+    }
 
     public void addExcludeFromContext(String contextName, String regex) throws Exception {
         context.excludeFromContext(contextName, regex);
