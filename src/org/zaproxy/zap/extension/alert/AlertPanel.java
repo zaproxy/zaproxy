@@ -25,6 +25,7 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -35,6 +36,8 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
@@ -46,9 +49,13 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -71,6 +78,48 @@ public class AlertPanel extends AbstractPanel {
 	private AlertViewPanel alertViewPanel = null;
 	private ZapToggleButton scopeButton = null;
 
+    /**
+     * The {@code AlertTreeModel} that holds the alerts of a selected "Sites" tree node when the filter
+     * "Link with Sites selection" is enabled, otherwise it will be empty.
+     * <p>
+     * The tree model is lazily initialised (in the method {@code getLinkWithSitesTreeModel()}).
+     * </p>
+     * 
+     * @see #getLinkWithSitesTreeModel()
+     * @see #setLinkWithSitesTreeSelection(boolean)
+     */
+    private AlertTreeModel linkWithSitesTreeModel;
+
+    /**
+     * The tree selection listener that triggers the filter "Link with Sites selection" of the "Alerts" tree based on selected
+     * "Sites" tree node.
+     * <p>
+     * The listener is lazily initialised (in the method {@code getLinkWithSitesTreeSelectionListener()}).
+     * </p>
+     * 
+     * @see #getLinkWithSitesTreeSelectionListener()
+     * @see #setLinkWithSitesTreeSelection(boolean)
+     */
+    private LinkWithSitesTreeSelectionListener linkWithSitesTreeSelectionListener;
+
+    /**
+     * The toggle button that enables/disables the "Alerts" tree filtering based on the "Sites" tree selection.
+     * <p>
+     * The toggle button is lazily initialised (in the method {@code getLinkWithSitesTreeButton()}).
+     * </p>
+     * 
+     * @see #getLinkWithSitesTreeButton()
+     */
+    private ZapToggleButton linkWithSitesTreeButton;
+
+    /**
+     * The button group used to control mutually exclusive "Alerts" tree filtering buttons.
+     * <p>
+     * Any filtering buttons that are mutually exclusive should be added to this button group.
+     * </p>
+     */
+    private DeselectableButtonGroup alertsTreeFiltersButtonGroup;
+
 	private ExtensionAlert extension = null;
 	private ExtensionHistory extHist = null; 
 
@@ -81,6 +130,7 @@ public class AlertPanel extends AbstractPanel {
     public AlertPanel(ExtensionAlert extension) {
         super();
         this.extension = extension;
+        alertsTreeFiltersButtonGroup = new DeselectableButtonGroup();
  		initialize();
     }
 
@@ -141,6 +191,7 @@ public class AlertPanel extends AbstractPanel {
 			panelToolbar.setName("AlertToolbar");
 			
 			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(0, 0, 1, 0.0D));
+			panelToolbar.add(getLinkWithSitesTreeButton(), LayoutHelper.getGBC(1, 0, 1, 0.0D));
 			panelToolbar.add(new JLabel(), LayoutHelper.getGBC(20, 0, 1, 1.0D));	// Spacer
 		}
 		return panelToolbar;
@@ -189,9 +240,158 @@ public class AlertPanel extends AbstractPanel {
 					extension.setShowJustInScope(scopeButton.isSelected());
 				}
 			});
+			alertsTreeFiltersButtonGroup.add(scopeButton);
 		}
 		return scopeButton;
 	}
+
+    /**
+     * Returns the toggle button that enables/disables the "Alerts" tree filtering based on the "Sites" tree selection.
+     * <p>
+     * The instance variable {@code linkWithSitesTreeButton} is initialised on the first call to this method.
+     * </p>
+     * 
+     * @see #linkWithSitesTreeButton
+     * @return the toggle button that enables/disables the "Alerts" tree filtering based on the "Sites" tree selection
+     */
+    private JToggleButton getLinkWithSitesTreeButton() {
+        if (linkWithSitesTreeButton == null) {
+            linkWithSitesTreeButton = new ZapToggleButton();
+            linkWithSitesTreeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/earth-grey.png")));
+            linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.unselected.button.label"));
+            linkWithSitesTreeButton.setSelectedIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/094.png")));
+            linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.selected.button.label"));
+
+            linkWithSitesTreeButton.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    setLinkWithSitesTreeSelection(linkWithSitesTreeButton.isSelected());
+                }
+            });
+            alertsTreeFiltersButtonGroup.add(linkWithSitesTreeButton);
+        }
+        return linkWithSitesTreeButton;
+    }
+
+    /**
+     * Sets whether the "Alerts" tree is filtered, or not based on a selected "Sites" tree node.
+     * <p>
+     * If {@code enabled} is {@code true} only the alerts of the selected "Sites" tree node will be shown.
+     * </p>
+     * <p>
+     * Calling this method removes the filter "Just in Scope", if enabled, as they are mutually exclusive.
+     * </p>
+     * 
+     * @param enabled {@code true} if the "Alerts" tree should be filtered based on the "Sites" tree selection, {@code false}
+     *            otherwise.
+     * @see ExtensionAlert#setShowJustInScope(boolean)
+     */
+    public void setLinkWithSitesTreeSelection(boolean enabled) {
+        linkWithSitesTreeButton.setSelected(enabled);
+        if (enabled) {
+            extension.setShowJustInScope(false);
+            final JTree sitesTree = view.getSiteTreePanel().getTreeSite();
+            final TreePath selectionPath = sitesTree.getSelectionPath();
+            getTreeAlert().setModel(getLinkWithSitesTreeModel());
+            if (selectionPath != null) {
+                recreateLinkWithSitesTreeModel((SiteNode) selectionPath.getLastPathComponent());
+            }
+            sitesTree.addTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
+        } else {
+            extension.setMainTreeModel();
+            ((AlertNode) getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
+            view.getSiteTreePanel().getTreeSite().removeTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
+        }
+    }
+
+    /**
+     * Returns the {@code AlertTreeModel} that holds the alerts of the selected "Sites" tree node when the filter
+     * "Link with Sites selection" is enabled, otherwise it will be empty.
+     * <p>
+     * The instance variable {@code linkWithSitesTreeModel} is initialised on the first call to this method.
+     * </p>
+     * 
+     * @see #linkWithSitesTreeModel
+     * @return the {@code AlertTreeModel} that holds the alerts of the selected "Sites" tree node when the filter
+     *         "Link with Sites selection" is enabled, otherwise it will be empty
+     */
+    private AlertTreeModel getLinkWithSitesTreeModel() {
+        if (linkWithSitesTreeModel == null) {
+            linkWithSitesTreeModel = new AlertTreeModel();
+        }
+        return linkWithSitesTreeModel;
+    }
+
+    /**
+     * Recreates the {@code linkWithSitesTreeModel} with the alerts of the given {@code siteNode}.
+     * <p>
+     * If the given {@code siteNode} doesn't contain any alerts the resulting model will only contain the root node, otherwise
+     * the model will contain the root node and the alerts returned by the method {@code SiteNode#getAlerts()} although if the
+     * node has an HistoryReference only the alerts whose URI is equal to the URI returned by the method
+     * {@code HistoryReference#getURI()} will be included.
+     * </p>
+     * <p>
+     * After a call to this method the number of total alerts will be recalculated by calling the method
+     * {@code ExtensionAlert#recalcAlerts()}.
+     * </p>
+     * 
+     * @param siteNode the "Sites" tree node that will be used to recreate the alerts tree model.
+     * @throws IllegalArgumentException if {@code siteNode} is {@code null}.
+     * @see #linkWithSitesTreeModel
+     * @see #setLinkWithSitesTreeSelection
+     * @see Alert
+     * @see ExtensionAlert#recalcAlerts()
+     * @see HistoryReference
+     * @see SiteNode#getAlerts()
+     */
+    private void recreateLinkWithSitesTreeModel(SiteNode siteNode) {
+        if (siteNode == null) {
+            throw new IllegalArgumentException("Parameter siteNode must not be null.");
+        }
+        ((AlertNode) getLinkWithSitesTreeModel().getRoot()).removeAllChildren();
+        if (siteNode.isRoot()) {
+            getLinkWithSitesTreeModel().reload();
+            extension.recalcAlerts();
+            return;
+        }
+        String uri = null;
+        HistoryReference historyReference = siteNode.getHistoryReference();
+        if (historyReference != null) {
+            try {
+                uri = historyReference.getURI().toString();
+            } catch (HttpMalformedHeaderException | SQLException e) {
+                logger.warn(e.getMessage(), e);
+            }
+        }
+        for (Alert alert : siteNode.getAlerts()) {
+            // Just show ones for this node
+            if (uri != null && !alert.getUri().equals(uri)) {
+                continue;
+            }
+            getLinkWithSitesTreeModel().addPath(alert);
+        }
+
+        getLinkWithSitesTreeModel().reload();
+        expandRootChildNodes();
+        extension.recalcAlerts();
+    }
+
+    /**
+     * Returns the tree selection listener that triggers the filter of the "Alerts" tree based on a selected {@code SiteNode}.
+     * <p>
+     * The instance variable {@code linkWithSitesTreeSelectionListener} is initialised on the first call to this method.
+     * </p>
+     * 
+     * @see #linkWithSitesTreeSelectionListener
+     * @return the tree selection listener that triggers the filter of the "Alerts" tree based on a selected {@code SiteNode}.
+     */
+    private LinkWithSitesTreeSelectionListener getLinkWithSitesTreeSelectionListener() {
+        if (linkWithSitesTreeSelectionListener == null) {
+            linkWithSitesTreeSelectionListener = new LinkWithSitesTreeSelectionListener();
+        }
+        return linkWithSitesTreeSelectionListener;
+    }
 
 	/**
 	 * This method initializes treeAlert	
@@ -331,6 +531,23 @@ public class AlertPanel extends AbstractPanel {
 		}
 	}
 	
+    /**
+     * Expands all child nodes of the root node.
+     * <p>
+     * This method should be called only from the EDT (Event Dispatch Thread).
+     * </p>
+     */
+    public void expandRootChildNodes() {
+        TreeNode root = (TreeNode) getTreeAlert().getModel().getRoot();
+        if (root == null) {
+            return;
+        }
+        TreePath basePath = new TreePath(root);
+        for (int i = 0; i < root.getChildCount(); ++i) {
+            getTreeAlert().expandPath(basePath.pathByAddingChild(root.getChildAt(i)));
+        }
+    }
+
 	private void setMessage(HttpMessage msg, String highlight) {
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
@@ -376,4 +593,19 @@ public class AlertPanel extends AbstractPanel {
 	    }
 
 	}
+
+    /**
+     * The tree selection listener that triggers the filter of the "Alerts" tree by calling the method
+     * {@code recreateLinkWithSitesTreeModel(SiteNode)} with the selected {@code SiteNode} as parameter.
+     * 
+     * @see #recreateLinkWithSitesTreeModel(SiteNode)
+     */
+    private class LinkWithSitesTreeSelectionListener implements TreeSelectionListener {
+
+        @Override
+        public void valueChanged(TreeSelectionEvent e) {
+            recreateLinkWithSitesTreeModel((SiteNode) e.getPath().getLastPathComponent());
+        }
+    }
+
 }

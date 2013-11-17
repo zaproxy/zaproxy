@@ -66,7 +66,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
-    private boolean inScope = false;
 
     /**
      *
@@ -209,7 +208,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             alertPanel = new AlertPanel(this);
             alertPanel.setView(getView());
             alertPanel.setSize(345, 122);
-            alertPanel.getTreeAlert().setModel(getTreeModel());
+            setMainTreeModel();
         }
 
         return alertPanel;
@@ -221,7 +220,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         getAlertPanel().setView(view);
     }
 
-    private AlertTreeModel getTreeModel() {
+    AlertTreeModel getTreeModel() {
         if (treeModel == null) {
             treeModel = new AlertTreeModel();
         }
@@ -460,24 +459,31 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         this.recalcAlerts();
     }
     
-    private void recalcAlerts() {
-    	if (View.isInitialised()) {
-            if (inScope) {
-            	this.recalcAlerts(getFilteredTreeModel());
-            } else {
-            	this.recalcAlerts(getTreeModel());
-            }
+    /**
+     * Recalculates the total number of alerts by alert's risk contained in the "Alerts" tree and updates the alert's risks
+     * footer status labels with the new values.
+     * <p>
+     * The method has no effect if the view is not initialised.
+     * </p>
+     * 
+     * @see AlertPanel#getTreeAlert()
+     * @see MainFooterPanel#setAlertHigh(int)
+     * @see MainFooterPanel#setAlertInfo(int)
+     * @see MainFooterPanel#setAlertLow(int)
+     * @see MainFooterPanel#setAlertMedium(int)
+     * @see View#isInitialised()
+     */
+    void recalcAlerts() {
+        if (!View.isInitialised()) {
+            return;
     	}
-    }
-    
-    private void recalcAlerts(AlertTreeModel tree) {
     	// Must only be called when View is initialised
     	int totalInfo = 0;
     	int totalLow = 0;
     	int totalMedium = 0;
     	int totalHigh = 0;
 
-    	AlertNode parent = (AlertNode) tree.getRoot();
+    	AlertNode parent = (AlertNode) getAlertPanel().getTreeAlert().getModel().getRoot();
     	if (parent != null) {
             for (int i=0; i<parent.getChildCount(); i++) {
                 AlertNode child = (AlertNode) parent.getChildAt(i);
@@ -590,13 +596,68 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 		this.getAlertPanel().setTabFocus();
 	}
 
+    /**
+     * Sets whether the "Alerts" tree is filtered, or not based on current session scope.
+     * <p>
+     * If {@code inScope} is {@code true} only the alerts that are in the current session scope will be shown.
+     * </p>
+     * <p>
+     * Calling this method removes the filter "Link with Sites selection", if enabled, as they are mutually exclusive.
+     * </p>
+     * 
+     * @param inScope {@code true} if the "Alerts" tree should be filtered based on current session scope, {@code false}
+     *            otherwise.
+     * @see #setLinkWithSitesTreeSelection(boolean)
+     * @see Session
+     */
 	public void setShowJustInScope(boolean inScope) {
-		this.inScope = inScope;
 		if (inScope) {
-			this.getAlertPanel().getTreeAlert().setModel(this.getFilteredTreeModel());
+			setLinkWithSitesTreeSelection(false);
+			setTreeModel(this.getFilteredTreeModel());
 		} else {
-			this.getAlertPanel().getTreeAlert().setModel(this.getTreeModel());
+			setMainTreeModel();
 		}
-		this.recalcAlerts();
 	}
+	
+    /**
+     * Sets the main tree model to the "Alerts" tree, by calling the method {@code setTreeModel(AlertTreeModel)} with the model
+     * returned by the method {@code getTreeModel()} as parameter.
+     * 
+     * @see #getTreeModel()
+     * @see #setTreeModel(AlertTreeModel)
+     */
+    void setMainTreeModel() {
+        setTreeModel(getTreeModel());
+    }
+
+    /**
+     * Sets the given {@code alertTreeModel} to the "Alerts" tree and recalculates the number of alerts by calling the method
+     * {@code recalcAlerts()}.
+     * 
+     * @param alertTreeModel the model that will be set to the tree.
+     * @see #recalcAlerts()
+     * @see AlertPanel#getTreeAlert()
+     */
+    private void setTreeModel(AlertTreeModel alertTreeModel) {
+        getAlertPanel().getTreeAlert().setModel(alertTreeModel);
+        recalcAlerts();
+    }
+
+    /**
+     * Sets whether the "Alerts" tree is filtered, or not based on a selected "Sites" tree node.
+     * <p>
+     * If {@code enabled} is {@code true} only the alerts of the selected "Sites" tree node will be shown.
+     * </p>
+     * <p>
+     * Calling this method removes the filter "Just in Scope", if enabled, as they are mutually exclusive.
+     * </p>
+     * 
+     * @param enabled {@code true} if the "Alerts" tree should be filtered based on a selected "Sites" tree node, {@code false}
+     *            otherwise.
+     * @see #setShowJustInScope(boolean)
+     * @see View#getSiteTreePanel()
+     */
+    public void setLinkWithSitesTreeSelection(boolean enabled) {
+        getAlertPanel().setLinkWithSitesTreeSelection(enabled);
+    }
 }
