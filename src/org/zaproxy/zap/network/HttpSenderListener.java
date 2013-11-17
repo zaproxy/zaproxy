@@ -24,7 +24,6 @@ import org.parosproxy.paros.network.HttpMessage;
  * A listener that will be notified when a new request is ready to be forwarded
  * to the server and when a new response is ready to be forwarded to the client.
  */
-// ZAP: Changed the JavaDoc.
 public interface HttpSenderListener {
 
     /**
@@ -43,7 +42,6 @@ public interface HttpSenderListener {
      * @return an {@code int} with the value of the order that this listener
      *         should be notified about
      */
-    // ZAP: Added the method.
     int getListenerOrder();
 
     /**

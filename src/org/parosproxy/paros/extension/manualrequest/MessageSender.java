@@ -15,7 +15,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/07/02 Introduced new interface.
 package org.parosproxy.paros.extension.manualrequest;
 
 import org.zaproxy.zap.extension.httppanel.Message;

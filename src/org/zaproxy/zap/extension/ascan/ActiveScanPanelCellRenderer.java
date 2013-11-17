@@ -65,7 +65,6 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
      * This method initializes this
      */
     private void initialize() {
-    	// ZAP: Added flag image
         GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints6.gridx = 8;
@@ -77,7 +76,6 @@ public class ActiveScanPanelCellRenderer extends JPanel implements ListCellRende
         gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraints6.anchor = java.awt.GridBagConstraints.WEST;
 
-        // ZAP: Added notes image
         GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
         gridBagConstraints5.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraints5.gridx = 7;

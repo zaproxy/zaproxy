@@ -17,9 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/01 changed the name parameter retrieval on setParameter
-// ZAP: 2013/07/02 add dynamic check to avoid useless header scanning (to be improved)
-// ZAP: 2013/08/22 added regex escaping for header name setting (setHeader has trouble with '-' character)
 
 package org.parosproxy.paros.core.scanner;
 

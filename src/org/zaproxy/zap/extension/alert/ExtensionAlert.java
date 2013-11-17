@@ -221,7 +221,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         getAlertPanel().setView(view);
     }
 
-    // ZAP: Changed return type for getTreeModel
     private AlertTreeModel getTreeModel() {
         if (treeModel == null) {
             treeModel = new AlertTreeModel();
@@ -327,7 +326,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         try {
             refreshAlert(session);
-            // ZAP: this prevent the UI getting corrupted
+            // this prevent the UI getting corrupted
             tree.nodeStructureChanged(root);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);

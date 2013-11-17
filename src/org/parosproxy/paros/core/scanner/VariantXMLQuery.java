@@ -17,9 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/10 Escaped all special characters inside the regex patterns + updated regex for non capturing groups
-// ZAP: 2013/08/02 Added new XML content type to the Variant
-// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 

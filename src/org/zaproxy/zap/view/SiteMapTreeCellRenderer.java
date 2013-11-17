@@ -98,7 +98,6 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 				}
 			}
 
-			// ZAP: Call SiteMapListeners
 	        for (SiteMapListener listener : listeners) {
 	        	listener.onReturnNodeRendererComponent(this, leaf, node);
 	        }

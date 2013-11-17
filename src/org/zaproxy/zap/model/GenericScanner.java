@@ -17,8 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/08/09 Changed isAlive() method to isRunning() to avoid collision 
-//					with Thread.isAlive()
 package org.zaproxy.zap.model;
 
 import javax.swing.ListModel;

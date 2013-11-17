@@ -15,9 +15,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/07/02 Introduced new class. Moved code from class
-// ManualRequestEditorDialog to here (HistoryList).
-// ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -139,7 +136,6 @@ public class HttpPanelSender implements MessageSender {
 				    	break;
 				    }
 				} catch (Exception e) {
-					// ZAP: Log exceptions
 					logger.warn(e.getMessage(), e);
 				}
 			}

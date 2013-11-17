@@ -17,10 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2012/01/12 Reflected the rename of the class ExtensionPopupMenu to
-// ExtensionPopupMenuItem.
-// ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
-// ZAP: 2013/01/23 Clean up of exception handling/logging.
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
@@ -75,7 +71,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
 	 * This method initialises this
 	 */
 	private void initialize() {
-        this.setText(Constant.messages.getString("sites.resend.popup"));	// ZAP: i18n
+        this.setText(Constant.messages.getString("sites.resend.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

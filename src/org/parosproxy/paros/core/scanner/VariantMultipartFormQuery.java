@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/01 Added Content-type checking at setMessage level
 
 package org.parosproxy.paros.core.scanner;
 

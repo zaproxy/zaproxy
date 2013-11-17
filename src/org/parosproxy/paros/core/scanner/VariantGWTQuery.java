@@ -17,9 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/01 Added string encoding according to the abstract superclass
-// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
-// ZAP: 2013/09/12 Added GWT escaping model according to the internal implementation
 
 package org.parosproxy.paros.core.scanner;
 

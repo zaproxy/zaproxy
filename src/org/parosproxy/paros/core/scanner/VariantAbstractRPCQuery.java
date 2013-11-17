@@ -17,10 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/03 Improved encapsulation for quoting and content type checking
-// ZAP: 2013/07/10 Added some features and method encapsulation
-// ZAP: 2013/07/21 Added XML parameters ordering on tag position inside the overall content
-// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 

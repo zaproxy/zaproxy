@@ -17,9 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2013/07/01 Added JSON string encoding to correctly inject payloads for integer values
-// ZAP: 2013/07/01 Added quotation mark escaping before parameter injection
-// ZAP: 2013/08/21 Added decoding for correct parameter value manipulation
 
 package org.parosproxy.paros.core.scanner;
 

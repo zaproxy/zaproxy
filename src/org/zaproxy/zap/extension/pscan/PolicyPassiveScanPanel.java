@@ -129,7 +129,6 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
 	@Override
 	public String getHelpIndex() {
-		// ZAP: added help index support
 		// TODO add to msg file
 		return "ui.dialogs.options.pscan";
 	}
