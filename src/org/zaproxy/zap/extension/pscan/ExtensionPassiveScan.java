@@ -64,7 +64,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	private OptionsPassiveScan optionsPassiveScan = null;
 	private PolicyPassiveScanPanel policyPanel = null;
 	private PassiveScanThread pst = null;
-	
+	private boolean passiveScanEnabled;
 	private PassiveScanParam passiveScanParam;
 	
 	private static final List<Class<?>> DEPENDENCIES;
@@ -84,6 +84,13 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	private void initialize() {
         this.setOrder(26);
         this.setName(NAME);
+	}
+
+	@Override
+	public void init() {
+		super.init();
+		
+		passiveScanEnabled = true;
 	}
 
 	@Override
@@ -193,7 +200,10 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	}
 	
 	public int getRecordsToScan() {
-		return this.getPassiveScanThread().getRecordsToScan();
+		if (passiveScanEnabled) {
+			return this.getPassiveScanThread().getRecordsToScan();
+		}
+		return 0;
 	}
 
 
@@ -226,14 +236,26 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
 	@Override
 	public void sessionAboutToChange(Session session) {
-		getPassiveScanThread().shutdown();
-		this.pst = null;
+		stopPassiveScanThread();
+	}
+
+	private void stopPassiveScanThread() {
+		if (this.pst != null) {
+			getPassiveScanThread().shutdown();
+			this.pst = null;
+		}
 	}
 
 	@Override
 	public void sessionChanged(Session session) {
-		// Will create a new thread if one doesnt exist
-		getPassiveScanThread();
+		startPassiveScanThread();
+	}
+	
+	private void startPassiveScanThread() {
+		if (passiveScanEnabled && pst == null) {
+			// Will create a new thread if one doesnt exist
+			getPassiveScanThread();
+		}
 	}
 	
 	@Override
@@ -267,5 +289,16 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
+	}
+
+	void setPassiveScanEnabled(boolean enabled) {
+		if (passiveScanEnabled != enabled) {
+			passiveScanEnabled = enabled;
+			if (enabled) {
+				startPassiveScanThread();
+			} else {
+				stopPassiveScanThread();
+			}
+		}
 	}
 }

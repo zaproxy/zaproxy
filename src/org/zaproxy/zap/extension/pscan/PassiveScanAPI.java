@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.pscan;
 
 import net.sf.json.JSONObject;
 
+import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -32,10 +33,17 @@ public class PassiveScanAPI extends ApiImplementor {
 	
 	private static final String VIEW_RECORDS_TO_SCAN = "recordsToScan";
 
+	private static final String ACTION_SET_ENABLED = "setEnabled";
+
+	private static final String PARAM_ENABLED = "enabled";
+
 	private ExtensionPassiveScan extension;
 	
 	public PassiveScanAPI (ExtensionPassiveScan extension) {
 		this.extension = extension;
+
+		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] {PARAM_ENABLED}));
+
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
 
 	}
@@ -43,6 +51,21 @@ public class PassiveScanAPI extends ApiImplementor {
 	@Override
 	public String getPrefix() {
 		return PREFIX;
+	}
+
+	@Override
+	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
+		switch (name) {
+		case ACTION_SET_ENABLED:
+			boolean enabled = getParam(params, PARAM_ENABLED, false);
+			
+			extension.setPassiveScanEnabled(enabled);
+			break;
+		default:
+			throw new ApiException(ApiException.Type.BAD_ACTION);
+		}
+
+		return ApiResponseElement.OK;
 	}
 
 	@Override
