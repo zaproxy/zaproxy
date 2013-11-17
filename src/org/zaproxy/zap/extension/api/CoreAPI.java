@@ -78,6 +78,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_SET_HOME_DIRECTORY = "setHomeDirectory";
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	
+	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
 	private static final String VIEW_NUMBER_OF_ALERTS= "numberOfAlerts";
 	private static final String VIEW_HOSTS = "hosts";
@@ -122,6 +123,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
 		this.addApiAction(new ApiAction(ACTION_GENERATE_ROOT_CA));
 		
+		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiView(new ApiView(VIEW_NUMBER_OF_ALERTS, null, new String[] { PARAM_BASE_URL }));
@@ -399,6 +401,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			result = new ApiResponseList(name);
 			SiteNode root = (SiteNode) session.getSiteTree().getRoot();
 			this.getURLs(root, (ApiResponseList)result);
+		} else if (VIEW_ALERT.equals(name)){
+			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
+			RecordAlert recordAlert;
+			try {
+				recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
+			} catch (SQLException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
+			if (recordAlert == null) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
+			}
+			result = alertToSet(new Alert(recordAlert));
 		} else if (VIEW_ALERTS.equals(name)) {
 			final ApiResponseList resultList = new ApiResponseList(name);
 			processAlerts(
