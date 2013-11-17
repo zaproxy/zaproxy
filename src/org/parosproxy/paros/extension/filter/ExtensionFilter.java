@@ -31,6 +31,8 @@
 // ZAP: 2013/01/25 Added method removeFilter().
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/11/16 Issue 902 - Change all ExtensionAdaptor#hook(ExtensionHook) overriding methods
+// to call the base implementation
 
 package org.parosproxy.paros.extension.filter;
 
@@ -134,6 +136,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 	    if (getView() != null) {
 	        extensionHook.getHookMenu().addToolsMenuItem(getMenuToolsFilter());
 	    }

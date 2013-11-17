@@ -43,6 +43,7 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 		if (getView() != null) {
 			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new HttpPanelQueryCookieParamTableViewFactory());
 		}

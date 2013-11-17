@@ -72,6 +72,7 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 	    extensionHook.addProxyListener(this);
 	    if (getView() != null) {
 			View.getSingleton().addMainToolbarButton(getRevealButton());

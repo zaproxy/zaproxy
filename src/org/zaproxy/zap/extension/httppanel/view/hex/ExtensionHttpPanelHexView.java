@@ -44,6 +44,7 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 		if (getView() != null) {
 			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitHeaderHexViewFactory());
 			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitBodyHexViewFactory());

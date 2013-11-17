@@ -50,6 +50,7 @@ public class ExtensionHttpPanelSyntaxHighlightTextView extends ExtensionAdaptor 
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 		if (getView() != null) {
 			HttpPanelManager panelManager = HttpPanelManager.getInstance();
 			panelManager.addRequestViewFactory(RequestSplitComponent.NAME, new RequestSplitHeaderViewFactory());

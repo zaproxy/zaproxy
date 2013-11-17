@@ -68,6 +68,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
+	    
 		if (getView() != null) {
 			// Be careful when changing the menu indexes (and order above) - its easy to get unexpected
 			// results!

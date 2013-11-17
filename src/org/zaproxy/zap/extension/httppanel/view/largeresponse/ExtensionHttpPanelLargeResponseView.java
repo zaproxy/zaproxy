@@ -39,6 +39,7 @@ public class ExtensionHttpPanelLargeResponseView extends ExtensionAdaptor {
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 		if (getView() != null) {
 			HttpPanelManager panelManager = HttpPanelManager.getInstance();
 			panelManager.addResponseViewFactory(ResponseSplitComponent.NAME, new ResponseLargeResponseSplitViewFactory());

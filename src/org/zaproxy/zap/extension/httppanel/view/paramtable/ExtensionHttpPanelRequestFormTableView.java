@@ -27,6 +27,7 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
+	    super.hook(extensionHook);
 		if (getView() != null) {
 			HttpPanelManager.getInstance().addRequestViewFactory(RequestSplitComponent.NAME, new HttpPanelFormParamTableViewFactory());
 		}
