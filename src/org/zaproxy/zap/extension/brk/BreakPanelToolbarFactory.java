@@ -1,9 +1,10 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.LinkedList;
 
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -27,13 +28,13 @@ import org.zaproxy.zap.view.ZapToggleButton;
 
 public class BreakPanelToolbarFactory {
 
-	private LinkedList<JButton> btnContinueList = new LinkedList<>();
-	private LinkedList<JButton> btnStepList = new LinkedList<>();
-	private LinkedList<JButton> btnDropList = new LinkedList<>();
-	private LinkedList<JButton> btnBrkPointList = new LinkedList<>();
+	private ContinueButtonAction continueButtonAction;
+	private StepButtonAction stepButtonAction;
+	private DropButtonAction dropButtonAction;
+	private AddBreakpointButtonAction addBreakpointButtonAction;
 
-	private LinkedList<JToggleButton> btnBreakRequestList = new LinkedList<>();
-	private LinkedList<JToggleButton> btnBreakResponseList = new LinkedList<>();
+	private BreakRequestsButtonAction breakRequestsButtonAction;
+	private BreakResponsesButtonAction breakResponsesButtonAction;
 
 	private boolean cont = false;
 	private boolean step = false;
@@ -48,6 +49,14 @@ public class BreakPanelToolbarFactory {
 
 	public BreakPanelToolbarFactory(BreakpointsParam breakpointsParams, BreakPanel breakPanel) {
 		super();
+
+		continueButtonAction = new ContinueButtonAction();
+		stepButtonAction = new StepButtonAction();
+		dropButtonAction = new DropButtonAction();
+		addBreakpointButtonAction = new AddBreakpointButtonAction();
+
+		breakRequestsButtonAction = new BreakRequestsButtonAction();
+		breakResponsesButtonAction = new BreakResponsesButtonAction();
 
 		this.breakpointsParams = breakpointsParams;
 		this.breakPanel = breakPanel;
@@ -86,67 +95,17 @@ public class BreakPanelToolbarFactory {
 	}
 	
 	public JButton getBtnStep() {
-		JButton btnStep;
-
-		btnStep = new JButton();
-		btnStep.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/143.png")));
-		btnStep.setToolTipText(Constant.messages.getString("brk.toolbar.button.step"));
-		btnStep.addActionListener(new ActionListener() { 
-			@Override
-			public void actionPerformed(ActionEvent e) {    
-				setStep(true);
-			}
-		});
-		// Default to disabled
-		btnStep.setEnabled(false);
-
-		btnStepList.add(btnStep);
-		return btnStep;
+		return new JButton(stepButtonAction);
 	}
 
 	    
 	public JButton getBtnContinue() {
-		JButton btnContinue;
-
-		btnContinue = new JButton();
-		btnContinue.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/131.png")));
-		btnContinue.setToolTipText(Constant.messages.getString("brk.toolbar.button.cont"));
-		btnContinue.addActionListener(new ActionListener() { 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setContinue(true);
-			}
-		});
-		// Default to disabled
-		btnContinue.setEnabled(false);
-
-		btnContinueList.add(btnContinue);	
-		return btnContinue;
+		return new JButton(continueButtonAction);
 	}
 
 	    
 	public JButton getBtnDrop() {
-		JButton btnDrop;
-
-		btnDrop = new JButton();
-		btnDrop.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/150.png")));
-		btnDrop.setToolTipText(Constant.messages.getString("brk.toolbar.button.bin"));
-		btnDrop.addActionListener(new ActionListener() { 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if (breakpointsParams.isConfirmDropMessage() && askForDropConfirmation() != JOptionPane.OK_OPTION) {
-					return;
-				}
-				toBeDropped = true;
-				setContinue(true);
-			}
-		});
-		// Default to disabled
-		btnDrop.setEnabled(false);
-
-		btnDropList.add(btnDrop);
-
-		return btnDrop;
+		return new JButton(dropButtonAction);
 	}
 	
 	private int askForDropConfirmation() {
@@ -171,23 +130,9 @@ public class BreakPanelToolbarFactory {
 	public JToggleButton getBtnBreakRequest() {
 		ZapToggleButton btnBreakRequest;
 
-		btnBreakRequest = new ZapToggleButton();
-		btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
-		btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
+		btnBreakRequest = new ZapToggleButton(breakRequestsButtonAction);
 		btnBreakRequest.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
 		btnBreakRequest.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
-		isBreakRequest = false;
-
-		btnBreakRequest.addActionListener(new ActionListener() { 
-			@Override
-			public void actionPerformed(ActionEvent e) {    
-				// Toggle button
-				toggleBreakRequest();
-			}
-		});
-
-		btnBreakRequestList.add(btnBreakRequest);
-		updateBreakRequestBtn();
 
 		return btnBreakRequest;
 	}
@@ -196,44 +141,16 @@ public class BreakPanelToolbarFactory {
 	public JToggleButton getBtnBreakResponse() {
 		ZapToggleButton btnBreakResponse;
 
-		btnBreakResponse = new ZapToggleButton();
-		btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
-		btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
+		btnBreakResponse = new ZapToggleButton(breakResponsesButtonAction);
 		btnBreakResponse.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
 		btnBreakResponse.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
-		isBreakResponse = false;
-
-		btnBreakResponse.addActionListener(new ActionListener() { 
-			@Override
-			public void actionPerformed(ActionEvent e) {    
-				// Toggle button
-				toggleBreakResponse();
-			}
-		});
-
-		btnBreakResponseList.add(btnBreakResponse);
-		updateBreakResponseBtn();
 
 		return btnBreakResponse;
 	}
 
 
 	public JButton getBtnBreakPoint() {
-		JButton btnBreakPoint;
-
-		btnBreakPoint = new JButton();
-		btnBreakPoint.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/break_add.png")));
-		btnBreakPoint.setToolTipText(Constant.messages.getString("brk.toolbar.button.brkpoint"));
-		btnBreakPoint.addActionListener(new ActionListener() { 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				breakPanel.showNewBreakPointDialog();
-			}
-		});
-
-		btnBrkPointList.add(btnBreakPoint);
-
-		return btnBreakPoint;
+		return new JButton(addBreakpointButtonAction);
 	}
 
 	public boolean isStepping() {
@@ -258,56 +175,24 @@ public class BreakPanelToolbarFactory {
 		isBreakRequest = brk;
 		resetRequestSerialization(false);
 
-		updateBreakRequestBtn();
+		breakRequestsButtonAction.setSelected(isBreakRequest);
 	}
 
 	public void setBreakResponse(boolean brk) {
 		isBreakResponse = brk;
 		resetRequestSerialization(false);
 
-		updateBreakResponseBtn();
+		breakResponsesButtonAction.setSelected(isBreakResponse);
 	}
 
 	private void toggleBreakRequest() {
-		isBreakRequest = !isBreakRequest();
-		resetRequestSerialization(false);
-
-		updateBreakRequestBtn();
+		setBreakRequest(!isBreakRequest);
 	}
 
 	private void toggleBreakResponse() {
-		isBreakResponse = !isBreakResponse();
-		resetRequestSerialization(false);
-
-		updateBreakResponseBtn();
+		setBreakResponse(!isBreakResponse);
 	}
 
-	private void updateBreakRequestBtn() {
-		if (isBreakRequest()) {
-			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-				btnBreakRequest.setSelected(true);
-			}
-		} else {
-			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-				btnBreakRequest.setSelected(false);
-			}
-		}
-	}
-
-	private void updateBreakResponseBtn() {
-		if (isBreakResponse()) {
-			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-				btnBreakResponse.setSelected(true);
-			}
-		} else {
-			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-				btnBreakResponse.setSelected(false);
-			}
-		}
-	}
-
-
-	
 	public boolean isHoldMessage() {
 		if (step) {
 			// Only works one time, until its pressed again
@@ -334,32 +219,22 @@ public class BreakPanelToolbarFactory {
 			this.isBreakResponse = false;
 			this.setContinue(true);
 		}
-		for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-			btnBreakRequest.setSelected(false);
-			btnBreakRequest.setEnabled(enabled);
-		}
-		for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-			btnBreakResponse.setSelected(false);
-			btnBreakResponse.setEnabled(enabled);
-		}
+		breakRequestsButtonAction.setSelected(false);
+		breakRequestsButtonAction.setEnabled(enabled);
+		
+		breakResponsesButtonAction.setSelected(false);
+		breakResponsesButtonAction.setEnabled(enabled);
 	}
 
 	
 	private void setContinue(boolean isContinue) {
 		this.cont = isContinue;
 
+		stepButtonAction.setEnabled( ! isContinue);
 
-		for(JButton btnStep: btnStepList) {
-			btnStep.setEnabled( ! isContinue);
-		}
+		continueButtonAction.setEnabled( ! isContinue);
 
-		for(JButton btnContinue: btnContinueList) {
-			btnContinue.setEnabled( ! isContinue);
-		}
-
-		for(JButton btnDrop: btnDropList) {
-			btnDrop.setEnabled( ! isContinue);
-		}
+		dropButtonAction.setEnabled( ! isContinue);
 
 		if (isContinue) {
 			this.setActiveIcon(false);
@@ -369,17 +244,11 @@ public class BreakPanelToolbarFactory {
 	private void setStep(boolean isStep) {
 		step = isStep;
 
-		for(JButton btnStep: btnStepList) {
-			btnStep.setEnabled( ! isStep);
-		}
+		stepButtonAction.setEnabled( ! isStep);
 
-		for(JButton btnContinue: btnContinueList) {
-			btnContinue.setEnabled( ! isStep);
-		}
+		continueButtonAction.setEnabled( ! isStep);
 
-		for(JButton btnDrop: btnDropList) {
-			btnDrop.setEnabled( ! isStep);
-		}
+		dropButtonAction.setEnabled( ! isStep);
 
 		if (isStep) {
 			this.setActiveIcon(false);
@@ -413,5 +282,135 @@ public class BreakPanelToolbarFactory {
 		toBeDropped = true;
 		setContinue(true);
 	}
+
+    private class ContinueButtonAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public ContinueButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/131.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.cont"));
+
+            setEnabled(false);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setContinue(true);
+        }
+    }
+
+    private class StepButtonAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public StepButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/143.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.step"));
+
+            setEnabled(false);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            setStep(true);
+        }
+    }
+
+    private class DropButtonAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public DropButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/150.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.bin"));
+
+            setEnabled(false);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (breakpointsParams.isConfirmDropMessage() && askForDropConfirmation() != JOptionPane.OK_OPTION) {
+                return;
+            }
+            toBeDropped = true;
+            setContinue(true);
+        }
+    }
+
+    private class AddBreakpointButtonAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public AddBreakpointButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/break_add.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.brkpoint"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            breakPanel.showNewBreakPointDialog();
+        }
+    }
+
+    private class BreakRequestsButtonAction extends SelectableAbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public BreakRequestsButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.request.set"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            toggleBreakRequest();
+        }
+    }
+
+    private class BreakResponsesButtonAction extends SelectableAbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public BreakResponsesButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.response.set"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            toggleBreakResponse();
+        }
+    }
+
+    /**
+     * An {@code AbstractAction} which allows to be selected.
+     * 
+     * @see AbstractAction
+     * @see #setSelected(boolean)
+     */
+    private static abstract class SelectableAbstractAction extends AbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        /**
+         * Creates a {@code SelectableAbstractAction} with the specified {@code name} and {@code icon}.
+         * 
+         * @param name the name for the action or {@code null} for no name
+         * @param icon the icon for the action or {@code null} for no icon
+         */
+        public SelectableAbstractAction(String name, Icon icon) {
+            super(name, icon);
+        }
+
+        /**
+         * Sets whether the action is selected or not.
+         * 
+         * @param selected {@code true} if the action should be selected, {@code false} otherwise
+         */
+        public void setSelected(boolean selected) {
+            putValue(Action.SELECTED_KEY, Boolean.valueOf(selected));
+        }
+    }
 
 }
