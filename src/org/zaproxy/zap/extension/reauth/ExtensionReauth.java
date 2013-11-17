@@ -61,6 +61,7 @@ import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 @Deprecated
 public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListener, SessionChangedListener, ContextPanelFactory, ContextDataFactory {
@@ -77,7 +78,7 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 	private PopupContextMenuItemFactory popupFlagLoggedInIndicatorMenuFactory= null;
 	private PopupContextMenuItemFactory popupFlagLoggedOutIndicatorMenuFactory= null;
 
-	private JToggleButton reauthenticateButton = null;
+	private ZapToggleButton reauthenticateButton = null;
 
 	private HttpSender httpSender = null;
 	private boolean reauthenticate = false;
@@ -139,19 +140,19 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 		    reauthenticateButton.setSelected(reauth);
 		    if (reauth) {
 				reauthenticateButton.setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_ON_ICON_RESOURCE)));
-				reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.on"));
 			} else {
 				reauthenticateButton.setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
-				reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.off"));
 		    }
 	    }
 	}
 
 	private JToggleButton getReauthenticateButton() {
 		if (reauthenticateButton == null) {
-			reauthenticateButton = new JToggleButton();
+			reauthenticateButton = new ZapToggleButton();
 			reauthenticateButton.setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
-			reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
+			reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.off"));
+			reauthenticateButton.setSelectedToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.on"));
+			reauthenticateButton.setDisabledToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
 			reauthenticateButton.setEnabled(false);	// Disable until login and one indicator flagged
 			
 			reauthenticateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -305,12 +306,10 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 	private void setReauthButtonState(boolean enabled) {
 		if (enabled) {
 			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
-			this.getReauthenticateButton().setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.off"));
 			this.getReauthenticateButton().setEnabled(true);
 		} else {
 			this.reauthenticate = false;
 			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
-			this.getReauthenticateButton().setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
 			this.getReauthenticateButton().setSelected(false);
 			this.getReauthenticateButton().setEnabled(false);
 		}

@@ -47,6 +47,7 @@ import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 /**
  * The ForcedUser Extension allows ZAP user to force all requests that correspond to a given Context
@@ -87,7 +88,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	private boolean forcedUserModeEnabled = false;
 
-	private JToggleButton forcedUserModeButton;
+	private ZapToggleButton forcedUserModeButton;
 	private ForcedUserAPI api;
 
 	/**
@@ -131,11 +132,9 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			if (forcedUserModeEnabled) {
 				forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 						.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
-				forcedUserModeButton.setToolTipText(BUTTON_LABEL_ON);
 			} else {
 				forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 						.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-				forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
 			}
 		}
 	}
@@ -153,7 +152,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			this.forcedUserModeEnabled = false;
 			this.getForcedUserModeToggleButton().setIcon(
 					new ImageIcon(ExtensionForcedUser.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			this.getForcedUserModeToggleButton().setToolTipText(BUTTON_LABEL_DISABLED);
 			this.getForcedUserModeToggleButton().setSelected(false);
 			this.getForcedUserModeToggleButton().setEnabled(false);
 		}
@@ -171,10 +169,12 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	private JToggleButton getForcedUserModeToggleButton() {
 		if (forcedUserModeButton == null) {
-			forcedUserModeButton = new JToggleButton();
+			forcedUserModeButton = new ZapToggleButton();
 			forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			forcedUserModeButton.setToolTipText(BUTTON_LABEL_DISABLED);
+			forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
+			forcedUserModeButton.setSelectedToolTipText(BUTTON_LABEL_ON);
+			forcedUserModeButton.setDisabledToolTipText(BUTTON_LABEL_DISABLED);
 			forcedUserModeButton.setEnabled(false); // Disable until login and one indicator flagged
 
 			forcedUserModeButton.addActionListener(new java.awt.event.ActionListener() {

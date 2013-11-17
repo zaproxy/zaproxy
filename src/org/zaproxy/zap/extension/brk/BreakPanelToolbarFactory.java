@@ -14,6 +14,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 // Button notes
 // BreakRequest button, if set all requests trapped
@@ -168,9 +169,11 @@ public class BreakPanelToolbarFactory {
 	}
 	
 	public JToggleButton getBtnBreakRequest() {
-		JToggleButton btnBreakRequest;
+		ZapToggleButton btnBreakRequest;
 
-		btnBreakRequest = new JToggleButton();
+		btnBreakRequest = new ZapToggleButton();
+		btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
+		btnBreakRequest.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
 		isBreakRequest = false;
 
 		btnBreakRequest.addActionListener(new ActionListener() { 
@@ -189,9 +192,11 @@ public class BreakPanelToolbarFactory {
 
 	 
 	public JToggleButton getBtnBreakResponse() {
-		JToggleButton btnBreakResponse;
+		ZapToggleButton btnBreakResponse;
 
-		btnBreakResponse = new JToggleButton();
+		btnBreakResponse = new ZapToggleButton();
+		btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
+		btnBreakResponse.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
 		isBreakResponse = false;
 
 		btnBreakResponse.addActionListener(new ActionListener() { 
@@ -277,13 +282,11 @@ public class BreakPanelToolbarFactory {
 		if (isBreakRequest()) {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
 				btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
-				btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
 				btnBreakRequest.setSelected(true);
 			}
 		} else {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
 				btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
-				btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
 				btnBreakRequest.setSelected(false);
 			}
 		}
@@ -293,13 +296,11 @@ public class BreakPanelToolbarFactory {
 		if (isBreakResponse()) {
 			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
 				btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
-				btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
 				btnBreakResponse.setSelected(true);
 			}
 		} else {
 			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
 				btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
-				btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
 				btnBreakResponse.setSelected(false);
 			}
 		}
@@ -335,13 +336,11 @@ public class BreakPanelToolbarFactory {
 		}
 		for(JToggleButton btnBreakRequest: btnBreakRequestList) {
 			btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
-			btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
 			btnBreakRequest.setSelected(false);
 			btnBreakRequest.setEnabled(enabled);
 		}
 		for(JToggleButton btnBreakResponse: btnBreakResponseList) {
 			btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
-			btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
 			btnBreakResponse.setSelected(false);
 			btnBreakResponse.setEnabled(enabled);
 		}

@@ -43,6 +43,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 
@@ -57,7 +58,7 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 	private static final String TYPE_HIDDEN 	= "HIDDEN";
 	
 	private boolean reveal = false;
-	private JToggleButton revealButton = null;
+	private ZapToggleButton revealButton = null;
 
 	public ExtensionReveal() {
 		super();
@@ -83,16 +84,16 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 	    revealButton.setSelected(reveal);
 	    if (reveal) {
 			revealButton.setIcon(new ImageIcon(ExtensionReveal.class.getResource("/resource/icon/16/043.png")));	// 'light on' icon
-			revealButton.setToolTipText(Constant.messages.getString("reveal.button.disable"));
 		} else {
 			revealButton.setIcon(new ImageIcon(ExtensionReveal.class.getResource("/resource/icon/16/044.png")));	// 'light off' icon
-			revealButton.setToolTipText(Constant.messages.getString("reveal.button.enable"));
 	    }
 	}
 
 	private JToggleButton getRevealButton() {
 		if (revealButton == null) {
-			revealButton = new JToggleButton();
+			revealButton = new ZapToggleButton();
+			revealButton.setToolTipText(Constant.messages.getString("reveal.button.enable"));
+			revealButton.setSelectedToolTipText(Constant.messages.getString("reveal.button.disable"));
 		    setReveal(Model.getSingleton().getOptionsParam().getViewParam().getReveal());
 			
 			revealButton.addActionListener(new java.awt.event.ActionListener() {

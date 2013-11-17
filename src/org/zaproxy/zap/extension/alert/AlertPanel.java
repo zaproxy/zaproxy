@@ -50,6 +50,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 public class AlertPanel extends AbstractPanel {
 	
@@ -68,7 +69,7 @@ public class AlertPanel extends AbstractPanel {
 	private JToolBar panelToolbar = null;
 	private JSplitPane splitPane = null;
 	private AlertViewPanel alertViewPanel = null;
-	private JToggleButton scopeButton = null;
+	private ZapToggleButton scopeButton = null;
 
 	private ExtensionAlert extension = null;
 	private ExtensionHistory extHist = null; 
@@ -175,9 +176,10 @@ public class AlertPanel extends AbstractPanel {
 	
 	private JToggleButton getScopeButton() {
 		if (scopeButton == null) {
-			scopeButton = new JToggleButton();
+			scopeButton = new ZapToggleButton();
 			scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -186,10 +188,8 @@ public class AlertPanel extends AbstractPanel {
 					extension.setShowJustInScope(scopeButton.isSelected());
 					if (scopeButton.isSelected()) {
 						scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
 					} else {
 						scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 					}
 				}
 			});

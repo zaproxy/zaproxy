@@ -83,7 +83,7 @@ public abstract class ScanPanel extends AbstractPanel {
 
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
-	private JToggleButton pauseScanButton = null;
+	private ZapToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	private JProgressBar progressBar = null;
 	private Map <String, GenericScanner> scanMap = new HashMap<>();
@@ -348,8 +348,9 @@ public abstract class ScanPanel extends AbstractPanel {
 
 	private JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
-			pauseScanButton = new JToggleButton();
+			pauseScanButton = new ZapToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
+			pauseScanButton.setSelectedToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 			pauseScanButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
@@ -529,10 +530,8 @@ public abstract class ScanPanel extends AbstractPanel {
 				getPauseScanButton().setEnabled(true);
 				if (scanThread.isPaused()) {
 					getPauseScanButton().setSelected(true);
-					getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 				} else {
 					getPauseScanButton().setSelected(false);
-					getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 				}
 				getProgressBar().setEnabled(true);
 			} else {
@@ -697,10 +696,8 @@ public abstract class ScanPanel extends AbstractPanel {
 		if (scan != null) {
 			if (scan.isPaused()) {
 				scan.resumeScan();
-				getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			} else {
 				scan.pauseScan();
-				getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 			}
 		}
 	}
@@ -729,7 +726,6 @@ public abstract class ScanPanel extends AbstractPanel {
 			getStopScanButton().setEnabled(false);
 			getPauseScanButton().setEnabled(false);
 			getPauseScanButton().setSelected(false);
-			getPauseScanButton().setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			getProgressBar().setEnabled(false);
 		}
 		this.activeScans.remove(host);

@@ -27,6 +27,7 @@
 // ZAP: 2013/02/26 Issue 538: Allow non sequential lines to be selected in the history log
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2013/11/16 Issue 898: Replace all toggle buttons that set a tool tip text based on button's state with ZapToggleButton
 
 package org.parosproxy.paros.extension.history;
 
@@ -50,6 +51,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 public class LogPanel extends AbstractPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -62,7 +64,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private javax.swing.JToolBar panelToolbar = null;
 	private JButton filterButton = null;
 	private JLabel filterStatus = null;
-	private JToggleButton scopeButton = null;
+	private ZapToggleButton scopeButton = null;
 	
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
@@ -223,9 +225,10 @@ public class LogPanel extends AbstractPanel implements Runnable {
 
 	private JToggleButton getScopeButton() {
 		if (scopeButton == null) {
-			scopeButton = new JToggleButton();
+			scopeButton = new ZapToggleButton();
 			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -234,10 +237,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
 					extension.setShowJustInScope(scopeButton.isSelected());
 					if (scopeButton.isSelected()) {
 						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
 					} else {
 						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 					}
 				}
 			});

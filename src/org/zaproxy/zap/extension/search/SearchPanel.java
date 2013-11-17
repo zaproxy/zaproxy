@@ -43,6 +43,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 
 public class SearchPanel extends AbstractPanel implements SearchListenner {
@@ -59,7 +60,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private javax.swing.JToolBar panelToolbar = null;
 	private JScrollPane jScrollPane = null;
 
-	private JToggleButton scopeButton = null;
+	private ZapToggleButton scopeButton = null;
 	private ZapTextField regEx = null;
 	private JButton btnSearch = null;
 	private JComboBox<String> searchType = null;
@@ -236,9 +237,10 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	
 	private JToggleButton getScopeButton() {
 		if (scopeButton == null) {
-			scopeButton = new JToggleButton();
+			scopeButton = new ZapToggleButton();
 			scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
+			scopeButton.setSelectedToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -247,10 +249,8 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 					extension.setSearchJustInScope(scopeButton.isSelected());
 					if (scopeButton.isSelected()) {
 						scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.selected"));
 					} else {
 						scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-						scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
 					}
 				}
 			});

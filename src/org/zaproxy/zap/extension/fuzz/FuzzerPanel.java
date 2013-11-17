@@ -42,6 +42,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 	
@@ -62,7 +63,7 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 	private JTextPane initialMessage = null;
 
 	private JButton stopScanButton = null;
-	private JToggleButton pauseScanButton = null;
+	private ZapToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	private JProgressBar progressBar = null;
 
@@ -260,8 +261,9 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 
 	private JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
-			pauseScanButton = new JToggleButton();
+			pauseScanButton = new ZapToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString("fuzz.toolbar.button.pause"));
+			pauseScanButton.setSelectedToolTipText(Constant.messages.getString("fuzz.toolbar.button.unpause"));
 			pauseScanButton.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
@@ -326,11 +328,9 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 		if (getPauseScanButton().getModel().isSelected()) {
 			logger.debug("Pausing fuzzing");
 			extension.pauseFuzzers();
-			getPauseScanButton().setToolTipText(Constant.messages.getString("fuzz.toolbar.button.unpause"));
 		} else {
 			logger.debug("Resuming fuzzing");
 			extension.resumeFuzzers();
-			getPauseScanButton().setToolTipText(Constant.messages.getString("fuzz.toolbar.button.pause"));
 
 		}
 	}
@@ -353,7 +353,6 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 		getStopScanButton().setEnabled(false);
 		getPauseScanButton().setEnabled(false);
 		getPauseScanButton().setSelected(false);
-		getPauseScanButton().setToolTipText(Constant.messages.getString("fuzz.toolbar.button.pause"));
 		getProgressBar().setEnabled(false);
 		scanStatus.decScanCount();
 	}
