@@ -29,10 +29,12 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
+// ZAP: 2013/11/16 Issue 881: Fail immediately if zapdb.script file is not found
 
 package org.parosproxy.paros.model;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -384,6 +386,8 @@ public class Model {
     	    }
     
     	    copier.copy(fileIn, fileOut);
+	    } else {
+	        throw new FileNotFoundException("Required file not found: " + fileIn.getAbsolutePath());
 	    }
 	    
 	    fileIn = new File(currentDBNameUntitled + ".backup");
