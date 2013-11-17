@@ -36,7 +36,7 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
-    private static final Logger logger = Logger.getLogger(AbstractAppParamPlugin.class);
+    private Logger logger = Logger.getLogger(this.getClass());
     private ArrayList<Variant> listVariant = new ArrayList();
     private NameValuePair originalPair = null;
     private Variant variant = null;
@@ -114,7 +114,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             // ZAP: Removed unnecessary cast.
             originalPair = variant.getParamList().get(i);
             HttpMessage msg = getNewMsg();
-            scan(msg, originalPair.getName(), originalPair.getValue());
+            try {
+                scan(msg, originalPair.getName(), originalPair.getValue());
+            } catch (Exception e) {
+                logger.error("Error occurred while scanning a message:", e);
+            }
         }
     }
 
