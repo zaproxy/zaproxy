@@ -407,17 +407,17 @@ public class AlertPanel extends AbstractPanel {
 			treeAlert.addMouseListener(new java.awt.event.MouseAdapter() { 
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
 				}
 					
 				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
+					showPopupMenuIfTriggered(e);
 				}
 				
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
 					// right mouse button action
-				    if (SwingUtilities.isRightMouseButton(e)) {
+				    if (e.isPopupTrigger()) {
 						// Select site list item on right click
 				    	TreePath tp = treeAlert.getPathForLocation( e.getPoint().x, e.getPoint().y );
 				    	if ( tp != null ) {
@@ -439,7 +439,11 @@ public class AlertPanel extends AbstractPanel {
 				    	}
 				        view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 				    }	
-				    if (e.getClickCount() > 1) {
+				}
+
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+				    if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1) {
 				    	// Its a double click - edit the alert
 					    DefaultMutableTreeNode node = (DefaultMutableTreeNode) treeAlert.getLastSelectedPathComponent();
 					    if (node != null && node.getUserObject() != null) {

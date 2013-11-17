@@ -153,7 +153,14 @@ public class BreakpointsPanel extends AbstractPanel {
 			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
 
-					if (SwingUtilities.isRightMouseButton(e)) {
+					showPopupMenuIfTriggered(e);
+				}
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+					if (e.isPopupTrigger()) {
 
 						// Select table item
 					    int row = breakpointsTable.rowAtPoint( e.getPoint() );
@@ -166,7 +173,11 @@ public class BreakpointsPanel extends AbstractPanel {
 						
 						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 			        }
-				    if (e.getClickCount() > 1) {
+				}
+
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+				    if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1) {
 				    	// Its a double click
 				    	extension.editUiSelectedBreakpoint();
 				    }

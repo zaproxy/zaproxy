@@ -25,7 +25,6 @@ import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -167,7 +166,14 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			resultsTable.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					if (SwingUtilities.isRightMouseButton(e)) {
+					showPopupMenuIfTriggered(e);
+				}
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+					if (e.isPopupTrigger()) {
 						// Select table item
 						int row = resultsTable.rowAtPoint(e.getPoint());
 						if (row < 0 || !resultsTable.getSelectionModel().isSelectedIndex(row)) {

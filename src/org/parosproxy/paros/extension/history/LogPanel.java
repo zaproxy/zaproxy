@@ -29,6 +29,7 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/11/16 Issue 898: Replace all toggle buttons that set a tool tip text based on button's state with ZapToggleButton
 // ZAP: 2013/11/16 Issue 899: Remove "manual" update of toggle buttons' icon based on button's state
+// ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 
 package org.parosproxy.paros.extension.history;
 
@@ -36,13 +37,13 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
-import java.awt.event.InputEvent;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -260,18 +261,16 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			listLog.addMouseListener(new java.awt.event.MouseAdapter() { 
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
+					showPopupMenuIfTriggered(e);
 				}
 					
 				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
+					showPopupMenuIfTriggered(e);
 				}
 				
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
-					// right mouse button action
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+					if (e.isPopupTrigger()) {
 				    	
 						// ZAP: Select history list item on right click
 					    int Idx = listLog.locationToIndex( e.getPoint() );
@@ -290,7 +289,11 @@ public class LogPanel extends AbstractPanel implements Runnable {
 				        return;
 				    }	
 				    
-				    if ((e.getModifiers() & InputEvent.BUTTON1_MASK) != 0 && e.getClickCount() > 1) {  // double click
+				}
+
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					if (SwingUtilities.isLeftMouseButton(e) && e.getClickCount() > 1) {  // double click
 						requestPanel.setTabFocus();
 						return;
 				    }

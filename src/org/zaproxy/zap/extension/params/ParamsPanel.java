@@ -29,7 +29,6 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
-import javax.swing.SwingUtilities;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -251,8 +250,15 @@ public class ParamsPanel extends AbstractPanel{
 			paramsTable.addMouseListener(new java.awt.event.MouseAdapter() { 
 			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
 
-					if (SwingUtilities.isRightMouseButton(e)) {
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+					if (e.isPopupTrigger()) {
 
 						// Select table item
 					    int row = paramsTable.rowAtPoint( e.getPoint() );

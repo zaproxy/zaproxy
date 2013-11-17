@@ -20,12 +20,12 @@
  */
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/28 Added logger and log of exception.
+// ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 package org.parosproxy.paros.view;
 
 
 import java.awt.CardLayout;
 import java.awt.EventQueue;
-import java.awt.event.InputEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
@@ -100,17 +100,16 @@ public class OutputPanel extends AbstractPanel {
 
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					mouseAction(e);
+					showPopupMenuIfTriggered(e);
 				}
 					
 				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
-					mouseAction(e);
+					showPopupMenuIfTriggered(e);
 				}
 				
-				public void mouseAction(java.awt.event.MouseEvent e) {
-					// right mouse button action
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+					if (e.isPopupTrigger()) {
 						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
 					}
 				}

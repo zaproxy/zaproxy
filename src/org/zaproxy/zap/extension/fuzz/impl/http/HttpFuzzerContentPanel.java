@@ -27,7 +27,6 @@ import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
@@ -104,7 +103,14 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             fuzzResultTable.addMouseListener(new java.awt.event.MouseAdapter() {
                 @Override
                 public void mousePressed(java.awt.event.MouseEvent e) {
-                    if (SwingUtilities.isRightMouseButton(e)) {
+                    showPopupMenuIfTriggered(e);
+                }
+                @Override
+                public void mouseReleased(java.awt.event.MouseEvent e) {
+                    showPopupMenuIfTriggered(e);
+                }
+                private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+                    if (e.isPopupTrigger()) {
                         // Select list item on right click
                         JTable table = (JTable) e.getSource();
                         int row = table.rowAtPoint(e.getPoint());

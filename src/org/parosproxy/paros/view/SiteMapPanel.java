@@ -24,11 +24,11 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/06/13 Added custom tree cell renderer to treeSite in getTreeSite().
 // ZAP: 2013/01/25 Added method for removing listener.
+// ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
 import java.awt.EventQueue;
-import java.awt.event.InputEvent;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -121,18 +121,17 @@ public class SiteMapPanel extends JPanel {
 
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
+					showPopupMenuIfTriggered(e);
 				}
 					
 				@Override
 				public void mouseReleased(java.awt.event.MouseEvent e) {
-					mouseClicked(e);
+					showPopupMenuIfTriggered(e);
 				}
 				
-				@Override
-				public void mouseClicked(java.awt.event.MouseEvent e) {
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
 					// right mouse button action
-					if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) {
+					if (e.isPopupTrigger()) {
 
 						// ZAP: Select site list item on right click
 				    	TreePath tp = treeSite.getPathForLocation( e.getPoint().x, e.getPoint().y );

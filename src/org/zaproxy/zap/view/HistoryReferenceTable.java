@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JTable;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -69,7 +68,14 @@ public class HistoryReferenceTable extends JTable {
 		this.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
 			public void mousePressed(java.awt.event.MouseEvent e) {
-				if (SwingUtilities.isRightMouseButton(e)) {
+				showPopupMenuIfTriggered(e);
+			}
+			@Override
+			public void mouseReleased(java.awt.event.MouseEvent e) {
+				showPopupMenuIfTriggered(e);
+			}
+			private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+				if (e.isPopupTrigger()) {
 					// Select table item
 					int row = rowAtPoint(e.getPoint());
 					if (row < 0 || ! getSelectionModel().isSelectedIndex(row)) {

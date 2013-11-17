@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight;
 
 import java.awt.BorderLayout;
-import java.awt.event.InputEvent;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -71,9 +70,16 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 		httpPanelTextArea.setEditable(false);
 		httpPanelTextArea.addMouseListener(new java.awt.event.MouseAdapter() {
 			@Override
+			public void mousePressed(java.awt.event.MouseEvent e) {
+				showPopupMenuIfTriggered(e);
+			}
+			@Override
 			public void mouseReleased(java.awt.event.MouseEvent e) {
+				showPopupMenuIfTriggered(e);
+			}
+			private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
 				// right mouse button action
-				if ((e.getModifiers() & InputEvent.BUTTON3_MASK) != 0 || e.isPopupTrigger()) { 
+				if (e.isPopupTrigger()) { 
 					if (!httpPanelTextArea.isFocusOwner()) {
 						httpPanelTextArea.requestFocusInWindow();
 					}
