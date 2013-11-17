@@ -42,6 +42,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.PositiveValuesSlider;
 
 public class OptionsBruteForcePanel extends AbstractParamPanel {
 
@@ -319,16 +320,10 @@ public class OptionsBruteForcePanel extends AbstractParamPanel {
 	 */    
 	private JSlider getSliderThreadsPerScan() {
 		if (sliderThreadsPerScan == null) {
-			sliderThreadsPerScan = new JSlider();
-			sliderThreadsPerScan.setMaximum(20);	// TODO put in Constants?
-			sliderThreadsPerScan.setMinimum(1);
-			sliderThreadsPerScan.setValue(BruteForceParam.DEFAULT_THREAD_PER_SCAN);
-			sliderThreadsPerScan.setPaintTicks(true);
-			sliderThreadsPerScan.setPaintLabels(true);
-			sliderThreadsPerScan.setMinorTickSpacing(1);
+			sliderThreadsPerScan = new PositiveValuesSlider(
+					BruteForceParam.DEFAULT_THREAD_PER_SCAN,
+					BruteForceParam.MAXIMUM_THREADS_PER_SCAN);
 			sliderThreadsPerScan.setMajorTickSpacing(1);
-			sliderThreadsPerScan.setSnapToTicks(true);
-			sliderThreadsPerScan.setPaintTrack(true);
 		}
 		return sliderThreadsPerScan;
 	}

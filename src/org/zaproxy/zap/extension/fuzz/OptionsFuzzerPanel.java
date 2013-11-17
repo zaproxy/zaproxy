@@ -41,6 +41,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.PositiveValuesSlider;
 
 public class OptionsFuzzerPanel extends AbstractParamPanel {
 
@@ -237,16 +238,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	 */    
 	private JSlider getSliderThreadsPerScan() {
 		if (sliderThreadsPerScan == null) {
-			sliderThreadsPerScan = new JSlider();
-			sliderThreadsPerScan.setMaximum(Constant.MAX_THREADS_PER_SCAN);
-			sliderThreadsPerScan.setMinimum(1);
-			sliderThreadsPerScan.setValue(1);
-			sliderThreadsPerScan.setPaintTicks(true);
-			sliderThreadsPerScan.setPaintLabels(true);
-			sliderThreadsPerScan.setMinorTickSpacing(1);
-			sliderThreadsPerScan.setMajorTickSpacing(5);
-			sliderThreadsPerScan.setSnapToTicks(true);
-			sliderThreadsPerScan.setPaintTrack(true);
+			sliderThreadsPerScan = new PositiveValuesSlider(Constant.MAX_THREADS_PER_SCAN);
 		}
 		return sliderThreadsPerScan;
 	}

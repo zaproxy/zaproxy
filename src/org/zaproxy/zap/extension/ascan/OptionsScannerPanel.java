@@ -43,6 +43,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.PositiveValuesSlider;
 
 public class OptionsScannerPanel extends AbstractParamPanel {
 
@@ -482,25 +483,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
      */
     private JSlider getSliderThreadsPerHost() {
         if (sliderThreadsPerHost == null) {
-            sliderThreadsPerHost = new JSlider();
-            sliderThreadsPerHost.setMaximum(Constant.MAX_THREADS_PER_SCAN);
-            sliderThreadsPerHost.setMinimum(0);
-            sliderThreadsPerHost.setValue(1);
-            sliderThreadsPerHost.setPaintTicks(true);
-            sliderThreadsPerHost.setPaintLabels(true);
-            sliderThreadsPerHost.setMinorTickSpacing(1);
-            sliderThreadsPerHost.setMajorTickSpacing(5);
-            sliderThreadsPerHost.setSnapToTicks(true);
-            sliderThreadsPerHost.setPaintTrack(true);
+            sliderThreadsPerHost = new PositiveValuesSlider(Constant.MAX_THREADS_PER_SCAN);
 
             sliderThreadsPerHost.addChangeListener(new ChangeListener() {
                 @Override
                 public void stateChanged(ChangeEvent e) {
-                    // If the minimum is set to 1 then the ticks are at 6, 11 etc
-                    // But we dont want to support 0 threads, hence this hack
-                    if (getSliderThreadsPerHost().getValue() == 0) {
-                        getSliderThreadsPerHost().setValue(1);
-                    }
                     setLabelThreadsPerHostValue(getSliderThreadsPerHost().getValue());
                 }
             });

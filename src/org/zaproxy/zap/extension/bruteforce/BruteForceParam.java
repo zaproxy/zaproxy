@@ -39,6 +39,7 @@ public class BruteForceParam extends AbstractParam {
 	private static final String FILE_EXTENSIONS = "bruteforce.fileextensions";
 	
 	public static final int DEFAULT_THREAD_PER_SCAN = 10;
+	public static final int MAXIMUM_THREADS_PER_SCAN = 20;
 	public static final boolean DEFAULT_RECURSIVE = true;
 	public static final boolean DEFAULT_BROWSE_FILES = false;
 	public static final String EMPTY_STRING = "";
