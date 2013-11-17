@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.awt.Component;
+
 import javax.swing.ImageIcon;
 
 import org.parosproxy.paros.Constant;
@@ -71,6 +73,15 @@ public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
 				getExtensionSpider().startScanAllInContext(getContext(), null);
 			}
 		};
+	}
+	
+	@Override
+	public boolean isEnableForComponent(Component invoker) {
+		if (getExtensionSpider() == null) {
+			return false;
+		}
+
+		return super.isEnableForComponent(invoker);
 	}
 
 }
