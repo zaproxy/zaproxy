@@ -244,12 +244,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 			// Add message to history
 			try {
-				ExtensionHistory extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader()
-						.getExtension(ExtensionHistory.class);
 				HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(),
 						HistoryReference.TYPE_AUTHENTICATION, msg);
 				ref.addTag(HISTORY_TAG_AUTHENTICATION);
-				extHistory.addHistory(ref);
+				ExtensionHistory extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHistory.class);
+				if (extHistory != null) {
+					extHistory.addHistory(ref);
+				}
 			} catch (Exception ex) {
 				log.error("Cannot add authentication message to History tab.", ex);
 			}
