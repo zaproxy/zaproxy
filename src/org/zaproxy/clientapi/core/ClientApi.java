@@ -28,11 +28,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
 import java.net.URL;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -422,16 +424,25 @@ public class ClientApi {
         if (params != null) {
             sb.append('?');
             for (Map.Entry<String, String> p : params.entrySet()) {
-                sb.append(p.getKey());
+                sb.append(encodeQueryParam(p.getKey()));
                 sb.append('=');
                 if (p.getValue() != null) {
-                    sb.append(p.getValue());
+                    sb.append(encodeQueryParam(p.getValue()));
                 }
                 sb.append('&');
             }
         }
 
         return new URL(sb.toString());
+    }
+
+    private static String encodeQueryParam(String param) {
+        try {
+            return URLEncoder.encode(param, "UTF-8");
+        } catch (UnsupportedEncodingException ignore) {
+            // UTF-8 is a standard charset.
+        }
+        return param;
     }
 
     public void addExcludeFromContext(String contextName, String regex) throws Exception {
