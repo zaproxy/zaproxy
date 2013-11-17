@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.extension.fuzz;
 
+import java.io.File;
+
 import org.parosproxy.paros.common.AbstractParam;
 
 public class FuzzerParam extends AbstractParam {
@@ -26,11 +28,14 @@ public class FuzzerParam extends AbstractParam {
 	private static final String DEFAULT_CATEGORY = "fuzzer.defaultCategory";
 	private static final String THREADS_PER_SCAN = "fuzzer.threadPerScan";
 	private static final String DELAY_IN_MS = "fuzzer.delayInMs";
-		
+	private static final String LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY = "fuzzer.lastSelectedDirectoryAddCustomFile";
+
 	private String defaultCategory = "XSS";
 	private int threadPerScan = 5;
 	private int delayInMs = 0;
 	
+	private File lastSelectedDirectory = new File("");
+
     public FuzzerParam() {
     }
 
@@ -47,6 +52,7 @@ public class FuzzerParam extends AbstractParam {
 			setDelayInMs(getConfig().getInt(DELAY_IN_MS, 0));
 		} catch (Exception e) {}
 
+		setLastSelectedDirectory(getConfig().getString(LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY, ""));
     }
 
 	public void setDelayInMs(int delayInMs) {
@@ -76,4 +82,31 @@ public class FuzzerParam extends AbstractParam {
         getConfig().setProperty(THREADS_PER_SCAN, Integer.toString(this.threadPerScan));
 	}
 	
+    public File getLastSelectedDirectory() {
+        return lastSelectedDirectory;
+    }
+
+    public void setLastSelectedDirectory(File directory) {
+        if (directory == null) {
+            throw new IllegalArgumentException("Parameter directory must not be null.");
+        }
+        if (!directory.isDirectory()) {
+            throw new IllegalArgumentException("Parameter directory must be a directory.");
+        }
+        if (lastSelectedDirectory.equals(directory)) {
+            return;
+        }
+
+        lastSelectedDirectory = directory;
+        getConfig().setProperty(LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY, lastSelectedDirectory.getAbsolutePath());
+    }
+
+    private void setLastSelectedDirectory(String pathDirectory) {
+        final File directory = new File(pathDirectory);
+        if (!directory.isDirectory()) {
+            return;
+        }
+
+        lastSelectedDirectory = directory;
+    }
 }

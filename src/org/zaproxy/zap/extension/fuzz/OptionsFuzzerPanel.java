@@ -37,6 +37,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.FileCopier;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
@@ -272,6 +273,10 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 						}
 					} );
 					
+					FuzzerParam params = (FuzzerParam) Model.getSingleton().getOptionsParam().getParamSet(FuzzerParam.class);
+					
+					fcCommand.setCurrentDirectory(params.getLastSelectedDirectory());
+
 					// Copy the file into the 'home' dirbuster directory
 					int state = fcCommand.showOpenDialog( null );
 
@@ -295,6 +300,8 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 						if (copyFile) {
 							copyFile(selectedFile, newFile);
 						}
+						
+						params.setLastSelectedDirectory(fcCommand.getCurrentDirectory());
 					}
 				}
 
