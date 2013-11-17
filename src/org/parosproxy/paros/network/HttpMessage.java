@@ -34,6 +34,8 @@
 // ZAP: 2013/04/08 Issue 605: Force intercepts via header
 // ZAP: 2013/07/25 Added support for sending the message from the perspective of a User
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
+// ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
+// the request body is not "x-www-form-urlencoded"
 
 package org.parosproxy.paros.network;
 
@@ -568,6 +570,11 @@ public class HttpMessage implements Message {
 	
 	// ZAP: Added getFormParams
 	public TreeSet<HtmlParameter> getFormParams() {
+		final String contentType = mReqHeader.getHeader(HttpRequestHeader.CONTENT_TYPE);
+		if (contentType == null || !HttpHeader.FORM_URLENCODED_CONTENT_TYPE.equalsIgnoreCase(contentType)) {
+			return new TreeSet<>();
+		}
+
 		String query = null;
 		// use the body even if it's not POST, this allows the user to add/edit the POST
 		// params when the method is other than POST.

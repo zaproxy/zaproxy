@@ -29,7 +29,8 @@
 // ZAP: 2013/04/08 Issue 605: Force intercepts via header
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/09/02 Resolved header value setting on setHeader() which manage wrongly the "-" char
-//
+// ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
+// the request body is not "x-www-form-urlencoded"
 package org.parosproxy.paros.network;
 
 import java.util.Hashtable;
@@ -75,6 +76,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String _CLOSE = "Close";
     public static final String _KEEP_ALIVE = "Keep-Alive";
     public static final String _CHUNKED = "Chunked";
+    public static final String FORM_URLENCODED_CONTENT_TYPE = "application/x-www-form-urlencoded";
     public static final String SCHEME_HTTP = "http://";
     public static final String SCHEME_HTTPS = "https://";
     public static final String HTTP = "http";
