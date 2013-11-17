@@ -671,17 +671,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private void processAlerts(String baseUrl, int start, int count, Processor<Alert> processor) throws ApiException {
 		List<Alert> alerts = new ArrayList<>();
-		int c = 0;
 		try {
 			TableAlert tableAlert = Model.getSingleton().getDb()
 					.getTableAlert();
 			Vector<Integer> v = tableAlert.getAlertList();
 
+			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
 			for (int i = 0; i < v.size(); i++) {
 				int alertId = v.get(i).intValue();
-				if (start >= 0 && alertId < start) {
-					continue;
-				}
 				RecordAlert recAlert = tableAlert.read(alertId);
 				Alert alert = new Alert(recAlert);
 
@@ -691,10 +688,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						// Not subordinate to the specified URL
 						continue;
 					}
-					processor.process(alert);
+
+					pcc.recordProcessed();
 					alerts.add(alert);
-					c ++;
-					if (count > 0 && c >= count) {
+					
+					if (!pcc.hasPageStarted()) {
+						continue;
+					}
+					processor.process(alert);
+					
+					if (pcc.hasPageEnded()) {
 						break;
 					}
 				}
@@ -783,6 +786,57 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	public void sessionSnapshot(Exception e) {
 		logger.debug("Snaphot session notification");
 		this.savingSession = false;
+	}
+
+	private static class PaginationConstraintsChecker {
+
+		private boolean pageStarted;
+		private boolean pageEnded;
+		private final int startRecord;
+		private final boolean hasEnd;
+		private final int finalRecord;
+		private int recordsProcessed;
+
+		public PaginationConstraintsChecker(int start, int count) {
+			recordsProcessed = 0;
+
+			if (start > 0) {
+				pageStarted = false;
+				startRecord = start;
+			} else {
+				pageStarted = true;
+				startRecord = 0;
+			}
+
+			if (count > 0) {
+				hasEnd = true;
+				finalRecord = !pageStarted ? start + count - 1 : count;
+			} else {
+				hasEnd = false;
+				finalRecord = 0;
+			}
+			pageEnded = false;
+		}
+
+		public void recordProcessed() {
+			++recordsProcessed;
+
+			if (!pageStarted) {
+				pageStarted = recordsProcessed >= startRecord;
+			}
+
+			if (hasEnd && !pageEnded) {
+				pageEnded = recordsProcessed >= finalRecord;
+			}
+		}
+
+		public boolean hasPageStarted() {
+			return pageStarted;
+		}
+
+		public boolean hasPageEnded() {
+			return pageEnded;
+		}
 	}
 
 }
