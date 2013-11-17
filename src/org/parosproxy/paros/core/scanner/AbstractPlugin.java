@@ -34,6 +34,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
+// ZAP: 2013/11/16 Issue 842: NullPointerException while active scanning with ExtensionAntiCSRF disabled
 
 package org.parosproxy.paros.core.scanner;
 
@@ -180,14 +181,16 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 	    	if (extAntiCSRF == null) {
 	    		extAntiCSRF = (ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
 	    	}
-			List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(msg);
-			AntiCsrfToken antiCsrfToken = null;
-			if (tokens.size() > 0) {
-				antiCsrfToken = tokens.get(0);
-			}
-			
-			if (antiCsrfToken != null) {
-				regenerateAntiCsrfToken(msg, antiCsrfToken);
+			if (extAntiCSRF != null) {
+				List<AntiCsrfToken> tokens = extAntiCSRF.getTokens(msg);
+				AntiCsrfToken antiCsrfToken = null;
+				if (tokens.size() > 0) {
+					antiCsrfToken = tokens.get(0);
+				}
+				
+				if (antiCsrfToken != null) {
+					regenerateAntiCsrfToken(msg, antiCsrfToken);
+				}
 			}
         }
 
