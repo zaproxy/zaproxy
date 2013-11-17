@@ -59,7 +59,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
     private PopupMenuBruteForceSite popupMenuBruteForceSite = null;
     private PopupMenuBruteForceDirectory popupMenuBruteForceDirectory = null;
     private PopupMenuBruteForceDirectoryAndChildren popupMenuBruteForceDirectoryAndChildren = null;
-	private PopupMenuBruteForceCopy popupMenuBruteForceCopy = null;
 
 	private BruteForceParam params = null;
 
@@ -102,7 +101,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	        extensionHook.getHookView().addStatusPanel(getBruteForcePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsBruteForcePanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceSite());
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceCopy());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectoryAndChildren());
 
@@ -119,7 +117,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 	    	Control.getSingleton().getExtensionLoader().removeOptionsPanel(getOptionsBruteForcePanel());
 
 	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceSite());
-	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceCopy());
 	    	Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceDirectory());
             Control.getSingleton().getExtensionLoader().removePopupMenuItem(getPopupMenuBruteForceDirectoryAndChildren());
 	    }
@@ -260,14 +257,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		return optionsBruteForcePanel;
 	}
 	
-	private PopupMenuBruteForceCopy getPopupMenuBruteForceCopy() {
-		if (popupMenuBruteForceCopy == null) {
-			popupMenuBruteForceCopy = new PopupMenuBruteForceCopy();
-			popupMenuBruteForceCopy.setExtension(this);
-		}
-		return popupMenuBruteForceCopy;
-	}
-
 	public int getThreadPerScan() {
     	return this.getOptionsBruteForcePanel().getThreadPerScan();
     }
