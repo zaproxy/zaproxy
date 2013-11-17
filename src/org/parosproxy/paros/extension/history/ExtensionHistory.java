@@ -46,6 +46,7 @@
 // ZAP: 2013/07/14 Issue 725: Clear alert's panel fields
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/07 Also show Authentication messages
+// ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 
 package org.parosproxy.paros.extension.history;
 
@@ -237,7 +238,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 		try {
 		    // ZAP: Added type argument.
-		    List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
+		    List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_PROXIED);
+		    list.addAll(getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_ZAP_USER));
 
 		    buildHistory(getHistoryList(), list);
 		} catch (SQLException e) {
@@ -302,8 +304,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     public void addHistory (HistoryReference historyRef) {
         try {
             synchronized (getHistoryList()) {
-                if (historyRef.getHistoryType() == HistoryReference.TYPE_MANUAL 
-                		|| historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
+                final int historyType = historyRef.getHistoryType();
+                if (historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
+                        || historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
 	            			historyRef.getURI().toString())) {
 	            		// Not in scope
@@ -353,7 +356,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    synchronized (historyList) {
 	        try {
 	            // ZAP: Added type argument.
-	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_MANUAL);
+	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_PROXIED);
+	            list.addAll(getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_ZAP_USER));
 	            
 	            buildHistory(getHistoryList(), list, historyFilter);
 	        } catch (SQLException e) {

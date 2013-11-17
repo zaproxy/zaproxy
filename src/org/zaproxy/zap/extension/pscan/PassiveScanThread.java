@@ -102,7 +102,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 				}
 
 				if (href != null && 
-						(href.getHistoryType() == HistoryReference.TYPE_MANUAL ||
+						(href.getHistoryType() == HistoryReference.TYPE_PROXIED ||
+						href.getHistoryType() == HistoryReference.TYPE_ZAP_USER ||
 						href.getHistoryType() == HistoryReference.TYPE_SPIDER)) {
 					// Note that scanning TYPE_SCANNER records will result in a loop ;)
 					// Parse the record

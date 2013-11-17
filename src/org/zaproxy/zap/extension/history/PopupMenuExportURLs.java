@@ -125,8 +125,9 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
         }
         try {
         	if (node.getHistoryReference() != null &&
-        			(node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_MANUAL ||
-        					node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER)) {
+        			(node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_PROXIED ||
+        				node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_ZAP_USER ||
+         				node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER)) {
         		
         	 	HttpMessage msg = node.getHistoryReference().getHttpMessage();
     			if (msg != null && msg.getRequestHeader() != null &&

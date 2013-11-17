@@ -111,7 +111,8 @@ public class SearchThread extends Thread {
 			    }
 			    try {
 			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
-			        if (hr.getHistoryType() == HistoryReference.TYPE_MANUAL || 
+			        if (hr.getHistoryType() == HistoryReference.TYPE_PROXIED || 
+			                hr.getHistoryType() == HistoryReference.TYPE_ZAP_USER || 
 			        		hr.getHistoryType() == HistoryReference.TYPE_SPIDER) {
 			        	// Create the href to ensure the msg is set up correctly
 			        	HistoryReference href = new HistoryReference(hr.getHistoryId());

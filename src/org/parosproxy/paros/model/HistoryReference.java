@@ -29,6 +29,7 @@
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2012/02/26 Cache the response body length as part of Issue 539
 // ZAP: 2013/08/07 Added TYPE_AUTHENTICATION
+// ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 
 package org.parosproxy.paros.model;
 
@@ -62,7 +63,24 @@ public class HistoryReference {
     * Temporary type = not retrieved from history.  To be deleted.
     */
    public static final int TYPE_TEMPORARY = 0;
-   public static final int TYPE_MANUAL = 1;
+
+    /**
+     * @deprecated Use {@link #TYPE_PROXIED} instead.
+     * @see #TYPE_ZAP_USER
+     */
+    @Deprecated
+    public static final int TYPE_MANUAL = 1;
+
+    /**
+     * A HTTP message that was proxied through ZAP.
+     */
+    public static final int TYPE_PROXIED = 1;
+
+    /**
+     * A HTTP message sent by the user from within ZAP, for example, using "Manual Request Editor" or "Resend" dialogues.
+     */
+    public static final int TYPE_ZAP_USER = 15;
+
    public static final int TYPE_SPIDER = 2;
    public static final int TYPE_SCANNER = 3;
    public static final int TYPE_HIDDEN = 6;
@@ -85,7 +103,7 @@ public class HistoryReference {
 	private static TableAlert staticTableAlert = null;
 	
 	private int historyId = 0;
-	private int historyType = TYPE_MANUAL;
+	private int historyType = TYPE_PROXIED;
 	private SiteNode siteNode = null;
     private String display = null;
     private long sessionId = 0;
@@ -191,7 +209,7 @@ public class HistoryReference {
 	    this.sessionId = sessionId;
 	    this.historyId = historyId;
 		this.historyType = historyType;
-		if (historyType == TYPE_MANUAL) {
+		if (historyType == TYPE_PROXIED || historyType == TYPE_ZAP_USER) {
 		    this.display = getDisplay(msg);
 		}
 		// ZAP: Init HttpMessage HistoryReference field

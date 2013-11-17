@@ -152,7 +152,8 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     		return;
     	}
 
-    	Vector<Integer> hIds = th.getHistoryList(rh.getSessionId(), HistoryReference.TYPE_MANUAL);
+    	Vector<Integer> hIds = th.getHistoryList(rh.getSessionId(), HistoryReference.TYPE_PROXIED);
+    	hIds.addAll(th.getHistoryList(rh.getSessionId(), HistoryReference.TYPE_ZAP_USER));
     	for (Integer hId : hIds) {
     		RecordHistory recH = th.read(hId);
     		URI uri = recH.getHttpMessage().getRequestHeader().getURI();

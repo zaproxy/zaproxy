@@ -32,6 +32,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/01/23 Ignore Active scanner history refs
 // ZAP: 2013/08/23 Make sure #nodeChanged() is called after removing a custom icon
+// ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 
 package org.parosproxy.paros.model;
 
@@ -202,12 +203,14 @@ public class SiteNode extends DefaultMutableTreeNode {
 //                getPastHistoryReference().add(getHistoryReference());
 //            }
             
-        	if (this.justSpidered && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+        	if (this.justSpidered && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED ||
+        	        historyReference.getHistoryType() == HistoryReference.TYPE_ZAP_USER)) {
         		this.justSpidered = false;
         		this.nodeChanged();
         	}
 			// we remove the icons of the node that has to be cleaned when manually visiting them
-			if (!this.icons.isEmpty() && historyReference.getHistoryType() == HistoryReference.TYPE_MANUAL) {
+			if (!this.icons.isEmpty() && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED ||
+			        historyReference.getHistoryType() == HistoryReference.TYPE_ZAP_USER)) {
 				for (int i = 0; i < this.clearIfManual.size(); ++i) {
 					if (this.clearIfManual.get(i) && this.icons.size() > i) {
 						this.icons.remove(i);

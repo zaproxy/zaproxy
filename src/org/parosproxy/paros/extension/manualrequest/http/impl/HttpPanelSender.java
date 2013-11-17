@@ -89,7 +89,7 @@ public class HttpPanelSender implements MessageSender {
 						// Indicate UI new response arrived
 						responsePanel.updateContent();
 
-						final int finalType = HistoryReference.TYPE_MANUAL;
+						final int finalType = HistoryReference.TYPE_ZAP_USER;
 						final Thread t = new Thread(new Runnable() {
 							@Override
 							public void run() {

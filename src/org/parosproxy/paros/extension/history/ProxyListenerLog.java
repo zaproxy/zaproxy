@@ -25,6 +25,7 @@
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 
 package org.parosproxy.paros.extension.history;
  
@@ -99,7 +100,7 @@ public class ProxyListenerLog implements ProxyListener {
 	@Override
 	public boolean onHttpResponseReceive(final HttpMessage msg) {
 
-        int type = HistoryReference.TYPE_MANUAL;
+        int type = HistoryReference.TYPE_PROXIED;
 		if (isSkipImage(msg.getRequestHeader()) || isSkipImage(msg.getResponseHeader())) {
             if (msg.getResponseHeader().getStatusCode() == HttpStatusCode.OK) {
                 type = HistoryReference.TYPE_HIDDEN;
@@ -140,7 +141,7 @@ public class ProxyListenerLog implements ProxyListener {
             return;
         }
 
-        if (type != HistoryReference.TYPE_MANUAL && type != HistoryReference.TYPE_HIDDEN) {
+        if (type != HistoryReference.TYPE_PROXIED && type != HistoryReference.TYPE_HIDDEN) {
             return;
         }
         

@@ -36,6 +36,7 @@
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 // ZAP: 2013/09/26 Issue 747: Error opening session files on directories with special characters
+// ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
@@ -213,7 +214,8 @@ public class Session extends FileXML {
 		siteTree.setRoot(newRoot);
 
 		// update history reference
-		List<Integer> list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_MANUAL);
+		List<Integer> list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_PROXIED);
+		list.addAll(model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_ZAP_USER));
 		HistoryReference historyRef = null;
 
 		discardContexts();
