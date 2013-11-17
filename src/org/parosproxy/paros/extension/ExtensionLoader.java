@@ -40,6 +40,7 @@
 // ZAP: 2013/01/29 Catch Errors thrown by out of date extensions as well as Exceptions
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/11/16 Issue 807: Error while loading ZAP when Quick Start Tab is closed
+// ZAP: 2013/11/16 Issue 845: AbstractPanel added twice to TabbedPanel2 in ExtensionLoader#addTabPanel
 
 package org.parosproxy.paros.extension;
 
@@ -477,7 +478,6 @@ public class ExtensionLoader {
         for (int i=0; i<panelList.size(); i++) {
             try {
                 panel = panelList.get(i);
-                tab.add(panel, panel.getName());
                 
         		// ZAP: added icon
                 if (panel.getTabIndex() >= 0) {
