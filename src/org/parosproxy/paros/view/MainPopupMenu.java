@@ -58,7 +58,7 @@ public class MainPopupMenu extends JPopupMenu {
 	private List<JMenuItem> itemList = null;
 	private PopupMenuPurgeSites popupMenuPurgeSites = null;
 	// ZAP: Added support for submenus
-    Map<String, JMenuItem> superMenus = new HashMap<>();
+    Map<String, JMenu> superMenus = new HashMap<>();
     View view = null;
     private static Logger log = Logger.getLogger(MainPopupMenu.class);
     /**
@@ -151,7 +151,7 @@ public class MainPopupMenu extends JPopupMenu {
 	            if (menuItem.isEnableForComponent(invoker)) {		//ForComponent(invoker)) {
 	            	if (menuItem.isSubMenu()) {
 	            		if (menuItem.precedeWithSeparator()) {
-	            			((JMenu)getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex())).addSeparator();
+	            			getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex()).addSeparator();
 	            		}
 	            		if (menuItem.isDummyItem()) {
 	            			// This assumes the dummy item is the first of the children - non dummy children will enable this
@@ -194,11 +194,11 @@ public class MainPopupMenu extends JPopupMenu {
             if (menu.isEnableForComponent(invoker)) {
             	if (menu.isSubMenu()) {
             		if (menu.precedeWithSeparator()) {
-            			((JMenu)getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex())).addSeparator();
+            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
             		}
             		getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).add(menu);
             		if (menu.succeedWithSeparator()) {
-            			((JMenu)getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex())).addSeparator();
+            			getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex()).addSeparator();
             		}
             		
             	} else {
@@ -222,8 +222,8 @@ public class MainPopupMenu extends JPopupMenu {
 	}
 	
 	// ZAP: Added support for submenus
-	private JMenuItem getSuperMenu (String name, int index) {
-		JMenuItem superMenu = superMenus.get(name);
+	private JMenu getSuperMenu (String name, int index) {
+		JMenu superMenu = superMenus.get(name);
 		if (superMenu == null) {
 			superMenu = new JMenu(name);
 			superMenus.put(name, superMenu);
