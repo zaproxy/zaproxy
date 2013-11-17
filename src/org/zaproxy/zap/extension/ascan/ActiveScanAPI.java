@@ -57,6 +57,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
+	private static final String ACTION_ENABLE_ALL_SCANNERS = "enableAllScanners";
+	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
     
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
@@ -76,6 +78,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
         this.addApiAction(new ApiAction(ACTION_SCAN, new String[] {PARAM_URL}, new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE}));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
+		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_SCANNERS));
+		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
 
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
@@ -91,21 +95,24 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	@Override
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
-		if (ACTION_SCAN.equals(name)) {
+		switch(name) {
+		case ACTION_SCAN:
 			String url = params.getString(PARAM_URL);
 			if (url == null || url.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
 			}
 		    scanURL(params.getString(PARAM_URL), this.getParam(params, PARAM_RECURSE, true), this.getParam(params, PARAM_JUST_IN_SCOPE, false));
 
-		} else if (ACTION_CLEAR_EXCLUDED_FROM_SCAN.equals(name)) {
+            break;
+		case ACTION_CLEAR_EXCLUDED_FROM_SCAN:
 			try {
 				Session session = Model.getSingleton().getSession();
 				session.setExcludeFromScanRegexs(new ArrayList<String>());
 			} catch (SQLException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 			}
-		} else if (ACTION_EXCLUDE_FROM_SCAN.equals(name)) {
+            break;
+		case ACTION_EXCLUDE_FROM_SCAN:
 			String regex = params.getString(PARAM_REGEX);
 			try {
 				Session session = Model.getSingleton().getSession();
@@ -113,7 +120,14 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			} catch (Exception e) {
 				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
 			}
-		} else {
+			break;
+		case ACTION_ENABLE_ALL_SCANNERS:
+			PluginFactory.setAllPluginEnabled(true);
+			break;
+		case ACTION_DISABLE_ALL_SCANNERS:
+			PluginFactory.setAllPluginEnabled(false);
+			break;
+		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
