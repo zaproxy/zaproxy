@@ -30,6 +30,7 @@
 // ZAP: 2012/02/26 Cache the response body length as part of Issue 539
 // ZAP: 2013/08/07 Added TYPE_AUTHENTICATION
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
+// ZAP: 2013/11/16 Issue 892: Cache of response body length in HistoryReference might not be correct
 
 package org.parosproxy.paros.model;
 
@@ -222,7 +223,7 @@ public class HistoryReference {
         this.reason = msg.getResponseHeader().getReasonPhrase();
         this.rtt = msg.getTimeElapsedMillis();
         this.hasNote = msg.getNote() != null && msg.getNote().length() > 0;
-        this.responseBodyLength = msg.getResponseBody().toString().length();
+        this.responseBodyLength = msg.getResponseBody().length();
 
 	}
 	
