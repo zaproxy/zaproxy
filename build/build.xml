@@ -366,6 +366,30 @@
                                      failonerror="no" />
     </target>
 
+    <macrodef name="set-svn-mime-type-prop">
+        <attribute name="directory"/>
+        <attribute name="files" default="" />
+        <attribute name="mimetype"/>
+        <sequential>
+            <local name="file.mime.type.targets" />
+            <property name="file.mime.type.targets" value="${build}/mime-type-targets" />
+            <local name="paths" />
+            <pathconvert property="paths" pathsep="${line.separator}">
+                <fileset dir="@{directory}" includes="@{files}" casesensitive="no" />
+            </pathconvert>
+            <echo output="${file.mime.type.targets}">${paths}</echo>
+            <exec executable="${svn.cmd}" failonerror="yes">
+                <arg value="propset" />
+                <arg value="svn:mime-type" />
+                <arg value="@{mimetype}" />
+                <arg value="--targets" />
+                <arg value="${file.mime.type.targets}" />
+                <arg value="--quiet" />
+            </exec>
+            <delete file="${file.mime.type.targets}" />
+        </sequential>
+    </macrodef>
+
     <target name="generate-javadocs" description="generates the javadocs">
         <!-- Delete all the previous generated files and directories from the
           "javadocs.dir" directory before generating the new ones in case of any
@@ -374,6 +398,7 @@
             <fileset dir="${javadocs.dir}" includes="**/*" />
         </delete>
 
+        <echo message="Generating JavaDoc..." />
         <javadoc packagenames="org.*"
                  sourcepath="${src}"
                  encoding="UTF-8"
@@ -382,15 +407,21 @@
                  classpathref="dist.classpath"
                  link="http://docs.oracle.com/javase/7/docs/api/">
         </javadoc>
-        <!-- set mime-type such that HTML is returned by server -->
-        <exec executable="${svn.cmd}">
-            <arg value="propset" />
-            <arg value="svn:mime-type" />
-            <arg value="text/html" />
-            <arg value="${javadocs.dir}/org" />
-            <arg value="--recursive" />
+
+        <echo message="Adding generated files to SVN index..." />
+        <exec executable="${svn.cmd}" failonerror="yes">
+            <arg value="add" />
+            <arg value="${javadocs.dir}" />
+            <arg value="--force" />
             <arg value="--quiet" />
         </exec>
+
+        <echo message="Applying SVN mime-type property to generated files..." />
+        <!-- set mime-type such that HTML is returned by server -->
+        <set-svn-mime-type-prop directory="${javadocs.dir}" files="**/*.html" mimetype="text/html" />
+        <set-svn-mime-type-prop directory="${javadocs.dir}" files="**/*.css" mimetype="text/css" />
+        <set-svn-mime-type-prop directory="${javadocs.dir}" files="**/*.gif" mimetype="image/gif" />
+        <echo message="Done." />
     </target>
 
     <target name="copy-jar-to-extension-projects" depends="dist">
