@@ -245,14 +245,14 @@ public class BreakPanelToolbarFactory {
 		}
 	}
 
-	public void setBreakRequest(Boolean brk) {
+	public void setBreakRequest(boolean brk) {
 		isBreakRequest = brk;
 		resetRequestSerialization(false);
 
 		updateBreakRequestBtn();
 	}
 
-	public void setBreakResponse(Boolean brk) {
+	public void setBreakResponse(boolean brk) {
 		isBreakResponse = brk;
 		resetRequestSerialization(false);
 
