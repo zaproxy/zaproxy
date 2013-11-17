@@ -33,6 +33,8 @@
 // ZAP: 2013/04/14 Issue 598: Replace/update "old" pop up menu items
 // ZAP: 2013/11/16 Issue 878: ExtensionPopupMenuItem#getMenuIndex() as no effect in MainPopupMenu
 // ZAP: 2013/11/16 Issue 901: Pop up menu "succeed" separator is not added when using sub-menu in MainPopupMenu
+// ZAP: 2013/11/16 Issue 900: IllegalArgumentException when invoking the main pop up menu with
+// menus or super menus with high menu index
 
 package org.parosproxy.paros.view;
 
@@ -171,11 +173,7 @@ public class MainPopupMenu extends JPopupMenu {
 	            		if (menuItem.precedeWithSeparator()) {
 	    	                this.addSeparator();
 	            		}
-						if (menuItem.getMenuIndex() > this.getComponentCount()) {
-							this.add(menuItem);
-						} else {
-							this.add(menuItem, menuItem.getMenuIndex());
-						}
+						addMenuItem(menuItem, menuItem.getMenuIndex());
 	            		if (menuItem.succeedWithSeparator()) {
 	    	                this.addSeparator();
 	            		}
@@ -210,7 +208,7 @@ public class MainPopupMenu extends JPopupMenu {
     	                this.addSeparator();
             		}
 
-            		this.add(menu, menu.getMenuIndex());
+            		addMenuItem(menu, menu.getMenuIndex());
             		if (menu.succeedWithSeparator()) {
     	                this.addSeparator();
             		}
@@ -231,10 +229,20 @@ public class MainPopupMenu extends JPopupMenu {
 		if (superMenu == null) {
 			superMenu = new JMenu(name);
 			superMenus.put(name, superMenu);
-			this.add(superMenu, index);
+			addMenuItem(superMenu, index);
 		}
 		return superMenu;
 		
+	}
+
+	private void addMenuItem(JMenuItem menuItem, int index) {
+		int correctIndex;
+		if ((index < 0 && index != -1) || (index > getComponentCount())) {
+			correctIndex = -1;
+		} else {
+			correctIndex = index;
+		}
+		add(menuItem, correctIndex);
 	}
 
 	private PopupMenuPurgeSites getPopupMenuPurgeSites() {
