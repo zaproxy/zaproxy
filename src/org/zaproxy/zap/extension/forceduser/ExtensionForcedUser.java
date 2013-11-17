@@ -58,7 +58,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
 	static {
 		// Prepare a list of Extensions on which this extension depends
-		List<Class<?>> dependencies = new ArrayList<>();
+		List<Class<?>> dependencies = new ArrayList<>(1);
 		dependencies.add(ExtensionUserManagement.class);
 		EXTENSION_DEPENDENCIES = Collections.unmodifiableList(dependencies);
 	}

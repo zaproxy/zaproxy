@@ -78,7 +78,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
 	static {
 		// Prepare a list of Extensions on which this extension depends
-		List<Class<?>> dependencies = new ArrayList<>();
+		List<Class<?>> dependencies = new ArrayList<>(3);
 		dependencies.add(ExtensionHttpSessions.class);
 		dependencies.add(ExtensionAuthentication.class);
 		dependencies.add(ExtensionSessionManagement.class);

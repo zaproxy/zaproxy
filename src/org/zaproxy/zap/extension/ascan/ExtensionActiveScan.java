@@ -79,7 +79,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private static final List<Class<?>> DEPENDENCIES;
 	
 	static {
-		List<Class<?>> dep = new ArrayList<>();
+		List<Class<?>> dep = new ArrayList<>(1);
 		dep.add(ExtensionAlert.class);
 		
 		DEPENDENCIES = Collections.unmodifiableList(dep);
