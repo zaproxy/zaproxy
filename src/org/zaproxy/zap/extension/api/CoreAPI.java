@@ -18,11 +18,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.io.StringWriter;
 import java.security.cert.Certificate;
 import java.sql.SQLException;
@@ -34,7 +30,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-import java.util.zip.GZIPInputStream;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -58,7 +53,6 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
@@ -401,7 +395,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				((ApiResponseList)result).addItem(this.alertToSet(alert));
 			}
 		} else if (VIEW_MESSAGES.equals(name)) {
-			result = new ApiResponseList(name);
+			ApiResponseList resultList = new ApiResponseList(name);
 
 			ArrayList<HttpMessage> hm = null;
 			try {
@@ -410,11 +404,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						this.getParam(params, PARAM_START, -1), 
 						this.getParam(params, PARAM_COUNT, -1));
 				for (HttpMessage httpm : hm) {
-					((ApiResponseList)result).addItem(this.httpMessageToSet(httpm));
+					resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(httpm.getHistoryRef().getHistoryId(), httpm));
 				}
 			} catch (HttpMalformedHeaderException e) {
 				logger.error(e.getMessage(), e);
 			}
+			result = resultList;
 		} else if (VIEW_VERSION.equals(name)) {
 			result = new ApiResponseList(name);
 			result = new ApiResponseElement(name, Constant.PROGRAM_VERSION);
@@ -637,48 +632,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));
 		}
 		return new ApiResponseSet("alert", map);
-	}
-
-	/**
-	 * 
-	 * @param msg
-	 * @return
-	 */
-	private ApiResponseSet httpMessageToSet(HttpMessage msg) {
-		Map<String, String> map = new HashMap<>();
-		map.put("id", String.valueOf(msg.getHistoryRef().getHistoryId()));
-		map.put("cookieParams", msg.getCookieParamsAsString());
-		map.put("note", msg.getNote());
-		map.put("requestHeader", msg.getRequestHeader().toString());
-		map.put("requestBody", msg.getRequestBody().toString());
-		map.put("responseHeader", msg.getResponseHeader().toString());
-		
-		if (HttpHeader.GZIP.equals(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-			// Uncompress gziped content
-			try {
-				ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
-				GZIPInputStream gis = new GZIPInputStream(bais);
-				InputStreamReader isr = new InputStreamReader(gis);
-				BufferedReader br = new BufferedReader(isr);
-				StringBuilder sb = new StringBuilder();
-				String line = null;
-				while ((line = br.readLine()) != null) {
-					sb.append(line);
-				}
-				br.close();
-				isr.close();
-				gis.close();
-				bais.close();
-				map.put("responseBody", sb.toString());
-			} catch (IOException e) {
-				//this.log.error(e.getMessage(), e);
-				System.out.println(e);
-			}
-		} else {
-			map.put("responseBody", msg.getResponseBody().toString());
-		}
-		
-		return new ApiResponseSet("message", map);
 	}
 
 	private List<Alert> getAlerts(String baseUrl, int start, int count) throws ApiException {
