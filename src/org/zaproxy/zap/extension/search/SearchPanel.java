@@ -240,6 +240,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			scopeButton = new ZapToggleButton();
 			scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
+			scopeButton.setSelectedIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target.png")));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -247,11 +248,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.setSearchJustInScope(scopeButton.isSelected());
-					if (scopeButton.isSelected()) {
-						scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target.png")));
-					} else {
-						scopeButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-					}
 				}
 			});
 		}

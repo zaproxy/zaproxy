@@ -172,7 +172,9 @@ public class BreakPanelToolbarFactory {
 		ZapToggleButton btnBreakRequest;
 
 		btnBreakRequest = new ZapToggleButton();
+		btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
 		btnBreakRequest.setToolTipText(Constant.messages.getString("brk.toolbar.button.request.set"));
+		btnBreakRequest.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
 		btnBreakRequest.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
 		isBreakRequest = false;
 
@@ -195,7 +197,9 @@ public class BreakPanelToolbarFactory {
 		ZapToggleButton btnBreakResponse;
 
 		btnBreakResponse = new ZapToggleButton();
+		btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
 		btnBreakResponse.setToolTipText(Constant.messages.getString("brk.toolbar.button.response.set"));
+		btnBreakResponse.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
 		btnBreakResponse.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
 		isBreakResponse = false;
 
@@ -281,12 +285,10 @@ public class BreakPanelToolbarFactory {
 	private void updateBreakRequestBtn() {
 		if (isBreakRequest()) {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-				btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
 				btnBreakRequest.setSelected(true);
 			}
 		} else {
 			for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-				btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
 				btnBreakRequest.setSelected(false);
 			}
 		}
@@ -295,12 +297,10 @@ public class BreakPanelToolbarFactory {
 	private void updateBreakResponseBtn() {
 		if (isBreakResponse()) {
 			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-				btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
 				btnBreakResponse.setSelected(true);
 			}
 		} else {
 			for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-				btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
 				btnBreakResponse.setSelected(false);
 			}
 		}
@@ -335,12 +335,10 @@ public class BreakPanelToolbarFactory {
 			this.setContinue(true);
 		}
 		for(JToggleButton btnBreakRequest: btnBreakRequestList) {
-			btnBreakRequest.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105.png")));
 			btnBreakRequest.setSelected(false);
 			btnBreakRequest.setEnabled(enabled);
 		}
 		for(JToggleButton btnBreakResponse: btnBreakResponseList) {
-			btnBreakResponse.setIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106.png")));
 			btnBreakResponse.setSelected(false);
 			btnBreakResponse.setEnabled(enabled);
 		}

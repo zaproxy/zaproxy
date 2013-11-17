@@ -179,6 +179,7 @@ public class AlertPanel extends AbstractPanel {
 			scopeButton = new ZapToggleButton();
 			scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+			scopeButton.setSelectedIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target.png")));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -186,11 +187,6 @@ public class AlertPanel extends AbstractPanel {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.setShowJustInScope(scopeButton.isSelected());
-					if (scopeButton.isSelected()) {
-						scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target.png")));
-					} else {
-						scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-					}
 				}
 			});
 		}

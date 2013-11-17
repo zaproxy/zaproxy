@@ -129,13 +129,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	private void updateForcedUserModeToggleButtonEnabledState() {
 		if (getView() != null) {
 			forcedUserModeButton.setSelected(forcedUserModeEnabled);
-			if (forcedUserModeEnabled) {
-				forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
-						.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
-			} else {
-				forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
-						.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			}
 		}
 	}
 
@@ -150,8 +143,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			this.getForcedUserModeToggleButton().setEnabled(true);
 		} else {
 			this.forcedUserModeEnabled = false;
-			this.getForcedUserModeToggleButton().setIcon(
-					new ImageIcon(ExtensionForcedUser.class.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
 			this.getForcedUserModeToggleButton().setSelected(false);
 			this.getForcedUserModeToggleButton().setEnabled(false);
 		}
@@ -172,6 +163,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			forcedUserModeButton = new ZapToggleButton();
 			forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
+			forcedUserModeButton.setSelectedIcon(new ImageIcon(
+					ExtensionForcedUser.class.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
 			forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
 			forcedUserModeButton.setSelectedToolTipText(BUTTON_LABEL_ON);
 			forcedUserModeButton.setDisabledToolTipText(BUTTON_LABEL_DISABLED);

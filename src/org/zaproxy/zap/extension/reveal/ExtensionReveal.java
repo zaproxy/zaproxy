@@ -82,17 +82,14 @@ public class ExtensionReveal extends ExtensionAdaptor implements ProxyListener {
 	private void setReveal(boolean reveal) {
 		this.reveal = reveal; 
 	    revealButton.setSelected(reveal);
-	    if (reveal) {
-			revealButton.setIcon(new ImageIcon(ExtensionReveal.class.getResource("/resource/icon/16/043.png")));	// 'light on' icon
-		} else {
-			revealButton.setIcon(new ImageIcon(ExtensionReveal.class.getResource("/resource/icon/16/044.png")));	// 'light off' icon
-	    }
 	}
 
 	private JToggleButton getRevealButton() {
 		if (revealButton == null) {
 			revealButton = new ZapToggleButton();
+			revealButton.setIcon(new ImageIcon(ExtensionReveal.class.getResource("/resource/icon/16/044.png"))); // 'light off' icon
 			revealButton.setToolTipText(Constant.messages.getString("reveal.button.enable"));
+			revealButton.setSelectedIcon(new ImageIcon(ExtensionReveal.class.getResource("/resource/icon/16/043.png"))); // 'light on' icon
 			revealButton.setSelectedToolTipText(Constant.messages.getString("reveal.button.disable"));
 		    setReveal(Model.getSingleton().getOptionsParam().getViewParam().getReveal());
 			

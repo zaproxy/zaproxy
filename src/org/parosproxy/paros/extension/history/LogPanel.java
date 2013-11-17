@@ -28,6 +28,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/11/16 Issue 898: Replace all toggle buttons that set a tool tip text based on button's state with ZapToggleButton
+// ZAP: 2013/11/16 Issue 899: Remove "manual" update of toggle buttons' icon based on button's state
 
 package org.parosproxy.paros.extension.history;
 
@@ -228,6 +229,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			scopeButton = new ZapToggleButton();
 			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+			scopeButton.setSelectedIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -235,11 +237,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.setShowJustInScope(scopeButton.isSelected());
-					if (scopeButton.isSelected()) {
-						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
-					} else {
-						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
-					}
 				}
 			});
 		}

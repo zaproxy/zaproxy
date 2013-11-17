@@ -138,11 +138,6 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 		this.reauthenticate = reauth; 
 	    if (getView() != null) {	        
 		    reauthenticateButton.setSelected(reauth);
-		    if (reauth) {
-				reauthenticateButton.setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_ON_ICON_RESOURCE)));
-			} else {
-				reauthenticateButton.setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
-		    }
 	    }
 	}
 
@@ -151,6 +146,7 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 			reauthenticateButton = new ZapToggleButton();
 			reauthenticateButton.setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 			reauthenticateButton.setToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.off"));
+			reauthenticateButton.setSelectedIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_ON_ICON_RESOURCE)));
 			reauthenticateButton.setSelectedToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.on"));
 			reauthenticateButton.setDisabledToolTipText(Constant.messages.getString("auth.toolbar.button.reauth.disabled"));
 			reauthenticateButton.setEnabled(false);	// Disable until login and one indicator flagged
@@ -305,11 +301,9 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 	
 	private void setReauthButtonState(boolean enabled) {
 		if (enabled) {
-			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 			this.getReauthenticateButton().setEnabled(true);
 		} else {
 			this.reauthenticate = false;
-			this.getReauthenticateButton().setIcon(new ImageIcon(ExtensionReauth.class.getResource(REAUTH_OFF_ICON_RESOURCE)));
 			this.getReauthenticateButton().setSelected(false);
 			this.getReauthenticateButton().setEnabled(false);
 		}
