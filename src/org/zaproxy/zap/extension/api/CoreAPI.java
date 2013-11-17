@@ -106,6 +106,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_ROOT_CERT = "rootcert";
 	private static final String OTHER_XML_REPORT = "xmlreport";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
+	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
@@ -159,6 +160,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
+		this.addApiOthers(new ApiOther(
+				OTHER_SEND_HAR_REQUEST,
+				new String[] { PARAM_REQUEST },
+				new String[] { PARAM_FOLLOW_REDIRECTS }));
 		
 		this.addApiShortcut(OTHER_PROXY_PAC);
 		// this.addApiShortcut(OTHER_ROOT_CERT);
@@ -735,6 +740,50 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+			}
+
+			try {
+				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
+			} catch (HttpMalformedHeaderException e) {
+				log.error("Failed to create response header: " + e.getMessage(), e);
+			}
+			msg.setResponseBody(responseBody);
+			
+			return msg;
+		} else if (OTHER_SEND_HAR_REQUEST.equals(name)) {
+			byte[] responseBody = {};
+			HttpMessage request = null;
+			try {
+				request = HarUtils.createHttpMessage(params.getString(PARAM_REQUEST));
+			} catch (IOException e) {
+				ApiException apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
+				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				
+				msg.setResponseBody(responseBody);
+			}
+
+			if (request != null) {
+				boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
+				try {
+					final HarEntries entries = new HarEntries();
+					sendRequest(request, followRedirects, new Processor<HttpMessage>() {
+	
+						@Override
+						public void process(HttpMessage msg) {
+							entries.addEntry(HarUtils.createHarEntry(msg));
+						}
+					});
+	
+					HarLog harLog = HarUtils.createZapHarLog();
+					harLog.setEntries(entries);
+	
+					responseBody = HarUtils.harLogToByteArray(harLog);
+				} catch (Exception e) {
+					logger.error(e.getMessage(), e);
+	
+					ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+					responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				}
 			}
 
 			try {
