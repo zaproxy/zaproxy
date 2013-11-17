@@ -21,14 +21,18 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/04/28 Added logger and log of exception.
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
+// ZAP: 2013/11/16 Issue 890: Allow to clear "Output" tab
 package org.parosproxy.paros.view;
 
 
-import java.awt.CardLayout;
+import java.awt.BorderLayout;
 import java.awt.EventQueue;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JToolBar;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -42,6 +46,12 @@ public class OutputPanel extends AbstractPanel {
 	private static final long serialVersionUID = -947074835463140074L;
 	// ZAP: Added logger.
 	private static final Logger logger = Logger.getLogger(OutputPanel.class);
+
+	private static final String CLEAR_BUTTON_LABEL = Constant.messages.getString("output.panel.clear.button.label");
+	private static final String CLEAR_BUTTON_TOOL_TIP = Constant.messages.getString("output.panel.clear.button.toolTip");
+
+	private JPanel mainPanel;
+	private JToolBar mainToolBar;
 
 	private JScrollPane jScrollPane = null;
 	private ZapTextArea txtOutput = null;
@@ -58,7 +68,7 @@ public class OutputPanel extends AbstractPanel {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setLayout(new CardLayout());
+        this.setLayout(new BorderLayout());
         this.setName(Constant.messages.getString("output.panel.title"));	// ZAP: i18n
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(243, 119);
@@ -66,9 +76,42 @@ public class OutputPanel extends AbstractPanel {
         // ZAP: Added Output (doc) icon
 		this.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/16/172.png")));	// 'doc' icon
 
-        this.add(getJScrollPane(), getJScrollPane().getName());
+        this.add(getMainPanel(), BorderLayout.CENTER);
 			
 	}
+
+    private JPanel getMainPanel() {
+        if (mainPanel == null) {
+            mainPanel = new JPanel(new BorderLayout());
+            mainPanel.add(getToolBar(), BorderLayout.PAGE_START);
+            mainPanel.add(getJScrollPane(), BorderLayout.CENTER);
+        }
+        return mainPanel;
+    }
+
+    private JToolBar getToolBar() {
+        if (mainToolBar == null) {
+            mainToolBar = new JToolBar();
+            mainToolBar.setEnabled(true);
+            mainToolBar.setFloatable(false);
+            mainToolBar.setRollover(true);
+
+            JButton clearButton = new JButton(CLEAR_BUTTON_LABEL);
+            clearButton.setToolTipText(CLEAR_BUTTON_TOOL_TIP);
+            clearButton.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/fugue/broom.png")));
+            clearButton.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    getTxtOutput().setText("");
+                };
+            });
+
+            mainToolBar.add(clearButton);
+        }
+        return mainToolBar;
+    }
+
 	/**
 	 * This method initializes jScrollPane	
 	 * 	
