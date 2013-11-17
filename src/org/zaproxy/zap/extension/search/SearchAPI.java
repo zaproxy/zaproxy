@@ -34,6 +34,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseConversionUtils;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
@@ -49,26 +50,39 @@ public class SearchAPI extends ApiImplementor {
 	private static final String VIEW_URLS_BY_RESPONSE_REGEX = "urlsByResponseRegex";
 	private static final String VIEW_URLS_BY_HEADER_REGEX = "urlsByHeaderRegex";
 
+	private static final String VIEW_MESSAGES_BY_URL_REGEX = "messagesByUrlRegex";
+	private static final String VIEW_MESSAGES_BY_REQUEST_REGEX = "messagesByRequestRegex";
+	private static final String VIEW_MESSAGES_BY_RESPONSE_REGEX = "messagesByResponseRegex";
+	private static final String VIEW_MESSAGES_BY_HEADER_REGEX = "messagesByHeaderRegex";
+
 	private static final String PARAM_BASE_URL = "baseurl";
 	//private static final String PARAM_CONTEXT_ID = "contextId";	TODO: implement 
 	private static final String PARAM_COUNT = "count";
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
 
+	private enum SearchViewResponseType {
+		URL,
+		MESSAGE
+	}
+
 	private ExtensionSearch extension;
 
 	public SearchAPI (ExtensionSearch extension) {
 		this.extension = extension;
 		
-		this.addApiView(new ApiView(VIEW_URLS_BY_URL_REGEX, 
-				new String[] {PARAM_REGEX}, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-		this.addApiView(new ApiView(VIEW_URLS_BY_REQUEST_REGEX, 
-				new String[] {PARAM_REGEX}, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-		this.addApiView(new ApiView(VIEW_URLS_BY_RESPONSE_REGEX, 
-				new String[] {PARAM_REGEX}, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-		this.addApiView(new ApiView(VIEW_URLS_BY_HEADER_REGEX, 
-				new String[] {PARAM_REGEX}, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
-		
+		final String[] searchMandatoryParams = new String[] { PARAM_REGEX };
+		final String[] searchOptionalParams = new String[] { PARAM_BASE_URL, PARAM_START, PARAM_COUNT };
+
+		this.addApiView(new ApiView(VIEW_URLS_BY_URL_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiView(new ApiView(VIEW_URLS_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiView(new ApiView(VIEW_URLS_BY_RESPONSE_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiView(new ApiView(VIEW_URLS_BY_HEADER_REGEX, searchMandatoryParams, searchOptionalParams));
+
+		this.addApiView(new ApiView(VIEW_MESSAGES_BY_URL_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiView(new ApiView(VIEW_MESSAGES_BY_REQUEST_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiView(new ApiView(VIEW_MESSAGES_BY_RESPONSE_REGEX, searchMandatoryParams, searchOptionalParams));
+		this.addApiView(new ApiView(VIEW_MESSAGES_BY_HEADER_REGEX, searchMandatoryParams, searchOptionalParams));
 	}
 	
 	@Override
@@ -77,62 +91,123 @@ public class SearchAPI extends ApiImplementor {
 	}
 
 	@Override
-	public ApiResponse handleApiView(String name, JSONObject params)
+	public ApiResponse handleApiView(final String name, JSONObject params)
 			throws ApiException {
-		ApiResponseList result = new ApiResponseList(name);
+		final ApiResponseList result = new ApiResponseList(name);
 		try {
-			ExtensionSearch.Type type;
+			ExtensionSearch.Type searchType;
 			
-			if (VIEW_URLS_BY_URL_REGEX.equals(name)) {
-				type = ExtensionSearch.Type.URL;
-			} else if (VIEW_URLS_BY_REQUEST_REGEX.equals(name)) {
-				type = ExtensionSearch.Type.Request;
-			} else if (VIEW_URLS_BY_RESPONSE_REGEX.equals(name)) {
-				type = ExtensionSearch.Type.Response;
-			} else if (VIEW_URLS_BY_HEADER_REGEX.equals(name)) {
-				type = ExtensionSearch.Type.Header;
-			} else {
+			SearchViewResponseType responseType;
+
+			switch (name) {
+			case VIEW_URLS_BY_URL_REGEX:
+				searchType = ExtensionSearch.Type.URL;
+				responseType = SearchViewResponseType.URL;
+				break;
+			case VIEW_MESSAGES_BY_URL_REGEX:
+				searchType = ExtensionSearch.Type.URL;
+				responseType = SearchViewResponseType.MESSAGE;
+				break;
+			case VIEW_URLS_BY_REQUEST_REGEX:
+				searchType = ExtensionSearch.Type.Request;
+				responseType = SearchViewResponseType.URL;
+				break;
+			case VIEW_MESSAGES_BY_REQUEST_REGEX:
+				searchType = ExtensionSearch.Type.Request;
+				responseType = SearchViewResponseType.MESSAGE;
+				break;
+			case VIEW_URLS_BY_RESPONSE_REGEX:
+				searchType = ExtensionSearch.Type.Response;
+				responseType = SearchViewResponseType.URL;
+				break;
+			case VIEW_MESSAGES_BY_RESPONSE_REGEX:
+				searchType = ExtensionSearch.Type.Response;
+				responseType = SearchViewResponseType.MESSAGE;
+				break;
+			case VIEW_URLS_BY_HEADER_REGEX:
+				searchType = ExtensionSearch.Type.Header;
+				responseType = SearchViewResponseType.URL;
+				break;
+			case VIEW_MESSAGES_BY_HEADER_REGEX:
+				searchType = ExtensionSearch.Type.Header;
+				responseType = SearchViewResponseType.MESSAGE;
+				break;
+			default:
 				throw new ApiException(ApiException.Type.BAD_VIEW);
 			}
 
-			ApiSearchListener searchListener = new ApiSearchListener();
-			// The search kicks off a background thread
-			extension.search(
-					params.getString(PARAM_REGEX), 
-					searchListener, type, false, false, 
-					this.getParam(params, PARAM_BASE_URL, (String)null),
-					this.getParam(params, PARAM_START, -1),
-					this.getParam(params, PARAM_COUNT, -1),
-					false);
-			
-			while(!searchListener.isSearchComplete()) {
-				Thread.sleep(100);
-			}
+			SearchResultsProcessor processor;
 
-			TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
-			for (Integer hRefId : searchListener.getHistoryReferencesIds()) {
-				try {
-					final RecordHistory recHistory = tableHistory.read(hRefId.intValue());
-					final HttpMessage msg = recHistory.getHttpMessage();
-					Map<String, String> map = new HashMap<>();
-					map.put("id", String.valueOf(recHistory.getHistoryId()));
-					map.put("type", String.valueOf(recHistory.getHistoryType()));
-					map.put("method", msg.getRequestHeader().getMethod());
-					map.put("url", msg.getRequestHeader().getURI().toString());
-					map.put("code", String.valueOf(msg.getResponseHeader().getStatusCode()));
-					map.put("time", String.valueOf(msg.getTimeElapsedMillis()));
-					result.addItem(new ApiResponseSet(name, map));
-				} catch (SQLException | HttpMalformedHeaderException e) {
-					log.error(e.getMessage(), e);
-				}
+			if (SearchViewResponseType.MESSAGE == responseType) {
+				processor = new SearchResultsProcessor() {
+
+					@Override
+					public void processRecordHistory(RecordHistory recordHistory) {
+						result.addItem(ApiResponseConversionUtils.httpMessageToSet(
+								recordHistory.getHistoryId(),
+								recordHistory.getHttpMessage()));
+					}
+				};
+			} else {
+				processor = new SearchResultsProcessor() {
+
+					@Override
+					public void processRecordHistory(RecordHistory recordHistory) {
+						final HttpMessage msg = recordHistory.getHttpMessage();
+						Map<String, String> map = new HashMap<>();
+						map.put("id", String.valueOf(recordHistory.getHistoryId()));
+						map.put("type", String.valueOf(recordHistory.getHistoryType()));
+						map.put("method", msg.getRequestHeader().getMethod());
+						map.put("url", msg.getRequestHeader().getURI().toString());
+						map.put("code", String.valueOf(msg.getResponseHeader().getStatusCode()));
+						map.put("time", String.valueOf(msg.getTimeElapsedMillis()));
+						result.addItem(new ApiResponseSet(name, map));
+					}
+				};
 			}
 			
+			search(params, searchType, processor);
+
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 					e.getMessage());
 		}
 		return result;
+	}
+
+	private void search(JSONObject params, ExtensionSearch.Type searchType, SearchResultsProcessor processor)
+			throws InterruptedException {
+		ApiSearchListener searchListener = new ApiSearchListener();
+		// The search kicks off a background thread
+		extension.search(
+				params.getString(PARAM_REGEX),
+				searchListener,
+				searchType,
+				false,
+				false,
+				this.getParam(params, PARAM_BASE_URL, (String) null),
+				this.getParam(params, PARAM_START, -1),
+				this.getParam(params, PARAM_COUNT, -1),
+				false);
+
+		while (!searchListener.isSearchComplete()) {
+			Thread.sleep(100);
+		}
+
+		TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+		for (Integer hRefId : searchListener.getHistoryReferencesIds()) {
+			try {
+				processor.processRecordHistory(tableHistory.read(hRefId.intValue()));
+			} catch (SQLException | HttpMalformedHeaderException e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+	}
+
+	private interface SearchResultsProcessor {
+
+		void processRecordHistory(RecordHistory recordHistory);
 	}
 
 	private static class ApiSearchListener implements SearchListenner {
