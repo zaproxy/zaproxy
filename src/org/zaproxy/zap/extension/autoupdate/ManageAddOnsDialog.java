@@ -46,7 +46,6 @@ import javax.swing.event.TableModelListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.history.LogPanelCellRenderer;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
@@ -507,7 +506,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JButton getCoreNotesButton() {
 		if (coreNotesButton == null) {
 			coreNotesButton = new JButton();
-			coreNotesButton.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/16/022.png")));	// 'Text file' icon
+			coreNotesButton.setIcon(new ImageIcon(ManageAddOnsDialog.class.getResource("/resource/icon/16/022.png")));	// 'Text file' icon
 			coreNotesButton.setToolTipText(Constant.messages.getString("cfu.button.zap.relnotes"));
 			final ManageAddOnsDialog dialog = this;
 			coreNotesButton.addActionListener(new java.awt.event.ActionListener() { 

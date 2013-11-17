@@ -43,7 +43,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.history.LogPanelCellRenderer;
 import org.parosproxy.paros.model.FileCopier;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
@@ -403,7 +402,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private JButton getAddonsButton() {
 		if (addonsButton == null) {
 			addonsButton = new JButton();
-			addonsButton.setIcon(new ImageIcon(LogPanelCellRenderer.class.getResource("/resource/icon/fugue/block.png")));
+			addonsButton.setIcon(new ImageIcon(ExtensionAutoUpdate.class.getResource("/resource/icon/fugue/block.png")));
 			addonsButton.setToolTipText(Constant.messages.getString("cfu.button.addons.browse"));
 			addonsButton.setEnabled(true);
 			addonsButton.addActionListener(new java.awt.event.ActionListener() { 

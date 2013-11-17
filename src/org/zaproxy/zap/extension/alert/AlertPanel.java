@@ -46,7 +46,6 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -177,7 +176,7 @@ public class AlertPanel extends AbstractPanel {
 	private JToggleButton getScopeButton() {
 		if (scopeButton == null) {
 			scopeButton = new JToggleButton();
-			scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -186,10 +185,10 @@ public class AlertPanel extends AbstractPanel {
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					extension.setShowJustInScope(scopeButton.isSelected());
 					if (scopeButton.isSelected()) {
-						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
+						scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target.png")));
 						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.selected"));
 					} else {
-						scopeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+						scopeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
 						scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 					}
 				}
