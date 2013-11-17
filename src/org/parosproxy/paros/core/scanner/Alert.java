@@ -32,6 +32,7 @@
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
+// ZAP: 2013/11/16 Issue 866: Alert keeps HttpMessage longer than needed when HistoryReference is set/available
 
 package org.parosproxy.paros.core.scanner;
 
@@ -107,14 +108,14 @@ public class Alert implements Comparable<Object>  {
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
         try {
-        	historyRef = new HistoryReference(recordAlert.getHistoryId());
+        	HistoryReference hRef = new HistoryReference(recordAlert.getHistoryId());
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
             		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
             		recordAlert.getSolution(), recordAlert.getReference(),
             		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-            		historyRef.getHttpMessage());
-            // ZAP: Set up the Alert History Id
+            		hRef.getHttpMessage());
 
+            setHistoryRef(hRef);
         } catch (HttpMalformedHeaderException e) {
         	// ZAP: Just an indication the history record doesnt exist
         	logger.debug(e.getMessage(), e);
@@ -129,7 +130,6 @@ public class Alert implements Comparable<Object>  {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getReliability(), recordAlert.getAlert());
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
-		historyRef = ref;
         try {
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
             		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
@@ -140,6 +140,7 @@ public class Alert implements Comparable<Object>  {
         	// ZAP: Log the exception
         	logger.error(e.getMessage(), e);
         }
+        setHistoryRef(ref);
 	}
 
 	public void setRiskReliability(int risk, int reliability) {
@@ -183,7 +184,7 @@ public class Alert implements Comparable<Object>  {
 		setCweId(cweId);
 		setWascId(wascId);
 		if (msg != null) {
-			this.historyRef = msg.getHistoryRef();
+			setHistoryRef(msg.getHistoryRef());
 		}
 	}
 
@@ -196,7 +197,7 @@ public class Alert implements Comparable<Object>  {
 		setOtherInfo(otherInfo);
 		setSolution(solution);
 		setReference(reference);
-		this.historyRef = href;
+		setHistoryRef(href);
 	}
 
 	public void setUri(String uri) {
@@ -503,6 +504,7 @@ public class Alert implements Comparable<Object>  {
 	public void setHistoryRef(HistoryReference historyRef) {
 		this.historyRef = historyRef;
 		if (historyRef != null) {
+			this.message = null;
 			this.sourceHistoryId = historyRef.getHistoryId();
 		}
 	}
