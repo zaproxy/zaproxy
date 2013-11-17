@@ -205,7 +205,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	    }
 	    // TODO This could be done in a cleaner way...
 		ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
-		dialog.addPolicyPanel(pscan.getPolicyPanel());
+		if (pscan != null) {
+			dialog.addPolicyPanel(pscan.getPolicyPanel());
+		}
 
 		int result = dialog.showDialog(false);
 		if (result == JOptionPane.OK_OPTION) {
