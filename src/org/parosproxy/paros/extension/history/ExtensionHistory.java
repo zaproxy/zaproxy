@@ -111,7 +111,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	private boolean showJustInScope = false;
 	
-	// Used to cache hrefs not added into the historyTableModel
+	// Used to cache hrefs not added into the historyList
 	private Hashtable<Integer, HistoryReference> historyIdToRef = new Hashtable<>();
 
     
