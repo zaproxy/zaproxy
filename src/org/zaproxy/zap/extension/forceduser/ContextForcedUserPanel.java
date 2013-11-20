@@ -124,7 +124,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public String getHelpIndex() {
-		// TODO Auto-generated method stub
+		// TODO Needs to be filled
 		return null;
 	}
 
@@ -143,6 +143,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
 		@Override
 		public User getElementAt(int index) {
+			log.info("Getting "+tableModel.getElement(index));
 			return tableModel.getElement(index);
 		}
 

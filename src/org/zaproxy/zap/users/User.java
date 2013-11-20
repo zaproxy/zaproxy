@@ -35,7 +35,6 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.utils.Enableable;
 
-// TODO: Auto-generated Javadoc
 /**
  * ZAP representation of a web application user.
  */
@@ -341,27 +340,22 @@ public class User extends Enableable {
 		return user;
 	}
 
-	// @Override
-	// public int hashCode() {
-	// final int prime = 31;
-	// int result = super.hashCode();
-	// result = prime * result + id;
-	// return result;
-	// }
+	@Override
+	public int hashCode() {
+		return id;
+	}
 
-	// @Override
-	// public boolean equals(Object obj) {
-	// if (this == obj)
-	// return true;
-	// if (!super.equals(obj))
-	// return false;
-	// if (getClass() != obj.getClass())
-	// return false;
-	// User other = (User) obj;
-	// if (id != other.id)
-	// return false;
-	// return true;
-	// }
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (getClass() != obj.getClass())
+			return false;
+		User other = (User) obj;
+		if (id != other.id)
+			return false;
+		return true;
+	}
 
 	/**
 	 * Sets the name.
