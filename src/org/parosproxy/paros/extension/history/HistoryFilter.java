@@ -22,6 +22,7 @@ package org.parosproxy.paros.extension.history;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -41,6 +42,8 @@ public class HistoryFilter {
 	private List<String> reliabilityList = new ArrayList<>();
 	private List<String> tagList = new ArrayList<>();
 	private String note = null;
+	private List<Pattern> urlIncPatternList = new ArrayList<Pattern>();
+	private List<Pattern> urlExcPatternList = new ArrayList<Pattern>();
 	
 	private Logger logger = Logger.getLogger(HistoryFilter.class);
 
@@ -118,6 +121,28 @@ public class HistoryFilter {
 					return false;
 				}
 			}
+			String url = historyRef.getURI().toString();
+			if (this.urlExcPatternList != null && this.urlExcPatternList.size() > 0) {
+				for (Pattern p : this.urlExcPatternList) {
+					if (p.matcher(url).matches()) {
+						return false;
+					}
+				}
+			}
+			if (this.urlIncPatternList != null && this.urlIncPatternList.size() > 0) {
+				// URL include patterns work slightly differently
+				// If any are supplied then one must match for the record to be included
+				boolean matched = false;
+				for (Pattern p : this.urlIncPatternList) {
+					if (p.matcher(url).matches()) {
+						matched = true;
+						break;
+					}
+				}
+				if (! matched) {
+					return false;
+				}
+			}
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
 		}
@@ -177,6 +202,27 @@ public class HistoryFilter {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.notes"));
 		}
+		if (urlIncPatternList.size() > 0 || urlIncPatternList.size() > 0) {
+			if (empty) {
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(' ');
+			} else {
+				sb.append(", ");
+			}
+			empty = false;
+			sb.append(Constant.messages.getString("history.filter.label.urlincregex"));
+		}
+		if (urlExcPatternList.size() > 0 || urlExcPatternList.size() > 0) {
+			if (empty) {
+				sb.append(Constant.messages.getString("history.filter.label.on"));
+				sb.append(' ');
+			} else {
+				sb.append(", ");
+			}
+			empty = false;
+			sb.append(Constant.messages.getString("history.filter.label.urlexcregex"));
+		}
+		
 		if (empty) {
 			sb.append(Constant.messages.getString("history.filter.label.off"));
 		}
@@ -271,5 +317,17 @@ public class HistoryFilter {
 		} else {
 			note = selectedItem.toString();
 		}
+	}
+	public List<Pattern> getUrlIncPatternList() {
+		return urlIncPatternList;
+	}
+	public void setUrlIncPatternList(List<Pattern> urlIncPatternList) {
+		this.urlIncPatternList = urlIncPatternList;
+	}
+	public List<Pattern> getUrlExcPatternList() {
+		return urlExcPatternList;
+	}
+	public void setUrlExcPatternList(List<Pattern> urlExcPatternList) {
+		this.urlExcPatternList = urlExcPatternList;
 	}
 }

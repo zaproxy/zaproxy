@@ -27,9 +27,13 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Vector;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.AbstractAction;
 import javax.swing.BoxLayout;
@@ -42,6 +46,7 @@ import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.KeyStroke;
 import javax.swing.ListSelectionModel;
 
@@ -52,6 +57,8 @@ import org.parosproxy.paros.extension.history.HistoryFilter;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class HistoryFilterPlusDialog extends AbstractDialog {
 
@@ -73,6 +80,8 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JList<String> riskList = null;
 	private JList<String> reliabilityList = null;
 	private JList<String> tagList = null;
+	private JTextArea regexInc = null;
+	private JTextArea regexExc = null;
 	
 	private DefaultListModel<String> tagModel = null;
 	
@@ -82,6 +91,29 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JScrollPane riskScroller = null;
 	private JScrollPane reliabilityScroller = null;
 	private JComboBox<String> notesComboBox = null;
+	private JScrollPane urlRegxIncScroller = null;
+	private JScrollPane urlRegxExcScroller = null;
+	
+	/**
+	 *      +----------------------------------------------------------------------+
+	 *      | Methods      Codes   Tags          Alerts            Inc URL Regexes |
+	 *      | +----------+ +-----+ +-----------+ +---------------+ +-------------+ |
+	 *      | | OPTIONS  | | 100 | |           | | Informational | |             | |
+	 *      | |          | |     | |           | | Low           | |             | |
+	 *      | |          | |     | |           | | Medium        | |             | |
+	 *      | |          | |     | |           | | High          | |             | |
+	 *      | |          | |     | |           | +---------------+ +-------------+ |
+	 *      | |          | |     | |           | +---------------+ Exc URL Regexes |
+	 *      | |          | |     | |           | | False Positive| +-------------+ |
+	 *      | |          | |     | |           | | Suspicious    | |             | |
+	 *      | |          | |     | |           | | Warning       | |             | |
+	 *      | |          | |     | |           | |               | |             | |
+	 *      | +----------+ +-----+ +-----------+ +---------------+ +-------------+ |
+	 *      | Notes [Ignore [v]]    Images [Include [v]]                           |
+	 *      |                      [ Cancel ] [Clear ] [Apply ]                    |
+	 *      +----------------------------------------------------------------------+
+	 *
+	 */
 	
     /**
      * @throws HeadlessException
@@ -110,7 +142,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
         this.setResizable(false);
         this.setTitle(Constant.messages.getString("history.filter.title"));
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-        	this.setSize(400, 188);
+        	this.setSize(600, 300);
         }
         centreDialog();
         this.getRootPane().setDefaultButton(btnApply);
@@ -211,14 +243,26 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					filter.setMethods(methodList.getSelectedValuesList());
-					filter.setCodes(codeList.getSelectedValuesList());
-					filter.setTags(tagList.getSelectedValuesList());
-					filter.setRisks(riskList.getSelectedValuesList());
-					filter.setReliabilities(reliabilityList.getSelectedValuesList());
-					filter.setNote(notesComboBox.getSelectedItem());
-				    exitResult = JOptionPane.OK_OPTION;
-				    HistoryFilterPlusDialog.this.dispose();
+					
+					try {
+						filter.setMethods(methodList.getSelectedValuesList());
+						filter.setCodes(codeList.getSelectedValuesList());
+						filter.setTags(tagList.getSelectedValuesList());
+						filter.setRisks(riskList.getSelectedValuesList());
+						filter.setReliabilities(reliabilityList.getSelectedValuesList());
+						filter.setNote(notesComboBox.getSelectedItem());
+						filter.setUrlIncPatternList(strToRegexList(regexInc.getText()));
+						filter.setUrlExcPatternList(strToRegexList(regexExc.getText()));
+						exitResult = JOptionPane.OK_OPTION;
+						HistoryFilterPlusDialog.this.dispose();
+					} catch (PatternSyntaxException e1) {
+						// Invalid regex
+						View.getSingleton().showWarningDialog(
+								MessageFormat.format(
+										Constant.messages.getString("history.filter.badregex.warning"), 
+										e1.getMessage())); 
+
+					}
 					
 				}
 			});
@@ -226,6 +270,17 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		}
 		return btnApply;
 	}
+	
+	private List<Pattern> strToRegexList(String str) throws PatternSyntaxException {
+		List<Pattern> list = new ArrayList<Pattern>();
+		for (String s : str.split("\n")) {
+			if (s.length() > 0) {
+				list.add(Pattern.compile(s));
+			}
+		}
+		return list;
+	}
+	
 	/**
 	 * This method initializes btnCancel	
 	 * 	
@@ -291,6 +346,8 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 					riskList.setSelectedIndices(new int[0]);
 					reliabilityList.setSelectedIndices(new int[0]);
 					notesComboBox.setSelectedItem(HistoryFilter.NOTES_IGNORE);
+					regexInc.setText("");
+					regexExc.setText("");
 					filter.reset();
 				}
 			});
@@ -311,88 +368,50 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			jPanel2 = new JPanel();
 			jPanel2.setLayout(new GridBagLayout());
 
-			GridBagConstraints gbc00 = new GridBagConstraints();
-			gbc00.gridx = 0;
-			gbc00.gridy = 0;
-			gbc00.insets = stdInset ();
-			gbc00.anchor = java.awt.GridBagConstraints.WEST;
+			GridBagConstraints gbc00 = LayoutHelper.getGBC(0, 0, 1, 1.0, stdInset());
+			GridBagConstraints gbc01 = LayoutHelper.getGBC(1, 0, 1, 1.0, stdInset());
+			GridBagConstraints gbc02 = LayoutHelper.getGBC(2, 0, 1, 1.0, stdInset());
+			GridBagConstraints gbc03 = LayoutHelper.getGBC(3, 0, 1, 1.0, stdInset());
+			GridBagConstraints gbc04 = LayoutHelper.getGBC(4, 0, 1, 1.0, stdInset());
 
-			GridBagConstraints gbc01 = new GridBagConstraints();
-			gbc01.gridx = 1;
-			gbc01.gridy = 0;
-			gbc01.insets = stdInset ();
-			gbc01.anchor = java.awt.GridBagConstraints.WEST;
+			GridBagConstraints gbc10 = LayoutHelper.getGBC(0, 1, 1, 3, 1.0, 1.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
+			GridBagConstraints gbc11 = LayoutHelper.getGBC(1, 1, 1, 3, 1.0, 1.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
+			GridBagConstraints gbc12 = LayoutHelper.getGBC(2, 1, 1, 3, 1.0, 1.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
+			GridBagConstraints gbc13 = LayoutHelper.getGBC(3, 1, 1, 2, 1.0, 1.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
+			GridBagConstraints gbc14 = LayoutHelper.getGBC(4, 1, 1, 1, 0.0, 0.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
 
-			GridBagConstraints gbc02 = new GridBagConstraints();
-			gbc02.gridx = 2;
-			gbc02.gridy = 0;
-			gbc02.insets = stdInset ();
-			gbc02.anchor = java.awt.GridBagConstraints.WEST;
+			GridBagConstraints gbc24 = LayoutHelper.getGBC(4, 2, 1, 1, 1.0, 1.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, null); // stdInset());
 
-			GridBagConstraints gbc03 = new GridBagConstraints();
-			gbc03.gridx = 3;
-			gbc03.gridy = 0;
-			gbc03.insets = stdInset ();
-			gbc03.anchor = java.awt.GridBagConstraints.WEST;
+			GridBagConstraints gbc33 = LayoutHelper.getGBC(3, 3, 1, 1, 1.0, 1.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
+			GridBagConstraints gbc34 = LayoutHelper.getGBC(4, 3, 1, 1, 0.0, 0.0, 
+					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
 
-			GridBagConstraints gbc10 = new GridBagConstraints();
-			gbc10.gridx = 0;
-			gbc10.gridy = 1;
-			gbc10.insets = stdInset ();
-			gbc10.anchor = java.awt.GridBagConstraints.WEST;
-			gbc10.gridheight = 3;
-
-			GridBagConstraints gbc11 = new GridBagConstraints();
-			gbc11.gridx = 1;
-			gbc11.gridy = 1;
-			gbc11.insets = stdInset ();
-			gbc11.anchor = java.awt.GridBagConstraints.WEST;
-			gbc11.gridheight = 3;
-
-			GridBagConstraints gbc12 = new GridBagConstraints();
-			gbc12.gridx = 2;
-			gbc12.gridy = 1;
-			gbc12.insets = stdInset ();
-			gbc12.anchor = java.awt.GridBagConstraints.WEST;
-			gbc12.gridheight = 3;
-
-			GridBagConstraints gbc13 = new GridBagConstraints();
-			gbc13.gridx = 3;
-			gbc13.gridy = 1;
-			gbc13.insets = stdInset ();
-			gbc13.anchor = java.awt.GridBagConstraints.WEST;
-
-			GridBagConstraints gbc23 = new GridBagConstraints();
-			gbc23.gridx = 3;
-			gbc23.gridy = 2;
-			gbc23.insets = stdInset ();
-			gbc23.anchor = java.awt.GridBagConstraints.WEST;
-
-			GridBagConstraints gbc30 = new GridBagConstraints();
-			gbc30.gridx = 0;
-			gbc30.gridy = 4;
-			gbc30.insets = stdInset ();
-			gbc30.anchor = java.awt.GridBagConstraints.WEST;
-			gbc30.gridwidth = 2;
-
-			GridBagConstraints gbc31 = new GridBagConstraints();
-			gbc31.gridx = 1;
-			gbc31.gridy = 4;
-			gbc31.insets = stdInset ();
-			gbc31.anchor = java.awt.GridBagConstraints.WEST;
-			gbc31.gridwidth = 2;
+			GridBagConstraints gbc30 = LayoutHelper.getGBC(0, 4, 2, 1.0, stdInset());
 
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.methods")), gbc00);
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.codes")), gbc01);
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.tags")), gbc02);
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.alerts")), gbc03);
+			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.urlincregex")), gbc04);
 			
 			jPanel2.add(getMethodScroller(), gbc10);
 			jPanel2.add(getCodeScroller(), gbc11);
 			jPanel2.add(getTagScroller(), gbc12);
 			jPanel2.add(getRiskScroller(), gbc13);
-			
-			jPanel2.add(getReliabilityScroller(), gbc23);
+			jPanel2.add(getUrlRegxIncScroller(), gbc14);
+
+			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.urlexcregex")), gbc24);
+
+			jPanel2.add(getReliabilityScroller(), gbc33);
+			jPanel2.add(getUrlRegxExcScroller(), gbc34);
+			getUrlRegxExcScroller();
 
 			JPanel jPanel3 = new JPanel();
 			jPanel3.setLayout(new BoxLayout(jPanel3, BoxLayout.X_AXIS));
@@ -449,6 +468,28 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			reliabilityScroller = new JScrollPane(reliabilityList);
 		}
 		return reliabilityScroller;
+	}
+	
+	private JScrollPane getUrlRegxIncScroller() {
+		if (urlRegxIncScroller == null) {
+			regexInc = new JTextArea();
+			urlRegxIncScroller = new JScrollPane(regexInc);
+			urlRegxIncScroller.setPreferredSize(new Dimension(65, 80));
+			urlRegxIncScroller.setMinimumSize(new Dimension(65, 80));
+			urlRegxIncScroller.setMaximumSize(new Dimension(65, 80));
+		}
+		return urlRegxIncScroller;
+	}
+	
+	private JScrollPane getUrlRegxExcScroller() {
+		if (urlRegxExcScroller == null) {
+			regexExc = new JTextArea();
+			urlRegxExcScroller = new JScrollPane(regexExc);
+			urlRegxExcScroller.setPreferredSize(new Dimension(65, 80));
+			urlRegxExcScroller.setMinimumSize(new Dimension(65, 80));
+			urlRegxExcScroller.setMaximumSize(new Dimension(65, 80));
+		}
+		return urlRegxExcScroller;
 	}
 	
 	private DefaultListModel<String> getTagModel() {
