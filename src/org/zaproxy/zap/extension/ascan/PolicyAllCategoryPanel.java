@@ -19,19 +19,32 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
-import javax.swing.JButton;
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
@@ -39,6 +52,13 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	private JTable tableTest = null;
 	private JScrollPane jScrollPane = null;
 	private AllCategoryTableModel allCategoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
+	
+    private JComboBox<String> comboThreshold = null;
+    private JLabel labelThresholdNotes = null;
+    private JComboBox<String> comboStrength = null;
+    private JLabel labelStrengthNotes = null;
+
+	private static final int[] width = {300, 100, 100};
     /**
      *
      */
@@ -51,39 +71,72 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	 * This method initializes this
 	 */
 	private void initialize() {
-        GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-
-        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-        java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-
         this.setLayout(new GridBagLayout());
         this.setSize(375, 204);
         this.setName("categoryPanel");
-        gridBagConstraints11.weightx = 1.0;
-        gridBagConstraints11.weighty = 1.0;
-        gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints11.gridx = 0;
-        gridBagConstraints11.gridy = 1;
-        gridBagConstraints11.insets = new java.awt.Insets(0,0,0,0);
-        gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints11.gridwidth = 2;
-        gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
-        gridBagConstraints1.insets = new java.awt.Insets(2,2,2,2);
-        gridBagConstraints2.gridx = 1;
-        gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
-        gridBagConstraints2.gridy = 0;
-        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        this.add(getBtnEnableAll(), gridBagConstraints1);
-        this.add(getBtnDisableAll(), gridBagConstraints2);
-        this.add(getJScrollPane(), gridBagConstraints11);
+        
+        // Add Attack settings section - a copy of the options dialog
+        // ---------------------------------------------
+        this.add(new JLabel(Constant.messages.getString("ascan.options.level.label")),
+                LayoutHelper.getGBC(0, 1, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(getComboThreshold(),
+                LayoutHelper.getGBC(1, 1, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(getThresholdNotes(),
+                LayoutHelper.getGBC(2, 1, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
+        this.add(new JLabel(Constant.messages.getString("ascan.options.strength.label")),
+                LayoutHelper.getGBC(0, 2, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(getComboStrength(),
+                LayoutHelper.getGBC(1, 2, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        this.add(getStrengthNotes(),
+                LayoutHelper.getGBC(2, 2, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+
+        this.add(getJScrollPane(), 
+                LayoutHelper.getGBC(0, 3, 3, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
+
+        OptionsParam options = Model.getSingleton().getOptionsParam();
+        ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
+        switch (param.getAlertThreshold()) {
+        case LOW:
+            getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.low"));
+            getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
+            break;
+            
+        case HIGH:
+            getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.high"));
+            getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
+            break;
+            
+        case MEDIUM:
+        default:
+            getComboThreshold().setSelectedItem(Constant.messages.getString("ascan.options.level.medium"));
+            getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
+            break;
+    }
+    
+    switch (param.getAttackStrength()) {
+        case LOW:
+            getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.low"));
+            getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.low.label"));
+            break;
+            
+        case HIGH:
+            getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.high"));
+            getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.high.label"));
+            break;
+            
+        case INSANE:
+            getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.insane"));
+            getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.insane.label"));
+            break;
+            
+        case MEDIUM:
+        default:
+            getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.medium"));
+            getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
+            break;
+    }
 	}
-	private static final int[] width = {300,50};
-	private JButton btnEnableAll = null;
-	private JButton btnDisableAll = null;
 	/**
 	 * This method initializes tableTest
 	 *
@@ -99,6 +152,20 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }
+	        JComboBox<String> jcb1 = new JComboBox<String>();
+	        jcb1.addItem("");	// Always show a blank one for where they are not all the same
+            for (AlertThreshold level : AlertThreshold.values()) {
+                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+            }
+            tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
+
+	        JComboBox<String> jcb2 = new JComboBox<String>();
+	        jcb2.addItem("");	// Always show a blank one for where they are not all the same
+            for (AttackStrength level : AttackStrength.values()) {
+                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+            }
+            tableTest.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(jcb2));
+
 		}
 		return tableTest;
 	}
@@ -142,50 +209,88 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 		}
 		return allCategoryTableModel;
 	}
-	/**
-	 * This method initializes btnEnableAll
-	 *
-	 * @return javax.swing.JButton
-	 */
-	private JButton getBtnEnableAll() {
-		if (btnEnableAll == null) {
-			btnEnableAll = new JButton();
-			btnEnableAll.setText(Constant.messages.getString("ascan.policy.button.enableall"));
-			btnEnableAll.addActionListener(new java.awt.event.ActionListener() {
 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
+    private JLabel getThresholdNotes() {
+        if (labelThresholdNotes == null) {
+            labelThresholdNotes = new JLabel();
+        }
+        return labelThresholdNotes;
+    }
 
-					getAllCategoryTableModel().setAllCategoryEnabled(true);
+    private JComboBox<String> getComboThreshold() {
+        if (comboThreshold == null) {
+            comboThreshold = new JComboBox<>();
+            comboThreshold.addItem(Constant.messages.getString("ascan.options.level.low"));
+            comboThreshold.addItem(Constant.messages.getString("ascan.options.level.medium"));
+            comboThreshold.addItem(Constant.messages.getString("ascan.options.level.high"));
+            comboThreshold.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Set the explanation and save
+                    OptionsParam options = Model.getSingleton().getOptionsParam();
+                    ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
 
-				}
-			});
+                    if (comboThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.low"))) {
+                        getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
+                        param.setAlertThreshold(AlertThreshold.LOW);
+                    
+                    } else if (comboThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.medium"))) {
+                        getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
+                        param.setAlertThreshold(AlertThreshold.MEDIUM);
+                    
+                    } else {
+                        getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
+                        param.setAlertThreshold(AlertThreshold.HIGH);
+                    }
+                }
+            });
+        }
+        
+        return comboThreshold;
+    }
 
-		}
-		return btnEnableAll;
-	}
-	/**
-	 * This method initializes btnDisableAll
-	 *
-	 * @return javax.swing.JButton
-	 */
-	private JButton getBtnDisableAll() {
-		if (btnDisableAll == null) {
-			btnDisableAll = new JButton();
-			btnDisableAll.setText(Constant.messages.getString("ascan.policy.button.disableall"));
-			btnDisableAll.addActionListener(new java.awt.event.ActionListener() {
+    private JLabel getStrengthNotes() {
+        if (labelStrengthNotes == null) {
+            labelStrengthNotes = new JLabel();
+        }
+        
+        return labelStrengthNotes;
+    }
 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
-
-					getAllCategoryTableModel().setAllCategoryEnabled(false);
-
-				}
-			});
-
-		}
-		return btnDisableAll;
-	}
+    private JComboBox<String> getComboStrength() {
+        if (comboStrength == null) {
+            comboStrength = new JComboBox<>();
+            comboStrength.addItem(Constant.messages.getString("ascan.options.strength.low"));
+            comboStrength.addItem(Constant.messages.getString("ascan.options.strength.medium"));
+            comboStrength.addItem(Constant.messages.getString("ascan.options.strength.high"));
+            comboStrength.addItem(Constant.messages.getString("ascan.options.strength.insane"));
+            comboStrength.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Set the explanation and save
+                    OptionsParam options = Model.getSingleton().getOptionsParam();
+                    ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
+                    if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.low"))) {
+                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.low.label"));
+                        param.setAttackStrength(AttackStrength.LOW);
+        
+                    } else if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.medium"))) {
+                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
+                        param.setAttackStrength(AttackStrength.MEDIUM);
+                    
+                    } else if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.high"))) {
+                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.high.label"));
+                        param.setAttackStrength(AttackStrength.HIGH);
+                    
+                    } else {
+                        getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.insane.label"));
+                        param.setAttackStrength(AttackStrength.INSANE);
+                    }
+                }
+            });
+        }
+        return comboStrength;
+    }
 
 	@Override
 	public String getHelpIndex() {

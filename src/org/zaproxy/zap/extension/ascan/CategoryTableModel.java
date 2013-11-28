@@ -22,25 +22,33 @@
 // ZAP: 2012/04/25 Changed to use the method Boolean.valueOf.
 // ZAP: 2013/01/27 Changed to only notify the listeners if the value was really changed.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+
 package org.zaproxy.zap.extension.ascan;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 
 
 public class CategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
+	private Map<String, String> i18nToStr = null;
 	
 	// ZAP: i18n
 	private static final String[] columnNames = {
 		Constant.messages.getString("ascan.policy.table.testname"), 
-		Constant.messages.getString("ascan.policy.table.enabled") };
+		Constant.messages.getString("ascan.policy.table.threshold"), 
+		Constant.messages.getString("ascan.policy.table.strength") };
 	
     private Vector<Plugin> listTestCategory = new Vector<>();
     
@@ -64,9 +72,6 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
 	public Class<?> getColumnClass(int c) {
-        if (c == 1) {
-            return Boolean.class;
-        }
         return String.class;
         
     }
@@ -78,7 +83,7 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (columnIndex == 1) {
+        if (columnIndex > 0) {
             return true;
         }
         return false;
@@ -86,19 +91,42 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public void setValueAt(Object value, int row, int col) {
-        
         Plugin test = listTestCategory.get(row);
         switch (col) {
         	case 0:	break;
-        	case 1: test.setEnabled(((Boolean) value).booleanValue());
+        	case 1: AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
+        			test.setAlertThreshold(af);
+        			test.setEnabled(!AlertThreshold.OFF.equals(af));
                     fireTableCellUpdated(row, col);
         			break;
+        	case 2: test.setAttackStrength(AttackStrength.valueOf(i18nToStr((String)value)));
+                	fireTableCellUpdated(row, col);
+                	break;
         }
+    }
+    
+    private String strToI18n (String str) {
+    	// I18n's threshold and strength enums
+    	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
+    }
+
+    private String i18nToStr (String str) {
+    	// Converts to i18n'ed names back to the enum names
+    	if (i18nToStr == null) {
+    		i18nToStr = new HashMap<String, String>();
+    		for (AlertThreshold at : AlertThreshold.values()) {
+    			i18nToStr.put(this.strToI18n(at.name()), at.name());
+    		}
+    		for (AttackStrength as : AttackStrength.values()) {
+    			i18nToStr.put(this.strToI18n(as.name()), as.name());
+    		}
+    	}
+    	return i18nToStr.get(str);
     }
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return columnNames.length;
     }
 
     @Override
@@ -113,9 +141,10 @@ public class CategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	result = test.getName();
         			break;
-        	case 1: // ZAP: Changed to use the method Boolean.valueOf.
-        			result = Boolean.valueOf(test.isEnabled());
+        	case 1: result = strToI18n(test.getAlertThreshold(true).name());
         			break;
+        	case 2: result = strToI18n(test.getAttackStrength(true).name());
+    				break;
         	default: result = "";
         }
         return result;

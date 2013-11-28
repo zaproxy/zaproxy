@@ -19,17 +19,24 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.util.List;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
 public class PolicyCategoryPanel extends AbstractParamPanel {
@@ -38,6 +45,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	private JTable tableTest = null;
 	private JScrollPane jScrollPane = null;
 	private CategoryTableModel categoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
+	private static final int[] width = {300,100, 100};
     /**
      *
      */
@@ -66,7 +74,6 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
         this.add(getJScrollPane(), gridBagConstraints11);
 
 	}
-	private static final int[] width = {300,60};
 	/**
 	 * This method initializes tableTest
 	 *
@@ -78,10 +85,22 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 			tableTest.setModel(getCategoryTableModel());
 			tableTest.setRowHeight(18);
 			tableTest.setIntercellSpacing(new java.awt.Dimension(1,1));
-	        for (int i = 0; i < 2; i++) {
+	        for (int i = 0; i < 3; i++) {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }
+	        JComboBox<String> jcb1 = new JComboBox<String>();
+            for (AlertThreshold level : AlertThreshold.values()) {
+                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+            }
+            tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
+
+	        JComboBox<String> jcb2 = new JComboBox<String>();
+            for (AttackStrength level : AttackStrength.values()) {
+                jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+            }
+            tableTest.getColumnModel().getColumn(2).setCellEditor(new DefaultCellEditor(jcb2));
+
 		}
 		return tableTest;
 	}

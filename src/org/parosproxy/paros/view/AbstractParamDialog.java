@@ -26,7 +26,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/08/05 Added accessor to shown panels
 // ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
-
+// ZAP: 2013/11/28 Issue 923: Allow a footer to be set.
 
 package org.parosproxy.paros.view;
  
@@ -82,6 +82,7 @@ public class AbstractParamDialog extends AbstractDialog {
 	private JPanel panelParam = null;
 	private JPanel panelHeadline = null;
 	private ZapTextField txtHeadline = null;
+	private JLabel footer = null;
 
 	private DefaultTreeModel treeModel = null;  //  @jve:decl-index=0:parse,visual-constraint="14,12"
 	private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
@@ -149,12 +150,10 @@ public class AbstractParamDialog extends AbstractDialog {
 
 			java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 
-			javax.swing.JLabel jLabel = new JLabel();
+			footer = new JLabel();
 
 			jContentPane = new javax.swing.JPanel();
 			jContentPane.setLayout(new GridBagLayout());
-			jLabel.setName("jLabel");
-			jLabel.setText("");
 			gridBagConstraints12.gridx = 0;
 			gridBagConstraints12.gridy = 1;
 			gridBagConstraints12.ipadx = 0;
@@ -184,13 +183,16 @@ public class AbstractParamDialog extends AbstractDialog {
 			gridBagConstraints1.gridx = 0;
 			gridBagConstraints1.gridy = 0;
 			jContentPane.add(getJSplitPane(), gridBagConstraints1);
-			jContentPane.add(jLabel, gridBagConstraints12);
+			jContentPane.add(footer, gridBagConstraints12);
 			jContentPane.add(getBtnOK(), gridBagConstraints13);
 			jContentPane.add(getBtnCancel(), gridBagConstraints14);
 		}
 		return jContentPane;
 	}
-	
+
+	public void setFooter(String str) {
+		footer.setText(str);
+	}
 
 	/**
 	 * This method initializes btnOK	
