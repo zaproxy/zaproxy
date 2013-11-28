@@ -33,7 +33,7 @@ import org.zaproxy.clientapi.core.ClientApiException;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseSet extends ApiResponse {
-	
+
 	private Map<String, String> values = null;
 
 	public ApiResponseSet(String name, Map<String, String> values) {
@@ -46,7 +46,8 @@ public class ApiResponseSet extends ApiResponse {
 		Node child = node.getFirstChild();
 		this.values = new HashMap<>();
 		while (child != null) {
-			ApiResponseElement elem = (ApiResponseElement) ApiResponseFactory.getResponse(child);
+			ApiResponseElement elem = (ApiResponseElement) ApiResponseFactory
+					.getResponse(child);
 			values.put(elem.getName(), elem.getValue());
 			child = child.getNextSibling();
 		}
@@ -58,7 +59,7 @@ public class ApiResponseSet extends ApiResponse {
 			return null;
 		}
 		JSONObject jo = new JSONObject();
-		for (Entry<String, String> val  : values.entrySet()) {
+		for (Entry<String, String> val : values.entrySet()) {
 			jo.put(val.getKey(), val.getValue());
 		}
 		return jo;
@@ -67,9 +68,10 @@ public class ApiResponseSet extends ApiResponse {
 	@Override
 	public void toXML(Document doc, Element parent) {
 		parent.setAttribute("type", "set");
-		for (Entry<String, String> val  : values.entrySet()) {
+		for (Entry<String, String> val : values.entrySet()) {
 			Element el = doc.createElement(val.getKey());
-			Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(val.getValue()));
+			Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(val
+					.getValue()));
 			el.appendChild(text);
 			parent.appendChild(el);
 		}
@@ -79,7 +81,7 @@ public class ApiResponseSet extends ApiResponse {
 	public void toHTML(StringBuilder sb) {
 		sb.append("<h2>" + this.getName() + "</h2>\n");
 		sb.append("<table border=\"1\">\n");
-		for (Entry<String, String> val  : values.entrySet()) {
+		for (Entry<String, String> val : values.entrySet()) {
 			sb.append("<tr><td>\n");
 			sb.append(val.getKey());
 			sb.append("</td><td>\n");
@@ -88,18 +90,18 @@ public class ApiResponseSet extends ApiResponse {
 		}
 		sb.append("</table>\n");
 	}
-	
+
 	@Override
 	public String toString(int indent) {
 		StringBuilder sb = new StringBuilder();
-		for (int i=0 ; i < indent; i++) {
+		for (int i = 0; i < indent; i++) {
 			sb.append("\t");
 		}
 		sb.append("ApiResponseSet ");
 		sb.append(this.getName());
 		sb.append(" : [\n");
-		for (Entry<String, String> val  : values.entrySet()) {
-			for (int i=0 ; i < indent+1; i++) {
+		for (Entry<String, String> val : values.entrySet()) {
+			for (int i = 0; i < indent + 1; i++) {
 				sb.append("\t");
 			}
 			sb.append(val.getKey());
@@ -107,12 +109,18 @@ public class ApiResponseSet extends ApiResponse {
 			sb.append(val.getValue());
 			sb.append("\n");
 		}
-		for (int i=0 ; i < indent; i++) {
+		for (int i = 0; i < indent; i++) {
 			sb.append("\t");
 		}
 		sb.append("]\n");
 		return sb.toString();
 	}
 
-	
+	/*
+	 * Package visible method for simplified unit testing
+	 */
+	Map<String, String> getValues() {
+		return values;
+	}
+
 }
