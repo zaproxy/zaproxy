@@ -47,6 +47,7 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/07 Also show Authentication messages
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
+// ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
 
 package org.parosproxy.paros.extension.history;
 
@@ -110,6 +111,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private ManageTagsDialog manageTags = null;
 	
 	private boolean showJustInScope = false;
+	private boolean linkWithSitesTree;
+	private String linkWithSitesTreeBaseUri;
 	
 	// Used to cache hrefs not added into the historyList
 	private Hashtable<Integer, HistoryReference> historyIdToRef = new Hashtable<>();
@@ -307,11 +310,16 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 final int historyType = historyRef.getHistoryType();
                 if (historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
                         || historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
-	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
-	            			historyRef.getURI().toString())) {
+                    final String uri = historyRef.getURI().toString();
+	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
 	            		// Not in scope
 	            		hack(historyRef);
 	            		return;
+	            	} else if (linkWithSitesTree && linkWithSitesTreeBaseUri != null
+	            	        && !uri.startsWith(linkWithSitesTreeBaseUri)) {
+	            	    // Not under the selected node
+	            	    hack(historyRef);
+	            	    return;
 	            	}
 	        	    if (getView() != null) { 
 	        	    	// Dont do this in daemon mode 
@@ -388,10 +396,14 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	                    historyRef = new HistoryReference(historyId);
 	                    historyRef.setSiteNode(sn);
 	            	}
-	            	if (this.showJustInScope && ! getModel().getSession().isInScope(
-	            			historyRef.getURI().toString())) {
+	            	final String uri = historyRef.getURI().toString();
+	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
 	            		// Not in scope
 	            		continue;
+	            	} else if (linkWithSitesTree && linkWithSitesTreeBaseUri != null
+	            	        && !uri.startsWith(linkWithSitesTreeBaseUri)) {
+	            	    // Not under the selected node
+	            	    continue;
 	            	}
                     if (historyFilter != null && !historyFilter.matches(historyRef)) {
 	            		// Not in filter
@@ -628,8 +640,25 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	public void setShowJustInScope(boolean showJustInScope) {
 		this.showJustInScope = showJustInScope;
+		if (showJustInScope) {
+			linkWithSitesTree = false;
+		}
 		// Refresh with the next option
 	    searchHistory(getFilterPlusDialog().getFilter());
+	}
+
+	void setLinkWithSitesTree(boolean linkWithSitesTree, String baseUri) {
+		this.linkWithSitesTree = linkWithSitesTree;
+		this.linkWithSitesTreeBaseUri = baseUri;
+		if (linkWithSitesTree) {
+			this.showJustInScope = false;
+		}
+		searchHistory(getFilterPlusDialog().getFilter());
+	}
+
+	void updateLinkWithSitesTreeBaseUri(String baseUri) {
+		this.linkWithSitesTreeBaseUri = baseUri;
+		searchHistory(getFilterPlusDialog().getFilter());
 	}
 
 	@Override

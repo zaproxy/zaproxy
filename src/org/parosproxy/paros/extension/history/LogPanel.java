@@ -30,6 +30,7 @@
 // ZAP: 2013/11/16 Issue 898: Replace all toggle buttons that set a tool tip text based on button's state with ZapToggleButton
 // ZAP: 2013/11/16 Issue 899: Remove "manual" update of toggle buttons' icon based on button's state
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
+// ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
 
 package org.parosproxy.paros.extension.history;
 
@@ -37,22 +38,30 @@ import java.awt.BorderLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
+import java.sql.SQLException;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
+import javax.swing.JTree;
 import javax.swing.SwingUtilities;
+import javax.swing.event.TreeSelectionEvent;
+import javax.swing.event.TreeSelectionListener;
+import javax.swing.tree.TreePath;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.ZapToggleButton;
 
 public class LogPanel extends AbstractPanel implements Runnable {
@@ -71,6 +80,12 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
     private ExtensionHistory extension = null;
+
+	private ZapToggleButton linkWithSitesTreeButton;
+
+	private LinkWithSitesTreeSelectionListener linkWithSitesTreeSelectionListener;
+
+	private DeselectableButtonGroup historyListFiltersButtonGroup;
 	
 	/**
 	 * This is the default constructor
@@ -83,6 +98,8 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	 * This method initializes this
 	 */
 	private  void initialize() {
+		historyListFiltersButtonGroup = new DeselectableButtonGroup();
+
 		this.setLayout(new BorderLayout());
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(600, 200);
@@ -161,43 +178,32 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("History Toolbar");
 			
-			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
-			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.gridx = 0;
+			gbc.gridy = 0;
+			gbc.insets = new java.awt.Insets(0,0,0,0);
+			gbc.anchor = java.awt.GridBagConstraints.WEST;
 
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-			
-			// TODO this shouldnt push the filter button off the lhs
-			gridBagConstraints2.gridx = 1;
-			gridBagConstraints2.gridy = 0;
-			gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.WEST;
+			panelToolbar.add(getScopeButton(), gbc);
 
-			gridBagConstraints3.gridx = 2;
-			gridBagConstraints3.gridy = 0;
-			gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
+			++gbc.gridx;
+			panelToolbar.add(getLinkWithSitesTreeButton(), gbc);
 
-			gridBagConstraintsX.gridx = 5;
-			gridBagConstraintsX.gridy = 0;
-			gridBagConstraintsX.weightx = 1.0;
-			gridBagConstraintsX.weighty = 1.0;
-			gridBagConstraintsX.insets = new java.awt.Insets(0,0,0,0);
-			gridBagConstraintsX.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraintsX.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			++gbc.gridx;
+			panelToolbar.add(getFilterButton(), gbc);
 
 			filterStatus = new JLabel(Constant.messages.getString("history.filter.label.filter") + 
 					Constant.messages.getString("history.filter.label.off"));
-			JLabel t1 = new JLabel();
 
-			panelToolbar.add(getScopeButton(), gridBagConstraints1);
-			panelToolbar.add(getFilterButton(), gridBagConstraints2);
-			panelToolbar.add(filterStatus, gridBagConstraints3);
-			panelToolbar.add(t1, gridBagConstraintsX);
+			++gbc.gridx;
+			panelToolbar.add(filterStatus, gbc);
+
+			++gbc.gridx;
+			gbc.weightx = 1.0;
+			gbc.weighty = 1.0;
+			gbc.anchor = java.awt.GridBagConstraints.EAST;
+			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			panelToolbar.add(new JLabel(), gbc);
 		}
 		return panelToolbar;
 	}
@@ -235,8 +241,59 @@ public class LogPanel extends AbstractPanel implements Runnable {
 					extension.setShowJustInScope(scopeButton.isSelected());
 				}
 			});
+			historyListFiltersButtonGroup.add(scopeButton);
 		}
 		return scopeButton;
+	}
+
+	private JToggleButton getLinkWithSitesTreeButton() {
+		if (linkWithSitesTreeButton == null) {
+			linkWithSitesTreeButton = new ZapToggleButton();
+			linkWithSitesTreeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/earth-grey.png")));
+			linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("history.linkWithSitesSelection.unselected.button.label"));
+			linkWithSitesTreeButton.setSelectedIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/094.png")));
+			linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("history.linkWithSitesSelection.selected.button.label"));
+
+			linkWithSitesTreeButton.addActionListener(new java.awt.event.ActionListener() {
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					setLinkWithSitesTreeSelection(linkWithSitesTreeButton.isSelected());
+				}
+			});
+			historyListFiltersButtonGroup.add(linkWithSitesTreeButton);
+		}
+		return linkWithSitesTreeButton;
+	}
+
+	public void setLinkWithSitesTreeSelection(boolean enabled) {
+		linkWithSitesTreeButton.setSelected(enabled);
+		final JTree sitesTree = View.getSingleton().getSiteTreePanel().getTreeSite();
+		String baseUri = null;
+		if (enabled) {
+			final TreePath selectionPath = sitesTree.getSelectionPath();
+			if (selectionPath != null) {
+				baseUri = getLinkWithSitesTreeBaseUri((SiteNode) selectionPath.getLastPathComponent());
+			}
+			sitesTree.addTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
+		} else {
+			sitesTree.removeTreeSelectionListener(getLinkWithSitesTreeSelectionListener());
+		}
+		extension.setLinkWithSitesTree(enabled, baseUri);
+	}
+
+	private static String getLinkWithSitesTreeBaseUri(SiteNode siteNode) {
+		if (!siteNode.isRoot()) {
+			HistoryReference historyReference = siteNode.getHistoryReference();
+			if (historyReference != null) {
+				try {
+					return historyReference.getURI().toString();
+				} catch (HttpMalformedHeaderException | SQLException e) {
+					logger.warn(e.getMessage(), e);
+				}
+			}
+		}
+		return null;
 	}
 
 	/**
@@ -476,4 +533,19 @@ public class LogPanel extends AbstractPanel implements Runnable {
     	filterStatus.setText(filter.toShortString());
     	filterStatus.setToolTipText(filter.toLongString());
     }
+
+	private LinkWithSitesTreeSelectionListener getLinkWithSitesTreeSelectionListener() {
+		if (linkWithSitesTreeSelectionListener == null) {
+			linkWithSitesTreeSelectionListener = new LinkWithSitesTreeSelectionListener();
+		}
+		return linkWithSitesTreeSelectionListener;
+	}
+
+	private class LinkWithSitesTreeSelectionListener implements TreeSelectionListener {
+
+		@Override
+		public void valueChanged(TreeSelectionEvent e) {
+			extension.updateLinkWithSitesTreeBaseUri(getLinkWithSitesTreeBaseUri((SiteNode) e.getPath().getLastPathComponent()));
+		}
+	}
 }
