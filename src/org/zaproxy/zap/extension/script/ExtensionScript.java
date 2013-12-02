@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,6 +37,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Vector;
 
 import javax.script.Invocable;
 import javax.script.ScriptEngine;
@@ -46,13 +48,16 @@ import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.CommandLineArgument;
+import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 
-public class ExtensionScript extends ExtensionAdaptor {
+public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
 	public static final String NAME = "ExtensionScript";
 	public static final ImageIcon ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/059.png")); // Script icon
@@ -84,6 +89,9 @@ public class ExtensionScript extends ExtensionAdaptor {
 	private List<ScriptEventListener> listeners = new ArrayList<>();
 	private MultipleWriters writers = new MultipleWriters();
 	private ScriptUI scriptUI = null;
+
+	private CommandLineArgument[] arguments = new CommandLineArgument[1];
+    private static final int ARG_SCAN_IDX = 0;
 
 	private static final Logger logger = Logger.getLogger(ExtensionScript.class);
 
@@ -125,6 +133,8 @@ public class ExtensionScript extends ExtensionAdaptor {
 
 		extensionHook.addProxyListener(this.getProxyListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
+
+	    extensionHook.addCommandLine(getCommandLineArguments());
 	}
 	
 	private ProxyListenerScript getProxyListener() {
@@ -468,6 +478,7 @@ public class ExtensionScript extends ExtensionAdaptor {
 
 		ScriptEngine se = script.getEngine().getEngine();
 	    se.getContext().setWriter(this.writers);
+
 	    try {
 	    	se.eval(script.getContents());
 	    } catch (Exception e) {
@@ -657,4 +668,68 @@ public class ExtensionScript extends ExtensionAdaptor {
 		}
     	return list;
     }
+
+    @Override
+    public void execute(CommandLineArgument[] args) {
+        if (arguments[ARG_SCAN_IDX].isEnabled()) {
+            for (CommandLineArgument arg : args) {
+            	Vector<String> params = arg.getArguments();
+                if (params != null) {
+                	for (String script : params) {
+                		File f = new File(script);
+                		if (! f.exists()) {
+                			System.out.println(MessageFormat.format(
+                					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
+                			return;
+                		}
+                		if (! f.canRead()) {
+                			System.out.println(MessageFormat.format(
+                					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
+                			return;
+                		}
+                		int dotIndex = script.lastIndexOf(".");
+                		if (dotIndex <= 0) {
+                			System.out.println(MessageFormat.format(
+                					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
+                			return;
+                		}
+                		String ext = script.substring(dotIndex+1);
+                		String engineName = this.getEngineNameForExtension(ext);
+                		if (engineName == null) {
+                			System.out.println(MessageFormat.format(
+                					Constant.messages.getString("script.cmdline.noengine"), ext));
+                			return;
+                		}
+                        ScriptWrapper sw = new ScriptWrapper(script, "", engineName,
+                        		this.getScriptType(TYPE_STANDALONE), true, f);
+                        
+						try {
+	                        this.loadScript(sw);
+							this.addScript(sw);
+							if (! View.isInitialised()) {
+								// Only invoke if run from the command line
+								// if the GUI is present then its up to the user to invoke it 
+			                	// Add stdout as a writer
+			                	this.addWriter(new PrintWriter(System.out));
+								this.invokeScript(sw);
+							}
+						} catch (Exception e) {
+	                        System.out.println(e.getMessage());
+							e.printStackTrace();
+						}
+                	}
+                }
+            }
+        } else {
+            return;
+        }
+    }
+
+    private CommandLineArgument[] getCommandLineArguments() {
+    	
+        arguments[ARG_SCAN_IDX] = new CommandLineArgument("-script", 1, null, "", 
+        		"-script [script_path]: " + Constant.messages.getString("script.cmdline.help"));
+        return arguments;
+    }
+
 }
