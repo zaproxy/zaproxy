@@ -64,6 +64,10 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
 	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
 	private static final String ACTION_SET_ENABLED_POLICIES = "setEnabledPolicies";
+	private static final String ACTION_SET_POLICY_ATTACK_STRENGTH = "setPolicyAttackStrength";
+	private static final String ACTION_SET_POLICY_ALERT_THRESHOLD = "setPolicyAlertThreshold";
+	private static final String ACTION_SET_SCANNER_ATTACK_STRENGTH = "setScannerAttackStrength";
+	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
     
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
@@ -75,6 +79,9 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String PARAM_RECURSE = "recurse";
     private static final String PARAM_JUST_IN_SCOPE = "inScopeOnly";
 	private static final String PARAM_IDS = "ids";
+	private static final String PARAM_ID = "id";
+	private static final String PARAM_ATTACK_STRENGTH = "attackStrength";
+	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
 
 	private ExtensionActiveScan extension;
 	private ActiveScan activeScan = null;
@@ -90,6 +97,10 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED_POLICIES, new String[] {PARAM_IDS}));
+		this.addApiAction(new ApiAction(ACTION_SET_POLICY_ATTACK_STRENGTH, new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }));
+		this.addApiAction(new ApiAction(ACTION_SET_POLICY_ALERT_THRESHOLD, new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }));
+		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ATTACK_STRENGTH, new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }));
+		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD, new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }));
 
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
@@ -147,6 +158,34 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		case ACTION_SET_ENABLED_POLICIES:
 			setEnabledPolicies(getParam(params, PARAM_IDS, "").split(","));
 			break;
+		case ACTION_SET_POLICY_ATTACK_STRENGTH:
+			int policyId = getPolicyIdFromParamId(params);
+			Plugin.AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
+
+			for (Plugin scanner : PluginFactory.getAllPlugin()) {
+				if (scanner.getCategory() == policyId) {
+					scanner.setAttackStrength(attackStrength);
+				}
+			}
+			break;
+		case ACTION_SET_POLICY_ALERT_THRESHOLD:
+			policyId = getPolicyIdFromParamId(params);
+			Plugin.AlertThreshold alertThreshold = getAlertThresholdFromParamAlertThreshold(params);
+
+			for (Plugin scanner : PluginFactory.getAllPlugin()) {
+				if (scanner.getCategory() == policyId) {
+					setAlertThresholdToScanner(alertThreshold, scanner);
+				}
+			}
+			break;
+		case ACTION_SET_SCANNER_ATTACK_STRENGTH:
+			Plugin scanner = getScannerFromParamId(params);
+			scanner.setAttackStrength(getAttackStrengthFromParamAttack(params));
+			break;
+		case ACTION_SET_SCANNER_ALERT_THRESHOLD:
+			alertThreshold = getAlertThresholdFromParamAlertThreshold(params);
+			setAlertThresholdToScanner(alertThreshold, getScannerFromParamId(params));
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -182,7 +221,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			for (String id : ids) {
 				try {
 					int policyId = Integer.valueOf(id.trim()).intValue();
-					if (Arrays.asList(Category.getAllNames()).contains(Category.getName(policyId))) {
+					if (hasPolicyWithId(policyId)) {
 						for (Plugin scanner : PluginFactory.getAllPlugin()) {
 							if (scanner.getCategory() == policyId) {
 							    setScannerEnabled(scanner, true);
@@ -194,6 +233,56 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 				}
 			}
 		}
+	}
+	
+	private static boolean hasPolicyWithId(int policyId) {
+		return Arrays.asList(Category.getAllNames()).contains(Category.getName(policyId));
+	}
+
+	private int getPolicyIdFromParamId(JSONObject params) throws ApiException {
+		final int id = getParam(params, PARAM_ID, -1);
+		if (id == -1) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
+		}
+		if (!hasPolicyWithId(id)) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
+		}
+		return id;
+	}
+	
+	private Plugin.AttackStrength getAttackStrengthFromParamAttack(JSONObject params) throws ApiException {
+		final String paramAttackStrength = params.getString(PARAM_ATTACK_STRENGTH).trim().toUpperCase();
+		try {
+			return Plugin.AttackStrength.valueOf(paramAttackStrength);
+		} catch (IllegalArgumentException e) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ATTACK_STRENGTH);
+		}
+	}
+
+	private Plugin.AlertThreshold getAlertThresholdFromParamAlertThreshold(JSONObject params) throws ApiException {
+		final String paramAlertThreshold = params.getString(PARAM_ALERT_THRESHOLD).trim().toUpperCase();
+		try {
+			return Plugin.AlertThreshold.valueOf(paramAlertThreshold);
+		} catch (IllegalArgumentException e) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ALERT_THRESHOLD);
+		}
+	}
+	
+	private static void setAlertThresholdToScanner(Plugin.AlertThreshold alertThreshold, Plugin scanner) {
+		scanner.setAlertThreshold(alertThreshold);
+		scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
+	}
+
+	private Plugin getScannerFromParamId(JSONObject params) throws ApiException {
+		final int id = getParam(params, PARAM_ID, -1);
+		if (id == -1) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
+		}
+		Plugin scanner = PluginFactory.getPlugin(id);
+		if (scanner == null) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
+		}
+		return scanner;
 	}
 
 	private void scanURL(String url, boolean scanChildren, boolean scanJustInScope) throws ApiException {
