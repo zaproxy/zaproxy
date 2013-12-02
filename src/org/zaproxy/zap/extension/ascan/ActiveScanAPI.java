@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,6 +63,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
 	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
 	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
+	private static final String ACTION_SET_ENABLED_POLICIES = "setEnabledPolicies";
     
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
@@ -87,6 +89,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
+		this.addApiAction(new ApiAction(ACTION_SET_ENABLED_POLICIES, new String[] {PARAM_IDS}));
 
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
@@ -141,6 +144,9 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		case ACTION_DISABLE_SCANNERS:
 			setScannersEnabled(params, false);
 			break;
+		case ACTION_SET_ENABLED_POLICIES:
+			setEnabledPolicies(getParam(params, PARAM_IDS, "").split(","));
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -167,6 +173,26 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		scanner.setEnabled(enabled);
 		if (enabled && scanner.getAlertThreshold() == Plugin.AlertThreshold.OFF) {
 			scanner.setAlertThreshold(Plugin.AlertThreshold.DEFAULT);
+		}
+	}
+
+	private static void setEnabledPolicies(String[] ids) {
+		PluginFactory.setAllPluginEnabled(false);
+		if (ids.length > 0) {
+			for (String id : ids) {
+				try {
+					int policyId = Integer.valueOf(id.trim()).intValue();
+					if (Arrays.asList(Category.getAllNames()).contains(Category.getName(policyId))) {
+						for (Plugin scanner : PluginFactory.getAllPlugin()) {
+							if (scanner.getCategory() == policyId) {
+							    setScannerEnabled(scanner, true);
+							}
+						}
+					}
+				} catch (NumberFormatException e) {
+					log.warn("Failed to parse policy ID: ", e);
+				}
+			}
 		}
 	}
 
