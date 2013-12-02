@@ -42,8 +42,8 @@ public class HistoryFilter {
 	private List<String> reliabilityList = new ArrayList<>();
 	private List<String> tagList = new ArrayList<>();
 	private String note = null;
-	private List<Pattern> urlIncPatternList = new ArrayList<Pattern>();
-	private List<Pattern> urlExcPatternList = new ArrayList<Pattern>();
+	private List<Pattern> urlIncPatternList = new ArrayList<>();
+	private List<Pattern> urlExcPatternList = new ArrayList<>();
 	
 	private Logger logger = Logger.getLogger(HistoryFilter.class);
 

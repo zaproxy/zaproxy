@@ -37,7 +37,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     private Logger logger = Logger.getLogger(this.getClass());
-    private ArrayList<Variant> listVariant = new ArrayList();
+    private ArrayList<Variant> listVariant = new ArrayList<>();
     private NameValuePair originalPair = null;
     private Variant variant = null;
 

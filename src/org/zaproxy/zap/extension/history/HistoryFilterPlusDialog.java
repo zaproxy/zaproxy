@@ -272,7 +272,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	}
 	
 	private List<Pattern> strToRegexList(String str) throws PatternSyntaxException {
-		List<Pattern> list = new ArrayList<Pattern>();
+		List<Pattern> list = new ArrayList<>();
 		for (String s : str.split("\n")) {
 			if (s.length() > 0) {
 				list.add(Pattern.compile(s));

@@ -43,7 +43,7 @@ public class BoyerMooreMatcher {
     public BoyerMooreMatcher(String pattern) {
         // Create internal structures
         this.pattern = pattern;
-        this.occurrence = new HashMap<Character, Integer>();
+        this.occurrence = new HashMap<>();
 
         // Bad character Skip : Moore Table Construction
         for (int i = 0; i < pattern.length(); i++) {

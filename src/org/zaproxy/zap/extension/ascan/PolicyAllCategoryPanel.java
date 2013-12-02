@@ -152,14 +152,14 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }
-	        JComboBox<String> jcb1 = new JComboBox<String>();
+	        JComboBox<String> jcb1 = new JComboBox<>();
 	        jcb1.addItem("");	// Always show a blank one for where they are not all the same
             for (AlertThreshold level : AlertThreshold.values()) {
                 jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
             }
             tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
 
-	        JComboBox<String> jcb2 = new JComboBox<String>();
+	        JComboBox<String> jcb2 = new JComboBox<>();
 	        jcb2.addItem("");	// Always show a blank one for where they are not all the same
             for (AttackStrength level : AttackStrength.values()) {
                 jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));

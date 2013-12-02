@@ -89,13 +89,13 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }
-	        JComboBox<String> jcb1 = new JComboBox<String>();
+	        JComboBox<String> jcb1 = new JComboBox<>();
             for (AlertThreshold level : AlertThreshold.values()) {
                 jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
             }
             tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
 
-	        JComboBox<String> jcb2 = new JComboBox<String>();
+	        JComboBox<String> jcb2 = new JComboBox<>();
             for (AttackStrength level : AttackStrength.values()) {
                 jcb2.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
             }
