@@ -154,7 +154,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 						scanner.setEnabled(enabled);
 					}
 				} catch (NumberFormatException e) {
-					log.error("Failed to parse scanner ID: " + e.getMessage(), e);
+					log.warn("Failed to parse scanner ID: ", e);
 				}
 			}
 		}
