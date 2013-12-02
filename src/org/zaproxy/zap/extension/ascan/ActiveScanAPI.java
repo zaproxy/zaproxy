@@ -220,6 +220,12 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 				Map<String, String> map = new HashMap<>();
 				map.put("id", String.valueOf(scanner.getId()));
 				map.put("name", scanner.getName());
+				map.put("cweId", String.valueOf(scanner.getCweId()));
+				map.put("wascId", String.valueOf(scanner.getWascId()));
+				map.put("attackStrength", String.valueOf(scanner.getAttackStrength(true)));
+				map.put("alertThreshold", String.valueOf(scanner.getAlertThreshold(true)));
+				map.put("policyId", String.valueOf(scanner.getCategory()));
+				map.put("enabled", String.valueOf(scanner.isEnabled()));
 				resultList.addItem(new ApiResponseSet("scanner", map));
 			}
 
