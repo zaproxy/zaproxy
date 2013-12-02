@@ -6,7 +6,7 @@
   >
   <xsl:output method="html"/> 
  
-  <xsl:template match="/report">
+  <xsl:template match="/OWASPZAPReport">
 <html>
 <head>
 <!-- ZAP: rebrand -->
@@ -32,25 +32,25 @@
   <tr bgcolor="#e8e8e8"> 
     <td><font size="2" face="Arial, Helvetica, sans-serif"><a href="#high">High</a></font></td>
     <td align="center"><font size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:value-of select="count(/report/alertitem[riskcode='3'])"/>
+    <xsl:value-of select="count(descendant::alertitem[riskcode='3'])"/>
     </font></td>
   </tr>
   <tr bgcolor="#e8e8e8"> 
     <td><font size="2" face="Arial, Helvetica, sans-serif"><a href="#medium">Medium</a></font></td>
     <td align="center"><font size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:value-of select="count(/report/alertitem[riskcode='2'])"/>
+    <xsl:value-of select="count(descendant::alertitem[riskcode='2'])"/>
     </font></td>
   </tr>
     <tr bgcolor="#e8e8e8"> 
     <td><font size="2" face="Arial, Helvetica, sans-serif"><a href="#low">Low</a></font></td>
     <td align="center"><font size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:value-of select="count(/report/alertitem[riskcode='1'])"/>
+    <xsl:value-of select="count(descendant::alertitem[riskcode='1'])"/>
     </font></td>
   </tr>
     <tr bgcolor="#e8e8e8"> 
     <td><font size="2" face="Arial, Helvetica, sans-serif"><a href="#info">Informational</a></font></td>
     <td align="center"><font size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:value-of select="count(/report/alertitem[riskcode='0'])"/>
+    <xsl:value-of select="count(descendant::alertitem[riskcode='0'])"/>
     </font></td>
   </tr>
 </table>
@@ -58,7 +58,7 @@
 <p></p>
 <p><strong>Alert Detail</strong></p>
 
-<xsl:apply-templates select="alertitem">
+<xsl:apply-templates select="descendant::alertitem">
   <xsl:sort order="descending" data-type="number" select="riskcode"/>
   <xsl:sort order="descending" data-type="number" select="reliability"/>
 </xsl:apply-templates>
@@ -74,11 +74,11 @@
 </table>
   </xsl:template>
 
-  <xsl:template match="alert[following::riskcode='3']">
+  <xsl:template match="alert[following-sibling::riskcode='3']">
   <tr bgcolor="red" height="24">	
     <td width="20%" valign="top"><strong><font color="#FFFFFF" size="2" face="Arial, Helvetica, sans-serif">
     <a name="high"/>
-    <xsl:value-of select="following::riskdesc"/>
+    <xsl:value-of select="following-sibling::riskdesc"/>
     </font></strong></td>
     <td width="80%"><strong><font color="#FFFFFF" size="2" face="Arial, Helvetica, sans-serif">
       <xsl:apply-templates select="text()"/>
@@ -86,12 +86,12 @@
   </tr>
   </xsl:template>
 
-  <xsl:template match="alert[following::riskcode='2']">
+  <xsl:template match="alert[following-sibling::riskcode='2']">
   <!-- ZAP: Changed the medium colour to orange -->
   <tr bgcolor="orange" height="24">	
     <td width="20%" valign="top"><strong><font color="#FFFFFF" size="2" face="Arial, Helvetica, sans-serif">
     <a name="medium"/>
-    <xsl:value-of select="following::riskdesc"/>
+    <xsl:value-of select="following-sibling::riskdesc"/>
 	</font></strong></td>
     <td width="80%"><strong><font color="#FFFFFF" size="2" face="Arial, Helvetica, sans-serif">
       <xsl:apply-templates select="text()"/>
@@ -99,12 +99,12 @@
   </tr>
 
   </xsl:template>
-  <xsl:template match="alert[following::riskcode='1']">
+  <xsl:template match="alert[following-sibling::riskcode='1']">
   <!-- ZAP: Changed the low colour to yellow -->
   <tr bgcolor="yellow" height="24">
     <a name="low"/>
     <td width="20%" valign="top"><strong><font color="#000000" size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:value-of select="following::riskdesc"/>
+    <xsl:value-of select="following-sibling::riskdesc"/>
 	</font></strong></td>
     <td width="80%"><strong><font color="#000000" size="2" face="Arial, Helvetica, sans-serif">
       <xsl:apply-templates select="text()"/>
@@ -112,11 +112,11 @@
   </tr>
   </xsl:template>
   
-  <xsl:template match="alert[following::riskcode='0']">
+  <xsl:template match="alert[following-sibling::riskcode='0']">
   <tr bgcolor="blue" height="24">	
     <td width="20%" valign="top"><strong><font color="#FFFFFF" size="2" face="Arial, Helvetica, sans-serif">
     <a name="info"/>
-    <xsl:value-of select="following::riskdesc"/>
+    <xsl:value-of select="following-sibling::riskdesc"/>
 	</font></strong></td>
     <td width="80%"><strong><font color="#FFFFFF" size="2" face="Arial, Helvetica, sans-serif">
       <xsl:apply-templates select="text()"/>
