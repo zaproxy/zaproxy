@@ -59,12 +59,12 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
 	private static final String ACTION_ENABLE_ALL_SCANNERS = "enableAllScanners";
 	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
+	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
+	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
     
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
 	private static final String VIEW_SCANNERS = "scanners";
-	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
-	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
