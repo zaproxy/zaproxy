@@ -151,12 +151,19 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 				try {
 					Plugin scanner = PluginFactory.getPlugin(Integer.valueOf(id.trim()).intValue());
 					if (scanner != null) {
-						scanner.setEnabled(enabled);
+						setScannerEnabled(scanner, enabled);
 					}
 				} catch (NumberFormatException e) {
 					log.warn("Failed to parse scanner ID: ", e);
 				}
 			}
+		}
+	}
+
+	private static void setScannerEnabled(Plugin scanner, boolean enabled) {
+		scanner.setEnabled(enabled);
+		if (enabled && scanner.getAlertThreshold() == Plugin.AlertThreshold.OFF) {
+			scanner.setAlertThreshold(Plugin.AlertThreshold.DEFAULT);
 		}
 	}
 
