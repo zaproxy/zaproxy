@@ -197,11 +197,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			panelToolbar.add(getScopeButton(), gridBagConstraints1);
 			panelToolbar.add(getFilterButton(), gridBagConstraints2);
 			panelToolbar.add(filterStatus, gridBagConstraints3);
-			/*
-			panelToolbar.add(getBtnSearch(), gridBagConstraints3);
-			panelToolbar.add(getBtnNext(), gridBagConstraints4);
-			panelToolbar.add(getBtnPrev(), gridBagConstraints5);
-			*/
 			panelToolbar.add(t1, gridBagConstraintsX);
 		}
 		return panelToolbar;
