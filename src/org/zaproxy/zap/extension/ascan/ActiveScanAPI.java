@@ -30,6 +30,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.PluginFactory;
@@ -65,6 +66,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
 	private static final String VIEW_SCANNERS = "scanners";
+	private static final String VIEW_POLICIES = "policies";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
@@ -89,6 +91,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS));
+		this.addApiView(new ApiView(VIEW_POLICIES));
 
 	}
 	
@@ -231,12 +234,70 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 			result = resultList;
 			break;
+		case VIEW_POLICIES:
+			String[] policies = Category.getAllNames();
+
+			resultList = new ApiResponseList(name);
+			for (String policy : policies) {
+				int policyId = Category.getCategory(policy);
+				Plugin.AttackStrength attackStrength = getPolicyAttackStrength(policyId);
+				Plugin.AlertThreshold alertThreshold = getPolicyAlertThreshold(policyId);
+				Map<String, String> map = new HashMap<>();
+				map.put("id", String.valueOf(policyId));
+				map.put("name", policy);
+				map.put("attackStrength", attackStrength == null ? "" : String.valueOf(attackStrength));
+				map.put("alertThreshold", alertThreshold == null ? "" : String.valueOf(alertThreshold));
+				map.put("enabled", String.valueOf(isPolicyEnabled(policyId)));
+				resultList.addItem(new ApiResponseSet("policy", map));
+			}
+
+			result = resultList;
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
 	}
+
+	private static boolean isPolicyEnabled(int policy) {
+		for (Plugin scanner : PluginFactory.getAllPlugin()) {
+			if (scanner.getCategory() == policy && !scanner.isEnabled()) {
+				return false;
+			}
+		}
+		return true;
+	}
 	
+	private Plugin.AttackStrength getPolicyAttackStrength(int policyId) {
+		Plugin.AttackStrength attackStrength = null;
+		for (Plugin scanner : PluginFactory.getAllPlugin()) {
+			if (scanner.getCategory() == policyId) {
+				if (attackStrength == null) {
+					attackStrength = scanner.getAttackStrength(true);
+				} else if (!attackStrength.equals(scanner.getAttackStrength(true))) {
+					// Not all the same
+					return null;
+				}
+			}
+		}
+		return attackStrength;
+	}
+
+	private Plugin.AlertThreshold getPolicyAlertThreshold(int policyId) {
+		Plugin.AlertThreshold alertThreshold = null;
+		for (Plugin scanner : PluginFactory.getAllPlugin()) {
+			if (scanner.getCategory() == policyId) {
+				if (alertThreshold == null) {
+					alertThreshold = scanner.getAlertThreshold(true);
+				} else if (!alertThreshold.equals(scanner.getAlertThreshold(true))) {
+					// Not all the same
+					return null;
+				}
+			}
+		}
+		return alertThreshold;
+	}
+
 	@Override
 	public void alertFound(Alert alert) {
 		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
