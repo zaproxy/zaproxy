@@ -82,6 +82,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String PARAM_ID = "id";
 	private static final String PARAM_ATTACK_STRENGTH = "attackStrength";
 	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
+	private static final String PARAM_POLICY_ID = "policyId";
 
 	private ExtensionActiveScan extension;
 	private ActiveScan activeScan = null;
@@ -104,7 +105,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 		this.addApiView(new ApiView(VIEW_STATUS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
-		this.addApiView(new ApiView(VIEW_SCANNERS));
+		this.addApiView(new ApiView(VIEW_SCANNERS, null, new String[] {PARAM_POLICY_ID}));
 		this.addApiView(new ApiView(VIEW_POLICIES));
 
 	}
@@ -333,18 +334,24 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		case VIEW_SCANNERS:
 			List<Plugin> scanners = PluginFactory.getAllPlugin();
 
+			int policyId = getParam(params, PARAM_POLICY_ID, -1);
+			if (policyId != -1 && !hasPolicyWithId(policyId)) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_POLICY_ID);
+			}
 			ApiResponseList resultList = new ApiResponseList(name);
 			for (Plugin scanner : scanners) {
-				Map<String, String> map = new HashMap<>();
-				map.put("id", String.valueOf(scanner.getId()));
-				map.put("name", scanner.getName());
-				map.put("cweId", String.valueOf(scanner.getCweId()));
-				map.put("wascId", String.valueOf(scanner.getWascId()));
-				map.put("attackStrength", String.valueOf(scanner.getAttackStrength(true)));
-				map.put("alertThreshold", String.valueOf(scanner.getAlertThreshold(true)));
-				map.put("policyId", String.valueOf(scanner.getCategory()));
-				map.put("enabled", String.valueOf(scanner.isEnabled()));
-				resultList.addItem(new ApiResponseSet("scanner", map));
+				if (policyId == -1 || policyId == scanner.getCategory()) {
+					Map<String, String> map = new HashMap<>();
+					map.put("id", String.valueOf(scanner.getId()));
+					map.put("name", scanner.getName());
+					map.put("cweId", String.valueOf(scanner.getCweId()));
+					map.put("wascId", String.valueOf(scanner.getWascId()));
+					map.put("attackStrength", String.valueOf(scanner.getAttackStrength(true)));
+					map.put("alertThreshold", String.valueOf(scanner.getAlertThreshold(true)));
+					map.put("policyId", String.valueOf(scanner.getCategory()));
+					map.put("enabled", String.valueOf(scanner.isEnabled()));
+					resultList.addItem(new ApiResponseSet("scanner", map));
+				}
 			}
 
 			result = resultList;
@@ -354,7 +361,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 			resultList = new ApiResponseList(name);
 			for (String policy : policies) {
-				int policyId = Category.getCategory(policy);
+				policyId = Category.getCategory(policy);
 				Plugin.AttackStrength attackStrength = getPolicyAttackStrength(policyId);
 				Plugin.AlertThreshold alertThreshold = getPolicyAlertThreshold(policyId);
 				Map<String, String> map = new HashMap<>();
