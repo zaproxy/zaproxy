@@ -380,7 +380,14 @@ public class ZAP {
 	    view.getMainFrame().setVisible(true);
 
 	    control.getMenuFileControl().newSession(false);
-
+	    
+        try {
+        	// Allow extensions to pick up command line args in GUI mode
+			control.getExtensionLoader().hookCommandLineListener(cmdLine);
+			control.runCommandLine();
+		} catch (Exception e) {
+	        log.error(e.getMessage(), e);
+		}
 	}
 
 	private void runDaemon() throws Exception {
