@@ -61,7 +61,7 @@ public class ExtensionFactory {
     public static AddOnLoader getAddOnLoader() {
     	if (addOnLoader == null) {
     		addOnLoader = new AddOnLoader(new File[] {
-					new File(Constant.FOLDER_PLUGIN),
+					new File(Constant.getZapInstall(), Constant.FOLDER_PLUGIN),
 					new File(Constant.getZapHome(), Constant.FOLDER_PLUGIN)});
     	}
     	return addOnLoader;

@@ -22,6 +22,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate methods.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 
 package org.parosproxy.paros.extension.option;
 
@@ -136,7 +137,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		JPanel certificatePanel = getPanelCertificate();
 		this.add(certificatePanel, certificatePanel.getName());
 
-		driverConfig = new DriverConfiguration();
+		driverConfig = new DriverConfiguration(new File(Constant.getZapInstall(), "xml/drivers.xml"));
 		updateDriverComboBox();
 		driverConfig.addObserver(this);
 

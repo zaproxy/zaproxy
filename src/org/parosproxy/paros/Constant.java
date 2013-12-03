@@ -45,6 +45,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/04/14 Issue 610: Replace the use of the String class for available/default "Forced Browse" files
 // ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
+// ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 
 package org.parosproxy.paros;
 
@@ -67,6 +68,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -166,6 +168,8 @@ public final class Constant {
     private static String zapHome = null;
     // Default home dir for 'full' releases - only used for copying full conf file when dev/daily release run for the first time
     private static String zapStd = null;
+    // Install dir for ZAP, but default will be cwd
+    private static String zapInstall = null;
     
     // ZAP: Added i18n
     public static I18N messages = null;
@@ -217,7 +221,7 @@ public final class Constant {
     }
     	
     private void initializeFilesAndDirectories() {
-        
+
     	FileCopier copier = new FileCopier();
         File f = null;
         Logger log = null;
@@ -253,7 +257,7 @@ public final class Constant {
             	zapHome += "_D";
             }
         }
-		
+
 		f = new File(zapHome);
 		
 		zapHome += FILE_SEPARATOR;
@@ -278,7 +282,7 @@ public final class Constant {
             // Setup the logging
             File logFile = new File(zapHome + "/log4j.properties");
             if (!logFile.exists()) {
-            	copier.copy(new File("xml/log4j.properties"),logFile);
+            	copier.copy(new File(zapInstall, "xml/log4j.properties"),logFile);
             }
             System.setProperty("log4j.configuration", logFile.getAbsolutePath());
             PropertyConfigurator.configure(logFile.getAbsolutePath());
@@ -427,7 +431,7 @@ public final class Constant {
             e.printStackTrace(System.err);
             System.exit(1);
         }
-        
+
         // ZAP: Init i18n
         String lang = null;
         Locale locale = Locale.ENGLISH;
@@ -446,7 +450,6 @@ public final class Constant {
         } catch (Exception e) {
         	System.out.println("Failed to initialise locale " + e);
         }
-
         messages = new I18N(locale);
     }
     
@@ -719,6 +722,22 @@ public final class Constant {
     
     public static String getZapHome () {
     	return zapHome;
+    }
+
+    public static void setZapInstall (String dir) {
+    	zapInstall = dir;
+    }
+    
+    public static String getZapInstall () {
+    	if (zapInstall == null) {
+    		zapInstall = ".";
+    		if ( ! new File(zapInstall, "db").isDirectory() || ! new File(zapInstall, "lang").isDirectory()) {
+    			zapInstall = ZAP.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    			// Loggers wont have been set up yet
+    			System.out.println("Defaulting ZAP install dir to " + zapInstall);
+    		}
+    	}
+    	return zapInstall;
     }
 
     private static String getVersionFromManifest() {

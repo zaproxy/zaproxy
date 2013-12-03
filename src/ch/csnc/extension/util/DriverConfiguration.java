@@ -20,6 +20,7 @@
 package ch.csnc.extension.util;
 
 import java.io.BufferedOutputStream;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -37,7 +38,7 @@ import org.jdom.input.SAXBuilder;
 import org.jdom.output.XMLOutputter;
 
 public class DriverConfiguration extends Observable {
-	static final String filename = "xml/drivers.xml";
+	private File file = null;
 
 	private Vector<String> names;
 	private Vector<String> paths;
@@ -46,14 +47,15 @@ public class DriverConfiguration extends Observable {
 
 	private final Logger logger = Logger.getLogger(this.getClass());
 
-	public DriverConfiguration() {
+	public DriverConfiguration(File file) {
+		this.file = file;
 		names = new Vector<String>();
 		paths = new Vector<String>();
 		slots = new Vector<Integer>();
 		slotListIndexes = new Vector<Integer>();
 
 		try {
-			final Document doc = new SAXBuilder().build(filename);
+			final Document doc = new SAXBuilder().build(file);
 			final Element root = doc.getRootElement();
 			for (final Object o : root.getChildren("driver")) {
 				final Element nameElement = ((Element) o).getChild("name");
@@ -123,7 +125,7 @@ public class DriverConfiguration extends Observable {
 		}
 
 		try {
-			final OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(filename));
+			final OutputStream fileOutputStream = new BufferedOutputStream(new FileOutputStream(file));
 			final XMLOutputter out = new XMLOutputter();
 			out.output(doc, fileOutputStream);
 			fileOutputStream.close();

@@ -82,15 +82,21 @@ public class ZAP {
 	public static void main(String[] args) throws Exception {
 	    final ZAP zap = new ZAP();
 	    zap.init(args);
-	    
+
 		// Nasty hack to prevent warning messages when running from the command line
 		NullAppender na = new NullAppender();
 		Logger.getRootLogger().addAppender(na);
 		Logger.getRootLogger().setLevel(Level.OFF);
 		Logger.getLogger(ConfigurationUtils.class).addAppender(na);
 		Logger.getLogger(DefaultFileSystem.class).addAppender(na);
-	    
-        Constant.getInstance();
+
+	    try {
+	        Constant.getInstance();
+	    } catch (final Throwable e) {
+	        log.fatal(e.getMessage(), e);
+	        //throw e;
+	        System.exit(1);
+	    }
         final String msg = Constant.PROGRAM_NAME + " " + Constant.PROGRAM_VERSION + " started.";
         
 		if (! zap.cmdLine.isGUI() && ! zap.cmdLine.isDaemon()) {
@@ -120,16 +126,24 @@ public class ZAP {
 	 * @param args
 	 */
 	private void init(String[] args) {
+		
+	    try {
+	        cmdLine = new CommandLine(args);
+	    } catch (final Exception e) {
+	        System.out.println(CommandLine.getHelpGeneral());
+	        System.exit(1);
+	    }
+
 		try {
 			// lang directory includes all of the language files
-			final File langDir = new File ("lang");
+			final File langDir = new File (Constant.getZapInstall(), "lang");
 			if (langDir.exists() && langDir.isDirectory()) {
-				ClassLoaderUtil.addFile("lang");
+				ClassLoaderUtil.addFile(langDir.getAbsolutePath());
 			} else {
 				System.out.println("Warning: failed to load language files from " + langDir.getAbsolutePath());
 			}
 			// Load all of the jars in the lib directory
-			final File libDir = new File("lib");
+			final File libDir = new File(Constant.getZapInstall(), "lib");
 			if (libDir.exists() && libDir.isDirectory()) {
 				final File[] files = libDir.listFiles();
 				for (final File file : files) {
@@ -143,14 +157,6 @@ public class ZAP {
 		} catch (final Exception e) {
 			System.out.println("Failed loading jars: " + e);
 		}
-
-	    //HttpSender.setUserAgent(Constant.USER_AGENT);
-	    try {
-	        cmdLine = new CommandLine(args);
-	    } catch (final Exception e) {
-	        System.out.println(CommandLine.getHelpGeneral());
-	        System.exit(1);
-	    }
 
 	}
 

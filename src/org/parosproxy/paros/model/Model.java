@@ -30,6 +30,7 @@
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 // ZAP: 2013/11/16 Issue 881: Fail immediately if zapdb.script file is not found
+// ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 
 package org.parosproxy.paros.model;
 
@@ -355,7 +356,7 @@ public class Model {
         // copy and create new template db
         currentDBNameUntitled = DBNAME_UNTITLED + DBNAME_COPY;
         FileCopier copier = new FileCopier();
-        File fileIn = new File(DBNAME_TEMPLATE + ".data");
+        File fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".data");
         if (fileIn.exists()) {
             File fileOut = new File(currentDBNameUntitled + ".data");
     	    if (fileOut.exists() && ! fileOut.delete()) {
@@ -366,7 +367,7 @@ public class Model {
     	    copier.copy(fileIn, fileOut);
         }
 
-	    fileIn = new File(DBNAME_TEMPLATE + ".properties");
+	    fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".properties");
 	    if (fileIn.exists()) {
     	    File fileOut = new File(currentDBNameUntitled  + ".properties"); 
     	    if (fileOut.exists() && !fileOut.delete()) {
@@ -377,7 +378,7 @@ public class Model {
     	    copier.copy(fileIn, fileOut);
 	    }
 	    
-	    fileIn = new File(DBNAME_TEMPLATE + ".script");
+	    fileIn = new File(Constant.getZapInstall(), DBNAME_TEMPLATE + ".script");
 	    if (fileIn.exists()) {
 	        File fileOut = new File(currentDBNameUntitled + ".script"); 
     	    if (fileOut.exists() && ! fileOut.delete()) {

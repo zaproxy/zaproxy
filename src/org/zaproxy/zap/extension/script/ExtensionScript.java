@@ -383,21 +383,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	private void loadTemplates(ScriptEngineWrapper engine) {
 		for (ScriptType type : this.getScriptTypes()) {
 			File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
-			File stdDir = new File("." + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
+			File stdDir = new File(Constant.getZapInstall() + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
 			
 			// Load local files first, as these override any one included in the release
 			if (locDir.exists()) {
 				for (File f : locDir.listFiles()) {
-					loadTemplate(f, type, engine);
+					loadTemplate(f, type, engine, false);
 				}
 			}
 			for (File f : stdDir.listFiles()) {
-				loadTemplate(f, type, engine);
+				// Dont log errors on duplicates - 'local' templates should take presidence
+				loadTemplate(f, type, engine, true);
 			}
 		}
 	}
 
-	private void loadTemplate(File f, ScriptType type, ScriptEngineWrapper engine) {
+	private void loadTemplate(File f, ScriptType type, ScriptEngineWrapper engine, boolean ignoreDuplicates) {
 		if (f.getName().indexOf(".") > 0) {
 			if (this.getTreeModel().getTemplate(f.getName()) == null) {
 				String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
@@ -408,6 +409,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 								this.getEngineWrapper(engineName), type, false, f);
 						this.loadScript(template);
 						this.addTemplate(template);
+					} catch (InvalidParameterException e) {
+						if (! ignoreDuplicates) {
+							logger.error(e.getMessage(), e);
+						}
 					} catch (IOException e) {
 						logger.error(e.getMessage(), e);
 					}

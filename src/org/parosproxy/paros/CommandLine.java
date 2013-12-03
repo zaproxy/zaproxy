@@ -25,6 +25,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
+// ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 
 package org.parosproxy.paros;
 
@@ -48,7 +49,8 @@ public class CommandLine {
     public static final String PORT = "-port";
     public static final String HOST = "-host";
     public static final String CMD = "-cmd";
-    
+    public static final String INSTALL_DIR = "-installdir";
+
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
     
@@ -216,6 +218,9 @@ public class CommandLine {
 	        result = true;
 	    } else if (checkPair(args, DIR, i)) {
 	    	Constant.setZapHome(keywords.get(DIR));
+	        result = true;
+	    } else if (checkPair(args, INSTALL_DIR, i)) {
+	    	Constant.setZapInstall(keywords.get(INSTALL_DIR));
 	        result = true;
 	    } else if (checkPair(args, HOST, i)) {
 	    	this.host = keywords.get(HOST);

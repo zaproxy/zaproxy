@@ -53,7 +53,7 @@ public class Vulnerabilities {
 			// Read them in from the file
 			XMLConfiguration config;
 	        try {
-	        	File f = new File(Constant.getInstance().VULNS_CONFIG);
+	        	File f = new File(Constant.getZapInstall(), Constant.getInstance().VULNS_CONFIG);
 	        	config = new XMLConfiguration();
 	        	config.setDelimiterParsingDisabled(true);
 	        	config.load(f);
