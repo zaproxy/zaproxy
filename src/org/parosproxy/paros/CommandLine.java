@@ -203,7 +203,6 @@ public class CommandLine {
 				if (cll.handleFile(file)) {
 					found = true;
 		            args[i] = null;
-					break;
 				}
 			}
 	    }
