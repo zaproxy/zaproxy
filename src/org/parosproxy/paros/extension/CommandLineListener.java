@@ -21,7 +21,12 @@
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
+// ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
+
 package org.parosproxy.paros.extension;
+
+import java.io.File;
+import java.util.List;
 
 
 public interface CommandLineListener {
@@ -29,5 +34,20 @@ public interface CommandLineListener {
      * execute the command line using the argument provided.
      */
     void execute(CommandLineArgument[] args);
+    
+    /**
+     * Handle the specified file (in whiatever way is appropriate).
+     * This will only be called for files specified on the command line without switches 
+     * and which match one of the extensions returned by getHandledExtensions() 
+     * @param fileName
+     * @return true if the listener handled the file, false otherwise
+     */
+    boolean handleFile (File file);
+    
+    /**
+     * Get the list of extensions this listener can handle
+     * @return
+     */
+    List<String> getHandledExtensions();
 
 }

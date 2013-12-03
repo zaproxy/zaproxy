@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.EventQueue;
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -137,7 +138,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         extensionHook.addSiteMapListener(this);
 
         extensionHook.addOptionsParamSet(getScannerParam());
-        extensionHook.addCommandLine(getCommandLineArguments());
+        // TODO this isnt currently implemented
+        //extensionHook.addCommandLine(getCommandLineArguments());
 
 		ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
 		if (extScript != null) {
@@ -311,7 +313,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     */
     }
 
-    private CommandLineArgument[] getCommandLineArguments() {
+    @SuppressWarnings("unused")
+	private CommandLineArgument[] getCommandLineArguments() {
         arguments[ARG_SCAN_IDX] = new CommandLineArgument("-scan", 0, null, "", "-scan : Run vulnerability scan depending on previously saved policy.");
         return arguments;
     }
@@ -414,5 +417,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	
 	public void stopScan (String site) {
 		this.getActiveScanPanel().stopScan(site);
+	}
+
+	@Override
+	public boolean handleFile(File file) {
+		// Cant handle any files
+		return false;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// Cant handle any extensions
+		return null;
 	}
 }

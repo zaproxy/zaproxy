@@ -392,6 +392,7 @@ public class ZAP {
 			control.getExtensionLoader().hookCommandLineListener(cmdLine);
 			control.runCommandLine();
 		} catch (Exception e) {
+	        View.getSingleton().showWarningDialog(e.getMessage());
 	        log.error(e.getMessage(), e);
 		}
 	}

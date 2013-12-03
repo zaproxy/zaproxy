@@ -26,13 +26,18 @@
 // ZAP: 2013/03/20 Issue 568: Allow extensions to run from the command line
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
+// ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 
 package org.parosproxy.paros;
 
+import java.io.File;
+import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Vector;
 
 import org.parosproxy.paros.extension.CommandLineArgument;
+import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.network.HttpSender;
 
 
@@ -60,7 +65,7 @@ public class CommandLine {
     private int port = -1;
     private String host = null;
     private String[] args = null;
-    private Hashtable<String, String> keywords = new Hashtable<>();
+    private Hashtable<String, String> keywords = new Hashtable<String, String>();
     private Vector<CommandLineArgument[]> commandList = null;
     
     public CommandLine(String[] args) throws Exception {
@@ -71,7 +76,9 @@ public class CommandLine {
     private boolean checkPair(String[] args, String paramName, int i) throws Exception {
         String key = args[i];
         String value = null;
-        if (key == null) return false;
+        if (key == null) {
+        	return false;
+        }
         if (key.equalsIgnoreCase(paramName)) {
             value = args[i+1];
             if (value == null) throw new Exception();
@@ -85,7 +92,9 @@ public class CommandLine {
 
     private boolean checkSwitch(String[] args, String paramName, int i) throws Exception {
         String key = args[i];
-        if (key == null) return false;
+        if (key == null) {
+        	return false;
+        }
         if (key.equalsIgnoreCase(paramName)) {
             keywords.put(paramName, "");
             args[i] = null;
@@ -99,42 +108,48 @@ public class CommandLine {
 
 	    for (int i=0; i<args.length; i++) {
 	        
-	        if (parseSwitchs(args, i)) continue;
-	        if (parseKeywords(args, i)) continue;
+	        if (parseSwitchs(args, i)) {
+	        	continue;
+	        }
+	        if (parseKeywords(args, i)) {
+	        	continue;
+	        }
 	        
         }
 	        
     }
 
-	public void parse(Vector<CommandLineArgument[]> commandList) throws Exception {
-	    this.commandList = commandList;
+	public void parse(Vector<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap) throws Exception {
+		this.commandList = commandList;
 	    CommandLineArgument lastArg = null;
 	    boolean found = false;
 	    int remainingValueCount = 0;
 	    
 	    for (int i=0; i<args.length; i++) {
-	        if (args[i] == null) continue;
+	        if (args[i] == null) {
+	        	continue;
+	        }
 	        found = false;
 	        
 		    for (int j=0; j<commandList.size() && !found; j++) {
 		        CommandLineArgument[] extArg = commandList.get(j);
-		        for (int k=0; k<extArg.length && !found; k++)
-		        if (args[i].compareToIgnoreCase(extArg[k].getName()) == 0) {
-		            
-		            // check if previous keyword satisfied its required no. of parameters
-		            if (remainingValueCount > 0) {
-			            throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
-		            }
-		            
-		            // process this keyword
-		            lastArg = extArg[k];
-		            lastArg.setEnabled(true);
-		            found = true;
-		            args[i] = null;
-		            remainingValueCount = lastArg.getNumOfArguments();
+		        for (int k=0; k<extArg.length && !found; k++) {
+			        if (args[i].compareToIgnoreCase(extArg[k].getName()) == 0) {
+			            
+			            // check if previous keyword satisfied its required no. of parameters
+			            if (remainingValueCount > 0) {
+				            throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
+			            }
+			            
+			            // process this keyword
+			            lastArg = extArg[k];
+			            lastArg.setEnabled(true);
+			            found = true;
+			            args[i] = null;
+			            remainingValueCount = lastArg.getNumOfArguments();
+			        }
 		        }
 		    }
-
 
 		    // check if current string is a keyword preceded by '-'
 		    if (args[i] != null && args[i].startsWith("-")) {
@@ -166,10 +181,56 @@ public class CommandLine {
             throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
         }
 	    
-	    // check if there is some unknown keywords
+	    // check for supported extensions
+	    for (int i=0; i<args.length; i++) {
+	        if (args[i] == null) {
+	        	continue;
+	        }
+	        int dotIndex = args[i].lastIndexOf(".");
+	        if (dotIndex < 0) {
+	        	// Only support files with extensions
+	        	continue;
+	        }
+	        File file = new File(args[i]);
+	        if (! file.exists() || ! file.canRead() ) {
+	        	// Not there or cant read .. move on
+	        	continue;
+	        }
+	        
+	        String ext = args[i].substring(dotIndex + 1);
+			CommandLineListener cll = extMap.get(ext);
+			if (cll != null) {
+				if (cll.handleFile(file)) {
+					found = true;
+		            args[i] = null;
+					break;
+				}
+			}
+	    }
+	    
+	    // check if there is some unknown keywords or parameters
 	    for (int i=0; i<args.length; i++) {
 	        if (args[i] != null) {
-                throw new Exception("Unknown options: " + args[i]);	            
+	        	if (args[i].startsWith("-")) {
+	                throw new Exception(
+		            		MessageFormat.format(Constant.messages.getString("start.cmdline.badparam"), args[i]));
+	        	} else {
+	        		// Assume they were trying to specify a file
+	        		File f = new File(args[i]);
+	        		if (! f.exists()) {
+	        			throw new Exception(
+			            		MessageFormat.format(Constant.messages.getString("start.cmdline.nofile"), args[i]));
+	        			
+	        		} else if (! f.canRead()) {
+	        			throw new Exception(
+			            		MessageFormat.format(Constant.messages.getString("start.cmdline.noread"), args[i]));
+
+	        		} else {
+	        			// We probably dont handle this sort of file
+	        			throw new Exception(
+		            		MessageFormat.format(Constant.messages.getString("start.cmdline.badfile"), args[i]));
+	        		}
+	        	}
 	        }
 	    }
 	}

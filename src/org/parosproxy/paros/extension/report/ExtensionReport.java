@@ -24,8 +24,12 @@
 // removed unnecessary cast.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 
 package org.parosproxy.paros.extension.report;
+
+import java.io.File;
+import java.util.List;
 
 import javax.swing.JMenuItem;
 
@@ -153,5 +157,17 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	@Override
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;
+	}
+
+	@Override
+	public boolean handleFile(File file) {
+		// Cant handle any files
+		return false;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// Cant handle any extensions
+		return null;
 	}
 }

@@ -19,16 +19,22 @@
  */
 package org.zaproxy.zap.extension.ext;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.CommandLineArgument;
+import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 
-public class ExtensionExtension extends ExtensionAdaptor {
+public class ExtensionExtension extends ExtensionAdaptor implements CommandLineListener {
 
 	public static final String NAME = "ExtensionExtension"; 
 	
@@ -95,6 +101,27 @@ public class ExtensionExtension extends ExtensionAdaptor {
 		} catch (MalformedURLException e) {
 			return null;
 		}
+	}
+
+	@Override
+	public void execute(CommandLineArgument[] args) {
+		// Don nothing
+		
+	}
+
+	@Override
+	public boolean handleFile(File file) {
+		// Support loading sessions
+		Control.getSingleton().openSession(file, null);
+		return true;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// Support loading sessions
+		List<String> exts = new ArrayList<String>();
+		exts.add("session");
+		return exts;
 	}
 
 }

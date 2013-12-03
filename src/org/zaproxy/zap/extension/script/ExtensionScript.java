@@ -91,7 +91,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	private ScriptUI scriptUI = null;
 
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
-    private static final int ARG_SCAN_IDX = 0;
+    private static final int ARG_SCRIPT_IDX = 0;
 
 	private static final Logger logger = Logger.getLogger(ExtensionScript.class);
 
@@ -673,55 +673,57 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
     	return list;
     }
+	
+	private void openCmdLineFile(File f) throws IOException, ScriptException {
+		if (! f.exists()) {
+			System.out.println(MessageFormat.format(
+					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
+			return;
+		}
+		if (! f.canRead()) {
+			System.out.println(MessageFormat.format(
+					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
+			return;
+		}
+		int dotIndex = f.getName().lastIndexOf(".");
+		if (dotIndex <= 0) {
+			System.out.println(MessageFormat.format(
+					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
+			return;
+		}
+		String ext = f.getName().substring(dotIndex+1);
+		String engineName = this.getEngineNameForExtension(ext);
+		if (engineName == null) {
+			System.out.println(MessageFormat.format(
+					Constant.messages.getString("script.cmdline.noengine"), ext));
+			return;
+		}
+        ScriptWrapper sw = new ScriptWrapper(f.getName(), "", engineName,
+        		this.getScriptType(TYPE_STANDALONE), true, f);
+        
+        this.loadScript(sw);
+		this.addScript(sw);
+		if (! View.isInitialised()) {
+			// Only invoke if run from the command line
+			// if the GUI is present then its up to the user to invoke it 
+        	// Add stdout as a writer
+        	this.addWriter(new PrintWriter(System.out));
+			this.invokeScript(sw);
+		}
+	}
 
     @Override
     public void execute(CommandLineArgument[] args) {
-        if (arguments[ARG_SCAN_IDX].isEnabled()) {
+        if (arguments[ARG_SCRIPT_IDX].isEnabled()) {
             for (CommandLineArgument arg : args) {
             	Vector<String> params = arg.getArguments();
                 if (params != null) {
                 	for (String script : params) {
-                		File f = new File(script);
-                		if (! f.exists()) {
-                			System.out.println(MessageFormat.format(
-                					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
-                			return;
+                		try {
+                			openCmdLineFile(new File(script));
+                		} catch (Exception e) {
+                			logger.error(e.getMessage(), e);
                 		}
-                		if (! f.canRead()) {
-                			System.out.println(MessageFormat.format(
-                					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
-                			return;
-                		}
-                		int dotIndex = script.lastIndexOf(".");
-                		if (dotIndex <= 0) {
-                			System.out.println(MessageFormat.format(
-                					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
-                			return;
-                		}
-                		String ext = script.substring(dotIndex+1);
-                		String engineName = this.getEngineNameForExtension(ext);
-                		if (engineName == null) {
-                			System.out.println(MessageFormat.format(
-                					Constant.messages.getString("script.cmdline.noengine"), ext));
-                			return;
-                		}
-                        ScriptWrapper sw = new ScriptWrapper(script, "", engineName,
-                        		this.getScriptType(TYPE_STANDALONE), true, f);
-                        
-						try {
-	                        this.loadScript(sw);
-							this.addScript(sw);
-							if (! View.isInitialised()) {
-								// Only invoke if run from the command line
-								// if the GUI is present then its up to the user to invoke it 
-			                	// Add stdout as a writer
-			                	this.addWriter(new PrintWriter(System.out));
-								this.invokeScript(sw);
-							}
-						} catch (Exception e) {
-	                        System.out.println(e.getMessage());
-							e.printStackTrace();
-						}
                 	}
                 }
             }
@@ -732,9 +734,43 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     private CommandLineArgument[] getCommandLineArguments() {
     	
-        arguments[ARG_SCAN_IDX] = new CommandLineArgument("-script", 1, null, "", 
+        arguments[ARG_SCRIPT_IDX] = new CommandLineArgument("-script", 1, null, "", 
         		"-script [script_path]: " + Constant.messages.getString("script.cmdline.help"));
         return arguments;
     }
+
+	//@Override
+	public boolean handleFile(File file) {
+		int dotIndex = file.getName().lastIndexOf(".");
+		if (dotIndex <= 0) {
+			// No extension, cant work out which engine
+			return false;
+		}
+		String ext = file.getName().substring(dotIndex+1);
+		String engineName = this.getEngineNameForExtension(ext);
+		if (engineName == null) {
+			// No engine for this extension, we cant handle this
+			return false;
+		}
+		try {
+			openCmdLineFile(file);
+		} catch (Exception e) {
+			logger.error(e.getMessage(), e);
+			return false;
+		}
+		
+		return true;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// The list of all of the script extensions that can be handled from the command line 
+		List<String> exts = new ArrayList<String>();
+		for (ScriptEngineWrapper sew : this.engineWrappers) {
+			exts.addAll(sew.getExtensions());
+		}
+		
+		return exts;
+	}
 
 }

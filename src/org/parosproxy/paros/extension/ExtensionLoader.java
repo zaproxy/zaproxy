@@ -41,12 +41,15 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/11/16 Issue 807: Error while loading ZAP when Quick Start Tab is closed
 // ZAP: 2013/11/16 Issue 845: AbstractPanel added twice to TabbedPanel2 in ExtensionLoader#addTabPanel
+// ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.JMenu;
@@ -546,15 +549,25 @@ public class ExtensionLoader {
      */
     public void hookCommandLineListener (CommandLine cmdLine) throws Exception {
         Vector<CommandLineArgument[]> allCommandLineList = new Vector<>();
+        Map<String, CommandLineListener> extMap = new HashMap<String, CommandLineListener>();
         for (int i=0; i<hookList.size(); i++) {
             ExtensionHook hook = hookList.get(i);
             CommandLineArgument[] arg = hook.getCommandLineArgument();
             if (arg.length > 0) {
                 allCommandLineList.add(arg);
             }
+            if (extensionList.get(i) instanceof CommandLineListener) {
+            	CommandLineListener cli = (CommandLineListener) extensionList.get(i);
+            	List<String> exts = cli.getHandledExtensions();
+            	if (exts != null) {
+            		for (String ext : exts) {
+            			extMap.put(ext, cli);
+            		}
+            	}
+            }
         }
         
-        cmdLine.parse(allCommandLineList);
+        cmdLine.parse(allCommandLineList, extMap);
     }
     
     private void hookMenu(View view, ExtensionHook hook) {
