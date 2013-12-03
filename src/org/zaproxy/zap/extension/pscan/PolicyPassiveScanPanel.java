@@ -22,11 +22,14 @@ package org.zaproxy.zap.extension.pscan;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.DefaultCellEditor;
+import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
 
@@ -81,6 +84,12 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }
+	        JComboBox<String> jcb1 = new JComboBox<String>();
+            for (AlertThreshold level : AlertThreshold.values()) {
+                jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
+            }
+            tableTest.getColumnModel().getColumn(1).setCellEditor(new DefaultCellEditor(jcb1));
+
 		}
 		return tableTest;
 	}
@@ -129,7 +138,6 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
 	@Override
 	public String getHelpIndex() {
-		// TODO add to msg file
 		return "ui.dialogs.options.pscan";
 	}
 }

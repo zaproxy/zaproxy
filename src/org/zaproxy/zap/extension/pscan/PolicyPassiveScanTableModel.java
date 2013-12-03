@@ -20,19 +20,24 @@
 package org.zaproxy.zap.extension.pscan;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 
 
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
+	private Map<String, String> i18nToStr = null;
     private static final String[] columnNames = {
 									Constant.messages.getString("ascan.policy.table.testname"), 
-									Constant.messages.getString("ascan.policy.table.enabled")};
+									Constant.messages.getString("ascan.policy.table.threshold")};
 
     private List<PluginPassiveScanner> listScanners = new ArrayList<>();
     
@@ -54,9 +59,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     
     @Override
 	public Class<?> getColumnClass(int c) {
-        if (c == 1) {
-            return Boolean.class;
-        }
         return String.class;
         
     }
@@ -80,13 +82,34 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     	PluginPassiveScanner test = listScanners.get(row);
         switch (col) {
         	case 0:	break;
-        	case 1: test.setEnabled(((Boolean) value).booleanValue());
+        	case 1: AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
+					test.setLevel(af);
+					test.setEnabled(!AlertThreshold.OFF.equals(af));
         			test.save();
-        			fireTableCellUpdated(row, col);
-        			break;
+		            fireTableCellUpdated(row, col);
+					break;
         }
     }
-    
+
+    private String strToI18n (String str) {
+    	// I18n's threshold and strength enums
+    	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
+    }
+
+    private String i18nToStr (String str) {
+    	// Converts to i18n'ed names back to the enum names
+    	if (i18nToStr == null) {
+    		i18nToStr = new HashMap<String, String>();
+    		for (AlertThreshold at : AlertThreshold.values()) {
+    			i18nToStr.put(this.strToI18n(at.name()), at.name());
+    		}
+    		for (AttackStrength as : AttackStrength.values()) {
+    			i18nToStr.put(this.strToI18n(as.name()), as.name());
+    		}
+    	}
+    	return i18nToStr.get(str);
+    }
+
     @Override
     public int getColumnCount() {
         return 2;
@@ -107,7 +130,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	result = test.getName();
         			break;
-        	case 1: result = Boolean.valueOf(test.isEnabled());
+        	case 1: result = strToI18n(test.getLevel().name());
         			break;
         	default: result = "";
         }
