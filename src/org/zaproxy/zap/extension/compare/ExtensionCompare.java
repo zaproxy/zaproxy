@@ -290,7 +290,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 					    sb.append(CRLF);
 					    
 				        ReportGenerator.stringToHtml(sb.toString(), 
-					    		"xml" + File.separator + "reportCompare.xsl", 
+					    		Constant.getZapInstall() + File.separator + "xml" + File.separator + "reportCompare.xsl", 
 					    		outputFile.getAbsolutePath());
 
 			    		try {
