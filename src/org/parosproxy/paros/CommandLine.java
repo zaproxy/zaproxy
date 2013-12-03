@@ -292,7 +292,7 @@ public class CommandLine {
             sb.append("\tzap.sh ");
         }
         sb.append("[-h |-help] [-newsession session_file_path] [options] [-dir directory]\n" +
-        		"\t\t[-host host] [-port port] [-daemon] [-cmd] [-version]\n");
+        		"\t\t[-installdir directory] [-host host] [-port port] [-daemon] [-cmd] [-version]\n");
         sb.append("options:\n");
 
         for (int i=0; i<commandList.size(); i++) {
