@@ -25,6 +25,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
+// ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 
 package org.parosproxy.paros.extension.report;
 
@@ -153,7 +154,7 @@ public class ReportLastScan {
                     return;
                 }
 
-                File report = generate(file.getAbsolutePath(), model, "xml/report.html.xsl");
+                File report = generate(file.getAbsolutePath(), model, Constant.getZapInstall() + "/xml/report.html.xsl");
                 if (report == null) {
                     view.showMessageDialog(
                             MessageFormat.format(Constant.messages.getString("report.unknown.error"),
@@ -221,7 +222,7 @@ public class ReportLastScan {
                     return;
                 }
 
-                File report = generate(file.getAbsolutePath(), model, "xml/report.xml.xsl");
+                File report = generate(file.getAbsolutePath(), model, Constant.getZapInstall() + "/xml/report.xml.xsl");
                 if (report == null) {
                     view.showMessageDialog(
                             MessageFormat.format(Constant.messages.getString("report.unknown.error"),
