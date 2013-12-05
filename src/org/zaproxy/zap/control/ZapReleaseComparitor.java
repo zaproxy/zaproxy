@@ -85,7 +85,7 @@ public class ZapReleaseComparitor implements Comparator<ZapRelease> {
 					// zr1 element alpha or beta, so before any number (eg 2.0.0 is more recent than 2.0.alpha)
 					return -1;
 				} else {
-					throw new IllegalArgumentException("Invalid release number: " + zr1);
+					throw new IllegalArgumentException("Invalid release number: " + zr1.getVersion());
 				}
 			} else {
 				// neither numbers, must be different
@@ -94,7 +94,7 @@ public class ZapReleaseComparitor implements Comparator<ZapRelease> {
 				} else if (zr1Array[i].equals(Constant.BETA_VERSION)) {
 					return +1;
 				} else {
-					throw new IllegalArgumentException("Invalid release number: " + zr1);
+					throw new IllegalArgumentException("Invalid release number: " + zr1.getVersion());
 				}
 			}
     	}
