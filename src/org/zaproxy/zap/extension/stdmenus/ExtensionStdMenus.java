@@ -17,19 +17,30 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.awt.Toolkit;
+import java.awt.datatransfer.Clipboard;
+import java.awt.datatransfer.ClipboardOwner;
+import java.awt.datatransfer.DataFlavor;
+import java.awt.datatransfer.StringSelection;
+import java.awt.datatransfer.Transferable;
+import java.awt.datatransfer.UnsupportedFlavorException;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 
-public class ExtensionStdMenus extends ExtensionAdaptor {
+public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwner {
 
 	public static final String NAME = "ExtensionStandardMenus";
 
+    private PopupCopyMenu popupCopyMenu = null;
+    private PopupPasteMenu popupPaste = null;
 	private PopupMenuActiveScanScope popupMenuActiveScanScope = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanSubtree = null;
 	private PopupMenuActiveScanSite popupMenuActiveScanSite = null;
@@ -56,6 +67,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
 	private PopupMenuAlert popupMenuAlert = null;
 
+    private static Logger log = Logger.getLogger(ExtensionStdMenus.class);
+
 	public ExtensionStdMenus() {
 		super();
 		initialize();
@@ -71,6 +84,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 	    super.hook(extensionHook);
 	    
 		if (getView() != null) {
+	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopy());
+            extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPaste());
 			// Be careful when changing the menu indexes (and order above) - its easy to get unexpected
 			// results!
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(0));
@@ -101,6 +116,61 @@ public class ExtensionStdMenus extends ExtensionAdaptor {
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
 
 		}
+	}
+
+    private PopupCopyMenu getPopupMenuCopy() {
+        if (popupCopyMenu== null) {
+            popupCopyMenu = new PopupCopyMenu();
+            popupCopyMenu.setText(Constant.messages.getString("copy.copy.popup"));
+            popupCopyMenu.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    setClipboardContents(popupCopyMenu.getLastInvoker().getSelectedText());
+                }
+            });
+        }
+        return popupCopyMenu;
+    }
+    
+    private PopupPasteMenu getPopupMenuPaste() {
+        if (popupPaste == null) {
+            popupPaste = new PopupPasteMenu();
+            popupPaste.setText(Constant.messages.getString("paste.paste.popup"));
+            popupPaste.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    popupPaste.getLastInvoker().setText(popupPaste.getLastInvoker().getText() + getClipboardContents());
+
+
+                }
+            });
+        }
+        return popupPaste;
+    }
+
+    private String getClipboardContents() {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        Transferable contents = clipboard.getContents(null);
+
+        if (contents != null && contents.isDataFlavorSupported(DataFlavor.stringFlavor)) {
+            try {
+                return (String) contents.getTransferData(DataFlavor.stringFlavor);
+            } catch (UnsupportedFlavorException | IOException e) {
+                log.error("Unable to get data from clipboard");
+            }
+        }
+
+        return "";
+    }
+
+	private void setClipboardContents (String str) {
+        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+        clipboard.setContents( new StringSelection(str), this );
+	}
+
+	@Override
+	public void lostOwnership(Clipboard arg0, Transferable arg1) {
+		// Ignore
 	}
 
 	private PopupMenuSpiderURL getPopupMenuSpiderURL(int menuIndex) {
