@@ -22,6 +22,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/01 Added content-type checking to allow special POST management by other Variants
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
+// ZAP: 2013/12/06 Constrained the data content handling to application/x-www-form-urlencoded
 
 package org.parosproxy.paros.core.scanner;
 
@@ -40,7 +41,7 @@ public class VariantFormQuery extends VariantAbstractQuery {
     @Override
     public void setMessage(HttpMessage msg) {
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
-        if (contentType == null || contentType.startsWith(WWW_APP_URL_ENCODED)) {        
+        if (contentType.startsWith(WWW_APP_URL_ENCODED)) {
             parse(msg.getRequestBody().toString());
         }
     }

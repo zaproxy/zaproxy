@@ -158,6 +158,7 @@ public class HttpRequestHeader extends HttpHeader {
         if (version.equalsIgnoreCase(HTTP11)) {
             setHeader(CACHE_CONTROL, "no-cache");
         }
+        // ZAP: set content type x-www-urlencoded only if it's a POST
         setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
         setHeader(ACCEPT_ENCODING, null);
         // ZAP: changed from method to version
