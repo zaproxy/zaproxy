@@ -37,7 +37,8 @@
 // ZAP: 2013/03/08 Improved parse error reporting
 // ZAP: 2013/04/14 Issue 596: Rename the method HttpRequestHeader.getSecure to isSecure
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-
+// ZAP: 2013/12/09 Set Content-type only in case of POST or PUT HTTP methods
+//
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -58,9 +59,8 @@ import org.apache.log4j.Logger;
 public class HttpRequestHeader extends HttpHeader {
 
     private static final long serialVersionUID = 4156598327921777493L;
-    
     private static final Logger log = Logger.getLogger(HttpRequestHeader.class);
-    
+  
     // method list
     public static final String OPTIONS = "OPTIONS";
     public static final String GET = "GET";
@@ -70,6 +70,7 @@ public class HttpRequestHeader extends HttpHeader {
     public static final String DELETE = "DELETE";
     public static final String TRACE = "TRACE";
     public static final String CONNECT = "CONNECT";
+    
     // ZAP: Added method array
     public static final String[] METHODS = {OPTIONS, GET, HEAD, POST, PUT, DELETE, TRACE, CONNECT};
     public static final String HOST = "Host";
@@ -81,7 +82,7 @@ public class HttpRequestHeader extends HttpHeader {
     private String mMethod = "";
     private URI mUri = null;
     private String mHostName = "";
-
+    
     /**
      * The host port number of this request message, a non-negative integer.
      * <p>
@@ -91,13 +92,12 @@ public class HttpRequestHeader extends HttpHeader {
      * port number is defined (which is represented with the negative integer
      * -1).
      * </p>
-     * 
+     *
      * @see #getHostPort()
      * @see #setHostPort(int)
      * @see URI#getPort()
      */
     private int mHostPort;
-
     private boolean mIsSecure = false;
 
     /**
@@ -147,20 +147,29 @@ public class HttpRequestHeader extends HttpHeader {
 
     public HttpRequestHeader(String method, URI uri, String version) throws HttpMalformedHeaderException {
         this(method + " " + uri.toString() + " " + version.toUpperCase() + CRLF + CRLF);
+        
         try {
             setHeader(HOST, uri.getHost() + (uri.getPort() > 0 ? ":" + Integer.toString(uri.getPort()) : ""));
+            
         } catch (URIException e) {
             log.error(e.getMessage(), e);
         }
+        
         setHeader(USER_AGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)");
         setHeader(PRAGMA, "no-cache");
+        
         // ZAP: added the Cache-Control header field to comply with HTTP/1.1
         if (version.equalsIgnoreCase(HTTP11)) {
             setHeader(CACHE_CONTROL, "no-cache");
         }
-        // ZAP: set content type x-www-urlencoded only if it's a POST
-        setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
+        
+        // ZAP: set content type x-www-urlencoded only if it's a POST or a PUT
+        if (method.equalsIgnoreCase(POST) || method.equalsIgnoreCase(PUT)) {
+            setHeader(CONTENT_TYPE, "application/x-www-form-urlencoded");
+        }
+        
         setHeader(ACCEPT_ENCODING, null);
+        
         // ZAP: changed from method to version
         if (version.equalsIgnoreCase(HTTP11)) {
             setContentLength(0);
@@ -178,19 +187,23 @@ public class HttpRequestHeader extends HttpHeader {
      */
     public void setMessage(String data, boolean isSecure) throws HttpMalformedHeaderException {
         super.setMessage(data);
-		try {
-        	parse(isSecure);
-    	} catch (HttpMalformedHeaderException e) {
-        	mMalformedHeader = true;
+        
+        try {
+            parse(isSecure);
+        
+        } catch (HttpMalformedHeaderException e) {
+            mMalformedHeader = true;
             if (log.isDebugEnabled()) {
                 log.debug("Malformed header: " + data, e);
             }
-        	throw e;
+            
+            throw e;
+        
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             mMalformedHeader = true;
             throw new HttpMalformedHeaderException(e.getMessage());
-    	}
+        }
     }
 
     /**
@@ -240,16 +253,18 @@ public class HttpRequestHeader extends HttpHeader {
 
         if (uri.getScheme() == null || uri.getScheme().equals("")) {
             mUri = new URI(HTTP + "://" + getHeader(HOST) + "/" + mUri.toString(), true);
+            
         } else {
             mUri = uri;
         }
 
         if (uri.getScheme().equalsIgnoreCase(HTTPS)) {
             mIsSecure = true;
+            
         } else {
             mIsSecure = false;
         }
-        
+
         setHostPort(mUri.getPort());
     }
 
@@ -257,7 +272,8 @@ public class HttpRequestHeader extends HttpHeader {
      * Get if this request header is under secure connection.
      *
      * @return
-     * @deprecated Replaced by {@link #isSecure()}. It will be removed in a future release.
+     * @deprecated Replaced by {@link #isSecure()}. It will be removed in a
+     * future release.
      */
     @Deprecated
     public boolean getSecure() {
@@ -265,8 +281,9 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     /**
-     * Tells whether the request is secure, or not. A request is considered secure if it's using the HTTPS protocol.
-     * 
+     * Tells whether the request is secure, or not. A request is considered
+     * secure if it's using the HTTPS protocol.
+     *
      * @return {@code true} if the request is secure, {@code false} otherwise.
      */
     public boolean isSecure() {
@@ -289,9 +306,11 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         URI newUri = mUri;
+
         // check if URI consistent
         if (isSecure() && mUri.getScheme().equalsIgnoreCase(HTTP)) {
             newUri = new URI(mUri.toString().replaceFirst(HTTP, HTTPS), true);
+            
         } else if (!isSecure() && mUri.getScheme().equalsIgnoreCase(HTTPS)) {
             newUri = new URI(mUri.toString().replaceFirst(HTTPS, HTTP), true);
         }
@@ -319,6 +338,7 @@ public class HttpRequestHeader extends HttpHeader {
         if (mContentLength == -1) {
             return 0;
         }
+        
         return mContentLength;
     }
 
@@ -343,10 +363,9 @@ public class HttpRequestHeader extends HttpHeader {
         String sUri = matcher.group(2);
         mVersion = matcher.group(3);
 
-
         if (!mVersion.equalsIgnoreCase(HTTP09) && !mVersion.equalsIgnoreCase(HTTP10) && !mVersion.equalsIgnoreCase(HTTP11)) {
             mMalformedHeader = true;
-			throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
+            throw new HttpMalformedHeaderException("Unexpected version: " + mVersion);
         }
 
         mUri = parseURI(sUri);
@@ -363,10 +382,11 @@ public class HttpRequestHeader extends HttpHeader {
             setSecure(true);
         }
 
-        String hostHeader = null;
+        String hostHeader;
         if (mMethod.equalsIgnoreCase(CONNECT)) {
             hostHeader = sUri;
             parseHostName(hostHeader);
+            
         } else {
             mHostName = mUri.getHost();
             setHostPort(mUri.getPort());
@@ -378,14 +398,16 @@ public class HttpRequestHeader extends HttpHeader {
         if (hostHeader == null) {
             return;
         }
+        
         int port = -1;
-        int pos = 0;
+        int pos;
         if ((pos = hostHeader.indexOf(':', 2)) > -1) {
             mHostName = hostHeader.substring(0, pos).trim();
             try {
                 port = Integer.parseInt(hostHeader.substring(pos + 1));
             } catch (NumberFormatException e) {
             }
+            
         } else {
             mHostName = hostHeader.trim();
         }
@@ -403,11 +425,13 @@ public class HttpRequestHeader extends HttpHeader {
         try {
             // ZAP: fixed cases, where host name is null
             hostName = ((mUri.getHost() != null) ? mUri.getHost() : mHostName);
+            
         } catch (URIException e) {
             if (log.isDebugEnabled()) {
                 log.warn(e);
             }
         }
+        
         return hostName;
     }
 
@@ -418,7 +442,7 @@ public class HttpRequestHeader extends HttpHeader {
      * If no port is defined the default port for the used scheme will be
      * returned, either 80 for HTTP or 443 for HTTPS.
      * </p>
-     * 
+     *
      * @return the host port number, a non-negative integer
      */
     public int getHostPort() {
@@ -433,9 +457,8 @@ public class HttpRequestHeader extends HttpHeader {
      * port number for the used scheme known using the method
      * {@code isSecure()}, either 80 for HTTP or 443 for HTTPS.
      * </p>
-     * 
-     * @param port
-     *            the new port number
+     *
+     * @param port the new port number
      * @see #mHostPort
      * @see #isSecure()
      * @see URI#getPort()
@@ -443,8 +466,10 @@ public class HttpRequestHeader extends HttpHeader {
     private void setHostPort(int port) {
         if (port > -1) {
             mHostPort = port;
+            
         } else if (this.isSecure()) {
             mHostPort = 443;
+            
         } else {
             mHostPort = 80;
         }
@@ -462,9 +487,11 @@ public class HttpRequestHeader extends HttpHeader {
             if (path != null) {
                 return (patternImage.matcher(path).find());
             }
+            
         } catch (URIException e) {
             log.error(e.getMessage(), e);
         }
+        
         return false;
     }
 
@@ -495,12 +522,12 @@ public class HttpRequestHeader extends HttpHeader {
     private static final String DELIM_UNWISE = DELIM + UNWISE;
 
     public static URI parseURI(String sUri) throws URIException {
-        URI uri = null;
+        URI uri;
 
         int len = sUri.length();
         StringBuilder sb = new StringBuilder(len);
         char[] charray = new char[1];
-        String s = null;
+        String s;
 
         for (int i = 0; i < len; i++) {
             char ch = sUri.charAt(i);
@@ -511,9 +538,12 @@ public class HttpRequestHeader extends HttpHeader {
                 s = new String(charray);
                 try {
                     s = URLEncoder.encode(s, "UTF8");
+                    
                 } catch (UnsupportedEncodingException e1) {
                 }
+                
                 sb.append(s);
+                
             } else if (ch == '%') {
 
                 // % is exception - no encoding to be done because some server may not handle
@@ -528,22 +558,27 @@ public class HttpRequestHeader extends HttpHeader {
                     String hex = sUri.substring(i + 1, i + 3);
                     Integer.parseInt(hex, 16);
                     sb.append(ch);
+                    
                 } catch (Exception e) {
                     charray[0] = ch;
                     s = new String(charray);
                     try {
                         s = URLEncoder.encode(s, "UTF8");
+                        
                     } catch (UnsupportedEncodingException e1) {
                     }
                     sb.append(s);
                 }
+                
             } else if (ch == ' ') {
                 // if URLencode, '+' will be appended.
                 sb.append("%20");
+                
             } else {
                 sb.append(ch);
             }
         }
+
         uri = new URI(sb.toString(), true);
         return uri;
     }
@@ -554,13 +589,15 @@ public class HttpRequestHeader extends HttpHeader {
         if (mUri == null) {
             return;
         }
-    
+
         if (getParams.isEmpty()) {
             try {
                 mUri.setQuery("");
+        
             } catch (URIException e) {
-            	log.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
+            
             return;
         }
 
@@ -577,11 +614,13 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         if (sbQuery.length() <= 2) {
-        	try {
+            try {
                 mUri.setQuery("");
+            
             } catch (URIException e) {
-            	log.error(e.getMessage(), e);
+                log.error(e.getMessage(), e);
             }
+            
             return;
         }
 
@@ -591,26 +630,25 @@ public class HttpRequestHeader extends HttpHeader {
             //The previous behaviour was escaping the query,
             //so it is maintained with the use of setQuery.
             mUri.setQuery(query);
+            
         } catch (URIException e) {
-        	log.error(e.getMessage(), e);
+            log.error(e.getMessage(), e);
         }
     }
 
-    
     /**
-	 * Construct new "Cookie:" line in request header based on HttpCookies.
-	 * 
-	 * @param cookies the new cookies
-	 */
+     * Construct new "Cookie:" line in request header based on HttpCookies.
+     *
+     * @param cookies the new cookies
+     */
     public void setCookies(List<HttpCookie> cookies) {
-    	if (cookies.isEmpty()) {
-    		setHeader(HttpHeader.COOKIE, null);
-    	}
-    	
-    	StringBuilder sbData = new StringBuilder();
+        if (cookies.isEmpty()) {
+            setHeader(HttpHeader.COOKIE, null);
+        }
 
-        for(HttpCookie c:cookies){
+        StringBuilder sbData = new StringBuilder();
 
+        for (HttpCookie c : cookies) {
             sbData.append(c.getName());
             sbData.append('=');
             sbData.append(c.getValue());
@@ -618,23 +656,22 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         if (sbData.length() <= 3) {
-        	setHeader(HttpHeader.COOKIE, null);
+            setHeader(HttpHeader.COOKIE, null);
             return;
         }
 
         final String data = sbData.substring(0, sbData.length() - 2);
         setHeader(HttpHeader.COOKIE, data);
     }
-    
-    
+
     // Construct new "Cookie:" line in request header,
     // based on cookieParams
     public void setCookieParams(TreeSet<HtmlParameter> cookieParams) {
-    	if (cookieParams.isEmpty()) {
-    		setHeader(HttpHeader.COOKIE, null);
-    	}
-    	
-    	StringBuilder sbData = new StringBuilder();
+        if (cookieParams.isEmpty()) {
+            setHeader(HttpHeader.COOKIE, null);
+        }
+
+        StringBuilder sbData = new StringBuilder();
 
         for (HtmlParameter parameter : cookieParams) {
             if (parameter.getType() != HtmlParameter.Type.cookie) {
@@ -648,58 +685,62 @@ public class HttpRequestHeader extends HttpHeader {
         }
 
         if (sbData.length() <= 3) {
-        	setHeader(HttpHeader.COOKIE, null);
+            setHeader(HttpHeader.COOKIE, null);
             return;
         }
 
         final String data = sbData.substring(0, sbData.length() - 2);
         setHeader(HttpHeader.COOKIE, data);
     }
-    
+
     public TreeSet<HtmlParameter> getCookieParams() {
-		TreeSet<HtmlParameter> set = new TreeSet<>();
-		
-    	Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
-		if (cookieLines != null) {
-    		for (String cookieLine : cookieLines) {
-        		if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
-        			// HttpCookie wont parse lines starting with "Cookie:"
-        			cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
-        		}
-            	// These can be comma separated type=value
-        		String [] cookieArray = cookieLine.split(";");
-        		for (String cookie : cookieArray) {
-        			set.add(new HtmlParameter(cookie));
-        		}
-    		}
-		}
-    	
-    	return set;
+        TreeSet<HtmlParameter> set = new TreeSet<>();
+
+        Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
+        if (cookieLines != null) {
+            for (String cookieLine : cookieLines) {
+                if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
+                    // HttpCookie wont parse lines starting with "Cookie:"
+                    cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
+                }
+                
+                // These can be comma separated type=value
+                String[] cookieArray = cookieLine.split(";");
+                for (String cookie : cookieArray) {
+                    set.add(new HtmlParameter(cookie));
+                }
+            }
+        }
+
+        return set;
     }
-    
-	// ZAP: Added method for working directly with HttpCookie
-	/**
-	 * Gets a list of the http cookies from this request Header.
-	 * 
-	 * @return the http cookies
-	 * @throws IllegalArgumentException if a problem is encountered while processing the "Cookie: " header line.
-	 */
-	public List<HttpCookie> getHttpCookies() {
-		List<HttpCookie> cookies = new LinkedList<>();
-		// Use getCookieParams to reduce the places we parse cookies
-		TreeSet<HtmlParameter> ts = getCookieParams();
-		Iterator<HtmlParameter> it = ts.iterator();
-		while (it.hasNext()) {
-			HtmlParameter htmlParameter = it.next();
-			if(!htmlParameter.getName().isEmpty()) {
-				try {
-					cookies.add(new HttpCookie(htmlParameter.getName(), htmlParameter.getValue()));
-				} catch (IllegalArgumentException e) {
-					// Occurs while scanning ;)
-					log.debug(e.getMessage() + " " + htmlParameter.getName());
-				}
-			}
-		}
-		return cookies;
-	}
+
+    // ZAP: Added method for working directly with HttpCookie
+    /**
+     * Gets a list of the http cookies from this request Header.
+     *
+     * @return the http cookies
+     * @throws IllegalArgumentException if a problem is encountered while
+     * processing the "Cookie: " header line.
+     */
+    public List<HttpCookie> getHttpCookies() {
+        List<HttpCookie> cookies = new LinkedList<>();
+        // Use getCookieParams to reduce the places we parse cookies
+        TreeSet<HtmlParameter> ts = getCookieParams();
+        Iterator<HtmlParameter> it = ts.iterator();
+        while (it.hasNext()) {
+            HtmlParameter htmlParameter = it.next();
+            if (!htmlParameter.getName().isEmpty()) {
+                try {
+                    cookies.add(new HttpCookie(htmlParameter.getName(), htmlParameter.getValue()));
+                
+                } catch (IllegalArgumentException e) {
+                    // Occurs while scanning ;)
+                    log.debug(e.getMessage() + " " + htmlParameter.getName());
+                }
+            }
+        }
+        
+        return cookies;
+    }
 }
