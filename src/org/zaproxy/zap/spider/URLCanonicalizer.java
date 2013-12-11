@@ -23,7 +23,6 @@ package org.zaproxy.zap.spider;
 
 import java.net.MalformedURLException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
@@ -34,6 +33,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
@@ -109,7 +109,12 @@ public final class URLCanonicalizer {
 			/* Build the absolute URL, from the url and the baseURL */
 			String resolvedURL = URLResolver.resolveUrl(baseURL == null ? "" : baseURL, url);
 			log.debug("Resolved URL: " + resolvedURL);
-			URI canonicalURI = new URI(resolvedURL);
+			URI canonicalURI;
+			try {
+				canonicalURI = new URI(resolvedURL);
+			} catch (Exception e) {
+				canonicalURI = new URI(URIUtil.encodeQuery(resolvedURL));
+			}
 
 			/* Some checking. */
 			if (canonicalURI.getScheme() == null) {
@@ -166,12 +171,9 @@ public final class URLCanonicalizer {
 			URL result = new URL(protocol, host, port, pathAndQueryString);
 			return result.toExternalForm();
 
-		} catch (MalformedURLException ex) {
+		} catch (Exception ex) {
+log.error(ex.getMessage(), ex);
 			log.warn("Error while Processing URL in the spidering process (on base " + baseURL + "): "
-					+ ex.getMessage());
-			return null;
-		} catch (URISyntaxException ex) {
-			log.warn("Error while Processing URI in the spidering process (on base " + baseURL + "): "
 					+ ex.getMessage());
 			return null;
 		}
