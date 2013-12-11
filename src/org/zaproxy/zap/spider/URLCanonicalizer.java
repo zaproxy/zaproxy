@@ -172,7 +172,6 @@ public final class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (Exception ex) {
-log.error(ex.getMessage(), ex);
 			log.warn("Error while Processing URL in the spidering process (on base " + baseURL + "): "
 					+ ex.getMessage());
 			return null;
