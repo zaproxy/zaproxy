@@ -40,6 +40,7 @@
 // ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 // ZAP: 2013/09/29 Deprecating configuring HTTP Authentication through Options
 // ZAP: 2013/11/16 Issue 837: Update, always, the HTTP request sent/forward by ZAP's proxy
+// ZAP: 2013/12/11 Corrected log.info calls to use debug
 
 package org.parosproxy.paros.network;
 
@@ -385,7 +386,7 @@ public class HttpSender {
 		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null)
 			msg.getRequestingUser().processMessageToMatchUser(msg);
 
-		log.info("Sending message to: " + msg.getRequestHeader().getURI().toString());
+		log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
 		// Send the message
 		send(msg, isFollowRedirect);
 
@@ -394,13 +395,13 @@ public class HttpSender {
 		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null
 				&& msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
 				&& !msg.getRequestingUser().isAuthenticated(msg)) {
-			log.info("First try to send authenticated message failed for " + msg.getRequestHeader().getURI()
+			log.debug("First try to send authenticated message failed for " + msg.getRequestHeader().getURI()
 					+ ". Authenticating and trying again...");
 			msg.getRequestingUser().queueAuthentication(msg);
 			msg.getRequestingUser().processMessageToMatchUser(msg);
 			send(msg, isFollowRedirect);
 		} else
-			log.info("SUCCESSFUL");
+			log.debug("SUCCESSFUL");
 
 	}
 
