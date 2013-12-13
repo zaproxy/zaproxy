@@ -46,6 +46,7 @@
 // ZAP: 2013/04/14 Issue 610: Replace the use of the String class for available/default "Forced Browse" files
 // ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
+// ZAP: 2013/12/13 Issue 919: Support for multiple language vulnerability files.
 
 package org.parosproxy.paros;
 
@@ -175,10 +176,11 @@ public final class Constant {
     public static I18N messages = null;
 
     /**
-     * Path to the file that contains the vulnerabilities' data.
+     * Pointer and filename part for the vulnerabilities file.
      */
     // ZAP: Added vulnerabilities file
-    public String VULNS_CONFIG = "xml/vulnerabilities.xml";
+    public static String LANG_DIR="/lang/";
+    public static String VULNS_BASE = "vulnerabilities";
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";

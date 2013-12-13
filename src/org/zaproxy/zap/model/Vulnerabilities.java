@@ -19,93 +19,29 @@
  */
 package org.zaproxy.zap.model;
 
-import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConversionException;
-import org.apache.commons.configuration.XMLConfiguration;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 
 public class Vulnerabilities {
-
-	private static final Logger logger = Logger.getLogger(Vulnerabilities.class);
 	
-	private static List<Vulnerability> vulns = null;
-	private static Map<String, Vulnerability> idToVuln = null;
+	private static VulnerabilitiesI18NMap vulnerabilitiesI18NMap = null;
 	
 	private Vulnerabilities() {
 	}
 
-	private static void initEmpty() {
-    	idToVuln = Collections.emptyMap();
-    	vulns = Collections.unmodifiableList(Collections.<Vulnerability>emptyList());
-	}
-	
 	private static synchronized void init() {
-		if (vulns == null) {
-			// Read them in from the file
-			XMLConfiguration config;
-	        try {
-	        	File f = new File(Constant.getZapInstall(), Constant.getInstance().VULNS_CONFIG);
-	        	config = new XMLConfiguration();
-	        	config.setDelimiterParsingDisabled(true);
-	        	config.load(f);
-	        } catch (ConfigurationException e) {
-	        	logger.error(e.getMessage(), e);
-	        	initEmpty();
-	        	return ;
-	        }
-	        
-	        String[] test;
-	        try {
-	        	test = config.getStringArray("vuln_items");
-	        } catch (ConversionException e) {
-            	logger.error(e.getMessage(), e);
-            	initEmpty();
-            	return;
-	        }
-        	final int numberOfVulns = test.length;
-        	
-        	List<Vulnerability> tempVulns = new ArrayList<>(numberOfVulns);
-        	idToVuln = new HashMap<>(Math.max((int) (numberOfVulns / 0.75) + 1, 16));
-        	
-        	String name;
-        	List<String> references;
-        	
-        	for (String item : test) {
-        		name = "vuln_item_" + item;
-        		try {
-        			references = new ArrayList<>(Arrays.asList(config.getStringArray(name + ".reference")));
-        		} catch (ConversionException e) {
-        			logger.error(e.getMessage(), e);
-        			references = new ArrayList<>(0);
-        		}
-        			
-        		Vulnerability v = 
-        			new Vulnerability(
-        					item,
-        					config.getString(name + ".alert"),
-        					config.getString(name + ".desc"),
-        					config.getString(name + ".solution"),
-        					references);
-        		tempVulns.add(v);
-        		idToVuln.put(item, v);
-        	}
-        	
-        	vulns = Collections.unmodifiableList(tempVulns);
+		if (vulnerabilitiesI18NMap == null) {
+			VulnerabilitiesLoader loader = new VulnerabilitiesLoader(Constant.getZapInstall() + Constant.LANG_DIR, Constant.VULNS_BASE);
+			vulnerabilitiesI18NMap = loader.load();
 		}
 	}
-	
+
 	/**
 	 * Gets an unmodifiable {@code List} containing all the
-	 * {@code Vulnerability} loaded from the path {@code Constant.VULNS_CONFIG}.
+	 * {@code Vulnerability} for the current active Locale.
+	 * They are loaded from the xml files as specified by the {@code Constant}.
 	 * <p>
 	 * An empty {@code List} is returned if any error occurred while opening the
 	 * file. The returned {@code List} is guaranteed to be <i>non</i>
@@ -122,16 +58,18 @@ public class Vulnerabilities {
 	 * @see Constant#VULNS_CONFIG
 	 */
 	public static List<Vulnerability> getAllVulnerabilities() {
-		if (vulns == null) {
-			init();
-		}
-		return vulns;
+		initializeIfEmpty();
+		return Collections.unmodifiableList(vulnerabilitiesI18NMap.getVulnerabilityList(Constant.getLocale().toString()));
 	}
 	
 	public static Vulnerability getVulnerability (String name) {
-		if (vulns == null) {
+		initializeIfEmpty();
+		return vulnerabilitiesI18NMap.getVulnerabilityByName(name, Constant.getLocale().toString());
+	}
+
+	private static void initializeIfEmpty() {
+		if (vulnerabilitiesI18NMap == null) {
 			init();
 		}
-		return idToVuln.get(name);
 	}
 }
