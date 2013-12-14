@@ -156,11 +156,6 @@ public class Core {
 		return api.callApi("core", "view", "optionConfirmRemoveAuth", map);
 	}
 
-	public ApiResponse optionPortsForSslTunneling() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("core", "view", "optionPortsForSslTunneling", map);
-	}
-
 	public ApiResponse optionSingleCookieRequestHeader() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "optionSingleCookieRequestHeader", map);
@@ -259,13 +254,6 @@ public class Core {
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainPassword", map);
-	}
-
-	public ApiResponse setOptionPortsForSslTunneling(String string) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("String", string);
-		return api.callApi("core", "action", "setOptionPortsForSslTunneling", map);
 	}
 
 	public ApiResponse setOptionHttpStateEnabled(boolean bool) throws ClientApiException {

@@ -38,9 +38,11 @@
 // ZAP: 2013/04/11 Issue 621: Handle requests to the proxy URL
 // ZAP: 2013/04/14 Issue 622: Local proxy unable to correctly detect requests to itself
 // ZAP: 2013/06/17 Issue 686: Log HttpException (as error) in the ProxyThread
+// ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
 
 package org.parosproxy.paros.core.proxy;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -145,6 +147,20 @@ class ProxyThread implements Runnable {
         httpOut = new HttpOutputStream(inSocket.getOutputStream());
     }
 	
+	private static boolean isSslTlsHandshake(byte[] bytes) {
+		if (bytes.length < 3) {
+			throw new IllegalArgumentException("The parameter bytes must have at least 3 bytes.");
+		}
+		// Check if ContentType is handshake(22)
+		if (bytes[0] == 0x16) {
+			// Check if "valid" ProtocolVersion >= SSLv3 (TLSv1, TLSv1.1, ...) or SSLv2
+			if (bytes[1] >= 0x03 || (bytes[1] == 0x00 && bytes[2] == 0x02)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public void run() {
         proxyThreadList.add(thread);
@@ -152,6 +168,9 @@ class ProxyThread implements Runnable {
 		HttpRequestHeader firstHeader = null;
 		
 		try {
+			BufferedInputStream bufferedInputStream = new BufferedInputStream(inSocket.getInputStream(), 2048);
+			inSocket = new CustomStreamsSocket(inSocket, bufferedInputStream, inSocket.getOutputStream());
+
 			httpIn = new HttpInputStream(inSocket);
 			httpOut = new HttpOutputStream(inSocket.getOutputStream());
 			
@@ -165,10 +184,12 @@ class ProxyThread implements Runnable {
 					httpOut.write(CONNECT_HTTP_200);
 					httpOut.flush();
 					
-					Integer targetPort = firstHeader.getHostPort();
+					byte[] bytes = new byte[3];
+					bufferedInputStream.mark(3);
+					bufferedInputStream.read(bytes);
+					bufferedInputStream.reset();
 					
-					// ZAP: perform SSL handshake only if port indicates wish for a SSL tunnel
-					if (connectionParam.isPortDemandingSslTunnel(targetPort)) {
+					if (isSslTlsHandshake(bytes)) {
 				        isSecure = true;
 						beginSSL(hostName);
 					}

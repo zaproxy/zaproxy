@@ -28,13 +28,12 @@
 // isPortDemandingSslTunnel() to indicate HTTP CONNECT behavior.
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
+// ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
 
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConversionException;
@@ -70,7 +69,6 @@ public class ConnectionParam extends AbstractParam {
     // ZAP: Added prompt option and timeout
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
-	private static final String SSL_CONNECT_PORTS = CONNECTION_BASE_KEY + ".sslConnectPorts";
 	private static final String SINGLE_COOKIE_REQUEST_HEADER = CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
     
     private static final String CONFIRM_REMOVE_AUTH_KEY = CONNECTION_BASE_KEY + ".confirmRemoveAuth";
@@ -91,8 +89,6 @@ public class ConnectionParam extends AbstractParam {
 	private int timeoutInSecs = 120;
 
 	private Pattern	patternSkip = null;
-	
-	private Set<Integer> portsForSslTunneling = new HashSet<>();
 	
 	private boolean singleCookieRequestHeader = true;
 	
@@ -121,6 +117,7 @@ public class ConnectionParam extends AbstractParam {
 	
 	@Override
 	protected void parse() {
+		removeOldOptions();
 
 		setProxyChainName(getConfig().getString(PROXY_CHAIN_NAME, ""));
 		try {
@@ -155,13 +152,6 @@ public class ConnectionParam extends AbstractParam {
 		}
 		
 		try {
-			setPortsForSslTunneling(getConfig().getString(SSL_CONNECT_PORTS, "443"));
-		} catch (Exception e) {
-	    	// ZAP: Log exceptions
-	    	log.error(e.getMessage(), e);
-		}
-		
-		try {
 			setTimeoutInSecs(getConfig().getInt(TIMEOUT_IN_SECS, 20));
 		} catch (Exception e) {
         	// ZAP: Log exceptions
@@ -183,6 +173,12 @@ public class ConnectionParam extends AbstractParam {
         }
 	}
 	
+	private void removeOldOptions() {
+		final String oldKey = CONNECTION_BASE_KEY + "sslConnectPorts";
+		if (getConfig().containsKey(oldKey)) {
+			getConfig().clearProperty(oldKey);
+		}
+	}
 	
 	public String getProxyChainName() {
 		return proxyChainName;
@@ -418,45 +414,6 @@ public class ConnectionParam extends AbstractParam {
         getConfig().setProperty(CONFIRM_REMOVE_AUTH_KEY, Boolean.valueOf(confirmRemoveAuth));
     }
     
-    /**
-	 * Returns true if a SSL tunnel should be created when the following request
-	 * is issued by the client: "CONNECT url:port HTTP/1.1".
-	 * 
-	 * @param port
-	 * @return
-	 */
-	public boolean isPortDemandingSslTunnel(Integer port) {
-		if (port == null) {
-			// no port defaults to 80
-			port = 80;
-		}
-		return portsForSslTunneling.contains(port);
-	}
-	
-	public String getPortsForSslTunneling() {
-		String ports = "";
-		boolean first = true;
-		for (Integer port : portsForSslTunneling) {
-			if (first) {
-				first = false;
-			} else {
-				ports += ",";
-			}
-			ports += port;
-		}
-		return ports;
-	}
-	
-	public void setPortsForSslTunneling(String ports) {
-		String[] parsedPorts = ports.split(",");
-		
-		portsForSslTunneling.clear();
-		for (String port : parsedPorts) {
-			portsForSslTunneling.add(Integer.valueOf(port));
-		}
-		getConfig().setProperty(SSL_CONNECT_PORTS, getPortsForSslTunneling());
-	}
-	
 	/**
 	 * Tells whether the cookies should be set on a single "Cookie" request header or multiple "Cookie" request headers, when
 	 * sending an HTTP request to the server.

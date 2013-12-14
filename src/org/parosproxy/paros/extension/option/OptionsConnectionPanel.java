@@ -24,6 +24,7 @@
 // ZAP: 2013/01/04 Added field txtSslTunnelingPorts below txtTimeoutInSecs.
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
+// ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
 
 package org.parosproxy.paros.extension.option;
 
@@ -70,8 +71,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox chkProxyChainPrompt = null;
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
-	// ZAP: Added field for ssl ports
-	private ZapTextField txtSslTunnelingPorts;
     private JCheckBox checkBoxSingleCookieRequestHeader;
 	
     public OptionsConnectionPanel() {
@@ -421,9 +420,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    
 	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
 	    
-	    this.txtSslTunnelingPorts.setText(connectionParam.getPortsForSslTunneling());
-	    txtSslTunnelingPorts.discardAllEdits();
-	    
 	    // set Proxy Chain parameters
 	    if (connectionParam.getProxyChainName().equals("")) {
 	        chkUseProxyChain.setSelected(false);
@@ -532,8 +528,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
         }
         
-        validateSslTunnelingPorts(txtSslTunnelingPorts.getText());
-
 	    if (chkUseProxyChain.isSelected()) {
 	    	// ZAP: empty proxy name validation
         	if(txtProxyChainName.getText().isEmpty()) {
@@ -560,8 +554,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             throw new Exception(Constant.messages.getString("conn.options.timeout.invalid"));
         }
         
-        sslPorts = validateSslTunnelingPorts(txtSslTunnelingPorts.getText());
-
 	    connectionParam.setProxyChainName(txtProxyChainName.getText());
 		// ZAP: Do not allow invalid port numbers
 	    connectionParam.setProxyChainPort(spinnerProxyChainPort.getValue());
@@ -585,7 +577,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		    connectionParam.setProxyChainPassword(txtProxyChainPassword.getText());
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
-	    connectionParam.setPortsForSslTunneling(sslPorts);
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
 	    
 	}
@@ -696,17 +687,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelGeneral.add(jLabel, gridBagConstraints00);
 			panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
 			
-			// ZAP: Add SSL Ports field below timeout in secs
-			gridBagConstraints00.gridy = 1;
-			gridBagConstraints01.gridy = 1;
-
-			jLabel = new JLabel();
-			jLabel.setText(Constant.messages.getString("conn.options.ssl_ports"));
-			panelGeneral.add(jLabel, gridBagConstraints00);
-			panelGeneral.add(getTxtSslTunnelingPorts(), gridBagConstraints01);
-
 			java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-			gbc.gridy = 2;
+			gbc.gridy = 1;
 			gbc.gridwidth = 2;
 			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc.insets = new java.awt.Insets(2,2,2,2);
@@ -724,34 +706,12 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		return txtTimeoutInSecs;
 	}
 	
-	private ZapTextField getTxtSslTunnelingPorts() {
-		if (txtSslTunnelingPorts == null) {
-			txtSslTunnelingPorts = new ZapTextField();
-		}
-		return txtSslTunnelingPorts;
-	}
-	
     private JCheckBox getCheckBoxSingleCookeRequestHeader() {
         if (checkBoxSingleCookieRequestHeader == null) {
             checkBoxSingleCookieRequestHeader = new JCheckBox(Constant.messages.getString("conn.options.singleCookieRequestHeader"));
         }
         return checkBoxSingleCookieRequestHeader;
     }
-	
-	/**
-	 * Throws an exception when ports is not a comma separated list of integers.
-	 * 
-	 * @param ports
-	 * @return
-	 * @throws Exception
-	 */
-	private String validateSslTunnelingPorts(String ports) throws Exception {
-		if (!ports.matches("^([1-9][0-9]*)?(,[1-9][0-9]*)*$")) {
-			txtSslTunnelingPorts.requestFocus();
-			throw new Exception(Constant.messages.getString("conn.options.ssl_ports.invalid"));
-		}
-		return ports;
-	}
 	
 	@Override
 	public String getHelpIndex() {
