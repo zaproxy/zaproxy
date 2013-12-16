@@ -1,14 +1,16 @@
 #!/usr/bin/env bash
 
-#Check the java version (min java 7)
-JAVAV=`java -version 2>&1 |awk 'NR==1{ gsub(/"/,""); print $3 }'`
+# Extract and check the Java version
+JAVA_VERSION=$(java -version 2>&1 | awk -F\" 'NR == 1 { print $2 }')
 
-if [[ $JAVAV == 1.[78]* ]]; then
-    # OK
-    echo "Using Java version: $JAVAV"
+JAVA_MAJOR_VERSION=${JAVA_VERSION%%.*}
+JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
+
+if [ $JAVA_MAJOR_VERSION -ge 1 ] && [ $JAVA_MINOR_VERSION -ge 7 ]; then
+	echo "Found Java version $JAVA_VERSION"
 else
-    echo "Exiting: ZAP requires a minimum of Java 7 to run. Found $JAVAV"
-    exit 1
+	echo "Exiting: ZAP requires a minimum of Java 7 to run, found $JAVA_VERSION"
+	exit 1
 fi
 
 #Dereference from link to the real directory
