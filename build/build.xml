@@ -287,7 +287,7 @@
         <!-- Zip up the language files -->
         <zip destfile="${langfile}"
              basedir="${src}"
-             includes="/lang/**"
+             includes="lang/**"
              excludes="**/.svn/**"
                 />
     </target>
@@ -318,7 +318,7 @@
         <sequential>
             <copy todir="@{destdir}" overwrite="true" failonerror="@{failonerror}">
                 <fileset dir="@{srcdir}" casesensitive="yes">
-                    <include name="Messages_*.properties" />
+                    <include name="**/Messages_*.properties" />
                 </fileset>
                 <firstmatchmapper>
                     <!-- Special cases, the names are not the same so they need to be renamed. -->
@@ -451,7 +451,7 @@
         </tar>
     </target>
 
-    <target name="package-macosx" if="isMac" description="package the Mac OS X release">
+    <target name="package-macosx" description="package the Mac OS X release">
         <echo message="Packaging the Mac OS X build..." />
 
         <delete dir="${dist-mac}" includeEmptyDirs="true" />
