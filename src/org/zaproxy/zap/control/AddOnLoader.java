@@ -118,6 +118,12 @@ public class AddOnLoader extends URLClassLoader {
 	    		logger.error(e.getMessage(), e);
 			}
     	}
+    	
+    	// Install any files that are not already present
+		for (AddOn ao : getAddOnCollection().getAddOns()) {
+			this.loadFiles(ao, false);
+		}
+
     }
 
     private boolean canLoadAddOn(AddOn ao) {
@@ -246,35 +252,8 @@ public class AddOnLoader extends URLClassLoader {
 	    				}
 	    			}
 
-	    			// Pscan rules
-	    			List<String> fileNames = ao.getFiles();
-
-	    			if (fileNames != null && fileNames != null) {
-	    			    AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
-	    				for (String name : fileNames) {
-							File outfile = null;
-	    					logger.debug("Install file: " + name);
-	    					try {
-								outfile = new File(Constant.getZapHome(), name);
-								InputStream in = addOnClassLoader.getResourceAsStream(name);
-								if ( ! outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
-		    						logger.error("Failed to create directories for: " + outfile.getAbsolutePath());
-									continue;
-								}
-								OutputStream out = new FileOutputStream(outfile);
-								byte[] buffer = new byte[1024];
-								int bytesRead;
-								while ((bytesRead = in.read(buffer)) != -1) {
-									out.write(buffer, 0, bytesRead);
-								}
-								in.close();
-								out.close();
-							} catch (Exception e) {
-	    						logger.error("Failed to install file " + outfile.getAbsolutePath(), e);
-							}
-	    				}
-	    				Control.getSingleton().getExtensionLoader().addonFilesAdded();
-	    			}
+	    			// Files
+	    			this.loadFiles(ao, true);
 
         		}
 
@@ -284,6 +263,40 @@ public class AddOnLoader extends URLClassLoader {
     	}
     }
     
+    private void loadFiles(AddOn ao, boolean overwrite) {
+		List<String> fileNames = ao.getFiles();
+
+		if (fileNames != null && fileNames != null) {
+		    AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
+			for (String name : fileNames) {
+				File outfile = null;
+				try {
+					outfile = new File(Constant.getZapHome(), name);
+					if (overwrite || ! outfile.exists()) {
+						logger.debug("Install file: " + name);
+					
+						InputStream in = addOnClassLoader.getResourceAsStream(name);
+						if ( ! outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
+							logger.error("Failed to create directories for: " + outfile.getAbsolutePath());
+							continue;
+						}
+						
+						OutputStream out = new FileOutputStream(outfile);
+						byte[] buffer = new byte[1024];
+						int bytesRead;
+						while ((bytesRead = in.read(buffer)) != -1) {
+							out.write(buffer, 0, bytesRead);
+						}
+						in.close();
+						out.close();
+					}
+				} catch (Exception e) {
+					logger.error("Failed to install file " + outfile.getAbsolutePath(), e);
+				}
+			}
+		}
+
+    }
 
 	public boolean removeAddOn(AddOn ao) {
 		boolean result = true;
