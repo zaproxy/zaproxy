@@ -7,6 +7,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Iterator;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -15,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.ToolTipManager;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -23,6 +25,8 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.TabbedPanel;
+import org.parosproxy.paros.view.SiteMapPanel;
+import org.parosproxy.paros.view.View;
 
 /**
  * A tabbed panel that adds the option to hide individual tabs via a cross button on the tab.
@@ -141,11 +145,18 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 
 	public void addTab(String title, Icon icon, final Component c, boolean hideable, int index) {
-		if (c.getName() == null) {
-			c.setName(title);
-		}
+    String origName = title;
 		if (c instanceof AbstractPanel) {
 			((AbstractPanel)c).setParent(this);
+      ((AbstractPanel)c).setOriginalName(origName);
+		}
+
+    // change the title variable if 'Options - Display - show icons and text in tabs' selected
+		if (Model.getSingleton().getOptionsParam().getViewParam().getTextIcons() == 0) {
+      title = "";
+    }
+		if (c.getName() == null) {
+			c.setName(title);
 		}
 		
 		if (index > this.getTabCount()) {
@@ -169,6 +180,7 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		// Add a JLabel with title and the left-side tab icon
 		JLabel lblTitle = new JLabel(title);
+    lblTitle.setToolTipText(origName);
 		lblTitle.setIcon(icon);
 
 		// Create a JButton for the close tab button
@@ -240,5 +252,25 @@ public class TabbedPanel2 extends TabbedPanel {
 		this.fullTabList.remove(panel);
 		this.removedTabList.remove(panel);
 	}
+
+  /*
+   * Toggle tab names to enable/disable tab name: used with Tools - Options - Display - "Show icons and text in tabs".
+   * Basically we need to call addTab on every tab, so the change to the tab names becomes visible.
+   */
+  public void toggleTabNames() {
+    Iterator<Component> i = this.fullTabList.iterator();
+    while(i.hasNext()) {
+      Component t = i.next();
+      //System.out.println("TAB NAME: "+t.getName()+" : "+t.getClass().getName());
+      if(t instanceof AbstractPanel) {
+        AbstractPanel c = (AbstractPanel)t;
+        this.addTab(c.getName(), c.getIcon(), c);
+      }
+      else if (t instanceof SiteMapPanel) {
+        SiteMapPanel c = (SiteMapPanel)t;
+        this.addTab(c.getName(), c.getIcon(), c);
+      }
+    }
+  }
 
 }

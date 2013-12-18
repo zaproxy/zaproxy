@@ -40,6 +40,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
@@ -56,6 +57,7 @@ public class SiteMapPanel extends JPanel {
 
 	// ZAP: Added logger
     private static Logger log = Logger.getLogger(SiteMapPanel.class);
+	private Icon icon = null;
 
 	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
@@ -72,7 +74,15 @@ public class SiteMapPanel extends JPanel {
 		super();
 		initialize();
 	}
-	
+
+
+	public Icon getIcon() {
+		return icon;
+	}
+	public void setIcon(Icon icon) {
+		this.icon = icon;
+	}
+
 	private View getView() {
 	    if (view == null) {
 	        view = View.getSingleton();

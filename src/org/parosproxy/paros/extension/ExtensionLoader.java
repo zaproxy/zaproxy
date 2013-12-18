@@ -42,7 +42,8 @@
 // ZAP: 2013/11/16 Issue 807: Error while loading ZAP when Quick Start Tab is closed
 // ZAP: 2013/11/16 Issue 845: AbstractPanel added twice to TabbedPanel2 in ExtensionLoader#addTabPanel
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
-
+// ZAP: 2013/12/13 Added support for Full Layout DISPLAY_OPTION_TOP_FULL in the hookView function.
+//
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -431,7 +432,6 @@ public class ExtensionLoader {
 			    // no need to hook view if no GUI
 			    hookView(view, extHook);
 			    hookMenu(view, extHook);
-
 			}
 			hookOptions(extHook);
 		} catch (Exception e) {
@@ -476,6 +476,9 @@ public class ExtensionLoader {
         }
     }
     
+    /*
+     * Add every panel from panelList to the TabbedPanel2 tab.
+     */
     private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
         AbstractPanel panel = null;
         for (int i=0; i<panelList.size(); i++) {
@@ -494,7 +497,6 @@ public class ExtensionLoader {
                 	tab.addTab(panel.getName() + " ", panel.getIcon(), panel);
                 }
 
-                
             } catch (Exception e) {
             	// ZAP: Log the exception
             	logger.error(e.getMessage(), e);
@@ -718,11 +720,32 @@ public class ExtensionLoader {
         if (pv == null) {
             return;
         }
-        
-        addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-        addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-        addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+
+        // Add the three panels to the current window/workbench: add extension tabs to the Full layout when chosen, otherwise they are as before.
+	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
+        switch(displayOption) {
+          case View.DISPLAY_OPTION_TOP_FULL:
+          case View.DISPLAY_OPTION_LEFT_FULL:
+          case View.DISPLAY_OPTION_BOTTOM_FULL:
+          default:
+            addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
+            addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
+            addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        }
  
+        // remember the position of tabs in status p
+        if(displayOption == View.DISPLAY_OPTION_TOP_FULL) {
+          // save the arrangements of tabs when going into 'Full Layout', so we can return to other layouts correctly.
+          view.getWorkbench().setTabbedOldWork(view.getWorkbench().getTabbedWork());
+          view.getWorkbench().setTabbedOldSelect(view.getWorkbench().getTabbedSelect());
+          view.getWorkbench().setTabbedOldStatus(view.getWorkbench().getTabbedStatus());
+
+          // switch the layout to Full Layout
+          addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
+          addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
+          addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        }
+
         // ZAP: removed session dialog parameter
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
@@ -738,9 +761,21 @@ public class ExtensionLoader {
             return;
         }
         
-        removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-        removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-        removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        // Add the three panels to the current window/workbench: add extension tabs to the Full layout when chosen, otherwise they are as before.
+	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
+        switch(displayOption) {
+          case View.DISPLAY_OPTION_TOP_FULL:
+            removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
+            removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
+            removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+            break;
+          case View.DISPLAY_OPTION_LEFT_FULL:
+          case View.DISPLAY_OPTION_BOTTOM_FULL:
+          default:
+            removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
+            removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
+            removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        }
  
         // ZAP: removed session dialog parameter
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());

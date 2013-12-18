@@ -26,9 +26,12 @@
 // position changed
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Removed redundant final modifiers from private methods
+// ZAP: 2013/12/13 Added support for 'Full Layout'.
+
 package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Dimension;
 import java.awt.GridBagConstraints;
@@ -37,14 +40,19 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
+import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.TabbedPanel2;
+import org.parosproxy.paros.extension.AbstractPanel;
 
 public class WorkbenchPanel extends JPanel {
 
@@ -56,16 +64,25 @@ public class WorkbenchPanel extends JPanel {
 
 	private JSplitPane splitVert = null;
 	private JSplitPane splitHoriz = null;
+	private JSplitPane splitFull = null;
 
+  /* panels used when presenting views */
 	private JPanel paneStatus = null;
 	private JPanel paneSelect = null;
 	private JPanel paneWork = null;
 
+  /* panels for normal view */
 	private TabbedPanel2 tabbedStatus = null;
 	private TabbedPanel2 tabbedWork = null;
 	private TabbedPanel2 tabbedSelect = null;
+  
+  /* panels used when going into 'Full Layout' to remember the old tab positions */
+	private TabbedPanel2 tabbedOldStatus = null;
+	private TabbedPanel2 tabbedOldWork = null;
+	private TabbedPanel2 tabbedOldSelect = null;
 	
 	private int displayOption;
+  private int pdisplayOption;
 
 	private final Preferences preferences;
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
@@ -79,6 +96,7 @@ public class WorkbenchPanel extends JPanel {
 		super();
 		this.preferences = Preferences.userNodeForPackage(getClass());
 		this.displayOption = displayOption;
+    this.pdisplayOption = displayOption;
 		initialize();
 	}
 
@@ -86,6 +104,7 @@ public class WorkbenchPanel extends JPanel {
 	 * This method initializes this
 	 */
 	private void initialize() {
+    // set grid layout for the whole pane: tabbedWork, tabbedSelect and tabbedStatus
 		GridBagConstraints consGridBagConstraints1 = new GridBagConstraints();
 
 		this.setLayout(new GridBagLayout());
@@ -94,22 +113,104 @@ public class WorkbenchPanel extends JPanel {
 		consGridBagConstraints1.weightx = 1.0;
 		consGridBagConstraints1.weighty = 1.0;
 		consGridBagConstraints1.fill = GridBagConstraints.BOTH;
+
+    // set icon for 'Sites' tab
+    Icon icon = new ImageIcon(View.class.getResource("/resource/icon/16/094.png"));
+    View.getSingleton().getSiteTreePanel().setIcon(icon);
+    View.getSingleton().getSiteTreePanel().setName(Constant.messages.getString("sites.panel.title"));
+
+    /*
+     * Adds tabs to panels based on selected layout.
+     */
 		switch (displayOption) {
-		case View.DISPLAY_OPTION_LEFT_FULL:
-			this.add(getSplitHoriz(), consGridBagConstraints1);
-			break;
-		case View.DISPLAY_OPTION_BOTTOM_FULL:
-		default:
-			this.add(getSplitVert(), consGridBagConstraints1);
-			break;
+      case View.DISPLAY_OPTION_LEFT_FULL:
+        this.add(getSplitHoriz(), consGridBagConstraints1);
+        break;
+      case View.DISPLAY_OPTION_TOP_FULL:
+        this.add(getPaneStatus(), consGridBagConstraints1);
+        break;
+      case View.DISPLAY_OPTION_BOTTOM_FULL:
+      default:
+        this.add(getSplitVert(), consGridBagConstraints1);
+        break;
 		}
+
+    /*
+     * Correct the tabs position based on the currently selected layout: if Full Layout was invoked: Request/Response/Script Console/Quickstart/Break tabs.
+     */ 
+		switch (displayOption) {
+      case View.DISPLAY_OPTION_TOP_FULL:
+        // save the arrangements of tabs when going into 'Full Layout'
+        if(pdisplayOption != View.DISPLAY_OPTION_TOP_FULL) {
+          tabbedOldSelect = tabbedSelect;
+          tabbedOldStatus = tabbedStatus;
+          tabbedOldWork   = tabbedWork;
+        }
+        // Tabs in sequence: request, response, output, sites.
+        getTabbedStatus().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel(), false);
+        getTabbedStatus().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
+        getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
+        getTabbedStatus().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
+     
+        // go over all tabs that extensions added and move them to tabbedStatus
+        Iterator<Component> it1 = getTabbedWork().getTabList().iterator();
+        Iterator<Component> it2 = getTabbedSelect().getTabList().iterator();
+        while(it1.hasNext()) {
+          Component c = it1.next();
+          if(c instanceof AbstractPanel) {
+            getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
+          }
+        }
+        while(it2.hasNext()) {
+          Component c = it2.next();
+          if(c instanceof AbstractPanel) {
+            getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
+          }
+        }
+
+        break;
+      case View.DISPLAY_OPTION_BOTTOM_FULL:
+      case View.DISPLAY_OPTION_LEFT_FULL:
+      default:
+        // Tabs in sequence: request, response, output, sites.
+        getTabbedWork().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel(), false);
+        getTabbedWork().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
+        getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
+        getTabbedSelect().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
+        //getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, View.getSingleton().getSiteTreePanel(), false, 0);
+      
+        // parse the tabs correctly when previous display option was 'Full Layout'
+        if(pdisplayOption == View.DISPLAY_OPTION_TOP_FULL) {
+          Iterator<Component> i1 = getTabbedOldWork().getTabList().iterator();
+          Iterator<Component> i2 = getTabbedOldSelect().getTabList().iterator();
+          while(i1.hasNext()) {
+            Component c = i1.next();
+            if(c instanceof AbstractPanel) {
+              getTabbedWork().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
+            }
+          }
+          while(i2.hasNext()) {
+            Component c = i2.next();
+            if(c instanceof AbstractPanel) {
+              getTabbedSelect().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
+            }
+          }
+        }
+    }
+
+    // save previous display option
+    this.pdisplayOption = this.displayOption;
 	}
 
+  /*
+   * This method is called whenever we change the layout in preferences or in toolbar.
+   */
 	public void changeDisplayOption(int displayOption) {
 		this.displayOption = displayOption;
 		this.removeAll();
 		splitVert = null;
 		splitHoriz = null;
+		splitFull = null;
 		initialize();
 		this.validate();
 		this.repaint();
@@ -181,6 +282,7 @@ public class WorkbenchPanel extends JPanel {
 		return splitHoriz;
 	}
 
+
 	/**
 	 * This method initializes paneStatus
 	 * 
@@ -212,8 +314,8 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	/**
-	 * This method initializes paneWork
-	 *  
+	 * This method initializes paneWork, which is used for request/response/break/script console.
+	 *
 	 * @return JPanel
 	 */
 	private JPanel getPaneWork() {
@@ -267,6 +369,18 @@ public class WorkbenchPanel extends JPanel {
 		return tabbedStatus;
 	}
 
+	public TabbedPanel2 getTabbedOldStatus() {
+		if (tabbedOldStatus == null) {
+			tabbedOldStatus = new TabbedPanel2();
+			tabbedOldStatus.setPreferredSize(new Dimension(800, 200));
+			// ZAP: Move tabs to the top of the panel
+			tabbedOldStatus.setTabPlacement(JTabbedPane.TOP);
+			tabbedOldStatus.setName("tabbedOldStatus");
+			tabbedOldStatus.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		}
+		return tabbedOldStatus;
+	}
+
 	/**
 	 * This method initializes tabbedWork
 	 * 
@@ -282,6 +396,30 @@ public class WorkbenchPanel extends JPanel {
 		return tabbedWork;
 	}
 
+	public TabbedPanel2 getTabbedOldWork() {
+		if (tabbedOldWork == null) {
+			tabbedOldWork = new TabbedPanel2();
+			tabbedOldWork.setPreferredSize(new Dimension(600, 400));
+			tabbedOldWork.setName("tabbedOldWork");
+			tabbedOldWork.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		}
+		return tabbedOldWork;
+	}
+
+
+  /*
+   * Set the old tabbed panels called from ExtensionLoader.java and used with 'Full Layout'.
+   */
+  public void setTabbedOldWork(TabbedPanel2 t) {
+    this.tabbedOldWork = t;
+  }
+  public void setTabbedOldStatus(TabbedPanel2 t) {
+    this.tabbedOldStatus = t;
+  }
+  public void setTabbedOldSelect(TabbedPanel2 t) {
+    this.tabbedOldSelect = t;
+  }
+
 	/**
 	 * This method initializes tabbedSelect
 	 * 
@@ -296,6 +434,17 @@ public class WorkbenchPanel extends JPanel {
 		}
 
 		return tabbedSelect;
+	}
+
+	public TabbedPanel2 getTabbedOldSelect() {
+		if (tabbedOldSelect == null) {
+			tabbedOldSelect = new TabbedPanel2();
+			tabbedOldSelect.setPreferredSize(new Dimension(200, 400));
+			tabbedOldSelect.setName("tabbedOldSelect");
+			tabbedOldSelect.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+		}
+
+		return tabbedOldSelect;
 	}
 	
 	/**

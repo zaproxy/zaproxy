@@ -43,6 +43,7 @@
 // ZAP: 2013/04/15 Issue 627: Allow add-ons to remove main tool bar buttons/separators
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
+// ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to accomodate the 'Full Layout' functionality.
 
 package org.parosproxy.paros.view;
 
@@ -92,11 +93,12 @@ public class View implements ViewDelegate {
 	
 	public static final int DISPLAY_OPTION_LEFT_FULL = 0;
 	public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
+	public static final int DISPLAY_OPTION_TOP_FULL = 2;
 	
 	private static View view = null;
 	private static boolean daemon = false;
 	
-//	private FindDialog findDialog = null;
+  // private FindDialog findDialog = null;
 	private SessionDialog sessionDialog = null;
 	private OptionsDialog optionsDialog = null;
 	
@@ -110,14 +112,14 @@ public class View implements ViewDelegate {
 
 	private JMenu menuShowTabs = null;
 
-    private List<AbstractParamPanel> contextPanels = new ArrayList<>();
-    private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
+  private List<AbstractParamPanel> contextPanels = new ArrayList<>();
+  private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
 
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 
-    private static final Logger logger = Logger.getLogger(View.class);
+  private static final Logger logger = Logger.getLogger(View.class);
 
-    private MessagePanelsPositionController messagePanelsPositionController;
+  private MessagePanelsPositionController messagePanelsPositionController;
 
 	/**
 	 * @return Returns the mainFrame.
@@ -147,22 +149,22 @@ public class View implements ViewDelegate {
 	
 	public void init() {
 		mainFrame = new MainFrame(displayOption);
+    
+    if(siteMapPanel == null) {
+		  siteMapPanel = new SiteMapPanel();
+    }
+    if(outputPanel == null) {
+		  outputPanel = new OutputPanel();
+    }
 
-		siteMapPanel = new SiteMapPanel();
-		outputPanel = new OutputPanel();
-
-        ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
+    ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
 
 		// do not allow editable in request panel
-		getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel(), false);
-		getWorkbench().getTabbedWork().addTab(getResponsePanel().getName(), getResponsePanel().getIcon(), getResponsePanel(), false);
+		//getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel(), false);
+		//getWorkbench().getTabbedWork().addTab(getResponsePanel().getName(), getResponsePanel().getIcon(), getResponsePanel(), false);
 		
 		//logPanel.setDisplayPanel(requestPanel, responsePanel);
 		//getWorkbench().getTabbedStatus().add(logPanel, "URLs");
-		
-		// ZAP: Added 'world' icon
-		Icon icon = new ImageIcon(View.class.getResource("/resource/icon/16/094.png"));
-		getWorkbench().getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, siteMapPanel, false); // ZAP: i18n
 		
 		getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
@@ -176,8 +178,7 @@ public class View implements ViewDelegate {
 	}
 	
 	public void postInit() {
-	    //getWorkbench().getTabbedStatus().add(outputPanel);
-	    getWorkbench().getTabbedStatus().addTab(outputPanel.getName(), outputPanel.getIcon(), outputPanel, false);
+      // Note: addTab function calls have been moved to WorkbenchPanel.java because of the Full Layout support.
 	    messagePanelsPositionController.restoreState();
 	    
 	    refreshTabViewMenus();
@@ -299,11 +300,17 @@ public class View implements ViewDelegate {
      */
     @Override
     public SiteMapPanel getSiteTreePanel() {
-        return siteMapPanel;
+      if(siteMapPanel == null) {
+		    siteMapPanel = new SiteMapPanel();
+      }
+      return siteMapPanel;
     }
     
     @Override
     public OutputPanel getOutputPanel() {
+        if(outputPanel == null) {
+          outputPanel = new OutputPanel();
+        }
         return outputPanel;
     }
 

@@ -21,6 +21,7 @@
 // ZAP: 2012/03/15 Removed the options to change the display of the ManualRequestEditorDialog,
 // now they are changed dynamically.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2013/12/13 Added support for a new option 'show icons and text in tabs'.
 
 package org.parosproxy.paros.extension.option;
 
@@ -46,6 +47,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	
 	private JPanel panelMisc = null;
 	
+	private JCheckBox chkShowTextIcons = null;
 	private JCheckBox chkProcessImages = null;
 	private JCheckBox chkShowMainToolbar = null;
 	private JCheckBox chkAdvancedView = null;
@@ -62,6 +64,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel displayLabel = null;
 	private JLabel showMainToolbarLabel = null;
 	private JLabel processImagesLabel = null;
+  private JLabel showTextIcons = null;
+
 	
     public OptionsViewPanel() {
         super();
@@ -108,6 +112,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc5_1 = new GridBagConstraints();
 			GridBagConstraints gbc6_0 = new GridBagConstraints();
 			GridBagConstraints gbc6_1 = new GridBagConstraints();
+			GridBagConstraints gbc7_0 = new GridBagConstraints();
+			GridBagConstraints gbc7_1 = new GridBagConstraints();
 			
 			GridBagConstraints gbcX = new GridBagConstraints();
 
@@ -238,6 +244,24 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc6_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gbc6_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc6_1.weightx = 1.0D;
+
+			gbc7_0.gridx = 0;
+			gbc7_0.gridy = 7;
+			gbc7_0.ipadx = 0;
+			gbc7_0.ipady = 0;
+			gbc7_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc7_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc7_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc7_0.weightx = 1.0D;
+
+			gbc7_1.gridx = 1;
+			gbc7_1.gridy = 7;
+			gbc7_1.ipadx = 0;
+			gbc7_1.ipady = 0;
+			gbc7_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc7_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc7_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc7_1.weightx = 1.0D;
 			
 			gbcX.gridx = 0;
 			gbcX.gridy = 8;
@@ -257,6 +281,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			askOnExitLabel = new JLabel(Constant.messages.getString("view.options.label.askonexit"));
 			showMainToolbarLabel = new JLabel(Constant.messages.getString("view.options.label.showMainToolbar"));
 			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
+			showTextIcons = new JLabel(Constant.messages.getString("view.options.label.showTextIcons"));
 			
 			panelMisc.add(displayLabel, gbc0_0);
 			panelMisc.add(getDisplaySelect(), gbc0_1);
@@ -278,6 +303,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			
 			panelMisc.add(processImagesLabel, gbc6_0);
 			panelMisc.add(getChkProcessImages(), gbc6_1);
+
+			panelMisc.add(showTextIcons, gbc7_0);
+			panelMisc.add(getShowTextIcons(), gbc7_1);
 			
 			panelMisc.add(new JLabel(""), gbcX);
 
@@ -285,6 +313,14 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return panelMisc;
 	}
 
+	private JCheckBox getShowTextIcons() {
+		if (chkShowTextIcons == null) {
+			chkShowTextIcons = new JCheckBox();
+			chkShowTextIcons.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkShowTextIcons.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return chkShowTextIcons;
+	}
 
 	private JCheckBox getChkProcessImages() {
 		if (chkProcessImages == null) {
@@ -327,6 +363,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			displaySelect = new JComboBox<>();
 			displaySelect.addItem(Constant.messages.getString("view.options.label.display.left"));
 			displaySelect.addItem(Constant.messages.getString("view.options.label.display.bottom"));
+			displaySelect.addItem(Constant.messages.getString("view.options.label.display.full"));
 		}
 		return displaySelect;
 	}
@@ -355,8 +392,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
+	    getShowTextIcons().setSelected(options.getViewParam().getTextIcons() > 0);
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
-	    
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
 	    getChkShowMainToolbar().setSelected(options.getViewParam().getShowMainToolbar() > 0);
@@ -373,6 +410,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
+	    options.getViewParam().setShowTextIcons((getShowTextIcons().isSelected()) ? 1 : 0);
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());

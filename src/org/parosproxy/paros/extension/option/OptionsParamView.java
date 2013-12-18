@@ -23,6 +23,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
+// ZAP: 2013/12/13 Added support for optional names in tabs.
 
 package org.parosproxy.paros.extension.option;
 
@@ -37,6 +38,7 @@ public class OptionsParamView extends AbstractParam {
 	
 	public static final String BASE_VIEW_KEY = "view";
 
+	private static final String SHOW_TEXT_ICONS = "view.showTextIcons";
 	private static final String PROCESS_IMAGES = "view.processImages";
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
@@ -60,6 +62,7 @@ public class OptionsParamView extends AbstractParam {
 	private int displayOption = 0;
 	private int brkPanelViewOption = 0;
 	private int askOnExitEnabled = 1;
+  private int showTextIcons = 1;
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
 	private boolean reveal = false;
@@ -71,6 +74,7 @@ public class OptionsParamView extends AbstractParam {
     @Override
 	protected void parse() {
 	    // use temp variable to check.  Exception will be flagged if any error.
+      showTextIcons = getConfig().getInt(SHOW_TEXT_ICONS, 1);
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
 	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
@@ -149,6 +153,15 @@ public class OptionsParamView extends AbstractParam {
 	 */
 	public String getConfigLocale() {
 		return configLocale;
+	}
+
+	public int getTextIcons() {
+		return showTextIcons;
+	}
+	
+	public void setShowTextIcons(int brkPanelViewIdx) {
+		showTextIcons = brkPanelViewIdx;
+		getConfig().setProperty(SHOW_TEXT_ICONS, Integer.toString(showTextIcons));
 	}
 
 	public int getBrkPanelViewOption() {

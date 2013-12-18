@@ -20,6 +20,7 @@
  */
 // ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
+// ZAP: 2013/12/13 Added support for remembering the old tab name, which is used for nameless tabs.
 
 package org.parosproxy.paros.extension;
 
@@ -38,9 +39,10 @@ public class AbstractPanel extends JPanel {
 	
 	// ZAP: Added icon
 	private Icon icon = null;
-    private int tabIndex = -1;
-    private TabbedPanel2 parent = null;
-    private boolean hideable = true;
+  private int tabIndex = -1;
+  private TabbedPanel2 parent = null;
+  private boolean hideable = true;
+  private String originalName = null;
 	
 	public Icon getIcon() {
 		return icon;
@@ -63,6 +65,21 @@ public class AbstractPanel extends JPanel {
 	    	this.setSize(300,200);
 	    }
 	}
+
+  /*
+   * Set the original name before reseting it to null.
+   * User when 'Options - Display - show icons and text in tabs' is not selected.
+   */ 
+  public void setOriginalName(String name) {
+    this.originalName = name;
+  }
+
+  /*
+   * Get the original name.
+   */
+  public String getOriginalName() {
+    return this.originalName;
+  }
 
 	public void setTabFocus() {
     	if (parent != null) {

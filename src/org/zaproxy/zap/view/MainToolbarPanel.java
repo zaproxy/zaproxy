@@ -63,6 +63,7 @@ public class MainToolbarPanel extends JPanel {
 	private ButtonGroup expandButtons;
 	private JToggleButton btnExpandSites = null;
 	private JToggleButton btnExpandReports = null;
+	private JToggleButton btnExpandFull = null;
 
 	public MainToolbarPanel () {
 		super();
@@ -111,6 +112,7 @@ public class MainToolbarPanel extends JPanel {
 
 		toolbar.add(getBtnExpandSites());
 		toolbar.add(getBtnExpandReports());
+		toolbar.add(getBtnExpandFull());
 		
 		toolbar.addSeparator();
 
@@ -345,13 +347,27 @@ public class MainToolbarPanel extends JPanel {
 		}
 		return btnExpandReports;
 	}
+
+	private JToggleButton getBtnExpandFull() {
+		if (btnExpandFull == null) {
+			btnExpandFull = new JToggleButton(new ChangeDisplayOptionAction(
+					MainToolbarPanel.class.getResource("/resource/icon/expand_full.png"),
+					View.DISPLAY_OPTION_TOP_FULL));
+			btnExpandFull.setToolTipText(Constant.messages.getString("view.toolbar.expandFull"));
+
+			expandButtons.add(btnExpandFull);
+		}
+		return btnExpandFull;
+	}
 	
 	public void setDisplayOption(int option) {
 		if (option == View.DISPLAY_OPTION_BOTTOM_FULL) {
 			btnExpandReports.setSelected(true);
-		} else if (option == View.DISPLAY_OPTION_LEFT_FULL) {
-			btnExpandSites.setSelected(true);
-		}
+    } else if (option == View.DISPLAY_OPTION_LEFT_FULL) {
+      btnExpandSites.setSelected(true);
+    } else if (option == View.DISPLAY_OPTION_TOP_FULL) {
+      btnExpandFull.setSelected(true);
+    }
 	}
 
 	public void sessionChanged(Session session) {
