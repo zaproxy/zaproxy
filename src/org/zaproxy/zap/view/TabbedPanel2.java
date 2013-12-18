@@ -180,7 +180,7 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		// Add a JLabel with title and the left-side tab icon
 		JLabel lblTitle = new JLabel(title);
-    lblTitle.setToolTipText(origName);
+    //lblTitle.setToolTipText(origName);
 		lblTitle.setIcon(icon);
 
 		// Create a JButton for the close tab button
