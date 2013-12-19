@@ -315,9 +315,12 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else {
+        	// Only enable this while testing
+        	/*
         	log.debug("Popup " + this.getName() + 
         			" not enabled for panel " + invoker.getName() + 
         			" class " + invoker.getClass().getName());
+        	*/
         }
 
         if (display) {
