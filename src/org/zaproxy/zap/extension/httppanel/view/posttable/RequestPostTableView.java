@@ -64,6 +64,11 @@ public class RequestPostTableView implements HttpPanelView, HttpPanelViewModelLi
         tableBody.setIntercellSpacing(new java.awt.Dimension(1, 1));
         tableBody.setRowHeight(18);
 
+		// Issue 954: Force the JTable cell to auto-save when the focus changes.
+		// Example, edit cell, click OK for a panel dialog box, the data will get saved.
+        tableBody.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
+        
 		// Main panel
 		mainPanel = new JPanel(new BorderLayout());
 		mainPanel.add(new JScrollPane(tableBody), BorderLayout.CENTER);

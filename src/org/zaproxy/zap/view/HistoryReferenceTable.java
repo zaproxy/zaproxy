@@ -61,6 +61,11 @@ public class HistoryReferenceTable extends JTable {
 		this.setRowSelectionAllowed(true);
 		this.setAutoCreateRowSorter(true);
 
+		// Issue 954: Force the JTable cell to auto-save when the focus changes.
+		// Example, edit cell, click OK for a panel dialog box, the data will get saved.
+		this.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
+		
 		this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		this.setDoubleBuffered(true);
 		this.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);

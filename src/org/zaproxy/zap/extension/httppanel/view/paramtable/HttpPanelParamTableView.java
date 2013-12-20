@@ -81,6 +81,11 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
         table.setIntercellSpacing(new java.awt.Dimension(1, 1));
         table.setRowHeight(18);
         
+		// Issue 954: Force the JTable cell to auto-save when the focus changes.
+		// Example, edit cell, click OK for a panel dialog box, the data will get saved.
+        table.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
+
 	    // Set standard row width's
 	    TableColumn column = table.getColumnModel().getColumn(0);
 	    column.setPreferredWidth(70);

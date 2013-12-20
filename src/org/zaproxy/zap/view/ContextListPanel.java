@@ -109,6 +109,10 @@ public class ContextListPanel extends AbstractParamPanel {
 			tableExt.getColumnModel().getColumn(0).setPreferredWidth(30);
 			tableExt.getColumnModel().getColumn(1).setPreferredWidth(320);
 			tableExt.getColumnModel().getColumn(2).setPreferredWidth(50);
+			// Issue 954: Force the JTable cell to auto-save when the focus changes.
+			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
+			tableExt.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+
 			// Disable for now - would be useful but had some problems with this ;)
 			/*
 			ListSelectionListener sl = new ListSelectionListener() {

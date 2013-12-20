@@ -128,6 +128,9 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 			tableIgnore = new JTable();
 			tableIgnore.setModel(getModel());
 			tableIgnore.setRowHeight(18);
+			// Issue 954: Force the JTable cell to auto-save when the focus changes.
+			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
+			tableIgnore.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 		}
 		return tableIgnore;
 	}
