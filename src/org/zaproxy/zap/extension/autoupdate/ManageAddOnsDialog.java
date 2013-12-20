@@ -682,7 +682,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 						for (AddOnWrapper aoi : installedAddOns) {
 							if (aoi.isEnabled()) {
 								logger.debug("Uninstalling " + aoi.getAddOn().getName());
-								if (extension.uninstall(aoi.getAddOn())) {
+								if (extension.uninstall(aoi.getAddOn(), false)) {
 									logger.debug("Uninstalling " + aoi.getAddOn().getName() + " worked");
 									addOnUninstalled = true;
 								} else {

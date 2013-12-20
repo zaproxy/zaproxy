@@ -298,7 +298,7 @@ public class AddOnLoader extends URLClassLoader {
 
     }
 
-	public boolean removeAddOn(AddOn ao) {
+	public boolean removeAddOn(AddOn ao, boolean upgrading) {
 		boolean result = true;
 		
 		if (! ao.hasZapAddOnEntry()) {
@@ -405,7 +405,7 @@ public class AddOnLoader extends URLClassLoader {
 		this.addOnLoaders.remove(ao.getId());
 		
 		if (ao.getFile() != null && ao.getFile().exists()) {
-			if (!ao.getFile().delete()) {
+			if (!ao.getFile().delete() && ! upgrading) {
 				logger.debug("Cant delete " + ao.getFile().getAbsolutePath());
         		this.blockList.add(ao.getId());
         		this.saveBlockList();

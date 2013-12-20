@@ -730,7 +730,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
    								ao.getName(),
    								ao.getVersion()));
    			}
-			if ( ! uninstall(installedAddOn)) {
+			if ( ! uninstall(installedAddOn, true)) {
 				// Cant uninstall the old version, so dont try to install the new one
 	   			logger.debug("Failed to uninstall addon " + installedAddOn.getId() + " v" + installedAddOn.getVersion());
 	   			if (View.isInitialised()) {
@@ -758,8 +758,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		return true;
 	}
 
-	public boolean uninstall(AddOn addOn) {
-		boolean removedDynamically = ExtensionFactory.getAddOnLoader().removeAddOn(addOn);
+	public boolean uninstall(AddOn addOn, boolean upgrading) {
+		boolean removedDynamically = ExtensionFactory.getAddOnLoader().removeAddOn(addOn, upgrading);
 		if (View.isInitialised()) {
 			if (removedDynamically) {
 				View.getSingleton().getOutputPanel().append(
