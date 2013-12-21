@@ -157,7 +157,7 @@ public class View implements ViewDelegate {
 		  outputPanel = new OutputPanel();
     }
 
-    ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
+    //ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
 
 		// do not allow editable in request panel
 		//getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel(), false);
@@ -178,7 +178,10 @@ public class View implements ViewDelegate {
 	}
 	
 	public void postInit() {
-      // Note: addTab function calls have been moved to WorkbenchPanel.java because of the Full Layout support.
+      // Note: addTab function calls have been moved to WorkbenchPanel.java because
+      // of the Full Layout support, but this line is still needed for the 'History'
+      // tab to be the currently selected tab; otherwise it's the 'Output' tab.
+	    getWorkbench().getTabbedStatus().addTab(outputPanel.getName(), outputPanel.getIcon(), outputPanel, false);
 	    messagePanelsPositionController.restoreState();
 	    
 	    refreshTabViewMenus();

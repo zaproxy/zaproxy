@@ -177,7 +177,6 @@ public class WorkbenchPanel extends JPanel {
         getTabbedWork().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
         getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
         getTabbedSelect().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
-        //getTabbedSelect().addTab(Constant.messages.getString("sites.panel.title"), icon, View.getSingleton().getSiteTreePanel(), false, 0);
       
         // parse the tabs correctly when previous display option was 'Full Layout'
         if(pdisplayOption == View.DISPLAY_OPTION_TOP_FULL) {
