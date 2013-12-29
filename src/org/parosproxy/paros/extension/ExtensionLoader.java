@@ -476,8 +476,10 @@ public class ExtensionLoader {
         }
     }
     
-    /*
+    /**
      * Add every panel from panelList to the TabbedPanel2 tab.
+     * @param panelList
+     * @param tab
      */
     private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
         AbstractPanel panel = null;
@@ -723,19 +725,15 @@ public class ExtensionLoader {
 
         // Add the three panels to the current window/workbench: add extension tabs to the Full layout when chosen, otherwise they are as before.
 	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
-        switch(displayOption) {
-          case View.DISPLAY_OPTION_TOP_FULL:
-          case View.DISPLAY_OPTION_LEFT_FULL:
-          case View.DISPLAY_OPTION_BOTTOM_FULL:
-          default:
-            addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-            addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-            addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-        }
+        addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
+        addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
+        addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
  
-        // remember the position of tabs in status p
+        // remember the position of tabs in status position
         if(displayOption == View.DISPLAY_OPTION_TOP_FULL) {
-          // save the arrangements of tabs when going into 'Full Layout', so we can return to other layouts correctly.
+          // save the current normal instances to old instance variables, so they are both
+          // referencing the same TabbedPanel2 instances. Used when going into 'Full Layout'
+          // so the state is preserved.
           view.getWorkbench().setTabbedOldWork(view.getWorkbench().getTabbedWork());
           view.getWorkbench().setTabbedOldSelect(view.getWorkbench().getTabbedSelect());
           view.getWorkbench().setTabbedOldStatus(view.getWorkbench().getTabbedStatus());
@@ -761,7 +759,8 @@ public class ExtensionLoader {
             return;
         }
         
-        // Add the three panels to the current window/workbench: add extension tabs to the Full layout when chosen, otherwise they are as before.
+        // Remote the three panels to the current window/workbench: remove extension tabs
+        // from the Full layout when chosen.
 	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
         switch(displayOption) {
           case View.DISPLAY_OPTION_TOP_FULL:

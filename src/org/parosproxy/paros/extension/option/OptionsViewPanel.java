@@ -21,7 +21,7 @@
 // ZAP: 2012/03/15 Removed the options to change the display of the ManualRequestEditorDialog,
 // now they are changed dynamically.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
-// ZAP: 2013/12/13 Added support for a new option 'show icons and text in tabs'.
+// ZAP: 2013/12/13 Added support for a new option 'show tab names'.
 
 package org.parosproxy.paros.extension.option;
 
@@ -47,7 +47,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	
 	private JPanel panelMisc = null;
 	
-	private JCheckBox chkShowTextIcons = null;
+	private JCheckBox chkShowTabNames = null;
 	private JCheckBox chkProcessImages = null;
 	private JCheckBox chkShowMainToolbar = null;
 	private JCheckBox chkAdvancedView = null;
@@ -64,7 +64,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel displayLabel = null;
 	private JLabel showMainToolbarLabel = null;
 	private JLabel processImagesLabel = null;
-  private JLabel showTextIcons = null;
+  private JLabel showTabNames = null;
 
 	
     public OptionsViewPanel() {
@@ -281,7 +281,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			askOnExitLabel = new JLabel(Constant.messages.getString("view.options.label.askonexit"));
 			showMainToolbarLabel = new JLabel(Constant.messages.getString("view.options.label.showMainToolbar"));
 			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
-			showTextIcons = new JLabel(Constant.messages.getString("view.options.label.showTextIcons"));
+			showTabNames = new JLabel(Constant.messages.getString("view.options.label.showTabNames"));
 			
 			panelMisc.add(displayLabel, gbc0_0);
 			panelMisc.add(getDisplaySelect(), gbc0_1);
@@ -304,8 +304,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.add(processImagesLabel, gbc6_0);
 			panelMisc.add(getChkProcessImages(), gbc6_1);
 
-			panelMisc.add(showTextIcons, gbc7_0);
-			panelMisc.add(getShowTextIcons(), gbc7_1);
+			panelMisc.add(showTabNames, gbc7_0);
+			panelMisc.add(getShowTabNames(), gbc7_1);
 			
 			panelMisc.add(new JLabel(""), gbcX);
 
@@ -313,13 +313,13 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return panelMisc;
 	}
 
-	private JCheckBox getShowTextIcons() {
-		if (chkShowTextIcons == null) {
-			chkShowTextIcons = new JCheckBox();
-			chkShowTextIcons.setVerticalAlignment(javax.swing.SwingConstants.TOP);
-			chkShowTextIcons.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+	private JCheckBox getShowTabNames() {
+		if (chkShowTabNames == null) {
+			chkShowTabNames = new JCheckBox();
+			chkShowTabNames.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkShowTabNames.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
-		return chkShowTextIcons;
+		return chkShowTabNames;
 	}
 
 	private JCheckBox getChkProcessImages() {
@@ -392,7 +392,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
-	    getShowTextIcons().setSelected(options.getViewParam().getTextIcons() > 0);
+	    getShowTabNames().setSelected(options.getViewParam().getShowTabNames());
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
@@ -410,7 +410,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
-	    options.getViewParam().setShowTextIcons((getShowTextIcons().isSelected()) ? 1 : 0);
+	    options.getViewParam().setShowTabNames(getShowTabNames().isSelected());
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());

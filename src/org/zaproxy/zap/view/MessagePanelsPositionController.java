@@ -35,6 +35,7 @@ import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.MainFrame;
 import org.parosproxy.paros.view.TabbedPanel;
+import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -116,11 +117,21 @@ public class MessagePanelsPositionController {
     }
 
     private void changeMessageTabsPosition(MessagePanelsPosition position) {
-        if (currentPosition == position) {
+        // 29.12.2013 Dejan Lukan: commented out this code, so the function is called when
+        // changing the layout where the Request/Response tab representation stays the same.
+        /*if (currentPosition == position) {
+            return;
+        }*/
+
+        // save the current position, so we can change Request/Response view in 'Full Layout'
+        currentPosition = position;
+        saveState(position);
+
+        // Prevent 'Request' icon from being removed when changing Request/Response tabs
+        // in Full Layout mode.
+        if(View.getDisplayOption() == View.DISPLAY_OPTION_TOP_FULL) {
             return;
         }
-
-        currentPosition = position;
 
         TabbedPanel tabbedPanel = restoreOriginalParentTabbedPanel();
 
@@ -136,8 +147,13 @@ public class MessagePanelsPositionController {
             if (tabbedPanel == splitTabbedPanel) {
                 tabbedPanel = tabbedWork;
             }
+            boolean showTabNames = Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames();
+            String tabName = responsePanel.getName();
+            if(!showTabNames) {
+                tabName = "";
+            }
             tabbedWork.insertTab(
-                    responsePanel.getName(),
+                    tabName,
                     responsePanel.getIcon(),
                     responsePanel,
                     null,
@@ -147,17 +163,26 @@ public class MessagePanelsPositionController {
 
         restoreAlternativeParentTabbedPanel(tabbedPanel);
 
-        saveState(position);
     }
+
 
     private void splitResponsePanelWithWorkTabbedPanel(int orientation) {
         splitTabbedPanel.removeAll();
-        splitTabbedPanel.addTab(responsePanel.getName(), responsePanel.getIcon(), responsePanel);
+        boolean showTabNames = Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames(); 
+        if(showTabNames) {
+            splitTabbedPanel.addTab(responsePanel.getName(), responsePanel.getIcon(), responsePanel);
+        }
+        else {
+            splitTabbedPanel.addTab("", responsePanel.getIcon(), responsePanel);
+        }
 
         workbenchPanel.splitPaneWorkWithTabbedPanel(splitTabbedPanel, orientation);
     }
 
-    private TabbedPanel restoreOriginalParentTabbedPanel() {
+    /**
+     * Restores the original parent of the panels and the panel.
+     */
+    public TabbedPanel restoreOriginalParentTabbedPanel() {
         if (tabbedWork.isInAlternativeParent()) {
             tabbedWork.alternateParent();
             return tabbedWork;
@@ -167,6 +192,7 @@ public class MessagePanelsPositionController {
         }
         return null;
     }
+
 
     private void restoreAlternativeParentTabbedPanel(TabbedPanel tabbedPanel) {
         if (tabbedPanel != null) {

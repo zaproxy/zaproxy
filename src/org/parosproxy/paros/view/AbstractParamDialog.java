@@ -214,13 +214,7 @@ public class AbstractParamDialog extends AbstractDialog {
 					    saveParam();
 					    exitResult = JOptionPane.OK_OPTION;
 					    
-              // enable/disable the tab names when Tools - Options - Display - 'Show icons and text in tabs' is used.
-              View.getSingleton().getWorkbench().getTabbedStatus().toggleTabNames();
-              View.getSingleton().getWorkbench().getTabbedSelect().toggleTabNames();
-              View.getSingleton().getWorkbench().getTabbedWork().toggleTabNames();
-
 					    AbstractParamDialog.this.setVisible(false);
-					    
 						
 					} catch (Exception ex) {
 						log.error(ex.getMessage(), ex);

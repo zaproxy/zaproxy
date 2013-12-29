@@ -141,52 +141,62 @@ public class View implements ViewDelegate {
 	//	return responsePanel;
 	//}
 
+  /**
+   * Sets the displayOption.
+   */
 	public static void setDisplayOption(int displayOption) {
 		View.displayOption = displayOption;
 	}
+
+  /**
+   * Return the current displayOption.
+   */
+  public static int getDisplayOption() {
+    return View.displayOption;
+  }
+
 	
 //  ZAP: Removed method changeDisplayOption(int)
 	
 	public void init() {
 		mainFrame = new MainFrame(displayOption);
-    
-    if(siteMapPanel == null) {
-		  siteMapPanel = new SiteMapPanel();
-    }
-    if(outputPanel == null) {
-		  outputPanel = new OutputPanel();
-    }
-
-    //ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
-
-		// do not allow editable in request panel
-		//getWorkbench().getTabbedWork().addTab(getRequestPanel().getName(), getRequestPanel().getIcon(), getRequestPanel(), false);
-		//getWorkbench().getTabbedWork().addTab(getResponsePanel().getName(), getResponsePanel().getIcon(), getResponsePanel(), false);
-		
-		//logPanel.setDisplayPanel(requestPanel, responsePanel);
-		//getWorkbench().getTabbedStatus().add(logPanel, "URLs");
+    ExtensionHelp.enableHelpKey(getOutputPanel(), "ui.tabs.output");
 		
 		getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
 		getWorkbench().getTabbedSelect().setAlternativeParent(mainFrame.getPaneDisplay());
 
-		messagePanelsPositionController = new MessagePanelsPositionController(
-		        requestPanel,
-		        responsePanel,
-		        mainFrame,
-		        getWorkbench());
+    // adds the Request/Response representation buttons in ZAP toolbar
+	  getMessagePanelsPositionController().restoreState();
 	}
 	
 	public void postInit() {
       // Note: addTab function calls have been moved to WorkbenchPanel.java because
       // of the Full Layout support, but this line is still needed for the 'History'
       // tab to be the currently selected tab; otherwise it's the 'Output' tab.
-	    getWorkbench().getTabbedStatus().addTab(outputPanel.getName(), outputPanel.getIcon(), outputPanel, false);
-	    messagePanelsPositionController.restoreState();
+	    getWorkbench().getTabbedStatus().addTab(getOutputPanel().getName(), getOutputPanel().getIcon(), getOutputPanel(), false);
+
+      // restore the state of Request/Response layout: side by side or above each other.
+	    getMessagePanelsPositionController().restoreState();
 	    
 	    refreshTabViewMenus();
 	}
-	
+
+  /**
+   * Retursn the MessagePanelsPositionController so other classes can also restore
+   * state of the Request/Response layout.
+   */
+  public MessagePanelsPositionController getMessagePanelsPositionController() {
+    if(messagePanelsPositionController == null) {
+       messagePanelsPositionController = new MessagePanelsPositionController(
+		        getRequestPanel(),
+		        getResponsePanel(),
+		        mainFrame,
+		        getWorkbench());
+    }
+    return messagePanelsPositionController;
+  }
+
 	public void refreshTabViewMenus() {
 		if (menuShowTabs != null) {
 			// Remove the old ones

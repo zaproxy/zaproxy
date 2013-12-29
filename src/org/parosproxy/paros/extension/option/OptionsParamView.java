@@ -31,6 +31,7 @@ import java.util.Locale;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.view.View;
 
 // ZAP: Added support for selecting the locale
 
@@ -38,7 +39,7 @@ public class OptionsParamView extends AbstractParam {
 	
 	public static final String BASE_VIEW_KEY = "view";
 
-	private static final String SHOW_TEXT_ICONS = "view.showTextIcons";
+	private static final String SHOW_TEXT_ICONS = "view.showTabNames";
 	private static final String PROCESS_IMAGES = "view.processImages";
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
@@ -62,10 +63,10 @@ public class OptionsParamView extends AbstractParam {
 	private int displayOption = 0;
 	private int brkPanelViewOption = 0;
 	private int askOnExitEnabled = 1;
-  private int showTextIcons = 1;
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
 	private boolean reveal = false;
+  private boolean showTabNames = true;
 	private String mode = Mode.standard.name();
 	
     public OptionsParamView() {
@@ -74,7 +75,7 @@ public class OptionsParamView extends AbstractParam {
     @Override
 	protected void parse() {
 	    // use temp variable to check.  Exception will be flagged if any error.
-      showTextIcons = getConfig().getInt(SHOW_TEXT_ICONS, 1);
+      showTabNames = getConfig().getBoolean(SHOW_TEXT_ICONS, true);
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
 	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
@@ -155,13 +156,17 @@ public class OptionsParamView extends AbstractParam {
 		return configLocale;
 	}
 
-	public int getTextIcons() {
-		return showTextIcons;
+	public boolean getShowTabNames() {
+		return showTabNames;
 	}
 	
-	public void setShowTextIcons(int brkPanelViewIdx) {
-		showTextIcons = brkPanelViewIdx;
-		getConfig().setProperty(SHOW_TEXT_ICONS, Integer.toString(showTextIcons));
+	public void setShowTabNames(boolean showTabNames) {
+		this.showTabNames = showTabNames;
+
+    // toggle between shown/hidden tab names 
+    View.getSingleton().getWorkbench().toggleTabNames(showTabNames);
+
+		getConfig().setProperty(SHOW_TEXT_ICONS, showTabNames);
 	}
 
 	public int getBrkPanelViewOption() {

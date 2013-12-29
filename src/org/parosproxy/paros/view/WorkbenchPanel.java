@@ -40,7 +40,6 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
-import java.util.Iterator;
 
 import javax.swing.BorderFactory;
 import javax.swing.JPanel;
@@ -64,7 +63,6 @@ public class WorkbenchPanel extends JPanel {
 
 	private JSplitPane splitVert = null;
 	private JSplitPane splitHoriz = null;
-	private JSplitPane splitFull = null;
 
   /* panels used when presenting views */
 	private JPanel paneStatus = null;
@@ -82,7 +80,7 @@ public class WorkbenchPanel extends JPanel {
 	private TabbedPanel2 tabbedOldSelect = null;
 	
 	private int displayOption;
-  private int pdisplayOption;
+  private int previousDisplayOption = -1;
 
 	private final Preferences preferences;
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
@@ -96,9 +94,35 @@ public class WorkbenchPanel extends JPanel {
 		super();
 		this.preferences = Preferences.userNodeForPackage(getClass());
 		this.displayOption = displayOption;
-    this.pdisplayOption = displayOption;
+    this.previousDisplayOption = displayOption;
 		initialize();
 	}
+
+
+    /*
+     * Minimizes the maximized panels when changing layout to prevent panels not being
+     * displayed correctly.
+     */
+    private void minimizeMaximizedPanels() {
+        // minimize the maximized tab when changing layout: solves the problem of presenting
+        // empty panel when going into 'Full Layout' view when certain tab is maximized
+        if(tabbedSelect != null && tabbedSelect.isInAlternativeParent()) {
+          tabbedSelect.alternateParent();
+        }
+        else if(tabbedStatus != null && tabbedStatus.isInAlternativeParent()) {
+          tabbedStatus.alternateParent();
+        }
+        else if(tabbedWork != null && tabbedWork.isInAlternativeParent()) {
+          tabbedWork.alternateParent();
+        }
+        // special use case for when 'Response' is maximized, which is called only after the 
+        // ZAP has already been started. The restoreOriginalParentTabbedPanel returns the 
+        // TabbedPanel object, which we're discaring because we don't need it.
+        if(this.previousDisplayOption != -1) {
+          View.getSingleton().getMessagePanelsPositionController().restoreOriginalParentTabbedPanel();
+        }
+    }
+
 
 	/**
 	 * This method initializes this
@@ -114,14 +138,16 @@ public class WorkbenchPanel extends JPanel {
 		consGridBagConstraints1.weighty = 1.0;
 		consGridBagConstraints1.fill = GridBagConstraints.BOTH;
 
+    View.setDisplayOption(this.displayOption);
+
+    // minimize maximized panels when changing layout
+    minimizeMaximizedPanels();
+
     // set icon for 'Sites' tab
     Icon icon = new ImageIcon(View.class.getResource("/resource/icon/16/094.png"));
     View.getSingleton().getSiteTreePanel().setIcon(icon);
     View.getSingleton().getSiteTreePanel().setName(Constant.messages.getString("sites.panel.title"));
 
-    /*
-     * Adds tabs to panels based on selected layout.
-     */
 		switch (displayOption) {
       case View.DISPLAY_OPTION_LEFT_FULL:
         this.add(getSplitHoriz(), consGridBagConstraints1);
@@ -136,12 +162,13 @@ public class WorkbenchPanel extends JPanel {
 		}
 
     /*
-     * Correct the tabs position based on the currently selected layout: if Full Layout was invoked: Request/Response/Script Console/Quickstart/Break tabs.
+     * Correct the tabs position based on the currently selected layout: if Full Layout 
+     * was invoked: Request/Response/Script Console/Quickstart/Break tabs.
      */ 
 		switch (displayOption) {
       case View.DISPLAY_OPTION_TOP_FULL:
         // save the arrangements of tabs when going into 'Full Layout'
-        if(pdisplayOption != View.DISPLAY_OPTION_TOP_FULL) {
+        if(previousDisplayOption != View.DISPLAY_OPTION_TOP_FULL) {
           tabbedOldSelect = tabbedSelect;
           tabbedOldStatus = tabbedStatus;
           tabbedOldWork   = tabbedWork;
@@ -153,63 +180,66 @@ public class WorkbenchPanel extends JPanel {
         getTabbedStatus().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
      
         // go over all tabs that extensions added and move them to tabbedStatus
-        Iterator<Component> it1 = getTabbedWork().getTabList().iterator();
-        Iterator<Component> it2 = getTabbedSelect().getTabList().iterator();
-        while(it1.hasNext()) {
-          Component c = it1.next();
-          if(c instanceof AbstractPanel) {
-            getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
-          }
+        for(Component c: getTabbedWork().getTabList()) {
+            if(c instanceof AbstractPanel) {
+                getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c,((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+            }
         }
-        while(it2.hasNext()) {
-          Component c = it2.next();
-          if(c instanceof AbstractPanel) {
-            getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
-          }
+        for(Component c: getTabbedSelect().getTabList()) {
+            if(c instanceof AbstractPanel) {
+                getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c, ((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+            }
         }
-
         break;
       case View.DISPLAY_OPTION_BOTTOM_FULL:
       case View.DISPLAY_OPTION_LEFT_FULL:
       default:
-        // Tabs in sequence: request, response, output, sites.
-        getTabbedWork().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel(), false);
-        getTabbedWork().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
-        getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
-        getTabbedSelect().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
-      
+        // we shouldn't check against 'previousDisplayOption == View.DISPLAY_OPTION_TOP_FULL',
+        // because the previousDisplayOption can be null when starting ZAP.
+        if((previousDisplayOption != View.DISPLAY_OPTION_BOTTOM_FULL) || (previousDisplayOption != View.DISPLAY_OPTION_LEFT_FULL)) {
+          // Tabs in sequence: request, response, output, sites.
+          getTabbedWork().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel(), false);
+          getTabbedWork().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
+          getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
+          getTabbedSelect().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
+        }
+
         // parse the tabs correctly when previous display option was 'Full Layout'
-        if(pdisplayOption == View.DISPLAY_OPTION_TOP_FULL) {
-          Iterator<Component> i1 = getTabbedOldWork().getTabList().iterator();
-          Iterator<Component> i2 = getTabbedOldSelect().getTabList().iterator();
-          while(i1.hasNext()) {
-            Component c = i1.next();
-            if(c instanceof AbstractPanel) {
-              getTabbedWork().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
-            }
+        if(previousDisplayOption == View.DISPLAY_OPTION_TOP_FULL) {
+          for(Component c: getTabbedOldWork().getTabList()) {
+              if(c instanceof AbstractPanel) {
+                  getTabbedWork().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c, ((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+              }
           }
-          while(i2.hasNext()) {
-            Component c = i2.next();
-            if(c instanceof AbstractPanel) {
-              getTabbedSelect().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c);
-            }
+          for(Component c: getTabbedOldSelect().getTabList()) {
+              if(c instanceof AbstractPanel) {
+                  getTabbedSelect().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c, ((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+              }
           }
         }
     }
 
+    // Restore state of the MessagePanelsPositionController after changing the layout, so
+    // the Request/Response do not appear as empty panels. This should only happen when
+    // changing the layout when starting ZAP and when not switching to 'Full Layout'.
+    if((this.previousDisplayOption != -1) && (this.displayOption != View.DISPLAY_OPTION_TOP_FULL)) {
+      View.getSingleton().getMessagePanelsPositionController().restoreState();
+    }
+
     // save previous display option
-    this.pdisplayOption = this.displayOption;
+    this.previousDisplayOption = this.displayOption;
 	}
 
-  /*
+
+  /**
    * This method is called whenever we change the layout in preferences or in toolbar.
+   * @param displayOption
    */
 	public void changeDisplayOption(int displayOption) {
 		this.displayOption = displayOption;
 		this.removeAll();
 		splitVert = null;
 		splitHoriz = null;
-		splitFull = null;
 		initialize();
 		this.validate();
 		this.repaint();
@@ -406,17 +436,28 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 
-  /*
+  /**
    * Set the old tabbed panels called from ExtensionLoader.java and used with 'Full Layout'.
+   * @param t
    */
   public void setTabbedOldWork(TabbedPanel2 t) {
-    this.tabbedOldWork = t;
+    this.tabbedOldWork = t.clone(t);
   }
   public void setTabbedOldStatus(TabbedPanel2 t) {
-    this.tabbedOldStatus = t;
+    this.tabbedOldStatus = t.clone(t);
   }
   public void setTabbedOldSelect(TabbedPanel2 t) {
-    this.tabbedOldSelect = t;
+    this.tabbedOldSelect = t.clone(t);
+  }
+
+
+  /**
+   * Toggle the the tab names when Tools - Options - Display - 'Show tab names' is used.
+   */
+  public void toggleTabNames(boolean showTabNames) {
+    getTabbedStatus().setShowTabNames(showTabNames);
+    getTabbedSelect().setShowTabNames(showTabNames);
+    getTabbedWork().setShowTabNames(showTabNames);
   }
 
 	/**

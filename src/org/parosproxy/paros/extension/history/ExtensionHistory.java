@@ -48,7 +48,6 @@
 // ZAP: 2013/08/07 Also show Authentication messages
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
-// ZAP: 2013/12/13 Added support for nameless 'History' tab.
 
 package org.parosproxy.paros.extension.history;
 
@@ -156,12 +155,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private LogPanel getLogPanel() {
 		if (logPanel == null) {
 			logPanel = new LogPanel();
-		  logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18
-
+			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
 			// ZAP: Added History (calendar) icon
 			logPanel.setIcon(new ImageIcon(ExtensionHistory.class.getResource("/resource/icon/16/025.png")));	// 'calendar' icon
-      // ZAP: Added tooltip, which is particularly useful when in Full Layout mode.
-      logPanel.setToolTipText(Constant.messages.getString("history.panel.title"));
 			// Dont allow this tab to be hidden
 			logPanel.setHideable(false);
 

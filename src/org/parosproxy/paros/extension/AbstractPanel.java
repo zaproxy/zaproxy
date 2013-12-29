@@ -66,21 +66,6 @@ public class AbstractPanel extends JPanel {
 	    }
 	}
 
-  /*
-   * Set the original name before reseting it to null.
-   * User when 'Options - Display - show icons and text in tabs' is not selected.
-   */ 
-  public void setOriginalName(String name) {
-    this.originalName = name;
-  }
-
-  /*
-   * Get the original name.
-   */
-  public String getOriginalName() {
-    return this.originalName;
-  }
-
 	public void setTabFocus() {
     	if (parent != null) {
     		// Just incase the tab has been hidden

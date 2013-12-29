@@ -55,6 +55,17 @@ public class TabbedPanel2 extends TabbedPanel {
 		    }
 		});
 	}
+
+  /**
+   * Returns a clone of the TabbedPanel2 object.
+   * @param tabbedPabel
+   */
+  public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
+    TabbedPanel2 t = new TabbedPanel2();
+    t.fullTabList = tabbedPanel.fullTabList;
+    t.removedTabList = tabbedPanel.removedTabList;
+    return t;
+  }
 	
 	private void setCloseButtonStates() {
 		// Hide all 'close' buttons except for the selected tab
@@ -145,25 +156,18 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 
 	public void addTab(String title, Icon icon, final Component c, boolean hideable, int index) {
-    String origName = title;
+        String origName = title;
 		if (c instanceof AbstractPanel) {
 			((AbstractPanel)c).setParent(this);
-      ((AbstractPanel)c).setOriginalName(origName);
+			((AbstractPanel)c).setTabIndex(index);
+			((AbstractPanel)c).setHideable(hideable);
 		}
 
-    // change the title variable if 'Options - Display - show icons and text in tabs' selected
-		if (Model.getSingleton().getOptionsParam().getViewParam().getTextIcons() == 0) {
-      title = "";
-    }
-		if (c.getName() == null) {
-			c.setName(title);
-		}
-		
 		if (index > this.getTabCount()) {
 			index = this.getTabCount();
 		}
 
-		super.insertTab(title, icon, c, null, index);
+		super.insertTab(title, icon, c, c.getName(), index);
 
 		if ( ! this.fullTabList.contains(c)) {
 			this.fullTabList.add(c);
@@ -178,9 +182,16 @@ public class TabbedPanel2 extends TabbedPanel {
 		JPanel pnlTab = new JPanel(f);
 		pnlTab.setOpaque(false);
 
+        // change the title variable if 'Options - Display - show tab names' selected
+		if (!Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
+            title = "";
+        }
+		if (c.getName() == null) {
+			c.setName(title);
+		}
+
 		// Add a JLabel with title and the left-side tab icon
 		JLabel lblTitle = new JLabel(title);
-    //lblTitle.setToolTipText(origName);
 		lblTitle.setIcon(icon);
 
 		// Create a JButton for the close tab button
@@ -243,6 +254,22 @@ public class TabbedPanel2 extends TabbedPanel {
     	}
     }
 	
+    /**
+     * Set the title of the tab when hiding/showing tab names.
+     */
+    public void setTitleAt(int index, String title) {
+    	Component tabCom = this.getTabComponentAt(index);
+    	if (tabCom != null && tabCom instanceof JPanel) {
+    		Component c = ((JPanel)tabCom).getComponent(0);
+			if (c != null && c instanceof JLabel) {
+				((JLabel)c).setText(title);
+			}
+    	}
+      else {
+        super.setTitleAt(index, title);
+      }
+    }
+
 	public List<Component> getTabList() {
 		return Collections.unmodifiableList(this.fullTabList);
 	}
@@ -253,24 +280,16 @@ public class TabbedPanel2 extends TabbedPanel {
 		this.removedTabList.remove(panel);
 	}
 
-  /*
-   * Toggle tab names to enable/disable tab name: used with Tools - Options - Display - "Show icons and text in tabs".
-   * Basically we need to call addTab on every tab, so the change to the tab names becomes visible.
+  /**
+   * Toggle tab names to enable/disable tab name: used with Tools - Options - Display -
+   * "Show tab names". 
    */
-  public void toggleTabNames() {
-    Iterator<Component> i = this.fullTabList.iterator();
-    while(i.hasNext()) {
-      Component t = i.next();
-      //System.out.println("TAB NAME: "+t.getName()+" : "+t.getClass().getName());
-      if(t instanceof AbstractPanel) {
-        AbstractPanel c = (AbstractPanel)t;
-        this.addTab(c.getName(), c.getIcon(), c);
-      }
-      else if (t instanceof SiteMapPanel) {
-        SiteMapPanel c = (SiteMapPanel)t;
-        this.addTab(c.getName(), c.getIcon(), c);
-      }
+  public void setShowTabNames(boolean showTabNames) {
+        for (int i = 0; i < getTabCount(); i++) {
+            String title = showTabNames ? getComponentAt(i).getName() : "";
+            setTitleAt(i, title);
+        }
     }
-  }
+
 
 }
