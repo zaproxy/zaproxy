@@ -151,11 +151,10 @@ public class HostProcess implements Runnable {
     }
     
     private void traverse(Plugin plugin, SiteNode node, boolean incRelatedSiblings) {
-    	log.debug("traverse: plugin=" + plugin.getName() + " node=" + node.getNodeName() + " heir=" + node.getHierarchicNodeName());
-        
         if (node == null || plugin == null) {
             return;
         }
+    	log.debug("traverse: plugin=" + plugin.getName() + " node=" + node.getNodeName() + " heir=" + node.getHierarchicNodeName());
         
         Set<SiteNode> parentNodes = new HashSet<>();
         parentNodes.add(node);
