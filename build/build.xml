@@ -352,17 +352,17 @@
 
         <!-- Copy all alpha extensions translations (project zap-extensions) -->
         <copy-crowdin-messages-files srcdir="${crowdin.dir}/zap-extensions/alpha/"
-                                     destdir="${zap.extensions.alpha.src.dir}/org/zaproxy/zap/extension/"
+                                     destdir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/"
                                      failonerror="no" />
 
         <!-- Copy all beta extensions translations (project zap-extensions) -->
         <copy-crowdin-messages-files srcdir="${crowdin.dir}/zap-extensions/beta/" 
-                                     destdir="${zap.extensions.beta.src.dir}/org/zaproxy/zap/extension/" 
+                                     destdir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
                                      failonerror="no" />
 
         <!-- Copy all release (trunk) extensions translations (project zap-extensions) -->
         <copy-crowdin-messages-files srcdir="${crowdin.dir}/zap-extensions/trunk"
-                                     destdir="${zap.extensions.trunk.src.dir}/org/zaproxy/zap/extension/"
+                                     destdir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/"
                                      failonerror="no" />
     </target>
 
