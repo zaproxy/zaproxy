@@ -266,7 +266,7 @@ public class AddOnLoader extends URLClassLoader {
     private void loadFiles(AddOn ao, boolean overwrite) {
 		List<String> fileNames = ao.getFiles();
 
-		if (fileNames != null && fileNames != null) {
+		if (fileNames != null) {
 		    AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(ao.getId());
 			for (String name : fileNames) {
 				File outfile = null;
@@ -353,7 +353,7 @@ public class AddOnLoader extends URLClassLoader {
 			
 			// Files
 			List<String> fileNames = ao.getFiles();
-			if (fileNames != null && fileNames != null) {
+			if (fileNames != null) {
 				File file = null;
 				for (String name : fileNames) {
 					File parent = null;
