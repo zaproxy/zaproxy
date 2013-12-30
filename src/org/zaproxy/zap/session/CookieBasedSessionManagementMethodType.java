@@ -104,7 +104,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 			while (it.hasNext()) {
 				HttpCookie c = it.next();
 				for (Cookie sc : session.getHttpState().getCookies())
-					if (sc.getName().equals(c)) {
+					if (sc.getName().equals(c.getName())) {
 						it.remove();
 						break;
 					}
