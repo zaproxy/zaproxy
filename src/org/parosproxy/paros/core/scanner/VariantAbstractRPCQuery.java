@@ -146,7 +146,7 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
         for (int i = 0; i < listParam.size(); i++) {
             RPCParameter param = listParam.get(i);
-            params.add(new NameValuePair(param.getName(), param.getValue(), i));
+            params.add(new NameValuePair(NameValuePair.TYPE_RPC, param.getName(), param.getValue(), i));
         }         
     }
     

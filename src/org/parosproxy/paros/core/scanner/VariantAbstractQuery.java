@@ -25,18 +25,21 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/07/02 Changed Vector to ArrayList because obsolete and faster
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
+import java.util.Map;
+import java.util.Map.Entry;
 
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.ParameterParser;
 
 public abstract class VariantAbstractQuery implements Variant {
 
-    private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
     private List<NameValuePair> listParam = new ArrayList<>();
 
     public VariantAbstractQuery() {
@@ -72,38 +75,12 @@ public abstract class VariantAbstractQuery implements Variant {
      * 
      * @param params 
      */
-    protected void parse(String params) {
-
-        if (params == null || params.equals("")) {
-            return;
-        }
-
-        String[] keyValue = staticPatternParam.split(params);
-        String key;
-        String value;
-        int pos;
-        
-        for (int i = 0; i < keyValue.length; i++) {
-            value = null;
-            pos = keyValue[i].indexOf('=');
-            
-            try {
-                if (pos > 0) {
-                    key = keyValue[i].substring(0, pos);
-                    // ZAP: the parameter could be encoded so decode it
-                    value = getUnescapedValue(keyValue[i].substring(pos + 1));
-                    
-                } else {
-                    key = keyValue[i];
-                    // ZAP: Removed "value = null;" the value is already initialized to null.
-                }
-                
-                listParam.add(new NameValuePair(key, value, i));
-
-            } catch (Exception e) {
-            }
-        }
-
+    protected void setParams(String type, Map<String, String> params) {
+    	int i = 0;
+	    for (Entry<String, String> param : params.entrySet()) {
+            listParam.add(new NameValuePair(type, param.getKey(), getUnescapedValue(param.getValue()), i));
+	    	i++;
+	    }
     }
 
     /**
@@ -129,6 +106,14 @@ public abstract class VariantAbstractQuery implements Variant {
     }
 
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
+    	// We need the correct parameter parser to use the right separators
+    	ParameterParser parser;
+    	if (NameValuePair.TYPE_FORM.equals(originalPair.getType())) {
+    		parser = Model.getSingleton().getSession().getFormParamParser(msg.getRequestHeader().getURI().toString());
+    	} else {
+    		parser = Model.getSingleton().getSession().getUrlParamParser(msg.getRequestHeader().getURI().toString());
+    	}
+    	
         StringBuilder sb = new StringBuilder();
         String encodedValue = (escaped) ? value : getEscapedValue(msg, value);
         NameValuePair pair;
@@ -137,14 +122,14 @@ public abstract class VariantAbstractQuery implements Variant {
         for (int i = 0; i < getParamList().size(); i++) {
             pair = getParamList().get(i);
             if (i == originalPair.getPosition()) {
-                isAppended = paramAppend(sb, name, encodedValue);
+                isAppended = paramAppend(sb, name, encodedValue, parser);
 
             } else {
-                isAppended = paramAppend(sb, pair.getName(), getEscapedValue(msg, pair.getValue()));
+                isAppended = paramAppend(sb, pair.getName(), getEscapedValue(msg, pair.getValue()), parser);
             }
 
             if (isAppended && i < getParamList().size() - 1) {
-                sb.append('&');
+                sb.append(parser.getDefaultKeyValuePairSeparator());
             }
         }
 
@@ -162,7 +147,7 @@ public abstract class VariantAbstractQuery implements Variant {
      * @param value null = not to append parameter value.
      * @return true = parameter changed.
      */
-    private boolean paramAppend(StringBuilder sb, String name, String value) {
+    private boolean paramAppend(StringBuilder sb, String name, String value, ParameterParser parser) {
         boolean isEdited = false;
         
         if (name != null) {
@@ -171,7 +156,7 @@ public abstract class VariantAbstractQuery implements Variant {
         }
         
         if (value != null) {
-            sb.append('=');
+            sb.append(parser.getDefaultKeyValueSeparator());
             sb.append(value);
             isEdited = true;
         }

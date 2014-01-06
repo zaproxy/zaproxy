@@ -30,7 +30,7 @@ public class HtmlParameter implements Comparable<HtmlParameter> {
 	};
 
 	public enum Flags {
-		anticsrf, session
+		anticsrf, session, structural
 	};
 
 	private String name;

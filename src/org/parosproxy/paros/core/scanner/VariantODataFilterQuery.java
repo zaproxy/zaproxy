@@ -141,7 +141,7 @@ public class VariantODataFilterQuery implements Variant {
 		
 		int i=1;
 		for (OperationParameter opParam:mapParameters.values()){
-			out.add(new NameValuePair(opParam.getParameterName(), opParam.getValue(),i++));
+			out.add(new NameValuePair(NameValuePair.TYPE_ODATA_FILTER, opParam.getParameterName(), opParam.getValue(),i++));
 		}
 		
 		return out;

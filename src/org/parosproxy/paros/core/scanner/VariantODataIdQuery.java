@@ -135,7 +135,7 @@ public class VariantODataIdQuery implements Variant {
 							String paramName       = matcher.group(1);
 							String value           = matcher.group(2);
 						
-							NameValuePair vp = new NameValuePair(paramName,value,i++);
+							NameValuePair vp = new NameValuePair(NameValuePair.TYPE_ODATA_ID, paramName,value,i++);
 							listParams.add(vp);
 						}
 								
@@ -157,7 +157,8 @@ public class VariantODataIdQuery implements Variant {
 		Vector<NameValuePair> params = new Vector<>();
 		
 		if (resourceParameter != null) {
-			params.add(new NameValuePair(resourceParameter.getParameterName(), resourceParameter.getValue(), 1));
+			params.add(new NameValuePair(NameValuePair.TYPE_ODATA_ID, 
+					resourceParameter.getParameterName(), resourceParameter.getValue(), 1));
 		}
 		
 		if (listParams != null) {

@@ -30,17 +30,18 @@
 // ZAP: 2012/08/29 Issue 250 Support for authentication management
 // ZAP: 2013/01/29 Handle structural nodes in findNode
 // ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 
 package org.parosproxy.paros.model;
 
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
-import java.util.StringTokenizer;
 import java.util.TreeSet;
-import java.util.regex.Pattern;
 
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
@@ -49,6 +50,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -58,7 +60,6 @@ import org.parosproxy.paros.network.HttpStatusCode;
 public class SiteMap extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 2311091007687218751L;
-	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	
 	private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
 
@@ -87,13 +88,10 @@ public class SiteMap extends DefaultTreeModel {
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
-        String path = null;
         SiteNode parent = (SiteNode) getRoot();
-        StringTokenizer tokenizer = null;
-        String folder = "";
+        String folder;
         
         try {
-            
             String host = getHostName(uri);
             
             // no host yet
@@ -101,28 +99,20 @@ public class SiteMap extends DefaultTreeModel {
             if (parent == null) {
                 return null;
         	}
-            
-            path = uri.getPath();
-            if (path == null) {
-                path = "";
-            }
-                        
-            tokenizer = new StringTokenizer(path, "/");
-            while (tokenizer.hasMoreTokens()) {
-                
-                folder = tokenizer.nextToken();
+            List<String> path = model.getSession().getTreePath(uri);
+            for (int i=0; i < path.size(); i++) {
+            	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
-                    if (tokenizer.countTokens() == 0) {
+                    if (i == path.size()-1) {
                         String leafName = getLeafName(folder, msg);
                         resultNode = findChild(parent, leafName);
                     } else {
                         parent = findChild(parent, folder);
-                        if (parent == null)
+                        if (parent == null) {
                             return null;
+                        }
                     }
-                    
                 }
-                
             }
         } catch (URIException e) {
             // ZAP: Added error
@@ -142,17 +132,20 @@ public class SiteMap extends DefaultTreeModel {
         }
         return nodeMsg;
     }
+
+    public SiteNode findNode(HttpMessage msg) {
+    	return this.findNode(msg, false);
+    }
+
     
-    public synchronized SiteNode findNode(HttpMessage msg) {
+    public synchronized SiteNode findNode(HttpMessage msg, boolean matchStructural) {
     	if (msg == null || msg.getRequestHeader() == null) {
     		return null;
     	}
         SiteNode resultNode = null;
         URI uri = msg.getRequestHeader().getURI();
         
-        String path = null;
         SiteNode parent = (SiteNode) getRoot();
-        StringTokenizer tokenizer = null;
         String folder = "";
         
         try {
@@ -165,27 +158,24 @@ public class SiteMap extends DefaultTreeModel {
                 return null;
         	}
             
-            path = uri.getPath();
-            if (path == null) {
-                path = "";
-            }
-                        
-            tokenizer = new StringTokenizer(path, "/");
-            while (tokenizer.hasMoreTokens()) {
-                
-                folder = tokenizer.nextToken();
+            List<String> path = model.getSession().getTreePath(uri);
+            for (int i=0; i < path.size(); i++) {
+            	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
-                    if (tokenizer.countTokens() == 0) {
-                        String leafName = getLeafName(folder, msg);
-                        resultNode = findChild(parent, leafName);
+                    if (i == path.size()-1) {
+                    	if (matchStructural) {
+                            resultNode = findChild(parent, folder);
+                    	} else {
+                    		String leafName = getLeafName(folder, msg);
+                    		resultNode = findChild(parent, leafName);
+                    	}
                     } else {
                         parent = findChild(parent, folder);
-                        if (parent == null)
+                        if (parent == null) {
                             return null;
+                        }
                     }
-                    
                 }
-                
             }
         } catch (URIException e) {
             log.error(e.getMessage(), e);
@@ -205,13 +195,9 @@ public class SiteMap extends DefaultTreeModel {
     
     public synchronized SiteNode findNode(URI uri, String method, String postData) {
         SiteNode resultNode = null;
-        
-        String path = null;
-        StringTokenizer tokenizer = null;
         String folder = "";
         
         try {
-            
         	String host = getHostName(uri);
             
             // no host yet
@@ -220,17 +206,12 @@ public class SiteMap extends DefaultTreeModel {
                 return null;
         	}
             
-            path = uri.getPath();
-            if (path == null) {
-                path = "";
-            }
-                        
-            tokenizer = new StringTokenizer(path, "/");
-            while (tokenizer.hasMoreTokens()) {
+            List<String> path = model.getSession().getTreePath(uri);
+            for (int i=0; i < path.size(); i++) {
+            	folder = path.get(i);
                 
-                folder = tokenizer.nextToken();
                 if (folder != null && !folder.equals("")) {
-                    if (tokenizer.countTokens() == 0) {
+                    if (i == path.size()-1) {
                         String leafName = getLeafName(folder, uri, method, postData);
                         resultNode = findChild(resultNode, leafName);
                     } else {
@@ -239,9 +220,7 @@ public class SiteMap extends DefaultTreeModel {
                             return null;
                         }
                     }
-                    
                 }
-                
             }
         } catch (URIException e) {
             log.error(e.getMessage(), e);
@@ -281,10 +260,8 @@ public class SiteMap extends DefaultTreeModel {
         URI uri = msg.getRequestHeader().getURI();
         log.debug("addPath " + uri.toString());
         
-        String path = null;
         SiteNode parent = (SiteNode) getRoot();
         SiteNode leaf = null;
-        StringTokenizer tokenizer = null;
         String folder = "";
         
         try {
@@ -293,19 +270,12 @@ public class SiteMap extends DefaultTreeModel {
             
             // add host
             parent = findAndAddChild(parent, host, ref, msg);
-            path = uri.getPath();
-            
-            if (path == null) {
-                path = "";
-            }
                         
-            tokenizer = new StringTokenizer(path, "/");
-            while (tokenizer.hasMoreTokens()) {
-                
-                folder = tokenizer.nextToken();
+            List<String> path = model.getSession().getTreePath(uri);
+            for (int i=0; i < path.size(); i++) {
+            	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
-                    if (tokenizer.countTokens() == 0) {
-                        // leaf - path name
+                    if (i == path.size()-1) {
                         leaf = findAndAddLeaf(parent, folder, ref, msg);
                         ref.setSiteNode(leaf);
                     } else {
@@ -451,7 +421,7 @@ public class SiteMap extends DefaultTreeModel {
         if (query == null) {
             query = "";
         }
-        leafName = leafName + getQueryParamString(msg.getParamNameSet(query));
+        leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.url, query));
         
         // also handle POST method query in body
         query = "";
@@ -461,7 +431,7 @@ public class SiteMap extends DefaultTreeModel {
         		leafName = leafName + "(multipart/form-data)";
         	} else {
         		query = msg.getRequestBody().toString();
-        		leafName = leafName + getQueryParamString(msg.getParamNameSet(query));
+        		leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.form, query));
         	}
         }
         
@@ -478,58 +448,29 @@ public class SiteMap extends DefaultTreeModel {
         	leafName = nodeName;
         }
         
-        String query = "";
-
         try {
-            query = uri.getQuery();
+            leafName = leafName + getQueryParamString(model.getSession().getUrlParams(uri));
+
+            // also handle POST method query in body
+            if (method != null && method.equalsIgnoreCase(HttpRequestHeader.POST)) {
+                leafName = leafName + getQueryParamString(model.getSession().getFormParams(uri, postData));
+            }
         } catch (URIException e) {
             // ZAP: Added error
             log.error(e.getMessage(), e);
-        }
-        if (query == null) {
-            query = "";
-        }
-        leafName = leafName + getQueryParamString(getParamNameSet(query));
-
-        // also handle POST method query in body
-        if (method != null && method.equalsIgnoreCase(HttpRequestHeader.POST)) {
-            leafName = leafName + getQueryParamString(getParamNameSet(postData));
         }
         return leafName;
         
     }
     
-	private TreeSet<String> getParamNameSet(String params) {
+    private String getQueryParamString(Map<String, String> map) {
 	    TreeSet<String> set = new TreeSet<>();
-	    String[] keyValue = staticPatternParam.split(params);
-		String key = null;
-		int pos = 0;
-		for (int i=0; i<keyValue.length; i++) {
-			key = null;
-			pos = keyValue[i].indexOf('=');
-			try {
-				if (pos > 0) {
-					// param found
-					key = keyValue[i].substring(0,pos);
+	    for (Entry<String, String> entry : map.entrySet()) {
+	    	set.add(entry.getKey());	    
+	    }
+    	return this.getQueryParamString(set);
+    }
 
-					//!!! note: this means param not separated by & and = is not parsed
-				} else {
-					key = keyValue[i];
-				}
-				
-				if (key != null) {
-					set.add(key);
-				}
-			} catch (Exception e) {
-				// ZAP: log error
-				log.error(e.getMessage(), e);
-			}
-		}
-		
-		return set;
-	}
-
-    
     private String getQueryParamString(SortedSet<String> querySet) {
     	StringBuilder sb = new StringBuilder();
         Iterator<String> iterator = querySet.iterator();
@@ -591,7 +532,7 @@ public class SiteMap extends DefaultTreeModel {
 	private String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		
-		String scheme = uri.getScheme();
+		String scheme = uri.getScheme().toLowerCase();
 		host.append(scheme).append("://").append(uri.getHost());
 		
 		int port = uri.getPort();		

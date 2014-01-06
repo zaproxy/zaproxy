@@ -79,7 +79,7 @@ public class VariantHeader implements Variant {
         for (int idx = 0; idx < injectableHeaders.length; idx++) {
             headerContent = msg.getRequestHeader().getHeader(injectableHeaders[idx]);
             if (headerContent != null) {
-                params.add(new NameValuePair(injectableHeaders[idx], headerContent, idx));
+                params.add(new NameValuePair(NameValuePair.TYPE_HEADER, injectableHeaders[idx], headerContent, idx));
             }
         }
     }

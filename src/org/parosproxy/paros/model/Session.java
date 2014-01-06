@@ -37,32 +37,42 @@
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 // ZAP: 2013/09/26 Issue 747: Error opening session files on directories with special characters
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
+
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.security.InvalidParameterException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.db.RecordSessionUrl;
+import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.ParameterParser;
+import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.Tech;
 
 
@@ -96,6 +106,8 @@ public class Session extends FileXML {
 	private long sessionId = 0;
 	private String sessionName = "";
 	private SiteMap siteTree = null;
+	
+	private ParameterParser defaultParamParser = new StandardParameterParser();
 	
 	/**
 	 * Constructor for the current session.  The current system time will be used as the session ID.
@@ -297,6 +309,46 @@ public class Session extends FileXML {
 	    		case RecordContext.TYPE_EXCLUDE_TECH:	ctx.getTechSet().exclude(new Tech(data.getData())); break;
 	    	}
 	    }
+		for (Context ctx : contexts) {
+	    	try {
+	    		// Set up the URL parameter parser
+				List<String> strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CLASSNAME);
+				if (strs.size() == 1) {
+					Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
+					if (c == null) {
+						log.error("Failed to load URL parser for context " + ctx.getIndex() + " : " + strs.get(0));
+					} else {
+						ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
+						strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_URL_PARSER_CONFIG);
+				    	if (strs.size() == 1) {
+				    		parser.init(strs.get(0));
+				    	}
+				    	ctx.setUrlParamParser(parser);
+					}
+				}
+			} catch (Exception e) {
+				log.error("Failed to load URL parser for context " + ctx.getIndex(), e);
+			}
+	    	try {
+	    		// Set up the URL parameter parser
+				List<String> strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME);
+				if (strs.size() == 1) {
+					Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(strs.get(0));
+					if (c == null) {
+						log.error("Failed to load POST parser for context " + ctx.getIndex() + " : " + strs.get(0));
+					} else {
+						ParameterParser parser = (ParameterParser) c.getConstructor().newInstance();
+						strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG);
+				    	if (strs.size() == 1) {
+				    		parser.init(strs.get(0));
+				    	}
+				    	ctx.setPostParamParser(parser);
+					}
+				}
+			} catch (Exception e) {
+				log.error("Failed to load POST parser for context " + ctx.getIndex(), e);
+			}
+		}
 		
 		if (View.isInitialised()) {
 		    // ZAP: expand root
@@ -835,6 +887,12 @@ public class Session extends FileXML {
 			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE, c.getExcludeFromContextRegexs());
 			this.setContextData(c.getIndex(), RecordContext.TYPE_INCLUDE_TECH, techListToStringList(c.getTechSet().getIncludeTech()));
 			this.setContextData(c.getIndex(), RecordContext.TYPE_EXCLUDE_TECH, techListToStringList(c.getTechSet().getExcludeTech()));
+			this.setContextData(c.getIndex(), RecordContext.TYPE_URL_PARSER_CLASSNAME, 
+					c.getUrlParamParser().getClass().getCanonicalName());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_URL_PARSER_CONFIG, c.getUrlParamParser().getConfig());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME, 
+					c.getPostParamParser().getClass().getCanonicalName());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG, c.getPostParamParser().getConfig());
 			model.saveContext(c);
 		} catch (SQLException e) {
             log.error(e.getMessage(), e);
@@ -878,7 +936,7 @@ public class Session extends FileXML {
 		return contexts;
 	}
 
-	public List<Context> getContextsFortNode(SiteNode sn) {
+	public List<Context> getContextsForNode(SiteNode sn) {
 		if (sn == null) {
 			return new ArrayList<>();
 		}
@@ -897,6 +955,82 @@ public class Session extends FileXML {
 			}
 		}
 		return ctxList;
+	}
+
+	/**
+	 * Returns the url parameter parser associated with the first context found that includes the URL,
+	 * or the default parser if it is not
+	 * in a context
+	 * @param url
+	 * @return
+	 */
+	public ParameterParser getUrlParamParser(String url) {
+		List<Context> contexts = getContextsForUrl(url);
+		if (contexts.size() > 0) {
+			return contexts.get(0).getUrlParamParser();
+		}
+		return this.defaultParamParser;
+	}
+
+	/**
+	 * Returns the form parameter parser associated with the first context found that includes the URL,
+	 * or the default parser if it is not
+	 * in a context
+	 * @param url
+	 * @return
+	 */
+	public ParameterParser getFormParamParser(String url) {
+		List<Context> contexts = getContextsForUrl(url);
+		if (contexts.size() > 0) {
+			return contexts.get(0).getPostParamParser();
+		}
+		return this.defaultParamParser;
+	}
+
+	/**
+	 * Returns the specified parameters for the given message based on the parser associated with the
+	 * first context found that includes the URL for the message, or the default parser if it is not
+	 * in a context
+	 * @param msg
+	 * @param type
+	 * @return
+	 */
+	public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
+		switch (type) {
+		case form:	return this.getFormParamParser(msg.getRequestHeader().getURI().toString()).getParams(msg, type);
+		case url:	return this.getUrlParamParser(msg.getRequestHeader().getURI().toString()).getParams(msg, type);
+		default:
+					throw new InvalidParameterException("Type not supported: " + type);
+		}
+	}
+
+	/**
+	 * Returns the URL parameters for the given URL based on the parser associated with the
+	 * first context found that includes the URL, or the default parser if it is not
+	 * in a context
+	 * @param uri
+	 * @return
+	 * @throws URIException
+	 */
+	public Map<String, String> getUrlParams(URI uri) throws URIException {
+		return this.getUrlParamParser(uri.toString()).parse(uri.getQuery());
+	}
+
+	/**
+	 * Returns the FORM parameters for the given URL based on the parser associated with the
+	 * first context found that includes the URL, or the default parser if it is not
+	 * in a context
+	 * @param uri
+	 * @param formData
+	 * @return
+	 * @throws URIException
+	 */
+	public Map<String, String> getFormParams(URI uri, String formData) throws URIException {
+		return this.getFormParamParser(uri.toString()).parse(formData);
+	}
+
+	public List<String> getTreePath(URI uri) throws URIException {
+		return this.getUrlParamParser(uri.toString()).getTreePath(uri);
 	}
 
 }

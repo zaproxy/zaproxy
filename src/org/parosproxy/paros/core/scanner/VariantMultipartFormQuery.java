@@ -62,7 +62,8 @@ public class VariantMultipartFormQuery implements Variant {
             while ((param = parser.getNextParam()) != null) {
                 if (param.getFileName() == null) {
                     // This is a parameter, add it to the vector of values
-                    stringParam.add(new NameValuePair(param.getName(), param.getContent(), index++));
+                    stringParam.add(new NameValuePair(NameValuePair.TYPE_MULTIPART_FORM, 
+                    		param.getName(), param.getContent(), index++));
 
                 } else {
                     // This is a file

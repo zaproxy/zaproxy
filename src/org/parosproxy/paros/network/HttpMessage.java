@@ -36,6 +36,7 @@
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
 // the request body is not "x-www-form-urlencoded"
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 
 package org.parosproxy.paros.network;
 
@@ -43,10 +44,11 @@ import java.net.HttpCookie;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
-import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -65,10 +67,6 @@ import org.zaproxy.zap.users.User;
  * 
  */
 public class HttpMessage implements Message {
-
-	private static Pattern staticPatternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
-	// Not yet supported
-	//private static Pattern staticPatternParam2 = Pattern.compile(";", Pattern.CASE_INSENSITIVE);
 
 	private HttpRequestHeader mReqHeader = new HttpRequestHeader();
 	private HttpRequestBody mReqBody = new HttpRequestBody();
@@ -410,8 +408,8 @@ public class HttpMessage implements Message {
         if (uri1.getQuery() != null) query1 = uri1.getQuery();
         if (uri2.getQuery() != null) query2 = uri2.getQuery();
 
-        set1 = getParamNameSet(query1);
-	    set2 = getParamNameSet(query2);
+        set1 = getParamNameSet(HtmlParameter.Type.url, query1);
+	    set2 = getParamNameSet(HtmlParameter.Type.url, query2);
 
 	    if (!set1.equals(set2)) {
 	        return false;
@@ -424,8 +422,8 @@ public class HttpMessage implements Message {
 	        
 	        query1 = this.getRequestBody().toString();
 	        query2 = msg.getRequestBody().toString();
-	        set1 = getParamNameSet(query1);
-		    set2 = getParamNameSet(query2);	        
+	        set1 = getParamNameSet(HtmlParameter.Type.form, query1);
+		    set2 = getParamNameSet(HtmlParameter.Type.form, query2);	        
 
 		    if (!set1.equals(set2)) {
 		        return false;
@@ -438,77 +436,24 @@ public class HttpMessage implements Message {
 	    
 	    return result;
 	}
-	//TODO factor out
 	
-	public TreeSet<String> getParamNameSet(String params) {
+	public TreeSet<String> getParamNameSet(HtmlParameter.Type type, String params) {
 	    TreeSet<String> set = new TreeSet<>();
-	    String[] keyValue = staticPatternParam.split(params);
-		String key = null;
-		int pos = 0;
-		for (int i=0; i<keyValue.length; i++) {
-			key = null;
-			pos = keyValue[i].indexOf('=');
-			try {
-				if (pos > 0) {
-					// param found
+		Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
 
-					key = keyValue[i].substring(0,pos);
-
-					//!!! note: this means param not separated by & and = is not parsed
-				} else {
-					key = keyValue[i];
-				}
-				
-				if (key != null) {
-					set.add(key);
-				}
-			} catch (Exception e) {
-				// ZAP: log error
-				log.error(e.getMessage(), e);
-			}
+		for (Entry<String, String> param : paramMap.entrySet()) {
+			set.add(param.getKey());
 		}
-		
 		return set;
 	}
 
-	// ZAP: Introduced HtmlParameter
-	// TODO factor out
 	private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type, String params) {
 		TreeSet<HtmlParameter> set = new TreeSet<>();
-		//!!! note: this means param not separated by & is not parsed
-	    String[] keyValue = staticPatternParam.split(params);
-	    // TODO need to parse the header to split out params if separated by semicolons
-	    /*
-	    if (keyValue.length == 0) {
-		    String[] keyValue2 = staticPatternParam2.split(params);
-	    	if (keyValue2.length > 1) {
-	    		// Looks like the parameters are probably split using semicolons instead of &
-	    		keyValue = keyValue2;
-	    	}
-	    }
-	    */
-		String key = null;
-		String value = null;
-		int pos = 0;
-		for (int i=0; i<keyValue.length; i++) {
-			key = null;
-			value = null;
-			pos = keyValue[i].indexOf('=');
-			try {
-				if (pos > 0) {
-					// key=value type param found
-					key = keyValue[i].substring(0,pos);
-					value = keyValue[i].substring(pos+1);
-					set.add(new HtmlParameter (type, key, value));
-				} else if (keyValue[i].length() > 0) {
-					set.add(new HtmlParameter (type, keyValue[i], ""));
-				}
-				
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-			}
+		Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
+
+		for (Entry<String, String> param : paramMap.entrySet()) {
+			set.add(new HtmlParameter(type, param.getKey(), param.getValue()));
 		}
-		
 		return set;
 	}
 	
@@ -521,7 +466,7 @@ public class HttpMessage implements Message {
 			if (query == null) {
 				query = "";
 			}
-			SortedSet<String> pns = this.getParamNameSet(query);
+			SortedSet<String> pns = this.getParamNameSet(HtmlParameter.Type.url, query);
 			Iterator<String> iterator = pns.iterator();
 			while (iterator.hasNext()) {
 				String name = iterator.next();
@@ -535,7 +480,7 @@ public class HttpMessage implements Message {
 				if (query == null) {
 					query = "";
 				}
-				pns = this.getParamNameSet(query);
+				pns = this.getParamNameSet(HtmlParameter.Type.form, query);
 			    iterator = pns.iterator();
 			    while (iterator.hasNext()) {
 					String name = iterator.next();

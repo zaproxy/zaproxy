@@ -46,7 +46,7 @@ public class VariantCookie implements Variant {
         
         for (HtmlParameter param : cp) {
             // ZAP: the parameter could be encoded so decode it
-            params.add(new NameValuePair(param.getName(), getUnescapedValue(param.getValue()), idx++));
+            params.add(new NameValuePair(NameValuePair.TYPE_COOKIE, param.getName(), getUnescapedValue(param.getValue()), idx++));
         }
     }
 

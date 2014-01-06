@@ -24,9 +24,12 @@
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 // ZAP: 2013/12/06 Constrained the data content handling to application/x-www-form-urlencoded
 // ZAP: 2013/12/09 Solved NullPointerException when the request header doesn't contain "Content-Type" header field
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 
 package org.parosproxy.paros.core.scanner;
 
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HtmlParameter.Type;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -44,7 +47,7 @@ public class VariantFormQuery extends VariantAbstractQuery {
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         // ZAP: added control for null contentType
         if (contentType != null && contentType.startsWith(WWW_APP_URL_ENCODED)) {
-            parse(msg.getRequestBody().toString());
+        	this.setParams(NameValuePair.TYPE_FORM, Model.getSingleton().getSession().getParams(msg, Type.form));
         }
     }
             

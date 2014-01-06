@@ -44,6 +44,7 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
 // ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to accomodate the 'Full Layout' functionality.
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 
 package org.parosproxy.paros.view;
 
@@ -55,7 +56,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -87,6 +87,7 @@ import org.zaproxy.zap.view.MessagePanelsPositionController;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
+import org.zaproxy.zap.view.SessionStructurePanel;
 import org.zaproxy.zap.view.TabbedPanel2;
 
 public class View implements ViewDelegate {
@@ -401,6 +402,11 @@ public class View implements ViewDelegate {
 		contextExcPanel.setSessionDialog(getSessionDialog());
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextExcPanel, false);
 		this.contextPanels.add(contextExcPanel);
+		
+		SessionStructurePanel contextStructPanel = new SessionStructurePanel(c);
+		contextStructPanel.setSessionDialog(getSessionDialog());
+		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextStructPanel, false);
+		this.contextPanels.add(contextStructPanel);
 		
 		ContextTechnologyPanel contextTechPanel = new ContextTechnologyPanel(c);
 		contextTechPanel.setSessionDialog(getSessionDialog());

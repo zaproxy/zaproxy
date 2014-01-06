@@ -55,6 +55,11 @@ public class RecordContext {
 	
 	public static final int TYPE_USER = 300;
 
+	public static final int TYPE_URL_PARSER_CLASSNAME = 400;
+	public static final int TYPE_URL_PARSER_CONFIG = 401;
+	public static final int TYPE_POST_PARSER_CLASSNAME = 402;
+	public static final int TYPE_POST_PARSER_CONFIG = 403;
+
     private long dataId = 0;
     private int contextId = 0;
     private int type = 0;

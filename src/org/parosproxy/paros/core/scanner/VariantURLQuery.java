@@ -22,12 +22,15 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
+// ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HtmlParameter.Type;
 
 public class VariantURLQuery extends VariantAbstractQuery {
 
@@ -61,12 +64,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
 
     @Override
     public void setMessage(HttpMessage msg) {
-        try {
-            parse(msg.getRequestHeader().getURI().getQuery());
-            
-        } catch (URIException e) {
-            log.error(e.getMessage(), e);
-        }
+       	this.setParams(NameValuePair.TYPE_URL, Model.getSingleton().getSession().getParams(msg, Type.url));
     }
 
     @Override

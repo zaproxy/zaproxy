@@ -32,7 +32,7 @@ import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
@@ -75,7 +75,6 @@ import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
-import org.zaproxy.zap.httputils.HtmlParametersUtils;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
@@ -558,19 +557,36 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		}
 
 		private void updateParameters() {
-			Set<HtmlParameter> params = HtmlParametersUtils.getParamsSet(Type.form,
-					this.postDataField.getText());
-			HtmlParameter paramsArray[] = params.toArray(new HtmlParameter[params.size()]);
-			this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
-			this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
-
-			int index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_USER_PATTERN);
-			if (index >= 0)
-				this.usernameParameterCombo.setSelectedIndex(index);
-
-			index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
-			if (index >= 0)
-				this.passwordParameterCombo.setSelectedIndex(index);
+			try {
+				if (authenticationMethod.isConfigured()) {
+					Map<String, String> params = Model.getSingleton().getSession().getFormParams(
+							new URI(authenticationMethod.loginRequestURL, true), this.postDataField.getText());
+					HtmlParameter[] paramsArray = mapToParamArray(params);
+					this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
+					this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(mapToParamArray(params)));
+	
+					int index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_USER_PATTERN);
+					if (index >= 0) {
+						this.usernameParameterCombo.setSelectedIndex(index);
+					}
+	
+					index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
+					if (index >= 0) {
+						this.passwordParameterCombo.setSelectedIndex(index);
+					}
+				}
+			} catch (Exception e) {
+				log.error(e.getMessage(), e);
+			}
+		}
+		
+		private HtmlParameter[] mapToParamArray(Map<String, String> map) {
+			HtmlParameter[] array = new HtmlParameter[map.size()];
+			int i=0;
+			for (Entry<String, String> param : map.entrySet()) {
+				array[i] = new HtmlParameter(Type.form, param.getKey(), param.getValue());
+			}
+			return array;
 		}
 
 		@Override
