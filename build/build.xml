@@ -543,5 +543,71 @@
         <copy file="${src}/doc/README.weekly" tofile="${dist}/README"/>
         <antcall target="package-daily" />
     </target>
+	
+    <target name="unit-test">
+    	<!--
+    		A parameterized task for running command line scans of urls.
+    		Do not call directly.
+    		You should call the "day-stamped-release" target prior to this, but might well not want
+    		to do that every time, which is why it is not a dependency. 
+    	-->
+        <!--antcall target="day-stamped-release" /-->
+    	
+        <delete dir="${test-dir}" includeEmptyDirs="true" />
+        <mkdir dir="${test-dir}" />
+
+        <condition property="script" value="zap.bat" else="zap.sh">
+            <istrue value="${isWindows}" />
+        </condition>
+
+    	<exec executable="${dist}/${script}">
+    	    <arg value="-cmd"/>
+    	    <arg value="-dir ${test-dir}"/>
+    	    <arg value="-quickurl ${test-url}"/>
+    	    <arg value="-quickout ${test-dir}/scan-result.xml"/>
+    	</exec>
+    	
+    	<!-- Bit clunky, but it works -->
+		<fileset id="existing" dir="zap/${test-dir}">
+		    <patternset id="files">
+                <include name="zap.log" />
+		    </patternset>
+		</fileset>
+
+		<fileset id="info-messages" dir="zap/${test-dir}">
+		    <patternset refid="files" />
+		    <contains text="INFO" />
+		</fileset>
+
+		<fileset id="error-messages" dir="zap/${test-dir}">
+		    <patternset refid="files" />
+		    <contains text="ERROR" />
+		</fileset>
+
+		<fail message="No INFO messages in zap.log'">
+		    <condition>
+		    	<!-- Sanity check - there should always be some INFO messages -->
+		        <resourcecount when="equal" count="0" refid="info-messages" />
+		    </condition>
+		</fail>
+		
+		<fail message="Found ERROR messages in zap.log'">
+		    <condition>
+		    	<!-- Error check - there shouldnt be any ERROR messages -->
+		        <resourcecount when="greater" count="0" refid="error-messages" />
+		    </condition>
+		</fail>
+
+    	<!-- TODO 
+    		compare results! 
+    	 -->
+    </target>
+	
+    <target name="unit-test-bodgeit">
+		<antcall target="unit-test"> 
+			<param name="test-dir" value="test-bodgeit"/> 
+			<param name="test-url" value="http://localhost:8080/bodgeit/"/> 
+		</antcall>
+    </target>
 
 </project>
