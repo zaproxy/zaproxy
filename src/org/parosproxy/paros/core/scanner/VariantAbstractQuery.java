@@ -76,11 +76,11 @@ public abstract class VariantAbstractQuery implements Variant {
      * @param params 
      */
     protected void setParams(String type, Map<String, String> params) {
-    	int i = 0;
-	    for (Entry<String, String> param : params.entrySet()) {
+        int i = 0;
+        for (Entry<String, String> param : params.entrySet()) {
             listParam.add(new NameValuePair(type, param.getKey(), getUnescapedValue(param.getValue()), i));
-	    	i++;
-	    }
+            i++;
+        }
     }
 
     /**
