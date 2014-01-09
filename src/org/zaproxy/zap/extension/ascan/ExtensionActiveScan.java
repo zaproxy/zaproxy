@@ -60,47 +60,41 @@ import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
-public class ExtensionActiveScan extends ExtensionAdaptor implements  
-		SessionChangedListener, CommandLineListener, ProxyListener, SiteMapListener {
-    
+public class ExtensionActiveScan extends ExtensionAdaptor implements
+        SessionChangedListener, CommandLineListener, ProxyListener, SiteMapListener {
+
     private static final Logger logger = Logger.getLogger(ExtensionActiveScan.class);
-    
     private static final int ARG_SCAN_IDX = 0;
-
-	public static final String NAME = "ExtensionActiveScan";
-	
-	private static final ImageIcon SCRIPT_ICON_ACTIVE = 
-			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
-	public static final String SCRIPT_TYPE_ACTIVE = "active";
-
-
-    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
-	public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
-	
-	private static final List<Class<?>> DEPENDENCIES;
-	
-	static {
-		List<Class<?>> dep = new ArrayList<>(1);
-		dep.add(ExtensionAlert.class);
-		
-		DEPENDENCIES = Collections.unmodifiableList(dep);
-	}
+    public static final String NAME = "ExtensionActiveScan";
+    private static final ImageIcon SCRIPT_ICON_ACTIVE =
+            new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
     
-	private JMenuItem menuItemPolicy = null;
-	
-	private OptionsScannerPanel optionsScannerPanel = null;
-	private ActiveScanPanel activeScanPanel = null;
-	private ScannerParam scannerParam = null;
-	private CommandLineArgument[] arguments = new CommandLineArgument[1];
+    public static final String SCRIPT_TYPE_ACTIVE = "active";
+    
+    //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
+    public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
+    private static final List<Class<?>> DEPENDENCIES;
 
-	private List<AbstractParamPanel> policyPanels = new ArrayList<>();
+    static {
+        List<Class<?>> dep = new ArrayList<>(1);
+        dep.add(ExtensionAlert.class);
+
+        DEPENDENCIES = Collections.unmodifiableList(dep);
+    }
+    
+    private JMenuItem menuItemPolicy = null;
+    private OptionsScannerPanel optionsScannerPanel = null;
+    private ActiveScanPanel activeScanPanel = null;
+    private ScannerParam scannerParam = null;
+    private CommandLineArgument[] arguments = new CommandLineArgument[1];
+    private List<AbstractParamPanel> policyPanels = new ArrayList<>();
 
     /**
-     * 
+     *
      */
     public ExtensionActiveScan() {
         super();
- 		initialize();
+        initialize();
     }
 
     /**
@@ -110,29 +104,29 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         super(name);
     }
 
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
+    /**
+     * This method initializes this
+     */
+    private void initialize() {
         this.setName(NAME);
         this.setOrder(28);
-			
 
-	}
 
-	@Override
-	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-	    if (getView() != null) {
+    }
+
+    @Override
+    public void hook(ExtensionHook extensionHook) {
+        super.hook(extensionHook);
+        if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
 
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
-	        extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
-	        
-	        this.getActiveScanPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+            extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
 
-	    	ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
-	    }
+            this.getActiveScanPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+
+            ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
+        }
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);
         extensionHook.addSiteMapListener(this);
@@ -141,86 +135,88 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         // TODO this isnt currently implemented
         //extensionHook.addCommandLine(getCommandLineArguments());
 
-		ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
-		if (extScript != null) {
-			extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", SCRIPT_ICON_ACTIVE, true));
-		}
+        ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        if (extScript != null) {
+            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", SCRIPT_ICON_ACTIVE, true));
+        }
 
         ActiveScanAPI api = new ActiveScanAPI(this);
         api.addApiOptions(getScannerParam());
         API.getInstance().registerApiImplementor(api);
-	}
-	
-	private ActiveScanPanel getActiveScanPanel() {
-		if (activeScanPanel == null) {
-			activeScanPanel = new ActiveScanPanel(this);
-		}
-		return activeScanPanel;
-	}
-	
-	public void startScanAllInScope() {
-		this.getActiveScanPanel().scanAllInScope();
-	}
+    }
 
-	public void startScan(SiteNode startNode) {
-		try {
-			// Add to sites if not already present - required for quick start tab
-			this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
-		} catch (Exception e) {
-			// Ignore
-		}
-		this.getActiveScanPanel().scanSite(startNode, true);
-	}
+    private ActiveScanPanel getActiveScanPanel() {
+        if (activeScanPanel == null) {
+            activeScanPanel = new ActiveScanPanel(this);
+        }
+        return activeScanPanel;
+    }
 
-	public void startScanNode(SiteNode startNode) {
-		this.getActiveScanPanel().scanNode(startNode, true, null);
-	}
+    public void startScanAllInScope() {
+        this.getActiveScanPanel().scanAllInScope();
+    }
+
+    public void startScan(SiteNode startNode) {
+        try {
+            // Add to sites if not already present - required for quick start tab
+            this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+        } catch (Exception e) {
+            // Ignore
+        }
+        this.getActiveScanPanel().scanSite(startNode, true);
+    }
+
+    public void startScanNode(SiteNode startNode) {
+        this.getActiveScanPanel().scanNode(startNode, true, null);
+    }
 
     public void scannerComplete() {
     }
-	
-	/**
-	 * This method initializes menuItemPolicy	
-	 * 	
-	 * @return javax.swing.JMenuItem	
-	 */    
-	private JMenuItem getMenuItemPolicy() {
-		if (menuItemPolicy == null) {
-			menuItemPolicy = new JMenuItem();
-			menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));
-			menuItemPolicy.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					showPolicyDialog();
-				}
-			});
 
-		}
-		return menuItemPolicy;
-	}
-	
-	protected void showPolicyDialog() {
-		PolicyDialog dialog = new PolicyDialog(getView().getMainFrame());
-	    dialog.initParam(getModel().getOptionsParam());
-	    for (AbstractParamPanel panel : policyPanels) {
-	    	dialog.addPolicyPanel(panel);
-	    }
-	    // TODO This could be done in a cleaner way...
-		ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
-		if (pscan != null) {
-			dialog.addPolicyPanel(pscan.getPolicyPanel());
-		}
+    /**
+     * This method initializes menuItemPolicy
+     *
+     * @return javax.swing.JMenuItem
+     */
+    private JMenuItem getMenuItemPolicy() {
+        if (menuItemPolicy == null) {
+            menuItemPolicy = new JMenuItem();
+            menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));
+            menuItemPolicy.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    showPolicyDialog();
+                }
+            });
 
-		int result = dialog.showDialog(false);
-		if (result == JOptionPane.OK_OPTION) {
-		    try {
+        }
+        return menuItemPolicy;
+    }
+
+    protected void showPolicyDialog() {
+        PolicyDialog dialog = new PolicyDialog(getView().getMainFrame());
+        dialog.initParam(getModel().getOptionsParam());
+        for (AbstractParamPanel panel : policyPanels) {
+            dialog.addPolicyPanel(panel);
+        }
+        
+        // TODO This could be done in a cleaner way...
+        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+        if (pscan != null) {
+            dialog.addPolicyPanel(pscan.getPolicyPanel());
+        }
+
+        int result = dialog.showDialog(true);
+        if (result == JOptionPane.OK_OPTION) {
+            try {
                 getModel().getOptionsParam().getConfig().save();
+                
             } catch (ConfigurationException ce) {
-            	logger.error(ce.getMessage(), ce);
+                logger.error(ce.getMessage(), ce);
                 getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));
             }
-		}					
-	}
+        }
+    }
 
     public void hostProgress(String hostAndPort, String msg, int percentage) {
     }
@@ -230,204 +226,204 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
-    
 
-	@Override
-	public void sessionChanged(final Session session)  {
-	    if (EventQueue.isDispatchThread()) {
-		    sessionChangedEventHandler(session);
-
-	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	        		    sessionChangedEventHandler(session);
-	                }
-	            });
-	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
-	        }
-	    }
-	}
-	
-	private void sessionChangedEventHandler(Session session) {
-		// Clear all scans
-		this.getActiveScanPanel().reset();
-		if (session == null) {
-			// Closedown
-			return;
-		}
-		// Add new hosts
-		SiteNode snroot = (SiteNode)session.getSiteTree().getRoot();
-		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = snroot.children();
-		while (en.hasMoreElements()) {
-			this.getActiveScanPanel().addSite(en.nextElement().getNodeName(), true);
-		}
-	}
-
-	/**
-	 * This method initializes optionsScannerPanel	
-	 * 	
-	 * @return org.parosproxy.paros.extension.scanner.OptionsScannerPanel	
-	 */    
-	private OptionsScannerPanel getOptionsScannerPanel() {
-		if (optionsScannerPanel == null) {
-			optionsScannerPanel = new OptionsScannerPanel();
-		}
-		return optionsScannerPanel;
-	}
-	/**
-	 * This method initializes scannerParam	
-	 * 	
-	 * @return org.parosproxy.paros.core.scanner.ScannerParam	
-	 */    
-	protected ScannerParam getScannerParam() {
-		if (scannerParam == null) {
-			scannerParam = new ScannerParam();
-		}
-		return scannerParam;
-	}
-	
-	// TODO
     @Override
-    public void execute(CommandLineArgument[] args) {
-    	/*
+    public void sessionChanged(final Session session) {
+        if (EventQueue.isDispatchThread()) {
+            sessionChangedEventHandler(session);
 
-        if (arguments[ARG_SCAN_IDX].isEnabled()) {
-            System.out.println("Scanner started...");
-            startScan();
         } else {
-            return;
-        }
-
-        while (!getScanner().isStop()) {
             try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
+                EventQueue.invokeAndWait(new Runnable() {
+                    @Override
+                    public void run() {
+                        sessionChangedEventHandler(session);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         }
-        System.out.println("Scanner completed.");
+    }
 
-    */
+    private void sessionChangedEventHandler(Session session) {
+        // Clear all scans
+        this.getActiveScanPanel().reset();
+        if (session == null) {
+            // Closedown
+            return;
+        }
+        // Add new hosts
+        SiteNode snroot = (SiteNode) session.getSiteTree().getRoot();
+        @SuppressWarnings("unchecked")
+        Enumeration<SiteNode> en = snroot.children();
+        while (en.hasMoreElements()) {
+            this.getActiveScanPanel().addSite(en.nextElement().getNodeName(), true);
+        }
+    }
+
+    /**
+     * This method initializes optionsScannerPanel
+     *
+     * @return org.parosproxy.paros.extension.scanner.OptionsScannerPanel
+     */
+    private OptionsScannerPanel getOptionsScannerPanel() {
+        if (optionsScannerPanel == null) {
+            optionsScannerPanel = new OptionsScannerPanel();
+        }
+        return optionsScannerPanel;
+    }
+
+    /**
+     * This method initializes scannerParam
+     *
+     * @return org.parosproxy.paros.core.scanner.ScannerParam
+     */
+    protected ScannerParam getScannerParam() {
+        if (scannerParam == null) {
+            scannerParam = new ScannerParam();
+        }
+        return scannerParam;
+    }
+
+    // TODO
+    @Override
+    public void execute(CommandLineArgument[] args) {
+        /*
+         if (arguments[ARG_SCAN_IDX].isEnabled()) {
+         System.out.println("Scanner started...");
+         startScan();
+         } else {
+         return;
+         }
+
+         while (!getScanner().isStop()) {
+         try {
+         Thread.sleep(1000);
+         } catch (InterruptedException e) {
+         }
+         }
+         System.out.println("Scanner completed.");
+
+         */
     }
 
     @SuppressWarnings("unused")
-	private CommandLineArgument[] getCommandLineArguments() {
+    private CommandLineArgument[] getCommandLineArguments() {
         arguments[ARG_SCAN_IDX] = new CommandLineArgument("-scan", 0, null, "", "-scan : Run vulnerability scan depending on previously saved policy.");
         return arguments;
     }
 
-	@Override
-	public int getArrangeableListenerOrder() {
-		return PROXY_LISTENER_ORDER;
-	}
-	
-	@Override
-	public boolean onHttpRequestSend(HttpMessage msg) {
-		// The panel will handle duplicates
-		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
+    @Override
+    public int getArrangeableListenerOrder() {
+        return PROXY_LISTENER_ORDER;
+    }
 
-		this.getActiveScanPanel().addSite(site, true);
-		return true;
-	}
+    @Override
+    public boolean onHttpRequestSend(HttpMessage msg) {
+        // The panel will handle duplicates
+        String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
-	@Override
-	public boolean onHttpResponseReceive(HttpMessage msg) {
-		// Do nothing
-		return true;
-	}
+        this.getActiveScanPanel().addSite(site, true);
+        return true;
+    }
 
-	@Override
-	public void nodeSelected(SiteNode node) {
-		// Event from SiteMapListenner
-		this.getActiveScanPanel().nodeSelected(node, true);
-	}
+    @Override
+    public boolean onHttpResponseReceive(HttpMessage msg) {
+        // Do nothing
+        return true;
+    }
 
-	@Override
-	public void onReturnNodeRendererComponent(
-			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
-	}
+    @Override
+    public void nodeSelected(SiteNode node) {
+        // Event from SiteMapListenner
+        this.getActiveScanPanel().nodeSelected(node, true);
+    }
 
-	public boolean isScanning(SiteNode node) {
-		return this.getActiveScanPanel().isScanning(node, true);
-	}
+    @Override
+    public void onReturnNodeRendererComponent(
+            SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
+    }
 
-	public void setExcludeList(List<String> urls) {
-		this.getActiveScanPanel().setExcludeList(urls);
-	}
+    public boolean isScanning(SiteNode node) {
+        return this.getActiveScanPanel().isScanning(node, true);
+    }
+
+    public void setExcludeList(List<String> urls) {
+        this.getActiveScanPanel().setExcludeList(urls);
+    }
 
     public void addPolicyPanel(AbstractParamPanel panel) {
-		this.policyPanels.add(panel);
-	}
-	
-	@Override
-	public List<Class<?>> getDependencies() {
-		return DEPENDENCIES;
-	}
+        this.policyPanels.add(panel);
+    }
 
-	@Override
-	public void sessionAboutToChange(final Session session) {
-		// Shut all of the scans down
-		this.getActiveScanPanel().reset();
-	}
+    @Override
+    public List<Class<?>> getDependencies() {
+        return DEPENDENCIES;
+    }
 
-	@Override
-	public String getAuthor() {
-		return Constant.ZAP_TEAM;
-	}
+    @Override
+    public void sessionAboutToChange(final Session session) {
+        // Shut all of the scans down
+        this.getActiveScanPanel().reset();
+    }
 
-	@Override
-	public String getDescription() {
-		return Constant.messages.getString("ascan.desc");
-	}
+    @Override
+    public String getAuthor() {
+        return Constant.ZAP_TEAM;
+    }
 
-	@Override
-	public URL getURL() {
-		try {
-			return new URL(Constant.ZAP_HOMEPAGE);
-		} catch (MalformedURLException e) {
-			return null;
-		}
-	}
-	
-	@Override
-	public void sessionScopeChanged(Session session) {
-		this.getActiveScanPanel().sessionScopeChanged(session);
-	}
-	
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		this.getActiveScanPanel().sessionModeChanged(mode);
-	}
-	@Override
+    @Override
+    public String getDescription() {
+        return Constant.messages.getString("ascan.desc");
+    }
+
+    @Override
+    public URL getURL() {
+        try {
+            return new URL(Constant.ZAP_HOMEPAGE);
+        } catch (MalformedURLException e) {
+            return null;
+        }
+    }
+
+    @Override
+    public void sessionScopeChanged(Session session) {
+        this.getActiveScanPanel().sessionScopeChanged(session);
+    }
+
+    @Override
+    public void sessionModeChanged(Mode mode) {
+        this.getActiveScanPanel().sessionModeChanged(mode);
+    }
+
+    @Override
     public void destroy() {
-		// Shut all of the scans down
-		this.getActiveScanPanel().reset();
-	}
+        // Shut all of the scans down
+        this.getActiveScanPanel().reset();
+    }
 
-	public void stopScan(SiteNode startNode) {
-		try {
-			this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
-		} catch (Exception e) {
-        	logger.error(e.getMessage(), e);
-		}
-	}
-	
-	public void stopScan (String site) {
-		this.getActiveScanPanel().stopScan(site);
-	}
+    public void stopScan(SiteNode startNode) {
+        try {
+            this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+    }
 
-	@Override
-	public boolean handleFile(File file) {
-		// Cant handle any files
-		return false;
-	}
+    public void stopScan(String site) {
+        this.getActiveScanPanel().stopScan(site);
+    }
 
-	@Override
-	public List<String> getHandledExtensions() {
-		// Cant handle any extensions
-		return null;
-	}
+    @Override
+    public boolean handleFile(File file) {
+        // Cant handle any files
+        return false;
+    }
+
+    @Override
+    public List<String> getHandledExtensions() {
+        // Cant handle any extensions
+        return null;
+    }
 }

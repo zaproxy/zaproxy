@@ -30,44 +30,68 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 
-
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
-	private static final long serialVersionUID = 1L;
-	private Map<String, String> i18nToStr = null;
+    private static final long serialVersionUID = 1L;
+    
     private static final String[] columnNames = {
-									Constant.messages.getString("ascan.policy.table.testname"), 
-									Constant.messages.getString("ascan.policy.table.threshold")};
+        Constant.messages.getString("ascan.policy.table.testname"),
+        Constant.messages.getString("ascan.policy.table.threshold")};
 
     private List<PluginPassiveScanner> listScanners = new ArrayList<>();
-    
+    private Map<String, String> i18nToStr = null;
+
     /**
-     * 
+     *
      */
     public PolicyPassiveScanTableModel() {
     }
-    
-    public void addScanner (PluginPassiveScanner scanner) {
+
+    /**
+     * 
+     * @param scanner 
+     */
+    public void addScanner(PluginPassiveScanner scanner) {
         listScanners.add(scanner);
         fireTableDataChanged();
     }
-    
-    public void removeScanner (PluginPassiveScanner scanner) {
+
+    /**
+     * 
+     * @param scanner 
+     */
+    public void removeScanner(PluginPassiveScanner scanner) {
         listScanners.remove(scanner);
         fireTableDataChanged();
     }
-    
+
+    /**
+     * 
+     * @param c
+     * @return 
+     */
     @Override
-	public Class<?> getColumnClass(int c) {
+    public Class<?> getColumnClass(int c) {
         return String.class;
-        
+
     }
-    
+
+    /**
+     * 
+     * @param col
+     * @return 
+     */
     @Override
     public String getColumnName(int col) {
         return columnNames[col];
     }
-    
+
+    /**
+     * 
+     * @param rowIndex
+     * @param columnIndex
+     * @return 
+     */
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
         if (columnIndex == 1) {
@@ -75,39 +99,50 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         }
         return false;
     }
-    
+
+    /**
+     * 
+     * @param value
+     * @param row
+     * @param col 
+     */
     @Override
     public void setValueAt(Object value, int row, int col) {
+        PluginPassiveScanner test = listScanners.get(row);
         
-    	PluginPassiveScanner test = listScanners.get(row);
         switch (col) {
-        	case 0:	break;
-        	case 1: AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
-					test.setLevel(af);
-					test.setEnabled(!AlertThreshold.OFF.equals(af));
-        			test.save();
-		            fireTableCellUpdated(row, col);
-					break;
+            case 0:
+                break;
+         
+            case 1:
+                AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
+                test.setLevel(af);
+                test.setEnabled(!AlertThreshold.OFF.equals(af));
+                test.save();
+                fireTableCellUpdated(row, col);
+                break;
         }
     }
-
-    private String strToI18n (String str) {
-    	// I18n's threshold and strength enums
-    	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
+        
+    private String strToI18n(String str) {
+        // I18n's threshold and strength enums
+        return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
     }
 
-    private String i18nToStr (String str) {
-    	// Converts to i18n'ed names back to the enum names
-    	if (i18nToStr == null) {
-    		i18nToStr = new HashMap<String, String>();
-    		for (AlertThreshold at : AlertThreshold.values()) {
-    			i18nToStr.put(this.strToI18n(at.name()), at.name());
-    		}
-    		for (AttackStrength as : AttackStrength.values()) {
-    			i18nToStr.put(this.strToI18n(as.name()), as.name());
-    		}
-    	}
-    	return i18nToStr.get(str);
+    private String i18nToStr(String str) {
+        // Converts to i18n'ed names back to the enum names
+        if (i18nToStr == null) {
+            i18nToStr = new HashMap();
+            for (AlertThreshold at : AlertThreshold.values()) {
+                i18nToStr.put(this.strToI18n(at.name()), at.name());
+            }
+            
+            for (AttackStrength as : AttackStrength.values()) {
+                i18nToStr.put(this.strToI18n(as.name()), as.name());
+            }
+        }
+        
+        return i18nToStr.get(str);
     }
 
     @Override
@@ -117,22 +152,27 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     @Override
     public int getRowCount() {
-    	if (listScanners == null) {
-    		return 0;
-    	}
+        if (listScanners == null) {
+            return 0;
+        }
         return listScanners.size();
     }
 
     @Override
     public Object getValueAt(int row, int col) {
-    	PassiveScanner test = listScanners.get(row);
+        PassiveScanner test = listScanners.get(row);
         Object result = null;
         switch (col) {
-        	case 0:	result = test.getName();
-        			break;
-        	case 1: result = strToI18n(test.getLevel().name());
-        			break;
-        	default: result = "";
+            case 0:
+                result = test.getName();
+                break;
+                
+            case 1:
+                result = strToI18n(test.getLevel().name());
+                break;
+                
+            default:
+                result = "";
         }
         return result;
     }

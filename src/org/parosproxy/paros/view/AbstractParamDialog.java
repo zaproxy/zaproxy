@@ -27,9 +27,8 @@
 // ZAP: 2013/08/05 Added accessor to shown panels
 // ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
 // ZAP: 2013/11/28 Issue 923: Allow a footer to be set.
-
 package org.parosproxy.paros.view;
- 
+
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Frame;
@@ -65,491 +64,523 @@ import org.zaproxy.zap.utils.ZapTextField;
 
 public class AbstractParamDialog extends AbstractDialog {
 
-	private static final long serialVersionUID = -5223178126156052670L;
-
-	protected Object paramObject = null;
+    private static final long serialVersionUID = -5223178126156052670L;
+    protected Object paramObject = null;
+    
     private Hashtable<String, AbstractParamPanel> tablePanel = new Hashtable<>();
     private int exitResult = JOptionPane.CANCEL_OPTION;
     
-	private JPanel jContentPane = null;
-	private JButton btnOK = null;
-	private JButton btnCancel = null;
-	private JButton btnHelp = null;
-	private JPanel jPanel = null;
-	private JSplitPane jSplitPane = null;
-	private JTree treeParam = null;
-	private JPanel jPanel1 = null;
-	private JPanel panelParam = null;
-	private JPanel panelHeadline = null;
-	private ZapTextField txtHeadline = null;
-	private JLabel footer = null;
-
-	private DefaultTreeModel treeModel = null;  //  @jve:decl-index=0:parse,visual-constraint="14,12"
-	private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
-	private JScrollPane jScrollPane = null;
-	private JScrollPane jScrollPane1 = null;
-	// ZAP: show the last selected panel
-	private String nameLastSelectedPanel = null;
-
-	private ShowHelpAction showHelpAction = null;
-	
-	// ZAP: Added logger
+    private JPanel jContentPane = null;
+    private JButton btnOK = null;
+    private JButton btnCancel = null;
+    private JButton btnHelp = null;
+    private JPanel jPanel = null;
+    private JSplitPane jSplitPane = null;
+    private JTree treeParam = null;
+    private JPanel jPanel1 = null;
+    private JPanel panelParam = null;
+    private JPanel panelHeadline = null;
+    private ZapTextField txtHeadline = null;
+    private JLabel footer = null;
+    private DefaultTreeModel treeModel = null;  //  @jve:decl-index=0:parse,visual-constraint="14,12"
+    private DefaultMutableTreeNode rootNode = null;  //  @jve:decl-index=0:parse,visual-constraint="10,50"
+    private JScrollPane jScrollPane = null;
+    private JScrollPane jScrollPane1 = null;
+    
+    // ZAP: show the last selected panel
+    private String nameLastSelectedPanel = null;
+    private ShowHelpAction showHelpAction = null;
+    
+    // ZAP: Added logger
     private static Logger log = Logger.getLogger(AbstractParamDialog.class);
 
-	
-	public AbstractParamDialog() {
-	    super();
-	    initialize();
-	}
-	
-	/**
-	 * @param parent
-	 * @param modal
-	 * @param title
-	 * @param rootName
-	 * @throws HeadlessException
-	 */
-	public AbstractParamDialog(Frame parent, boolean modal, String title, String rootName) throws HeadlessException {
-		super(parent, modal);
-		initialize();
-		this.setTitle(title);
-		getRootNode().setUserObject(rootName);
-	}
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-		// enables the options dialog to be in front, but an modal dialog
-		// stays on top of the main application window, but doesn't block childs
-		// Examples of childs: help window and client certificate viewer
-		this.setModalityType(ModalityType.DOCUMENT_MODAL);
-		
+    public AbstractParamDialog() {
+        super();
+        initialize();
+    }
+
+    /**
+     * @param parent
+     * @param modal
+     * @param title
+     * @param rootName
+     * @throws HeadlessException
+     */
+    public AbstractParamDialog(Frame parent, boolean modal, String title, String rootName) throws HeadlessException {
+        super(parent, modal);
+        initialize();
+        this.setTitle(title);
+        getRootNode().setUserObject(rootName);
+    }
+
+    /**
+     * This method initializes this
+     */
+    private void initialize() {
+        // enables the options dialog to be in front, but an modal dialog
+        // stays on top of the main application window, but doesn't block childs
+        // Examples of childs: help window and client certificate viewer
+        this.setModalityType(ModalityType.DOCUMENT_MODAL);
+
         this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(500, 375);
-	    }
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+            this.setSize(500, 375);
+        }
+        
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
         this.setContentPane(getJContentPane());
-	}
-	/**
+    }
 
-	 * This method initializes jContentPane	
+    /**
+     *
+     * This method initializes jContentPane	     *
+     *
+     *
+     * @return javax.swing.JPanel	     *
+     */
+    private javax.swing.JPanel getJContentPane() {
+        if (jContentPane == null) {
+            java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
-	 * 	
+            java.awt.GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
 
-	 * @return javax.swing.JPanel	
+            java.awt.GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
 
-	 */    
-	private javax.swing.JPanel getJContentPane() {
-		if (jContentPane == null) {
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+            java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
 
-			java.awt.GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
+            footer = new JLabel();
 
-			java.awt.GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
+            jContentPane = new javax.swing.JPanel();
+            jContentPane.setLayout(new GridBagLayout());
+            gridBagConstraints12.gridx = 0;
+            gridBagConstraints12.gridy = 1;
+            gridBagConstraints12.ipadx = 0;
+            gridBagConstraints12.ipady = 0;
+            gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints12.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints12.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints12.weightx = 1.0D;
+            gridBagConstraints13.gridx = 1;
+            gridBagConstraints13.gridy = 1;
+            gridBagConstraints13.ipadx = 0;
+            gridBagConstraints13.ipady = 0;
+            gridBagConstraints13.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints13.anchor = java.awt.GridBagConstraints.EAST;
+            gridBagConstraints13.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints14.gridx = 2;
+            gridBagConstraints14.gridy = 1;
+            gridBagConstraints14.ipadx = 0;
+            gridBagConstraints14.ipady = 0;
+            gridBagConstraints14.anchor = java.awt.GridBagConstraints.EAST;
+            gridBagConstraints14.insets = new java.awt.Insets(2, 2, 2, 2);
+            gridBagConstraints1.weightx = 1.0;
+            gridBagConstraints1.weighty = 1.0;
+            gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints1.gridwidth = 3;
+            gridBagConstraints1.gridx = 0;
+            gridBagConstraints1.gridy = 0;
+            jContentPane.add(getJSplitPane(), gridBagConstraints1);
+            jContentPane.add(footer, gridBagConstraints12);
+            jContentPane.add(getBtnOK(), gridBagConstraints13);
+            jContentPane.add(getBtnCancel(), gridBagConstraints14);
+        }
+        
+        return jContentPane;
+    }
 
-			java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
+    /**
+     * 
+     * @param str 
+     */
+    public void setFooter(String str) {
+        footer.setText(str);
+    }
 
-			footer = new JLabel();
+    /**
+     * This method initializes btnOK
+     *
+     * @return javax.swing.JButton
+     */
+    private JButton getBtnOK() {
+        if (btnOK == null) {
+            btnOK = new JButton();
+            btnOK.setName("btnOK");
+            btnOK.setText(Constant.messages.getString("all.button.ok"));
+            btnOK.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
 
-			jContentPane = new javax.swing.JPanel();
-			jContentPane.setLayout(new GridBagLayout());
-			gridBagConstraints12.gridx = 0;
-			gridBagConstraints12.gridy = 1;
-			gridBagConstraints12.ipadx = 0;
-			gridBagConstraints12.ipady = 0;
-			gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
-			gridBagConstraints12.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints12.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints12.weightx = 1.0D;
-			gridBagConstraints13.gridx = 1;
-			gridBagConstraints13.gridy = 1;
-			gridBagConstraints13.ipadx = 0;
-			gridBagConstraints13.ipady = 0;
-			gridBagConstraints13.fill = java.awt.GridBagConstraints.NONE;
-			gridBagConstraints13.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints13.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints14.gridx = 2;
-			gridBagConstraints14.gridy = 1;
-			gridBagConstraints14.ipadx = 0;
-			gridBagConstraints14.ipady = 0;
-			gridBagConstraints14.anchor = java.awt.GridBagConstraints.EAST;
-			gridBagConstraints14.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints1.weightx = 1.0;
-			gridBagConstraints1.weighty = 1.0;
-			gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.gridwidth = 3;
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			jContentPane.add(getJSplitPane(), gridBagConstraints1);
-			jContentPane.add(footer, gridBagConstraints12);
-			jContentPane.add(getBtnOK(), gridBagConstraints13);
-			jContentPane.add(getBtnCancel(), gridBagConstraints14);
-		}
-		return jContentPane;
-	}
+                    try {
+                        validateParam();
+                        saveParam();
+                        exitResult = JOptionPane.OK_OPTION;
 
-	public void setFooter(String str) {
-		footer.setText(str);
-	}
+                        AbstractParamDialog.this.setVisible(false);
 
-	/**
-	 * This method initializes btnOK	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
-	private JButton getBtnOK() {
-		if (btnOK == null) {
-			btnOK = new JButton();
-			btnOK.setName("btnOK");
-			btnOK.setText(Constant.messages.getString("all.button.ok"));
-			btnOK.addActionListener(new java.awt.event.ActionListener() { 
+                    } catch (Exception ex) {
+                        log.debug(ex.getMessage(), ex);
+                        View.getSingleton().showWarningDialog(ex.getMessage());
+                    }
 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+                }
+            });
 
-					try {
-					    validateParam();
-					    saveParam();
-					    exitResult = JOptionPane.OK_OPTION;
-					    
-					    AbstractParamDialog.this.setVisible(false);
-						
-					} catch (Exception ex) {
-						log.debug(ex.getMessage(), ex);
-					    View.getSingleton().showWarningDialog(ex.getMessage());
-					}
-					
-				}
-			});
+        }
+        return btnOK;
+    }
 
-		}
-		return btnOK;
-	}
-	/**
-	 * This method initializes btnCancel	
-	 * 	
-	 * @return javax.swing.JButton	
-	 */    
-	protected JButton getBtnCancel() {
-		if (btnCancel == null) {
-			btnCancel = new JButton();
-			btnCancel.setName("btnCancel");
-			btnCancel.setText(Constant.messages.getString("all.button.cancel"));
-			btnCancel.addActionListener(new java.awt.event.ActionListener() { 
+    /**
+     * This method initializes btnCancel
+     *
+     * @return javax.swing.JButton
+     */
+    protected JButton getBtnCancel() {
+        if (btnCancel == null) {
+            btnCancel = new JButton();
+            btnCancel.setName("btnCancel");
+            btnCancel.setText(Constant.messages.getString("all.button.cancel"));
+            btnCancel.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
+                    exitResult = JOptionPane.CANCEL_OPTION;
+                    AbstractParamDialog.this.setVisible(false);
+                }
+            });
 
-				   exitResult = JOptionPane.CANCEL_OPTION;
-				   AbstractParamDialog.this.setVisible(false);
-				}
-			});
+        }
+        return btnCancel;
+    }
 
-		}
-		return btnCancel;
-	}
-	/**
-	 * This method initializes jPanel	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel() {
-		if (jPanel == null) {
-			java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+    /**
+     * This method initializes jPanel
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getJPanel() {
+        if (jPanel == null) {
+            java.awt.GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
 
-			java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-			gridBagConstraints5.gridwidth = 2;
+            java.awt.GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
+            gridBagConstraints5.gridwidth = 2;
 
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
+            java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 
-			jPanel = new JPanel();
-			jPanel.setLayout(new GridBagLayout());
-			jPanel.setName("jPanel");
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.weighty = 1.0;
-			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints5.gridx = 0;
-			gridBagConstraints5.gridy = 1;
-			gridBagConstraints5.ipadx = 0;
-			gridBagConstraints5.ipady = 0;
-			gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints5.weightx = 1.0D;
-			gridBagConstraints5.weighty = 1.0D;
-			gridBagConstraints5.insets = new Insets(2, 5, 5, 0);
-			gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints7.weightx = 1.0;
-			gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints7.gridx = 0;
-			gridBagConstraints7.gridy = 0;
-			gridBagConstraints7.insets = new Insets(2, 5, 5, 0);
-			jPanel.add(getPanelHeadline(), gridBagConstraints7);
-			jPanel.add(getPanelParam(), gridBagConstraints5);
-			GridBagConstraints gbc_button = new GridBagConstraints();
-			gbc_button.insets = new Insets(0, 5, 0, 5);
-			gbc_button.gridx = 1;
-			gbc_button.gridy = 0;
-			jPanel.add(getHelpButton(), gbc_button);
-		}
-		return jPanel;
-	}
+            jPanel = new JPanel();
+            jPanel.setLayout(new GridBagLayout());
+            jPanel.setName("jPanel");
+            gridBagConstraints2.weightx = 1.0;
+            gridBagConstraints2.weighty = 1.0;
+            gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints5.gridx = 0;
+            gridBagConstraints5.gridy = 1;
+            gridBagConstraints5.ipadx = 0;
+            gridBagConstraints5.ipady = 0;
+            gridBagConstraints5.fill = java.awt.GridBagConstraints.BOTH;
+            gridBagConstraints5.weightx = 1.0D;
+            gridBagConstraints5.weighty = 1.0D;
+            gridBagConstraints5.insets = new Insets(2, 5, 5, 0);
+            gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints7.weightx = 1.0;
+            gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints7.gridx = 0;
+            gridBagConstraints7.gridy = 0;
+            gridBagConstraints7.insets = new Insets(2, 5, 5, 0);
+            jPanel.add(getPanelHeadline(), gridBagConstraints7);
+            jPanel.add(getPanelParam(), gridBagConstraints5);
+            GridBagConstraints gbc_button = new GridBagConstraints();
+            gbc_button.insets = new Insets(0, 5, 0, 5);
+            gbc_button.gridx = 1;
+            gbc_button.gridy = 0;
+            jPanel.add(getHelpButton(), gbc_button);
+        }
+        
+        return jPanel;
+    }
 
-	/**
-	 * This method initializes jSplitPane	
-	 * 	
-	 * @return javax.swing.JSplitPane	
-	 */    
-	private JSplitPane getJSplitPane() {
-		if (jSplitPane == null) {
-			jSplitPane = new JSplitPane();
-			jSplitPane.setContinuousLayout(true);
-			jSplitPane.setVisible(true);
-			jSplitPane.setRightComponent(getJPanel1());
-			jSplitPane.setDividerLocation(175);
-			jSplitPane.setDividerSize(3);
-			jSplitPane.setResizeWeight(0.3D);
-			jSplitPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED));
-			jSplitPane.setLeftComponent(getJScrollPane());
-		}
-		return jSplitPane;
-	}
-	/**
-	 * This method initializes treeParam	
-	 * 	
-	 * @return javax.swing.JTree	
-	 */    
-	private JTree getTreeParam() {
-		if (treeParam == null) {
-			treeParam = new JTree();
-			treeParam.setModel(getTreeModel());
-			treeParam.setShowsRootHandles(true);
-			treeParam.setRootVisible(true);
-			treeParam.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
+    /**
+     * This method initializes jSplitPane
+     *
+     * @return javax.swing.JSplitPane
+     */
+    private JSplitPane getJSplitPane() {
+        if (jSplitPane == null) {
+            jSplitPane = new JSplitPane();
+            jSplitPane.setContinuousLayout(true);
+            jSplitPane.setVisible(true);
+            jSplitPane.setRightComponent(getJPanel1());
+            jSplitPane.setDividerLocation(175);
+            jSplitPane.setDividerSize(3);
+            jSplitPane.setResizeWeight(0.3D);
+            jSplitPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED));
+            jSplitPane.setLeftComponent(getJScrollPane());
+        }
+        
+        return jSplitPane;
+    }
 
-				@Override
-				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {    
-					
-			        DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();
-			        if (node == null) {
-			        	return;
-			        }
-			        String name = (String) node.getUserObject();
-			        showParamPanel(name);
-				}
-			});
-			DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
-			renderer.setLeafIcon(null);
-			renderer.setOpenIcon(null);
-			renderer.setClosedIcon(null);
-			treeParam.setCellRenderer(renderer);
+    /**
+     * This method initializes treeParam
+     *
+     * @return javax.swing.JTree
+     */
+    private JTree getTreeParam() {
+        if (treeParam == null) {
+            treeParam = new JTree();
+            treeParam.setModel(getTreeModel());
+            treeParam.setShowsRootHandles(true);
+            treeParam.setRootVisible(true);
+            treeParam.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() {
+                @Override
+                public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
 
-			treeParam.setRowHeight(18);
-		}
-		return treeParam;
-	}
-	/**
-	 * This method initializes jPanel1	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	private JPanel getJPanel1() {
-		if (jPanel1 == null) {
-			jPanel1 = new JPanel();
-			jPanel1.setLayout(new CardLayout());
-			jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
-			jPanel1.add(getJScrollPane1(), getJScrollPane1().getName());
-		}
-		return jPanel1;
-	}
-	/**
-	 * This method initializes panelParam	
-	 * 	
-	 * @return javax.swing.JPanel	
-	 */    
-	//protected JPanel getPanelParam() {
-	private JPanel getPanelParam() {
-		if (panelParam == null) {
-			panelParam = new JPanel();
-			panelParam.setLayout(new CardLayout());
-			panelParam.setPreferredSize(new java.awt.Dimension(300,300));
-			panelParam.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
-		}
-		return panelParam;
-	}
-	
-	/**
-	 * @return
-	 */
-	private JPanel getPanelHeadline() {
-		if (panelHeadline == null) {
-			panelHeadline = new JPanel();
-			panelHeadline.setLayout(new BorderLayout(0, 0));
-			
-			txtHeadline = getTxtHeadline();
-			panelHeadline.add(txtHeadline, BorderLayout.CENTER);
-			
-			JButton button = getHelpButton();
-			panelHeadline.add(button, BorderLayout.EAST);
-		}
-		return panelHeadline;
-	}
-	
-	/**
-	 * This method initializes txtHeadline	
-	 * 	
-	 * @return org.zaproxy.zap.utils.ZapTextField	
-	 */    
-	private ZapTextField getTxtHeadline() {
-		if (txtHeadline == null) {
-			txtHeadline = new ZapTextField();
-			txtHeadline.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-			txtHeadline.setEditable(false);
-			txtHeadline.setEnabled(false);
-			txtHeadline.setBackground(java.awt.Color.white);
-			txtHeadline.setFont(new java.awt.Font("Default", java.awt.Font.BOLD, 12));
-		}
-		return txtHeadline;
-	}
-	
+                    DefaultMutableTreeNode node = (DefaultMutableTreeNode) getTreeParam().getLastSelectedPathComponent();
+                    if (node == null) {
+                        return;
+                    }
+                    String name = (String) node.getUserObject();
+                    showParamPanel(name);
+                }
+            });
+        
+            DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+            renderer.setLeafIcon(null);
+            renderer.setOpenIcon(null);
+            renderer.setClosedIcon(null);
+            treeParam.setCellRenderer(renderer);
 
-	/**
-	 * This method initializes treeModel	
-	 * 	
-	 * @return javax.swing.tree.DefaultTreeModel	
-	 */    
-	private DefaultTreeModel getTreeModel() {
-		if (treeModel == null) {
-			treeModel = new DefaultTreeModel(getRootNode());
-			treeModel.setRoot(getRootNode());
-		}
-		return treeModel;
-	}
-	/**
-	 * This method initializes rootNode	
-	 * 	
-	 * @return javax.swing.tree.DefaultMutableTreeNode	
-	 */    
-	protected DefaultMutableTreeNode getRootNode() {
-		if (rootNode == null) {
-			rootNode = new DefaultMutableTreeNode("Root");
-		}
-		return rootNode;
-	}
-	
-	private DefaultMutableTreeNode addParamNode(String[] paramSeq) {
-	    String param = null;
-	    DefaultMutableTreeNode parent = getRootNode();
-	    DefaultMutableTreeNode child = null;
-	    DefaultMutableTreeNode result = null;
-	    
-	    for (int i=0; i<paramSeq.length; i++) {
-	        param = paramSeq[i];
-	        result = null;
-	        for (int j=0; j<parent.getChildCount(); j++) {
-	            child = (DefaultMutableTreeNode) parent.getChildAt(j);
-	            if (child.toString().equalsIgnoreCase(param)) {
-	                result = child;
-	                break;
-	            }
-	        }
-	        
-	        if (result == null) {
-	            result = new DefaultMutableTreeNode(param);
-	            getTreeModel().insertNodeInto(result, parent, parent.getChildCount());
-	        }
+            treeParam.setRowHeight(18);
+        }
+        
+        return treeParam;
+    }
 
-	        parent = result;
-	    }
-	    
-	    return parent;
-	        
-	 
-	}
-	
-	/**
-	 * If multiple name use the same panel
-	 * @param parentParams
-	 * @param name
-	 * @param panel
-	 */
-	// ZAP: Added sort option
-	public void addParamPanel(String[] parentParams, String name, AbstractParamPanel panel, boolean sort) {
-	    if (parentParams != null) {
-	        DefaultMutableTreeNode parent = addParamNode(parentParams);
-	        DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(name);
+    /**
+     * This method initializes jPanel1
+     *
+     * @return javax.swing.JPanel
+     */
+    private JPanel getJPanel1() {
+        if (jPanel1 == null) {
+            jPanel1 = new JPanel();
+            jPanel1.setLayout(new CardLayout());
+            jPanel1.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+            jPanel1.add(getJScrollPane1(), getJScrollPane1().getName());
+        }
+        
+        return jPanel1;
+    }
 
-	        boolean added = false;
-	        if (sort) {
-		        for (int i=0; i < parent.getChildCount(); i++) {
-		        	if (name.compareToIgnoreCase(parent.getChildAt(i).toString()) < 0) {
-			            getTreeModel().insertNodeInto(newNode, parent, i);
+    /**
+     * This method initializes panelParam
+     *
+     * @return javax.swing.JPanel
+     */
+    //protected JPanel getPanelParam() {
+    private JPanel getPanelParam() {
+        if (panelParam == null) {
+            panelParam = new JPanel();
+            panelParam.setLayout(new CardLayout());
+            panelParam.setPreferredSize(new java.awt.Dimension(300, 300));
+            panelParam.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        }
+        
+        return panelParam;
+    }
 
-		        		added = true;
-		        		break;
-		        	}
-		        }
-	        }
-	        if (! added) {
-	            getTreeModel().insertNodeInto(newNode, parent, parent.getChildCount());
+    /**
+     * @return
+     */
+    private JPanel getPanelHeadline() {
+        if (panelHeadline == null) {
+            panelHeadline = new JPanel();
+            panelHeadline.setLayout(new BorderLayout(0, 0));
 
-	        }
-	    } else {
-	        // No need to create node.  This is the root panel.
-	    }
-	    panel.setName(name);
+            txtHeadline = getTxtHeadline();
+            panelHeadline.add(txtHeadline, BorderLayout.CENTER);
+
+            JButton button = getHelpButton();
+            panelHeadline.add(button, BorderLayout.EAST);
+        }
+        
+        return panelHeadline;
+    }
+
+    /**
+     * This method initializes txtHeadline
+     *
+     * @return org.zaproxy.zap.utils.ZapTextField
+     */
+    private ZapTextField getTxtHeadline() {
+        if (txtHeadline == null) {
+            txtHeadline = new ZapTextField();
+            txtHeadline.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+            txtHeadline.setEditable(false);
+            txtHeadline.setEnabled(false);
+            txtHeadline.setBackground(java.awt.Color.white);
+            txtHeadline.setFont(new java.awt.Font("Default", java.awt.Font.BOLD, 12));
+        }
+        
+        return txtHeadline;
+    }
+
+    /**
+     * This method initializes treeModel
+     *
+     * @return javax.swing.tree.DefaultTreeModel
+     */
+    private DefaultTreeModel getTreeModel() {
+        if (treeModel == null) {
+            treeModel = new DefaultTreeModel(getRootNode());
+            treeModel.setRoot(getRootNode());
+        }
+        
+        return treeModel;
+    }
+
+    /**
+     * This method initializes rootNode
+     *
+     * @return javax.swing.tree.DefaultMutableTreeNode
+     */
+    protected DefaultMutableTreeNode getRootNode() {
+        if (rootNode == null) {
+            rootNode = new DefaultMutableTreeNode("Root");
+        }
+        
+        return rootNode;
+    }
+
+    private DefaultMutableTreeNode addParamNode(String[] paramSeq) {
+        String param = null;
+        DefaultMutableTreeNode parent = getRootNode();
+        DefaultMutableTreeNode child = null;
+        DefaultMutableTreeNode result = null;
+
+        for (int i = 0; i < paramSeq.length; i++) {
+            param = paramSeq[i];
+            result = null;
+            for (int j = 0; j < parent.getChildCount(); j++) {
+                child = (DefaultMutableTreeNode) parent.getChildAt(j);
+                if (child.toString().equalsIgnoreCase(param)) {
+                    result = child;
+                    break;
+                }
+            }
+
+            if (result == null) {
+                result = new DefaultMutableTreeNode(param);
+                getTreeModel().insertNodeInto(result, parent, parent.getChildCount());
+            }
+
+            parent = result;
+        }
+
+        return parent;
+
+
+    }
+
+    /**
+     * If multiple name use the same panel
+     *
+     * @param parentParams
+     * @param name
+     * @param panel
+     */
+    // ZAP: Added sort option
+    public void addParamPanel(String[] parentParams, String name, AbstractParamPanel panel, boolean sort) {
+        if (parentParams != null) {
+            DefaultMutableTreeNode parent = addParamNode(parentParams);
+            DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(name);
+
+            boolean added = false;
+            if (sort) {
+                for (int i = 0; i < parent.getChildCount(); i++) {
+                    if (name.compareToIgnoreCase(parent.getChildAt(i).toString()) < 0) {
+                        getTreeModel().insertNodeInto(newNode, parent, i);
+
+                        added = true;
+                        break;
+                    }
+                }
+            }
+            
+            if (!added) {
+                getTreeModel().insertNodeInto(newNode, parent, parent.getChildCount());
+
+            }
+            
+        } else {
+            // No need to create node.  This is the root panel.
+        }
+        
+        panel.setName(name);
         getPanelParam().add(panel, name);
         tablePanel.put(name, panel);
-	    
-	}
-	
-	public void addParamPanel(String[] parentParams, AbstractParamPanel panel, boolean sort) {
-	    addParamPanel(parentParams, panel.getName(), panel, sort);
-	}
+    }
 
-	public void removeParamPanel(AbstractParamPanel panel) {
-		DefaultMutableTreeNode node = this.getTreeNodeFromPanelName(panel.getName(), true);
-		if (node != null) {
-			getTreeModel().removeNodeFromParent(node);
-		}
-		getPanelParam().remove(panel);
-		tablePanel.remove(panel.getName());
-	}
+    public void addParamPanel(String[] parentParams, AbstractParamPanel panel, boolean sort) {
+        addParamPanel(parentParams, panel.getName(), panel, sort);
+    }
 
-	
-	// ZAP: Made public so that other classes can specify which panel is displayed
-	public void showParamPanel(String parent, String child) {
-	    if (parent == null || child == null) {
-	    	return;
-	    }
-	    AbstractParamPanel panel = tablePanel.get(parent);
-	    if (panel == null) {
-	    	return;
-	    }
-	    showParamPanel(panel, parent);
-	}
-	
-	public void showParamPanel(String name) {
-	    if (name == null || name.equals("")) {
-	    	return;
-	    }
+    public void removeParamPanel(AbstractParamPanel panel) {
+        DefaultMutableTreeNode node = this.getTreeNodeFromPanelName(panel.getName(), true);
+        if (node != null) {
+            getTreeModel().removeNodeFromParent(node);
+        }
+        
+        getPanelParam().remove(panel);
+        tablePanel.remove(panel.getName());
+    }
 
-	    // exit if panel name not found. 
-	    AbstractParamPanel panel = tablePanel.get(name);
-	    if (panel == null) {
-	    	return;
-	    }
+    // ZAP: Made public so that other classes can specify which panel is displayed
+    public void showParamPanel(String parent, String child) {
+        if (parent == null || child == null) {
+            return;
+        }
 
-	    showParamPanel(panel, name);
-	}
+        AbstractParamPanel panel = tablePanel.get(parent);
+        if (panel == null) {
+            return;
+        }
+        
+        showParamPanel(panel, parent);
+    }
 
-	public void showParamPanel(AbstractParamPanel panel, String name) {
-		// ZAP: Notify previously shown panel that it was hidden
-		if (nameLastSelectedPanel != null) {
-			AbstractParamPanel currentPanel = tablePanel.get(nameLastSelectedPanel);
-			if (currentPanel != null)
-				currentPanel.onHide();
-		}
+    /**
+     * 
+     * @param name 
+     */
+    public void showParamPanel(String name) {
+        if (name == null || name.equals("")) {
+            return;
+        }
+
+        // exit if panel name not found. 
+        AbstractParamPanel panel = tablePanel.get(name);
+        if (panel == null) {
+            return;
+        }
+
+        showParamPanel(panel, name);
+    }
+
+    /**
+     * 
+     * @param panel
+     * @param name 
+     */
+    public void showParamPanel(AbstractParamPanel panel, String name) {
+        // ZAP: Notify previously shown panel that it was hidden
+        if (nameLastSelectedPanel != null) {
+            AbstractParamPanel currentPanel = tablePanel.get(nameLastSelectedPanel);
+            if (currentPanel != null) {
+                currentPanel.onHide();
+            }
+        }
+        
         nameLastSelectedPanel = name;
 
         getPanelHeadline();
@@ -561,244 +592,259 @@ public class AbstractParamDialog extends AbstractDialog {
         card.show(getPanelParam(), name);
         // ZAP: Notify the new panel that it is now shown
         panel.onShow();
-	}
+    }
 
-	public void initParam(Object obj) {
-	    paramObject = obj;
-	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
-	    AbstractParamPanel panel = null;
-	    while(en.hasMoreElements()) {
-	        panel = en.nextElement();
-	        panel.initParam(obj);
-	    }
-	    
-	}
+    public void initParam(Object obj) {
+        paramObject = obj;
+        Enumeration<AbstractParamPanel> en = tablePanel.elements();
+        AbstractParamPanel panel = null;
+        while (en.hasMoreElements()) {
+            panel = en.nextElement();
+            panel.initParam(obj);
+        }
+    }
 
-	/**
-	 * This method is to be overrided by subclass.
-	 *
-	 */
-	public void validateParam() throws Exception {
-	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
-	    AbstractParamPanel panel = null;
-	    while(en.hasMoreElements()) {
-	        panel = en.nextElement();
-	        panel.validateParam(paramObject);
-	    }
-	}
+    /**
+     * This method is to be overrided by subclass.
+     *
+     */
+    public void validateParam() throws Exception {
+        Enumeration<AbstractParamPanel> en = tablePanel.elements();
+        AbstractParamPanel panel = null;
+        while (en.hasMoreElements()) {
+            panel = en.nextElement();
+            panel.validateParam(paramObject);
+        }
+    }
 
-	
-	/**
-	 * This method is to be overrided by subclass.
-	 *
-	 */
-	public void saveParam() throws Exception {
-	    Enumeration<AbstractParamPanel> en = tablePanel.elements();
-	    AbstractParamPanel panel = null;
-	    while(en.hasMoreElements()) {
-	        panel = en.nextElement();
-	        panel.saveParam(paramObject);
-	    }
-	}
-	
-	
-	protected void expandRoot() {
-	    getTreeParam().expandPath(new TreePath(getRootNode()));
-	}
-	
-	public int showDialog(boolean showRoot) {
-		return showDialog(showRoot, null);
-	}
-	
-	// ZAP: Added option to specify panel - note this only supports one level at the moment
-	// ZAP: show the last selected panel
-	public int showDialog(boolean showRoot, String panel) {
+    /**
+     * This method is to be overrided by subclass.
+     *
+     */
+    public void saveParam() throws Exception {
+        Enumeration<AbstractParamPanel> en = tablePanel.elements();
+        AbstractParamPanel panel = null;
+        while (en.hasMoreElements()) {
+            panel = en.nextElement();
+            panel.saveParam(paramObject);
+        }
+    }
+
+    protected void expandRoot() {
+        getTreeParam().expandPath(new TreePath(getRootNode()));
+    }
+
+    public int showDialog(boolean showRoot) {
+        return showDialog(showRoot, null);
+    }
+
+    // ZAP: Added option to specify panel - note this only supports one level at the moment
+    // ZAP: show the last selected panel
+    public int showDialog(boolean showRoot, String panel) {
         expandRoot();
+        
         try {
             DefaultMutableTreeNode node = null;
             if (panel != null) {
-            	node = getTreeNodeFromPanelName(panel);
+                node = getTreeNodeFromPanelName(panel);
             }
+            
             if (node == null) {
-            	if (nameLastSelectedPanel != null) {
-            		node = getTreeNodeFromPanelName(nameLastSelectedPanel);
-            	} else if (showRoot) {
-	                node = (DefaultMutableTreeNode) getTreeModel().getRoot();
-	            } else if (((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildCount() > 0){
-	                node = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
-	            }
+                if (nameLastSelectedPanel != null) {
+                    node = getTreeNodeFromPanelName(nameLastSelectedPanel);
+                    
+                } else if (showRoot) {
+                    node = (DefaultMutableTreeNode) getTreeModel().getRoot();
+                    
+                } else if (((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildCount() > 0) {
+                    node = (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
+                }
             }
+            
             if (node != null) {
-            	showParamPanel(node.toString());
-            	getTreeParam().setSelectionPath(new TreePath(node.getPath()));
+                showParamPanel(node.toString());
+                getTreeParam().setSelectionPath(new TreePath(node.getPath()));
             }
+            
         } catch (Exception e) {
-        	// ZAP: log errors
-        	log.error(e.getMessage(), e);
+            // ZAP: log errors
+            log.error(e.getMessage(), e);
+        }
+
+        this.setVisible(true);
+        return exitResult;
+
+    }
+
+    // ZAP: Added accessor to the panels
+    /**
+     * Gets the panels shown on this dialog.
+     *
+     * @return the panels
+     */
+    protected Collection<AbstractParamPanel> getPanels() {
+        return tablePanel.values();
+    }
+
+    // ZAP: show the last selected panel
+    private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel) {
+        return this.getTreeNodeFromPanelName(panel, true);
+    }
+
+    private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel, boolean recurse) {
+        return this.getTreeNodeFromPanelName(((DefaultMutableTreeNode) getTreeModel().getRoot()), panel, recurse);
+    }
+
+    private DefaultMutableTreeNode getTreeNodeFromPanelName(DefaultMutableTreeNode parent, String panel, boolean recurse) {
+        DefaultMutableTreeNode node = null;
+
+        // ZAP: Added @SuppressWarnings annotation.
+        @SuppressWarnings("unchecked")
+        Enumeration<DefaultMutableTreeNode> children = parent.children();
+        while (children.hasMoreElements()) {
+            DefaultMutableTreeNode child = children.nextElement();
+            if (panel.equals(child.toString())) {
+                node = child;
+                break;
+            } else if (recurse) {
+                node = this.getTreeNodeFromPanelName(child, panel, true);
+                if (node != null) {
+                    break;
+                }
+            }
         }
         
-        this.setVisible(true);
-	    return exitResult;
-	
-	}
-	
-	// ZAP: Added accessor to the panels
-	/**
-	 * Gets the panels shown on this dialog.
-	 *
-	 * @return the panels
-	 */
-	protected Collection<AbstractParamPanel> getPanels(){
-		return tablePanel.values();
-		
-	}
+        return node;
+    }
 
-	// ZAP: show the last selected panel
-	private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel) {
-		return this.getTreeNodeFromPanelName(panel, true);
-	}
-	private DefaultMutableTreeNode getTreeNodeFromPanelName(String panel, boolean recurse) {
-		return this.getTreeNodeFromPanelName( ((DefaultMutableTreeNode) getTreeModel().getRoot()), panel, recurse);
-	}
-	
-	private DefaultMutableTreeNode getTreeNodeFromPanelName(DefaultMutableTreeNode parent, String panel, boolean recurse) {
-		DefaultMutableTreeNode node = null;
-		
-		// ZAP: Added @SuppressWarnings annotation.
-		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> children = parent.children();
-		while (children.hasMoreElements()) {
-			DefaultMutableTreeNode child = children.nextElement();
-			if (panel.equals(child.toString())) {
-				node = child;
-				break;
-			} else if (recurse) {
-				node = this.getTreeNodeFromPanelName(child, panel, true);
-				if (node != null) {
-					break;
-				}
-			}
-		}
-		return node;
-	}
+    // Useful method for debugging panel issues ;)
+    public void printTree() {
+        this.printTree(((DefaultMutableTreeNode) getTreeModel().getRoot()), 0);
+    }
 
-	// Useful method for debugging panel issues ;)
-	public void printTree() {
-		this.printTree(((DefaultMutableTreeNode) getTreeModel().getRoot()), 0);
-	}
-	
-	private void printTree(DefaultMutableTreeNode parent, int level) {
-		for (int i=0; i < level; i++) {
-			System.out.print(" ");
-		}
-		System.out.print(parent.toString());
-		
-	    AbstractParamPanel panel = tablePanel.get(parent.toString());
-	    if (panel != null) {
-			System.out.print(" (" + panel.hashCode() + ")");
-	    }
-		System.out.println();
+    private void printTree(DefaultMutableTreeNode parent, int level) {
+        for (int i = 0; i < level; i++) {
+            System.out.print(" ");
+        }
+        
+        System.out.print(parent.toString());
 
-		
-		@SuppressWarnings("unchecked")
-		Enumeration<DefaultMutableTreeNode> children = parent.children();
-		while (children.hasMoreElements()) {
-			DefaultMutableTreeNode child = children.nextElement();
-			this.printTree(child, level+1);
-		}
-	}
-	
-	public void renamePanel (AbstractParamPanel panel, String newPanelName) {
-		DefaultMutableTreeNode node = getTreeNodeFromPanelName(panel.getName(), true);
-		DefaultMutableTreeNode newNode = getTreeNodeFromPanelName(newPanelName, true);
-		if (node != null && newNode == null) {
-			// TODO work out which of these lines are really necessary ;)
-			DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
-			node.setUserObject(newPanelName);
-			tablePanel.remove(panel.getName());
-			int index = parent.getIndex(node);
-			getTreeModel().removeNodeFromParent(node);
-			getTreeModel().insertNodeInto(node, parent, index);
-			this.nameLastSelectedPanel = newPanelName;
-			
-			this.getPanelParam().remove(panel);
-			
-			panel.setName(newPanelName);
-			tablePanel.put(newPanelName, panel);
-			this.getPanelParam().add(newPanelName, panel);
-			
-			getTreeModel().nodeChanged(node);
-			getTreeModel().nodeChanged(node.getParent());
-		}
-	}
+        AbstractParamPanel panel = tablePanel.get(parent.toString());
+        if (panel != null) {
+            System.out.print(" (" + panel.hashCode() + ")");
+        }
+        
+        System.out.println();
 
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTreeParam());
-			jScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0,0,0,0));
-		}
-		return jScrollPane;
-	}
-	/**
-	 * This method initializes jScrollPane1	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane1() {
-		if (jScrollPane1 == null) {
-			jScrollPane1 = new JScrollPane();
-			jScrollPane1.setName("jScrollPane1");
-			jScrollPane1.setViewportView(getJPanel());
-			jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			jScrollPane1.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_NEVER);
-		}
-		return jScrollPane1;
-	}
-	/**
-	 * This method initializes the help button, if any button can be applied
-	 * @return
-	 */
-	private JButton getHelpButton() {
-		if (btnHelp == null) {
-			btnHelp = new JButton();
-			btnHelp.setBorder(null);
-			btnHelp.setIcon(new ImageIcon(AbstractParamDialog.class.getResource("/resource/icon/16/201.png"))); // help icon
-			btnHelp.addActionListener(getShowHelpAction());
-			btnHelp.setToolTipText(Constant.messages.getString("menu.help"));
-		}
-		return btnHelp;
-	}
-	
-	private ShowHelpAction getShowHelpAction() {
-		if (showHelpAction == null) {
-			showHelpAction  = new ShowHelpAction();
-		}
-		return showHelpAction;
-	}
-	
-	/**
-	 * Displays the current help by index ...
-	 */
-	private static final class ShowHelpAction implements ActionListener {
+        @SuppressWarnings("unchecked")
+        Enumeration<DefaultMutableTreeNode> children = parent.children();
+        while (children.hasMoreElements()) {
+            DefaultMutableTreeNode child = children.nextElement();
+            this.printTree(child, level + 1);
+        }
+    }
 
-		private String helpIndex = null;
+    public void renamePanel(AbstractParamPanel panel, String newPanelName) {
+        DefaultMutableTreeNode node = getTreeNodeFromPanelName(panel.getName(), true);
+        DefaultMutableTreeNode newNode = getTreeNodeFromPanelName(newPanelName, true);
+        if (node != null && newNode == null) {
+            // TODO work out which of these lines are really necessary ;)
+            DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+            node.setUserObject(newPanelName);
+            tablePanel.remove(panel.getName());
+            int index = parent.getIndex(node);
+            getTreeModel().removeNodeFromParent(node);
+            getTreeModel().insertNodeInto(node, parent, index);
+            this.nameLastSelectedPanel = newPanelName;
 
-		@Override
-		public void actionPerformed(ActionEvent e) {
-			if (helpIndex != null) {
-				ExtensionHelp.showHelp(helpIndex);
-			}
-		}
+            this.getPanelParam().remove(panel);
 
-		public void setHelpIndex(String helpIndex) {
-			this.helpIndex = helpIndex;
-		}
+            panel.setName(newPanelName);
+            tablePanel.put(newPanelName, panel);
+            this.getPanelParam().add(newPanelName, panel);
 
-	}
+            getTreeModel().nodeChanged(node);
+            getTreeModel().nodeChanged(node.getParent());
+        }
+    }
+
+    /**
+     * This method initializes jScrollPane
+     *
+     * @return javax.swing.JScrollPane
+     */
+    private JScrollPane getJScrollPane() {
+        if (jScrollPane == null) {
+            jScrollPane = new JScrollPane();
+            jScrollPane.setViewportView(getTreeParam());
+            jScrollPane.setBorder(javax.swing.BorderFactory.createEmptyBorder(0, 0, 0, 0));
+        }
+        
+        return jScrollPane;
+    }
+
+    /**
+     * This method initializes jScrollPane1
+     *
+     * @return javax.swing.JScrollPane
+     */
+    private JScrollPane getJScrollPane1() {
+        if (jScrollPane1 == null) {
+            jScrollPane1 = new JScrollPane();
+            jScrollPane1.setName("jScrollPane1");
+            jScrollPane1.setViewportView(getJPanel());
+            jScrollPane1.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            jScrollPane1.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_NEVER);
+        }
+        
+        return jScrollPane1;
+    }
+
+    /**
+     * This method initializes the help button, if any button can be applied
+     *
+     * @return
+     */
+    private JButton getHelpButton() {
+        if (btnHelp == null) {
+            btnHelp = new JButton();
+            btnHelp.setBorder(null);
+            btnHelp.setIcon(new ImageIcon(AbstractParamDialog.class.getResource("/resource/icon/16/201.png"))); // help icon
+            btnHelp.addActionListener(getShowHelpAction());
+            btnHelp.setToolTipText(Constant.messages.getString("menu.help"));
+        }
+        
+        return btnHelp;
+    }
+
+    /**
+     * 
+     * @return 
+     */
+    private ShowHelpAction getShowHelpAction() {
+        if (showHelpAction == null) {
+            showHelpAction = new ShowHelpAction();
+        }
+        
+        return showHelpAction;
+    }
+
+    /**
+     * Displays the current help by index ...
+     */
+    private static final class ShowHelpAction implements ActionListener {
+
+        private String helpIndex = null;
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if (helpIndex != null) {
+                ExtensionHelp.showHelp(helpIndex);
+            }
+        }
+
+        public void setHelpIndex(String helpIndex) {
+            this.helpIndex = helpIndex;
+        }
+    }
 }  //  @jve:decl-index=0:visual-constraint="73,11"
