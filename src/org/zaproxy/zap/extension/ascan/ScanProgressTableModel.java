@@ -17,7 +17,6 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.List;
@@ -28,17 +27,16 @@ import org.parosproxy.paros.Constant;
 
 public class ScanProgressTableModel extends AbstractTableModel {
 
-	private static final long serialVersionUID = 1L;
-
-	private static final String[] columnNames = {
-				Constant.messages.getString("ascan.progress.table.name"),
-				Constant.messages.getString("ascan.progress.table.status"),
-				Constant.messages.getString("ascan.progress.table.time")};
+    private static final long serialVersionUID = 1L;
+    private static final String[] columnNames = {
+        Constant.messages.getString("ascan.progress.table.name"),
+        Constant.messages.getString("ascan.progress.table.status"),
+        Constant.messages.getString("ascan.progress.table.time")};
     
     private List<String[]> values = null;
-    
+
     /**
-     * 
+     *
      */
     public ScanProgressTableModel() {
         super();
@@ -51,9 +49,10 @@ public class ScanProgressTableModel extends AbstractTableModel {
 
     @Override
     public int getRowCount() {
-    	if (values == null) {
-    		return 0;
-    	}
+        if (values == null) {
+            return 0;
+        }
+        
         return values.size();
     }
 
@@ -62,35 +61,40 @@ public class ScanProgressTableModel extends AbstractTableModel {
         Object[] value = this.values.get(row);
         return value[col];
     }
-    
+
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-    	return false;
+        return false;
     }
-    
-	@Override
-	public String getColumnName(int col) {
+
+    @Override
+    public String getColumnName(int col) {
         return columnNames[col];
     }
-    
-	@Override
-	public Class<?> getColumnClass(int c) {
-		switch (c) {
-		case 0:	return String.class;
-		case 1:	return String.class;
-		case 2:	return String.class;
-    	}
-        return null;
+
+    @Override
+    public Class<?> getColumnClass(int c) {
+        switch (c) {
+            case 0:
+                return String.class;
+            
+            case 1:
+                return String.class;
         
+            case 2:
+                return String.class;
+        }
+        
+        return null;
+
     }
 
-	public List<String[]> getValues() {
-		return values;
-	}
+    public List<String[]> getValues() {
+        return values;
+    }
 
-	public void setValues(List<String[]> values) {
-		this.values = values;
-		this.fireTableDataChanged();
-	}
-	
+    public void setValues(List<String[]> values) {
+        this.values = values;
+        this.fireTableDataChanged();
+    }
 }

@@ -45,173 +45,189 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class ScanProgressDialog extends AbstractDialog {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    private JScrollPane jScrollPane = null;
+    private JTable table = null;
+    private ScanProgressTableModel model = new ScanProgressTableModel();
+    private String site = null;
+    private ActiveScan scan = null;
+    private boolean stopThread = false;
 
-	private JScrollPane jScrollPane = null;
-	
-	private JTable table = null;
-	private ScanProgressTableModel model = new ScanProgressTableModel();
-	
-	private String site = null;
-	private ActiveScan scan = null;
-	private boolean stopThread = false;
+    public ScanProgressDialog(Frame owner, String site) {
+        super(owner, false);
+        this.site = site;
+        this.initialize();
+    }
 
-	public ScanProgressDialog(Frame owner, String site) {
-		super(owner, false);
-		this.site = site;
-		this.initialize();
-	}
-	
-	private  void initialize() {
-		this.setLayout(new GridBagLayout());
-		this.setSize(new Dimension(500, 500));
-		
-		if (site != null) {
-			this.setTitle(MessageFormat.format(
-					Constant.messages.getString("ascan.progress.title"), site));
-		}
-		
+    private void initialize() {
+        this.setLayout(new GridBagLayout());
+        this.setSize(new Dimension(500, 500));
+
+        if (site != null) {
+            this.setTitle(MessageFormat.format(
+                    Constant.messages.getString("ascan.progress.title"), site));
+        }
+
         this.add(getJScrollPane(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D));
-        
+
         //  Handle escape key to close the dialog    
         KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
         AbstractAction escapeAction = new AbstractAction() {
-			private static final long serialVersionUID = 1L;
+            private static final long serialVersionUID = 1L;
 
-			@Override
+            @Override
             public void actionPerformed(ActionEvent e) {
-				stopThread = true;
-            	ScanProgressDialog.this.setVisible(false);
-            	ScanProgressDialog.this.dispose();
+                stopThread = true;
+                ScanProgressDialog.this.setVisible(false);
+                ScanProgressDialog.this.dispose();
             }
         };
+        
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
-        getRootPane().getActionMap().put("ESCAPE",escapeAction);
+        getRootPane().getActionMap().put("ESCAPE", escapeAction);
 
         // Stop the updating thread when the window is closed
         this.addWindowListener(new WindowListener() {
-			@Override
-			public void windowOpened(WindowEvent e) {
-				// Ignore
-			}
-			@Override
-			public void windowClosing(WindowEvent e) {
-				// Ignore
-			}
-			@Override
-			public void windowClosed(WindowEvent e) {
-				stopThread = true;
-			}
-			@Override
-			public void windowIconified(WindowEvent e) {
-				// Ignore
-			}
-			@Override
-			public void windowDeiconified(WindowEvent e) {
-				// Ignore
-			}
-			@Override
-			public void windowActivated(WindowEvent e) {
-				// Ignore
-			}
-			@Override
-			public void windowDeactivated(WindowEvent e) {
-				// Ignore
-			}});
-	}
+            @Override
+            public void windowOpened(WindowEvent e) {
+                // Ignore
+            }
 
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTable());
-			jScrollPane.setName("ScanProgressScrollPane");
-			jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-		}
-		return jScrollPane;
-	}
-	
-	private JTable getTable() {
-		if (table == null) {
-			table = new JTable();
-			table.setModel(this.model);
-			table.getColumnModel().getColumn(0).setPreferredWidth(300);
-			table.getColumnModel().getColumn(1).setPreferredWidth(100);
-			table.getColumnModel().getColumn(2).setPreferredWidth(100);
-		}
-		return table;
-	}
-	
-	private String getElapsedTime(Date start, Date end) {
-		if (start == null) {
-			return "";
-		} else if (end == null) {
-			end = new Date();	// measure to now
-		}
-		long elapsed = end.getTime() - start.getTime();
-		
-		return String.format("%02d:%02d.%03d", elapsed/60000, (elapsed%60000)/1000, (elapsed%1000));
-	}
-	
-	private void showProgress() {
-		
-		List<HostProcess> list = scan.getHostProcesses();
-		List<String[]> values = new ArrayList<>();
-		boolean completed = true;
-		
-		if (list != null) {
-			for (HostProcess hp : list) {
-				for (Plugin plugin : hp.getCompleted()) {
-					values.add(new String[] {plugin.getName(), Constant.messages.getString("ascan.progress.label.completed"), 
-							this.getElapsedTime(plugin.getTimeStarted(), plugin.getTimeFinished())});
-				}
-				for (Plugin plugin : hp.getRunning()) {
-					values.add(new String[] {plugin.getName(), Constant.messages.getString("ascan.progress.label.running"), 
-							this.getElapsedTime(plugin.getTimeStarted(), plugin.getTimeFinished())});
-					completed = false;
-				}
-				for (Plugin plugin : hp.getPending()) {
-					values.add(new String[] {plugin.getName(), Constant.messages.getString("ascan.progress.label.pending"), ""});
-					completed = false;
-				}
-			}
-			// Special case - total elapsed time a and request count
-			values.add(new String[] {"", "", ""});	// Blank line, just to separate the totals
-			values.add(new String[] {Constant.messages.getString("ascan.progress.label.totalTime"), "", 
-					this.getElapsedTime(this.scan.getTimeStarted(), this.scan.getTimeFinished())});
-			values.add(new String[] {Constant.messages.getString("ascan.progress.label.requests"), "", 
-					String.valueOf(this.scan.getTotalRequests())});
-			
-			
-			model.setValues(values);
-			if (completed) {
-				this.stopThread = true;
-			}
-		}
-	}
+            @Override
+            public void windowClosing(WindowEvent e) {
+                // Ignore
+            }
 
-	public void setActiveScan(ActiveScan scan) {
-		this.scan = scan;
-		
-		if (scan == null) {
-			return;
-		}
-		
-		Thread thread = new Thread() {
-			@Override
-			public void run() {
-				while (! stopThread) {
-					showProgress();
-					try {
-						sleep(200);
-					} catch (InterruptedException e) {
-						// Ignore
-					}
-				}
-			}
-		};
-		thread.start();
-	}
+            @Override
+            public void windowClosed(WindowEvent e) {
+                stopThread = true;
+            }
 
+            @Override
+            public void windowIconified(WindowEvent e) {
+                // Ignore
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+                // Ignore
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+                // Ignore
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+                // Ignore
+            }
+        });
+    }
+
+    private JScrollPane getJScrollPane() {
+        if (jScrollPane == null) {
+            jScrollPane = new JScrollPane();
+            jScrollPane.setViewportView(getTable());
+            jScrollPane.setName("ScanProgressScrollPane");
+            jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+            jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+            jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+        }
+        
+        return jScrollPane;
+    }
+
+    private JTable getTable() {
+        if (table == null) {
+            table = new JTable();
+            table.setModel(this.model);
+            table.getColumnModel().getColumn(0).setPreferredWidth(300);
+            table.getColumnModel().getColumn(1).setPreferredWidth(100);
+            table.getColumnModel().getColumn(2).setPreferredWidth(100);
+        }
+        
+        return table;
+    }
+
+    private String getElapsedTime(Date start, Date end) {
+        if (start == null) {
+            return "";
+        
+        } else if (end == null) {
+            end = new Date();	// measure to now
+        }
+        
+        long elapsed = end.getTime() - start.getTime();
+
+        return String.format("%02d:%02d.%03d", elapsed / 60000, (elapsed % 60000) / 1000, (elapsed % 1000));
+    }
+
+    private void showProgress() {
+        List<HostProcess> list = scan.getHostProcesses();
+        List<String[]> values = new ArrayList<>();
+        boolean completed = true;
+
+        if (list != null) {
+            for (HostProcess hp : list) {
+                
+                for (Plugin plugin : hp.getCompleted()) {
+                    values.add(new String[]{plugin.getName(), Constant.messages.getString("ascan.progress.label.completed"),
+                        this.getElapsedTime(plugin.getTimeStarted(), plugin.getTimeFinished())});
+                }
+                
+                for (Plugin plugin : hp.getRunning()) {
+                    values.add(new String[]{plugin.getName(), Constant.messages.getString("ascan.progress.label.running"),
+                        this.getElapsedTime(plugin.getTimeStarted(), plugin.getTimeFinished())});
+                    
+                    completed = false;
+                }
+                
+                for (Plugin plugin : hp.getPending()) {
+                    values.add(new String[]{plugin.getName(), Constant.messages.getString("ascan.progress.label.pending"), ""});
+                    completed = false;
+                }
+            }
+            
+            // Special case - total elapsed time a and request count
+            values.add(new String[]{"", "", ""});	// Blank line, just to separate the totals
+            values.add(new String[]{Constant.messages.getString("ascan.progress.label.totalTime"), "",
+                this.getElapsedTime(this.scan.getTimeStarted(), this.scan.getTimeFinished())});
+            
+            values.add(new String[]{Constant.messages.getString("ascan.progress.label.requests"), "",
+                String.valueOf(this.scan.getTotalRequests())});
+
+            model.setValues(values);
+            
+            if (completed) {
+                this.stopThread = true;
+            }
+        }
+    }
+
+    public void setActiveScan(ActiveScan scan) {
+        this.scan = scan;
+
+        if (scan == null) {
+            return;
+        }
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                while (!stopThread) {
+                    showProgress();
+                    
+                    try {
+                        sleep(200);
+                        
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+                }
+            }
+        };
+        
+        thread.start();
+    }
 }
