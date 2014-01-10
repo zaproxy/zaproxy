@@ -29,7 +29,8 @@
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
 // ZAP: 2013/09/24 Issue 797: Limit number of ascan results listed to speed up scans
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
-//
+// ZAP: 2014/01/10  Issue 974: Scan URL path elements
+
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.common.AbstractParam;
@@ -56,7 +57,8 @@ public class ScannerParam extends AbstractParam {
     public static final int TARGET_QUERYSTRING  = 1;
     public static final int TARGET_POSTDATA     = 1<<1;
     public static final int TARGET_COOKIE       = 1<<2;
-    public static final int TARGET_HTTPHEADERS   = 1<<3;
+    public static final int TARGET_HTTPHEADERS  = 1<<3;
+    public static final int TARGET_URLPATH   	= 1<<4;
     
     public static final int RPC_MULTIPART   = 1;
     public static final int RPC_XML         = 1<<1;
@@ -65,7 +67,7 @@ public class ScannerParam extends AbstractParam {
     public static final int RPC_ODATA       = 1<<4;
     
     // Defaults for initial configuration
-    public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
+    public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_URLPATH;
     public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA;
     
     

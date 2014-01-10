@@ -64,6 +64,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     
     // Checkbox for Target definitions
     private JCheckBox chkInjectableQueryString = null;
+    private JCheckBox chkInjectableUrlPath = null;
     private JCheckBox chkInjectablePostData = null;
     private JCheckBox chkInjectableHeaders = null;
     private JCheckBox chkInjectableCookie = null;
@@ -162,14 +163,17 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     this.getChkInjectableQueryString(), 
                     LayoutHelper.getGBC(0, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
             panelInjectable.add(
-                    this.getChkInjectablePostData(),
-                    LayoutHelper.getGBC(0, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    this.getChkInjectableUrlPath(), 
+                    LayoutHelper.getGBC(0, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
             panelInjectable.add(
-                    this.getChkInjectableHeaders(),
+                    this.getChkInjectablePostData(),
                     LayoutHelper.getGBC(0, 3, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelInjectable.add(
-                    this.getChkInjectableCookie(),
+                    this.getChkInjectableHeaders(),
                     LayoutHelper.getGBC(0, 4, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelInjectable.add(
+                    this.getChkInjectableCookie(),
+                    LayoutHelper.getGBC(0, 5, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             
             panelScanner.add(
                     panelInjectable,
@@ -342,6 +346,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         // Set targets and RPC selections
         int targets = param.getTargetParamsInjectable();
         this.getChkInjectableQueryString().setSelected((targets & ScannerParam.TARGET_QUERYSTRING) != 0);
+        this.getChkInjectableUrlPath().setSelected((targets & ScannerParam.TARGET_URLPATH) != 0);
         this.getChkInjectablePostData().setSelected((targets & ScannerParam.TARGET_POSTDATA) != 0);
         this.getChkInjectableHeaders().setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
         this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
@@ -414,6 +419,10 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         int targets = 0;        
         if (this.getChkInjectableQueryString().isSelected()) {
             targets |= ScannerParam.TARGET_QUERYSTRING;
+        }
+
+        if (this.getChkInjectableUrlPath().isSelected()) {
+            targets |= ScannerParam.TARGET_URLPATH;
         }
         
         if (this.getChkInjectablePostData().isSelected()) {
@@ -620,6 +629,14 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             chkInjectableQueryString.setText(Constant.messages.getString("ascan.options.injectable.querystring.label"));
         }
         return chkInjectableQueryString;
+    }
+
+    private JCheckBox getChkInjectableUrlPath() {
+        if (chkInjectableUrlPath == null) {
+            chkInjectableUrlPath = new JCheckBox();
+            chkInjectableUrlPath.setText(Constant.messages.getString("ascan.options.injectable.urlpath.label"));
+        }
+        return chkInjectableUrlPath;
     }
 
     private JCheckBox getChkInjectablePostData() {

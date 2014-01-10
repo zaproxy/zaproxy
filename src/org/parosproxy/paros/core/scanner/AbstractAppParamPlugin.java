@@ -27,7 +27,8 @@
 // ZAP: 2013/07/14 Issue 726: Catch active scan variants' exceptions
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
-//
+// ZAP: 2014/01/10  Issue 974: Scan URL path elements
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -79,11 +80,16 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             // ZAP: To handle GWT Serialized POST requests
             if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {
                 listVariant.add(new VariantGWTQuery());
-            }            
+            }
+            
         }
-        
+
         if ((targets & ScannerParam.TARGET_HTTPHEADERS) != 0) {
             listVariant.add(new VariantHeader());
+        }
+
+        if ((targets & ScannerParam.TARGET_URLPATH) != 0) {
+            listVariant.add(new VariantURLPath());
         }
 
         // Currently usual plugins seems not 
