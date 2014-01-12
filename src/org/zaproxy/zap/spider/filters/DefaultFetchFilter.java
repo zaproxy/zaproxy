@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.zaproxy.zap.model.Context;
 
 /**
  * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering process. Its
@@ -41,6 +42,8 @@ public class DefaultFetchFilter extends FetchFilter {
 
 	/** The exclude list. */
 	private List<String> excludeList = null;
+	
+	private Context scanContext;
 
 	@Override
 	public FetchStatus checkFilter(URI uri) {
@@ -53,6 +56,12 @@ public class DefaultFetchFilter extends FetchFilter {
 		}
 
 		try {
+			
+			// Context check
+			if (this.scanContext != null)
+				if (!this.scanContext.isInContext(uri.toString()))
+					return FetchStatus.OUT_OF_CONTEXT;
+			
 			// Scope check
 			boolean ok = false;
 			String host = uri.getHost();
@@ -100,6 +109,16 @@ public class DefaultFetchFilter extends FetchFilter {
 	 */
 	public void setExcludeRegexes(List<String> excl) {
 		excludeList = excl;
+	}
+	
+	/**
+	 * Sets the scan context. If set, only uris that are part of the context are
+	 * considered valid for fetching.
+	 * 
+	 * @param scanContext the new scan context
+	 */
+	public void setScanContext(Context scanContext) {
+		this.scanContext = scanContext;
 	}
 
 }

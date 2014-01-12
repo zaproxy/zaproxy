@@ -35,6 +35,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
 import org.zaproxy.zap.spider.filters.DefaultParseFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter;
@@ -100,6 +101,9 @@ public class Spider {
 
 	/** The cookie manager. */
 	private CookieManager cookieManager;
+	
+	/** The scan context. If null, the scan is not performed in a context. */
+	private Context scanContext;
 
 	/** The scan user. */
 	private User scanUser;
@@ -117,8 +121,9 @@ public class Spider {
 	 * @param spiderParam the spider param
 	 * @param connectionParam the connection param
 	 * @param model the model
+	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
 	 */
-	public Spider(SpiderParam spiderParam, ConnectionParam connectionParam, Model model) {
+	public Spider(SpiderParam spiderParam, ConnectionParam connectionParam, Model model, Context scanContext) {
 		super();
 		log.info("Spider initializing...");
 		this.spiderParam = spiderParam;
@@ -128,7 +133,8 @@ public class Spider {
 		this.listeners = new LinkedList<>();
 		this.seedList = new ArrayList<>();
 		this.cookieManager = new CookieManager();
-
+		this.scanContext=scanContext;
+		
 		init();
 	}
 
@@ -145,6 +151,8 @@ public class Spider {
 		// Add a default fetch filter
 		defaultFetchFilter = new DefaultFetchFilter();
 		this.addFetchFilter(defaultFetchFilter);
+		// Add the scan context, if any
+		defaultFetchFilter.setScanContext(this.scanContext);
 		// Add domains always in scope
 		String scope = spiderParam.getScope();
 		if (scope != null && !scope.trim().isEmpty()) {

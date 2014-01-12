@@ -35,6 +35,8 @@ public abstract class FetchFilter {
 		VALID,
 		/** The uri is VALID and is a seed. **/
 		SEED,
+		/** The uri is out of context. */
+		OUT_OF_CONTEXT,
 		/** The uri is out of scope. */
 		OUT_OF_SCOPE,
 		/** The uri has an illegal protocol. */
