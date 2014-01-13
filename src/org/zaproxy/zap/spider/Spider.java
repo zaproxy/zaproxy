@@ -26,6 +26,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -114,6 +116,9 @@ public class Spider {
 	 * added.
 	 */
 	private boolean initialized;
+
+	/**	we do not want to recurse into an SVN folder, if one was created from a previous Spider run */
+	private static final Pattern svnUrlPattern = Pattern.compile(".svn/$"); //case sensitive
 
 	/**
 	 * Instantiates a new spider.
@@ -209,6 +214,33 @@ public class Spider {
 				log.warn("Error while creating URI for robots.txt file for site " + uri, e);
 			}
 		}
+		// And add '.svn/entries' as a seed, for SVN based spidering
+		if (getSpiderParam().isParseSVNEntries()) {
+			try {
+				// Build the URI of the SVN entries file
+				URI svnEntriesURI;
+				// If the port is not 80 or 443, add it to the URI
+				// SVN entries can exist in multiple directories, so make sure to add in the full path.
+				String fullpath = uri.getPath();
+				String name = uri.getName();
+				
+				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
+				
+				//if it's not an svn folder, add the seed.
+				Matcher matcherSvnUrl = svnUrlPattern.matcher(pathminusfilename);
+				if (! matcherSvnUrl.find()) {
+					if (uri.getPort() == 80 || uri.getPort() == 443) {
+						svnEntriesURI = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".svn/entries", true);
+					} else {
+						svnEntriesURI = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".svn/entries", true);
+					}
+					this.seedList.add(svnEntriesURI);
+				}
+			} catch (Exception e) {
+				log.warn("Error while creating a seed URI for the SVN entries file for site " + uri, e);
+			}
+		}
+
 
 	}
 
