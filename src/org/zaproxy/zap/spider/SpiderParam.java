@@ -56,6 +56,9 @@ public class SpiderParam extends AbstractParam {
 
 	/** The Constant SPIDER_PARSE_ROBOTS_TXT. */
 	private static final String SPIDER_PARSE_ROBOTS_TXT = "spider.parseRobotsTxt";
+	
+	/** The Constant SPIDER_PARSE_SVN_ENTRIES. */
+	private static final String SPIDER_PARSE_SVN_ENTRIES = "spider.parseSVNentries";
 
 	/** The Constant SPIDER_HANDLE_PARAMETERS. */
 	private static final String SPIDER_HANDLE_PARAMETERS = "spider.handleParameters";
@@ -116,6 +119,8 @@ public class SpiderParam extends AbstractParam {
 	private boolean parseComments = true;
 	/** Whether robots.txt file should be parsed for URIs. */
 	private boolean parseRobotsTxt = false;
+	/** Whether SVN entries files should be parsed for URIs. */
+	private boolean parseSVNentries = false;
 	/** Whether the forms are processed and submitted at all. */
 	private boolean processForm = true;
 	/**
@@ -208,7 +213,11 @@ public class SpiderParam extends AbstractParam {
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
-
+		try {
+			this.parseSVNentries = getConfig().getBoolean(SPIDER_PARSE_SVN_ENTRIES, false);
+		} catch (Exception e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
 		try {
 			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
 		} catch (ConversionException e) {
@@ -486,6 +495,15 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
+	 * Checks if the spider should parse the SVN entries files for URIs (not related to following the directions).
+	 * 
+	 * @return true, if it parses the file
+	 */
+	public boolean isParseSVNEntries() {
+		return parseSVNentries;
+	}
+
+	/**
 	 * Sets the whether the spider parses the robots.txt for uris (not related to following the directions).
 	 * 
 	 * @param parseRobotsTxt the new value for parseRobotsTxt
@@ -493,6 +511,16 @@ public class SpiderParam extends AbstractParam {
 	public void setParseRobotsTxt(boolean parseRobotsTxt) {
 		this.parseRobotsTxt = parseRobotsTxt;
 		getConfig().setProperty(SPIDER_PARSE_ROBOTS_TXT, Boolean.toString(parseRobotsTxt));
+	}
+
+	/**
+	 * Sets the whether the spider parses the SVN entries file for URIs (not related to following the directions).
+	 * 
+	 * @param parseSVNentries the new value for parseSVNentries
+	 */
+	public void setParseSVNEntries(boolean parseSVNentries) {
+		this.parseSVNentries = parseSVNentries;
+		getConfig().setProperty(SPIDER_PARSE_SVN_ENTRIES, Boolean.toString(parseSVNentries));
 	}
 
 	/**
