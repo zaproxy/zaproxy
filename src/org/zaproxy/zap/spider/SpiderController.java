@@ -21,6 +21,8 @@ import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import net.htmlparser.jericho.Config;
 
@@ -40,6 +42,7 @@ import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.spider.parser.SpiderParserListener;
 import org.zaproxy.zap.spider.parser.SpiderRedirectParser;
 import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
+import org.zaproxy.zap.spider.parser.SpiderSVNEntriesParser;
 import org.zaproxy.zap.spider.parser.SpiderTextParser;
 
 /**
@@ -197,18 +200,26 @@ public class SpiderController implements SpiderParserListener {
 	 * @return the parser
 	 */
 	public List<SpiderParser> getParsers(HttpMessage message) {
+		
+		//matches the file name of files that should be parsed with the SVN entries file parser 
+		Pattern svnEntriesFile = Pattern.compile("/\\.svn/entries$");
+
+		// Get the full path of the file
+		String path = null;
+		try {
+			path = message.getRequestHeader().getURI().getPath();
+			log.debug("Getting parsers for " + path);
+		} catch (URIException e) {
+		}
 
 		// If parsing of robots.txt is enabled, try to see if it's necessary
-		if (spider.getSpiderParam().isParseRobotsTxt()) {
-			// Get the path of the file
-			String path = null;
-			try {
-				path = message.getRequestHeader().getURI().getPath();
-				log.debug("Getting parsers for " + path);
-			} catch (URIException e) {
-			}
+		if (spider.getSpiderParam().isParseRobotsTxt()) {			
 			// If it's a robots.txt file
+			//Cosmin, should this not be something like the following line, in case someone has left  
+			//a "robots.txt" file in a folder outside the root directory?
+			//if (path != null && path.endsWith("/robots.txt")) {
 			if (path != null && path.equalsIgnoreCase("/robots.txt")) {
+			
 				log.info("Parsing a robots.txt resource...");
 				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
 				parser.addSpiderParserListener(this);
@@ -217,6 +228,21 @@ public class SpiderController implements SpiderParserListener {
 				return robotsParsers;
 			}
 		}
+
+		// is SVN entries file parsing enabled, and are we parsing SVN entries file?
+		if (spider.getSpiderParam().isParseSVNEntries()) {
+			Matcher matcher = svnEntriesFile.matcher(path);
+			if (matcher.find()) {
+			
+				log.info("Parsing an SVN entries resource...");
+				SpiderParser parser = new SpiderSVNEntriesParser(spider.getSpiderParam());
+				parser.addSpiderParserListener(this);
+				List<SpiderParser> svnEntriesParsers = new LinkedList<>();
+				svnEntriesParsers.add(parser);
+				return svnEntriesParsers;
+			}
+		}
+
 
 		// If the response is a HTTP redirect message
 		if (HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode())) {
