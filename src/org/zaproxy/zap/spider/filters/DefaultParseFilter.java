@@ -17,6 +17,10 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 
@@ -37,6 +41,11 @@ public class DefaultParseFilter extends ParseFilter {
 	 * big for a parsable file.
 	 */
 	public static final int MAX_RESPONSE_BODY_SIZE = 512000;
+	
+	/**
+	 * a pattern to match the XML based ".svn/entries" file name.
+	 */
+	private static final Pattern svnEntriesXMLFilenamePattern = Pattern.compile (".*/\\.svn/entries$");
 
 	@Override
 	public boolean isFiltered(HttpMessage responseMessage) {
@@ -53,7 +62,18 @@ public class DefaultParseFilter extends ParseFilter {
 		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
 			return false;
 
-		// Check response type
+		//if it's a file called "<possibly something>/.svn/entries", the SVN Entries parser will process it (regardless of type)
+		Matcher svnEntriesXMLFilenameMatcher;
+		try {
+			svnEntriesXMLFilenameMatcher = svnEntriesXMLFilenamePattern.matcher(responseMessage.getRequestHeader().getURI().getPath());
+		} catch (URIException e) {
+			log.error(e);
+			return true;
+		}				
+		if ( svnEntriesXMLFilenameMatcher.find() )
+			return false;
+		
+		// Check response type.
 		if (!responseMessage.getResponseHeader().isText()) {
 			if (log.isDebugEnabled()) {
 				log.debug("Resource is not text: " + responseMessage.getRequestHeader().getURI());
