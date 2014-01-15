@@ -18,7 +18,16 @@
 package org.zaproxy.zap.spider.parser;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,12 +47,15 @@ import org.xml.sax.SAXException;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /**
- * The Class SpiderSVNEntriesParser is used for parsing SVN "entries" files.
+ * The Class SpiderSVNEntriesParser is used for parsing SVN metadata, inclusing SVN "entries" and "wc.db" files.
  * @author 70pointer
  *
  */
 public class SpiderSVNEntriesParser extends SpiderParser {
-	 /* this class was Cloned from SpiderRobotstxtParser, by Cosmin. Credit where credit is due. */
+	/* this class was Cloned from SpiderRobotstxtParser, by Cosmin. Credit where credit is due. */
+	
+	/** a pattern to match for SQLite based file (in ".svn/wc.db") */
+	private static final Pattern svnSQLiteFormatPattern = Pattern.compile ("^SQLite format ");
 	
 	/** a pattern to match for XML based entries files */
 	private static final Pattern svnXMLFormatPattern = Pattern.compile("<wc-entries");
@@ -85,30 +97,102 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 		if (message == null || !params.isParseSVNEntries()) {
 			return;
 		}
-
 		// Get the response content
 		String content = message.getResponseBody().toString();
 
 		// Get the context (base url)
 		String baseURL = message.getRequestHeader().getURI().toString();
-		
-		
-		//there are (at least) 2 formats of ".svn/entries" file. 
+				
+		//there are 2 major formats of ".svn/entries" file. 
 		//An XML version is used up to (and including) SVN 1.2
-		//from SVN 1.3, a text based version is used.
-		//In fact, the ".svn/entries" file disappeared in SVN 1.6.something, in favour of 
-		//a file called ".svn/wc.db" sqlite database. But i digress..
+		//from SVN 1.3, a more space efficient text based version is used.
+		//The ".svn/entries" file format disappeared in SVN 1.6.something, in favour of 
+		//a file called ".svn/wc.db" continaing a sqlite database, so we parse this here as well.
 		
-		//which format are we dealing with? XML or text based?
+		//which format are we parsing
+		Matcher svnSQLiteFormatMatcher = svnSQLiteFormatPattern.matcher(content);
 		Matcher svnXMLFormatMatcher = svnXMLFormatPattern.matcher(content);
-		if (svnXMLFormatMatcher.find()) {
+		if (svnSQLiteFormatMatcher.find()) {
+			//SQLite format is being used, ( >= SVN 1.6)			
+			File tempSqliteFile;
+			try {
+				//get the binary data, and put it in a temp file we can use with the SQLite JDBC driver
+				tempSqliteFile = File.createTempFile("sqlite", null);
+				tempSqliteFile.deleteOnExit();
+				OutputStream fos = new FileOutputStream (tempSqliteFile);
+				fos.write(message.getResponseBody().getBytes());
+				fos.close();
+				
+				if ( log.isDebugEnabled() ) {
+					org.sqlite.JDBC jdbcDriver = new org.sqlite.JDBC();
+					log.debug ("Created a temporary SQLite database file '"+ tempSqliteFile+ "'");				
+					log.debug("SQLite JDBC Driver is version " + jdbcDriver.getMajorVersion() + "." + jdbcDriver.getMinorVersion());
+					}
+
+				//now load the temporary SQLite file using JDBC, and query the file entries within.
+				Class.forName("org.sqlite.JDBC"); 
+				String sqliteConnectionUrl = "jdbc:sqlite:" + tempSqliteFile.getAbsolutePath();
+				
+				Connection conn = DriverManager.getConnection(sqliteConnectionUrl);				
+				if (conn != null) {
+					Statement stmt = conn.createStatement();
+					
+					//get the precise internal version of SVN in use.  
+					//this will inform how the Spider recurse should proceed in an efficient manner.
+					int svnFormat = 0;
+					ResultSet rsSVNVersion = stmt.executeQuery("pragma USER_VERSION");
+					while (rsSVNVersion.next()) {
+						svnFormat = rsSVNVersion.getInt(1);
+						break;
+					}
+					if ( log.isDebugEnabled() ) {
+						log.debug("Internal SVN version for "+ tempSqliteFile + " is "+ svnFormat);
+						log.debug("Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
+					}
+					
+					//now get the list of files stored in the SVN repo (or this folder of the repo, depending the SVN version) 
+					ResultSet rs = stmt.executeQuery("select kind,repos_path from nodes order by wc_id");
+					while (rs.next()) {
+						String kind = rs.getString(1);
+						String repos_path = rs.getString(2);
+
+						if ( repos_path != null && repos_path.length() > 0 ) {
+							log.debug("Found a file/directory name in the (SQLite based) SVN >= 1.6 wc.db file");
+
+							processURL(message, depth, "../" + repos_path + (kind.equals("dir")?"/":""), baseURL);
+	
+							//re-seed the spider for this directory.
+							//depending on the precise SVN version in use, there will either be just one "wc.db" file 
+							//in the repository root directory, or there will be a "wc.db" file
+							//in every directory associated with the repository, in which case, we need to recurse.
+							if ( kind.equals("dir") && svnFormat < 19) {
+								processURL(message, depth, "../" + repos_path + "/.svn/wc.db", baseURL);
+							}
+						}
+					}					
+					rs.close();
+					stmt.close();
+				} else 
+					throw new SQLException ("Could not open a JDBC connection to SQLite file "+ tempSqliteFile.getAbsolutePath());
+				
+				//close the db connection, and delete the temp file.
+				//this will be deleted when the VM is shut down anyway, but better to be safe than to run out of disk space.
+				conn.close();
+				tempSqliteFile.delete();
+
+			} catch (IOException | ClassNotFoundException | SQLException e) {
+				log.error("An error occurred trying to parse the SQLite based file: "+ e);
+				return;
+			}
+			
+		} else if (svnXMLFormatMatcher.find()) {
 			//XML format is being used, ( < SVN 1.3)
 			Document doc;
 			try {
 				//work around the "no protocol" issue by wrapping the content in a ByteArrayInputStream
 				doc = dBuilder.parse(new InputSource(new ByteArrayInputStream(content.getBytes("utf-8"))));
 			} catch (SAXException | IOException e) {
-				log.error("An error occurred trying to parse the XML based .svn/entries file: "+ e.getMessage());
+				log.error("An error occurred trying to parse the XML based .svn/entries file: "+ e);
 				return;
 			}
 			NodeList nodelist = doc.getElementsByTagName("entry");
@@ -117,7 +201,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				String svnEntryName = ((Element)svnEntryNode).getAttribute("name");
 				String svnEntryKind = ((Element)svnEntryNode).getAttribute("kind");
 				
-				if ( svnEntryName != null && svnEntryName.length() > 0 )
+				if ( svnEntryName != null && svnEntryName.length() > 0 ) {
 					log.debug("Found a file/directory name in the (XML based) SVN < 1.3 entries file");
 				
 					processURL(message, depth, "../" + svnEntryName + (svnEntryKind.equals("dir")?"/":""), baseURL);
@@ -126,6 +210,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 					if ( svnEntryKind.equals("dir") ) {
 						processURL(message, depth, "../" + svnEntryName + "/.svn/entries", baseURL);
 					}
+				}
 			}
 		}
 		else	{			
@@ -146,7 +231,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 						//filetype is "dir" or "file", as per the contents of the SVN file.
 						String filetype  = matcher.group(0);
 						//the previous line actually contains the file/directory name.
-						if ( previousline != null && previousline.length() > 0 )
+						if ( previousline != null && previousline.length() > 0 ) {
 							log.debug("Found a file/directory name in the (text based) SVN 1.3/1.4/1.5/1.6 SVN entries file");
 						
 							processURL(message, depth, "../" + previousline + (filetype.equals("dir")?"/":""), baseURL);
@@ -155,6 +240,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 							if ( filetype.equals("dir") ) {
 								processURL(message, depth, "../" + previousline + "/.svn/entries", baseURL);
 							}
+						}
 					} 
 				}
 				//last thing to do is to record the line as the previous line for the next iteration.
