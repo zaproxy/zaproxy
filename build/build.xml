@@ -168,6 +168,11 @@
             <classpath>
                 <fileset dir="${dist}/lib">
                     <include name="**/*.jar" />
+                    <exclude name="**/JBroFuzz.jar"/>
+                </fileset>
+                <!-- include JBroFuzz.jar at the end of the classpath, since it has old versions of SQLite that cause issues -->
+				<fileset dir="${dist}/lib">
+                    <include name="**/JBroFuzz.jar"/>
                 </fileset>
                 <!--path location="lang"/-->
             </classpath>
