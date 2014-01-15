@@ -217,8 +217,8 @@ public class Spider {
 		// And add '.svn/entries' as a seed, for SVN based spidering
 		if (getSpiderParam().isParseSVNEntries()) {
 			try {
-				// Build the URI of the SVN entries file
-				URI svnEntriesURI;
+				// Build the URIs of the SVN files
+				URI svnEntriesURI1, svnEntriesURI2;
 				// If the port is not 80 or 443, add it to the URI
 				// SVN entries can exist in multiple directories, so make sure to add in the full path.
 				String fullpath = uri.getPath();
@@ -226,18 +226,21 @@ public class Spider {
 				
 				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
 				
-				//if it's not an svn folder, add the seed.
+				//if it's not an svn folder, add the seeds.
 				Matcher matcherSvnUrl = svnUrlPattern.matcher(pathminusfilename);
 				if (! matcherSvnUrl.find()) {
 					if (uri.getPort() == 80 || uri.getPort() == 443) {
-						svnEntriesURI = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".svn/entries", true);
+						svnEntriesURI1 = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".svn/entries", true);
+						svnEntriesURI2 = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".svn/wc.db", true);
 					} else {
-						svnEntriesURI = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".svn/entries", true);
+						svnEntriesURI1 = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".svn/entries", true);
+						svnEntriesURI2 = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".svn/wc.db", true);
 					}
-					this.seedList.add(svnEntriesURI);
+					this.seedList.add(svnEntriesURI1);
+					this.seedList.add(svnEntriesURI2);
 				}
 			} catch (Exception e) {
-				log.warn("Error while creating a seed URI for the SVN entries file for site " + uri, e);
+				log.warn("Error while creating a seed URI for the SVN files for site " + uri, e);
 			}
 		}
 
