@@ -63,7 +63,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 	private static final Pattern svnTextFormatFileOrDirectoryPattern = Pattern.compile("^(file|dir)$"); //case sensitive
 	
 	/** matches the lines containing the repo location  */
-	private static final Pattern svnTextFormatRepoLocationPattern = Pattern.compile("^(http://|https://)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern svnRepoLocationPattern = Pattern.compile("^(http://|https://)", Pattern.CASE_INSENSITIVE);
 	
 		
 	/** The Spider parameters. */
@@ -177,11 +177,15 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 					//get additional information on where the SVN repository is located
 					ResultSet rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
 					while (rsRepo.next()) {
-						String repos_path = rs.getString(1);
+						String repos_path = rs.getString(1);						
 						if ( repos_path != null && repos_path.length() > 0 ) {
-							log.debug("Found an SVN repository location in the (SQLite based) SVN >= 1.6 wc.db file");
-
-							processURL(message, depth, repos_path + "/", baseURL);	
+							//exclude local repositories here.. we cannot retrieve or spider them
+							Matcher repoMatcher = svnRepoLocationPattern.matcher(repos_path);
+							if ( repoMatcher.find() ) {
+								log.debug("Found an SVN repository location in the (SQLite based) SVN >= 1.6 wc.db file");
+	
+								processURL(message, depth, repos_path + "/", baseURL);	
+							}
 						}
 					}
 					
@@ -228,9 +232,13 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 						processURL(message, depth, "../" + svnEntryName + "/.svn/entries", baseURL);
 					}
 				} else if ( svnEntryName != null && svnEntryName.length() == 0 && svnEntryKind.equals("dir") ) {
-					log.debug("Found an SVN repository location in the (XML based) SVN < 1.3 entries file");
-					
-					processURL(message, depth, svnEntryUrl + "/", baseURL);
+					//exclude local repositories here.. we cannot retrieve or spider them
+					Matcher repoMatcher = svnRepoLocationPattern.matcher(svnEntryUrl);
+					if ( repoMatcher.find() ) {
+						log.debug("Found an SVN repository location in the (XML based) SVN < 1.3 entries file");
+						
+						processURL(message, depth, svnEntryUrl + "/", baseURL);
+					}
 				}
 			}
 		}
@@ -264,7 +272,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 						}
 					} else {
 						//not a "file" or "dir" line, but it may contain details of the SVN repo location
-						Matcher repoMatcher = svnTextFormatRepoLocationPattern.matcher(line);
+						Matcher repoMatcher = svnRepoLocationPattern.matcher(line);
 						if (repoMatcher.find()) {
 							log.debug("Found an SVN repository location in the (text based) SVN 1.3/1.4/1.5/1.6 SVN entries file");
 							
