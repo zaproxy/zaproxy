@@ -41,11 +41,16 @@ public class DefaultParseFilter extends ParseFilter {
 	 * big for a parsable file.
 	 */
 	public static final int MAX_RESPONSE_BODY_SIZE = 512000;
-	
+
+	/**
+	 * a pattern to match the SQLite based ".svn/wc.db" file name.
+	 */
+	private static final Pattern svnSQLiteFilenamePattern = Pattern.compile (".*/\\.svn/wc.db$");
+
 	/**
 	 * a pattern to match the XML based ".svn/entries" file name.
 	 */
-	private static final Pattern svnEntriesXMLFilenamePattern = Pattern.compile (".*/\\.svn/entries$");
+	private static final Pattern svnXMLFilenamePattern = Pattern.compile (".*/\\.svn/entries$");
 
 	@Override
 	public boolean isFiltered(HttpMessage responseMessage) {
@@ -62,15 +67,17 @@ public class DefaultParseFilter extends ParseFilter {
 		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
 			return false;
 
-		//if it's a file called "<possibly something>/.svn/entries", the SVN Entries parser will process it (regardless of type)
-		Matcher svnEntriesXMLFilenameMatcher;
+		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries parser will process it (regardless of type)
+		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher;
 		try {
-			svnEntriesXMLFilenameMatcher = svnEntriesXMLFilenamePattern.matcher(responseMessage.getRequestHeader().getURI().getPath());
+			String fullfilename = responseMessage.getRequestHeader().getURI().getPath();
+			svnSQLiteFilenameMatcher = svnSQLiteFilenamePattern.matcher(fullfilename);
+			svnXMLFilenameMatcher = svnXMLFilenamePattern.matcher(fullfilename);
 		} catch (URIException e) {
 			log.error(e);
 			return true;
 		}				
-		if ( svnEntriesXMLFilenameMatcher.find() )
+		if ( svnSQLiteFilenameMatcher.find() || svnXMLFilenameMatcher.find() )
 			return false;
 		
 		// Check response type.
