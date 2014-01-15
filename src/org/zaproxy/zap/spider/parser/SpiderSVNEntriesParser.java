@@ -24,7 +24,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -62,6 +61,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 
 	/** matches the entry *after* the line containing the file name */
 	private static final Pattern svnTextFormatFileOrDirectoryPattern = Pattern.compile("^(file|dir)$"); //case sensitive
+	
+	/** matches the lines containing the repo location  */
+	private static final Pattern svnTextFormatRepoLocationPattern = Pattern.compile("^(http://|https://)", Pattern.CASE_INSENSITIVE);
+	
 		
 	/** The Spider parameters. */
 	private SpiderParam params;
@@ -169,8 +172,21 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 								processURL(message, depth, "../" + repos_path + "/.svn/wc.db", baseURL);
 							}
 						}
-					}					
+					}
+					
+					//get additional information on where the SVN repository is located
+					ResultSet rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
+					while (rsRepo.next()) {
+						String repos_path = rs.getString(1);
+						if ( repos_path != null && repos_path.length() > 0 ) {
+							log.debug("Found an SVN repository location in the (SQLite based) SVN >= 1.6 wc.db file");
+
+							processURL(message, depth, repos_path + "/", baseURL);	
+						}
+					}
+					
 					rs.close();
+					rsRepo.close();
 					stmt.close();
 				} else 
 					throw new SQLException ("Could not open a JDBC connection to SQLite file "+ tempSqliteFile.getAbsolutePath());
@@ -200,6 +216,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				Node svnEntryNode = nodelist.item(i);				
 				String svnEntryName = ((Element)svnEntryNode).getAttribute("name");
 				String svnEntryKind = ((Element)svnEntryNode).getAttribute("kind");
+				String svnEntryUrl = ((Element)svnEntryNode).getAttribute("url");
 				
 				if ( svnEntryName != null && svnEntryName.length() > 0 ) {
 					log.debug("Found a file/directory name in the (XML based) SVN < 1.3 entries file");
@@ -210,6 +227,10 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 					if ( svnEntryKind.equals("dir") ) {
 						processURL(message, depth, "../" + svnEntryName + "/.svn/entries", baseURL);
 					}
+				} else if ( svnEntryName != null && svnEntryName.length() == 0 && svnEntryKind.equals("dir") ) {
+					log.debug("Found an SVN repository location in the (XML based) SVN < 1.3 entries file");
+					
+					processURL(message, depth, svnEntryUrl + "/", baseURL);
 				}
 			}
 		}
@@ -241,8 +262,17 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 								processURL(message, depth, "../" + previousline + "/.svn/entries", baseURL);
 							}
 						}
+					} else {
+						//not a "file" or "dir" line, but it may contain details of the SVN repo location
+						Matcher repoMatcher = svnTextFormatRepoLocationPattern.matcher(line);
+						if (repoMatcher.find()) {
+							log.debug("Found an SVN repository location in the (text based) SVN 1.3/1.4/1.5/1.6 SVN entries file");
+							
+							processURL(message, depth, line + "/", baseURL);
+						}
+						
 					} 
-				}
+				} 
 				//last thing to do is to record the line as the previous line for the next iteration.
 				previousline = line;
 			}
