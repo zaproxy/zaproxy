@@ -202,7 +202,7 @@ public class SpiderController implements SpiderParserListener {
 	public List<SpiderParser> getParsers(HttpMessage message) {
 		
 		//matches the file name of files that should be parsed with the SVN entries file parser 
-		Pattern svnEntriesFile = Pattern.compile("/\\.svn/entries$");
+		Pattern svnEntriesFile = Pattern.compile("/\\.svn/entries$|/\\.svn/wc.db$");
 
 		// Get the full path of the file
 		String path = null;
@@ -232,9 +232,8 @@ public class SpiderController implements SpiderParserListener {
 		// is SVN entries file parsing enabled, and are we parsing SVN entries file?
 		if (spider.getSpiderParam().isParseSVNEntries()) {
 			Matcher matcher = svnEntriesFile.matcher(path);
-			if (matcher.find()) {
-			
-				log.info("Parsing an SVN entries resource...");
+			if (matcher.find()) {			
+				log.info("Parsing an SVN resource...");
 				SpiderParser parser = new SpiderSVNEntriesParser(spider.getSpiderParam());
 				parser.addSpiderParserListener(this);
 				List<SpiderParser> svnEntriesParsers = new LinkedList<>();
