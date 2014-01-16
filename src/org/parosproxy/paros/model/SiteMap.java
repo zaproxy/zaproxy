@@ -31,6 +31,7 @@
 // ZAP: 2013/01/29 Handle structural nodes in findNode
 // ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
+// ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
 
 package org.parosproxy.paros.model;
 
@@ -43,6 +44,7 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
+import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
@@ -232,6 +234,7 @@ public class SiteMap extends DefaultTreeModel {
     /**
      * Add the HistoryReference into the SiteMap.
      * This method will rely on reading message from the History table.
+     * Note that this method must only be called on the EventDispatchThread
      * @param ref
      */
     public synchronized SiteNode addPath(HistoryReference ref) {
@@ -252,10 +255,15 @@ public class SiteMap extends DefaultTreeModel {
      * Add the HistoryReference with the corresponding HttpMessage into the SiteMap.
      * This method saves the msg to be read from the reference table.  Use 
      * this method if the HttpMessage is known.
+     * Note that this method must only be called on the EventDispatchThread
      * @param msg
      * @return 
      */
-    public synchronized SiteNode addPath(HistoryReference ref, HttpMessage msg) {
+    public SiteNode addPath(HistoryReference ref, HttpMessage msg) {
+    	if (! SwingUtilities.isEventDispatchThread()) {
+    		// Log an error but carry on anyway
+    		log.error("SiteMap.addPath not on EDT", new Exception());
+    	}
         
         URI uri = msg.getRequestHeader().getURI();
         log.debug("addPath " + uri.toString());
@@ -405,7 +413,7 @@ public class SiteMap extends DefaultTreeModel {
         return node;
     }
     
-    private String getLeafName(String nodeName, HttpMessage msg) {
+	private String getLeafName(String nodeName, HttpMessage msg) {
         // add \u007f to make GET/POST node appear at the end.
         //String leafName = "\u007f" + msg.getRequestHeader().getMethod()+":"+nodeName;
         String leafName = msg.getRequestHeader().getMethod()+":"+nodeName;

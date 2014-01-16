@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -411,8 +412,24 @@ public class Context {
 		this.postParamParser = postParamParser;
 	}
 
-	
 	public void restructureSiteTree() {
+        if (EventQueue.isDispatchThread()) {
+        	restructureSiteTreeEventHandler();
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	restructureSiteTreeEventHandler();
+                    }
+                });
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+            }
+        }
+	}
+	
+	private void restructureSiteTreeEventHandler() {
 		log.debug("Restructure site tree for context: " + this.getName());
 		
 		HttpMessage msg;
@@ -425,14 +442,10 @@ public class Context {
 				if (msg != null) {
 					sn2 = session.getSiteTree().findNode(msg, sn.getChildCount() > 0);
 					if (sn2 == null) {
-						System.out.println("SiteNode " + sn.getHierarchicNodeName() + " moved!");
-						
 						sn2 = session.getSiteTree().addPath(sn.getHistoryReference(), msg);
 					}
 						
 					if (! sn2.equals(sn)) {
-						System.out.println("SiteNode " + sn.getHierarchicNodeName() + " (" + sn.hashCode() + ")" +
-								" moved to " + sn2.getHierarchicNodeName() + " (" + sn2.hashCode() + ")");
 						// TODO: Might be better in a 'merge'? Do we need to copy other things, list custom icons? 
 						for (Alert alert : sn.getAlerts()) {
 							sn2.addAlert(alert);
@@ -440,16 +453,12 @@ public class Context {
 						for (Alert alert : sn.getAlerts()) {
 							sn.deleteAlert(alert);
 						}
-						
 						session.getSiteTree().removeNodeFromParent(sn);
 					}
-					
 				}
-
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
 			}
-			
 		}
 	}
 

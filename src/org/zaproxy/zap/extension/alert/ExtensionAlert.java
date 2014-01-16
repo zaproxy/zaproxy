@@ -134,13 +134,29 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
     }
 
-    private void siteNodeChanged(TreeNode node) {
+    private void siteNodeChanged(final TreeNode node) {
+        if (EventQueue.isDispatchThread()) {
+        	siteNodeChangedEventHandler(this.getModel().getSession().getSiteTree(), node);
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	siteNodeChangedEventHandler(getModel().getSession().getSiteTree(), node);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private void siteNodeChangedEventHandler(SiteMap siteTree, TreeNode node) {
         if (node == null) {
             return;
         }
-        SiteMap siteTree = this.getModel().getSession().getSiteTree();
         siteTree.nodeChanged(node);
-        siteNodeChanged(node.getParent());
+        siteNodeChangedEventHandler(siteTree, node.getParent());
     }
 
     private void addAlertToTree(final Alert alert, final HistoryReference ref, final HttpMessage msg) {

@@ -18,6 +18,7 @@
  */
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.EventQueue;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -319,18 +320,24 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	}
 
 	@Override
-	public void readURI(HttpMessage msg) {
+	public void readURI(final HttpMessage msg) {
 		// Add the read message to the Site Tree
-		SiteMap siteTree = extension.getModel().getSession().getSiteTree();
-		HistoryReference historyRef = null;
+		final SiteMap siteTree = extension.getModel().getSession().getSiteTree();
 		try {
-			historyRef = new HistoryReference(extension.getModel().getSession(),
+			final HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(),
 					HistoryReference.TYPE_SPIDER, msg);
 			// // Use custom icon for robots.txt file
 			// if (msg.getRequestHeader().getURI().getPath().equalsIgnoreCase("/robots.txt"))
 			// historyRef.setCustomIcon("/resource/icon/10/189.png", false);
 
-			siteTree.addPath(historyRef, msg);
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+        			siteTree.addPath(historyRef, msg);
+                }
+            });
+			
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

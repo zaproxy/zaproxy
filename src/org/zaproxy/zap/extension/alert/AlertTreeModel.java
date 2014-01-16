@@ -19,8 +19,11 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import java.awt.EventQueue;
+
 import javax.swing.tree.DefaultTreeModel;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
 
@@ -29,6 +32,8 @@ class AlertTreeModel extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 1L;
 	
+    private static Logger logger = Logger.getLogger(AlertTreeModel.class);
+
     AlertTreeModel() {
         super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title")));
     }
@@ -41,13 +46,24 @@ class AlertTreeModel extends DefaultTreeModel {
 		return "<html><!--" + (5 - alert.getRisk()) + "--><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
     }
     
-    /**
-     * 
-     * @param msg
-     * @return true if the node is added.  False if not.
-     */
-    synchronized void addPath(Alert alert) {
-        
+    void addPath(final Alert alert) {
+        if (EventQueue.isDispatchThread()) {
+        	addPathEventHandler(alert);
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	addPathEventHandler(alert);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
+    private synchronized void addPathEventHandler(Alert alert) {
         AlertNode parent = (AlertNode) getRoot();
         String alertNodeName = getRiskString(alert);
     
@@ -58,8 +74,9 @@ class AlertTreeModel extends DefaultTreeModel {
         	method = alert.getMethod() + ": ";
         }
         findAndAddLeaf(parent, method + alert.getUri(), alert);
+    	
     }
-    
+
     private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert) {
         for (int i=0; i<parent.getChildCount(); i++) {
             AlertNode child = (AlertNode) parent.getChildAt(i);
@@ -80,7 +97,24 @@ class AlertTreeModel extends DefaultTreeModel {
     	return null;
     }
     
-    synchronized void updatePath(Alert originalAlert, Alert alert) {
+    void updatePath(final Alert originalAlert, final Alert alert) {
+        if (EventQueue.isDispatchThread()) {
+        	updatePathEventHandler(originalAlert, alert);
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	updatePathEventHandler(originalAlert, alert);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
+    private synchronized void updatePathEventHandler(Alert originalAlert, Alert alert) {
 
         AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
         if (node != null) {
@@ -100,8 +134,6 @@ class AlertTreeModel extends DefaultTreeModel {
         // Add it back in again
         this.addPath(alert);
     }
-    
- 
     
     private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
         AlertNode result = findChild(parent, nodeName);
@@ -152,15 +184,32 @@ class AlertTreeModel extends DefaultTreeModel {
         return result;
     }
     
-    private void nodesChanged(AlertNode node) {
+    private void nodesChanged(final AlertNode node) {
+        if (EventQueue.isDispatchThread()) {
+        	nodesChangedEventHandler(node);
+        } else {
+            try {
+                EventQueue.invokeLater(new Runnable() {
+                    @Override
+                    public void run() {
+                    	nodesChangedEventHandler(node);
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
+    private void nodesChangedEventHandler(AlertNode node) {
     	// Loop up as parent node names include counts which might have changed
     	this.nodeChanged(node);
     	AlertNode parent = (AlertNode) node.getParent();
     	if (parent != null) {
-    		nodesChanged(parent);
+    		nodesChangedEventHandler(parent);
     	}
     }
-    
+
     private AlertNode findChild(AlertNode parent, String nodeName) {
         for (int i=0; i<parent.getChildCount(); i++) {
             AlertNode child = (AlertNode) parent.getChildAt(i);

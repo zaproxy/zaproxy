@@ -102,8 +102,8 @@ public class PopupMenuPurgeSites extends PopupMenuSiteNode {
                 if (extAlert != null) {
                     // Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
                     while (!node.getHistoryReference().getAlerts().isEmpty()) {
+                        // Note the alert is removed as a side effect
                         extAlert.deleteAlert(node.getHistoryReference().getAlerts().get(0));
-                        node.getHistoryReference().getAlerts().remove(0);
                     }
                 }
                 node.getHistoryReference().delete();

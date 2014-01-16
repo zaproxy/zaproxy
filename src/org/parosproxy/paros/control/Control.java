@@ -43,6 +43,7 @@
 // ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 // ZAP: 2013/09/16 Issue 791: Saved sessions are discarded on ZAP's exit
+// ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
 
 package org.parosproxy.paros.control;
 
@@ -53,6 +54,7 @@ import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JOptionPane;
+import javax.swing.SwingUtilities;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -295,11 +297,15 @@ public class Control extends AbstractControl implements SessionListener {
 	public Session newSession() {
 	    log.info("New Session");
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
-		Session session = model.newSession();
+		final Session session = model.newSession();
 		getExtensionLoader().sessionChangedAllPlugin(session);
 
 		if (View.isInitialised()) {
-			view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+				}
+			});
 			
 			// refresh display
 			view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
