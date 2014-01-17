@@ -41,6 +41,8 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.LookAndFeel;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -56,6 +58,10 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ScanProgressDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
+
+    // Default table background color
+    //private static final Color JTABLE_ALTERNATE_BACKGROUND = UIManager.getColor("Table.alternateRowColor");
+    private transient Color JTABLE_ALTERNATE_BACKGROUND = (Color)LookAndFeel.getDesktopPropertyValue("Table.alternateRowColor", new Color(0xf2f2f2));
     
     private JScrollPane jScrollPane = null;
     private JTable table;
@@ -189,7 +195,6 @@ public class ScanProgressDialog extends AbstractDialog {
             centerRenderer.setHorizontalAlignment(JLabel.CENTER);
             table.getColumnModel().getColumn(3).setPreferredWidth(80);                  
             table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
-            //table.getColumnModel().getColumn(3).setHeaderRenderer(centerRenderer);            
             
             // Fourth column is for plugin's completion and actions
             table.getColumnModel().getColumn(4).setPreferredWidth(40);                  
@@ -283,8 +288,7 @@ public class ScanProgressDialog extends AbstractDialog {
             
             // Set all general configurations
             result.setOpaque(true);
-            // result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
-            result.setBackground(new Color(242,242,242));
+            result.setBackground(JTABLE_ALTERNATE_BACKGROUND);
             
             return result;
         }
@@ -327,8 +331,7 @@ public class ScanProgressDialog extends AbstractDialog {
          
             // Set all general configurations
             result.setOpaque(true);
-            //result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
-            result.setBackground(new Color(242,242,242));
+            result.setBackground(JTABLE_ALTERNATE_BACKGROUND);
             
             return result;
         }
