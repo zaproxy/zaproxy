@@ -33,9 +33,9 @@ public class ScanProgressTableModel extends AbstractTableModel {
     private static final String[] columnNames = {
         Constant.messages.getString("ascan.progress.table.name"),
         Constant.messages.getString("ascan.policy.table.strength"),
-        Constant.messages.getString("ascan.progress.table.status"),
+        Constant.messages.getString("ascan.progress.table.progress"),
         Constant.messages.getString("ascan.progress.table.time"),
-        ""
+        Constant.messages.getString("ascan.progress.table.status"),
     };
     
     private List<ScanProgressItem> values;
