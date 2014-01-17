@@ -87,17 +87,37 @@ public class ScanProgressItem {
     /**
      *
      */
-    public String getElapsedTimeLabel() {
+    public long getElapsedTime() {
         if ((status == STATUS_PENDING) || (plugin.getTimeStarted() == null)) {
-            return "";
+            return -1;
         }
 
         Date end = (plugin.getTimeFinished() == null) ? new Date() : plugin.getTimeFinished();
-        long elapsed = end.getTime() - plugin.getTimeStarted().getTime();
-
-        return String.format("%02d:%02d.%03d", elapsed / 60000, (elapsed % 60000) / 1000, (elapsed % 1000));
+        return (end.getTime() - plugin.getTimeStarted().getTime());
     }
 
+    /**
+     * Get back the percentage of completion.
+     * Currently this is a fake percentage which set 50%
+     * when the plugin begins and 100% when finished...
+     * Should be improved using HostProcess informations regarding
+     * the overall nodes that need to be scanned and the current
+     * executions done...
+     * @return the percentage value from 0 to 100
+     */
+    public int getProgressPercentage()  {
+        // NEED TO BE IMPLEMENTED
+        if (isRunning()) {
+            return 50;
+            
+        } else if (isCompleted()) {
+            return 100;        
+            
+        } else {
+            return 0;
+        }
+    }
+    
     /**
      * 
      * @return 

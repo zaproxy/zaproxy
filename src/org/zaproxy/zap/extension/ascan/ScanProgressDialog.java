@@ -19,49 +19,68 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
 
 import javax.swing.AbstractAction;
+import javax.swing.Box;
 import javax.swing.JComponent;
+import javax.swing.JLabel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumnModel;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.HostProcess;
-import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/**
+ * Dialog reviewed for a new lifestyle...
+ * @author yhawke (2014)
+ */
 public class ScanProgressDialog extends AbstractDialog {
 
     private static final long serialVersionUID = 1L;
+    
     private JScrollPane jScrollPane = null;
-    private JTable table = null;
-    private ScanProgressTableModel model = new ScanProgressTableModel();
+    private JTable table;
+    private ScanProgressTableModel model;
+    
     private String site = null;
     private ActiveScan scan = null;
     private boolean stopThread = false;
 
+    /**
+     * 
+     * @param owner
+     * @param site 
+     */
     public ScanProgressDialog(Frame owner, String site) {
         super(owner, false);
         this.site = site;
         this.initialize();
     }
 
+    /**
+     * 
+     */
     private void initialize() {
         this.setLayout(new GridBagLayout());
-        this.setSize(new Dimension(500, 500));
+        this.setSize(new Dimension(560, 504));
 
         if (site != null) {
             this.setTitle(MessageFormat.format(
@@ -125,10 +144,14 @@ public class ScanProgressDialog extends AbstractDialog {
         });
     }
 
+    /**
+     * Get the dialog scroll panel
+     * @return the panel
+     */
     private JScrollPane getJScrollPane() {
         if (jScrollPane == null) {
             jScrollPane = new JScrollPane();
-            jScrollPane.setViewportView(getTable());
+            jScrollPane.setViewportView(getMainPanel());
             jScrollPane.setName("ScanProgressScrollPane");
             jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
@@ -138,73 +161,68 @@ public class ScanProgressDialog extends AbstractDialog {
         return jScrollPane;
     }
 
-    private JTable getTable() {
-        if (table == null) {
+    /**
+     * Get the main content panel of the dialog
+     * @return the main panel
+     */
+    private JTable getMainPanel() {
+        if (table == null) {            
+            model = new ScanProgressTableModel();
+            
             table = new JTable();
-            table.setModel(this.model);
-            table.getColumnModel().getColumn(0).setPreferredWidth(300);
-            table.getColumnModel().getColumn(1).setPreferredWidth(100);
-            table.getColumnModel().getColumn(2).setPreferredWidth(100);
+            table.setModel(model);
+            table.setRowSelectionAllowed(false);
+            table.setColumnSelectionAllowed(false);
+            table.setDoubleBuffered(true);
+
+            // First column is for plugin's name
+            table.getColumnModel().getColumn(0).setPreferredWidth(256);
+            table.getColumnModel().getColumn(1).setPreferredWidth(80);
+
+            // Second column is for plugin's status
+            table.getColumnModel().getColumn(2).setPreferredWidth(80);
+            table.getColumnModel().getColumn(2).setCellRenderer(new ScanProgressBarRenderer());
+
+            // Third column is for plugin's elapsed time
+            DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
+            centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+            table.getColumnModel().getColumn(3).setPreferredWidth(80);                  
+            table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
+            //table.getColumnModel().getColumn(3).setHeaderRenderer(centerRenderer);            
+            
+            // Fourth column is for plugin's completion and actions
+            table.getColumnModel().getColumn(4).setPreferredWidth(40);                  
+            table.getColumnModel().getColumn(4).setCellRenderer(new ScanProgressActionRenderer());
+
+            ScanProgressActionListener listener = new ScanProgressActionListener(table);
+            table.addMouseListener(listener);
+            table.addMouseMotionListener(listener);
         }
         
         return table;
     }
-
-    private String getElapsedTime(Date start, Date end) {
-        if (start == null) {
-            return "";
-        
-        } else if (end == null) {
-            end = new Date();	// measure to now
-        }
-        
-        long elapsed = end.getTime() - start.getTime();
-
-        return String.format("%02d:%02d.%03d", elapsed / 60000, (elapsed % 60000) / 1000, (elapsed % 1000));
-    }
-
+    
+    /**
+     * Update the current Scan progress and
+     * prepare actions and scan summary
+     */
     private void showProgress() {
-        List<HostProcess> list = scan.getHostProcesses();
-        List<String[]> values = new ArrayList<>();
-        boolean completed = true;
+        // Start panel data settings
+        if (scan.getHostProcesses() != null) {
 
-        if (list != null) {
-            for (HostProcess hp : list) {
-                
-                for (Plugin plugin : hp.getCompleted()) {
-                    values.add(new String[]{plugin.getName(), Constant.messages.getString("ascan.progress.label.completed"),
-                        this.getElapsedTime(plugin.getTimeStarted(), plugin.getTimeFinished())});
-                }
-                
-                for (Plugin plugin : hp.getRunning()) {
-                    values.add(new String[]{plugin.getName(), Constant.messages.getString("ascan.progress.label.running"),
-                        this.getElapsedTime(plugin.getTimeStarted(), plugin.getTimeFinished())});
-                    
-                    completed = false;
-                }
-                
-                for (Plugin plugin : hp.getPending()) {
-                    values.add(new String[]{plugin.getName(), Constant.messages.getString("ascan.progress.label.pending"), ""});
-                    completed = false;
-                }
-            }
-            
-            // Special case - total elapsed time a and request count
-            values.add(new String[]{"", "", ""});	// Blank line, just to separate the totals
-            values.add(new String[]{Constant.messages.getString("ascan.progress.label.totalTime"), "",
-                this.getElapsedTime(this.scan.getTimeStarted(), this.scan.getTimeFinished())});
-            
-            values.add(new String[]{Constant.messages.getString("ascan.progress.label.requests"), "",
-                String.valueOf(this.scan.getTotalRequests())});
+            // Update the main table entries
+            model.updateValues(scan);
 
-            model.setValues(values);
-            
-            if (completed) {
+            if (model.isAllPluginsCompleted()) {
                 this.stopThread = true;
             }
         }
     }
 
+    /**
+     * Set the scan that need to be used for this dialog
+     * @param scan the active scan
+     */
     public void setActiveScan(ActiveScan scan) {
         this.scan = scan;
 
@@ -230,4 +248,193 @@ public class ScanProgressDialog extends AbstractDialog {
         
         thread.start();
     }
+
+    /**
+     * --------------------------------------------------
+     * Custom Renderer for the progress bar plugin column
+     * -------------------------------------------------- 
+     */
+    private class ScanProgressBarRenderer implements TableCellRenderer {
+
+        /**
+         *
+         * @param table
+         * @param value
+         * @param isSelected
+         * @param hasFocus
+         * @param row
+         * @param column
+         * @return
+         */
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            JComponent result;
+            if (value != null) {
+                ScanProgressItem item = (ScanProgressItem)value;                
+                JProgressBar bar = new JProgressBar();
+                bar.setMaximum(100);
+                bar.setValue(item.getProgressPercentage());                
+                result = bar;
+                
+            } else {
+                result = (JComponent)Box.createGlue();
+            }
+            
+            // Set all general configurations
+            result.setOpaque(true);
+            result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
+            
+            return result;
+        }
+    }    
+    
+    /**
+     * --------------------------------------------------
+     * Custom Renderer for the actions column (skipping)
+     * --------------------------------------------------
+     */
+    private class ScanProgressActionRenderer implements TableCellRenderer {
+        
+        /**
+         *
+         * @param table
+         * @param value
+         * @param isSelected
+         * @param hasFocus
+         * @param row
+         * @param column
+         * @return
+         */
+        @Override
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+            JComponent result;
+            if (value != null) {
+                ScanProgressActionIcon action = (ScanProgressActionIcon)value;                
+                if (action == model.getFocusedAction()) {
+                    action.setOver();
+                    
+                } else {
+                    action.setNormal();
+                }
+                
+                result = action;
+                
+            } else {
+                result = (JComponent)Box.createGlue();
+            }
+         
+            // Set all general configurations
+            result.setOpaque(true);
+            result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
+            
+            return result;
+        }
+    }
+
+    /**
+     * --------------------------------------------------
+     * Listener for all Action's management (skipping for now)
+     * --------------------------------------------------
+     */
+    private class ScanProgressActionListener implements MouseListener, MouseMotionListener {
+
+        private JTable table;
+
+        /**
+         * 
+         * @param table 
+         */
+        public ScanProgressActionListener(JTable table) {
+            this.table = table;
+        }
+
+        /**
+         * 
+         * @param e 
+         */
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            ScanProgressActionIcon action = getScanProgressAction(e);
+            if (action != null) {
+                action.invokeAction();
+            }            
+        }
+
+        @Override
+        public void mouseEntered(MouseEvent e) {
+        }
+
+        @Override
+        public void mouseExited(MouseEvent e) {
+        }
+
+        /**
+         * 
+         * @param e 
+         */
+        @Override
+        public void mousePressed(MouseEvent e) {
+            ScanProgressActionIcon action = getScanProgressAction(e);
+            if (action != null) {
+                action.setPressed();
+                action.repaint();
+            }
+        }
+
+        /**
+         * 
+         * @param e 
+         */
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            ScanProgressActionIcon action = getScanProgressAction(e);
+            if (action != null) {
+                action.setReleased();
+                action.repaint();
+            }
+        }
+
+        @Override
+        public void mouseDragged(MouseEvent me) {
+        }
+
+        /**
+         * 
+         * @param me 
+         */
+        @Override
+        public void mouseMoved(MouseEvent me) {
+            ScanProgressActionIcon action = getScanProgressAction(me);
+            if (action != null) {
+                model.setFocusedAction(action);
+                action.repaint();
+                
+            } else if (model.getFocusedAction() != null) {
+                model.setFocusedAction(action);
+                table.repaint();
+            }
+        }
+
+        /**
+         * 
+         * @param e
+         * @return 
+         */
+        private ScanProgressActionIcon getScanProgressAction(MouseEvent e) {
+            TableColumnModel columnModel = table.getColumnModel();
+            int column = columnModel.getColumnIndexAtX(e.getX());
+            int row = e.getY() / table.getRowHeight();
+
+            if ((row < table.getRowCount()) && (row >= 0) && 
+                (column < table.getColumnCount()) && (column >= 0)) {
+
+                Object value = table.getValueAt(row, column);
+                if (value instanceof ScanProgressActionIcon) {
+                    return (ScanProgressActionIcon)value;
+                }
+            }
+            
+            return null;
+        }        
+    }    
 }

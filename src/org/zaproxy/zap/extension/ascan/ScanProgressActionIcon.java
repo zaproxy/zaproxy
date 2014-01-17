@@ -33,7 +33,7 @@ import org.zaproxy.zap.ZAP;
 /**
  * Clickable helper class for actions
  */
-public class ScanProgressActionIcon extends JLabel implements MouseListener {
+public class ScanProgressActionIcon extends JLabel {
 
     private static final ImageIcon completedIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/10/102.png"));
     private static final ImageIcon skippedIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/10/150.png"));
@@ -59,63 +59,15 @@ public class ScanProgressActionIcon extends JLabel implements MouseListener {
         setHorizontalAlignment(SwingConstants.CENTER);
         setVerticalAlignment(SwingConstants.CENTER);
         setPreferredSize(new Dimension(CLICKABLE_ICON_WIDTH, CLICKABLE_ICON_HEIGHT));
+        changeIcon();
     }
 
     /**
      * 
-     * @param item
-     * @param container
-     * @param sx
-     * @param sy
-     * @param width
-     * @param height 
+     * @param item 
      */
-    public void updatePluginStatus(ScanProgressItem item, Container container, int sx, int sy, int width, int height) {
+    public void updateStatus(ScanProgressItem item) {
         this.item = item;
-
-        if (item.isRunning() && !item.isSkipped()) {
-
-            Point point = container.getMousePosition(true);
-            this.state = (point != null)
-                    && (sx <= point.x) && (point.x < sx + width)
-                    && (sy <= point.y) && (point.y < sy + height)
-                    ? STATE_FOCUSED : STATE_NORMAL;
-
-            addMouseListener(this);
-
-        } else {
-            removeMouseListener(this);
-        }
-
-        this.changeIcon();
-    }
-
-    /**
-     *
-     * @param container
-     * @param sx
-     * @param sy
-     * @param width
-     * @param height
-     */
-    public void initializeState(Container container, int sx, int sy, int width, int height) {
-
-        if (item.isRunning()) {
-            Point point = null;
-            try { // workaround for issue #146185, getMousePosition() may throw NPE
-                point = container.getMousePosition(true);
-
-            } catch (NullPointerException e) {
-            }
-
-            this.state = (point != null)
-                    && (sx <= point.x) && (point.x < sx + width)
-                    && (sy <= point.y) && (point.y < sy + height)
-                    ? STATE_FOCUSED : STATE_NORMAL;
-
-            addMouseListener(this);
-        }
-
         this.changeIcon();
     }
 
@@ -156,50 +108,41 @@ public class ScanProgressActionIcon extends JLabel implements MouseListener {
     /**
      * 
      */
-    private void invokeAction() {
+    public void invokeAction() {
         // do the Action
         item.skip();
     }
 
-    // **************************************************************************
-    // MouseListener
-    // **************************************************************************
-    @Override
-    public void mouseClicked(MouseEvent e) {
-        invokeAction();
-    }
-
-    @Override
-    public void mousePressed(MouseEvent e) {
+    /**
+     * 
+     */
+    public void setPressed() {
         state = STATE_PRESSED;
         changeIcon();
     }
 
-    @Override
-    public void mouseReleased(MouseEvent e) {
+    /**
+     * 
+     */
+    public void setReleased() {
         if (state == STATE_PRESSED) {
             state = STATE_FOCUSED;
             changeIcon();
         }
     }
 
-    @Override
-    public void mouseEntered(MouseEvent e) {
-        if ((e.getModifiersEx() & MouseEvent.BUTTON1_DOWN_MASK) != 0) {
-            state = STATE_NORMAL;
-
-        } else {
+    /**
+     * 
+     */
+    public void setOver() {
+        if (state == STATE_NORMAL) {
             state = STATE_FOCUSED;
+            changeIcon();
         }
-
-        //setFocusedPlugin();
-        changeIcon();
     }
 
-    @Override
-    public void mouseExited(MouseEvent e) {
+    public void setNormal() {
         state = STATE_NORMAL;
-        //setFocusedPlugin();
         changeIcon();
     }
 }
