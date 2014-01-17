@@ -20,6 +20,8 @@
 
 package org.zaproxy.zap.control;
 
+import java.util.Hashtable;
+
 /**
  * Used to override options in the configuration file.
  * @author psiinon
@@ -28,6 +30,7 @@ package org.zaproxy.zap.control;
 public class ControlOverrides {
 	private int proxyPort = -1;
 	private String proxyHost = null;
+	private Hashtable<String, String> configs = new Hashtable<String, String>();
 
 	public int getProxyPort() {
 		return proxyPort;
@@ -44,6 +47,12 @@ public class ControlOverrides {
 	public void setProxyHost(String proxyHost) {
 		this.proxyHost = proxyHost;
 	}
-	
-	
+
+	public Hashtable<String, String> getConfigs() {
+		return configs;
+	}
+
+	public void setConfigs(Hashtable<String, String> configs) {
+		this.configs = configs;
+	}
 }
