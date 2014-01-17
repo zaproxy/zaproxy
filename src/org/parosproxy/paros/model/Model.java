@@ -31,6 +31,7 @@
 // ZAP: 2013/08/27 Issue 772: Restructuring of Saving/Loading Context Data
 // ZAP: 2013/11/16 Issue 881: Fail immediately if zapdb.script file is not found
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
+// ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 
 package org.parosproxy.paros.model;
 
@@ -46,6 +47,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.xml.sax.SAXException;
+import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 
@@ -162,7 +164,7 @@ public class Model {
 	}
 
 
-	public void init() throws SAXException, IOException, Exception {
+	public void init(ControlOverrides overrides) throws SAXException, IOException, Exception {
 	    db = Database.getSingleton();
 	    
 	    createAndOpenUntitledDb();
@@ -171,7 +173,7 @@ public class Model {
 		HistoryReference.setTableTag(getDb().getTableTag());
 		HistoryReference.setTableAlert(getDb().getTableAlert());
 //		getOptionsParam().load(Constant.FILE_CONFIG);
-        getOptionsParam().load(Constant.getInstance().FILE_CONFIG);
+        getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 	}
 
 	

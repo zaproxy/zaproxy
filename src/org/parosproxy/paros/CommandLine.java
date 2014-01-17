@@ -27,6 +27,7 @@
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
+// ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 
 package org.parosproxy.paros;
 
@@ -55,6 +56,7 @@ public class CommandLine {
     public static final String HOST = "-host";
     public static final String CMD = "-cmd";
     public static final String INSTALL_DIR = "-installdir";
+    public static final String CONFIG = "-config";
 
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
@@ -65,6 +67,7 @@ public class CommandLine {
     private int port = -1;
     private String host = null;
     private String[] args = null;
+    private Hashtable<String, String> configs = new Hashtable<String, String>();
     private Hashtable<String, String> keywords = new Hashtable<String, String>();
     private Vector<CommandLineArgument[]> commandList = null;
     
@@ -288,6 +291,13 @@ public class CommandLine {
 	    } else if (checkPair(args, PORT, i)) {
 	    	this.port = Integer.parseInt(keywords.get(PORT));
 	        result = true;
+	    } else if (checkPair(args, CONFIG, i)) {
+	    	String pair = keywords.get(CONFIG);
+	    	if (pair != null && pair.indexOf("=") > 0) {
+	    		int eqIndex = pair.indexOf("=");
+	    		this.configs.put(pair.substring(0, eqIndex), pair.substring(eqIndex+1));
+		        result = true;
+	    	}
 	    }
 	    return result;
 	}
@@ -323,6 +333,10 @@ public class CommandLine {
 
 	public String getHost() {
 		return host;
+	}
+
+	public Hashtable<String, String> getConfigs() {
+		return configs;
 	}
 
 	public String getArgument(String keyword) {

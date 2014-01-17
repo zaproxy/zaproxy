@@ -24,11 +24,15 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 
 package org.parosproxy.paros.common;
 
+import java.util.Map.Entry;
+
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 public abstract class AbstractParam {
@@ -51,14 +55,25 @@ public abstract class AbstractParam {
     }
     
     public void load(String fileName) {
+    	this.load(fileName, null);
+    }
+    
+	public void load(String fileName, ControlOverrides overrides) {
         try {
             config = new ZapXmlConfiguration(fileName);
+            if (overrides != null) {
+                for (Entry<String,String> entry : overrides.getConfigs().entrySet()) {
+                	logger.info("Setting config " + entry.getKey() + " = " + entry.getValue() + 
+                			" was " + config.getString(entry.getKey()));
+                	config.setProperty(entry.getKey(), entry.getValue());
+                }
+            }
             parse();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
-    }
-    
+	}
+
     public FileConfiguration getConfig() {
         return config;
     } 
