@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -93,61 +93,62 @@ public class Autoupdate {
 		return api.callApi("autoupdate", "view", "optionReportAlphaAddons", map);
 	}
 
-	public ApiResponse downloadLatestRelease() throws ClientApiException {
+	public ApiResponse downloadLatestRelease(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("autoupdate", "action", "downloadLatestRelease", map);
 	}
 
-	public ApiResponse setOptionCheckOnStart(int i) throws ClientApiException {
+	public ApiResponse setOptionCheckOnStart(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("autoupdate", "action", "setOptionCheckOnStart", map);
 	}
 
-	public ApiResponse setOptionDownloadNewRelease(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionDownloadNewRelease(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionDownloadNewRelease", map);
 	}
 
-	public ApiResponse setOptionCheckAddonUpdates(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionCheckAddonUpdates(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionCheckAddonUpdates", map);
 	}
 
-	public ApiResponse setOptionInstallAddonUpdates(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionInstallAddonUpdates(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionInstallAddonUpdates", map);
 	}
 
-	public ApiResponse setOptionInstallScannerRules(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionInstallScannerRules(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionInstallScannerRules", map);
 	}
 
-	public ApiResponse setOptionReportReleaseAddons(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionReportReleaseAddons(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionReportReleaseAddons", map);
 	}
 
-	public ApiResponse setOptionReportBetaAddons(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionReportBetaAddons(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionReportBetaAddons", map);
 	}
 
-	public ApiResponse setOptionReportAlphaAddons(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionReportAlphaAddons(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));

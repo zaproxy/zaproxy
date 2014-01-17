@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@
 
 package org.zaproxy.clientapi.gen;
 
+import java.util.HashMap;
 import java.util.Map;
 import org.zaproxy.clientapi.core.ApiResponse;
 import org.zaproxy.clientapi.core.ClientApi;
@@ -43,6 +44,44 @@ public class Pscan {
 	public ApiResponse recordsToScan() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("pscan", "view", "recordsToScan", map);
+	}
+
+	public ApiResponse scanners() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("pscan", "view", "scanners", map);
+	}
+
+	public ApiResponse setEnabled(String apikey, String enabled) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("enabled", enabled);
+		return api.callApi("pscan", "action", "setEnabled", map);
+	}
+
+	public ApiResponse enableAllScanners(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		return api.callApi("pscan", "action", "enableAllScanners", map);
+	}
+
+	public ApiResponse disableAllScanners(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		return api.callApi("pscan", "action", "disableAllScanners", map);
+	}
+
+	public ApiResponse enableScanners(String apikey, String ids) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("ids", ids);
+		return api.callApi("pscan", "action", "enableScanners", map);
+	}
+
+	public ApiResponse disableScanners(String apikey, String ids) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("ids", ids);
+		return api.callApi("pscan", "action", "disableScanners", map);
 	}
 
 }

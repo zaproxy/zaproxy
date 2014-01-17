@@ -21,14 +21,15 @@ package org.zaproxy.clientapi.ant;
 
 import org.apache.tools.ant.BuildException;
 
-public class ActiveScanSiteTask extends ZapTask {
+public class ActiveScanSubtreeTask extends ZapTask {
 	
 	private String url;
+	private String apikey;
 	
 	@Override
 	public void execute() throws BuildException {
 		try {
-			this.getClientApi().activeScanSite(url);
+			this.getClientApi().ascan.scan(apikey, url, "true", "false");
 			
 		} catch (Exception e) {
 			throw new BuildException(e);
@@ -41,5 +42,13 @@ public class ActiveScanSiteTask extends ZapTask {
 
 	public void setUrl(String url) {
 		this.url = url;
+	}
+
+	public String getApikey() {
+		return apikey;
+	}
+
+	public void setApikey(String apikey) {
+		this.apikey = apikey;
 	}
 }

@@ -23,8 +23,10 @@ public class OptionsParamApi extends AbstractParam {
 
 	public static final String ENABLED = "api.enabled";
 	public static final String POST_ACTIONS = "api.postactions";
+	public static final String API_KEY = "api.key";
 	
 	private boolean enabled = false;
+	private String key = "";
 	//private boolean postActions = false;
 	
 	
@@ -35,6 +37,7 @@ public class OptionsParamApi extends AbstractParam {
     protected void parse() {
         
 	    enabled = getConfig().getBoolean(ENABLED, true);
+	    key = getConfig().getString(API_KEY, "");
 	    //postActions = getConfig().getBoolean(POST_ACTIONS, false);
     }
 
@@ -45,6 +48,15 @@ public class OptionsParamApi extends AbstractParam {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		getConfig().setProperty(ENABLED, enabled);
+	}
+
+	public String getKey() {
+		return key;
+	}
+
+	public void setKey(String key) {
+		this.key = key;
+		getConfig().setProperty(API_KEY, key);
 	}
 
 	/*

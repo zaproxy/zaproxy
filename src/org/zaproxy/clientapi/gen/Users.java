@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -68,7 +68,7 @@ public class Users {
 		return api.callApi("users", "view", "getAuthenticationCredentials", map);
 	}
 
-	public ApiResponse newUser(String contextid, String name) throws ClientApiException {
+	public ApiResponse newUser(String apikey, String contextid, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -76,7 +76,7 @@ public class Users {
 		return api.callApi("users", "action", "newUser", map);
 	}
 
-	public ApiResponse removeUser(String contextid, String userid) throws ClientApiException {
+	public ApiResponse removeUser(String apikey, String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -84,7 +84,7 @@ public class Users {
 		return api.callApi("users", "action", "removeUser", map);
 	}
 
-	public ApiResponse setUserEnabled(String contextid, String userid, String enabled) throws ClientApiException {
+	public ApiResponse setUserEnabled(String apikey, String contextid, String userid, String enabled) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -93,7 +93,7 @@ public class Users {
 		return api.callApi("users", "action", "setUserEnabled", map);
 	}
 
-	public ApiResponse setUserName(String contextid, String userid, String name) throws ClientApiException {
+	public ApiResponse setUserName(String apikey, String contextid, String userid, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -102,7 +102,7 @@ public class Users {
 		return api.callApi("users", "action", "setUserName", map);
 	}
 
-	public ApiResponse setAuthenticationCredentials(String contextid, String userid, String authcredentialsconfigparams) throws ClientApiException {
+	public ApiResponse setAuthenticationCredentials(String apikey, String contextid, String userid, String authcredentialsconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);

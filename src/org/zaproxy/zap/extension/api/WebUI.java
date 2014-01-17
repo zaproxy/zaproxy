@@ -23,6 +23,7 @@ import java.util.Set;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.API.Format;
 import org.zaproxy.zap.extension.api.API.RequestType;
 
@@ -215,6 +216,26 @@ public class WebUI {
 					sb.append("<option value=\"XML\">XML</option>\n");
 					sb.append("</select>\n");
 					sb.append("</td></tr>\n");
+				}
+				
+				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType)) {
+					String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
+					if (key != null && key.length() > 0) {
+						sb.append("<tr>");
+						sb.append("<td>");
+						sb.append(API.API_KEY_PARAM);
+						sb.append("*</td>");
+						sb.append("<td>");
+						sb.append("<input id=\"");
+						sb.append(API.API_KEY_PARAM);
+						sb.append("\" name=\"");
+						sb.append(API.API_KEY_PARAM);
+						sb.append("\" value=\"");
+						sb.append(key);
+						sb.append("\"></input>");
+						sb.append("</td>");
+						sb.append("</tr>\n");
+					}
 				}
 				
 				if (mandatoryParams != null) {

@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -53,21 +53,21 @@ public class Acsrf {
 		return api.callApi("acsrf", "view", "optionConfirmRemoveToken", map);
 	}
 
-	public ApiResponse addOptionToken(String string) throws ClientApiException {
+	public ApiResponse addOptionToken(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("acsrf", "action", "addOptionToken", map);
 	}
 
-	public ApiResponse removeOptionToken(String string) throws ClientApiException {
+	public ApiResponse removeOptionToken(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("acsrf", "action", "removeOptionToken", map);
 	}
 
-	public ApiResponse setOptionConfirmRemoveToken(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionConfirmRemoveToken(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
@@ -77,7 +77,7 @@ public class Acsrf {
 	/**
 	 * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
 	 */
-	public byte[] genForm(String hrefid) throws ClientApiException {
+	public byte[] genForm(String apikey, String hrefid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("hrefId", hrefid);

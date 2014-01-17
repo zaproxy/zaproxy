@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -76,6 +76,86 @@ public class Search {
 		map.put("start", start);
 		map.put("count", count);
 		return api.callApi("search", "view", "urlsByHeaderRegex", map);
+	}
+
+	public ApiResponse messagesByUrlRegex(String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApi("search", "view", "messagesByUrlRegex", map);
+	}
+
+	public ApiResponse messagesByRequestRegex(String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApi("search", "view", "messagesByRequestRegex", map);
+	}
+
+	public ApiResponse messagesByResponseRegex(String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApi("search", "view", "messagesByResponseRegex", map);
+	}
+
+	public ApiResponse messagesByHeaderRegex(String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApi("search", "view", "messagesByHeaderRegex", map);
+	}
+
+	public byte[] harByUrlRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApiOther("search", "other", "harByUrlRegex", map);
+	}
+
+	public byte[] harByRequestRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApiOther("search", "other", "harByRequestRegex", map);
+	}
+
+	public byte[] harByResponseRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApiOther("search", "other", "harByResponseRegex", map);
+	}
+
+	public byte[] harByHeaderRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("regex", regex);
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApiOther("search", "other", "harByHeaderRegex", map);
 	}
 
 }

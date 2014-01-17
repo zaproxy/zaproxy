@@ -37,7 +37,7 @@ public class PythonAPIGenerator {
 			"#\n" +
 			"# ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			"#\n" +
-			"# Copyright 2013 ZAP development team\n" +
+			"# Copyright the ZAP development team\n" +
 			"#\n" +
 			"# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			"# you may not use this file except in compliance with the License.\n" +
@@ -89,6 +89,11 @@ public class PythonAPIGenerator {
 			out.write("    @property\n");
 		}
 		out.write("    def " + createFunctionName(element.getName()) + "(self");
+		
+		if (type.equals("action") || type.equals("other")) {
+			// Always add the API key - we've no way of knowing if it will be required or not
+			out.write(", " + API.API_KEY_PARAM);
+		}
 
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {

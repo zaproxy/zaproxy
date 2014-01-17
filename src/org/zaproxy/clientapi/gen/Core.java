@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,13 @@ public class Core {
 		this.api = api;
 	}
 
+	public ApiResponse alert(String id) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("id", id);
+		return api.callApi("core", "view", "alert", map);
+	}
+
 	public ApiResponse alerts(String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -45,6 +52,13 @@ public class Core {
 		map.put("start", start);
 		map.put("count", count);
 		return api.callApi("core", "view", "alerts", map);
+	}
+
+	public ApiResponse numberOfAlerts(String baseurl) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("baseurl", baseurl);
+		return api.callApi("core", "view", "numberOfAlerts", map);
 	}
 
 	public ApiResponse hosts() throws ClientApiException {
@@ -62,6 +76,13 @@ public class Core {
 		return api.callApi("core", "view", "urls", map);
 	}
 
+	public ApiResponse message(String id) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("id", id);
+		return api.callApi("core", "view", "message", map);
+	}
+
 	public ApiResponse messages(String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -69,6 +90,13 @@ public class Core {
 		map.put("start", start);
 		map.put("count", count);
 		return api.callApi("core", "view", "messages", map);
+	}
+
+	public ApiResponse numberOfMessages(String baseurl) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("baseurl", baseurl);
+		return api.callApi("core", "view", "numberOfMessages", map);
 	}
 
 	public ApiResponse version() throws ClientApiException {
@@ -84,6 +112,21 @@ public class Core {
 	public ApiResponse homeDirectory() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "homeDirectory", map);
+	}
+
+	public ApiResponse reportTypes() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "reportTypes", map);
+	}
+
+	public ApiResponse report(String types, String sites, String contexts, String booleaninscope) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("types", types);
+		map.put("sites", sites);
+		map.put("contexts", contexts);
+		map.put("booleanInScope", booleaninscope);
+		return api.callApi("core", "view", "report", map);
 	}
 
 	public ApiResponse optionHttpStateEnabled() throws ClientApiException {
@@ -164,12 +207,13 @@ public class Core {
 	/**
 	 * Shuts down ZAP
 	 */
-	public ApiResponse shutdown() throws ClientApiException {
+	public ApiResponse shutdown(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("core", "action", "shutdown", map);
 	}
 
-	public ApiResponse newSession(String name, String overwrite) throws ClientApiException {
+	public ApiResponse newSession(String apikey, String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("name", name);
@@ -177,14 +221,14 @@ public class Core {
 		return api.callApi("core", "action", "newSession", map);
 	}
 
-	public ApiResponse loadSession(String name) throws ClientApiException {
+	public ApiResponse loadSession(String apikey, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("name", name);
 		return api.callApi("core", "action", "loadSession", map);
 	}
 
-	public ApiResponse saveSession(String name, String overwrite) throws ClientApiException {
+	public ApiResponse saveSession(String apikey, String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("name", name);
@@ -192,132 +236,163 @@ public class Core {
 		return api.callApi("core", "action", "saveSession", map);
 	}
 
-	public ApiResponse snapshotSession() throws ClientApiException {
+	public ApiResponse snapshotSession(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("core", "action", "snapshotSession", map);
 	}
 
-	public ApiResponse clearExcludedFromProxy() throws ClientApiException {
+	public ApiResponse clearExcludedFromProxy(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("core", "action", "clearExcludedFromProxy", map);
 	}
 
-	public ApiResponse excludeFromProxy(String regex) throws ClientApiException {
+	public ApiResponse excludeFromProxy(String apikey, String regex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
 		return api.callApi("core", "action", "excludeFromProxy", map);
 	}
 
-	public ApiResponse setHomeDirectory(String dir) throws ClientApiException {
+	public ApiResponse setHomeDirectory(String apikey, String dir) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("dir", dir);
 		return api.callApi("core", "action", "setHomeDirectory", map);
 	}
 
-	public ApiResponse generateRootCA() throws ClientApiException {
+	public ApiResponse generateRootCA(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("core", "action", "generateRootCA", map);
 	}
 
-	public ApiResponse setOptionProxyChainName(String string) throws ClientApiException {
+	public ApiResponse sendRequest(String apikey, String request, String followredirects) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("request", request);
+		map.put("followRedirects", followredirects);
+		return api.callApi("core", "action", "sendRequest", map);
+	}
+
+	public ApiResponse setOptionProxyChainName(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainName", map);
 	}
 
-	public ApiResponse setOptionProxyChainSkipName(String string) throws ClientApiException {
+	public ApiResponse setOptionProxyChainSkipName(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainSkipName", map);
 	}
 
-	public ApiResponse setOptionProxyChainRealm(String string) throws ClientApiException {
+	public ApiResponse setOptionProxyChainRealm(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainRealm", map);
 	}
 
-	public ApiResponse setOptionProxyChainUserName(String string) throws ClientApiException {
+	public ApiResponse setOptionProxyChainUserName(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainUserName", map);
 	}
 
-	public ApiResponse setOptionProxyChainPassword(String string) throws ClientApiException {
+	public ApiResponse setOptionProxyChainPassword(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainPassword", map);
 	}
 
-	public ApiResponse setOptionHttpStateEnabled(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionHttpStateEnabled(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionHttpStateEnabled", map);
 	}
 
-	public ApiResponse setOptionProxyChainPort(int i) throws ClientApiException {
+	public ApiResponse setOptionProxyChainPort(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("core", "action", "setOptionProxyChainPort", map);
 	}
 
-	public ApiResponse setOptionProxyChainPrompt(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionProxyChainPrompt(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionProxyChainPrompt", map);
 	}
 
-	public ApiResponse setOptionTimeoutInSecs(int i) throws ClientApiException {
+	public ApiResponse setOptionTimeoutInSecs(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("core", "action", "setOptionTimeoutInSecs", map);
 	}
 
-	public ApiResponse setOptionConfirmRemoveAuth(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionConfirmRemoveAuth(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionConfirmRemoveAuth", map);
 	}
 
-	public ApiResponse setOptionSingleCookieRequestHeader(boolean bool) throws ClientApiException {
+	public ApiResponse setOptionSingleCookieRequestHeader(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionSingleCookieRequestHeader", map);
 	}
 
-	public byte[] proxypac() throws ClientApiException {
+	public byte[] proxypac(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApiOther("core", "other", "proxy.pac", map);
 	}
 
-	public byte[] rootcert() throws ClientApiException {
+	public byte[] rootcert(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApiOther("core", "other", "rootcert", map);
 	}
 
-	public byte[] setproxy(String proxy) throws ClientApiException {
+	public byte[] setproxy(String apikey, String proxy) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("proxy", proxy);
 		return api.callApiOther("core", "other", "setproxy", map);
 	}
 
-	public byte[] xmlreport() throws ClientApiException {
+	public byte[] xmlreport(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApiOther("core", "other", "xmlreport", map);
+	}
+
+	public byte[] messagesHar(String apikey, String baseurl, String start, String count) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("baseurl", baseurl);
+		map.put("start", start);
+		map.put("count", count);
+		return api.callApiOther("core", "other", "messagesHar", map);
+	}
+
+	public byte[] sendHarRequest(String apikey, String request, String followredirects) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("request", request);
+		map.put("followRedirects", followredirects);
+		return api.callApiOther("core", "other", "sendHarRequest", map);
 	}
 
 }

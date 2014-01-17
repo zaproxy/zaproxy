@@ -24,11 +24,12 @@ import org.apache.tools.ant.BuildException;
 public class SpiderUrlTask extends ZapTask {
 	
 	private String url;
-	
+	private String apikey;
+
 	@Override
 	public void execute() throws BuildException {
 		try {
-			this.getClientApi().spiderUrl(url);
+			this.getClientApi().spider.scan(apikey, url);
 			
 		} catch (Exception e) {
 			throw new BuildException(e);
@@ -42,4 +43,13 @@ public class SpiderUrlTask extends ZapTask {
 	public void setUrl(String url) {
 		this.url = url;
 	}
+
+	public String getApikey() {
+		return apikey;
+	}
+
+	public void setApikey(String apikey) {
+		this.apikey = apikey;
+	}
+	
 }

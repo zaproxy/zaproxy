@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,7 +38,7 @@ public class Break {
 		this.api = api;
 	}
 
-	public ApiResponse brk(String type, String scope, String state) throws ClientApiException {
+	public ApiResponse brk(String apikey, String type, String scope, String state) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("type", type);
@@ -47,7 +47,7 @@ public class Break {
 		return api.callApi("break", "action", "break", map);
 	}
 
-	public ApiResponse addHttpBreakpoint(String string, String location, String match, String inverse, String ignorecase) throws ClientApiException {
+	public ApiResponse addHttpBreakpoint(String apikey, String string, String location, String match, String inverse, String ignorecase) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("string", string);
@@ -58,7 +58,7 @@ public class Break {
 		return api.callApi("break", "action", "addHttpBreakpoint", map);
 	}
 
-	public ApiResponse removeHttpBreakpoint(String string, String location, String match, String inverse, String ignorecase) throws ClientApiException {
+	public ApiResponse removeHttpBreakpoint(String apikey, String string, String location, String match, String inverse, String ignorecase) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("string", string);

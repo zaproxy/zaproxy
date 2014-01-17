@@ -18,20 +18,31 @@
 package org.zaproxy.zap.extension.api;
 
 import java.awt.CardLayout;
-import java.awt.GridLayout;
+import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.math.BigInteger;
+import java.security.SecureRandom;
 
+import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsApiPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel panelMisc = null;
 	private JCheckBox chkEnabled = null;
+	private ZapTextField keyField = null; 
+	private JButton generateKeyButton = null;
+
 	//private JCheckBox chkPostActions = null;
 	
     public OptionsApiPanel() {
@@ -56,14 +67,12 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	private JPanel getPanelMisc() {
 		if (panelMisc == null) {
 			panelMisc = new JPanel();
-			java.awt.GridLayout gridLayout2 = new GridLayout();
-
-			panelMisc.setLayout(gridLayout2);
-			panelMisc.setSize(114, 132);
-			panelMisc.setName("Miscellaneous");
-			gridLayout2.setRows(1);
-			panelMisc.add(getChkEnabled(), null);
-			//panelMisc.add(getChkPostActions(), null);
+			panelMisc.setLayout(new GridBagLayout());
+			panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, 0, 1, 0.5));
+			panelMisc.add(new JLabel("API KEY"), LayoutHelper.getGBC(0, 1, 1, 0.5));	// TODO
+			panelMisc.add(getKeyField(), LayoutHelper.getGBC(1, 1, 1, 0.5));
+			panelMisc.add(getGenerateKeyButton(), LayoutHelper.getGBC(1, 2, 1, 0.5));
+			panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 		}
 		return panelMisc;
 	}
@@ -82,6 +91,26 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		return chkEnabled;
 	}
 	
+	private ZapTextField getKeyField() {
+		if (keyField == null) {
+			keyField = new ZapTextField();
+		}
+		return keyField;
+	}
+	
+	private JButton getGenerateKeyButton () {
+		if (generateKeyButton == null) {
+			generateKeyButton = new JButton("Generate Random Key");	// TODO
+			generateKeyButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					SecureRandom random = new SecureRandom();
+					getKeyField().setText(new BigInteger(130, random).toString(32));
+				}});
+		}
+		return generateKeyButton;
+	}
+
 	/*
 	public JCheckBox getChkPostActions() {
 		if (chkPostActions == null) {
@@ -98,6 +127,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkEnabled().setSelected(options.getApiParam().isEnabled());
+	    getKeyField().setText(options.getApiParam().getKey());
 	    //getChkPostActions().setSelected(options.getApiParam().isPostActions());
 	}
 	
@@ -110,6 +140,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getApiParam().setEnabled(getChkEnabled().isSelected());
+    	options.getApiParam().setKey(getKeyField().getText());
 	    //options.getApiParam().setPostActions(getChkPostActions().isEnabled());
 	    
 	}

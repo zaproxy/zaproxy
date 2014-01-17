@@ -53,6 +53,7 @@ public class API {
 	public enum RequestType {action, view, other};
 	
 	public static String API_URL = "http://zap/";
+	public static String API_KEY_PARAM = "apikey";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
@@ -88,8 +89,10 @@ public class API {
 		}
 		implementors.put(impl.getPrefix(), impl);
 		for (String shortcut : impl.getApiShortcuts()) {
-			// TODO check for clashes
 			logger.debug("Registering API shortcut: " + shortcut);
+			if (this.shortcuts.containsKey(shortcut)) {
+				logger.error("Duplicate API shortcut: " + shortcut);
+			}
 			this.shortcuts.put("/" + shortcut, impl);
 		}
 	}
@@ -158,6 +161,8 @@ public class API {
 		String name = null;
 		
 		try {
+			JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
+
 			if (shortcutImpl != null) {
 				msg = shortcutImpl.handleShortcut(msg);
 			} else if (callbackImpl != null) {
@@ -222,9 +227,9 @@ public class API {
 					if ( ! isEnabled()) {
 						throw new ApiException(ApiException.Type.DISABLED);
 					}
+					String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
 
 					ApiResponse res;
-					JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
 					switch (reqType) {
 					case action:	
 						// TODO Handle POST requests - need to read these in and then parse params from POST body
@@ -233,6 +238,12 @@ public class API {
 							throw new ApiException(ApiException.Type.DISABLED);
 						}
 						*/
+						if (key != null && key.length() > 0) {
+							// Check if the right api key has been used
+							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+								throw new ApiException(ApiException.Type.BAD_API_KEY);
+							}
+						}
 						// Check for mandatory params
 						ApiAction action = impl.getApiAction(name);
 						if (action != null) {
@@ -297,6 +308,12 @@ public class API {
 
 						break;
 					case other:
+						if (key != null && key.length() > 0) {
+							// Check if the right api key has been used
+							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+								throw new ApiException(ApiException.Type.BAD_API_KEY);
+							}
+						}
 						ApiOther other = impl.getApiOther(name);
 						if (other != null) {
 							// Checking for null to handle option actions

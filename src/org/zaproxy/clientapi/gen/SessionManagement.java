@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public class SessionManagement {
 		return api.callApi("sessionManagement", "view", "getSessionManagementMethod", map);
 	}
 
-	public ApiResponse setSessionManagementMethod(String contextid, String methodname, String methodconfigparams) throws ClientApiException {
+	public ApiResponse setSessionManagementMethod(String apikey, String contextid, String methodname, String methodconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);

@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -69,7 +69,7 @@ public class Context {
 	/**
 	 * Add exclude regex to context
 	 */
-	public ApiResponse excludeFromContext(String contextname, String regex) throws ClientApiException {
+	public ApiResponse excludeFromContext(String apikey, String contextname, String regex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextName", contextname);
@@ -80,7 +80,7 @@ public class Context {
 	/**
 	 * Add include regex to context
 	 */
-	public ApiResponse includeInContext(String contextname, String regex) throws ClientApiException {
+	public ApiResponse includeInContext(String apikey, String contextname, String regex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextName", contextname);
@@ -91,7 +91,7 @@ public class Context {
 	/**
 	 * Creates a new context in the current session
 	 */
-	public ApiResponse newContext(String contextname) throws ClientApiException {
+	public ApiResponse newContext(String apikey, String contextname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextName", contextname);
@@ -101,7 +101,7 @@ public class Context {
 	/**
 	 * Sets a context to in scope (contexts are in scope by default)
 	 */
-	public ApiResponse setContextInScope(String contextname, String booleaninscope) throws ClientApiException {
+	public ApiResponse setContextInScope(String apikey, String contextname, String booleaninscope) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextName", contextname);

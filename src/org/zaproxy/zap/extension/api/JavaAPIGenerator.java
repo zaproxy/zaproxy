@@ -37,7 +37,7 @@ public class JavaAPIGenerator {
 			" *\n" +
 			" * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			" *\n" +
-			" * Copyright 2012 ZAP development team\n" +
+			" * Copyright the ZAP development team\n" +
 			" *\n" +
 			" * Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			" * you may not use this file except in compliance with the License.\n" +
@@ -95,6 +95,12 @@ public class JavaAPIGenerator {
 			out.write("\tpublic byte[] " + createMethodName(element.getName()) + "(");
 		} else {
 			out.write("\tpublic ApiResponse " + createMethodName(element.getName()) + "(");
+		}
+		if (type.equals("action") || type.equals("other")) {
+			// Always add the API key - we've no way of knowing if it will be required or not
+			hasParams = true;
+			out.write("String ");
+			out.write(API.API_KEY_PARAM);
 		}
 
 		if (element.getMandatoryParamNames() != null) {

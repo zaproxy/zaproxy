@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,7 @@ public class Authentication {
 		return api.callApi("authentication", "view", "getLoggedOutIndicator", map);
 	}
 
-	public ApiResponse setAuthenticationMethod(String contextid, String authmethodname, String authmethodconfigparams) throws ClientApiException {
+	public ApiResponse setAuthenticationMethod(String apikey, String contextid, String authmethodname, String authmethodconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -80,7 +80,7 @@ public class Authentication {
 		return api.callApi("authentication", "action", "setAuthenticationMethod", map);
 	}
 
-	public ApiResponse setLoggedInIndicator(String contextid, String loggedinindicatorregex) throws ClientApiException {
+	public ApiResponse setLoggedInIndicator(String apikey, String contextid, String loggedinindicatorregex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -88,7 +88,7 @@ public class Authentication {
 		return api.callApi("authentication", "action", "setLoggedInIndicator", map);
 	}
 
-	public ApiResponse setLoggedOutIndicator(String contextid, String loggedoutindicatorregex) throws ClientApiException {
+	public ApiResponse setLoggedOutIndicator(String apikey, String contextid, String loggedoutindicatorregex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);

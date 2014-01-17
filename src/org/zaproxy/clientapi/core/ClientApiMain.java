@@ -56,7 +56,7 @@ public class ClientApiMain {
         try {
             switch(task){
                 case stop:
-                    api.stopZap();
+                    api.core.shutdown((String)params.get("apikey"));
                     break;
                 case checkAlerts:
                     if (params.get("alertsFile") == null){
@@ -99,13 +99,13 @@ public class ClientApiMain {
                         showHelp();
                         System.exit(1);
                     }
-                    api.saveSession((String)params.get("sessionName"));
+                    api.core.saveSession((String)params.get("apikey"), (String)params.get("sessionName"), "true");
                     break;
                 case newSession:
                     if (params.get("sessionName") == null){
-                        api.newSession();
+                        api.core.newSession((String)params.get("apikey"), "", "true");
                     }else{
-                        api.newSession((String)params.get("sessionName"));
+                        api.core.newSession((String)params.get("apikey"), (String)params.get("sessionName"), "true");
                     }
                     break;
                 case activeScanUrl:
@@ -114,27 +114,27 @@ public class ClientApiMain {
                         showHelp();
                         System.exit(1);
                     }else{
-                        api.activeScanUrl((String)params.get("url"));
+                        api.ascan.scan((String)params.get("apikey"), (String)params.get("url"), "true", "false");
                     }
                     break;
                 case activeScanSiteInScope:
                     checkForUrlParam();
-                    api.activeScanSiteInScope((String)params.get("url"));
+                    api.activeScanSiteInScope((String)params.get("apikey"), (String)params.get("url"));
                     break;
                 case addExcludeRegexToContext:
                     checkForContextNameParam();
                     checkForRegexParam();
-                    api.addExcludeFromContext((String)params.get("contextName"), (String)params.get("regex"));
+                    api.addExcludeFromContext((String)params.get("apikey"), (String)params.get("contextName"), (String)params.get("regex"));
                     break;
                 case addIncludeRegexToContext:
                     checkForContextNameParam();
                     checkForRegexParam();
-                    api.addIncludeInContext((String)params.get("contextName"), (String)params.get("regex"));
+                    api.addIncludeInContext((String)params.get("apikey"), (String)params.get("contextName"), (String)params.get("regex"));
                     break;
                 case addIncludeOneMatchingNodeToContext:
                     checkForContextNameParam();
                     checkForRegexParam();
-                    api.includeOneMatchingNodeInContext((String)params.get("contextName"), (String)params.get("regex"));
+                    api.includeOneMatchingNodeInContext((String)params.get("apikey"), (String)params.get("contextName"), (String)params.get("regex"));
                     break;
             }
         } catch (ConnectException e){
@@ -233,17 +233,18 @@ public class ClientApiMain {
                 "\tsaveSession\n"+
                 "\tnewSession\n";
         } else{
+        	// TODO add case for activeScanSiteInScope
             switch (task){
                 case stop:
                     help = "usage: stop [zapaddr={ip}] [zapport={port}]\n\n" +
                             "Examples:\n\t" +
                                 "1. Type 'java -jar zap-api.jar stop' \n\t\t" +
                                     "Stop zap listening on default settings (localhost:8090)\n\t" +
-                                "2. Type 'java -jar zap-api.jar stop zapaddr=192.168.1.1' \n\t\t" +
+                                "2. Type 'java -jar zap-api.jar stop zapaddr=192.168.1.1 apikey=1234' \n\t\t" +
                                     "Stop zap listening on 192.168.1.1:8090\n\t" +
-                                "3. Type 'java -jar zap-api.jar stop zapport=7080' \n\t\t" +
+                                "3. Type 'java -jar zap-api.jar stop zapport=7080 apikey=1234' \n\t\t" +
                                     "Stop zap listening on localhost:7080\n\t" +
-                                "4. Type 'java -jar zap-api.jar stop zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                                "4. Type 'java -jar zap-api.jar stop zapaddr=192.168.1.1 zapport=7080 apikey=1234' \n\t\t" +
                                     "Stop zap listening on 192.168.1.1:7080\n\n";
                     break;
                 case checkAlerts:

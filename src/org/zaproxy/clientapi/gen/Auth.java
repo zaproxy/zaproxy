@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -80,31 +80,33 @@ public class Auth {
 		return api.callApi("auth", "view", "loggedOutIndicator", map);
 	}
 
-	public ApiResponse login(String contextid) throws ClientApiException {
+	public ApiResponse login(String apikey, String contextid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
 		return api.callApi("auth", "action", "login", map);
 	}
 
-	public ApiResponse logout(String contextid) throws ClientApiException {
+	public ApiResponse logout(String apikey, String contextid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
 		return api.callApi("auth", "action", "logout", map);
 	}
 
-	public ApiResponse autoReauthOn() throws ClientApiException {
+	public ApiResponse autoReauthOn(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("auth", "action", "autoReauthOn", map);
 	}
 
-	public ApiResponse autoReauthOff() throws ClientApiException {
+	public ApiResponse autoReauthOff(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
 		return api.callApi("auth", "action", "autoReauthOff", map);
 	}
 
-	public ApiResponse setLoginUrl(String contextid, String url, String postdata) throws ClientApiException {
+	public ApiResponse setLoginUrl(String apikey, String contextid, String url, String postdata) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -113,7 +115,7 @@ public class Auth {
 		return api.callApi("auth", "action", "setLoginUrl", map);
 	}
 
-	public ApiResponse setLoginIndicator(String contextid, String indicator) throws ClientApiException {
+	public ApiResponse setLoginIndicator(String apikey, String contextid, String indicator) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -121,7 +123,7 @@ public class Auth {
 		return api.callApi("auth", "action", "setLoginIndicator", map);
 	}
 
-	public ApiResponse setLogoutUrl(String contextid, String url, String postdata) throws ClientApiException {
+	public ApiResponse setLogoutUrl(String apikey, String contextid, String url, String postdata) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
@@ -130,7 +132,7 @@ public class Auth {
 		return api.callApi("auth", "action", "setLogoutUrl", map);
 	}
 
-	public ApiResponse setLoggedOutIndicator(String contextid, String indicator) throws ClientApiException {
+	public ApiResponse setLoggedOutIndicator(String apikey, String contextid, String indicator) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);

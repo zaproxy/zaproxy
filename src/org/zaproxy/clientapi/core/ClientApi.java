@@ -95,101 +95,8 @@ public class ClientApi {
 		accessUrlViaProxy(proxy, url);
 	}
 
-
-	/*
-	 * These methods are retained for some backwards compatibility
-	 */
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by core.shutdown()
-	 */
-	@Deprecated
-	public void stopZap() throws ClientApiException {
-		core.shutdown();
-	}
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by spider.scan(url) and polling spider.status()
-	 */
-	@Deprecated
-	public void spiderUrl (String url) throws ClientApiException {
-		spider.scan(url);
-		// Poll until spider finished
-		while ( statusToInt(spider.status()) < 100) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// Ignore
-			}
-		}
-	}
-
 	private int statusToInt(ApiResponse response) {
 		return Integer.parseInt(((ApiResponseElement)response).getValue());
-	}
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by ascan.scan(url, recurse) and polling ascan.status()
-	 */
-	@Deprecated
-	public void activeScanUrl (String url) throws ClientApiException {
-		ascan.scan(url, "true", "false");
-		// Poll until spider finished
-		while ( statusToInt(ascan.status()) < 100) {
-			try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// Ignore
-			}
-		}
-	}
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by ascan.scan(url, recurse) and polling ascan.status()
-	 */
-	@Deprecated
-    public void activeScanSite (String url) throws ClientApiException {
-		ascan.scan(url, "true", "false");
-		// Poll until spider finished
-		while ( statusToInt(ascan.status()) < 100) {
-            try {
-				Thread.sleep(1000);
-			} catch (InterruptedException e) {
-				// Ignore
-			}
-        }
-    }
-	
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by core.newSession("");
-	 */
-	@Deprecated
-	public void newSession () throws ClientApiException {
-		core.newSession("", "true");
-	}
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by core.newSession(name);
-	 */
-	@Deprecated
-	public void newSession (String name) throws ClientApiException {
-		core.newSession(name, "true");
-	}
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by core.loadSession(name);
-	 */
-	@Deprecated
-	public void loadSession (String name) throws ClientApiException {
-		core.loadSession(name);
-	}
-
-	/**
-	 * @deprecated  As of release 2.0.0, replaced by core.saveSession(name);
-	 */
-	@Deprecated
-	public void saveSession (String name) throws ClientApiException {
-		core.saveSession(name, "true");
 	}
 
 	public void checkAlerts (List<Alert> ignoreAlerts, List<Alert> requireAlerts) throws ClientApiException {
@@ -445,21 +352,21 @@ public class ClientApi {
         return param;
     }
 
-    public void addExcludeFromContext(String contextName, String regex) throws Exception {
-        context.excludeFromContext(contextName, regex);
+    public void addExcludeFromContext(String apikey, String contextName, String regex) throws Exception {
+        context.excludeFromContext(apikey, contextName, regex);
     }
 
-    public void addIncludeInContext(String contextName, String regex) throws Exception {
-        context.includeInContext(contextName, regex);
+    public void addIncludeInContext(String apikey, String contextName, String regex) throws Exception {
+        context.includeInContext(apikey, contextName, regex);
     }
 
-    public void includeOneMatchingNodeInContext(String contextName, String regex) throws Exception {
+    public void includeOneMatchingNodeInContext(String apikey, String contextName, String regex) throws Exception {
         List<String> sessionUrls = getSessionUrls();
         boolean foundOneMatch = false;
         for (String sessionUrl : sessionUrls){
             if (sessionUrl.matches(regex)){
                 if (foundOneMatch){
-                    addExcludeFromContext(contextName, sessionUrl);
+                    addExcludeFromContext(apikey, contextName, sessionUrl);
                 } else {
                     foundOneMatch = true;
                 }
@@ -485,8 +392,8 @@ public class ClientApi {
         return sessionUrls;
     }
 
-    public void activeScanSiteInScope(String url) throws Exception {
-        ascan.scan(url, "true", "true");
+    public void activeScanSiteInScope(String apikey, String url) throws Exception {
+        ascan.scan(apikey, url, "true", "true");
         // Poll until spider finished
         int status = 0;
         while ( status < 100) {

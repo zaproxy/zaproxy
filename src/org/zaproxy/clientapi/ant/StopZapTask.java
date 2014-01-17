@@ -23,13 +23,24 @@ import org.apache.tools.ant.BuildException;
 
 public class StopZapTask extends ZapTask {
 	
+	private String apikey;
+	
 	@Override
 	public void execute() throws BuildException {
 		try {
-			this.getClientApi().stopZap();
+			this.getClientApi().core.shutdown(apikey);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new BuildException(e);
 		}
 	}
+
+	public String getApikey() {
+		return apikey;
+	}
+
+	public void setApikey(String apikey) {
+		this.apikey = apikey;
+	}
+	
 }

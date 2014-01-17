@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2012 ZAP development team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,11 @@ public class ForcedUser {
 		this.api = api;
 	}
 
+	public ApiResponse isForcedUserModeEnabled() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("forcedUser", "view", "isForcedUserModeEnabled", map);
+	}
+
 	public ApiResponse getForcedUser(String contextid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -45,12 +50,19 @@ public class ForcedUser {
 		return api.callApi("forcedUser", "view", "getForcedUser", map);
 	}
 
-	public ApiResponse setForcedUser(String contextid, String userid) throws ClientApiException {
+	public ApiResponse setForcedUser(String apikey, String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		return api.callApi("forcedUser", "action", "setForcedUser", map);
+	}
+
+	public ApiResponse setForcedUserModeEnabled(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("boolean", Boolean.toString(bool));
+		return api.callApi("forcedUser", "action", "setForcedUserModeEnabled", map);
 	}
 
 }

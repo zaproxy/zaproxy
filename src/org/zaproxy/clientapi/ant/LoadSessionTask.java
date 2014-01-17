@@ -24,11 +24,12 @@ import org.apache.tools.ant.BuildException;
 public class LoadSessionTask extends ZapTask {
 	
 	private String name;
-	
+	private String apikey;
+
 	@Override
 	public void execute() throws BuildException {
 		try {
-			this.getClientApi().loadSession(name);
+			this.getClientApi().core.loadSession(apikey, name);
 			
 		} catch (Exception e) {
 			throw new BuildException(e);
@@ -41,5 +42,13 @@ public class LoadSessionTask extends ZapTask {
 
 	public void setName(String name) {
 		this.name = name;
+	}
+	
+	public String getApikey() {
+		return apikey;
+	}
+
+	public void setApikey(String apikey) {
+		this.apikey = apikey;
 	}
 }
