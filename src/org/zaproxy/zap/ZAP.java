@@ -93,7 +93,8 @@ public class ZAP {
 	    try {
 	        Constant.getInstance();
 	    } catch (final Throwable e) {
-	        log.fatal(e.getMessage(), e);
+	    	// log not initialised yet
+	        System.out.println(e.getMessage());
 	        //throw e;
 	        System.exit(1);
 	    }
@@ -193,7 +194,7 @@ public class ZAP {
 	    }
 
 	    try {
-			Model.getSingleton().init();
+			Model.getSingleton().init(this.getOverrides());
 	    } catch (final java.io.FileNotFoundException e) {
 	    	if (isGUI) {
 	    		JOptionPane.showMessageDialog(null,
@@ -333,6 +334,7 @@ public class ZAP {
 		ControlOverrides overrides = new ControlOverrides();
 		overrides.setProxyPort(this.cmdLine.getPort());
 		overrides.setProxyHost(this.cmdLine.getHost());
+		overrides.setConfigs(this.cmdLine.getConfigs());
 		return overrides;
 	}
 
