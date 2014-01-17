@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
@@ -282,7 +283,8 @@ public class ScanProgressDialog extends AbstractDialog {
             
             // Set all general configurations
             result.setOpaque(true);
-            result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
+            // result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
+            result.setBackground(new Color(242,242,242));
             
             return result;
         }
@@ -325,7 +327,8 @@ public class ScanProgressDialog extends AbstractDialog {
          
             // Set all general configurations
             result.setOpaque(true);
-            result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
+            //result.setBackground(sun.swing.DefaultLookup.getColor(table, table.getUI(), "Table.alternateRowColor"));
+            result.setBackground(new Color(242,242,242));
             
             return result;
         }
