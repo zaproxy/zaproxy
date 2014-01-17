@@ -35,6 +35,7 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
 // ZAP: 2013/11/16 Issue 842: NullPointerException while active scanning with ExtensionAntiCSRF disabled
+// ZAP: 2014/01/16 Add support to plugin skipping
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -70,7 +71,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     protected static final String CRLF = "\r\n";
     private HostProcess parent = null;
     private HttpMessage msg = null;
-//    private boolean enabled = false;
+    // private boolean enabled = false;
     private Logger log = Logger.getLogger(this.getClass());
     private Configuration config = null;
     // ZAP Added delayInMs
@@ -85,6 +86,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private Date started = null;
     private Date finished = null;
 
+    // flag used to decide that this plugin should be skipped
+    private boolean skipped = false;
+
+    /**
+     * Default Constructor
+     */
     public AbstractPlugin() {
     }
 
@@ -244,6 +251,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public void run() {
+        // ZAP : set skipped to false otherwise the plugin shoud stop continously
+        //this.skipped = false;
+        
         try {
             if (!isStop()) {
                 this.started = new Date();
@@ -408,7 +418,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @return
      */
     protected boolean isStop() {
-        return parent.isStop();
+        // ZAP: added skipping controls
+        return parent.isStop() || parent.isSkipped(this);
     }
 
     /**
@@ -508,26 +519,33 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             level = AttackStrength.valueOf(getProperty("strength"));
             //log.debug("getAttackStrength from configs: " + level.name());
+            
         } catch (Exception e) {
             // Ignore
         }
+        
         if (level == null) {
             if (incDefault) {
                 level = AttackStrength.DEFAULT;
+            
             } else {
                 level = this.defaultAttackStrength;
             }
+
             //log.debug("getAttackStrength default: " + level.name());
+            
         } else if (level.equals(AttackStrength.DEFAULT)) {
             if (incDefault) {
                 level = AttackStrength.DEFAULT;
+            
             } else {
                 level = this.defaultAttackStrength;
             }
+            
             //log.debug("getAttackStrength default: " + level.name());
         }
+        
         return level;
-
     }
 
     @Override
@@ -558,18 +576,20 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     @Override
     public int compareTo(Object obj) {
-
         int result = -1;
         if (obj instanceof AbstractPlugin) {
             AbstractPlugin test = (AbstractPlugin) obj;
             if (getId() < test.getId()) {
                 result = -1;
+                
             } else if (getId() > test.getId()) {
                 result = 1;
+                
             } else {
                 result = 0;
             }
         }
+        
         return result;
     }
 

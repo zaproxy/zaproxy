@@ -28,7 +28,6 @@
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
 // ZAP: 2014/01/10  Issue 974: Scan URL path elements
-
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -50,23 +49,23 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         // First check URL query-string target configuration
         if ((targets & ScannerParam.TARGET_QUERYSTRING) != 0) {
             listVariant.add(new VariantURLQuery());
-            
+
             // ZAP: To handle parameters in OData urls
             if ((enabledRPC & ScannerParam.RPC_ODATA) != 0) {
                 listVariant.add(new VariantODataIdQuery());
                 listVariant.add(new VariantODataFilterQuery());
             }
         }
-        
+
         // Then check POST data target configuration and RPC enabled methods
         if ((targets & ScannerParam.TARGET_POSTDATA) != 0) {
             listVariant.add(new VariantFormQuery());
 
             // ZAP: To handle Multipart Form-Data POST requests
             if ((enabledRPC & ScannerParam.RPC_MULTIPART) != 0) {
-                listVariant.add(new VariantMultipartFormQuery());            
+                listVariant.add(new VariantMultipartFormQuery());
             }
-            
+
             // ZAP: To handle XML based POST requests
             if ((enabledRPC & ScannerParam.RPC_XML) != 0) {
                 listVariant.add(new VariantXMLQuery());
@@ -76,12 +75,12 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             if ((enabledRPC & ScannerParam.RPC_JSON) != 0) {
                 listVariant.add(new VariantJSONQuery());
             }
-            
+
             // ZAP: To handle GWT Serialized POST requests
             if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {
                 listVariant.add(new VariantGWTQuery());
             }
-            
+
         }
 
         if ((targets & ScannerParam.TARGET_HTTPHEADERS) != 0) {
@@ -101,6 +100,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         }
 
         for (int i = 0; i < listVariant.size() && !isStop(); i++) {
+            
             HttpMessage msg = getNewMsg();
             // ZAP: Removed unnecessary cast.
             variant = listVariant.get(i);
@@ -110,6 +110,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
             } catch (Exception e) {
                 logger.error("Error occurred while scanning with variant " + variant.getClass().getCanonicalName(), e);
+            }
+
+            // ZAP: Implement pause and resume
+            while (getParent().isPaused() && !isStop()) {
+                Util.sleep(500);
             }
         }
 

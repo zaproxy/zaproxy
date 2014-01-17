@@ -29,9 +29,10 @@
 // ZAP: 2013/01/25 Catch any exceptions thrown when loading plugins to allow ZAP to still start
 // ZAP: 2013/03/18 Issue 564: Active scanner can hang if dependencies used
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-
+// ZAP: 2014/01/16 Added skip support functions and changed obsolete collections
 package org.parosproxy.paros.core.scanner;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -47,22 +48,21 @@ import org.zaproxy.zap.control.ExtensionFactory;
 public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
-
-    private static Vector<Plugin> listAllPlugin = new Vector<>();
+    private static List<Plugin> listAllPlugin = new ArrayList();
     private static LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
     private static LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
-    private Vector<Plugin> listPending = new Vector<>();
-    private Vector<Plugin> listRunning = new Vector<>();
-    private Vector<Plugin> listCompleted = new Vector<>();
-    private int	totalPluginToRun = 0;
-    
+    private List<Plugin> listPending = new ArrayList();
+    private List<Plugin> listRunning = new ArrayList();
+    private List<Plugin> listCompleted = new ArrayList();
+    private int totalPluginToRun = 0;
+
     /**
-     * 
+     *
      */
     public PluginFactory() {
         super();
-        Iterator<Plugin> iterator = null;
-        Plugin plugin = null;
+        Iterator<Plugin> iterator;
+        Plugin plugin;
         synchronized (mapAllPlugin) {
 
             // pass 1 - enable all plugin's dependency
@@ -84,20 +84,25 @@ public class PluginFactory {
                     listPending.add(plugin);
                 }
             }
+            
             totalPluginToRun = listPending.size();
         }
     }
-    
+
     private void enableDependency(Plugin plugin) {
-        
+
         String[] dependency = plugin.getDependency();
         if (dependency == null) {
             return;
         }
-        for (int i=0; i<dependency.length; i++) {
+        
+        for (int i = 0; i < dependency.length; i++) {
             try {
                 Object obj = mapAllPluginOrderCodeName.get(dependency[i]);
-                if (obj == null) continue;
+                if (obj == null) {
+                    continue;
+                }
+                
                 Plugin p = (Plugin) obj;
                 p.setEnabled(true);
                 enableDependency(p);
@@ -106,145 +111,164 @@ public class PluginFactory {
                 // ZAP: Added logging.
                 log.error(e.getMessage(), e);
             }
-        } 
-        
+        }
+
     }
 
+    /**
+     * 
+     * @param config 
+     */
     public static synchronized void loadAllPlugin(Configuration config) {
-    	
-       	List<AbstractPlugin> listTest = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
-		listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
-		listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.parosproxy.paros.core.scanner.plugin", AbstractPlugin.class));
+
+        List<AbstractPlugin> listTest = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
+        listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
+        listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.parosproxy.paros.core.scanner.plugin", AbstractPlugin.class));
 
         //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
-        final Comparator<AbstractPlugin> riskComparator = 
-        		new Comparator<AbstractPlugin>() {
-        	@Override
-        	public int compare(AbstractPlugin e1, AbstractPlugin e2) {
-        		if (e1.getRisk() > e2.getRisk())  //High Risk alerts are checked before low risk alerts
-        			return -1;
-        		else if (e1.getRisk() < e2.getRisk())
-        			return 1;
-        		else {
-        			//need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
-        			if (e1.getId() < e2.getId())  //log numbered (older) plugins are run before newer plugins
-            			return -1;
-            		else if (e1.getId() > e2.getId())
-            			return 1;
-            		else
-            			return 0;
-        		}
-        	}
+        final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
+            @Override
+            public int compare(AbstractPlugin e1, AbstractPlugin e2) {
+                if (e1.getRisk() > e2.getRisk()) //High Risk alerts are checked before low risk alerts
+                {
+                    return -1;
+                    
+                } else if (e1.getRisk() < e2.getRisk()) {
+                    return 1;
+                    
+                } else {
+                    //need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
+                    if (e1.getId() < e2.getId()) //log numbered (older) plugins are run before newer plugins
+                    {
+                        return -1;
+                        
+                    } else if (e1.getId() > e2.getId()) {
+                        return 1;
+                        
+                    } else {
+                        return 0;
+                    }
+                }
+            }
         };
+        
         //sort by the criteria above.
-        Collections.sort (listTest, riskComparator);
-                
+        Collections.sort(listTest, riskComparator);
+
         //mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is used 
         //when mapAllPlugin is iterated
         synchronized (mapAllPlugin) {
-            
+
             mapAllPlugin.clear();
-            for (int i=0; i<listTest.size(); i++) {
+            for (int i = 0; i < listTest.size(); i++) {
                 // ZAP: Removed unnecessary cast.
                 try {
-					Plugin plugin = listTest.get(i);
-					plugin.setConfig(config);
-					plugin.createParamIfNotExist();
-					if (!plugin.isVisible()) {
-						log.info("Plugin " + plugin.getName() + " not visible");
-					    continue;
-					}
-					if (plugin.isDepreciated()) {
-						// ZAP: ignore all depreciated plugins
-						log.info("Plugin " + plugin.getName() + " depricated");
-						continue;
-					}
-					log.info("loaded plugin " + plugin.getName());
-					if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-						log.error("Duplicate id " + plugin.getName() + " " +
-								mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
-					}
-					// ZAP: Changed to use the method Integer.valueOf.
-					mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
-					mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
-				} catch (Exception e) {
-					log.error(e.getMessage(), e);
-				}
+                    Plugin plugin = listTest.get(i);
+                    plugin.setConfig(config);
+                    plugin.createParamIfNotExist();
+                    if (!plugin.isVisible()) {
+                        log.info("Plugin " + plugin.getName() + " not visible");
+                        continue;
+                    }
+                    
+                    if (plugin.isDepreciated()) {
+                        // ZAP: ignore all depreciated plugins
+                        log.info("Plugin " + plugin.getName() + " depricated");
+                        continue;
+                    }
+                    
+                    log.info("loaded plugin " + plugin.getName());
+                    if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
+                        log.error("Duplicate id " + plugin.getName() + " "
+                                + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+                    }
+                    
+                    // ZAP: Changed to use the method Integer.valueOf.
+                    mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+                    mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+                    
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
             }
             Iterator<Plugin> iterator = mapAllPlugin.values().iterator();
             while (iterator.hasNext()) {
                 listAllPlugin.add(iterator.next());
             }
         }
-                
+
     }
-    
+
     public static List<Plugin> getAllPlugin() {
         return listAllPlugin;
     }
-    
 
-	public static boolean addPlugin(String name) {
-		try {
-			Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
-			AbstractPlugin plugin = (AbstractPlugin) c.newInstance();
-			
-        	listAllPlugin.add(plugin);
+    public static boolean addPlugin(String name) {
+        try {
+            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
+            AbstractPlugin plugin = (AbstractPlugin) c.newInstance();
+
+            listAllPlugin.add(plugin);
             plugin.setConfig(Model.getSingleton().getOptionsParam().getConfig());
-            
+
             plugin.createParamIfNotExist();
             if (!plugin.isVisible()) {
-				log.info("Plugin " + plugin.getName() + " not visible");
-				return false;
+                log.info("Plugin " + plugin.getName() + " not visible");
+                return false;
             }
+            
             if (plugin.isDepreciated()) {
-            	// ZAP: ignore all depreciated plugins
-				log.info("Plugin " + plugin.getName() + " depricated");
-				return false;
+                // ZAP: ignore all depreciated plugins
+                log.info("Plugin " + plugin.getName() + " depricated");
+                return false;
             }
+            
             log.info("loaded plugin " + plugin.getName());
             if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-            	log.error("Duplicate id " + plugin.getName() + " " +
-            			mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+                log.error("Duplicate id " + plugin.getName() + " "
+                        + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
             }
+            
             mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
             mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
-			
-			return true;
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-			return false;
-		}
-	}
+
+            return true;
+            
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
 
     public static boolean removePlugin(String className) {
-        for (int i=0; i<listAllPlugin.size(); i++) {
+        for (int i = 0; i < listAllPlugin.size(); i++) {
             Plugin plugin = listAllPlugin.get(i);
             if (plugin.getClass().getName().equals(className)) {
-            	listAllPlugin.remove(plugin);
-            	mapAllPlugin.remove(Integer.valueOf(plugin.getId()));
+                listAllPlugin.remove(plugin);
+                mapAllPlugin.remove(Integer.valueOf(plugin.getId()));
                 mapAllPluginOrderCodeName.remove(plugin.getCodeName());
-            	return true;
+                return true;
             }
         }
+        
         return false;
     }
-    
+
     public static Plugin getPlugin(int id) {
         // ZAP: Removed unnecessary cast and changed to use the method
         // Integer.valueOf.
         Plugin test = mapAllPlugin.get(Integer.valueOf(id));
         return test;
     }
-    
+
     public static void setAllPluginEnabled(boolean enabled) {
-        for (int i=0; i<listAllPlugin.size(); i++) {
+        for (int i = 0; i < listAllPlugin.size(); i++) {
             // ZAP: Removed unnecessary cast.
             Plugin plugin = listAllPlugin.get(i);
             plugin.setEnabled(enabled);
         }
     }
-    
+
     synchronized boolean existPluginToRun() {
         if (probeNextPlugin() != null) {
             return true;
@@ -254,19 +278,20 @@ public class PluginFactory {
         if (!listPending.isEmpty() || !listRunning.isEmpty()) {
             return true;
         }
-        
+
         return false;
     }
-    
+
     /**
-     * Get next test ready to be run.  Null = none.
-     * Test dependendent on others will not be obtained.
+     * Get next test ready to be run. Null = none. Test dependendent on others
+     * will not be obtained.
+     *
      * @return
      */
     private Plugin probeNextPlugin() {
         Plugin plugin = null;
-        int i=0;
-        while (i<listPending.size()) {
+        int i = 0;
+        while (i < listPending.size()) {
             // ZAP: Removed unnecessary cast.
             plugin = listPending.get(i);
             if (isAllDependencyCompleted(plugin)) {
@@ -274,52 +299,55 @@ public class PluginFactory {
             }
             i++;
         }
-        return null;        
+        
+        return null;
     }
-    
+
     /**
      * Get next plugin ready to be run without any dependency outstanding.
+     *
      * @return new instance of next plugin to be run.
      */
     synchronized Plugin nextPlugin() {
-        Plugin plugin = null;
-
-        plugin = probeNextPlugin();
+        Plugin plugin = probeNextPlugin();
         if (plugin == null) {
             return null;
         }
+        
         listPending.remove(plugin);
         plugin.setTimeStarted();
         listRunning.add(plugin);
 
         return plugin;
     }
-    
+
     private boolean isAllDependencyCompleted(Plugin plugin) {
-        
+
         // note the plugin object checked may not be the exact plugin object stored in the completed list.
         // but the comparison is basing on pluginId (see equals method) so it will work.
         String[] dependency = plugin.getDependency();
         if (dependency == null) {
             return true;
         }
-        synchronized(listCompleted) {
-            for (int i=0; i<dependency.length; i++) {
+        
+        synchronized (listCompleted) {
+            for (int i = 0; i < dependency.length; i++) {
                 boolean isFound = false;
-                for (int j=0; j<listCompleted.size() && !isFound; j++) {
+                for (int j = 0; j < listCompleted.size() && !isFound; j++) {
                     // ZAP: Removed unnecessary cast.
                     Plugin completed = listCompleted.get(j);
                     if (completed.getCodeName().equalsIgnoreCase(dependency[i])) {
                         isFound = true;
                     }
                 }
-                
+
                 if (!isFound) {
                     return false;
                 }
             }
-            
+
         }
+        
         return true;
     }
 
@@ -328,23 +356,29 @@ public class PluginFactory {
         listCompleted.add(plugin);
         plugin.setTimeFinished();
     }
-    
+
+    boolean isRunning(Plugin plugin) {
+        return listRunning.contains(plugin);
+    }
+
     int totalPluginToRun() {
         return totalPluginToRun;
     }
-    
+
     int totalPluginCompleted() {
         return listCompleted.size();
     }
-    
-    Vector<Plugin> getPending() {
-    	return this.listPending;
+
+    List<Plugin> getPending() {
+        return this.listPending;
     }
-    Vector<Plugin> getRunning() {
-    	return this.listRunning;
+
+    List<Plugin> getRunning() {
+        return this.listRunning;
     }
-    Vector<Plugin> getCompleted() {
-    	return this.listCompleted;
-    };
-    
+
+    List<Plugin> getCompleted() {
+        return this.listCompleted;
+    }
+;
 }

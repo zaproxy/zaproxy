@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.NoSuchElementException;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
@@ -435,8 +436,9 @@ public final class Constant {
         }
 
         // ZAP: Init i18n
-        String lang = null;
+        String lang;
         Locale locale = Locale.ENGLISH;
+        
         try {
             // Select the correct locale
             // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
@@ -447,11 +449,14 @@ public final class Constant {
             if (lang.length() == 0) {
             	lang = OptionsParamView.DEFAULT_LOCALE;
             }
+            
             String[] langArray = lang.split("_");
             locale = new Locale(langArray[0], langArray[1]);
+            
         } catch (Exception e) {
-        	System.out.println("Failed to initialise locale " + e);
+            System.out.println("Failed to initialise locale " + e);
         }
+        
         messages = new I18N(locale);
     }
     
