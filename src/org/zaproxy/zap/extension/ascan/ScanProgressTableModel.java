@@ -154,7 +154,7 @@ public class ScanProgressTableModel extends AbstractTableModel {
             // Probably we're at the last line so we print out the total requests
             switch (col) {
                 case 0:
-                    return Constant.messages.getString("ascan.progress.label.totalTime");                    
+                    return Constant.messages.getString("ascan.progress.label.requests");                    
                 
                 case 1:
                     return totRequests;                    
