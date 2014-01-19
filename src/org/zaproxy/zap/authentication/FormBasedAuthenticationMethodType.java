@@ -38,6 +38,7 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
@@ -75,6 +76,7 @@ import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
@@ -675,14 +677,38 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 						context.getName())) {
 
 					private static final long serialVersionUID = 1967885623005183801L;
+					private ExtensionUserManagement usersExtension;
+					private Context uiSharedContext;
 
+					/**
+					 * Make sure the user acknowledges the Users corresponding to this context will be deleted.
+					 * 
+					 * @return true, if successful
+					 */
+					private boolean confirmAndExecuteUsersDeletion(Context uiSharedContext) {
+						usersExtension = (ExtensionUserManagement) Control.getSingleton()
+								.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+						if (usersExtension != null) {
+							if (usersExtension.getSharedContextUsers(uiSharedContext).size() > 0) {
+								int choice = JOptionPane.showConfirmDialog(this,
+										Constant.messages.getString("authentication.dialog.confirmChange.label"),
+										Constant.messages.getString("authentication.dialog.confirmChange.title"),
+										JOptionPane.OK_CANCEL_OPTION);
+								if (choice == JOptionPane.CANCEL_OPTION) {
+									return false;
+								}
+							}
+						}
+						return true;
+					}
+					
 					@Override
 					public void performAction(SiteNode sn) throws Exception {
 						// Manually create the UI shared contexts so any modifications are done
 						// on an UI shared Context, so changes can be undone by pressing Cancel
 						SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
 						sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
-						Context uiSharedContext = sessionDialog.getUISharedContext(this.getContext()
+						uiSharedContext = sessionDialog.getUISharedContext(this.getContext()
 								.getIndex());
 
 						// Do the work/changes on the UI shared context
@@ -692,17 +718,38 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 							FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) uiSharedContext
 									.getAuthenticationMethod();
 							method.setLoginRequest(sn);
+							
+							// Show the session dialog without recreating UI Shared contexts
+							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+									ContextAuthenticationPanel.buildName(this.getContext().getIndex()), false);
 						} else {
 							log.info("Selected new login request via PopupMenu. Creating new Form-Based Authentication instance for Context "
 									+ getContext().getIndex());
 							FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
 							method.setLoginRequest(sn);
+							if(!confirmAndExecuteUsersDeletion(uiSharedContext))
+							{
+								log.debug("Cancelled change of authentication type.");
+								return;
+							}
 							uiSharedContext.setAuthenticationMethod(method);
+							
+							// Show the session dialog without recreating UI Shared contexts
+							// NOTE: First init the panels of the dialog so old users data gets loaded and just then delete the users
+							// from the UI data model, otherwise the 'real' users from the non-shared context would be loaded
+							// and would override any deletions made.
+							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
+									ContextAuthenticationPanel.buildName(this.getContext().getIndex()), false, new Runnable() {
+										
+										@Override
+										public void run() {
+											// Removing the users from the 'shared context' (the UI) will cause their removal at
+											// save as well
+											if (usersExtension != null) 
+												usersExtension.removeSharedContextUsers(uiSharedContext);
+										}
+									});
 						}
-
-						// Show the session dialog without recreating UI Shared contexts
-						View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-								ContextAuthenticationPanel.buildName(this.getContext().getIndex()), false);
 					}
 				};
 			}

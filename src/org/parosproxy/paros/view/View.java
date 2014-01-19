@@ -45,6 +45,7 @@
 // ZAP: 2013/08/21 Support for shared context for Context Properties Panels.
 // ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to accomodate the 'Full Layout' functionality.
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
+// ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session dialog
 
 package org.parosproxy.paros.view;
 
@@ -374,14 +375,33 @@ public class View implements ViewDelegate {
     }
 	
 	public void showSessionDialog(Session session, String panel){
-		showSessionDialog(session, panel, true);
+		showSessionDialog(session, panel, true, null);
 	}
 
-    public void showSessionDialog(Session session, String panel, boolean recreateUISharedContexts) {
+	public void showSessionDialog(Session session, String panel, boolean recreateUISharedContexts){
+		showSessionDialog(session, panel, recreateUISharedContexts, null);
+	}
+	
+    /**
+     * Shows the session properties dialog. If a panel is specified, the dialog is opened showing that panel.
+     * If {@code recreateUISharedContexts} is {@code true}, any old UI shared contexts are discarded and
+     * new ones are created as copies of the contexts. If a {@code postInitRunnable} is provided, its {@link Runnable#run} method
+     * is called after the initialization of all the panels of the session properties dialog.
+     *
+     * @param session the session
+     * @param panel the panel name to be shown
+     * @param recreateUISharedContexts if true, any old UI shared contexts are discarded and
+     * new ones are created as copies of the contexts
+     * @param postInitRunnable if provided, its {@link Runnable#run} method
+     * is called after the initialization of all the panels of the session properties dialog.
+     */
+    public void showSessionDialog(Session session, String panel, boolean recreateUISharedContexts, Runnable postInitRunnable) {
     	if (sessionDialog != null) {
     		if(recreateUISharedContexts)
     			sessionDialog.recreateUISharedContexts(session);
     		sessionDialog.initParam(session);
+    		if(postInitRunnable!=null)
+    			postInitRunnable.run();
     		sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
     		sessionDialog.showDialog(false, panel);
     	}
