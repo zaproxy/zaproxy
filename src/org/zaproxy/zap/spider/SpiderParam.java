@@ -60,6 +60,9 @@ public class SpiderParam extends AbstractParam {
 	/** The Constant SPIDER_PARSE_SVN_ENTRIES. */
 	private static final String SPIDER_PARSE_SVN_ENTRIES = "spider.parseSVNentries";
 
+	/** The Constant SPIDER_PARSE_GIT. */
+	private static final String SPIDER_PARSE_GIT = "spider.parseGit";
+
 	/** The Constant SPIDER_HANDLE_PARAMETERS. */
 	private static final String SPIDER_HANDLE_PARAMETERS = "spider.handleParameters";
 	
@@ -121,6 +124,8 @@ public class SpiderParam extends AbstractParam {
 	private boolean parseRobotsTxt = false;
 	/** Whether SVN entries files should be parsed for URIs. */
 	private boolean parseSVNentries = false;
+	/** Whether Git files should be parsed for URIs. */
+	private boolean parseGit = false;
 	/** Whether the forms are processed and submitted at all. */
 	private boolean processForm = true;
 	/**
@@ -213,11 +218,19 @@ public class SpiderParam extends AbstractParam {
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
+		
 		try {
 			this.parseSVNentries = getConfig().getBoolean(SPIDER_PARSE_SVN_ENTRIES, false);
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
+
+		try {
+			this.parseGit = getConfig().getBoolean(SPIDER_PARSE_GIT, false);
+		} catch (Exception e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+		
 		try {
 			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
 		} catch (ConversionException e) {
@@ -504,6 +517,15 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
+	 * Checks if the spider should parse the Git files for URIs.
+	 * 
+	 * @return true, if it parses the files
+	 */
+	public boolean isParseGit() {
+		return parseGit;
+	}
+
+	/**
 	 * Sets the whether the spider parses the robots.txt for uris (not related to following the directions).
 	 * 
 	 * @param parseRobotsTxt the new value for parseRobotsTxt
@@ -521,6 +543,16 @@ public class SpiderParam extends AbstractParam {
 	public void setParseSVNEntries(boolean parseSVNentries) {
 		this.parseSVNentries = parseSVNentries;
 		getConfig().setProperty(SPIDER_PARSE_SVN_ENTRIES, Boolean.toString(parseSVNentries));
+	}
+
+	/**
+	 * Sets the whether the spider parses Git files for URIs
+	 * 
+	 * @param parseGit the new value for parseGit
+	 */
+	public void setParseGit(boolean parseGit) {
+		this.parseGit = parseGit;
+		getConfig().setProperty(SPIDER_PARSE_GIT, Boolean.toString(parseGit));
 	}
 
 	/**
