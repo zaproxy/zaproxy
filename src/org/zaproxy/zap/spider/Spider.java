@@ -117,8 +117,11 @@ public class Spider {
 	 */
 	private boolean initialized;
 
-	/**	we do not want to recurse into an SVN folder, if one was created from a previous Spider run */
-	private static final Pattern svnUrlPattern = Pattern.compile(".svn/$"); //case sensitive
+	/**	we do not want to recurse into an SVN folder, or a subfolder of an SVN folder, if one was created from a previous Spider run */
+	private static final Pattern svnUrlPattern = Pattern.compile(".svn/"); //case sensitive
+
+	/**	we do not want to recurse into a Git folder, or a subfolder of a Git folder, if one was created from a previous Spider run */
+	private static final Pattern gitUrlPattern = Pattern.compile(".git/"); //case sensitive
 
 	/**
 	 * Instantiates a new spider.
@@ -217,12 +220,12 @@ public class Spider {
 		// And add '.svn/entries' as a seed, for SVN based spidering
 		if (getSpiderParam().isParseSVNEntries()) {
 			try {
-				// Build the URIs of the SVN files
 				URI svnEntriesURI1, svnEntriesURI2;
 				// If the port is not 80 or 443, add it to the URI
 				// SVN entries can exist in multiple directories, so make sure to add in the full path.
 				String fullpath = uri.getPath();
 				String name = uri.getName();
+				if (fullpath==null) fullpath="";
 				
 				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
 				
@@ -244,6 +247,31 @@ public class Spider {
 			}
 		}
 
+		// And add '.git/index' as a seed, for Git based spidering
+		if (getSpiderParam().isParseGit()) {
+			try {
+				URI gitEntriesURI;
+				// If the port is not 80 or 443, add it to the URI
+				// Make sure to add in the full path.
+				String fullpath = uri.getPath();
+				String name = uri.getName();
+				if (fullpath==null) fullpath="";
+				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
+				
+				//if it's not in a Git folder, add the seed.
+				Matcher matcherGitUrl = gitUrlPattern.matcher(pathminusfilename);
+				if (! matcherGitUrl.find()) {
+					if (uri.getPort() == 80 || uri.getPort() == 443) {
+						gitEntriesURI = new URI(uri.getScheme() + "://" + host + pathminusfilename + ".git/index", true);
+					} else {
+						gitEntriesURI = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + pathminusfilename + ".git/index", true);
+					}
+					this.seedList.add(gitEntriesURI);					
+				}
+			} catch (Exception e) {
+				log.warn("Error while creating a seed URI for the Git files for site " + uri, e);
+			}
+		}
 
 	}
 
