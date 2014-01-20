@@ -93,6 +93,7 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
     @Override
     public void parseContent(String content) {
         Matcher matcher = attPattern.matcher(content);
+        String value;
         int bidx;
         int eidx;
         
@@ -106,16 +107,18 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
         while (matcher.find()) {
             // if it is a CDATA content dequeue
             // the trailer and the footer from the param string
-            if (matcher.group(2).startsWith("<![CDATA[")) {
-                bidx = matcher.start(2) + 9;    //<![CDATA[
-                eidx = matcher.end(2) - 3;       //]]>
-                addParameter(matcher.group(1), bidx, eidx, false, false);
+            value = matcher.group(2);
+            bidx = matcher.start(2);
+            eidx = matcher.end(2);
+                
+            if (value.startsWith("<![CDATA[")) {
+                value = value.substring(9, value.length() - 3); //<![CDATA[   //]]>
                 
             } else {
-                bidx = matcher.start(2);
-                eidx = matcher.end(2);
-                addParameter(matcher.group(1), bidx, eidx, false, true);
-            }            
+                value = getUnescapedValue(value);
+            }
+            
+            addParameter(matcher.group(1), bidx, eidx, false, value);
         }
     }
 }

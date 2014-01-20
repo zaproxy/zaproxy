@@ -68,6 +68,24 @@ public abstract class VariantAbstractRPCQuery implements Variant {
 
     /**
      * 
+     * @param name the name of the parameter
+     * @param beginOffset the begin offset of the parameter value inside the RPC content body
+     * @param endOffset the ending offset of the parameter value inside the RPC content body
+     * @param toQuote the parameter need to be quoted when used
+     * @param value the value that need to be set
+     */
+    public void addParameter(String name, int beginOffset, int endOffset, boolean toQuote, String value) {
+        RPCParameter param = new RPCParameter();
+        param.setName(name);
+        param.setValue(value);
+        param.setBeginOffset(beginOffset);
+        param.setEndOffset(endOffset);
+        param.setToQuote(toQuote);
+        listParam.add(param);
+    }    
+    
+    /**
+     * 
      * @return 
      */
     public String getToken(int beginOffset, int endOffset) {
