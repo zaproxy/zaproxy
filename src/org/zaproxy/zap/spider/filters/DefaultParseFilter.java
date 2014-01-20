@@ -52,6 +52,11 @@ public class DefaultParseFilter extends ParseFilter {
 	 */
 	private static final Pattern svnXMLFilenamePattern = Pattern.compile (".*/\\.svn/entries$");
 
+	/**
+	 * a pattern to match the Git index file.
+	 */
+	private static final Pattern gitFilenamePattern = Pattern.compile (".*/\\.git/index$");
+
 	@Override
 	public boolean isFiltered(HttpMessage responseMessage) {
 
@@ -67,18 +72,22 @@ public class DefaultParseFilter extends ParseFilter {
 		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
 			return false;
 
-		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries parser will process it (regardless of type)
-		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher;
+		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it (regardless of type)
+		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher, gitFilenameMatcher;;
 		try {
 			String fullfilename = responseMessage.getRequestHeader().getURI().getPath();
+			//handle null paths
+			if (fullfilename == null) fullfilename = "";
 			svnSQLiteFilenameMatcher = svnSQLiteFilenamePattern.matcher(fullfilename);
 			svnXMLFilenameMatcher = svnXMLFilenamePattern.matcher(fullfilename);
+			gitFilenameMatcher = gitFilenamePattern.matcher(fullfilename);
+			
+			if ( svnSQLiteFilenameMatcher.find() || svnXMLFilenameMatcher.find() || gitFilenameMatcher.find())
+				return false;
 		} catch (URIException e) {
-			log.error(e);
-			return true;
-		}				
-		if ( svnSQLiteFilenameMatcher.find() || svnXMLFilenameMatcher.find() )
-			return false;
+			//give other parsers a chance to parse it.
+			log.error(e);			
+		}
 		
 		// Check response type.
 		if (!responseMessage.getResponseHeader().isText()) {
