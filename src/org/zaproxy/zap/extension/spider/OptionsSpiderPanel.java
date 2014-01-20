@@ -68,6 +68,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox parseComments = null;
 	private JCheckBox parseRobotsTxt = null;
 	private JCheckBox parseSVNEntries = null;
+	private JCheckBox parseGit = null;
 	private JCheckBox handleODataSpecificParameters = null;
 
 	private JComboBox<HandleParametersOption> handleParameters = null;
@@ -121,6 +122,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
 			GridBagConstraints parseRobotsTxtGridBag = new GridBagConstraints();
 			GridBagConstraints parseSVNEntriesGridBag = new GridBagConstraints();
+			GridBagConstraints parseGitGridBag = new GridBagConstraints();
 			GridBagConstraints handleODataSpecificParametersGridBag = new GridBagConstraints();
 			
 			GridBagConstraints handleParametersGridBag = new GridBagConstraints();
@@ -227,8 +229,15 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseSVNEntriesGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseSVNEntriesGridBag.insets = new Insets(2, 2, 2, 2);
 
+			parseGitGridBag.gridx = 0;
+			parseGitGridBag.gridy = 14;
+			parseGitGridBag.weightx = 1.0;
+			parseGitGridBag.fill = GridBagConstraints.HORIZONTAL;
+			parseGitGridBag.anchor = GridBagConstraints.NORTHWEST;
+			parseGitGridBag.insets = new Insets(2, 2, 2, 2);
+
 			handleODataSpecificParametersGridBag.gridx = 0;
-			handleODataSpecificParametersGridBag.gridy = 14;
+			handleODataSpecificParametersGridBag.gridy = 15;
 			handleODataSpecificParametersGridBag.weightx = 1.0;
 			handleODataSpecificParametersGridBag.fill = GridBagConstraints.HORIZONTAL;
 			handleODataSpecificParametersGridBag.anchor = GridBagConstraints.NORTHWEST;
@@ -259,6 +268,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			panelSpider.add(getChkParseComments(), parseCommentsGridBag);
 			panelSpider.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
 			panelSpider.add(getChkParseSVNEntries(), parseSVNEntriesGridBag);
+			panelSpider.add(getChkParseGit(), parseGitGridBag);
 			panelSpider.add(handleParametersLabel, handleParametersLabelGridBag);
 			panelSpider.add(getComboHandleParameters(), handleParametersGridBag);
 			panelSpider.add(getHandleODataSpecificParameters(), handleODataSpecificParametersGridBag);
@@ -281,6 +291,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
 		getChkParseSVNEntries().setSelected(param.isParseSVNEntries());
+		getChkParseGit().setSelected(param.isParseGit());
 		getComboHandleParameters().setSelectedItem(param.getHandleParameters());
 		getHandleODataSpecificParameters().setSelected(param.isHandleODataParametersVisited());
 
@@ -303,6 +314,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setParseComments(getChkParseComments().isSelected());
 		param.setParseRobotsTxt(getChkParseRobotsTxt().isSelected());
 		param.setParseSVNEntries(getChkParseSVNEntries().isSelected());
+		param.setParseGit(getChkParseGit().isSelected());
 		param.setHandleParameters((HandleParametersOption) getComboHandleParameters().getSelectedItem());
 		param.setHandleODataParametersVisited(getHandleODataSpecificParameters().isSelected());
 	}
@@ -449,6 +461,19 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseSVNEntries.setText(Constant.messages.getString("spider.options.label.svnentries"));
 		}
 		return parseSVNEntries;
+	}
+
+	/**
+	 * This method initializes the Parse "Git" checkbox.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkParseGit() {
+		if (parseGit == null) {
+			parseGit = new JCheckBox();
+			parseGit.setText(Constant.messages.getString("spider.options.label.git"));
+		}
+		return parseGit;
 	}
 
 	/**
