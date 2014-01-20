@@ -118,10 +118,10 @@ public class Spider {
 	private boolean initialized;
 
 	/**	we do not want to recurse into an SVN folder, or a subfolder of an SVN folder, if one was created from a previous Spider run */
-	private static final Pattern svnUrlPattern = Pattern.compile(".svn/"); //case sensitive
+	private static final Pattern svnUrlPattern = Pattern.compile("\\.svn/"); //case sensitive
 
 	/**	we do not want to recurse into a Git folder, or a subfolder of a Git folder, if one was created from a previous Spider run */
-	private static final Pattern gitUrlPattern = Pattern.compile(".git/"); //case sensitive
+	private static final Pattern gitUrlPattern = Pattern.compile("\\.git/"); //case sensitive
 
 	/**
 	 * Instantiates a new spider.
