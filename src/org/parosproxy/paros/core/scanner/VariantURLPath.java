@@ -17,6 +17,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2014/01/19 Added the same encoding/decoding model of the other variants for correct value interpretation
 
 package org.parosproxy.paros.core.scanner;
 
@@ -30,10 +31,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Variant class used for URL path elements.
- * For a URL like: http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg
- * it will handle: aaa, bbb and ccc
- * 
+ * Variant class used for URL path elements. For a URL like:
+ * http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg it will handle: aaa, bbb
+ * and ccc
+ *
  * @author psiinon
  */
 public class VariantURLPath implements Variant {
@@ -42,33 +43,34 @@ public class VariantURLPath implements Variant {
     private List<NameValuePair> stringParam = new ArrayList<>();
 
     /**
-     * 
-     * @param msg 
+     *
+     * @param msg
      */
     @Override
     public void setMessage(HttpMessage msg) {
-    	/*
-    	 * For a URL like: http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg
-    	 * Add the following:
-    	 * parameter	position
-    	 * 	aaa				1
-    	 * 	bbb				2
-    	 *  ccc				3
-    	 */
+        /*
+         * For a URL like: http://www.example.com/aaa/bbb/ccc?ddd=eee&fff=ggg
+         * Add the following:
+         * parameter	position
+         *      aaa     1
+         *      bbb     2
+         *      ccc     3
+         */
         try {
-        	if (msg.getRequestHeader().getURI().getPath() != null) {
-				String[] paths = msg.getRequestHeader().getURI().getPath().toString().split("/");
-				int i=0;
-				for (String path : paths) {
-					if (path.length() > 0) {
-						stringParam.add(new NameValuePair(NameValuePair.TYPE_URL, path, path, i));
-					}
-					i++;
-				}
-        	}
-		} catch (URIException e) {
-			// Ignore
-		}
+            if (msg.getRequestHeader().getURI().getPath() != null) {
+                String[] paths = msg.getRequestHeader().getURI().getPath().toString().split("/");
+                int i = 0;
+                for (String path : paths) {
+                    if (path.length() > 0) {
+                        stringParam.add(new NameValuePair(NameValuePair.TYPE_URL, path, getUnescapedValue(path), i));
+                    }
+                    
+                    i++;
+                }
+            }
+        } catch (URIException e) {
+            // Ignore
+        }
     }
 
     /**
@@ -81,64 +83,93 @@ public class VariantURLPath implements Variant {
     }
 
     /**
-     * 
+     *
      * @param msg
      * @param originalPair
      * @param name
      * @param value
-     * @return 
+     * @return
      */
     @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return setParameter(msg, originalPair, name, value, false);
+        return setParameter(msg, originalPair, name, value, false);
     }
-    
+
     /**
-     * 
+     *
      * @param msg
      * @param originalPair
      * @param name
      * @param value
-     * @return 
+     * @return
      */
     @Override
     public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return setParameter(msg, originalPair, name, value, true);
+        return setParameter(msg, originalPair, name, value, true);
     }
     
     /**
-     * 
+     * Encode the parameter value for a correct URL introduction
+     * @param value the value that need to be encoded
+     * @return the Encoded value
+     */
+    private String getEscapedValue(String value) {
+        // ZAP: unfortunately the method setQuery() defined inside the httpclient Apache component
+        // create trouble when special characters like ?+? are set inside the parameter, 
+        // because this method implementation simply doesnt encode them.
+        // So we have to explicitly encode values using the URLEncoder component before setting it.
+        return (value != null) ? 
+                AbstractPlugin.getURLEncode(value) : "";
+    }
+
+    /**
+     * Decode the parameter value for a correct interpretation
+     * @param value the value that need to be decoded
+     * @return the encoded parameter value
+     */
+    private String getUnescapedValue(String value) {
+        //return value;
+        return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
+    }
+
+    /**
+     *
      * @param msg
      * @param originalPair
      * @param name
      * @param value
      * @param escaped
-     * @return 
+     * @return
      */
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
         try {
-			URI uri = msg.getRequestHeader().getURI();
-			String[] paths = msg.getRequestHeader().getURI().getPath().toString().split("/");
-			
-			if (originalPair.getPosition() >= paths.length) {
-				
-			} else {
-				paths[originalPair.getPosition()] = value;
-				String path = StringUtils.join(paths, "/");
-				if (escaped) {
-					try {
-						uri.setEscapedPath(path);
-					} catch (URIException e) {
-						// Looks like it wasnt escaped after all
-						uri.setPath(path);
-					}
-				} else {
-					uri.setPath(path);
-				}
-			}
-		} catch (URIException e) {
-			logger.error(e.getMessage(), e);
-		}
+            URI uri = msg.getRequestHeader().getURI();
+            String[] paths = msg.getRequestHeader().getURI().getPath().toString().split("/");
+            String encodedValue = (escaped) ? value : getEscapedValue(value);
+
+            if (originalPair.getPosition() < paths.length) {
+                // ZAP: encoding should happens only for the choosen parameters
+                // because the other ones has been retrieved by the original URL
+                // so they have been correctly escaped (and this situation could
+                // encode them twice...)
+                paths[originalPair.getPosition()] = encodedValue;
+                String path = StringUtils.join(paths, "/");
+                
+                try {
+                    uri.setEscapedPath(path);
+
+                } catch (URIException e) {
+                    // Looks like it wasnt escaped after all
+                    // ZAP: verify if something going wrong on this
+                    // because maybe it should be done only for the specific parameter...
+                    uri.setPath(path);                    
+                }
+            }
+            
+        } catch (URIException e) {
+            logger.error(e.getMessage(), e);
+        }
+        
         return value;
     }
 }
