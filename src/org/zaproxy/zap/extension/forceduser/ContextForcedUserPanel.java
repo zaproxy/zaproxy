@@ -143,7 +143,6 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
 		@Override
 		public User getElementAt(int index) {
-			log.info("Getting "+tableModel.getElement(index));
 			return tableModel.getElement(index);
 		}
 
