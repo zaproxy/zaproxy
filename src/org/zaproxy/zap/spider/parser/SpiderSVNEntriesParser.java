@@ -1,12 +1,13 @@
-/**
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -120,6 +121,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 			File tempSqliteFile;
 			try {
 				//get the binary data, and put it in a temp file we can use with the SQLite JDBC driver
+				//Note: File is not AutoClosable, so cannot use a "try with resources" to manage it
 				tempSqliteFile = File.createTempFile("sqlite", null);
 				tempSqliteFile.deleteOnExit();
 				OutputStream fos = new FileOutputStream (tempSqliteFile);
@@ -136,72 +138,77 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				Class.forName("org.sqlite.JDBC"); 
 				String sqliteConnectionUrl = "jdbc:sqlite:" + tempSqliteFile.getAbsolutePath();
 				
-				Connection conn = DriverManager.getConnection(sqliteConnectionUrl);				
-				if (conn != null) {
-					Statement stmt = conn.createStatement();
-					
-					//get the precise internal version of SVN in use.  
-					//this will inform how the Spider recurse should proceed in an efficient manner.
-					int svnFormat = 0;
-					ResultSet rsSVNVersion = stmt.executeQuery("pragma USER_VERSION");
-					while (rsSVNVersion.next()) {
-						svnFormat = rsSVNVersion.getInt(1);
-						break;
-					}
-					if ( log.isDebugEnabled() ) {
-						log.debug("Internal SVN version for "+ tempSqliteFile + " is "+ svnFormat);
-						log.debug("Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
-					}
-					
-					//now get the list of files stored in the SVN repo (or this folder of the repo, depending the SVN version) 
-					ResultSet rs = stmt.executeQuery("select kind,repos_path from nodes order by wc_id");
-					while (rs.next()) {
-						String kind = rs.getString(1);
-						String repos_path = rs.getString(2);
-
-						if ( repos_path != null && repos_path.length() > 0 ) {
-							log.debug("Found a file/directory name in the (SQLite based) SVN >= 1.6 wc.db file");
-
-							processURL(message, depth, "../" + repos_path + (kind.equals("dir")?"/":""), baseURL);
-	
-							//re-seed the spider for this directory.
-							//depending on the precise SVN version in use, there will either be just one "wc.db" file 
-							//in the repository root directory, or there will be a "wc.db" file
-							//in every directory associated with the repository, in which case, we need to recurse.
-							if ( kind.equals("dir") && svnFormat < 19) {
-								processURL(message, depth, "../" + repos_path + "/.svn/wc.db", baseURL);
+				try (Connection conn = DriverManager.getConnection(sqliteConnectionUrl)) {
+					if (conn != null) {
+						try (	Statement stmt = conn.createStatement();
+								ResultSet rsSVNVersion = stmt.executeQuery("pragma USER_VERSION");
+								ResultSet rs = stmt.executeQuery("select kind,repos_path from nodes order by wc_id");
+								ResultSet rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
+								) {
+							//get the precise internal version of SVN in use   
+							//this will inform how the Spider recurse should proceed in an efficient manner.
+							int svnFormat = 0;
+							while (rsSVNVersion.next()) {
+								svnFormat = rsSVNVersion.getInt(1);
+								break;
 							}
+							if ( log.isDebugEnabled() ) {
+								log.debug("Internal SVN version for "+ tempSqliteFile + " is "+ svnFormat);
+								log.debug("Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
+							}
+							
+							//now get the list of files stored in the SVN repo (or this folder of the repo, depending the SVN version) 
+							while (rs.next()) {
+								String kind = rs.getString(1);
+								String repos_path = rs.getString(2);
+		
+								if ( repos_path != null && repos_path.length() > 0 ) {
+									log.debug("Found a file/directory name in the (SQLite based) SVN >= 1.6 wc.db file");
+		
+									processURL(message, depth, "../" + repos_path + (kind.equals("dir")?"/":""), baseURL);
+			
+									//re-seed the spider for this directory.
+									//depending on the precise SVN version in use, there will either be just one "wc.db" file 
+									//in the repository root directory, or there will be a "wc.db" file
+									//in every directory associated with the repository, in which case, we need to recurse.
+									if ( kind.equals("dir") && svnFormat < 19) {
+										processURL(message, depth, "../" + repos_path + "/.svn/wc.db", baseURL);
+									}
+								}
+							}
+							
+							//get additional information on where the SVN repository is located
+							while (rsRepo.next()) {
+								String repos_path = rs.getString(1);						
+								if ( repos_path != null && repos_path.length() > 0 ) {
+									//exclude local repositories here.. we cannot retrieve or spider them
+									Matcher repoMatcher = svnRepoLocationPattern.matcher(repos_path);
+									if ( repoMatcher.find() ) {
+										log.debug("Found an SVN repository location in the (SQLite based) SVN >= 1.6 wc.db file");
+										processURL(message, depth, repos_path + "/", baseURL);	
+									}
+								}
+							}							
+						}
+						catch (Exception e) {
+							log.error ("Error executing SQL on temporary SVN SQLite database "+ sqliteConnectionUrl);
 						}
 					}
-					
-					//get additional information on where the SVN repository is located
-					ResultSet rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
-					while (rsRepo.next()) {
-						String repos_path = rs.getString(1);						
-						if ( repos_path != null && repos_path.length() > 0 ) {
-							//exclude local repositories here.. we cannot retrieve or spider them
-							Matcher repoMatcher = svnRepoLocationPattern.matcher(repos_path);
-							if ( repoMatcher.find() ) {
-								log.debug("Found an SVN repository location in the (SQLite based) SVN >= 1.6 wc.db file");
-	
-								processURL(message, depth, repos_path + "/", baseURL);	
-							}
-						}
-					}
-					
-					rs.close();
-					rsRepo.close();
-					stmt.close();
-				} else 
+				else 
 					throw new SQLException ("Could not open a JDBC connection to SQLite file "+ tempSqliteFile.getAbsolutePath());
-				
-				//close the db connection, and delete the temp file.
-				//this will be deleted when the VM is shut down anyway, but better to be safe than to run out of disk space.
-				conn.close();
-				tempSqliteFile.delete();
+				} 
+				catch (Exception e) {
+					//the connection will have been closed already, since we're used a try with resources
+					log.error ("Error parsing temporary SVN SQLite database "+ sqliteConnectionUrl);					
+				}
+				finally {
+					//delete the temp file.
+					//this will be deleted when the VM is shut down anyway, but better to be safe than to run out of disk space.				
+					tempSqliteFile.delete();
+				}
 
-			} catch (IOException | ClassNotFoundException | SQLException e) {
-				log.error("An error occurred trying to parse the SQLite based file: "+ e);
+			} catch (IOException | ClassNotFoundException e) {
+				log.error("An error occurred trying to set up to parse the SQLite based file: "+ e);
 				return;
 			}
 			
@@ -244,7 +251,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 		}
 		else	{			
 			//text based format us being used, so >= SVN 1.3 (but not later than SVN 1.6.something)
-			// Parse each line in the ".svn/entries" file
+			//Parse each line in the ".svn/entries" file
 			//we cannot use the StringTokenizer approach used by the robots.txt logic, 
 			//since this causes empty lines to be ignored, which causes problems...
 			String previousline = null;	
