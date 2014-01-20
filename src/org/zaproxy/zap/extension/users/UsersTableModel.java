@@ -121,6 +121,16 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 		this.users=new ArrayList<>();
 		this.fireTableDataChanged();
 	}
+	
+	/**
+	 * Adds a new user to this model
+	 *
+	 * @param user the user
+	 */
+	public void addUser(User user){
+		this.users.add(user);
+		this.fireTableRowsInserted(this.users.size()-1, this.users.size()-1);
+	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {

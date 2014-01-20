@@ -61,22 +61,21 @@ import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
- * The implementation for an {@link AuthenticationMethodType} where the user manually authenticates
- * and then just selects an already authenticated {@link WebSession}.
+ * The implementation for an {@link AuthenticationMethodType} where the user manually authenticates and then just
+ * selects an already authenticated {@link WebSession}.
  */
 public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 	private static final int METHOD_IDENTIFIER = 0;
 
 	/** The Authentication method's name. */
-	private static final String METHOD_NAME = Constant.messages
-			.getString("authentication.method.manual.name");
+	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.manual.name");
 
 	private static final String API_METHOD_NAME = "manualAuthentication";
 
 	/**
-	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates
-	 * and then just selects an already authenticated {@link WebSession}.
+	 * The implementation for an {@link AuthenticationMethod} where the user manually authenticates and then just
+	 * selects an already authenticated {@link WebSession}.
 	 */
 	public static class ManualAuthenticationMethod extends AuthenticationMethod {
 		private int contextId;
@@ -102,8 +101,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		}
 
 		@Override
-		public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
-				AuthenticationCredentials credentials, User user) {
+		public WebSession authenticate(SessionManagementMethod sessionManagementMethod, AuthenticationCredentials credentials,
+				User user) {
 			// Check proper type
 			if (!(credentials instanceof ManualAuthenticationCredentials)) {
 				Logger.getLogger(ManualAuthenticationMethod.class).error(
@@ -175,8 +174,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	}
 
 	/**
-	 * A credentials implementation that allows users to manually select an existing
-	 * {@link WebSession} that corresponds to an already authenticated session.
+	 * A credentials implementation that allows users to manually select an existing {@link WebSession} that corresponds
+	 * to an already authenticated session.
 	 */
 	private static class ManualAuthenticationCredentials implements AuthenticationCredentials {
 
@@ -234,8 +233,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		private JComboBox<HttpSession> sessionsComboBox;
 		private Context uiSharedContext;
 
-		public ManualAuthenticationCredentialsOptionsPanel(ManualAuthenticationCredentials credentials,
-				Context uiSharedContext) {
+		public ManualAuthenticationCredentialsOptionsPanel(ManualAuthenticationCredentials credentials, Context uiSharedContext) {
 			super(credentials);
 			this.uiSharedContext = uiSharedContext;
 			initialize();
@@ -248,12 +246,14 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		protected void initialize() {
 			this.setLayout(new GridBagLayout());
 
-			JLabel sessionsLabel = new JLabel(
-					Constant.messages.getString("authentication.method.manual.field.session"));
+			JLabel sessionsLabel = new JLabel(Constant.messages.getString("authentication.method.manual.field.session"));
 
 			this.add(sessionsLabel, LayoutHelper.getGBC(0, 0, 1, 0.5D));
 			this.add(getSessionsComboBox(), LayoutHelper.getGBC(1, 0, 1, 0.5D));
 			this.getSessionsComboBox().setRenderer(new HttpSessionRenderer());
+
+			this.add(new JLabel(Constant.messages.getString("authentication.method.manual.field.description")),
+					LayoutHelper.getGBC(0, 1, 2, 0.0d, 0.0d));
 		}
 
 		/**
@@ -264,8 +264,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 			@Override
 			@SuppressWarnings("rawtypes")
-			public Component getListCellRendererComponent(JList list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus) {
+			public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected,
+					boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				if (value != null) {
 					HttpSession item = (HttpSession) value;
@@ -277,8 +277,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 		private JComboBox<HttpSession> getSessionsComboBox() {
 			if (sessionsComboBox == null) {
-				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton()
-						.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
+				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHttpSessions.NAME);
 				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(uiSharedContext);
 				if (log.isDebugEnabled())
 					log.debug("Found sessions for Manual Authentication Config: " + sessions);
@@ -291,8 +291,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		@Override
 		public boolean validateFields() {
 			if (sessionsComboBox.getSelectedIndex() < 0) {
-				JOptionPane.showMessageDialog(this, Constant.messages
-						.getString("authentication.method.manual.dialog.error.nosession.text"),
+				JOptionPane.showMessageDialog(this,
+						Constant.messages.getString("authentication.method.manual.dialog.error.nosession.text"),
 						Constant.messages.getString("authentication.method.manual.dialog.error.title"),
 						JOptionPane.WARNING_MESSAGE);
 				sessionsComboBox.requestFocusInWindow();
@@ -338,8 +338,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 	@Override
 	public AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
 			AuthenticationCredentials credentials, Context uiSharedContext) {
-		return new ManualAuthenticationCredentialsOptionsPanel((ManualAuthenticationCredentials) credentials,
-				uiSharedContext);
+		return new ManualAuthenticationCredentialsOptionsPanel((ManualAuthenticationCredentials) credentials, uiSharedContext);
 	}
 
 	@Override
@@ -372,6 +371,12 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 		return new ManualAuthenticationCredentials();
 	}
 
+	public static ManualAuthenticationCredentials createAuthenticationCredentials(HttpSession session) {
+		ManualAuthenticationCredentials c = new ManualAuthenticationCredentials();
+		c.setSelectedSession(session);
+		return c;
+	}
+
 	/* API related constants and methods */
 
 	private static final String ACTION_SET_CREDENTIALS = "manualAuthenticationCredentials";
@@ -393,8 +398,7 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 
 	@Override
 	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
-		return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, new String[] { PARAM_SESSION_NAME },
-				null) {
+		return new ApiDynamicActionImplementor(ACTION_SET_CREDENTIALS, new String[] { PARAM_SESSION_NAME }, null) {
 
 			@Override
 			public void handleAction(JSONObject params) throws ApiException {
@@ -409,17 +413,16 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				// is called only if
 				// the Users
 				// extension is loaded
-				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control
-						.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
-				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex())
-						.getUserById(userId);
+				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
+						.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
 				if (user == null)
 					throw new ApiException(Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
 				String sessionName = ApiUtils.getNonEmptyStringParam(params, PARAM_SESSION_NAME);
 
 				// Get the matching session
-				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton()
-						.getExtensionLoader().getExtension(ExtensionHttpSessions.NAME);
+				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
+						.getExtension(ExtensionHttpSessions.NAME);
 				if (extensionHttpSessions == null)
 					throw new ApiException(Type.NO_IMPLEMENTOR, "HttpSessions extension is not loaded.");
 				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);

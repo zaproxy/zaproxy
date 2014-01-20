@@ -101,6 +101,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/** The popup menu used to remove a session. */
 	private PopupMenuRemoveSession popupMenuRemoveSession;
+	
+	/** The popup menu used to add a Manual Authentication User. */
+	private PopupMenuFactoryAddUserFromSession popupMenuAddUserFromSession;
 
 	/**
 	 * Instantiates a new extension http sessions.
@@ -163,6 +166,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuUnsetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddUserFromSession());
 		}
 
 		// Register as an API implementor
@@ -220,6 +224,19 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 		return popupMenuUnsetActiveSession;
 	}
+	
+	/**
+	 * Gets the popup menu to add a user.
+	 * 
+	 * @return the popup menu to add a user
+	 */
+	private PopupMenuFactoryAddUserFromSession getPopupMenuAddUserFromSession() {
+		if (popupMenuAddUserFromSession == null) {
+			popupMenuAddUserFromSession = new PopupMenuFactoryAddUserFromSession(this);
+		}
+		return popupMenuAddUserFromSession;
+	}
+
 
 	/**
 	 * Gets the parameters (options) for this extension and related classes.

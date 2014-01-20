@@ -428,6 +428,15 @@ public class HttpSessionsPanel extends AbstractPanel {
 	}
 
 	/**
+	 * Gets the currently selected site.
+	 *
+	 * @return the current site
+	 */
+	public String getCurrentSite(){
+		return currentSite;
+	}
+	
+	/**
 	 * Gets the selected http session.
 	 * 
 	 * @return the selected session, or null if nothing is selected

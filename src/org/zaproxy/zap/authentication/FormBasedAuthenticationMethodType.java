@@ -685,7 +685,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					 * 
 					 * @return true, if successful
 					 */
-					private boolean confirmAndExecuteUsersDeletion(Context uiSharedContext) {
+					private boolean confirmUsersDeletion(Context uiSharedContext) {
 						usersExtension = (ExtensionUserManagement) Control.getSingleton()
 								.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
 						if (usersExtension != null) {
@@ -727,7 +727,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 									+ getContext().getIndex());
 							FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
 							method.setLoginRequest(sn);
-							if(!confirmAndExecuteUsersDeletion(uiSharedContext))
+							if(!confirmUsersDeletion(uiSharedContext))
 							{
 								log.debug("Cancelled change of authentication type.");
 								return;

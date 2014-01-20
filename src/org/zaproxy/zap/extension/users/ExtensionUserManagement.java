@@ -261,6 +261,17 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().removeAllUsers();
 	}
 	
+	/**
+	 * Add a new user shown in the UI (for the Users context panel) that corresponds
+	 * to a particular shared Context.
+	 *
+	 * @param sharedContext the shared context
+	 * @param user the user
+	 */
+	public void addSharedContextUser(Context sharedContext, User user) {
+		this.getContextPanel(sharedContext.getIndex()).getUsersTableModel().addUser(user);
+	}
+	
 	public List<User> getSharedContextUsers(Context sharedContext){
 		return getContextPanel(sharedContext.getIndex()).getUsersTableModel().getUsers();
 	}
