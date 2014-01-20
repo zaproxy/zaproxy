@@ -35,6 +35,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderGitParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlFormParser;
 import org.zaproxy.zap.spider.parser.SpiderHtmlParser;
 import org.zaproxy.zap.spider.parser.SpiderODataAtomParser;
@@ -201,9 +202,6 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	public List<SpiderParser> getParsers(HttpMessage message) {
 		
-		//matches the file name of files that should be parsed with the SVN entries file parser 
-		Pattern svnEntriesFile = Pattern.compile("/\\.svn/entries$|/\\.svn/wc.db$");
-
 		// Get the full path of the file
 		String path = null;
 		try {
@@ -211,13 +209,12 @@ public class SpiderController implements SpiderParserListener {
 			log.debug("Getting parsers for " + path);
 		} catch (URIException e) {
 		}
+		//handle null paths.
+		if (path == null) path = "";
 
 		// If parsing of robots.txt is enabled, try to see if it's necessary
 		if (spider.getSpiderParam().isParseRobotsTxt()) {			
 			// If it's a robots.txt file
-			//Cosmin, should this not be something like the following line, in case someone has left  
-			//a "robots.txt" file in a folder outside the root directory?
-			//if (path != null && path.endsWith("/robots.txt")) {
 			if (path != null && path.equalsIgnoreCase("/robots.txt")) {
 			
 				log.info("Parsing a robots.txt resource...");
@@ -231,7 +228,10 @@ public class SpiderController implements SpiderParserListener {
 
 		// is SVN entries file parsing enabled, and are we parsing SVN entries file?
 		if (spider.getSpiderParam().isParseSVNEntries()) {
-			Matcher matcher = svnEntriesFile.matcher(path);
+			//matches the file name of files that should be parsed with the SVN entries file parser 
+			Pattern svnEntriesFilePattern = Pattern.compile("/\\.svn/entries$|/\\.svn/wc.db$");
+
+			Matcher matcher = svnEntriesFilePattern.matcher(path);
 			if (matcher.find()) {			
 				log.info("Parsing an SVN resource...");
 				SpiderParser parser = new SpiderSVNEntriesParser(spider.getSpiderParam());
@@ -239,6 +239,22 @@ public class SpiderController implements SpiderParserListener {
 				List<SpiderParser> svnEntriesParsers = new LinkedList<>();
 				svnEntriesParsers.add(parser);
 				return svnEntriesParsers;
+			}
+		}
+
+		// is Git file parsing enabled?
+		if (spider.getSpiderParam().isParseGit()) {
+			//matches the file name of files that should be parsed with the Git file parser 
+			Pattern gitFilePattern = Pattern.compile("/\\.git/index$");
+
+			Matcher matcher = gitFilePattern.matcher(path);
+			if (matcher.find()) {			
+				log.info("Parsing a Git resource...");
+				SpiderParser parser = new SpiderGitParser(spider.getSpiderParam());
+				parser.addSpiderParserListener(this);
+				List<SpiderParser> gitParsers = new LinkedList<>();
+				gitParsers.add(parser);
+				return gitParsers;
 			}
 		}
 
