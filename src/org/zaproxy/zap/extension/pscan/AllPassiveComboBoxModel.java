@@ -32,6 +32,7 @@ public class AllPassiveComboBoxModel<T> extends DefaultComboBoxModel<T> {
     
     // Internationalization map
     private Map<String, String> i18nToStr;
+    private ExtensionPassiveScan pscanExt;
 
     /**
      * 
@@ -82,16 +83,20 @@ public class AllPassiveComboBoxModel<T> extends DefaultComboBoxModel<T> {
      * Check if the passive ext is disabled
      * @return 
      */
-    public boolean isDisabled() {
-        return (getExtension() == null);        
+    public boolean isEnabled() {
+        return (getExtension() != null);        
     }
 
     /**
-     * 
+     * Get back the Extension object
      * @return 
      */
     private ExtensionPassiveScan getExtension() {
-        return (ExtensionPassiveScan)Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);        
+        if (pscanExt == null) {
+            pscanExt = (ExtensionPassiveScan)Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);                    
+        }
+        
+        return pscanExt;
     }
     
     /**

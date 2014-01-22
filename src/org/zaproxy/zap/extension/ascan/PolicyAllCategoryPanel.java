@@ -39,6 +39,7 @@ import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
@@ -46,6 +47,7 @@ import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class PolicyAllCategoryPanel extends AbstractParamPanel {
@@ -98,11 +100,16 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         this.add(getStrengthNotes(),
                 LayoutHelper.getGBC(2, 2, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
-        this.add(new JLabel(Constant.messages.getString("pscan.options.level.label")),
-                LayoutHelper.getGBC(0, 3, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-        this.add(getComboPassiveThreshold(),
-                LayoutHelper.getGBC(1, 3, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-        
+        // TODO This could be done in a cleaner way...
+        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+        if (pscan != null) {
+            this.add(new JLabel(Constant.messages.getString("pscan.options.level.label")),
+                    LayoutHelper.getGBC(0, 3, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            this.add(getComboPassiveThreshold(),
+                    LayoutHelper.getGBC(1, 3, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+        }
+    
+        // Finally add the scrolling list of active plugin categories
         this.add(getJScrollPane(),
                 LayoutHelper.getGBC(0, 4, 3, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
 
