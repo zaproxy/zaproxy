@@ -20,6 +20,8 @@
  */
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2014/01/22 Issue 996: Ensure all dialogs close when the escape key is pressed
+
 package org.parosproxy.paros.extension;
 
 
@@ -28,8 +30,13 @@ import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JDialog;
+import javax.swing.KeyStroke;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -75,6 +82,19 @@ public abstract class AbstractDialog extends JDialog {
 	    	this.setSize(300,200);
 	    }
 		this.setTitle(Constant.PROGRAM_NAME);
+		
+        //  Handle escape key to close the dialog    
+        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        final AbstractDialog ad = this;
+        AbstractAction escapeAction = new AbstractAction() {
+			private static final long serialVersionUID = 3516424501887406165L;
+			@Override
+            public void actionPerformed(ActionEvent e) {
+                ad.setVisible(false);
+            }
+        };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE",escapeAction);
 	}
 
 	/**
