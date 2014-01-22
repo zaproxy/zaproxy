@@ -89,7 +89,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
                 column.setPreferredWidth(width[i]);
             }
             
-            JComboBox<String> jcb1 = new JComboBox();
+            JComboBox<String> jcb1 = new JComboBox<>();
             for (AlertThreshold level : AlertThreshold.values()) {
                 jcb1.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
             }

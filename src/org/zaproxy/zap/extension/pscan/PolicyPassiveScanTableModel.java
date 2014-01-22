@@ -132,7 +132,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     private String i18nToStr(String str) {
         // Converts to i18n'ed names back to the enum names
         if (i18nToStr == null) {
-            i18nToStr = new HashMap();
+            i18nToStr = new HashMap<>();
             for (AlertThreshold at : AlertThreshold.values()) {
                 i18nToStr.put(this.strToI18n(at.name()), at.name());
             }

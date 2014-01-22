@@ -51,7 +51,7 @@ public class OptionsDialog extends AbstractParamDialog {
 
 		// ZAP: Increase width and height of options dialog
 	    //if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-	    	this.setSize(750, 570+14);
+	    	this.setSize(750, 584);
 	    //}
 	}
 	

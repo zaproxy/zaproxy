@@ -1,21 +1,19 @@
 /*
- * Paros and its related class files.
- * 
- * Paros is an HTTP/HTTPS proxy for assessing web application security.
- * Copyright (C) 2003-2004 Chinotec Technologies Company
- * 
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the Clarified Artistic License
- * as published by the Free Software Foundation.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * Clarified Artistic License for more details.
- * 
- * You should have received a copy of the Clarified Artistic License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ * Zed Attack Proxy (ZAP) and its related class files.
+ *
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.pscan;
 
@@ -30,10 +28,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 /**
  *
  */
-public class AllPassiveComboBoxModel extends DefaultComboBoxModel {
-
-    // Passive Scan Property manager
-    private ExtensionPassiveScan pscan;
+public class AllPassiveComboBoxModel<T> extends DefaultComboBoxModel<T> {
     
     // Internationalization map
     private Map<String, String> i18nToStr;
@@ -42,7 +37,6 @@ public class AllPassiveComboBoxModel extends DefaultComboBoxModel {
      * 
      */
     public AllPassiveComboBoxModel() {
-        pscan = (ExtensionPassiveScan)Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
     }
 
     /**
@@ -54,10 +48,16 @@ public class AllPassiveComboBoxModel extends DefaultComboBoxModel {
         // Check if the value is empty
         String value = (String)selected;
 
-        if (!value.isEmpty()) {
+        if ((value != null) && !value.isEmpty()) {
             // Set the value for all passive plugins
+            ExtensionPassiveScan pscan = getExtension();
             AlertThreshold at = AlertThreshold.valueOf(i18nToStr(value));
-            pscan.setAllScannerThreshold(at);
+
+            // Passive plugins could be disabled so the loader returns null
+            // in this case we've to do nothing
+            if (pscan != null) {
+                pscan.setAllScannerThreshold(at);
+            }
         }
     }
 
@@ -67,17 +67,40 @@ public class AllPassiveComboBoxModel extends DefaultComboBoxModel {
      */
     @Override
     public Object getSelectedItem() {
-        AlertThreshold at = pscan.getAllScannerThreshold();
-        return (at == null) ? "" : strToI18n(at.name());
+        ExtensionPassiveScan pscan = getExtension();
+        if (pscan != null) {
+            AlertThreshold at = pscan.getAllScannerThreshold();
+            if (at != null) {
+                return strToI18n(at.name());
+            }
+        }
+        
+        return "";
     }
 
+    /**
+     * Check if the passive ext is disabled
+     * @return 
+     */
+    public boolean isDisabled() {
+        return (getExtension() == null);        
+    }
+
+    /**
+     * 
+     * @return 
+     */
+    private ExtensionPassiveScan getExtension() {
+        return (ExtensionPassiveScan)Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);        
+    }
+    
     /**
      * 
      * @param str
      * @return 
      */
     private String strToI18n(String str) {
-        // I18n's threshold and strength enums
+        // I18n's threshold enums
         return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
     }
 
@@ -89,7 +112,7 @@ public class AllPassiveComboBoxModel extends DefaultComboBoxModel {
     private String i18nToStr(String str) {
         // Converts to i18n'ed names back to the enum names
         if (i18nToStr == null) {
-            i18nToStr = new HashMap();
+            i18nToStr = new HashMap<>();
             for (Plugin.AlertThreshold at : Plugin.AlertThreshold.values()) {
                 i18nToStr.put(this.strToI18n(at.name()), at.name());
             }

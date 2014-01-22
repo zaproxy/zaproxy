@@ -24,7 +24,7 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 package org.zaproxy.zap.extension.ascan;
 
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,7 +46,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.threshold"),
         Constant.messages.getString("ascan.policy.table.strength")};
     
-    private List<Plugin> allPlugins = new ArrayList<>();
+    private List<Plugin> allPlugins = Collections.EMPTY_LIST;
 
     /**
      * @param allPlugins The allPlugins to set.
@@ -120,7 +120,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
     private String i18nToStr(String str) {
         // Converts to i18n'ed names back to the enum names
         if (i18nToStr == null) {
-            i18nToStr = new HashMap();
+            i18nToStr = new HashMap<>();
             for (AlertThreshold at : AlertThreshold.values()) {
                 i18nToStr.put(this.strToI18n(at.name()), at.name());
             }

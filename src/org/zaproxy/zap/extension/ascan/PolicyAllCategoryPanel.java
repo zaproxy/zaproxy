@@ -55,7 +55,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private JTable tableTest = null;
     private JScrollPane jScrollPane = null;
     private AllCategoryTableModel allCategoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
-    private AllPassiveComboBoxModel allPassiveComboBoxModel = null; 
+    private AllPassiveComboBoxModel<String> allPassiveComboBoxModel = null; 
     private JComboBox<String> comboThreshold = null;
     private JLabel labelThresholdNotes = null;
     private JComboBox<String> comboStrength = null;
@@ -218,7 +218,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     /**
      * This method initializes categoryTableModel
      *
-     * @return org.parosproxy.paros.plugin.scanner.CategoryTableModel
+     * @return TableModel
      */
     private TableModel getAllCategoryTableModel() {
         if (allCategoryTableModel == null) {
@@ -319,7 +319,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     private JComboBox<String> getComboPassiveThreshold() {
         if (comboPassiveThreshold == null) {
-            comboPassiveThreshold = new JComboBox();
+            comboPassiveThreshold = new JComboBox<>();
             comboPassiveThreshold.setModel(getAllPassiveComboBoxModel());
 
             // Add all possible levels
@@ -338,7 +338,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     private ComboBoxModel<String> getAllPassiveComboBoxModel() {
         if (allPassiveComboBoxModel == null) {
-            allPassiveComboBoxModel = new AllPassiveComboBoxModel();
+            allPassiveComboBoxModel = new AllPassiveComboBoxModel<>();
         }
         
         return allPassiveComboBoxModel;

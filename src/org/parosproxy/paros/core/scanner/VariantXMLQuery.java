@@ -111,7 +111,7 @@ public class VariantXMLQuery extends VariantAbstractRPCQuery {
             bidx = matcher.start(2);
             eidx = matcher.end(2);
                 
-            if (value.startsWith("<![CDATA[")) {
+            if (value.startsWith("<![CDATA[") && value.endsWith("]]>")) {
                 value = value.substring(9, value.length() - 3); //<![CDATA[   //]]>
                 
             } else {

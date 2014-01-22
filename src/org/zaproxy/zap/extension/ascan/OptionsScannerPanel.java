@@ -90,7 +90,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("ascan.options.title"));
-        //this.setSize(314, 245);
         this.add(getPanelScanner(), getPanelScanner().getName());
     }
 
@@ -102,7 +101,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         if (panelScanner == null) {
             panelScanner = new JPanel();
             panelScanner.setLayout(new GridBagLayout());
-            //panelScanner.setSize(114, 132);
             panelScanner.setName("");
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.numHosts.label")),
