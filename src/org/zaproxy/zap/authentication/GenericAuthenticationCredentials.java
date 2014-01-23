@@ -22,11 +22,11 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
 		this.paramValues = new HashMap<String, String>(paramNames.length);
 	}
 
-	public String get(String paramName) {
+	public String getParam(String paramName) {
 		return paramValues.get(paramName);
 	}
 
-	public String set(String paramName, String paramValue) {
+	public String setParam(String paramName, String paramValue) {
 		return paramValues.put(paramName, paramValue);
 	}
 

@@ -132,6 +132,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			} catch (ScriptException | IOException e) {
 				log.error("An error occurred while trying to authenticate using the Authentication Script: "
 						+ this.script.getName(), e);
+				getScriptsExtension().setError(this.script, e);
 				return null;
 			}
 
