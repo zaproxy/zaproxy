@@ -5,6 +5,7 @@ import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Collections;
@@ -12,6 +13,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.script.ScriptException;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -28,7 +30,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -70,6 +75,16 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 		private Map<String, String> paramValues;
 
+		private HttpSender httpSender;
+
+		protected HttpSender getHttpSender() {
+			if (this.httpSender == null) {
+				this.httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(),
+						true, HttpSender.AUTHENTICATION_INITIATOR);
+			}
+			return httpSender;
+		}
+
 		@Override
 		public boolean isConfigured() {
 			return true;
@@ -98,8 +113,36 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		public WebSession authenticate(SessionManagementMethod sessionManagementMethod,
 				AuthenticationCredentials credentials, User user)
 				throws UnsupportedAuthenticationCredentialsException {
-			// TODO Auto-generated method stub
-			return null;
+			// type check
+			if (!(credentials instanceof GenericAuthenticationCredentials)) {
+				throw new UnsupportedAuthenticationCredentialsException(
+						"Script based Authentication method only supports "
+								+ GenericAuthenticationCredentials.class.getSimpleName());
+			}
+			GenericAuthenticationCredentials cred = (GenericAuthenticationCredentials) credentials;
+
+			// Call the script to get an authenticated message from which we can then extract the
+			// session
+			AuthenticationScript script;
+			HttpMessage msg = null;
+			try {
+				script = getScriptsExtension().getInterface(this.script, AuthenticationScript.class);
+				msg = script.authenticate(new AuthenticationHelper(getHttpSender(), sessionManagementMethod,
+						user), this.paramValues, cred);
+			} catch (ScriptException | IOException e) {
+				log.error("An error occurred while trying to authenticate using the Authentication Script: "
+						+ this.script.getName(), e);
+				return null;
+			}
+
+			// Let the user know it worked
+			AuthenticationHelper.notifyOutputAuthSuccessful();
+
+			// Add message to history
+			AuthenticationHelper.addAuthMessageToHistory(msg);
+
+			// Return the web session as extracted by the session management method
+			return sessionManagementMethod.extractWebSession(msg);
 		}
 
 		@Override
@@ -399,6 +442,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		public String[] getOptionalParamsNames();
 
 		public String[] getCredentialsParamsNames();
+
+		public HttpMessage authenticate(AuthenticationHelper helper, Map<String, String> paramsValues,
+				GenericAuthenticationCredentials credentials);
 	}
 
 }

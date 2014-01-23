@@ -52,8 +52,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -108,7 +106,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private static final String ENCODING = "UTF-8";
 		private static final String LOGIN_ICON_RESOURCE = "/resource/icon/fugue/door-open-green-arrow.png";
-		private static final String HISTORY_TAG_AUTHENTICATION = "Authentication";
 		public static final String MSG_USER_PATTERN = "{%username%}";
 		public static final String MSG_PASS_PATTERN = "{%password%}";
 
@@ -238,24 +235,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				return null;
 			}
 			// Let the user know it worked
-			if (View.isInitialised()) {
-				View.getSingleton().getOutputPanel()
-						.append(Constant.messages.getString("authentication.output.success") + "\n");
-			}
+			AuthenticationHelper.notifyOutputAuthSuccessful();
 
 			// Add message to history
-			try {
-				HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(),
-						HistoryReference.TYPE_AUTHENTICATION, msg);
-				ref.addTag(HISTORY_TAG_AUTHENTICATION);
-				ExtensionHistory extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader()
-						.getExtension(ExtensionHistory.class);
-				if (extHistory != null) {
-					extHistory.addHistory(ref);
-				}
-			} catch (Exception ex) {
-				log.error("Cannot add authentication message to History tab.", ex);
-			}
+			AuthenticationHelper.addAuthMessageToHistory(msg);
 
 			// Return the web session as extracted by the session management method
 			return sessionManagementMethod.extractWebSession(msg);
@@ -561,18 +544,23 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private void updateParameters() {
 			try {
 				if (authenticationMethod.isConfigured()) {
-					Map<String, String> params = Model.getSingleton().getSession().getFormParams(
-							new URI(authenticationMethod.loginRequestURL, true), this.postDataField.getText());
+					Map<String, String> params = Model
+							.getSingleton()
+							.getSession()
+							.getFormParams(new URI(authenticationMethod.loginRequestURL, true),
+									this.postDataField.getText());
 					HtmlParameter[] paramsArray = mapToParamArray(params);
 					this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
 					this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(mapToParamArray(params)));
-	
-					int index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_USER_PATTERN);
+
+					int index = getIndexOfParamWithValue(paramsArray,
+							FormBasedAuthenticationMethod.MSG_USER_PATTERN);
 					if (index >= 0) {
 						this.usernameParameterCombo.setSelectedIndex(index);
 					}
-	
-					index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
+
+					index = getIndexOfParamWithValue(paramsArray,
+							FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
 					if (index >= 0) {
 						this.passwordParameterCombo.setSelectedIndex(index);
 					}
@@ -581,10 +569,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				log.error(e.getMessage(), e);
 			}
 		}
-		
+
 		private HtmlParameter[] mapToParamArray(Map<String, String> map) {
 			HtmlParameter[] array = new HtmlParameter[map.size()];
-			int i=0;
+			int i = 0;
 			for (Entry<String, String> param : map.entrySet()) {
 				array[i] = new HtmlParameter(Type.form, param.getKey(), param.getValue());
 			}
@@ -681,7 +669,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					private Context uiSharedContext;
 
 					/**
-					 * Make sure the user acknowledges the Users corresponding to this context will be deleted.
+					 * Make sure the user acknowledges the Users corresponding to this context will
+					 * be deleted.
 					 * 
 					 * @return true, if successful
 					 */
@@ -690,9 +679,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 								.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
 						if (usersExtension != null) {
 							if (usersExtension.getSharedContextUsers(uiSharedContext).size() > 0) {
-								int choice = JOptionPane.showConfirmDialog(this,
-										Constant.messages.getString("authentication.dialog.confirmChange.label"),
-										Constant.messages.getString("authentication.dialog.confirmChange.title"),
+								int choice = JOptionPane.showConfirmDialog(this, Constant.messages
+										.getString("authentication.dialog.confirmChange.label"),
+										Constant.messages
+												.getString("authentication.dialog.confirmChange.title"),
 										JOptionPane.OK_CANCEL_OPTION);
 								if (choice == JOptionPane.CANCEL_OPTION) {
 									return false;
@@ -701,15 +691,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 						}
 						return true;
 					}
-					
+
 					@Override
 					public void performAction(SiteNode sn) throws Exception {
 						// Manually create the UI shared contexts so any modifications are done
 						// on an UI shared Context, so changes can be undone by pressing Cancel
 						SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
 						sessionDialog.recreateUISharedContexts(Model.getSingleton().getSession());
-						uiSharedContext = sessionDialog.getUISharedContext(this.getContext()
-								.getIndex());
+						uiSharedContext = sessionDialog.getUISharedContext(this.getContext().getIndex());
 
 						// Do the work/changes on the UI shared context
 						if (this.getContext().getAuthenticationMethod() instanceof FormBasedAuthenticationMethod) {
@@ -718,34 +707,40 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 							FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) uiSharedContext
 									.getAuthenticationMethod();
 							method.setLoginRequest(sn);
-							
+
 							// Show the session dialog without recreating UI Shared contexts
-							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-									ContextAuthenticationPanel.buildName(this.getContext().getIndex()), false);
+							View.getSingleton()
+									.showSessionDialog(
+											Model.getSingleton().getSession(),
+											ContextAuthenticationPanel
+													.buildName(this.getContext().getIndex()), false);
 						} else {
 							log.info("Selected new login request via PopupMenu. Creating new Form-Based Authentication instance for Context "
 									+ getContext().getIndex());
 							FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
 							method.setLoginRequest(sn);
-							if(!confirmUsersDeletion(uiSharedContext))
-							{
+							if (!confirmUsersDeletion(uiSharedContext)) {
 								log.debug("Cancelled change of authentication type.");
 								return;
 							}
 							uiSharedContext.setAuthenticationMethod(method);
-							
+
 							// Show the session dialog without recreating UI Shared contexts
-							// NOTE: First init the panels of the dialog so old users data gets loaded and just then delete the users
-							// from the UI data model, otherwise the 'real' users from the non-shared context would be loaded
+							// NOTE: First init the panels of the dialog so old users data gets
+							// loaded and just then delete the users
+							// from the UI data model, otherwise the 'real' users from the
+							// non-shared context would be loaded
 							// and would override any deletions made.
 							View.getSingleton().showSessionDialog(Model.getSingleton().getSession(),
-									ContextAuthenticationPanel.buildName(this.getContext().getIndex()), false, new Runnable() {
-										
+									ContextAuthenticationPanel.buildName(this.getContext().getIndex()),
+									false, new Runnable() {
+
 										@Override
 										public void run() {
-											// Removing the users from the 'shared context' (the UI) will cause their removal at
+											// Removing the users from the 'shared context' (the UI)
+											// will cause their removal at
 											// save as well
-											if (usersExtension != null) 
+											if (usersExtension != null)
 												usersExtension.removeSharedContextUsers(uiSharedContext);
 										}
 									});
