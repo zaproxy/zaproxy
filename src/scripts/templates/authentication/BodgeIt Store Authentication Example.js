@@ -15,11 +15,26 @@
 					The credential values can be obtained via calls to the getParam(paramName) method. The param names are the ones
 					returned by the getCredentialsParamsNames() below
 function authenticate(helper, paramsValues, credentials) {
-	msg=helper.prepareMessage();
-	
-	// TODO: Process message to match the authentication needs
+	// Make sure any Java classes used explicitly are imported
+	importClass(org.parosproxy.paros.network.HttpRequestHeader)
+	importClass(org.parosproxy.paros.network.HttpHeader)
+	importClass(org.apache.commons.httpclient.URI)
 
+	// Prepare the login request details
+	requestUri = new URI("http://localhost:8080/bodgeit/login.jsp", false);
+	requestMethod = HttpRequestHeader.POST;
+	// Build the request body using the credentials values
+	requestBody = "username="+encodeURIComponent(credentials.getParam("username"));
+	requestBody+= "&password="+encodeURIComponent(credentials.getParam("password"));
+
+	// Build the actual message to be sent
+	msg=helper.prepareMessage();
+	msg.setRequestHeader(new HttpRequestHeader(requestMethod, requestUri, HttpHeader.HTTP10));
+	msg.setRequestBody(requestBody);
+
+	// Send the authentication message and return it
 	helper.sendAndReceive(msg);
+	println("Received response status code: "+ msg.getResponseHeader().getStatusCode());
 
 	return msg;
 }
