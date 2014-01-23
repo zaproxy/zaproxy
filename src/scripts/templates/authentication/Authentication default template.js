@@ -9,5 +9,9 @@ function getRequiredParamsNames(){
 }
 
 function getOptionalParamsNames(){
-	return ["Opt field:"];
+	return ["Opt field"];
+}
+
+function getCredentialsParamsNames(){
+	return ["username"];
 }

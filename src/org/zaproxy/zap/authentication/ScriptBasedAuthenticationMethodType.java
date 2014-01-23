@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.script.ExtensionScript;
@@ -64,6 +66,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 		private ScriptWrapper script;
 
+		private String[] credentialsParamNames;
+
 		private Map<String, String> paramValues;
 
 		@Override
@@ -76,13 +80,13 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			ScriptBasedAuthenticationMethod method = new ScriptBasedAuthenticationMethod();
 			method.script = script;
 			method.paramValues = new HashMap<String, String>(this.paramValues);
+			method.credentialsParamNames = this.credentialsParamNames;
 			return method;
 		}
 
 		@Override
 		public AuthenticationCredentials createAuthenticationCredentials() {
-			// TODO Auto-generated method stub
-			return null;
+			return new GenericAuthenticationCredentials(this.credentialsParamNames);
 		}
 
 		@Override
@@ -125,6 +129,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 		private DynamicFieldsPanel dynamicFieldsPanel;
 
+		private String[] loadedCredentialParams;
+
 		public ScriptBasedAuthenticationMethodOptionsPanel() {
 			super();
 			initialize();
@@ -156,13 +162,26 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 		@Override
 		public void validateFields() throws IllegalStateException {
-			// TODO Auto-generated method stub
+			if (this.loadedScript == null) {
+				this.scriptsComboBox.requestFocusInWindow();
+				throw new IllegalStateException(
+						Constant.messages
+								.getString("authentication.method.script.dialog.error.text.notLoaded"));
+			}
+			this.dynamicFieldsPanel.validateFields();
 		}
 
 		@Override
 		public void saveMethod() {
 			this.method.script = (ScriptWrapper) this.scriptsComboBox.getSelectedItem();
-			this.method.paramValues = this.dynamicFieldsPanel.getFieldValues();
+			// This method will also be called when switching panels to save a temporary state so
+			// the state of the authentication method might not be valid
+			if (this.dynamicFieldsPanel != null)
+				this.method.paramValues = this.dynamicFieldsPanel.getFieldValues();
+			else
+				this.method.paramValues = Collections.emptyMap();
+			if (this.loadedScript != null)
+				this.method.credentialsParamNames = this.loadedCredentialParams;
 		}
 
 		@Override
@@ -198,6 +217,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 					String[] requiredParams = script.getRequiredParamsNames();
 					String[] optionalParams = script.getOptionalParamsNames();
+					this.loadedCredentialParams = script.getCredentialsParamsNames();
 					if (log.isDebugEnabled()) {
 						log.debug("Loaded authentication script - required parameters: "
 								+ Arrays.toString(requiredParams) + " - optional parameters: "
@@ -269,7 +289,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				setBorder(BORDER);
 				ScriptWrapper item = (ScriptWrapper) value;
 				if (panel.loadedScript == item)
-					setText("<html><b>" + item.getName() + "</b></html>");
+					setText("<html><b>" + item.getName() + " (loaded)</b></html>");
 				else
 					setText(item.getName());
 			}
@@ -316,14 +336,13 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 	@Override
 	public AbstractCredentialsOptionsPanel<? extends AuthenticationCredentials> buildCredentialsOptionsPanel(
 			AuthenticationCredentials credentials, Context uiSharedContext) {
-		// TODO Auto-generated method stub
-		return null;
+		return new GenericAuthenticationCredentialsOptionsPanel(
+				(GenericAuthenticationCredentials) credentials);
 	}
 
 	@Override
 	public boolean hasCredentialsOptionsPanel() {
-		// TODO Auto-generated method stub
-		return false;
+		return true;
 	}
 
 	@Override
@@ -346,8 +365,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	@Override
 	public AuthenticationCredentials createAuthenticationCredentials() {
-		// TODO Auto-generated method stub
-		return null;
+		// NOTE: This method will initialize a set of Credentials without any required parameters
+		// and, thus, should be later modified explicitly (e.g. through calls to decode())
+		return new GenericAuthenticationCredentials(new String[0]);
 	}
 
 	@Override
@@ -377,6 +397,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		public String[] getRequiredParamsNames();
 
 		public String[] getOptionalParamsNames();
+
+		public String[] getCredentialsParamsNames();
 	}
 
 }
