@@ -80,7 +80,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	 */
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(102);
+		this.setOrder(52);
 
 		// TODO: Prepare API
 		// this.api = new AuthAPI(this);
