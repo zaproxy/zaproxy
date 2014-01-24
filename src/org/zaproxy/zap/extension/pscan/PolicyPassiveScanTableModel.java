@@ -29,6 +29,7 @@ import javax.swing.table.DefaultTableModel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
+import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel;
 
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
@@ -38,6 +39,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.testname"),
         Constant.messages.getString("ascan.policy.table.threshold")};
 
+    private PolicyAllCategoryPanel allPanel = null;
     private List<PluginPassiveScanner> listScanners = new ArrayList<>();
     private Map<String, String> i18nToStr = null;
 
@@ -45,6 +47,14 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      *
      */
     public PolicyPassiveScanTableModel() {
+    }
+    
+    /**
+     * Set the all category panel thta should be updated when config changed
+     * @param allPanel 
+     */
+    public void setAllCategoryPanel(PolicyAllCategoryPanel allPanel) {
+        this.allPanel = allPanel;
     }
 
     /**
@@ -119,6 +129,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 test.setLevel(af);
                 test.setEnabled(!AlertThreshold.OFF.equals(af));
                 test.save();
+                allPanel.updatePassiveThreshold();
                 fireTableCellUpdated(row, col);
                 break;
         }

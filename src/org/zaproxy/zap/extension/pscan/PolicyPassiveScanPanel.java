@@ -32,6 +32,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel;
 
 public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
@@ -46,6 +47,14 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
     public PolicyPassiveScanPanel() {
         super();
         initialize();
+    }
+
+    /**
+     * Set the all category panel thta should be updated when config changed
+     * @param allPanel 
+     */
+    public void setAllCategoryPanel(PolicyAllCategoryPanel allPanel) {
+        this.getPassiveScanTableModel().setAllCategoryPanel(allPanel);
     }
 
     /**

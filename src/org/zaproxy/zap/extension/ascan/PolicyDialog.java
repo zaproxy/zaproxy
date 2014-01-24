@@ -86,7 +86,7 @@ public class PolicyDialog extends AbstractParamDialog {
      *
      * @return org.parosproxy.paros.extension.scanner.PolicyAllCategoryPanel
      */
-    private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
+    public PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
         if (policyAllCategoryPanel == null) {
             policyAllCategoryPanel = new PolicyAllCategoryPanel();
             policyAllCategoryPanel.setName(Constant.messages.getString("ascan.policy.title"));

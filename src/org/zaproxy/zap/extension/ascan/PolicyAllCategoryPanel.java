@@ -22,13 +22,11 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 package org.zaproxy.zap.extension.ascan;
 
-import org.zaproxy.zap.extension.pscan.AllPassiveComboBoxModel;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import javax.swing.ComboBoxModel;
 
 import javax.swing.DefaultCellEditor;
 import javax.swing.JComboBox;
@@ -47,6 +45,7 @@ import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+//import org.zaproxy.zap.extension.pscan.AllPassiveComboBoxModel;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -57,7 +56,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private JTable tableTest = null;
     private JScrollPane jScrollPane = null;
     private AllCategoryTableModel allCategoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
-    private AllPassiveComboBoxModel<String> allPassiveComboBoxModel = null; 
     private JComboBox<String> comboThreshold = null;
     private JLabel labelThresholdNotes = null;
     private JComboBox<String> comboStrength = null;
@@ -107,6 +105,8 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(0, 3, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             this.add(getComboPassiveThreshold(),
                     LayoutHelper.getGBC(1, 3, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+
+            this.updatePassiveThreshold();
         }
     
         // Finally add the scrolling list of active plugin categories
@@ -327,13 +327,42 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private JComboBox<String> getComboPassiveThreshold() {
         if (comboPassiveThreshold == null) {
             comboPassiveThreshold = new JComboBox<>();
-            comboPassiveThreshold.setModel(getAllPassiveComboBoxModel());
-
+            //comboPassiveThreshold.setModel(new AllPassiveComboBoxModel<String>());
             // Add all possible levels
             comboPassiveThreshold.addItem("");	// Always show a blank one for where they are not all the same
             for (AlertThreshold level : AlertThreshold.values()) {
                 comboPassiveThreshold.addItem(Constant.messages.getString("ascan.policy.level." + level.name().toLowerCase()));
             }
+
+            comboPassiveThreshold.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+
+                    String value = (String)comboPassiveThreshold.getSelectedItem();
+                    ExtensionPassiveScan pscan = (ExtensionPassiveScan)Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+
+                    if ((value != null) && !value.isEmpty() && (pscan != null)) {
+                        // Set the value for all passive plugins
+                        
+                        if (comboPassiveThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.policy.level.low"))) {
+                            pscan.setAllScannerThreshold(AlertThreshold.LOW);
+
+                        } else if (comboPassiveThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.policy.level.medium"))) {
+                            pscan.setAllScannerThreshold(AlertThreshold.MEDIUM);
+                            
+                        } else if (comboPassiveThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.policy.level.high"))) {
+                            pscan.setAllScannerThreshold(AlertThreshold.HIGH);
+                            
+                        } else if (comboPassiveThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.policy.level.off"))) {
+                            pscan.setAllScannerThreshold(AlertThreshold.OFF);
+                            
+                        } else if (comboPassiveThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.policy.level.default"))) {
+                            pscan.setAllScannerThreshold(AlertThreshold.DEFAULT);
+                        }
+                    }
+                }
+            });
+
         }
 
         return comboPassiveThreshold;
@@ -343,14 +372,42 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      * 
      * @return 
      */
-    private ComboBoxModel<String> getAllPassiveComboBoxModel() {
-        if (allPassiveComboBoxModel == null) {
-            allPassiveComboBoxModel = new AllPassiveComboBoxModel<>();
-        }
-        
-        return allPassiveComboBoxModel;
-    }
+    public void updatePassiveThreshold() {
+        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
+        String selectedItem = "";
 
+        // Set the correct alert threshold value common to all plugins
+        if (pscan != null) {
+            
+            AlertThreshold at = pscan.getAllScannerThreshold();
+            if (at != null) {
+                switch (at) {
+                    case LOW:
+                        selectedItem = Constant.messages.getString("ascan.policy.level.low");
+                        break;
+
+                    case MEDIUM:
+                        selectedItem = Constant.messages.getString("ascan.policy.level.medium");
+                        break;
+
+                    case HIGH:
+                        selectedItem = Constant.messages.getString("ascan.policy.level.high");
+                        break;
+
+                    case OFF:
+                        selectedItem = Constant.messages.getString("ascan.policy.level.off");
+                        break;
+
+                    default:
+                        selectedItem = Constant.messages.getString("ascan.policy.level.default");
+                        break;
+                }
+            }
+        }
+
+        getComboPassiveThreshold().setSelectedItem(selectedItem);
+    }    
+    
     /**
      * 
      * @return 

@@ -55,6 +55,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
+import org.zaproxy.zap.extension.pscan.PolicyPassiveScanPanel;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -203,7 +204,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         // TODO This could be done in a cleaner way...
         ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
         if (pscan != null) {
-            dialog.addPolicyPanel(pscan.getPolicyPanel());
+            PolicyPassiveScanPanel ppanel = pscan.getPolicyPanel();
+            ppanel.setAllCategoryPanel(dialog.getPolicyAllCategoryPanel());
+            dialog.addPolicyPanel(ppanel);
         }
 
         int result = dialog.showDialog(true);
