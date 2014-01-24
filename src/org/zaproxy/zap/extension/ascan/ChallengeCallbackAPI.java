@@ -41,10 +41,10 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     private static final long CALLBACK_EXPIRE_TIME = 2 * 60 * 1000;
     
     // Internal logger
-    private static Logger logger = Logger.getLogger(ChallengeCallbackAPI.class);
+    private static final Logger logger = Logger.getLogger(ChallengeCallbackAPI.class);
     
     // The registered callbacks for this API
-    private TreeMap<String, RegisteredCallback> regCallbacks = new TreeMap();
+    private final TreeMap<String, RegisteredCallback> regCallbacks = new TreeMap();
 
     /**
      * Default contructor
@@ -105,11 +105,10 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     }
 
     /**
-     *
-     * @param name
-     * @param params
+     * 
+     * @param msg
      * @return
-     * @throws ApiException
+     * @throws ApiException 
      */
     @Override
     public HttpMessage handleShortcut(HttpMessage msg) throws ApiException {
@@ -121,7 +120,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
         try {
             String path = msg.getRequestHeader().getURI().getPath();            
             String challenge = path.substring(path.indexOf(getPrefix()) + getPrefix().length() + 1);
-            if (challenge.charAt(challenge.length()) == '/') {
+            if (challenge.charAt(challenge.length() - 1) == '/') {
                 challenge = challenge.substring(0, challenge.length() - 1);
             }
             
