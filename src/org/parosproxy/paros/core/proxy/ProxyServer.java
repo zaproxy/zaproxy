@@ -26,9 +26,10 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/12/27 Added PersistentConnectionListener list, setter & getter.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-
+// ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
+//
 package org.parosproxy.paros.core.proxy;
- 
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
@@ -51,24 +52,21 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 
 public class ProxyServer implements Runnable {
-	
-	protected Thread	thread = null;
 
-	protected static final int PORT_TIME_OUT = 0;
-	protected ServerSocket proxySocket = null;
-	protected boolean isProxyRunning = false;
-	protected ProxyParam proxyParam = new ProxyParam();
-	protected ConnectionParam connectionParam = new ConnectionParam();
-	protected Vector<ProxyListener> listenerList = new Vector<>();
-	protected Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
-	// ZAP: Added listenersComparator.
+    protected Thread thread = null;
+    protected static final int PORT_TIME_OUT = 0;
+    protected ServerSocket proxySocket = null;
+    protected boolean isProxyRunning = false;
+    protected ProxyParam proxyParam = new ProxyParam();
+    protected ConnectionParam connectionParam = new ConnectionParam();
+    protected Vector<ProxyListener> listenerList = new Vector<>();
+    protected Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
+    // ZAP: Added listenersComparator.
     private static Comparator<ArrangeableProxyListener> listenersComparator;
-	protected boolean serialize = false;
+    protected boolean serialize = false;
     protected boolean enableCacheProcessing = false;
     protected Vector<CacheProcessingItem> cacheProcessingList = new Vector<>();
-
     private List<Pattern> excludeUrls = null;
-
     private static Logger log = Logger.getLogger(ProxyServer.class);
 
     /**
@@ -77,192 +75,213 @@ public class ProxyServer implements Runnable {
     public boolean isEnableCacheProcessing() {
         return enableCacheProcessing;
     }
+
     /**
      * @param enableCacheProcessing The enableCacheProcessing to set.
      */
     public void setEnableCacheProcessing(boolean enableCacheProcessing) {
         this.enableCacheProcessing = enableCacheProcessing;
+        
         if (!enableCacheProcessing) {
             cacheProcessingList.clear();
         }
     }
-    
+
     /**
      * @return Returns the serialize.
      */
     public boolean isSerialize() {
         return serialize;
     }
-	public ProxyServer() {
-	}
 
-	public void setProxyParam(ProxyParam param) {
-		proxyParam = param;
-	}
+    public ProxyServer() {
+    }
 
-	public ProxyParam getProxyParam() {
-		return proxyParam;
-	}
-	
-	public void setConnectionParam(ConnectionParam connection) {
-	    connectionParam = connection;
-	}
+    public void setProxyParam(ProxyParam param) {
+        proxyParam = param;
+    }
 
-	public ConnectionParam getConnectionParam() {
-	    return connectionParam;
-	}
-	
-	/**
-	 * 
-	 * @return	true = the server is started successfully.
-	 */
-	public synchronized int startServer(String ip, int port, boolean isDynamicPort) {
+    public ProxyParam getProxyParam() {
+        return proxyParam;
+    }
 
-		if (isProxyRunning) {
-			stopServer();
-		}
-	
-		isProxyRunning	= false;
+    public void setConnectionParam(ConnectionParam connection) {
+        connectionParam = connection;
+    }
 
-		// ZAP: Set the name of the thread.
-		thread = new Thread(this, "ZAP-ProxyServer");
-		thread.setDaemon(true);   
+    public ConnectionParam getConnectionParam() {
+        return connectionParam;
+    }
+
+    /**
+     *
+     * @return	true = the server is started successfully.
+     */
+    public synchronized int startServer(String ip, int port, boolean isDynamicPort) {
+
+        if (isProxyRunning) {
+            stopServer();
+        }
+
+        isProxyRunning = false;
+
+        // ZAP: Set the name of the thread.
+        thread = new Thread(this, "ZAP-ProxyServer");
+        thread.setDaemon(true);
         // the priority below should be higher than normal to allow fast accept on the server socket
-   	    thread.setPriority(Thread.NORM_PRIORITY+1);
+        thread.setPriority(Thread.NORM_PRIORITY + 1);
 
-   	    proxySocket = null;
-   	    for (int i=0; i<20 && proxySocket == null; i++) {
-   	        try {
-   	            
-   	            proxySocket = createServerSocket(ip, port);
-   	            proxySocket.setSoTimeout(PORT_TIME_OUT);
-   	            isProxyRunning = true;
-   	            
-   	        } catch(UnknownHostException e) {
-            	// ZAP: Warn the user if the host is unknown
-            	if (View.isInitialised()) {
-            		View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
-            	} else {
-            		System.out.println(Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
-            	}
-            	return -1;
-            } catch(Exception e) {
-   	            if (!isDynamicPort) {
-   	            	// ZAP: Warn the user if we cant listen on the static port
-   	            	if (View.isInitialised()) {
-   	            		View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.port") + " " + port);
-   	            	} else {
-   	            		System.out.println(Constant.messages.getString("proxy.error.port") + " " + port);
-   	            	}
-   	                return -1;
-   	            } else {
-   	                if (port < 65535) {
-   	                    port++;
-   	                }
-   	            }
-   	        }
-   	        
-   	    }
+        proxySocket = null;
+        for (int i = 0; i < 20 && proxySocket == null; i++) {
+            try {
+                proxySocket = createServerSocket(ip, port);
+                proxySocket.setSoTimeout(PORT_TIME_OUT);
+                isProxyRunning = true;
 
-   	    if (proxySocket == null) {
-   	        return -1;
-   	    }
-   	    
-		thread.start();
+            } catch (UnknownHostException e) {
+                // ZAP: Warn the user if the host is unknown
+                if (View.isInitialised()) {
+                    View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
+                
+                } else {
+                    System.out.println(Constant.messages.getString("proxy.error.host.unknow") + " " + ip);
+                }
+                
+                return -1;
+                
+            } catch (Exception e) {
+                if (!isDynamicPort) {
+                    // ZAP: Warn the user if we cant listen on the static port
+                    if (View.isInitialised()) {
+                        View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.port") + " " + port);
+                    
+                    } else {
+                        System.out.println(Constant.messages.getString("proxy.error.port") + " " + port);
+                    
+                    }
+                    
+                    return -1;
+                
+                } else {
+                    if (port < 65535) {
+                        port++;
+                    }
+                }
+            }
 
-		return proxySocket.getLocalPort();
-		
-	}
+        }
 
-	/**
-	 * Stop this server
-	 * @return true if server can be stopped.
-	 */
-	public synchronized boolean stopServer(){
+        if (proxySocket == null) {
+            return -1;
+        }
 
-		if (!isProxyRunning) {
-			return false;
-		}
+        thread.start();
 
-		isProxyRunning = false;
+        return proxySocket.getLocalPort();
+
+    }
+
+    /**
+     * Stop this server
+     *
+     * @return true if server can be stopped.
+     */
+    public synchronized boolean stopServer() {
+
+        if (!isProxyRunning) {
+            return false;
+        }
+
+        isProxyRunning = false;
         HttpUtil.closeServerSocket(proxySocket);
 
-		try {
-			thread.join();   //(PORT_TIME_OUT);
-		} catch (Exception e) {
-		}
+        try {
+            thread.join();   //(PORT_TIME_OUT);
+            
+        } catch (Exception e) {
+        }
 
-		proxySocket = null;
+        proxySocket = null;
 
-		return true;
-	}
+        return true;
+    }
 
-	@Override
-	public void run() {
+    @Override
+    public void run() {
 
-		Socket clientSocket = null;
-		ProxyThread process = null;
+        Socket clientSocket;
+        ProxyThread process;
 
-		while (isProxyRunning) {
-			try {
-				clientSocket = proxySocket.accept();
-				process = createProxyProcess(clientSocket);
-				process.start();
-			} catch (SocketTimeoutException e) {
-			    // nothing, socket time reached only.
-			} catch (IOException e) {
-			    // unknown IO exception - continue but with delay to avoid eating up CPU time if continue
-			    try {
+        while (isProxyRunning) {
+            try {
+                clientSocket = proxySocket.accept();
+                process = createProxyProcess(clientSocket);
+                process.start();
+                
+            } catch (SocketTimeoutException e) {
+                // nothing, socket time reached only.
+            } catch (IOException e) {
+                // unknown IO exception - continue but with delay to avoid eating up CPU time if continue
+                try {
                     Thread.sleep(100);
+                    
                 } catch (InterruptedException e1) {
                 }
-			}
-			
-		}
+            }
 
-	}
+        }
 
-	protected ServerSocket createServerSocket(String ip, int port) throws UnknownHostException, IOException {
-//		ServerSocket socket = new ServerSocket(port, 300, InetAddress.getByName(ip)getProxyParam().getProxyIp()));
-		ServerSocket socket = new ServerSocket(port, 400, InetAddress.getByName(ip));
+    }
 
-		return socket;
-	}
-	
-	protected ProxyThread createProxyProcess(Socket clientSocket) {
-		ProxyThread process = new ProxyThread(this, clientSocket);
-		return process;
-	}
-	
-	protected void writeOutput(String s) {
-	}
-	
-	public void addProxyListener(ProxyListener listener) {
-		listenerList.add(listener);
-		// ZAP: Added to sort the listeners.
-		Collections.sort(listenerList, getListenersComparator());
-	}
-	
-	public void removeProxyListener(ProxyListener listener) {
-		listenerList.remove(listener);
-	}
-	
-	synchronized List<ProxyListener> getListenerList() {
-		return listenerList;
-	}
-	
-	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
-		persistentConnectionListenerList.add(listener);
-		Collections.sort(persistentConnectionListenerList, getListenersComparator());
-	}
-	
-	public void removePersistentConnectionListener(PersistentConnectionListener listener) {
-		persistentConnectionListenerList.remove(listener);
-	}
+    protected ServerSocket createServerSocket(String ip, int port) throws UnknownHostException, IOException {
+        // ServerSocket socket = new ServerSocket(port, 300, InetAddress.getByName(ip)getProxyParam().getProxyIp()));
+        //
+        // ZAP: added the possibility to bound to all interfaces (using null as InetAddress)
+        //      when the ip is null or an empty string        
+        InetAddress addr = null;
+        if ((ip != null) && !ip.isEmpty()) {
+            addr = InetAddress.getByName(ip);
+        }
+        
+        ServerSocket socket = new ServerSocket(port, 400, addr);
 
-	synchronized List<PersistentConnectionListener> getPersistentConnectionListenerList() {
-		return persistentConnectionListenerList;
-	}
+        return socket;
+    }
+
+    protected ProxyThread createProxyProcess(Socket clientSocket) {
+        ProxyThread process = new ProxyThread(this, clientSocket);
+        return process;
+    }
+
+    protected void writeOutput(String s) {
+    }
+
+    public void addProxyListener(ProxyListener listener) {
+        listenerList.add(listener);
+        // ZAP: Added to sort the listeners.
+        Collections.sort(listenerList, getListenersComparator());
+    }
+
+    public void removeProxyListener(ProxyListener listener) {
+        listenerList.remove(listener);
+    }
+
+    synchronized List<ProxyListener> getListenerList() {
+        return listenerList;
+    }
+
+    public void addPersistentConnectionListener(PersistentConnectionListener listener) {
+        persistentConnectionListenerList.add(listener);
+        Collections.sort(persistentConnectionListenerList, getListenersComparator());
+    }
+
+    public void removePersistentConnectionListener(PersistentConnectionListener listener) {
+        persistentConnectionListenerList.remove(listener);
+    }
+
+    synchronized List<PersistentConnectionListener> getPersistentConnectionListenerList() {
+        return persistentConnectionListenerList;
+    }
 
     public boolean isAnyProxyThreadRunning() {
         return ProxyThread.isAnyProxyThreadRunning();
@@ -278,64 +297,66 @@ public class ProxyServer implements Runnable {
     public void addCacheProcessingList(CacheProcessingItem item) {
         cacheProcessingList.add(item);
     }
-    
+
     Vector<CacheProcessingItem> getCacheProcessingList() {
         return cacheProcessingList;
     }
-    
-	public void setExcludeList(List<String> urls) {
-		excludeUrls = new ArrayList<>(urls.size());
-	    for (String url : urls) {
-			Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-			excludeUrls.add(p);
-	    }
-	}
-	
-	public boolean excludeUrl(URI uri) {
-		boolean ignore = false;
-		if (excludeUrls != null) {
-			String uriString = uri.toString();
-			for (Pattern p : excludeUrls) {
-				if (p.matcher(uriString).matches()) {
-					ignore = true;
-					if (log.isDebugEnabled()) {
-						log.debug("URL excluded: " + uriString + " Regex: " + p.pattern());
-					}
-					break;
-				}
-			}
-		}
-		return ignore;
-	}
-    
-	// ZAP: Added the method.
-	private Comparator<ArrangeableProxyListener> getListenersComparator() {
-		if(listenersComparator == null) {
-			createListenersComparator();
-		}
-		
-		return listenersComparator;
-	}
-	
-	// ZAP: Added the method.
-	private synchronized void createListenersComparator() {
-		if (listenersComparator == null) {
-			listenersComparator = new Comparator<ArrangeableProxyListener>() {
-				
-				@Override
-				public int compare(ArrangeableProxyListener o1, ArrangeableProxyListener o2) {
-					int order1 = o1.getArrangeableListenerOrder();
-					int order2 = o2.getArrangeableListenerOrder();
-					
-					if (order1 < order2) {
-						return -1;
-					} else if (order1 > order2) {
-						return 1;
-					}
-					
-					return 0;
-				}
-			};
-		}
-	}
+
+    public void setExcludeList(List<String> urls) {
+        excludeUrls = new ArrayList<>(urls.size());
+        for (String url : urls) {
+            Pattern p = Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+            excludeUrls.add(p);
+        }
+    }
+
+    public boolean excludeUrl(URI uri) {
+        boolean ignore = false;
+        if (excludeUrls != null) {
+            String uriString = uri.toString();
+            for (Pattern p : excludeUrls) {
+                if (p.matcher(uriString).matches()) {
+                    ignore = true;
+                    if (log.isDebugEnabled()) {
+                        log.debug("URL excluded: " + uriString + " Regex: " + p.pattern());
+                    }
+                    
+                    break;
+                }
+            }
+        }
+        
+        return ignore;
+    }
+
+    // ZAP: Added the method.
+    private Comparator<ArrangeableProxyListener> getListenersComparator() {
+        if (listenersComparator == null) {
+            createListenersComparator();
+        }
+
+        return listenersComparator;
+    }
+
+    // ZAP: Added the method.
+    private synchronized void createListenersComparator() {
+        if (listenersComparator == null) {
+            listenersComparator = new Comparator<ArrangeableProxyListener>() {
+                @Override
+                public int compare(ArrangeableProxyListener o1, ArrangeableProxyListener o2) {
+                    int order1 = o1.getArrangeableListenerOrder();
+                    int order2 = o2.getArrangeableListenerOrder();
+
+                    if (order1 < order2) {
+                        return -1;
+                        
+                    } else if (order1 > order2) {
+                        return 1;
+                    }
+
+                    return 0;
+                }
+            };
+        }
+    }
 }

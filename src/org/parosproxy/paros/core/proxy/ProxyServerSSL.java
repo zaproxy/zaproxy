@@ -21,6 +21,8 @@
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
+//
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -32,28 +34,33 @@ import java.net.UnknownHostException;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.SSLConnector;
 
-
 public class ProxyServerSSL extends ProxyServer {
-	
-	private static SSLConnector ssl = HttpSender.getSSLConnector();
-    
-	public ProxyServerSSL() {
-		super();
-	}
-	
-	
-	@Override
-	protected ServerSocket createServerSocket(String ip, int port) throws UnknownHostException, IOException {
-		
-//		ServerSocket socket = ssl.listen(port, 300, InetAddress.getByName(getProxyParam().getProxyIp()));
-		ServerSocket socket = ssl.listen(port, 300, InetAddress.getByName(ip));
 
-		return socket;
-	}
-	
-	@Override
-	protected ProxyThread createProxyProcess(Socket clientSocket) {
-		ProxyThreadSSL process = new ProxyThreadSSL(this, clientSocket);
-		return process;
-	}
+    private static SSLConnector ssl = HttpSender.getSSLConnector();
+
+    public ProxyServerSSL() {
+        super();
+    }
+
+    @Override
+    protected ServerSocket createServerSocket(String ip, int port) throws UnknownHostException, IOException {
+
+        // ZAP: added the possibility to bound to all interfaces (using null as InetAddress)
+        //      when the ip is null or an empty string        
+        InetAddress addr = null;
+        if ((ip != null) && !ip.isEmpty()) {
+            addr = InetAddress.getByName(ip);
+        }
+        
+        //ServerSocket socket = ssl.listen(port, 300, InetAddress.getByName(getProxyParam().getProxyIp()));
+        ServerSocket socket = ssl.listen(port, 300, addr);
+
+        return socket;
+    }
+
+    @Override
+    protected ProxyThread createProxyProcess(Socket clientSocket) {
+        ProxyThreadSSL process = new ProxyThreadSSL(this, clientSocket);
+        return process;
+    }
 }
