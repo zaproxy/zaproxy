@@ -88,7 +88,8 @@ public class Proxy {
 		    	// Save the override in the configs
 		    	model.getOptionsParam().getProxyParam().setProxyIp(proxyHost);
 		    } else {
-		    	proxyHost = model.getOptionsParam().getProxyParam().getProxyIp();
+                        // ZAP: get the proxy IP as set without any check for nullable
+		    	proxyHost = model.getOptionsParam().getProxyParam().getRawProxyIP();
 		    }
 		    if (proxyPort > 0) {
 		    	// Save the override in the configs
