@@ -769,7 +769,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		List<String> postDatas = session.getContextDataStrings(contextId,
 				RecordContext.TYPE_AUTH_METHOD_FIELD_2);
 		String postData = null;
-		if (postDatas != null && urls.size() > 0) {
+		if (postDatas != null && postDatas.size() > 0) {
 			postData = postDatas.get(0);
 		}
 

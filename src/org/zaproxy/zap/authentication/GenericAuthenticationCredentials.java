@@ -8,11 +8,11 @@ import javax.swing.JOptionPane;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.utils.EncodingUtils;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 
 public class GenericAuthenticationCredentials implements AuthenticationCredentials {
 
-	private static String FIELD_SEPARATOR = "~";
 	private String[] paramNames;
 	private Map<String, String> paramValues;
 
@@ -37,14 +37,13 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
 
 	@Override
 	public String encode(String parentFieldSeparator) {
-		// TODO Auto-generated method stub
-		return null;
+		return EncodingUtils.mapToString(paramValues);
 	}
 
 	@Override
 	public void decode(String encodedCredentials) {
-		// TODO Auto-generated method stub
-
+		this.paramValues = EncodingUtils.stringToMap(encodedCredentials);
+		this.paramNames = this.paramValues.keySet().toArray(new String[this.paramValues.size()]);
 	}
 
 	@Override

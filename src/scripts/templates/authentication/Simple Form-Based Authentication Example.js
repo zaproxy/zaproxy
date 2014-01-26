@@ -32,7 +32,7 @@ function authenticate(helper, paramsValues, credentials) {
 	extraPostData = paramsValues.get("Extra POST data");
 	requestBody = paramsValues.get("Username field")+"="+encodeURIComponent(credentials.getParam("Username"));
 	requestBody+= "&"+paramsValues.get("Password field")+"="+encodeURIComponent(credentials.getParam("Password"));
-	if(extraPostData.trim().length>0)
+	if(extraPostData.trim().length()>0)
 		requestBody += "&"+extraPostData.trim();
 
 	// Build the actual message to be sent

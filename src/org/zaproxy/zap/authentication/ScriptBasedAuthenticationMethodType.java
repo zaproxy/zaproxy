@@ -29,6 +29,7 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -45,8 +46,11 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.EncodingUtils;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
+
+import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
 
 public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodType {
 
@@ -353,7 +357,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 	}
 
 	@Override
-	public AuthenticationMethod createAuthenticationMethod(int contextId) {
+	public ScriptBasedAuthenticationMethod createAuthenticationMethod(int contextId) {
 		return new ScriptBasedAuthenticationMethod();
 	}
 
@@ -396,15 +400,68 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	@Override
 	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
-		// TODO Auto-generated method stub
-		return null;
+		ScriptBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
+
+		// Load the script and make sure it still exists and still follows the required interface
+		List<String> scripts = session.getContextDataStrings(contextId,
+				RecordContext.TYPE_AUTH_METHOD_FIELD_1);
+		String scriptName = "";
+		if (scripts != null && scripts.size() > 0) {
+			scriptName = scripts.get(0);
+			ScriptWrapper script = getScriptsExtension().getScript(scriptName);
+			if (script == null) {
+				log.error("Unable to find script while loading Script Based Authentication Method for name: "
+						+ scriptName);
+			} else
+				log.info("Loaded script:" + script.getName());
+			method.script = script;
+
+			// Check script interface and make sure we load the credentials parameter names
+			AuthenticationScript s;
+			try {
+				s = getScriptsExtension().getInterface(script, AuthenticationScript.class);
+				if (s != null) {
+					method.credentialsParamNames = s.getCredentialsParamsNames();
+				} else {
+					log.error("Unable to load Script Based Authentication method. The script "
+							+ script.getName()
+							+ " does not properly implement the Authentication Script interface.");
+				}
+			} catch (ScriptException | IOException e) {
+				log.error("Unable to load Script Based Authentication method. The script " + script.getName()
+						+ " does not properly implement the Authentication Script interface.");
+			}
+
+		}
+
+		// Load the parameter values
+		List<String> paramValuesS = session.getContextDataStrings(contextId,
+				RecordContext.TYPE_AUTH_METHOD_FIELD_2);
+		Map<String, String> paramValues = null;
+		if (paramValuesS != null && paramValuesS.size() > 0) {
+			paramValues = EncodingUtils.stringToMap(paramValuesS.get(0));
+			method.paramValues = paramValues;
+		} else {
+			method.paramValues = new HashMap<String, String>();
+			log.error("Unable to load script parameter values loading Script Based Authentication Method for name: "
+					+ scriptName);
+		}
+
+		return method;
 	}
 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod)
 			throws UnsupportedAuthenticationMethodException, SQLException {
-		// TODO Auto-generated method stub
+		if (!(authMethod instanceof ScriptBasedAuthenticationMethod))
+			throw new UnsupportedAuthenticationMethodException(
+					"Script based authentication type only supports: "
+							+ ScriptBasedAuthenticationMethod.class);
 
+		ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
+		session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.script.getName());
+		session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_2,
+				EncodingUtils.mapToString(method.paramValues));
 	}
 
 	@Override
