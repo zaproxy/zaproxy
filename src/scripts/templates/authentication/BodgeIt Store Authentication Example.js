@@ -7,11 +7,12 @@
 // Parameters:
 //		helper - a helper class providing useful methods: prepareMessage(), sendAndReceive(msg)
 //		paramsValues - the values of the parameters configured in the Session Properties -> Authentication panel.
-					The paramsValues is a map, having as keys the parameters names (as returned by the getRequiredParamsNames()
-					and getOptionalParamsNames() functions below)
+//					The paramsValues is a map, having as keys the parameters names (as returned by the getRequiredParamsNames()
+//					and getOptionalParamsNames() functions below)
 //		credentials - an object containing the credentials values, as configured in the Session Properties -> Users panel.
-					The credential values can be obtained via calls to the getParam(paramName) method. The param names are the ones
-					returned by the getCredentialsParamsNames() below
+//					The credential values can be obtained via calls to the getParam(paramName) method. The param names are the ones
+//					returned by the getCredentialsParamsNames() below
+
 function authenticate(helper, paramsValues, credentials) {
 	// Make sure any Java classes used explicitly are imported
 	importClass(org.parosproxy.paros.network.HttpRequestHeader)
