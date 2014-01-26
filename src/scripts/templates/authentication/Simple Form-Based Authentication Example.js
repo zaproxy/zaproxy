@@ -1,3 +1,8 @@
+// This authentication script can be used to authenticate in a webapplication via forms.
+// The submit target for the form, the name of the username field, the name of the password field
+// and, optionally, any extra POST Data fields need to be specified after loading the script.
+// The username and the password need to be configured when creating any Users.
+
 // The authenticate function is called whenever ZAP requires to authenticate, for a Context for which this script
 // was selected as the Authentication Method. The function should send any messages that are required to do the authentication
 // and should return a message with an authenticated response so the calling method.
@@ -19,14 +24,18 @@ function authenticate(helper, paramsValues, credentials) {
 	importClass(org.apache.commons.httpclient.URI)
 
 	// Prepare the login request details
-	requestUri = new URI("http://localhost:8080/bodgeit/login.jsp", false);
+	requestUri = new URI(paramsValues.get("Target URL", false);
 	requestMethod = HttpRequestHeader.POST;
+	
 	// Build the request body using the credentials values
-	requestBody = "username="+encodeURIComponent(credentials.getParam("username"));
-	requestBody+= "&password="+encodeURIComponent(credentials.getParam("password"));
+	extraPostData = paramsValues.get("Extra POST data");
+	requestBody = paramsValues.get("Username field")+"="+encodeURIComponent(credentials.getParam("Username"));
+	requestBody+= paramsValues.get("Password field")+"="+encodeURIComponent(credentials.getParam("Password"));
+	if(extraPostData.trim().length>0)
+		requestBody += "&"+extraPostData.trim();
 
 	// Build the actual message to be sent
-	msg=helper.prepareMessage();
+	msg = helper.prepareMessage();
 	msg.setRequestHeader(new HttpRequestHeader(requestMethod, requestUri, HttpHeader.HTTP10));
 	msg.setRequestBody(requestBody);
 
@@ -41,18 +50,18 @@ function authenticate(helper, paramsValues, credentials) {
 // that will be shown in the Session Properties -> Authentication panel for configuration. They can be used
 // to input dynamic data into the script, from the user interface (e.g. a login URL, name of POST parameters etc.)
 function getRequiredParamsNames(){
-	return [];
+	return ["Target URL","Username field","Password field"];
 }
 
 // This function is called during the script loading to obtain a list of the names of the optional configuration parameters,
 // that will be shown in the Session Properties -> Authentication panel for configuration. They can be used
 // to input dynamic data into the script, from the user interface (e.g. a login URL, name of POST parameters etc.)
 function getOptionalParamsNames(){
-	return [];
+	return ["Extra POST data"];
 }
 
 // This function is called during the script loading to obtain a list of the names of the parameters that are required,
 // as credentials, for each User configured corresponding to an Authentication using this script 
 function getCredentialsParamsNames(){
-	return ["username", "password"];
+	return ["Username", "Password"];
 }

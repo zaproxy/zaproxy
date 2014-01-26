@@ -28,14 +28,14 @@ function authenticate(helper, paramsValues, credentials) {
 // that will be shown in the Session Properties -> Authentication panel for configuration. They can be used
 // to input dynamic data into the script, from the user interface (e.g. a login URL, name of POST parameters etc.)
 function getRequiredParamsNames(){
-	return ["targetURL", "field2"];
+	return ["exampleTargetURL", "exampleField2"];
 }
 
 // This function is called during the script loading to obtain a list of the names of the optional configuration parameters,
 // that will be shown in the Session Properties -> Authentication panel for configuration. They can be used
 // to input dynamic data into the script, from the user interface (e.g. a login URL, name of POST parameters etc.)
 function getOptionalParamsNames(){
-	return ["field3"];
+	return ["exampleField3"];
 }
 
 // This function is called during the script loading to obtain a list of the names of the parameters that are required,
