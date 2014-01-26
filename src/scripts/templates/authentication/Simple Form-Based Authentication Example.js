@@ -25,13 +25,13 @@ function authenticate(helper, paramsValues, credentials) {
 	importClass(org.apache.commons.httpclient.URI)
 
 	// Prepare the login request details
-	requestUri = new URI(paramsValues.get("Target URL", false);
+	requestUri = new URI(paramsValues.get("Target URL"), false);
 	requestMethod = HttpRequestHeader.POST;
 	
 	// Build the request body using the credentials values
 	extraPostData = paramsValues.get("Extra POST data");
 	requestBody = paramsValues.get("Username field")+"="+encodeURIComponent(credentials.getParam("Username"));
-	requestBody+= paramsValues.get("Password field")+"="+encodeURIComponent(credentials.getParam("Password"));
+	requestBody+= "&"+paramsValues.get("Password field")+"="+encodeURIComponent(credentials.getParam("Password"));
 	if(extraPostData.trim().length>0)
 		requestBody += "&"+extraPostData.trim();
 
