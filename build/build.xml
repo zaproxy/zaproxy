@@ -305,7 +305,7 @@
 
         <mkdir dir="${crowdin.dir}"/>
         <copy todir="${crowdin.dir}">
-            <url url="http://crowdin.net/download/project/${crowdin.project.name}.zip"/>
+            <url url="https://crowdin.net/download/project/${crowdin.project.name}.zip"/>
             <flattenmapper/>
         </copy>
         <unzip src="${crowdin.dir}/${crowdin.project.name}.zip" dest="${crowdin.dir}" stripAbsolutePathSpec="true" />
