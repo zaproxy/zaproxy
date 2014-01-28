@@ -111,7 +111,7 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 		//An XML version is used up to (and including) SVN 1.2
 		//from SVN 1.3, a more space efficient text based version is used.
 		//The ".svn/entries" file format disappeared in SVN 1.6.something, in favour of 
-		//a file called ".svn/wc.db" continaing a sqlite database, so we parse this here as well.
+		//a file called ".svn/wc.db" containing a sqlite database, so we parse this here as well.
 		
 		//which format are we parsing
 		Matcher svnSQLiteFormatMatcher = svnSQLiteFormatPattern.matcher(content);
@@ -140,27 +140,37 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				
 				try (Connection conn = DriverManager.getConnection(sqliteConnectionUrl)) {
 					if (conn != null) {
-						try (	Statement stmt = conn.createStatement();
-								ResultSet rsSVNVersion = stmt.executeQuery("pragma USER_VERSION");
-								ResultSet rs = stmt.executeQuery("select kind,repos_path from nodes order by wc_id");
-								ResultSet rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
-								) {
+						Statement stmt = null;
+						ResultSet rsSVNVersion=null;
+						ResultSet rsNodes = null;
+						ResultSet rsNodes2 = null;
+						ResultSet rsRepo = null;
+						try {
+							stmt = conn.createStatement();
+							rsSVNVersion = stmt.executeQuery("pragma USER_VERSION");
+
 							//get the precise internal version of SVN in use   
 							//this will inform how the Spider recurse should proceed in an efficient manner.
 							int svnFormat = 0;
 							while (rsSVNVersion.next()) {
+								if (log.isDebugEnabled()) log.debug("Got a row from 'pragma USER_VERSION'");
 								svnFormat = rsSVNVersion.getInt(1);
 								break;
+							}
+							if (svnFormat <= 0) {
+								throw new Exception ("The SVN Format of the SQLite database should be > 0. We found "+ svnFormat);
 							}
 							if ( log.isDebugEnabled() ) {
 								log.debug("Internal SVN version for "+ tempSqliteFile + " is "+ svnFormat);
 								log.debug("Refer to http://svn.apache.org/repos/asf/subversion/trunk/subversion/libsvn_wc/wc.h for more details!");
 							}
 							
+							rsNodes = stmt.executeQuery("select kind,repos_path from nodes order by wc_id");
 							//now get the list of files stored in the SVN repo (or this folder of the repo, depending the SVN version) 
-							while (rs.next()) {
-								String kind = rs.getString(1);
-								String repos_path = rs.getString(2);
+							while (rsNodes.next()) {
+								if (log.isDebugEnabled()) log.debug("Got a Node");
+								String kind = rsNodes.getString(1);
+								String repos_path = rsNodes.getString(2);
 		
 								if ( repos_path != null && repos_path.length() > 0 ) {
 									log.debug("Found a file/directory name in the (SQLite based) SVN >= 1.6 wc.db file");
@@ -177,9 +187,26 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 								}
 							}
 							
+							//alternative paths to nodes, using the SHA1, which sometimes seems to exist, sometimes not.
+							//note: we only see SHA1s for files, not folders. This is unlike the case above (which is why we do that first) 
+							rsNodes2 = stmt.executeQuery("select 'pristine/'||substr(checksum,7,2) || \"/\" || substr(checksum,7)|| \".svn-base\" from nodes where kind = 'file'");
+							while (rsNodes2.next()) {
+								if (log.isDebugEnabled()) log.debug("Got an alternative (file) Node");
+								String repos_path = rsNodes2.getString(1);
+								if ( repos_path != null && repos_path.length() > 0 ) {
+									log.debug("Found an alternative file/directory name in the (SQLite based) SVN >= 1.6 wc.db file");
+		
+									processURL(message, depth, repos_path, baseURL);
+									//no folders, so no re-seeding is required
+								}
+							}
+							
+							
+							rsRepo = stmt.executeQuery("select root from REPOSITORY order by id");
 							//get additional information on where the SVN repository is located
 							while (rsRepo.next()) {
-								String repos_path = rs.getString(1);						
+								if (log.isDebugEnabled()) log.debug("Got a Repository");
+								String repos_path = rsRepo.getString(1);		
 								if ( repos_path != null && repos_path.length() > 0 ) {
 									//exclude local repositories here.. we cannot retrieve or spider them
 									Matcher repoMatcher = svnRepoLocationPattern.matcher(repos_path);
@@ -191,7 +218,15 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 							}							
 						}
 						catch (Exception e) {
-							log.error ("Error executing SQL on temporary SVN SQLite database "+ sqliteConnectionUrl);
+							log.error ("Error executing SQL on temporary SVN SQLite database '"+ sqliteConnectionUrl + "': "+ e);
+						}
+						finally {
+							//the JDBC driver in use does not play well with "try with resource" construct. I tried!
+							if (rsRepo != null) rsRepo.close();
+							if (rsNodes2 != null) rsNodes2.close();
+							if (rsNodes != null) rsNodes.close();
+							if (rsSVNVersion != null) rsSVNVersion.close(); 			
+							if (stmt != null) stmt.close();
 						}
 					}
 				else 
@@ -228,25 +263,32 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				String svnEntryName = ((Element)svnEntryNode).getAttribute("name");
 				String svnEntryKind = ((Element)svnEntryNode).getAttribute("kind");
 				String svnEntryUrl = ((Element)svnEntryNode).getAttribute("url");
+				String svnEntryCopyFromUrl = ((Element)svnEntryNode).getAttribute("copyfrom-url");
 				
 				if ( svnEntryName != null && svnEntryName.length() > 0 ) {
 					log.debug("Found a file/directory name in the (XML based) SVN < 1.3 entries file");
-				
 					processURL(message, depth, "../" + svnEntryName + (svnEntryKind.equals("dir")?"/":""), baseURL);
-					
 					//re-seed the spider for this directory. 
 					if ( svnEntryKind.equals("dir") ) {
 						processURL(message, depth, "../" + svnEntryName + "/.svn/entries", baseURL);
 					}
-				} else if ( svnEntryName != null && svnEntryName.length() == 0 && svnEntryKind.equals("dir") ) {
+				} 
+				//expected to be true for the first entry only (the directory housing other entries)
+				if ( svnEntryName != null && svnEntryName.length() == 0 && svnEntryKind.equals("dir") ) {
 					//exclude local repositories here.. we cannot retrieve or spider them
 					Matcher repoMatcher = svnRepoLocationPattern.matcher(svnEntryUrl);
 					if ( repoMatcher.find() ) {
 						log.debug("Found an SVN repository location in the (XML based) SVN < 1.3 entries file");
-						
 						processURL(message, depth, svnEntryUrl + "/", baseURL);
 					}
 				}
+				//this attribute seems to be set on various entries. Correspond to files, rather than directories 
+				Matcher urlMatcher = svnRepoLocationPattern.matcher(svnEntryCopyFromUrl);
+				if ( urlMatcher.find() ) {
+					log.debug("Found an SVN URL in the (XML based) SVN < 1.3 entries file");
+					processURL(message, depth, svnEntryCopyFromUrl , baseURL);
+				}
+				
 			}
 		}
 		else	{			
