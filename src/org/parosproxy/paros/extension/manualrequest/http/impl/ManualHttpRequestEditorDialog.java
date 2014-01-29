@@ -20,26 +20,29 @@
  */
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 // ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
+import java.awt.Event;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -57,6 +60,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 
 public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
@@ -64,7 +68,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	private static final long serialVersionUID = -5830450800029295419L;
     private static final Logger logger = Logger.getLogger(ManualHttpRequestEditorDialog.class);
 
-	private JMenuItem menuItem;
+	private ZapMenuItem menuItem;
 	
 	private HttpPanelSender sender;
 
@@ -229,12 +233,11 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	}
 
 	@Override
-	public JMenuItem getMenuItem() {
+	public ZapMenuItem getMenuItem() {
 		if (menuItem == null) {
-			menuItem = new JMenuItem();
-			menuItem.setText(Constant.messages.getString("menu.tools.manReq"));	// ZAP: i18n
+			menuItem = new ZapMenuItem("menu.tools.manReq",
+					KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK, false));
 			menuItem.addActionListener(new ActionListener() {
-				
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					Message message = getMessage();

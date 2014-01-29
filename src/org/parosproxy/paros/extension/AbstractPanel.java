@@ -21,6 +21,7 @@
 // ZAP: 2012/11/30 Issue 425: Added tab index to support quick start tab 
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/12/13 Added support for remembering the old tab name, which is used for nameless tabs.
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension;
 
@@ -29,6 +30,7 @@ import java.awt.Component;
 import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.KeyStroke;
 
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -39,11 +41,13 @@ public class AbstractPanel extends JPanel {
 	
 	// ZAP: Added icon
 	private Icon icon = null;
-  private int tabIndex = -1;
-  private TabbedPanel2 parent = null;
-  private boolean hideable = true;
-  private String originalName = null;
-	
+	private int tabIndex = -1;
+	private TabbedPanel2 parent = null;
+	private boolean hideable = true;
+
+	private KeyStroke defaultAccelerator;
+	private char mnemonic;
+ 	
 	public Icon getIcon() {
 		return icon;
 	}
@@ -99,4 +103,19 @@ public class AbstractPanel extends JPanel {
 		this.hideable = hideable;
 	}
 
+	public KeyStroke getDefaultAccelerator() {
+		return defaultAccelerator;
+	}
+	
+	public void setDefaultAccelerator(KeyStroke defaultAccelerator) {
+		this.defaultAccelerator = defaultAccelerator;
+	}
+	
+	public char getMnemonic() {
+		return mnemonic;
+	}
+	
+	public void setMnemonic(char mnemonic) {
+		this.mnemonic = mnemonic;
+	}
 }

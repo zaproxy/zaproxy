@@ -18,13 +18,16 @@
 
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.Event;
 import java.awt.Insets;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -75,6 +78,10 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
 		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension,
 				spiderScanParam);
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_D, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("spider.panel.mnemonic"));
+
 	}
 
 	@Override

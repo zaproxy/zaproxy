@@ -23,6 +23,7 @@
 // ZAP: 2012/03/15 Added the method addPopupMenuItem(ExtensionPopupMenu menu).
 // ZAP: 2012/05/03 Changed to only initialise the class variables MENU_SEPARATOR
 // and POPUP_MENU_SEPARATOR if there is a view.
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension;
 
@@ -35,6 +36,7 @@ import javax.swing.JMenuItem;
 
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionHookMenu {
     
@@ -108,26 +110,75 @@ public class ExtensionHookMenu {
         return reportMenuList;
     }
 
+    /**
+     * Add a menu item to the File menu
+     *
+     * @deprecated use {@link addFileMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addFileMenuItem(JMenuItem menuItem) {
         getFile().add(menuItem);
     }
 
+    /**
+     * Add a menu item to the Edit menu
+     *
+     * @deprecated use {@link addEditMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addEditMenuItem(JMenuItem menuItem) {
         getEdit().add(menuItem);
     }
 
+    /**
+     * Add a menu item to the View menu
+     *
+     * @deprecated use {@link addViewMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addViewMenuItem(JMenuItem menuItem) {
         getView().add(menuItem);
     }
 
+    /**
+     * Add a menu item to the Analyse menu
+     *
+     * @deprecated use {@link addAnalyseMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addAnalyseMenuItem(JMenuItem menuItem) {
         getAnalyse().add(menuItem);
     }
 
+    /**
+     * Add a menu item to the Tools menu
+     *
+     * @deprecated use {@link addToolsMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addToolsMenuItem(JMenuItem menuItem) {
         getTools().add(menuItem);
     }
     
+    public void addFileMenuItem(ZapMenuItem menuItem) {
+        getFile().add(menuItem);
+    }
+
+    public void addEditMenuItem(ZapMenuItem menuItem) {
+        getEdit().add(menuItem);
+    }
+
+    public void addViewMenuItem(ZapMenuItem menuItem) {
+        getView().add(menuItem);
+    }
+
+    public void addAnalyseMenuItem(ZapMenuItem menuItem) {
+        getAnalyse().add(menuItem);
+    }
+
+    public void addToolsMenuItem(ZapMenuItem menuItem) {
+        getTools().add(menuItem);
+    }
 
 
     public void addNewMenu(JMenu menu) {
@@ -148,11 +199,31 @@ public class ExtensionHookMenu {
         getPopupMenus().add(menu);
     }
     
+    /**
+     * Add a menu item to the Help menu
+     *
+     * @deprecated use {@link addHelpMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addHelpMenuItem(JMenuItem menuItem) {
         getHelpMenus().add(menuItem);        
     }
     
+    /**
+     * Add a menu item to the Report menu
+     *
+     * @deprecated use {@link addReportMenuItem(ZapMenuItem menuItem)} instead.  
+     */
+    @Deprecated
     public void addReportMenuItem(JMenuItem menuItem) {
+        getReportMenus().add(menuItem);        
+    }
+    
+    public void addHelpMenuItem(ZapMenuItem menuItem) {
+        getHelpMenus().add(menuItem);        
+    }
+    
+    public void addReportMenuItem(ZapMenuItem menuItem) {
         getReportMenus().add(menuItem);        
     }
     

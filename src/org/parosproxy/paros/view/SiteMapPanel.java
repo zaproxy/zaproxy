@@ -25,24 +25,30 @@
 // ZAP: 2012/06/13 Added custom tree cell renderer to treeSite in getTreeSite().
 // ZAP: 2013/01/25 Added method for removing listener.
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
+import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JPanel;
+import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-import javax.swing.Icon;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -51,13 +57,12 @@ import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 
-public class SiteMapPanel extends JPanel {
+public class SiteMapPanel extends AbstractPanel {
 
 	private static final long serialVersionUID = -3161729504065679088L;
 
 	// ZAP: Added logger
     private static Logger log = Logger.getLogger(SiteMapPanel.class);
-	private Icon icon = null;
 
 	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
@@ -75,14 +80,6 @@ public class SiteMapPanel extends JPanel {
 		initialize();
 	}
 
-
-	public Icon getIcon() {
-		return icon;
-	}
-	public void setIcon(Icon icon) {
-		this.icon = icon;
-	}
-
 	private View getView() {
 	    if (view == null) {
 	        view = View.getSingleton();
@@ -94,6 +91,11 @@ public class SiteMapPanel extends JPanel {
 	 * This method initializes this
 	 */
 	private  void initialize() {
+	    this.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png")));
+	    this.setName(Constant.messages.getString("sites.panel.title"));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("sites.panel.mnemonic"));
+
 		this.setLayout(new CardLayout());
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(300,200);

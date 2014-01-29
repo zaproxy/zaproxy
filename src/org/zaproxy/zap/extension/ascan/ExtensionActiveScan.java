@@ -19,7 +19,9 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,8 +31,8 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
@@ -60,6 +62,7 @@ import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionActiveScan extends ExtensionAdaptor implements
         SessionChangedListener, CommandLineListener, ProxyListener, SiteMapListener {
@@ -83,7 +86,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         DEPENDENCIES = Collections.unmodifiableList(dep);
     }
     
-    private JMenuItem menuItemPolicy = null;
+    private ZapMenuItem menuItemPolicy = null;
     private OptionsScannerPanel optionsScannerPanel = null;
     private ActiveScanPanel activeScanPanel = null;
     private ScannerParam scannerParam = null;
@@ -179,10 +182,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
      *
      * @return javax.swing.JMenuItem
      */
-    private JMenuItem getMenuItemPolicy() {
+    private ZapMenuItem getMenuItemPolicy() {
         if (menuItemPolicy == null) {
-            menuItemPolicy = new JMenuItem();
-            menuItemPolicy.setText(Constant.messages.getString("menu.analyse.scanPolicy"));
+            menuItemPolicy = new ZapMenuItem("menu.analyse.scanPolicy",
+					KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK, false));
+
             menuItemPolicy.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {

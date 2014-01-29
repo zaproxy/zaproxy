@@ -61,6 +61,16 @@ import org.zaproxy.zap.utils.ZapTextField;
  *
  */
 public abstract class StandardFieldsDialog extends AbstractFrame {
+	/**
+	 * TODO
+	 * 		File selector field
+	 * :	Way to make fields read only etc
+	 * :	Hook for closing the dialog
+	 * :		Double length text (readonly?) info field
+	 * 		Link labels to fields
+	 * 		Help links
+	 * :	Override button texts
+	 */
 
 	private static final Logger logger = Logger.getLogger(StandardFieldsDialog.class);
 
@@ -155,11 +165,15 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
 
 	}
+	
+	public String getSaveButtonText() {
+		return Constant.messages.getString("all.button.save");
+	}
 
 	private JButton getSaveButton() {
 		if (saveButton == null) {
 			saveButton = new JButton();
-			saveButton.setText(Constant.messages.getString("all.button.save"));
+			saveButton.setText(this.getSaveButtonText());
 			saveButton.addActionListener(new ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -175,17 +189,28 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 		return saveButton;
 	}
+
+	public String getCancelButtonText() {
+		return Constant.messages.getString("all.button.cancel");
+	}
 	
+	/**
+	 * Gets called when the cancel button is pressed - override to do anything other than just close the window
+	 */
+	public void cancelPressed() {
+		setVisible(false);
+	}
+
 	private JButton getCancelButton() {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
-			cancelButton.setText(Constant.messages.getString("all.button.cancel"));
+			cancelButton.setText(this.getCancelButtonText());
 
 			cancelButton.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					setVisible(false);
+					cancelPressed();
 				}
 			});
 		}
@@ -590,6 +615,15 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		this.incTabOffset(tabIndex);
 	}
 
+	/**
+	 * Allow the caller to get the field component in order to, for example, change its properties
+	 * @param fieldLabel
+	 * @return
+	 */
+	public Component getField(String fieldLabel) {
+		return this.fieldMap.get(fieldLabel);
+	}
+
 	public String getStringValue(String fieldLabel) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
@@ -615,6 +649,8 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 				((ZapTextArea)c).setText(value);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).setSelectedItem(value);
+			} else if (c instanceof JLabel) {
+				((JLabel)c).setText(value);
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}
@@ -672,6 +708,45 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 	}
 	
+	public void addReadOnlyField(String fieldLabel, String value, boolean doubleWidth) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		JLabel field = new JLabel();
+		if (value != null) {
+			field.setText(value);
+		}
+		if (doubleWidth) {
+			this.getMainPanel().add(field, 
+					LayoutHelper.getGBC(0, this.fieldList.size(), 2, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+			this.fieldList.add(field);
+			this.fieldMap.put(fieldLabel, field);
+		} else {
+			this.addField(fieldLabel, field, field, 0.0D);
+		}
+	}
+
+	public void addReadOnlyField(int tabIndex, String fieldLabel, String value, boolean doubleWidth) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		JLabel field = new JLabel();
+		if (value != null) {
+			field.setText(value);
+		}
+
+		if (doubleWidth) {
+			// TODO
+		} else {
+			this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
+		}
+		incTabOffset(tabIndex);
+	}
+
+	
 	public Boolean getBoolValue(String fieldLabel) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
@@ -682,7 +757,6 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 			}
 		}
 		return null;
-		
 	}
 	
 	public void addFieldListener(String fieldLabel, ActionListener listener) {
@@ -692,6 +766,8 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 				((ZapTextField)c).addActionListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addActionListener(listener);
+			} else if (c instanceof JCheckBox) {
+				((JCheckBox)c).addActionListener(listener);
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}

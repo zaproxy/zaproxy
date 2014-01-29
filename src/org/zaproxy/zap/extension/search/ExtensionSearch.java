@@ -19,11 +19,13 @@
  */
 package org.zaproxy.zap.extension.search;
 
+import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -34,6 +36,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -44,9 +47,9 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	private static final Logger logger = Logger.getLogger(ExtensionSearch.class);
 	
 	private SearchPanel searchPanel = null;
-    private JMenuItem menuSearch = null;
-    private JMenuItem menuNext = null;
-    private JMenuItem menuPrev = null;
+    private ZapMenuItem menuSearch = null;
+    private ZapMenuItem menuNext = null;
+    private ZapMenuItem menuPrev = null;
     
     private SearchThread searchThread = null;
     private boolean searchJustInScope = false;
@@ -169,12 +172,10 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	    }
 	}
 
-	private JMenuItem getMenuSearch() {
+	private ZapMenuItem getMenuSearch() {
         if (menuSearch == null) {
-        	menuSearch = new JMenuItem();
-        	menuSearch.setText(Constant.messages.getString("menu.edit.search"));
-        	menuSearch.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-        			java.awt.event.KeyEvent.VK_H, java.awt.Event.CTRL_MASK, false));
+        	menuSearch = new ZapMenuItem("menu.edit.search",
+        			KeyStroke.getKeyStroke(KeyEvent.VK_H, Event.CTRL_MASK, false));
 
         	menuSearch.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -186,13 +187,10 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         return menuSearch;
     }
 
-    private JMenuItem getMenuNext() {
+    private ZapMenuItem getMenuNext() {
         if (menuNext == null) {
-        	menuNext = new JMenuItem();
-        	menuNext.setText(Constant.messages.getString("menu.edit.next"));
-        	
-        	menuNext.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-        			java.awt.event.KeyEvent.VK_G, java.awt.Event.CTRL_MASK, false));
+        	menuNext = new ZapMenuItem("menu.edit.next", 
+        			KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK, false));
 
         	menuNext.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -204,10 +202,9 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
         return menuNext;
     }
 
-    private JMenuItem getMenuPrev() {
+    private ZapMenuItem getMenuPrev() {
         if (menuPrev == null) {
-        	menuPrev = new JMenuItem();
-        	menuPrev.setText(Constant.messages.getString("menu.edit.previous"));
+        	menuPrev = new ZapMenuItem("menu.edit.previous");
 
         	menuPrev.addActionListener(new java.awt.event.ActionListener() {
                 @Override

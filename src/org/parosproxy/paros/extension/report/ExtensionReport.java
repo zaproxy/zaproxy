@@ -25,13 +25,12 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
 import java.util.List;
-
-import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -39,14 +38,15 @@ import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionReport extends ExtensionAdaptor implements CommandLineListener {
 
     private static final int ARG_LAST_SCAN_REPORT_IDX = 0;
 
     // ZAP: Changed to support XML reports as well
-	private JMenuItem menuItemHtmlReport = null;
-	private JMenuItem menuItemXmlReport = null;
+	private ZapMenuItem menuItemHtmlReport = null;
+	private ZapMenuItem menuItemXmlReport = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 	// ZAP Added logger
 	private Logger logger = Logger.getLogger(ExtensionReport.class);
@@ -88,10 +88,9 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 
 	}
 
-	private JMenuItem getMenuItemHtmlReport() {
+	private ZapMenuItem getMenuItemHtmlReport() {
 		if (menuItemHtmlReport == null) {
-			menuItemHtmlReport = new JMenuItem();
-			menuItemHtmlReport.setText(Constant.messages.getString("menu.report.html.generate"));	// ZAP: i18n
+			menuItemHtmlReport = new ZapMenuItem("menu.report.html.generate");
 			menuItemHtmlReport.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override
@@ -107,10 +106,9 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 		return menuItemHtmlReport;
 	}
 	
-	private JMenuItem getMenuItemXmlReport() {
+	private ZapMenuItem getMenuItemXmlReport() {
 		if (menuItemXmlReport == null) {
-			menuItemXmlReport = new JMenuItem();
-			menuItemXmlReport.setText(Constant.messages.getString("menu.report.xml.generate"));
+			menuItemXmlReport = new ZapMenuItem("menu.report.xml.generate");
 			menuItemXmlReport.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override

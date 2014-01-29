@@ -20,7 +20,9 @@
 package org.zaproxy.zap.extension.params;
 
 import java.awt.CardLayout;
+import java.awt.Event;
 import java.awt.GridBagConstraints;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
@@ -29,6 +31,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -76,6 +79,8 @@ public class ParamsPanel extends AbstractPanel{
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("params.panel.title"));
 		this.setIcon(new ImageIcon(ParamsPanel.class.getResource("/resource/icon/16/179.png")));	// 'form' icon
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("params.panel.mnemonic"));
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}
 	/**

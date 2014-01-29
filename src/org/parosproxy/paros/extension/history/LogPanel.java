@@ -31,13 +31,16 @@
 // ZAP: 2013/11/16 Issue 899: Remove "manual" update of toggle buttons' icon based on button's state
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 // ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.Vector;
 
@@ -46,6 +49,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -104,8 +108,10 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(600, 200);
 	    }
-		//this.add(getScrollLog(), java.awt.BorderLayout.CENTER);
 		this.add(getHistoryPanel(), java.awt.BorderLayout.CENTER);
+		
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("history.panel.mnemonic"));
 	}
     
     void setExtension(ExtensionHistory extension) {
@@ -487,7 +493,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
             }
             
             try {
-                final HistoryReference finalRef = ref;
                 final HttpMessage msg = ref.getHttpMessage();
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override

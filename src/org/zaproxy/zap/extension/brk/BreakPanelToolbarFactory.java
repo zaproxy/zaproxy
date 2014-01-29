@@ -227,7 +227,7 @@ public class BreakPanelToolbarFactory {
 	}
 
 	
-	private void setContinue(boolean isContinue) {
+	protected void setContinue(boolean isContinue) {
 		this.cont = isContinue;
 
 		stepButtonAction.setEnabled( ! isContinue);
@@ -241,7 +241,7 @@ public class BreakPanelToolbarFactory {
 		}
 	}
 
-	private void setStep(boolean isStep) {
+	protected void setStep(boolean isStep) {
 		step = isStep;
 
 		stepButtonAction.setEnabled( ! isStep);
@@ -253,6 +253,14 @@ public class BreakPanelToolbarFactory {
 		if (isStep) {
 			this.setActiveIcon(false);
 		}
+	}
+	
+	protected void drop() {
+        if (breakpointsParams.isConfirmDropMessage() && askForDropConfirmation() != JOptionPane.OK_OPTION) {
+            return;
+        }
+        toBeDropped = true;
+        setContinue(true);
 	}
 
 	public boolean isToBeDropped() {
@@ -330,11 +338,7 @@ public class BreakPanelToolbarFactory {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            if (breakpointsParams.isConfirmDropMessage() && askForDropConfirmation() != JOptionPane.OK_OPTION) {
-                return;
-            }
-            toBeDropped = true;
-            setContinue(true);
+            drop();
         }
     }
 

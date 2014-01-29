@@ -21,7 +21,6 @@ import java.net.MalformedURLException;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
-import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -29,6 +28,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.ScanStatus;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
  * This class adds a count of the number of log4j errors encountered and outputs the details
@@ -39,7 +39,7 @@ import org.zaproxy.zap.view.ScanStatus;
  */
 public class ExtensionLog4j extends ExtensionAdaptor {
 
-    private JMenuItem menuGarbageCollect = null;
+    private ZapMenuItem menuGarbageCollect = null;
 
 	private ScanStatus scanStatus;
 	
@@ -91,10 +91,9 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
 	}
 
-	private JMenuItem getMenuGarbageCollect() {
+	private ZapMenuItem getMenuGarbageCollect() {
         if (menuGarbageCollect == null) {
-        	menuGarbageCollect = new JMenuItem();
-        	menuGarbageCollect.setText(Constant.messages.getString("log4j.tools.menu.gc"));
+        	menuGarbageCollect = new ZapMenuItem("log4j.tools.menu.gc");
 
         	menuGarbageCollect.addActionListener(new java.awt.event.ActionListener() {
                 @Override

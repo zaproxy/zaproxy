@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.help;
 
 import java.awt.Component;
+import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
@@ -28,13 +29,14 @@ import javax.help.HelpBroker;
 import javax.help.HelpSet;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
-import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
  * Loads the core help files and provides GUI elements to access them.
@@ -43,7 +45,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
 	private static final String helpHS = "ZapHelp";
 
-	private JMenuItem menuHelpZap = null;
+	private ZapMenuItem menuHelpZap = null;
 	private JButton helpButton = null;
 
 	private static HelpSet hs = null;
@@ -144,10 +146,10 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		}
 	}
 
-	private JMenuItem getMenuHelpZapUserGuide() {
+	private ZapMenuItem getMenuHelpZapUserGuide() {
 		if (menuHelpZap == null) {
-			menuHelpZap = new JMenuItem();
-			menuHelpZap.setText(Constant.messages.getString("help.menu.guide"));
+			menuHelpZap = new ZapMenuItem("help.menu.guide",
+					KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0, false));
 			
 			if (getHelpBroker() != null) {
 
@@ -172,10 +174,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
 			} else {
 				logger.error("Failed to get helpset url");
 			}
-				
-			menuHelpZap.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-					java.awt.event.KeyEvent.VK_F1, 0, false));
-			
 		}
 		return menuHelpZap;
 	}

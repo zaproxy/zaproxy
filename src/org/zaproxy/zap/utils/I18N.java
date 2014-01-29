@@ -60,6 +60,24 @@ public class I18N {
     	return this.stdMessages.getString(key);
     }
     
+    /**
+     * Returns the specified char from the language file. 
+     * As these are typically used for mnemnoics the 'null' char is returned if the key is not defined 
+     * @param key
+     * @return
+     */
+    public char getChar(String key) {
+    	try {
+			String str = this.getString(key);
+			if (str.length() > 0) {
+				return str.charAt(0);
+			}
+		} catch (Exception e) {
+			// Not defined
+		}
+		return '\u0000';
+    }
+    
 	public void setLocale (Locale locale) {
     	this.locale = locale;
     	this.stdMessages = ResourceBundle.getBundle(Constant.MESSAGES_PREFIX, locale);

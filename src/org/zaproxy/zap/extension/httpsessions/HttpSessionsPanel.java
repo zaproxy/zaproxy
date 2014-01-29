@@ -20,11 +20,13 @@
 package org.zaproxy.zap.extension.httpsessions;
 
 import java.awt.CardLayout;
+import java.awt.Event;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -34,6 +36,7 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -94,6 +97,9 @@ public class HttpSessionsPanel extends AbstractPanel {
 		this.setSize(474, 251);
 		this.setName(Constant.messages.getString("httpsessions.panel.title"));
 		this.setIcon(new ImageIcon(HttpSessionsPanel.class.getResource("/resource/icon/16/session.png")));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_H, Event.CTRL_MASK | Event.ALT_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("httpsessions.panel.mnemonic"));
 		this.add(getPanelCommand(), getPanelCommand().getName());
 	}
 

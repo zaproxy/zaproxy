@@ -28,11 +28,11 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.state;
 
 import javax.swing.JCheckBoxMenuItem;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.commons.httpclient.HttpState;
@@ -42,12 +42,13 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionState extends ExtensionAdaptor implements SessionChangedListener {
 
 	private JCheckBoxMenuItem menuSessionTrackingEnable = null;
 
-	private JMenuItem menuResetSessionState = null;
+	private ZapMenuItem menuResetSessionState = null;
     /**
      * 
      */
@@ -118,10 +119,9 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */    
-	private JMenuItem getMenuResetSessionState() {
+	private ZapMenuItem getMenuResetSessionState() {
 		if (menuResetSessionState == null) {
-			menuResetSessionState = new JMenuItem();
-			menuResetSessionState.setText(Constant.messages.getString("menu.edit.resetState"));	// ZAP: i18n
+			menuResetSessionState = new ZapMenuItem("menu.edit.resetState");
 			menuResetSessionState.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {

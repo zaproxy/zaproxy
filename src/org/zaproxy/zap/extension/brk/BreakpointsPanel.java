@@ -20,8 +20,10 @@
 package org.zaproxy.zap.extension.brk;
 
 import java.awt.CardLayout;
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.event.KeyEvent;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.util.prefs.BackingStoreException;
@@ -30,6 +32,7 @@ import java.util.prefs.Preferences;
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
 
@@ -72,6 +75,9 @@ public class BreakpointsPanel extends AbstractPanel {
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("brk.panel.title"));
 		this.setIcon(new ImageIcon(BreakpointsPanel.class.getResource("/resource/icon/16/101.png")));	// 'red X' icon
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_B, Event.CTRL_MASK | Event.ALT_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("brk.panel.mnemonic"));
         this.add(getPanelCommand(), getPanelCommand().getName());
 	}
 	    

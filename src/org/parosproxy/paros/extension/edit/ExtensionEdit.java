@@ -22,22 +22,26 @@
 // ZAP: 2012/03/17 Issue 282 Added getAuthor()
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.edit;
 
+import java.awt.event.KeyEvent;
+
 import javax.swing.JFrame;
-import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.FindDialog;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionEdit extends ExtensionAdaptor {
 
     private FindDialog findDialog = null;
-    private JMenuItem menuFind = null;
+    private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
 
     /**
@@ -90,11 +94,10 @@ public class ExtensionEdit extends ExtensionAdaptor {
      * 	
      * @return javax.swing.JMenuItem	
      */
-    private JMenuItem getMenuFind() {
+    private ZapMenuItem getMenuFind() {
         if (menuFind == null) {
-            menuFind = new JMenuItem();
-            menuFind.setText(Constant.messages.getString("menu.edit.find"));	// ZAP: i18n
-            menuFind.setAccelerator(javax.swing.KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_F, java.awt.Event.CTRL_MASK, false));
+            menuFind = new ZapMenuItem("menu.edit.find", 
+            		KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_MASK, false));
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
                 @Override

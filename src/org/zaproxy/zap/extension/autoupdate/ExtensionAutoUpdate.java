@@ -18,6 +18,8 @@
  * limitations under the License. 
  */
 package org.zaproxy.zap.extension.autoupdate;
+import java.awt.Event;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -32,8 +34,8 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -58,6 +60,7 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ScanStatus;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
 	
@@ -71,8 +74,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
-	private JMenuItem menuItemCheckUpdate = null;
-	private JMenuItem menuItemLoadAddOn = null;
+	private ZapMenuItem menuItemCheckUpdate = null;
+	private ZapMenuItem menuItemLoadAddOn = null;
     
     private Logger logger = Logger.getLogger(ExtensionAutoUpdate.class);
     
@@ -120,12 +123,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */    
-	private JMenuItem getMenuItemCheckUpdate() {
+	private ZapMenuItem getMenuItemCheckUpdate() {
 		if (menuItemCheckUpdate == null) {
-			menuItemCheckUpdate = new JMenuItem();
+			menuItemCheckUpdate = new ZapMenuItem("cfu.help.menu.check", 
+					KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK, false));
 			menuItemCheckUpdate.setText(Constant.messages.getString("cfu.help.menu.check"));
 			menuItemCheckUpdate.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					getAddOnsDialog().setVisible(true);
@@ -137,12 +140,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		return menuItemCheckUpdate;
 	}
 
-	private JMenuItem getMenuItemLoadAddOn() {
+	private ZapMenuItem getMenuItemLoadAddOn() {
 		if (menuItemLoadAddOn == null) {
-			menuItemLoadAddOn = new JMenuItem();
-			menuItemLoadAddOn.setText(Constant.messages.getString("cfu.file.menu.loadaddon"));
+			menuItemLoadAddOn = new ZapMenuItem("cfu.file.menu.loadaddon", 
+					KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK, false));
 			menuItemLoadAddOn.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					try {

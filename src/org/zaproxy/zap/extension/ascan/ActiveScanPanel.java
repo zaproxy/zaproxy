@@ -19,9 +19,11 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Event;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
@@ -34,6 +36,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -84,6 +87,9 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon
         super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension, null);
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
+				KeyEvent.VK_A, Event.CTRL_MASK | Event.ALT_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("ascan.panel.mnemonic"));
     }
 
 	@Override

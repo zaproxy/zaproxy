@@ -20,9 +20,11 @@
 package org.zaproxy.zap.extension.fuzz;
 
 import java.awt.CardLayout;
+import java.awt.Event;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -33,6 +35,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -85,6 +88,9 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
         this.setSize(474, 251);
         this.setName(Constant.messages.getString("fuzz.panel.title"));
 		this.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/097.png")));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_F, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("fuzz.panel.mnemonic"));
+
         this.add(getPanelCommand(), getPanelCommand().getName());
         
         // Wont need to do this if/when this class is changed to extend ScanPanel

@@ -25,12 +25,16 @@
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/09/11 Issue 786: Snapshot session menu item not working
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.view;
 
+import java.awt.Event;
+import java.awt.event.KeyEvent;
+
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -41,6 +45,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.AboutDialog;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class MainMenuBar extends JMenuBar {
 
@@ -51,17 +56,16 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenu menuEdit = null;
 	private javax.swing.JMenu menuTools = null;
 	private javax.swing.JMenu menuView = null;
-	private javax.swing.JMenuItem menuToolsOptions = null;
+	private ZapMenuItem menuToolsOptions = null;
 	private javax.swing.JMenu menuFile = null;
-	private javax.swing.JMenuItem menuFileNewSession = null;
-	private javax.swing.JMenuItem menuFileOpen = null;
-	private javax.swing.JMenuItem menuFileSaveAs = null;
-	private javax.swing.JMenuItem menuFileSnapshot = null;
-	private javax.swing.JMenuItem menuFileExit = null;
-	private JMenuItem menuFileProperties = null;
-	private JMenuItem menuFileSave = null;
+	private ZapMenuItem menuFileNewSession = null;
+	private ZapMenuItem menuFileOpen = null;
+	private ZapMenuItem menuFileSaveAs = null;
+	private ZapMenuItem menuFileSnapshot = null;
+	private ZapMenuItem menuFileExit = null;
+	private ZapMenuItem menuFileProperties = null;
 	private JMenu menuHelp = null;
-	private JMenuItem menuHelpAbout = null;
+	private ZapMenuItem menuHelpAbout = null;
     private JMenu menuAnalyse = null;
     // ZAP: Added standard report menu
 	private JMenu menuReport = null;
@@ -101,7 +105,7 @@ public class MainMenuBar extends JMenuBar {
 		if (menuEdit == null) {
 			menuEdit = new javax.swing.JMenu();
 			menuEdit.setText(Constant.messages.getString("menu.edit")); // ZAP: i18n
-//			menuEdit.add(getJMenuItem());
+			menuEdit.setMnemonic(Constant.messages.getChar("menu.edit.mnemonic"));
 		}
 		return menuEdit;
 	}
@@ -119,6 +123,7 @@ public class MainMenuBar extends JMenuBar {
 		if (menuTools == null) {
 			menuTools = new javax.swing.JMenu();
 			menuTools.setText(Constant.messages.getString("menu.tools")); // ZAP: i18n
+			menuTools.setMnemonic(Constant.messages.getChar("menu.tools.mnemonic"));
 			menuTools.addSeparator();
 			menuTools.add(getMenuToolsOptions());
 		}
@@ -138,6 +143,7 @@ public class MainMenuBar extends JMenuBar {
 		if (menuView == null) {
 			menuView = new javax.swing.JMenu();
 			menuView.setText(Constant.messages.getString("menu.view")); // ZAP: i18n
+			menuView.setMnemonic(Constant.messages.getChar("menu.view.mnemonic"));
 		}
 		return menuView;
 	}
@@ -151,12 +157,11 @@ public class MainMenuBar extends JMenuBar {
 	 * @return javax.swing.JMenuItem	
 
 	 */    
-	private javax.swing.JMenuItem getMenuToolsOptions() {
+	private ZapMenuItem getMenuToolsOptions() {
 		if (menuToolsOptions == null) {
-			menuToolsOptions = new javax.swing.JMenuItem();
-			menuToolsOptions.setText(Constant.messages.getString("menu.tools.options")); // ZAP: i18n
+			menuToolsOptions = new ZapMenuItem("menu.tools.options",
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.ALT_MASK, false));
 			menuToolsOptions.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
@@ -182,7 +187,7 @@ public class MainMenuBar extends JMenuBar {
 		if (menuFile == null) {
 			menuFile = new javax.swing.JMenu();
 			menuFile.setText(Constant.messages.getString("menu.file")); // ZAP: i18n
-			menuFile.setMnemonic(java.awt.event.KeyEvent.VK_F);
+			menuFile.setMnemonic(Constant.messages.getChar("menu.file.mnemonic"));
 			menuFile.add(getMenuFileNewSession());
 			menuFile.add(getMenuFileOpen());
 			menuFile.addSeparator();
@@ -207,10 +212,9 @@ public class MainMenuBar extends JMenuBar {
 	 */    
 	private javax.swing.JMenuItem getMenuFileNewSession() {
 		if (menuFileNewSession == null) {
-			menuFileNewSession = new javax.swing.JMenuItem();
-			menuFileNewSession.setText(Constant.messages.getString("menu.file.newSession")); // ZAP: i18n
+			menuFileNewSession = new ZapMenuItem("menu.file.newSession",
+					KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK, false));
 			menuFileNewSession.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					try {
@@ -221,10 +225,6 @@ public class MainMenuBar extends JMenuBar {
                     }
 				}
 			});
-			// ZAP Added New Session accelerator
-			menuFileNewSession.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-					java.awt.event.KeyEvent.VK_N, java.awt.Event.CTRL_MASK, false));
-
 		}
 		return menuFileNewSession;
 	}
@@ -240,10 +240,9 @@ public class MainMenuBar extends JMenuBar {
 	 */    
 	private javax.swing.JMenuItem getMenuFileOpen() {
 		if (menuFileOpen == null) {
-			menuFileOpen = new javax.swing.JMenuItem();
-			menuFileOpen.setText(Constant.messages.getString("menu.file.openSession")); // ZAP: i18n
+			menuFileOpen = new ZapMenuItem("menu.file.openSession",
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, java.awt.Event.CTRL_MASK, false));
 			menuFileOpen.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					getMenuFileControl().openSession();
@@ -251,11 +250,6 @@ public class MainMenuBar extends JMenuBar {
 
 				}
 			});
-			
-			// ZAP Added Open Session accelerator
-			menuFileOpen.setAccelerator(javax.swing.KeyStroke.getKeyStroke(
-					java.awt.event.KeyEvent.VK_O, java.awt.Event.CTRL_MASK, false));
-
 		}
 		return menuFileOpen;
 	}
@@ -271,10 +265,8 @@ public class MainMenuBar extends JMenuBar {
 	 */    
 	private javax.swing.JMenuItem getMenuFileSaveAs() {
 		if (menuFileSaveAs == null) {
-			menuFileSaveAs = new javax.swing.JMenuItem();
-			menuFileSaveAs.setText(Constant.messages.getString("menu.file.persistSession")); // ZAP: i18n
+			menuFileSaveAs = new ZapMenuItem("menu.file.persistSession");
 			menuFileSaveAs.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					if (Model.getSingleton().getSession().isNewState()) {
@@ -291,10 +283,8 @@ public class MainMenuBar extends JMenuBar {
 
 	private javax.swing.JMenuItem getMenuFileSnapshot() {
 		if (menuFileSnapshot == null) {
-			menuFileSnapshot = new javax.swing.JMenuItem();
-			menuFileSnapshot.setText(Constant.messages.getString("menu.file.snapshotSession"));
+			menuFileSnapshot = new ZapMenuItem("menu.file.snapshotSession");
 			menuFileSnapshot.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					if (! Model.getSingleton().getSession().isNewState()) {
@@ -320,10 +310,8 @@ public class MainMenuBar extends JMenuBar {
 	 */    
 	private javax.swing.JMenuItem getMenuFileExit() {
 		if (menuFileExit == null) {
-			menuFileExit = new javax.swing.JMenuItem();
-			menuFileExit.setText(Constant.messages.getString("menu.file.exit")); // ZAP: i18n
+			menuFileExit = new ZapMenuItem("menu.file.exit");
 			menuFileExit.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 					getMenuFileControl().exit();
@@ -356,12 +344,12 @@ public class MainMenuBar extends JMenuBar {
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */    
-	private JMenuItem getMenuFileProperties() {
+	private ZapMenuItem getMenuFileProperties() {
 		if (menuFileProperties == null) {
-			menuFileProperties = new JMenuItem();
+			menuFileProperties = new ZapMenuItem("menu.file.properties",
+					KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.ALT_MASK, false));
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    getMenuFileControl().properties();
@@ -372,29 +360,6 @@ public class MainMenuBar extends JMenuBar {
 		return menuFileProperties;
 	}
 	
-
-	/**
-	 * @deprecated No longer used/needed. It will be removed in a future release.
-	 */
-	@Deprecated
-	public JMenuItem getMenuFileSave() {
-		if (menuFileSave == null) {
-			menuFileSave = new JMenuItem();
-			menuFileSave.setText(Constant.messages.getString("menu.file.save")); // ZAP: i18n
-			menuFileSave.setEnabled(false);
-			menuFileSave.addActionListener(new java.awt.event.ActionListener() { 
-
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
-					getMenuFileControl().saveSession();
-					
-				}
-			});
-
-		}
-		return menuFileSave;
-	}
 	/**
 	 * This method initializes menuHelp	
 	 * 	
@@ -404,6 +369,7 @@ public class MainMenuBar extends JMenuBar {
 		if (menuHelp == null) {
 			menuHelp = new JMenu();
 			menuHelp.setText(Constant.messages.getString("menu.help")); // ZAP: i18n
+			menuHelp.setMnemonic(Constant.messages.getChar("menu.help.mnemonic"));
 			menuHelp.add(getMenuHelpAbout());
 		}
 		return menuHelp;
@@ -413,12 +379,13 @@ public class MainMenuBar extends JMenuBar {
 		if (menuOnline == null) {
 			menuOnline = new JMenu();
 			menuOnline.setText(Constant.messages.getString("menu.online"));
+			menuOnline.setMnemonic(Constant.messages.getChar("menu.online.mnemonic"));
 
 			// All of these are builtin
 			
 			// Homepage
-			JMenuItem menuHomepage = new JMenuItem();
-			menuHomepage.setText(Constant.messages.getString("menu.help.home")); // left as menu.help for existing i18n;)
+			ZapMenuItem menuHomepage = new ZapMenuItem("menu.help.home",
+					KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK, false));
 			menuHomepage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			menuHomepage.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -429,8 +396,7 @@ public class MainMenuBar extends JMenuBar {
 			menuOnline.add(menuHomepage);
 
 			// Extensions
-			JMenuItem menuExtPage = new JMenuItem();
-			menuExtPage.setText(Constant.messages.getString("menu.online.ext"));
+			ZapMenuItem menuExtPage = new ZapMenuItem("menu.online.ext");
 			menuExtPage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			menuExtPage.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -441,8 +407,7 @@ public class MainMenuBar extends JMenuBar {
 			menuOnline.add(menuExtPage);
 
 			// Wiki
-			JMenuItem menuWiki = new JMenuItem();
-			menuWiki.setText(Constant.messages.getString("menu.online.wiki"));
+			ZapMenuItem menuWiki = new ZapMenuItem("menu.online.wiki");
 			menuWiki.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			menuWiki.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -453,8 +418,7 @@ public class MainMenuBar extends JMenuBar {
 			menuOnline.add(menuWiki);
 
 			// UserGroup
-			JMenuItem menuUserGroup = new JMenuItem();
-			menuUserGroup.setText(Constant.messages.getString("menu.online.usergroup"));
+			ZapMenuItem menuUserGroup = new ZapMenuItem("menu.online.usergroup");
 			menuUserGroup.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			menuUserGroup.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -465,8 +429,7 @@ public class MainMenuBar extends JMenuBar {
 			menuOnline.add(menuUserGroup);
 
 			// DevGroup
-			JMenuItem menuDevGroup = new JMenuItem();
-			menuDevGroup.setText(Constant.messages.getString("menu.online.devgroup"));
+			ZapMenuItem menuDevGroup = new ZapMenuItem("menu.online.devgroup");
 			menuDevGroup.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			menuDevGroup.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -477,8 +440,7 @@ public class MainMenuBar extends JMenuBar {
 			menuOnline.add(menuDevGroup);
 
 			// Issues
-			JMenuItem menuIssues = new JMenuItem();
-			menuIssues.setText(Constant.messages.getString("menu.online.issues"));
+			ZapMenuItem menuIssues = new ZapMenuItem("menu.online.issues");
 			menuIssues.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			menuIssues.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -497,27 +459,23 @@ public class MainMenuBar extends JMenuBar {
 		if (menuReport == null) {
 			menuReport = new JMenu();
 			menuReport.setText(Constant.messages.getString("menu.report")); // ZAP: i18n
+			menuReport.setMnemonic(Constant.messages.getChar("menu.report.mnemonic"));
 		}
 		return menuReport;
 	}
 	/**
 	 * This method initializes menuHelpAbout	
 	 * 	
-	 * @return javax.swing.JMenuItem	
+	 * @return javax.swing.ZapMenuItem	
 	 */    
-	private JMenuItem getMenuHelpAbout() {
+	private ZapMenuItem getMenuHelpAbout() {
 		if (menuHelpAbout == null) {
-			menuHelpAbout = new JMenuItem();
-			// ZAP: Rebrand
-			menuHelpAbout.setText(Constant.messages.getString("menu.help.about")); // ZAP: i18n
+			menuHelpAbout = new ZapMenuItem("menu.help.about");
 			menuHelpAbout.addActionListener(new java.awt.event.ActionListener() { 
-
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-
 					AboutDialog dialog = new AboutDialog(View.getSingleton().getMainFrame(), true);
 					dialog.setVisible(true);
-					
 				}
 			});
 
@@ -533,6 +491,7 @@ public class MainMenuBar extends JMenuBar {
         if (menuAnalyse == null) {
             menuAnalyse = new JMenu();
             menuAnalyse.setText(Constant.messages.getString("menu.analyse")); // ZAP: i18n
+			menuAnalyse.setMnemonic(Constant.messages.getChar("menu.analyse.mnemonic"));
         }
         return menuAnalyse;
     }

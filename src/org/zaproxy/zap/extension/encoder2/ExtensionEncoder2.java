@@ -19,11 +19,13 @@
  */
 package org.zaproxy.zap.extension.encoder2;
 
+import java.awt.Event;
 import java.awt.Frame;
+import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.JMenuItem;
+import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -31,14 +33,14 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.model.OptionsParam;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChangedListener {
 
     private EncodeDecodeDialog encodeDecodeDialog = null;
     
-    private JMenuItem menuEncode = null;
     private PopupEncoder2Menu popupEncodeMenu = null;
-	private JMenuItem toolsMenuEncoder = null;
+	private ZapMenuItem toolsMenuEncoder = null;
 
 	private EncodeDecodeParamPanel optionsPanel;
 	private EncodeDecodeParam params;
@@ -72,7 +74,6 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 	    super.hook(extensionHook);
 
 	    if (getView() != null) {
-	        extensionHook.getHookMenu().addEditMenuItem(getMenuEncode());
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuEncode());
 	        
 	        extensionHook.getHookMenu().addToolsMenuItem(getToolsMenuItemEncoder());
@@ -84,12 +85,12 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 	    }
 	}
 
-	private JMenuItem getToolsMenuItemEncoder() {
+	private ZapMenuItem getToolsMenuItemEncoder() {
 		if (toolsMenuEncoder == null) {
-			toolsMenuEncoder = new JMenuItem();
-			toolsMenuEncoder.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
-			toolsMenuEncoder.addActionListener(new java.awt.event.ActionListener() { 
+			toolsMenuEncoder = new ZapMenuItem("enc2.tools.menu.encdec",
+					KeyStroke.getKeyStroke(KeyEvent.VK_E, Event.CTRL_MASK, false));
 
+			toolsMenuEncoder.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
                     showEncodeDecodeDialog(null);
@@ -122,26 +123,6 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
         if (lastInvoker != null) {
             encodeDecodeDialog.setInputField(lastInvoker.getSelectedText());
         }
-    }
-
-    /**
-     * This method initializes menuEncode	
-     * 	
-     * @return javax.swing.JMenuItem	
-     */
-    private JMenuItem getMenuEncode() {
-        if (menuEncode == null) {
-            menuEncode = new JMenuItem();
-            menuEncode.setText(Constant.messages.getString("enc2.tools.menu.encdec"));
-
-            menuEncode.addActionListener(new java.awt.event.ActionListener() {
-                @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showEncodeDecodeDialog(null);
-                }
-            });
-        }
-        return menuEncode;
     }
 
     /**

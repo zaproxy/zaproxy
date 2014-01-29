@@ -46,13 +46,17 @@
 // ZAP: 2013/12/13 Disabled the updating of 'Sites' tab, because it has been added elsewhere to accomodate the 'Full Layout' functionality.
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session dialog
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.view;
 
 
 import java.awt.Component;
+import java.awt.Event;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -65,9 +69,11 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
@@ -76,6 +82,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextExcludePanel;
@@ -90,6 +97,7 @@ import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
 import org.zaproxy.zap.view.SessionStructurePanel;
 import org.zaproxy.zap.view.TabbedPanel2;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class View implements ViewDelegate {
 	
@@ -207,42 +215,47 @@ public class View implements ViewDelegate {
 		menuShowTabs = new JMenu(Constant.messages.getString("menu.view.showtab"));
 		mainFrame.getMainMenuBar().getMenuView().add(menuShowTabs );
 		
+		ExtensionKeyboard extKey = (ExtensionKeyboard) 
+				Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.NAME);
+		
 	    for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
-	    	if (tab instanceof AbstractPanel) {
-		    	menuShowTabs.add(getTabViewMenuItem(getWorkbench().getTabbedSelect(), (AbstractPanel)tab));
-	    	}
+    		registerMenu(extKey, getWorkbench().getTabbedSelect(), tab);
 	    }
     	menuShowTabs.addSeparator();
 	    for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
-	    	if (tab instanceof AbstractPanel) {
-		    	menuShowTabs.add(getTabViewMenuItem(getWorkbench().getTabbedWork(), (AbstractPanel)tab));
-	    	}
+    		registerMenu(extKey, getWorkbench().getTabbedWork(), tab);
 	    }
     	menuShowTabs.addSeparator();
 	    for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
-	    	if (tab instanceof AbstractPanel) {
-		    	menuShowTabs.add(getTabViewMenuItem(getWorkbench().getTabbedStatus(), (AbstractPanel)tab));
-	    	}
+    		registerMenu(extKey, getWorkbench().getTabbedStatus(), tab);
 	    }
-		
 	}
 	
-	private JMenuItem getTabViewMenuItem(final TabbedPanel2 parent, final AbstractPanel tab) {
-    	JMenuItem tabMenu = new JMenuItem(tab.getName());
-		if (tab.getIcon() != null) {
-			tabMenu.setIcon(tab.getIcon());
-		}
-		tabMenu.addActionListener(new ActionListener() {
+	private void registerMenu(ExtensionKeyboard extKey, final TabbedPanel2 parent, final Component tab) {
+    	if (tab instanceof AbstractPanel) {
+    		final AbstractPanel ap = (AbstractPanel)tab;
+        	ZapMenuItem tabMenu = new ZapMenuItem(
+        			tab.getClass().getName(), MessageFormat.format(Constant.messages.getString("menu.view.tab"), tab.getName()), 
+        			ap.getDefaultAccelerator());
+        	tabMenu.setMnemonic(ap.getMnemonic());
+    		if (ap.getIcon() != null) {
+    			tabMenu.setIcon(ap.getIcon());
+    		}
+    		tabMenu.addActionListener(new ActionListener() {
+    			@Override
+    			public void actionPerformed(ActionEvent e) {
+    				parent.setVisible(tab, true);
+    				ap.setTabFocus();
+    			}});
+    		
+    		menuShowTabs.add(tabMenu);
+    		if (extKey != null) {
+    			extKey.registerMenuItem(tabMenu);
+    		}
 
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				parent.setVisible(tab, true);
-				tab.setTabFocus();
-			}});
-    	return tabMenu;
-		
+    	}
 	}
-	
+
 	@Override
 	public int showConfirmDialog(String msg) {
 		return JOptionPane.showConfirmDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
@@ -338,6 +351,10 @@ public class View implements ViewDelegate {
     		requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
+            requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
+            		KeyEvent.VK_R, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+            requestPanel.setMnemonic(Constant.messages.getChar("http.panel.request.mnemonic"));
+
         }
         return requestPanel;
     }
@@ -352,6 +369,9 @@ public class View implements ViewDelegate {
             responsePanel.setName(Constant.messages.getString("http.panel.response.title"));	// ZAP: i18n
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
+            responsePanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
+            		KeyEvent.VK_R, Event.CTRL_MASK | Event.ALT_MASK | Event.SHIFT_MASK, false));
+            responsePanel.setMnemonic(Constant.messages.getChar("http.panel.response.mnemonic"));
         }
         return responsePanel;
     }

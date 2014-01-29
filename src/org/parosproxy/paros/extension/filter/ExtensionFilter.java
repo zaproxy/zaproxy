@@ -33,12 +33,11 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/16 Issue 902 - Change all ExtensionAdaptor#hook(ExtensionHook) overriding methods
 // to call the base implementation
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.filter;
 
 import java.util.List;
-
-import javax.swing.JMenuItem;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -49,6 +48,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, Runnable {
 
@@ -57,7 +57,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	public static final String NAME = "ExtensionFilter"; 
 	public static final int PROXY_LISTENER_ORDER = 0;
 	
-	private JMenuItem menuToolsFilter = null;
+	private ZapMenuItem menuToolsFilter = null;
 	private FilterFactory filterFactory = new FilterFactory();
 	private boolean isStop = false;
 	
@@ -115,10 +115,9 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 	 * 	
 	 * @return javax.swing.JMenuItem	
 	 */    
-	private JMenuItem getMenuToolsFilter() {
+	private ZapMenuItem getMenuToolsFilter() {
 		if (menuToolsFilter == null) {
-			menuToolsFilter = new JMenuItem();
-			menuToolsFilter.setText(Constant.messages.getString("menu.tools.filter"));	// ZAP: i18n
+			menuToolsFilter = new ZapMenuItem("menu.tools.filter");
 			menuToolsFilter.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override

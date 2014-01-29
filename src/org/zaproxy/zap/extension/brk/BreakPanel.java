@@ -22,12 +22,16 @@ package org.zaproxy.zap.extension.brk;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Event;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
@@ -59,6 +63,10 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		this.extension = extension;
 		
 		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
+
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("brk.panel.mnemonic"));
+		
 		this.setLayout(new BorderLayout());
 
 		breakToolbarFactory = new BreakPanelToolbarFactory(breakpointsParams, this);
@@ -221,7 +229,19 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	public void setBreakAllResponses(boolean brk) {
 		breakToolbarFactory.setBreakResponse(brk);
 	}
+
+	public void step() {
+		breakToolbarFactory.setStep(true);
+	}
 	
+	public void cont() {
+		breakToolbarFactory.setContinue(true);
+	}
+
+	public void drop() {
+		breakToolbarFactory.drop();
+	}
+
 	public void showNewBreakPointDialog() {
 		extension.addUiBreakpoint(new HttpMessage());
 	}

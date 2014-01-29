@@ -357,6 +357,32 @@ public class API {
 		return true;
 	}
 	
+	/**
+	 * Returns a URI for the specified parameters. The API key will be added if required
+	 * @param format
+	 * @param prefix
+	 * @param type
+	 * @param name
+	 * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will start with http://zap/..
+	 * @return
+	 */
+	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
+		String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
+		String base = API_URL;
+		if (!proxy) {
+			base = "http://" + Model.getSingleton().getOptionsParam().getProxyParam().getProxyIp() + ":" + 
+				Model.getSingleton().getOptionsParam().getProxyParam().getProxyPort() + "/";
+		}
+		
+		if (!RequestType.view.equals(type) && key.length() > 0) {
+			// Not a view and the API key is set so it must be supplied
+			return base + format.name() + "/" + prefix + "/" + type.name() + 
+					"/" + name + "/?" + API_KEY_PARAM + "=" + key + "&";
+		} else {
+			return base + format.name() + "/" + prefix + "/" + type.name() + "/" + name + "/?";
+		}
+	}
+	
 	private String responseToHtml(String name, ApiResponse res) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("<head>\n");

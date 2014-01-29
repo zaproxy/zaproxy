@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.api;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.parosproxy.paros.Constant;
@@ -32,6 +31,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -39,7 +39,7 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	public static final String API_URL = "http://zap/";
 	
 	private OptionsApiPanel optionsApiPanel = null;
-	private JMenuItem menuAPI = null;
+	private ZapMenuItem menuAPI = null;
     private CoreAPI coreApi = null;
 	
     public ExtensionAPI() {
@@ -87,10 +87,9 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 		return optionsApiPanel;
 	}
 
-	private JMenuItem getMenuAPI() {
+	private ZapMenuItem getMenuAPI() {
 		if (menuAPI == null) {
-			menuAPI = new JMenuItem();
-			menuAPI.setText(Constant.messages.getString("api.menu.tools.url"));
+			menuAPI = new ZapMenuItem("api.menu.tools.url");
 			menuAPI.setEnabled(DesktopUtils.canOpenUrlInBrowser());
 			
 			menuAPI.addActionListener(new java.awt.event.ActionListener() { 

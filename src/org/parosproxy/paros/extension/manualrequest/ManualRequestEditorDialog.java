@@ -33,6 +33,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -46,7 +47,6 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
 import javax.swing.JButton;
-import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 
 import org.apache.log4j.Logger;
@@ -59,6 +59,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
  * Send custom crafted messages via HTTP or other TCP based protocols. 
@@ -123,7 +124,7 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 	 * 
 	 * @return
 	 */
-	public abstract JMenuItem getMenuItem();
+	public abstract ZapMenuItem getMenuItem();
 
 	protected JPanel getWindowPanel() {
 		if (panelWindow == null) {

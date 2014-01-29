@@ -22,9 +22,11 @@ package org.zaproxy.zap.extension.alert;
 
 import java.awt.CardLayout;
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
 
 import javax.swing.ImageIcon;
@@ -35,6 +37,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.JTree;
+import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
@@ -145,6 +148,9 @@ public class AlertPanel extends AbstractPanel {
 
         this.add(getPanelCommand(), getPanelCommand().getName());
 			
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("alerts.panel.mnemonic"));
+
 	}
 	
 	private javax.swing.JPanel getPanelCommand() {

@@ -27,6 +27,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Removed redundant final modifiers from private methods
 // ZAP: 2013/12/13 Added support for 'Full Layout'.
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 
 package org.parosproxy.paros.view;
 
@@ -45,13 +46,10 @@ import javax.swing.BorderFactory;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-import javax.swing.Icon;
-import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.view.TabbedPanel2;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.zaproxy.zap.view.TabbedPanel2;
 
 public class WorkbenchPanel extends JPanel {
 
@@ -142,11 +140,6 @@ public class WorkbenchPanel extends JPanel {
 
     // minimize maximized panels when changing layout
     minimizeMaximizedPanels();
-
-    // set icon for 'Sites' tab
-    Icon icon = new ImageIcon(View.class.getResource("/resource/icon/16/094.png"));
-    View.getSingleton().getSiteTreePanel().setIcon(icon);
-    View.getSingleton().getSiteTreePanel().setName(Constant.messages.getString("sites.panel.title"));
 
 		switch (displayOption) {
       case View.DISPLAY_OPTION_LEFT_FULL:

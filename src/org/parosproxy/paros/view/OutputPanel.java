@@ -22,17 +22,22 @@
 // ZAP: 2012/04/28 Added logger and log of exception.
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 // ZAP: 2013/11/16 Issue 890: Allow to clear "Output" tab
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+
 package org.parosproxy.paros.view;
 
 
 import java.awt.BorderLayout;
+import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
+import javax.swing.KeyStroke;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
@@ -75,6 +80,8 @@ public class OutputPanel extends AbstractPanel {
 	    }
         // ZAP: Added Output (doc) icon
 		this.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/16/172.png")));	// 'doc' icon
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setMnemonic(Constant.messages.getChar("output.panel.mnemonic"));
 
         this.add(getMainPanel(), BorderLayout.CENTER);
 			
