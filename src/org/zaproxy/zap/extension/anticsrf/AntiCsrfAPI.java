@@ -34,11 +34,6 @@ public class AntiCsrfAPI extends ApiImplementor {
 	private static final String OTHER_GENERATE_FORM = "genForm";
 	private static final String OTHER_GENERATE_FORM_PARAM_HREFID = "hrefId";
 	
-	// Format: http://zap/OTHER/acsrf/other/genForm/?hrefId=458
-	public static final String ANTI_CSRF_FORM_URL = 
-			API.API_URL + API.Format.OTHER.name() + "/" + PREFIX + "/" + API.RequestType.other.name() + 
-				"/" + OTHER_GENERATE_FORM + "/?" + OTHER_GENERATE_FORM_PARAM_HREFID + "=";
-
 	private ExtensionAntiCSRF extension = null;
 	
 	public AntiCsrfAPI(ExtensionAntiCSRF ext) {
@@ -49,6 +44,11 @@ public class AntiCsrfAPI extends ApiImplementor {
 	@Override
 	public String getPrefix() {
 		return PREFIX;
+	}
+	
+	public static String getAntiCsrfFormUrl(int hrefid) {
+		return API.getInstance().getBaseURL(API.Format.OTHER, PREFIX, API.RequestType.other, OTHER_GENERATE_FORM, false) +
+				OTHER_GENERATE_FORM_PARAM_HREFID + "=" + hrefid;
 	}
 
 	@Override
