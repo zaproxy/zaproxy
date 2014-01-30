@@ -64,12 +64,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	/**
 	 * TODO
 	 * 		File selector field
-	 * :	Way to make fields read only etc
-	 * :	Hook for closing the dialog
-	 * :		Double length text (readonly?) info field
-	 * 		Link labels to fields
 	 * 		Help links
-	 * :	Override button texts
 	 */
 
 	private static final Logger logger = Logger.getLogger(StandardFieldsDialog.class);
@@ -258,7 +253,9 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		if (this.fieldList.contains(field)) {
 			throw new IllegalArgumentException("Field already added: " + field);
 		}
-		panel.add(new JLabel(Constant.messages.getString(fieldLabel)), 
+		JLabel label = new JLabel(Constant.messages.getString(fieldLabel));
+		label.setLabelFor(field);
+		panel.add(label, 
 				LayoutHelper.getGBC(0, indexy, 1, 0.0D, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
 		panel.add(wrapper, 
 				LayoutHelper.getGBC(1, indexy, 1, 1.0D, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
