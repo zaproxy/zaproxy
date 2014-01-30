@@ -21,6 +21,7 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/05/03 Changed the method find to check if txtComp is null.
+// ZAP: 2014/01/30 Issue 996: Ensure all dialogs close when the escape key is pressed (copy tidy up)
 
 package org.parosproxy.paros.view;
 
@@ -30,16 +31,11 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
 
-import javax.swing.AbstractAction;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.KeyStroke;
 import javax.swing.text.JTextComponent;
 
 import org.parosproxy.paros.Constant;
@@ -97,17 +93,6 @@ public class FindDialog extends AbstractDialog {
         centreDialog();
         txtFind.requestFocus();
         this.getRootPane().setDefaultButton(btnFind);
-        
-        //  Handle escape key to close the dialog    
-        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        AbstractAction escapeAction = new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                FindDialog.this.setVisible(false);
-            }
-        };
-        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
-        getRootPane().getActionMap().put("ESCAPE",escapeAction);
         pack();
 	}
 	

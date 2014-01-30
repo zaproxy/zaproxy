@@ -32,6 +32,7 @@ import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -85,12 +86,11 @@ public abstract class AbstractDialog extends JDialog {
 		
         //  Handle escape key to close the dialog    
         KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        final AbstractDialog ad = this;
         AbstractAction escapeAction = new AbstractAction() {
 			private static final long serialVersionUID = 3516424501887406165L;
 			@Override
             public void actionPerformed(ActionEvent e) {
-                ad.setVisible(false);
+				dispatchEvent(new WindowEvent(AbstractDialog.this, WindowEvent.WINDOW_CLOSING));
             }
         };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");

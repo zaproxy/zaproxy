@@ -25,22 +25,21 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
-import java.awt.event.KeyEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.text.MessageFormat;
 
-import javax.swing.AbstractAction;
 import javax.swing.Box;
+import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.KeyStroke;
 import javax.swing.LookAndFeel;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
@@ -65,11 +64,12 @@ public class ScanProgressDialog extends AbstractDialog {
     private JScrollPane jScrollPane = null;
     private JTable table;
     private ScanProgressTableModel model;
+    private JButton closeButton = null;
     
     private String site = null;
     private ActiveScan scan = null;
     private boolean stopThread = false;
-
+    
     /**
      * 
      * @param owner
@@ -93,59 +93,17 @@ public class ScanProgressDialog extends AbstractDialog {
                     Constant.messages.getString("ascan.progress.title"), site));
         }
 
-        this.add(getJScrollPane(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D));
-
-        //  Handle escape key to close the dialog    
-        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
-        AbstractAction escapeAction = new AbstractAction() {
-            private static final long serialVersionUID = 1L;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                stopThread = true;
-                ScanProgressDialog.this.setVisible(false);
-                ScanProgressDialog.this.dispose();
-            }
-        };
+        this.add(getJScrollPane(), LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
         
-        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
-        getRootPane().getActionMap().put("ESCAPE", escapeAction);
+        this.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 0.0D));	// spacer
+        this.add(getCloseButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D, 0.0D));
+        this.add(new JLabel(), LayoutHelper.getGBC(2, 1, 1, 1.0D, 0.0D));	// spacer
 
         // Stop the updating thread when the window is closed
-        this.addWindowListener(new WindowListener() {
-            @Override
-            public void windowOpened(WindowEvent e) {
-                // Ignore
-            }
-
-            @Override
-            public void windowClosing(WindowEvent e) {
-                // Ignore
-            }
-
+        this.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent e) {
                 stopThread = true;
-            }
-
-            @Override
-            public void windowIconified(WindowEvent e) {
-                // Ignore
-            }
-
-            @Override
-            public void windowDeiconified(WindowEvent e) {
-                // Ignore
-            }
-
-            @Override
-            public void windowActivated(WindowEvent e) {
-                // Ignore
-            }
-
-            @Override
-            public void windowDeactivated(WindowEvent e) {
-                // Ignore
             }
         });
     }
@@ -165,6 +123,19 @@ public class ScanProgressDialog extends AbstractDialog {
         }
         
         return jScrollPane;
+    }
+    
+    private JButton getCloseButton() {
+    	// Note that on Linux dialogs dont get close buttons on the frame decoration
+    	if (closeButton == null) {
+    		closeButton = new JButton(Constant.messages.getString("all.button.close"));
+    		closeButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					dispatchEvent(new WindowEvent(ScanProgressDialog.this, WindowEvent.WINDOW_CLOSING));
+				}});
+    	}
+    	return closeButton;
     }
 
     /**
