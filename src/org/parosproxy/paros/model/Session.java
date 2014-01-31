@@ -38,6 +38,7 @@
 // ZAP: 2013/09/26 Issue 747: Error opening session files on directories with special characters
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
+// ZAP: 2014/01/31 Issue 979: Sites and Alerts trees can get corrupted - load session on EventDispatchThread
 
 package org.parosproxy.paros.model;
 
@@ -195,11 +196,13 @@ public class Session extends FileXML {
 
     
     protected void open(final File file, final SessionListener callback) {
-        Thread t = new Thread(new Runnable() {
+    	
+        EventQueue.invokeLater(new Runnable() {
             @Override
             public void run() {
                 Exception thrownException = null;
                 try {
+                    Thread.currentThread().setPriority(Thread.NORM_PRIORITY-2);
                     open(file.getAbsolutePath());
                 } catch (Exception e) {
                     thrownException = e;
@@ -209,8 +212,6 @@ public class Session extends FileXML {
                 }
             }
         });
-        t.setPriority(Thread.NORM_PRIORITY-2);
-        t.start();
     }
 
 	protected void open(String fileName) throws SQLException, SAXException, IOException, Exception {
@@ -926,6 +927,15 @@ public class Session extends FileXML {
 	public Context getContext(int index) {
 		for (Context context : contexts) {
 			if (context.getIndex() == index) {
+				return context;
+			}
+		}
+		return null;
+	}
+
+	public Context getContext(String name) {
+		for (Context context : contexts) {
+			if (context.getName().equals(name)) {
 				return context;
 			}
 		}
