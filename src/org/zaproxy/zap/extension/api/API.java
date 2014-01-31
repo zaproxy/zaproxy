@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -227,7 +228,7 @@ public class API {
 					if ( ! isEnabled()) {
 						throw new ApiException(ApiException.Type.DISABLED);
 					}
-					String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
+					String key = this.getApiKey();
 
 					ApiResponse res;
 					switch (reqType) {
@@ -367,7 +368,7 @@ public class API {
 	 * @return
 	 */
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
-		String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
+		String key = this.getApiKey();
 		String base = API_URL;
 		if (!proxy) {
 			base = "http://" + Model.getSingleton().getOptionsParam().getProxyParam().getProxyIp() + ":" + 
@@ -455,14 +456,19 @@ public class API {
 		return "zapJsonpResult (" + json + " )";
 	}
 
-	protected Map<String, ApiImplementor> getImplementors() {
-		return implementors;
+	public Map<String, ApiImplementor> getImplementors() {
+		return Collections.unmodifiableMap(implementors);
 	}
 	
 	public String getCallBackUrl(ApiImplementor impl, String site) {
 		String url = site + CALL_BACK_URL + random.nextLong();
 		this.callBacks.put(url, impl);
 		return url;
+	}
+	
+	public String getApiKey() {
+		// Dont cache - could be changes via the optionss screen
+		return Model.getSingleton().getOptionsParam().getApiParam().getKey();
 	}
 	
     public static String getDefaultResponseHeader(String contentType) {
