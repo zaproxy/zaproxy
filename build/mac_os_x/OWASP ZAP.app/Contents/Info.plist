@@ -27,7 +27,7 @@
 	<key>JVMInfo</key>
 	<dict>
 		<key>JRE</key>
-		<string>jdk1.7.0_13.jre</string>
+		<string>jdk1.7.0_51.jre</string>
 		<key>MainClass</key>
 		<string>org.zaproxy.zap.ZAP</string>
 		<key>ClassPath</key>
