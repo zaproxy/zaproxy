@@ -60,19 +60,9 @@ public class DefaultParseFilter extends ParseFilter {
 	@Override
 	public boolean isFiltered(HttpMessage responseMessage) {
 
-		// Check response body size
-		if (responseMessage.getResponseBody().length() > MAX_RESPONSE_BODY_SIZE) {
-			if (log.isDebugEnabled()) {
-				log.debug("Resource too large: " + responseMessage.getRequestHeader().getURI());
-			}
-			return true;
-		}
-
-		// If it's a redirection, accept it, as the SpiderRedirectParser will process it
-		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
-			return false;
-
-		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it (regardless of type)
+		//if it's a file ending in "/.svn/entries", or "/.svn/wc.db", the SVN Entries or Git parsers will process it 
+		//regardless of type, and regardless of whether it exceeds the file size restriction below.
+		
 		Matcher svnXMLFilenameMatcher, svnSQLiteFilenameMatcher, gitFilenameMatcher;;
 		try {
 			String fullfilename = responseMessage.getRequestHeader().getURI().getPath();
@@ -88,6 +78,18 @@ public class DefaultParseFilter extends ParseFilter {
 			//give other parsers a chance to parse it.
 			log.error(e);			
 		}
+
+		// Check response body size
+		if (responseMessage.getResponseBody().length() > MAX_RESPONSE_BODY_SIZE) {
+			if (log.isDebugEnabled()) {
+				log.debug("Resource too large: " + responseMessage.getRequestHeader().getURI());
+			}
+			return true;
+		}
+
+		// If it's a redirection, accept it, as the SpiderRedirectParser will process it
+		if (HttpStatusCode.isRedirection(responseMessage.getResponseHeader().getStatusCode()))
+			return false;
 		
 		// Check response type.
 		if (!responseMessage.getResponseHeader().isText()) {
