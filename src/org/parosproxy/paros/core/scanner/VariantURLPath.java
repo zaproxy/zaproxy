@@ -17,12 +17,13 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-// ZAP: 2014/01/19 Added the same encoding/decoding model of the other variants for correct value interpretation
-
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.EncoderException;
+import org.apache.commons.codec.net.URLCodec;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -41,6 +42,7 @@ public class VariantURLPath implements Variant {
 
     private Logger logger = Logger.getLogger(this.getClass());
     private List<NameValuePair> stringParam = new ArrayList<>();
+    private URLCodec codec = new URLCodec();
 
     /**
      *
@@ -114,12 +116,14 @@ public class VariantURLPath implements Variant {
      * @return the Encoded value
      */
     private String getEscapedValue(String value) {
-        // ZAP: unfortunately the method setQuery() defined inside the httpclient Apache component
-        // create trouble when special characters like ?+? are set inside the parameter, 
-        // because this method implementation simply doesnt encode them.
-        // So we have to explicitly encode values using the URLEncoder component before setting it.
-        return (value != null) ? 
-                AbstractPlugin.getURLEncode(value) : "";
+        if (value != null) {
+            try {
+                return codec.encode(value);
+                
+            } catch (EncoderException ex) {}         
+        }
+        
+        return "";
     }
 
     /**
@@ -128,8 +132,14 @@ public class VariantURLPath implements Variant {
      * @return the encoded parameter value
      */
     private String getUnescapedValue(String value) {
-        //return value;
-        return (value != null) ? AbstractPlugin.getURLDecode(value) : "";
+        if (value != null) {
+            try {
+                return codec.decode(value);
+                
+            } catch (DecoderException ex) {}         
+        }
+        
+        return "";
     }
 
     /**
@@ -145,13 +155,11 @@ public class VariantURLPath implements Variant {
         try {
             URI uri = msg.getRequestHeader().getURI();
             String[] paths = msg.getRequestHeader().getURI().getPath().toString().split("/");
-            String encodedValue = (escaped) ? value : getEscapedValue(value);
 
             if (originalPair.getPosition() < paths.length) {
-                // ZAP: encoding should happens only for the choosen parameters
-                // because the other ones has been retrieved by the original URL
-                // so they have been correctly escaped (and this situation could
-                // encode them twice...)
+                
+                String encodedValue = (escaped) ? value : getEscapedValue(value);
+                
                 paths[originalPair.getPosition()] = encodedValue;
                 String path = StringUtils.join(paths, "/");
                 
@@ -160,8 +168,6 @@ public class VariantURLPath implements Variant {
 
                 } catch (URIException e) {
                     // Looks like it wasnt escaped after all
-                    // ZAP: verify if something going wrong on this
-                    // because maybe it should be done only for the specific parameter...
                     uri.setPath(path);                    
                 }
             }
