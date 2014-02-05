@@ -21,12 +21,10 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.commons.codec.DecoderException;
-import org.apache.commons.codec.EncoderException;
-import org.apache.commons.codec.net.URLCodec;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
@@ -40,9 +38,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantURLPath implements Variant {
 
-    private Logger logger = Logger.getLogger(this.getClass());
+    private final Logger logger = Logger.getLogger(this.getClass());
     private List<NameValuePair> stringParam = new ArrayList<>();
-    private URLCodec codec = new URLCodec();
 
     /**
      *
@@ -118,9 +115,9 @@ public class VariantURLPath implements Variant {
     private String getEscapedValue(String value) {
         if (value != null) {
             try {
-                return codec.encode(value);
+                return URIUtil.encodePath(value);
                 
-            } catch (EncoderException ex) {}         
+            } catch (URIException ex) {}         
         }
         
         return "";
@@ -134,9 +131,9 @@ public class VariantURLPath implements Variant {
     private String getUnescapedValue(String value) {
         if (value != null) {
             try {
-                return codec.decode(value);
+                return URIUtil.decode(value);
                 
-            } catch (DecoderException ex) {}         
+            } catch (URIException ex) {}         
         }
         
         return "";
