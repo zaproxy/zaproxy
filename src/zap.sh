@@ -1,7 +1,18 @@
 #!/usr/bin/env bash
 
 # Extract and check the Java version
-JAVA_VERSION=$(java -version 2>&1 | awk -F\" 'NR == 1 { print $2 }')
+JAVA_OUTPUT=$(java -version 2>&1)
+
+# Catch warning: Unable to find a $JAVA_HOME at "/usr", continuing with system-provided Java
+if [ "`echo ${JAVA_OUTPUT} | grep "continuing with system-provided Java"`" ] ; then
+	echo "WARNING, \$JAVA_HOME could be set incorrectly, Java's error is:"
+	echo "    " $JAVA_OUTPUT
+	echo "Unsetting JAVA_HOME and continuing with ZAP start-up"
+	unset JAVA_HOME
+	JAVA_OUTPUT=$(java -version 2>&1)
+fi
+
+JAVA_VERSION=$(echo ${JAVA_OUTPUT} | awk -F\" 'NR == 1 { print $2 }')
 
 JAVA_MAJOR_VERSION=${JAVA_VERSION%%.*}
 JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
@@ -18,7 +29,7 @@ SCRIPTNAME="$0"
 
 #While name of this script is symbolic link
 while [ -L "${SCRIPTNAME}" ] ; do
-    cd "`dirname "${SCRIPTNAME}"`" > /dev/null
+	cd "`dirname "${SCRIPTNAME}"`" > /dev/null
 	SCRIPTNAME="$(readlink "`basename "${SCRIPTNAME}"`")"
 done
 cd "`dirname "${SCRIPTNAME}"`" > /dev/null
