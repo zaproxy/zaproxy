@@ -14,16 +14,17 @@ else
 fi
 
 #Dereference from link to the real directory
-SCRIPTNAME=$0
+SCRIPTNAME="$0"
 
 #While name of this script is symbolic link
-while [ -L "$SCRIPTNAME" ] ; do 
-    #Dereference the link to the name of the link target 
-    SCRIPTNAME=$(ls -l "$SCRIPTNAME" | awk '{ print $NF; }')
+while [ -L "${SCRIPTNAME}" ] ; do
+    cd "`dirname "${SCRIPTNAME}"`" > /dev/null
+	SCRIPTNAME="$(readlink "`basename "${SCRIPTNAME}"`")"
 done
+cd "`dirname "${SCRIPTNAME}"`" > /dev/null
 
 #Base directory where ZAP is installed
-BASEDIR=$(dirname "$SCRIPTNAME")
+BASEDIR="`pwd -P`"
 
 #Switch to the directory where ZAP is installed
 cd "$BASEDIR"
