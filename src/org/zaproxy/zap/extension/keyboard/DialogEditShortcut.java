@@ -23,7 +23,6 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -119,36 +118,43 @@ public class DialogEditShortcut extends StandardFieldsDialog {
 		for(char c = 'A'; c <= 'Z'; c++) {
 			list.add(String.valueOf(c));
 		}
+		// Numbers
+		for(int i=0; i <= 9; i++) {
+			list.add(String.valueOf(i));
+		}
+		// Non Alphnumeric keys
+		list.add("-");
+		list.add("=");
+		list.add("[");
+		list.add("]");
+		list.add(";");
+		list.add("'");
+		list.add("#");
+		list.add(",");
+		list.add(".");
+		list.add("/");
 		// Function keys
 		for (int i=1; i<= 12; i++) {
 			list.add("F" + i);
 		}
+		// Arrow keys
+		list.add(Constant.messages.getString("keyboard.key.up"));
+		list.add(Constant.messages.getString("keyboard.key.down"));
+		list.add(Constant.messages.getString("keyboard.key.left"));
+		list.add(Constant.messages.getString("keyboard.key.right"));
+		
 		return list;
 	}
 	
 	private String getKey(KeyStroke ks) {
 		if (ks != null) {
-			int keyCode = ks.getKeyCode();
-			if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F12) {
-				// Function key
-				return "F" + (keyCode - KeyEvent.VK_F1 + 1 ); 
-			}
-			// A 'normal' key
-			return String.valueOf((char)keyCode).toUpperCase();
+			return KeyboardMapping.keyString(ks.getKeyCode());
 		}
 		return "";
 	}
 	
 	private char selectedKey() {
-		String keyStr = (String) this.getStringValue(FIELD_KEY);
-		if (keyStr.length() == 1) {
-			return keyStr.charAt(0);
-		} else if (keyStr.startsWith("F")) {
-			// Function keys
-			return (char)(KeyEvent.VK_F1 + Integer.parseInt(keyStr.substring(1)) - 1);
-		} else {
-			return 0;
-		}
+		return KeyboardMapping.keyCode(this.getStringValue(FIELD_KEY));
 	}
 	
 	private boolean isModifier(KeyStroke ks, int modifier) {

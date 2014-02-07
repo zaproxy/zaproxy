@@ -17,9 +17,6 @@
  */
 package org.zaproxy.zap.extension.keyboard;
 
-import java.awt.event.InputEvent;
-import java.awt.event.KeyEvent;
-
 import javax.swing.KeyStroke;
 
 public class KeyboardShortcut {
@@ -55,32 +52,14 @@ public class KeyboardShortcut {
     	if (this.keyStroke == null) {
     		return "";
     	}
-		int keyCode = this.keyStroke.getKeyCode();
-		if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F12) {
-			// Function key
-			return "F" + (keyCode - KeyEvent.VK_F1 + 1 ); 
-		} else {
-			// A 'normal' key
-			return String.valueOf((char)keyCode).toUpperCase();
-		}
+    	return KeyboardMapping.keyString(this.keyStroke.getKeyCode());
     }
 
     public String getKeyStrokeModifiersString() {
     	if (this.keyStroke == null) {
     		return "";
     	}
-    	StringBuilder sb = new StringBuilder();
-    	
-    	if ((keyStroke.getModifiers() & InputEvent.CTRL_DOWN_MASK) > 0) {
-    		sb.append("Control ");
-    	}
-    	if ((keyStroke.getModifiers() & InputEvent.ALT_DOWN_MASK) > 0) {
-    		sb.append("Alt ");
-    	}
-    	if ((keyStroke.getModifiers() & InputEvent.SHIFT_DOWN_MASK) > 0) {
-    		sb.append("Shift ");
-    	}
-		return sb.toString();
+    	return KeyboardMapping.modifiersString(this.keyStroke.getModifiers());
     }
 
     public String getKeyStrokeString() {

@@ -22,6 +22,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.KeyStroke;
 
+import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 class KeyboardMapping {
@@ -66,31 +67,67 @@ class KeyboardMapping {
     	if (this.menuItem == null || this.menuItem.getAccelerator() == null) {
     		return "";
     	}
-		int keyCode = this.menuItem.getAccelerator().getKeyCode();
+    	return keyString(this.menuItem.getAccelerator().getKeyCode());
+    }
+    
+    public static String keyString(int keyCode) {
 		if (keyCode >= KeyEvent.VK_F1 && keyCode <= KeyEvent.VK_F12) {
 			// Function key
-			return "F" + (keyCode - KeyEvent.VK_F1 + 1 ); 
+			return "F" + (keyCode - KeyEvent.VK_F1 + 1 );
+		} else if (keyCode == KeyEvent.VK_UP) {
+			return Constant.messages.getString("keyboard.key.up");
+		} else if (keyCode == KeyEvent.VK_DOWN) {
+			return Constant.messages.getString("keyboard.key.down");
+		} else if (keyCode == KeyEvent.VK_LEFT) {
+			return Constant.messages.getString("keyboard.key.left");
+		} else if (keyCode == KeyEvent.VK_RIGHT) {
+			return Constant.messages.getString("keyboard.key.right");
 		} else {
 			// A 'normal' key
 			return String.valueOf((char)keyCode).toUpperCase();
 		}
     }
+    
+	public static char keyCode(String keyStr) {
+		if (keyStr.length() == 1) {
+			return keyStr.charAt(0);
+		} else if (keyStr.startsWith("F")) {
+			// Function keys
+			return (char)(KeyEvent.VK_F1 + Integer.parseInt(keyStr.substring(1)) - 1);
+		} else if (keyStr.equals(Constant.messages.getString("keyboard.key.up"))) {
+			return KeyEvent.VK_UP;
+		} else if (keyStr.equals(Constant.messages.getString("keyboard.key.down"))) {
+			return KeyEvent.VK_DOWN;
+		} else if (keyStr.equals(Constant.messages.getString("keyboard.key.left"))) {
+			return KeyEvent.VK_LEFT;
+		} else if (keyStr.equals(Constant.messages.getString("keyboard.key.right"))) {
+			return KeyEvent.VK_RIGHT;
+		} else {
+			return 0;
+		}
+	}
 
     public String getKeyStrokeModifiersString() {
     	if (this.menuItem == null || this.menuItem.getAccelerator() == null) {
     		return "";
     	}
-    	KeyStroke ks = this.menuItem.getAccelerator();
+    	return modifiersString(this.menuItem.getAccelerator().getModifiers());
+    }
+
+    public static String modifiersString(int modifiers) {
     	StringBuilder sb = new StringBuilder();
     	
-    	if ((ks.getModifiers() & InputEvent.CTRL_DOWN_MASK) > 0) {
-    		sb.append("Control ");
+    	if ((modifiers & InputEvent.CTRL_DOWN_MASK) > 0) {
+    		sb.append(Constant.messages.getString("keyboard.key.control"));
+    		sb.append(" ");
     	}
-    	if ((ks.getModifiers() & InputEvent.ALT_DOWN_MASK) > 0) {
-    		sb.append("Alt ");
+    	if ((modifiers & InputEvent.ALT_DOWN_MASK) > 0) {
+    		sb.append(Constant.messages.getString("keyboard.key.alt"));
+    		sb.append(" ");
     	}
-    	if ((ks.getModifiers() & InputEvent.SHIFT_DOWN_MASK) > 0) {
-    		sb.append("Shift ");
+    	if ((modifiers & InputEvent.SHIFT_DOWN_MASK) > 0) {
+    		sb.append(Constant.messages.getString("keyboard.key.shift"));
+    		sb.append(" ");
     	}
 		return sb.toString();
     }
