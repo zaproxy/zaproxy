@@ -74,6 +74,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 
 			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
 	        java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
+	        GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
 
 	        javax.swing.JLabel jLabel = new JLabel();
 
@@ -94,8 +95,23 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	        gridBagConstraints2.ipadx = 0;
 	        gridBagConstraints2.insets = new java.awt.Insets(0,0,0,0);
 	        gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+
+	        JLabel noteLabel = new JLabel();
+	        noteLabel.setText(Constant.messages.getString("options.globalexcludeurl.seeglobalconfig"));
+
+	        gridBagConstraints3.gridx = 0;
+	        gridBagConstraints3.gridy = 2;
+	        gridBagConstraints3.gridheight = 1;
+	        gridBagConstraints3.weightx = 1.0;
+	        gridBagConstraints3.weighty = 0.0;
+	        gridBagConstraints3.fill = java.awt.GridBagConstraints.HORIZONTAL;
+	        gridBagConstraints3.ipadx = 0;
+	        gridBagConstraints3.insets = new java.awt.Insets(0,0,0,0);
+	        gridBagConstraints3.anchor = java.awt.GridBagConstraints.SOUTH;
+
 	        panelSession.add(jLabel, gridBagConstraints1);
 	        panelSession.add(getJScrollPane(), gridBagConstraints2);
+	        panelSession.add(noteLabel, gridBagConstraints3);
 		}
 		return panelSession;
 	}

@@ -39,6 +39,7 @@
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/31 Issue 979: Sites and Alerts trees can get corrupted - load session on EventDispatchThread
+// ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert bug/issue list here.
 
 package org.parosproxy.paros.model;
 
@@ -99,7 +100,9 @@ public class Session extends FileXML {
 	private List<String> excludeFromProxyRegexs = new ArrayList<>();
 	private List<String> excludeFromScanRegexs = new ArrayList<>();
 	private List<String> excludeFromSpiderRegexs = new ArrayList<>();
-    
+	// ZAP: Added globalExcludeURLRegexs code.
+	private List<String> globalExcludeURLRegexs = new ArrayList<>();
+
     private List<Context> contexts = new ArrayList<>();
     private int nextContextIndex = 1;
 
@@ -754,8 +757,24 @@ public class Session extends FileXML {
 	    }
 
 		this.excludeFromProxyRegexs = stripEmptyLines(ignoredRegexs);
-		Control.getSingleton().setExcludeFromProxyUrls(this.excludeFromProxyRegexs);
+
+		// ZAP: Added fullList & globalExcludeURLRegexs code.
+	    List<String> fullList = new ArrayList<String>();
+	    fullList.addAll(this.excludeFromProxyRegexs);
+	    fullList.addAll(this.globalExcludeURLRegexs);
+	    
+		Control.getSingleton().setExcludeFromProxyUrls(fullList);
+		
+		/*  // For debugging the GlobalExcludeURL functionality. 
+		log.warn("setExcludeFromProxyRegexs  (ignored, session.proxy, session.global, fullList");
+	    log.warn(ignoredRegexs.toString());
+	    log.warn(excludeFromProxyRegexs.toString());
+	    log.warn(globalExcludeURLRegexs.toString());
+	    log.warn(fullList);
+	    */
+	    
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);
+		// Thought for GlobalExcludeURL; we can create addUrls() and call that too - but I don't think it is needed.
 	}
 
 	public void addExcludeFromProxyRegex(String ignoredRegex) throws SQLException {
@@ -779,7 +798,12 @@ public class Session extends FileXML {
 		ExtensionActiveScan extAscan = 
 			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
 		if (extAscan != null) {
-			extAscan.setExcludeList(this.excludeFromScanRegexs);
+			// ZAP: Added fullList & globalExcludeURLRegexs code.
+		    List<String> fullList = new ArrayList<String>();
+		    fullList.addAll(this.excludeFromScanRegexs);
+		    fullList.addAll(this.globalExcludeURLRegexs);
+
+			extAscan.setExcludeList(fullList);
 		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
@@ -794,7 +818,12 @@ public class Session extends FileXML {
 		ExtensionActiveScan extAscan = 
 			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
 		if (extAscan != null) {
-			extAscan.setExcludeList(this.excludeFromScanRegexs);
+			// ZAP: Added fullList & globalExcludeURLRegexs code.
+		    List<String> fullList = new ArrayList<String>();
+		    fullList.addAll(this.excludeFromScanRegexs);
+		    fullList.addAll(this.globalExcludeURLRegexs);
+
+			extAscan.setExcludeList(fullList);
 		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
@@ -811,7 +840,12 @@ public class Session extends FileXML {
 		ExtensionSpider extSpider = 
 			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
 		if (extSpider != null) {
-			extSpider.setExcludeList(this.excludeFromSpiderRegexs);
+			// ZAP: Added fullList & globalExcludeURLRegexs code.
+		    List<String> fullList = new ArrayList<String>();
+		    fullList.addAll(this.excludeFromSpiderRegexs);
+		    fullList.addAll(this.globalExcludeURLRegexs);
+
+		    extSpider.setExcludeList(fullList);
 		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
 	}
@@ -827,9 +861,66 @@ public class Session extends FileXML {
 		ExtensionSpider extSpider = 
 			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
 		if (extSpider != null) {
-			extSpider.setExcludeList(this.excludeFromSpiderRegexs);
+			// ZAP: Added fullList & globalExcludeURLRegexs code.
+		    List<String> fullList = new ArrayList<String>();
+		    fullList.addAll(this.excludeFromSpiderRegexs);
+		    fullList.addAll(this.globalExcludeURLRegexs);
+
+		    extSpider.setExcludeList(fullList);
 		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
+	}
+
+	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
+	// ZAP: Added function.
+	public void forceGlobalExcludeURLRefresh() throws SQLException {
+		List<String> temp;
+		
+		temp = getExcludeFromProxyRegexs();
+	    log.info(">>> forceGlobalExcludeURLRefresh: " + temp.toString());
+		setExcludeFromProxyRegexs(temp);
+		
+		temp = getExcludeFromScanRegexs();
+	    log.info(">>> forceGlobalExcludeURLRefresh: " + temp.toString());
+		setExcludeFromScanRegexs(temp);
+		
+		temp = getExcludeFromSpiderRegexs();
+	    log.info(">>> forceGlobalExcludeURLRefresh: " + temp.toString());
+		setExcludeFromSpiderRegexs(temp);
+	}
+
+	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
+	// ZAP: Added function.
+	public List<String> getGlobalExcludeURLRegexs() {
+		return globalExcludeURLRegexs;
+	}
+
+	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
+	// ZAP: Added function.
+	public void addGlobalExcludeURLRegexs(String ignoredRegex) throws SQLException {
+		// Validate its a valid regex first
+		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
+    
+		this.globalExcludeURLRegexs.add(ignoredRegex);
+		
+		// This probably isn't needed in the active session, need input here. 
+		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
+	}
+
+	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
+	// ZAP: Added function.
+	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) throws SQLException {
+		// Validate its a valid regex first
+	    for (String url : ignoredRegexs) {
+			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
+	    }
+	    log.info(">>> setGlobalExcludeURLRegexs" );
+
+		this.globalExcludeURLRegexs = stripEmptyLines(ignoredRegexs);
+
+		// This probably isn't needed in the active session, need input here. 
+		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
+	    log.info("<<< setGlobalExcludeURLRegexs" );
 	}
 	
 	public void setSessionUrls(int type, List<String> urls) throws SQLException {

@@ -33,6 +33,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert list here.
 
 package org.parosproxy.paros.model;
 
@@ -51,7 +52,7 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.invoke.InvokeParam;
-
+import org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam;
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
 
@@ -68,11 +69,12 @@ public class OptionsParam extends AbstractParam {
 	private ConnectionParam connectionParam = new ConnectionParam();
 	private OptionsParamView viewParam = new OptionsParamView();
 	private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
-	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam
+	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam, AntiCsrfParam, OptionsParamApi, GlobalExcludeURLParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private InvokeParam invokeParam = new InvokeParam();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
+	private GlobalExcludeURLParam globalExcludeURLParam = new GlobalExcludeURLParam();
 	private OptionsParamExperimentalSliSupport experimentalFeatuesParam = new OptionsParamExperimentalSliSupport();
 	
     /**
@@ -189,6 +191,7 @@ public class OptionsParam extends AbstractParam {
 		getInvokeParam().load(getConfig());
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
+		getGlobalExcludeURLParam().load(getConfig());
 		getExperimentalFeaturesParam().load(getConfig());
         getDatabaseParam().load(getConfig());
 		
@@ -251,6 +254,11 @@ public class OptionsParam extends AbstractParam {
 
 	public AntiCsrfParam getAntiCsrfParam() {
 		return antiCsrfParam;
+	}
+	
+	// ZAP: Added getter.
+	public GlobalExcludeURLParam getGlobalExcludeURLParam() {
+		return globalExcludeURLParam;
 	}
 
 	public OptionsParamApi getApiParam() {
