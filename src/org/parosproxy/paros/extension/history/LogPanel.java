@@ -32,6 +32,7 @@
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 // ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/02/07 Issue 207: Give the most suitable component focus on tab switch
 
 package org.parosproxy.paros.extension.history;
 
@@ -112,8 +113,15 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Event.CTRL_MASK | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("history.panel.mnemonic"));
+		
 	}
-    
+
+	@Override
+	public void tabSelected() {
+		// Give the history list focus so that the user can immediatelly use the arrow keys to navigate
+		getListLog().requestFocusInWindow();
+	}
+
     void setExtension(ExtensionHistory extension) {
         this.extension = extension;
     }

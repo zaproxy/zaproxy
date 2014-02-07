@@ -22,6 +22,7 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/12/13 Added support for remembering the old tab name, which is used for nameless tabs.
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/02/07 Issue 207: Added tabSelected method
 
 package org.parosproxy.paros.extension;
 
@@ -31,6 +32,8 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -91,8 +94,23 @@ public class AbstractPanel extends JPanel {
 		this.tabIndex = tabIndex;
 	}
 	
-	public void setParent(TabbedPanel2 parent) {
+	public void setParent(final TabbedPanel2 parent) {
 		this.parent = parent;
+		
+		parent.addChangeListener(new ChangeListener() {
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				if (AbstractPanel.this.equals(parent.getSelectedComponent())) {
+					tabSelected();
+				}
+			}});
+	}
+	
+	/**
+	 * Invoked when the associated tab is selected. The method does nothing so override to act on the event 
+	 */
+	public void tabSelected() {
+		// Do nothing
 	}
 	
 	public boolean isHideable() {
