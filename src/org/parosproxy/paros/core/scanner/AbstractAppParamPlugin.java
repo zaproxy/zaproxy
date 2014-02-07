@@ -27,7 +27,9 @@
 // ZAP: 2013/07/14 Issue 726: Catch active scan variants' exceptions
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
-// ZAP: 2014/01/10  Issue 974: Scan URL path elements
+// ZAP: 2014/01/10 Issue 974: Scan URL path elements
+// ZAP: 2014/02/07 Issue 1018: Give AbstractAppParamPlugin implementations access to the parameter type
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -126,7 +128,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             originalPair = variant.getParamList().get(i);
             HttpMessage msg = getNewMsg();
             try {
-                scan(msg, originalPair.getName(), originalPair.getValue());
+                scan(msg, originalPair.getType(), originalPair.getName(), originalPair.getValue());
             } catch (Exception e) {
                 logger.error("Error occurred while scanning a message:", e);
             }
@@ -140,6 +142,17 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @param value
      */
     public abstract void scan(HttpMessage msg, String param, String value);
+
+    /**
+     * Overide this method if you need to know the type of the parameter
+     * @param msg
+     * @param type
+     * @param param
+     * @param value
+     */
+    public void scan(HttpMessage msg, String type, String param, String value) {
+    	this.scan(msg, param, value);
+    }
 
     /**
      * Set the paramter into the current message. The position will be handled
