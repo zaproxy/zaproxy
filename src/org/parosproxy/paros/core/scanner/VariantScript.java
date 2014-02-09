@@ -19,7 +19,6 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import java.util.List;
 import javax.script.ScriptException;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -29,7 +28,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public interface VariantScript {
 
-    public void parseParameters(HttpMessage msg, List<NameValuePair> params) throws ScriptException;
+    public void parseParameters(VariantCustom variant, HttpMessage msg) throws ScriptException;
 
-    public void setParameter(HttpMessage msg, String param, String value, boolean escaped) throws ScriptException;
+    public void setParameter(VariantCustom variant, HttpMessage msg, String param, String value, boolean escaped) throws ScriptException;
 }

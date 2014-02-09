@@ -29,19 +29,26 @@
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
 // ZAP: 2014/01/10 Issue 974: Scan URL path elements
 // ZAP: 2014/02/07 Issue 1018: Give AbstractAppParamPlugin implementations access to the parameter type
-
+// ZAP: 2014/02/09 Add custom input vector scripting capabilities
+//
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
+import java.util.List;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptWrapper;
 
 public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
-    private Logger logger = Logger.getLogger(this.getClass());
-    private ArrayList<Variant> listVariant = new ArrayList<>();
+    private final Logger logger = Logger.getLogger(this.getClass());
+    private final ArrayList<Variant> listVariant = new ArrayList<>();
     private NameValuePair originalPair = null;
-    private Variant variant = null;
+    private Variant variant = null;    
+    private ExtensionScript extension;
 
     @Override
     public void scan() {
@@ -100,6 +107,20 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         if ((targets & ScannerParam.TARGET_COOKIE) != 0) {
             listVariant.add(new VariantCookie());
         }
+        
+        // Now is time to initialize all the custom Variants
+        if ((enabledRPC & ScannerParam.RPC_CUSTOM) != 0) {
+            if (getExtension() != null) {
+                // List the scripts and create as many custom variants as the scripts
+		List<ScriptWrapper> scripts = getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_VARIANT);
+			
+		for (ScriptWrapper script : scripts) {
+                    if (script.isEnabled()) {
+                        listVariant.add(new VariantCustom(script, getExtension()));
+                    }
+                }
+            }
+        }
 
         for (int i = 0; i < listVariant.size() && !isStop(); i++) {
             
@@ -128,7 +149,8 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             originalPair = variant.getParamList().get(i);
             HttpMessage msg = getNewMsg();
             try {
-                scan(msg, originalPair.getType(), originalPair.getName(), originalPair.getValue());
+                scan(msg, originalPair);
+                
             } catch (Exception e) {
                 logger.error("Error occurred while scanning a message:", e);
             }
@@ -136,22 +158,28 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
 
     /**
-     *
-     * @param msg
-     * @param param
-     * @param value
+     * Plugin method that need to be implemented for the specific test.
+     * The passed message is a copy which maintains only the Request's information
+     * so if the plugin need to manage the original Response body a getBaseMsg()
+     * call should be done. the param name and the value are the original value
+     * retrieved by the crawler and the current applied Variant.
+     * @param msg a copy of the HTTP message currently under scanning
+     * @param param the name of the parameter under testing
+     * @param value the clean value (no escaping is needed) 
      */
     public abstract void scan(HttpMessage msg, String param, String value);
 
     /**
-     * Overide this method if you need to know the type of the parameter
-     * @param msg
-     * @param type
-     * @param param
-     * @param value
+     * General method for a specific Parameter scanning, which allows developers
+     * to access all the settings specific of the parameters like the place/type
+     * where the name/value pair has been retrieved. This method can be overridden
+     * so that plugins that need a more deep access to the parameter context can
+     * benefit about this possibility.
+     * @param msg a copy of the HTTP message currently under scanning
+     * @param originalParam the parameter pair with all the context informations
      */
-    public void scan(HttpMessage msg, String type, String param, String value) {
-    	this.scan(msg, param, value);
+    public void scan(HttpMessage msg, NameValuePair originalParam) {
+        scan(msg, originalParam.getName(), originalParam.getValue());
     }
 
     /**
@@ -177,5 +205,12 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      */
     protected String setEscapedParameter(HttpMessage msg, String param, String value) {
         return variant.setEscapedParameter(msg, originalPair, param, value);
+    }
+
+    private ExtensionScript getExtension() {
+        if (extension == null) {
+            extension = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
+        }
+        return extension;
     }
 }

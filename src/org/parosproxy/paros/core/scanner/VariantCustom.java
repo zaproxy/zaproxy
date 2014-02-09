@@ -22,7 +22,9 @@ package org.parosproxy.paros.core.scanner;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import javax.script.ScriptException;
+import org.apache.commons.codec.binary.Base64;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -37,7 +39,11 @@ public class VariantCustom implements Variant {
     ExtensionScript extension = null;
     private ScriptWrapper wrapper = null;
     private VariantScript script = null; 
-    private List<NameValuePair> params = new ArrayList<>();
+    private final List<NameValuePair> params = new ArrayList<>();
+
+    // base64 strings are similar, except they can contain + and /, and end 
+    // with 0 - 2 '=' signs. They are also a multiple of 4 bytes. 
+    private final static Pattern BASE64_PATTERN = Pattern.compile("^[a-zA-Z0-9/+]+={0,2}$");
 
     /**
      * Create a new Custom Variant using the specific script
@@ -67,7 +73,7 @@ public class VariantCustom implements Variant {
     public void setMessage(HttpMessage msg) {
 	try {
             if (script != null) {
-                script.parseParameters(msg, params);
+                script.parseParameters(this, msg);
             }
             
         } catch (ScriptException se) {
@@ -85,6 +91,97 @@ public class VariantCustom implements Variant {
         return params;
     }
 
+    /**
+     * Support method to get back the name of the n-th parameter
+     * @param index the index of the requested parameter
+     * @return the parameter name if exists
+     */
+    public String getParamName(int index) {
+        return (index < params.size()) ? params.get(index).getName() : null;
+    }
+    
+    /**
+     * Support method to get back the value of the n-th parameter
+     * @param index the index of the requested parameter
+     * @return the parameter value if exists
+     */
+    public String getParamValue(int index) {
+        return (index < params.size()) ? params.get(index).getValue() : null;
+    }
+
+    /**
+     * Get the number of parameters currently available for this variant
+     * @return 
+     */
+    public int getParamNumber() {
+        return params.size();
+    }
+    
+    /**
+     * Support method to add a new param to this custom variant
+     * @param name the param name
+     * @param value the value of this parameter
+     * @param type the type of this parameter
+     */
+    public void addParam(String name, String value, int type) {
+        // Current size usually is equal to the position
+        params.add(new NameValuePair(type, name, value, params.size()));
+    }
+
+    /**
+     * Support method to add a new QueryString param to this custom variant
+     * @param name the param name
+     * @param value the value of this parameter
+     */
+    public void addParamQuery(String name, String value) {
+        addParam(name, value, NameValuePair.TYPE_QUERY_STRING);
+    }
+    
+    /**
+     * Support method to add a new PostData param to this custom variant
+     * @param name the param name
+     * @param value the value of this parameter
+     */
+    public void addParamPost(String name, String value) {
+        addParam(name, value, NameValuePair.TYPE_POST_DATA);
+    }
+    
+    /**
+     * Support method to add a new Header param to this custom variant
+     * @param name the param name
+     * @param value the value of this parameter
+     */
+    public void addParamHeader(String name, String value) {
+        addParam(name, value, NameValuePair.TYPE_HEADER);
+    }
+
+    /**
+     * Support method to encode a string to Base64
+     * @param value the value that need to be encoded
+     * @return the encoded string
+     */
+    public String encodeBase64(String value) {
+        return Base64.encodeBase64String(value.getBytes());
+    }
+
+    /**
+     * Support method to decode a Base64 string
+     * @param value the value that need to be decoded
+     * @return the decoded string
+     */
+    public String decodeBase64(String value) {
+        return new String(Base64.decodeBase64(value));
+    }
+
+    /**
+     * Support method to verify if the content is a Base64 string
+     * @param value the value that need to be checked
+     * @return true if the value is a Base64 string
+     */
+    public boolean isBase64(String value) {
+        return (BASE64_PATTERN.matcher(value).matches() && ((value.length() % 4) == 0));        
+    }
+    
     @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
         return setParameter(msg, param, value, false);
@@ -106,7 +203,7 @@ public class VariantCustom implements Variant {
     private String setParameter(HttpMessage msg, String paramName, String value, boolean escaped) {
 	try {
             if (script != null) {
-                script.setParameter(msg, paramName, value, escaped);
+                script.setParameter(this, msg, paramName, value, escaped);
             }
                         
         } catch (ScriptException se) {
