@@ -30,6 +30,7 @@
 // ZAP: 2013/09/24 Issue 797: Limit number of ascan results listed to speed up scans
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
 // ZAP: 2014/01/10  Issue 974: Scan URL path elements
+// ZAP: 2014/02/08  Added Custom Script management settings
 
 package org.parosproxy.paros.core.scanner;
 
@@ -65,6 +66,7 @@ public class ScannerParam extends AbstractParam {
     public static final int RPC_JSON        = 1<<2;
     public static final int RPC_GWT         = 1<<3;
     public static final int RPC_ODATA       = 1<<4;
+    public static final int RPC_CUSTOM      = 1<<7;
     
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_URLPATH;

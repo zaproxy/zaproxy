@@ -23,6 +23,7 @@ import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -69,12 +70,18 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     private static final Logger logger = Logger.getLogger(ExtensionActiveScan.class);
     private static final int ARG_SCAN_IDX = 0;
+    
     public static final String NAME = "ExtensionActiveScan";
-    private static final ImageIcon SCRIPT_ICON_ACTIVE =
-            new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
     
+    private static final ImageIcon SCRIPT_ICON_ACTIVE
+            = new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-ascan.png"));
+    
+    private static final ImageIcon SCRIPT_ICON_VARIANT
+            = new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-variant.png"));
+
     public static final String SCRIPT_TYPE_ACTIVE = "active";
-    
+    public static final String SCRIPT_TYPE_VARIANT = "variant";
+
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
     private static final List<Class<?>> DEPENDENCIES;
@@ -85,13 +92,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
         DEPENDENCIES = Collections.unmodifiableList(dep);
     }
-    
+
     private ZapMenuItem menuItemPolicy = null;
     private OptionsScannerPanel optionsScannerPanel = null;
+    private OptionsVariantPanel optionsVariantPanel = null;
     private ActiveScanPanel activeScanPanel = null;
     private ScannerParam scannerParam = null;
-    private CommandLineArgument[] arguments = new CommandLineArgument[1];
-    private List<AbstractParamPanel> policyPanels = new ArrayList<>();
+    private final CommandLineArgument[] arguments = new CommandLineArgument[1];
+    private final List<AbstractParamPanel> policyPanels = new ArrayList<>();
 
     /**
      *
@@ -115,7 +123,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.setName(NAME);
         this.setOrder(28);
 
-
     }
 
     @Override
@@ -126,11 +133,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
+            extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
             this.getActiveScanPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 
             ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
         }
+        
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(this);
         extensionHook.addSiteMapListener(this);
@@ -142,6 +151,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
         if (extScript != null) {
             extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_ACTIVE, "ascan.scripts.type.active", SCRIPT_ICON_ACTIVE, true));
+            extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", SCRIPT_ICON_VARIANT, true));
         }
 
         ActiveScanAPI api = new ActiveScanAPI(this);
@@ -152,7 +162,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ActiveScanPanel getActiveScanPanel() {
         if (activeScanPanel == null) {
             activeScanPanel = new ActiveScanPanel(this);
-        }
+        }        
         return activeScanPanel;
     }
 
@@ -160,13 +170,19 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.getActiveScanPanel().scanAllInScope();
     }
 
+    /**
+     * Start the scanning process beginning to a specific node 
+     * @param startNode the start node where the scanning should begin to work
+     */
     public void startScan(SiteNode startNode) {
         try {
             // Add to sites if not already present - required for quick start tab
             this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+            
         } catch (Exception e) {
             // Ignore
         }
+        
         this.getActiveScanPanel().scanSite(startNode, true);
     }
 
@@ -185,7 +201,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ZapMenuItem getMenuItemPolicy() {
         if (menuItemPolicy == null) {
             menuItemPolicy = new ZapMenuItem("menu.analyse.scanPolicy",
-					KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK, false));
+                    KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK, false));
 
             menuItemPolicy.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -195,6 +211,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             });
 
         }
+        
         return menuItemPolicy;
     }
 
@@ -204,7 +221,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         for (AbstractParamPanel panel : policyPanels) {
             dialog.addPolicyPanel(panel);
         }
-        
+
         // TODO This could be done in a cleaner way...
         ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
         if (pscan != null) {
@@ -217,7 +234,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         if (result == JOptionPane.OK_OPTION) {
             try {
                 getModel().getOptionsParam().getConfig().save();
-                
+
             } catch (ConfigurationException ce) {
                 logger.error(ce.getMessage(), ce);
                 getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));
@@ -247,7 +264,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
                         sessionChangedEventHandler(session);
                     }
                 });
-            } catch (Exception e) {
+                
+            } catch (InterruptedException | InvocationTargetException e) {
                 logger.error(e.getMessage(), e);
             }
         }
@@ -260,6 +278,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             // Closedown
             return;
         }
+        
         // Add new hosts
         SiteNode snroot = (SiteNode) session.getSiteTree().getRoot();
         @SuppressWarnings("unchecked")
@@ -279,6 +298,18 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             optionsScannerPanel = new OptionsScannerPanel();
         }
         return optionsScannerPanel;
+    }
+
+    /**
+     * This method initializes optionsVariantPanel
+     *
+     * @return org.zaproxy.zap.extension.ascan.OptionsVariantPanel
+     */
+    private OptionsVariantPanel getOptionsVariantPanel() {
+        if (optionsVariantPanel == null) {
+            optionsVariantPanel = new OptionsVariantPanel();
+        }
+        return optionsVariantPanel;
     }
 
     /**
@@ -311,7 +342,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
          }
          }
          System.out.println("Scanner completed.");
-
          */
     }
 
@@ -389,6 +419,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public URL getURL() {
         try {
             return new URL(Constant.ZAP_HOMEPAGE);
+            
         } catch (MalformedURLException e) {
             return null;
         }

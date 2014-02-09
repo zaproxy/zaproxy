@@ -62,20 +62,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JComboBox<String> comboStrength = null;
     private JLabel labelStrengthNotes = null;
     
-    // Checkbox for Target definitions
-    private JCheckBox chkInjectableQueryString = null;
-    private JCheckBox chkInjectableUrlPath = null;
-    private JCheckBox chkInjectablePostData = null;
-    private JCheckBox chkInjectableHeaders = null;
-    private JCheckBox chkInjectableCookie = null;
-    
-    // Checkbox for RPC to be enabled definitions
-    private JCheckBox chkRPCMultipart = null;
-    private JCheckBox chkRPCXML = null;
-    private JCheckBox chkRPCJSON = null;
-    private JCheckBox chkRPCGWT = null;
-    private JCheckBox chkRPCoData = null;
-
     /**
      * General Constructor
      */
@@ -126,8 +112,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(2, 5, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getSliderDelayInMs(),
                     LayoutHelper.getGBC(0, 6, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            
+            // Add checkboxes for Active scan configuration
+            // ---------------------------------------------            
             panelScanner.add(getChkHandleAntiCSRFTokens(),
-                    LayoutHelper.getGBC(0, 7, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, 7, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(getChkDeleteRequestsOnShutdown(),
                     LayoutHelper.getGBC(0, 8, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
@@ -135,11 +124,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             // Add Attack settings section
             // ---------------------------------------------
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.level.label")),
-                    LayoutHelper.getGBC(0, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(getComboThreshold(),
-                    LayoutHelper.getGBC(1, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(getThresholdNotes(),
-                    LayoutHelper.getGBC(2, 9, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(2, 9, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.strength.label")),
                     LayoutHelper.getGBC(0, 10, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
@@ -147,63 +136,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(1, 10, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getStrengthNotes(),
                     LayoutHelper.getGBC(2, 10, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-
-            // Add Injectable Params Section
-            // ---------------------------------------------
-            JPanel panelInjectable = new JPanel();
-            panelInjectable.setLayout(new GridBagLayout());
-            
-            panelInjectable.add(
-                    new JLabel(Constant.messages.getString("ascan.options.injectable.label")),
-                    LayoutHelper.getGBC(0, 0, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-
-            panelInjectable.add(
-                    this.getChkInjectableQueryString(), 
-                    LayoutHelper.getGBC(0, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            panelInjectable.add(
-                    this.getChkInjectableUrlPath(), 
-                    LayoutHelper.getGBC(0, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            panelInjectable.add(
-                    this.getChkInjectablePostData(),
-                    LayoutHelper.getGBC(0, 3, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            panelInjectable.add(
-                    this.getChkInjectableHeaders(),
-                    LayoutHelper.getGBC(0, 4, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            panelInjectable.add(
-                    this.getChkInjectableCookie(),
-                    LayoutHelper.getGBC(0, 5, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            
-            panelScanner.add(
-                    panelInjectable,
-                    LayoutHelper.getGBC(0, 11, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-            
-            // Add RPC Enabling Section
-            // ---------------------------------------------
-            JPanel panelRPC = new JPanel();
-            panelRPC.setLayout(new GridBagLayout());
-            panelRPC.add(
-                    new JLabel(Constant.messages.getString("ascan.options.rpc.label")),
-                    LayoutHelper.getGBC(0, 0, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
-
-            panelRPC.add(
-                    this.getChkRPCMultipart(), 
-                    LayoutHelper.getGBC(0, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            panelRPC.add(
-                    this.getChkRPCXML(), 
-                    LayoutHelper.getGBC(0, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            panelRPC.add(
-                    this.getChkRPCJSON(), 
-                    LayoutHelper.getGBC(0, 3, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            panelRPC.add(
-                    this.getChkRPCGWT(), 
-                    LayoutHelper.getGBC(1, 1, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            panelRPC.add(
-                    this.getChkRPCoData(), 
-                    LayoutHelper.getGBC(1, 2, 1, 0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));            
-            
-            panelScanner.add(
-                    panelRPC,
-                    LayoutHelper.getGBC(2, 11, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
             // Close Panel
             panelScanner.add(
@@ -339,22 +271,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                 getComboStrength().setSelectedItem(Constant.messages.getString("ascan.options.strength.medium"));
                 getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
                 break;
-        }
-        
-        // Set targets and RPC selections
-        int targets = param.getTargetParamsInjectable();
-        this.getChkInjectableQueryString().setSelected((targets & ScannerParam.TARGET_QUERYSTRING) != 0);
-        this.getChkInjectableUrlPath().setSelected((targets & ScannerParam.TARGET_URLPATH) != 0);
-        this.getChkInjectablePostData().setSelected((targets & ScannerParam.TARGET_POSTDATA) != 0);
-        this.getChkInjectableHeaders().setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
-        this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
-
-        int rpcEnabled = param.getTargetParamsEnabledRPC();
-        this.getChkRPCMultipart().setSelected((rpcEnabled & ScannerParam.RPC_MULTIPART) != 0);
-        this.getChkRPCXML().setSelected((rpcEnabled & ScannerParam.RPC_XML) != 0);
-        this.getChkRPCJSON().setSelected((rpcEnabled & ScannerParam.RPC_JSON) != 0);
-        this.getChkRPCGWT().setSelected((rpcEnabled & ScannerParam.RPC_GWT) != 0);
-        this.getChkRPCoData().setSelected((rpcEnabled & ScannerParam.RPC_ODATA) != 0);
+        }        
     }
 
     /**
@@ -411,55 +328,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             strength = AttackStrength.INSANE;
         }
         
-        param.setAttackStrength(strength);
-        
-        // Set Injectable Targets
-        int targets = 0;        
-        if (this.getChkInjectableQueryString().isSelected()) {
-            targets |= ScannerParam.TARGET_QUERYSTRING;
-        }
-
-        if (this.getChkInjectableUrlPath().isSelected()) {
-            targets |= ScannerParam.TARGET_URLPATH;
-        }
-        
-        if (this.getChkInjectablePostData().isSelected()) {
-            targets |= ScannerParam.TARGET_POSTDATA;
-        }
-        
-        if (this.getChkInjectableHeaders().isSelected()) {
-            targets |= ScannerParam.TARGET_HTTPHEADERS;
-        }
-        
-        if (this.getChkInjectableCookie().isSelected()) {
-            targets |= ScannerParam.TARGET_COOKIE;
-        }
-        
-        param.setTargetParamsInjectable(targets);
-        
-        // Set Enabled RPC schemas
-        int enabledRpc = 0;
-        if (this.getChkRPCMultipart().isSelected()) {
-            enabledRpc |= ScannerParam.RPC_MULTIPART;
-        }
- 
-        if (this.getChkRPCXML().isSelected()) {
-            enabledRpc |= ScannerParam.RPC_XML;
-        }
-
-        if (this.getChkRPCJSON().isSelected()) {
-            enabledRpc |= ScannerParam.RPC_JSON;
-        }
-        
-        if (this.getChkRPCGWT().isSelected()) {
-            enabledRpc |= ScannerParam.RPC_GWT;
-        }
-
-        if (this.getChkRPCoData().isSelected()) {
-            enabledRpc |= ScannerParam.RPC_ODATA;
-        }
-        
-        param.setTargetParamsEnabledRPC(enabledRpc);
+        param.setAttackStrength(strength);        
     }
 
     /**
@@ -619,85 +488,5 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             chkDeleteRequestsOnShutdown.setText(Constant.messages.getString("ascan.options.deleterecs.label"));
         }
         return chkDeleteRequestsOnShutdown;
-    }
-
-    private JCheckBox getChkInjectableQueryString() {
-        if (chkInjectableQueryString == null) {
-            chkInjectableQueryString = new JCheckBox();
-            chkInjectableQueryString.setText(Constant.messages.getString("ascan.options.injectable.querystring.label"));
-        }
-        return chkInjectableQueryString;
-    }
-
-    private JCheckBox getChkInjectableUrlPath() {
-        if (chkInjectableUrlPath == null) {
-            chkInjectableUrlPath = new JCheckBox();
-            chkInjectableUrlPath.setText(Constant.messages.getString("ascan.options.injectable.urlpath.label"));
-        }
-        return chkInjectableUrlPath;
-    }
-
-    private JCheckBox getChkInjectablePostData() {
-        if (chkInjectablePostData == null) {
-            chkInjectablePostData = new JCheckBox();
-            chkInjectablePostData.setText(Constant.messages.getString("ascan.options.injectable.postdata.label"));
-        }
-        return chkInjectablePostData;
-    }
-
-    private JCheckBox getChkInjectableHeaders() {
-        if (chkInjectableHeaders == null) {
-            chkInjectableHeaders = new JCheckBox();
-            chkInjectableHeaders.setText(Constant.messages.getString("ascan.options.injectable.headers.label"));
-        }
-        return chkInjectableHeaders;
-    }
-
-    private JCheckBox getChkInjectableCookie() {
-        if (chkInjectableCookie== null) {
-            chkInjectableCookie = new JCheckBox();
-            chkInjectableCookie.setText(Constant.messages.getString("ascan.options.injectable.cookie.label"));
-        }
-        return chkInjectableCookie;
-    }
-
-    private JCheckBox getChkRPCMultipart() {
-        if (chkRPCMultipart == null) {
-            chkRPCMultipart = new JCheckBox();
-            chkRPCMultipart.setText(Constant.messages.getString("ascan.options.rpc.multipart.label"));
-        }
-        return chkRPCMultipart;
-    }
-
-    private JCheckBox getChkRPCXML() {
-        if (chkRPCXML == null) {
-            chkRPCXML = new JCheckBox();
-            chkRPCXML.setText(Constant.messages.getString("ascan.options.rpc.xml.label"));
-        }
-        return chkRPCXML;
-    }
-
-    private JCheckBox getChkRPCJSON() {
-        if (chkRPCJSON == null) {
-            chkRPCJSON = new JCheckBox();
-            chkRPCJSON.setText(Constant.messages.getString("ascan.options.rpc.json.label"));
-        }
-        return chkRPCJSON;
-    }
-
-    private JCheckBox getChkRPCGWT() {
-        if (chkRPCGWT == null) {
-            chkRPCGWT = new JCheckBox();
-            chkRPCGWT.setText(Constant.messages.getString("ascan.options.rpc.gwt.label"));
-        }
-        return chkRPCGWT;
-    }
-
-    private JCheckBox getChkRPCoData() {
-        if (chkRPCoData == null) {
-            chkRPCoData = new JCheckBox();
-            chkRPCoData.setText(Constant.messages.getString("ascan.options.rpc.odata.label"));
-        }
-        return chkRPCoData;
     }
 }
