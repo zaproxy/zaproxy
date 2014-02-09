@@ -55,7 +55,7 @@ public class VariantCustom implements Variant {
         this.extension = extension;
         if (wrapper != null && extension != null && wrapper.isEnabled()) {
             try {
-                this.script = wrapper.getInterface(VariantScript.class);
+                this.script = extension.getInterface(wrapper, VariantScript.class);
 
             } catch (ScriptException | IOException ex) {
                 this.extension.setError(wrapper, ex);
