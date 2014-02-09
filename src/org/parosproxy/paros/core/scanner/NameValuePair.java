@@ -20,19 +20,20 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/02 Changed API to public because future extensible Variant model
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
+// ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
+//
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {
 
-    public static final String TYPE_COOKIE = "cookie";
-    public static final String TYPE_FORM = "form";
-    public static final String TYPE_HEADER = "header";
-    public static final String TYPE_MULTIPART_FORM = "multipartform";
-    public static final String TYPE_ODATA_FILTER = "odatafilter";
-    public static final String TYPE_ODATA_ID = "odataid";
-    public static final String TYPE_RPC = "rpc";
-    public static final String TYPE_URL = "url";
-    private String type = null;
+    // ZAP: Parameter type constants
+    public static final int TYPE_URL_PATH = ScannerParam.TARGET_URLPATH;
+    public static final int TYPE_QUERY_STRING = ScannerParam.TARGET_QUERYSTRING;
+    public static final int TYPE_COOKIE = ScannerParam.TARGET_COOKIE;
+    public static final int TYPE_HEADER = ScannerParam.TARGET_HTTPHEADERS;
+    public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
+    
+    private int targetType = 0;
     private String name = null;
     private String value = null;
     private int position = 0;
@@ -41,9 +42,9 @@ public class NameValuePair {
      * @param name
      * @param value
      */
-    public NameValuePair(String type, String name, String value, int position) {
+    public NameValuePair(int type, String name, String value, int position) {
         super();
-        this.type = type;
+        this.targetType = type;
         this.name = name;
         this.value = value;
         this.position = position;
@@ -54,8 +55,8 @@ public class NameValuePair {
      *
      * @return
      */
-    public String getType() {
-        return type;
+    public int getType() {
+        return targetType;
     }
 
     /**

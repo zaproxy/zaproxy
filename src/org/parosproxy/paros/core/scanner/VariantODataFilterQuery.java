@@ -32,9 +32,10 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
  * Specialized variant able to handles the filter parameters of OData URIs<p/>
  * It's focused on OData v2
- * 
+ *
  * Example of query:<br/>
- * http://services.odata.org/OData/OData.svc/Product?$filter=startswith(name,'Foo') and price lt 10
+ * http://services.odata.org/OData/OData.svc/Product?$filter=startswith(name,'Foo')
+ * and price lt 10
  * <p/>
  * Reference: <br/>
  * http://www.odata.org/documentation/uri-conventions<br/>
@@ -43,188 +44,182 @@ import org.parosproxy.paros.network.HttpMessage;
  * TODO:<br/>
  * - Properly handle escaped vs. unescaped parameters<br/>
  * - Handle OData functions (startwith, substringof, ...)<br/>
- * 
+ *
  */
 public class VariantODataFilterQuery implements Variant {
-	
+
     private static final Logger log = Logger.getLogger(VariantODataFilterQuery.class);
 
-	// Extract the content of the $filter parameter
-	private static final Pattern patternFilterParameters  = Pattern.compile("\\$filter[ ]*=[ ]*([\\w\\s()',./\\-:]*)");
+    // Extract the content of the $filter parameter
+    private static final Pattern patternFilterParameters = Pattern.compile("\\$filter[ ]*=[ ]*([\\w\\s()',./\\-:]*)");
 
-	// Extract the effective parameters from the $filter string
-	// TODO: Support complex expressions 
-	private static final Pattern patternParameters = Pattern.compile("([\\w]+)\\s+(eq|ne|gt|ge|lt|le|and|or|not)\\s+([\\w'/]+)");
+    // Extract the effective parameters from the $filter string
+    // TODO: Support complex expressions 
+    private static final Pattern patternParameters = Pattern.compile("([\\w]+)\\s+(eq|ne|gt|ge|lt|le|and|or|not)\\s+([\\w'/]+)");
 
-	
-	// Store the URI parts located before and after the filter expression 
-	private String beforeFilterExpression = null ;
-	private String afterFilterExpression  = null ;
+    // Store the URI parts located before and after the filter expression 
+    private String beforeFilterExpression = null;
+    private String afterFilterExpression = null;
 
-	/**
-	 * Storage for the operation parameters
-	 */
-	private Map<String,OperationParameter> mapParameters = Collections.emptyMap();
-	
-	@Override
-	public void setMessage(HttpMessage msg) {
-		URI uri = msg.getRequestHeader().getURI();
-		parse(uri);
-	}
+    /**
+     * Storage for the operation parameters
+     */
+    private Map<String, OperationParameter> mapParameters = Collections.emptyMap();
 
-	private void parse(URI uri) {
-		try {
-			String query = uri.getQuery();
-				
-			// Detection of a filter statement if any
-			
-			if (query != null) {
-						
-				Matcher matcher = patternFilterParameters.matcher(query);
-				if (matcher.find()) {
-					String filterExpression = "";
-					
-					filterExpression =  matcher.group(1); 
-				
-					
-					int begin = query.indexOf(filterExpression);
-					int end   = begin + filterExpression.length();
-					
-					beforeFilterExpression = query.substring(0,begin);
-					afterFilterExpression  = query.substring(end);
-								
-					// Now scan the expression in order to identify all parameters 
-					mapParameters = new HashMap<>();
-					
-					Matcher matcherParameters = patternParameters.matcher(filterExpression);
-					while (matcherParameters.find()){
-						
-						String nameOpAndValue = matcherParameters.group(0);
-						String paramName  = matcherParameters.group(1);
-						String operator   = matcherParameters.group(2);
-						String paramValue = matcherParameters.group(3); 
-						
-						begin = filterExpression.indexOf(nameOpAndValue);
-						end   = begin + nameOpAndValue.length();
-	
-						String before = filterExpression.substring(0,begin);
-						String after  = filterExpression.substring(end);
-						
-						OperationParameter opParam = new OperationParameter(paramName, operator, paramValue, before, after);
-						mapParameters.put(opParam.getParameterName(), opParam);
-						
-					} 
-						
-				
-				}
-				else {
-					beforeFilterExpression = null;
-					afterFilterExpression  = null;
-					mapParameters = Collections.emptyMap();
-				}
-			
-			} else {
-				beforeFilterExpression = null;
-				afterFilterExpression  = null;
-				mapParameters = Collections.emptyMap();				
-			}
-		
-		} catch (URIException e) {
-			log.error(e.getMessage() + uri, e);
-		}
-		
-	}	
+    @Override
+    public void setMessage(HttpMessage msg) {
+        URI uri = msg.getRequestHeader().getURI();
+        parse(uri);
+    }
 
-	@Override
-	public Vector<NameValuePair> getParamList() {
-		Vector<NameValuePair> out = new Vector<>(mapParameters.values().size());
-		
-		int i=1;
-		for (OperationParameter opParam:mapParameters.values()){
-			out.add(new NameValuePair(NameValuePair.TYPE_ODATA_FILTER, opParam.getParameterName(), opParam.getValue(),i++));
-		}
-		
-		return out;
-	}
+    private void parse(URI uri) {
+        try {
+            String query = uri.getQuery();
 
-	@Override
-	public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-		// TODO: Implement correctly escaped / non-escaped params 
+            // Detection of a filter statement if any
+            if (query != null) {
 
-		OperationParameter opParam = mapParameters.get(param);
-		if (opParam != null) {
-			String newfilter = opParam.getModifiedFilter(value);
-			String modifiedQuery = beforeFilterExpression + newfilter + afterFilterExpression;
-		
-			try {
-				msg.getRequestHeader().getURI().setQuery(modifiedQuery);
-			} catch (URIException | NullPointerException e) {
-				log.error("Exception with the modified query "+modifiedQuery,e);
-			}
-			return newfilter;
-		}
-			
-		return null;
-	}
+                Matcher matcher = patternFilterParameters.matcher(query);
+                if (matcher.find()) {
+                    String filterExpression = "";
 
-	@Override
-	public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
-		// TODO: Implement correctly escaped / non-escaped params 
-		return setParameter(msg,originalPair,param,value);
-	}
+                    filterExpression = matcher.group(1);
 
-	
-	/**
-	 * Store a parameter and related data
-	 */
-	static class OperationParameter {
+                    int begin = query.indexOf(filterExpression);
+                    int end = begin + filterExpression.length();
 
-		private String paramName;
-		private String operator;
-		private String originalValue;
-		private String stringBeforeOperation;
-		private String stringAfterOperation; 
-		
-		/**
-		 * @param parameterName
-		 * @param originalValue
-		 * @param uriBeforeParameter
-		 * @param uriAfterParamter
-		 */
-		public OperationParameter(String paramName, String operator, String originalValue, String stringBeforeOperation,String stringAfterOperation) {
-			super();
-			
-			this.paramName = paramName;
-			this.operator = operator;
-			this.originalValue = originalValue;
-			this.stringBeforeOperation = stringBeforeOperation;
-			this.stringAfterOperation = stringAfterOperation;
-		}
+                    beforeFilterExpression = query.substring(0, begin);
+                    afterFilterExpression = query.substring(end);
 
-		/**
-		 * @return
-		 */
-		public String getValue() {
-			return this.originalValue;
-		}
+                    // Now scan the expression in order to identify all parameters 
+                    mapParameters = new HashMap<>();
 
-		public String getParameterName() {
-			return this.paramName;
-		}
-			
-		public String getModifiedFilter(String newIdValue) {
-			StringBuilder builder = new StringBuilder();
-			builder.append(this.stringBeforeOperation)
-			       .append(this.paramName)
-			       .append(' ')
-			       .append(this.operator)
-			       .append(' ')
-			       .append(newIdValue)
-			       .append(this.stringAfterOperation);
-			return builder.toString();
-		}
-		
-	} 	
-	
-	
+                    Matcher matcherParameters = patternParameters.matcher(filterExpression);
+                    while (matcherParameters.find()) {
+
+                        String nameOpAndValue = matcherParameters.group(0);
+                        String paramName = matcherParameters.group(1);
+                        String operator = matcherParameters.group(2);
+                        String paramValue = matcherParameters.group(3);
+
+                        begin = filterExpression.indexOf(nameOpAndValue);
+                        end = begin + nameOpAndValue.length();
+
+                        String before = filterExpression.substring(0, begin);
+                        String after = filterExpression.substring(end);
+
+                        OperationParameter opParam = new OperationParameter(paramName, operator, paramValue, before, after);
+                        mapParameters.put(opParam.getParameterName(), opParam);
+                    }
+
+                } else {
+                    beforeFilterExpression = null;
+                    afterFilterExpression = null;
+                    mapParameters = Collections.emptyMap();
+                }
+
+            } else {
+                beforeFilterExpression = null;
+                afterFilterExpression = null;
+                mapParameters = Collections.emptyMap();
+            }
+
+        } catch (URIException e) {
+            log.error(e.getMessage() + uri, e);
+        }
+
+    }
+
+    @Override
+    public Vector<NameValuePair> getParamList() {
+        Vector<NameValuePair> out = new Vector<>(mapParameters.values().size());
+
+        int i = 1;
+        for (OperationParameter opParam : mapParameters.values()) {
+            out.add(new NameValuePair(NameValuePair.TYPE_QUERY_STRING, opParam.getParameterName(), opParam.getValue(), i++));
+        }
+
+        return out;
+    }
+
+    @Override
+    public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
+        // TODO: Implement correctly escaped / non-escaped params 
+
+        OperationParameter opParam = mapParameters.get(param);
+        if (opParam != null) {
+            String newfilter = opParam.getModifiedFilter(value);
+            String modifiedQuery = beforeFilterExpression + newfilter + afterFilterExpression;
+
+            try {
+                msg.getRequestHeader().getURI().setQuery(modifiedQuery);
+                
+            } catch (URIException | NullPointerException e) {
+                log.error("Exception with the modified query " + modifiedQuery, e);
+            }
+            
+            return newfilter;
+        }
+
+        return null;
+    }
+
+    @Override
+    public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
+        // TODO: Implement correctly escaped / non-escaped params 
+        return setParameter(msg, originalPair, param, value);
+    }
+
+    /**
+     * Store a parameter and related data
+     */
+    static class OperationParameter {
+
+        private String paramName;
+        private String operator;
+        private String originalValue;
+        private String stringBeforeOperation;
+        private String stringAfterOperation;
+
+        /**
+         * @param parameterName
+         * @param originalValue
+         * @param uriBeforeParameter
+         * @param uriAfterParamter
+         */
+        public OperationParameter(String paramName, String operator, String originalValue, String stringBeforeOperation, String stringAfterOperation) {
+            super();
+
+            this.paramName = paramName;
+            this.operator = operator;
+            this.originalValue = originalValue;
+            this.stringBeforeOperation = stringBeforeOperation;
+            this.stringAfterOperation = stringAfterOperation;
+        }
+
+        /**
+         * @return
+         */
+        public String getValue() {
+            return this.originalValue;
+        }
+
+        public String getParameterName() {
+            return this.paramName;
+        }
+
+        public String getModifiedFilter(String newIdValue) {
+            StringBuilder builder = new StringBuilder();
+            builder.append(this.stringBeforeOperation)
+                    .append(this.paramName)
+                    .append(' ')
+                    .append(this.operator)
+                    .append(' ')
+                    .append(newIdValue)
+                    .append(this.stringAfterOperation);
+            return builder.toString();
+        }
+
+    }
+
 }

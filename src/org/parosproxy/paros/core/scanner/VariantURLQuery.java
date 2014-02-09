@@ -23,7 +23,8 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
-
+// ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
+//
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
@@ -34,7 +35,7 @@ import org.parosproxy.paros.network.HtmlParameter.Type;
 
 public class VariantURLQuery extends VariantAbstractQuery {
 
-    private static Logger log = Logger.getLogger(VariantURLQuery.class);
+    private static final Logger log = Logger.getLogger(VariantURLQuery.class);
 
     public VariantURLQuery() {
         super();
@@ -64,7 +65,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
 
     @Override
     public void setMessage(HttpMessage msg) {
-       	this.setParams(NameValuePair.TYPE_URL, Model.getSingleton().getSession().getParams(msg, Type.url));
+       	this.setParams(NameValuePair.TYPE_QUERY_STRING, Model.getSingleton().getSession().getParams(msg, Type.url));
     }
 
     @Override

@@ -26,7 +26,8 @@
 // ZAP: 2013/07/02 Changed Vector to ArrayList because obsolete and faster
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
-
+// ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
+//
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -75,7 +76,7 @@ public abstract class VariantAbstractQuery implements Variant {
      * 
      * @param params 
      */
-    protected void setParams(String type, Map<String, String> params) {
+    protected void setParams(int type, Map<String, String> params) {
         int i = 0;
         for (Entry<String, String> param : params.entrySet()) {
             listParam.add(new NameValuePair(type, param.getKey(), getUnescapedValue(param.getValue()), i));
@@ -106,13 +107,14 @@ public abstract class VariantAbstractQuery implements Variant {
     }
 
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
-    	// We need the correct parameter parser to use the right separators
-    	ParameterParser parser;
-    	if (NameValuePair.TYPE_FORM.equals(originalPair.getType())) {
-    		parser = Model.getSingleton().getSession().getFormParamParser(msg.getRequestHeader().getURI().toString());
-    	} else {
-    		parser = Model.getSingleton().getSession().getUrlParamParser(msg.getRequestHeader().getURI().toString());
-    	}
+        // We need the correct parameter parser to use the right separators
+        ParameterParser parser;
+        if (originalPair.getType() == NameValuePair.TYPE_POST_DATA) {
+            parser = Model.getSingleton().getSession().getFormParamParser(msg.getRequestHeader().getURI().toString());
+
+        } else {
+            parser = Model.getSingleton().getSession().getUrlParamParser(msg.getRequestHeader().getURI().toString());
+        }
     	
         StringBuilder sb = new StringBuilder();
         String encodedValue = (escaped) ? value : getEscapedValue(msg, value);

@@ -39,7 +39,7 @@ import org.parosproxy.paros.network.HttpMessage;
 public class VariantURLPath implements Variant {
 
     private final Logger logger = Logger.getLogger(this.getClass());
-    private List<NameValuePair> stringParam = new ArrayList<>();
+    private final List<NameValuePair> stringParam = new ArrayList<>();
 
     /**
      *
@@ -61,7 +61,7 @@ public class VariantURLPath implements Variant {
                 int i = 0;
                 for (String path : paths) {
                     if (path.length() > 0) {
-                        stringParam.add(new NameValuePair(NameValuePair.TYPE_URL, path, getUnescapedValue(path), i));
+                        stringParam.add(new NameValuePair(NameValuePair.TYPE_URL_PATH, path, getUnescapedValue(path), i));
                     }
                     
                     i++;

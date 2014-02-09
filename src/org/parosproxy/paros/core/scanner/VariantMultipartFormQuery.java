@@ -35,8 +35,8 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantMultipartFormQuery implements Variant {
 
-    private List<NameValuePair> stringParam = new ArrayList<>();
-    private List<MultipartParam> fileParam = new ArrayList<>();
+    private final List<NameValuePair> stringParam = new ArrayList<>();
+    private final List<MultipartParam> fileParam = new ArrayList<>();
     private String boundary = null;
 
     /**
@@ -62,7 +62,7 @@ public class VariantMultipartFormQuery implements Variant {
             while ((param = parser.getNextParam()) != null) {
                 if (param.getFileName() == null) {
                     // This is a parameter, add it to the vector of values
-                    stringParam.add(new NameValuePair(NameValuePair.TYPE_MULTIPART_FORM, 
+                    stringParam.add(new NameValuePair(NameValuePair.TYPE_POST_DATA, 
                     		param.getName(), param.getContent(), index++));
 
                 } else {

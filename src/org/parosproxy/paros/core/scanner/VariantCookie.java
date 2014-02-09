@@ -33,7 +33,7 @@ import org.parosproxy.paros.network.HttpMessage;
  */
 public class VariantCookie implements Variant {
 
-    private List<NameValuePair> params = new ArrayList<>();
+    private final List<NameValuePair> params = new ArrayList<>();
 
     /**
      * 
