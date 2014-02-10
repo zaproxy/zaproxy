@@ -109,4 +109,9 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 		return true;
 	}
 
+	@Override
+	public boolean isSupportsMissingTemplates() {
+		return true;
+	}
+
 }
