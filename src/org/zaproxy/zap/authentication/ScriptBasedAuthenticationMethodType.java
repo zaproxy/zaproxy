@@ -57,7 +57,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 	private static final Logger log = Logger.getLogger(ScriptBasedAuthenticationMethodType.class);
 
 	/** The Constant SCRIPT_TYPE_AUTH. */
-	private static final String SCRIPT_TYPE_AUTH = "authentication";
+	public static final String SCRIPT_TYPE_AUTH = "authentication";
 
 	/** The SCRIPT ICON. */
 	private static final ImageIcon SCRIPT_ICON_AUTH = new ImageIcon(
@@ -119,7 +119,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			if (!(credentials instanceof GenericAuthenticationCredentials)) {
 				throw new UnsupportedAuthenticationCredentialsException(
 						"Script based Authentication method only supports "
-								+ GenericAuthenticationCredentials.class.getSimpleName());
+								+ GenericAuthenticationCredentials.class.getSimpleName() + ". Received: "
+								+ credentials.getClass());
 			}
 			GenericAuthenticationCredentials cred = (GenericAuthenticationCredentials) credentials;
 
@@ -254,7 +255,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			// Load the selected script, if any
 			if (this.method.script != null) {
 				loadScript(this.method.script, false);
-				this.dynamicFieldsPanel.bindFieldValues(this.method.paramValues);
+				if (this.dynamicFieldsPanel != null)
+					this.dynamicFieldsPanel.bindFieldValues(this.method.paramValues);
 			}
 		}
 
@@ -301,8 +303,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				} else {
 					log.warn("The script " + scriptW.getName()
 							+ " does not properly implement the Authentication Script interface.");
-					errorMessage = Constant.messages
-							.getString("authentication.method.script.dialog.error.text.interface");
+					errorMessage = Constant.messages.getString(
+							"authentication.method.script.dialog.error.text.interface", scriptW.getName());
 				}
 			} catch (Exception e) {
 				log.error("Error while loading authentication script", e);
@@ -316,10 +318,12 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 					Constant.messages.getString("authentication.method.script.dialog.error.title"),
 					JOptionPane.ERROR_MESSAGE);
 			this.loadedScript = null;
+			this.scriptsComboBox.setSelectedItem(null);
 			this.dynamicFieldsPanel = null;
 			this.dynamicContentPanel.removeAll();
 			this.dynamicContentPanel.add(new JLabel(LABEL_NOT_LOADED), BorderLayout.CENTER);
 			this.dynamicContentPanel.revalidate();
+
 		}
 	}
 
@@ -511,7 +515,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		public String[] getCredentialsParamsNames();
 
 		public HttpMessage authenticate(AuthenticationHelper helper, Map<String, String> paramsValues,
-				GenericAuthenticationCredentials credentials);
+				GenericAuthenticationCredentials credentials) throws ScriptException;
 	}
 
 }

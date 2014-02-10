@@ -200,7 +200,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			if (!(credentials instanceof UsernamePasswordAuthenticationCredentials)) {
 				throw new UnsupportedAuthenticationCredentialsException(
 						"Form based authentication method only supports "
-								+ UsernamePasswordAuthenticationCredentials.class.getSimpleName());
+								+ UsernamePasswordAuthenticationCredentials.class.getSimpleName()
+								+ ". Received: " + credentials.getClass());
 			}
 			UsernamePasswordAuthenticationCredentials cred = (UsernamePasswordAuthenticationCredentials) credentials;
 

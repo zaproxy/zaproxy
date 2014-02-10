@@ -21,7 +21,6 @@ package org.zaproxy.zap.authentication;
 
 import java.util.regex.Pattern;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -161,18 +160,12 @@ public abstract class AuthenticationMethod {
 				&& (loggedInIndicatorPattern.matcher(body).find() || loggedInIndicatorPattern.matcher(header)
 						.find())) {
 			// Looks like we're authenticated
-			Logger.getRootLogger().debug(
-					"isLoggedIn " + msg.getRequestHeader().getURI() + " found auth pattern "
-							+ loggedInIndicatorPattern);
 			return true;
 		}
 
 		if (loggedOutIndicatorPattern != null && !loggedOutIndicatorPattern.matcher(body).find()
 				&& !loggedOutIndicatorPattern.matcher(header).find()) {
 			// Cant find the unauthenticated indicator, assume we're authenticated
-			Logger.getRootLogger().debug(
-					"isLoggedIn " + msg.getRequestHeader().getURI() + " not found unauth pattern "
-							+ loggedOutIndicatorPattern);
 			return true;
 		}
 		return false;
