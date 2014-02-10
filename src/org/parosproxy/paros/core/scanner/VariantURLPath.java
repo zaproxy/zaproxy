@@ -21,10 +21,10 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import org.apache.commons.codec.DecoderException;
+import org.apache.commons.codec.net.URLCodec;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
-import org.apache.commons.httpclient.util.URIUtil;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
@@ -115,9 +115,9 @@ public class VariantURLPath implements Variant {
     private String getEscapedValue(String value) {
         if (value != null) {
             try {
-                return URIUtil.encodePath(value);
+                return (new URI(null, null, value, null)).toString();
                 
-            } catch (URIException ex) {}         
+            } catch (URIException ex) { }            
         }
         
         return "";
@@ -131,9 +131,9 @@ public class VariantURLPath implements Variant {
     private String getUnescapedValue(String value) {
         if (value != null) {
             try {
-                return URIUtil.decode(value);
+                return (new URLCodec()).decode(value);
                 
-            } catch (URIException ex) {}         
+            } catch (DecoderException ex) {}         
         }
         
         return "";
@@ -175,4 +175,14 @@ public class VariantURLPath implements Variant {
         
         return value;
     }
+    
+    /*
+    public static void main(String[] args) {
+        VariantURLPath var = new VariantURLPath();
+        String value = var.getEscapedValue("prova +codifica+ strana");
+        System.out.println(value);
+        String res = var.getUnescapedValue(value);
+        System.out.println(res);
+    }
+    */
 }
