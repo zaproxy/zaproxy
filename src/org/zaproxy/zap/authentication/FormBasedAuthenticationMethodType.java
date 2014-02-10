@@ -442,9 +442,12 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private JComboBox<HtmlParameter> passwordParameterCombo;
 		private FormBasedAuthenticationMethod authenticationMethod;
 
-		public FormBasedAuthenticationMethodOptionsPanel() {
+		private Context context;
+
+		public FormBasedAuthenticationMethodOptionsPanel(Context context) {
 			super();
 			initialize();
+			this.context = context;
 		}
 
 		@SuppressWarnings("unchecked")
@@ -544,14 +547,11 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private void updateParameters() {
 			try {
 				if (authenticationMethod.isConfigured()) {
-					Map<String, String> params = Model
-							.getSingleton()
-							.getSession()
-							.getFormParams(new URI(authenticationMethod.loginRequestURL, true),
-									this.postDataField.getText());
+					Map<String, String> params = this.context.getPostParamParser().parse(
+							this.postDataField.getText());
 					HtmlParameter[] paramsArray = mapToParamArray(params);
 					this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
-					this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(mapToParamArray(params)));
+					this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
 
 					int index = getIndexOfParamWithValue(paramsArray,
 							FormBasedAuthenticationMethod.MSG_USER_PATTERN);
@@ -574,7 +574,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			HtmlParameter[] array = new HtmlParameter[map.size()];
 			int i = 0;
 			for (Entry<String, String> param : map.entrySet()) {
-				array[i] = new HtmlParameter(Type.form, param.getKey(), param.getValue());
+				array[i++] = new HtmlParameter(Type.form, param.getKey(), param.getValue());
 			}
 			return array;
 		}
@@ -618,7 +618,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 	@Override
 	public AbstractAuthenticationMethodOptionsPanel buildOptionsPanel(Context uiSharedContext) {
-		return new FormBasedAuthenticationMethodOptionsPanel();
+		return new FormBasedAuthenticationMethodOptionsPanel(uiSharedContext);
 	}
 
 	@Override
