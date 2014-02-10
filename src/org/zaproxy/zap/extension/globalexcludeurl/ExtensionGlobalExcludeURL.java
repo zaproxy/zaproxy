@@ -78,7 +78,7 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor implements Sessi
 
 	private void initialize() {
         this.setName(NAME);
-        this.setOrder(50);
+        this.setOrder(969);		// TODO find optimal load order at some point
 	}
 
 	@Override
