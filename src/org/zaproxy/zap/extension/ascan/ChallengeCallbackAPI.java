@@ -17,11 +17,15 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -44,7 +48,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     private static final Logger logger = Logger.getLogger(ChallengeCallbackAPI.class);
     
     // The registered callbacks for this API
-    private final TreeMap<String, RegisteredCallback> regCallbacks = new TreeMap();
+    private final TreeMap<String, RegisteredCallback> regCallbacks = new TreeMap<>();
 
     /**
      * Default contructor
@@ -71,14 +75,18 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
      */
     public void cleanExpiredCallbacks() {
         long now = System.currentTimeMillis();
-        RegisteredCallback rcback;
-        Iterator<Map.Entry<String, RegisteredCallback>> it = regCallbacks.entrySet().iterator();
+        
+        Map<String,RegisteredCallback> backedMap = Collections.synchronizedMap(regCallbacks);
+        Iterator<Map.Entry<String, RegisteredCallback>> it = backedMap.entrySet().iterator();
         Map.Entry<String, RegisteredCallback> entry;
         
-        while (it.hasNext()) {
-            entry = it.next();
-            if (now - entry.getValue().getTimestamp() > CALLBACK_EXPIRE_TIME) {
-                it.remove();
+        // Cuncurrency could be possible for multiple instantiations
+        synchronized(backedMap) {    
+            while (it.hasNext()) {
+                entry = it.next();
+                if (now - entry.getValue().getTimestamp() > CALLBACK_EXPIRE_TIME) {
+                    it.remove();
+                }
             }
         }
     }
@@ -169,21 +177,24 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     public void registerCallback(String challenge, ChallengeCallbackPlugin plugin, HttpMessage attack) {
         // Maybe we'va a lot of dirty entries
         cleanExpiredCallbacks();
-        
-        regCallbacks.put(challenge, new RegisteredCallback(plugin, attack));
+
+        // Manage cuncurrency for multiple insertions
+        synchronized (regCallbacks) {
+            regCallbacks.put(challenge, new RegisteredCallback(plugin, attack));
+        }
     }
     
     /**
      * 
      */
-    private class RegisteredCallback {
+    private static class RegisteredCallback {
         private ChallengeCallbackPlugin plugin;
-        private HttpMessage msg;
+        private HistoryReference msg;
         private long timeStamp;
         
         public RegisteredCallback(ChallengeCallbackPlugin plugin, HttpMessage msg) {
             this.plugin = plugin;
-            this.msg = msg;
+            this.msg = msg.getHistoryRef();
             this.timeStamp = System.currentTimeMillis();
         }
         
@@ -192,7 +203,12 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
         }
         
         public HttpMessage getAttackMessage() {
-            return msg;
+            try {
+                return msg.getHttpMessage();
+                
+            } catch (SQLException | HttpMalformedHeaderException ex) {
+                return null;
+            }
         }
         
         public long getTimestamp() {
