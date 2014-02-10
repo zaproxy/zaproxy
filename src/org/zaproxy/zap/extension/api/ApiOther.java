@@ -20,24 +20,60 @@ package org.zaproxy.zap.extension.api;
 import java.util.List;
 
 public class ApiOther extends ApiElement {
+	
+	private boolean requiresApiKey = true;
 
 	public ApiOther(String name) {
 		super(name);
+	}
+
+	public ApiOther(String name, boolean requiresApiKey) {
+		super(name);
+		this.requiresApiKey = requiresApiKey;
 	}
 
 	public ApiOther(String name, List<String> paramNames) {
 		super(name, paramNames);
 	}
 	
+	public ApiOther(String name, List<String> paramNames, boolean requiresApiKey) {
+		super(name, paramNames);
+		this.requiresApiKey = requiresApiKey;
+	}
+	
 	public ApiOther(String name, String[] paramNames) {
 		super(name, paramNames);
+	}
+
+	public ApiOther(String name, String[] paramNames, boolean requiresApiKey) {
+		super(name, paramNames);
+		this.requiresApiKey = requiresApiKey;
 	}
 
 	public ApiOther(String name, List<String> mandatoryParamNames, List<String> optionalParamNames) {
 		super(name, mandatoryParamNames, optionalParamNames);
 	}
 
+	public ApiOther(String name, List<String> mandatoryParamNames, List<String> optionalParamNames, boolean requiresApiKey) {
+		super(name, mandatoryParamNames, optionalParamNames);
+		this.requiresApiKey = requiresApiKey;
+	}
+
 	public ApiOther(String name, String[] mandatoryParamNames, String[] optionalParamNames) {
 		super(name, mandatoryParamNames, optionalParamNames);
 	}
+
+	public ApiOther(String name, String[] mandatoryParamNames, String[] optionalParamNames, boolean requiresApiKey) {
+		super(name, mandatoryParamNames, optionalParamNames);
+		this.requiresApiKey = requiresApiKey;
+	}
+
+	public boolean isRequiresApiKey() {
+		return requiresApiKey;
+	}
+
+	public void setRequiresApiKey(boolean requiresApiKey) {
+		this.requiresApiKey = requiresApiKey;
+	}
+	
 }

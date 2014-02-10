@@ -155,8 +155,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
 		
-		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC));
-		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT));
+		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
+		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));

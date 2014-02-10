@@ -309,14 +309,14 @@ public class API {
 
 						break;
 					case other:
-						if (key != null && key.length() > 0) {
-							// Check if the right api key has been used
-							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
-								throw new ApiException(ApiException.Type.BAD_API_KEY);
-							}
-						}
 						ApiOther other = impl.getApiOther(name);
 						if (other != null) {
+							if (key != null && key.length() > 0 && other.isRequiresApiKey()) {
+								// Check if the right api key has been used
+								if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+									throw new ApiException(ApiException.Type.BAD_API_KEY);
+								}
+							}
 							// Checking for null to handle option actions
 							List<String> mandatoryParams = other.getMandatoryParamNames();
 							if (mandatoryParams != null) {
