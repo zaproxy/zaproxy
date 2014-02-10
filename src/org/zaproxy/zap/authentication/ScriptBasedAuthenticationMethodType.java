@@ -50,8 +50,6 @@ import org.zaproxy.zap.utils.EncodingUtils;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
-import com.sun.corba.se.spi.legacy.connection.GetEndPointInfoAgainException;
-
 public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodType {
 
 	private static final int METHOD_IDENTIFIER = 4;
@@ -203,6 +201,15 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				}
 			});
 
+			// Make sure the 'Load' button is disabled when nothing is selected
+			this.loadScriptButton.setEnabled(false);
+			this.scriptsComboBox.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					loadScriptButton.setEnabled(scriptsComboBox.getSelectedIndex() >= 0);
+				}
+			});
+
 			this.dynamicContentPanel = new JPanel(new BorderLayout());
 			this.add(this.dynamicContentPanel, LayoutHelper.getGBC(0, 1, 3, 1.0d, 0.0d));
 			this.dynamicContentPanel.add(new JLabel(LABEL_NOT_LOADED));
@@ -242,6 +249,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 					scripts.toArray(new ScriptWrapper[scripts.size()]));
 			this.scriptsComboBox.setModel(model);
 			this.scriptsComboBox.setSelectedItem(this.method.script);
+			this.loadScriptButton.setEnabled(this.method.script != null);
 
 			// Load the selected script, if any
 			if (this.method.script != null) {
@@ -302,7 +310,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 						"authentication.method.script.dialog.error.text.loading", e.getMessage());
 			}
 			// Ooops! If this point is reached, an error has occurred while loading
-			getScriptsExtension().setError(scriptW, errorMessage);
+			if (scriptW != null)
+				getScriptsExtension().setError(scriptW, errorMessage);
 			JOptionPane.showMessageDialog(this, errorMessage,
 					Constant.messages.getString("authentication.method.script.dialog.error.title"),
 					JOptionPane.ERROR_MESSAGE);
