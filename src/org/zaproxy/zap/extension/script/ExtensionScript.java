@@ -288,7 +288,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void refreshScript(ScriptWrapper script) {
 		for (ScriptEventListener listener : this.listeners) {
-			listener.refreshScript(script);
+			try {
+				listener.refreshScript(script);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 	
@@ -309,7 +313,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		ScriptNode node = this.getTreeModel().addScript(script);
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptAdded(script, display);
+			try {
+				listener.scriptAdded(script, display);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 		return node;
 	}
@@ -326,7 +334,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.getScriptParam().saveScripts();
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptSaved(script);
+			try {
+				listener.scriptSaved(script);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -335,14 +347,22 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.getScriptParam().saveScripts();
 		this.getTreeModel().removeScript(script);
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptRemoved(script);
+			try {
+				listener.scriptRemoved(script);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 
 	public void removeTemplate(ScriptWrapper template) {
 		this.getTreeModel().removeTemplate(template);
 		for (ScriptEventListener listener : this.listeners) {
-			listener.templateRemoved(template);
+			try {
+				listener.templateRemoved(template);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -357,7 +377,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		ScriptNode node = this.getTreeModel().addTemplate(template);
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.templateAdded(template, display);
+			try {
+				listener.templateAdded(template, display);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 		return node;
 	}
@@ -478,7 +502,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		script.setLastOutput("");
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.preInvoke(script);
+			try {
+				listener.preInvoke(script);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 
 		ScriptEngine se = script.getEngine().getEngine();
@@ -589,7 +617,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptChanged(script);
+			try {
+				listener.scriptChanged(script);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -605,7 +637,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.getTreeModel().nodeStructureChanged(script);
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptError(script);
+			try {
+				listener.scriptError(script);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 
@@ -616,7 +652,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.getTreeModel().nodeStructureChanged(script);
 		
 		for (ScriptEventListener listener : this.listeners) {
-			listener.scriptError(script);
+			try {
+				listener.scriptError(script);
+			} catch (Exception e1) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 	
