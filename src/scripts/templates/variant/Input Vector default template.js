@@ -42,8 +42,8 @@ function setParameter(helper, msg, param, value, escaped) {
         
         for (var i = 0; i < size; i++) {
             pname = getParamName(i);
-            pvalue = value;                 
-            if (pname == param) {        
+            pvalue = getParamValue(i);                
+            if (pname == param) {      
                     pvalue = helper.encodeBase64(value);
             }
                     
