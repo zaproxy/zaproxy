@@ -112,9 +112,14 @@ This list the alerts
 50000	Active Scan scripts
 50001	Passive Scan scripts
 
+90018	SQL Injection SQLMap
 90019	Code Injection
 90020	Command Injection
 90021	Xpath Injection
+90022	Application Error scanner
+90023	XXE External Entity
+90024	Generic Padding Oracle
+
 
 To be developed:
 .	Check session cookie for secured
