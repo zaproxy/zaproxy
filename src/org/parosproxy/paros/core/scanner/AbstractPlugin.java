@@ -36,6 +36,8 @@
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
 // ZAP: 2013/11/16 Issue 842: NullPointerException while active scanning with ExtensionAntiCSRF disabled
 // ZAP: 2014/01/16 Add support to plugin skipping
+// ZAP: 2014/02/12 Issue 1030: Load and save scan policies
+
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
@@ -85,9 +87,6 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private TechSet techSet = null;
     private Date started = null;
     private Date finished = null;
-
-    // flag used to decide that this plugin should be skipped
-    private boolean skipped = false;
 
     /**
      * Default Constructor
@@ -726,13 +725,21 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     }
 
     public String getProperty(String key) {
-        return config.getString("plugins." + "p" + getId() + "." + key);
+    	return this.getProperty(config, key);
+    }
+
+    private String getProperty(Configuration conf, String key) {
+        return conf.getString("plugins." + "p" + getId() + "." + key);
     }
 
     public void setProperty(String key, String value) {
-        config.setProperty("plugins." + "p" + getId() + "." + key, value);
+        this.setProperty(config, key, value);
     }
 
+    private void setProperty(Configuration conf, String key, String value) {
+        conf.setProperty("plugins." + "p" + getId() + "." + key, value);
+    }
+    
     @Override
     public void setConfig(Configuration config) {
         this.config = config;
@@ -742,6 +749,23 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public Configuration getConfig() {
         return config;
     }
+    
+    public void saveTo(Configuration conf) {
+        if (getProperty("enabled") == null) {
+            setProperty(conf, "enabled", "1");
+        }
+        setProperty(conf, "level", getProperty("level"));
+        setProperty(conf, "strength", getProperty("strength"));
+    }
+    
+    public void loadFrom(Configuration conf) {
+        if (getProperty(conf, "enabled") == null) {
+            setProperty("enabled", "1");
+        }
+        setProperty("level", getProperty(conf, "level"));
+        setProperty("strength", getProperty(conf, "strength"));
+    }
+
 
     /**
      * Check and create necessary parameter in config file if not already

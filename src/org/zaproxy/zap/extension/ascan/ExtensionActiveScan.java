@@ -32,6 +32,7 @@ import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
@@ -53,6 +54,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.API;
@@ -100,6 +102,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ScannerParam scannerParam = null;
     private final CommandLineArgument[] arguments = new CommandLineArgument[1];
     private final List<AbstractParamPanel> policyPanels = new ArrayList<>();
+	private JButton policyButton = null;
 
     /**
      *
@@ -136,6 +139,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
             this.getActiveScanPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
+
+	        View.getSingleton().addMainToolbarButton(this.getPolicyButton());
 
             ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
         }
@@ -192,6 +197,22 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     public void scannerComplete() {
     }
+
+	private JButton getPolicyButton() {
+		if (policyButton == null) {
+			policyButton = new JButton();
+			policyButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/equalizer.png")));
+			policyButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
+
+			policyButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+                    showPolicyDialog();
+				}
+			});
+		}
+		return policyButton;
+	}
 
     /**
      * This method initializes menuItemPolicy

@@ -32,15 +32,27 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 
 	public void setConfig(Configuration config) {
 	    this.config = config;
-		this.setEnabled(config.getBoolean("pscans." + getClass().getCanonicalName() + ".enabled", true));
+	    this.loadFrom(config);
 	}
-	
+
+	public void loadFrom(Configuration conf) {
+		this.setEnabled(
+				conf.getBoolean("pscans." + getClass().getCanonicalName() + ".enabled", true));
+		this.setLevel(AlertThreshold.valueOf(
+				conf.getString("pscans." + getClass().getCanonicalName() + ".level", AlertThreshold.DEFAULT.name())));
+	}
+
 	public Configuration getConfig() {
 	    return config;
 	}
 	
 	public void save() {
-		this.getConfig().setProperty("pscans." + getClass().getCanonicalName() + ".enabled", this.isEnabled());
+		this.saveTo(getConfig());
+	}
+
+	public void saveTo(Configuration conf) {
+		conf.setProperty("pscans." + getClass().getCanonicalName() + ".enabled", this.isEnabled());
+		conf.setProperty("pscans." + getClass().getCanonicalName() + ".level", this.getLevel(true).name());
 	}
 
 	@Override

@@ -30,6 +30,8 @@
 // ZAP: 2013/03/18 Issue 564: Active scanner can hang if dependencies used
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/16 Added skip support functions and changed obsolete collections
+// ZAP: 2014/02/12 Issue 1030: Load and save scan policies
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -38,9 +40,9 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Vector;
 
 import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.control.ExtensionFactory;
@@ -48,12 +50,12 @@ import org.zaproxy.zap.control.ExtensionFactory;
 public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
-    private static List<Plugin> listAllPlugin = new ArrayList();
+    private static List<Plugin> listAllPlugin = new ArrayList<Plugin>();
     private static LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
     private static LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
-    private List<Plugin> listPending = new ArrayList();
-    private List<Plugin> listRunning = new ArrayList();
-    private List<Plugin> listCompleted = new ArrayList();
+    private List<Plugin> listPending = new ArrayList<Plugin>();
+    private List<Plugin> listRunning = new ArrayList<Plugin>();
+    private List<Plugin> listCompleted = new ArrayList<Plugin>();
     private int totalPluginToRun = 0;
 
     /**
@@ -349,6 +351,18 @@ public class PluginFactory {
         }
         
         return true;
+    }
+    
+    public static void saveTo(Configuration conf) throws ConfigurationException {
+    	for (Plugin plugin : listAllPlugin) {
+    		plugin.saveTo(conf);
+    	}
+    }
+    
+    public static void loadFrom(Configuration config) throws ConfigurationException {
+    	for (Plugin plugin : listAllPlugin) {
+    		plugin.loadFrom(config);
+    	}
     }
 
     synchronized void setRunningPluginCompleted(Plugin plugin) {

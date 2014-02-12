@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.swing.ImageIcon;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -354,4 +355,20 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             }
         }
     }
+
+	public void saveTo(Configuration conf) {
+        for (PassiveScanner scanner : getPassiveScannerList().list()) {
+            if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
+                ((PluginPassiveScanner) scanner).saveTo(conf);
+            }
+        }
+	}
+
+	public void loadFrom(Configuration conf) {
+        for (PassiveScanner scanner : getPassiveScannerList().list()) {
+            if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
+                ((PluginPassiveScanner) scanner).loadFrom(conf);
+            }
+        }
+	}
 }

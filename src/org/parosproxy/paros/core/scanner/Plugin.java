@@ -26,6 +26,8 @@
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
+// ZAP: 2014/02/12 Issue 1030: Load and save scan policies
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.Date;
@@ -155,6 +157,10 @@ public interface Plugin extends Runnable {
     void setConfig(Configuration config);
 
     Configuration getConfig();
+    
+    void saveTo(Configuration conf);
+
+    void loadFrom(Configuration conf);
 
     void createParamIfNotExist();
 
