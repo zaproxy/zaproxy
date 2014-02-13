@@ -123,7 +123,7 @@ public class AbstractParamDialog extends AbstractDialog {
         this.setModalityType(ModalityType.DOCUMENT_MODAL);
 
         this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
+        if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {            
             this.setSize(500, 375);
         }
         
@@ -310,7 +310,8 @@ public class AbstractParamDialog extends AbstractDialog {
             jSplitPane.setContinuousLayout(true);
             jSplitPane.setVisible(true);
             jSplitPane.setRightComponent(getJPanel1());
-            jSplitPane.setDividerLocation(175);
+            // ZAP: added more space for readability (was 175)
+            jSplitPane.setDividerLocation(200);
             jSplitPane.setDividerSize(3);
             jSplitPane.setResizeWeight(0.3D);
             jSplitPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED));

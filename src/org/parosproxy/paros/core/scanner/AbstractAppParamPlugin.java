@@ -53,7 +53,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     @Override
     public void scan() {
         int targets = this.getParent().getScannerParam().getTargetParamsInjectable();
-        int enabledRPC = this.getParent().getScannerParam().getTargetParamsEnabledRPC();
+        int enabledRPC = this.getParent().getScannerParam().getTargetParamsEnabledRPC();        
 
         // First check URL query-string target configuration
         if ((targets & ScannerParam.TARGET_QUERYSTRING) != 0) {
@@ -121,7 +121,7 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
                 }
             }
         }
-
+        
         for (int i = 0; i < listVariant.size() && !isStop(); i++) {
             
             HttpMessage msg = getNewMsg();
@@ -143,18 +143,52 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     }
 
+    /**
+     * Scan the current message using the current Variant
+     */
     private void scanVariant() {
         for (int i = 0; i < variant.getParamList().size() && !isStop(); i++) {
             // ZAP: Removed unnecessary cast.
             originalPair = variant.getParamList().get(i);
-            HttpMessage msg = getNewMsg();
-            try {
-                scan(msg, originalPair);
+            
+            if (!isToExclude(originalPair)) {
                 
-            } catch (Exception e) {
-                logger.error("Error occurred while scanning a message:", e);
+                // We need to use a fresh copy of the original message
+                // for further analysis inside all plugins
+                HttpMessage msg = getNewMsg();
+                
+                try {
+                    scan(msg, originalPair);
+                
+                } catch (Exception e) {
+                    logger.error("Error occurred while scanning a message:", e);
+                }
             }
         }
+    }
+    
+    /**
+     * Inner methid to check if the current parameter should be excluded
+     * @param param the param object
+     * @return true if it need to be excluded
+     */
+    private boolean isToExclude(NameValuePair param) {
+        
+        List<ScannerParamFilter> excludedParameters = 
+                this.getParent().getScannerParam().getExcludedParamList(param.getType());
+        
+        // We can use the base one, we don't do anything with it
+        HttpMessage msg = getBaseMsg();
+        
+        if (excludedParameters != null) {
+            for (ScannerParamFilter filter : excludedParameters) {
+                if (filter.isToExclude(msg, param)) {
+                    return true;
+                }
+            }
+        }
+        
+        return false;
     }
 
     /**

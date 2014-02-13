@@ -29,11 +29,19 @@
 // ZAP: 2013/09/23 Issue 795: Allow param types scanned to be configured via UI
 // ZAP: 2013/09/24 Issue 797: Limit number of ascan results listed to speed up scans
 // ZAP: 2013/09/26 Reviewed Variant Panel configuration
-// ZAP: 2014/01/10  Issue 974: Scan URL path elements
-// ZAP: 2014/02/08  Added Custom Script management settings
-
+// ZAP: 2014/01/10 Issue 974: Scan URL path elements
+// ZAP: 2014/02/08 Added Custom Script management settings
+// ZAP: 2014/02/13 Added HTTP parameter exclusion configuration on Active Scanning
+//
 package org.parosproxy.paros.core.scanner;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
@@ -49,6 +57,13 @@ public class ScannerParam extends AbstractParam {
     private static final String LEVEL = "scanner.level";
     private static final String STRENGTH = "scanner.strength";
     private static final String MAX_RESULTS_LIST = "scanner.maxResults";
+
+    // ZAP: Excluded Parameters
+    private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
+    private static final String EXCLUDED_PARAMS_KEY = ACTIVE_SCAN_BASE_KEY + ".excludedParameters";
+    private static final String EXCLUDED_PARAM_NAME = "name";
+    private static final String EXCLUDED_PARAM_TYPE = "type";
+    private static final String EXCLUDED_PARAM_URL = "url";
     
     // ZAP: TARGET CONFIGURATION
     private static final String TARGET_INJECTABLE = "scanner.injectable";
@@ -71,8 +86,7 @@ public class ScannerParam extends AbstractParam {
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_URLPATH;
     public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA;
-    
-    
+        
     // Internal variables
     private int hostPerScan = 2;
     private int threadPerHost = 1;
@@ -86,7 +100,14 @@ public class ScannerParam extends AbstractParam {
     // ZAP: Variants Configuration
     private int targetParamsInjectable = TARGET_INJECTABLE_DEFAULT;
     private int targetParamsEnabledRPC = TARGET_ENABLED_RPC_DEFAULT;
+            
+    // ZAP: Excluded Parameters
+    private final List<ScannerParamFilter> excludedParams = new ArrayList<>();
+    private final Map<Integer, List<ScannerParamFilter>> excludedParamsMap = new HashMap<>();
 
+    // ZAP: internal Logger
+    private static final Logger logger = Logger.getLogger(ScannerParam.class);    
+    
     public ScannerParam() {
     }
 
@@ -131,8 +152,77 @@ public class ScannerParam extends AbstractParam {
         try {
             this.targetParamsEnabledRPC = getConfig().getInt(TARGET_ENABLED_RPC, TARGET_ENABLED_RPC_DEFAULT);
         } catch (Exception e) {}
+        
+        // Parse the parameters that need to be excluded
+        // ------------------------------------------------
+        try {
+            List<HierarchicalConfiguration> fields = 
+                    ((HierarchicalConfiguration)getConfig()).configurationsAt(EXCLUDED_PARAMS_KEY);
+            
+            this.excludedParams.clear();
+            this.excludedParamsMap.clear();
+            List<String> tempParamNames = new ArrayList<>(fields.size());
+            
+            for (HierarchicalConfiguration sub : fields) {
+                String name = sub.getString(EXCLUDED_PARAM_NAME, "");
+                if (!name.isEmpty() && !tempParamNames.contains(name)) {
+                    tempParamNames.add(name);
+                    
+                    addScannerParamFilter(
+                            name, 
+                            sub.getInt(EXCLUDED_PARAM_TYPE, -1), 
+                            sub.getString(EXCLUDED_PARAM_URL)
+                    );                                        
+                }
+            }
+            
+        } catch (ConversionException e) {
+            logger.error("Error while loading the exluded parameter list: " + e.getMessage(), e);
+        }
+        
+        // If the list is null probably we've to use defaults!!!
+        if (this.excludedParams.isEmpty()) {
+            // OK let's set the Default parameter exclusion list
+            // Evaluate the possibility to load it from an external file...
+            addScannerParamFilter("(?i)ASP.NET_SessionId", -1, null);
+            addScannerParamFilter("(?i)ASPSESSIONID.*", -1, null);
+            addScannerParamFilter("(?i)PHPSESSID", -1, null);
+            addScannerParamFilter("(?i)SITESERVER", -1, null);
+            addScannerParamFilter("(?i)sessid", -1, null);
+            addScannerParamFilter("__VIEWSTATE", NameValuePair.TYPE_POST_DATA, null);
+            addScannerParamFilter("__EVENTVALIDATION", NameValuePair.TYPE_POST_DATA, null);
+            addScannerParamFilter("__EVENTTARGET", NameValuePair.TYPE_POST_DATA, null);
+            addScannerParamFilter("__EVENTARGUMENT", NameValuePair.TYPE_POST_DATA, null);
+            addScannerParamFilter("(?i)jsessionid", -1, null);
+            addScannerParamFilter("cfid", NameValuePair.TYPE_COOKIE, null);
+            addScannerParamFilter("cftoken", NameValuePair.TYPE_COOKIE, null);
+        }
     }
 
+    private void addScannerParamFilter(String paramName, int paramType, String url) {
+        ScannerParamFilter filter = new ScannerParamFilter();
+        filter.setParamName(paramName);
+        filter.setType(paramType);
+        filter.setWildcardedUrl(url);
+
+        List<ScannerParamFilter> subList = excludedParamsMap.get(filter.getType());
+        if (subList == null) {
+            subList = new ArrayList<>();
+            excludedParamsMap.put(filter.getType(), subList);
+        }
+
+        excludedParams.add(filter);
+        subList.add(filter);        
+    }
+    
+    public List<ScannerParamFilter> getExcludedParamList() {
+        return excludedParams;
+    }
+    
+    public List<ScannerParamFilter> getExcludedParamList(int paramType) {
+        return excludedParamsMap.get(paramType);
+    }
+    
     /**
      * 
      * @return 
