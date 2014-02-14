@@ -44,7 +44,7 @@ public class OptionsAntiCsrfTableModel extends AbstractMultipleOptionsTableModel
     }
     
     @Override
-    protected List<AntiCsrfParamToken> getElements() {
+    public List<AntiCsrfParamToken> getElements() {
         return tokens;
     }
 

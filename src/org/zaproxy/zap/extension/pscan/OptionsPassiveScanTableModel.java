@@ -62,7 +62,7 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
     }
 
     @Override
-    protected List<RegexAutoTagScanner> getElements() {
+    public List<RegexAutoTagScanner> getElements() {
         return defns;
     }
 

@@ -66,7 +66,7 @@ public class OptionsInvokeTableModel extends AbstractMultipleOptionsTableModel<I
     }
 
     @Override
-    protected List<InvokableApp> getElements() {
+    public List<InvokableApp> getElements() {
         return listApps;
     }
 

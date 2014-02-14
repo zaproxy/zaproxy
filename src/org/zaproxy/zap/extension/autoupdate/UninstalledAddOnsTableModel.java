@@ -62,7 +62,7 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
     }
 
     @Override
-    protected List<AddOnWrapper> getElements() {
+    public List<AddOnWrapper> getElements() {
         return addOns;
     }
 

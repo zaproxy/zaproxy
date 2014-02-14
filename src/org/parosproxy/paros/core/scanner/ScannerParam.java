@@ -170,7 +170,7 @@ public class ScannerParam extends AbstractParam {
                     
                     addScannerParamFilter(
                             name, 
-                            sub.getInt(EXCLUDED_PARAM_TYPE, -1), 
+                            sub.getInt(EXCLUDED_PARAM_TYPE, NameValuePair.TYPE_UNDEFINED), 
                             sub.getString(EXCLUDED_PARAM_URL)
                     );                                        
                 }
@@ -184,18 +184,18 @@ public class ScannerParam extends AbstractParam {
         if (this.excludedParams.isEmpty()) {
             // OK let's set the Default parameter exclusion list
             // Evaluate the possibility to load it from an external file...
-            addScannerParamFilter("(?i)ASP.NET_SessionId", -1, null);
-            addScannerParamFilter("(?i)ASPSESSIONID.*", -1, null);
-            addScannerParamFilter("(?i)PHPSESSID", -1, null);
-            addScannerParamFilter("(?i)SITESERVER", -1, null);
-            addScannerParamFilter("(?i)sessid", -1, null);
-            addScannerParamFilter("__VIEWSTATE", NameValuePair.TYPE_POST_DATA, null);
-            addScannerParamFilter("__EVENTVALIDATION", NameValuePair.TYPE_POST_DATA, null);
-            addScannerParamFilter("__EVENTTARGET", NameValuePair.TYPE_POST_DATA, null);
-            addScannerParamFilter("__EVENTARGUMENT", NameValuePair.TYPE_POST_DATA, null);
-            addScannerParamFilter("(?i)jsessionid", -1, null);
-            addScannerParamFilter("cfid", NameValuePair.TYPE_COOKIE, null);
-            addScannerParamFilter("cftoken", NameValuePair.TYPE_COOKIE, null);
+            addScannerParamFilter("(?i)ASP.NET_SessionId", NameValuePair.TYPE_UNDEFINED, "*");
+            addScannerParamFilter("(?i)ASPSESSIONID.*", NameValuePair.TYPE_UNDEFINED, "*");
+            addScannerParamFilter("(?i)PHPSESSID", NameValuePair.TYPE_UNDEFINED, "*");
+            addScannerParamFilter("(?i)SITESERVER", NameValuePair.TYPE_UNDEFINED, "*");
+            addScannerParamFilter("(?i)sessid", NameValuePair.TYPE_UNDEFINED, "*");
+            addScannerParamFilter("__VIEWSTATE", NameValuePair.TYPE_POST_DATA, "*");
+            addScannerParamFilter("__EVENTVALIDATION", NameValuePair.TYPE_POST_DATA, "*");
+            addScannerParamFilter("__EVENTTARGET", NameValuePair.TYPE_POST_DATA, "*");
+            addScannerParamFilter("__EVENTARGUMENT", NameValuePair.TYPE_POST_DATA, "*");
+            addScannerParamFilter("(?i)jsessionid", NameValuePair.TYPE_UNDEFINED, "*");
+            addScannerParamFilter("cfid", NameValuePair.TYPE_COOKIE, "*");
+            addScannerParamFilter("cftoken", NameValuePair.TYPE_COOKIE, "*");
         }
     }
 
@@ -221,6 +221,33 @@ public class ScannerParam extends AbstractParam {
     
     public List<ScannerParamFilter> getExcludedParamList(int paramType) {
         return excludedParamsMap.get(paramType);
+    }
+
+    /**
+     * 
+     * @param filters 
+     */
+    public void setExcludedParamList(List<ScannerParamFilter> filters) {
+
+        ((HierarchicalConfiguration) getConfig()).clearTree(EXCLUDED_PARAMS_KEY);
+        this.excludedParams.clear();
+        this.excludedParamsMap.clear();
+
+        for (int i = 0, size = filters.size(); i < size; ++i) {
+            String elementBaseKey = EXCLUDED_PARAMS_KEY + "(" + i + ").";
+            ScannerParamFilter filter = filters.get(i);
+
+            getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_NAME, filter.getParamName());
+            getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_TYPE, Integer.valueOf(filter.getType()));
+            getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_URL, filter.getWildcardedUrl());
+            
+            // And now populate again all parameter list
+            addScannerParamFilter(
+                    filter.getParamName(),
+                    filter.getType(),
+                    filter.getWildcardedUrl()
+            );
+        }
     }
     
     /**
@@ -254,7 +281,6 @@ public class ScannerParam extends AbstractParam {
     public void setHostPerScan(int hostPerScan) {
         this.hostPerScan = hostPerScan;
         getConfig().setProperty(HOST_PER_SCAN, Integer.toString(this.hostPerScan));
-
     }
 
     /**

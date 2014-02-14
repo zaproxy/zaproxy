@@ -85,7 +85,7 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 	}
 
 	@Override
-	protected List<User> getElements() {
+	public List<User> getElements() {
 		return users;
 	}
 

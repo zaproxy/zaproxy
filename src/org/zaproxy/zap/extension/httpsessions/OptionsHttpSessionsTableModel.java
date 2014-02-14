@@ -50,7 +50,7 @@ public class OptionsHttpSessionsTableModel extends AbstractMultipleOptionsTableM
 	}
 	
 	@Override
-	protected List<HttpSessionToken> getElements() {
+	public List<HttpSessionToken> getElements() {
 		return tokens;
 	}
 	

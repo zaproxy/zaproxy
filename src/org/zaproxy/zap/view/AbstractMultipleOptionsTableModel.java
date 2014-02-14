@@ -20,41 +20,14 @@
 package org.zaproxy.zap.view;
 
 import java.util.Iterator;
-import java.util.List;
-
 import javax.swing.event.TableModelEvent;
-import javax.swing.table.AbstractTableModel;
 
 import org.zaproxy.zap.utils.Enableable;
 
-public abstract class AbstractMultipleOptionsTableModel<E extends Enableable> extends AbstractTableModel {
-
-    private static final long serialVersionUID = 3210877546875314579L;
+public abstract class AbstractMultipleOptionsTableModel<E extends Enableable> extends AbstractMultipleOptionsBaseTableModel<E> {
 
     public AbstractMultipleOptionsTableModel() {
         super();
-    }
-    
-    protected abstract List<E> getElements();
-
-    public E getElement(int row) {
-        return getElements().get(row);
-    }
-
-    public void addElement(E e) {
-        final int idx = getElements().size();
-        getElements().add(e);
-        fireTableRowsInserted(idx, idx);
-    }
-
-    public void modifyElement(int row, E e) {
-        getElements().set(row, e);
-        fireTableRowsUpdated(row, row);
-    }
-
-    public void removeElement(int row) {
-        getElements().remove(row);
-        fireTableRowsDeleted(row, row);
     }
     
     public void setAllEnabled(boolean enabled) {
@@ -67,9 +40,8 @@ public abstract class AbstractMultipleOptionsTableModel<E extends Enableable> ex
             fireTableColumnUpdated(0, size-1, 0);
         }
     }
-
+    
     public void fireTableColumnUpdated(int firstRow, int lastRow, int column) {
         fireTableChanged(new TableModelEvent(this, firstRow, lastRow, column, TableModelEvent.UPDATE));
     }
-
 }

@@ -26,14 +26,19 @@ import java.awt.Insets;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.core.scanner.ScannerParamFilter;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
@@ -59,6 +64,10 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkRPCGWT = null;
     private JCheckBox chkRPCoData = null;
     private JCheckBox chkRPCCustom = null;
+    
+    // Table for Parameter exclusions
+    private ExcludedParameterPanel excludedParamPanel;
+    private ExcludedParameterTableModel excludedParamModel = null;
 
     /**
      * General Constructor
@@ -150,10 +159,12 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkRPCCustom(), 
                     LayoutHelper.getGBC(0, 2, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));            
 
-            // Close Panel
+            // Excluded Parameters
+            // Set an header on it
+            excludedParamPanel = new ExcludedParameterPanel(getExcludedParameterModel());
             panelVariant.add(
-                    new JLabel(), 
-                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH));
+                    excludedParamPanel,
+                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(16, 2, 2, 2)));            
         }
         
         return panelVariant;
@@ -186,10 +197,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         
         ExtensionScript extension = (ExtensionScript)Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
         this.getChkRPCCustom().setEnabled((extension != null));
-        
-        if (extension != null) {
-            // List objects?
-        }
+
+        this.getExcludedParameterModel().setTokens(param.getExcludedParamList());
     }
 
     /**
@@ -262,8 +271,22 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         }
         
         param.setTargetParamsEnabledRPC(enabledRpc);
+        
+        param.setExcludedParamList(getExcludedParameterModel().getElements());
     }
 
+    /**
+     * This method initializes the table Model
+     *
+     * @return the table model
+     */
+    private ExcludedParameterTableModel getExcludedParameterModel() {
+        if (excludedParamModel == null) {
+            excludedParamModel = new ExcludedParameterTableModel();
+        }
+        return excludedParamModel;
+    }
+    
     /**
      * 
      * @return 
@@ -359,5 +382,98 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             chkRPCCustom.setText(Constant.messages.getString("variant.options.rpc.custom.label"));
         }
         return chkRPCCustom;
+    }
+
+    /**
+     * 
+     */
+    private static class ExcludedParameterPanel extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
+
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.text");
+
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.button.cancel");
+
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.checkbox.label");
+
+        private ExcludedParameterAddDialog addDialog = null;
+        private ExcludedParameterModifyDialog modifyDialog = null;
+
+        /**
+         * 
+         * @param model 
+         */
+        public ExcludedParameterPanel(ExcludedParameterTableModel model) {
+            super(model);
+            getTable().setSortOrder(0, SortOrder.ASCENDING);
+            getTable().getColumnModel().getColumn(0).setPreferredWidth(100);
+            getTable().getColumnModel().getColumn(1).setPreferredWidth(50);
+            getTable().getColumnModel().getColumn(2).setPreferredWidth(200);
+        }
+
+        /**
+         * 
+         * @return 
+         */
+        @Override
+        public ScannerParamFilter showAddDialogue() {
+            if (addDialog == null) {
+                addDialog = new ExcludedParameterAddDialog(View.getSingleton().getOptionsDialog(null));
+                addDialog.pack();
+            }
+            
+            addDialog.setTokens(model.getElements());
+            addDialog.setVisible(true);
+
+            ScannerParamFilter filter = addDialog.getToken();
+            addDialog.clear();
+            return filter;
+        }
+
+        @Override
+        public ScannerParamFilter showModifyDialogue(ScannerParamFilter e) {
+            if (modifyDialog == null) {
+                modifyDialog = new ExcludedParameterModifyDialog(View.getSingleton().getOptionsDialog(null));
+                modifyDialog.pack();
+            }
+            
+            modifyDialog.setTokens(model.getElements());
+            modifyDialog.setToken(e);
+            modifyDialog.setVisible(true);
+
+            ScannerParamFilter token = modifyDialog.getToken();
+            modifyDialog.clear();
+
+            if (!token.equals(e)) {
+                return token;
+            }
+
+            return null;
+        }
+
+        @Override
+        public boolean showRemoveDialogue(ScannerParamFilter e) {
+            
+            JCheckBox removeWithoutConfirmationCB = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            Object[] messages = { 
+                REMOVE_DIALOG_TEXT, 
+                " ", 
+                removeWithoutConfirmationCB 
+            };
+            
+            int option = JOptionPane.showOptionDialog(
+                    View.getSingleton().getMainFrame(), 
+                    messages, 
+                    REMOVE_DIALOG_TITLE,
+                    JOptionPane.OK_CANCEL_OPTION, 
+                    JOptionPane.QUESTION_MESSAGE,
+                    null, 
+                    new String[]{ REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL}, 
+                    null
+            );
+
+            return (option == JOptionPane.OK_OPTION);
+        }
     }
 }

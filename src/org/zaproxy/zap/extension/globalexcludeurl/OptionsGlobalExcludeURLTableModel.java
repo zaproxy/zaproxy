@@ -48,7 +48,7 @@ public class OptionsGlobalExcludeURLTableModel extends AbstractMultipleOptionsTa
     }
     
     @Override
-    protected List<GlobalExcludeURLParamToken> getElements() {
+    public List<GlobalExcludeURLParamToken> getElements() {
         return tokens;
     }
 

@@ -19,7 +19,11 @@
  */
 package org.parosproxy.paros.core.scanner;
 
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.regex.Pattern;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
@@ -34,6 +38,17 @@ public class ScannerParamFilter {
     
     private Pattern paramNamePattern;
     private Pattern urlPattern;
+    
+    private static final Map<Integer, String> typeMap = new HashMap<>();
+    static {
+        typeMap.put(NameValuePair.TYPE_UNDEFINED, Constant.messages.getString("variant.param.type.all"));
+        typeMap.put(NameValuePair.TYPE_QUERY_STRING, Constant.messages.getString("variant.param.type.query"));
+        typeMap.put(NameValuePair.TYPE_POST_DATA, Constant.messages.getString("variant.param.type.postdata"));
+        typeMap.put(NameValuePair.TYPE_URL_PATH, Constant.messages.getString("variant.param.type.path"));
+        typeMap.put(NameValuePair.TYPE_HEADER, Constant.messages.getString("variant.param.type.header"));
+        typeMap.put(NameValuePair.TYPE_COOKIE, Constant.messages.getString("variant.param.type.cookie"));
+    }
+    
 
     /**
      * Default constructor to initialize default values 
@@ -98,5 +113,49 @@ public class ScannerParamFilter {
         return ((paramType < 0) || (param.getType() == paramType)) &&
                 ((urlPattern == null) || urlPattern.matcher(msg.getRequestHeader().getURI().toString()).matches()) && 
                 (paramNamePattern.matcher(param.getName()).matches());
+    }
+    
+    /**
+     * Clone this filter
+     * @return a new filter with replicated contents
+     */
+    @Override
+    public ScannerParamFilter clone() {
+        return new ScannerParamFilter(paramNameRegex, paramType, wildcardedUrl);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ScannerParamFilter) {
+            ScannerParamFilter p = (ScannerParamFilter)obj;
+            return ((p.getType() == getType()) &&
+                    p.getWildcardedUrl().equals(getWildcardedUrl()) &&
+                    p.getParamName().equals(getParamName()));
+            
+        } else return false;
+    }
+    
+    public String getTypeString() {
+        return typeMap.get(paramType);
+    }
+    
+    public void setType(String value) {
+        int type = NameValuePair.TYPE_UNDEFINED;
+        for (Map.Entry<Integer, String> entry : typeMap.entrySet()) {
+            if (entry.getValue().equalsIgnoreCase(value)) {
+                type = entry.getKey();
+                break;
+            }
+        }
+        
+        setType(type);
+    }
+    
+    public static final Collection<String> getListTypes() {
+        return typeMap.values();
+    }
+    
+    public static final String getStringType(int paramType) {
+        return typeMap.get(paramType);        
     }
 }
