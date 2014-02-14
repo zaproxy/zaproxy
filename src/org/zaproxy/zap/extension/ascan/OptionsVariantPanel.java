@@ -160,11 +160,15 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(0, 2, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));            
 
             // Excluded Parameters
+            panelVariant.add(
+                    new JLabel(Constant.messages.getString("variant.options.excludedparam.label.tokens")), 
+                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+            
             // Set an header on it
             excludedParamPanel = new ExcludedParameterPanel(getExcludedParameterModel());
             panelVariant.add(
                     excludedParamPanel,
-                    LayoutHelper.getGBC(0, 3, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(16, 2, 2, 2)));            
+                    LayoutHelper.getGBC(0, 4, 2, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 2, 2, 2)));            
         }
         
         return panelVariant;
