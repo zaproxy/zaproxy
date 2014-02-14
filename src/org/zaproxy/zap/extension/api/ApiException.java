@@ -40,7 +40,7 @@ public class ApiException extends Exception {
 	
 	public enum Type {BAD_FORMAT, BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
 		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST, ILLEGAL_PARAMETER, CONTEXT_NOT_FOUND,
-		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY};
+		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT};
 	
 	private final String detail;
 
@@ -70,10 +70,10 @@ public class ApiException extends Exception {
 	public String toString () {
 		if (detail != null) {
 			return Constant.messages.getString("api.error." + super.getMessage()) +
-				"(" + super.getMessage() + ") : " + detail;
+				" (" + super.getMessage() + ") : " + detail;
 		}
 		return Constant.messages.getString("api.error." + super.getMessage()) +
-			"(" + super.getMessage() + ")";
+			" (" + super.getMessage() + ")";
 	}
 
 	public String toString(API.Format format) {

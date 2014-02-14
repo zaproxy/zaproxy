@@ -340,7 +340,7 @@ public class API {
 			
 		} catch (ApiException e) {
 			response =  e.toString(format);
- 			logger.debug("handleApiRequest error: " + response, e);
+ 			logger.warn("handleApiRequest error: " + response, e);
 		}
 		
 		if (format == null || ! format.equals(Format.OTHER) && shortcutImpl == null) {

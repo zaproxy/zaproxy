@@ -26,6 +26,8 @@ import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
+import net.sf.json.JSONObject;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -38,7 +40,10 @@ import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
+import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
+import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -46,6 +51,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.EncodingUtils;
 import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -58,6 +64,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	/** The Constant SCRIPT_TYPE_AUTH. */
 	public static final String SCRIPT_TYPE_AUTH = "authentication";
+
+	private static final String API_METHOD_NAME = "scriptBasedAuthentication";
 
 	/** The SCRIPT ICON. */
 	private static final ImageIcon SCRIPT_ICON_AUTH = new ImageIcon(
@@ -151,8 +159,11 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 		@Override
 		public ApiResponse getApiResponseRepresentation() {
-			// TODO Auto-generated method stub
-			return null;
+			Map<String, String> values = new HashMap<>();
+			values.put("methodName", API_METHOD_NAME);
+			values.put("scriptName", script.getName());
+			values.putAll(paramValues);
+			return new ApiResponseSet("method", values);
 		}
 
 	}
@@ -412,7 +423,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 	}
 
 	@Override
-	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+	public ScriptBasedAuthenticationMethod loadMethodFromSession(Session session, int contextId)
+			throws SQLException {
 		ScriptBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
 
 		// Load the script and make sure it still exists and still follows the required interface
@@ -484,18 +496,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		return new GenericAuthenticationCredentials(new String[0]);
 	}
 
-	@Override
-	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	private ExtensionScript getScriptsExtension() {
 		if (extensionScript == null)
 			extensionScript = (ExtensionScript) Control.getSingleton().getExtensionLoader()
@@ -518,4 +518,88 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				GenericAuthenticationCredentials credentials) throws ScriptException;
 	}
 
+	/* API related constants and methods. */
+	private static final String PARAM_SCRIPT_NAME = "scriptName";
+	private static final String PARAM_SCRIPT_CONFIG_PARAMS = "scriptConfigParams";
+
+	@Override
+	public ApiDynamicActionImplementor getSetMethodForContextApiAction() {
+		return new ApiDynamicActionImplementor(API_METHOD_NAME, new String[] { PARAM_SCRIPT_NAME },
+				new String[] { PARAM_SCRIPT_CONFIG_PARAMS }) {
+			@Override
+			public void handleAction(JSONObject params) throws ApiException {
+				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
+				String scriptName = ApiUtils.getNonEmptyStringParam(params, PARAM_SCRIPT_NAME);
+
+				// Prepare the method
+				ScriptBasedAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
+
+				// Load the script and make sure it exists and follows the required interface
+				ScriptWrapper script = getScriptsExtension().getScript(scriptName);
+				if (script == null) {
+					log.error("Unable to find script while loading Script Based Authentication Method for name: "
+							+ scriptName);
+					throw new ApiException(ApiException.Type.SCRIPT_NOT_FOUND, scriptName);
+				} else
+					log.info("Loaded script for API:" + script.getName());
+				method.script = script;
+
+				// Check script interface and make sure we load the credentials parameter names
+				AuthenticationScript s;
+				try {
+					s = getScriptsExtension().getInterface(script, AuthenticationScript.class);
+					if (s != null) {
+						method.credentialsParamNames = s.getCredentialsParamsNames();
+
+						// Load config param names + values and make sure all of the required ones
+						// are there
+						String[] requiredParams = s.getRequiredParamsNames();
+						String[] optionalParams = s.getOptionalParamsNames();
+						if (log.isDebugEnabled()) {
+							log.debug("Loaded authentication script - required parameters: "
+									+ Arrays.toString(requiredParams) + " - optional parameters: "
+									+ Arrays.toString(optionalParams));
+						}
+
+						Map<String, String> paramValues = new HashMap<String, String>();
+						for (String rp : requiredParams) {
+							// If one of the required parameters is not present, it will throw
+							// an exception
+							String val = ApiUtils.getNonEmptyStringParam(params, rp);
+							paramValues.put(rp, val);
+						}
+
+						for (String op : optionalParams)
+							paramValues.put(op, ApiUtils.getOptionalStringParam(params, op));
+						method.paramValues = paramValues;
+						if (log.isDebugEnabled())
+							log.debug("Loaded authentication script parameters:" + paramValues);
+
+					} else {
+						log.error("Unable to load Script Based Authentication method. The script "
+								+ script.getName()
+								+ " does not properly implement the Authentication Script interface.");
+						throw new ApiException(ApiException.Type.BAD_SCRIPT_FORMAT,
+								"Does not follow Authentication script interface");
+					}
+				} catch (ScriptException | IOException e) {
+					log.error("Unable to load Script Based Authentication method. The script "
+							+ script.getName()
+							+ " does not properly implement the Authentication Script interface.");
+					throw new ApiException(ApiException.Type.BAD_SCRIPT_FORMAT, e.getMessage());
+				}
+
+				// Set the method, making sure that, if the type is different, things are changed
+				// accordingly
+				if (!context.getAuthenticationMethod().isSameType(method))
+					apiChangedAuthenticationMethodForContext(context.getIndex());
+				context.setAuthenticationMethod(method);
+			}
+		};
+	}
+
+	@Override
+	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
+		return GenericAuthenticationCredentials.getSetCredentialsForUserApiAction(this);
+	}
 }

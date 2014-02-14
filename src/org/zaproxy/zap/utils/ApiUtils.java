@@ -51,6 +51,19 @@ public class ApiUtils {
 	}
 
 	/**
+	 * Gets an optional string param, returning null if the parameter was not found.
+	 *
+	 * @param params the params
+	 * @param paramName the param name
+	 * @return the optional string param
+	 */
+	public static String getOptionalStringParam(JSONObject params, String paramName) {
+		if (params.containsKey(paramName))
+			return params.getString(paramName);
+		return null;
+	}
+
+	/**
 	 * Gets the non empty string param with a given name and throws an exception accordingly if not
 	 * found or empty.
 	 * 
