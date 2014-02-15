@@ -2,6 +2,7 @@ package org.zaproxy.zap.authentication;
 
 import java.io.IOException;
 
+import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -19,7 +20,6 @@ public class AuthenticationHelper {
 	private HttpSender httpSender;
 	private SessionManagementMethod sessionManagementMethod;
 	private User user;
-
 
 	public AuthenticationHelper(HttpSender httpSender, SessionManagementMethod sessionManagementMethod,
 			User user) {
@@ -39,6 +39,12 @@ public class AuthenticationHelper {
 			View.getSingleton().getOutputPanel()
 					.append(Constant.messages.getString("authentication.output.success") + "\n");
 		}
+	}
+
+	public HttpState getCorrespondingHttpState() {
+		if (user.getAuthenticatedSession() == null)
+			user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
+		return user.getCorrespondingHttpState();
 	}
 
 	public static void addAuthMessageToHistory(HttpMessage msg) {
