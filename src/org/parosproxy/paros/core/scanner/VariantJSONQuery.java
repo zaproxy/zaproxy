@@ -200,7 +200,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             
             // Now we have the string object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition(), false, true);
+            addParameter(fieldName, beginToken, sr.getPosition()-1, false, true);
             
         // check if the value is a number
         } else if (Character.isDigit(chr) || chr == '-') {
@@ -220,7 +220,7 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             sr.unreadLastCharacter();
             // Now we have the int object value
             // Put everything inside the parameter array
-            addParameter(fieldName, beginToken, sr.getPosition(), true, false);            
+            addParameter(fieldName, beginToken, sr.getPosition()-1, true, false);            
             
         } else if (chr == BEGIN_OBJECT) {
             sr.unreadLastCharacter();
