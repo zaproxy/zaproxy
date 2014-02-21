@@ -127,7 +127,7 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.options.anticsrf";  // FIXME language link
+		return "ui.dialogs.options.globalexcludeurl";
 	}
 
 	private static class AntiCsrfMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<GlobalExcludeURLParamToken> {
