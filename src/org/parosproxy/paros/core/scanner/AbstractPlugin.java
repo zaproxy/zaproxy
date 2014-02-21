@@ -37,6 +37,7 @@
 // ZAP: 2013/11/16 Issue 842: NullPointerException while active scanning with ExtensionAntiCSRF disabled
 // ZAP: 2014/01/16 Add support to plugin skipping
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -44,6 +45,7 @@ import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.security.InvalidParameterException;
 import java.util.Date;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -766,6 +768,18 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         setProperty("strength", getProperty(conf, "strength"));
     }
 
+    public void cloneInto(Plugin plugin) {
+    	if (plugin instanceof AbstractPlugin) {
+    		AbstractPlugin ap = (AbstractPlugin) plugin;
+    		ap.setEnabled(this.isEnabled());
+    		ap.setAlertThreshold(this.getAlertThreshold());
+    		ap.setAttackStrength(this.getAttackStrength());
+    		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
+    		ap.setDefaultAttackStrength(this.defaultAttackStrength);
+    	} else {
+    		throw new InvalidParameterException("Not an AbstractPlugin");
+    	}
+    }
 
     /**
      * Check and create necessary parameter in config file if not already

@@ -34,7 +34,6 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -145,10 +144,10 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			}
 			break;
 		case ACTION_ENABLE_ALL_SCANNERS:
-			PluginFactory.setAllPluginEnabled(true);
+			Control.getSingleton().getPluginFactory().setAllPluginEnabled(true);
 			break;
 		case ACTION_DISABLE_ALL_SCANNERS:
-			PluginFactory.setAllPluginEnabled(false);
+			Control.getSingleton().getPluginFactory().setAllPluginEnabled(false);
 			break;
 		case ACTION_ENABLE_SCANNERS:
 			setScannersEnabled(params, true);
@@ -163,7 +162,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			int policyId = getPolicyIdFromParamId(params);
 			Plugin.AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
 
-			for (Plugin scanner : PluginFactory.getAllPlugin()) {
+			for (Plugin scanner : Control.getSingleton().getPluginFactory().getAllPlugin()) {
 				if (scanner.getCategory() == policyId) {
 					scanner.setAttackStrength(attackStrength);
 				}
@@ -173,7 +172,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			policyId = getPolicyIdFromParamId(params);
 			Plugin.AlertThreshold alertThreshold = getAlertThresholdFromParamAlertThreshold(params);
 
-			for (Plugin scanner : PluginFactory.getAllPlugin()) {
+			for (Plugin scanner : Control.getSingleton().getPluginFactory().getAllPlugin()) {
 				if (scanner.getCategory() == policyId) {
 					setAlertThresholdToScanner(alertThreshold, scanner);
 				}
@@ -198,7 +197,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		if (ids.length > 0) {
 			for (String id : ids) {
 				try {
-					Plugin scanner = PluginFactory.getPlugin(Integer.valueOf(id.trim()).intValue());
+					Plugin scanner = Control.getSingleton().getPluginFactory().getPlugin(Integer.valueOf(id.trim()).intValue());
 					if (scanner != null) {
 						setScannerEnabled(scanner, enabled);
 					}
@@ -217,13 +216,13 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	}
 
 	private static void setEnabledPolicies(String[] ids) {
-		PluginFactory.setAllPluginEnabled(false);
+		Control.getSingleton().getPluginFactory().setAllPluginEnabled(false);
 		if (ids.length > 0) {
 			for (String id : ids) {
 				try {
 					int policyId = Integer.valueOf(id.trim()).intValue();
 					if (hasPolicyWithId(policyId)) {
-						for (Plugin scanner : PluginFactory.getAllPlugin()) {
+						for (Plugin scanner : Control.getSingleton().getPluginFactory().getAllPlugin()) {
 							if (scanner.getCategory() == policyId) {
 							    setScannerEnabled(scanner, true);
 							}
@@ -279,7 +278,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		if (id == -1) {
 			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
 		}
-		Plugin scanner = PluginFactory.getPlugin(id);
+		Plugin scanner = Control.getSingleton().getPluginFactory().getPlugin(id);
 		if (scanner == null) {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
 		}
@@ -304,7 +303,8 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		}
 
 		activeScan = new ActiveScan(url, extension.getScannerParam(), 
-				extension.getModel().getOptionsParam().getConnectionParam(), null);
+				extension.getModel().getOptionsParam().getConnectionParam(), null,
+				Control.getSingleton().getPluginFactory().clone());
 		
 		progress = 0;
         activeScan.setJustScanInScope(scanJustInScope);
@@ -332,7 +332,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			}
 			break;
 		case VIEW_SCANNERS:
-			List<Plugin> scanners = PluginFactory.getAllPlugin();
+			List<Plugin> scanners = Control.getSingleton().getPluginFactory().getAllPlugin();
 
 			int policyId = getParam(params, PARAM_POLICY_ID, -1);
 			if (policyId != -1 && !hasPolicyWithId(policyId)) {
@@ -382,7 +382,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	}
 
 	private static boolean isPolicyEnabled(int policy) {
-		for (Plugin scanner : PluginFactory.getAllPlugin()) {
+		for (Plugin scanner : Control.getSingleton().getPluginFactory().getAllPlugin()) {
 			if (scanner.getCategory() == policy && !scanner.isEnabled()) {
 				return false;
 			}
@@ -392,7 +392,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	
 	private Plugin.AttackStrength getPolicyAttackStrength(int policyId) {
 		Plugin.AttackStrength attackStrength = null;
-		for (Plugin scanner : PluginFactory.getAllPlugin()) {
+		for (Plugin scanner : Control.getSingleton().getPluginFactory().getAllPlugin()) {
 			if (scanner.getCategory() == policyId) {
 				if (attackStrength == null) {
 					attackStrength = scanner.getAttackStrength(true);
@@ -407,7 +407,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	private Plugin.AlertThreshold getPolicyAlertThreshold(int policyId) {
 		Plugin.AlertThreshold alertThreshold = null;
-		for (Plugin scanner : PluginFactory.getAllPlugin()) {
+		for (Plugin scanner : Control.getSingleton().getPluginFactory().getAllPlugin()) {
 			if (scanner.getCategory() == policyId) {
 				if (alertThreshold == null) {
 					alertThreshold = scanner.getAlertThreshold(true);

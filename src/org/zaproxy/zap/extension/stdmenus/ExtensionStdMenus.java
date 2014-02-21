@@ -44,6 +44,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuActiveScanScope popupMenuActiveScanScope = null;
 	private PopupMenuActiveScanNode popupMenuActiveScanSubtree = null;
 	private PopupMenuActiveScanSite popupMenuActiveScanSite = null;
+	private PopupMenuActiveScanCustom popupMenuActiveScanCustom = null;
 	private PopupMenuSpiderURL popupMenuSpiderURL = null;
 	private PopupMenuSpiderScope popupMenuSpiderScope = null;
 	private PopupMenuSpiderSite popupMenuSpiderSite = null;
@@ -97,6 +98,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(3));
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContext(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(3));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
@@ -242,6 +244,13 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			popupMenuActiveScanSubtree = new PopupMenuActiveScanNode(Constant.messages.getString("ascan.subtree.popup"));
 		}
 		return popupMenuActiveScanSubtree;
+	}
+
+	private PopupMenuActiveScanCustom getPopupMenuActiveScanCustom(int menuIndex) {
+		if (popupMenuActiveScanCustom == null) {
+			popupMenuActiveScanCustom = new PopupMenuActiveScanCustom(Constant.messages.getString("ascan.custom.popup"));
+		}
+		return popupMenuActiveScanCustom;
 	}
 
 	private PopupMenuActiveScanURL getPopupMenuActiveScanURL(int menuIndex) {

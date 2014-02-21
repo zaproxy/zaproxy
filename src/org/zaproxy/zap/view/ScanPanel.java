@@ -638,12 +638,26 @@ public abstract class ScanPanel extends AbstractPanel {
 	protected void startSan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext){
 		this.startScan(startNode, justScanInScope, scanChildren, scanContext, null);
 	}
-	
+
 	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext, User scanUser) {
+		this.startScan(startNode, justScanInScope, scanChildren, scanContext, scanUser, null);
+	}
+	
+	/**
+	 * Does nothing. Override to handle context specific objects
+	 * @param scanThread
+	 * @param contextSpecificObjects
+	 */
+	protected void handleContextSpecificObject(GenericScanner scanThread, Object[] contextSpecificObjects) {
+	}
+	
+	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, 
+			Context scanContext, User scanUser, Object[] contextSpecificObjects) {
  		log.debug("startScan " + prefix + " " + startNode);
 		this.getStartScanButton().setEnabled(false);
 		this.getStopScanButton().setEnabled(true);
 		this.getPauseScanButton().setEnabled(true);
+		
 		this.activeScans.add(currentSite);
 
 		GenericScanner scanThread = scanMap.get(currentSite);
@@ -665,10 +679,14 @@ public abstract class ScanPanel extends AbstractPanel {
 				scanThread.setStartNode(startNode);
 			}
 		}
-		if(scanUser!=null)
+		if (scanUser!=null) {
 			scanThread.setScanAsUser(scanUser);
+		}
 		
 		scanThread.setScanChildren(scanChildren);
+		if (contextSpecificObjects != null) {
+			this.handleContextSpecificObject(scanThread, contextSpecificObjects);
+		}
 		scanThread.start();
 		scanMap.put(currentSite, scanThread);
 		setActiveScanLabels();

@@ -25,12 +25,15 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.common;
 
 import java.util.Map.Entry;
 
+import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.FileConfiguration;
+import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -77,6 +80,19 @@ public abstract class AbstractParam {
     public FileConfiguration getConfig() {
         return config;
     } 
+    
+    public AbstractParam clone()  {
+    	try {
+			AbstractParam clone = this.getClass().newInstance();
+			FileConfiguration fileConfig = new XMLConfiguration();
+			ConfigurationUtils.copy(this.getConfig(), fileConfig);
+			clone.load(fileConfig);
+			return clone;
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+		}
+    	return null;
+    }
 
     /**
      * Implement by subclass to parse the config file.

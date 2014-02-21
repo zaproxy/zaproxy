@@ -148,4 +148,8 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	public String getHelpIndex() {
 		return "ui.dialogs.scanpolicy";
 	}
+	
+	public void modelChanged() {
+		this.getCategoryTableModel().fireTableDataChanged();
+	}
 }

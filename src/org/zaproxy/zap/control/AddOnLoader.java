@@ -48,7 +48,6 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
@@ -233,7 +232,7 @@ public class AddOnLoader extends URLClassLoader {
 	    			if (ascanNames != null) {
 	    				for (String name : ascanNames) {
 	    					logger.debug("Install ascanrule: " + name);
-	    					if (!PluginFactory.addPlugin(name)) {
+	    					if (!Control.getSingleton().getPluginFactory().addPlugin(name)) {
 	    						logger.error("Failed to install ascanrule: " + name);
 	    					}
 	    				}
@@ -330,7 +329,7 @@ public class AddOnLoader extends URLClassLoader {
 			if (ascanNames != null) {
 				for (String name : ascanNames) {
 					logger.debug("Uninstall ascanrule: " + name);
-					if (!PluginFactory.removePlugin(name)) {
+					if (!Control.getSingleton().getPluginFactory().removePlugin(name)) {
 						logger.error("Failed to uninstall ascanrule: " + name);
 						result = false;
 					}

@@ -26,6 +26,7 @@
 // ZAP: 2012/07/30 Issue 43: Added support for Scope
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -52,6 +53,7 @@ public class Scanner implements Runnable {
 	private Vector<ScannerListener> listenerList = new Vector<>();
 	private ScannerParam scannerParam = null;
 	private ConnectionParam connectionParam = null;
+	private PluginFactory pluginFactory = null;
 	//private HttpSender httpSender = null;
 	private boolean isStop = false;
 	private ThreadPool pool = null;
@@ -66,12 +68,10 @@ public class Scanner implements Runnable {
 	
 	private List<HostProcess> hostProcesses = new ArrayList<>();
 
-    /**
-     * 
-     */
-    public Scanner(ScannerParam scannerParam, ConnectionParam param) {
+    public Scanner(ScannerParam scannerParam, ConnectionParam param, PluginFactory pluginFactory) {
 	    this.connectionParam = param;
 	    this.scannerParam = scannerParam;
+	    this.pluginFactory = pluginFactory;
 	    //httpSender = new HttpSender(param);
 	    pool = new ThreadPool(scannerParam.getHostPerScan());
     }
@@ -122,7 +122,7 @@ public class Scanner implements Runnable {
 	        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
 	            SiteNode child = (SiteNode) node.getChildAt(i);
 	            String hostAndPort = getHostAndPort(child);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam);
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory);
 	            hostProcess.setStartNode(child);
 	            this.hostProcesses.add(hostProcess);
 	            do { 
@@ -136,7 +136,7 @@ public class Scanner implements Runnable {
 	    } else {
             String hostAndPort = getHostAndPort(node);
 
-            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam);
+            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory);
             hostProcess.setStartNode(node);
             this.hostProcesses.add(hostProcess);
             thread = pool.getFreeThreadAndRun(hostProcess);
@@ -291,5 +291,13 @@ public class Scanner implements Runnable {
 	
 	public List<HostProcess> getHostProcesses() {
 		return this.hostProcesses;
+	}
+
+	public void setScannerParam(ScannerParam scannerParam) {
+		this.scannerParam = scannerParam;
+	}
+
+	public void setPluginFactory(PluginFactory pluginFactory) {
+		this.pluginFactory = pluginFactory;
 	}
 }

@@ -47,7 +47,9 @@ import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
+import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -276,7 +278,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	@Override
 	protected GenericScanner newScanThread(String site, AbstractParam params) {
 		ActiveScan as = new ActiveScan(site, ((ExtensionActiveScan)this.getExtension()).getScannerParam(), 
-				this.getExtension().getModel().getOptionsParam().getConnectionParam(), this);
+				this.getExtension().getModel().getOptionsParam().getConnectionParam(), this,
+				Control.getSingleton().getPluginFactory().clone());
 		as.setExcludeList(this.excludeUrls);
 		return as;
 	}
@@ -373,10 +376,27 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		}
 		this.getProgressButton().repaint();
 	}
+	
+	@Override
+	protected void handleContextSpecificObject(GenericScanner scanThread, Object[] contextSpecificObjects) {
+		ActiveScan ascan = (ActiveScan) scanThread;
+		for (Object obj : contextSpecificObjects) {
+			if (obj instanceof ScannerParam) {
+				logger.debug("Setting custom scanner params");
+				ascan.setScannerParam((ScannerParam)obj);
+			} else if (obj instanceof PluginFactory) {
+				ascan.setPluginFactory((PluginFactory)obj);
+			} else {
+				logger.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
+			}
+				
+		}
+	}
 
 	@Override
-	protected void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, Context scanContext, User user) {
-		super.startScan(startNode, justScanInScope, scanChildren, scanContext, user);
+	public void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, 
+			Context scanContext, User user, Object[] contextSpecificObjects) {
+		super.startScan(startNode, justScanInScope, scanChildren, scanContext, user, contextSpecificObjects);
 		this.getProgressButton().setEnabled(true);
 	}
 

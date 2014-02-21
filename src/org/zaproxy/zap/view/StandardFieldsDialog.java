@@ -75,6 +75,9 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	private List<JPanel> tabPanels = null;
 	private List<Integer> tabOffsets = null;
 	private JTabbedPane tabbedPane = null;
+	
+	private double labelWeight = 0;
+	private double fieldWeight = 1.0D;
 
 	private JButton cancelButton = null;
 	private JButton saveButton = null;
@@ -89,6 +92,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim, String[] tabLabels) {
 		super();
 		this.setTitle(Constant.messages.getString(titleLabel));
+		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);
 	}
 	
@@ -121,6 +125,11 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
         getRootPane().getActionMap().put("ESCAPE",escapeAction);
 	}
 
+	public void setXWeights(double labelWeight, double fieldWeight) {
+		this.labelWeight = labelWeight;
+		this.fieldWeight = fieldWeight;
+	}
+
 	private void initializeTabbed(Dimension dim, String[] tabLabels) {
 
 		this.tabPanels = new ArrayList<>();
@@ -132,11 +141,27 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		this.setContentPane(contentPanel);
 		
 		tabbedPane = new JTabbedPane();
-		
-		contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
-		contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-		contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
-		contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+
+		JButton[] extraButtons = this.getExtraButtons();
+
+		if (extraButtons == null) {
+			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
+			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+		} else {
+			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3 + extraButtons.length, 1.0D, 1.0D));
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
+			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			int x=2;
+			if (extraButtons != null) {
+				for (JButton button : extraButtons) {
+					contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
+					x++;
+				}
+			}
+			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(x, 1, 1, 0.0D));
+		}
 
 		for (String label : tabLabels) {
 			JPanel tabPanel = new JPanel();
@@ -153,16 +178,39 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		contentPanel.setLayout(new GridBagLayout());
 		contentPanel.setPreferredSize(dim);
 		this.setContentPane(contentPanel);
+		
+		JButton[] extraButtons = this.getExtraButtons();
 
-		contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
-		contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-		contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
-		contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
-
+		if (extraButtons == null) {
+			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
+			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+		} else {
+			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3 + extraButtons.length, 1.0D, 1.0D));
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
+			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			int x=2;
+			if (extraButtons != null) {
+				for (JButton button : this.getExtraButtons()) {
+					contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
+					x++;
+				}
+			}
+			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(x, 1, 1, 0.0D));
+		}
 	}
 	
 	public String getSaveButtonText() {
 		return Constant.messages.getString("all.button.save");
+	}
+	
+	/**
+	 * Override if you need to add extra buttons inbetween the Cancel and Save ones
+	 * @return
+	 */
+	public JButton[] getExtraButtons () {
+		return null;
 	}
 
 	private JButton getSaveButton() {
@@ -256,9 +304,9 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		JLabel label = new JLabel(Constant.messages.getString(fieldLabel));
 		label.setLabelFor(field);
 		panel.add(label, 
-				LayoutHelper.getGBC(0, indexy, 1, 0.0D, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
-		panel.add(wrapper, 
-				LayoutHelper.getGBC(1, indexy, 1, 1.0D, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+				LayoutHelper.getGBC(0, indexy, 1, labelWeight, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(wrapper,
+				LayoutHelper.getGBC(1, indexy, 1, fieldWeight, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
 		this.fieldList.add(field);
 		this.fieldMap.put(fieldLabel, field);
 		
@@ -736,11 +784,21 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 
 		if (doubleWidth) {
-			// TODO
+			JPanel panel = this.tabPanels.get(tabIndex);
+			panel.add(field, 
+					LayoutHelper.getGBC(0, this.tabOffsets.get(tabIndex), 2, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+			this.fieldList.add(field);
+			this.fieldMap.put(fieldLabel, field);
+			incTabOffset(tabIndex);
+
 		} else {
 			this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
 		}
 		incTabOffset(tabIndex);
+	}
+
+	public void setCustomTabPanel(int i, JComponent panel) {
+		this.tabPanels.get(i).add(panel, LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D, GridBagConstraints.BOTH));
 	}
 
 	

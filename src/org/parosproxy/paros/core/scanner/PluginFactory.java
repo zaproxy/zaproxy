@@ -31,6 +31,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/16 Added skip support functions and changed obsolete collections
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -43,36 +44,45 @@ import java.util.List;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
-    private static List<Plugin> listAllPlugin = new ArrayList<Plugin>();
-    private static LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
-    private static LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
+    private List<Plugin> listAllPlugin = new ArrayList<Plugin>();
+    private LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
+    private LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
     private List<Plugin> listPending = new ArrayList<Plugin>();
     private List<Plugin> listRunning = new ArrayList<Plugin>();
     private List<Plugin> listCompleted = new ArrayList<Plugin>();
     private int totalPluginToRun = 0;
+    private boolean init = false;
+    private Configuration config = new HierarchicalConfiguration();
 
     /**
      *
      */
     public PluginFactory() {
         super();
+    }
+    
+    public void reset () {
         Iterator<Plugin> iterator;
         Plugin plugin;
         synchronized (mapAllPlugin) {
+            this.listPending.clear();
+            this.listRunning.clear();
+            this.listCompleted.clear();
 
             // pass 1 - enable all plugin's dependency
             iterator = mapAllPlugin.values().iterator();
             while (iterator.hasNext()) {
                 // ZAP: Removed unnecessary cast.
                 plugin = iterator.next();
-                if (plugin.isEnabled()) {
+                if (plugin.isEnabled() && ! Plugin.AlertThreshold.OFF.equals(plugin.getAlertThreshold())) {
                     enableDependency(plugin);
                 }
             }
@@ -82,13 +92,15 @@ public class PluginFactory {
             while (iterator.hasNext()) {
                 // ZAP: Removed unnecessary cast.
                 plugin = iterator.next();
-                if (plugin.isEnabled()) {
+                if (plugin.isEnabled() && ! Plugin.AlertThreshold.OFF.equals(plugin.getAlertThreshold())) {
                     listPending.add(plugin);
                 }
             }
             
             totalPluginToRun = listPending.size();
         }
+        this.init = true;
+    	
     }
 
     private void enableDependency(Plugin plugin) {
@@ -121,7 +133,9 @@ public class PluginFactory {
      * 
      * @param config 
      */
-    public static synchronized void loadAllPlugin(Configuration config) {
+    public synchronized void loadAllPlugin(Configuration config) {
+    	log.debug("loadAllPlugin");
+    	this.config = config;
 
         List<AbstractPlugin> listTest = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
         listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
@@ -162,6 +176,9 @@ public class PluginFactory {
         synchronized (mapAllPlugin) {
 
             mapAllPlugin.clear();
+            listAllPlugin.clear();
+            mapAllPluginOrderCodeName.clear();
+
             for (int i = 0; i < listTest.size(); i++) {
                 // ZAP: Removed unnecessary cast.
                 try {
@@ -198,51 +215,68 @@ public class PluginFactory {
                 listAllPlugin.add(iterator.next());
             }
         }
-
     }
 
-    public static List<Plugin> getAllPlugin() {
+    public List<Plugin> getAllPlugin() {
+    	log.debug("getAllPlugin: " + listAllPlugin.size());
         return listAllPlugin;
     }
+    
+    public PluginFactory clone () {
+    	PluginFactory clone = new PluginFactory();
+    	Plugin pluginCopy;
+    	for (Plugin plugin : listAllPlugin) {
+    		try {
+				pluginCopy  = plugin.getClass().newInstance();
+				pluginCopy.setConfig(clone.config);
+				plugin.cloneInto(pluginCopy);
+				clone.addPlugin(pluginCopy);
+			} catch (Exception e) {
+                log.error(e.getMessage(), e);
+			}
+    	}
+    	return clone;
+    }
 
-    public static boolean addPlugin(String name) {
+    public boolean addPlugin(String name) {
         try {
-            Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
-            AbstractPlugin plugin = (AbstractPlugin) c.newInstance();
-
-            listAllPlugin.add(plugin);
-            plugin.setConfig(Model.getSingleton().getOptionsParam().getConfig());
-
-            plugin.createParamIfNotExist();
-            if (!plugin.isVisible()) {
-                log.info("Plugin " + plugin.getName() + " not visible");
-                return false;
-            }
-            
-            if (plugin.isDepreciated()) {
-                // ZAP: ignore all depreciated plugins
-                log.info("Plugin " + plugin.getName() + " depricated");
-                return false;
-            }
-            
-            log.info("loaded plugin " + plugin.getName());
-            if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-                log.error("Duplicate id " + plugin.getName() + " "
-                        + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
-            }
-            
-            mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
-            mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
-
-            return true;
-            
+        	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(name);
+        	return this.addPlugin((AbstractPlugin) c.newInstance());
         } catch (Exception e) {
             log.error(e.getMessage(), e);
             return false;
         }
     }
 
-    public static boolean removePlugin(String className) {
+    private boolean addPlugin(Plugin plugin) {
+        listAllPlugin.add(plugin);
+        plugin.setConfig(this.config);
+
+        plugin.createParamIfNotExist();
+        if (!plugin.isVisible()) {
+            log.info("Plugin " + plugin.getName() + " not visible");
+            return false;
+        }
+        
+        if (plugin.isDepreciated()) {
+            // ZAP: ignore all depreciated plugins
+            log.info("Plugin " + plugin.getName() + " depricated");
+            return false;
+        }
+        
+        log.info("loaded plugin " + plugin.getName());
+        if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
+            log.error("Duplicate id " + plugin.getName() + " "
+                    + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+        }
+        
+        mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+        mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+
+        return true;
+    }
+
+    public boolean removePlugin(String className) {
         for (int i = 0; i < listAllPlugin.size(); i++) {
             Plugin plugin = listAllPlugin.get(i);
             if (plugin.getClass().getName().equals(className)) {
@@ -256,14 +290,14 @@ public class PluginFactory {
         return false;
     }
 
-    public static Plugin getPlugin(int id) {
+    public Plugin getPlugin(int id) {
         // ZAP: Removed unnecessary cast and changed to use the method
         // Integer.valueOf.
         Plugin test = mapAllPlugin.get(Integer.valueOf(id));
         return test;
     }
 
-    public static void setAllPluginEnabled(boolean enabled) {
+    public void setAllPluginEnabled(boolean enabled) {
         for (int i = 0; i < listAllPlugin.size(); i++) {
             // ZAP: Removed unnecessary cast.
             Plugin plugin = listAllPlugin.get(i);
@@ -272,6 +306,9 @@ public class PluginFactory {
     }
 
     synchronized boolean existPluginToRun() {
+    	if (!init) {
+    		this.reset();
+    	}
         if (probeNextPlugin() != null) {
             return true;
         }
@@ -311,6 +348,10 @@ public class PluginFactory {
      * @return new instance of next plugin to be run.
      */
     synchronized Plugin nextPlugin() {
+    	if (!init) {
+    		this.reset();
+    	}
+    	
         Plugin plugin = probeNextPlugin();
         if (plugin == null) {
             return null;
@@ -324,7 +365,6 @@ public class PluginFactory {
     }
 
     private boolean isAllDependencyCompleted(Plugin plugin) {
-
         // note the plugin object checked may not be the exact plugin object stored in the completed list.
         // but the comparison is basing on pluginId (see equals method) so it will work.
         String[] dependency = plugin.getDependency();
@@ -353,13 +393,13 @@ public class PluginFactory {
         return true;
     }
     
-    public static void saveTo(Configuration conf) throws ConfigurationException {
+    public void saveTo(Configuration conf) throws ConfigurationException {
     	for (Plugin plugin : listAllPlugin) {
     		plugin.saveTo(conf);
     	}
     }
     
-    public static void loadFrom(Configuration config) throws ConfigurationException {
+    public void loadFrom(Configuration config) throws ConfigurationException {
     	for (Plugin plugin : listAllPlugin) {
     		plugin.loadFrom(config);
     	}
@@ -394,5 +434,15 @@ public class PluginFactory {
     List<Plugin> getCompleted() {
         return this.listCompleted;
     }
-;
+    
+    public int getEnabledPluginCount () {
+    	int count = 0;
+    	for (Plugin plugin : listAllPlugin) {
+    		if (! AlertThreshold.OFF.equals(plugin.getAlertThreshold())) {
+    			count ++;
+    		}
+    	}
+    	return count;
+    }
+
 }

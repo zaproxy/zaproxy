@@ -27,6 +27,7 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.core.scanner;
 
@@ -161,6 +162,8 @@ public interface Plugin extends Runnable {
     void saveTo(Configuration conf);
 
     void loadFrom(Configuration conf);
+    
+    void cloneInto(Plugin plugin);
 
     void createParamIfNotExist();
 

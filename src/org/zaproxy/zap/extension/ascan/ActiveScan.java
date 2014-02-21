@@ -30,6 +30,7 @@ import javax.swing.DefaultListModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.db.Database;
@@ -69,8 +70,9 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
-	public ActiveScan(String site, ScannerParam scannerParam, ConnectionParam param, ActiveScanPanel activeScanPanel) {
-		super(scannerParam, param);
+	public ActiveScan(String site, ScannerParam scannerParam, 
+			ConnectionParam param, ActiveScanPanel activeScanPanel, PluginFactory pluginFactory) {
+		super(scannerParam, param, pluginFactory);
 		this.site = site;
 		this.maxResultsToList = scannerParam.getMaxResultsToList();
 		this.deleteRecordsOnExit = scannerParam.isDeleteRequestsOnShutdown();

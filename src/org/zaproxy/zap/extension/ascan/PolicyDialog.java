@@ -29,10 +29,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
-import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 public class PolicyDialog extends AbstractParamDialog {
 
@@ -65,7 +69,8 @@ public class PolicyDialog extends AbstractParamDialog {
         addParamPanel(null, getPolicyAllCategoryPanel(), false);
         
         for (int i = 0; i < Category.getAllNames().length; i++) {
-            addParamPanel(ROOT, Category.getName(i), new PolicyCategoryPanel(i, PluginFactory.getAllPlugin()), true);
+            addParamPanel(ROOT, Category.getName(i), 
+            		new PolicyCategoryPanel(i, Control.getSingleton().getPluginFactory().getAllPlugin()), true);
         }
         
         getBtnCancel().setEnabled(false);
@@ -88,7 +93,15 @@ public class PolicyDialog extends AbstractParamDialog {
      */
     public PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
         if (policyAllCategoryPanel == null) {
-            policyAllCategoryPanel = new PolicyAllCategoryPanel();
+            OptionsParam options = Model.getSingleton().getOptionsParam();
+            ScannerParam param = (ScannerParam)options.getParamSet(ScannerParam.class);
+            ExtensionPassiveScan pscan = 
+            		(ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(
+            				ExtensionPassiveScan.NAME);
+        	
+            policyAllCategoryPanel = 
+            		new PolicyAllCategoryPanel(
+            				options, param, Control.getSingleton().getPluginFactory(), pscan);
             policyAllCategoryPanel.setName(Constant.messages.getString("ascan.policy.title"));
         }
         

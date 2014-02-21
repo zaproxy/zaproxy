@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
@@ -63,6 +64,8 @@ import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PolicyPassiveScanPanel;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -103,6 +106,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private final CommandLineArgument[] arguments = new CommandLineArgument[1];
     private final List<AbstractParamPanel> policyPanels = new ArrayList<>();
 	private JButton policyButton = null;
+	private CustomScanDialog customScanDialog = null;
 
     /**
      *
@@ -193,6 +197,20 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     public void startScanNode(SiteNode startNode) {
         this.getActiveScanPanel().scanNode(startNode, true, null);
+    }
+
+    public void startScanCustom(SiteNode startNode, boolean justScanInScope, boolean scanChildren, 
+    		Context scanContext, User user, Object[] contextSpecificObjects) {
+
+        try {
+            // Add to sites if not already present
+            this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+        } catch (Exception e) {
+            // Ignore
+        }
+
+    	this.getActiveScanPanel().startScan(startNode, justScanInScope, scanChildren, scanContext, user, contextSpecificObjects);
+    	this.getActiveScanPanel().setTabFocus();
     }
 
     public void scannerComplete() {
@@ -474,6 +492,18 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.getActiveScanPanel().stopScan(site);
     }
 
+	public void showCustomScanDialog(SiteNode node) {
+		if (customScanDialog == null) {
+			customScanDialog = new CustomScanDialog(this, View.getSingleton().getMainFrame(), new Dimension(700, 500));
+		}
+		if (customScanDialog.isVisible()) {
+			return;
+		}
+		customScanDialog.init(node);
+		customScanDialog.setVisible(true);
+	}
+
+    
     @Override
     public boolean handleFile(File file) {
         // Cant handle any files

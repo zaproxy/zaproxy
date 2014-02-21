@@ -36,6 +36,8 @@
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/03/08 Added some debug logging
 // ZAP: 2014/01/16 Add support to plugin skipping
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+
 package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
@@ -69,18 +71,21 @@ public class HostProcess implements Runnable {
     private Kb kb = null;
     
     // time related 
-    private Map<Long, Long> mapPluginStartTime = new HashMap();
-    private Set<Integer> listPluginIdSkipped = new HashSet();
+    private Map<Long, Long> mapPluginStartTime = new HashMap<Long, Long>();
+    private Set<Integer> listPluginIdSkipped = new HashSet<Integer>();
     private long hostProcessStartTime = 0;
 
     /**
      *
      */
-    public HostProcess(String hostAndPort, Scanner parentScanner, ScannerParam scannerParam, ConnectionParam connectionParam) {
+    public HostProcess(String hostAndPort, Scanner parentScanner, 
+    		ScannerParam scannerParam, ConnectionParam connectionParam, PluginFactory pluginFactory) {
         super();
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
+        
+        this.pluginFactory = pluginFactory;
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         if (scannerParam.getHandleAntiCSRFTokens()) {
             // Single thread if handling anti CSRF tokens, otherwise token requests might get out of step
@@ -108,8 +113,8 @@ public class HostProcess implements Runnable {
         getAnalyser().start(startNode);
 
         Plugin plugin = null;
-        while (!isStop() && getPluginFactory().existPluginToRun()) {
-            plugin = getPluginFactory().nextPlugin();
+        while (!isStop() && pluginFactory.existPluginToRun()) {
+            plugin = pluginFactory.nextPlugin();
             if (plugin != null) {
                 plugin.setDelayInMs(this.scannerParam.getDelayInMs());
                 plugin.setDefaultAlertThreshold(this.scannerParam.getAlertThreshold());
@@ -142,14 +147,6 @@ public class HostProcess implements Runnable {
             threadPool.waitAllThreadComplete(600000);
             pluginCompleted(plugin);
         }
-    }
-
-    private PluginFactory getPluginFactory() {
-        if (pluginFactory == null) {
-            pluginFactory = new PluginFactory();
-        }
-        
-        return pluginFactory;
     }
 
     private void traverse(Plugin plugin, SiteNode node) {
@@ -293,11 +290,11 @@ public class HostProcess implements Runnable {
 
     private void notifyHostProgress(String msg) {
         int percentage = 0;
-        if (getPluginFactory().totalPluginToRun() == 0) {
+        if (pluginFactory.totalPluginToRun() == 0) {
             percentage = 100;
     
         } else {
-            percentage = (100 * getPluginFactory().totalPluginCompleted() / getPluginFactory().totalPluginToRun());
+            percentage = (100 * pluginFactory.totalPluginCompleted() / pluginFactory.totalPluginToRun());
         }
         
         parentScanner.notifyHostProgress(hostAndPort, msg, percentage);
@@ -372,7 +369,7 @@ public class HostProcess implements Runnable {
         }
         
         log.info(sb.toString());
-        getPluginFactory().setRunningPluginCompleted(plugin);
+        pluginFactory.setRunningPluginCompleted(plugin);
         notifyHostProgress(null);
     }
 
@@ -393,14 +390,14 @@ public class HostProcess implements Runnable {
     }
 
     public List<Plugin> getPending() {
-        return this.getPluginFactory().getPending();
+        return this.pluginFactory.getPending();
     }
 
     public List<Plugin> getRunning() {
-        return this.getPluginFactory().getRunning();
+        return this.pluginFactory.getRunning();
     }
 
     public List<Plugin> getCompleted() {
-        return this.getPluginFactory().getCompleted();
+        return this.pluginFactory.getCompleted();
     }
 }

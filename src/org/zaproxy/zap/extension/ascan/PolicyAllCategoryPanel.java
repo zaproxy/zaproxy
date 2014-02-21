@@ -44,7 +44,6 @@ import javax.swing.table.TableColumn;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
@@ -57,7 +56,6 @@ import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.LayoutHelper;
-//import org.zaproxy.zap.extension.pscan.AllPassiveComboBoxModel;
 
 public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
@@ -79,13 +77,23 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private JComboBox<String> comboPassiveThreshold = null;
     private JLabel labelPassiveThresholdNotes = null;
     
+    private OptionsParam optionsParam;
+    private ScannerParam scannerParam;
+    private PluginFactory pluginFactory;
+    private ExtensionPassiveScan pscan = null;
+
     private static final int[] width = {300, 100, 100};
 
     /**
      *
      */
-    public PolicyAllCategoryPanel() {
+    public PolicyAllCategoryPanel(OptionsParam optionsParam, ScannerParam scannerParam, 
+    		PluginFactory pluginFactory, ExtensionPassiveScan pscan) {
         super();
+        this.optionsParam = optionsParam;
+        this.scannerParam = scannerParam;
+        this.pluginFactory = pluginFactory;
+        this.pscan = pscan;
         initialize();
     }
 
@@ -122,8 +130,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         this.add(getStrengthNotes(),
                 LayoutHelper.getGBC(2, row, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
-        // TODO This could be done in a cleaner way...
-        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
         if (pscan != null) {
             row++;
             this.add(new JLabel(Constant.messages.getString("pscan.options.level.label")),
@@ -149,11 +155,8 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         this.add(buttonPanel,
                 LayoutHelper.getGBC(0, row, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
-        OptionsParam options = Model.getSingleton().getOptionsParam();
-        ScannerParam param = (ScannerParam)options.getParamSet(ScannerParam.class);
-        
-        this.setThreshold(param.getAlertThreshold());
-        this.setStrength(param.getAttackStrength());
+        this.setThreshold(scannerParam.getAlertThreshold());
+        this.setStrength(scannerParam.getAttackStrength());
     }
     
     private void setThreshold(AlertThreshold threshold) {
@@ -173,8 +176,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private ZapTextField getNameField() {
     	if (nameField == null) {
     		nameField = new ZapTextField(
-    				Model.getSingleton().getOptionsParam().getConfig().getString(
-    						"policy", Constant.messages.getString("ascan.policy.name.default")));
+    				optionsParam.getConfig().getString("policy", Constant.messages.getString("ascan.policy.name.default")));
     	}
     	return nameField;
     }
@@ -226,7 +228,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 
     @Override
     public void saveParam(Object obj) throws Exception {
-		Model.getSingleton().getOptionsParam().getConfig().setProperty("policy", this.getNameField().getText());
+		optionsParam.getConfig().setProperty("policy", this.getNameField().getText());
     }
 
     /**
@@ -252,7 +254,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     private AllCategoryTableModel getAllCategoryTableModel() {
         if (allCategoryTableModel == null) {
             allCategoryTableModel = new AllCategoryTableModel();
-            allCategoryTableModel.setTable(PluginFactory.getAllPlugin());
+            allCategoryTableModel.setTable(this.pluginFactory.getAllPlugin());
         }
         
         return allCategoryTableModel;
@@ -285,20 +287,17 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // Set the explanation and save
-                    OptionsParam options = Model.getSingleton().getOptionsParam();
-                    ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
-
                     if (comboThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.low"))) {
                         getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
-                        param.setAlertThreshold(AlertThreshold.LOW);
+                        scannerParam.setAlertThreshold(AlertThreshold.LOW);
 
                     } else if (comboThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.options.level.medium"))) {
                         getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.medium.label"));
-                        param.setAlertThreshold(AlertThreshold.MEDIUM);
+                        scannerParam.setAlertThreshold(AlertThreshold.MEDIUM);
 
                     } else {
                         getThresholdNotes().setText(Constant.messages.getString("ascan.options.level.high.label"));
-                        param.setAlertThreshold(AlertThreshold.HIGH);
+                        scannerParam.setAlertThreshold(AlertThreshold.HIGH);
                     }
                 }
             });
@@ -326,23 +325,21 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     // Set the explanation and save
-                    OptionsParam options = Model.getSingleton().getOptionsParam();
-                    ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
                     if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.low"))) {
                         getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.low.label"));
-                        param.setAttackStrength(AttackStrength.LOW);
+                        scannerParam.setAttackStrength(AttackStrength.LOW);
 
                     } else if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.medium"))) {
                         getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.medium.label"));
-                        param.setAttackStrength(AttackStrength.MEDIUM);
+                        scannerParam.setAttackStrength(AttackStrength.MEDIUM);
 
                     } else if (comboStrength.getSelectedItem().equals(Constant.messages.getString("ascan.options.strength.high"))) {
                         getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.high.label"));
-                        param.setAttackStrength(AttackStrength.HIGH);
+                        scannerParam.setAttackStrength(AttackStrength.HIGH);
 
                     } else {
                         getStrengthNotes().setText(Constant.messages.getString("ascan.options.strength.insane.label"));
-                        param.setAttackStrength(AttackStrength.INSANE);
+                        scannerParam.setAttackStrength(AttackStrength.INSANE);
                     }
                 }
             });
@@ -368,13 +365,9 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             comboPassiveThreshold.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-
                     String value = (String)comboPassiveThreshold.getSelectedItem();
-                    ExtensionPassiveScan pscan = (ExtensionPassiveScan)Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
-
-                    if ((value != null) && !value.isEmpty() && (pscan != null)) {
+                    if ((pscan != null) && (value != null) && !value.isEmpty()) {
                         // Set the value for all passive plugins
-                        
                         if (comboPassiveThreshold.getSelectedItem().equals(Constant.messages.getString("ascan.policy.level.low"))) {
                             getPassiveThresholdNotes().setText(Constant.messages.getString("ascan.options.level.low.label"));
                             pscan.setAllScannerThreshold(AlertThreshold.LOW);
@@ -409,29 +402,24 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      * @return 
      */
     public void updatePassiveThreshold() {
-        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
-        String selectedItem = "";
-
-        // Set the correct alert threshold value common to all plugins
         if (pscan != null) {
+            // Set the correct alert threshold value common to all plugins
+            String selectedItem = "";
             AlertThreshold at = pscan.getAllScannerThreshold();
             if (at != null) {
                 selectedItem = Constant.messages.getString("ascan.policy.level." + at.name().toLowerCase());
             }
+            getComboPassiveThreshold().setSelectedItem(selectedItem);
         }
-
-        getComboPassiveThreshold().setSelectedItem(selectedItem);
     }
     
     private File getDefaultPolicyDirectory() {
-        OptionsParam options = Model.getSingleton().getOptionsParam();
-    	return new File(options.getConfig().getString("policy.dir", 
+    	return new File(optionsParam.getConfig().getString("policy.dir", 
     			Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath()));
     }
     
     private void setDefaultPolicyDirectory(File dir) {
-        OptionsParam options = Model.getSingleton().getOptionsParam();
-    	options.getConfig().setProperty("policy.dir", dir.getAbsolutePath());
+    	optionsParam.getConfig().setProperty("policy.dir", dir.getAbsolutePath());
     }
     
 	private JButton getLoadButton() {
@@ -470,9 +458,8 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 			    			ZapXmlConfiguration conf = new ZapXmlConfiguration(file); 
 			    			getNameField().setText(conf.getString("policy", ""));
 
-							PluginFactory.loadFrom(conf);
+							pluginFactory.loadFrom(conf);
 
-					        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
 					        if (pscan != null) {
 					        	pscan.loadFrom(conf);
 					        }
@@ -535,17 +522,14 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 					    	ZapXmlConfiguration conf = new ZapXmlConfiguration();
 					    	conf.setProperty("policy", getNameField().getText());
 
-							PluginFactory.saveTo(conf);
+							pluginFactory.saveTo(conf);
 							
-					        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
 					        if (pscan != null) {
 					        	pscan.saveTo(conf);
 					        }
 							
-					        OptionsParam options = Model.getSingleton().getOptionsParam();
-					        ScannerParam param = (ScannerParam)options.getParamSet(ScannerParam.class);
-					        conf.setProperty("scanner.level", param.getAlertThreshold().name());
-					        conf.setProperty("scanner.strength", param.getAttackStrength().name());
+					        conf.setProperty("scanner.level", scannerParam.getAlertThreshold().name());
+					        conf.setProperty("scanner.strength", scannerParam.getAttackStrength().name());
 
 					    	conf.save(file);
 							

@@ -44,6 +44,7 @@
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 // ZAP: 2013/09/16 Issue 791: Saved sessions are discarded on ZAP's exit
 // ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
+// ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.control;
 
@@ -84,6 +85,7 @@ public class Control extends AbstractControl implements SessionListener {
     private MenuToolsControl menuToolsControl = null;
     private SessionListener lastCallback = null;
 	private Mode mode = null;
+	private PluginFactory pluginFactory = new PluginFactory();
     
     private Control(Model model, View view) {
         super(model, view);
@@ -97,7 +99,7 @@ public class Control extends AbstractControl implements SessionListener {
 
 	private void init(ControlOverrides overrides) {
         
-        PluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
+        pluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
         		
 		// start plugin loading
 		loadExtension();
@@ -125,6 +127,10 @@ public class Control extends AbstractControl implements SessionListener {
         }
         
         return proxy;
+    }
+    
+    public PluginFactory getPluginFactory() {
+    	return this.pluginFactory;
     }
     
     @Override
