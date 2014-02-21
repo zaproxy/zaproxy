@@ -21,8 +21,7 @@ public class AuthenticationHelper {
 	private SessionManagementMethod sessionManagementMethod;
 	private User user;
 
-	public AuthenticationHelper(HttpSender httpSender, SessionManagementMethod sessionManagementMethod,
-			User user) {
+	public AuthenticationHelper(HttpSender httpSender, SessionManagementMethod sessionManagementMethod, User user) {
 		super();
 		this.httpSender = httpSender;
 		this.sessionManagementMethod = sessionManagementMethod;
@@ -75,6 +74,13 @@ public class AuthenticationHelper {
 		msg.setRequestingUser(user);
 
 		return msg;
+	}
+
+	public User getRequestingUser() {
+		// Make sure the message will be sent with a good WebSession that can record the changes
+		if (user.getAuthenticatedSession() == null)
+			user.setAuthenticatedSession(sessionManagementMethod.createEmptyWebSession());
+		return user;
 	}
 
 	public void sendAndReceive(HttpMessage msg) throws IOException {

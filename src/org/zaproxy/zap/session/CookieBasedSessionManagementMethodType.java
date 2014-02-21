@@ -101,6 +101,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 			// Remove any cookies that will be added by the HttpState from the message
 			List<HttpCookie> cookies = message.getRequestHeader().getHttpCookies();
 			Iterator<HttpCookie> it = cookies.iterator();
+			
 			while (it.hasNext()) {
 				HttpCookie c = it.next();
 				for (Cookie sc : session.getHttpState().getCookies())
@@ -109,8 +110,7 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 						break;
 					}
 			}
-			if (cookies.size() > 0)
-				message.setCookies(cookies);
+			message.setCookies(cookies);
 		}
 
 		private ExtensionHttpSessions getHttpSessionsExtension() {
