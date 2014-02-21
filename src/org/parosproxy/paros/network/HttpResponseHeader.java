@@ -26,6 +26,7 @@
 // ZAP: 2012/08/06 Modified isText() to also consider javascript as text 
 // ZAP: 2013/02/12 Modified isText() to also consider atom+xml as text
 // ZAP: 2013/03/08 Improved parse error reporting
+// ZAP: 2014/02/21 i1046: The getHttpCookies() method in the HttpResponseHeader does not properly set the domain
 
 package org.parosproxy.paros.network;
 
@@ -237,25 +238,59 @@ public class HttpResponseHeader extends HttpHeader {
 	}
 	
 	// ZAP: Added method for working directly with HttpCookie
-	public List<HttpCookie> getHttpCookies() {
+	
+	/**
+	 * Parses the response headers and build a lis of all the http cookies set. For the cookies whose domain
+	 * could not be determined, the {@code defaultDomain} is set.
+	 * 
+	 * @param defaultDomain the default domain
+	 * @return the http cookies
+	 */
+	public List<HttpCookie> getHttpCookies(String defaultDomain) {
 		List<HttpCookie> cookies = new LinkedList<>();
 
 		Vector<String> cookiesS = getHeaders(HttpHeader.SET_COOKIE);
+		
 		if (cookiesS != null) {
 			for (String c : cookiesS) {
-				cookies.addAll(HttpCookie.parse(c));
+				List<HttpCookie> parsedCookies = HttpCookie.parse(c);
+				if (defaultDomain != null)
+					for (HttpCookie cookie : parsedCookies) {
+						if (cookie.getDomain() == null)
+							cookie.setDomain(defaultDomain);
+					}
+				cookies.addAll(parsedCookies);
 			}
 		}
 
 		cookiesS = getHeaders(HttpHeader.SET_COOKIE2);
 		if (cookiesS != null) {
 			for (String c : cookiesS) {
-				cookies.addAll(HttpCookie.parse(c));
+				List<HttpCookie> parsedCookies = HttpCookie.parse(c);
+				if (defaultDomain != null)
+					for (HttpCookie cookie : parsedCookies) {
+						if (cookie.getDomain() == null)
+							cookie.setDomain(defaultDomain);
+					}
+				cookies.addAll(parsedCookies);
 			}
 		}
-
+		
 		return cookies;
-
+	}
+	
+	/**
+	 * Parses the response headers and build a lis of all the http cookies set. <br/>
+	 * NOTE: For the cookies whose domain could not be determined, no domain is set, so this must be taken
+	 * into account.
+	 * 
+	 * @return the http cookies
+	 * @deprecated Use the {@link #getHttpCookies(String)} method to take into account the default domain for
+	 *             cookie
+	 */
+	@Deprecated
+	public List<HttpCookie> getHttpCookies(){
+		return getHttpCookies(null);
 	}
 
 	// ZAP: Added method.

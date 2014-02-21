@@ -84,7 +84,8 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 				session.getHttpState();
 				for (HttpCookie c : msg.getRequestHeader().getHttpCookies())
 					session.getHttpState().addCookie(convertCookie(c));
-				for (HttpCookie c : msg.getResponseHeader().getHttpCookies())
+				// Use the messages hostname as default domain when generating SET cookies
+				for (HttpCookie c : msg.getResponseHeader().getHttpCookies(msg.getRequestHeader().getHostName()))
 					session.getHttpState().addCookie(convertCookie(c));
 				return session;
 			}
