@@ -77,7 +77,7 @@ public abstract class AbstractContextPropertiesPanel extends AbstractParamPanel 
 
 	@Override
 	public void initParam(Object obj) {
-		throw new RuntimeException("InitParam should not be called on Abstract Context Property panels.");
+		// Ignore
 	}
 
 	@Override

@@ -50,7 +50,6 @@ import org.parosproxy.paros.model.Model;
 public class AbstractParamDialog extends AbstractDialog {
 
     private static final long serialVersionUID = -5223178126156052670L;
-    protected Object paramObject = null;
     
     private int exitResult = JOptionPane.CANCEL_OPTION;
     

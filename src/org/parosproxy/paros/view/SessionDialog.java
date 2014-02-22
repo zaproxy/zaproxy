@@ -77,7 +77,7 @@ public class SessionDialog extends AbstractParamDialog {
 
 	@Override
 	public void initParam(Object obj) {
-		super.paramObject = obj;
+		super.initParam(obj);
 		// NOTE: Creation of UI Shared Contexts should be done/redone before calling this method.
 		// Send the 'ui context' duplicate to Context Properties Panels
 		for (AbstractParamPanel panel : super.getPanels()) {
