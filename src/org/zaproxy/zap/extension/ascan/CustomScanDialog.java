@@ -87,16 +87,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
 		this.removeAllFields();
 		
-		// TODO Ideally the start field should be a Site node selector 
-		String url = "";
-		if (this.node != null) {
-			try {
-				url = node.getHistoryReference().getURI().toString();
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-		this.addReadOnlyField(0, FIELD_START, url, false);
+		this.addNodeSelectField(0, FIELD_START, node);
 		this.addCheckBoxField(0, FIELD_RECURSE, true);
 		this.addCheckBoxField(0, FIELD_INSCOPE, false);
 		this.addPadding(0);
@@ -139,7 +130,15 @@ public class CustomScanDialog extends StandardFieldsDialog {
 		
 		this.setCustomTabPanel(2, policyPanel);
 	}
-	
+
+	@Override
+	public void siteNodeSelected(String field, SiteNode node) {
+		if (node != null) {
+			// The user has selected a new node
+			this.node = node;
+		}
+	}
+
 	private void reset(boolean refreshUi) {
 		FileConfiguration fileConfig = new XMLConfiguration();
 		ConfigurationUtils.copy(extension.getScannerParam().getConfig(), fileConfig);

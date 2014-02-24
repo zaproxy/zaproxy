@@ -48,6 +48,7 @@ import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
@@ -659,6 +660,62 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
 		this.incTabOffset(tabIndex);
 	}
+
+	/*
+	 * Add a 'node select' field which provides a button for showing a Node Select Dialog and a 
+	 * non editable field for showing the node selected
+	 */
+	public void addNodeSelectField(int tabIndex, final String fieldLabel, final SiteNode value) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		final ZapTextField text = new ZapTextField();
+		text.setEditable(false);
+		if (value != null && value.getHistoryReference() != null) {
+			try {
+				text.setText(value.getHistoryReference().getURI().toString());
+			} catch (Exception e1) {
+				// Ignore
+			}
+		}
+		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
+		selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			// Keep a local copy so that we can always select the last node chosen
+			SiteNode node = value;
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
+				SiteNode node = nsd.showDialog(this.node);
+				if (node != null && node.getHistoryReference() != null) {
+					try {
+						text.setText(node.getHistoryReference().getURI().toString());
+					} catch (Exception e1) {
+						// Ignore
+					}
+					this.node = node;
+					siteNodeSelected(fieldLabel, node);
+				}
+			}
+		});
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, text, panel, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
+	
+	/*
+	 * Override to do something useful
+	 */
+	public void siteNodeSelected(String field, SiteNode node) {
+		
+	}
+
 
 	/**
 	 * Allow the caller to get the field component in order to, for example, change its properties
