@@ -82,12 +82,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	}
 
 	public void init (SiteNode node) {
-		logger.debug("init " + node.getHierarchicNodeName());
+		logger.debug("init " + node);
 		this.node = node;
 
 		this.removeAllFields();
 		
-		this.addNodeSelectField(0, FIELD_START, node);
+		this.addNodeSelectField(0, FIELD_START, node, false, false);
 		this.addCheckBoxField(0, FIELD_RECURSE, true);
 		this.addCheckBoxField(0, FIELD_INSCOPE, false);
 		this.addPadding(0);
@@ -235,7 +235,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
 	@Override
 	public String validateFields() {
-		// Nothing to do so far..
+		if (this.node == null) {
+			return Constant.messages.getString("ascan.custom.nostart.error");
+		}
 		return null;
 	}
 }

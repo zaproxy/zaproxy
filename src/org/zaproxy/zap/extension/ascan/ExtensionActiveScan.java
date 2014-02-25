@@ -99,6 +99,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
     private ZapMenuItem menuItemPolicy = null;
+    private ZapMenuItem menuItemCustomScan = null;
     private OptionsScannerPanel optionsScannerPanel = null;
     private OptionsVariantPanel optionsVariantPanel = null;
     private ActiveScanPanel activeScanPanel = null;
@@ -137,6 +138,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         super.hook(extensionHook);
         if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
+            extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
 
             extensionHook.getHookView().addStatusPanel(getActiveScanPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsScannerPanel());
@@ -203,8 +205,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     		Context scanContext, User user, Object[] contextSpecificObjects) {
 
         try {
-            // Add to sites if not already present
-            this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+            // Add to sites if not already present, as this might not be via a context sensitive menu
+        	String site = ActiveScanPanel.cleanSiteName(startNode, true);
+            this.getActiveScanPanel().addSite(site, true);
+            this.getActiveScanPanel().siteSelected(site, false);
         } catch (Exception e) {
             // Ignore
         }
@@ -279,6 +283,23 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
                 getView().showWarningDialog(Constant.messages.getString("scanner.save.warning"));
             }
         }
+    }
+
+    private ZapMenuItem getMenuItemCustomScan() {
+        if (menuItemCustomScan == null) {
+            menuItemCustomScan = new ZapMenuItem("menu.tools.ascanadv",
+                    KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK | Event.ALT_MASK, false));
+
+            menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	showCustomScanDialog(null);
+                }
+            });
+
+        }
+        
+        return menuItemCustomScan;
     }
 
     public void hostProgress(String hostAndPort, String msg, int percentage) {

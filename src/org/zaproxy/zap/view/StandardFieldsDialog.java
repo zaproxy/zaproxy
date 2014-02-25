@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -665,15 +666,13 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	 * Add a 'node select' field which provides a button for showing a Node Select Dialog and a 
 	 * non editable field for showing the node selected
 	 */
-	public void addNodeSelectField(int tabIndex, final String fieldLabel, final SiteNode value) {
-		if (!isTabbed()) {
-			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
-		}
-		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
-			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+	public void addNodeSelectField(final String fieldLabel, final SiteNode value, 
+			final boolean editable, final boolean allowRoot) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
 		}
 		final ZapTextField text = new ZapTextField();
-		text.setEditable(false);
+		text.setEditable(editable);
 		if (value != null && value.getHistoryReference() != null) {
 			try {
 				text.setText(value.getHistoryReference().getURI().toString());
@@ -682,12 +681,65 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 			}
 		}
 		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
+		selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
 		selectButton.addActionListener(new java.awt.event.ActionListener() { 
 			// Keep a local copy so that we can always select the last node chosen
 			SiteNode node = value;
 			@Override
 			public void actionPerformed(java.awt.event.ActionEvent e) {
 				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
+				nsd.setAllowRoot(allowRoot);
+				SiteNode node = nsd.showDialog(this.node);
+				if (node != null && node.getHistoryReference() != null) {
+					try {
+						text.setText(node.getHistoryReference().getURI().toString());
+					} catch (Exception e1) {
+						// Ignore
+					}
+					this.node = node;
+					siteNodeSelected(fieldLabel, node);
+				}
+			}
+		});
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		this.addField(fieldLabel, text, panel, 0.0D);
+	}
+	
+
+	/*
+	 * Add a 'node select' field which provides a button for showing a Node Select Dialog and a 
+	 * non editable field for showing the node selected
+	 */
+	public void addNodeSelectField(int tabIndex, final String fieldLabel, final SiteNode value, 
+			final boolean editable, final boolean allowRoot) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		final ZapTextField text = new ZapTextField();
+		text.setEditable(editable);
+		if (value != null && value.getHistoryReference() != null) {
+			try {
+				text.setText(value.getHistoryReference().getURI().toString());
+			} catch (Exception e1) {
+				// Ignore
+			}
+		}
+		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
+		selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
+		selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			// Keep a local copy so that we can always select the last node chosen
+			SiteNode node = value;
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
+				nsd.setAllowRoot(allowRoot);
 				SiteNode node = nsd.showDialog(this.node);
 				if (node != null && node.getHistoryReference() != null) {
 					try {

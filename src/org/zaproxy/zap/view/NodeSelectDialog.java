@@ -34,6 +34,7 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.HistoryReference;
@@ -89,7 +90,11 @@ public class NodeSelectDialog extends AbstractDialog {
         });
 		pack();
 	}
-	
+
+	public SiteNode showDialog(URI uri) {
+		return this.showDialog(Model.getSingleton().getSession().getSiteTree().findNode(uri));
+	}
+
 	public SiteNode showDialog(SiteNode defaultNode) {
 		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
 		populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultNode);
