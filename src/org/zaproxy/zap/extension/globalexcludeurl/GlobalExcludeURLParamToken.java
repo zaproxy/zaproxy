@@ -26,23 +26,29 @@ import org.zaproxy.zap.utils.Enableable;
 class GlobalExcludeURLParamToken extends Enableable {
 
     private String name;
+    private String description;
 
     public GlobalExcludeURLParamToken() {
-        this("", false);
+        this("", "", false);
     }
 
     public GlobalExcludeURLParamToken(String name) {
-        this(name, true);
+        this(name, "", false);
     }
 
     public GlobalExcludeURLParamToken(String name, boolean enabled) {
+        this(name, "", false);
+    }
+
+    public GlobalExcludeURLParamToken(String name, String description, boolean enabled) {
         super(enabled);
 
         this.name = name;
+        this.description = description;
     }
-
+    
     public GlobalExcludeURLParamToken(GlobalExcludeURLParamToken token) {
-        this(token.name, token.isEnabled());
+        this(token.name, token.description, token.isEnabled());
     }
 
     public String getName() {
@@ -53,12 +59,21 @@ class GlobalExcludeURLParamToken extends Enableable {
         this.name = name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
     @Override
     public int hashCode() {
         return 31 * super.hashCode() + ((name == null) ? 0 : name.hashCode());
     }
 
     @Override
+    /** If the names (aka regexs) are equal, then the objects are equal; description is not compared. */
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -79,5 +94,4 @@ class GlobalExcludeURLParamToken extends Enableable {
         }
         return true;
     }
-
 }

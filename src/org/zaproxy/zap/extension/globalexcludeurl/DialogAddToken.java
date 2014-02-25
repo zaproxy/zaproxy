@@ -46,22 +46,26 @@ class DialogAddToken extends AbstractFormDialog {
     
     private static final String NAME_FIELD_LABEL = Constant.messages.getString("options.globalexcludeurl.dialog.token.field.label.name");
     private static final String ENABLED_FIELD_LABEL = Constant.messages.getString("options.globalexcludeurl.dialog.token.field.label.enabled");
+    private static final String DESC_FIELD_LABEL = Constant.messages.getString("options.globalexcludeurl.dialog.token.field.label.description");
 
     private static final String TITLE_NAME_REPEATED_DIALOG = Constant.messages.getString("options.globalexcludeurl.dialog.token.warning.name.repeated.title");
     private static final String TEXT_NAME_REPEATED_DIALOG = Constant.messages.getString("options.globalexcludeurl.dialog.token.warning.name.repeated.text");
     
     private ZapTextField nameTextField;
     private JCheckBox enabledCheckBox;
-    
+    private ZapTextField descTextField;
+
     protected GlobalExcludeURLParamToken token;
     private List<GlobalExcludeURLParamToken> tokens;
     
     public DialogAddToken(Dialog owner) {
         super(owner, DIALOG_TITLE);
+        // TODO how????    this.setSize((int)(getWidth() * 1.5), getHeight());   // make window 50% wider than the default
     }
     
     protected DialogAddToken(Dialog owner, String title) {
         super(owner, title);
+        // TODO how????    this.setSize((int)(getWidth() * 1.5), getHeight());   // make window 50% wider than the default
     }
     
     @Override
@@ -75,14 +79,17 @@ class DialogAddToken extends AbstractFormDialog {
         
         JLabel nameLabel = new JLabel(NAME_FIELD_LABEL);
         JLabel enabledLabel = new JLabel(ENABLED_FIELD_LABEL);
+        JLabel descLabel = new JLabel(DESC_FIELD_LABEL);
         
         layout.setHorizontalGroup(layout.createSequentialGroup()
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.TRAILING)
                 .addComponent(nameLabel)
-                .addComponent(enabledLabel))
+                .addComponent(enabledLabel)
+                .addComponent(descLabel))
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
                 .addComponent(getNameTextField())
-                .addComponent(getEnabledCheckBox()))
+                .addComponent(getEnabledCheckBox())
+                .addComponent(getDescTextField()))
         );
         
         layout.setVerticalGroup(layout.createSequentialGroup()
@@ -92,6 +99,9 @@ class DialogAddToken extends AbstractFormDialog {
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(enabledLabel)
                 .addComponent(getEnabledCheckBox()))
+            .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+                    .addComponent(descLabel)
+                    .addComponent(getDescTextField()))
         );
         
         return fieldsPanel;
@@ -106,6 +116,7 @@ class DialogAddToken extends AbstractFormDialog {
     protected void init() {
         getNameTextField().setText("");
         getEnabledCheckBox().setSelected(true);
+        getDescTextField().setText("");
         token = null;
     }
 
@@ -127,13 +138,14 @@ class DialogAddToken extends AbstractFormDialog {
     
     @Override
     protected void performAction() {
-        token = new GlobalExcludeURLParamToken(getNameTextField().getText(), getEnabledCheckBox().isSelected());
+        token = new GlobalExcludeURLParamToken(getNameTextField().getText(), getDescTextField().getText(), getEnabledCheckBox().isSelected());
     }
     
     @Override
     protected void clearFields() {
         getNameTextField().setText("");
         getNameTextField().discardAllEdits();
+        getDescTextField().setText("");
     }
 
     public GlobalExcludeURLParamToken getToken() {
@@ -175,6 +187,35 @@ class DialogAddToken extends AbstractFormDialog {
         }
         
         return enabledCheckBox;
+    }
+
+    protected ZapTextField getDescTextField() {
+        if (descTextField == null) {
+            descTextField = new ZapTextField(25);
+            descTextField.getDocument().addDocumentListener(new DocumentListener() {
+                
+                @Override
+                public void removeUpdate(DocumentEvent e) {
+                    checkAndEnableConfirmButton();
+                }
+                
+                @Override
+                public void insertUpdate(DocumentEvent e) {
+                    checkAndEnableConfirmButton();
+                }
+                
+                @Override
+                public void changedUpdate(DocumentEvent e) {
+                    checkAndEnableConfirmButton();
+                }
+                
+                private void checkAndEnableConfirmButton() {
+                    setConfirmButtonEnabled(getDescTextField().getDocument().getLength() > 0);
+                }
+            });
+        }
+        
+        return descTextField;
     }
 
     public void setTokens(List<GlobalExcludeURLParamToken> tokens) {

@@ -48,44 +48,5 @@ public class GlobalExcludeURLAPI extends ApiImplementor {
 		return PREFIX;
 	}
 	
-	public static String getAntiCsrfFormUrl(int hrefid) {
-		return API.getInstance().getBaseURL(API.Format.OTHER, PREFIX, API.RequestType.other, OTHER_GENERATE_FORM, false) +
-				OTHER_GENERATE_FORM_PARAM_HREFID + "=" + hrefid;
-	}
-
-	@Override
-	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
-		if (OTHER_GENERATE_FORM.equals(name)) {
-			String hrefIdStr = params.getString(OTHER_GENERATE_FORM_PARAM_HREFID);
-			if (hrefIdStr == null || hrefIdStr.length() == 0) {
-				throw new ApiException(ApiException.Type.MISSING_PARAMETER, OTHER_GENERATE_FORM_PARAM_HREFID);
-			}
-			int hrefId;
-			try {
-				hrefId = Integer.parseInt(hrefIdStr);
-				
-		    	String response = extension.generateForm(hrefId);
-		    	if (response == null) {
-					throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr);
-		    	}
-		    	msg.setResponseHeader(
-		    			"HTTP/1.1 200 OK\r\n" +
-		    			"Pragma: no-cache\r\n" +
-		  				"Cache-Control: no-cache\r\n" + 
-		    			"Content-Length: " + response.length() + 
-		    			"\r\nContent-Type: text/html;");
-		    	msg.setResponseBody(response);
-				
-			} catch (NumberFormatException e) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, OTHER_GENERATE_FORM_PARAM_HREFID);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
-			}
-			
-		} else {
-			throw new ApiException(ApiException.Type.BAD_OTHER, name);
-		}
-		return msg;
-	}
 
 }

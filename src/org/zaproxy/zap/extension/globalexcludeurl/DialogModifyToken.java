@@ -60,6 +60,7 @@ class DialogModifyToken extends DialogAddToken {
         getNameTextField().discardAllEdits();
 
         getEnabledCheckBox().setSelected(token.isEnabled());
+        getDescTextField().setText(token.getDescription());
     }
 
 }

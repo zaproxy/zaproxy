@@ -43,9 +43,9 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 
-	private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
+	private GlobalExcludeURLMultipleOptionsPanel tokensOptionsPanel;
 
-	private OptionsGlobalExcludeURLTableModel antiCsrfModel = null;
+	private OptionsGlobalExcludeURLTableModel globalExcludeURLModel = null;
 	
     /**
      * 
@@ -70,7 +70,7 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
         this.add(new JLabel(Constant.messages.getString("options.globalexcludeurl.label.tokens")), gbc);
 
-        tokensOptionsPanel = new AntiCsrfMultipleOptionsPanel(getAntiCsrfModel());
+        tokensOptionsPanel = new GlobalExcludeURLMultipleOptionsPanel(getGlobalExcludeURLModel());
         
         gbc.weighty = 1.0;
         this.add(tokensOptionsPanel, gbc);
@@ -82,7 +82,7 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    GlobalExcludeURLParam param = optionsParam.getGlobalExcludeURLParam();
-	    getAntiCsrfModel().setTokens(param.getTokens());
+	    getGlobalExcludeURLModel().setTokens(param.getTokens());
 	    tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveToken());
     }
 
@@ -100,7 +100,7 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
         OptionsParam optionsParam = (OptionsParam) obj;
 	    GlobalExcludeURLParam globalExcludeURLParam = optionsParam.getGlobalExcludeURLParam();
-	    globalExcludeURLParam.setTokens(getAntiCsrfModel().getElements());
+	    globalExcludeURLParam.setTokens(getGlobalExcludeURLModel().getElements());
 	    globalExcludeURLParam.setConfirmRemoveToken(!tokensOptionsPanel.isRemoveWithoutConfirmation());
 	    
 	    globalExcludeURLParam.parse();
@@ -113,24 +113,24 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 	    log.debug("Done saving Global Exclude URL");
     }
 
-	/**
-	 * This method initializes authModel	
-	 * 	
-	 * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel	
-	 */    
-	private OptionsGlobalExcludeURLTableModel getAntiCsrfModel() {
-		if (antiCsrfModel == null) {
-			antiCsrfModel = new OptionsGlobalExcludeURLTableModel();
-		}
-		return antiCsrfModel;
-	}
+    /**
+     * This method initializes authModel
+     * 
+     * @return org.parosproxy.paros.view.OptionsAuthenticationTableModel
+     */    
+    private OptionsGlobalExcludeURLTableModel getGlobalExcludeURLModel() {
+        if (globalExcludeURLModel == null) {
+            globalExcludeURLModel = new OptionsGlobalExcludeURLTableModel();
+        }
+        return globalExcludeURLModel;
+    }    
 
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.options.globalexcludeurl";
 	}
 
-	private static class AntiCsrfMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<GlobalExcludeURLParamToken> {
+    private static class GlobalExcludeURLMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<GlobalExcludeURLParamToken> {
         
         private static final long serialVersionUID = -115340627058929308L;
         
@@ -147,13 +147,15 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
         
         private OptionsGlobalExcludeURLTableModel model;
         
-        public AntiCsrfMultipleOptionsPanel(OptionsGlobalExcludeURLTableModel model) {
+        public GlobalExcludeURLMultipleOptionsPanel(OptionsGlobalExcludeURLTableModel model) {
             super(model);
             
             this.model = model;
             
-            getTable().getColumnExt(0).setPreferredWidth(20);
-            getTable().setSortOrder(1, SortOrder.ASCENDING);
+            getTable().getColumnExt(0).setMaxWidth(45);       // checkbox column should be tiny
+            getTable().setSortOrder(2, SortOrder.ASCENDING);  // first, sort by description
+            getTable().setSortOrder(0, SortOrder.DESCENDING); // then, sort by enabled
+            getTable().setHorizontalScrollEnabled(true);      // descriptions / regexs are very wide
         }
 
         @Override

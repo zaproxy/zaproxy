@@ -34,15 +34,14 @@ public class OptionsGlobalExcludeURLTableModel extends AbstractMultipleOptionsTa
 
     private static final String[] COLUMN_NAMES = {
             Constant.messages.getString("options.globalexcludeurl.table.header.enabled"),
-            Constant.messages.getString("options.globalexcludeurl.table.header.token")};
+            Constant.messages.getString("options.globalexcludeurl.table.header.token"),
+            Constant.messages.getString("options.globalexcludeurl.table.header.description")
+    };
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 	
     private List<GlobalExcludeURLParamToken> tokens = new ArrayList<>(0);
     
-    /**
-     * 
-     */
     public OptionsGlobalExcludeURLTableModel() {
         super();
     }
@@ -100,6 +99,8 @@ public class OptionsGlobalExcludeURLTableModel extends AbstractMultipleOptionsTa
             return Boolean.valueOf(getElement(rowIndex).isEnabled());
         case 1:
             return getElement(rowIndex).getName();
+        case 2:
+            return getElement(rowIndex).getDescription();
         }
         return null;
     }

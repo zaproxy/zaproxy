@@ -33,19 +33,42 @@ public class GlobalExcludeURLParam extends AbstractParam {
 
     private static final Logger logger = Logger.getLogger(GlobalExcludeURLParam.class);
 
-	/** Alpha code name for config file setting. */
-    private static final String ANTI_CSRF_BASE_KEY = "globalexcludeurlALPHACODE";
+    private static final String GLOBAL_EXCLUDE_URL_BASE_KEY = "globalexcludeurl";
     
-    private static final String ALL_TOKENS_KEY = ANTI_CSRF_BASE_KEY + ".tokens.token";
+    private static final String ALL_TOKENS_KEY = GLOBAL_EXCLUDE_URL_BASE_KEY + ".url_list.url";
     
-    private static final String TOKEN_NAME_KEY = "name";
+    private static final String TOKEN_NAME_KEY = "regex";
     private static final String TOKEN_ENABLED_KEY = "enabled";
+    private static final String TOKEN_DESCRIPTION_KEY = "description";
+
+    private static final String CONFIRM_REMOVE_TOKEN_KEY = GLOBAL_EXCLUDE_URL_BASE_KEY + ".confirmRemoveToken";
     
-    private static final String CONFIRM_REMOVE_TOKEN_KEY = ANTI_CSRF_BASE_KEY + ".confirmRemoveToken";
-    
+    // Remember, these are regexs, so escape properly \\ vs \
+    // Also, http://regexpal.com/ for quick testing.
+    // The file formats are common types, not inclusive of all types. Remember, more == slower;
+    // complex == slower. Don't overload with every obscure image/audio/video format in existence.
     private static final String[] DEFAULT_TOKENS_NAMES = { 
-        "^.*(random_thing_to_ignore).*$",
-        "^.*(\\.(ico|icns))$"
+        "^.*\\.(gif|jpe?g|png|ico|icns|bmp)$",
+        "^.*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
+        "^.*\\.(pdf)$",
+        "^.*\\.(css|js)$",
+        "^.*\\.(sw[fa]|flv)$",
+        "^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
+        "^https?://([^/])*lastpass\\.com",
+        "^https?://([^/])*mozilla\\.(org|net|com)"
+    };
+
+    // XXX these must be in the same order as above - there are better ways to implement this.  
+    // XXX This will crash if array lengths not equal.
+    private static final String[] DEFAULT_TOKENS_DESCRIPTIONS = { 
+        "Image (ends with .ext)",
+        "Audio/Video (ends with .ext)",
+        "PDF (ends with .pdf)",
+        "Stylesheet, JavaScript (ends with .ext)",
+        "Flash & related (ends with .ext)",
+        "Google Malware Detector",
+        "Lastpass Manager",
+        "Firefox Updates & all Mozilla"
     };
 
     private List<GlobalExcludeURLParamToken> tokens = null;
@@ -67,7 +90,8 @@ public class GlobalExcludeURLParam extends AbstractParam {
                 String name = sub.getString(TOKEN_NAME_KEY, "");
                 if (!"".equals(name) && !tempTokensNames.contains(name)) {
                     boolean enabled = sub.getBoolean(TOKEN_ENABLED_KEY, true);
-                    this.tokens.add(new GlobalExcludeURLParamToken(name, enabled));
+                    String desc = sub.getString(TOKEN_DESCRIPTION_KEY, "");
+                    this.tokens.add(new GlobalExcludeURLParamToken(name, desc, enabled));
                     tempTokensNames.add(name);
                     if (enabled) {
                         enabledTokensNames.add(name);
@@ -75,16 +99,18 @@ public class GlobalExcludeURLParam extends AbstractParam {
                 }
             }
         } catch (ConversionException e) {
-            logger.error("Error while loading anti CSRF tokens: " + e.getMessage(), e); // TODO fix log msg
+            logger.error("Error while loading Global Exclude URL tokens: " + e.getMessage(), e);
             this.tokens = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
             this.enabledTokensNames = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
         }
         
         if (this.tokens.size() == 0) {
+            int i = 0;
             for (String tokenName : DEFAULT_TOKENS_NAMES) {
-                this.tokens.add(new GlobalExcludeURLParamToken(tokenName));
-                // FIXME By default, don't enable all of the DEFAULT_TOKENS_NAMES, let the user choose.
-                this.enabledTokensNames.add(tokenName);
+                String description = DEFAULT_TOKENS_DESCRIPTIONS[i];
+                // By default, don't enable all of the DEFAULT_TOKENS_NAMES, let the user choose.
+                this.tokens.add(new GlobalExcludeURLParamToken(tokenName, description, false));
+                i++;
             }
         }
 
@@ -110,6 +136,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
             GlobalExcludeURLParamToken token = tokens.get(i);
             
             getConfig().setProperty(elementBaseKey + TOKEN_NAME_KEY, token.getName());
+            getConfig().setProperty(elementBaseKey + TOKEN_DESCRIPTION_KEY, token.getDescription());
             getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, Boolean.valueOf(token.isEnabled()));
             
             if (token.isEnabled()) {
