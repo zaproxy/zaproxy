@@ -112,15 +112,20 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         if ((enabledRPC & ScannerParam.RPC_CUSTOM) != 0) {
             if (getExtension() != null) {
                 // List the scripts and create as many custom variants as the scripts
-		List<ScriptWrapper> scripts = getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_VARIANT);
+            	List<ScriptWrapper> scripts = getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_VARIANT);
 			
-		for (ScriptWrapper script : scripts) {
+            	for (ScriptWrapper script : scripts) {
                     if (script.isEnabled()) {
                         listVariant.add(new VariantCustom(script, getExtension()));
                     }
                 }
             }
         }
+
+        if ((enabledRPC & ScannerParam.RPC_USERDEF) != 0) {
+            listVariant.add(new VariantUserDefined());
+        }
+
         
         for (int i = 0; i < listVariant.size() && !isStop(); i++) {
             

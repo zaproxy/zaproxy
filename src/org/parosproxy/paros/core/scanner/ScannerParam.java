@@ -82,6 +82,7 @@ public class ScannerParam extends AbstractParam {
     public static final int RPC_GWT         = 1<<3;
     public static final int RPC_ODATA       = 1<<4;
     public static final int RPC_CUSTOM      = 1<<7;
+    public static final int RPC_USERDEF     = 1<<8;
     
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_URLPATH;
