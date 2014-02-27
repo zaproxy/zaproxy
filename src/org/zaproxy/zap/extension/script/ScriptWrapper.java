@@ -207,4 +207,7 @@ public class ScriptWrapper {
 		return null;
 	}
 
+	public boolean isRunableStandalone() {
+		return this.getType() != null && ExtensionScript.TYPE_STANDALONE.equals(this.getType().getName());
+	}
 }
