@@ -45,6 +45,7 @@
 // ZAP: 2013/09/16 Issue 791: Saved sessions are discarded on ZAP's exit
 // ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/02/27 Issue 1055: Load extensions before plugins
 
 package org.parosproxy.paros.control;
 
@@ -98,12 +99,12 @@ public class Control extends AbstractControl implements SessionListener {
 	}
 
 	private void init(ControlOverrides overrides) {
-        
-        pluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
-        		
-		// start plugin loading
+
+		// Load extensions first as message bundles are loaded as a side effect
 		loadExtension();
-		
+
+        pluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
+
 		// ZAP: Start proxy even if no view
 	    Proxy proxy = getProxy(overrides);
 	    getExtensionLoader().hookProxyListener(proxy);
