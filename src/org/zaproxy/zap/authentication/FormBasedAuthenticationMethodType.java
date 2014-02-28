@@ -35,10 +35,13 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
@@ -82,6 +85,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.NodeSelectDialog;
 
 /**
  * The implementation for an {@link AuthenticationMethodType} where the Users are authenticated by
@@ -456,11 +460,42 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			this.setLayout(new GridBagLayout());
 
 			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 0, 2, 1.0d, 0.0d));
-			this.loginUrlField = new ZapTextField();
-			this.add(this.loginUrlField, LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
+			
+			JPanel urlSelectPanel = new JPanel(new GridBagLayout());
 
-			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 2, 1.0d, 0.0d));
+			this.loginUrlField = new ZapTextField();
 			this.postDataField = new ZapTextField();
+
+			JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
+			selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
+			selectButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					NodeSelectDialog nsd = new NodeSelectDialog(View.getSingleton().getMainFrame());
+					SiteNode node = null; 
+					try {
+						node = Model.getSingleton().getSession().getSiteTree().findNode(new URI(loginUrlField.getText(), false));
+					} catch (Exception e2) {
+						// Ignore
+					}
+					node = nsd.showDialog(node);
+					if (node != null && node.getHistoryReference() != null) {
+						try {
+							loginUrlField.setText(node.getHistoryReference().getURI().toString());
+							postDataField.setText(node.getHistoryReference().getHttpMessage().getRequestBody().toString());
+							updateParameters();
+						} catch (Exception e1) {
+							// Ignore
+							// log.debug(e1.getMessage(), e1);
+						}
+					}
+				}
+			});
+			urlSelectPanel.add(this.loginUrlField, LayoutHelper.getGBC(0, 0, 1, 1.0D));
+			urlSelectPanel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D));
+			this.add(urlSelectPanel, LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
+			
+			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 2, 1.0d, 0.0d));
 			this.add(this.postDataField, LayoutHelper.getGBC(0, 3, 2, 1.0d, 0.0d));
 
 			this.add(new JLabel("Username Param:"), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
@@ -500,6 +535,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private String replaceParameterValue(String originalString, HtmlParameter parameter,
 				String replaceString) {
+			// TODO shouldnt use '=' here - should use the defined separator for this context
 			return originalString.replace(parameter.getName() + "=" + parameter.getValue(),
 					parameter.getName() + "=" + replaceString);
 		}
