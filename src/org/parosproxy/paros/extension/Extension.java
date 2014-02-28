@@ -24,6 +24,7 @@
 // ZAP: 2012/12/08 Issue 428: Added support for extension specific I18N bundles, to support the marketplace
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
+// ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
 
 package org.parosproxy.paros.extension;
 
@@ -136,4 +137,12 @@ public interface Extension {
 	 * @return
 	 */
 	List<String> getUnsavedResources();
+	
+	/**
+	 * Implement this method to perform tasks after the add-on is installed.
+	 * Note that this will only be called if the user adds the add-on via ZAP, eg file the File menu or the Marketplace.
+	 * If the add-on is installed by copying the file to the plugins directory then it will not be called.
+	 */
+    void postInstall();
+
 }

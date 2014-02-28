@@ -28,6 +28,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
+// ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
 
 package org.parosproxy.paros.extension;
 
@@ -232,5 +233,9 @@ public abstract class ExtensionAdaptor implements Extension {
     @Override
     public List<String> getUnsavedResources() {
     	return null;
+    }
+    
+    @Override
+    public void postInstall() {
     }
 }

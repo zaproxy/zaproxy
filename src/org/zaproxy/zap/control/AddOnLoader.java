@@ -254,6 +254,14 @@ public class AddOnLoader extends URLClassLoader {
 	    			// Files
 	    			this.loadFiles(ao, true);
 
+	    			// postInstall actions 
+				   	for (Extension ext : listExts) {
+				   		try {
+							ext.postInstall();
+						} catch (Exception e) {
+    						logger.error("Post install methof failed for add-on " + ext.getName());
+						}
+			   		}
         		}
 
         		if (View.isInitialised()) {

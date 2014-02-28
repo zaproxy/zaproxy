@@ -34,6 +34,7 @@ import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.View;
 
 public class LangImporter {
 	
@@ -46,7 +47,7 @@ public class LangImporter {
 	private static final String MSG_FILE_NOT_FOUND = "options.lang.importer.dialog.message.filenotfound";
 	
 	
-	public static void importLanguagePack(String languagePack) {
+	public static String importLanguagePack(String languagePack) {
 		Matcher matcher = null;
 		Pattern pattern = Pattern.compile(FILENAME_PATTERN);
 		
@@ -115,9 +116,13 @@ public class LangImporter {
 			}
 		}
 		
-		JOptionPane.showMessageDialog(null,
-				MessageFormat.format(Constant.messages.getString(message), langFileCount),
-				Constant.messages.getString("options.lang.importer.dialog.title"),                                            
-				(langFileCount > 0) ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+		if (View.isInitialised()) {
+			JOptionPane.showMessageDialog(null,
+					MessageFormat.format(Constant.messages.getString(message), langFileCount),
+					Constant.messages.getString("options.lang.importer.dialog.title"),                                            
+					(langFileCount > 0) ? JOptionPane.INFORMATION_MESSAGE : JOptionPane.ERROR_MESSAGE);
+		}
+		
+		return message;
 	}
 }
