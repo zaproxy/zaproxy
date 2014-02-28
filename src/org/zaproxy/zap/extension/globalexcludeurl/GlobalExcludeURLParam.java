@@ -50,12 +50,13 @@ public class GlobalExcludeURLParam extends AbstractParam {
     private static final String[] DEFAULT_TOKENS_NAMES = { 
         "^.*\\.(gif|jpe?g|png|ico|icns|bmp)$",
         "^.*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
-        "^.*\\.(pdf)$",
+        "^.*\\.(pdf|docx?|xlsx?|pptx?)$",
         "^.*\\.(css|js)$",
         "^.*\\.(sw[fa]|flv)$",
         "^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
-        "^https?://([^/])*lastpass\\.com",
-        "^https?://([^/])*mozilla\\.(org|net|com)"
+        "^https?://([^/])*\\.?lastpass\\.com",
+        "^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
+        "^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)"
     };
 
     // XXX these must be in the same order as above - there are better ways to implement this.  
@@ -63,12 +64,13 @@ public class GlobalExcludeURLParam extends AbstractParam {
     private static final String[] DEFAULT_TOKENS_DESCRIPTIONS = { 
         "Image (ends with .ext)",
         "Audio/Video (ends with .ext)",
-        "PDF (ends with .pdf)",
+        "PDF & MS Office (ends with .ext)",
         "Stylesheet, JavaScript (ends with .ext)",
         "Flash & related (ends with .ext)",
-        "Google Malware Detector",
-        "Lastpass Manager",
-        "Firefox Updates & all Mozilla"
+        "Google malware detector updates",
+        "Lastpass manager",
+        "Firefox browser updates",
+        "Firefox extensions phoning home"
     };
 
     private List<GlobalExcludeURLParamToken> tokens = null;
