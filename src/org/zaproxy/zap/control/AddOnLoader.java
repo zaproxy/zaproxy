@@ -259,7 +259,7 @@ public class AddOnLoader extends URLClassLoader {
 				   		try {
 							ext.postInstall();
 						} catch (Exception e) {
-    						logger.error("Post install methof failed for add-on " + ext.getName());
+    						logger.error("Post install method failed for add-on " + ext.getName());
 						}
 			   		}
         		}
