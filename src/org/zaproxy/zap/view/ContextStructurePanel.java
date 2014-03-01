@@ -41,19 +41,25 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
 	private static final String PANEL_NAME = Constant.messages.getString("context.struct.title");
 	private static final long serialVersionUID = -1;
-	private Context context;
 
 	private JPanel panelSession = null;
 	private ZapTextField urlKvPairSeparators = null;
 	private ZapTextField urlKeyValueSeparators = null;
 	private ZapTextField postKeyValueSeparators = null;
 	private ZapTextField postKvPairSeparators = null;
-	
+
 	private JTable tableStructuralParams = null;
 	private JScrollPane jScrollPane = null;
 	private SingleColumnTableModel model = null;
 
-
+	/**
+	 * Returns the name of the panel "Structure" for the given {@code contextIndex}.
+	 * 
+	 * @param contextIndex the context index that will be used to create the name of the panel
+	 * @return the name of the panel "Include in context" for the given {@code contextIndex}
+	 * @since 2.2.0
+	 * @see Context#getIndex()
+	 */
 	public static String getPanelName(int contextId) {
 		// Panel names hav to be unique, so prefix with the context id
 		return contextId + ": " + PANEL_NAME;
@@ -61,26 +67,16 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
 	public ContextStructurePanel(Context context) {
 		super(context.getIndex());
-		this.context = context;
 		initialize();
 	}
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
 	private void initialize() {
 		this.setLayout(new CardLayout());
 		this.setName(getPanelName(this.getContextIndex()));
-		this.add(getPanelSession(), getPanelSession().getName());
+		this.add(getPanel(), getPanel().getName());
 	}
 
-	/**
-	 * This method initializes panelSession
-	 * 
-	 * @return javax.swing.JPanel
-	 */
-	private JPanel getPanelSession() {
+	private JPanel getPanel() {
 		if (panelSession == null) {
 			/*
 			+----------------+-----------------------------------------+
@@ -104,28 +100,24 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
 			panelSession.add(new JLabel(Constant.messages.getString("context.struct.label.url.kvpsep")),
 					LayoutHelper.getGBC(0, 0, 1, 1.0D));
-			panelSession.add(getUrlKvPairSeparators(), 
-					LayoutHelper.getGBC(1, 0, 1, 1.0D, new Insets(2, 0, 2, 0)));
+			panelSession.add(getUrlKvPairSeparators(), LayoutHelper.getGBC(1, 0, 1, 1.0D, new Insets(2, 0, 2, 0)));
 			panelSession.add(new JLabel(Constant.messages.getString("context.struct.label.url.kvsep")),
 					LayoutHelper.getGBC(0, 1, 1, 1.0D));
-			panelSession.add(getUrlKeyValueSeparators(),
-					LayoutHelper.getGBC(1, 1, 1, 1.0D, new Insets(2, 0, 2, 0)));
+			panelSession.add(getUrlKeyValueSeparators(), LayoutHelper.getGBC(1, 1, 1, 1.0D, new Insets(2, 0, 2, 0)));
 			panelSession.add(new JLabel(Constant.messages.getString("context.struct.label.post.kvpsep")),
 					LayoutHelper.getGBC(0, 2, 1, 1.0D));
-			panelSession.add(getPostKvPairSeparators(),
-					LayoutHelper.getGBC(1, 2, 1, 1.0D, new Insets(2, 0, 2, 0)));
+			panelSession.add(getPostKvPairSeparators(), LayoutHelper.getGBC(1, 2, 1, 1.0D, new Insets(2, 0, 2, 0)));
 			panelSession.add(new JLabel(Constant.messages.getString("context.struct.label.post.kvsep")),
 					LayoutHelper.getGBC(0, 3, 1, 1.0D));
-			panelSession.add(getPostKeyValueSeparators(), 
-					LayoutHelper.getGBC(1, 3, 1, 1.0D, new Insets(2, 0, 2, 0)));
+			panelSession.add(getPostKeyValueSeparators(), LayoutHelper.getGBC(1, 3, 1, 1.0D, new Insets(2, 0, 2, 0)));
 
 			panelSession.add(new JLabel(Constant.messages.getString("context.struct.label.struct")),
 					LayoutHelper.getGBC(0, 4, 1, 1.0D));
-			panelSession.add(getJScrollPane(), 
+			panelSession.add(getJScrollPane(),
 					LayoutHelper.getGBC(1, 4, 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2, 0, 2, 0)));
 
 			panelSession.add(new JLabel(), LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D)); // Padding
-			
+
 		}
 		return panelSession;
 	}
@@ -157,7 +149,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		}
 		return postKvPairSeparators;
 	}
-	
+
 	private JTable getTableStructualParams() {
 		if (tableStructuralParams == null) {
 			tableStructuralParams = new JTable();
@@ -169,7 +161,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		}
 		return tableStructuralParams;
 	}
-	
+
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
@@ -185,7 +177,6 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		}
 		return model;
 	}
-
 
 	@Override
 	public void initContextData(Session session, Context context) {
@@ -213,20 +204,20 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		if (this.urlKeyValueSeparators.getText().length() == 0) {
 			throw new IllegalArgumentException(Constant.messages.getString("context.struct.warning.stdparser.nokvsep"));
 		}
-		// Dont allow any common characters
+		// Don't allow any common characters
 		for (char ch : this.urlKvPairSeparators.getText().toCharArray()) {
 			if (this.urlKeyValueSeparators.getText().contains("" + ch)) {
 				throw new IllegalArgumentException(Constant.messages.getString("context.struct.warning.stdparser.dup"));
 			}
 		}
-		
+
 		if (this.postKvPairSeparators.getText().length() == 0) {
 			throw new IllegalArgumentException(Constant.messages.getString("context.struct.warning.stdparser.nokvpsep"));
 		}
 		if (this.postKeyValueSeparators.getText().length() == 0) {
 			throw new IllegalArgumentException(Constant.messages.getString("context.struct.warning.stdparser.nokvsep"));
 		}
-		// Dont allow any common characters
+		// Don't allow any common characters
 		for (char ch : this.postKvPairSeparators.getText().toCharArray()) {
 			if (this.postKeyValueSeparators.getText().contains("" + ch)) {
 				throw new IllegalArgumentException(Constant.messages.getString("context.struct.warning.stdparser.dup"));
@@ -234,8 +225,12 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		}
 	}
 
-	@Override
-	public void saveContextData(Session session) throws Exception {
+	/**
+	 * Save the data from this panel to the provided context.
+	 *
+	 * @param context the context
+	 */
+	private void saveToContext(Context context) {
 		ParameterParser urlParamParser = context.getUrlParamParser();
 		ParameterParser formParamParser = context.getPostParamParser();
 
@@ -243,7 +238,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 			StandardParameterParser urlStdParamParser = (StandardParameterParser) urlParamParser;
 			urlStdParamParser.setKeyValuePairSeparators(this.getUrlKvPairSeparators().getText());
 			urlStdParamParser.setKeyValueSeparators(this.getUrlKeyValueSeparators().getText());
-			
+
 			urlStdParamParser.setStructuralParameters(this.getStructuralParamsModel().getLines());
 
 			context.setUrlParamParser(urlStdParamParser);
@@ -257,29 +252,18 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 	}
 
 	@Override
-	public String getHelpIndex() {
-		return "ui.dialogs.contexts";
-	}
-
-	public void setLoginURL(String string) {
-		this.getUrlKvPairSeparators().setText(string);
-
-	}
-
-	public void setLoginPostData(String string) {
-		this.getUrlKeyValueSeparators().setText(string);
-	}
-
-	public void setLogoutURL(String string) {
-		this.getPostKeyValueSeparators().setText(string);
-
-	}
-
-	public void setLoggedInIndicationRegex(String authIndicationRegex) {
-		this.getPostKvPairSeparators().setText(authIndicationRegex);
+	public void saveContextData(Session session) throws Exception {
+		Context context = session.getContext(getContextIndex());
+		saveToContext(context);
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
+		saveToContext(uiSharedContext);
+	}
+
+	@Override
+	public String getHelpIndex() {
+		return "ui.dialogs.contexts";
 	}
 }
