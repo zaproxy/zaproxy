@@ -436,6 +436,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private static final String POST_DATA_LABEL = Constant.messages
 				.getString("authentication.method.fb.field.label.postData");
+		private static final String USERNAME_PARAM_LABEL = Constant.messages
+				.getString("authentication.method.fb.field.label.usernameParam");
+		private static final String PASSWORD_PARAM_LABEL = Constant.messages
+				.getString("authentication.method.fb.field.label.passwordParam");
 		private static final String LOGIN_URL_LABEL = Constant.messages
 				.getString("authentication.method.fb.field.label.loginUrl");
 		private static final String AUTH_DESCRIPTION = Constant.messages
@@ -468,14 +472,17 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 			JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
 			selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe
-																										// icon
+
+			// Add behaviour for Node Select dialog
 			selectButton.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					NodeSelectDialog nsd = new NodeSelectDialog(View.getSingleton().getMainFrame());
+					// Try to pre-select the node according to what has been inserted in the fields
 					SiteNode node = null;
 					if (loginUrlField.getText().trim().length() > 0)
 						try {
+							// If it's a POST query
 							if (postDataField.getText().trim().length() > 0)
 								node = Model
 										.getSingleton()
@@ -491,12 +498,15 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 							// value and does not have any harmful effects
 						}
 
+					// Show the dialog and wait for input
 					node = nsd.showDialog(node);
 					if (node != null && node.getHistoryReference() != null) {
 						try {
-							if (log.isInfoEnabled())
+							if (log.isInfoEnabled()) {
 								log.info("Selected Form Based Auth Login URL via dialog: "
 										+ node.getHistoryReference().getURI().toString());
+							}
+
 							loginUrlField.setText(node.getHistoryReference().getURI().toString());
 							postDataField.setText(node.getHistoryReference().getHttpMessage()
 									.getRequestBody().toString());
@@ -507,6 +517,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					}
 				}
 			});
+
 			urlSelectPanel.add(this.loginUrlField, LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			urlSelectPanel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D));
 			this.add(urlSelectPanel, LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
@@ -514,18 +525,20 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 2, 1.0d, 0.0d));
 			this.add(this.postDataField, LayoutHelper.getGBC(0, 3, 2, 1.0d, 0.0d));
 
-			this.add(new JLabel("Username Param:"), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
+			this.add(new JLabel(USERNAME_PARAM_LABEL), LayoutHelper.getGBC(0, 4, 1, 1.0d, 0.0d));
 			this.usernameParameterCombo = new JComboBox<>();
 			this.usernameParameterCombo.setRenderer(new HtmlParameterRenderer());
 			this.add(usernameParameterCombo, LayoutHelper.getGBC(0, 5, 1, 1.0d, 0.0d));
 
-			this.add(new JLabel("Password Param:"), LayoutHelper.getGBC(1, 4, 1, 1.0d, 0.0d));
+			this.add(new JLabel(PASSWORD_PARAM_LABEL), LayoutHelper.getGBC(1, 4, 1, 1.0d, 0.0d));
 			this.passwordParameterCombo = new JComboBox<>();
 			this.passwordParameterCombo.setRenderer(new HtmlParameterRenderer());
 			this.add(passwordParameterCombo, LayoutHelper.getGBC(1, 5, 1, 1.0d, 0.0d));
 
 			this.add(new JLabel(AUTH_DESCRIPTION), LayoutHelper.getGBC(0, 8, 2, 1.0d, 0.0d));
 
+			// Make sure we update the parameters when something has been changed in the
+			// postDataField
 			this.postDataField.addFocusListener(new FocusListener() {
 				@Override
 				public void focusLost(FocusEvent e) {
@@ -552,7 +565,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private String replaceParameterValue(String originalString, HtmlParameter parameter,
 				String replaceString) {
 			String keyValueSeparator = context.getPostParamParser().getDefaultKeyValueSeparator();
-			log.info("Using separator:" + keyValueSeparator);
 			return originalString.replace(parameter.getName() + keyValueSeparator + parameter.getValue(),
 					parameter.getName() + keyValueSeparator + replaceString);
 		}
