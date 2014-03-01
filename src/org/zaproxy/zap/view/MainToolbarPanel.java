@@ -42,6 +42,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 
@@ -61,9 +62,14 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnOptions = null;
 
 	private ButtonGroup expandButtons;
+  private ButtonGroup tabNameButtons;
 	private JToggleButton btnExpandSites = null;
 	private JToggleButton btnExpandReports = null;
 	private JToggleButton btnExpandFull = null;
+	private JToggleButton btnShowTabNames = null;
+	private JToggleButton btnShowTabIcons = null;
+  private static final int SHOW_TAB_ICONNAMES = 0;
+  private static final int SHOW_TAB_ONLYICONS = 1;
 
 	public MainToolbarPanel () {
 		super();
@@ -77,6 +83,7 @@ public class MainToolbarPanel extends JPanel {
 		this.setBorder(BorderFactory.createEtchedBorder());
 
 		expandButtons = new ButtonGroup();
+    tabNameButtons = new ButtonGroup();
 
 		GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -110,12 +117,24 @@ public class MainToolbarPanel extends JPanel {
 		
 		toolbar.addSeparator();
 
+    toolbar.add(getBtnShowTabNames());
+    toolbar.add(getBtnShowTabIcons());
+
+		toolbar.addSeparator();
+
 		toolbar.add(getBtnExpandSites());
 		toolbar.add(getBtnExpandReports());
 		toolbar.add(getBtnExpandFull());
 		
 		toolbar.addSeparator();
 
+	  /* select the current names/icons button */
+		if(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
+  		this.setTabNamesOption(View.DISPLAY_OPTION_ICONNAMES);
+		}
+		else {
+			this.setTabNamesOption(View.DISPLAY_OPTION_ONLYICONS);
+		}
 	}
 	
 	private JToolBar getToolbar() {
@@ -359,7 +378,45 @@ public class MainToolbarPanel extends JPanel {
 		}
 		return btnExpandFull;
 	}
-	
+
+	private JToggleButton getBtnShowTabNames() {
+  	if (btnShowTabNames == null) {
+			btnShowTabNames = new JToggleButton(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_text.png")));
+			btnShowTabNames.setToolTipText(Constant.messages.getString("view.toolbar.showNames"));
+			btnShowTabNames.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+		    	Model.getSingleton().getOptionsParam().getViewParam().setShowTabNames(true);
+				}
+			});
+      tabNameButtons.add(btnShowTabNames);
+		}
+    return btnShowTabNames;
+	}
+
+  private JToggleButton getBtnShowTabIcons() {
+  	if (btnShowTabIcons == null) {
+			btnShowTabIcons = new JToggleButton(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_icon.png")));
+			btnShowTabIcons.setToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
+			btnShowTabIcons.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+		    	Model.getSingleton().getOptionsParam().getViewParam().setShowTabNames(false);
+				}
+			});
+      tabNameButtons.add(btnShowTabIcons);
+		}
+    return btnShowTabIcons;
+	}
+
+	public void setTabNamesOption(int option) {
+		if(option == View.DISPLAY_OPTION_ICONNAMES) {
+			btnShowTabNames.setSelected(true);
+		} else if(option == View.DISPLAY_OPTION_ONLYICONS) {
+			btnShowTabIcons.setSelected(true);
+		}
+	}
+
 	public void setDisplayOption(int option) {
 		if (option == View.DISPLAY_OPTION_BOTTOM_FULL) {
 			btnExpandReports.setSelected(true);

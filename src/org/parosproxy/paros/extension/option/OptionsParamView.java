@@ -75,7 +75,7 @@ public class OptionsParamView extends AbstractParam {
     @Override
 	protected void parse() {
 	    // use temp variable to check.  Exception will be flagged if any error.
-      showTabNames = getConfig().getBoolean(SHOW_TEXT_ICONS, true);
+      	showTabNames = getConfig().getBoolean(SHOW_TEXT_ICONS, true);
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
 	    configLocale = getConfig().getString(LOCALE);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
@@ -163,8 +163,8 @@ public class OptionsParamView extends AbstractParam {
 	public void setShowTabNames(boolean showTabNames) {
 		this.showTabNames = showTabNames;
 
-    // toggle between shown/hidden tab names 
-    View.getSingleton().getWorkbench().toggleTabNames(showTabNames);
+    	// toggle between shown/hidden tab names 
+    	View.getSingleton().getWorkbench().toggleTabNames(showTabNames);
 
 		getConfig().setProperty(SHOW_TEXT_ICONS, showTabNames);
 	}

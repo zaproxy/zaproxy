@@ -141,7 +141,7 @@ public class WorkbenchPanel extends JPanel {
     // minimize maximized panels when changing layout
     minimizeMaximizedPanels();
 
-		switch (displayOption) {
+	switch (displayOption) {
       case View.DISPLAY_OPTION_LEFT_FULL:
         this.add(getSplitHoriz(), consGridBagConstraints1);
         break;
@@ -152,13 +152,13 @@ public class WorkbenchPanel extends JPanel {
       default:
         this.add(getSplitVert(), consGridBagConstraints1);
         break;
-		}
+	}
 
     /*
      * Correct the tabs position based on the currently selected layout: if Full Layout 
      * was invoked: Request/Response/Script Console/Quickstart/Break tabs.
      */ 
-		switch (displayOption) {
+	switch (displayOption) {
       case View.DISPLAY_OPTION_TOP_FULL:
         // save the arrangements of tabs when going into 'Full Layout'
         if(previousDisplayOption != View.DISPLAY_OPTION_TOP_FULL) {

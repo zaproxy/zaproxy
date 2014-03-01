@@ -64,7 +64,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel displayLabel = null;
 	private JLabel showMainToolbarLabel = null;
 	private JLabel processImagesLabel = null;
-  private JLabel showTabNames = null;
+	private JLabel showTabNames = null;
 
 	
     public OptionsViewPanel() {

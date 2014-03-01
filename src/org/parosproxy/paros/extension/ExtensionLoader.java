@@ -723,7 +723,8 @@ public class ExtensionLoader {
             return;
         }
 
-        // Add the three panels to the current window/workbench: add extension tabs to the Full layout when chosen, otherwise they are as before.
+        // Add the three panels to the current window/workbench: add extension tabs to the Full layout
+        // when chosen, otherwise they are as before.
 	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
         addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
         addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());

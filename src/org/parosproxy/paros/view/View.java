@@ -104,7 +104,10 @@ public class View implements ViewDelegate {
 	public static final int DISPLAY_OPTION_LEFT_FULL = 0;
 	public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
 	public static final int DISPLAY_OPTION_TOP_FULL = 2;
-	
+
+	public static final int DISPLAY_OPTION_ICONNAMES = 0;
+	public static final int DISPLAY_OPTION_ONLYICONS = 1;
+
 	private static View view = null;
 	private static boolean daemon = false;
 	
