@@ -551,9 +551,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private String replaceParameterValue(String originalString, HtmlParameter parameter,
 				String replaceString) {
-			// TODO shouldnt use '=' here - should use the defined separator for this context
-			return originalString.replace(parameter.getName() + "=" + parameter.getValue(),
-					parameter.getName() + "=" + replaceString);
+			String keyValueSeparator = context.getPostParamParser().getDefaultKeyValueSeparator();
+			log.info("Using separator:" + keyValueSeparator);
+			return originalString.replace(parameter.getName() + keyValueSeparator + parameter.getValue(),
+					parameter.getName() + keyValueSeparator + replaceString);
 		}
 
 		@Override
