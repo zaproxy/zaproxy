@@ -95,7 +95,7 @@ import org.zaproxy.zap.view.MessagePanelsPositionController;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
-import org.zaproxy.zap.view.SessionStructurePanel;
+import org.zaproxy.zap.view.ContextStructurePanel;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -446,7 +446,7 @@ public class View implements ViewDelegate {
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextExcPanel, false);
 		this.contextPanels.add(contextExcPanel);
 		
-		SessionStructurePanel contextStructPanel = new SessionStructurePanel(c);
+		ContextStructurePanel contextStructPanel = new ContextStructurePanel(c);
 		contextStructPanel.setSessionDialog(getSessionDialog());
 		getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextStructPanel, false);
 		this.contextPanels.add(contextStructPanel);

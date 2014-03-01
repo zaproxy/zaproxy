@@ -37,7 +37,7 @@ import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.utils.ZapTextField;
 
-public class SessionStructurePanel extends AbstractContextPropertiesPanel {
+public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
 	private static final String PANEL_NAME = Constant.messages.getString("context.struct.title");
 	private static final long serialVersionUID = -1;
@@ -59,7 +59,7 @@ public class SessionStructurePanel extends AbstractContextPropertiesPanel {
 		return contextId + ": " + PANEL_NAME;
 	}
 
-	public SessionStructurePanel(Context context) {
+	public ContextStructurePanel(Context context) {
 		super(context.getIndex());
 		this.context = context;
 		initialize();
