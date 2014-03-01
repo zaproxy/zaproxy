@@ -460,33 +460,49 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			this.setLayout(new GridBagLayout());
 
 			this.add(new JLabel(LOGIN_URL_LABEL), LayoutHelper.getGBC(0, 0, 2, 1.0d, 0.0d));
-			
+
 			JPanel urlSelectPanel = new JPanel(new GridBagLayout());
 
 			this.loginUrlField = new ZapTextField();
 			this.postDataField = new ZapTextField();
 
 			JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
-			selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
-			selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe
+																										// icon
+			selectButton.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					NodeSelectDialog nsd = new NodeSelectDialog(View.getSingleton().getMainFrame());
-					SiteNode node = null; 
-					try {
-						node = Model.getSingleton().getSession().getSiteTree().findNode(new URI(loginUrlField.getText(), false));
-					} catch (Exception e2) {
-						// Ignore
-					}
+					SiteNode node = null;
+					if (loginUrlField.getText().trim().length() > 0)
+						try {
+							if (postDataField.getText().trim().length() > 0)
+								node = Model
+										.getSingleton()
+										.getSession()
+										.getSiteTree()
+										.findNode(new URI(loginUrlField.getText(), false),
+												HttpRequestHeader.POST, postDataField.getText());
+							else
+								node = Model.getSingleton().getSession().getSiteTree()
+										.findNode(new URI(loginUrlField.getText(), false));
+						} catch (Exception e2) {
+							// Ignore. It means we could not properly get a node for the existing
+							// value and does not have any harmful effects
+						}
+
 					node = nsd.showDialog(node);
 					if (node != null && node.getHistoryReference() != null) {
 						try {
+							if (log.isInfoEnabled())
+								log.info("Selected Form Based Auth Login URL via dialog: "
+										+ node.getHistoryReference().getURI().toString());
 							loginUrlField.setText(node.getHistoryReference().getURI().toString());
-							postDataField.setText(node.getHistoryReference().getHttpMessage().getRequestBody().toString());
+							postDataField.setText(node.getHistoryReference().getHttpMessage()
+									.getRequestBody().toString());
 							updateParameters();
 						} catch (Exception e1) {
-							// Ignore
-							// log.debug(e1.getMessage(), e1);
+							e1.printStackTrace();
 						}
 					}
 				}
@@ -494,7 +510,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			urlSelectPanel.add(this.loginUrlField, LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			urlSelectPanel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D));
 			this.add(urlSelectPanel, LayoutHelper.getGBC(0, 1, 2, 1.0d, 0.0d));
-			
+
 			this.add(new JLabel(POST_DATA_LABEL), LayoutHelper.getGBC(0, 2, 2, 1.0d, 0.0d));
 			this.add(this.postDataField, LayoutHelper.getGBC(0, 3, 2, 1.0d, 0.0d));
 
@@ -583,24 +599,21 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 		private void updateParameters() {
 			try {
-				if (authenticationMethod.isConfigured()) {
-					Map<String, String> params = this.context.getPostParamParser().parse(
-							this.postDataField.getText());
-					HtmlParameter[] paramsArray = mapToParamArray(params);
-					this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
-					this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
+				Map<String, String> params = this.context.getPostParamParser().parse(
+						this.postDataField.getText());
+				HtmlParameter[] paramsArray = mapToParamArray(params);
+				this.usernameParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
+				this.passwordParameterCombo.setModel(new DefaultComboBoxModel<>(paramsArray));
 
-					int index = getIndexOfParamWithValue(paramsArray,
-							FormBasedAuthenticationMethod.MSG_USER_PATTERN);
-					if (index >= 0) {
-						this.usernameParameterCombo.setSelectedIndex(index);
-					}
+				int index = getIndexOfParamWithValue(paramsArray,
+						FormBasedAuthenticationMethod.MSG_USER_PATTERN);
+				if (index >= 0) {
+					this.usernameParameterCombo.setSelectedIndex(index);
+				}
 
-					index = getIndexOfParamWithValue(paramsArray,
-							FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
-					if (index >= 0) {
-						this.passwordParameterCombo.setSelectedIndex(index);
-					}
+				index = getIndexOfParamWithValue(paramsArray, FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
+				if (index >= 0) {
+					this.passwordParameterCombo.setSelectedIndex(index);
 				}
 			} catch (Exception e) {
 				log.error(e.getMessage(), e);
