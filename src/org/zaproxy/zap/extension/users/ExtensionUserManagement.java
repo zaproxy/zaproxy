@@ -60,6 +60,9 @@ import org.zaproxy.zap.view.ContextPanelFactory;
 public class ExtensionUserManagement extends ExtensionAdaptor implements ContextPanelFactory,
 		ContextDataFactory {
 
+	/** The extension's order during loading. */
+	public static final int EXTENSION_ORDER = 100;
+	
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionUserManagement";
 
@@ -156,6 +159,13 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public int getOrder() {
+		// Added to make sure the ExtensionForcedUser is loaded after this one.
+		// See: ExtensionForcedUser#getOrder()
+		return EXTENSION_ORDER;
+	}
+
+	@Override
 	public AbstractContextPropertiesPanel getContextPanel(Context ctx) {
 		return getContextPanel(ctx.getIndex());
 	}
@@ -242,9 +252,9 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	public void persistContextData(Session session, Context context) {
 		try {
 			List<String> encodedUsers = new ArrayList<>();
-			for (ContextUserAuthManager m : contextManagers.values())
-				for (User u : m.getUsers())
-					encodedUsers.add(User.encode(u));
+			ContextUserAuthManager m = contextManagers.get(context.getIndex());
+			for (User u : m.getUsers())
+				encodedUsers.add(User.encode(u));
 			session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
 		} catch (Exception ex) {
 			log.error("Unable to persist Users.", ex);

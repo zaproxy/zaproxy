@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.forceduser;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -34,15 +35,18 @@ import javax.swing.JToggleButton;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -53,7 +57,8 @@ import org.zaproxy.zap.view.ZapToggleButton;
  * The ForcedUser Extension allows ZAP user to force all requests that correspond to a given Context
  * to be sent from the point of view of a User.
  */
-public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPanelFactory, HttpSenderListener {
+public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPanelFactory, HttpSenderListener,
+		ContextDataFactory {
 
 	/** The Constant EXTENSION DEPENDENCIES. */
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
@@ -111,6 +116,9 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 
+		// Register this as a context data factory
+		Model.getSingleton().addContextDataFactory(this);
+
 		if (getView() != null) {
 			// Factory for generating Session Context UserAuth panels
 			getView().addContextPanelFactory(this);
@@ -134,6 +142,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
 		this.forcedUserModeEnabled = forcedUserModeEnabled;
+		log.info("New mode: " + forcedUserModeEnabled);
 		updateForcedUserModeToggleButtonEnabledState();
 	}
 
@@ -163,8 +172,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			forcedUserModeButton = new ZapToggleButton();
 			forcedUserModeButton.setIcon(new ImageIcon(ExtensionForcedUser.class
 					.getResource(FORCED_USER_MODE_OFF_ICON_RESOURCE)));
-			forcedUserModeButton.setSelectedIcon(new ImageIcon(
-					ExtensionForcedUser.class.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
+			forcedUserModeButton.setSelectedIcon(new ImageIcon(ExtensionForcedUser.class
+					.getResource(FORCED_USER_MODE_ON_ICON_RESOURCE)));
 			forcedUserModeButton.setToolTipText(BUTTON_LABEL_OFF);
 			forcedUserModeButton.setSelectedToolTipText(BUTTON_LABEL_ON);
 			forcedUserModeButton.setDisabledToolTipText(BUTTON_LABEL_DISABLED);
@@ -255,6 +264,15 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	}
 
 	@Override
+	public int getOrder() {
+		// Make sure we load this extension after the user management extension so that we hook
+		// after it so that we register as a ContextData factory later so that our loadContextData
+		// is called after the Users' Extension so that the forced user was already loaded after a
+		// session loading
+		return ExtensionUserManagement.EXTENSION_ORDER + 10;
+	}
+
+	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
@@ -309,6 +327,33 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
 		// Nothing to do
+	}
+
+	@Override
+	public void loadContextData(Session session, Context context) {
+		try {
+			// Load the forced user id for this context
+			List<String> forcedUserS = session.getContextDataStrings(context.getIndex(),
+					RecordContext.TYPE_FORCED_USER_ID);
+			if (forcedUserS != null && forcedUserS.size() > 0) {
+				int forcedUserId = Integer.parseInt(forcedUserS.get(0));
+				setForcedUser(context.getIndex(), forcedUserId);
+			}
+		} catch (Exception e) {
+			log.error("Unable to load forced user.", e);
+		}
+	}
+
+	@Override
+	public void persistContextData(Session session, Context context) {
+		try {
+			session.setContextData(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID,
+					Integer.toString(getForcedUser(context.getIndex()).getId()));
+			// Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need for
+			// this.
+		} catch (SQLException e) {
+			log.error("Unable to persist forced user.", e);
+		}
 	}
 
 }
