@@ -59,7 +59,7 @@ public abstract class PopupContextMenu extends PopupMenuSiteNode {
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker) {
-		if(invoker==Invoker.sites)
+		if (invoker == Invoker.sites || invoker == Invoker.history)
 			return true;
 		else
 			return false;
