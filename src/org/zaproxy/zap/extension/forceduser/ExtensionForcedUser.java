@@ -34,9 +34,11 @@ import javax.swing.JToggleButton;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
@@ -57,7 +59,7 @@ import org.zaproxy.zap.view.ZapToggleButton;
  * to be sent from the point of view of a User.
  */
 public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPanelFactory, HttpSenderListener,
-		ContextDataFactory {
+		ContextDataFactory, SessionChangedListener {
 
 	/** The Constant EXTENSION DEPENDENCIES. */
 	private static final List<Class<?>> EXTENSION_DEPENDENCIES;
@@ -115,8 +117,10 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	public void hook(ExtensionHook extensionHook) {
 		super.hook(extensionHook);
 
-		// Register this as a context data factory
+		// Register this where needed
 		Model.getSingleton().addContextDataFactory(this);
+		extensionHook.addSessionListener(this);
+		
 
 		if (getView() != null) {
 			// Factory for generating Session Context UserAuth panels
@@ -360,6 +364,27 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 		} catch (Exception e) {
 			log.error("Unable to persist forced user.", e);
 		}
+	}
+
+	@Override
+	public void sessionChanged(Session session) {
+		// Make sure the status of the toggle button is properly updated when changing the session
+		updateForcedUserModeToggleButtonState();
+	}
+
+	@Override
+	public void sessionAboutToChange(Session session) {
+		// Nothing to do
+	}
+
+	@Override
+	public void sessionScopeChanged(Session session) {
+		// Nothing to do
+	}
+
+	@Override
+	public void sessionModeChanged(Mode mode) {
+		// Nothing to do
 	}
 
 }

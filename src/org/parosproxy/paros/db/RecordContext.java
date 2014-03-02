@@ -55,7 +55,6 @@ public class RecordContext {
 	
 	public static final int TYPE_USER = 300;
 	public static final int TYPE_FORCED_USER_ID = 310;
-	public static final int TYPE_FORCED_USER_MODE = 311;
 
 	public static final int TYPE_URL_PARSER_CLASSNAME = 400;
 	public static final int TYPE_URL_PARSER_CONFIG = 401;
