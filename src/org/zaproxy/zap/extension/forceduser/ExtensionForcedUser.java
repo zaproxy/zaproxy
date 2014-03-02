@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.forceduser;
 import java.awt.event.ActionEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -142,7 +141,6 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 
 	protected void setForcedUserModeEnabled(boolean forcedUserModeEnabled) {
 		this.forcedUserModeEnabled = forcedUserModeEnabled;
-		log.info("New mode: " + forcedUserModeEnabled);
 		updateForcedUserModeToggleButtonEnabledState();
 	}
 
@@ -347,11 +345,19 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	@Override
 	public void persistContextData(Session session, Context context) {
 		try {
-			session.setContextData(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID,
-					Integer.toString(getForcedUser(context.getIndex()).getId()));
-			// Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need for
-			// this.
-		} catch (SQLException e) {
+			// Save only if we have anything to save
+			if (getForcedUser(context.getIndex()) != null) {
+				session.setContextData(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID,
+						Integer.toString(getForcedUser(context.getIndex()).getId()));
+				// Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need
+				// for this and the mode can be easily enabled/disabled directly
+			} else {
+				// If we don't have a forced user, set an 'empty' list to force deletion of any
+				// previous values
+				session.setContextData(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID,
+						Collections.<String> emptyList());
+			}
+		} catch (Exception e) {
 			log.error("Unable to persist forced user.", e);
 		}
 	}

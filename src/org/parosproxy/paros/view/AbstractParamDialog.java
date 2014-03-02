@@ -189,7 +189,7 @@ public class AbstractParamDialog extends AbstractDialog {
                         AbstractParamDialog.this.setVisible(false);
 
                     } catch (Exception ex) {
-                        log.debug(ex.getMessage(), ex);
+                        log.warn(ex.getMessage(), ex);
                         View.getSingleton().showWarningDialog(ex.getMessage());
                     }
 
