@@ -24,9 +24,11 @@
 //      method append of the class StringBuilder.
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/03/03 Issue 1012: Support HTML and JavaScript encoding
 
 package org.parosproxy.paros.extension.encoder;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -95,6 +97,14 @@ public class Encoder {
 		}
 		return sb.toString();
 			
+	}
+	
+	public String getHTMLString(String msg){
+		return StringEscapeUtils.escapeHtml(msg);
+	}
+	
+	public String getJavaScriptString(String msg){
+		return StringEscapeUtils.escapeJavaScript(msg);
 	}
 
 	public byte[] getBytes(String buf) {

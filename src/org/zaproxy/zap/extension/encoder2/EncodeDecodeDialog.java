@@ -33,6 +33,7 @@ import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapTextArea;
+import org.apache.commons.lang.StringEscapeUtils;
 
 public class EncodeDecodeDialog extends AbstractFrame {
 
@@ -53,6 +54,10 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	private ZapTextArea urlDecodeField = null;
 	private ZapTextArea asciiHexEncodeField = null;
 	private ZapTextArea asciiHexDecodeField = null;
+	private ZapTextArea HTMLEncodeField = null;//
+	private ZapTextArea HTMLDecodeField = null;//
+	private ZapTextArea JavaScriptEncodeField = null;//
+	private ZapTextArea JavaScriptDecodeField = null;//
 	private ZapTextArea sha1HashField = null;
 	private ZapTextArea md5HashField = null;
 	private ZapTextArea illegalUTF82ByteField = null;
@@ -142,11 +147,16 @@ public class EncodeDecodeDialog extends AbstractFrame {
 			addField(jPanel1, 1, getBase64EncodeField(), Constant.messages.getString("enc2.label.b64Enc"));
 			addField(jPanel1, 2, getUrlEncodeField(), Constant.messages.getString("enc2.label.urlEnc"));
 			addField(jPanel1, 3, getAsciiHexEncodeField(), Constant.messages.getString("enc2.label.asciiEnc"));
+			addField(jPanel1, 4, getHTMLEncodeField(), Constant.messages.getString("enc2.label.HTMLEnc"));
+			addField(jPanel1, 5, getJavaScriptEncodeField(), Constant.messages.getString("enc2.label.JavaScriptEnc"));
 
 			addField(jPanel2, 1, getBase64DecodeField(), Constant.messages.getString("enc2.label.b64Dec"));
 			addField(jPanel2, 2, getUrlDecodeField(), Constant.messages.getString("enc2.label.urlDec"));
 			addField(jPanel2, 3, getAsciiHexDecodeField(), Constant.messages.getString("enc2.label.asciiDec"));
-
+			addField(jPanel2, 4, getHTMLDecodeField(), Constant.messages.getString("enc2.label.HTMLDec"));
+			addField(jPanel2, 5, getJavaScriptDecodeField(), Constant.messages.getString("enc2.label.JavaScriptDec"));
+			
+			
 			addField(jPanel3, 1, getSha1HashField(), Constant.messages.getString("enc2.label.sha1Hash"));
 			addField(jPanel3, 2, getMd5HashField(), Constant.messages.getString("enc2.label.md5Hash"));
 
@@ -300,6 +310,34 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		}
 		return asciiHexDecodeField;
 	}
+	
+	private ZapTextArea getHTMLEncodeField() {//
+		if (HTMLEncodeField == null) {
+			HTMLEncodeField = newField(false);
+		}
+		return HTMLEncodeField;
+	}
+
+	private ZapTextArea getHTMLDecodeField() {//
+		if (HTMLDecodeField == null) {
+			HTMLDecodeField = newField(false);
+		}
+		return HTMLDecodeField;
+	}
+	
+	private ZapTextArea getJavaScriptEncodeField() {//
+		if (JavaScriptEncodeField == null) {
+			JavaScriptEncodeField = newField(false);
+		}
+		return JavaScriptEncodeField;
+	}
+
+	private ZapTextArea getJavaScriptDecodeField() {//
+		if (JavaScriptDecodeField == null) {
+			JavaScriptDecodeField = newField(false);
+		}
+		return JavaScriptDecodeField;
+	}
 
 	private ZapTextArea getSha1HashField() {
 		if (sha1HashField == null) {
@@ -363,6 +401,14 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		return decodedText;
 	}
 
+	public String decodeHTMLString(String HTMLText) {
+		return StringEscapeUtils.unescapeHtml(HTMLText);
+	}
+	
+	public String decodeJavaScriptString(String JavaScriptText) {
+		return StringEscapeUtils.unescapeJavaScript(JavaScriptText);
+	}
+	
 	private void updateEncodeDecodeFields() {
 
 		// Base 64
@@ -408,7 +454,32 @@ public class EncodeDecodeDialog extends AbstractFrame {
 		}
 		asciiHexDecodeField.setEnabled(asciiHexDecodeField.getText().length() > 0);
 
+		// HTML
+		HTMLEncodeField.setText(
+				getEncoder().getHTMLString(
+						getInputField().getText()));
 
+		try {
+			HTMLDecodeField.setText(decodeHTMLString(getInputField().getText()));
+		} catch (final Exception e) {
+			// Not unexpected
+			HTMLDecodeField.setText("");
+		}
+		HTMLDecodeField.setEnabled(HTMLDecodeField.getText().length() > 0);
+
+		// JavaScript
+		JavaScriptEncodeField.setText(
+				getEncoder().getJavaScriptString(
+						getInputField().getText()));
+
+		try {
+			JavaScriptDecodeField.setText(decodeJavaScriptString(getInputField().getText()));
+		} catch (final Exception e) {
+			// Not unexpected
+			JavaScriptDecodeField.setText("");
+		}
+		JavaScriptDecodeField.setEnabled(JavaScriptDecodeField.getText().length() > 0);
+		
 		// Hashes
 		try {
 			sha1HashField.setText(
