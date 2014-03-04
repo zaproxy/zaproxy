@@ -25,6 +25,7 @@
 // ZAP: 2012/04/25 Changed to use the method Integer.valueOf.
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
 // ZAP: 2013/07/11 Issue 713: Add CWE and WASC numbers to issues
+// ZAP: 2014/03/04 Issue 1042: Add ALERT_INDEX to speed up session load
 
 package org.parosproxy.paros.db;
 
@@ -42,6 +43,8 @@ public class TableAlert extends AbstractTable {
     
     // ZAP: introduced class constant
     private static final String TABLE_NAME = "ALERT";
+    
+    private static final String ALERT_INDEX = "ALERT_INDEX";
 
 	private static final String ALERTID		= "ALERTID";
 	private static final String SCANID		= "SCANID";
@@ -139,6 +142,12 @@ public class TableAlert extends AbstractTable {
             DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+CWEID+" INT DEFAULT -1"));
             DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+WASCID+" INT DEFAULT -1"));
         }
+        
+        if (!DbUtils.hasIndex(connection, TABLE_NAME, ALERT_INDEX)) {
+        	// this speads up session loading
+			DbUtils.executeAndClose(connection.prepareStatement("CREATE INDEX "+ALERT_INDEX+" ON "+TABLE_NAME+" ("+SOURCEHISTORYID+")"));
+		}
+        
     }
 
     public synchronized RecordAlert read(int alertId) throws SQLException {

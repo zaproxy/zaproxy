@@ -109,6 +109,49 @@ public class DbUtils {
     }
 
     /**
+     * Tells whether the table {@code tableName} has an index with the given
+     * {@code indexName}, or not.
+     * 
+     * @param connection
+     *            the connection to the database
+     * @param tableName
+     *            the name of the table that may have the index
+     * @param indexName
+     *            the name of the index that will be checked
+     * @return {@code true} if the table {@code tableName} has the index
+     *         {@code indexName}, {@code false} otherwise.
+     * @throws SQLException
+     *             if an error occurred while checking if the table has the
+     *             index
+     */
+    public static boolean hasIndex(final Connection connection, final String tableName, final String indexName) throws SQLException {
+        boolean hasIndex = false;
+        
+        ResultSet rs = null;
+        try {
+            rs = connection.getMetaData().getIndexInfo(null, null, tableName, false, false);
+            while (rs.next()) {
+            	if (indexName.equals(rs.getString("INDEX_NAME"))) {
+            		hasIndex = true;
+            		break;
+            	}
+            }
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(e.getMessage(), e);
+                }
+            }
+        }
+        
+        return hasIndex;
+    }
+
+    /**
      * Gets the type of the given column {@code columnName} of the table
      * {@code tableName}.
      * 
