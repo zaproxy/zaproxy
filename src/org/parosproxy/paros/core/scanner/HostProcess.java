@@ -53,6 +53,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
 
@@ -69,7 +70,8 @@ public class HostProcess implements Runnable {
     private String hostAndPort = "";
     private Analyser analyser = null;
     private Kb kb = null;
-    
+	private User user = null;
+
     // time related 
     private Map<Long, Long> mapPluginStartTime = new HashMap<Long, Long>();
     private Set<Integer> listPluginIdSkipped = new HashSet<Integer>();
@@ -87,6 +89,7 @@ public class HostProcess implements Runnable {
         
         this.pluginFactory = pluginFactory;
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
+        httpSender.setUser(this.user);
         if (scannerParam.getHandleAntiCSRFTokens()) {
             // Single thread if handling anti CSRF tokens, otherwise token requests might get out of step
             threadPool = new ThreadPool(1);
@@ -400,4 +403,15 @@ public class HostProcess implements Runnable {
     public List<Plugin> getCompleted() {
         return this.pluginFactory.getCompleted();
     }
+
+	/**
+	 * Set the user to scan as. If null then the current session will be used.
+	 * @param user
+	 */
+    public void setUser(User user) {
+		this.user = user;
+		if (httpSender != null) {
+			httpSender.setUser(user);
+		}
+	}
 }

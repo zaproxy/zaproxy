@@ -41,6 +41,7 @@
 // ZAP: 2013/09/29 Deprecating configuring HTTP Authentication through Options
 // ZAP: 2013/11/16 Issue 837: Update, always, the HTTP request sent/forward by ZAP's proxy
 // ZAP: 2013/12/11 Corrected log.info calls to use debug
+// ZAP: 2014/03/04 Issue 1043: Custom active scan dialog
 
 package org.parosproxy.paros.network;
 
@@ -71,6 +72,7 @@ import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.network.ZapNTLMScheme;
+import org.zaproxy.zap.users.User;
 
 public class HttpSender {
 	public static final int PROXY_INITIATOR = 1;
@@ -92,6 +94,8 @@ public class HttpSender {
 
 	private static List<HttpSenderListener> listeners = new ArrayList<>();
 	private static Comparator<HttpSenderListener> listenersComparator = null;;
+
+	private User user = null;
 
 	static {
 		try {
@@ -379,12 +383,21 @@ public class HttpSender {
 			}
 		}
 	}
+	
+	private User getUser (HttpMessage msg) {
+		if (this.user != null) {
+			// If its set for the sender it overrides the message
+			return user;
+		}
+		return msg.getRequestingUser();
+	}
 
 	// ZAP: Make sure a message that needs to be authenticated is authenticated
 	private void sendAuthenticated(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 		// Modify the request message if a 'Requesting User' has been set
-		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null)
-			msg.getRequestingUser().processMessageToMatchUser(msg);
+		User forceUser = this.getUser(msg);
+		if (initiator != AUTHENTICATION_INITIATOR && forceUser != null)
+			forceUser.processMessageToMatchUser(msg);
 
 		log.debug("Sending message to: " + msg.getRequestHeader().getURI().toString());
 		// Send the message
@@ -392,13 +405,13 @@ public class HttpSender {
 
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
-		if (initiator != AUTHENTICATION_INITIATOR && msg.getRequestingUser() != null
+		if (initiator != AUTHENTICATION_INITIATOR && forceUser != null
 				&& msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
-				&& !msg.getRequestingUser().isAuthenticated(msg)) {
+				&& !forceUser.isAuthenticated(msg)) {
 			log.debug("First try to send authenticated message failed for " + msg.getRequestHeader().getURI()
 					+ ". Authenticating and trying again...");
-			msg.getRequestingUser().queueAuthentication(msg);
-			msg.getRequestingUser().processMessageToMatchUser(msg);
+			forceUser.queueAuthentication(msg);
+			forceUser.processMessageToMatchUser(msg);
 			send(msg, isFollowRedirect);
 		} else
 			log.debug("SUCCESSFUL");
@@ -447,10 +460,12 @@ public class HttpSender {
 			method.setFollowRedirects(isFollowRedirect);
 		}
 		// ZAP: Use custom HttpState if needed
-		if (msg.getRequestingUser() != null)
-			this.executeMethod(method, msg.getRequestingUser().getCorrespondingHttpState());
-		else
+		User forceUser = this.getUser(msg);
+		if (forceUser != null) {
+			this.executeMethod(method, forceUser.getCorrespondingHttpState());
+		} else {
 			this.executeMethod(method, null);
+		}
 
 		HttpMethodHelper.updateHttpRequestHeaderSent(msg.getRequestHeader(), method);
 
@@ -645,5 +660,13 @@ public class HttpSender {
 				}
 			};
 		}
+	}
+
+	/**
+	 * Set the user to scan as. If null then the current session will be used.
+	 * @param user
+	 */
+	public void setUser(User user) {
+		this.user = user;
 	}
 }

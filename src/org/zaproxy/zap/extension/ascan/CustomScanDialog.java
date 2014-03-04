@@ -28,6 +28,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -56,10 +58,15 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.StandardFieldsDialog;
@@ -67,6 +74,8 @@ import org.zaproxy.zap.view.StandardFieldsDialog;
 public class CustomScanDialog extends StandardFieldsDialog {
 
     private static final String FIELD_START = "ascan.custom.label.start";
+    private static final String FIELD_CONTEXT = "ascan.custom.label.context";
+    private static final String FIELD_USER = "ascan.custom.label.user";
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
     private static final String FIELD_INSCOPE = "ascan.custom.label.inscope";
 
@@ -89,6 +98,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JButton[] extraButtons = null;
 
     private ExtensionActiveScan extension = null;
+    
+    private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
+			.getExtension(ExtensionUserManagement.NAME);
+    
     private int headerLength = -1;
     // The index of the start of the URL path eg after https://www.example.com:1234/ - no point attacking this
     private int urlPathStart = -1;
@@ -129,6 +142,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.urlPathStart = -1;;
 
         this.addNodeSelectField(0, FIELD_START, node, false, false);
+        this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
+        this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         this.addCheckBoxField(0, FIELD_INSCOPE, false);
         this.addPadding(0);
@@ -136,6 +151,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
         // Default to Recurse, so always set the warning
         customPanelStatus.setText(Constant.messages.getString("ascan.custom.status.recurse"));
 
+        this.addFieldListener(FIELD_CONTEXT, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setUsers();
+            }
+        });
         this.addFieldListener(FIELD_RECURSE, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -191,6 +212,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         policyPanel.showDialog(true);
 
         this.setCustomTabPanel(3, policyPanel);
+        // Set up the fields correctly
+        this.siteNodeSelected(FIELD_START, node);	
         this.pack();
     }
 
@@ -227,12 +250,57 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     @Override
     public void siteNodeSelected(String field, SiteNode node) {
+        List<String> ctxNames = new ArrayList<String>();
         if (node != null) {
             // The user has selected a new node
             this.node = node;
             populateRequestField(node);
+            
+            Session session = Model.getSingleton().getSession();
+            List<Context> contexts = session.getContextsForNode(node);
+            for (Context context : contexts) {
+            	ctxNames.add(context.getName());
+            }
         }
+        this.setComboFields(FIELD_CONTEXT, ctxNames, "");
     }
+    
+    private Context getSelectedContext() {
+    	String ctxName = this.getStringValue(FIELD_CONTEXT);
+    	if (this.extUserMgmt != null && ctxName.length() > 0) {
+            Session session = Model.getSingleton().getSession();
+            return session.getContext(ctxName);
+    	}
+    	return null;
+    }
+
+    private User getSelectedUser() {
+    	Context context = this.getSelectedContext();
+    	if (context != null) {
+        	String userName = this.getStringValue(FIELD_USER);
+        	List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+        	for (User user : users) {
+        		if (userName.equals(user.getName())) {
+        			return user;
+        		}
+            }
+    	}
+    	return null;
+    }
+
+    private void setUsers() {
+    	Context context = this.getSelectedContext();
+        List<String> userNames = new ArrayList<String>();
+    	if (context != null) {
+        	List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+        	userNames.add("");	// The default should always be 'not specified'
+        	for (User user : users) {
+        		userNames.add(user.getName());
+            }
+    	}
+        this.setComboFields(FIELD_USER, userNames, "");
+    }
+
 
     private ZapTextArea getRequestField() {
         if (requestField == null) {
@@ -570,8 +638,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 node,
                 this.getBoolValue(FIELD_INSCOPE),
                 this.getBoolValue(FIELD_RECURSE),
-                null, //scanContext, 
-                null, //user, 
+                getSelectedContext(), 
+                getSelectedUser(), 
                 contextSpecificObjects);
     }
 

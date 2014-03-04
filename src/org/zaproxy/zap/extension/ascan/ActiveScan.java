@@ -264,7 +264,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void setScanAsUser(User user) {
-		// TODO Should be implemented to make the Active Scan work from the point of view of a User
+		this.setUser(user);
 	}
 	
 }

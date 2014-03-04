@@ -42,6 +42,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.users.User;
 
 
 
@@ -62,6 +63,7 @@ public class Scanner implements Runnable {
     private List<Pattern> excludeUrls = null;
 	private boolean justScanInScope = false;
 	private boolean scanChildren = true;
+	private User user = null;
 
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
@@ -124,6 +126,7 @@ public class Scanner implements Runnable {
 	            String hostAndPort = getHostAndPort(child);
 	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory);
 	            hostProcess.setStartNode(child);
+	            hostProcess.setUser(this.user);
 	            this.hostProcesses.add(hostProcess);
 	            do { 
 	                thread = pool.getFreeThreadAndRun(hostProcess);
@@ -138,6 +141,7 @@ public class Scanner implements Runnable {
 
             hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory);
             hostProcess.setStartNode(node);
+            hostProcess.setUser(this.user);
             this.hostProcesses.add(hostProcess);
             thread = pool.getFreeThreadAndRun(hostProcess);
             notifyHostNewScan(hostAndPort, hostProcess);
@@ -300,4 +304,13 @@ public class Scanner implements Runnable {
 	public void setPluginFactory(PluginFactory pluginFactory) {
 		this.pluginFactory = pluginFactory;
 	}
+
+	/**
+	 * Set the user to scan as. If null then the current session will be used.
+	 * @param user
+	 */
+	public void setUser(User user) {
+		this.user = user;
+	}
+	
 }
