@@ -425,7 +425,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	}
 
 	public void addComboField(int tabIndex, String fieldLabel, String[] choices, String value) {
-		this.addComboField(fieldLabel, choices, value, false);
+		this.addComboField(tabIndex, fieldLabel, choices, value, false);
 	}
 
 	public void addComboField(int tabIndex, String fieldLabel, String[] choices, String value, boolean editable) {
