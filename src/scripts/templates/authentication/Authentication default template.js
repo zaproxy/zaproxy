@@ -14,9 +14,9 @@
 //		credentials - an object containing the credentials values, as configured in the Session Properties -> Users panel.
 //					The credential values can be obtained via calls to the getParam(paramName) method. The param names are the ones
 //					returned by the getCredentialsParamsNames() below
-
 function authenticate(helper, paramsValues, credentials) {
-	msg=helper.prepareMessage();
+	println("Authenticating via JavaScript script...");
+	msg = helper.prepareMessage();
 	
 	// TODO: Process message to match the authentication needs
 

@@ -14,6 +14,8 @@
 //					returned by the getCredentialsParamsNames() below
 
 function authenticate(helper, paramsValues, credentials) {
+	println("Authenticating via JavaScript script...");
+	
 	// Make sure any Java classes used explicitly are imported
 	importClass(org.parosproxy.paros.network.HttpRequestHeader)
 	importClass(org.parosproxy.paros.network.HttpHeader)
@@ -33,7 +35,7 @@ function authenticate(helper, paramsValues, credentials) {
 
 	// Send the authentication message and return it
 	helper.sendAndReceive(msg);
-	println("Received response status code: "+ msg.getResponseHeader().getStatusCode());
+	println("Received BodgeIt response status code: "+ msg.getResponseHeader().getStatusCode());
 
 	return msg;
 }
