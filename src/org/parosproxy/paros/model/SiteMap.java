@@ -260,9 +260,10 @@ public class SiteMap extends DefaultTreeModel {
      * @return 
      */
     public SiteNode addPath(HistoryReference ref, HttpMessage msg) {
-    	if (! SwingUtilities.isEventDispatchThread()) {
+    	if (! SwingUtilities.isEventDispatchThread() &&
+    			! Thread.currentThread().getName().startsWith("ZAP")) {
     		// Log an error but carry on anyway
-    		log.error("SiteMap.addPath not on EDT", new Exception());
+    		log.error("SiteMap.addPath not on EDT " + Thread.currentThread().getName(), new Exception());
     	}
         
         URI uri = msg.getRequestHeader().getURI();
