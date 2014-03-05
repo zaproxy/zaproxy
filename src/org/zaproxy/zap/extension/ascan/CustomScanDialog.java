@@ -214,6 +214,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setCustomTabPanel(3, policyPanel);
         // Set up the fields correctly
         this.siteNodeSelected(FIELD_START, node);	
+        this.setUsers();
         this.pack();
     }
 
@@ -263,11 +264,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
             }
         }
         this.setComboFields(FIELD_CONTEXT, ctxNames, "");
+       	this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
     }
     
     private Context getSelectedContext() {
     	String ctxName = this.getStringValue(FIELD_CONTEXT);
-    	if (this.extUserMgmt != null && ctxName.length() > 0) {
+    	if (this.extUserMgmt != null && ! this.isEmptyField(FIELD_CONTEXT)) {
             Session session = Model.getSingleton().getSession();
             return session.getContext(ctxName);
     	}
@@ -299,6 +301,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             }
     	}
         this.setComboFields(FIELD_USER, userNames, "");
+       	this.getField(FIELD_USER).setEnabled(userNames.size() > 1);	// Theres always 1..
     }
 
 
