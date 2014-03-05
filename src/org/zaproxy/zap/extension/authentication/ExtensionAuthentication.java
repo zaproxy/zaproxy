@@ -52,6 +52,8 @@ import org.zaproxy.zap.view.ContextPanelFactory;
 public class ExtensionAuthentication extends ExtensionAdaptor implements ContextPanelFactory,
 		ContextDataFactory {
 
+	public static final int EXTENSION_ORDER = 52;
+	
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionAuthentication";
 
@@ -80,12 +82,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	 */
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(52);
-
-		// TODO: Prepare API
-		// this.api = new AuthAPI(this);
-		// API.getInstance().registerApiImplementor(api);
-		// HttpSender.addListener(this);
+		this.setOrder(EXTENSION_ORDER);
 	}
 
 	@Override

@@ -60,8 +60,11 @@ import org.zaproxy.zap.view.ContextPanelFactory;
 public class ExtensionUserManagement extends ExtensionAdaptor implements ContextPanelFactory,
 		ContextDataFactory {
 
-	/** The extension's order during loading. */
-	public static final int EXTENSION_ORDER = 100;
+	/**
+	 * The extension's order during loading. Make sure we load this extension AFTER the
+	 * Authentication one.
+	 */
+	public static final int EXTENSION_ORDER = ExtensionAuthentication.EXTENSION_ORDER + 5;
 	
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionUserManagement";
@@ -120,7 +123,9 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	 */
 	private void initialize() {
 		this.setName(NAME);
-		this.setOrder(104);
+		// Added to make sure the ExtensionForcedUser is loaded after this one.
+		// See: ExtensionForcedUser#getOrder()
+		this.setOrder(EXTENSION_ORDER);
 	}
 
 	@Override
@@ -156,13 +161,6 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		} catch (MalformedURLException e) {
 			return null;
 		}
-	}
-
-	@Override
-	public int getOrder() {
-		// Added to make sure the ExtensionForcedUser is loaded after this one.
-		// See: ExtensionForcedUser#getOrder()
-		return EXTENSION_ORDER;
 	}
 
 	@Override
