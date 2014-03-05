@@ -59,6 +59,7 @@ import org.zaproxy.zap.ZAP;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
+	public static final int EXTENSION_ORDER = 60;
 	public static final String NAME = "ExtensionScript";
 	public static final ImageIcon ICON = new ImageIcon(ZAP.class.getResource("/resource/icon/16/059.png")); // Script icon
 	
@@ -112,7 +113,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 */
 	private void initialize() {
         this.setName(NAME);
-        this.setOrder(60);
+        this.setOrder(EXTENSION_ORDER);
         
         ScriptEngine se = mgr.getEngineByName("ECMAScript");
         if (se != null) {
