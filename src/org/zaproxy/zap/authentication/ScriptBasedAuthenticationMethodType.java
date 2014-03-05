@@ -58,7 +58,7 @@ import org.zaproxy.zap.view.LayoutHelper;
 
 public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodType {
 
-	private static final int METHOD_IDENTIFIER = 4;
+	public static final int METHOD_IDENTIFIER = 4;
 
 	private static final Logger log = Logger.getLogger(ScriptBasedAuthenticationMethodType.class);
 
@@ -93,6 +93,66 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 						true, HttpSender.AUTHENTICATION_INITIATOR);
 			}
 			return httpSender;
+		}
+
+		/**
+		 * Load a script and fills in the method's filled according to the values specified by the
+		 * script.
+		 * 
+		 * If an error occurs while loading the script, an {@link IllegalArgumentException} is
+		 * thrown.
+		 * 
+		 * If the method already had a loaded script and a set of values for the parameters, it
+		 * tries to provide new values for the new parameters if they match any previous parameter
+		 * names.
+		 * 
+		 * @param scriptW the script wrapper
+		 */
+		public void loadScript(ScriptWrapper scriptW) throws IllegalArgumentException {
+			try {
+				AuthenticationScript script = getScriptsExtension().getInterface(scriptW,
+						AuthenticationScript.class);
+
+				if (script != null) {
+					String[] requiredParams = script.getRequiredParamsNames();
+					String[] optionalParams = script.getOptionalParamsNames();
+					this.credentialsParamNames = script.getCredentialsParamsNames();
+					if (log.isDebugEnabled()) {
+						log.debug("Loaded authentication script - required parameters: "
+								+ Arrays.toString(requiredParams) + " - optional parameters: "
+								+ Arrays.toString(optionalParams));
+					}
+
+					// If there's an already loaded script, make sure we save its values and _try_
+					// to use them
+					Map<String, String> oldValues = this.paramValues != null ? this.paramValues : Collections
+							.<String, String> emptyMap();
+					this.paramValues = new HashMap<>(requiredParams.length + optionalParams.length);
+					for (String param : requiredParams)
+						this.paramValues.put(param, oldValues.get(param));
+					for (String param : optionalParams)
+						this.paramValues.put(param, oldValues.get(param));
+
+					this.script = scriptW;
+					log.info("Successfully loaded new script for ScriptBasedAuthentication: " + this);
+					return;
+				} else {
+					log.warn("The script " + scriptW.getName()
+							+ " does not properly implement the Authentication Script interface.");
+					throw new IllegalArgumentException(Constant.messages.getString(
+							"authentication.method.script.dialog.error.text.interface", scriptW.getName()));
+				}
+			} catch (Exception e) {
+				log.error("Error while loading authentication script", e);
+				throw new IllegalArgumentException(Constant.messages.getString(
+						"authentication.method.script.dialog.error.text.loading", e.getMessage()));
+			}
+		}
+
+		@Override
+		public String toString() {
+			return "ScriptBasedAuthenticationMethod [script=" + script + ", paramValues=" + paramValues
+					+ ", credentialsParamNames=" + Arrays.toString(credentialsParamNames) + "]";
 		}
 
 		@Override
