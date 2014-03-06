@@ -39,11 +39,15 @@
 // ZAP: 2013/04/14 Issue 622: Local proxy unable to correctly detect requests to itself
 // ZAP: 2013/06/17 Issue 686: Log HttpException (as error) in the ProxyThread
 // ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
+// ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
 
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -51,6 +55,7 @@ import java.net.SocketTimeoutException;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
+import java.util.zip.GZIPInputStream;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
@@ -305,7 +310,27 @@ class ProxyThread implements Runnable {
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
 					getHttpSender().sendAndReceive(msg);
-					
+
+		            if (proxyParam.isAlwaysDecodeGzip() &&
+		            		HttpHeader.GZIP.equalsIgnoreCase(
+		            				msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+		                // Uncompress gziped content
+		                try (ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
+		                    GZIPInputStream gis = new GZIPInputStream(bais);
+		                    InputStreamReader isr = new InputStreamReader(gis);
+		                    BufferedReader br = new BufferedReader(isr);) {
+		                    StringBuilder sb = new StringBuilder();
+		                    String line = null;
+		                    while ((line = br.readLine()) != null) {
+		                        sb.append(line);
+		                    }
+		                    msg.setResponseBody(sb.toString());
+		                    msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
+		                } catch (IOException e) {
+		                    log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
+		                }
+		            }
+
 			        if (! notifyListenerResponseReceive(msg)) {
 			        	// One of the listeners has told us to drop the response
    				    	return;
@@ -314,7 +339,7 @@ class ProxyThread implements Runnable {
 			        // write out response header and body
 			        httpOut.write(msg.getResponseHeader());
 		            httpOut.flush();
-			        
+		            
 			        if (msg.getResponseBody().length() > 0) {
 			            httpOut.write(msg.getResponseBody().getBytes());
 			            httpOut.flush();

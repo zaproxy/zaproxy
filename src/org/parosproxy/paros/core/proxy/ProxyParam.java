@@ -26,7 +26,8 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
-//
+// ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
+
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
@@ -35,6 +36,10 @@ import java.net.UnknownHostException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
+/**
+ * @author simon
+ *
+ */
 public class ProxyParam extends AbstractParam {
 
     //	private static final String PROXY = "proxy";
@@ -56,6 +61,12 @@ public class ProxyParam extends AbstractParam {
      */
     private static final String MODIFY_ACCEPT_ENCODING_HEADER = "proxy.modifyAcceptEncoding";
 
+    /**
+     * The configuration key for the option that controls whether the proxy
+     * should always decode gzipped content or not.
+     */
+    private static final String ALWAYS_DECODE_GZIP = "proxy.decodeGzip";
+
     private String proxyIp = "localhost";
     private int proxyPort = 8080;
     private int proxySSLPort = 8443;
@@ -69,6 +80,10 @@ public class ProxyParam extends AbstractParam {
      * "Accept-Encoding" request-header field or not.
      */
     private boolean modifyAcceptEncodingHeader = true;
+    /**
+     * The option that controls whether the proxy should always decode gzipped content or not.
+     */
+    private boolean alwaysDecodeGzip = true;
 
     public ProxyParam() {
     }
@@ -103,6 +118,7 @@ public class ProxyParam extends AbstractParam {
         useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
 
         modifyAcceptEncodingHeader = getConfig().getBoolean(MODIFY_ACCEPT_ENCODING_HEADER, true);
+        alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
 
     }
 
@@ -217,4 +233,25 @@ public class ProxyParam extends AbstractParam {
     public boolean isModifyAcceptEncodingHeader() {
         return modifyAcceptEncodingHeader;
     }
+
+    /**
+     * Tells whether the proxy should always decode gzipped content or not.
+     *
+     * @return {@code true} if the proxy should always decode gzipped content, {@code false} otherwise
+     */
+	public boolean isAlwaysDecodeGzip() {
+		return alwaysDecodeGzip;
+	}
+
+    /**
+     * Sets whether the proxy should always decode gzipped content or not.
+     *
+     * @param alwaysDecodeGzip {@code true} if the proxy should
+     * always decode gzipped content, {@code false} otherwise
+     */
+	public void setAlwaysDecodeGzip(boolean alwaysDecodeGzip) {
+		this.alwaysDecodeGzip = alwaysDecodeGzip;
+        getConfig().setProperty(ALWAYS_DECODE_GZIP, Boolean.valueOf(alwaysDecodeGzip));
+	}
+    
 }

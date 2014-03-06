@@ -24,6 +24,8 @@
 // ZAP: 2012/11/04 Issue 408: Add support to encoding transformations, added an
 // option to control whether the "Accept-Encoding" request-header field is 
 // modified/removed or not.
+// ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
+
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
@@ -42,6 +44,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
@@ -56,6 +59,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
     private ZapTextField txtReverseProxyIp = null;
 
     private JCheckBox chkModifyAcceptEncodingHeader = null;
+    private JCheckBox chkAlwaysDecodeGzip = null;
 
     // ZAP: Do not allow invalid port numbers
     private ZapPortNumberSpinner spinnerProxyPort = null;
@@ -157,6 +161,12 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             gbc.gridwidth = java.awt.GridBagConstraints.REMAINDER;
             gbc.anchor = java.awt.GridBagConstraints.PAGE_START;
             panelLocalProxy.add(getChkModifyAcceptEncodingHeader(), gbc);
+
+            // TODO hacking
+            panelLocalProxy.add(this.getChkAlwaysDecodeGzip(), 
+            		LayoutHelper.getGBC(0, 6, 1, 1.0D, 0.0D, GridBagConstraints.HORIZONTAL, 
+            				GridBagConstraints.PAGE_START, new java.awt.Insets(2, 2, 2, 2)));
+
         }
         
         return panelLocalProxy;
@@ -396,6 +406,15 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         }
         return chkModifyAcceptEncodingHeader;
     }
+    
+    private JCheckBox getChkAlwaysDecodeGzip() {
+        if (chkAlwaysDecodeGzip == null) {
+        	chkAlwaysDecodeGzip = new JCheckBox(Constant.messages.getString("options.proxy.local.label.alwaysDecodeGzip"));
+        	chkAlwaysDecodeGzip.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.alwaysDecodeGzip"));
+        }
+    	return chkAlwaysDecodeGzip;
+    }
+
 
     /**
      * This method initializes spinnerProxyPort
@@ -455,6 +474,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         spinnerProxyPort.setValue(proxyParam.getProxyPort());
 
         chkModifyAcceptEncodingHeader.setSelected(proxyParam.isModifyAcceptEncodingHeader());
+        chkAlwaysDecodeGzip.setSelected(proxyParam.isAlwaysDecodeGzip());
 
         // set reverse proxy param
         txtReverseProxyIp.setText(proxyParam.getReverseProxyIp());
@@ -482,6 +502,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         proxyParam.setProxyPort(spinnerProxyPort.getValue());
 
         proxyParam.setModifyAcceptEncodingHeader(getChkModifyAcceptEncodingHeader().isSelected());
+        // TODO hacking
+        proxyParam.setAlwaysDecodeGzip(getChkAlwaysDecodeGzip().isSelected());
 
         proxyParam.setReverseProxyIp(txtReverseProxyIp.getText());
         // ZAP: Do not allow invalid port numbers
