@@ -18,8 +18,9 @@
 package org.zaproxy.zap.extension.api;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
@@ -82,7 +83,14 @@ public class WebUI {
 		}
 	}
 	
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void appendElements(StringBuilder sb, String component, String type, List<ApiElement> elementList) {
+		Collections.sort(elementList, new Comparator() {
+			@Override
+			public int compare(Object o1, Object o2) {
+				return ((ApiElement)o1).getName().compareTo(((ApiElement)o2).getName());
+			}});
+		
 		sb.append("<table>\n");
 		for (ApiElement element : elementList) {
 			List<String> mandatoryParams = element.getMandatoryParamNames();
@@ -318,7 +326,9 @@ public class WebUI {
 			sb.append("<h3>");
 			sb.append(Constant.messages.getString("api.html.components"));
 			sb.append("</h3>\n");
-			Set<String> components = api.getImplementors().keySet();
+			ArrayList<String> components = new ArrayList<String>(api.getImplementors().keySet());
+			Collections.sort(components);
+			
 			sb.append("<table>\n");
 			for (String cmp : components) {
 				sb.append("<tr>");
