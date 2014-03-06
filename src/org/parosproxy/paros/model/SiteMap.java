@@ -260,9 +260,11 @@ public class SiteMap extends DefaultTreeModel {
      * @return 
      */
     public SiteNode addPath(HistoryReference ref, HttpMessage msg) {
-    	if (! SwingUtilities.isEventDispatchThread() &&
-    			! Thread.currentThread().getName().startsWith("ZAP")) {
-    		// Log an error but carry on anyway
+    	if (Constant.isDevBuild() && ! SwingUtilities.isEventDispatchThread() &&
+    			! Thread.currentThread().getName().startsWith("ZAP") &&
+    			! Thread.currentThread().getName().startsWith("DirBuster")) {
+    		// In developer mode log an error if we're no on the EDT or other known thread but carry on anyway
+    		// Adding to the site tree on GUI ('initial') threads causes problems
     		log.error("SiteMap.addPath not on EDT " + Thread.currentThread().getName(), new Exception());
     	}
         
