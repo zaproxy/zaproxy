@@ -297,7 +297,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
      */
     @Override
     public String getHelpIndex() {
-        return "ui.dialogs.options.ascan";
+        return "ui.dialogs.options.ascaninput";
     }
 
     private JCheckBox getChkInjectableQueryString() {
