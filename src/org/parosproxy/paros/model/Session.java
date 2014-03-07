@@ -766,11 +766,12 @@ public class Session extends FileXML {
 		Control.getSingleton().setExcludeFromProxyUrls(fullList);
 		
 		// For debugging the GlobalExcludeURL functionality. 
-		log.warn("setExcludeFromProxyRegexs  (ignored, session.proxy, session.global, fullList");
+		/*log.warn("setExcludeFromProxyRegexs  (ignored, session.proxy, session.global, fullList");
 	    log.warn(ignoredRegexs.toString());
 	    log.warn(excludeFromProxyRegexs.toString());
 	    log.warn(globalExcludeURLRegexs.toString());
 	    log.warn(fullList);
+	    */
 	    
 	    
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_PROXY, this.excludeFromProxyRegexs);

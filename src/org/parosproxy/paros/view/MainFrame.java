@@ -66,7 +66,6 @@ public class MainFrame extends AbstractFrame {
 		
 		changeDisplayOption(displayOption);
 
-    System.out.println("ICON NAMES CALLED");
 	  /* select the current names/icons button */
 		if(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
   		this.getMainToolbarPanel().setTabNamesOption(View.DISPLAY_OPTION_ICONNAMES);
