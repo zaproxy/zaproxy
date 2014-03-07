@@ -83,12 +83,11 @@ public class WebUI {
 		}
 	}
 	
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void appendElements(StringBuilder sb, String component, String type, List<ApiElement> elementList) {
-		Collections.sort(elementList, new Comparator() {
+		Collections.sort(elementList, new Comparator<ApiElement>() {
 			@Override
-			public int compare(Object o1, Object o2) {
-				return ((ApiElement)o1).getName().compareTo(((ApiElement)o2).getName());
+			public int compare(ApiElement ae1, ApiElement ae2) {
+				return ae1.getName().compareTo(ae2.getName());
 			}});
 		
 		sb.append("<table>\n");
