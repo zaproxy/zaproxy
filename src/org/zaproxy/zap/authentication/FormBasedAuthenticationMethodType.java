@@ -72,7 +72,6 @@ import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
-import org.zaproxy.zap.extension.auth.ExtensionAuth;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
@@ -565,8 +564,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private String replaceParameterValue(String originalString, HtmlParameter parameter,
 				String replaceString) {
 			String keyValueSeparator = context.getPostParamParser().getDefaultKeyValueSeparator();
-			return originalString.replace(parameter.getName() + keyValueSeparator + parameter.getValue(),
-					parameter.getName() + keyValueSeparator + replaceString);
+			String nameAndSeparator = parameter.getName() + keyValueSeparator;
+			// Make sure we handle the case when there's only the parameter name in the POST data instead of
+			// parameter name + separator + value (e.g. just 'param1&...' instead of 'param1=...&...')
+			if (originalString.contains(nameAndSeparator))
+				return originalString.replace(nameAndSeparator + parameter.getValue(), nameAndSeparator
+						+ replaceString);
+			else
+				return originalString.replace(parameter.getName(), nameAndSeparator + replaceString);
 		}
 
 		@Override
