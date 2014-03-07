@@ -84,8 +84,6 @@ public class ApiGeneratorUtils {
 
         imps.add(new ContextAPI());
 		
-		imps.add(new ReauthAPI(null));
-
 		imps.add(new HttpSessionsAPI(null));
 		
 		imps.add(new BreakAPI(null));
