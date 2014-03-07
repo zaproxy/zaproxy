@@ -161,10 +161,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 			// the previously selected item does not exist any more
 			else if (selectedItem == null
 					|| ((e.getType() == TableModelEvent.DELETE || e.getType() == TableModelEvent.UPDATE) && getIndexOf(selectedItem) == -1))
-				if (getSize() > 0)
-					setSelectedItem(getElementAt(0));
-				else
-					setSelectedItem(null);
+				setSelectedItem(getElementAt(0));
 			fireContentsChanged(this, e.getFirstRow(), e.getLastRow());
 		}
 
