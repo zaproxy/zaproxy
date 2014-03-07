@@ -153,9 +153,14 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
 		@Override
 		public void tableChanged(TableModelEvent e) {
-			// Handle the situation when nothing selected or the event is a deletion and the
-			// previously selected item does not exist any more
-			if ((selectedItem == null || (e.getType() == TableModelEvent.DELETE && getIndexOf(selectedItem) == -1)))
+			// Handle the situation when something is selected and but there aren't any users to
+			// select
+			if (selectedItem != null && getSize() == 0)
+				setSelectedItem(null);
+			// Handle the situation when nothing selected or the event is a deletion or update and
+			// the previously selected item does not exist any more
+			else if (selectedItem == null
+					|| ((e.getType() == TableModelEvent.DELETE || e.getType() == TableModelEvent.UPDATE) && getIndexOf(selectedItem) == -1))
 				if (getSize() > 0)
 					setSelectedItem(getElementAt(0));
 				else
