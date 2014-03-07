@@ -136,6 +136,12 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    extensionHook.addOptionsParamSet(getScriptParam());
 
 	    extensionHook.addCommandLine(getCommandLineArguments());
+	    
+		if (! View.isInitialised()) {
+        	// No GUI so add stdout as a writer
+        	this.addWriter(new PrintWriter(System.out));
+		}
+
 	}
 	
 	private ProxyListenerScript getProxyListener() {
@@ -747,8 +753,6 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		if (! View.isInitialised()) {
 			// Only invoke if run from the command line
 			// if the GUI is present then its up to the user to invoke it 
-        	// Add stdout as a writer
-        	this.addWriter(new PrintWriter(System.out));
 			this.invokeScript(sw);
 		}
 	}
