@@ -65,15 +65,6 @@ public class MainFrame extends AbstractFrame {
 		initialize();
 		
 		changeDisplayOption(displayOption);
-
-
-	  /* select the current names/icons button */
-		if(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
-  		this.getMainToolbarPanel().setTabNamesOption(View.DISPLAY_OPTION_ICONNAMES);
-		}
-		else {
-			this.getMainToolbarPanel().setTabNamesOption(View.DISPLAY_OPTION_ONLYICONS);
-		}
 	}
 
 	/**
