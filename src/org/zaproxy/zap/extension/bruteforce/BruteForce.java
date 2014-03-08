@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
+import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
@@ -281,14 +282,17 @@ public class BruteForce extends Thread implements BruteForceListenner {
 
 			HttpMessage msg = new HttpMessage(reqHeader, reqBody, resHeader, resBody);
 
-			HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(), 
+			final HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(), 
 					HistoryReference.TYPE_BRUTE_FORCE, msg);
 			historyId = ref.getHistoryId();
 			
-			// Add to the sites tree
-			SiteNode sn = Model.getSingleton().getSession().getSiteTree().addPath(ref);
-			sn.addCustomIcon(ExtensionBruteForce.HAMMER_ICON_RESOURCE, true);
-			
+			SwingUtilities.invokeLater(new Runnable(){
+				@Override
+				public void run() {
+					// Add to the sites tree
+					SiteNode sn = Model.getSingleton().getSession().getSiteTree().addPath(ref);
+					sn.addCustomIcon(ExtensionBruteForce.HAMMER_ICON_RESOURCE, true);
+				}});
 			
 		} catch (Exception e) {
 			log.error("Failed to analyse response from " + url, e);
