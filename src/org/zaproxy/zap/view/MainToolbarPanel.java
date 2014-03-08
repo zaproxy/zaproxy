@@ -62,14 +62,13 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnOptions = null;
 
 	private ButtonGroup expandButtons;
-  private ButtonGroup tabNameButtons;
+  	private ButtonGroup tabNameButtons;
 	private JToggleButton btnExpandSites = null;
 	private JToggleButton btnExpandReports = null;
 	private JToggleButton btnExpandFull = null;
-	private JToggleButton btnShowTabNames = null;
-	private JToggleButton btnShowTabIcons = null;
-  private static final int SHOW_TAB_ICONNAMES = 0;
-  private static final int SHOW_TAB_ONLYICONS = 1;
+
+	private boolean showtabiconnames = false;
+  	private ZapToggleButton btnShowTabIconNames = null;
 
 	public MainToolbarPanel () {
 		super();
@@ -116,10 +115,7 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnOptions());
 		
 		toolbar.addSeparator();
-
-    toolbar.add(getBtnShowTabNames());
-    toolbar.add(getBtnShowTabIcons());
-
+		toolbar.add(getShowTabIconNames());
 		toolbar.addSeparator();
 
 		toolbar.add(getBtnExpandSites());
@@ -127,14 +123,6 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnExpandFull());
 		
 		toolbar.addSeparator();
-
-	  /* select the current names/icons button */
-		if(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
-  		this.setTabNamesOption(View.DISPLAY_OPTION_ICONNAMES);
-		}
-		else {
-			this.setTabNamesOption(View.DISPLAY_OPTION_ONLYICONS);
-		}
 	}
 	
 	private JToolBar getToolbar() {
@@ -379,52 +367,48 @@ public class MainToolbarPanel extends JPanel {
 		return btnExpandFull;
 	}
 
-	private JToggleButton getBtnShowTabNames() {
-  	if (btnShowTabNames == null) {
-			btnShowTabNames = new JToggleButton(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_text.png")));
-			btnShowTabNames.setToolTipText(Constant.messages.getString("view.toolbar.showNames"));
-			btnShowTabNames.addActionListener(new ActionListener () {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-		    	Model.getSingleton().getOptionsParam().getViewParam().setShowTabNames(true);
-				}
-			});
-      tabNameButtons.add(btnShowTabNames);
-		}
-    return btnShowTabNames;
+
+	private void setShowTabIconNames(boolean showtabiconnames) {
+		this.showtabiconnames = showtabiconnames; 
+		btnShowTabIconNames.setSelected(showtabiconnames);
 	}
 
-  private JToggleButton getBtnShowTabIcons() {
-  	if (btnShowTabIcons == null) {
-			btnShowTabIcons = new JToggleButton(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_icon.png")));
-			btnShowTabIcons.setToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
-			btnShowTabIcons.addActionListener(new ActionListener () {
+	/*
+	 * Button for showing/hiding names and icons in tabs.
+	 */
+	private JToggleButton getShowTabIconNames() {
+		if (btnShowTabIconNames == null) {
+			btnShowTabIconNames = new ZapToggleButton();
+			btnShowTabIconNames.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_icon.png")));
+			btnShowTabIconNames.setToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
+			btnShowTabIconNames.setSelectedIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_text.png")));
+			btnShowTabIconNames.setSelectedToolTipText(Constant.messages.getString("view.toolbar.showNames"));
+		  	setShowTabIconNames(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames());
+			
+			btnShowTabIconNames.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-		    	Model.getSingleton().getOptionsParam().getViewParam().setShowTabNames(false);
+				    setShowTabIconNames(getShowTabIconNames().isSelected());
+					Model.getSingleton().getOptionsParam().getViewParam().setShowTabNames(showtabiconnames);
+					try {
+						Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
+					} catch (ConfigurationException e1) {
+						logger.error(e1.getMessage(), e1);
+					}
 				}
 			});
-      tabNameButtons.add(btnShowTabIcons);
 		}
-    return btnShowTabIcons;
-	}
-
-	public void setTabNamesOption(int option) {
-		if(option == View.DISPLAY_OPTION_ICONNAMES) {
-			btnShowTabNames.setSelected(true);
-		} else if(option == View.DISPLAY_OPTION_ONLYICONS) {
-			btnShowTabIcons.setSelected(true);
-		}
+		return btnShowTabIconNames;
 	}
 
 	public void setDisplayOption(int option) {
 		if (option == View.DISPLAY_OPTION_BOTTOM_FULL) {
 			btnExpandReports.setSelected(true);
-    } else if (option == View.DISPLAY_OPTION_LEFT_FULL) {
-      btnExpandSites.setSelected(true);
-    } else if (option == View.DISPLAY_OPTION_TOP_FULL) {
-      btnExpandFull.setSelected(true);
-    }
+    	} else if (option == View.DISPLAY_OPTION_LEFT_FULL) {
+      		btnExpandSites.setSelected(true);
+    	} else if (option == View.DISPLAY_OPTION_TOP_FULL) {
+      		btnExpandFull.setSelected(true);
+    	}
 	}
 
 	public void sessionChanged(Session session) {
