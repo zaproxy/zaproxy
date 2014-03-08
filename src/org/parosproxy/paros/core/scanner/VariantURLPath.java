@@ -61,7 +61,7 @@ public class VariantURLPath implements Variant {
                 int i = 0;
                 for (String path : paths) {
                     if (path.length() > 0) {
-                        stringParam.add(new NameValuePair(NameValuePair.TYPE_URL_PATH, path, getUnescapedValue(path), i));
+                        stringParam.add(new NameValuePair(NameValuePair.TYPE_URL_PATH, path, path, i));
                     }
                     
                     i++;
@@ -118,22 +118,6 @@ public class VariantURLPath implements Variant {
                 return (new URI(null, null, value, null)).toString();
                 
             } catch (URIException ex) { }            
-        }
-        
-        return "";
-    }
-
-    /**
-     * Decode the parameter value for a correct interpretation
-     * @param value the value that need to be decoded
-     * @return the encoded parameter value
-     */
-    private String getUnescapedValue(String value) {
-        if (value != null) {
-            try {
-                return (new URLCodec()).decode(value);
-                
-            } catch (DecoderException ex) {}         
         }
         
         return "";
