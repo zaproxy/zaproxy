@@ -4,7 +4,7 @@
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
 	<alert>Permisos de autenticación insuficientes</alert>
-	<desc>La autentificación insuficiente ocurre cuando un sitio web permite al atacante acceder a contenido sensible o funcionalidades sin autenticarse correctamente. Herramientas de administración en ambientes web son buenos ejemplos de sitios que proveen acceso a funcionalidades sensibles. Dependiendo de el recurso online, estas aplicaciones web no debieran ser accesible directamente sin requerir el usuario para verificar correctamente su identidad.
+	<desc>La autentificación insuficiente ocurre cuando un sitio web permite al atacante acceder a contenido sensible o funcionalidades sin autenticarse correctamente. Herramientas de administración en ambientes web son buenos ejemplos de sitios que proveen acceso a funcionalidades sensibles. Dependiendo de el recurso en la web, estas aplicaciones no debieran ser accesible directamente sin requerir usuario para verificar correctamente su identidad.
 
 To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
 	<solution>Phase: Architecture and Design
