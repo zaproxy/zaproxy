@@ -1,4 +1,4 @@
-<project name="zap" default="full-release" basedir=".">
+<project name="zap (2.2)" default="full-release" basedir=".">
     <description>Build ZAP.</description>
     <!-- set global properties for this build -->
     <property name="src" location="../src" />
