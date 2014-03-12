@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.script;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.Writer;
 
 import javax.script.ScriptException;
 
@@ -42,6 +43,7 @@ public class ScriptWrapper {
 	private File file;
 	private String lastErrorDetails = "";
 	private Exception lastException = null;
+	private Writer writer = null;
 	
 	public ScriptWrapper() {
 	}
@@ -209,5 +211,21 @@ public class ScriptWrapper {
 
 	public boolean isRunableStandalone() {
 		return this.getType() != null && ExtensionScript.TYPE_STANDALONE.equals(this.getType().getName());
+	}
+
+	/**
+	 * Gets the writer which will be written to every time this script runs (if any)
+	 * @return
+	 */
+	public Writer getWriter() {
+		return writer;
+	}
+
+	/**
+	 * Set a writer which will be written to every time this script runs
+	 * @param writer
+	 */
+	public void setWriter(Writer writer) {
+		this.writer = writer;
 	}
 }

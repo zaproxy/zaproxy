@@ -491,6 +491,24 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 		return scripts;
 	}
+	
+	/*
+	 * This extension supports any number of writers to be registered which all get written to for
+	 * ever script. It also supports script specific writers.
+	 */
+	private Writer getWriters(ScriptWrapper script) {
+		Writer writer = script.getWriter();
+		if (writer == null) {
+			// No script specific writer, just return the std one
+			return this.writers;
+		} else {
+			// Return the script specific writer in addition to the std one
+			MultipleWriters scriptWriters = new MultipleWriters();
+			scriptWriters.addWriter(writer);
+			scriptWriters.addWriter(writers);
+			return scriptWriters;
+		}
+	}
 
 	public Invocable invokeScript(ScriptWrapper script) throws ScriptException, IOException {
 		logger.debug("invokeScript " + script.getName());
@@ -517,7 +535,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 
 		ScriptEngine se = script.getEngine().getEngine();
-	    se.getContext().setWriter(this.writers);
+	    Writer writer = getWriters(script);
+	    se.getContext().setWriter(writer);
 
 	    try {
 	    	se.eval(script.getContents());
@@ -526,7 +545,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    		// Dereference one level
 	    		e = (Exception)e.getCause();
 	    	}
-	    	writers.append(e.toString());
+	    	writer.append(e.toString());
 	    	this.setError(script, e);
 	    	this.setEnabled(script, false);
 	    }
@@ -540,6 +559,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
     public void invokeTargetedScript(ScriptWrapper script, HttpMessage msg) {
     	if (TYPE_TARGETED.equals(script.getTypeName())) {
+    	    Writer writer = getWriters(script);
 			try {
 				// Dont need to check if enabled as it can only be invoked manually
 				TargetedScript s = this.getInterface(script, TargetedScript.class);
@@ -548,8 +568,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 					s.invokeWith(msg);
 					
 				} else {
-					writers.append(Constant.messages.getString("script.interface.targeted.error"));
-					this.setError(script, writers.toString());
+					writer.append(Constant.messages.getString("script.interface.targeted.error"));
+					this.setError(script, writer.toString());
 					this.setEnabled(script, false);
 				}
 			
@@ -559,7 +579,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		    		e = (Exception)e.getCause();
 		    	}
 				try {
-					writers.append(e.toString());
+					writer.append(e.toString());
 				} catch (IOException e1) {
 					logger.error(e.getMessage(), e);
 				}
@@ -573,6 +593,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     public boolean invokeProxyScript(ScriptWrapper script, HttpMessage msg, boolean request) {
     	if (TYPE_PROXY.equals(script.getTypeName())) {
+    	    Writer writer = getWriters(script);
 			try {
 				// Dont need to check if enabled as it can only be invoked manually
 				ProxyScript s = this.getInterface(script, ProxyScript.class);
@@ -585,8 +606,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 					}
 					
 				} else {
-					writers.append(Constant.messages.getString("script.interface.proxy.error"));
-					this.setError(script, writers.toString());
+					writer.append(Constant.messages.getString("script.interface.proxy.error"));
+					this.setError(script, writer.toString());
 					this.setEnabled(script, false);
 				}
 			
@@ -596,7 +617,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		    		e = (Exception)e.getCause();
 		    	}
 				try {
-					writers.append(e.toString());
+					writer.append(e.toString());
 				} catch (IOException e1) {
 					logger.error(e.getMessage(), e);
 				}
