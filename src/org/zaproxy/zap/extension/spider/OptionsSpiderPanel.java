@@ -24,6 +24,7 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.CardLayout;
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -31,11 +32,15 @@ import java.awt.Insets;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.border.Border;
+import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -495,16 +500,38 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	 * 
 	 * @return the combo handle parameters
 	 */
+	@SuppressWarnings("unchecked")
 	private JComboBox<HandleParametersOption> getComboHandleParameters() {
 		if (handleParameters == null) {
 			handleParameters = new JComboBox<>(new HandleParametersOption[] {
 					HandleParametersOption.USE_ALL, HandleParametersOption.IGNORE_VALUE,
 					HandleParametersOption.IGNORE_COMPLETELY });
-
+			handleParameters.setRenderer(new HandleParametersOptionRenderer());
 		}
 		return handleParameters;
 	}
 
+	/**
+	 * A renderer for properly displaying the name of the HandleParametersOptions in a ComboBox.
+	 */
+	private static class HandleParametersOptionRenderer extends BasicComboBoxRenderer {
+		private static final long serialVersionUID = 3654541772447187317L;
+		private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
+
+		@Override
+		@SuppressWarnings("rawtypes")
+		public Component getListCellRendererComponent(JList list, Object value, int index,
+				boolean isSelected, boolean cellHasFocus) {
+			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+			if (value != null) {
+				setBorder(BORDER);
+				HandleParametersOption item = (HandleParametersOption) value;
+				setText(item.getName());
+			}
+			return this;
+		}
+	}
+	
 	/**
 	 * This method initializes the help index.
 	 * 
