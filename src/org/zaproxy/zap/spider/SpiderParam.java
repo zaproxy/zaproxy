@@ -80,27 +80,7 @@ public class SpiderParam extends AbstractParam {
 		/** Both the name and value of the parameter are used. */
 		USE_ALL;
 
-		/**
-		 * Converts the value of the Enum in a String with the exact same value, as the toString was
-		 * overridden.
-		 * 
-		 * @return the string
-		 */
-		public String toValue() {
-			switch (this) {
-			case IGNORE_COMPLETELY:
-				return "IGNORE_COMPLETELY";
-			case IGNORE_VALUE:
-				return "IGNORE_VALUE";
-			case USE_ALL:
-				return "USE_ALL";
-			default:
-				return null;
-			}
-		}
-
-		@Override
-		public String toString() {
+		public String getName() {
 			switch (this) {
 			case IGNORE_COMPLETELY:
 				return Constant.messages.getString("spider.options.value.handleparameters.ignoreAll");
@@ -245,7 +225,7 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			setHandleParameters(HandleParametersOption.valueOf(getConfig().getString(SPIDER_HANDLE_PARAMETERS,
-					HandleParametersOption.USE_ALL.toValue())));
+					HandleParametersOption.USE_ALL.toString())));
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -571,7 +551,20 @@ public class SpiderParam extends AbstractParam {
 	 */
 	public void setHandleParameters(HandleParametersOption handleParametersVisited) {
 		this.handleParametersVisited = handleParametersVisited;
-		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, handleParametersVisited.toValue());
+		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, handleParametersVisited.toString());
+	}
+	
+	/**
+	 * Sets the how the spider handles parameters when checking URIs visited. 
+	 * 
+	 * The provided parameter is, in this case, a String which is cast to the proper value. Possible values are:
+	 * {@code "USE_ALL"}, {@code "IGNORE_VALUE"}, {@code "IGNORE_COMPLETELY"}.
+	 * 
+	 * @param handleParametersVisited the new handle parameters visited value
+	 */
+	public void setHandleParameters(String handleParametersVisited) throws IllegalArgumentException {
+		this.handleParametersVisited = HandleParametersOption.valueOf(handleParametersVisited);
+		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, this.handleParametersVisited.toString());
 	}
 
 	/**
