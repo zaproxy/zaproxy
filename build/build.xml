@@ -432,6 +432,19 @@
         <echo message="Done." />
     </target>
 
+    <target name="generate-apis" description="generates the client APIs">
+        <path id="classpath">
+            <pathelement location="../bin" />
+            <fileset dir="../lib" includes="**/*.jar" />
+        </path>
+		<java classname="org.zaproxy.zap.extension.api.JavaAPIGenerator" dir=".." fork="yes">
+			<classpath refid="classpath" />
+		</java>
+		<java classname="org.zaproxy.zap.extension.api.PythonAPIGenerator" dir=".." fork="yes">
+			<classpath refid="classpath" />
+		</java>
+    </target>
+
     <target name="copy-jar-to-extension-projects" depends="dist">
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
