@@ -107,6 +107,17 @@ class ZAPv2(object):
         kwargs['proxies'] = self.__proxies
         return urllib.urlopen(*args, **kwargs).read()
 
+    def status_code(self, *args, **kwargs):
+      """
+      Open a url forcing the proxies to be used.
+
+      :Parameters:
+         - `args`: all non-keyword arguments.
+         - `kwargs`: all other keyword arguments.
+      """
+      kwargs['proxies'] = self.__proxies
+      return urllib.urlopen(*args, **kwargs).getcode()
+
     def _request(self, url, get={}):
         """
         Shortcut for a GET request.
