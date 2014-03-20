@@ -40,13 +40,13 @@ class authentication(object):
     def get_logged_out_indicator(self, contextid):
         return self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid})
 
-    def set_authentication_method(self, apikey, contextid, authmethodname, authmethodconfigparams=''):
+    def set_authentication_method(self, contextid, authmethodname, authmethodconfigparams='', apikey=''):
         return self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams})
 
-    def set_logged_in_indicator(self, apikey, contextid, loggedinindicatorregex):
+    def set_logged_in_indicator(self, contextid, loggedinindicatorregex, apikey=''):
         return self.zap._request(self.zap.base + 'authentication/action/setLoggedInIndicator/', {'contextId' : contextid, 'loggedInIndicatorRegex' : loggedinindicatorregex})
 
-    def set_logged_out_indicator(self, apikey, contextid, loggedoutindicatorregex):
+    def set_logged_out_indicator(self, contextid, loggedoutindicatorregex, apikey=''):
         return self.zap._request(self.zap.base + 'authentication/action/setLoggedOutIndicator/', {'contextId' : contextid, 'loggedOutIndicatorRegex' : loggedoutindicatorregex})
 
 

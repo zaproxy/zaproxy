@@ -96,63 +96,63 @@ class spider(object):
     def option_handle_o_data_parameters_visited(self):
         return self.zap._request(self.zap.base + 'spider/view/optionHandleODataParametersVisited/').get('HandleODataParametersVisited')
 
-    def scan(self, apikey, url):
+    def scan(self, url, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/scan/', {'url' : url})
 
-    def scan_as_user(self, apikey, url, contextid, userid):
+    def scan_as_user(self, url, contextid, userid, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid})
 
     @property
-    def stop(self, apikey):
+    def stop(self, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/stop/').get('stop')
 
     @property
-    def clear_excluded_from_scan(self, apikey):
+    def clear_excluded_from_scan(self, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/clearExcludedFromScan/').get('clearExcludedFromScan')
 
-    def exclude_from_scan(self, apikey, regex):
+    def exclude_from_scan(self, regex, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/excludeFromScan/', {'regex' : regex})
 
-    def set_option_scope_string(self, apikey, string):
+    def set_option_scope_string(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionScopeString/', {'String' : string})
 
-    def set_option_skip_url_string(self, apikey, string):
+    def set_option_skip_url_string(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionSkipURLString/', {'String' : string})
 
-    def set_option_handle_parameters(self, apikey, string):
+    def set_option_handle_parameters(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionHandleParameters/', {'String' : string})
 
-    def set_option_user_agent(self, apikey, string):
+    def set_option_user_agent(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionUserAgent/', {'String' : string})
 
-    def set_option_max_depth(self, apikey, integer):
+    def set_option_max_depth(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionMaxDepth/', {'Integer' : integer})
 
-    def set_option_thread_count(self, apikey, integer):
+    def set_option_thread_count(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionThreadCount/', {'Integer' : integer})
 
-    def set_option_post_form(self, apikey, boolean):
+    def set_option_post_form(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionPostForm/', {'Boolean' : boolean})
 
-    def set_option_process_form(self, apikey, boolean):
+    def set_option_process_form(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionProcessForm/', {'Boolean' : boolean})
 
-    def set_option_request_wait_time(self, apikey, integer):
+    def set_option_request_wait_time(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionRequestWaitTime/', {'Integer' : integer})
 
-    def set_option_parse_comments(self, apikey, boolean):
+    def set_option_parse_comments(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseComments/', {'Boolean' : boolean})
 
-    def set_option_parse_robots_txt(self, apikey, boolean):
+    def set_option_parse_robots_txt(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseRobotsTxt/', {'Boolean' : boolean})
 
-    def set_option_parse_svn_entries(self, apikey, boolean):
+    def set_option_parse_svn_entries(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseSVNEntries/', {'Boolean' : boolean})
 
-    def set_option_parse_git(self, apikey, boolean):
+    def set_option_parse_git(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseGit/', {'Boolean' : boolean})
 
-    def set_option_handle_o_data_parameters_visited(self, apikey, boolean):
+    def set_option_handle_o_data_parameters_visited(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionHandleODataParametersVisited/', {'Boolean' : boolean})
 
 

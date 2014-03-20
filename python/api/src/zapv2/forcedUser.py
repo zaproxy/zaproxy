@@ -31,10 +31,10 @@ class forcedUser(object):
     def get_forced_user(self, contextid):
         return self.zap._request(self.zap.base + 'forcedUser/view/getForcedUser/', {'contextId' : contextid})
 
-    def set_forced_user(self, apikey, contextid, userid):
+    def set_forced_user(self, contextid, userid, apikey=''):
         return self.zap._request(self.zap.base + 'forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid})
 
-    def set_forced_user_mode_enabled(self, apikey, boolean):
+    def set_forced_user_mode_enabled(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'forcedUser/action/setForcedUserModeEnabled/', {'boolean' : boolean})
 
 

@@ -36,16 +36,16 @@ class acsrf(object):
     def option_confirm_remove_token(self):
         return self.zap._request(self.zap.base + 'acsrf/view/optionConfirmRemoveToken/').get('ConfirmRemoveToken')
 
-    def add_option_token(self, apikey, string):
+    def add_option_token(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string})
 
-    def remove_option_token(self, apikey, string):
+    def remove_option_token(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string})
 
-    def set_option_confirm_remove_token(self, apikey, boolean):
+    def set_option_confirm_remove_token(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'acsrf/action/setOptionConfirmRemoveToken/', {'Boolean' : boolean})
 
-    def gen_form(self, apikey, hrefid):
+    def gen_form(self, hrefid, apikey=''):
         """
         Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
         """

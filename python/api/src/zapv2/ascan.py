@@ -83,73 +83,73 @@ class ascan(object):
     def option_target_params_enabled_rpc(self):
         return self.zap._request(self.zap.base + 'ascan/view/optionTargetParamsEnabledRPC/').get('TargetParamsEnabledRPC')
 
-    def scan(self, apikey, url, recurse='', inscopeonly=''):
+    def scan(self, url, recurse='', inscopeonly='', apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly})
 
     @property
-    def clear_excluded_from_scan(self, apikey):
+    def clear_excluded_from_scan(self, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/clearExcludedFromScan/').get('clearExcludedFromScan')
 
-    def exclude_from_scan(self, apikey, regex):
+    def exclude_from_scan(self, regex, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/excludeFromScan/', {'regex' : regex})
 
     @property
-    def enable_all_scanners(self, apikey):
+    def enable_all_scanners(self, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/enableAllScanners/').get('enableAllScanners')
 
     @property
-    def disable_all_scanners(self, apikey):
+    def disable_all_scanners(self, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/disableAllScanners/').get('disableAllScanners')
 
-    def enable_scanners(self, apikey, ids):
+    def enable_scanners(self, ids, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/enableScanners/', {'ids' : ids})
 
-    def disable_scanners(self, apikey, ids):
+    def disable_scanners(self, ids, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/disableScanners/', {'ids' : ids})
 
-    def set_enabled_policies(self, apikey, ids):
+    def set_enabled_policies(self, ids, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setEnabledPolicies/', {'ids' : ids})
 
-    def set_policy_attack_strength(self, apikey, id, attackstrength):
+    def set_policy_attack_strength(self, id, attackstrength, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setPolicyAttackStrength/', {'id' : id, 'attackStrength' : attackstrength})
 
-    def set_policy_alert_threshold(self, apikey, id, alertthreshold):
+    def set_policy_alert_threshold(self, id, alertthreshold, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setPolicyAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold})
 
-    def set_scanner_attack_strength(self, apikey, id, attackstrength):
+    def set_scanner_attack_strength(self, id, attackstrength, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setScannerAttackStrength/', {'id' : id, 'attackStrength' : attackstrength})
 
-    def set_scanner_alert_threshold(self, apikey, id, alertthreshold):
+    def set_scanner_alert_threshold(self, id, alertthreshold, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold})
 
-    def set_option_alert_threshold(self, apikey, string):
+    def set_option_alert_threshold(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionAlertThreshold/', {'String' : string})
 
-    def set_option_attack_strength(self, apikey, string):
+    def set_option_attack_strength(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionAttackStrength/', {'String' : string})
 
-    def set_option_thread_per_host(self, apikey, integer):
+    def set_option_thread_per_host(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionThreadPerHost/', {'Integer' : integer})
 
-    def set_option_host_per_scan(self, apikey, integer):
+    def set_option_host_per_scan(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionHostPerScan/', {'Integer' : integer})
 
-    def set_option_max_results_to_list(self, apikey, integer):
+    def set_option_max_results_to_list(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionMaxResultsToList/', {'Integer' : integer})
 
-    def set_option_delay_in_ms(self, apikey, integer):
+    def set_option_delay_in_ms(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionDelayInMs/', {'Integer' : integer})
 
-    def set_option_handle_anti_csrf_tokens(self, apikey, boolean):
+    def set_option_handle_anti_csrf_tokens(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionHandleAntiCSRFTokens/', {'Boolean' : boolean})
 
-    def set_option_delete_requests_on_shutdown(self, apikey, boolean):
+    def set_option_delete_requests_on_shutdown(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionDeleteRequestsOnShutdown/', {'Boolean' : boolean})
 
-    def set_option_target_params_injectable(self, apikey, integer):
+    def set_option_target_params_injectable(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionTargetParamsInjectable/', {'Integer' : integer})
 
-    def set_option_target_params_enabled_rpc(self, apikey, integer):
+    def set_option_target_params_enabled_rpc(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionTargetParamsEnabledRPC/', {'Integer' : integer})
 
 

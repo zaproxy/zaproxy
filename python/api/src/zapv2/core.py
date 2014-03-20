@@ -127,94 +127,94 @@ class core(object):
         return self.zap._request(self.zap.base + 'core/view/optionSingleCookieRequestHeader/').get('SingleCookieRequestHeader')
 
     @property
-    def shutdown(self, apikey):
+    def shutdown(self, apikey=''):
         """
         Shuts down ZAP
         """
         return self.zap._request(self.zap.base + 'core/action/shutdown/').get('shutdown')
 
-    def new_session(self, apikey, name='', overwrite=''):
+    def new_session(self, name='', overwrite='', apikey=''):
         return self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name, 'overwrite' : overwrite})
 
-    def load_session(self, apikey, name):
+    def load_session(self, name, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/loadSession/', {'name' : name})
 
-    def save_session(self, apikey, name, overwrite=''):
+    def save_session(self, name, overwrite='', apikey=''):
         return self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name, 'overwrite' : overwrite})
 
     @property
-    def snapshot_session(self, apikey):
+    def snapshot_session(self, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/snapshotSession/').get('snapshotSession')
 
     @property
-    def clear_excluded_from_proxy(self, apikey):
+    def clear_excluded_from_proxy(self, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/').get('clearExcludedFromProxy')
 
-    def exclude_from_proxy(self, apikey, regex):
+    def exclude_from_proxy(self, regex, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/excludeFromProxy/', {'regex' : regex})
 
-    def set_home_directory(self, apikey, dir):
+    def set_home_directory(self, dir, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setHomeDirectory/', {'dir' : dir})
 
     @property
-    def generate_root_ca(self, apikey):
+    def generate_root_ca(self, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/generateRootCA/').get('generateRootCA')
 
-    def send_request(self, apikey, request, followredirects=''):
+    def send_request(self, request, followredirects='', apikey=''):
         return self.zap._request(self.zap.base + 'core/action/sendRequest/', {'request' : request, 'followRedirects' : followredirects})
 
-    def set_option_proxy_chain_name(self, apikey, string):
+    def set_option_proxy_chain_name(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainName/', {'String' : string})
 
-    def set_option_proxy_chain_skip_name(self, apikey, string):
+    def set_option_proxy_chain_skip_name(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainSkipName/', {'String' : string})
 
-    def set_option_proxy_chain_realm(self, apikey, string):
+    def set_option_proxy_chain_realm(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainRealm/', {'String' : string})
 
-    def set_option_proxy_chain_user_name(self, apikey, string):
+    def set_option_proxy_chain_user_name(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainUserName/', {'String' : string})
 
-    def set_option_proxy_chain_password(self, apikey, string):
+    def set_option_proxy_chain_password(self, string, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPassword/', {'String' : string})
 
-    def set_option_http_state_enabled(self, apikey, boolean):
+    def set_option_http_state_enabled(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionHttpStateEnabled/', {'Boolean' : boolean})
 
-    def set_option_proxy_chain_port(self, apikey, integer):
+    def set_option_proxy_chain_port(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPort/', {'Integer' : integer})
 
-    def set_option_proxy_chain_prompt(self, apikey, boolean):
+    def set_option_proxy_chain_prompt(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPrompt/', {'Boolean' : boolean})
 
-    def set_option_timeout_in_secs(self, apikey, integer):
+    def set_option_timeout_in_secs(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionTimeoutInSecs/', {'Integer' : integer})
 
-    def set_option_confirm_remove_auth(self, apikey, boolean):
+    def set_option_confirm_remove_auth(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionConfirmRemoveAuth/', {'Boolean' : boolean})
 
-    def set_option_single_cookie_request_header(self, apikey, boolean):
+    def set_option_single_cookie_request_header(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean})
 
     @property
-    def proxy_pac(self, apikey):
+    def proxy_pac(self, apikey=''):
         return self.zap._request(self.zap.base + 'core/other/proxy.pac/').get('proxy.pac')
 
     @property
-    def rootcert(self, apikey):
+    def rootcert(self, apikey=''):
         return self.zap._request(self.zap.base + 'core/other/rootcert/').get('rootcert')
 
-    def setproxy(self, apikey, proxy):
+    def setproxy(self, proxy, apikey=''):
         return self.zap._request(self.zap.base + 'core/other/setproxy/', {'proxy' : proxy})
 
     @property
-    def xmlreport(self, apikey):
+    def xmlreport(self, apikey=''):
         return self.zap._request(self.zap.base + 'core/other/xmlreport/').get('xmlreport')
 
-    def messages_har(self, apikey, baseurl='', start='', count=''):
+    def messages_har(self, baseurl='', start='', count='', apikey=''):
         return self.zap._request(self.zap.base + 'core/other/messagesHar/', {'baseurl' : baseurl, 'start' : start, 'count' : count})
 
-    def send_har_request(self, apikey, request, followredirects=''):
+    def send_har_request(self, request, followredirects='', apikey=''):
         return self.zap._request(self.zap.base + 'core/other/sendHarRequest/', {'request' : request, 'followRedirects' : followredirects})
 
 

@@ -34,7 +34,7 @@ class sessionManagement(object):
     def get_session_management_method(self, contextid):
         return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid})
 
-    def set_session_management_method(self, apikey, contextid, methodname, methodconfigparams=''):
+    def set_session_management_method(self, contextid, methodname, methodconfigparams='', apikey=''):
         return self.zap._request(self.zap.base + 'sessionManagement/action/setSessionManagementMethod/', {'contextId' : contextid, 'methodName' : methodname, 'methodConfigParams' : methodconfigparams})
 
 
