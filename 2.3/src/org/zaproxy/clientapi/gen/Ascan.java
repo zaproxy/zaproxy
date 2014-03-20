@@ -60,6 +60,11 @@ public class Ascan {
 		return api.callApi("ascan", "view", "policies", map);
 	}
 
+	public ApiResponse optionExcludedParamList() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionExcludedParamList", map);
+	}
+
 	public ApiResponse optionThreadPerHost() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionThreadPerHost", map);

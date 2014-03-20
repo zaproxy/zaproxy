@@ -113,6 +113,11 @@ public class Spider {
 		return api.callApi("spider", "view", "optionParseSVNEntries", map);
 	}
 
+	public ApiResponse optionParseGit() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionParseGit", map);
+	}
+
 	public ApiResponse optionHandleParameters() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("spider", "view", "optionHandleParameters", map);
@@ -170,6 +175,13 @@ public class Spider {
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("spider", "action", "setOptionSkipURLString", map);
+	}
+
+	public ApiResponse setOptionHandleParameters(String apikey, String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("spider", "action", "setOptionHandleParameters", map);
 	}
 
 	public ApiResponse setOptionUserAgent(String apikey, String string) throws ClientApiException {
@@ -233,6 +245,13 @@ public class Spider {
 		map = new HashMap<String, String>();
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("spider", "action", "setOptionParseSVNEntries", map);
+	}
+
+	public ApiResponse setOptionParseGit(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("spider", "action", "setOptionParseGit", map);
 	}
 
 	public ApiResponse setOptionHandleODataParametersVisited(String apikey, boolean bool) throws ClientApiException {
