@@ -114,21 +114,6 @@ public class Core {
 		return api.callApi("core", "view", "homeDirectory", map);
 	}
 
-	public ApiResponse reportTypes() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("core", "view", "reportTypes", map);
-	}
-
-	public ApiResponse report(String types, String sites, String contexts, String booleaninscope) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("types", types);
-		map.put("sites", sites);
-		map.put("contexts", contexts);
-		map.put("booleanInScope", booleaninscope);
-		return api.callApi("core", "view", "report", map);
-	}
-
 	public ApiResponse optionHttpStateEnabled() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "optionHttpStateEnabled", map);
