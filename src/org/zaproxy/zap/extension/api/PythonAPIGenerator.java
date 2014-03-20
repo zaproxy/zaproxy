@@ -167,7 +167,7 @@ public class PythonAPIGenerator {
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(HEADER);
-		out.write("class " + imp.getPrefix() + "(object):\n\n");
+		out.write("class " + safeName(imp.getPrefix()) + "(object):\n\n");
 		out.write("    def __init__(self, zap):\n");
 		out.write("        self.zap = zap\n");
 		out.write("\n");
@@ -185,18 +185,19 @@ public class PythonAPIGenerator {
 		out.close();
 	}
 	
-	private static String createFileName(String name) {
+	private static String safeName (String name) {
 		if (nameMap.containsKey(name)) {
-			name = nameMap.get(name);
+			return nameMap.get(name);
 		}
-		return name + ".py";
+		return name;
+	}
+	
+	private static String createFileName(String name) {
+		return safeName(name) + ".py";
 	}
 	
 	private static String createFunctionName(String name) {
-		if (nameMap.containsKey(name)) {
-			name = nameMap.get(name);
-		}
-		return removeAllFullStopCharacters(camelCaseToLcUnderscores(name));
+		return removeAllFullStopCharacters(camelCaseToLcUnderscores(safeName(name)));
 	}
 
 	private static String removeAllFullStopCharacters(String string) {
@@ -205,10 +206,7 @@ public class PythonAPIGenerator {
 
 	public static String camelCaseToLcUnderscores(String s) {
 		// Ripped off / inspired by http://stackoverflow.com/questions/2559759/how-do-i-convert-camelcase-into-human-readable-names-in-java
-		if (nameMap.containsKey(s)) {
-			s = nameMap.get(s);
-		}
-		return s.replaceAll(
+		return safeName(s).replaceAll(
 			      String.format("%s|%s|%s",
 			         "(?<=[A-Z])(?=[A-Z][a-z])",
 			         "(?<=[^A-Z])(?=[A-Z])",
