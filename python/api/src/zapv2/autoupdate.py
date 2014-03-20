@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -69,31 +69,31 @@ class autoupdate(object):
         return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/').get('ReportAlphaAddons')
 
     @property
-    def download_latest_release(self):
+    def download_latest_release(self, apikey):
         return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/').get('downloadLatestRelease')
 
-    def set_option_check_on_start(self, integer):
+    def set_option_check_on_start(self, apikey, integer):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Integer' : integer})
 
-    def set_option_download_new_release(self, boolean):
+    def set_option_download_new_release(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean})
 
-    def set_option_check_addon_updates(self, boolean):
+    def set_option_check_addon_updates(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean})
 
-    def set_option_install_addon_updates(self, boolean):
+    def set_option_install_addon_updates(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean})
 
-    def set_option_install_scanner_rules(self, boolean):
+    def set_option_install_scanner_rules(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean})
 
-    def set_option_report_release_addons(self, boolean):
+    def set_option_report_release_addons(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean})
 
-    def set_option_report_beta_addons(self, boolean):
+    def set_option_report_beta_addons(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean})
 
-    def set_option_report_alpha_addons(self, boolean):
+    def set_option_report_alpha_addons(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean})
 
 

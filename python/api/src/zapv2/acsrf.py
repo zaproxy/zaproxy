@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,16 +36,16 @@ class acsrf(object):
     def option_confirm_remove_token(self):
         return self.zap._request(self.zap.base + 'acsrf/view/optionConfirmRemoveToken/').get('ConfirmRemoveToken')
 
-    def add_option_token(self, string):
+    def add_option_token(self, apikey, string):
         return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string})
 
-    def remove_option_token(self, string):
+    def remove_option_token(self, apikey, string):
         return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string})
 
-    def set_option_confirm_remove_token(self, boolean):
+    def set_option_confirm_remove_token(self, apikey, boolean):
         return self.zap._request(self.zap.base + 'acsrf/action/setOptionConfirmRemoveToken/', {'Boolean' : boolean})
 
-    def gen_form(self, hrefid):
+    def gen_form(self, apikey, hrefid):
         """
         Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
         """

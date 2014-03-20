@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -19,18 +19,18 @@
 This file was automatically generated.
 """
 
-class break(object):
+class brk(object):
 
     def __init__(self, zap):
         self.zap = zap
 
-    def brk(self, type, scope, state):
+    def brk(self, apikey, type, scope, state):
         return self.zap._request(self.zap.base + 'break/action/break/', {'type' : type, 'scope' : scope, 'state' : state})
 
-    def add_http_breakpoint(self, string, location, match, inverse, ignorecase):
+    def add_http_breakpoint(self, apikey, string, location, match, inverse, ignorecase):
         return self.zap._request(self.zap.base + 'break/action/addHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase})
 
-    def remove_http_breakpoint(self, string, location, match, inverse, ignorecase):
+    def remove_http_breakpoint(self, apikey, string, location, match, inverse, ignorecase):
         return self.zap._request(self.zap.base + 'break/action/removeHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase})
 
 
