@@ -90,11 +90,6 @@ public class PythonAPIGenerator {
 		}
 		out.write("    def " + createFunctionName(element.getName()) + "(self");
 		
-		if (type.equals("action") || type.equals("other")) {
-			// Always add the API key - we've no way of knowing if it will be required or not
-			out.write(", " + API.API_KEY_PARAM);
-		}
-
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
 				out.write(", " + param.toLowerCase());
@@ -105,6 +100,12 @@ public class PythonAPIGenerator {
 				out.write(", " + param.toLowerCase() + "=''");
 			}
 		}
+
+		if (type.equals("action") || type.equals("other")) {
+			// Always add the API key - we've no way of knowing if it will be required or not
+			out.write(", " + API.API_KEY_PARAM + "=''");
+		}
+
 		out.write("):\n");
 
 		// Add description if defined
