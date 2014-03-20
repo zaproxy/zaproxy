@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,13 +40,13 @@ class authentication(object):
     def get_logged_out_indicator(self, contextid):
         return self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid})
 
-    def set_authentication_method(self, contextid, authmethodname, authmethodconfigparams=''):
+    def set_authentication_method(self, apikey, contextid, authmethodname, authmethodconfigparams=''):
         return self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams})
 
-    def set_logged_in_indicator(self, contextid, loggedinindicatorregex):
+    def set_logged_in_indicator(self, apikey, contextid, loggedinindicatorregex):
         return self.zap._request(self.zap.base + 'authentication/action/setLoggedInIndicator/', {'contextId' : contextid, 'loggedInIndicatorRegex' : loggedinindicatorregex})
 
-    def set_logged_out_indicator(self, contextid, loggedoutindicatorregex):
+    def set_logged_out_indicator(self, apikey, contextid, loggedoutindicatorregex):
         return self.zap._request(self.zap.base + 'authentication/action/setLoggedOutIndicator/', {'contextId' : contextid, 'loggedOutIndicatorRegex' : loggedoutindicatorregex})
 
 

@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,10 +24,17 @@ class forcedUser(object):
     def __init__(self, zap):
         self.zap = zap
 
+    @property
+    def is_forced_user_mode_enabled(self):
+        return self.zap._request(self.zap.base + 'forcedUser/view/isForcedUserModeEnabled/').get('isForcedUserModeEnabled')
+
     def get_forced_user(self, contextid):
         return self.zap._request(self.zap.base + 'forcedUser/view/getForcedUser/', {'contextId' : contextid})
 
-    def set_forced_user(self, contextid, userid):
+    def set_forced_user(self, apikey, contextid, userid):
         return self.zap._request(self.zap.base + 'forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid})
+
+    def set_forced_user_mode_enabled(self, apikey, boolean):
+        return self.zap._request(self.zap.base + 'forcedUser/action/setForcedUserModeEnabled/', {'boolean' : boolean})
 
 
