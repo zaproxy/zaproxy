@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -36,19 +36,19 @@ class users(object):
     def get_authentication_credentials(self, contextid, userid):
         return self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid})
 
-    def new_user(self, contextid, name):
+    def new_user(self, apikey, contextid, name):
         return self.zap._request(self.zap.base + 'users/action/newUser/', {'contextId' : contextid, 'name' : name})
 
-    def remove_user(self, contextid, userid):
+    def remove_user(self, apikey, contextid, userid):
         return self.zap._request(self.zap.base + 'users/action/removeUser/', {'contextId' : contextid, 'userId' : userid})
 
-    def set_user_enabled(self, contextid, userid, enabled):
+    def set_user_enabled(self, apikey, contextid, userid, enabled):
         return self.zap._request(self.zap.base + 'users/action/setUserEnabled/', {'contextId' : contextid, 'userId' : userid, 'enabled' : enabled})
 
-    def set_user_name(self, contextid, userid, name):
+    def set_user_name(self, apikey, contextid, userid, name):
         return self.zap._request(self.zap.base + 'users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name})
 
-    def set_authentication_credentials(self, contextid, userid, authcredentialsconfigparams=''):
+    def set_authentication_credentials(self, apikey, contextid, userid, authcredentialsconfigparams=''):
         return self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams})
 
 

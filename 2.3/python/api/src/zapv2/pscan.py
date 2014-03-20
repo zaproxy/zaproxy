@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2013 ZAP development team
+# Copyright the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -30,5 +30,26 @@ class pscan(object):
         The number of records the passive scanner still has to scan
         """
         return self.zap._request(self.zap.base + 'pscan/view/recordsToScan/').get('recordsToScan')
+
+    @property
+    def scanners(self):
+        return self.zap._request(self.zap.base + 'pscan/view/scanners/').get('scanners')
+
+    def set_enabled(self, apikey, enabled):
+        return self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled})
+
+    @property
+    def enable_all_scanners(self, apikey):
+        return self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/').get('enableAllScanners')
+
+    @property
+    def disable_all_scanners(self, apikey):
+        return self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/').get('disableAllScanners')
+
+    def enable_scanners(self, apikey, ids):
+        return self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids})
+
+    def disable_scanners(self, apikey, ids):
+        return self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids})
 
 
