@@ -36,6 +36,11 @@ import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
+/**
+ * @deprecated (2.3.0) Replaced by {@link org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel}. It will be
+ *             removed in a future release.
+ */
+@Deprecated
 public class SessionAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	private static final String PANEL_NAME = Constant.messages.getString("auth.session.title");

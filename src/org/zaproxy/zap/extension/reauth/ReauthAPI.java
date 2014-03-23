@@ -31,6 +31,11 @@ import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiView;
 
+/**
+ * @deprecated (2.3.0) Replaced by {@link org.zaproxy.zap.extension.authentication.AuthenticationAPI} and
+ *             {@link org.zaproxy.zap.extension.users.UsersAPI}. It will be removed in a future release.
+ */
+@Deprecated
 public class ReauthAPI extends ApiImplementor {
 
     private static Logger log = Logger.getLogger(ReauthAPI.class);
