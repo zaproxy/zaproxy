@@ -20,39 +20,11 @@
  */
 package org.zaproxy.zap.extension.globalexcludeurl;
 
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLDecoder;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-
-import net.htmlparser.jericho.Element;
-import net.htmlparser.jericho.HTMLElementName;
-import net.htmlparser.jericho.Source;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.encoder.Encoder;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
-import org.parosproxy.paros.extension.history.HistoryFilter;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.network.HtmlParameter;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
 
 /** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */

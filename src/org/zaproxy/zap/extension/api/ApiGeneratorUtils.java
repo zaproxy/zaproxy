@@ -33,7 +33,6 @@ import org.zaproxy.zap.extension.forceduser.ForcedUserAPI;
 import org.zaproxy.zap.extension.httpsessions.HttpSessionsAPI;
 import org.zaproxy.zap.extension.params.ParamsAPI;
 import org.zaproxy.zap.extension.pscan.PassiveScanAPI;
-import org.zaproxy.zap.extension.reauth.ReauthAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
 import org.zaproxy.zap.extension.spider.SpiderAPI;

@@ -19,11 +19,7 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.Container;
 import java.awt.Dimension;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;

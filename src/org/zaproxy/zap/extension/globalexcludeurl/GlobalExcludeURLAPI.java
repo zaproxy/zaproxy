@@ -20,11 +20,6 @@
  */
 package org.zaproxy.zap.extension.globalexcludeurl;
 
-import net.sf.json.JSONObject;
-
-import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.api.ApiOther;
 
