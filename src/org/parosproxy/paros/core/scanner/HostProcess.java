@@ -37,6 +37,7 @@
 // ZAP: 2013/03/08 Added some debug logging
 // ZAP: 2014/01/16 Add support to plugin skipping
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
 
 package org.parosproxy.paros.core.scanner;
 
@@ -49,6 +50,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
@@ -234,6 +236,11 @@ public class HostProcess implements Runnable {
                 return;
             }
             
+            if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
+                log.debug("Ignoring \"scanner\" type href");
+                return;
+            }
+
             if (!nodeInScope(node)) {
                 log.debug("scanSingleNode node not in scope");
                 return;

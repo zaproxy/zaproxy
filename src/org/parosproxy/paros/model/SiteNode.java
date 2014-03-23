@@ -33,6 +33,7 @@
 // ZAP: 2013/01/23 Ignore Active scanner history refs
 // ZAP: 2013/08/23 Make sure #nodeChanged() is called after removing a custom icon
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
+// ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
 
 package org.parosproxy.paros.model;
 
@@ -191,10 +192,6 @@ public class SiteNode extends DefaultMutableTreeNode {
      */
     public void setHistoryReference(HistoryReference historyReference) {
     	
-    	if (HistoryReference.TYPE_SCANNER == historyReference.getHistoryType()) {
-    		return;
-    	}
-
         if (getHistoryReference() != null) {
 //            if (getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER) {
 //                getHistoryReference().delete();
