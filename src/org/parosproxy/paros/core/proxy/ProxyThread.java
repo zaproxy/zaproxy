@@ -42,6 +42,8 @@
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
 // ZAP: 2014/03/23 Tidy up, extracted a method that writes an HTTP response and moved the
 // code responsible to decode a GZIP response to a method
+// ZAP: 2014/03/23 Fixed an issue with ProxyThread that happened when the proxy was set to listen on
+// any address in which case the requests to the proxy itself were not correctly detected.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -508,18 +510,28 @@ class ProxyThread implements Runnable {
 	}
 	
 	private boolean isRecursive(HttpRequestHeader header) {
-        boolean isRecursive = false;
         try {
             if (header.getHostPort() == inSocket.getLocalPort()) {
-                if (InetAddress.getByName(header.getHostName()).equals(inSocket.getLocalAddress())) {
-                    isRecursive = true;
+                String targetDomain = header.getHostName();
+                if (API.API_DOMAIN.equals(targetDomain)) {
+                    return true;
+                }
+                InetAddress targetAddress = InetAddress.getByName(targetDomain);
+                if (parentServer.getProxyParam().getProxyIp().isEmpty()
+                        || InetAddress.getByName(parentServer.getProxyParam().getProxyIp()).isAnyLocalAddress()) {
+                    if (targetAddress.isLoopbackAddress() || targetAddress.isSiteLocalAddress()
+                            || targetAddress.isAnyLocalAddress()) {
+                        return true;
+                    }
+                } else if (targetAddress.equals(inSocket.getLocalAddress())) {
+                    return true;
                 }
             }
         } catch (Exception e) {
 			// ZAP: Log exceptions
 			log.warn(e.getMessage(), e);
         }
-        return isRecursive;
+        return false;
     }
 	    
     private static final Pattern remove_gzip1 = Pattern.compile("(gzip|deflate|compress|x-gzip|x-compress)[^,]*,?\\s*", Pattern.CASE_INSENSITIVE);
