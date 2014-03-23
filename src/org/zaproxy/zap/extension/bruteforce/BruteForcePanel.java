@@ -71,6 +71,7 @@ import org.zaproxy.zap.utils.FilenameExtensionFilter;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.ScanStatus;
+import org.zaproxy.zap.view.ZapToggleButton;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
 
@@ -106,7 +107,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
-	private JToggleButton pauseScanButton = null;
+	private ZapToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	//private JButton launchButton = null;
 	private JList<BruteForceItem> bruteForceList = null;
@@ -389,8 +390,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 	private JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
-			pauseScanButton = new JToggleButton();
+			pauseScanButton = new ZapToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
+			pauseScanButton.setSelectedToolTipText(Constant.messages.getString("bruteforce.toolbar.button.unpause"));
 			pauseScanButton.setIcon(new ImageIcon(BruteForcePanel.class.getResource("/resource/icon/16/141.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
@@ -664,13 +666,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				getStartScanButton().setEnabled(false);
 				getStopScanButton().setEnabled(true);
 				getPauseScanButton().setEnabled(true);
-				if (bruteForce.isPaused()) {
-					getPauseScanButton().setSelected(true);
-					getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.unpause"));
-				} else {
-					getPauseScanButton().setSelected(false);
-					getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
-				}
+				getPauseScanButton().setSelected(bruteForce.isPaused());
 				getProgressBar().setEnabled(true);
 			} else {
 				getStartScanButton().setEnabled(true);
@@ -828,10 +824,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (bruteForce != null) {
 			if (bruteForce.isPaused()) {
 				bruteForce.unpauseScan();
-				getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
 			} else {
 				bruteForce.pauseScan();
-				getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.unpause"));
 			}
 		}
 	}
@@ -843,7 +837,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			getStopScanButton().setEnabled(false);
 			getPauseScanButton().setEnabled(false);
 			getPauseScanButton().setSelected(false);
-			getPauseScanButton().setToolTipText(Constant.messages.getString("bruteforce.toolbar.button.pause"));
 			getProgressBar().setEnabled(false);
 		}
 		this.activeScans.remove(host);
