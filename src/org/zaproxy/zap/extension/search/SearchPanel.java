@@ -23,6 +23,7 @@ import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
+import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
@@ -279,7 +280,15 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			btnSearch.addActionListener(new java.awt.event.ActionListener() { 
 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {
+				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					try {
+						Pattern.compile(regEx.getText());
+					} catch (IllegalArgumentException e) {
+						regEx.requestFocusInWindow();
+						View.getSingleton()
+								.showWarningDialog(Constant.messages.getString("search.toolbar.error.invalid.regex"));
+						return;
+					}
 					doSearch();
 				}
 			});
