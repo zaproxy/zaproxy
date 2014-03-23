@@ -104,6 +104,26 @@ public class MultipleOptionsTablePanel extends JPanel {
         return footerPanel;
     }
 
+    /**
+     * Sets whether or not the component and its child components should be enabled.
+     * <p>
+     * Only the table and corresponding scroll bars are enabled/disabled.
+     * </p>
+     * 
+     * @param enabled {@code true} if the component and its child components should be enabled, {@code false} otherwise.
+     */
+    public void setComponentEnabled(boolean enabled) {
+        super.setEnabled(enabled);
+
+        table.setEnabled(enabled);
+        if (scrollPane.getVerticalScrollBar() != null) {
+            scrollPane.getVerticalScrollBar().setEnabled(enabled);
+        }
+        if (scrollPane.getHorizontalScrollBar() != null) {
+            scrollPane.getHorizontalScrollBar().setEnabled(enabled);
+        }
+    }
+
     protected JPanel getButtonsPanel() {
         if (buttonsPanel == null) {
             buttonsPanel = new JPanel(new VerticalLayout());

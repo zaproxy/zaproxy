@@ -81,4 +81,19 @@ public abstract class AbstractMultipleOptionsTablePanel<E extends Enableable> ex
             }
         });
     }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to also enable/disable the added buttons ("enable all" and "disable all").
+     * </p>
+     */
+    @Override
+    public void setComponentEnabled(boolean enabled) {
+        super.setComponentEnabled(enabled);
+
+        boolean enable = enabled && getModel().getRowCount() > 0;
+        enableAllButton.setEnabled(enable);
+        disableAllButton.setEnabled(enable);
+    }
 }

@@ -137,6 +137,24 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         super(model);
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to also enable/disable the added buttons ("add", "modify", "remove" and "remove without confirmation").
+     * </p>
+     */
+    @Override
+    public void setComponentEnabled(boolean enabled) {
+        super.setComponentEnabled(enabled);
+
+        addButton.setEnabled(enabled);
+        removeWithoutConfirmationCheckBox.setEnabled(enabled);
+
+        boolean enable = enabled && getTable().getSelectionModel().getMinSelectionIndex() >= 0;
+        modifyButton.setEnabled(enable);
+        removeButton.setEnabled(enable);
+    }
+
     public final void addFooterPanelComponent(JComponent component) {
         getFooterPanel().add(component, gbcFooterPanel);
     }
