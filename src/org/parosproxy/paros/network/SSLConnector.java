@@ -24,6 +24,7 @@
 // ZAP: 2013/01/25 Issue 462: SSLSocketFactory with TLS enabled and default Cipher options
 // ZAP: 2013/06/01 Issue 669: Certificate algorithm constraints in Java 1.7
 // ZAP: 2014/03/23 Tidy up, removed and deprecated unused methods other minor changes
+// ZAP: 2014/03/23 Issue 951: TLS' versions 1.1 and 1.2 not enabled by default
 
 package org.parosproxy.paros.network;
 
@@ -43,6 +44,8 @@ import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
@@ -66,9 +69,29 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	private static final String SSL = "SSL";
 
+	public static final String SECURITY_PROTOCOL_SSL_V3 = "SSLv3";
+	public static final String SECURITY_PROTOCOL_TLS_V1 = "TLSv1";
+	public static final String SECURITY_PROTOCOL_TLS_V1_1 = "TLSv1.1";
+	public static final String SECURITY_PROTOCOL_TLS_V1_2 = "TLSv1.2";
+
+	private static final String[] DEFAULT_ENABLED_PROTOCOLS = {
+		SECURITY_PROTOCOL_SSL_V3,
+		SECURITY_PROTOCOL_TLS_V1,
+		SECURITY_PROTOCOL_TLS_V1_1,
+		SECURITY_PROTOCOL_TLS_V1_2 };
+
+	private static final String[] FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS = { SECURITY_PROTOCOL_TLS_V1 };
+
 	// client socket factories
 	private static SSLSocketFactory clientSSLSockFactory = null;
 	private static SSLSocketFactory clientSSLSockCertFactory = null;
+
+	private static String[] supportedProtocols;
+	private static String[] clientEnabledProtocols;
+	private static String[] serverEnabledProtocols;
+
+	private static ServerSslSocketsDecorator serverSslSocketsDecorator;
+	private static ClientSslSocketsDecorator clientSslSocketsDecorator;
 
 	// server related socket factories
 	
@@ -81,6 +104,9 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	public SSLConnector() {
 		if (clientSSLSockFactory == null) {
+		    serverSslSocketsDecorator = new ServerSslSocketsDecorator();
+		    clientSslSocketsDecorator = new ClientSslSocketsDecorator();
+
 			clientSSLSockFactory = getClientSocketFactory(SSL);
 		}
 		// ZAP: removed ServerSocketFaktory
@@ -108,7 +134,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 		SSLContext sslcont = sslContextManager.getSSLContext(sslContextManager
 				.getDefaultKey());
-		clientSSLSockCertFactory = sslcont.getSocketFactory();
+		clientSSLSockCertFactory = createDecoratedClientSslSocketFactory(sslcont.getSocketFactory());
 		logger.info("ActiveCertificate set to: " + sslContextManager.getDefaultKey());
 	}
 
@@ -133,7 +159,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			java.security.SecureRandom x = new java.security.SecureRandom();
 			x.setSeed(System.currentTimeMillis());
 			sslContext.init(null, trustMgr, x);
-			clientSSLSockFactory = sslContext.getSocketFactory();
+			clientSSLSockFactory = createDecoratedClientSslSocketFactory(sslContext.getSocketFactory());
 			HttpsURLConnection.setDefaultSSLSocketFactory(clientSSLSockFactory);
 
 		} catch (Exception e) {
@@ -158,6 +184,89 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 		throw new UnsupportedOperationException(
 				"Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
+	}
+
+	public static String[] getSupportedProtocols() {
+		if (supportedProtocols == null) {
+			readSupportedProtocols(null);
+		}
+		return Arrays.copyOf(supportedProtocols, supportedProtocols.length);
+	}
+
+	private static synchronized void readSupportedProtocols(SSLSocket sslSocket) {
+		if (supportedProtocols == null) {
+			logger.info("Reading supported SSL/TLS protocols...");
+			String[] tempSupportedProtocols;
+			if (sslSocket != null) {
+				logger.info("Using an existing SSLSocket...");
+				tempSupportedProtocols = sslSocket.getSupportedProtocols();
+			} else {
+				logger.info("Using a SSLEngine...");
+				try {
+					SSLContext ctx = SSLContext.getInstance(SSL);
+					ctx.init(null, null, null);
+					try {
+						tempSupportedProtocols = ctx.createSSLEngine().getSupportedProtocols();
+					} catch (UnsupportedOperationException e) {
+						logger.warn("Failed to use SSLEngine. Trying with unconnected socket...", e);
+						try (SSLSocket socket = (SSLSocket) ctx.getSocketFactory().createSocket()) {
+							tempSupportedProtocols = socket.getSupportedProtocols();
+						}
+					}
+				} catch (NoSuchAlgorithmException | KeyManagementException | IOException e) {
+					logger.error("Failed to read the SSL/TLS supported protocols." + " Using default protocol versions: "
+							+ Arrays.toString(FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS), e);
+					tempSupportedProtocols = FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS;
+				}
+			}
+			Arrays.sort(tempSupportedProtocols);
+			supportedProtocols = tempSupportedProtocols;
+			logger.info("Done reading supported SSL/TLS protocols: " + Arrays.toString(supportedProtocols));
+		}
+	}
+
+	public static String[] getClientEnabledProtocols() {
+		if (clientEnabledProtocols == null) {
+			setClientEnabledProtocols(DEFAULT_ENABLED_PROTOCOLS);
+		}
+		return Arrays.copyOf(clientEnabledProtocols, clientEnabledProtocols.length);
+	}
+
+	public static void setClientEnabledProtocols(String[] protocols) {
+		clientEnabledProtocols = extractSupportedProtocols(protocols);
+	}
+
+	public static String[] getServerEnabledProtocols() {
+		if (serverEnabledProtocols == null) {
+			setServerEnabledProtocols(DEFAULT_ENABLED_PROTOCOLS);
+		}
+		return Arrays.copyOf(serverEnabledProtocols, serverEnabledProtocols.length);
+	}
+
+	public static void setServerEnabledProtocols(String[] protocols) {
+		serverEnabledProtocols = extractSupportedProtocols(protocols);
+	}
+
+	private static String[] extractSupportedProtocols(String[] enabledProtocols) {
+		if (enabledProtocols == null || enabledProtocols.length == 0) {
+			throw new IllegalArgumentException("Protocol(s) required but no protocol set.");
+		}
+		String[] supportedProtocols = getSupportedProtocols();
+		ArrayList<String> enabledSupportedProtocols = new ArrayList<>(supportedProtocols.length);
+		for (String protocol : enabledProtocols) {
+			if (protocol != null && Arrays.binarySearch(supportedProtocols, protocol) >= 0) {
+				enabledSupportedProtocols.add(protocol);
+			}
+		}
+		enabledSupportedProtocols.trimToSize();
+
+		if (enabledSupportedProtocols.isEmpty()) {
+			throw new IllegalArgumentException("No supported protocol(s) set.");
+		}
+
+		String[] extractedSupportedProtocols = new String[enabledSupportedProtocols.size()];
+		enabledSupportedProtocols.toArray(extractedSupportedProtocols);
+		return extractedSupportedProtocols;
 	}
 
 	/**
@@ -264,7 +373,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			x.setSeed(System.currentTimeMillis());
 			ctx.init(kmf.getKeyManagers(), null, x);
 
-			SSLSocketFactory tunnelSSLFactory = ctx.getSocketFactory();
+			SSLSocketFactory tunnelSSLFactory = createDecoratedServerSslSocketFactory(ctx.getSocketFactory());
 
 			return tunnelSSLFactory;
 
@@ -277,6 +386,37 @@ public class SSLConnector implements SecureProtocolSocketFactory {
             throw new RuntimeException(e);
         }
 	}
+
+	private static SSLSocketFactory createDecoratedServerSslSocketFactory(final SSLSocketFactory delegate) {
+		return new DecoratedSocketsSslSocketFactory(delegate, serverSslSocketsDecorator);
+	}
+
+	private static SSLSocketFactory createDecoratedClientSslSocketFactory(final SSLSocketFactory delegate) {
+		return new DecoratedSocketsSslSocketFactory(delegate, clientSslSocketsDecorator);
+	}
+
+	private static class ServerSslSocketsDecorator implements DecoratedSocketsSslSocketFactory.SslSocketDecorator {
+
+		@Override
+		public void decorate(SSLSocket sslSocket) {
+			if (supportedProtocols == null) {
+				readSupportedProtocols(sslSocket);
+			}
+			sslSocket.setEnabledProtocols(getServerEnabledProtocols());
+		}
+	}
+
+	private static class ClientSslSocketsDecorator implements DecoratedSocketsSslSocketFactory.SslSocketDecorator {
+
+		@Override
+		public void decorate(SSLSocket sslSocket) {
+			if (supportedProtocols == null) {
+				readSupportedProtocols(sslSocket);
+			}
+			sslSocket.setEnabledProtocols(getClientEnabledProtocols());
+		}
+	}
+
 }
 
 class RelaxedX509TrustManager extends X509ExtendedTrustManager {
