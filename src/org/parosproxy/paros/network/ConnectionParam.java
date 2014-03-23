@@ -32,6 +32,7 @@
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
+// ZAP: 2014/03/23 Issue 1100: Annotate option methods that shouldn't be exposed in the ZAP API
 
 package org.parosproxy.paros.network;
 
@@ -46,6 +47,7 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class ConnectionParam extends AbstractParam {
 
@@ -576,10 +578,12 @@ public class ConnectionParam extends AbstractParam {
 		getConfig().setProperty(TIMEOUT_IN_SECS, this.timeoutInSecs);
 	}
     
+    @ZapApiIgnore
     public boolean isConfirmRemoveAuth() {
         return this.confirmRemoveAuth;
     }
     
+    @ZapApiIgnore
     public void setConfirmRemoveAuth(boolean confirmRemove) {
         this.confirmRemoveAuth = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_AUTH_KEY, Boolean.valueOf(confirmRemoveAuth));
@@ -720,6 +724,7 @@ public class ConnectionParam extends AbstractParam {
      * @return {@code true} if the remotion needs confirmation, {@code false} otherwise.
      * @since 2.3.0
      */
+    @ZapApiIgnore
     public boolean isConfirmRemoveProxyExcludedDomain() {
         return this.confirmRemoveProxyExcludeDomain;
     }
@@ -730,6 +735,7 @@ public class ConnectionParam extends AbstractParam {
      * @param confirmRemove {@code true} if the remotion needs confirmation, {@code false} otherwise.
      * @since 2.3.0
      */
+    @ZapApiIgnore
     public void setConfirmRemoveProxyExcludedDomain(boolean confirmRemove) {
         this.confirmRemoveProxyExcludeDomain = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_EXCLUDED_DOMAIN, Boolean.valueOf(confirmRemoveProxyExcludeDomain));
@@ -741,6 +747,7 @@ public class ConnectionParam extends AbstractParam {
      * @return the security protocols enabled for outgoing connections.
      * @since 2.3.0
      */
+    @ZapApiIgnore
     public String[] getSecurityProtocolsEnabled() {
         return Arrays.copyOf(securityProtocolsEnabled, securityProtocolsEnabled.length);
     }

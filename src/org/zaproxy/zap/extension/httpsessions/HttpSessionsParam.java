@@ -27,6 +27,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 /**
  * The HttpSessionsParam is used to store the parameters (options) for the
@@ -190,10 +191,12 @@ public class HttpSessionsParam extends AbstractParam {
 		getConfig().setProperty(PROXY_ONLY_KEY, Boolean.valueOf(enabledProxyOnly));
 	}
 	
+	@ZapApiIgnore
 	public boolean isConfirmRemoveDefaultToken() {
 		return this.confirmRemove;
 	}
 	
+	@ZapApiIgnore
 	public void setConfirmRemoveDefaultToken(boolean confirmRemove) {
 		this.confirmRemove = confirmRemove;
 		getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, Boolean.valueOf(confirmRemove));

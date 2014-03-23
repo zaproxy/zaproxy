@@ -26,6 +26,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 
 
@@ -113,10 +114,12 @@ public class PassiveScanParam extends AbstractParam {
         return autoTagScanners;
     }
     
+    @ZapApiIgnore
     public boolean isConfirmRemoveAutoTagScanner() {
         return this.confirmRemoveAutoTagScanner;
     }
     
+    @ZapApiIgnore
     public void setConfirmRemoveAutoTagScanner(boolean confirmRemove) {
         this.confirmRemoveAutoTagScanner = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, Boolean.valueOf(confirmRemoveAutoTagScanner));

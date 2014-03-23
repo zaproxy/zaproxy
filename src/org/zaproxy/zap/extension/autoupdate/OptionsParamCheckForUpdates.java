@@ -26,6 +26,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class OptionsParamCheckForUpdates extends AbstractParam {
 
@@ -84,6 +85,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		}
 	}
 
+	@ZapApiIgnore
 	public boolean isCheckOnStartUnset() {
 		return unset;
 	}
@@ -93,6 +95,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	 * @deprecated (2.3.0) Replaced by {@link #setCheckOnStart(boolean)}. It will be removed in a future release.
 	 */
 	@Deprecated
+	@ZapApiIgnore
 	public void setCheckOnStart(int checkOnStart) {
 	    setCheckOnStart(checkOnStart != 0);
 	}
@@ -111,6 +114,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		}
 	}
 	
+	@ZapApiIgnore
 	public boolean isCheckOnStart() {
 		if (!checkOnStart) {
 			log.debug("isCheckForStart - false");

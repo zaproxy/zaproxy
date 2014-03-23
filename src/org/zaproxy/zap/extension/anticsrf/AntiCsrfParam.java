@@ -26,6 +26,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class AntiCsrfParam extends AbstractParam {
 
@@ -131,10 +132,12 @@ public class AntiCsrfParam extends AbstractParam {
         return enabledTokensNames;
     }
     
+    @ZapApiIgnore
     public boolean isConfirmRemoveToken() {
         return this.confirmRemoveToken;
     }
     
+    @ZapApiIgnore
     public void setConfirmRemoveToken(boolean confirmRemove) {
         this.confirmRemoveToken = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, Boolean.valueOf(confirmRemoveToken));

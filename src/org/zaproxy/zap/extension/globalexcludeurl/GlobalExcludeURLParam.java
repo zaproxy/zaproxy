@@ -27,6 +27,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 /** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class GlobalExcludeURLParam extends AbstractParam {
@@ -166,10 +167,12 @@ public class GlobalExcludeURLParam extends AbstractParam {
         return enabledTokensNames;
     }
     
+    @ZapApiIgnore
     public boolean isConfirmRemoveToken() {
         return this.confirmRemoveToken;
     }
     
+    @ZapApiIgnore
     public void setConfirmRemoveToken(boolean confirmRemove) {
         this.confirmRemoveToken = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_TOKEN_KEY, Boolean.valueOf(confirmRemoveToken));

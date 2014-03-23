@@ -28,6 +28,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 /**
  * The SpiderParam wraps all the parameters that are given to the spider.
@@ -750,6 +751,7 @@ public class SpiderParam extends AbstractParam {
      * @return {@code true} if the remotion needs confirmation, {@code false} otherwise.
      * @since 2.3.0
      */
+    @ZapApiIgnore
     public boolean isConfirmRemoveDomainAlwaysInScope() {
         return this.confirmRemoveDomainAlwaysInScope;
     }
@@ -760,6 +762,7 @@ public class SpiderParam extends AbstractParam {
      * @param confirmRemove {@code true} if the remotion needs confirmation, {@code false} otherwise.
      * @since 2.3.0
      */
+    @ZapApiIgnore
     public void setConfirmRemoveDomainAlwaysInScope(boolean confirmRemove) {
         this.confirmRemoveDomainAlwaysInScope = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, Boolean.valueOf(confirmRemoveDomainAlwaysInScope));
