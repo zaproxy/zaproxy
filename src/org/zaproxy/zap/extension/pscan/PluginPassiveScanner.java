@@ -80,7 +80,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 * Returns the ID of the plug-in.
 	 *
 	 * @return the id of the plug-in.
-	 * @since TODO add version
+	 * @since 2.3.0
 	 */
 	public int getPluginId() {
 		return -1;
