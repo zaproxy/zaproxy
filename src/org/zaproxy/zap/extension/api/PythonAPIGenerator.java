@@ -149,6 +149,9 @@ public class PythonAPIGenerator {
 				}
 			}
 			out.write("})");
+			if (type.equals("view")) {
+				out.write(".get('" + element.getName() + "')");
+			}
 		} else {
 			if (element.getName().startsWith("option")) {
 				out.write(").get('" + element.getName().substring(6) + "')");
