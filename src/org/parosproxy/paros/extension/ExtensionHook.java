@@ -23,6 +23,7 @@
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/04/14 Issue 608: Rename the method ExtensionHook.addSiteMapListner to addSiteMapListener
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 
 package org.parosproxy.paros.extension;
 
@@ -31,6 +32,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
@@ -46,6 +48,7 @@ public class ExtensionHook {
     private Vector<OptionsChangedListener> optionsListenerList = new Vector<>();
 
     private Vector<ProxyListener> proxyListenerList = new Vector<>();
+    private List<OverrideMessageProxyListener> overrideMessageProxyListenersList = new ArrayList<>();
     private Vector<SessionChangedListener> sessionListenerList = new Vector<>();
     private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
@@ -168,4 +171,8 @@ public class ExtensionHook {
 	public List<AddonFilesChangedListener> getAddonFilesChangedListener() {
 		return addonFilesChangedListenerList;
 	}
+
+    public List<OverrideMessageProxyListener> getOverrideMessageProxyListenerList() {
+        return overrideMessageProxyListenersList;
+    }
 }

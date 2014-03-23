@@ -43,6 +43,7 @@
 // ZAP: 2013/11/16 Issue 845: AbstractPanel added twice to TabbedPanel2 in ExtensionLoader#addTabPanel
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2013/12/13 Added support for Full Layout DISPLAY_OPTION_TOP_FULL in the hookView function.
+// ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 //
 package org.parosproxy.paros.extension;
 
@@ -63,6 +64,7 @@ import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.control.Proxy;
+import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -183,6 +185,40 @@ public class ExtensionLoader {
                 }
             } catch (Exception e) {
             	logger.error(e.getMessage(), e);
+            }
+        }
+    }
+    
+    public void hookOverrideMessageProxyListener(Proxy proxy) {
+        Iterator<ExtensionHook> iter = hookList.iterator();
+        while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
+            for (int j=0; j<listenerList.size(); j++) {
+                try {
+                    OverrideMessageProxyListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        proxy.addOverrideMessageProxyListener(listener);
+                    }
+                } catch (Exception e) {
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    private void removeOverrideMessageProxyListener(ExtensionHook hook) {
+        Proxy proxy = Control.getSingleton().getProxy();
+        List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
+        for (int j=0; j<listenerList.size(); j++) {
+            try {
+                OverrideMessageProxyListener listener = listenerList.get(j);
+                if (listener != null) {
+                    proxy.removeOverrideMessageProxyListener(listener);
+                }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -905,6 +941,8 @@ public class ExtensionLoader {
 		removePersistentConnectionListener(hook);
 		
 		removeProxyListener(hook);
+
+		removeOverrideMessageProxyListener(hook);
 		
 		removeSiteMapListener(hook);
 		

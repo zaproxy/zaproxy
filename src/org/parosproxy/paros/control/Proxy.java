@@ -24,11 +24,13 @@
 // ZAP: 2012/12/27 Added method addPersistentConnectionListener(...)
 // ZAP: 2013/01/25 Added method removeProxyListener()
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
+// ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 package org.parosproxy.paros.control;
  
 import java.util.List;
 
 import org.parosproxy.paros.core.proxy.CacheProcessingItem;
+import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyServer;
 import org.parosproxy.paros.core.proxy.ProxyServerSSL;
@@ -127,6 +129,16 @@ public class Proxy {
 	    proxyServer.removeProxyListener(listener);
 	    proxyServerSSL.removeProxyListener(listener);
 	}
+
+    public void addOverrideMessageProxyListener(OverrideMessageProxyListener listener) {
+        proxyServer.addOverrideMessageProxyListener(listener);
+        proxyServerSSL.addOverrideMessageProxyListener(listener);
+    }
+
+    public void removeOverrideMessageProxyListener(OverrideMessageProxyListener listener) {
+        proxyServer.removeOverrideMessageProxyListener(listener);
+        proxyServerSSL.removeOverrideMessageProxyListener(listener);
+    }
 	
 	public void addPersistentConnectionListener(PersistentConnectionListener listener) {
 	    proxyServer.addPersistentConnectionListener(listener);

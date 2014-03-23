@@ -48,6 +48,7 @@
 // ZAP: 2014/03/23 Issue 585: Proxy - "502 Bad Gateway" errors responded as "504 Gateway Timeout"
 // ZAP: 2014/03/23 Issue 969: Proxy - Do not include the response body when answering unsuccessful HEAD requests
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
+// ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 
 package org.parosproxy.paros.core.proxy;
 
@@ -339,9 +340,12 @@ class ProxyThread implements Runnable {
 			    semaphore = this;
 			}
 			
+			boolean send = true;
 			synchronized (semaphore) {
 			    
-			    if (! notifyListenerRequestSend(msg)) {
+			    if (notifyOverrideListenersRequestSend(msg)) {
+			        send = false;
+			    } else if (! notifyListenerRequestSend(msg)) {
 		        	// One of the listeners has told us to drop the request
 			    	return;
 			    }
@@ -351,13 +355,17 @@ class ProxyThread implements Runnable {
 //					bug occur where response cannot be processed by various listener
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
-					getHttpSender().sendAndReceive(msg);
+			        if (send) {
+                        getHttpSender().sendAndReceive(msg);
 
-		            decodeGZIPResponseIfNeeded(msg);
+		                decodeGZIPResponseIfNeeded(msg);
 
-			        if (! notifyListenerResponseReceive(msg)) {
-			        	// One of the listeners has told us to drop the response
-   				    	return;
+			             if (!notifyOverrideListenersResponseReceived(msg)) {
+                            if (!notifyListenerResponseReceive(msg)) {
+                                // One of the listeners has told us to drop the response
+                                return;
+                            }
+                        }
 			        }
 		        
 			        writeHttpResponse(msg, httpOut);
@@ -512,6 +520,32 @@ class ProxyThread implements Runnable {
 		return true;
 	}
 	
+    private boolean notifyOverrideListenersRequestSend(HttpMessage httpMessage) {
+        for (OverrideMessageProxyListener listener : parentServer.getOverrideMessageProxyListeners()) {
+            try {
+                if (listener.onHttpRequestSend(httpMessage)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
+        return false;
+    }
+
+    private boolean notifyOverrideListenersResponseReceived(HttpMessage httpMessage) {
+        for (OverrideMessageProxyListener listener : parentServer.getOverrideMessageProxyListeners()) {
+            try {
+                if (listener.onHttpResponseReceived(httpMessage)) {
+                    return true;
+                }
+            } catch (Exception e) {
+                log.warn(e.getMessage(), e);
+            }
+        }
+        return false;
+    }
+
 	/**
 	 * Go thru each listener and offer him to take over the connection. The
 	 * first observer that returns true gets exclusive rights.

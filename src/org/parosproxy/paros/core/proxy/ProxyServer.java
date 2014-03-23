@@ -27,6 +27,7 @@
 // ZAP: 2012/12/27 Added PersistentConnectionListener list, setter & getter.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
+// ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 //
 package org.parosproxy.paros.core.proxy;
 
@@ -60,6 +61,7 @@ public class ProxyServer implements Runnable {
     protected ProxyParam proxyParam = new ProxyParam();
     protected ConnectionParam connectionParam = new ConnectionParam();
     protected Vector<ProxyListener> listenerList = new Vector<>();
+    protected Vector<OverrideMessageProxyListener> overrideListeners = new Vector<>();
     protected Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
     // ZAP: Added listenersComparator.
     private static Comparator<ArrangeableProxyListener> listenersComparator;
@@ -281,6 +283,19 @@ public class ProxyServer implements Runnable {
 
     synchronized List<PersistentConnectionListener> getPersistentConnectionListenerList() {
         return persistentConnectionListenerList;
+    }
+
+    public void addOverrideMessageProxyListener(OverrideMessageProxyListener listener) {
+        overrideListeners.add(listener);
+        Collections.sort(overrideListeners, getListenersComparator());
+    }
+
+    public void removeOverrideMessageProxyListener(OverrideMessageProxyListener listener) {
+        overrideListeners.remove(listener);
+    }
+
+    List<OverrideMessageProxyListener> getOverrideMessageProxyListeners() {
+        return overrideListeners;
     }
 
     public boolean isAnyProxyThreadRunning() {

@@ -29,6 +29,8 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
  * A listener that will be notified when a new request is ready to be forwarded
  * to the server and when a new response is ready to be forwarded to the client.
+ * 
+ * @see OverrideMessageProxyListener
  */
 // ZAP: Changed the JavaDoc.
 public interface ProxyListener extends ArrangeableProxyListener {
