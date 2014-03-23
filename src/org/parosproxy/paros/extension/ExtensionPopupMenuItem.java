@@ -26,6 +26,7 @@
 // ZAP: 2012/08/01 Issue 332: added support for Modes
 // ZAP: 2012/08/29 Issue 250: Support for authentication management
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2014/03/23 Changed to implement the interface ExtensionPopupMenuComponent
 
 package org.parosproxy.paros.extension;
 
@@ -33,8 +34,9 @@ import java.awt.Component;
 
 import javax.swing.JMenuItem;
 
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 
-public class ExtensionPopupMenuItem extends JMenuItem {
+public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupMenuComponent {
 
 	private static final long serialVersionUID = -5454473736753550528L;
 	
@@ -57,6 +59,10 @@ public class ExtensionPopupMenuItem extends JMenuItem {
         super(label);
     }
     
+    /**
+     * By default, the pop up menu item button is enabled and it is enable for all {@code invoker}s.
+     */
+    @Override
     public boolean isEnableForComponent(Component invoker) {
         return true;
     }
@@ -65,6 +71,7 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     	return null;
     }
     
+    @Override
     public int getMenuIndex() {
     	return menuIndex;
     }
@@ -97,6 +104,7 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     }
     
     // ZAP: Added precedeWithSeparator
+    @Override
     public boolean precedeWithSeparator() {
     	return precedeWithSeparator;
     }
@@ -106,6 +114,7 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     }
     
     // ZAP: Added succeedWithSeparator
+    @Override
     public boolean succeedWithSeparator() {
     	return succeedWithSeparator;
     }
@@ -115,6 +124,7 @@ public class ExtensionPopupMenuItem extends JMenuItem {
     }
 
     // Override if the menuitem is safe!
+    @Override
     public boolean isSafe() {
     	return false;
     }

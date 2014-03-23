@@ -24,8 +24,9 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 
-public class ExtensionPopupMenu extends JMenu {
+public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuComponent {
 
 	private static final long serialVersionUID = 1925623776527543421L;
 
@@ -38,8 +39,24 @@ public class ExtensionPopupMenu extends JMenu {
 	}
 
 	/**
-	 * @param invoker
+	 * By default, the pop up menu button is enabled and the pop up menu is only enable for the given {@code invoker} if at
+	 * least one of the child menu items is enable for the given {@code invoker}.
+	 * <p>
+	 * Although the pop up menu is allowed to contain child menus and menu items of any type of {@code JMenu} or
+	 * {@code JMenuItem} the only children considered as enablers are the ones of the type of {@code PopupMenuHistoryReference}.
+	 * </p>
+	 * <p>
+	 * The {@code PopupMenuHistoryReference}s are considered enable if the corresponding method
+	 * {@code isEnableForComponent(Component)}, with {@code invoker} as parameter, returns {@code true}.
+	 * </p>
+	 * <p>
+	 * <strong>Implementation Note:</strong> The method {@code isEnableForComponent(Component)} is called on all child
+	 * {@code PopupMenuHistoryReference}s, even if a previous child has returned {@code true}, as it allows to notify all the
+	 * children that the pop up menu in which they are, is being invoked. Subclasses should take it into account when overriding
+	 * this the method.
+	 * </p>
 	 */
+	@Override
 	public boolean isEnableForComponent(Component invoker) {
 		boolean retV = false;
 		for (int index = 0; index < this.getItemCount(); index++) {
@@ -59,6 +76,7 @@ public class ExtensionPopupMenu extends JMenu {
 		return null;
 	}
 
+	@Override
 	public int getMenuIndex() {
 		return -1;
 	}
@@ -71,14 +89,17 @@ public class ExtensionPopupMenu extends JMenu {
 		return false;
 	}
 
+	@Override
 	public boolean precedeWithSeparator() {
 		return false;
 	}
 
+	@Override
 	public boolean succeedWithSeparator() {
 		return false;
 	}
 
+	@Override
 	public boolean isSafe() {
 		return true;
 	}
