@@ -37,6 +37,8 @@ import org.zaproxy.zap.extension.search.ExtensionSearch.Type;
 
 public class SearchThread extends Thread {
 
+	private static final String THREAD_NAME = "ZAP-SearchThread";
+
 	private String filter;
 	private Type reqType;
 	private SearchListenner searchListenner;
@@ -57,7 +59,7 @@ public class SearchThread extends Thread {
 
     public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
     		String baseUrl, int start, int count, boolean searchAllOccurrences) {
-		super();
+		super(THREAD_NAME);
 		this.filter = filter;
 		this.reqType = reqType;
 		this.searchListenner = searchListenner;
