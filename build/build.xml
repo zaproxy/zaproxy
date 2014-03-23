@@ -644,7 +644,7 @@
         <property name="version" value="D-${yyyymmdd}" />
         <echo message="Version is ${version}" />
 
-        <antcall target="generate-help-file" />
+        <antcall target="generate-help-jars" />
         <!-- Set to compile with debug information -->
         <property name="javac.debug" value="true" />
         <antcall target="dist" />
