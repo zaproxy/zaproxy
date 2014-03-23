@@ -24,6 +24,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JMenuItem;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -101,10 +103,11 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	}
 
 	protected void replaceInvokeMenus(List<InvokableApp> apps) {
+	    final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
 		// Delete existing ones
-		View.getSingleton().getPopupMenu().removeMenu(confPopup);
+		mainPopupMenuItems.remove(confPopup);
     	for (PopupMenuInvoke pmi : invokeMenus) {
-    		View.getSingleton().getPopupMenu().removeMenu(pmi);
+    		mainPopupMenuItems.remove(pmi);
 	    }
         this.invokeMenus.clear();
 
@@ -116,10 +119,10 @@ public class ExtensionInvoke extends ExtensionAdaptor {
             pmi.setParameters(app.getParameters());
             pmi.setCaptureOutput(app.isCaptureOutput());
             pmi.setOutputNote(app.isOutputNote());
-    		View.getSingleton().getPopupMenu().addMenu(pmi);
+    		mainPopupMenuItems.add(pmi);
             this.invokeMenus.add(pmi);
 		}
-		View.getSingleton().getPopupMenu().addMenu(confPopup);
+		mainPopupMenuItems.add(confPopup);
 	}
 	@Override
 	public String getAuthor() {

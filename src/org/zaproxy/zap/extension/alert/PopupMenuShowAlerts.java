@@ -23,6 +23,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import javax.swing.JMenuItem;
+
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -65,9 +67,10 @@ public class PopupMenuShowAlerts extends PopupMenuItemHistoryReferenceContainer 
 
 	@Override
     public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
+		final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
     	// Delete all submenus - these (probably) refer to a previous node
 		for (PopupMenuShowAlert menu : subMenus) {
-			View.getSingleton().getPopupMenu().removeMenu(menu);
+			mainPopupMenuItems.remove(menu);
 			
 		}
 		subMenus.clear();
@@ -103,7 +106,7 @@ public class PopupMenuShowAlerts extends PopupMenuItemHistoryReferenceContainer 
 			Collections.sort(alertList);
 			
 			for (PopupMenuShowAlert pmsa : alertList) {
-				View.getSingleton().getPopupMenu().addMenu(pmsa);
+				mainPopupMenuItems.add(pmsa);
 				this.add(pmsa);
 				this.subMenus.add(pmsa);
 			}

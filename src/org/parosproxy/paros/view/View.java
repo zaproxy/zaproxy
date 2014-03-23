@@ -47,6 +47,7 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session dialog
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/03/23 Issue 1085: Do not add/remove pop up menu items through the method View#getPopupMenu()
 
 package org.parosproxy.paros.view;
 
@@ -75,10 +76,13 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.ExtensionHookMenu;
+import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -510,12 +514,45 @@ public class View implements ViewDelegate {
     
     // ZAP: Removed the method setStatus(String), no longer used.
     
+    /**
+     * Returns a new {@code MainPopupMenu} instance with the pop pup menu items returned by the method {@code getPopupList()}.
+     * <p>
+     * <strong>Note:</strong> Pop up menu items ({@code JMenuItem}, {@code JMenu}, {@code ExtensionPopupMenuItem} and
+     * {@code ExtensionPopupMenu}) should be added/removed to/from the list returned by the method {@code getPopupList()} not by
+     * calling the methods {@code MainPopupMenu#addMenu(...)} on the returned {@code MainPopupMenu} instance. Adding pop up menu
+     * items to the returned {@code MainPopupMenu} instance relies on current implementation of {@code MainPopupMenu} which may
+     * change without notice (moreover a new instance is created each time the method is called).
+     * </p>
+     * 
+     * @return a {@code MainPopupMenu} containing the pop up menu items that are in the list returned by the method
+     *         {@code getPopupList()}.
+     * @see #getPopupList()
+     * @see MainPopupMenu
+     * @see ExtensionPopupMenu
+     * @see ExtensionPopupMenuItem
+     */
     @Override
     public MainPopupMenu getPopupMenu() {
         MainPopupMenu popup = new MainPopupMenu(popupList, this);
         return popup;
     }
     
+    /**
+     * Returns the list of pop up menu items that will have the {@code MainPopupMenu} instance returned by the method
+     * {@code getPopupMenu()}.
+     * <p>
+     * Should be used to dynamically add/remove pop up menu items ({@code JMenuItem}, {@code JMenu},
+     * {@code ExtensionPopupMenuItem} and {@code ExtensionPopupMenu}) to the main pop up menu at runtime.
+     * </p>
+     * 
+     * @return the list of pop up menu items that will have the main pop up menu.
+     * @see #getPopupMenu()
+     * @see ExtensionHookMenu#addPopupMenuItem(ExtensionPopupMenu)
+     * @see ExtensionHookMenu#addPopupMenuItem(ExtensionPopupMenuItem)
+     * @see MainPopupMenu
+     * @see ExtensionPopupMenu
+     * @see ExtensionPopupMenuItem
+     */
     public Vector<JMenuItem> getPopupList() {
         return popupList;
     }

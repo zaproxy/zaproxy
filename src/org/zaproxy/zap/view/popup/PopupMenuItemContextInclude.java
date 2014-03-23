@@ -22,6 +22,8 @@ package org.zaproxy.zap.view.popup;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JMenuItem;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
@@ -76,8 +78,9 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
     }
 
     protected void reCreateSubMenu() {
+        final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
         for (ExtensionPopupMenuItem menu : subMenus) {
-            View.getSingleton().getPopupMenu().removeMenu(menu);
+            mainPopupMenuItems.remove(menu);
 
         }
         subMenus.clear();
@@ -87,12 +90,12 @@ public class PopupMenuItemContextInclude extends PopupMenuItemSiteNodeContainer 
         for (Context context : contexts) {
             ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu(context);
             piicm.setMenuIndex(this.getMenuIndex());
-            View.getSingleton().getPopupMenu().addMenu(piicm);
+            mainPopupMenuItems.add(piicm);
             this.subMenus.add(piicm);
         }
         // Add the 'new context' menu
         ExtensionPopupMenuItem piicm = createPopupIncludeInContextMenu();
-        View.getSingleton().getPopupMenu().addMenu(piicm);
+        mainPopupMenuItems.add(piicm);
         this.subMenus.add(piicm);
     }
 

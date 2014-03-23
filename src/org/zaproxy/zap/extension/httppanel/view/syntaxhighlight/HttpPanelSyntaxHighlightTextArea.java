@@ -27,6 +27,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import javax.swing.Action;
+import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
 import javax.swing.JViewport;
 import javax.swing.text.BadLocationException;
@@ -314,18 +315,19 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			
 			selectAllAction = new TextAreaMenuItem(RTextArea.SELECT_ALL_ACTION, false, false);
 			
-			View.getSingleton().getPopupMenu().addMenu(syntaxMenu);
-			View.getSingleton().getPopupMenu().addMenu(viewMenu);
+			final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
+			mainPopupMenuItems.add(syntaxMenu);
+			mainPopupMenuItems.add(viewMenu);
 			
-			View.getSingleton().getPopupMenu().addMenu(undoAction);
-			View.getSingleton().getPopupMenu().addMenu(redoAction);
+			mainPopupMenuItems.add(undoAction);
+			mainPopupMenuItems.add(redoAction);
 			
-			View.getSingleton().getPopupMenu().addMenu(cutAction);
-			View.getSingleton().getPopupMenu().addMenu(copyAction);
-			View.getSingleton().getPopupMenu().addMenu(pasteAction);
-			View.getSingleton().getPopupMenu().addMenu(deleteAction);
+			mainPopupMenuItems.add(cutAction);
+			mainPopupMenuItems.add(copyAction);
+			mainPopupMenuItems.add(pasteAction);
+			mainPopupMenuItems.add(deleteAction);
 			
-			View.getSingleton().getPopupMenu().addMenu(selectAllAction);
+			mainPopupMenuItems.add(selectAllAction);
 		}
 	}
 	

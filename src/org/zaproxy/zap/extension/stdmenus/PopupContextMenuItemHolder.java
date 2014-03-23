@@ -4,6 +4,8 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JMenuItem;
+
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -95,12 +97,13 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
 
 	@Override
 	public void prepareShow() {
+		final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
 		// Remove existing popup menu items
 		if (visibleItself)
 			this.removeAll();
 		else {
 			for (ExtensionPopupMenuItem menu : getSubmenuItems()) {
-				View.getSingleton().getPopupMenu().removeMenu(menu);
+			    mainPopupMenuItems.remove(menu);
 
 			}
 			subMenuItems.clear();
@@ -117,7 +120,7 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
 			} else {
 				piicm = getPopupContextMenu(context, this.parentName);
 				piicm.setMenuIndex(this.getMenuIndex());
-				View.getSingleton().getPopupMenu().addMenu(piicm);
+				mainPopupMenuItems.add(piicm);
 				subMenuItems.add(piicm);
 			}
 		}
