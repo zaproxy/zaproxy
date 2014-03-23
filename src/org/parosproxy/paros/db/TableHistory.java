@@ -29,6 +29,7 @@
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 // ZAP: 2014/03/23 Issue 1075: Change TableHistory to delete records in batches
+// ZAP: 2014/03/23 Issue 1091: CoreAPI - Do not get the IDs of temporary history records
 
 package org.parosproxy.paros.db;
 
@@ -346,6 +347,7 @@ public class TableHistory extends AbstractTable {
      * @throws SQLException if an error occurred while getting the history IDs
      * @since 2.3.0
      * @see #getHistoryIds(long)
+     * @see #getHistoryIdsExceptOfHistType(long, int...)
      */
     public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes) throws SQLException {
         boolean hasHistTypes = histTypes != null && histTypes.length > 0;
@@ -359,6 +361,46 @@ public class TableHistory extends AbstractTable {
         strBuilder.append(" ORDER BY ").append(HISTORYID);
 
         try (PreparedStatement psReadSession = getConnection().prepareStatement(strBuilder.toString())) {
+
+            psReadSession.setLong(1, sessionId);
+            if (hasHistTypes) {
+                Array arrayHistTypes = getConnection().createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
+                psReadSession.setArray(2, arrayHistTypes);
+            }
+            try (ResultSet rs = psReadSession.executeQuery()) {
+                ArrayList<Integer> ids = new ArrayList<>();
+                while (rs.next()) {
+                    ids.add(Integer.valueOf(rs.getInt(HISTORYID)));
+                }
+                ids.trimToSize();
+
+                return ids;
+            }
+        }
+    }
+
+    /**
+     * Returns all the history record IDs of the given session except the ones with the given history types.
+     ** 
+     * @param sessionId the ID of session of the history records
+     * @param histTypes the history types of the history records that should be excluded
+     * @return a {@code List} with all the history IDs of the given session and history types, never {@code null}
+     * @throws SQLException if an error occurred while getting the history IDs
+     * @since 2.3.0
+     * @see #getHistoryIdsOfHistType(long, int...)
+     */
+    public List<Integer> getHistoryIdsExceptOfHistType(long sessionId, int... histTypes) throws SQLException {
+        boolean hasHistTypes = histTypes != null && histTypes.length > 0;
+        int strLength = hasHistTypes ? 102 : 68;
+        StringBuilder sb = new StringBuilder(strLength);
+        sb.append("SELECT ").append(HISTORYID);
+        sb.append(" FROM ").append(TABLE_NAME).append(" WHERE ").append(SESSIONID).append(" = ?");
+        if (hasHistTypes) {
+            sb.append(" AND ").append(HISTTYPE).append(" NOT IN ( UNNEST(?) )");
+        }
+        sb.append(" ORDER BY ").append(HISTORYID);
+
+        try (PreparedStatement psReadSession = getConnection().prepareStatement(sb.toString())) {
 
             psReadSession.setLong(1, sessionId);
             if (hasHistTypes) {
