@@ -49,15 +49,15 @@ public class HistoryReferenceTableModel extends AbstractTableModel {
 	/** The column names. */
 	private static final String[] COLUMN_NAMES = { 
 			Constant.messages.getString("view.href.table.header.hrefid"),
-			Constant.messages.getString("view.href.table.header.typeflag"),
+			Constant.messages.getString("view.href.table.header.hreftype"),
 			Constant.messages.getString("view.href.table.header.method"),
 			Constant.messages.getString("view.href.table.header.url"),
 			Constant.messages.getString("view.href.table.header.code"),
 			Constant.messages.getString("view.href.table.header.reason"),
 			Constant.messages.getString("view.href.table.header.rtt"),
-			Constant.messages.getString("view.href.table.header.size"),
+			Constant.messages.getString("view.href.table.header.size.message"),
 			Constant.messages.getString("view.href.table.header.sessionid"),
-			Constant.messages.getString("view.href.table.header.alertflag"),
+			Constant.messages.getString("view.href.table.header.highestalert"),
 			Constant.messages.getString("view.href.table.header.tags",
 			"", 	/* CUSTOM_1 */
 			"", 	/* CUSTOM_2 */
