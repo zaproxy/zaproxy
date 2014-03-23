@@ -28,6 +28,7 @@
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
+// ZAP: 2014/03/23 Issue 1075: Change TableHistory to delete records in batches
 
 package org.parosproxy.paros.db;
 
@@ -39,7 +40,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import java.util.Iterator;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -473,21 +473,56 @@ public class TableHistory extends AbstractTable {
 	}
 	
     /**
-     * Deletes from the database all the {@code HistoryReference}s whose id is
-     * in the list {@code ids}.
+     * Deletes from the database all the history records whose ID is
+     * in the list {@code ids}, in batches of 1000 records.
      * 
      * @param ids
-     *            a {@code List} containing all the ids of the
-     *            {@code HistoryReference}s to be deleted
+     *            a {@code List} containing all the IDs of the
+     *            history records to be deleted
+     * @throws IllegalArgumentException if {@code ids} is null
      * @throws SQLException
      *             if an error occurred while deleting the
-     *             {@code HistoryReference}s
+     *             history records
+     * @since 2.0.0
+     * @see #delete(List, int)
      */
 	// ZAP: Added method.
     public void delete(List<Integer> ids) throws SQLException {
-        for (Iterator<Integer> it = ids.iterator(); it.hasNext();) {
-            psDelete.setInt(1, it.next().intValue());
-            psDelete.executeUpdate();
+        delete(ids, 1000);
+    }
+
+    /**
+     * Deletes from the database all the history records whose ID is in the list {@code ids}, in batches of given
+     * {@code batchSize}.
+     * 
+     * @param ids a {@code List} containing all the IDs of the history records to be deleted
+     * @param batchSize the maximum size of records to delete in a single batch
+     * @throws IllegalArgumentException if {@code ids} is null
+     * @throws IllegalArgumentException if {@code batchSize} is not greater than zero
+     * @throws SQLException if an error occurred while deleting the history records
+     * @since 2.3.0
+     */
+    public void delete(List<Integer> ids, int batchSize) throws SQLException {
+        if (ids == null) {
+            throw new IllegalArgumentException("Parameter ids must not be null.");
+        }
+        if (batchSize <= 0) {
+            throw new IllegalArgumentException("Parameter batchSize must be greater than zero.");
+        }
+
+        int count = 0;
+        for (Integer id : ids) {
+            psDelete.setInt(1, id.intValue());
+            psDelete.addBatch();
+            count++;
+
+            if (count % batchSize == 0) {
+                psDelete.executeBatch();
+                count = 0;
+            }
+        }
+        if (count % batchSize != 0) {
+            psDelete.executeBatch();
         }
     }
 
