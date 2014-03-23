@@ -144,16 +144,103 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return scanner != null;
     }
 
-    private void addPassiveScanner(PluginPassiveScanner scanner) {
-        if (scanner instanceof RegexAutoTagScanner) {
-            return;
+    /**
+     * Adds the given passive scanner to the list of passive scanners that will be used to scan proxied messages.
+     * <p>
+     * The passive scanner will not be added if there is already a passive scanner with the same name.
+     * </p>
+     * <p>
+     * If the passive scanner extends from {@code PluginPassiveScanner} it will be added with the method
+     * {@code addPluginPassiveScanner(PluginPassiveScanner)}.
+     * </p>
+     * 
+     * @param passiveScanner the passive scanner that will be added
+     * @return {@code true} if the scanner was added, {@code false} otherwise.
+     * @throws IllegalArgumentException if the given passive scanner is {@code null}.
+     * @see PluginPassiveScanner
+     * @see #addPluginPassiveScanner(PluginPassiveScanner)
+     * @see PassiveScanner
+     */
+    public boolean addPassiveScanner(PassiveScanner passiveScanner) {
+        if (passiveScanner == null) {
+            throw new IllegalArgumentException("Parameter passiveScanner must not be null.");
         }
 
+        if (passiveScanner instanceof PluginPassiveScanner) {
+            return addPluginPassiveScannerImpl((PluginPassiveScanner) passiveScanner);
+        }
+        return addPassiveScannerImpl(passiveScanner);
+    }
+
+    /**
+     * Removes the given passive scanner from the list of passive scanners that are used to scan proxied messages.
+     * <p>
+     * The passive scanners are removed using their class name.
+     * </p>
+     * 
+     * @param passiveScanner the passive scanner that will be removed
+     * @return {@code true} if the scanner was removed, {@code false} otherwise.
+     * @throws IllegalArgumentException if the given passive scanner is {@code null}.
+     * @see PassiveScanner
+     */
+    public boolean removePassiveScanner(PassiveScanner passiveScanner) {
+        if (passiveScanner == null) {
+            throw new IllegalArgumentException("Parameter passiveScanner must not be null.");
+        }
+        return removePassiveScanner(passiveScanner.getClass().getName());
+    }
+
+    /**
+     * Adds the given plug-in passive scanner to the list of passive scanners that will be used to scan proxied messages.
+     * <p>
+     * The passive scanner will not be added if there is already a passive scanner with the same name.
+     * </p>
+     * 
+     * @param pluginPassiveScanner the plug-in passive scanner that will be added
+     * @return {@code true} if the plug-in scanner was added, {@code false} otherwise.
+     * @throws IllegalArgumentException if the given plug-in passive scanner is {@code null}.
+     * @see PluginPassiveScanner
+     */
+    public boolean addPluginPassiveScanner(PluginPassiveScanner pluginPassiveScanner) {
+        if (pluginPassiveScanner == null) {
+            throw new IllegalArgumentException("Parameter pluginPassiveScanner must not be null.");
+        }
+        return addPluginPassiveScannerImpl(pluginPassiveScanner);
+    }
+
+    /**
+     * Removes the given plug-in passive scanner from the list of passive scanners that are used to scan proxied messages.
+     * <p>
+     * The plug-in passive scanners are removed using their class name.
+     * </p>
+     * 
+     * @param pluginPassiveScanner the passive scanner that will be removed
+     * @return {@code true} if the plug-in scanner was removed, {@code false} otherwise.
+     * @throws IllegalArgumentException if the given plug-in passive scanner is {@code null}.
+     * @see PluginPassiveScanner
+     */
+    public boolean removePluginPassiveScanner(PluginPassiveScanner pluginPassiveScanner) {
+        if (pluginPassiveScanner == null) {
+            throw new IllegalArgumentException("Parameter pluginPassiveScanner must not be null.");
+        }
+        return removePassiveScanner(pluginPassiveScanner.getClass().getName());
+    }
+
+    private boolean addPassiveScannerImpl(PassiveScanner passiveScanner) {
+        return scannerList.add(passiveScanner);
+    }
+
+    private boolean addPluginPassiveScannerImpl(PluginPassiveScanner scanner) {
+        if (scanner instanceof RegexAutoTagScanner) {
+            return false;
+        }
+
+        boolean added = false;
         try {
             FileConfiguration config = this.getModel().getOptionsParam().getConfig();
             scanner.setConfig(config);
 
-            scannerList.add(scanner);
+            added = addPassiveScannerImpl(scanner);
 
             if (View.isInitialised()) {
                 // The method getPolicyPanel() creates view elements
@@ -167,6 +254,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         } catch (Exception e) {
             logger.error("Failed to load passive scanner " + scanner.getName(), e);
         }
+
+        return added;
     }
 
     private PassiveScannerList getPassiveScannerList() {
@@ -176,15 +265,15 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             // Read from the configs
             scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
 
-            scannerList.add(new AntiCsrfDetectScanner());
-            scannerList.add(new ParamScanner());
+            addPassiveScannerImpl(new AntiCsrfDetectScanner());
+            addPassiveScannerImpl(new ParamScanner());
 
             // Dynamically load 'switchable' plugins
             List<PluginPassiveScanner> listTest = ExtensionFactory.getAddOnLoader().getImplementors(
                     "org.zaproxy.zap.extension", PluginPassiveScanner.class);
 
             for (PluginPassiveScanner scanner : listTest) {
-                addPassiveScanner(scanner);
+                addPluginPassiveScannerImpl(scanner);
             }
         }
         return scannerList;

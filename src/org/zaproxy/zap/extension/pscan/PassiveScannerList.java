@@ -35,13 +35,15 @@ public class PassiveScannerList {
 	private List<PassiveScanner> passiveScanners = new ArrayList<>();
 	private Set<String> scannerNames = new HashSet<>();
 
-	protected void add (PassiveScanner scanner) {
+	protected boolean add (PassiveScanner scanner) {
 		if (scannerNames.contains(scanner.getName())) {
 			// Prevent duplicates, log error?
-			return;
+			return false;
 		}
 		passiveScanners.add(scanner);
 		scannerNames.add(scanner.getName());
+
+		return true;
 	}
 	
 	protected List<PassiveScanner> list () {
