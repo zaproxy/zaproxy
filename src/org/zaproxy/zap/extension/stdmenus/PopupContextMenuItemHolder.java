@@ -89,14 +89,15 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
 
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
+		resetMenu();
+
 		if (visibleItself) {
 			return super.isEnableForComponent(invoker);
 		}
 		return false;
 	}
 
-	@Override
-	public void prepareShow() {
+	private void resetMenu() {
 		final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
 		// Remove existing popup menu items
 		if (visibleItself)

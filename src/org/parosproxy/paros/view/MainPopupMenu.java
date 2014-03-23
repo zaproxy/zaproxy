@@ -39,6 +39,7 @@
 // ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
 // ZAP: 2014/03/23 Issue 1079: Remove misplaced main pop up menu separators
+// ZAP: 2014/03/23 Issue 1088: Deprecate the method ExtensionPopupMenu#prepareShow
 
 package org.parosproxy.paros.view;
 
@@ -142,7 +143,7 @@ public class MainPopupMenu extends JPopupMenu {
 				handleMenuItem(invoker, (ExtensionPopupMenuItem) menuItem);
 			} else if (menuItem instanceof ExtensionPopupMenu) {
 				ExtensionPopupMenu item = (ExtensionPopupMenu) menuItem;
-				item.prepareShow();
+				prepareShow(item);
 				handleMenu(invoker, item);
 			}
 		}
@@ -151,6 +152,18 @@ public class MainPopupMenu extends JPopupMenu {
 		if (PopupMenuUtils.isAtLeastOneChildComponentVisible(this)) {
 			super.show(invoker.getComponent(), x, y);
 		}
+	}
+
+	/**
+	 * The method {@code ExtensionPopupMenu#preprepareShow()} is deprecated but it must still be called for backward
+	 * compatibility, so to avoid hiding future deprecations of other methods/classes this method was added to suppress the
+	 * deprecation warning locally (instead of the whole method {@code showImpl(PopupMenuInvokerWrapper, int, int))}).
+	 * 
+	 * @see ExtensionPopupMenu#preprepareShow()
+	 */
+	@SuppressWarnings({"deprecation", "javadoc"})
+	private static void prepareShow(ExtensionPopupMenu popupMenu) {
+		popupMenu.prepareShow();
 	}
 	
 	private void handleMenuItem(PopupMenuInvokerWrapper popupMenuInvoker, ExtensionPopupMenuItem menuItem) {
