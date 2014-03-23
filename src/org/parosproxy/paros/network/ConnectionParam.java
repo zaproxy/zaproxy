@@ -360,7 +360,7 @@ public class ConnectionParam extends AbstractParam {
                 
                 String host = sub.getString(AUTH_HOST_NAME_KEY, "");
                 if ("".equals(host)) {
-                    break;
+                    continue;
                 }
                 
                 HostAuthentication auth = new HostAuthentication(
