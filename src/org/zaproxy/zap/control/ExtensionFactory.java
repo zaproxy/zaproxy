@@ -210,7 +210,8 @@ public class ExtensionFactory {
     	// Try to load a message bundle in the same package as the extension 
 		String name = ext.getClass().getPackage().getName() + "." + Constant.MESSAGES_PREFIX;
 		try {
-			ResourceBundle msg = ResourceBundle.getBundle(name, Constant.getLocale(), ext.getClass().getClassLoader());
+			ResourceBundle msg = ResourceBundle.getBundle(name, Constant.getLocale(), ext.getClass().getClassLoader(),
+					ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 			ext.setMessages(msg);
 			Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
 		} catch (Exception e) {

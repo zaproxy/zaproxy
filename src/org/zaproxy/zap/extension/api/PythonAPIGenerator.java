@@ -54,7 +54,8 @@ public class PythonAPIGenerator {
 			"This file was automatically generated.\n" +
 			"\"\"\"\n\n";
 
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
+	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
+		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 	
 	/**
 	 * Map any names which are reserved in python to something legal

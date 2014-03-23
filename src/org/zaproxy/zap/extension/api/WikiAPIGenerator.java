@@ -35,7 +35,8 @@ public class WikiAPIGenerator {
 	private File dir = new File("../zaproxy-wiki"); 
 	private int methods = 0;
 
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
+	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
+		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
 	private void generateWikiIndex() throws IOException {
 		File f = new File(this.dir, base + "Index.wiki");

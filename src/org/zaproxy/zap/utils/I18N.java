@@ -91,7 +91,8 @@ public class I18N {
 			return;
 		}
     	this.locale = locale;
-    	this.stdMessages = ResourceBundle.getBundle(Constant.MESSAGES_PREFIX, locale);
+    	this.stdMessages = ResourceBundle.getBundle(Constant.MESSAGES_PREFIX, locale,
+                ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
     }
 
     

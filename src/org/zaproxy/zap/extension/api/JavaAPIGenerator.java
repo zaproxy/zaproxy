@@ -53,7 +53,8 @@ public class JavaAPIGenerator {
 			" */\n" +
 			"\n\n";
 
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH);
+	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
+		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
 	/**
 	 * Map any names which are reserved in java to something legal
