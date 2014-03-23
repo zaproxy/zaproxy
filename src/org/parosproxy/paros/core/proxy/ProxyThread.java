@@ -40,6 +40,8 @@
 // ZAP: 2013/06/17 Issue 686: Log HttpException (as error) in the ProxyThread
 // ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
+// ZAP: 2014/03/23 Tidy up, extracted a method that writes an HTTP response and moved the
+// code responsible to decode a GZIP response to a method
 
 package org.parosproxy.paros.core.proxy;
 
@@ -210,12 +212,9 @@ class ProxyThread implements Runnable {
 					errmsg.setResponseBody("ZAP SSL Error: " + e.getLocalizedMessage());
 			    	int len = errmsg.getResponseBody().length();
 			    	errmsg.setResponseHeader("HTTP/1.1 504 Gateway Timeout\r\nContent-Length: " + len + "\r\nContent-Type: text/plain;");
-			        httpOut.write(errmsg.getResponseHeader());
-		            httpOut.flush();
-			        if (errmsg.getResponseBody().length() > 0) {
-			            httpOut.write(errmsg.getResponseBody().getBytes());
-			            httpOut.flush();
-			        }
+
+			    	writeHttpResponse(errmsg, httpOut);
+
 			        throw new IOException(e);
 				}
 			} else {
@@ -243,6 +242,16 @@ class ProxyThread implements Runnable {
     		}
 		}
 	}
+
+    private static void writeHttpResponse(HttpMessage msg, HttpOutputStream outputStream) throws IOException {
+        outputStream.write(msg.getResponseHeader());
+        outputStream.flush();
+
+        if (msg.getResponseBody().length() > 0) {
+            outputStream.write(msg.getResponseBody().getBytes());
+            outputStream.flush();
+        }
+    }
 	
 	protected void processHttp(HttpRequestHeader requestHeader, boolean isSecure) throws IOException {
 
@@ -311,39 +320,14 @@ class ProxyThread implements Runnable {
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
 					getHttpSender().sendAndReceive(msg);
 
-		            if (proxyParam.isAlwaysDecodeGzip() &&
-		            		HttpHeader.GZIP.equalsIgnoreCase(
-		            				msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-		                // Uncompress gziped content
-		                try (ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
-		                    GZIPInputStream gis = new GZIPInputStream(bais);
-		                    InputStreamReader isr = new InputStreamReader(gis);
-		                    BufferedReader br = new BufferedReader(isr);) {
-		                    StringBuilder sb = new StringBuilder();
-		                    String line = null;
-		                    while ((line = br.readLine()) != null) {
-		                        sb.append(line);
-		                    }
-		                    msg.setResponseBody(sb.toString());
-		                    msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
-		                } catch (IOException e) {
-		                    log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
-		                }
-		            }
+		            decodeGZIPResponseIfNeeded(msg);
 
 			        if (! notifyListenerResponseReceive(msg)) {
 			        	// One of the listeners has told us to drop the response
    				    	return;
 			        }
 		        
-			        // write out response header and body
-			        httpOut.write(msg.getResponseHeader());
-		            httpOut.flush();
-		            
-			        if (msg.getResponseBody().length() > 0) {
-			            httpOut.write(msg.getResponseBody().getBytes());
-			            httpOut.flush();
-			        }
+			        writeHttpResponse(msg, httpOut);
 			        
 //			        notifyWrittenToForwardProxy();
 			    } catch (HttpException e) {
@@ -356,13 +340,7 @@ class ProxyThread implements Runnable {
 			    	
 			        notifyListenerResponseReceive(msg);
 
-			        httpOut.write(msg.getResponseHeader());
-		            httpOut.flush();
-
-			        if (msg.getResponseBody().length() > 0) {
-			            httpOut.write(msg.getResponseBody().getBytes());
-			            httpOut.flush();
-			        }
+			        writeHttpResponse(msg, httpOut);
 
 			        //throw e;
 			    }
@@ -376,6 +354,27 @@ class ProxyThread implements Runnable {
 			}
 	    } while (!isConnectionClose(msg) && !inSocket.isClosed());
 		
+    }
+
+    private void decodeGZIPResponseIfNeeded(HttpMessage msg) {
+        if (proxyParam.isAlwaysDecodeGzip()
+                && HttpHeader.GZIP.equalsIgnoreCase(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+            // Uncompress gziped content
+            try (ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
+                 GZIPInputStream gis = new GZIPInputStream(bais);
+                 InputStreamReader isr = new InputStreamReader(gis);
+                 BufferedReader br = new BufferedReader(isr);) {
+                StringBuilder sb = new StringBuilder();
+                String line = null;
+                while ((line = br.readLine()) != null) {
+                    sb.append(line);
+                }
+                msg.setResponseBody(sb.toString());
+                msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
+            } catch (IOException e) {
+                log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
+            }
+        }
     }
 
 	private boolean isConnectionClose(HttpMessage msg) {
@@ -573,14 +572,7 @@ class ProxyThread implements Runnable {
             msg.setResponseHeader(newMsg.getResponseHeader());
             msg.setResponseBody(newMsg.getResponseBody());
 
-            httpOut.write(msg.getResponseHeader());
-            httpOut.flush();
-
-            if (msg.getResponseBody().length() > 0) {
-                httpOut.write(msg.getResponseBody().getBytes());
-                httpOut.flush();
-
-            }
+            writeHttpResponse(msg, httpOut);
             
             return true;
             
@@ -595,14 +587,7 @@ class ProxyThread implements Runnable {
                 msg.setResponseHeader(history.getHttpMessage().getResponseHeader());
                 msg.setResponseBody(history.getHttpMessage().getResponseBody());
 
-                httpOut.write(msg.getResponseHeader());
-                httpOut.flush();
-
-                if (msg.getResponseBody().length() > 0) {
-                    httpOut.write(msg.getResponseBody().getBytes());                    
-                    httpOut.flush();
-
-                }
+                writeHttpResponse(msg, httpOut);
 //                System.out.println("cached:" + msg.getRequestHeader().getURI().toString());
                 
                 return true;
