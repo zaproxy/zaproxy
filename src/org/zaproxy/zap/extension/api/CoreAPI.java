@@ -618,9 +618,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		if (OTHER_PROXY_PAC.equals(name)) {
 			final ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			final String domain = proxyParam.getProxyIp();
 			final int port = proxyParam.getProxyPort();
 			try {
+				String domain = null;
+				if (proxyParam.isProxyIpAnyLocalAddress()) {
+					String localDomain = msg.getRequestHeader().getHostName();
+					if (!API.API_DOMAIN.equals(localDomain)) {
+						domain = localDomain;
+					}
+				}
+				if (domain == null) {
+					domain = proxyParam.getProxyIp();
+				}
 				String response = this.getPacFile(domain, port);
 				msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 				

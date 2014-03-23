@@ -47,6 +47,7 @@
 // ZAP: 2014/03/23 Issue 122: ProxyThread logging timeout readings with incorrect message (URL)
 // ZAP: 2014/03/23 Issue 585: Proxy - "502 Bad Gateway" errors responded as "504 Gateway Timeout"
 // ZAP: 2014/03/23 Issue 969: Proxy - Do not include the response body when answering unsuccessful HEAD requests
+// ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 
 package org.parosproxy.paros.core.proxy;
 
@@ -549,8 +550,7 @@ class ProxyThread implements Runnable {
                     return true;
                 }
                 InetAddress targetAddress = InetAddress.getByName(targetDomain);
-                if (parentServer.getProxyParam().getProxyIp().isEmpty()
-                        || InetAddress.getByName(parentServer.getProxyParam().getProxyIp()).isAnyLocalAddress()) {
+                if (parentServer.getProxyParam().isProxyIpAnyLocalAddress()) {
                     if (targetAddress.isLoopbackAddress() || targetAddress.isSiteLocalAddress()
                             || targetAddress.isAnyLocalAddress()) {
                         return true;

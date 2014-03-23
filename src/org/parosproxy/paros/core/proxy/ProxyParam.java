@@ -28,6 +28,7 @@
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
+// ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 
 package org.parosproxy.paros.core.proxy;
 
@@ -87,6 +88,13 @@ public class ProxyParam extends AbstractParam {
     private int reverseProxyHttpsPort = 443;
 
     /**
+     * Flag that indicates if the proxy ip is any local address.
+     * 
+     * @see #parse()
+     */
+    private boolean proxyIpAnyLocalAddress;
+
+    /**
      * The option that controls whether the proxy should modify/remove the
      * "Accept-Encoding" request-header field or not.
      */
@@ -104,6 +112,7 @@ public class ProxyParam extends AbstractParam {
     @Override
     protected void parse() {
         proxyIp = getConfig().getString(PROXY_IP, "localhost");
+        determineProxyIpAnyLocalAddress();
         
         try {
             proxyPort = getConfig().getInt(PROXY_PORT, 8080);
@@ -137,9 +146,7 @@ public class ProxyParam extends AbstractParam {
     }
 
     public String getProxyIp() {
-        // ZAP: added control for null IP (happens when the proxy is bound to all ports) and give back 
-        //      the provisioned IP or localhost if null            
-        if (proxyIp == null || proxyIp.isEmpty()) {
+        if (isProxyIpAnyLocalAddress()) {
             try {
                 return InetAddress.getLocalHost().getHostAddress();
 
@@ -158,8 +165,12 @@ public class ProxyParam extends AbstractParam {
     }
 
     public void setProxyIp(String proxyIp) {
+        if (this.proxyIp.equals(proxyIp)) {
+            return;
+        }
         this.proxyIp = proxyIp.trim();
         getConfig().setProperty(PROXY_IP, this.proxyIp);
+        determineProxyIpAnyLocalAddress();
 
     }
 
@@ -317,6 +328,36 @@ public class ProxyParam extends AbstractParam {
             SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
         } else {
             setSecurityProtocolsEnabled(SSLConnector.getServerEnabledProtocols());
+        }
+    }
+
+    /**
+     * Tells whether or not the proxy IP is set to listen on any local address.
+     * 
+     * @return {@code true} if the proxy IP is set to listen on any local address, {@code false} otherwise.
+     * @see #determineProxyIpAnyLocalAddress()
+     * @see #getProxyIp()
+     */
+    public boolean isProxyIpAnyLocalAddress() {
+        return proxyIpAnyLocalAddress;
+    }
+
+    /**
+     * Determines if the proxy IP is set to listen on any local address and updates the corresponding flag accordingly.
+     * <p>
+     * The proxy IP is set to listen on any local address if it is either empty or the method
+     * {@code InetAddress#isAnyLocalAddress()} called on the proxy IP returns {@code true}.
+     * 
+     * @see #proxyIpAnyLocalAddress
+     * @see #proxyIp
+     * @see #isProxyIpAnyLocalAddress()
+     * @see InetAddress#isAnyLocalAddress()
+     */
+    private void determineProxyIpAnyLocalAddress() {
+        try {
+            proxyIpAnyLocalAddress = proxyIp.isEmpty() || InetAddress.getByName(proxyIp).isAnyLocalAddress();
+        } catch (UnknownHostException e) {
+            proxyIpAnyLocalAddress = false;
         }
     }
 }
