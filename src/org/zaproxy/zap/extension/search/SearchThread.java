@@ -140,15 +140,17 @@ public class SearchThread extends Thread {
 				
 				        if (Type.URL.equals(reqType)) {
 				            // URL
-				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
+				            String url = message.getRequestHeader().getURI().toString();
+				            matcher = pattern.matcher(url);
 				            if (inverse && !pcc.allMatchesProcessed()) {
 					            if (! matcher.find()) {
 							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
+					            int urlStartPos = message.getRequestHeader().getPrimeHeader().indexOf(url);
 					            while (matcher.find() && !pcc.allMatchesProcessed()) {
 							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
-							        						matcher.start(), matcher.end()); 
+							        						urlStartPos + matcher.start(), urlStartPos + matcher.end()); 
 					            	
 							        if (!searchAllOccurrences) {
 							            break;
