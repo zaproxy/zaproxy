@@ -23,27 +23,26 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/07/29 Issue 43: Cleaned up access to ExtensionHistory UI
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/03/23 Changed to a JMenuItem.
 
 package org.parosproxy.paros.extension.history;
 
-import java.awt.Component;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
 import javax.swing.JFileChooser;
-import javax.swing.JList;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-public class PopupMenuExportResponse extends ExtensionPopupMenuItem {
+public class PopupMenuExportResponse extends JMenuItem {
 
 	private static final long serialVersionUID = 1L;
 
@@ -140,27 +139,6 @@ public class PopupMenuExportResponse extends ExtensionPopupMenuItem {
 
 			
 	}
-	
-    @Override
-    public boolean isEnableForComponent(Component invoker) {
-        
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
-            try {
-                JList<?> list = (JList<?>) invoker;
-                if (list.getSelectedIndex() >= 0) {
-                    this.setEnabled(true);
-                } else {
-                    this.setEnabled(false);
-                }
-            } catch (Exception e) {
-            	// ZAP: Log exceptions
-            	log.warn(e.getMessage(), e);
-            }
-            return true;
-            
-        }
-        return false;
-    }
 
     void setExtension(ExtensionHistory extension) {
         this.extension = extension;
