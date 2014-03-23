@@ -34,6 +34,7 @@
 // ZAP: 2013/01/25 Added method removeManualSendEditor().
 // ZAP: 2013/02/06 Issue 499: NullPointerException while uninstalling an add-on
 // with a manual request editor
+// ZAP: 2014/03/23 Issue 1094: Change ExtensionManualRequestEditor to only add view components if in GUI mode
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -48,6 +49,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestEditorDialog;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.httppanel.Message;
@@ -77,6 +79,12 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 		this.setName(NAME);
         this.setOrder(36);
         
+	}
+
+    @Override
+    public void initView(ViewDelegate view) {
+        super.initView(view);
+
         // add default manual request editor
         ManualRequestEditorDialog httpSendEditorDialog = new ManualHttpRequestEditorDialog(true, "manual");
         httpSendEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));
