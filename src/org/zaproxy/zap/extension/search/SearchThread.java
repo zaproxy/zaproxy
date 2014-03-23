@@ -59,6 +59,11 @@ public class SearchThread extends Thread {
 
     public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
     		String baseUrl, int start, int count, boolean searchAllOccurrences) {
+        this(filter, reqType, searchListenner, inverse, searchJustInScope, baseUrl, start, count, searchAllOccurrences, -1);
+    }
+
+    public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
+                String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences) {
 		super(THREAD_NAME);
 		this.filter = filter;
 		this.reqType = reqType;
@@ -66,7 +71,7 @@ public class SearchThread extends Thread {
 		this.inverse = inverse;
 		this.searchJustInScope = searchJustInScope;
 		this.baseUrl = baseUrl;
-		pcc = new PaginationConstraintsChecker(start, count);
+		pcc = new PaginationConstraintsChecker(start, count, maxOccurrences);
 		
 		this.searchAllOccurrences = searchAllOccurrences;
 	}
@@ -96,8 +101,11 @@ public class SearchThread extends Thread {
         	if (Type.Fuzz.equals(reqType)) {
         		ExtensionFuzz extFuzz = (ExtensionFuzz) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.NAME);
         		if (extFuzz != null) {
-        			List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern, inverse);
-        			for (SearchResult sr : fuzzResults) {
+        		    List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern, inverse);
+        		    int length = pcc.hasMaximumMatches()
+        		            ? Math.min(fuzzResults.size(), pcc.getMaximumMatches())
+        		            : fuzzResults.size();
+        			for (SearchResult sr : fuzzResults.subList(0, length)) {
         				searchListenner.addSearchResult(sr);
         			}
         		}
@@ -106,6 +114,7 @@ public class SearchThread extends Thread {
 
 			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
 			int last = list.size();
+			int currentRecordId = 0;
 			for (int index=0;index < last;index++){
 				if (stopSearch) {
 					break;
@@ -116,6 +125,7 @@ public class SearchThread extends Thread {
 			        if (hr.getHistoryType() == HistoryReference.TYPE_PROXIED || 
 			                hr.getHistoryType() == HistoryReference.TYPE_ZAP_USER || 
 			        		hr.getHistoryType() == HistoryReference.TYPE_SPIDER) {
+			            currentRecordId = index;
 			        	// Create the href to ensure the msg is set up correctly
 			        	HistoryReference href = new HistoryReference(hr.getHistoryId());
 			        	HttpMessage message = href.getHttpMessage();
@@ -131,13 +141,13 @@ public class SearchThread extends Thread {
 				        if (Type.URL.equals(reqType)) {
 				            // URL
 				            matcher = pattern.matcher(message.getRequestHeader().getURI().toString());
-				            if (inverse) {
+				            if (inverse && !pcc.allMatchesProcessed()) {
 					            if (! matcher.find()) {
-							        notifyInverseMatchFound(message, SearchMatch.Location.REQUEST_HEAD); 
+							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()); 
 					            	
 							        if (!searchAllOccurrences) {
@@ -150,13 +160,13 @@ public class SearchThread extends Thread {
 				            // Header
 				        	// Request header
 				            matcher = pattern.matcher(message.getRequestHeader().toString());
-				            if (inverse) {
+				            if (inverse && !pcc.allMatchesProcessed()) {
 					            if (! matcher.find()) {
-							        notifyInverseMatchFound(message, SearchMatch.Location.REQUEST_HEAD); 
+							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
@@ -165,13 +175,13 @@ public class SearchThread extends Thread {
 				            }
 				        	// Response header
 				            matcher = pattern.matcher(message.getResponseHeader().toString());
-				            if (inverse) {
+				            if (inverse && !pcc.allMatchesProcessed()) {
 					            if (! matcher.find()) {
-							        notifyInverseMatchFound(message, SearchMatch.Location.RESPONSE_HEAD); 
+							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.RESPONSE_HEAD); 
 					            }
 				            } else {
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
@@ -181,17 +191,17 @@ public class SearchThread extends Thread {
 						}
 				        if (Type.Request.equals(reqType) ||
 				        		Type.All.equals(reqType)) {
-				            if (inverse) {
+				            if (inverse && !pcc.allMatchesProcessed()) {
 					            // Check for no matches in either Request Header or Body 
 					            if (! pattern.matcher(message.getRequestHeader().toString()).find() && 
 					            		! pattern.matcher(message.getRequestBody().toString()).find()) {    
-							        notifyInverseMatchFound(message, SearchMatch.Location.REQUEST_HEAD); 
+							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.REQUEST_HEAD); 
 					            }
 				            } else {
 					            // Request Header 
 					            matcher = pattern.matcher(message.getRequestHeader().toString());    
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_HEAD, 
 							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
@@ -199,8 +209,8 @@ public class SearchThread extends Thread {
 					            }
 					            // Request Body
 					            matcher = pattern.matcher(message.getRequestBody().toString());    
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.REQUEST_BODY, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.REQUEST_BODY, 
 							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
@@ -210,17 +220,17 @@ public class SearchThread extends Thread {
 				        }
 				        if (Type.Response.equals(reqType) ||
 				        		Type.All.equals(reqType)) {
-				            if (inverse) {
+				            if (inverse && !pcc.allMatchesProcessed()) {
 					            // Check for no matches in either Response Header or Body 
 					            if (! pattern.matcher(message.getResponseHeader().toString()).find() && 
 					            		! pattern.matcher(message.getResponseBody().toString()).find()) {    
-							        notifyInverseMatchFound(message, SearchMatch.Location.RESPONSE_HEAD); 
+							        notifyInverseMatchFound(currentRecordId, message, SearchMatch.Location.RESPONSE_HEAD); 
 					            }
 				            } else {
 					            // Response header
 					            matcher = pattern.matcher(message.getResponseHeader().toString());    
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.RESPONSE_HEAD, 
 							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
@@ -228,8 +238,8 @@ public class SearchThread extends Thread {
 					            }
 					            // Response body
 					            matcher = pattern.matcher(message.getResponseBody().toString());    
-					            while (matcher.find()) {
-							        notifyMatchFound(matcher.group(), message, SearchMatch.Location.RESPONSE_BODY, 
+					            while (matcher.find() && !pcc.allMatchesProcessed()) {
+							        notifyMatchFound(currentRecordId, matcher.group(), message, SearchMatch.Location.RESPONSE_BODY, 
 							        						matcher.start(), matcher.end()); 
 								    if (!searchAllOccurrences) {
 								    	break;
@@ -251,17 +261,18 @@ public class SearchThread extends Thread {
 		}
 	}
 
-	private void notifyInverseMatchFound(HttpMessage message, SearchMatch.Location location) {
-		notifyMatchFound("", message, location, 0, 0);
+	private void notifyInverseMatchFound(int currentRecordId, HttpMessage message, SearchMatch.Location location) {
+		notifyMatchFound(currentRecordId, "", message, location, 0, 0);
 	}
 
-	private void notifyMatchFound(String stringFound, HttpMessage message, SearchMatch.Location location, int start, int end) {
-		pcc.recordProcessed();
+	private void notifyMatchFound(int currentRecordId, String stringFound, HttpMessage message, SearchMatch.Location location, int start, int end) {
+	    pcc.recordProcessed(currentRecordId);
 		if (!pcc.hasPageStarted()) {
 			// Before the specified start
 			return;
 		}
 
+		pcc.matchProcessed();
 		searchListenner.addSearchResult(new SearchResult(reqType, filter, stringFound, new SearchMatch(
 				message,
 				location,
@@ -277,9 +288,17 @@ public class SearchThread extends Thread {
 		private final boolean hasEnd;
 		private final int finalRecord;
 		private int recordsProcessed;
+		private int currentRecordId;
 
-		public PaginationConstraintsChecker(int start, int count) {
+		private final int maximumMatches;
+		private final boolean hasMaximumMatches;
+		private boolean allMatchesProcessed;
+		private int matchesProcessed;
+
+		public PaginationConstraintsChecker(int start, int count, int matches) {
 			recordsProcessed = 0;
+			matchesProcessed = 0;
+			currentRecordId = -1;
 
 			if (start > 0) {
 				pageStarted = false;
@@ -297,9 +316,25 @@ public class SearchThread extends Thread {
 				finalRecord = 0;
 			}
 			pageEnded = false;
+			allMatchesProcessed = false;
+			maximumMatches = matches;
+			hasMaximumMatches = maximumMatches > 0;
 		}
 
-		public void recordProcessed() {
+		public boolean hasMaximumMatches() {
+			return hasMaximumMatches;
+		}
+
+		public int getMaximumMatches() {
+			return maximumMatches;
+		}
+
+		public void recordProcessed(int recordId) {
+			if (currentRecordId == recordId) {
+				return;
+			}
+			currentRecordId = recordId;
+
 			++recordsProcessed;
 
 			if (!pageStarted) {
@@ -311,12 +346,25 @@ public class SearchThread extends Thread {
 			}
 		}
 
+		public void matchProcessed() {
+			++matchesProcessed;
+
+			if (hasMaximumMatches && matchesProcessed >= maximumMatches) {
+				allMatchesProcessed = true;
+				pageEnded = true;
+			}
+		}
+
 		public boolean hasPageStarted() {
 			return pageStarted;
 		}
 
 		public boolean hasPageEnded() {
 			return pageEnded;
+		}
+
+		public boolean allMatchesProcessed() {
+			return allMatchesProcessed;
 		}
 	}
 }

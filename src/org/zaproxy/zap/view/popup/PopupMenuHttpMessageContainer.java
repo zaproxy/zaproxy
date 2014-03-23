@@ -28,6 +28,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
+import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
@@ -333,7 +334,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
         case "treeAlert":
             invoker = Invoker.ALERTS_PANEL;
             break;
-        case "listSearch":
+        case SearchPanel.HTTP_MESSAGE_CONTAINER_NAME:
             invoker = Invoker.SEARCH_PANEL;
             break;
         case ActiveScanPanel.MESSAGE_CONTAINER_NAME:

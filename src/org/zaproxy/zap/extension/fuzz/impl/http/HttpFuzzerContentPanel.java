@@ -264,7 +264,11 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                     // Check for no matches in either Response Header or Body
                     if (!pattern.matcher(msg.getResponseHeader().toString()).find()
                             && !pattern.matcher(msg.getResponseBody().toString()).find()) {
-                        results.add(new SearchResult(msg, ExtensionSearch.Type.Fuzz, pattern.toString(), ""));
+                        results.add(new SearchResult(ExtensionSearch.Type.Fuzz, pattern.toString(), "", new SearchMatch(
+                                msg,
+                                SearchMatch.Location.RESPONSE_HEAD,
+                                0,
+                                0)));
                     }
                 } else {
                     // Response header

@@ -22,48 +22,51 @@ package org.zaproxy.zap.extension.search;
 import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.SortedSet;
-import java.util.TreeSet;
 import java.util.regex.Pattern;
 
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ZapToggleButton;
-import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
 
 public class SearchPanel extends AbstractPanel implements SearchListenner {
 	
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * @deprecated (2.3.0) Replaced by {@link #HTTP_MESSAGE_CONTAINER_NAME}.
+	 */
+	@Deprecated
 	public static final String PANEL_NAME = "search";
 
-	private static final Logger logger = Logger.getLogger(SearchPanel.class);
-		
+	/**
+	 * The name of the search results HTTP messages container.
+	 * 
+	 * @see org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer
+	 */
+	public static final String HTTP_MESSAGE_CONTAINER_NAME = "SearchHttpMessageContainer";
+
 	private ExtensionSearch extension;
 	
 	private javax.swing.JPanel panelCommand = null;
@@ -78,16 +81,16 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private JButton btnPrev = null;
 	private JCheckBox chkInverse = null;
 	private JLabel numberOfMatchesLabel;
+	private JButton optionsButton;
 	
 	private MessageFormat numberOfMatchesFormat;
 
-	private JList<SearchResult> resultsList = new JList<>();
-	private DefaultListModel<SearchResult> resultsModel;
+	private SearchResultsTable resultsTable;
+	private SearchResultsTableModel resultsModel;
 
 	private HttpPanelRequest requestPanel = null;
 	private HttpPanelResponse responsePanel = null;
 
-    private SearchPanelCellRenderer searchPanelCellRenderer = null;
     //private static Logger log = Logger.getLogger(SearchPanel.class);
 
     /**
@@ -110,86 +113,33 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	 * This method initializes this
 	 */
 	private  void initialize() {
+		resultsModel = new SearchResultsTableModel();
+		resultsTable = new SearchResultsTable(resultsModel);
+		resultsTable.setName(HTTP_MESSAGE_CONTAINER_NAME);
+
+		resultsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent evt) {
+				if (!evt.getValueIsAdjusting()) {
+					SearchResult searchResult = resultsTable.getSelectedSearchResult();
+					if (searchResult == null) {
+						return;
+					}
+
+					displayMessage(resultsTable.getSelectedSearchResult());
+
+					// Get the focus back so that the arrow keys work
+					resultsTable.requestFocusInWindow();
+				}
+			}
+		});
+
         this.setLayout(new CardLayout());
         //this.setSize(474, 251);
         this.setName(Constant.messages.getString("search.panel.title"));
 		this.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
-        
-		resultsModel = new DefaultListModel<>();
-		resultsList.setModel(resultsModel);
-		
-		resultsList.setName("listSearch");
-		resultsList.setFixedCellHeight(16);	// Significantly speeds up rendering
-
-		resultsList.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mousePressed(java.awt.event.MouseEvent e) {
-				showPopupMenuIfTriggered(e);
-			}
-			@Override
-			public void mouseReleased(java.awt.event.MouseEvent e) {
-				showPopupMenuIfTriggered(e);
-			}
-			private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-				if (e.isPopupTrigger()) { 
-					// Select list item on right click
-				    int Idx = resultsList.locationToIndex( e.getPoint() );
-				    if ( Idx >= 0 ) {
-				    	Rectangle Rect = resultsList.getCellBounds( Idx, Idx );
-				    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-				    }
-				    if ( Idx < 0 || !resultsList.getSelectionModel().isSelectedIndex( Idx ) ) {
-				    	resultsList.getSelectionModel().clearSelection();
-				    	if ( Idx >= 0 ) {
-				    		resultsList.getSelectionModel().setSelectionInterval( Idx, Idx );
-				    	}
-				    }
-
-                    final List<SearchResult> searchResultsSelected = resultsList.getSelectedValuesList();
-                    List<HistoryReference> historyReferences;
-                    if (searchResultsSelected.size() > 0) {
-                        SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
-                        ArrayList<HistoryReference> uniqueHistoryReferences = new ArrayList<>();
-                        for (SearchResult searchResult : searchResultsSelected) {
-                            final HistoryReference historyReference = searchResult.getMessage().getHistoryRef();
-                            if (historyReference != null
-                                    && !historyReferenceIdsAdded.contains(Integer.valueOf(historyReference.getHistoryId()))) {
-                                historyReferenceIdsAdded.add(Integer.valueOf(historyReference.getHistoryId()));
-                                uniqueHistoryReferences.add(historyReference);
-                            }
-                        }
-                        uniqueHistoryReferences.trimToSize();
-                        historyReferences = uniqueHistoryReferences;
-                    } else {
-                        historyReferences = Collections.emptyList();
-                    }
-                    SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
-                            resultsList.getName(),
-                            resultsList,
-                            Collections.<HistoryReference> emptyList(),
-                            historyReferences);
-				    View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
-				}
-			}
-		});
-		
-		resultsList.setCellRenderer(getSearchPanelCellRenderer());
-		resultsList.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-			@Override
-			public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-				if (resultsList.getSelectedValue() == null) {
-					return;
-				}
-				
-				if(!e.getValueIsAdjusting()) {
-					displayMessage(resultsList.getSelectedValue());
-					
-					// Get the focus back so that the arrow keys work 
-					resultsList.requestFocus();
-				}
-			}
-		});
 	}
 	
 	/**
@@ -261,6 +211,12 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			gridBagConstraintsX.anchor = java.awt.GridBagConstraints.EAST;
 			gridBagConstraintsX.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
+			GridBagConstraints optionsGridBag = new GridBagConstraints();
+			optionsGridBag.gridx = gridBagConstraintsX.gridx +1;
+			optionsGridBag.gridy = 0;
+			optionsGridBag.insets = new java.awt.Insets(0, 0, 0, 0);
+			optionsGridBag.anchor = java.awt.GridBagConstraints.EAST;
+
 			JLabel t1 = new JLabel();
 			JLabel inverseTooltip = new JLabel(Constant.messages.getString("search.toolbar.label.inverse"));
 			inverseTooltip.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.inverse"));
@@ -276,6 +232,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			panelToolbar.add(new JToolBar.Separator(), newGBC(8));
 			panelToolbar.add(getNumberOfMatchesLabel(), newGBC(9));
 			panelToolbar.add(t1, gridBagConstraintsX);
+			panelToolbar.add(getOptionsButton(), optionsGridBag);
 		}
 		return panelToolbar;
 	}
@@ -319,14 +276,34 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
+					Pattern pattern;
 					try {
-						Pattern.compile(regEx.getText());
+						pattern = Pattern.compile(regEx.getText());
 					} catch (IllegalArgumentException e) {
 						regEx.requestFocusInWindow();
 						View.getSingleton()
 								.showWarningDialog(Constant.messages.getString("search.toolbar.error.invalid.regex"));
 						return;
 					}
+
+					if (pattern.matcher("").find()) {
+						int option = JOptionPane.showOptionDialog(
+								View.getSingleton().getMainFrame(),
+								Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.text"),
+								Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.title"),
+								JOptionPane.OK_CANCEL_OPTION,
+								JOptionPane.QUESTION_MESSAGE,
+								null,
+								new String[] {
+										Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.search"),
+										Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.cancel") },
+								null);
+						if (option != JOptionPane.OK_OPTION) {
+							regEx.requestFocusInWindow();
+							return;
+						}
+					}
+
 					doSearch();
 				}
 			});
@@ -404,13 +381,31 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private void setNumberOfMatches(int numberOfMatches) {
 		numberOfMatchesLabel.setText(numberOfMatchesFormat.format(new Object[] { Integer.valueOf(numberOfMatches) }));
 	}
+
+	private JButton getOptionsButton() {
+		if (optionsButton == null) {
+			optionsButton = new JButton();
+			optionsButton.setToolTipText(Constant.messages.getString("search.toolbar.button.options"));
+			optionsButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					Control.getSingleton()
+							.getMenuToolsControl()
+							.options(Constant.messages.getString("search.optionspanel.name"));
+				}
+			});
+		}
+		return optionsButton;
+	}
 	
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			jScrollPane.setViewportView(resultsList);
+			jScrollPane.setViewportView(resultsTable);
 		}
 		return jScrollPane;
 	}
@@ -421,31 +416,21 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	}
 
 	@Override
-	public void addSearchResult(SearchResult str) {
-		resultsModel.addElement(str);
-		if (resultsModel.size() == 1) {
-			final Thread t = new Thread(new Runnable() {
+	public void addSearchResult(final SearchResult str) {
+		if (EventQueue.isDispatchThread()) {
+			resultsModel.addSearchResult(str);
+
+			setNumberOfMatches(resultsModel.getRowCount());
+			if (resultsModel.getRowCount() == 1) {
+				highlightFirstResult();
+			}
+		} else {
+			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					if (EventQueue.isDispatchThread()) {
-						setNumberOfMatches(resultsModel.getSize());
-						highlightFirstResult();
-					} else {
-						try {
-							EventQueue.invokeAndWait(new Runnable() {
-								@Override
-								public void run() {
-									setNumberOfMatches(resultsModel.getSize());
-									highlightFirstResult();
-								}
-							});
-						} catch (Exception e) {
-							logger.error(e.getMessage(), e);
-						}
-					}
+				    addSearchResult(str);
 				}
 			});
-			t.start();
 		}
 	}
 
@@ -473,9 +458,9 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     	extension.search(regEx.getText(), type, false, chkInverse.isSelected());
 		
 		// Select first result
-		if (resultsList.getModel().getSize() > 0) {
-			resultsList.setSelectedIndex(0);
-			resultsList.requestFocus();
+		if (resultsTable.getModel().getRowCount() > 0) {
+			resultsTable.getSelectionModel().setSelectionInterval(0, 0);
+			resultsTable.requestFocus();
 		}
     }
     
@@ -492,6 +477,10 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
+        if (msg == null) {
+            return;
+        }
+
         if (msg.getRequestHeader().isEmpty()) {
             requestPanel.clearView(true);
         } else {
@@ -541,29 +530,29 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
     
     protected void highlightFirstResult() {
-		if (resultsList.getModel().getSize() > 0) {
-			resultsList.setSelectedIndex(0);
-    		resultsList.ensureIndexIsVisible(0);
-			resultsList.requestFocus();
+		if (resultsTable.getModel().getRowCount() > 0) {
+			resultsTable.getSelectionModel().setSelectionInterval(0, 0);
+    		resultsTable.scrollRowToVisible(0);
+			resultsTable.requestFocus();
 		}
     }
 
     protected void highlightNextResult () {
-    	if (resultsList.getSelectedValue() == null) {
+    	if (resultsTable.getSelectedSearchResult() == null) {
     		this.highlightFirstResult();
     		return;
     	}
     	
-    	SearchResult sr = resultsList.getSelectedValue();
+    	SearchResult sr = resultsTable.getSelectedSearchResult();
     	SearchMatch sm = sr.getNextMatch();
     	
     	if (sm != null) {
     		highlightMatch(sm);
     	} else {
     		// Next record
-        	if (resultsList.getSelectedIndex() < resultsList.getModel().getSize()-1) {
-        		resultsList.setSelectedIndex(resultsList.getSelectedIndex() + 1);
-        		resultsList.ensureIndexIsVisible(resultsList.getSelectedIndex());
+        	if (resultsTable.getSelectedRow() < resultsTable.getModel().getRowCount()-1) {
+        		resultsTable.getSelectionModel().setSelectionInterval(resultsTable.getSelectedRow() + 1, resultsTable.getSelectedRow() + 1);
+        		resultsTable.scrollRowToVisible(resultsTable.getSelectedRow());
         	} else {
         		this.highlightFirstResult();
         	}
@@ -575,25 +564,25 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
 
     protected void highlightPrevResult () {
-    	if (resultsList.getSelectedValue() == null) {
+    	if (resultsTable.getSelectedSearchResult() == null) {
     		this.highlightFirstResult();
     		return;
     	}
     	
-    	SearchResult sr = resultsList.getSelectedValue();
+    	SearchResult sr = resultsTable.getSelectedSearchResult();
     	SearchMatch sm = sr.getPrevMatch();
     	
     	if (sm != null) {
     		highlightMatch(sm);
     	} else {
     		// Previous record
-        	if (resultsList.getSelectedIndex() > 0) {
-        		resultsList.setSelectedIndex(resultsList.getSelectedIndex() - 1);
+        	if (resultsTable.getSelectedRow() > 0) {
+        	    resultsTable.getSelectionModel().setSelectionInterval(resultsTable.getSelectedRow() - 1, resultsTable.getSelectedRow() - 1);
         	} else {
-        		resultsList.setSelectedIndex(resultsList.getModel().getSize()-1);
+        	    resultsTable.getSelectionModel().setSelectionInterval(resultsTable.getModel().getRowCount()-1, resultsTable.getRowCount() - 1);
         	}
-    		resultsList.ensureIndexIsVisible(resultsList.getSelectedIndex());
-    		highlightLastResult(resultsList.getSelectedValue());
+    		resultsTable.scrollRowToVisible(resultsTable.getSelectedRow());
+    		highlightLastResult(resultsTable.getSelectedSearchResult());
     	}
     }
 
@@ -614,16 +603,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     	this.setTabFocus();
         getRegExField().requestFocus();
 
-    }
-
-    private SearchPanelCellRenderer getSearchPanelCellRenderer() {
-        if (searchPanelCellRenderer == null) {
-        	searchPanelCellRenderer = new SearchPanelCellRenderer();
-            //searchPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-            searchPanelCellRenderer.setBackground(java.awt.Color.white);
-            searchPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        return searchPanelCellRenderer;
     }
 
 	@Override

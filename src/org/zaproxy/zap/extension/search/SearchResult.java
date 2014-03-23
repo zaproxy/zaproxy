@@ -54,6 +54,10 @@ public class SearchResult {
 		this.stringFound = stringFound;
 	}
 
+	public String getRegEx() {
+		return regEx;
+	}
+
 	public String getStringFound() {
 		return stringFound;
 	}

@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JList;
 import javax.swing.JTable;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -43,7 +42,7 @@ import org.zaproxy.zap.extension.alert.AlertNode;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
-import org.zaproxy.zap.extension.search.SearchResult;
+import org.zaproxy.zap.extension.search.SearchPanel;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
@@ -57,7 +56,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	
 	private static final long serialVersionUID = 1L;
 	private JTree treeInvoker = null;
-    private JList<?> listInvoker = null;
     private JTable tableInvoker = null;
     private HistoryReferencesTable hrefsTableInvoker = null;
     private HistoryReferenceTable hrefTableInvoker = null;
@@ -139,6 +137,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     		case ascan:
     		case history:
     		case bruteforce:
+    		case search:
         	    ref = hrefsTableInvoker.getSelectedHistoryReference();
 				break;
 
@@ -156,15 +155,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	            Alert alert = (Alert) aNode.getUserObject();
         	            ref = alert.getHistoryRef();
         	        }
-        	    }
-				break;
-    		case search:
-        	    SearchResult sr = (SearchResult) listInvoker.getSelectedValue();
-        	    if (sr != null) {
-        	    	msg = sr.getMessage();
-            	    if (msg != null) {
-            	    	ref = msg.getHistoryRef();
-            	    }
         	    }
 				break;
     		case hreftable:
@@ -198,6 +188,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     		case ascan:
     		case history:
     		case bruteforce:
+    		case search:
         	    refs = hrefsTableInvoker.getSelectedHistoryReferences();
 				break;
 
@@ -216,20 +207,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	            Alert alert = (Alert) aNode.getUserObject();
         	            refs.add(alert.getHistoryRef());
         	        }
-        	    }
-				break;
-    		case search:
-        	    selectedValues = listInvoker.getSelectedValuesList();
-        	    if (selectedValues != null) {
-        	    	for (Object obj : selectedValues) {
-                	    SearchResult sr = (SearchResult) obj;
-                	    if (sr != null) {
-                	    	msg = sr.getMessage();
-                    	    if (msg != null) {
-                    	    	refs.add(msg.getHistoryRef());
-                    	    }
-                	    }
-        	    	}
         	    }
 				break;
     		case hreftable:
@@ -278,9 +255,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             	}
             }
             display = true;
-        } else if (invoker.getName().equals("listSearch")) {
+        } else if (invoker.getName().equals(SearchPanel.HTTP_MESSAGE_CONTAINER_NAME)) {
         	this.lastInvoker = Invoker.search;
-            this.listInvoker = (JList<?>) invoker;
+            this.hrefsTableInvoker = (HistoryReferencesTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(ActiveScanPanel.MESSAGE_CONTAINER_NAME)) {
