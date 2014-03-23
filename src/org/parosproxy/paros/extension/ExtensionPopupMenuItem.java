@@ -28,6 +28,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2014/03/23 Changed to implement the interface ExtensionPopupMenuComponent
 // ZAP: 2014/03/23 Changed to implement the new method from ExtensionPopupMenuComponent
+// ZAP: 2014/03/23 Issue 1095: Replace main pop up sub menus with ExtensionPopupMenu when appropriate
 
 package org.parosproxy.paros.extension;
 
@@ -46,7 +47,6 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
 	public static final int EXCLUDE_MENU_INDEX = 1;
 	public static final int CONTEXT_FLAG_MENU_INDEX = 1;	// This is just shown in the response tab
 	public static final int FLAG_MENU_INDEX = 2;
-	public static final int INVOKE_MENU_INDEX = 3;
 	
 	private int menuIndex = -1;
 	private int parentMenuIndex = -1;

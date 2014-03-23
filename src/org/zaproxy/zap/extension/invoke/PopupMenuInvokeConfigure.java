@@ -19,45 +19,18 @@
  */
 package org.zaproxy.zap.extension.invoke;
 
+import javax.swing.JMenuItem;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.zaproxy.zap.view.messagecontainer.MessageContainer;
-import org.zaproxy.zap.view.popup.ExtensionPopupMenuItemMessageContainer;
 
-public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItemMessageContainer {
+
+public class PopupMenuInvokeConfigure extends JMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	
     public PopupMenuInvokeConfigure() {
-        super();
-        this.initialize();
-    }
-
-    @Override
-    public boolean isSubMenu() {
-    	return true;
-    }
-    
-    @Override
-    public String getParentMenuName() {
-    	return Constant.messages.getString("invoke.site.popup");
-    }
-
-    @Override
-    public int getParentMenuIndex() {
-    	return INVOKE_MENU_INDEX;
-    }
-
-    @Override
-    public boolean precedeWithSeparator() {
-    	return true;
-    }
-
-    /**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("invoke.config.popup"));
+        super(Constant.messages.getString("invoke.config.popup"));
         
         this.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -68,17 +41,4 @@ public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItemMessageConta
         	}
         });
 	}
-	
-    @Override
-    public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
-        if ("treeSite".equals(invoker.getName()) || "History Table".equals(invoker.getName())) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
-    public boolean isSafe() {
-    	return true;
-    }
 }

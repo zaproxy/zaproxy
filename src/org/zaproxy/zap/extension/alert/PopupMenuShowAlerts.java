@@ -19,34 +19,39 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.JMenuItem;
+import javax.swing.ImageIcon;
 
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.lang.StringEscapeUtils;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
-import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
+import org.zaproxy.zap.view.popup.PopupMenuHistoryReferenceContainer;
 
-public class PopupMenuShowAlerts extends PopupMenuItemHistoryReferenceContainer {
+public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;
-
-    private List<PopupMenuShowAlert> subMenus = new ArrayList<>();
-    
-    private String parentName = null;
 
     /**
      * @param label
      */
     public PopupMenuShowAlerts(String label) {
-        super("No Alerts for this node"); // Note that this will never be shown in the UI, so doesnt need to be i18n
-        this.parentName = label;
+        super(label);
+        setProcessExtensionPopupChildren(false);
+    }
+
+    @Override
+    protected boolean isEnable(HttpMessageContainer messageContainer) {
+        if (getMenuComponentCount() > 0) {
+            removeAll();
+        }
+
+        return super.isEnable(messageContainer);
     }
 
 	@Override
@@ -61,72 +66,41 @@ public class PopupMenuShowAlerts extends PopupMenuItemHistoryReferenceContainer 
 	}
 
 	@Override
-	public void performAction(HistoryReference href) {
-		
-	}
-
-	@Override
     public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
-		final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
-    	// Delete all submenus - these (probably) refer to a previous node
-		for (PopupMenuShowAlert menu : subMenus) {
-			mainPopupMenuItems.remove(menu);
-			
+		URI hrefURI = null;
+		List<Alert> alerts = href.getAlerts();
+		if (href.getSiteNode() != null) {
+			alerts = href.getSiteNode().getAlerts();
 		}
-		subMenus.clear();
-    	 
-		if (href != null) {
-			URI hrefURI = null;
-			List<Alert> alerts = href.getAlerts();
-			if (href.getSiteNode() != null) {
-				alerts = href.getSiteNode().getAlerts();
-			}
-			try {
-				hrefURI = href.getURI();
-			} catch (Exception e) {
-				// Probably closing the session?
-				return false;
-			}
-			List<PopupMenuShowAlert> alertList = new ArrayList<>(); 
-			for (Alert alert : alerts) {
-				// Just show ones for this node
-				if (hrefURI != null && ! alert.getUri().equals(hrefURI.toString())) {
-					continue;
-				}
-		    	StringBuilder sb = new StringBuilder();
-		    	sb.append("<html><body>");
-	    		sb.append("&nbsp;<img src=\"");
-	    		sb.append(alert.getIconUrl());
-	    		sb.append("\">&nbsp;");
-		    	sb.append(StringEscapeUtils.escapeHtml(alert.getAlert()));
-		    	sb.append("</body></html>");
-		    	
-		    	alertList.add(new PopupMenuShowAlert(sb.toString(), alert, this.parentName));
-			}
-			Collections.sort(alertList);
-			
-			for (PopupMenuShowAlert pmsa : alertList) {
-				mainPopupMenuItems.add(pmsa);
-				this.add(pmsa);
-				this.subMenus.add(pmsa);
-			}
+		try {
+			hrefURI = href.getURI();
+		} catch (HttpMalformedHeaderException | SQLException e) {
+			// Probably closing the session?
+			return false;
 		}
-		return false;
+		List<PopupMenuShowAlert> alertList = new ArrayList<>(alerts.size()); 
+		for (Alert alert : alerts) {
+			// Just show ones for this node
+			if (hrefURI != null && ! alert.getUri().equals(hrefURI.toString())) {
+				continue;
+			}
+			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getAlert(), alert);
+			menuItem.setIcon(new ImageIcon(alert.getIconUrl()));
+			
+			alertList.add(menuItem);
+		}
+		Collections.sort(alertList);
+		
+		for (PopupMenuShowAlert pmsa : alertList) {
+			this.add(pmsa);
+		}
+		
+		return (alertList.size() > 0);
     }
 
     @Override
-    public String getParentMenuName() {
-    	return this.parentName;
-    }
-   
-    @Override
-    public boolean isSubMenu() {
-    	return true;
-    }
-
-    @Override
-    public boolean isDummyItem () {
-    	return true;
+    public boolean isSafe() {
+        return true;
     }
 
 }

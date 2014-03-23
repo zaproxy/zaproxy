@@ -21,10 +21,7 @@ package org.zaproxy.zap.extension.invoke;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
-
-import javax.swing.JMenuItem;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -32,12 +29,11 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
-import org.parosproxy.paros.view.View;
 
 public class ExtensionInvoke extends ExtensionAdaptor {
 
-	private List <PopupMenuInvoke> invokeMenus = new ArrayList<>();
-	private PopupMenuInvokeConfigure confPopup = null;
+    private PopupMenuInvokers popupMenuInvokers;
+
 	private OptionsInvokePanel optionsInvokePanel;
 	
 	/**
@@ -70,27 +66,14 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	    if (getView() != null) {
 	        List<InvokableApp> apps = Model.getSingleton().getOptionsParam().getInvokeParam().getListInvokeEnabled();
 	        
-	        for (InvokableApp app: apps) {
-	            PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());
-	            pmi.setCommand(app.getFullCommand());
-	            pmi.setWorkingDir(app.getWorkingDirectory());
-	            pmi.setParameters(app.getParameters());
-	            pmi.setCaptureOutput(app.isCaptureOutput());
-	            pmi.setOutputNote(app.isOutputNote());
-	            this.invokeMenus.add(pmi);
-	        	
-	        }
-	        confPopup = new PopupMenuInvokeConfigure();
+	        popupMenuInvokers = new PopupMenuInvokers();
+	        popupMenuInvokers.setApps(apps);
 	        
 	        @SuppressWarnings("unused")
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addOptionPanel(getOptionsInvokePanel());
 
-		    for (PopupMenuInvoke pmi : invokeMenus) {
-		    	extensionHook.getHookMenu().addPopupMenuItem(pmi);
-		    }
-
-	    	extensionHook.getHookMenu().addPopupMenuItem(confPopup);
+	    	extensionHook.getHookMenu().addPopupMenuItem(popupMenuInvokers);
 		    
 	    }
 	}
@@ -103,26 +86,7 @@ public class ExtensionInvoke extends ExtensionAdaptor {
 	}
 
 	protected void replaceInvokeMenus(List<InvokableApp> apps) {
-	    final List<JMenuItem> mainPopupMenuItems = View.getSingleton().getPopupList();
-		// Delete existing ones
-		mainPopupMenuItems.remove(confPopup);
-    	for (PopupMenuInvoke pmi : invokeMenus) {
-    		mainPopupMenuItems.remove(pmi);
-	    }
-        this.invokeMenus.clear();
-
-        // Add the new ones
-		for (InvokableApp app : apps) {
-            PopupMenuInvoke pmi = new PopupMenuInvoke(app.getDisplayName());
-            pmi.setCommand(app.getFullCommand());
-            pmi.setWorkingDir(app.getWorkingDirectory());
-            pmi.setParameters(app.getParameters());
-            pmi.setCaptureOutput(app.isCaptureOutput());
-            pmi.setOutputNote(app.isOutputNote());
-    		mainPopupMenuItems.add(pmi);
-            this.invokeMenus.add(pmi);
-		}
-		mainPopupMenuItems.add(confPopup);
+		popupMenuInvokers.setApps(apps);
 	}
 	@Override
 	public String getAuthor() {

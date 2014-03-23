@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.invoke;
 import java.io.File;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
@@ -43,21 +42,6 @@ public class PopupMenuInvoke extends PopupMenuItemHttpMessageContainer {
      */
     public PopupMenuInvoke(String label) {
         super(label);
-    }
-
-    @Override
-    public boolean isSubMenu() {
-    	return true;
-    }
-    
-    @Override
-    public String getParentMenuName() {
-    	return Constant.messages.getString("invoke.site.popup");
-    }
-
-    @Override
-    public int getParentMenuIndex() {
-    	return INVOKE_MENU_INDEX;
     }
 
 	public String getCommand() {
