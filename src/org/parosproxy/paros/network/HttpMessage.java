@@ -37,6 +37,7 @@
 // ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
 // the request body is not "x-www-form-urlencoded"
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
+// ZAP: 2014/03/23 Tidy up, do not allow to set null request/response headers/bodies.
 
 package org.parosproxy.paros.network;
 
@@ -132,10 +133,23 @@ public class HttpMessage implements Message {
 	    setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
 	}
 
+	/**
+	 * Constructs an HTTP message with the given request header.
+	 *
+	 * @param reqHeader the request header
+	 * @throws IllegalArgumentException if the parameter {@code reqHeader} is {@code null}.
+	 */
 	public HttpMessage(HttpRequestHeader reqHeader) {
 	    setRequestHeader(reqHeader);
 	}
 	
+	/**
+	 * Constructs an HTTP message with the given request header and request body.
+	 *
+	 * @param reqHeader the request header
+	 * @param reqBody the request body
+	 * @throws IllegalArgumentException if the parameter {@code reqHeader} or {@code reqBody} are {@code null}.
+	 */
 	public HttpMessage(HttpRequestHeader reqHeader, HttpRequestBody reqBody) {
 		setRequestHeader(reqHeader);
 		setRequestBody(reqBody);
@@ -143,10 +157,11 @@ public class HttpMessage implements Message {
 
 	/**
 	 * Constructor for a HTTP message with given request and response pair.
-	 * @param reqHeader
-	 * @param reqBody
-	 * @param resHeader
-	 * @param resBody
+	 * @param reqHeader the request header
+	 * @param reqBody the request body
+	 * @param resHeader the response header
+	 * @param resBody the response body
+	 * @throws IllegalArgumentException if one of the parameters is {@code null}.
 	 */
 	public HttpMessage(HttpRequestHeader reqHeader, HttpRequestBody reqBody,
 			HttpResponseHeader resHeader, HttpResponseBody resBody) {
@@ -166,66 +181,95 @@ public class HttpMessage implements Message {
 	}
 
 	/**
-	 * Get the request header of this message.
-	 * @return
+	 * Gets the request header of this message.
+	 * 
+	 * @return the request header, never {@code null}
 	 */
 	public HttpRequestHeader getRequestHeader() {
 		return mReqHeader;
 	}
 	
 	/**
-	 * Set the request header of this message.
-	 * @param reqHeader
+	 * Sets the request header of this message.
+	 * 
+	 * @param reqHeader the new request header
+	 * @throws IllegalArgumentException if parameter {@code reqHeader} is {@code null}.
 	 */
 	public void setRequestHeader(HttpRequestHeader reqHeader) {
+		if (reqHeader == null) {
+			throw new IllegalArgumentException("The parameter reqHeader must not be null.");
+		}
 		mReqHeader = reqHeader;
 	}
 
 	/**
-	 * Get the response header of this message.
-	 * @return response.  if getResponseHeader().toString() is "" then it has not been read yet.
+	 * Gets the response header of this message.
+	 * <p>
+	 * To know if a response has been set call the method {@code HttpResponseHeader#isEmpty()} on the returned response header.
+	 * The response header is initially empty.
+	 * </p>
+	 * 
+	 * @return the response header, never {@code null}
+	 * @see HttpResponseHeader#isEmpty()
 	 */
 	public HttpResponseHeader getResponseHeader() {
 		return mResHeader;
 	}
 
 	/**
-	 * Set the response header of this message.
-	 * @param resHeader
+	 * Sets the response header of this message.
+	 * 
+	 * @param resHeader the new response header
+	 * @throws IllegalArgumentException if parameter {@code resHeader} is {@code null}.
 	 */
 	public void setResponseHeader(HttpResponseHeader resHeader) {
+		if (resHeader == null) {
+			throw new IllegalArgumentException("The parameter resHeader must not be null.");
+		}
 		mResHeader = resHeader;
 	}
 
 	/**
-	 * Get the request body of this message.
-	 * @return Null = response header not exist yet.
+	 * Gets the request body of this message.
+	 * 
+	 * @return the request body, never {@code null}
 	 */
 	public HttpRequestBody getRequestBody() {
 		return mReqBody;
 	}
 
 	/**
-	 * Set the request body of this message.
-	 * @param reqBody
+	 * Sets the request body of this message.
+	 * 
+	 * @param reqBody the new request body
+	 * @throws IllegalArgumentException if parameter {@code reqBody} is {@code null}.
 	 */
 	public void setRequestBody(HttpRequestBody reqBody) {
+		if (reqBody == null) {
+			throw new IllegalArgumentException("The parameter reqBody must not be null.");
+		}
 		mReqBody = reqBody;
 	}
 
 	/**
-	 * Get the response body of this message.
-	 * @return
+	 * Gets the response body of this message.
+	 * 
+	 * @return the response body, never {@code null}
 	 */
 	public HttpResponseBody getResponseBody() {
 		return mResBody;
 	}
 
 	/**
-	 * Set the response body of this message.
-	 * @param resBody
+	 * Sets the response body of this message.
+	 * 
+	 * @param resBody the new response body
+	 * @throws IllegalArgumentException if parameter {@code resBody} is {@code null}.
 	 */
 	public void setResponseBody(HttpResponseBody resBody) {
+		if (resBody == null) {
+			throw new IllegalArgumentException("The parameter resBody must not be null.");
+		}
 		mResBody = resBody;
 	    getResponseBody().setCharset(getResponseHeader().getCharset());
 
@@ -255,18 +299,12 @@ public class HttpMessage implements Message {
 	}
 
 	public void setResponseBody(String body) {
-	    if (mReqBody == null) {
-	        mReqBody = new HttpRequestBody();
-	    }
 	    getResponseBody().setCharset(getResponseHeader().getCharset());
 		getResponseBody().setBody(body);
 
 	}
 	
 	public void setResponseBody(byte[] body) {
-	    if (mReqBody == null) {
-	        mReqBody = new HttpRequestBody();
-	    }
 		getResponseBody().setBody(body);
 	    getResponseBody().setCharset(getResponseHeader().getCharset());
 	}
