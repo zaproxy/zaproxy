@@ -4,17 +4,24 @@
     <property name="src" location="../src" />
     <property name="src.version" value="1.7" />
     <property name="build" location="build" />
+    <property name="build.lib.dir" location="lib" />
+    <property name="build.crowdin.dir" location="${build}/crowdin" />
     <property name="dist" location="zap" />
     <property name="dist.lib.dir" location="../lib" />
     <property name="dist.lib.license.dir" location="../license" />
     <property name="dist.lib.exploded.dir" location="api-libs-exploded" />
     <property name="javadocs.dir" location="../javadocs" />
-    <property name="crowdin.dir" location="${build}/crowdin" />
     <property name="lang.dir" value="${src}/lang" />
+    <property name="help.dir" value="${src}/help" />
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
     <property name="zap.java.api.version" value="4" />
+
+    <property name="crowdin.zap.project.id" value="owasp-zap" />
+    <property name="crowdin.zap.help.project.id" value="owasp-zap-help" />
+
+    <property file="crowdin-api-keys"/>
 
     <!-- mac specific properties -->
     <property name="dist-mac" location="zap-mac" />
@@ -38,6 +45,152 @@
 
     <!-- svn command line -->
     <property name="svn.cmd" value="svn" />
+    <property name="git.cmd" value="git" />
+
+    <path id="build.classpath">
+        <fileset dir="${build.lib.dir}" includes="*.jar"/>
+    </path>
+
+    <!-- Ant task to generate JavaHelp jars -->
+    <taskdef name="generatejavahelpjars" classname="org.zaproxy.ant.javahelp.taskdefs.GenerateJavaHelpJars" classpathref="build.classpath" />
+
+    <!-- Crowdin related Ant types -->
+    <typedef name="crowdinconfiguration" classname="org.zaproxy.ant.crowdin.types.Configuration" classpathref="build.classpath" loaderref="lib.path.loader" />
+    <typedef name="cclanguagemapping" classname="org.zaproxy.ant.crowdin.types.LanguageMapping" loaderref="lib.path.loader" />
+    <typedef name="ccexclude" classname="org.zaproxy.ant.crowdin.types.Exclude" loaderref="lib.path.loader" />
+    <typedef name="ccproject" classname="org.zaproxy.ant.crowdin.types.Project" loaderref="lib.path.loader" />
+    <typedef name="ccfiles" classname="org.zaproxy.ant.crowdin.types.FileSet" loaderref="lib.path.loader" />
+    <typedef name="ccinclude" classname="org.zaproxy.ant.crowdin.types.Include" loaderref="lib.path.loader" />
+    <typedef name="cctranslatableelement" classname="org.zaproxy.ant.crowdin.types.TranslatableElement" loaderref="lib.path.loader" />
+    <typedef name="clastmodifieddateprovider" classname="org.zaproxy.ant.crowdin.types.ModifiedDateProvider" loaderref="lib.path.loader" />
+    <!-- Crowdin related Ant tasks -->
+    <taskdef name="crowdinupdatesources" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinUpdateSources" loaderref="lib.path.loader" />
+    <taskdef name="crowdindownloadtranslations" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinDownloadTranslations" loaderref="lib.path.loader" />
+    <taskdef name="crowdinupdatehelpsetlangattribute" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinUpdateHelpSetLangAttribute" loaderref="lib.path.loader" />
+    <taskdef name="crowdinexport" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinTriggerExportPackage" loaderref="lib.path.loader" />
+    <taskdef name="crowdindownload" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinDownloadPackage" loaderref="lib.path.loader" />
+
+    <!-- Configuration for Crowdin tasks, it represents the files (and its properties) that should be upload/download to/from Crowdin. -->
+    <crowdinconfiguration id="crowdin.config">
+        <!-- translation of UI strings -->
+        <ccproject projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}">
+            <ccexclude path="/videos/**" />
+            <!-- zaproxy project -->
+            <ccfiles basedir="${lang.dir}" exportpatternprefix="/zaproxy/lang/">
+                <!-- UI strings -->
+                <ccinclude source="Messages.properties" 
+                    crowdinpath="/%original_file_name%"
+                    exportpattern="%file_name%_%locale_with_underscore%.%file_extension%" />
+                <!-- Alerts -->
+                <ccinclude source="vulnerabilities.xml" 
+                    crowdinpath="/%original_file_name%"
+                    exportpattern="%file_name%_%locale_with_underscore%.%file_extension%">
+                </ccinclude>
+            </ccfiles>
+            <!-- zaproxy project core add-ons -->
+            <ccfiles basedir="${src}/org/zaproxy/zap/extension/" exportpatternprefix="/zaproxy/add-ons/">
+                <!-- core-addons/ -->
+                <ccinclude source="*/Messages.properties" 
+                    crowdinpath="/core/*/%original_file_name%"
+                    exportpattern="*/%file_name%_%locale_with_underscore%.%file_extension%" />
+            </ccfiles>
+            <!-- zap-extensions project -->
+            <!-- alpha extensions -->
+            <ccfiles basedir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" 
+                exportpatternprefix="/zap-extensions/alpha/">
+                <ccinclude id="addons.include.messages" source="*/Messages.properties" 
+                    crowdinpath="/extensions/*/%original_file_name%"
+                    exportpattern="*/%file_name%_%locale_with_underscore%.%file_extension%" />
+            </ccfiles>
+            <!-- beta extensions -->
+            <ccfiles basedir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
+                exportpatternprefix="/zap-extensions/beta/">
+                <ccinclude refid="addons.include.messages" />
+            </ccfiles>
+            <!-- trunk extensions -->
+            <ccfiles basedir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/" 
+                exportpatternprefix="/zap-extensions/trunk/">
+                <ccinclude refid="addons.include.messages" />
+                <ccexclude id="exclude.examples" path="example*/*" />
+            </ccfiles>
+        </ccproject>
+        <!-- translation of help resources -->
+        <ccproject projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}">
+            <!-- zaproxy project -->
+            <ccfiles basedir="${help.dir}" exportpatternprefix="/zaproxy/">
+                <!-- contents -->
+                <ccinclude source="zaphelp/contents/**/*.html"
+                    crowdinpath="/contents/**/%original_file_name%"
+                    exportpattern="zaphelp_%locale_with_underscore%/contents/**/%original_file_name%" />
+                <!-- helpset -->
+                <ccinclude source="zaphelp/helpset.hs" 
+                    crowdinpath="/%file_name%.xml" 
+                    exportpattern="zaphelp_%locale_with_underscore%/%file_name%_%locale_with_underscore%.%file_extension%">
+                    <cctranslatableelement xpath="/helpset/title" />
+                    <cctranslatableelement xpath="/helpset/presentation/title" />
+                    <cctranslatableelement xpath="/helpset/view/label" />
+                </ccinclude>
+                <!-- toc -->
+                <ccinclude source="zaphelp/toc.xml" 
+                    crowdinpath="/%original_file_name%"
+                    exportpattern="zaphelp_%locale_with_underscore%/%original_file_name%">
+                    <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" />
+                </ccinclude>
+                <!-- index -->
+                <ccinclude source="zaphelp/index.xml" 
+                    crowdinpath="/%original_file_name%" 
+                    exportpattern="zaphelp_%locale_with_underscore%/%original_file_name%">
+                    <cctranslatableelement xpath="/index/descendant::indexitem[@text]" />
+                </ccinclude>
+            </ccfiles>
+            <!-- zap-extensions project -->
+            <!-- alpha extensions -->
+            <ccfiles basedir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" 
+                exportpatternprefix="/zap-extensions/alpha/">
+                <!-- contents -->
+                <ccinclude id="addons.include.help.contents" source="*/resource/help/zaphelp/**/*.html"
+                    crowdinpath="/extensions/*/contents/**/%original_file_name%"
+                    exportpattern="*/resource/help_%locale_with_underscore%/contents/**/%original_file_name%" />
+                <!-- helpset -->
+                <ccinclude id="addons.include.help.file.hs" source="*/resource/help/helpset.hs" 
+                    crowdinpath="/extensions/*/%file_name%.xml" 
+                    exportpattern="*/resource/help_%locale_with_underscore%/%file_name%_%locale_with_underscore%.%file_extension%">
+                    <cctranslatableelement xpath="/helpset/title" />
+                    <cctranslatableelement xpath="/helpset/presentation/title" />
+                    <cctranslatableelement xpath="/helpset/view/label" />
+                </ccinclude>
+                <!-- toc -->
+                <ccinclude id="addons.include.help.file.toc" source="*/resource/help/toc.xml" 
+                    crowdinpath="/extensions/*/%original_file_name%"
+                    exportpattern="*/resource/help_%locale_with_underscore%/%original_file_name%">
+                    <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" />
+                </ccinclude>
+                <!-- index -->
+                <ccinclude id="addons.include.help.file.index" source="*/resource/help/index.xml" 
+                    crowdinpath="/extensions/*/%original_file_name%" 
+                    exportpattern="*/resource/help_%locale_with_underscore%/%original_file_name%">
+                    <cctranslatableelement xpath="/index/descendant::indexitem[@text]" />
+                </ccinclude>
+            </ccfiles>
+            <!-- beta extensions -->
+            <ccfiles basedir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
+                exportpatternprefix="/zap-extensions/beta/">
+                <ccinclude refid="addons.include.help.contents" />
+                <ccinclude refid="addons.include.help.file.hs" />
+                <ccinclude refid="addons.include.help.file.toc" />
+                <ccinclude refid="addons.include.help.file.index" />
+            </ccfiles>
+            <!-- trunk extensions -->
+            <ccfiles basedir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/" 
+                exportpatternprefix="/zap-extensions/trunk/">
+                <ccinclude refid="addons.include.help.contents" />
+                <ccinclude refid="addons.include.help.file.hs" />
+                <ccinclude refid="addons.include.help.file.toc" />
+                <ccinclude refid="addons.include.help.file.index" />
+                <ccexclude refid="exclude.examples" />
+            </ccfiles>
+        </ccproject>
+    </crowdinconfiguration>
 
     <path id="dist.classpath">
         <!--pathelement location="."/-->
@@ -249,40 +402,19 @@
         </copy>
     </target>
 
-    <target name="generate-help-file" description="generates the help file and copies it to the right place">
-        <local name="help.dir" />
-        <property name="help.dir" location="${src}/help" />
-        <local name="help.zap.dir" />
-        <property name="help.zap.dir" location="${help.dir}/zaphelp" />
-        <local name="help.jar.name" />
-        <property name="help.jar.name" value="zaphelp" />
-        <local name="help.jar.generated" />
-        <property name="help.jar.generated" value="${help.dir}/${help.jar.name}.jar" />
-        <local name="help.jar.dist.lib" />
-        <property name="help.jar.dist.lib" value="${dist.lib.dir}/${help.jar.name}.jar" />
-
-        <!-- Generate the indexes -->
-        <java classname="com.sun.java.help.search.Indexer" fork="true" dir="${help.zap.dir}">
-            <arg value="zaphelp"/>
-            <classpath>
-                <pathelement location="lib/jhall.jar"/>
-            </classpath>
-        </java>
-        <!-- delete the previous jar in the help directory (if present) -->
-        <delete file="${help.jar.generated}" />
-        <!-- Jar up the help files -->
-        <jar destfile="${help.jar.generated}"
-             basedir="${help.zap.dir}"
-             includes="**"
-             excludes="**/.svn/**"
-                />
-        <!-- Delete the indexes, generated previously, as they are no longer needed. -->
-        <delete dir="${help.zap.dir}/JavaHelpSearch" />
-        <!-- Delete the old jar in lib directory -->
-        <delete file="${help.jar.dist.lib}" />
-        <!-- Move the new one to the lib directory -->
-        <move file="${help.jar.generated}" tofile="${help.jar.dist.lib}" />
-
+    <target name="generate-help-jars" description="Generates all ZAP (core) help jars (default and i18n) and copies them to the right place (lib directory)">
+        <local name="wkdir" />
+        <property name="wkdir" location="${build}/HelpJars" />
+        <delete dir="${wkdir}" includeEmptyDirs="true" />
+        <mkdir dir="${wkdir}" />
+        <generatejavahelpjars jhalljar="${build.lib.dir}/jhall.jar" destdir="${dist.lib.dir}" 
+            workingdir="${wkdir}" helpcontentsdirname="contents" helpsetfilename="helpset*.hs">
+            <dirset dir="${help.dir}">
+                <include name="zaphelp" />
+                <include name="zaphelp_*_*" />
+            </dirset>
+        </generatejavahelpjars>
+        <delete dir="${wkdir}" includeEmptyDirs="true" />
     </target>
 
     <target name="generate-language-file" description="generates the language file (note the X should be changed;)">
@@ -297,81 +429,38 @@
                 />
     </target>
 
-    <target name="download-move-crowdin-lang-files" description="downloads and moves the files generated by crowdin for both zaproxy and zap-extensions projects">
-        <local name="crowdin.project.name" />
-        <property name="crowdin.project.name" value="owasp-zap" />
-
-        <delete dir="${crowdin.dir}"/>
-
-        <mkdir dir="${crowdin.dir}"/>
-        <copy todir="${crowdin.dir}">
-            <url url="https://crowdin.net/download/project/${crowdin.project.name}.zip"/>
-            <flattenmapper/>
-        </copy>
-        <unzip src="${crowdin.dir}/${crowdin.project.name}.zip" dest="${crowdin.dir}" stripAbsolutePathSpec="true" />
-
-        <antcall target="move-zaproxy-crowdin-lang-files" />
-        <antcall target="move-zap-extensions-crowdin-lang-files" />
-
-        <delete dir="${crowdin.dir}"/>
+    <target name="crowdin-update-sources" description="Updates the sources, of all ZAP projects, into Crowdin">
+        <!-- When using updateneweronly as true you have to commit/push the changes before updating the sources so the commit 
+        date is newer than the modification date in Crowdin.
+        Use updateneweronly as true whenever possible as it updates/uploads only the necessary files.
+        Note: when moving add-ons between branches updateneweronly has to be false to force the update of export pattern -->
+        <crowdinupdatesources configrefid="crowdin.config" dryrun="true" verbose="true" updateoption="update_as_unapproved" 
+            xmlcontentsegmentation="false" updateneweronly="false" deleteremoved="false">
+            <!-- For SVN repo, uses commit date (from svn info) -->
+            <!-- <clastmodifieddateprovider name="svn" cmdpath="${svn.cmd}" failonerror="true" /> -->
+            <!-- For Git repo, uses "committer date" (from git log) -->
+            <!-- <clastmodifieddateprovider name="git" cmdpath="${git.cmd}" failonerror="true" /> -->
+            <!-- File system file's last modified date. Not recommended, unless files' last
+            modified date is in sync with Git/SVN push/commit dates -->
+            <!-- <clastmodifieddateprovider name="file-system" /> -->
+        </crowdinupdatesources>
     </target>
 
-    <macrodef name="move-crowdin-messages-files">
-        <attribute name="srcdir" />
-        <attribute name="destdir" />
-        <attribute name="failonerror" default="" />
-        <sequential>
-            <move todir="@{destdir}" overwrite="true" failonerror="@{failonerror}">
-                <fileset dir="@{srcdir}" casesensitive="yes">
-                    <include name="**/Messages_*.properties" />
-                    <include name="**/vulnerabilities_*.xml" />
-                </fileset>
-                <firstmatchmapper>
-                    <!-- Special cases, the names are not the same so they need to be renamed. -->
-                    <globmapper from="*_fa_IR.properties" to="*_fa_FA.properties"/>
-                    <globmapper from="*_id_ID.properties" to="*_in_ID.properties"/>
-                    <globmapper from="*_fa_IR.xml" to="*_fa_FA.xml"/>
-                    <globmapper from="*_id_ID.xml" to="*_in_ID.xml"/>
-                    <!-- Keep the same name for the other files. -->
-                    <identitymapper/>
-                </firstmatchmapper>
-            </move>
-        </sequential>
-    </macrodef>
-
-    <target name="move-zaproxy-crowdin-lang-files" description="move the files generated by crowdin for zaproxy project">
-        <!-- Move the files generated by Crowdin.
-          You need to download the latest language file build from http://crowdin.net/project/owasp-zap
-          and then expand it into the ${crowdin.dir} directory.
-          -->
-
-        <!-- Move all core translations (project zaproxy). -->
-        <move-crowdin-messages-files srcdir="${crowdin.dir}/zaproxy/" destdir="${lang.dir}" />
-
-        <!-- Move all coreaddon translations (project zaproxy) -->
-        <move-crowdin-messages-files srcdir="${crowdin.dir}/zaproxy/" destdir="${src}/org/zaproxy/zap/extension/" />
+    <target name="crowdin-download-translations" description="Downloads and updates the translations, from Crowdin, for all ZAP projects">
+        <crowdindownloadtranslations configrefid="crowdin.config" dryrun="true" verbose="true" workingdir="${build.crowdin.dir}" />
+    	<crowdinupdatehelpsetlangattribute configrefid="crowdin.config" verbose="true" helpsetfilename="helpset.hs" />
     </target>
 
-    <target name="move-zap-extensions-crowdin-lang-files" description="move the files generated by crowdin for zap-extensions project">
-        <!-- Move the files generated by Crowdin.
-          You need to download the latest language file build from http://crowdin.net/project/owasp-zap
-          and then expand it into the ${crowdin.dir} directory.
-          -->
+    <target name="crowdin-trigger-export-packages" description="Triggers the build of ZAP's Crowdin projects translation package">
+        <crowdinexport projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" dryrun="true" />
+        <crowdinexport projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" dryrun="true" />
+    </target>
 
-        <!-- move all alpha extensions translations (project zap-extensions) -->
-        <move-crowdin-messages-files srcdir="${crowdin.dir}/zap-extensions/alpha/"
-                                     destdir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/"
-                                     failonerror="no" />
-
-        <!-- move all beta extensions translations (project zap-extensions) -->
-        <move-crowdin-messages-files srcdir="${crowdin.dir}/zap-extensions/beta/" 
-                                     destdir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
-                                     failonerror="no" />
-
-        <!-- move all release (trunk) extensions translations (project zap-extensions) -->
-        <move-crowdin-messages-files srcdir="${crowdin.dir}/zap-extensions/trunk"
-                                     destdir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/"
-                                     failonerror="no" />
+    <target name="crowdin-download-packages" description="Downloads ZAP's Crowdin projects translation packages">
+        <crowdindownload projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" 
+            to="${crowdin.dir}/${crowdin.zap.project.id}.zip" language="all" dryrun="true" />
+        <crowdindownload projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" 
+            to="${crowdin.dir}/${crowdin.zap.help.project.id}.zip" language="all" dryrun="true" />
     </target>
 
     <macrodef name="set-svn-mime-type-prop">

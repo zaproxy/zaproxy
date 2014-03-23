@@ -43,7 +43,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
  */
 public class ExtensionHelp extends ExtensionAdaptor {
 
-	private static final String helpHS = "ZapHelp";
+	private static final String HELP_SET_FILE_NAME = "helpset";
 
 	private ZapMenuItem menuHelpZap = null;
 	private JButton helpButton = null;
@@ -98,7 +98,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		if (hb == null) {
 			try {
 				ClassLoader cl = HelpBroker.class.getClassLoader();  
-				URL hsUrl = HelpSet.findHelpSet( cl, helpHS);
+				URL hsUrl = HelpSet.findHelpSet( cl, HELP_SET_FILE_NAME, Constant.getLocale());
 				if (hsUrl != null) {
 					hs = new HelpSet(cl, hsUrl);
 					hb = hs.createHelpBroker();

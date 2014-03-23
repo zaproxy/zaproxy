@@ -20,11 +20,13 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -32,6 +34,7 @@ import java.util.Vector;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
 import javax.help.HelpSetException;
+import javax.help.HelpUtilities;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
@@ -238,8 +241,13 @@ public class ExtensionFactory {
 	}
     
     private static URL getExtensionHelpSetUrl(Extension extension) {
-        String helpSetLocation = extension.getClass().getPackage().getName().replaceAll("\\.", "/") + "/resource/help/helpset.hs";
-        return HelpSet.findHelpSet(extension.getClass().getClassLoader(), helpSetLocation);
+        String extensionPackage = extension.getClass().getPackage().getName().replace('.', '/') + "/";
+        return findResource(
+                extension.getClass().getClassLoader(),
+                extensionPackage + "resource/help",
+                "helpset",
+                ".hs",
+                Constant.getLocale());
     }
     
 	public static List<Extension> getAllExtensions() {
@@ -294,4 +302,89 @@ public class ExtensionFactory {
         }
     }
     
+    /**
+     * Finds and returns the URL to a resource with the given class loader, or system class loader if {@code null}, for the
+     * given or default locales.
+     * <p>
+     * The resource pathname will be constructed using the parameters package name, file name, file extension and candidate
+     * locales. The candidate locales are created from the given locale using the method
+     * {@code HelpUtilities#getCandidates(Locale)}.
+     * </p>
+     * <p>
+     * The resource pathname is constructed as:
+     * 
+     * <pre>
+     * &quot;package name&quot; + &quot;candidate locale&quot; + '/' + &quot;file name&quot; + &quot;candidate locale&quot; + &quot;file extension&quot;
+     * </pre>
+     * 
+     * For example, with the following parameters:
+     * <ul>
+     * <li>package name - /org/zaproxy/zap/extension/example/resources/help</li>
+     * <li>file name - helpset</li>
+     * <li>file extension - .hs</li>
+     * <li>locale - es_ES</li>
+     * </ul>
+     * and default locale "en_GB", it would produce the following resource pathnames:
+     * 
+     * <pre>
+     * /org/zaproxy/zap/extension/example/resources/help_es_ES/helpset_es_ES.hs
+     * /org/zaproxy/zap/extension/example/resources/help_es/helpset_es.hs
+     * /org/zaproxy/zap/extension/example/resources/help/helpset.hs
+     * /org/zaproxy/zap/extension/example/resources/help_en_GB/helpset_en_GB.hs
+     * /org/zaproxy/zap/extension/example/resources/help_en/helpset_en.hs
+     * </pre>
+     * 
+     * The URL of the first existent resource is returned.
+     * </p>
+     * 
+     * @param cl the class loader that will be used to get the resource, {@code null} the system class loader is used.
+     * @param packageName the name of the package where the resource is
+     * @param fileName the file name of the resource
+     * @param fileExtension the file extension of the resource
+     * @param locale the target locale of the required resource
+     * @return An {@code URL} with the path to the resource or {@code null} if not found.
+     * @see HelpUtilities#getCandidates(Locale)
+     */
+    // Implementation based (read copied) from:
+    // javax.help.HelpUtilities#getLocalizedResource(ClassLoader cl, String front, String back, Locale locale, boolean tryRead)
+    // Changes:
+    // - Removed the "tryRead" flag since it's not needed (it's set to try to read always);
+    // - Replaced the use of StringBuffer with StringBuilder;
+    // - Renamed parameters "front" to "packageName" and "back" to "name";
+    // - Renamed variable "tail" to "candidateLocale";
+    // - Renamed variable "name" to "resource";
+    // - Added type parameter to "tails" enumeration (now "candidateLocales"), @SuppressWarnings annotation and removed the
+    // String cast;
+    // - Changed to use try-with-resource statement to manage the input stream.
+    // - Changed to also append the "candidateLocale" to the packageName followed by character '/';
+    private static URL findResource(ClassLoader cl, String packageName, String fileName, String fileExtension, Locale locale) {
+        URL url;
+
+        for (@SuppressWarnings("unchecked")
+        Enumeration<String> candidateLocales = HelpUtilities.getCandidates(locale); candidateLocales.hasMoreElements();) {
+            String candidateLocale = candidateLocales.nextElement();
+            String resource = (new StringBuilder(packageName)).append(candidateLocale)
+                    .append('/')
+                    .append(fileName)
+                    .append(candidateLocale)
+                    .append(fileExtension)
+                    .toString();
+            if (cl == null) {
+                url = ClassLoader.getSystemResource(resource);
+            } else {
+                url = cl.getResource(resource);
+            }
+            if (url != null) {
+                // Try doing an actual read to be sure it exists
+                try (InputStream is = url.openConnection().getInputStream()) {
+                    if (is != null && is.read() != -1) {
+                        return url;
+                    }
+                } catch (Throwable t) {
+                    // ignore and continue looking
+                }
+            }
+        }
+        return null;
+    }
 }
