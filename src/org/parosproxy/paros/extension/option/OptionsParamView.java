@@ -24,6 +24,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/12/13 Added support for optional names in tabs.
+// ZAP: 2014/03/23 Issue 589: Move Reveal extension to ZAP extensions project
 
 package org.parosproxy.paros.extension.option;
 
@@ -51,7 +52,6 @@ public class OptionsParamView extends AbstractParam {
 	public static final String WMUIHANDLING_OPTION = "view.uiWmHandling";
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
-	public static final String REVEAL_OPTION = "view.reveal";
 	public static final String MODE_OPTION = "view.mode";
 	public static final String TAB_OPTION = "view.tab";
 
@@ -65,7 +65,6 @@ public class OptionsParamView extends AbstractParam {
 	private int askOnExitEnabled = 1;
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
-	private boolean reveal = false;
   private boolean showTabNames = true;
 	private String mode = Mode.standard.name();
 	
@@ -86,7 +85,6 @@ public class OptionsParamView extends AbstractParam {
 	    wmUiHandlingEnabled = getConfig().getInt(WMUIHANDLING_OPTION, 0);
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
-	    reveal = getConfig().getBoolean(REVEAL_OPTION, false);
 	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
     }
 
@@ -221,15 +219,6 @@ public class OptionsParamView extends AbstractParam {
 	public void setWarnOnTabDoubleClick(boolean warnOnTabDoubleClick) {
 		this.warnOnTabDoubleClick = warnOnTabDoubleClick;
 		getConfig().setProperty(WARN_ON_TAB_DOUBLE_CLICK_OPTION, warnOnTabDoubleClick);
-	}
-
-	public boolean getReveal() {
-		return reveal;
-	}
-	
-	public void setReveal(boolean reveal) {
-		this.reveal = reveal;
-		getConfig().setProperty(REVEAL_OPTION, reveal);
 	}
 
 	public String getMode() {
