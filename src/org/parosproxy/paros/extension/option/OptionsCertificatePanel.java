@@ -23,6 +23,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
+// ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 
 package org.parosproxy.paros.extension.option;
 
@@ -196,7 +197,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			cryptoApiPanel = new javax.swing.JPanel();
 			useClientCertificateCheckBox = new javax.swing.JCheckBox();
 			enableUnsafeSSLRenegotiationCheckBox = new javax.swing.JCheckBox();
-			enableUnsafeSSLRenegotiationCheckBox.setEnabled(true);
 			textLabel = new javax.swing.JLabel();
 			certificateLabel = new javax.swing.JLabel();
 			certificateTextField = new ZapTextField();
@@ -909,8 +909,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		
 		boolean enabled = enableUnsafeSSLRenegotiationCheckBox.isSelected();
 		
-		org.parosproxy.paros.network.HttpSender.setAllowUnsafeSSLRenegotiation(enabled);
-		
 		if (enabled) {
 			JOptionPane.showMessageDialog(null, new String[] {
 					Constant.messages.getString("options.cert.label.enableunsafesslrenegotiationwarning")}, 
@@ -930,10 +928,11 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	@Override
 	public void initParam(Object obj) {
 		OptionsParam options = (OptionsParam) obj;
-		useClientCertificateCheckBox.setSelected(options.getCertificateParam().isUseClientCert());
+		OptionsParamCertificate certParam = options.getCertificateParam();
+		useClientCertificateCheckBox.setSelected(certParam.isUseClientCert());
 		//getBtnLocation().setEnabled(getChkUseClientCertificate().isSelected());
 		//getTxtLocation().setText(options.getCertificateParam().getClientCertLocation());
-
+		enableUnsafeSSLRenegotiationCheckBox.setSelected(certParam.isAllowUnsafeSslRenegotiation());
 	}
 
 	@Override
@@ -947,6 +946,7 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		OptionsParamCertificate certParam = options.getCertificateParam();
 		certParam.setEnableCertificate(useClientCertificateCheckBox.isSelected());
 
+		certParam.setAllowUnsafeSslRenegotiation(enableUnsafeSSLRenegotiationCheckBox.isSelected());
 	}
 
 

@@ -42,6 +42,7 @@
 // ZAP: 2013/11/16 Issue 837: Update, always, the HTTP request sent/forward by ZAP's proxy
 // ZAP: 2013/12/11 Corrected log.info calls to use debug
 // ZAP: 2014/03/04 Issue 1043: Custom active scan dialog
+// ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 
 package org.parosproxy.paros.network;
 
@@ -89,9 +90,6 @@ public class HttpSender {
 
 	private static ProtocolSocketFactory sslFactory = null;
 	private static Protocol protocol = null;
-
-	// Issue 90
-	private static boolean allowUnsafeSSLRenegotiation = false;
 
 	private static List<HttpSenderListener> listeners = new ArrayList<>();
 	private static Comparator<HttpSenderListener> listenersComparator = null;;
@@ -147,20 +145,6 @@ public class HttpSender {
 
 	public static SSLConnector getSSLConnector() {
 		return (SSLConnector) protocol.getSocketFactory();
-	}
-
-	public static void setAllowUnsafeSSLRenegotiation(boolean enabled) {
-		allowUnsafeSSLRenegotiation = enabled;
-
-		if (allowUnsafeSSLRenegotiation) {
-			log.info("Unsafe SSL renegotiation enabled.");
-		} else {
-			log.info("Unsafe SSL renegotiation disabled.");
-		}
-
-		String value = String.valueOf(allowUnsafeSSLRenegotiation).toLowerCase();
-		System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", value);
-
 	}
 
 	private void checkState() {
