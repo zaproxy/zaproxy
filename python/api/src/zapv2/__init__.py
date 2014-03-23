@@ -52,8 +52,10 @@ class ZAPv2(object):
     Client API implementation for integrating with ZAP v2.
     """
 
-    # base api url
+    # base JSON api url
     base = 'http://zap/JSON/'
+    # base OTHER api url
+    base_other = 'http://zap/OTHER/'
 
     def __init__(self, proxies={'http': 'http://127.0.0.1:8080',
         'https': 'http://127.0.0.1:8080'}):
@@ -127,3 +129,13 @@ class ZAPv2(object):
            - `get`: the disctionary to turn into GET variables.
         """
         return json.loads(self.urlopen(url + '?' + urllib.urlencode(get)))
+
+    def _request_other(self, url, get={}):
+        """
+        Shortcut for an API OTHER GET request.
+
+        :Parameters:
+           - `url`: the url to GET at.
+           - `get`: the disctionary to turn into GET variables.
+        """
+        return self.urlopen(url + '?' + urllib.urlencode(get))

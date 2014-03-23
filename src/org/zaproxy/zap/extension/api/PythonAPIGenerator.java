@@ -121,7 +121,14 @@ public class PythonAPIGenerator {
 			System.out.println("No i18n for: " + descTag);
 		}
 
-		out.write("        return self.zap._request(self.zap.base + '" + 
+		String method = "_request";
+		String baseUrl = "base";
+		if (type.equals("other")) {
+			method += "_other";
+			baseUrl += "_other";
+		}
+		
+		out.write("        return self.zap." + method + "(self.zap." + baseUrl + " + '" + 
 				component + "/" + type + "/" + element.getName() + "/'");
 		
 		// , {'url': url}))
@@ -152,7 +159,7 @@ public class PythonAPIGenerator {
 			if (type.equals("view")) {
 				out.write(".get('" + element.getName() + "')");
 			}
-		} else {
+		} else if (!type.equals("other")) {
 			if (element.getName().startsWith("option")) {
 				out.write(").get('" + element.getName().substring(6) + "')");
 			} else {
