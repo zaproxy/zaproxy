@@ -35,6 +35,7 @@
 // ZAP: 2013/11/16 Issue 901: Pop up menu "succeed" separator is not added when using sub-menu in MainPopupMenu
 // ZAP: 2013/11/16 Issue 900: IllegalArgumentException when invoking the main pop up menu with
 // menus or super menus with high menu index
+// ZAP: 2014/03/23 Changed to use PopupMenuUtils.isAtLeastOneChildComponentVisible(Component).
 
 package org.parosproxy.paros.view;
 
@@ -54,6 +55,7 @@ import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
+import org.zaproxy.zap.view.popup.PopupMenuUtils;
 
 public class MainPopupMenu extends JPopupMenu {
 
@@ -132,19 +134,9 @@ public class MainPopupMenu extends JPopupMenu {
 			}
 		}
 
-		if (isAtLeastOneChildComponentVisible()) {
+		if (PopupMenuUtils.isAtLeastOneChildComponentVisible(this)) {
 			super.show(invoker, x, y);
 		}
-	}
-
-	private boolean isAtLeastOneChildComponentVisible() {
-		for (Component comp : getComponents()) {
-			if (comp.isVisible()) {
-				return true;
-			}
-		}
-
-		return false;
 	}
 	
 	private void handleMenuItem(Component invoker, ExtensionPopupMenuItem menuItem) {
