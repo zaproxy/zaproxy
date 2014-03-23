@@ -54,19 +54,15 @@ public class LangImporter {
 		int langFileCount = 0;
 		String message = "";
 		
-		ZipFile zipFile = null;
-		try {
-			File F = new File(languagePack);
-			zipFile = new ZipFile(F.getAbsolutePath());
+		File F = new File(languagePack);
+		try (ZipFile zipFile = new ZipFile(F.getAbsolutePath())) {
 			Enumeration<? extends ZipEntry> enumeration = zipFile.entries();
 			
 			while (enumeration.hasMoreElements()) {
 				ZipEntry zipEntry = enumeration.nextElement();
 				
 				if (!zipEntry.isDirectory()) {
-					BufferedInputStream bis = null;
-					try {
-						bis = new BufferedInputStream(zipFile.getInputStream(zipEntry));
+					try (BufferedInputStream bis = new BufferedInputStream(zipFile.getInputStream(zipEntry))) {
 	
 						int size;
 						byte[] buffer = new byte[2048];
@@ -76,26 +72,16 @@ public class LangImporter {
 						if (matcher.find()) {
 							langFileCount++;
 							
-							BufferedOutputStream bos = null;
-							try {
-								bos = new BufferedOutputStream(
+							try (BufferedOutputStream bos = new BufferedOutputStream(
 										new FileOutputStream(name),
-										buffer.length);
+										buffer.length)) {
 			
 								while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
 									bos.write(buffer, 0, size);
 								}
 								
 								bos.flush();
-							} finally {
-								if (bos != null) {
-									bos.close();
-								}
 							}
-						}
-					} finally {
-						if (bis != null) {
-							bis.close();
 						}
 					}
 				}
@@ -106,14 +92,6 @@ public class LangImporter {
 		} catch (IOException e) {
 			message = MSG_FILE_NOT_FOUND;
 			logger.error(e.getMessage(), e);
-		} finally {
-			if (zipFile != null) {
-				try {
-					zipFile.close();
-				} catch (IOException e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
 		}
 		
 		if (View.isInitialised()) {

@@ -26,6 +26,7 @@
 // ZAP: 2012/06/11 Added method delete(List<Integer>).
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (Added updateTable() and refactored names)
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
+// ZAP: 2014/03/23 Changed to use try-with-resource statements.
 
 package org.parosproxy.paros.db;
 
@@ -135,11 +136,11 @@ public class TableHistory extends AbstractTable {
         PreparedStatement stmt = null;
         try {
             stmt = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY ORDER BY HISTORYID DESC");
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                currentIndex = rs.getInt(1);
+            try (ResultSet rs = stmt.executeQuery()) {
+                if (rs.next()) {
+                    currentIndex = rs.getInt(1);
+                }
             }
-            rs.close();
         } finally {
             if (stmt != null) {
                 try {
@@ -186,12 +187,9 @@ public class TableHistory extends AbstractTable {
 	public synchronized RecordHistory read(int historyId) throws HttpMalformedHeaderException, SQLException {
 	    psRead.setInt(1, historyId);
 		psRead.execute();
-		ResultSet rs = psRead.getResultSet();
 		RecordHistory result = null;
-		try {
+		try (ResultSet rs = psRead.getResultSet()) {
 			result = build(rs);
-		} finally {
-			rs.close();
 		}
 
 		return result;
@@ -276,14 +274,11 @@ public class TableHistory extends AbstractTable {
 		ResultSet rs = stmt.getResultSet();
 		*/
 		
-		ResultSet rs = psGetIdLastInsert.executeQuery();
-		try {
+		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
 			rs.next();
 			int id = rs.getInt(1);
             lastInsertedIndex = id;
 			return read(id);
-		} finally {
-			rs.close();
 		}
 	}
 	
@@ -437,20 +432,14 @@ public class TableHistory extends AbstractTable {
 	}
 	
 	public void deleteHistorySession(long sessionId) throws SQLException {
-        Statement stmt = getConnection().createStatement();
-        try {
+        try (Statement stmt = getConnection().createStatement()) {
         	stmt.executeUpdate("DELETE FROM HISTORY WHERE " + SESSIONID + " = " + sessionId);
-		} finally {
-			stmt.close();
 		}
 	}
 	
 	public void deleteHistoryType(long sessionId, int historyType) throws SQLException {
-        Statement stmt = getConnection().createStatement();
-        try {
+        try (Statement stmt = getConnection().createStatement()) {
         	stmt.executeUpdate("DELETE FROM HISTORY WHERE " + SESSIONID + " = " + sessionId + " AND " + HISTTYPE + " = " + historyType);
-		} finally {
-			stmt.close();
 		}
 	}
 
@@ -495,13 +484,10 @@ public class TableHistory extends AbstractTable {
         
 	    psContainsURI.setLong(4, sessionId);
 	    psContainsURI.setInt(5, historyType);
-	    ResultSet rs = psContainsURI.executeQuery();
-		try {
+	    try (ResultSet rs = psContainsURI.executeQuery()) {
 		    if (rs.next()) {
 		        return true;
 		    }
-		} finally {
-	    	rs.close();
 		}
 	    return false;
 	    

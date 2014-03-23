@@ -78,20 +78,21 @@ public class TableParam extends AbstractTable {
 	public synchronized RecordParam read(long urlId) throws SQLException {
 		psRead.setLong(1, urlId);
 		
-		ResultSet rs = psRead.executeQuery();
-		RecordParam result = build(rs);
-		rs.close();
-		return result;
+		try (ResultSet rs = psRead.executeQuery()) {
+			RecordParam result = build(rs);
+			rs.close();
+			return result;
+		}
 	}
 	
     public List<RecordParam> getAll () throws SQLException {
     	List<RecordParam> result = new ArrayList<>();
-    	ResultSet rs = psGetAll.executeQuery();
-    	while (rs.next()) {
-    		result.add(new RecordParam(rs.getLong(PARAMID), rs.getString(SITE), rs.getString(TYPE),  
-    				rs.getString(NAME), rs.getInt(USED), rs.getString(FLAGS), rs.getString(VALUES)));
+    	try (ResultSet rs = psGetAll.executeQuery()) {
+    		while (rs.next()) {
+    			result.add(new RecordParam(rs.getLong(PARAMID), rs.getString(SITE), rs.getString(TYPE),  
+    					rs.getString(NAME), rs.getInt(USED), rs.getString(FLAGS), rs.getString(VALUES)));
+    		}
     	}
-    	rs.close();
     	
     	return result;
     }
@@ -106,10 +107,11 @@ public class TableParam extends AbstractTable {
         psInsert.setString(6, values);
         psInsert.executeUpdate();
         
-		ResultSet rs = psGetIdLastInsert.executeQuery();
-		rs.next();
-		long id = rs.getLong(1);
-		rs.close();
+		long id;
+		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
+			rs.next();
+			id = rs.getLong(1);
+		}
 		return read(id);
     }
     

@@ -26,6 +26,7 @@
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
 // ZAP: 2013/07/11 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2014/03/04 Issue 1042: Add ALERT_INDEX to speed up session load
+// ZAP: 2014/03/23 Changed to use try-with-resource statements.
 
 package org.parosproxy.paros.db;
 
@@ -152,12 +153,9 @@ public class TableAlert extends AbstractTable {
 
     public synchronized RecordAlert read(int alertId) throws SQLException {
         psRead.setInt(1, alertId);
-        ResultSet rs = psRead.executeQuery();
-        try {
+        try (ResultSet rs = psRead.executeQuery()) {
             RecordAlert ra = build(rs);
             return ra;
-        } finally {
-            rs.close();
         }
     }
     
@@ -186,10 +184,11 @@ public class TableAlert extends AbstractTable {
         psInsert.setInt(17, sourceHistoryId);
         psInsert.executeUpdate();
         
-        ResultSet rs = psGetIdLastInsert.executeQuery();
-        rs.next();
-        int id = rs.getInt(1);
-        rs.close();
+        int id;
+        try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
+            rs.next();
+            id = rs.getInt(1);
+        }
         return read(id);
     }
     
@@ -222,51 +221,51 @@ public class TableAlert extends AbstractTable {
     }
     
     public Vector<Integer> getAlertListByScan(int scanId) throws SQLException {
-        PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " WHERE " + SCANID + " = ?");
+        try (PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " WHERE " + SCANID + " = ?")) {
         
-        Vector<Integer> v = new Vector<>();
-        psReadScan.setInt(1, scanId);
-        ResultSet rs = psReadScan.executeQuery();
-        while (rs.next()) {
-            // ZAP: Changed to use the method Integer.valueOf.
-            v.add(Integer.valueOf(rs.getInt(ALERTID)));
+            Vector<Integer> v = new Vector<>();
+            psReadScan.setInt(1, scanId);
+            try (ResultSet rs = psReadScan.executeQuery()) {
+                while (rs.next()) {
+                    // ZAP: Changed to use the method Integer.valueOf.
+                    v.add(Integer.valueOf(rs.getInt(ALERTID)));
+                }
+            }
+            return v;
         }
-        rs.close();
-        psReadScan.close();
-        return v;
     }
 
     public Vector<Integer> getAlertListBySession(long sessionId) throws SQLException {
 
-        PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " INNER JOIN SCAN ON ALERT.SCANID = SCAN.SCANID WHERE SESSIONID = ?");
+        try (PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " INNER JOIN SCAN ON ALERT.SCANID = SCAN.SCANID WHERE SESSIONID = ?")) {
         
-        Vector<Integer> v = new Vector<>();
-        psReadSession.setLong(1, sessionId);
-        ResultSet rs = psReadSession.executeQuery();
-        while (rs.next()) {
-            int alertId = rs.getInt(ALERTID);
-            // ZAP: Changed to use the method Integer.valueOf.
-            v.add(Integer.valueOf(alertId));
+            Vector<Integer> v = new Vector<>();
+            psReadSession.setLong(1, sessionId);
+            try (ResultSet rs = psReadSession.executeQuery()) {
+                while (rs.next()) {
+                    int alertId = rs.getInt(ALERTID);
+                    // ZAP: Changed to use the method Integer.valueOf.
+                    v.add(Integer.valueOf(alertId));
+                }
+            }
+            return v;
         }
-        rs.close();
-        psReadSession.close();
-        return v;
     }
 
     public Vector<Integer> getAlertLists() throws SQLException {
 
-        PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME);
+        try (PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME)) {
         
-        Vector<Integer> v = new Vector<>();
-        ResultSet rs = psReadSession.executeQuery();
-        while (rs.next()) {
-            int alertId = rs.getInt(ALERTID);
-            // ZAP: Changed to use the method Integer.valueOf.
-            v.add(Integer.valueOf(alertId));
+            Vector<Integer> v = new Vector<>();
+            try (ResultSet rs = psReadSession.executeQuery()) {
+                while (rs.next()) {
+                    int alertId = rs.getInt(ALERTID);
+                    // ZAP: Changed to use the method Integer.valueOf.
+                    v.add(Integer.valueOf(alertId));
+                }
+            }
+            return v;
         }
-        rs.close();
-        psReadSession.close();
-        return v;
     }
 
     
@@ -311,29 +310,29 @@ public class TableAlert extends AbstractTable {
 
         List<RecordAlert> result = new ArrayList<>();
         psGetAlertsForHistoryId.setLong(1, historyId);
-        ResultSet rs = psGetAlertsForHistoryId.executeQuery();
-        RecordAlert ra = build(rs);
-        while (ra != null) {
-            result.add(ra);
-            ra = build(rs);
+        try (ResultSet rs = psGetAlertsForHistoryId.executeQuery()) {
+            RecordAlert ra = build(rs);
+            while (ra != null) {
+                result.add(ra);
+                ra = build(rs);
+            }
         }
-        rs.close();
         
         return result;
     }
 
     // ZAP: Added getAlertList
     public Vector<Integer> getAlertList() throws SQLException {
-        PreparedStatement psReadScan = getConnection().prepareStatement("SELECT " + ALERTID + " FROM " + TABLE_NAME);
+        try (PreparedStatement psReadScan = getConnection().prepareStatement("SELECT " + ALERTID + " FROM " + TABLE_NAME)) {
         
-        Vector<Integer> v = new Vector<>();
-        ResultSet rs = psReadScan.executeQuery();
-        while (rs.next()) {
-            v.add(Integer.valueOf(rs.getInt(ALERTID)));
+            Vector<Integer> v = new Vector<>();
+            try (ResultSet rs = psReadScan.executeQuery()) {
+                while (rs.next()) {
+                    v.add(Integer.valueOf(rs.getInt(ALERTID)));
+                }
+            }
+            return v;
         }
-        rs.close();
-        psReadScan.close();
-        return v;
     }
 	
 }

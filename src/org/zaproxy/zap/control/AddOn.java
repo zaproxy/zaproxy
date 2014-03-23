@@ -107,8 +107,7 @@ public class AddOn  {
 	private void loadManifestFile() {
 		if (file.exists()) {
 			// Might not exist in the tests
-			try {
-				ZipFile zip = new ZipFile(file);
+			try (ZipFile zip = new ZipFile(file)) {
 				ZipEntry zapAddOnEntry = zip.getEntry("ZapAddOn.xml");
 				if (zapAddOnEntry != null) {
 					
@@ -132,7 +131,6 @@ public class AddOn  {
 					hasZapAddOnEntry = true;
 
 				}
-				zip.close();
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}

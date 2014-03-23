@@ -69,10 +69,9 @@ public class TableSessionUrl extends AbstractTable {
 	public synchronized RecordSessionUrl read(long urlId) throws SQLException {
 		psRead.setLong(1, urlId);
 		
-		ResultSet rs = psRead.executeQuery();
-		RecordSessionUrl result = build(rs);
-		rs.close();
-		return result;
+		try (ResultSet rs = psRead.executeQuery()) {
+			return build(rs);
+		}
 	}
 	
     public synchronized RecordSessionUrl insert(int type, String url) throws SQLException {
@@ -80,10 +79,11 @@ public class TableSessionUrl extends AbstractTable {
         psInsert.setString(2, url);
         psInsert.executeUpdate();
         
-		ResultSet rs = psGetIdLastInsert.executeQuery();
-		rs.next();
-		long id = rs.getLong(1);
-		rs.close();
+		long id;
+		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
+			rs.next();
+			id = rs.getLong(1);
+		}
 		return read(id);
 		
     }
@@ -101,15 +101,14 @@ public class TableSessionUrl extends AbstractTable {
     
 
     public List<RecordSessionUrl> getUrlsForType (int type) throws SQLException {
-    	List<RecordSessionUrl> result = new ArrayList<>();
     	psGetAlluRLSForType.setInt(1, type);
-    	ResultSet rs = psGetAlluRLSForType.executeQuery();
-    	while (rs.next()) {
-    		result.add(new RecordSessionUrl(rs.getLong(URLID), rs.getInt(TYPE), rs.getString(URL)));
+    	try (ResultSet rs = psGetAlluRLSForType.executeQuery()) {
+    		List<RecordSessionUrl> result = new ArrayList<>();
+    		while (rs.next()) {
+    			result.add(new RecordSessionUrl(rs.getLong(URLID), rs.getInt(TYPE), rs.getString(URL)));
+    		}
+    		return result;
     	}
-    	rs.close();
-    	
-    	return result;
     }
                 
     private RecordSessionUrl build(ResultSet rs) throws SQLException {

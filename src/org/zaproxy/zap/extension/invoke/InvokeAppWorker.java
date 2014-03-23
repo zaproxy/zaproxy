@@ -114,11 +114,8 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 		Process proc = pb.start();
 
 		if (captureOutput) {
-			BufferedReader brErr = null;
-			BufferedReader brOut = null;
-			try {
-				brErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
-				brOut = new BufferedReader(new InputStreamReader(proc.getInputStream()));
+			try (BufferedReader brErr = new BufferedReader(new InputStreamReader(proc.getErrorStream()));
+				BufferedReader brOut = new BufferedReader(new InputStreamReader(proc.getInputStream()))) {
 				String line;
 				boolean isOutput = false;
 				StringBuilder sb = new StringBuilder();
@@ -153,16 +150,6 @@ public class InvokeAppWorker extends SwingWorker<Void, Void> {
 					}
 				}
 			
-			} finally {
-				try {
-					if (brOut != null) {
-						brOut.close();
-					}
-				} finally {
-					if (brErr != null) {
-						brErr.close();
-					}
-				}
 			}
 		}
 			

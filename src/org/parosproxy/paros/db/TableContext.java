@@ -74,10 +74,10 @@ public class TableContext extends AbstractTable {
 	public synchronized RecordContext read(long dataId) throws SQLException {
 		psRead.setLong(1, dataId);
 		
-		ResultSet rs = psRead.executeQuery();
-		RecordContext result = build(rs);
-		rs.close();
-		return result;
+		try (ResultSet rs = psRead.executeQuery()) {
+			RecordContext result = build(rs);
+			return result;
+		}
 	}
 	
     public synchronized RecordContext insert(int contextId, int type, String url) throws SQLException {
@@ -86,10 +86,11 @@ public class TableContext extends AbstractTable {
         psInsert.setString(3, url);
         psInsert.executeUpdate();
         
-		ResultSet rs = psGetIdLastInsert.executeQuery();
-		rs.next();
-		long id = rs.getLong(1);
-		rs.close();
+		long id;
+		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
+			rs.next();
+			id = rs.getLong(1);
+		}
 		return read(id);
 		
     }
@@ -110,11 +111,11 @@ public class TableContext extends AbstractTable {
 
     public List<RecordContext> getAllData () throws SQLException {
     	List<RecordContext> result = new ArrayList<>();
-    	ResultSet rs = psGetAllData.executeQuery();
-    	while (rs.next()) {
-    		result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
+    	try (ResultSet rs = psGetAllData.executeQuery()) {
+    		while (rs.next()) {
+    			result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
+    		}
     	}
-    	rs.close();
     	
     	return result;
     }
@@ -122,11 +123,11 @@ public class TableContext extends AbstractTable {
     public List<RecordContext> getDataForContext (int contextId) throws SQLException {
     	List<RecordContext> result = new ArrayList<>();
     	psGetAllDataForContext.setInt(1, contextId);
-    	ResultSet rs = psGetAllDataForContext.executeQuery();
-    	while (rs.next()) {
-    		result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
+    	try (ResultSet rs = psGetAllDataForContext.executeQuery()) {
+    		while (rs.next()) {
+    			result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
+    		}
     	}
-    	rs.close();
     	
     	return result;
     }
@@ -135,11 +136,11 @@ public class TableContext extends AbstractTable {
     	List<RecordContext> result = new ArrayList<>();
     	psGetAllDataForContextAndType.setInt(1, contextId);
     	psGetAllDataForContextAndType.setInt(2, type);
-    	ResultSet rs = psGetAllDataForContextAndType.executeQuery();
-    	while (rs.next()) {
-    		result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
+    	try (ResultSet rs = psGetAllDataForContextAndType.executeQuery()) {
+    		while (rs.next()) {
+    			result.add(new RecordContext(rs.getLong(DATAID), rs.getInt(CONTEXTID), rs.getInt(TYPE), rs.getString(DATA)));
+    		}
     	}
-    	rs.close();
     	
     	return result;
     }

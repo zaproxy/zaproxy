@@ -21,6 +21,7 @@
 // ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
+// ZAP: 2014/03/23 Changed to use try-with-resource statements.
 
 package org.parosproxy.paros.db;
 
@@ -58,23 +59,21 @@ public class TableScan extends AbstractTable {
     }
     
     public synchronized RecordScan getLatestScan() throws SQLException {
-        PreparedStatement psLatest	= getConnection().prepareStatement("SELECT * FROM SCAN WHERE SCANID = (SELECT MAX(B.SCANID) FROM SCAN AS B)");
-        
-		ResultSet rs = psLatest.executeQuery();
-		RecordScan result = build(rs);
-		rs.close();
-		psLatest.close();
-		return result;
-		
+        try (PreparedStatement psLatest = getConnection().prepareStatement("SELECT * FROM SCAN WHERE SCANID = (SELECT MAX(B.SCANID) FROM SCAN AS B)")) {
+			try (ResultSet rs = psLatest.executeQuery()) {
+			RecordScan result = build(rs);
+			return result;
+			}
+        }
     }
     
 	public synchronized RecordScan read(int scanId) throws SQLException {
 		psRead.setInt(1, scanId);
 		
-		ResultSet rs = psRead.executeQuery();
-		RecordScan result = build(rs);
-		rs.close();
-		return result;
+		try (ResultSet rs = psRead.executeQuery()) {
+			RecordScan result = build(rs);
+			return result;
+		}
 	}
 	
     public synchronized RecordScan insert(long sessionId, String scanName) throws SQLException {
@@ -82,10 +81,11 @@ public class TableScan extends AbstractTable {
         psInsert.setString(2, scanName);
         psInsert.executeUpdate();
         
-		ResultSet rs = psGetIdLastInsert.executeQuery();
-		rs.next();
-		int id = rs.getInt(1);
-		rs.close();
+		int id;
+		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
+			rs.next();
+			id = rs.getInt(1);
+		}
 		return read(id);
 		
     }

@@ -72,12 +72,9 @@ public class TableTag extends AbstractTable {
 	public synchronized RecordTag read(long tagId) throws SQLException {
 		psRead.setLong(1, tagId);
 		
-		ResultSet rs = psRead.executeQuery();
-		try {
+		try (ResultSet rs = psRead.executeQuery()) {
 			RecordTag result = build(rs);
 			return result;
-		} finally {
-			rs.close();
 		}
 	}
 	
@@ -86,13 +83,10 @@ public class TableTag extends AbstractTable {
     	psInsertTag.setString(2, tag);
         psInsertTag.executeUpdate();
         
-		ResultSet rs = psGetIdLastInsert.executeQuery();
-		try {
+		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
 			rs.next();
 			long id = rs.getLong(1);
 			return read(id);
-		} finally {
-			rs.close();
 		}
     }
     
@@ -106,13 +100,10 @@ public class TableTag extends AbstractTable {
     public List<RecordTag> getTagsForHistoryID (long historyId) throws SQLException {
     	List<RecordTag> result = new ArrayList<>();
     	psGetTagsForHistoryId.setLong(1, historyId);
-    	ResultSet rs = psGetTagsForHistoryId.executeQuery();
-    	try {
+    	try (ResultSet rs = psGetTagsForHistoryId.executeQuery()) {
 	    	while (rs.next()) {
 	    		result.add(new RecordTag(rs.getLong(TAGID), rs.getLong(TAGID), rs.getString(TAG)));
 	    	}
-    	} finally {
-    		rs.close();
     	}
     	
     	return result;
@@ -120,13 +111,10 @@ public class TableTag extends AbstractTable {
         
     public List<String> getAllTags () throws SQLException {
     	List<String> result = new ArrayList<>();
-    	ResultSet rs = psGetAllTags.executeQuery();
-    	try {
+    	try (ResultSet rs = psGetAllTags.executeQuery()) {
 	    	while (rs.next()) {
 	    		result.add(rs.getString(TAG));
 	    	}
-    	} finally {
-    		rs.close();
     	}
     	
     	return result;
