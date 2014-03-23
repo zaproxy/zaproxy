@@ -18,9 +18,12 @@
 package org.zaproxy.zap.spider;
 
 import java.util.HashSet;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Set;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -77,7 +80,7 @@ public class SpiderController implements SpiderParserListener {
 	private Set<String> visitedGet;
 
 	/** The resources visited using POST method. */
-	private Set<String> visitedPost;
+	private Map<String, ArrayList<String>> visitedPost;
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(SpiderController.class);
@@ -93,7 +96,7 @@ public class SpiderController implements SpiderParserListener {
 		this.fetchFilters = new LinkedList<>();
 		this.parseFilters = new LinkedList<>();
 		this.visitedGet = new HashSet<>();
-		this.visitedPost = new HashSet<>();
+		this.visitedPost = new HashMap<String, ArrayList<String>>();
 
 		// Prepare the parsers for HTML
 		this.htmlParsers = new LinkedList<>();
@@ -342,15 +345,22 @@ public class SpiderController implements SpiderParserListener {
 
 	@Override
 	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
-		log.debug("New POST resource found: " + uri);
+		log.info("New POST resource found: " + uri);
 
 		// Check if the uri was processed already
 		synchronized (visitedPost) {
-			if (visitedPost.contains(uri)) {
+      if(arrayKeyValueExists(uri, requestBody)) {
 				log.debug("URI already visited: " + uri);
 				return;
 			} else {
-				visitedPost.add(uri);
+        if(visitedPost.containsKey(uri)) {
+          visitedPost.get(uri).add(requestBody);
+        }
+        else {
+          ArrayList<String> l = new ArrayList<String>();
+          l.add(requestBody);
+				  visitedPost.put(uri, l);
+        }
 			}
 		}
 
@@ -377,6 +387,26 @@ public class SpiderController implements SpiderParserListener {
 		spider.submitTask(task);
 
 	}
+
+  /**
+   * Checks whether the value exists in an ArrayList of certain key.
+   *
+   * @param key the string of the uri
+   * @param value the request body of the uri
+   * @return true or false depending whether the uri and request body have already been processed
+   */
+  private boolean arrayKeyValueExists(String key, String value) {
+    if (visitedPost.containsKey(key)) {
+      for(String s : visitedPost.get(key)) {
+        if(s.equals(value)) {
+          return true;
+        }
+      }
+    }
+
+    return false;
+
+  }
 
 	/**
 	 * Creates the {@link URI} starting from the uri string. First it tries to convert it into a
