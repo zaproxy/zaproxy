@@ -55,21 +55,37 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 	 * children that the pop up menu in which they are, is being invoked. Subclasses should take it into account when overriding
 	 * this the method.
 	 * </p>
+	 * 
+	 * @see #processExtensionPopupChildren(Component)
 	 */
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
-		boolean retV = false;
+		return processExtensionPopupChildren(invoker);
+	}
+
+	/**
+	 * Returns {@code true} if at least one of the child {@code PopupMenuHistoryReference} items is enable, {@code false}
+	 * otherwise.
+	 * <p>
+	 * The method {@code isEnableForComponent(Component)} is called on all child {@code PopupMenuHistoryReference}s.
+	 * </p>
+	 * 
+	 * @param invoker the component of the invoker
+	 * @return {@code true} if at least one of the child items is enable, {@code false} otherwise.
+	 * @see PopupMenuHistoryReference#isEnableForComponent(Component)
+	 */
+	protected boolean processExtensionPopupChildren(Component invoker) {
+		boolean childEnable = false;
 		for (int index = 0; index < this.getItemCount(); index++) {
 			JMenuItem item = this.getItem(index);
 			if (item instanceof PopupMenuHistoryReference) {
 				PopupMenuHistoryReference itemRef=(PopupMenuHistoryReference) item;
-				if (itemRef.isEnableForComponent(invoker))
-				{
-					retV = true;
+				if (itemRef.isEnableForComponent(invoker)) {
+					childEnable = true;
 				}
 			}
 		}
-		return retV;
+		return childEnable;
 	}
 
 	public String getParentMenuName() {
