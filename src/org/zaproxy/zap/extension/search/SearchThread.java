@@ -26,7 +26,6 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -112,22 +111,19 @@ public class SearchThread extends Thread {
         		return;
         	}
 
-			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryIds(session.getSessionId());
+			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryIdsOfHistType(session.getSessionId(),
+							HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER, HistoryReference.TYPE_SPIDER);
 			int last = list.size();
 			int currentRecordId = 0;
 			for (int index=0;index < last;index++){
 				if (stopSearch) {
 					break;
 				}
-			    int v = list.get(index).intValue();
+			    int historyId = list.get(index).intValue();
 			    try {
-			    	RecordHistory hr = Model.getSingleton().getDb().getTableHistory().read(v);
-			        if (hr.getHistoryType() == HistoryReference.TYPE_PROXIED || 
-			                hr.getHistoryType() == HistoryReference.TYPE_ZAP_USER || 
-			        		hr.getHistoryType() == HistoryReference.TYPE_SPIDER) {
 			            currentRecordId = index;
 			        	// Create the href to ensure the msg is set up correctly
-			        	HistoryReference href = new HistoryReference(hr.getHistoryId());
+			        	HistoryReference href = new HistoryReference(historyId);
 			        	HttpMessage message = href.getHttpMessage();
 			        	if (searchJustInScope && ! session.isInScope(message.getRequestHeader().getURI().toString())) {
 			        		// Not in scope, so ignore
@@ -249,7 +245,6 @@ public class SearchThread extends Thread {
 					            }
 				            }
 				        }
-			        }
 			        
 			    } catch (HttpMalformedHeaderException e1) {
 			        log.error(e1.getMessage(), e1);
