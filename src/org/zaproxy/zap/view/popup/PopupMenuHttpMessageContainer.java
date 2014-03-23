@@ -228,6 +228,20 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * {@code isEnableForComponent(Component)} is called on all child {@code ExtensionPopupMenuComponent}s.
      * </p>
      * <p>
+     * All the child menus that implement {@code ExtensionPopupMenuComponent} will have the methods
+     * {@code precedeWithSeparator()}, {@code succeedWithSeparator()}, {@code getMenuIndex()} and {@code isSafe()} honoured,
+     * with the following caveats:
+     * <ul>
+     * <li>{@code precedeWithSeparator()} - the separator will only be added if there's already a menu component in the menu and
+     * if it is not a separator;</li>
+     * <li>{@code succeedWithSeparator()} - the separator will be added always but removed if there's no item following it when
+     * the menu is ready to be shown;</li>
+     * <li>{@code getMenuIndex()} - the menu index will be honoured only if the method {@code isOrderChildren()} returns
+     * {@code true};</li>
+     * </ul>
+     * The separators will be dynamically added and removed as needed when the pop up menu is shown.
+     * </p>
+     * <p>
      * <strong>Note:</strong> Override of this method should be done with extra care as it might break all the expected
      * functionality.
      * </p>
