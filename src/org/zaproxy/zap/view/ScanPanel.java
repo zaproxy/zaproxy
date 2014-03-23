@@ -526,11 +526,7 @@ public abstract class ScanPanel extends AbstractPanel {
 				getStartScanButton().setEnabled(false);
 				getStopScanButton().setEnabled(true);
 				getPauseScanButton().setEnabled(true);
-				if (scanThread.isPaused()) {
-					getPauseScanButton().setSelected(true);
-				} else {
-					getPauseScanButton().setSelected(false);
-				}
+				getPauseScanButton().setSelected(scanThread.isPaused());
 				getProgressBar().setEnabled(true);
 			} else {
 				resetScanButtonsAndProgressBarStates(true);
