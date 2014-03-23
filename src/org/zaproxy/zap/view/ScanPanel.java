@@ -602,11 +602,10 @@ public abstract class ScanPanel extends AbstractPanel {
 		while (en.hasMoreElements()) {
 			SiteNode sn = en.nextElement();
 			String nodeName = sn.getNodeName();
-			if (nodeName.toLowerCase().startsWith("https:")) {
+			if (nodeName.toLowerCase().startsWith("https:") && !hasPort(nodeName)) {
 				nodeName += ":443";
 			}
-			if (nodeName.toLowerCase().startsWith("http:") && 
-                                nodeName.toLowerCase().lastIndexOf(":")==nodeName.toLowerCase().indexOf(":")) { // Does not contain port number (second column)
+			if (nodeName.toLowerCase().startsWith("http:") && !hasPort(nodeName)) {
 				nodeName += ":80";
 			}                        
 			if (nodeName.indexOf("//") >= 0) {
@@ -617,6 +616,10 @@ public abstract class ScanPanel extends AbstractPanel {
 			}
 		}
 		return null;
+	}
+
+	private static boolean hasPort(String nodeName) {
+		return nodeName.lastIndexOf(":") != nodeName.indexOf(":");
 	}
 
 	public void nodeSelected(SiteNode node, boolean incPort) {
