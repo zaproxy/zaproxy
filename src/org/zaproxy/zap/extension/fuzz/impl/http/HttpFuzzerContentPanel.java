@@ -32,7 +32,6 @@ import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
-import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -59,13 +58,6 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
     private HttpPanel requestPanel;
     private HttpPanel responsePanel;
-
-    /**
-     * A list containing all the {@code HistoryReference} IDs that are added to
-     * the instance variable {@code resultsModel}. Used to delete the
-     * {@code HistoryReference}s from the database when no longer needed.
-     */
-    private List<Integer> historyReferencesToDelete = new ArrayList<>();
 
     private boolean showTokenRequests;
 
@@ -191,13 +183,6 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                 logger.error(e.getMessage(), e);
             }
         }
-        if (historyReferencesToDelete.size() != 0) {
-            try {
-                Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
-            } catch (SQLException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
     }
 
     private void addFuzzResult(final State state, final HttpMessage  msg) {
@@ -221,7 +206,6 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
     private void addFuzzResultToView(final State state, final HttpMessage msg) {
         try {
             HistoryReference historyReference = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
-            this.historyReferencesToDelete.add(Integer.valueOf(historyReference.getHistoryId()));
 
             resultsModel.addHistoryReference(state, historyReference);
         } catch (HttpMalformedHeaderException e) {
