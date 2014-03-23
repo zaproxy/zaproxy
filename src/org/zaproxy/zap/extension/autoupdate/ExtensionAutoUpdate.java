@@ -466,11 +466,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 int result = getView().showConfirmDialog(
                 		Constant.messages.getString("cfu.confirm.startCheck"));
                 if (result == JOptionPane.OK_OPTION) {
-                	param.setCheckOnStart(1);
+                	param.setCheckOnStart(true);
                 	param.setCheckAddonUpdates(true);
                 	param.setDownloadNewRelease(true);
                 } else {
-                	param.setCheckOnStart(0);
+                	param.setCheckOnStart(false);
                 }
                 // Save
 			    try {

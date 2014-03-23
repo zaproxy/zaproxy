@@ -23,6 +23,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
@@ -38,7 +39,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	public static final String REPORT_BETA_ADDON = "start.reportBetaAddons";
 	public static final String REPORT_ALPHA_ADDON = "start.reportAlphaAddons";
 	
-	private int checkOnStart = 0;
+	private boolean checkOnStart;
 	private boolean downloadNewRelease = false;
 	private boolean checkAddonUpdates = false;
 	private boolean installAddonUpdates = false;
@@ -57,12 +58,13 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 
     @Override
     protected void parse() {
+        updateOldOptions();
         
-	    checkOnStart = getConfig().getInt(CHECK_ON_START, 0);
+	    checkOnStart = getConfig().getBoolean(CHECK_ON_START, false);
 	    dayLastChecked = getConfig().getString(DAY_LAST_CHECKED, "");
 	    // There was a bug in 1.2.0 where it defaulted silently to dont check
 	    // We now use the lack of a dayLastChecked value to indicate we should reprompt the user.
-		unset = getConfig().getString(CHECK_ON_START, "").equals("") || dayLastChecked.length() == 0;
+		unset = dayLastChecked.length() == 0;
 		
 		downloadNewRelease = getConfig().getBoolean(DOWNLOAD_NEW_RELEASE, false);
 		checkAddonUpdates = getConfig().getBoolean(CHECK_ADDON_UPDATES, false);
@@ -73,16 +75,36 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		reportAlphaAddons = getConfig().getBoolean(REPORT_ALPHA_ADDON, false);
     }
 
+	private void updateOldOptions() {
+		try {
+			int oldValue = getConfig().getInt(CHECK_ON_START, 0);
+			getConfig().setProperty(CHECK_ON_START, Boolean.valueOf(oldValue != 0));
+		} catch(ConversionException ignore) {
+			// Option already using boolean type.
+		}
+	}
+
 	public boolean isCheckOnStartUnset() {
 		return unset;
 	}
 	
 	/**
-	 * @param checkOnStart processImages 0 = not to process. Other = process images
+	 * @param checkOnStart 0 to disable check for updates on startup, any other number to enable.
+	 * @deprecated (2.3.0) Replaced by {@link #setCheckOnStart(boolean)}. It will be removed in a future release.
 	 */
+	@Deprecated
 	public void setCheckOnStart(int checkOnStart) {
+	    setCheckOnStart(checkOnStart != 0);
+	}
+
+	/**
+	 * Sets whether or not the "check for updates on start up" is enabled.
+	 * 
+	 * @param checkOnStart {@code true} if the "check for updates on start up" should be enabled, {@code false} otherwise.
+	 */
+	public void setCheckOnStart(boolean checkOnStart) {
 		this.checkOnStart = checkOnStart;
-		getConfig().setProperty(CHECK_ON_START, Integer.toString(checkOnStart));
+		getConfig().setProperty(CHECK_ON_START, Boolean.valueOf(checkOnStart));
 		if (dayLastChecked.length() == 0) {
 			dayLastChecked = "Never";
 			getConfig().setProperty(DAY_LAST_CHECKED, dayLastChecked);
@@ -90,7 +112,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	}
 	
 	public boolean isCheckOnStart() {
-		if (checkOnStart == 0) {
+		if (!checkOnStart) {
 			log.debug("isCheckForStart - false");
 			return false;
 		}

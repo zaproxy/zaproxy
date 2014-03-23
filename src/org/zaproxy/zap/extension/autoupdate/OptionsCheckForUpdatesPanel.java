@@ -269,7 +269,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
-	    options.getCheckForUpdatesParam().setCheckOnStart((getChkCheckOnStart().isSelected()) ? 1 : 0);
+	    options.getCheckForUpdatesParam().setCheckOnStart(getChkCheckOnStart().isSelected());
 	    options.getCheckForUpdatesParam().setDownloadNewRelease(getChkDownloadNewRelease().isSelected());
 		options.getCheckForUpdatesParam().setCheckAddonUpdates(getChkCheckAddonUpdates().isSelected());
 		options.getCheckForUpdatesParam().setInstallAddonUpdates(getChkInstallAddonUpdates().isSelected());
