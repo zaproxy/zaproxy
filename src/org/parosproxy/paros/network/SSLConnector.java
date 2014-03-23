@@ -23,13 +23,16 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/25 Issue 462: SSLSocketFactory with TLS enabled and default Cipher options
 // ZAP: 2013/06/01 Issue 669: Certificate algorithm constraints in Java 1.7
+// ZAP: 2014/03/23 Tidy up, removed and deprecated unused methods other minor changes
 
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.net.UnknownHostException;
 import java.security.InvalidKeyException;
 import java.security.KeyManagementException;
@@ -52,8 +55,6 @@ import javax.net.ssl.X509ExtendedTrustManager;
 
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
-import org.apache.commons.httpclient.protocol.ControllerThreadSocketFactory;
-import org.apache.commons.httpclient.protocol.ReflectionSocketFactory;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.security.CachedSslCertifificateServiceImpl;
@@ -74,7 +75,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	// ZAP: removed ServerSocketFaktory
 	
 	// ZAP: Added logger
-	private Logger logger = Logger.getLogger(this.getClass());
+	private static final Logger logger = Logger.getLogger(SSLConnector.class);
 	
 	private static SSLContextManager sslContextManager = null;
 
@@ -87,42 +88,6 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			sslContextManager = new SSLContextManager();
 		}
 
-	}
-
-	public SSLSocket client(String hostName, int hostPort, boolean useClientCert)
-			throws IOException {
-
-		SSLSocket socket = null;
-
-		socket = clientNoHandshake(hostName, hostPort, useClientCert);
-		
-		//socket.setEnabledProtocols(new String[] {"SSLv3"});
-		//socket.setEnabledCipherSuites(new String[] {"SSL_RSA_WITH_DES_CBC_SHA"});
-
-		socket.startHandshake();
-
-		return socket;
-	}
-
-	public SSLSocket clientNoHandshake(String hostName, int hostPort,
-			boolean useClientCert) throws IOException {
-
-		SSLSocket socket = null;
-		// SSL Strong Cipher Hack
-		
-		// SSL Strong Cipher Hack
-		
-		if (useClientCert) {
-			socket = (SSLSocket) clientSSLSockCertFactory.createSocket(
-					hostName, hostPort);
-		} else {
-			socket = (SSLSocket) clientSSLSockFactory.createSocket(hostName,
-					hostPort);
-		}
-		socket.setEnabledProtocols(new String[] {"SSLv3", "TLSv1"});
-		//socket.setEnabledCipherSuites(new String[] {"SSL_RSA_WITH_DES_CBC_SHA"});
-		
-		return socket;
 	}
 
 	public SSLContextManager getSSLContextManager() {
@@ -183,30 +148,21 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 
 	/**
-	 * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int,java.net.InetAddress,int)
+	 * @deprecated (2.3.0) No longer supported since it's no longer required/called by Commons HttpClient library (version >= 
+	 *             3.0). Throws {@code UnsupportedOperationException}.
 	 */
 	@Override
+	@Deprecated
 	public Socket createSocket(String host, int port, InetAddress clientHost,
 			int clientPort) throws IOException, UnknownHostException {
 
-		Socket socket = clientSSLSockFactory.createSocket(host, port, clientHost, clientPort);
-		
-		return socket;
+		throw new UnsupportedOperationException(
+				"Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
 	}
 
 	/**
 	 * Attempts to get a new socket connection to the given host within the
 	 * given time limit.
-	 * <p>
-	 * This method employs several techniques to circumvent the limitations of
-	 * older JREs that do not support connect timeout. When running in JRE 1.4
-	 * or above reflection is used to call Socket#connect(SocketAddress
-	 * endpoint, int timeout) method. When executing in older JREs a controller
-	 * thread is executed. The controller thread attempts to create a new socket
-	 * within the given limit of time. If socket constructor does not return
-	 * until the timeout expires, the controller terminates and throws an
-	 * {@link ConnectTimeoutException}
-	 * </p>
 	 * 
 	 * @param host
 	 *            the host name/IP
@@ -237,27 +193,27 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		}
 		int timeout = params.getConnectionTimeout();
 		if (timeout == 0) {
-			return createSocket(host, port, localAddress, localPort);
+			return clientSSLSockFactory.createSocket(host, port, localAddress, localPort);
 		}
-		// To be eventually deprecated when migrated to Java 1.4 or above
-		Socket socket = ReflectionSocketFactory.createSocket(
-				"javax.net.ssl.SSLSocketFactory", host, port, localAddress,
-				localPort, timeout);
-		if (socket == null) {
-			socket = ControllerThreadSocketFactory.createSocket(this, host,
-					port, localAddress, localPort, timeout);
-		}
+		Socket socket = clientSSLSockFactory.createSocket();
+		SocketAddress localAddr = new InetSocketAddress(localAddress, localPort);
+		socket.bind(localAddr);
+		SocketAddress remoteAddr = new InetSocketAddress(host, port);
+		socket.connect(remoteAddr, timeout);
 		
 		return socket;
 	}
 
 	/**
-	 * @see SecureProtocolSocketFactory#createSocket(java.lang.String,int)
+	 * @deprecated (2.3.0) No longer supported since it's no longer required/called by Commons HttpClient library (version >= 
+	 *             3.0). Throws {@code UnsupportedOperationException}.
 	 */
 	@Override
+	@Deprecated
 	public Socket createSocket(String host, int port) throws IOException,
 			UnknownHostException {
-		return clientSSLSockFactory.createSocket(host, port);
+		throw new UnsupportedOperationException(
+				"Method no longer supported since it's no longer required/called by Commons HttpClient library (version >= 3.0).");
 	}
 
 	/**
@@ -297,7 +253,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 		//	KeyStore ks;
 		try {
-			SSLContext ctx = SSLContext.getInstance("SSL");
+			SSLContext ctx = SSLContext.getInstance(SSL);
 			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
 
 			SslCertificateService scs = CachedSslCertifificateServiceImpl.getService();
