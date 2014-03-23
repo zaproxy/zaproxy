@@ -545,7 +545,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    OptionsParam optionsParam = (OptionsParam) obj;
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    int timeout;
-	    String sslPorts;
 
         try {
             timeout = Integer.parseInt(txtTimeoutInSecs.getText());
