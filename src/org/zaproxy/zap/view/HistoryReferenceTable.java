@@ -151,7 +151,7 @@ public class HistoryReferenceTable extends JTable {
 
 	public HistoryReference getSelectedValue() {
 		if (this.getSelectedRow() >= 0) {
-			return model.getHistoryReference(this.getSelectedRow());
+			return model.getHistoryReference(convertRowIndexToModel(this.getSelectedRow()));
 		}
 		return null;
 	}
@@ -161,7 +161,7 @@ public class HistoryReferenceTable extends JTable {
 		if (rows != null) {
 			List<HistoryReference> hrefList = new ArrayList<>(rows.length);
 			for (int row : rows) {
-				hrefList.add(this.getHrefModel().getHistoryReference(row));
+				hrefList.add(this.getHrefModel().getHistoryReference(convertRowIndexToModel(row)));
 			}
 			return hrefList;
 		}
