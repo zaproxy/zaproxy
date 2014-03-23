@@ -37,7 +37,7 @@ public class PythonAPIGenerator {
 			"#\n" +
 			"# ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			"#\n" +
-			"# Copyright the ZAP development team\n" +
+			"# Copyright 2014 the ZAP development team\n" +
 			"#\n" +
 			"# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			"# you may not use this file except in compliance with the License.\n" +
@@ -73,12 +73,8 @@ public class PythonAPIGenerator {
 		}
 	}
 	
-	private void generatePythonElement(ApiElement element, String component, String type, Writer out) throws IOException {
-		this.generatePythonElement(element, component, type, out, false);
-		
-	}
 	private void generatePythonElement(ApiElement element, String component, 
-			String type, Writer out, boolean incComponentCol) throws IOException {
+			String type, Writer out) throws IOException {
 		
 		boolean hasParams = (element.getMandatoryParamNames() != null && 
 								element.getMandatoryParamNames().size() > 0) ||
@@ -166,24 +162,24 @@ public class PythonAPIGenerator {
 	private void generatePythonComponent(ApiImplementor imp) throws IOException {
 		File f = new File(this.dir, createFileName(imp.getPrefix()));
 		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
-		out.write(HEADER);
-		out.write("class " + safeName(imp.getPrefix()) + "(object):\n\n");
-		out.write("    def __init__(self, zap):\n");
-		out.write("        self.zap = zap\n");
-		out.write("\n");
-		
-		for (ApiElement view : imp.getApiViews()) {
-			this.generatePythonElement(view, imp.getPrefix(), "view", out);
+		try(FileWriter out = new FileWriter(f)) {
+			out.write(HEADER);
+			out.write("class " + safeName(imp.getPrefix()) + "(object):\n\n");
+			out.write("    def __init__(self, zap):\n");
+			out.write("        self.zap = zap\n");
+			out.write("\n");
+			
+			for (ApiElement view : imp.getApiViews()) {
+				this.generatePythonElement(view, imp.getPrefix(), "view", out);
+			}
+			for (ApiElement action : imp.getApiActions()) {
+				this.generatePythonElement(action, imp.getPrefix(), "action", out);
+			}
+			for (ApiElement other : imp.getApiOthers()) {
+				this.generatePythonElement(other, imp.getPrefix(), "other", out);
+			}
+			out.write("\n");
 		}
-		for (ApiElement action : imp.getApiActions()) {
-			this.generatePythonElement(action, imp.getPrefix(), "action", out);
-		}
-		for (ApiElement other : imp.getApiOthers()) {
-			this.generatePythonElement(other, imp.getPrefix(), "other", out);
-		}
-		out.write("\n");
-		out.close();
 	}
 	
 	private static String safeName (String name) {
