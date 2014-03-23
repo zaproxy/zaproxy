@@ -44,6 +44,7 @@
 // code responsible to decode a GZIP response to a method
 // ZAP: 2014/03/23 Fixed an issue with ProxyThread that happened when the proxy was set to listen on
 // any address in which case the requests to the proxy itself were not correctly detected.
+// ZAP: 2014/03/23 Issue 122: ProxyThread logging timeout readings with incorrect message (URL)
 
 package org.parosproxy.paros.core.proxy;
 
@@ -279,7 +280,9 @@ class ProxyThread implements Runnable {
 
 			    } catch (SocketTimeoutException e) {
 		        	// ZAP: Log the exception
-		        	log.warn("Timeout reading " + requestHeader.getURI().toString());
+			        if (log.isDebugEnabled()) {
+			            log.debug("Timed out while reading a new HTTP request.");
+			        }
 		        	return;
 			    }
 			}
