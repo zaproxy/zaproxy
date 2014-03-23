@@ -38,6 +38,7 @@
 // ZAP: 2014/03/23 Changed to use PopupMenuUtils.isAtLeastOneChildComponentVisible(Component).
 // ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
+// ZAP: 2014/03/23 Issue 1079: Remove misplaced main pop up menu separators
 
 package org.parosproxy.paros.view;
 
@@ -145,6 +146,7 @@ public class MainPopupMenu extends JPopupMenu {
 				handleMenu(invoker, item);
 			}
 		}
+		PopupMenuUtils.removeTopAndBottomSeparators(this);
 
 		if (PopupMenuUtils.isAtLeastOneChildComponentVisible(this)) {
 			super.show(invoker.getComponent(), x, y);
@@ -154,13 +156,13 @@ public class MainPopupMenu extends JPopupMenu {
 	private void handleMenuItem(PopupMenuInvokerWrapper popupMenuInvoker, ExtensionPopupMenuItem menuItem) {
 		try {
             if (menuItem == ExtensionHookMenu.POPUP_MENU_SEPARATOR) {
-                this.addSeparator();
+                PopupMenuUtils.addSeparatorIfNeeded(this);
             } else {
 	            if (popupMenuInvoker.isEnable(menuItem)) {
 	            	if (menuItem.isSubMenu()) {
 	            	    final JMenu superMenu = getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex());
 	            		if (menuItem.precedeWithSeparator()) {
-	            			superMenu.addSeparator();
+	            			PopupMenuUtils.addSeparatorIfNeeded(superMenu.getPopupMenu());
 	            		}
 	            		if (menuItem.isDummyItem()) {
 	            			// This assumes the dummy item is the first of the children - non dummy children will enable this
@@ -175,7 +177,7 @@ public class MainPopupMenu extends JPopupMenu {
 	            		
 	            	} else {
 	            		if (menuItem.precedeWithSeparator()) {
-	    	                this.addSeparator();
+	    	                PopupMenuUtils.addSeparatorIfNeeded(this);
 	            		}
 						addMenuItem(menuItem, menuItem.getMenuIndex());
 	            		if (menuItem.succeedWithSeparator()) {
@@ -200,7 +202,7 @@ public class MainPopupMenu extends JPopupMenu {
             	if (menu.isSubMenu()) {
             	    final JMenu superMenu = getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex());
             		if (menu.precedeWithSeparator()) {
-            			superMenu.addSeparator();
+            			PopupMenuUtils.addSeparatorIfNeeded(superMenu.getPopupMenu());
             		}
             		superMenu.add(menu);
             		if (menu.succeedWithSeparator()) {
@@ -209,7 +211,7 @@ public class MainPopupMenu extends JPopupMenu {
             		
             	} else {
             		if (menu.precedeWithSeparator()) {
-    	                this.addSeparator();
+    	                PopupMenuUtils.addSeparatorIfNeeded(this);
             		}
 
             		addMenuItem(menu, menu.getMenuIndex());

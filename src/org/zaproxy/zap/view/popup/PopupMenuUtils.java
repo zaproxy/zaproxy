@@ -111,6 +111,282 @@ public final class PopupMenuUtils {
     }
 
     /**
+     * Removes all separators from the given pop up menu.
+     * 
+     * @param popupMenu the pop up menu whose separators will be removed
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeAllSeparators(JPopupMenu popupMenu) {
+        for (int i = 0; i < popupMenu.getComponentCount(); i++) {
+            if (isPopupMenuSeparator(popupMenu.getComponent(i))) {
+                popupMenu.remove(i);
+                i--;
+            }
+        }
+    }
+
+    /**
+     * Convenience method that calls the method {@code removeAllSeparators(JPopupMenu)} with the {@code JPopupMenu} of the given
+     * {@code menu} as parameter.
+     * 
+     * @param menu the menu whose separators will be removed
+     * @see #removeAllSeparators(JPopupMenu)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeAllSeparators(JMenu menu) {
+        removeAllSeparators(menu.getPopupMenu());
+    }
+
+    /**
+     * Removes all consecutive separators from the given menu.
+     * <p>
+     * For example, calling the method on the given menu:
+     * <pre>
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Separator
+     *    Menu Entry
+     * </pre>
+     * would result in:
+     * <pre>
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     * </pre>
+     * </p>
+     * 
+     * @param popupMenu the pop up menu whose consecutive separators will be removed
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeConsecutiveSeparators(JPopupMenu popupMenu) {
+        for (int i = 1; i < popupMenu.getComponentCount(); i++) {
+            if (isPopupMenuSeparator(popupMenu.getComponent(i))) {
+                if (isPopupMenuSeparator(popupMenu.getComponent(i - 1))) {
+                    popupMenu.remove(i);
+                    i--;
+                }
+            }
+        }
+    }
+
+    /**
+     * Convenience method that calls the method {@code removeConsecutiveSeparators(JPopupMenu)} with the {@code JPopupMenu} of
+     * the given {@code menu} as parameter.
+     * 
+     * @param menu the menu whose consecutive separators will be removed
+     * @see #removeConsecutiveSeparators(JPopupMenu)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeConsecutiveSeparators(JMenu menu) {
+        removeConsecutiveSeparators(menu.getPopupMenu());
+    }
+
+    /**
+     * Removes all top separators from the given pop up menu.
+     * <p>
+     * For example, calling the method on the given menu:
+     * <pre>
+     *    Separator
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     * </pre>
+     * would result in:
+     * <pre>
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     * </pre>
+     * </p>
+     * 
+     * @param popupMenu the pop up menu whose top separators will be removed
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeTopSeparators(JPopupMenu popupMenu) {
+        while (popupMenu.getComponentCount() > 0 && isPopupMenuSeparator(popupMenu.getComponent(0))) {
+            popupMenu.remove(0);
+        }
+    }
+
+    /**
+     * Convenience method that calls the method {@code removeTopSeparators(JPopupMenu)} with the {@code JPopupMenu} of the given
+     * {@code menu} as parameter.
+     * 
+     * @param menu the menu whose top separators will be removed
+     * @see #removeTopSeparators(JPopupMenu)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeTopSeparators(JMenu menu) {
+        removeTopSeparators(menu.getPopupMenu());
+    }
+
+    /**
+     * Removes all bottom separators from the given pop up menu.
+     * <p>
+     * For example, calling the method on the given menu:
+     * <pre>
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Separator
+     * </pre>
+     * would result in:
+     * <pre>
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     *    Separator
+     *    Menu Entry
+     * </pre>
+     * </p>
+     * 
+     * @param popupMenu the pop up menu whose bottom separators will be removed
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeBottomSeparators(JPopupMenu popupMenu) {
+        int indexLastComponent = popupMenu.getComponentCount() - 1;
+        while (indexLastComponent >= 0 && isPopupMenuSeparator(popupMenu.getComponent(indexLastComponent))) {
+            popupMenu.remove(indexLastComponent);
+            indexLastComponent -= 1;
+        }
+    }
+
+    /**
+     * Convenience method that calls the method {@code removeBottomSeparators(JPopupMenu)} with the {@code JPopupMenu} of the
+     * given {@code menu} as parameter.
+     * 
+     * @param menu the menu whose bottom separators will be removed
+     * @see #removeBottomSeparators(JPopupMenu)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeBottomSeparators(JMenu menu) {
+        removeBottomSeparators(menu.getPopupMenu());
+    }
+
+    /**
+     * Convenience method that calls the methods {@code removeTopSeparators(JPopupMenu)} and
+     * {@code removeBottomSeparators(JPopupMenu)} with the given pop up menu as parameter.
+     * 
+     * @param popupMenu the pop up menu whose top and bottom separators will be removed
+     * @see #removeTopSeparators(JPopupMenu)
+     * @see #removeBottomSeparators(JPopupMenu)
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeTopAndBottomSeparators(JPopupMenu popupMenu) {
+        if (popupMenu.getComponentCount() == 0) {
+            return;
+        }
+        removeTopSeparators(popupMenu);
+        removeBottomSeparators(popupMenu);
+    }
+
+    /**
+     * Convenience method that calls the method {@code removeTopAndBottomSeparators(JPopupMenu)} with the {@code JPopupMenu} of
+     * the given {@code menu} as parameter.
+     * 
+     * @param menu the menu whose top and bottom separators will be removed
+     * @see #removeTopAndBottomSeparators(JPopupMenu)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static void removeTopAndBottomSeparators(JMenu menu) {
+        removeTopAndBottomSeparators(menu.getPopupMenu());
+    }
+
+    /**
+     * Appends a separator to the end of the menu if it exists at least one non separator menu component immediately before and
+     * if there isn't, already, a separator at the end of the menu.
+     * 
+     * @param popupMenu the pop up menu that will be processed
+     * @return {@code true} if the separator was added, {@code false} otherwise.
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static boolean addSeparatorIfNeeded(JPopupMenu popupMenu) {
+        final int menuComponentCount = popupMenu.getComponentCount();
+        if (menuComponentCount == 0) {
+            return false;
+        }
+        final Component lastMenuComponent = popupMenu.getComponent(menuComponentCount - 1);
+        if (isPopupMenuSeparator(lastMenuComponent)) {
+            return false;
+        }
+        popupMenu.addSeparator();
+        return true;
+    }
+
+    /**
+     * Convenience method that calls the method {@code addSeparatorIfNeeded(JPopupMenu)} with the {@code JPopupMenu} of the
+     * given {@code menu} as parameter.
+     * 
+     * @param menu the menu that will be processed
+     * @return {@code true} if the separator was added, {@code false} otherwise.
+     * @see #addSeparatorIfNeeded(JPopupMenu)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static boolean addSeparatorIfNeeded(JMenu menu) {
+        return addSeparatorIfNeeded(menu.getPopupMenu());
+    }
+
+    /**
+     * Inserts a separator at the given {@code position} if it exists a non separator menu component at the given
+     * {@code position} and if there isn't, already, a separator immediately before the insert {@code position} (to prevent
+     * consecutive separators).
+     * 
+     * @param popupMenu the pop up menu that will be processed
+     * @param position the position where a separator might be inserted
+     * @return {@code true} if the separator was inserted, {@code false} otherwise.
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static boolean insertSeparatorIfNeeded(JPopupMenu popupMenu, int position) {
+        final int menuComponentCount = popupMenu.getComponentCount();
+        if (menuComponentCount == 0 || position <= 0 || position > menuComponentCount) {
+            return false;
+        }
+        final Component currentComponent = popupMenu.getComponent(position);
+        if (isPopupMenuSeparator(currentComponent)) {
+            return false;
+        }
+        final Component previousComponent = popupMenu.getComponent(position - 1);
+        if (isPopupMenuSeparator(previousComponent)) {
+            return false;
+        }
+        popupMenu.insert(new JPopupMenu.Separator(), position);
+        return true;
+    }
+
+    /**
+     * Convenience method that calls the method {@code insertSeparatorIfNeeded(JPopupMenu,int)} with the {@code JPopupMenu} of
+     * the given {@code menu} as the first parameter and with the given {@code position} as second parameter.
+     * 
+     * @param menu the menu that will be processed
+     * @param position the position where a separator might be inserted
+     * @return {@code true} if the separator was inserted, {@code false} otherwise.
+     * @see #insertSeparatorIfNeeded(JPopupMenu,int)
+     * @see JMenu#getPopupMenu()
+     * @see javax.swing.JPopupMenu.Separator
+     */
+    public static boolean insertSeparatorIfNeeded(JMenu menu, int position) {
+        return insertSeparatorIfNeeded(menu.getPopupMenu(), position);
+    }
+
+    /**
      * Returns the {@code component} wrapped in a {@code PopupMenuInvokerWrapper}.
      * 
      * @param component the component that will be wrapped.
