@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
@@ -27,32 +26,23 @@ import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;
-    private ExtensionHistory extension = null;
+    private final ExtensionHistory extension;
 
     /**
      * @param label
      */
-    public PopupMenuShowInHistory(String label) {
+    public PopupMenuShowInHistory(String label, ExtensionHistory extension) {
         super(label);
+        this.extension = extension;
     }
     
-    private ExtensionHistory getExtensionHistory() {
-    	if (extension == null) {
-    		extension = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-    	}
-    	return extension;
-    }
-	
 	@Override
 	public void performAction(HistoryReference href) {
-		getExtensionHistory().showInHistory(href);
+		extension.showInHistory(href);
 	}
 
 	@Override
 	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
-		if (getExtensionHistory() == null) {
-			return false;
-		}
 		switch (invoker) {
 		case ACTIVE_SCANNER_PANEL:
 		case FORCED_BROWSE_PANEL:

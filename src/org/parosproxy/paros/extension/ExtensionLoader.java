@@ -44,6 +44,7 @@
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2013/12/13 Added support for Full Layout DISPLAY_OPTION_TOP_FULL in the hookView function.
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
+// ZAP: 2014/03/23 Issue 1090: Do not add pop up menus if target extension is not enabled
 //
 package org.parosproxy.paros.extension;
 
@@ -151,6 +152,27 @@ public class ExtensionLoader {
         return null;
     }
     
+    /**
+     * Tells whether or not an {@code Extension} with the given {@code extensionName} is enabled.
+     * 
+     * @param extensionName the name of the extension
+     * @return {@code true} if the extension is enabled, {@code false} otherwise.
+     * @throws IllegalArgumentException if the {@code extensionName} is {@code null}.
+     * @see #getExtension(String)
+     * @see Extension
+     */
+    public boolean isExtensionEnabled(String extensionName) {
+        if (extensionName == null) {
+            throw new IllegalArgumentException("Parameter extensionName must not be null.");
+        }
+
+        Extension extension = getExtension(extensionName);
+        if (extension == null) {
+            return false;
+        }
+        return extension.isEnabled();
+    }
+
     public int getExtensionCount() {
         return extensionList.size();
     }

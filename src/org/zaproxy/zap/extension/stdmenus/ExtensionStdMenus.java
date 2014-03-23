@@ -33,9 +33,13 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ExtensionLoader;
+import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 
 public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwner {
 
@@ -89,31 +93,53 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (getView() != null) {
 	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopy());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuPaste());
+
+			final ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
+			boolean isExtensionHistoryEnabled = extensionLoader.isExtensionEnabled(ExtensionHistory.NAME);
+			boolean isExtensionActiveScanEnabled = extensionLoader.isExtensionEnabled(ExtensionActiveScan.NAME);
+			boolean isExtensionSpiderEnabled = extensionLoader.isExtensionEnabled(ExtensionSpider.NAME);
 			// Be careful when changing the menu indexes (and order above) - its easy to get unexpected
 			// results!
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(0));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(0));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(0));
+			if (isExtensionActiveScanEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(0));
+			}
+			if (isExtensionSpiderEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(0));
+			}
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextIncludeMenu(1));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContext(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
-			//Enable some popup menus only if some extensions are enabled 
-			if(Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME)!=null){
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContextAsUser(3));
+
+			if (isExtensionActiveScanEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
 			}
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
+
+			if (isExtensionSpiderEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContext(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
+				//Enable some popup menus only if some extensions are enabled 
+				if(extensionLoader.isExtensionEnabled(ExtensionUserManagement.NAME)){
+					extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
+					extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContextAsUser(3));
+				}
+			}
+
+			if (isExtensionHistoryEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuResendMessage(4));
+			}
+
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlert(5));
-			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
+
+			if (isExtensionHistoryEnabled) {
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInHistory(6)); // Both are index 6
+			}
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowInSites(6)); // on purpose ;)
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuOpenUrlInBrowser(7));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(8));
@@ -313,7 +339,9 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
 	private PopupMenuResendMessage getPopupMenuResendMessage(int menuIndex) {
 		if (popupMenuResendMessage == null) {
-			popupMenuResendMessage = new PopupMenuResendMessage(Constant.messages.getString("history.resend.popup"));
+			popupMenuResendMessage = new PopupMenuResendMessage(
+					Constant.messages.getString("history.resend.popup"),
+					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
 			popupMenuResendMessage.setMenuIndex(menuIndex);
 		}
 		return popupMenuResendMessage;
@@ -330,7 +358,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuShowInHistory getPopupMenuShowInHistory(int menuIndex) {
 		if (popupMenuShowInHistory == null) {
 			popupMenuShowInHistory = new PopupMenuShowInHistory(
-					Constant.messages.getString("history.showinhistory.popup"));
+					Constant.messages.getString("history.showinhistory.popup"),
+					(ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME));
 			popupMenuShowInHistory.setMenuIndex(menuIndex);
 		}
 		return popupMenuShowInHistory;

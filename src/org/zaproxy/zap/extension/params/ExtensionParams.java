@@ -40,6 +40,7 @@ import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
+import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -109,11 +110,20 @@ public class ExtensionParams extends ExtensionAdaptor
 			ExtensionHookView pv = extensionHook.getHookView();
 	        extensionHook.getHookView().addStatusPanel(getParamsPanel());
 
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuParamSearch());
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddAntiCSRF());
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveAntiCSRF());
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddSession());
-	        extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
+            final ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
+            if (extLoader.isExtensionEnabled(ExtensionSearch.NAME)) {
+                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuParamSearch());
+            }
+
+            if (extLoader.isExtensionEnabled(ExtensionAntiCSRF.NAME)) {
+                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddAntiCSRF());
+                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveAntiCSRF());
+            }
+
+            if (extLoader.isExtensionEnabled(ExtensionHttpSessions.NAME)) {
+                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddSession());
+                extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
+            }
 
 	        ExtensionHelp.enableHelpKey(getParamsPanel(), "ui.tabs.params");
 	    }
