@@ -233,6 +233,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void reset() {
+        this.list.clear();
+        this.list = new DefaultListModel<>();
         if (deleteRecordsOnExit && historyReferencesToDelete.size() != 0) {
             try {
                 Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
@@ -240,7 +242,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
                 log.error(e.getMessage(), e);
             }
         }
-        this.list = new DefaultListModel<>();
         this.historyReferencesToDelete = new ArrayList<>();
 	}
 
