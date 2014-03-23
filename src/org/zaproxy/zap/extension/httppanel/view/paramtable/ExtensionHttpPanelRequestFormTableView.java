@@ -23,6 +23,8 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 	
 	public ExtensionHttpPanelRequestFormTableView() {
 		super(NAME);
+
+		setOrder(105);
 	}
 	
 	@Override

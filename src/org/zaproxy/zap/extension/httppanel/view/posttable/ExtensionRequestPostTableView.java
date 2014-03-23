@@ -32,6 +32,8 @@ public class ExtensionRequestPostTableView extends ExtensionAdaptor {
 	
 	public ExtensionRequestPostTableView() {
 		super(NAME);
+
+		setOrder(80);
 	}
 
 	@Override
