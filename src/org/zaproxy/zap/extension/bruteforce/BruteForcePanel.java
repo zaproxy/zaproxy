@@ -617,9 +617,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		// OK, so this doesnt extend ScanPanel right now .. but it should
 		ScanTarget scanTarget = new ScanTarget(site);
 		
-		if (siteModel.getIndexOf(scanTarget) < 0) {
+		if (!isScanTargetAdded(scanTarget)) {
 			siteModel.addElement(scanTarget);
 		}
+	}
+
+	private boolean isScanTargetAdded(ScanTarget scanTarget) {
+		return (siteModel.getIndexOf(scanTarget) != -1);
 	}
 	
 	private void siteSelected(ScanTarget scanTarget, boolean forceRefresh) {
@@ -636,6 +640,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			return;
 		}
 		if (forceRefresh || ! scanTarget.equals(currentSite)) {
+			if (!isScanTargetAdded(scanTarget)) {
+				return;
+			}
+
 			siteModel.setSelectedItem(scanTarget);
 
 			BruteForce bruteForce = bruteForceMap.get(scanTarget);
@@ -721,7 +729,13 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 
 	public void nodeSelected(SiteNode node) {
-		siteSelected(createScanTarget(node), false);
+		ScanTarget scanTarget = createScanTarget(node);
+
+		if (!isScanTargetAdded(scanTarget)) {
+			siteModel.addElement(scanTarget);
+		}
+
+		siteSelected(scanTarget, false);
 	}
 	
 

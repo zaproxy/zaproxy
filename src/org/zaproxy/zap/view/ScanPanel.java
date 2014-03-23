@@ -495,12 +495,20 @@ public abstract class ScanPanel extends AbstractPanel {
 	public void addSite(String site, boolean incPort) {
 		site = cleanSiteName(site, incPort);
 		
-		if (siteModel.getIndexOf(activeSitelabel(site)) < 0 &&
-				siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
-	 		log.debug("addSite " + site);
-			siteModel.addElement(passiveSitelabel(site));
+		if (!isSiteAdded(site)) {
+			addSite(site);
 		}
 	}
+
+	private boolean isSiteAdded(String site) {
+		return (siteModel.getIndexOf(activeSitelabel(site)) != -1 || siteModel.getIndexOf(passiveSitelabel(site)) != -1);
+	}
+
+	private void addSite(String site) {
+		log.debug("addSite " + site);
+		siteModel.addElement(passiveSitelabel(site));
+	}
+
 	protected void siteSelected(String site) {
 		siteSelected(site, false); 
 	}
@@ -521,6 +529,10 @@ public abstract class ScanPanel extends AbstractPanel {
 		}
 		site = getSiteFromLabel(site);
 		if (forceRefresh || ! site.equals(currentSite)) {
+			if (!isSiteAdded(site)) {
+				return;
+			}
+
 			if (siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
 				siteModel.setSelectedItem(activeSitelabel(site));
 			} else {
@@ -634,7 +646,13 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 
 	public void nodeSelected(SiteNode node, boolean incPort) {
-		siteSelected(cleanSiteName(node, incPort));
+		String site = cleanSiteName(node, incPort);
+
+		if (!isSiteAdded(site)) {
+			addSite(site);
+		}
+
+		siteSelected(site);
 	}
 
 	protected abstract GenericScanner newScanThread (String site, AbstractParam params);
