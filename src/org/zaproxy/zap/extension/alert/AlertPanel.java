@@ -264,9 +264,9 @@ public class AlertPanel extends AbstractPanel {
         if (linkWithSitesTreeButton == null) {
             linkWithSitesTreeButton = new ZapToggleButton();
             linkWithSitesTreeButton.setIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/earth-grey.png")));
-            linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.unselected.button.label"));
+            linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.unselected.button.tooltip"));
             linkWithSitesTreeButton.setSelectedIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/094.png")));
-            linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.selected.button.label"));
+            linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.selected.button.tooltip"));
 
             linkWithSitesTreeButton.addActionListener(new java.awt.event.ActionListener() {
 

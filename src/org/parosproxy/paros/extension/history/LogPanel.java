@@ -264,9 +264,9 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		if (linkWithSitesTreeButton == null) {
 			linkWithSitesTreeButton = new ZapToggleButton();
 			linkWithSitesTreeButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/earth-grey.png")));
-			linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("history.linkWithSitesSelection.unselected.button.label"));
+			linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("history.linkWithSitesSelection.unselected.button.tooltip"));
 			linkWithSitesTreeButton.setSelectedIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/094.png")));
-			linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("history.linkWithSitesSelection.selected.button.label"));
+			linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("history.linkWithSitesSelection.selected.button.tooltip"));
 
 			linkWithSitesTreeButton.addActionListener(new java.awt.event.ActionListener() {
 
