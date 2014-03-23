@@ -23,6 +23,7 @@ import java.awt.CardLayout;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
+import java.text.MessageFormat;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
@@ -34,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
+import javax.swing.JToolBar;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -67,7 +69,10 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private JButton btnNext = null;
 	private JButton btnPrev = null;
 	private JCheckBox chkInverse = null;
+	private JLabel numberOfMatchesLabel;
 	
+	private MessageFormat numberOfMatchesFormat;
+
 	private JList<SearchResult> resultsList = new JList<>();
 	private DefaultListModel<SearchResult> resultsModel;
 
@@ -237,6 +242,8 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			panelToolbar.add(getBtnSearch(), newGBC(5));
 			panelToolbar.add(getBtnNext(), newGBC(6));
 			panelToolbar.add(getBtnPrev(), newGBC(7));
+			panelToolbar.add(new JToolBar.Separator(), newGBC(8));
+			panelToolbar.add(getNumberOfMatchesLabel(), newGBC(9));
 			panelToolbar.add(t1, gridBagConstraintsX);
 		}
 		return panelToolbar;
@@ -353,6 +360,19 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		}
 		return regEx;
 	}
+
+	private JLabel getNumberOfMatchesLabel() {
+		if (numberOfMatchesLabel == null) {
+			numberOfMatchesLabel = new JLabel();
+			numberOfMatchesFormat = new MessageFormat(Constant.messages.getString("search.toolbar.label.number.of.matches"));
+			setNumberOfMatches(0);
+		}
+		return numberOfMatchesLabel;
+	}
+
+	private void setNumberOfMatches(int numberOfMatches) {
+		numberOfMatchesLabel.setText(numberOfMatchesFormat.format(new Object[] { Integer.valueOf(numberOfMatches) }));
+	}
 	
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
@@ -365,6 +385,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	}
 
 	public void resetSearchResults() {
+		setNumberOfMatches(0);
 		resultsModel.clear();
 	}
 
@@ -376,12 +397,14 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 				@Override
 				public void run() {
 					if (EventQueue.isDispatchThread()) {
+						setNumberOfMatches(resultsModel.getSize());
 						highlightFirstResult();
 					} else {
 						try {
 							EventQueue.invokeAndWait(new Runnable() {
 								@Override
 								public void run() {
+									setNumberOfMatches(resultsModel.getSize());
 									highlightFirstResult();
 								}
 							});
@@ -415,6 +438,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     		type = ExtensionSearch.Type.Fuzz;
     	}
 
+    	setNumberOfMatches(0);
     	extension.search(regEx.getText(), type, false, chkInverse.isSelected());
 		
 		// Select first result
