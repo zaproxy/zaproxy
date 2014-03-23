@@ -21,10 +21,13 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
 // with tables instead of lists
+// ZAP: 2014/03/23 Issue 1106: HistoryList's mapping of history ID to list 
+// indexes not updated when history entry is deleted
 package org.parosproxy.paros.model;
 
 
 import java.util.Hashtable;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 
@@ -79,4 +82,52 @@ public class HistoryList extends DefaultListModel<HistoryReference> {
     	historyIdToIndex.clear();
     }
     
+    @Override
+    public void removeAllElements() {
+        super.removeAllElements();
+        historyIdToIndex.clear();
+    }
+
+    @Override
+    public HistoryReference remove(int index) {
+        HistoryReference hRef = super.remove(index);
+        historyIdToIndex.remove(hRef.getHistoryId());
+        updateIndexes(index);
+        return hRef;
+    }
+
+    @Override
+    public boolean removeElement(Object obj) {
+        if (super.removeElement(obj)) {
+            int idx = historyIdToIndex.remove(((HistoryReference) obj).getHistoryId());
+            updateIndexes(idx);
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public void removeElementAt(int index) {
+        remove(index);
+    }
+
+    // Note: implementation copied from base class (DefaultListModel) but changed to call the local method removeElementAt(int)
+    @Override
+    public void removeRange(int fromIndex, int toIndex) {
+        if (fromIndex > toIndex) {
+            throw new IllegalArgumentException("fromIndex must be <= toIndex");
+        }
+        for (int i = toIndex; i >= fromIndex; i--) {
+            removeElementAt(i);
+        }
+        fireIntervalRemoved(this, fromIndex, toIndex);
+    }
+
+    private void updateIndexes(int fromIndex) {
+        for (Entry<Integer, Integer> entry : historyIdToIndex.entrySet()) {
+            if (entry.getValue() > fromIndex) {
+                entry.setValue(entry.getValue() - 1);
+            }
+        }
+    }
 }
