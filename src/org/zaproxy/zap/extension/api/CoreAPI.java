@@ -909,13 +909,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		try {
 			TableHistory tableHistory = Model.getSingleton().getDb()
 					.getTableHistory();
-			Vector<Integer> v = tableHistory.getHistoryList(Model
+			List<Integer> historyIds = tableHistory.getHistoryIds(Model
 					.getSingleton().getSession().getSessionId());
 
 			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
-			for (int i = 0; i < v.size(); i++) {
-				int historyId = v.get(i).intValue();
-				RecordHistory recHistory = tableHistory.read(historyId);
+			for (Integer id : historyIds) {
+				RecordHistory recHistory = tableHistory.read(id.intValue());
 
 				if (HistoryReference.TYPE_TEMPORARY == recHistory.getHistoryType()) {
 				    continue;

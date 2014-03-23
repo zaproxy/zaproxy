@@ -41,6 +41,7 @@
 // ZAP: 2014/01/31 Issue 979: Sites and Alerts trees can get corrupted - load session on EventDispatchThread
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert bug/issue list here.
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
+// ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 
 package org.parosproxy.paros.model;
 
@@ -231,8 +232,8 @@ public class Session extends FileXML {
 		siteTree.setRoot(newRoot);
 
 		// update history reference
-		List<Integer> list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_PROXIED);
-		list.addAll(model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_ZAP_USER));
+		List<Integer> list = model.getDb().getTableHistory().getHistoryIdsOfHistType(
+			getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
 		HistoryReference historyRef = null;
 
 		discardContexts();
@@ -288,7 +289,7 @@ public class Session extends FileXML {
 		}
 		
 		// update siteTree reference
-		list = model.getDb().getTableHistory().getHistoryList(getSessionId(), HistoryReference.TYPE_SPIDER);
+		list = model.getDb().getTableHistory().getHistoryIdsOfHistType(getSessionId(), HistoryReference.TYPE_SPIDER);
 		
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.

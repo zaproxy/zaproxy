@@ -27,10 +27,12 @@
 // ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (Added updateTable() and refactored names)
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
+// ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 
 package org.parosproxy.paros.db;
 
 import java.nio.charset.Charset;
+import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -38,11 +40,14 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.Iterator;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.hsqldb.types.Types;
 import org.parosproxy.paros.model.HistoryReference;
@@ -319,60 +324,78 @@ public class TableHistory extends AbstractTable {
 	
 	}
 	
-	public Vector<Integer> getHistoryList(long sessionId, int histType) throws SQLException {
-	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
-	    ResultSet rs = null;
-	    Vector<Integer> v = new Vector<>();
-	    try {
-        
-		    psReadSession.setLong(1, sessionId);
-		    psReadSession.setInt(2, histType);
-		    rs = psReadSession.executeQuery();
-	    
-		    while (rs.next()) {
-		        int last = rs.getInt(HISTORYID);
-		        // ZAP: Changed to use the method Integer.valueOf.
-		        v.add(Integer.valueOf(last));
-		    }
-		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (Exception e) {
-					// Ignore
-				}
-			}
-		    psReadSession.close();
-		}
+    /**
+     * Gets all the history record IDs of the given session.
+     *
+     * @param sessionId the ID of session of the history records to be returned
+     * @return a {@code List} with all the history IDs of the given session, never {@code null}
+     * @throws SQLException if an error occurred while getting the history IDs
+     * @since 2.3.0
+     * @see #getHistoryIdsOfHistType(long, int...)
+     */
+    public List<Integer> getHistoryIds(long sessionId) throws SQLException {
+        return getHistoryIdsOfHistType(sessionId, null);
+    }
 
-		return v;
+    /**
+     * Gets all the history record IDs of the given session and with the given history types.
+     *
+     * @param sessionId the ID of session of the history records
+     * @param histTypes the history types of the history records that should be returned
+     * @return a {@code List} with all the history IDs of the given session and history types, never {@code null}
+     * @throws SQLException if an error occurred while getting the history IDs
+     * @since 2.3.0
+     * @see #getHistoryIds(long)
+     */
+    public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes) throws SQLException {
+        boolean hasHistTypes = histTypes != null && histTypes.length > 0;
+        int strLength = hasHistTypes ? 97 : 68;
+        StringBuilder strBuilder = new StringBuilder(strLength);
+        strBuilder.append("SELECT ").append(HISTORYID);
+        strBuilder.append(" FROM ").append(TABLE_NAME).append(" WHERE ").append(SESSIONID).append(" = ?");
+        if (hasHistTypes) {
+            strBuilder.append(" AND ").append(HISTTYPE).append(" IN ( UNNEST(?) )");
+        }
+        strBuilder.append(" ORDER BY ").append(HISTORYID);
+
+        try (PreparedStatement psReadSession = getConnection().prepareStatement(strBuilder.toString())) {
+
+            psReadSession.setLong(1, sessionId);
+            if (hasHistTypes) {
+                Array arrayHistTypes = getConnection().createArrayOf("INTEGER", ArrayUtils.toObject(histTypes));
+                psReadSession.setArray(2, arrayHistTypes);
+            }
+            try (ResultSet rs = psReadSession.executeQuery()) {
+                ArrayList<Integer> ids = new ArrayList<>();
+                while (rs.next()) {
+                    ids.add(Integer.valueOf(rs.getInt(HISTORYID)));
+                }
+                ids.trimToSize();
+
+                return ids;
+            }
+        }
+    }
+
+	/**
+	 * @deprecated (2.3.0) Use {@link #getHistoryIdsOfHistType(long, int...)} instead. If the thread-safety provided by the
+	 *             class {@code Vector} is really required "wrap" the returned List with
+	 *             {@link Collections#synchronizedList(List)} instead.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
+	public Vector<Integer> getHistoryList(long sessionId, int histType) throws SQLException {
+		return new Vector<>(getHistoryIdsOfHistType(sessionId, histType));
 	}
 
+	/**
+	 * @deprecated (2.3.0) Use {@link #getHistoryIds(long)} instead. If the thread-safety provided by the class {@code Vector}
+	 *             is really required "wrap" the returned List with {@link Collections#synchronizedList(List)} instead.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	public Vector<Integer> getHistoryList(long sessionId) throws SQLException {
-	    PreparedStatement psReadSession = getConnection().prepareStatement("SELECT " + HISTORYID + " FROM HISTORY WHERE " + SESSIONID + " = ? ORDER BY " + HISTORYID);
-	    ResultSet rs = null;
-	    Vector<Integer> v = new Vector<>();
-	    try {
-		    psReadSession.setLong(1, sessionId);
-		    rs = psReadSession.executeQuery();
-		    
-		    while (rs.next()) {
-		        int last = rs.getInt(HISTORYID);
-		        // ZAP: Changed to use the method Integer.valueOf.
-		        v.add(Integer.valueOf(last));
-		    }
-		} finally {
-			if (rs != null) {
-				try {
-					rs.close();
-				} catch (Exception e) {
-					// Ignore
-				}
-			}
-		    psReadSession.close();
-		}
-
-		return v;
+		return new Vector<>(getHistoryIds(sessionId));
 	}
 
 	public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws SQLException {

@@ -251,10 +251,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		urlToToken = new HashMap<>();
 		// search for tokens...
         try {
-			List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(
-					session.getSessionId(), HistoryReference.TYPE_PROXIED);
-			list.addAll(getModel().getDb().getTableHistory().getHistoryList(
-			        session.getSessionId(), HistoryReference.TYPE_ZAP_USER));
+			List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
+					session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
 			HistoryFilter filter = new HistoryFilter();
 			filter.setTags(Arrays.asList(new String[] {TAG}));
 			AntiCsrfDetectScanner scanner = new AntiCsrfDetectScanner();

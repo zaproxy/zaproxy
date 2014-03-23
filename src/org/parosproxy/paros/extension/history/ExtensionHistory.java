@@ -50,6 +50,7 @@
 // ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
 // ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
 // with tables instead of lists
+// ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 
 package org.parosproxy.paros.extension.history;
 
@@ -244,8 +245,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 		try {
 		    // ZAP: Added type argument.
-		    List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_PROXIED);
-		    list.addAll(getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_ZAP_USER));
+			List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
+				session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
 
 		    buildHistory(list);
 		} catch (SQLException e) {
@@ -387,8 +388,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    synchronized (historyTableModel) {
 	        try {
 	            // ZAP: Added type argument.
-	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_PROXIED);
-	            list.addAll(getModel().getDb().getTableHistory().getHistoryList(session.getSessionId(), HistoryReference.TYPE_ZAP_USER));
+	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
+						session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
 	            
 	            buildHistory(list, historyFilter);
 	        } catch (SQLException e) {

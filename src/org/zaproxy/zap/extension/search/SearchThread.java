@@ -112,7 +112,7 @@ public class SearchThread extends Thread {
         		return;
         	}
 
-			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryList(session.getSessionId());
+			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryIds(session.getSessionId());
 			int last = list.size();
 			int currentRecordId = 0;
 			for (int index=0;index < last;index++){
