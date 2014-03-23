@@ -47,9 +47,8 @@ import com.sittinglittleduck.DirBuster.ExtToCheck;
 
 public class BruteForce extends Thread implements BruteForceListenner {
 
-	private String site;
+	private ScanTarget target;
 	private File file;
-	private int port = 80;
 	private String directory;
 	private SortedListModel<BruteForceItem> list;
 	private boolean stopScan = false;
@@ -66,8 +65,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	
     private static Logger log = Logger.getLogger(BruteForce.class);
 
-	public BruteForce (String site, File file, BruteForceListenner listenner, BruteForceParam bruteForceParam) {
-		this.site = site;
+	public BruteForce (ScanTarget target, File file, BruteForceListenner listenner, BruteForceParam bruteForceParam) {
+		this.target = target;
 		this.file = file;
 		this.directory = null;
 		this.listenner = listenner;
@@ -77,25 +76,16 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		this.onlyUnderDirectory = false;
 
 		this.list = new SortedListModel<>();
-		log.info("BruteForce : " + site + "/" + directory + " threads: " + threads);
+		log.info("BruteForce : " + target.getURI() + "/" + directory + " threads: " + threads);
 
 		manager = new DirBusterManager(this);
 		
 		manager.setDefaultNoThreads(threads);
 		
-		// Set up proxy?
-		String hostName = site;
-		if (hostName.indexOf(":") > 0) {
-			hostName = site.substring(0, hostName.indexOf(":"));
-			String portStr = site.substring(site.indexOf(":")+1);
-			if (portStr.indexOf(" ") > 0) {
-				portStr = portStr.substring(0, portStr.indexOf(" "));
-			}
-			port = Integer.parseInt(portStr);
-		}
 		ConnectionParam conParam = Model.getSingleton().getOptionsParam().getConnectionParam();
-		
-	    if (conParam.isUseProxy(hostName)) {
+
+		// Set up proxy?
+	    if (conParam.isUseProxy(target.getHost())) {
 			manager.setProxyRealm(Model.getSingleton().getOptionsParam().getConnectionParam().getProxyChainRealm());
 	    	manager.setProxyHost(conParam.getProxyChainName());
 	    	manager.setProxyPort(conParam.getProxyChainPort());
@@ -113,8 +103,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	    }
 	}
 
-    public BruteForce (String site, File file, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
-        this(site, file, listenner, bruteForceParam);
+    public BruteForce (ScanTarget target, File file, BruteForceListenner listenner, BruteForceParam bruteForceParam, String directory) {
+        this(target, file, listenner, bruteForceParam);
         this.directory = directory;
         
         if (this.directory != null) {
@@ -132,14 +122,9 @@ public class BruteForce extends Thread implements BruteForceListenner {
         try {
         	list.clear();
         	
-        	String protocol = "http";
-        	if (port == 443 || port == 8443) {
-        		protocol = "https";
-        	}
-            URL targetURL = new URL(protocol + "://" + site + "/");
+            URL targetURL = new URL(target.getURI().toString());
             manager.setTargetURL(targetURL);
             
-            String host = targetURL.getHost();
 			manager.setAuto(true);
 			manager.setHeadLessMode(true);
             
@@ -156,12 +141,12 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			if (directory != null) {
 				startPoint = directory;
 			}
-			log.debug("BruteForce : starting on http://" + site + startPoint);
+			log.debug("BruteForce : starting on " + targetURL + startPoint);
 			
 			final String fileAbsolutePath = file.getAbsolutePath();
 			
 			log.debug("BruteForce : file: " + fileAbsolutePath + " recursive=" + recursive);
-			manager.setupManager(startPoint, fileAbsolutePath, protocol, host, port, exts, null, threads, true, true, recursive, false, extsVector);
+			manager.setupManager(startPoint, fileAbsolutePath, target.getScheme(), target.getHost(), target.getPort(), exts, null, threads, true, true, recursive, false, extsVector);
 			
 			manager.start();
 			
@@ -190,7 +175,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 				//System.out.println("Worker count " +  manager.getWorkerCount());
 				//System.out.println("Done " +  manager.getTotalDone() + "/" + manager.getTotal());
 				
-				this.listenner.scanProgress(host, port, manager.getTotalDone(), manager.getTotal());
+				this.listenner.scanProgress(target, manager.getTotalDone(), manager.getTotal());
 				
 				try {
 					sleep(1000);
@@ -198,14 +183,14 @@ public class BruteForce extends Thread implements BruteForceListenner {
 				}
 			}
         } catch(MalformedURLException ex) {
-        	log.error("Failed brute forcing site " + site, ex);
+        	log.error("Failed brute forcing site " + target.getURI(), ex);
         }
 		
 		if (this.listenner != null) {
-			this.listenner.scanFinshed(site);
+			this.listenner.scanFinshed(target);
 		}
 		stopScan = true;
-		log.info("BruteForce : " + site + " finished");
+		log.info("BruteForce : " + target.getURI() + " finished");
 	}	
 
 	public void stopScan() {
@@ -216,8 +201,8 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		return stopScan;
 	}
 
-	public String getSite() {
-		return site;
+	public ScanTarget getScanTarget() {
+	    return target;
 	}
 	
 	public int getWorkDone () {
@@ -240,14 +225,14 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		
 
 	@Override
-	public void scanFinshed(String host) {
+	public void scanFinshed(ScanTarget target) {
 		// Ignore
 	}
 
 	@Override
-	public void scanProgress(String host, int port, int done, int todo) {
+	public void scanProgress(ScanTarget target, int done, int todo) {
 		if (this.listenner != null) {
-			this.listenner.scanProgress(site, port, done, todo);
+			this.listenner.scanProgress(this.target, done, todo);
 		}
 	}
 

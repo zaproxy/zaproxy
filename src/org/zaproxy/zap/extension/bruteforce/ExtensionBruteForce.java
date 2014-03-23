@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.bruteforce;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.Enumeration;
 import java.util.List;
 
@@ -35,8 +36,10 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
@@ -191,7 +194,14 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 		@SuppressWarnings("unchecked")
 		Enumeration<SiteNode> en = root.children();
 		while (en.hasMoreElements()) {
-			this.getBruteForcePanel().addSite(en.nextElement().getNodeName());
+			HistoryReference hRef = en.nextElement().getHistoryReference();
+			if (hRef != null) {
+				try {
+					this.getBruteForcePanel().addSite(hRef.getURI());
+				} catch (HttpMalformedHeaderException | SQLException e) {
+					logger.warn("Failed to add a scan target: " + e.getMessage(), e);
+				}
+			}
 		}
 	}
 	
@@ -202,10 +212,7 @@ public class ExtensionBruteForce extends ExtensionAdaptor
 
 	@Override
 	public boolean onHttpRequestSend(HttpMessage msg) {
-		// The panel will handle duplicates
-		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
-
-		this.getBruteForcePanel().addSite(site);
+		this.getBruteForcePanel().addSite(msg.getRequestHeader().getURI());
 		return true;
 	}
 

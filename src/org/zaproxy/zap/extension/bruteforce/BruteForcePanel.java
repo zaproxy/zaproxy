@@ -29,6 +29,7 @@ import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.net.URL;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -54,6 +55,7 @@ import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
 import javax.swing.SwingUtilities;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -64,12 +66,12 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.FilenameExtensionFilter;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
-import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -90,7 +92,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JScrollPane jScrollPane = null;
 	private JLabel activeScansNameLabel = null;
 	private JLabel activeScansValueLabel = null;
-	private List<String> activeScans = new ArrayList<>();
+	private List<ScanTarget> activeScans = new ArrayList<>();
     private BruteForcePanelCellRenderer bfPanelCellRenderer = null;
     private List<ForcedBrowseFile> fileList = null;
 	private JComboBox<ForcedBrowseFile> fileSelect = null;
@@ -100,10 +102,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private String customFileDirectory = Constant.getInstance().DIRBUSTER_CUSTOM_DIR;
 	private String fileExtension = ".txt";
 
-	private String currentSite = null;
-	private JComboBox<String> siteSelect = null;
+	private ScanTarget currentSite = null;
+	private JComboBox<ScanTarget> siteSelect = null;
 	// The siteModel entries are all HTML, with the active ones in bold
-	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
+	private SortedComboBoxModel<ScanTarget> siteModel = new SortedComboBoxModel<>();
 
 	private JButton startScanButton = null;
 	private JButton stopScanButton = null;
@@ -112,13 +114,15 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	//private JButton launchButton = null;
 	private JList<BruteForceItem> bruteForceList = null;
 	private JProgressBar progressBar = null;
-	private Map <String, BruteForce> bruteForceMap = new HashMap <>();
+	private Map <ScanTarget, BruteForce> bruteForceMap = new HashMap <>();
 
 	private HttpPanel requestPanel = null;
 	private HttpPanel responsePanel = null;
 
 	private ScanStatus scanStatus = null;
 	private Mode mode = Control.getSingleton().getMode();
+
+	private ScanTarget noSelectionScanTarget;
 
     private static Logger log = Logger.getLogger(BruteForcePanel.class);
     
@@ -131,6 +135,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
         //this.extension = extension;
         this.bruteForceParam = bruteForceParam;
         this.fileSelectModel = new DefaultComboBoxModel<>();
+        this.noSelectionScanTarget = new DummyScanTarget(Constant.messages.getString("bruteforce.toolbar.site.select"));
  		initialize();
     }
 
@@ -327,10 +332,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private void setActiveScanLabels() {
 		getActiveScansValueLabel().setText(String.valueOf(activeScans.size()));
 		StringBuilder sb = new StringBuilder();
-		Iterator <String> iter = activeScans.iterator();
+		Iterator <ScanTarget> iter = activeScans.iterator();
 		sb.append("<html>");
 		while (iter.hasNext()) {
-			sb.append(iter.next());
+			sb.append(iter.next().toPlainString());
 			sb.append("<br>");
 		}
 		sb.append("</html>");
@@ -585,10 +590,10 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		return fileSelect;
 	}
 
-	private JComboBox<String> getSiteSelect() {
+	private JComboBox<ScanTarget> getSiteSelect() {
 		if (siteSelect == null) {
 			siteSelect = new JComboBox<>(siteModel);
-			siteSelect.addItem(Constant.messages.getString("bruteforce.toolbar.site.select"));
+			siteSelect.addItem(noSelectionScanTarget);
 			siteSelect.setSelectedIndex(0);
 
 			siteSelect.addActionListener(new java.awt.event.ActionListener() { 
@@ -596,7 +601,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
-				    String item = (String) siteSelect.getSelectedItem();
+				    ScanTarget item = (ScanTarget) siteSelect.getSelectedItem();
 				    if (item != null && siteSelect.getSelectedIndex() > 0) {
 				        siteSelected(item, false);
 				    }
@@ -606,48 +611,27 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		return siteSelect;
 	}
 	
-	private String activeSitelabel(String site) {
-		return "<html><b>" + site + "</b></html>";
-	}
-	
-	private String passiveSitelabel(String site) {
-		return "<html>" + site + "</html>";
-	}
-	
-	private String getSiteFromLabel(String siteLabel) {
-		if (siteLabel.startsWith("<html><b>")) {
-			return siteLabel.substring(9, siteLabel.indexOf("</b>"));
-		} else if (siteLabel.startsWith("<html>")) {
-			return siteLabel.substring(6, siteLabel.indexOf("</html>"));
-		} else {
-			return siteLabel;
-		}
-	}
-	
-	public void addSite(String site) {
+	public void addSite(URI site) {
 		// OK, so this doesnt extend ScanPanel right now .. but it should
-		site = ScanPanel.cleanSiteName(site, true);
+		ScanTarget scanTarget = new ScanTarget(site);
 		
-		if (siteModel.getIndexOf(activeSitelabel(site)) < 0 &&
-				siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
-			siteModel.addElement(passiveSitelabel(site));
+		if (siteModel.getIndexOf(scanTarget) < 0) {
+			siteModel.addElement(scanTarget);
 		}
 	}
 	
-	private void siteSelected(String site, boolean forceRefresh) {
+	private void siteSelected(ScanTarget scanTarget, boolean forceRefresh) {
+	    if (scanTarget == null) {
+	        return;
+	    }
 		if (Mode.safe.equals(this.mode)) {
 			// Safe mode so ignore this
 			return;
 		}
-		site = getSiteFromLabel(site);
-		if (forceRefresh || ! site.equals(currentSite)) {
-			if (siteModel.getIndexOf(passiveSitelabel(site)) < 0) {
-				siteModel.setSelectedItem(activeSitelabel(site));
-			} else {
-				siteModel.setSelectedItem(passiveSitelabel(site));
-			}
+		if (forceRefresh || ! scanTarget.equals(currentSite)) {
+			siteModel.setSelectedItem(scanTarget);
 
-			BruteForce bruteForce = bruteForceMap.get(site);
+			BruteForce bruteForce = bruteForceMap.get(scanTarget);
 			if (bruteForce == null) {
 				final ForcedBrowseFile selectedForcedBrowseFile = (ForcedBrowseFile) this.fileSelectModel.getSelectedItem();
 				if (selectedForcedBrowseFile == null) {
@@ -659,8 +643,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 					return;
 				}
 				
-				bruteForce = new BruteForce(site, file, this, this.bruteForceParam);
-				bruteForceMap.put(site, bruteForce);
+				bruteForce = new BruteForce(scanTarget, file, this, this.bruteForceParam);
+				bruteForceMap.put(scanTarget, bruteForce);
 			}
 			if (bruteForce.isAlive()) {
 				getStartScanButton().setEnabled(false);
@@ -676,7 +660,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			getProgressBar().setValue(bruteForce.getWorkDone());
 			getProgressBar().setMaximum(bruteForce.getWorkTotal());
 			bruteForceList.setModel(bruteForce.getList());
-			currentSite = site;
+			currentSite = (ScanTarget) siteModel.getSelectedItem();
 		}
 		if (Mode.protect.equals(this.mode)) {
 			if (! Model.getSingleton().getSession().isInScope(this.getSiteNode(currentSite))) {
@@ -693,17 +677,26 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		getProgressBar().setEnabled(false);
 	}
 
-	protected String getSiteName(SiteNode node) {
+	protected ScanTarget createScanTarget(SiteNode node) {
 		if (node != null) {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
 				node = (SiteNode) node.getParent();
 			}
-			return ScanPanel.cleanSiteName(node.getNodeName(), true);
+
+			HistoryReference hRef = node.getHistoryReference();
+			if (hRef != null) {
+				try {
+					return new ScanTarget(hRef.getURI());
+				} catch (HttpMalformedHeaderException | SQLException e) {
+					logger.warn("Failed to create scan target: " + e.getMessage(), e);
+					return null;
+				}
+			}
 		}
 		return null;
 	}
 	
-	protected SiteNode getSiteNode (String siteName) {
+	protected SiteNode getSiteNode (ScanTarget scanTarget) {
 		SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
 		SiteNode rootNode = (SiteNode) siteTree.getRoot();
 		
@@ -711,18 +704,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		Enumeration<SiteNode> en = rootNode.children();
 		while (en.hasMoreElements()) {
 			SiteNode sn = en.nextElement();
-			String nodeName = sn.getNodeName();
-			if (nodeName.toLowerCase().startsWith("https:")) {
-				nodeName += ":443";
-			}
-			if (nodeName.toLowerCase().startsWith("http:") && 
-                                nodeName.toLowerCase().lastIndexOf(":")==nodeName.toLowerCase().indexOf(":")) { // Does not contain port number (second column)
-				nodeName += ":80";
-			}                        
-			if (nodeName.indexOf("//") >= 0) {
-				nodeName = nodeName.substring(nodeName.indexOf("//") + 2);
-			}
-			if (siteName.equals(nodeName)) {
+			ScanTarget snScanTarget = createScanTarget(sn);
+			if (snScanTarget != null && snScanTarget.equals(scanTarget)) {
 				return sn;
 			}
 		}
@@ -731,7 +714,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 
 	public void nodeSelected(SiteNode node) {
-		siteSelected(getSiteName(node), false);
+		siteSelected(createScanTarget(node), false);
 	}
 	
 
@@ -803,13 +786,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		getProgressBar().setMaximum(bruteForce.getWorkTotal());
 		bruteForceList.setModel(bruteForce.getList());
 
-		String selectedSite = currentSite;	// currentSite can change when we remove elements
-		if (siteModel.getIndexOf(passiveSitelabel(selectedSite)) >= 0) {
-			// Change the site label to be bold
-			siteModel.removeElement(passiveSitelabel(selectedSite));
-			siteModel.addElement(activeSitelabel(selectedSite));
-			siteModel.setSelectedItem(activeSitelabel(selectedSite));
-		}
+		currentSite.setScanned(true);
+		siteModel.elementChanged(currentSite);
 	}
 	
 	private void stopScan() {
@@ -833,17 +811,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	@Override
-	public void scanFinshed(String host) {
-		if (host.equals(currentSite)) {
+	public void scanFinshed(ScanTarget scanTarget) {
+		if (scanTarget.equals(currentSite)) {
 			resetScanButtonsAndProgressBarStates(true);
 		}
-		this.activeScans.remove(host);
+		this.activeScans.remove(scanTarget);
 		setActiveScanLabels();
 	}
 
 	@Override
-	public void scanProgress(String host, int port, int done, int todo) {
-		if (currentSite != null && (currentSite.equals(host) || currentSite.equals(host + ":" + port))) {
+	public void scanProgress(ScanTarget scanTarget, int done, int todo) {
+		if (scanTarget.equals(currentSite)) {
 			getProgressBar().setValue(done);
 			getProgressBar().setMaximum(todo);
 		}
@@ -869,7 +847,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		bruteForceMap.clear();
 		
 		siteModel.removeAllElements();
-		siteSelect.addItem(Constant.messages.getString("bruteforce.toolbar.site.select"));
+		siteSelect.addItem(noSelectionScanTarget);
 		siteSelect.setSelectedIndex(0);
 		currentSite = null;
 		resetBruteForceList();
@@ -895,9 +873,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
     }
 
 	public boolean isScanning(SiteNode node) {
-		String site = getSiteFromLabel(this.getSiteName(node));
-		if (site != null) {
-			BruteForce bf = bruteForceMap.get(site);
+		ScanTarget target = createScanTarget(node);
+		if (target != null) {
+			BruteForce bf = bruteForceMap.get(target);
 			if (bf != null) {
 				return bf.isAlive();
 			}
