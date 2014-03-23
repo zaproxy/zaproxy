@@ -40,6 +40,7 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/31 Issue 979: Sites and Alerts trees can get corrupted - load session on EventDispatchThread
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert bug/issue list here.
+// ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 
 package org.parosproxy.paros.model;
 
@@ -199,13 +200,11 @@ public class Session extends FileXML {
 
     
     protected void open(final File file, final SessionListener callback) {
-    	
-        EventQueue.invokeLater(new Runnable() {
+        Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 Exception thrownException = null;
                 try {
-                    Thread.currentThread().setPriority(Thread.NORM_PRIORITY-2);
                     open(file.getAbsolutePath());
                 } catch (Exception e) {
                     thrownException = e;
@@ -215,6 +214,8 @@ public class Session extends FileXML {
                 }
             }
         });
+        t.setPriority(Thread.NORM_PRIORITY-2);
+        t.start();
     }
 
 	protected void open(String fileName) throws SQLException, SAXException, IOException, Exception {
@@ -253,13 +254,30 @@ public class Session extends FileXML {
 
 			try {
 				historyRef = new HistoryReference(historyId);
-				SiteNode sn = getSiteTree().addPath(historyRef);
+
+				if (View.isInitialised()) {
+					final HistoryReference hRef = historyRef;
+					final HttpMessage msg = historyRef.getHttpMessage();
+					EventQueue.invokeAndWait(new Runnable() {
+
+						@Override
+						public void run() {
+							SiteNode sn = getSiteTree().addPath(hRef, msg);
+							if (sn != null) {
+								sn.setIncludedInScope(isIncludedInScope(sn), false);
+								sn.setExcludedFromScope(isExcludedFromScope(sn), false);
+							}
+						}
+					});
+				} else {
+					SiteNode sn = getSiteTree().addPath(historyRef);
+					if (sn != null) {
+						sn.setIncludedInScope(this.isIncludedInScope(sn), false);
+						sn.setExcludedFromScope(this.isExcludedFromScope(sn), false);
+					}
+				}
 				// ZAP: Load alerts from db
 				historyRef.loadAlerts();
-				if (sn != null) {
-					sn.setIncludedInScope(this.isIncludedInScope(sn), false);
-					sn.setExcludedFromScope(this.isExcludedFromScope(sn), false);
-				}
 
 				if (i % 100 == 99) Thread.yield();
 			} catch (Exception e) {
@@ -278,7 +296,20 @@ public class Session extends FileXML {
 
 			try {
 				historyRef = new HistoryReference(historyId);
-				getSiteTree().addPath(historyRef);
+
+				if (View.isInitialised()) {
+					final HistoryReference hRef = historyRef;
+					final HttpMessage msg = historyRef.getHttpMessage();
+					EventQueue.invokeAndWait(new Runnable() {
+
+						@Override
+						public void run() {
+							getSiteTree().addPath(hRef, msg);
+						}
+					});
+				} else {
+					getSiteTree().addPath(historyRef);
+				}
 
 				if (i % 100 == 99) Thread.yield();
 

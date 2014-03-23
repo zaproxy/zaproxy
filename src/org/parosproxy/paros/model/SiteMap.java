@@ -32,9 +32,11 @@
 // ZAP: 2013/09/26 Issue 656: Content-length: 0 in GET requests
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
+// ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 
 package org.parosproxy.paros.model;
 
+import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -44,7 +46,6 @@ import java.util.Map.Entry;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.swing.SwingUtilities;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 
@@ -58,6 +59,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.parosproxy.paros.view.View;
 
 public class SiteMap extends DefaultTreeModel {
 
@@ -260,7 +262,7 @@ public class SiteMap extends DefaultTreeModel {
      * @return 
      */
     public SiteNode addPath(HistoryReference ref, HttpMessage msg) {
-    	if (Constant.isDevBuild() && ! SwingUtilities.isEventDispatchThread()) {
+    	if (View.isInitialised() && Constant.isDevBuild() && ! EventQueue.isDispatchThread()) {
     		// In developer mode log an error if we're not on the EDT
     		// Adding to the site tree on GUI ('initial') threads causes problems
     		log.error("SiteMap.addPath not on EDT " + Thread.currentThread().getName(), new Exception());
