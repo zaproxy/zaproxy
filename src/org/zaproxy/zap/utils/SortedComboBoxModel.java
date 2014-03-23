@@ -67,4 +67,21 @@ public class SortedComboBoxModel<E extends Comparable<E>> extends DefaultComboBo
 	public void insertElementAt(E element, int index) {
 		addElement( element );
 	}
+
+	/**
+	 * Notifies the listeners that the given {@code element} of the combo box model was changed.
+	 * <p>
+	 * The call to this method has no effect if the given {@code element} doesn't exist in the combo box model.
+	 * </p>
+	 * 
+	 * @param element the element that was changed.
+	 * @since 2.3.0
+	 */
+	public void elementChanged(E element) {
+		int idx = getIndexOf(element);
+		if (idx < 0) {
+			return;
+		}
+		super.fireContentsChanged(this, idx, idx);
+	}
 }
