@@ -69,6 +69,9 @@ public abstract class ApiImplementor {
 		this.apiShortcuts.add(shortcut);
 	}
 	
+	/**
+	 * @see ZapApiIgnore
+	 */
 	public void addApiOptions(AbstractParam param) {
 		// Add option parameter getters and setters via reflection
 		this.param = param;
@@ -76,6 +79,10 @@ public abstract class ApiImplementor {
 		List<String> addedActions = new ArrayList<>();
 		// Check for string setters (which take precedence)
 		for (Method method : methods) {
+			if (isIgnored(method)) {
+				continue;
+			}
+
 			if (method.getName().startsWith("get") && method.getParameterTypes().length == 0) {
 				this.addApiView(new ApiView(GET_OPTION_PREFIX + method.getName().substring(3)));
 			}
@@ -103,6 +110,10 @@ public abstract class ApiImplementor {
 		}
 		// Now check for non string setters
 		for (Method method : methods) {
+			if (isIgnored(method)) {
+				continue;
+			}
+
 			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && ! addedActions.contains(method.getName())) {
 				// Non String setter
 				if (method.getParameterTypes()[0].equals(Integer.class) || method.getParameterTypes()[0].equals(int.class)) {
@@ -117,6 +128,20 @@ public abstract class ApiImplementor {
 		
 	}
 
+	/**
+	 * Tells whether or not the given {@code method} should be ignored, thus not included in the ZAP API.
+	 * <p>
+	 * This method checks if the given {@code method} has been annotated with {@code ZapApiIgnore}.
+	 * </p>
+	 * 
+	 * @param method the method that will be checked
+	 * @return {@code true} if the method should be ignored, {@code false} otherwise.
+	 * @see ZapApiIgnore
+	 */
+	private static boolean isIgnored(Method method) {
+		return (method.getAnnotation(ZapApiIgnore.class) != null);
+	}
+
 	public ApiResponse handleApiOptionView(String name, JSONObject params) throws ApiException {
 		if (this.param == null) {
 			return null;
@@ -125,6 +150,10 @@ public abstract class ApiImplementor {
 			name = name.substring(GET_OPTION_PREFIX.length());
 			Method[] methods = param.getClass().getDeclaredMethods();
 			for (Method method : methods) {
+				if (isIgnored(method)) {
+					continue;
+				}
+
 				if ((method.getName().equals("get" + name) ||  method.getName().equals("is" + name)) && 
 						method.getParameterTypes().length == 0) {
 					try {
@@ -160,6 +189,10 @@ public abstract class ApiImplementor {
 			try {
 				Method[] methods = param.getClass().getDeclaredMethods();
 				for (Method method : methods) {
+					if (isIgnored(method)) {
+						continue;
+					}
+
 					if (method.getName().equals(name) && method.getParameterTypes().length == 1) {
 						Object val = null;
 						if (method.getParameterTypes()[0].equals(String.class)) {
