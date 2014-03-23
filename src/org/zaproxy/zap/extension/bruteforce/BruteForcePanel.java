@@ -669,10 +669,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				getPauseScanButton().setSelected(bruteForce.isPaused());
 				getProgressBar().setEnabled(true);
 			} else {
-				getStartScanButton().setEnabled(true);
-				getStopScanButton().setEnabled(false);
-				getPauseScanButton().setEnabled(false);
-				getProgressBar().setEnabled(false);
+				resetScanButtonsAndProgressBarStates(true);
 				getProgressBar().setValue(0);
 			}
 			
@@ -683,12 +680,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		}
 		if (Mode.protect.equals(this.mode)) {
 			if (! Model.getSingleton().getSession().isInScope(this.getSiteNode(currentSite))) {
-				getStartScanButton().setEnabled(false);
-				getStopScanButton().setEnabled(false);
-				getPauseScanButton().setEnabled(false);
-				getProgressBar().setEnabled(false);
+				resetScanButtonsAndProgressBarStates(false);
 			}
 		}
+	}
+
+	private void resetScanButtonsAndProgressBarStates(boolean allowStartScan) {
+		getStartScanButton().setEnabled(allowStartScan);
+		getStopScanButton().setEnabled(false);
+		getPauseScanButton().setEnabled(false);
+		getPauseScanButton().setSelected(false);
+		getProgressBar().setEnabled(false);
 	}
 
 	protected String getSiteName(SiteNode node) {
@@ -833,11 +835,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	@Override
 	public void scanFinshed(String host) {
 		if (host.equals(currentSite)) {
-			getStartScanButton().setEnabled(true);
-			getStopScanButton().setEnabled(false);
-			getPauseScanButton().setEnabled(false);
-			getPauseScanButton().setSelected(false);
-			getProgressBar().setEnabled(false);
+			resetScanButtonsAndProgressBarStates(true);
 		}
 		this.activeScans.remove(host);
 		setActiveScanLabels();
@@ -876,9 +874,11 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		currentSite = null;
 		resetBruteForceList();
 		setActiveScanLabels();
-		getStartScanButton().setEnabled(false);
-		getStopScanButton().setEnabled(false);
-		getProgressBar().setEnabled(false);
+		resetScanState();
+	}
+
+	private void resetScanState() {
+		resetScanButtonsAndProgressBarStates(false);
 		getProgressBar().setValue(0);
 		
 	}
@@ -977,11 +977,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		case safe:
 			// Stop all scans, disable everything
 			reset();
-			getStartScanButton().setEnabled(false);
-			getStopScanButton().setEnabled(false);
-			getPauseScanButton().setEnabled(false);
-			getPauseScanButton().setSelected(false);
-			getProgressBar().setEnabled(false);
 			getSiteSelect().setSelectedIndex(0);
 			getSiteSelect().setEnabled(false);
 		}
