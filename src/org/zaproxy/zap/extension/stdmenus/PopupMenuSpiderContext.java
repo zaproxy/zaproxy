@@ -27,6 +27,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.popup.PopupMenuItemContext;
 
 /**
  * The Class PopupMenuSpiderContext.
@@ -64,12 +65,12 @@ public class PopupMenuSpiderContext extends PopupContextMenuItemHolder {
 
 	@Override
 	public ExtensionPopupMenuItem getPopupContextMenu(Context context, String parentName) {
-		return new PopupContextMenu(context, parentName, context.getName()) {
+		return new PopupMenuItemContext(context, parentName, context.getName()) {
 
 			private static final long serialVersionUID = -2524944630833835369L;
 
 			@Override
-			public void performAction(SiteNode sn) throws Exception {
+			public void performAction(SiteNode sn) {
 				getExtensionSpider().startScanAllInContext(getContext(), null);
 			}
 		};

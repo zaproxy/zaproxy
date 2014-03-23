@@ -34,6 +34,8 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
+import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
+import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
 
 public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwner {
 
@@ -60,8 +62,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuShowInHistory popupMenuShowInHistory = null;
 	private PopupMenuShowInSites popupMenuShowInSites = null;
 	private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
-	private PopupContextIncludeMenu popupContextIncludeMenu = null;
-	private PopupContextExcludeMenu popupContextExcludeMenu = null;
+	private PopupMenuItemContextInclude popupContextIncludeMenu = null;
+	private PopupMenuItemContextExclude popupContextExcludeMenu = null;
 	private PopupMenuCopyUrls popupMenuCopyUrls = null;
 
 	// Still being developed
@@ -342,17 +344,17 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuAlert;
 	}
 
-	private PopupContextIncludeMenu getPopupContextIncludeMenu(int menuIndex) {
+	private PopupMenuItemContextInclude getPopupContextIncludeMenu(int menuIndex) {
 		if (popupContextIncludeMenu == null) {
-			popupContextIncludeMenu = new PopupContextIncludeMenu();
+			popupContextIncludeMenu = new PopupMenuItemContextInclude();
 			popupContextIncludeMenu.setParentMenuIndex(menuIndex);
 		}
 		return popupContextIncludeMenu;
 	}
 
-	private PopupContextExcludeMenu getPopupContextExcludeMenu(int menuIndex) {
+	private PopupMenuItemContextExclude getPopupContextExcludeMenu(int menuIndex) {
 		if (popupContextExcludeMenu == null) {
-			popupContextExcludeMenu = new PopupContextExcludeMenu();
+			popupContextExcludeMenu = new PopupMenuItemContextExclude();
 			popupContextExcludeMenu.setParentMenuIndex(menuIndex);
 		}
 		return popupContextExcludeMenu;

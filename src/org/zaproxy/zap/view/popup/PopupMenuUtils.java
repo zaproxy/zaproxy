@@ -27,6 +27,7 @@ import javax.swing.JPopupMenu;
 
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 
 /**
  * A helper class with common utility methods for pop up menus ({@code JPopupMenu}) and its related classes ({@code JMenu}s,
@@ -108,4 +109,135 @@ public final class PopupMenuUtils {
     public static boolean isPopupMenuSeparator(Component component) {
         return (component instanceof JPopupMenu.Separator);
     }
+
+    /**
+     * Returns the {@code component} wrapped in a {@code PopupMenuInvokerWrapper}.
+     * 
+     * @param component the component that will be wrapped.
+     * @return a {@code PopupMenuInvokerWrapper} wrapping the given {@code component}.
+     * @see PopupMenuInvokerWrapper
+     */
+    public static PopupMenuInvokerWrapper getPopupMenuInvokerWrapper(final Component component) {
+        return new ComponentPopupMenuInvoker(component);
+    }
+
+    /**
+     * Returns the {@code messageContainer} wrapped in a {@code PopupMenuInvokerWrapper}.
+     * 
+     * @param messageContainer the message container that will be wrapped.
+     * @return a {@code PopupMenuInvokerWrapper} wrapping the given {@code messageContainer}.
+     * @see PopupMenuInvokerWrapper
+     */
+    public static PopupMenuInvokerWrapper getPopupMenuInvokerWrapper(final MessageContainer<?> messageContainer) {
+        return new MessageContainerPopupMenuInvoker(messageContainer);
+    }
+
+    /**
+     * An abstract class that allows to check if a {@code ExtensionPopupMenuComponent} is enable for the contained wrapped
+     * object.
+     * <p>
+     * It allows to use the same object ({@code PopupMenuInvokerWrapper}) for both types {@code Component} and
+     * {@code MessageContainer}, with {@code ComponentPopupMenuInvoker} and {@code MessageContainerPopupMenuInvoker},
+     * respectively.
+     * 
+     * @see #isEnable(ExtensionPopupMenuComponent)
+     * @see ComponentPopupMenuInvoker
+     * @see MessageContainerPopupMenuInvoker
+     */
+    public static abstract class PopupMenuInvokerWrapper {
+
+        private final Component component;
+
+        /**
+         * Constructs a {@code PopupMenuInvokerWrapper} with the given {@code component} of the wrapped object.
+         * 
+         * @param component the component of the wrapped object.
+         * @throws IllegalArgumentException if the given {@code component} is null
+         */
+        public PopupMenuInvokerWrapper(final Component component) {
+            if (component == null) {
+                throw new IllegalArgumentException("Parameter component must not be null.");
+            }
+
+            this.component = component;
+        }
+
+        /**
+         * Returns the {@code Component} of the wrapped object.
+         * 
+         * @return the component of the wrapped object.
+         */
+        public Component getComponent() {
+            return component;
+        }
+
+        /**
+         * Tells whether the given {@code menuComponent} is enable for the wrapped object.
+         * 
+         * @param menuComponent the menu component that will be tested
+         * @return {@code true} if the menu component is enable for this wrapped object, {@code false} otherwise.
+         */
+        public abstract boolean isEnable(ExtensionPopupMenuComponent menuComponent);
+    }
+
+    /**
+     * A {@code PopupMenuInvokerWrapper} for {@code Component}s.
+     * <p>
+     * Calls the method {@code ExtensionPopupMenuComponent#isEnableForComponent(Component)}, with the wrapped object as
+     * parameter.
+     * 
+     * @see PopupMenuInvokerWrapper
+     * @see MessageContainerPopupMenuInvoker
+     * @see ExtensionPopupMenuComponent#isEnableForComponent(Component)
+     */
+    public static class ComponentPopupMenuInvoker extends PopupMenuInvokerWrapper {
+
+        /**
+         * Constructs a {@code ComponentPopupMenuInvoker} with the given {@code component} as the wrapped object.
+         * 
+         * @param component the component that will be wrapped
+         * @throws IllegalArgumentException if the given {@code component} is null
+         */
+        public ComponentPopupMenuInvoker(Component component) {
+            super(component);
+        }
+
+        @Override
+        public boolean isEnable(ExtensionPopupMenuComponent menuComponent) {
+            return menuComponent.isEnableForComponent(getComponent());
+        }
+    }
+
+    /**
+     * A {@code PopupMenuInvokerWrapper} for {@code MessageContainer}s.
+     * <p>
+     * Calls the method {@code ExtensionPopupMenuComponent#isEnableForMessageContainer(MessageContainer)}, with the wrapped
+     * object as parameter.
+     * 
+     * @see PopupMenuInvokerWrapper
+     * @see ComponentPopupMenuInvoker
+     * @see ExtensionPopupMenuComponent#isEnableForMessageContainer(MessageContainer)
+     */
+    public static class MessageContainerPopupMenuInvoker extends PopupMenuInvokerWrapper {
+
+        private final MessageContainer<?> messageContainer;
+
+        /**
+         * Constructs a {@code MessageContainerPopupMenuInvoker} with the given {@code messageContainer} as the wrapped object.
+         * 
+         * @param messageContainer the message container that will be wrapped
+         * @throws NullPointerException if the given {@code messageContainer} is null
+         */
+        public MessageContainerPopupMenuInvoker(final MessageContainer<?> messageContainer) {
+            super(messageContainer.getComponent());
+
+            this.messageContainer = messageContainer;
+        }
+
+        @Override
+        public boolean isEnable(ExtensionPopupMenuComponent menuComponent) {
+            return menuComponent.isEnableForMessageContainer(messageContainer);
+        }
+    }
+
 }

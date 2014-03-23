@@ -23,10 +23,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
-import org.zaproxy.zap.view.PopupMenuSiteNode;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
-public class PopupMenuSpiderSubtree extends PopupMenuSiteNode {
+public class PopupMenuSpiderSubtree extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 1L;
     private ExtensionSpider extension = null;
@@ -62,26 +63,26 @@ public class PopupMenuSpiderSubtree extends PopupMenuSiteNode {
     }
 
 	@Override
-	public void performAction(SiteNode node) throws Exception {
+	public void performAction(SiteNode node) {
 	    if (node != null) {
 	    	getExtensionSpider().startScan(node);
 	    }
 	}
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		if (getExtensionSpider() == null) {
 			return false;
 		}
 		switch (invoker) {
-		case alerts:
-		case ascan:
-		case bruteforce:
-		case fuzz:
+		case ALERTS_PANEL:
+		case ACTIVE_SCANNER_PANEL:
+		case FORCED_BROWSE_PANEL:
+		case FUZZER_PANEL:
 			return false;
-		case history:
-		case sites:
-		case search:
+		case HISTORY_PANEL:
+		case SITES_PANEL:
+		case SEARCH_PANEL:
 		default:
 			return true;
 		}

@@ -22,9 +22,10 @@ package org.zaproxy.zap.extension.history;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuTag extends PopupMenuHistoryReference {
+public class PopupMenuTag extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = 1L;
 
@@ -37,12 +38,12 @@ public class PopupMenuTag extends PopupMenuHistoryReference {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker) {
-        return (invoker == Invoker.history);
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return (invoker == Invoker.HISTORY_PANEL);
     }
 
     @Override
-    public void performAction(HistoryReference href) throws Exception {
+    public void performAction(HistoryReference href) {
         extension.showManageTagsDialog(href, href.getTags());
     }
 

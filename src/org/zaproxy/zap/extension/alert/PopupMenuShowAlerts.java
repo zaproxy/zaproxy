@@ -28,9 +28,10 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuShowAlerts extends PopupMenuHistoryReference {
+public class PopupMenuShowAlerts extends PopupMenuItemHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -47,22 +48,23 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReference {
     }
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		switch (invoker) {
-		case sites:
-		case history:
+		case SITES_PANEL:
+		case HISTORY_PANEL:
 			return true;
+		default:
+			return false;
 		}
-		return false;
 	}
 
 	@Override
-	public void performAction(HistoryReference href) throws Exception {
+	public void performAction(HistoryReference href) {
 		
 	}
 
 	@Override
-    public boolean isEnabledForHistoryReference (HistoryReference href) {
+    public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
     	// Delete all submenus - these (probably) refer to a previous node
 		for (PopupMenuShowAlert menu : subMenus) {
 			View.getSingleton().getPopupMenu().removeMenu(menu);

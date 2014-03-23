@@ -1,16 +1,14 @@
 package org.zaproxy.zap.extension.alert;
 
-import java.awt.Component;
-
-import javax.swing.JTree;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuItemMessageContainer;
 
-public class PopupMenuShowAlert extends ExtensionPopupMenuItem implements Comparable<PopupMenuShowAlert> {
+public class PopupMenuShowAlert extends ExtensionPopupMenuItemMessageContainer implements Comparable<PopupMenuShowAlert> {
 
 	private static final long serialVersionUID = 1L;
 	private String parentName;
@@ -51,14 +49,11 @@ public class PopupMenuShowAlert extends ExtensionPopupMenuItem implements Compar
 		return alert;
 	}
 
-	@Override
-    public boolean isEnableForComponent(Component invoker) {
-        if (invoker.getName() != null && invoker.getName().equals("ListLog")) {
-        	return true;
-        } else if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
-        	return true;
+    @Override
+    public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
+        if ("treeSite".equals(invoker.getName()) || "History Table".equals(invoker.getName())) {
+            return true;
         }
-
         return false;
     }
     

@@ -22,12 +22,13 @@ package org.zaproxy.zap.extension.stdmenus;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.view.PopupMenuSiteNode;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 /**
  * The PopupMenu corresponding to a User valid in a Context.
  */
-public abstract class PopupUserMenu extends PopupMenuSiteNode {
+public abstract class PopupUserMenu extends PopupMenuItemSiteNodeContainer {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1608127089952566119L;
@@ -51,8 +52,8 @@ public abstract class PopupUserMenu extends PopupMenuSiteNode {
 	}
 
 	@Override
-	public boolean isEnabledForSiteNode(SiteNode sn) {
-		return this.user.isEnabled() && context.isInContext(sn);
+	protected boolean isButtonEnabledForSiteNode(SiteNode siteNode) {
+		return this.user.isEnabled() && context.isInContext(siteNode);
 	}
 
 	@Override
@@ -66,16 +67,16 @@ public abstract class PopupUserMenu extends PopupMenuSiteNode {
 	}
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	protected boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		switch (invoker) {
-		case alerts:
-		case ascan:
-		case bruteforce:
-		case fuzz:
+		case ALERTS_PANEL:
+		case ACTIVE_SCANNER_PANEL:
+		case FORCED_BROWSE_PANEL:
+		case FUZZER_PANEL:
 			return false;
-		case history:
-		case sites:
-		case search:
+		case HISTORY_PANEL:
+		case SITES_PANEL:
+		case SEARCH_PANEL:
 		default:
 			return true;
 		}

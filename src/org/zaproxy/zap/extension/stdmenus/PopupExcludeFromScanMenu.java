@@ -23,18 +23,22 @@ import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.view.PopupMenuSiteNode;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
-public class PopupExcludeFromScanMenu extends PopupMenuSiteNode {
+public class PopupExcludeFromScanMenu extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 2282358266003940700L;
+
+    private static final Logger logger = Logger.getLogger(PopupExcludeFromScanMenu.class);
 
 	/**
 	 * This method initializes 
@@ -61,9 +65,15 @@ public class PopupExcludeFromScanMenu extends PopupMenuSiteNode {
    }
    
 	@Override
-	public void performAction(SiteNode sn) throws Exception {
+	public void performAction(SiteNode sn) {
         Session session = Model.getSingleton().getSession();
-        String url = new URI(sn.getHierarchicNodeName(), false).toString();
+        String url;
+        try {
+            url = new URI(sn.getHierarchicNodeName(), false).toString();
+        } catch (URIException e) {
+            logger.error("Failed to create the URI to exclude from scanner: " + e.getMessage(), e);
+            return;
+        }
         if (sn.isLeaf()) {
             url = Pattern.quote(url);
         } else {
@@ -73,16 +83,11 @@ public class PopupExcludeFromScanMenu extends PopupMenuSiteNode {
 	}
 
 	@Override
-    public void performActions (List<HistoryReference> hrefs) throws Exception {
-		super.performActions(hrefs);
+    public void performHistoryReferenceActions (List<HistoryReference> hrefs) {
+		super.performHistoryReferenceActions(hrefs);
         View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), SessionExcludeFromScanPanel.PANEL_NAME);
 	}
 
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
-		return true;
-	}
-	
     @Override
     public boolean isSafe() {
     	return true;

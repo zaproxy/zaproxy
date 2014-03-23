@@ -19,16 +19,12 @@
  */
 package org.zaproxy.zap.extension.invoke;
 
-import java.awt.Component;
-
-import javax.swing.JList;
-import javax.swing.JTree;
-
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuItemMessageContainer;
 
-public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
+public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItemMessageContainer {
 
 	private static final long serialVersionUID = 1L;
 	
@@ -74,12 +70,10 @@ public class PopupMenuInvokeConfigure extends ExtensionPopupMenuItem {
 	}
 	
     @Override
-    public boolean isEnableForComponent(Component invoker) {
-		if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
+    public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
+        if ("treeSite".equals(invoker.getName()) || "History Table".equals(invoker.getName())) {
             return true;
-        } else if (invoker instanceof JList && invoker.getName().equals("ListLog")) {
-            return true;
-		}
+        }
         return false;
     }
 

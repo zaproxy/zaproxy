@@ -33,9 +33,10 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.view.PopupMenuSiteNode;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
-public class PopupMenuPurgeSites extends PopupMenuSiteNode {
+public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 4827464631678110752L;
 
@@ -46,17 +47,17 @@ public class PopupMenuPurgeSites extends PopupMenuSiteNode {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker) {
-        return (invoker == Invoker.sites);
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return (invoker == Invoker.SITES_PANEL);
     }
 
     @Override
-    public boolean isEnabledForSiteNode(SiteNode sn) {
-        return !(sn == null || (sn.isRoot() && sn.getChildCount() == 0));
+    public boolean isButtonEnabledForSiteNode(SiteNode sn) {
+        return !(sn.isRoot() && sn.getChildCount() == 0);
     }
 
     @Override
-    public void performActions(List<HistoryReference> hrefs) throws Exception {
+    public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
         if (hrefs.size() > 0) {
             int result = View.getSingleton().showConfirmDialog(Constant.messages.getString("sites.purge.warning"));
             if (result != JOptionPane.YES_OPTION) {
@@ -64,11 +65,11 @@ public class PopupMenuPurgeSites extends PopupMenuSiteNode {
             }
         }
 
-        super.performActions(hrefs);
+        super.performHistoryReferenceActions(hrefs);
     }
 
     @Override
-    public void performAction(SiteNode sn) throws Exception {
+    public void performAction(SiteNode sn) {
         purge(Model.getSingleton().getSession().getSiteTree(), sn);
     }
 

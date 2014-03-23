@@ -28,6 +28,10 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
@@ -61,6 +65,8 @@ import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapToggleButton;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
 public class AlertPanel extends AbstractPanel {
 	
@@ -443,7 +449,30 @@ public class AlertPanel extends AbstractPanel {
 					    		treeAlert.getSelectionModel().setSelectionPath(tp);
 					    	}
 				    	}
-				        view.getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                        final int countSelectedNodes = treeAlert.getSelectionCount();
+                        final ArrayList<HistoryReference> uniqueHistoryReferences = new ArrayList<>(countSelectedNodes);
+                        if (countSelectedNodes > 0) {
+                            SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
+                            for (TreePath path : treeAlert.getSelectionPaths()) {
+                                final AlertNode node = (AlertNode) path.getLastPathComponent();
+                                final Object userObject = node.getUserObject();
+                                if (userObject instanceof Alert) {
+                                    HistoryReference historyReference = ((Alert) userObject).getHistoryRef();
+                                    if (historyReference != null
+                                            && !historyReferenceIdsAdded.contains(Integer.valueOf(historyReference.getHistoryId()))) {
+                                        historyReferenceIdsAdded.add(Integer.valueOf(historyReference.getHistoryId()));
+                                        uniqueHistoryReferences.add(historyReference);
+                                    }
+                                }
+                            }
+                            uniqueHistoryReferences.trimToSize();
+                        }
+                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                                treeAlert.getName(),
+                                treeAlert,
+                                Collections.<HistoryReference> emptyList(),
+                                uniqueHistoryReferences);
+				        view.getPopupMenu().show(messageContainer, e.getX(), e.getY());
 				    }	
 				}
 

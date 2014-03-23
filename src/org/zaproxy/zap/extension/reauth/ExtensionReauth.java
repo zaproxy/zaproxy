@@ -49,7 +49,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.model.Context;
@@ -58,6 +57,7 @@ import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.ZapToggleButton;
+import org.zaproxy.zap.view.popup.PopupMenuItemContext;
 
 @Deprecated
 public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListener, SessionChangedListener, ContextPanelFactory, ContextDataFactory {
@@ -163,16 +163,22 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public PopupContextMenu getContextMenu(Context context,
+				public PopupMenuItemContext getContextMenu(Context context,
 						String parentMenu) {
-					return new PopupContextMenu(context, parentMenu, 
+					return new PopupMenuItemContext(context, parentMenu, 
 							MessageFormat.format(Constant.messages.getString("auth.popup.login.req"), context.getName())) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
-						public void performAction(SiteNode sn) throws Exception {
-							setLoginRequest(this.getContext().getIndex(), sn);
-					        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), getContextPanel(this.getContext()).getName());
+						public void performAction(SiteNode sn) {
+							try {
+								setLoginRequest(this.getContext().getIndex(), sn);
+								View.getSingleton().showSessionDialog(
+										Model.getSingleton().getSession(),
+										getContextPanel(this.getContext()).getName());
+							} catch (Exception e) {
+								logger.error("Failed to set the login request:" + e.getMessage(), e);
+							}
 						}
 					};
 				}
@@ -191,16 +197,22 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 				private static final long serialVersionUID = 1L;
 
 				@Override
-				public PopupContextMenu getContextMenu(Context context,
+				public PopupMenuItemContext getContextMenu(Context context,
 						String parentMenu) {
-					return new PopupContextMenu(context, parentMenu, 
+					return new PopupMenuItemContext(context, parentMenu, 
 							MessageFormat.format(Constant.messages.getString("auth.popup.logout.req"), context.getName())) {
 						private static final long serialVersionUID = 1L;
 
 						@Override
-						public void performAction(SiteNode sn) throws Exception {
-							setLogoutRequest(this.getContext().getIndex(), sn);
-					        View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), getContextPanel(this.getContext()).getName());
+						public void performAction(SiteNode sn) {
+							try {
+								setLogoutRequest(this.getContext().getIndex(), sn);
+								View.getSingleton().showSessionDialog(
+										Model.getSingleton().getSession(),
+										getContextPanel(this.getContext()).getName());
+							} catch (Exception e) {
+								logger.error("Failed to set the logout request:" + e.getMessage(), e);
+							}
 						}
 					};
 				}

@@ -26,9 +26,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuAddBreakHistory extends PopupMenuHistoryReference {
+public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -1984801437717248474L;
 
@@ -43,17 +44,17 @@ public class PopupMenuAddBreakHistory extends PopupMenuHistoryReference {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker) {
-        return (invoker == Invoker.history);
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return (invoker == Invoker.HISTORY_PANEL);
     }
 
     @Override
-    public boolean isEnabledForHistoryReference(HistoryReference href) {
-        return (extension.canAddBreakpoint() && super.isEnabledForHistoryReference(href));
+    public boolean isButtonEnabledForHistoryReference(HistoryReference href) {
+        return (extension.canAddBreakpoint() && super.isButtonEnabledForHistoryReference(href));
     }
 
     @Override
-    public void performAction(HistoryReference href) throws Exception {
+    public void performAction(HistoryReference href) {
         try {
             extension.addUiBreakpoint(href.getHttpMessage());
         } catch (HttpMalformedHeaderException | SQLException e) {

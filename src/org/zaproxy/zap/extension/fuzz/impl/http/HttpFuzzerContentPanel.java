@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.fuzz.impl.http;
 import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -43,6 +44,8 @@ import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchResult;
 import org.zaproxy.zap.utils.Pair;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
 public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
@@ -118,7 +121,20 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                         if (! table.isRowSelected(row)) {
                             table.changeSelection(row, 0, false, false);
                         }
-                        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+
+                        final int countSelectedRows = fuzzResultTable.getSelectedRowCount();
+                        final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedRows);
+                        if (countSelectedRows > 0) {
+                            for (int selectedRow : fuzzResultTable.getSelectedRows()) {
+                                historyReferences.add(resultsModel.getHistoryReferenceAtRow(selectedRow));
+                            }
+                        }
+                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                                fuzzResultTable.getName(),
+                                fuzzResultTable,
+                                Collections.<HistoryReference> emptyList(),
+                                historyReferences);
+                        View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
                     }
                 }
             });

@@ -31,9 +31,10 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuPurgeHistory extends PopupMenuHistoryReference {
+public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -155358408946131183L;
 
@@ -46,17 +47,12 @@ public class PopupMenuPurgeHistory extends PopupMenuHistoryReference {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker) {
-        return (invoker == Invoker.history);
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return (invoker == Invoker.HISTORY_PANEL);
     }
 
     @Override
-    public boolean isEnabledForHistoryReference(HistoryReference href) {
-        return href != null;
-    }
-
-    @Override
-    public void performActions(List<HistoryReference> hrefs) throws Exception {
+    public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
         if (hrefs.size() > 1) {
             int result = extension.getView().showConfirmDialog(Constant.messages.getString("history.purge.warning"));
             if (result != JOptionPane.YES_OPTION) {
@@ -71,7 +67,7 @@ public class PopupMenuPurgeHistory extends PopupMenuHistoryReference {
     }
 
     @Override
-    public void performAction(HistoryReference href) throws Exception {
+    public void performAction(HistoryReference href) {
     }
 
     private void purgeHistory(HistoryReference ref) {

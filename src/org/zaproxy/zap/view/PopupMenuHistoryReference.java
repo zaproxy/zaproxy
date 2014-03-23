@@ -46,7 +46,12 @@ import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
+/**
+ * @deprecated (2.3.0) Superseded by {@link PopupMenuItemHistoryReferenceContainer}. It will be removed in a future release.
+ */
+@Deprecated
 public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
 	public static enum Invoker {sites, history, alerts, ascan, search, fuzz, bruteforce, hreftable};

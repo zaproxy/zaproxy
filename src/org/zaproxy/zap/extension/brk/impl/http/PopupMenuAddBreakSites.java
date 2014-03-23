@@ -22,9 +22,10 @@ package org.zaproxy.zap.extension.brk.impl.http;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
-import org.zaproxy.zap.view.PopupMenuSiteNode;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
-public class PopupMenuAddBreakSites extends PopupMenuSiteNode {
+public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = -7635703590177283587L;
     
@@ -39,17 +40,17 @@ public class PopupMenuAddBreakSites extends PopupMenuSiteNode {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker) {
-        return (invoker == Invoker.sites);
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return (invoker == Invoker.SITES_PANEL);
     }
 
     @Override
-    public boolean isEnabledForSiteNode(SiteNode sn) {
+    public boolean isButtonEnabledForSiteNode(SiteNode sn) {
         return extension.canAddBreakpoint();
     }
 
     @Override
-    public void performAction(SiteNode sn) throws Exception {
+    public void performAction(SiteNode sn) {
         String url = sn.getHierarchicNodeName();
         if (!sn.isLeaf()) {
             url += "/*";

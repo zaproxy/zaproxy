@@ -23,10 +23,11 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.view.PopupMenuHttpMessage;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
 
-public class PopupMenuResendMessage extends PopupMenuHttpMessage {
+public class PopupMenuResendMessage extends PopupMenuItemHttpMessageContainer {
 
 	private static final long serialVersionUID = 1L;
     private ExtensionHistory extension = null;
@@ -46,19 +47,15 @@ public class PopupMenuResendMessage extends PopupMenuHttpMessage {
     }
 	
 	@Override
-	public void performAction(HttpMessage msg) throws Exception {
+	public void performAction(HttpMessage msg) {
 	    ManualRequestEditorDialog dialog = getExtensionHistory().getResendDialog();
 	    
         dialog.setMessage(msg.cloneRequest());
         dialog.setVisible(true);
 	}
 
-	public void setExtension(ExtensionHistory extension) {
-		this.extension = extension;
-	}
-
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		return getExtensionHistory() != null;
 	}
 

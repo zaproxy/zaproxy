@@ -33,6 +33,8 @@
 // ZAP: 2013/12/02 Issue 915: Dynamically filter history based on selection in the sites window
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/02/07 Issue 207: Give the most suitable component focus on tab switch
+// ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
+// access the data (HttpMessage and HistoryReference) displayed in the tabs
 
 package org.parosproxy.paros.extension.history;
 
@@ -43,6 +45,8 @@ import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -68,6 +72,8 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.ZapToggleButton;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
 public class LogPanel extends AbstractPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
@@ -351,7 +357,13 @@ public class LogPanel extends AbstractPanel implements Runnable {
 					    	}
 					    }
 
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                        final List<HistoryReference> historyReferences = listLog.getSelectedValuesList();
+                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                                listLog.getName(),
+                                listLog,
+                                Collections.<HistoryReference> emptyList(),
+                                historyReferences);
+				        View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
 				        return;
 				    }	
 				    

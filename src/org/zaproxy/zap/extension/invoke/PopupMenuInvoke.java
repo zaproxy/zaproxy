@@ -25,9 +25,9 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.view.PopupMenuHttpMessage;
+import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
-public class PopupMenuInvoke extends PopupMenuHttpMessage {
+public class PopupMenuInvoke extends PopupMenuItemHttpMessageContainer {
 
 	private static final long serialVersionUID = 1L;
     private String command = null;
@@ -101,12 +101,7 @@ public class PopupMenuInvoke extends PopupMenuHttpMessage {
 	}
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
-		return true;
-	}
-
-	@Override
-	public void performAction(HttpMessage msg) throws Exception {
+	public void performAction(HttpMessage msg) {
 		try {
     		if (command != null) {
     			InvokeAppWorker iaw = 

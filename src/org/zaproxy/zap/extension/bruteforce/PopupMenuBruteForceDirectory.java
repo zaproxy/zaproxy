@@ -31,7 +31,7 @@ public class PopupMenuBruteForceDirectory extends PopupMenuBruteForceSite {
     }
     
     @Override
-    public void performAction(SiteNode node) throws Exception {
+    public void performAction(SiteNode node) {
         if (node != null) {
             getExtensionBruteForce().bruteForceDirectory(node);
         }

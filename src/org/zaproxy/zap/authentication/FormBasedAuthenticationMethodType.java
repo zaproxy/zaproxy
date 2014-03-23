@@ -74,8 +74,6 @@ import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
 import org.zaproxy.zap.extension.authentication.ContextAuthenticationPanel;
-import org.zaproxy.zap.extension.stdmenus.PopupContextMenu;
-import org.zaproxy.zap.extension.stdmenus.PopupContextMenuSiteNodeFactory;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
@@ -85,6 +83,8 @@ import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.NodeSelectDialog;
+import org.zaproxy.zap.view.popup.PopupMenuItemContext;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContextMenuFactory;
 
 /**
  * The implementation for an {@link AuthenticationMethodType} where the Users are authenticated by
@@ -721,14 +721,14 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	 * 
 	 * @return the popup flag login request menu factory
 	 */
-	private PopupContextMenuSiteNodeFactory getPopupFlagLoginRequestMenuFactory() {
-		PopupContextMenuSiteNodeFactory popupFlagLoginRequestMenuFactory = new PopupContextMenuSiteNodeFactory(
+	private PopupMenuItemSiteNodeContextMenuFactory getPopupFlagLoginRequestMenuFactory() {
+	    PopupMenuItemSiteNodeContextMenuFactory popupFlagLoginRequestMenuFactory = new PopupMenuItemSiteNodeContextMenuFactory(
 				Constant.messages.getString("context.flag.popup")) {
 			private static final long serialVersionUID = 8927418764L;
 
 			@Override
-			public PopupContextMenu getContextMenu(Context context, String parentMenu) {
-				return new PopupContextMenu(context, parentMenu, MessageFormat.format(
+			public PopupMenuItemContext getContextMenu(Context context, String parentMenu) {
+				return new PopupMenuItemContext(context, parentMenu, MessageFormat.format(
 						Constant.messages.getString("authentication.method.fb.popup.login.request"),
 						context.getName())) {
 
@@ -761,7 +761,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					}
 
 					@Override
-					public void performAction(SiteNode sn) throws Exception {
+					public void performAction(SiteNode sn) {
 						// Manually create the UI shared contexts so any modifications are done
 						// on an UI shared Context, so changes can be undone by pressing Cancel
 						SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
@@ -774,7 +774,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 									+ getContext().getIndex());
 							FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) uiSharedContext
 									.getAuthenticationMethod();
-							method.setLoginRequest(sn);
+
+							try {
+								method.setLoginRequest(sn);
+							} catch (Exception e) {
+								log.error("Failed to set login request: " + e.getMessage(), e);
+								return;
+							}
 
 							// Show the session dialog without recreating UI Shared contexts
 							View.getSingleton()
@@ -786,7 +792,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 							log.info("Selected new login request via PopupMenu. Creating new Form-Based Authentication instance for Context "
 									+ getContext().getIndex());
 							FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
-							method.setLoginRequest(sn);
+
+							try {
+								method.setLoginRequest(sn);
+							} catch (Exception e) {
+								log.error("Failed to set login request: " + e.getMessage(), e);
+								return;
+							}
 							if (!confirmUsersDeletion(uiSharedContext)) {
 								log.debug("Cancelled change of authentication type.");
 								return;

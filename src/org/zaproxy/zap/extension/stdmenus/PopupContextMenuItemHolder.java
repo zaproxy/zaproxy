@@ -10,9 +10,10 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.popup.PopupMenuItemContext;
 
 /**
- * The Class PopupContextMenuItemHolder is used as a holder for multiple {@link PopupContextMenu}. Depending
+ * The Class PopupContextMenuItemHolder is used as a holder for multiple {@link PopupMenuItemContext}. Depending
  * on the initialization, it can be shown by itself containing the Popup Menus for each Context or it can just
  * place the Popup Menus in its parent.
  */
@@ -123,7 +124,7 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
 	}
 
 	/**
-	 * Gets the {@link PopupContextMenu} associated with a particular context.
+	 * Gets the {@link PopupMenuItemContext} associated with a particular context.
 	 * 
 	 * @param context the context
 	 * @param parentName the parent menu's name

@@ -28,6 +28,8 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/03/23 Tidy up, removed the instance variable rootTreePath, no need to
 // cache the path
+// ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
+// access the data (HttpMessage and HistoryReference) displayed in the tabs
 
 package org.parosproxy.paros.view;
 
@@ -36,6 +38,7 @@ import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -51,12 +54,15 @@ import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
 
 public class SiteMapPanel extends AbstractPanel {
@@ -166,7 +172,23 @@ public class SiteMapPanel extends AbstractPanel {
 					    	}
 				    	}
 
-	          			View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                        final int countSelectedNodes = treeSite.getSelectionCount();
+                        final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedNodes);
+                        if (countSelectedNodes > 0) {
+                            for (TreePath path : treeSite.getSelectionPaths()) {
+                                final SiteNode node = (SiteNode) path.getLastPathComponent();
+                                final HistoryReference historyReference = node.getHistoryReference();
+                                if (historyReference != null) {
+                                    historyReferences.add(historyReference);
+                                }
+                            }
+                        }
+                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                                treeSite.getName(),
+                                treeSite,
+                                Collections.<HistoryReference> emptyList(),
+                                historyReferences);
+	          			View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
 	            	}
 				} 
 			});

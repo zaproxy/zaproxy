@@ -19,10 +19,11 @@ package org.zaproxy.zap.extension.history;
 
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 
-public class PopupMenuShowInHistory extends PopupMenuHistoryReference {
+public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;
     private ExtensionHistory extension = null;
@@ -35,7 +36,7 @@ public class PopupMenuShowInHistory extends PopupMenuHistoryReference {
     }
 	
 	@Override
-	public void performAction(HistoryReference href) throws Exception {
+	public void performAction(HistoryReference href) {
 		extension.showInHistory(href);
 	}
 
@@ -44,16 +45,16 @@ public class PopupMenuShowInHistory extends PopupMenuHistoryReference {
 	}
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		switch (invoker) {
-		case ascan:
-		case bruteforce:
-		case fuzz:
-		case history:
+		case ACTIVE_SCANNER_PANEL:
+		case FORCED_BROWSE_PANEL:
+		case FUZZER_PANEL:
+		case HISTORY_PANEL:
 			return false;
-		case alerts:
-		case sites:
-		case search:
+		case ALERTS_PANEL:
+		case SITES_PANEL:
+		case SEARCH_PANEL:
 		default:
 			return true;
 		}

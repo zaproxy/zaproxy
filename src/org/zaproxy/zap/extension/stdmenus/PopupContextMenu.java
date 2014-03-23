@@ -23,6 +23,10 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
+/**
+ * @deprecated (2.3.0) Superseded by {@link org.zaproxy.zap.view.popup.PopupMenuItemContext}. It will be removed in a future release.
+ */
+@Deprecated
 public abstract class PopupContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;

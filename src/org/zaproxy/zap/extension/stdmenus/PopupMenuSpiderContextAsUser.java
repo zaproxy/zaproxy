@@ -68,7 +68,7 @@ public class PopupMenuSpiderContextAsUser extends PopupUserMenuItemHolder {
 			private static final long serialVersionUID = 3914042295666599416L;
 
 			@Override
-			public void performAction(SiteNode sn) throws Exception {
+			public void performAction(SiteNode sn) {
 				if (sn != null) {
 					getExtensionSpider().startScanAllInContext(getContext(), getUser());
 				}

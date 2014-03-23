@@ -19,15 +19,23 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
+import java.sql.SQLException;
+
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 
-public class PopupMenuAlert extends PopupMenuHistoryReference {
+public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(PopupMenuAlert.class);
+
     private ExtensionHistory extension = null;
 
     /**
@@ -38,12 +46,20 @@ public class PopupMenuAlert extends PopupMenuHistoryReference {
     }
 	
 	@Override
-	public void performAction(HistoryReference href) throws Exception {
-	    Invoker lastInvoker = getLastInvoker();
-	    if (lastInvoker == Invoker.ascan) {
-	        getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
-	    } else if (lastInvoker == Invoker.fuzz) {
-	        getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
+	public void performAction(HistoryReference href) {
+	    Invoker invoker = getInvoker();
+	    if (invoker == Invoker.ACTIVE_SCANNER_PANEL) {
+	        try {
+	            getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
+	        } catch (HttpMalformedHeaderException | SQLException e) {
+	            logger.error(e.getMessage(), e);
+	        }
+	    } else if (invoker == Invoker.FUZZER_PANEL) {
+	        try {
+	            getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
+    	    } catch (HttpMalformedHeaderException | SQLException e) {
+                logger.error(e.getMessage(), e);
+            }
 	    } else {
 	        getExtensionHistory().showAlertAddDialog(href);
 	    }
@@ -57,30 +73,30 @@ public class PopupMenuAlert extends PopupMenuHistoryReference {
     }
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		if (getExtensionHistory() == null) {
 			return false;
 		}
 		switch (invoker) {
-		case alerts:
+		case ALERTS_PANEL:
 			return false;
-		case sites:
-		case history:
-		case ascan:
-		case search:
-		case fuzz:
-		case bruteforce:
+		case SITES_PANEL:
+		case HISTORY_PANEL:
+		case ACTIVE_SCANNER_PANEL:
+		case SEARCH_PANEL:
+		case FUZZER_PANEL:
+		case FORCED_BROWSE_PANEL:
 		default:
 			return true;
 		}
 	}
 
 	@Override
-    public boolean isEnabledForHistoryReference (HistoryReference href) {
+    public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
         if (href != null) {
-            switch (getLastInvoker()) {
-            case ascan:
-            case fuzz:
+            switch (getInvoker()) {
+            case ACTIVE_SCANNER_PANEL:
+            case FUZZER_PANEL:
                 return true;
             default:
                 return (href.getHistoryType() != HistoryReference.TYPE_TEMPORARY);

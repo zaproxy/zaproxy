@@ -28,6 +28,7 @@ import javax.swing.JScrollPane;
 import org.apache.commons.configuration.FileConfiguration;
 import org.fife.ui.rtextarea.RTextScrollPane;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.AbstractStringHttpPanelViewModel;
@@ -38,8 +39,17 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
+import org.zaproxy.zap.view.messagecontainer.http.SingleHttpMessageContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSingleHttpMessageContainer;
 
 public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView, HttpPanelViewModelListener, SearchableHttpPanelView {
+
+	/**
+	 * Default name used for {@code MessageContainer}.
+	 * 
+	 * @see org.zaproxy.zap.view.messagecontainer.MessageContainer
+	 */
+	public static final String DEFAULT_MESSAGE_CONTAINER_NAME = "HttpMessagePanel";
 
 	public static final String NAME = "HttpPanelSyntaxHighlightTextView";
 	
@@ -52,9 +62,19 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 	private AbstractStringHttpPanelViewModel model;
 	
 	private String configurationKey;
+
+	/**
+	 * The name that will be used for {@code MessageContainer}.
+	 */
+	private final String messageContainerName;
 	
 	public HttpPanelSyntaxHighlightTextView(AbstractStringHttpPanelViewModel model) {
+		this(DEFAULT_MESSAGE_CONTAINER_NAME, model);
+	}
+	
+	public HttpPanelSyntaxHighlightTextView(String messageContainerName, AbstractStringHttpPanelViewModel model) {
 		this.model = model;
+		this.messageContainerName = messageContainerName;
 		this.configurationKey = "";
 		
 		init();
@@ -84,7 +104,15 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 						httpPanelTextArea.requestFocusInWindow();
 					}
 
-					View.getSingleton().getPopupMenu().show(httpPanelTextArea, e.getX(), e.getY());
+					if (httpPanelTextArea.getMessage() instanceof HttpMessage) {
+						SingleHttpMessageContainer messageContainer = new DefaultSingleHttpMessageContainer(
+								messageContainerName,
+								httpPanelTextArea,
+								(HttpMessage) httpPanelTextArea.getMessage());
+						View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
+					} else {
+						View.getSingleton().getPopupMenu().show(httpPanelTextArea, e.getX(), e.getY());
+					}
 				}
 			}
 		});

@@ -24,14 +24,21 @@ import java.awt.datatransfer.Clipboard;
 import java.awt.datatransfer.ClipboardOwner;
 import java.awt.datatransfer.StringSelection;
 import java.awt.datatransfer.Transferable;
+import java.sql.SQLException;
 import java.util.List;
 
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuCopyUrls extends PopupMenuHistoryReference implements ClipboardOwner {
+public class PopupMenuCopyUrls extends PopupMenuItemHistoryReferenceContainer implements ClipboardOwner {
 
 	private static final long serialVersionUID = 1L;
+
+	private static final Logger logger = Logger.getLogger(PopupMenuCopyUrls.class);
 
     /**
      * @param label
@@ -41,29 +48,33 @@ public class PopupMenuCopyUrls extends PopupMenuHistoryReference implements Clip
     }
     
 	@Override
-	public void performAction(HistoryReference href) throws Exception {
-        Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents( new StringSelection(href.getURI().toString()), this );
+	public void performAction(HistoryReference href) {
 	}
 	
 	@Override
-    public void performActions (List<HistoryReference> hrefs) throws Exception {
+    protected void performHistoryReferenceActions (List<HistoryReference> hrefs) {
+	    boolean error = false;
 		StringBuilder sb = new StringBuilder();
     	for (HistoryReference href : hrefs) {
-    		sb.append(href.getURI().toString());
-    		sb.append("\n");
+    	    try {
+    	        sb.append(href.getURI().toString());
+    	        sb.append("\n");
+    	    } catch (HttpMalformedHeaderException | SQLException e) {
+    	        if (!error) {
+    	            logger.error("Failed to copy at least one URI to clipboard: " + e.getMessage(), e);
+    	            error = true;
+    	        }
+    	    }
     	}
+    	
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
         clipboard.setContents( new StringSelection(sb.toString()), this );
-    	
+
+        if (error) {
+            View.getSingleton().showWarningDialog(Constant.messages.getString("stdexts.copyurls.popup.error.copying"));
+        }
     }
 
-	
-	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
-		return true;
-	}
-	
     @Override
     public boolean isSafe() {
     	return true;

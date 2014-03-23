@@ -26,9 +26,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
-public class PopupMenuNote extends PopupMenuHistoryReference {
+public class PopupMenuNote extends PopupMenuItemHistoryReferenceContainer {
 
     private static final long serialVersionUID = -5692544221103745600L;
 
@@ -43,12 +44,12 @@ public class PopupMenuNote extends PopupMenuHistoryReference {
     }
 
     @Override
-    public boolean isEnableForInvoker(Invoker invoker) {
-        return (invoker == Invoker.history);
+    public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
+        return (invoker == Invoker.HISTORY_PANEL);
     }
 
     @Override
-    public void performAction(HistoryReference href) throws Exception {
+    public void performAction(HistoryReference href) {
         try {
             extension.showNotesAddDialog(href, href.getHttpMessage().getNote());
 

@@ -25,6 +25,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -63,6 +64,8 @@ import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
 public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {
 	
@@ -209,7 +212,13 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 					    		messageList.getSelectionModel().setSelectionInterval( Idx, Idx );
 					    	}
 					    }
-				        View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                        final List<HistoryReference> historyReferences = messageList.getSelectedValuesList();
+                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                                messageList.getName(),
+                                messageList,
+                                Collections.<HistoryReference> emptyList(),
+                                historyReferences);
+				        View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
 				    }	
 				}
 			});

@@ -21,6 +21,7 @@ package org.zaproxy.zap.view;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.swing.JTable;
@@ -33,6 +34,8 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.HistoryReferenceTableModel.COLUMN;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
 public class HistoryReferenceTable extends JTable {
 
@@ -89,7 +92,19 @@ public class HistoryReferenceTable extends JTable {
 							getSelectionModel().setSelectionInterval(row, row);
 						}
 					}
-					View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+					final int countSelectedRows = getSelectedRowCount();
+					final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedRows);
+					if (countSelectedRows > 0) {
+						for (int selectedRow : getSelectedRows()) {
+							historyReferences.add(getHrefModel().getHistoryReference(convertRowIndexToModel(selectedRow)));
+						}
+					}
+					SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+							HistoryReferenceTable.this.getName(),
+							HistoryReferenceTable.this,
+							Collections.<HistoryReference>emptyList(),
+							historyReferences);
+					View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
 				}
 			}
 		});

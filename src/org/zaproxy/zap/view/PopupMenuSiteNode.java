@@ -22,7 +22,12 @@ package org.zaproxy.zap.view;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
+/**
+ * @deprecated (2.3.0) Superseded by {@link PopupMenuItemSiteNodeContainer}. It will be removed in a future release.
+ */
+@Deprecated
 public abstract class PopupMenuSiteNode extends PopupMenuHistoryReference {
 
 	public PopupMenuSiteNode(String label) {

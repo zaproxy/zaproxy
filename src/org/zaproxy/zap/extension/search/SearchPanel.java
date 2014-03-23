@@ -24,6 +24,11 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Rectangle;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Pattern;
 
 import javax.swing.DefaultListModel;
@@ -40,12 +45,15 @@ import javax.swing.JToolBar;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ZapToggleButton;
+import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
 
 public class SearchPanel extends AbstractPanel implements SearchListenner {
@@ -138,7 +146,30 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 				    	}
 				    }
 
-				    View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+                    final List<SearchResult> searchResultsSelected = resultsList.getSelectedValuesList();
+                    List<HistoryReference> historyReferences;
+                    if (searchResultsSelected.size() > 0) {
+                        SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
+                        ArrayList<HistoryReference> uniqueHistoryReferences = new ArrayList<>();
+                        for (SearchResult searchResult : searchResultsSelected) {
+                            final HistoryReference historyReference = searchResult.getMessage().getHistoryRef();
+                            if (historyReference != null
+                                    && !historyReferenceIdsAdded.contains(Integer.valueOf(historyReference.getHistoryId()))) {
+                                historyReferenceIdsAdded.add(Integer.valueOf(historyReference.getHistoryId()));
+                                uniqueHistoryReferences.add(historyReference);
+                            }
+                        }
+                        uniqueHistoryReferences.trimToSize();
+                        historyReferences = uniqueHistoryReferences;
+                    } else {
+                        historyReferences = Collections.emptyList();
+                    }
+                    SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                            resultsList.getName(),
+                            resultsList,
+                            Collections.<HistoryReference> emptyList(),
+                            historyReferences);
+				    View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
 				}
 			}
 		});

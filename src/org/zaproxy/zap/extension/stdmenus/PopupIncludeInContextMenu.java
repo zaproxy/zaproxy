@@ -33,6 +33,11 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ContextIncludePanel;
 import org.zaproxy.zap.view.PopupMenuSiteNode;
 
+/**
+ * @deprecated (2.3.0) Superseded by {@link org.zaproxy.zap.view.popup.PopupMenuItemIncludeInContext}. It will be removed in a
+ *             future release.
+ */
+@Deprecated
 public class PopupIncludeInContextMenu extends PopupMenuSiteNode {
 
 	private static final long serialVersionUID = 2282358266003940700L;

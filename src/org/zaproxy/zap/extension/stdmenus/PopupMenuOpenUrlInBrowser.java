@@ -23,9 +23,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
-import org.zaproxy.zap.view.PopupMenuHttpMessage;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
-public class PopupMenuOpenUrlInBrowser extends PopupMenuHttpMessage {
+public class PopupMenuOpenUrlInBrowser extends PopupMenuItemHttpMessageContainer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -37,14 +38,14 @@ public class PopupMenuOpenUrlInBrowser extends PopupMenuHttpMessage {
     }
     
 	@Override
-	public void performAction(HttpMessage msg) throws Exception {
+	public void performAction(HttpMessage msg) {
         if ( ! DesktopUtils.openUrlInBrowser(msg.getRequestHeader().getURI())) {
             View.getSingleton().showWarningDialog(Constant.messages.getString("history.browser.warning"));
         }
 	}
 	
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		return DesktopUtils.canOpenUrlInBrowser();
 	}
 	

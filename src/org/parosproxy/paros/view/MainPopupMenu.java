@@ -36,6 +36,8 @@
 // ZAP: 2013/11/16 Issue 900: IllegalArgumentException when invoking the main pop up menu with
 // menus or super menus with high menu index
 // ZAP: 2014/03/23 Changed to use PopupMenuUtils.isAtLeastOneChildComponentVisible(Component).
+// ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
+// access the data (HttpMessage and HistoryReference) displayed in the tabs
 
 package org.parosproxy.paros.view;
 
@@ -56,6 +58,8 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
+import org.zaproxy.zap.view.popup.PopupMenuUtils.PopupMenuInvokerWrapper;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 
 public class MainPopupMenu extends JPopupMenu {
 
@@ -101,9 +105,17 @@ public class MainPopupMenu extends JPopupMenu {
         //this.add(getPopupDeleteMenu());
         this.add(getPopupMenuPurgeSites());
 	}
+
+	public void show(final MessageContainer<?> invoker, final int x, final int y) {
+		showImpl(PopupMenuUtils.getPopupMenuInvokerWrapper(invoker), x, y);
+	}
 	
 	@Override
 	public synchronized void show(Component invoker, int x, int y) {
+		showImpl(PopupMenuUtils.getPopupMenuInvokerWrapper(invoker), x, y);
+	}
+
+	private synchronized void showImpl(PopupMenuInvokerWrapper invoker, final int x, final int y) {
 	    
 	    for (int i=0; i<getComponentCount(); i++) {
 	        final Component component = getComponent(i);
@@ -111,7 +123,7 @@ public class MainPopupMenu extends JPopupMenu {
 	            if (component != null && component instanceof ExtensionPopupMenuItem) {
 	                ExtensionPopupMenuItem menuItem = (ExtensionPopupMenuItem) component;
 	                // ZAP: prevents a NullPointerException when the treeSite doesn't have a node selected and a popup menu option (Delete/Purge) is selected
-	                menuItem.setVisible(menuItem.isEnableForComponent(invoker));
+	                menuItem.setVisible(invoker.isEnable(menuItem));
 	                
 	                if (Control.getSingleton().getMode().equals(Mode.safe) && ! menuItem.isSafe()) {
                 		// Safe mode, disable all nor safe menu items
@@ -135,16 +147,16 @@ public class MainPopupMenu extends JPopupMenu {
 		}
 
 		if (PopupMenuUtils.isAtLeastOneChildComponentVisible(this)) {
-			super.show(invoker, x, y);
+			super.show(invoker.getComponent(), x, y);
 		}
 	}
 	
-	private void handleMenuItem(Component invoker, ExtensionPopupMenuItem menuItem) {
+	private void handleMenuItem(PopupMenuInvokerWrapper popupMenuInvoker, ExtensionPopupMenuItem menuItem) {
 		try {
             if (menuItem == ExtensionHookMenu.POPUP_MENU_SEPARATOR) {
                 this.addSeparator();
             } else {
-	            if (menuItem.isEnableForComponent(invoker)) {
+	            if (popupMenuInvoker.isEnable(menuItem)) {
 	            	if (menuItem.isSubMenu()) {
 	            	    final JMenu superMenu = getSuperMenu(menuItem.getParentMenuName(), menuItem.getParentMenuIndex());
 	            		if (menuItem.precedeWithSeparator()) {
@@ -182,9 +194,9 @@ public class MainPopupMenu extends JPopupMenu {
         }
 	}
 	
-	private void handleMenu(Component invoker, ExtensionPopupMenu menu) {
+	private void handleMenu(PopupMenuInvokerWrapper popupMenuInvoker, ExtensionPopupMenu menu) {
 		try {
-            if (menu.isEnableForComponent(invoker)) {
+            if (popupMenuInvoker.isEnable(menu)) {
             	if (menu.isSubMenu()) {
             	    final JMenu superMenu = getSuperMenu(menu.getParentMenuName(), menu.getParentMenuIndex());
             		if (menu.precedeWithSeparator()) {

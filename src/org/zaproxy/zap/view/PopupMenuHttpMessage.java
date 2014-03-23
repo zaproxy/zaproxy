@@ -22,7 +22,12 @@ package org.zaproxy.zap.view;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.view.popup.PopupMenuItemHttpMessageContainer;
 
+/**
+ * @deprecated (2.3.0) Superseded by {@link PopupMenuItemHttpMessageContainer}. It will be removed in a future release.
+ */
+@Deprecated
 public abstract class PopupMenuHttpMessage extends PopupMenuHistoryReference {
 
 	private static final long serialVersionUID = 1L;

@@ -19,9 +19,10 @@ package org.zaproxy.zap.extension.stdmenus;
 
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.view.PopupMenuSiteNode;
+import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
-public class PopupMenuShowInSites extends PopupMenuSiteNode {
+public class PopupMenuShowInSites extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 1L;
 
@@ -33,23 +34,23 @@ public class PopupMenuShowInSites extends PopupMenuSiteNode {
     }
 
 	@Override
-	public boolean isEnableForInvoker(Invoker invoker) {
+	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		switch (invoker) {
-		case bruteforce:
-		case fuzz:
-		case sites:
+		case FORCED_BROWSE_PANEL:
+		case FUZZER_PANEL:
+		case SITES_PANEL:
 			return false;
-		case ascan:
-		case alerts:
-		case history:
-		case search:
+		case ACTIVE_SCANNER_PANEL:
+		case ALERTS_PANEL:
+		case HISTORY_PANEL:
+		case SEARCH_PANEL:
 		default:
 			return true;
 		}
 	}
 
 	@Override
-	public void performAction(SiteNode sn) throws Exception {
+	public void performAction(SiteNode sn) {
 		View.getSingleton().getSiteTreePanel().showInSites(sn);
 	}
 	
