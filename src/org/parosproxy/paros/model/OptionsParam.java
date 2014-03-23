@@ -34,6 +34,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert list here.
+// ZAP: 2014/03/23 Issue 1097: Move "Run applications" (invoke) extension to zap-extensions project
 
 package org.parosproxy.paros.model;
 
@@ -51,7 +52,6 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
-import org.zaproxy.zap.extension.invoke.InvokeParam;
 import org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam;
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
@@ -71,7 +71,6 @@ public class OptionsParam extends AbstractParam {
 	private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
 	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam, AntiCsrfParam, OptionsParamApi, GlobalExcludeURLParam
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
-	private InvokeParam invokeParam = new InvokeParam();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
 	private GlobalExcludeURLParam globalExcludeURLParam = new GlobalExcludeURLParam();
@@ -188,7 +187,6 @@ public class OptionsParam extends AbstractParam {
 		getCertificateParam().load(getConfig());
 		getViewParam().load(getConfig());
 		getCheckForUpdatesParam().load(getConfig());
-		getInvokeParam().load(getConfig());
 		getAntiCsrfParam().load(getConfig());
 		getApiParam().load(getConfig());
 		getGlobalExcludeURLParam().load(getConfig());
@@ -247,10 +245,6 @@ public class OptionsParam extends AbstractParam {
 			logger.error(e.getMessage(), e);
 		}
     }
-
-	public InvokeParam getInvokeParam() {
-		return invokeParam;
-	}
 
 	public AntiCsrfParam getAntiCsrfParam() {
 		return antiCsrfParam;
