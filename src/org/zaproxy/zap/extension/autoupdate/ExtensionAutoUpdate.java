@@ -486,7 +486,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			}
 		}
     	
-		if (! options.isCheckOnStart()) {
+		if (! options.checkOnStart()) {
 			// Top level option not set, dont do anything, unless already downloaded last release
 			if (View.isInitialised() && this.getPreviousVersionInfo() != null) {
 				ZapRelease rel = this.getPreviousVersionInfo().getZapRelease();

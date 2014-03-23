@@ -114,8 +114,28 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		}
 	}
 	
-	@ZapApiIgnore
+	/**
+	 * Tells whether or not the option "check for updates on start up" is enabled.
+	 * 
+	 * @return {@code true} if check for updates on start up is enabled, {@code false} otherwise.
+	 * @see #checkOnStart()
+	 */
 	public boolean isCheckOnStart() {
+		return checkOnStart;
+	}
+
+	/**
+	 * Tells whether or not a "check for updates on start up" needs to be performed.
+	 * <p>
+	 * A check for updates needs to be performed if the method {@code isCheckOnStart()} returns {@code true} and if no check was
+	 * already done during the same day.
+	 * </p>
+	 * 
+	 * @return {@code true} if a check for updates on start up needs to be performed, {@code false} otherwise.
+	 * @see #isCheckOnStart()
+	 */
+	@ZapApiIgnore
+	public boolean checkOnStart() {
 		if (!checkOnStart) {
 			log.debug("isCheckForStart - false");
 			return false;
