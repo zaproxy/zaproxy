@@ -828,10 +828,17 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	public void reset() {
-		// Stop all scans
-		for (BruteForce bruteForce : bruteForceMap.values()) {
-			bruteForce.stopScan();
-			bruteForce.clearList();
+		stopAllScans();
+
+		siteModel.removeAllElements();
+		siteSelect.addItem(noSelectionScanTarget);
+		siteSelect.setSelectedIndex(0);
+	}
+
+	private void stopAllScans() {
+		for (BruteForce scanner : bruteForceMap.values()) {
+			scanner.stopScan();
+			scanner.clearList();
 		}
 		// Allow 2 secs for the threads to stop - if we wait 'for ever' then we can get deadlocks
 		for (int i = 0; i < 20; i++) {
@@ -845,12 +852,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			}
 		}
 		bruteForceMap.clear();
+		activeScans.clear();
 		
-		siteModel.removeAllElements();
-		siteSelect.addItem(noSelectionScanTarget);
-		siteSelect.setSelectedIndex(0);
-		currentSite = null;
-		resetBruteForceList();
 		setActiveScanLabels();
 		resetScanState();
 	}
@@ -954,8 +957,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			break;
 		case safe:
 			// Stop all scans, disable everything
-			reset();
-			getSiteSelect().setSelectedIndex(0);
+			stopAllScans();
 			getSiteSelect().setEnabled(false);
 		}
 	}

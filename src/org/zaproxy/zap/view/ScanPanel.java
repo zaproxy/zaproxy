@@ -780,7 +780,14 @@ public abstract class ScanPanel extends AbstractPanel {
 
 	public void reset() {
 		log.debug("reset " + prefix);
-		// Stop all scans
+		stopAllScans();
+
+		siteModel.removeAllElements();
+		siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
+		siteSelect.setSelectedIndex(0);
+	}
+
+	private void stopAllScans() {
 		for (GenericScanner scanner : scanMap.values()) {
 			scanner.stopScan();
 			scanner.reset();
@@ -799,12 +806,11 @@ public abstract class ScanPanel extends AbstractPanel {
 		scanMap.clear();
 		activeScans.clear();
 		
-		siteModel.removeAllElements();
-		siteSelect.addItem(Constant.messages.getString(prefix + ".toolbar.site.select"));
-		siteSelect.setSelectedIndex(0);
-		currentSite = null;
-		
 		setActiveScanLabels();
+		resetScanState();
+	}
+
+	private void resetScanState() {
 		resetScanButtonsAndProgressBarStates(false);
 		getProgressBar().setValue(0);
 	}
@@ -847,9 +853,8 @@ public abstract class ScanPanel extends AbstractPanel {
 			break;
 		case safe:
 			// Stop all scans
-			reset();
+			stopAllScans();
 			// And disable everything
-			getSiteSelect().setSelectedIndex(0);
 			getSiteSelect().setEnabled(false);
 		}
 	}
