@@ -17,36 +17,81 @@
  */
 package org.zaproxy.zap.utils;
 
-import java.util.ArrayList;
+import java.awt.EventQueue;
+import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
 import java.util.TreeSet;
 
-import javax.swing.SwingUtilities;
+import javax.swing.event.TableModelListener;
 import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 
 /**
- * Asked Brian Cole (bassclar@world.oberlin.edu, http://bitguru.com) if I can
- * base my code for ZAP on his PagingTableModel that I found here:
- * http://www.coderanch.com/t/345383/GUI/java/JTable-Paging
+ * A paginated {@code TableModel}. The model will have at most {@value #MAX_PAGE_SIZE} rows loaded in memory at any given time.
+ * The advertised row count will be of all the entries (as if they were all loaded in memory).
  * <p>
- * This model has got only MAX_PAGE_SIZE rows paged in at a time,
- * but shows the scrollbar for all entries.
+ * If a {@code JTable}, using this model, is wrapped in a {@code JScrollPane} the vertical scroll bar will be shown as if all
+ * the entries were loaded.
+ * </p>
  * <p>
- * Removed simulation code, added type parameter and abstract methods.
+ * Rows (page segments) will be loaded in a separate thread, on demand.
+ * </p>
+ * <p>
+ * Implementation based on PagingTableModel located in {@literal http://www.coderanch.com/t/345383/GUI/java/JTable-Paging}, with
+ * permission from the author, Brian Cole (bassclar@world.oberlin.edu, http://bitguru.com).<br>
+ * Contains the following changes:
+ * <ul>
+ * <li>Removed simulation code;</li>
+ * <li>Added type parameter;</li>
+ * <li>Added abstract methods.</li>
+ * </ul>
+ * 
+ * @param <T> the type of elements in this table model
+ * @see #loadPage(int, int)
+ * @see javax.swing.table.TableModel
+ * @see javax.swing.JTable
+ * @see javax.swing.JScrollPane
  */
 public abstract class PagingTableModel<T> extends AbstractTableModel {
 	private static final long serialVersionUID = -6353414328926478100L;
 	
 	private static final Logger logger = Logger.getLogger(PagingTableModel.class);
 
-	private static final int MAX_PAGE_SIZE = 50;
+	/**
+	 * Default segment loader thread name.
+	 */
+	public static final String DEFAULT_SEGMENT_LOADER_THREAD_NAME = "ZAP-PagingTableModel-SegmentLoaderThread";
+
+	/**
+	 * Maximum page size.
+	 */
+	public static final int MAX_PAGE_SIZE = 50;
 
 	private int dataOffset = 0;
-	private List<T> data = new ArrayList<>();
+	private List<T> data = Collections.emptyList();
 	private SortedSet<Segment> pending = new TreeSet<>();
+
+	private final String segmentLoaderThreadName;
+
+	/**
+	 * Constructs a {@code PagingTableModel} with default default segment loader thread name (
+	 * {@value #DEFAULT_SEGMENT_LOADER_THREAD_NAME}).
+	 */
+	public PagingTableModel() {
+		this(DEFAULT_SEGMENT_LOADER_THREAD_NAME);
+	}
+
+	/**
+	 * Constructs a {@code PagingTableModel} with the given segment loader thread name.
+	 * 
+	 * @param segmentLoaderThreadName the name for segment loader thread
+	 * @throws IllegalArgumentException if {@code maxPageSize} is negative or zero.
+	 */
+	public PagingTableModel(String segmentLoaderThreadName) {
+		this.segmentLoaderThreadName = segmentLoaderThreadName;
+	}
 	
 	@Override
     public void fireTableDataChanged() {
@@ -56,7 +101,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
     }
 
 	/**
-	 * Return number of all items. Scrollbar will appear accordingly. 
+	 * Returns the number of all items.
 	 * 
 	 * @return number of items
 	 */
@@ -80,11 +125,15 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	protected abstract Object getPlaceholderValueAt(int columnIndex);
 
 	/**
-	 * Called by {@link PagingTableModel#load(int, int)}
+	 * Called when a new page is required.
+	 * <p>
+	 * The returned {@code List} should support fast (preferably constant time) random access.
+	 * </p>
 	 * 
-	 * @param offset
-	 * @param length
-	 * @return Excerpt of whole list
+	 * @param offset the start offset of the page
+	 * @param length the length of the page
+	 * @return an excerpt of whole list
+	 * @see List#get(int)
 	 */
 	protected abstract List<T> loadPage(int offset, int length);
 
@@ -104,7 +153,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 
 	/**
 	 * @param rowIndex
-	 * @return Null if object is not in current page
+	 * @return {@code null} if object is not in the current page
 	 */
 	protected T getRowObject(int rowIndex) {
 		int pageIndex = rowIndex - dataOffset;
@@ -158,38 +207,25 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	}
 
 	private void load(final int startOffset, final int length) {
-		final Segment seg = new Segment(startOffset, length);
+		Segment seg = new Segment(startOffset, length);
 		pending.add(seg);
 		
-		// load entries in another thread
-		Runnable loadEntries = new Runnable() {
-			@Override
-			public void run() {
-				final List<T> page;
-				
-				try {
-					page = loadPage(startOffset, length);
-				} catch (Exception e) {
-					logger.warn("error retrieving page at " + startOffset + ": aborting", e);
-					pending.remove(seg);
-					return;
-				}
-				
-				// loading finished, make available on the event dispatch thread
-				SwingUtilities.invokeLater(new Runnable() {
-					@Override
-					public void run() {
-						setData(startOffset, page);
-						pending.remove(seg);
-					}
-				});
-			}
-		};
-		new Thread(loadEntries).start();
+		SegmentLoaderThread segmentLoader = new SegmentLoaderThread(seg, segmentLoaderThreadName);
+		segmentLoader.start();
 	}
 
+	/**
+	 * Sets the given {@code page} as the currently loaded data and notifies the table model listeners of the rows updated.
+	 * <p>
+	 * <strong>Note:</strong> This method must be call on the EDT, failing to do so might result in GUI state inconsistencies.
+	 * </p>
+	 * 
+	 * @param offset the start offset of the given {@code page}
+	 * @param page the new data
+	 * @see EventQueue#invokeLater(Runnable)
+	 * @see TableModelListener
+	 */
 	private void setData(int offset, List<T> page) {
-		// This method must be called from the event dispatch thread.
 		int lastRow = offset + page.size() - 1;
 		dataOffset = offset;
 		data = page;
@@ -198,6 +234,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	
 	protected void clear() {
 		data.clear();
+		data = Collections.emptyList();
 		pending.clear();
 	}
 
@@ -205,16 +242,24 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	 * This class is used to keep track of which rows have been scheduled for
 	 * loading, so that rows don't get scheduled twice concurrently. The idea is
 	 * to store Segments in a sorted data structure for fast searching.
-	 * 
+	 * <p>
 	 * The compareTo() method sorts first by base position, then by length.
 	 */
 	static final class Segment implements Comparable<Segment> {
-		private int base;
-		private int length;
+		private final int base;
+		private final int length;
 
 		public Segment(int base, int length) {
 			this.base = base;
 			this.length = length;
+		}
+
+		public int getBase() {
+			return base;
+		}
+
+		public int getLength() {
+			return length;
 		}
 
 		public boolean contains(int pos) {
@@ -248,6 +293,39 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 				return d;
 			}
 			return length - other.length;
+		}
+	}
+
+	private class SegmentLoaderThread extends Thread {
+
+		private final Segment segment;
+
+		public SegmentLoaderThread(Segment segment, String name) {
+			super(name);
+
+			this.segment = segment;
+		}
+
+		@Override
+		public void run() {
+			final List<T> page;
+
+			try {
+				page = loadPage(segment.getBase(), segment.getLength());
+			} catch (Exception e) {
+				logger.warn("error retrieving page at " + segment.getBase() + ": aborting", e);
+				pending.remove(segment);
+				return;
+			}
+
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					setData(segment.getBase(), page);
+					pending.remove(segment);
+				}
+			});
 		}
 	}
 }
