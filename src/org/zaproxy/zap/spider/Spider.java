@@ -161,11 +161,7 @@ public class Spider {
 		this.addFetchFilter(defaultFetchFilter);
 		// Add the scan context, if any
 		defaultFetchFilter.setScanContext(this.scanContext);
-		// Add domains always in scope
-		String scope = spiderParam.getScope();
-		if (scope != null && !scope.trim().isEmpty()) {
-			defaultFetchFilter.addScopeRegex(scope);
-		}
+		defaultFetchFilter.setDomainsAlwaysInScope(spiderParam.getDomainsAlwaysInScopeEnabled());
 		// Add a default parse filter
 		this.addParseFilter(new DefaultParseFilter());
 	}

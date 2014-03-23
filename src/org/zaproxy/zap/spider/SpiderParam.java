@@ -17,9 +17,13 @@
  */
 package org.zaproxy.zap.spider;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConversionException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -35,9 +39,6 @@ public class SpiderParam extends AbstractParam {
 
 	/** The Constant SPIDER_THREAD. */
 	private static final String SPIDER_THREAD = "spider.thread";
-
-	/** The Constant SPIDER_SCOPE. */
-	private static final String SPIDER_SCOPE = "spider.scope";
 
 	/** The Constant SPIDER_POST_FORM. */
 	private static final String SPIDER_POST_FORM = "spider.postform";
@@ -68,6 +69,13 @@ public class SpiderParam extends AbstractParam {
 	
 	/** The Constant SPIDER_HANDLE_ODATA_PARAMETERS. */
 	private static final String SPIDER_HANDLE_ODATA_PARAMETERS = "spider.handleODataParameters";
+
+    private static final String DOMAIN_ALWAYS_IN_SCOPE_KEY = "spider.domainsAlwaysInScope";
+    private static final String ALL_DOMAINS_ALWAYS_IN_SCOPE_KEY = DOMAIN_ALWAYS_IN_SCOPE_KEY + ".domainAlwaysInScope";
+    private static final String DOMAIN_ALWAYS_IN_SCOPE_VALUE_KEY = "name";
+    private static final String DOMAIN_ALWAYS_IN_SCOPE_REGEX_KEY = "regex";
+    private static final String DOMAIN_ALWAYS_IN_SCOPE_ENABLED_KEY = "enabled";
+    private static final String CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE = "spider.confirmRemoveDomainAlwaysInScope";
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -119,20 +127,16 @@ public class SpiderParam extends AbstractParam {
 	private String skipURL = "";
 	/** The pattern for skip url. */
 	private Pattern patternSkipURL = null;
-	/** The regex for the scope. */
-	private String scopeRegex = null;
 	/** The user agent string, if different than the default one. */
 	private String userAgent = null;
 	/** The handle parameters visited. */
 	private HandleParametersOption handleParametersVisited = HandleParametersOption.USE_ALL;
 	/** Defines if we take care of OData specific parameters during the visit in order to identify known URL **/
 	private boolean handleODataParametersVisited = false;
-	
-	/**
-	 * The simple scope text used just for caching the get for the scope. the scopeRegex is the 'regexed'
-	 * version of this variable's value.
-	 */
-	private String simpleScopeText;
+
+    private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(0);
+    private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScopeEnabled = new ArrayList<>(0);
+    private boolean confirmRemoveDomainAlwaysInScope;
 
 	/** The log. */
 	private static final Logger log = Logger.getLogger(SpiderParam.class);
@@ -146,6 +150,8 @@ public class SpiderParam extends AbstractParam {
 
 	@Override
 	protected void parse() {
+		updateOptions();
+
 		// Use try/catch for every parameter so if the parsing of one fails, it's continued for the
 		// others.
 		try {
@@ -210,12 +216,6 @@ public class SpiderParam extends AbstractParam {
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
-		
-		try {
-			setScopeString(getConfig().getString(SPIDER_SCOPE, ""));
-		} catch (ConversionException e) {
-			log.error("Error while parsing config file: " + e.getMessage(), e);
-		}
 
 		try {
 			setSkipURLString(getConfig().getString(SPIDER_SKIP_URL, ""));
@@ -236,7 +236,56 @@ public class SpiderParam extends AbstractParam {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
 
+		loadDomainsAlwaysInScope();
+		try {
+		    this.confirmRemoveDomainAlwaysInScope = getConfig().getBoolean(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, true);
+		} catch (ConversionException e) {
+		    log.error("Error while loading the confirm \"domain always in scope\" remove option: " + e.getMessage(), e);
+		}
 	}
+
+    private void updateOptions() {
+        final String oldDomainsInScope = "spider.scope";
+        if (getConfig().containsKey(oldDomainsInScope)) {
+            migrateOldDomainsInScopeOption(getConfig().getString(oldDomainsInScope, ""));
+            getConfig().clearProperty(oldDomainsInScope);
+        }
+    }
+
+    private void migrateOldDomainsInScopeOption(String oldDomainsInScope) {
+        List<DomainAlwaysInScopeMatcher> domainsInScope = convertOldDomainsInScopeOption(oldDomainsInScope);
+
+        if (!domainsInScope.isEmpty()) {
+            setDomainsAlwaysInScope(domainsInScope);
+        }
+    }
+
+    private static List<DomainAlwaysInScopeMatcher> convertOldDomainsInScopeOption(String oldDomainsInScope) {
+        if (oldDomainsInScope == null || oldDomainsInScope.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<DomainAlwaysInScopeMatcher> domainsInScope = new ArrayList<>();
+        String[] names = oldDomainsInScope.split(";");
+        for (String name : names) {
+            String domain = name.trim();
+            if (!domain.isEmpty()) {
+                if (domain.contains("*")) {
+                    domain = domain.replace(".", "\\.").replace("+", "\\+").replace("*", ".*?");
+                    try {
+                        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+                        domainsInScope.add(new DomainAlwaysInScopeMatcher(pattern));
+                    } catch (IllegalArgumentException e) {
+                        log.error("Failed to migrate a domain always in scope, name: " + name, e);
+                    }
+                } else {
+                    domainsInScope.add(new DomainAlwaysInScopeMatcher(domain));
+                }
+            }
+        }
+        domainsInScope.trimToSize();
+        return domainsInScope;
+    }
 
 	/**
 	 * Gets the max depth.
@@ -262,51 +311,55 @@ public class SpiderParam extends AbstractParam {
 	 * Gets the text describing the text.
 	 * 
 	 * @return returns the scope.
+	 * @deprecated (2.3.0) Replaced by {@link #getDomainsAlwaysInScope()} and {@link #getDomainsAlwaysInScopeEnabled()}.
+	 *             <strong>Note:</strong> Newer regular expression excluded domains will not be returned by this method.
 	 */
+	@Deprecated
 	public String getScopeText() {
-		return simpleScopeText;
+		StringBuilder scopeTextStringBuilder = new StringBuilder("");
+		for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
+			if (!domainInScope.isRegex()) {
+				scopeTextStringBuilder.append(domainInScope.getValue()).append(';');
+			}
+		}
+		return scopeTextStringBuilder.toString();
 	}
 
 	/**
 	 * Gets the scope's regex.
 	 * 
 	 * @return returns the scope.
+	 * @deprecated (2.3.0) Replaced by {@link #getDomainsAlwaysInScope()} and {@link #getDomainsAlwaysInScopeEnabled()}.
 	 */
+	@Deprecated
 	public String getScope() {
-		return scopeRegex;
-	}
+        StringBuilder scopeTextStringBuilder = new StringBuilder();
+        for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
+            if (domainInScope.isRegex()) {
+                scopeTextStringBuilder.append("\\Q").append(domainInScope.getValue()).append("\\E");
+            } else {
+                scopeTextStringBuilder.append(domainInScope.getValue());
+            }
+            scopeTextStringBuilder.append('|');
+        }
+
+        if (scopeTextStringBuilder.length() != 0) {
+            scopeTextStringBuilder.append("(");
+            scopeTextStringBuilder.replace(scopeTextStringBuilder.length() - 1, scopeTextStringBuilder.length() - 1, ")$");
+        }
+
+        return scopeTextStringBuilder.toString();
+    }
 
 	/**
 	 * Sets the scope string.
 	 * 
 	 * @param scope The scope string to set.
+	 * @deprecated (2.3.0) Replaced by {@link #setDomainsAlwaysInScope(List)}
 	 */
+	@Deprecated
 	public void setScopeString(String scope) {
-		simpleScopeText = scope;
-		getConfig().setProperty(SPIDER_SCOPE, scope);
-		parseScope(scope);
-	}
-
-	/**
-	 * Parse the scope string and build the regex pattern.
-	 * 
-	 * @param scope the scope string
-	 */
-	private void parseScope(String scope) {
-
-		if (scope == null) {
-			return;
-		}
-		// Remove any non used regex special characters
-		scopeRegex = scope.replaceAll("(\\\\+)|(\\[+)|(\\^+)|(\\|+)|(\\?+)|(\\(+)|(\\)+)|(\\$+)", "");
-		// Escape any URL-valid regex special characters
-		scopeRegex = scopeRegex.replaceAll("\\.", "\\\\.");
-		scopeRegex = scopeRegex.replaceAll("\\+", "\\\\+");
-		// Translate '*' to 'any character' and remove any starting or trailing ';'
-		scopeRegex = scopeRegex.replaceAll("\\*", ".*?").replaceAll("(;+$)|(^;+)", "");
-		// Add the required '|' characters instead of ; and prepare final regex
-		scopeRegex = "(" + scopeRegex.replaceAll(";+", "|") + ")$";
-
+		setDomainsAlwaysInScope(convertOldDomainsInScopeOption(scope));
 	}
 
 	/**
@@ -587,4 +640,128 @@ public class SpiderParam extends AbstractParam {
 	}
 	
 	
+    /**
+     * Returns the domains that will be always in scope.
+     * 
+     * @return the domains that will be always in scope.
+     * @since 2.3.0
+     * @see #getDomainsAlwaysInScopeEnabled()
+     * @see #setDomainsAlwaysInScope(List)
+     */
+    public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScope() {
+        return domainsAlwaysInScope;
+    }
+
+    /**
+     * Returns the, enabled, domains that will be always in scope.
+     * 
+     * @return the enabled domains that will be always in scope.
+     * @since 2.3.0
+     * @see #getDomainsAlwaysInScope()
+     * @see #setDomainsAlwaysInScope(List)
+     */
+    public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScopeEnabled() {
+        return domainsAlwaysInScopeEnabled;
+    }
+
+    /**
+     * Sets the domains that will be always in scope.
+     * 
+     * @param domainsAlwaysInScope the domains that will be excluded.
+     * @since 2.3.0
+     */
+    public void setDomainsAlwaysInScope(List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope) {
+        if (domainsAlwaysInScope == null || domainsAlwaysInScope.isEmpty()) {
+            ((HierarchicalConfiguration) getConfig()).clearTree(ALL_DOMAINS_ALWAYS_IN_SCOPE_KEY);
+
+            this.domainsAlwaysInScope = Collections.emptyList();
+            this.domainsAlwaysInScopeEnabled = Collections.emptyList();
+            return;
+        }
+
+        this.domainsAlwaysInScope = new ArrayList<>(domainsAlwaysInScope);
+
+        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_DOMAINS_ALWAYS_IN_SCOPE_KEY);
+
+        int size = domainsAlwaysInScope.size();
+        ArrayList<DomainAlwaysInScopeMatcher> enabledExcludedDomains = new ArrayList<>(size);
+        for (int i = 0; i < size; ++i) {
+            String elementBaseKey = ALL_DOMAINS_ALWAYS_IN_SCOPE_KEY + "(" + i + ").";
+            DomainAlwaysInScopeMatcher excludedDomain = domainsAlwaysInScope.get(i);
+
+            getConfig().setProperty(elementBaseKey + DOMAIN_ALWAYS_IN_SCOPE_VALUE_KEY, excludedDomain.getValue());
+            getConfig().setProperty(
+                    elementBaseKey + DOMAIN_ALWAYS_IN_SCOPE_REGEX_KEY,
+                    Boolean.valueOf(excludedDomain.isRegex()));
+            getConfig().setProperty(
+                    elementBaseKey + DOMAIN_ALWAYS_IN_SCOPE_ENABLED_KEY,
+                    Boolean.valueOf(excludedDomain.isEnabled()));
+
+            if (excludedDomain.isEnabled()) {
+                enabledExcludedDomains.add(excludedDomain);
+            }
+        }
+
+        enabledExcludedDomains.trimToSize();
+        this.domainsAlwaysInScopeEnabled = enabledExcludedDomains;
+    }
+
+    private void loadDomainsAlwaysInScope() {
+        List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_DOMAINS_ALWAYS_IN_SCOPE_KEY);
+        this.domainsAlwaysInScope = new ArrayList<>(fields.size());
+        ArrayList<DomainAlwaysInScopeMatcher> domainsInScopeEnabled = new ArrayList<>(fields.size());
+        for (HierarchicalConfiguration sub : fields) {
+            String value = sub.getString(DOMAIN_ALWAYS_IN_SCOPE_VALUE_KEY, "");
+            if ("".equals(value)) {
+                log.warn("Failed to read an spider domain in scope entry, required value is empty.");
+            }
+
+            DomainAlwaysInScopeMatcher excludedDomain = null;
+            boolean regex = sub.getBoolean(DOMAIN_ALWAYS_IN_SCOPE_REGEX_KEY, false);
+            if (regex) {
+                try {
+                    Pattern pattern = DomainAlwaysInScopeMatcher.createPattern(value);
+                    excludedDomain = new DomainAlwaysInScopeMatcher(pattern);
+                } catch (IllegalArgumentException e) {
+                    log.error("Failed to read an spider domain in scope entry with regex: " + value, e);
+                }
+            } else {
+                excludedDomain = new DomainAlwaysInScopeMatcher(value);
+            }
+
+            if (excludedDomain != null) {
+                excludedDomain.setEnabled(sub.getBoolean(DOMAIN_ALWAYS_IN_SCOPE_ENABLED_KEY, true));
+
+                domainsAlwaysInScope.add(excludedDomain);
+
+                if (excludedDomain.isEnabled()) {
+                    domainsInScopeEnabled.add(excludedDomain);
+                }
+            }
+        }
+
+        domainsInScopeEnabled.trimToSize();
+        this.domainsAlwaysInScopeEnabled = domainsInScopeEnabled;
+    }
+
+    /**
+     * Tells whether or not the remotion of a "domain always in scope" needs confirmation.
+     * 
+     * @return {@code true} if the remotion needs confirmation, {@code false} otherwise.
+     * @since 2.3.0
+     */
+    public boolean isConfirmRemoveDomainAlwaysInScope() {
+        return this.confirmRemoveDomainAlwaysInScope;
+    }
+
+    /**
+     * Sets whether or not the remotion of a "domain always in scope" needs confirmation.
+     * 
+     * @param confirmRemove {@code true} if the remotion needs confirmation, {@code false} otherwise.
+     * @since 2.3.0
+     */
+    public void setConfirmRemoveDomainAlwaysInScope(boolean confirmRemove) {
+        this.confirmRemoveDomainAlwaysInScope = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, Boolean.valueOf(confirmRemoveDomainAlwaysInScope));
+    }
 }

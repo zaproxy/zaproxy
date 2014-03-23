@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.spider.filters;
 
+import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 
 /**
  * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering process. Its
@@ -39,6 +41,8 @@ public class DefaultFetchFilter extends FetchFilter {
 
 	/** The scope. */
 	private Set<String> scopes = new LinkedHashSet<>();
+
+	private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = Collections.emptyList();
 
 	/** The exclude list. */
 	private List<String> excludeList = null;
@@ -71,6 +75,13 @@ public class DefaultFetchFilter extends FetchFilter {
 					break;
 				}
 			}
+			for (DomainAlwaysInScopeMatcher domainInScope : domainsAlwaysInScope) {
+				if (domainInScope.matches(host)) {
+					ok = true;
+					break;
+				}
+			}
+			
 			if (!ok) {
 				return FetchStatus.OUT_OF_SCOPE;
 			}
@@ -100,6 +111,20 @@ public class DefaultFetchFilter extends FetchFilter {
 	 */
 	public void addScopeRegex(String scope) {
 		this.scopes.add(scope);
+	}
+
+	/**
+	 * Sets the domains that will be considered as always in scope.
+	 * 
+	 * @param domainsAlwaysInScope the list containing all domains that are always in scope.
+	 * @since 2.3.0
+	 */
+	public void setDomainsAlwaysInScope(List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope) {
+		if (domainsAlwaysInScope == null || domainsAlwaysInScope.isEmpty()) {
+			this.domainsAlwaysInScope = Collections.emptyList();
+		} else {
+			this.domainsAlwaysInScope = domainsAlwaysInScope;
+		}
 	}
 
 	/**

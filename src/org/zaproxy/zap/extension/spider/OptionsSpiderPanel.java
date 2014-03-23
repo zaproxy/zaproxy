@@ -23,19 +23,23 @@
 
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
+import javax.swing.SortOrder;
 import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ChangeEvent;
@@ -46,9 +50,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
-import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.PositiveValuesSlider;
 
 /**
@@ -66,8 +72,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	// The controls for the options:
 	private JSlider sliderMaxDepth = null;
 	private JSlider sliderThreads = null;
-	private ZapTextArea txtDomainScope = null;
-	private JScrollPane scrollPaneDomainScope = null;
 	private JCheckBox chkPostForm = null;
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox parseComments = null;
@@ -75,6 +79,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox parseSVNEntries = null;
 	private JCheckBox parseGit = null;
 	private JCheckBox handleODataSpecificParameters = null;
+	private DomainsAlwaysInScopeMultipleOptionsPanel domainsAlwaysInScopePanel;
+	private DomainsAlwaysInScopeTableModel domainsAlwaysInScopeTableModel;
 
 	private JComboBox<HandleParametersOption> handleParameters = null;
 
@@ -107,8 +113,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		if (panelSpider == null) {
 
 			// Initialize the panel
-			panelSpider = new JPanel();
-			panelSpider.setLayout(new GridBagLayout());
+			panelSpider = new JPanel(new BorderLayout());
 			if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 				panelSpider.setSize(114, 150);
 			}
@@ -119,8 +124,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints maxDepthLabelGridBag = new GridBagConstraints();
 			GridBagConstraints noThreadsSliderGridBag = new GridBagConstraints();
 			GridBagConstraints noThreadsLabelGridBag = new GridBagConstraints();
-			GridBagConstraints domainsScrollPaneGridBag = new GridBagConstraints();
 			GridBagConstraints domainsLabelGridBag = new GridBagConstraints();
+            GridBagConstraints domainsPanelGridBag = new GridBagConstraints();
 			GridBagConstraints processFormGridBag = new GridBagConstraints();
 			GridBagConstraints postFormGridBag = new GridBagConstraints();
 			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
@@ -168,13 +173,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			domainsLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
 			domainsLabelGridBag.insets = new Insets(2, 2, 2, 2);
 
-			domainsScrollPaneGridBag.gridx = 0;
-			domainsScrollPaneGridBag.gridy = 5;
-			domainsScrollPaneGridBag.weightx = 1.0;
-			domainsScrollPaneGridBag.weighty = 0.3;
-			domainsScrollPaneGridBag.fill = GridBagConstraints.BOTH;
-			domainsScrollPaneGridBag.anchor = GridBagConstraints.NORTHWEST;
-			domainsScrollPaneGridBag.insets = new Insets(2, 2, 2, 2);
+			domainsPanelGridBag.gridx = 0;
+			domainsPanelGridBag.gridy = 5;
+			domainsPanelGridBag.weightx = 1.0;
+			domainsPanelGridBag.weighty = 1.0;
+			domainsPanelGridBag.fill = GridBagConstraints.BOTH;
+			domainsPanelGridBag.anchor = GridBagConstraints.NORTHWEST;
+			domainsPanelGridBag.insets = new Insets(2, 2, 2, 2);
 
 			handleParametersLabelGridBag.gridx = 0;
 			handleParametersLabelGridBag.gridy = 6;
@@ -261,23 +266,29 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			domainsLabel.setText(Constant.messages.getString("spider.options.label.domains"));
 			handleParametersLabel.setText(Constant.messages.getString("spider.options.label.handleparameters"));
 
-			// Add the components on the panel
-			panelSpider.add(maxDepthLabel, maxDepthLabelGridBag);
-			panelSpider.add(getSliderMaxDepth(), maxDepthSliderGridBag);
-			panelSpider.add(noThreadsLabel, noThreadsLabelGridBag);
-			panelSpider.add(getSliderThreads(), noThreadsSliderGridBag);
-			panelSpider.add(domainsLabel, domainsLabelGridBag);
-			panelSpider.add(getDomainsScrollPane(), domainsScrollPaneGridBag);
-			panelSpider.add(getChkProcessForm(), processFormGridBag);
-			panelSpider.add(getChkPostForm(), postFormGridBag);
-			panelSpider.add(getChkParseComments(), parseCommentsGridBag);
-			panelSpider.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
-			panelSpider.add(getChkParseSVNEntries(), parseSVNEntriesGridBag);
-			panelSpider.add(getChkParseGit(), parseGitGridBag);
-			panelSpider.add(handleParametersLabel, handleParametersLabelGridBag);
-			panelSpider.add(getComboHandleParameters(), handleParametersGridBag);
-			panelSpider.add(getHandleODataSpecificParameters(), handleODataSpecificParametersGridBag);
+			JPanel innerPanel = new JPanel(new GridBagLayout());
 
+			// Add the components on the panel
+			innerPanel.add(maxDepthLabel, maxDepthLabelGridBag);
+			innerPanel.add(getSliderMaxDepth(), maxDepthSliderGridBag);
+			innerPanel.add(noThreadsLabel, noThreadsLabelGridBag);
+			innerPanel.add(getSliderThreads(), noThreadsSliderGridBag);
+			innerPanel.add(domainsLabel, domainsLabelGridBag);
+			innerPanel.add(getDomainsAlwaysInScopePanel(), domainsPanelGridBag);
+			innerPanel.add(getChkProcessForm(), processFormGridBag);
+			innerPanel.add(getChkPostForm(), postFormGridBag);
+			innerPanel.add(getChkParseComments(), parseCommentsGridBag);
+			innerPanel.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
+			innerPanel.add(getChkParseSVNEntries(), parseSVNEntriesGridBag);
+			innerPanel.add(getChkParseGit(), parseGitGridBag);
+			innerPanel.add(handleParametersLabel, handleParametersLabelGridBag);
+			innerPanel.add(getComboHandleParameters(), handleParametersGridBag);
+			innerPanel.add(getHandleODataSpecificParameters(), handleODataSpecificParametersGridBag);
+
+			JScrollPane scrollPane = new JScrollPane(innerPanel);
+			scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+			panelSpider.add(scrollPane, BorderLayout.CENTER);
 		}
 		return panelSpider;
 	}
@@ -289,8 +300,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 		getSliderMaxDepth().setValue(param.getMaxDepth());
 		getSliderThreads().setValue(param.getThreadCount());
-		getDomainScopeTextArea().setText(param.getScopeText());
-		getDomainScopeTextArea().discardAllEdits();
+		getDomainsAlwaysInScopeTableModel().setDomainsAlwaysInScope(param.getDomainsAlwaysInScope());
+		getDomainsAlwaysInScopePanel().setRemoveWithoutConfirmation(param.isConfirmRemoveDomainAlwaysInScope());
 		getChkProcessForm().setSelected(param.isProcessForm());
 		getChkPostForm().setSelected(param.isPostForm());
 		getChkParseComments().setSelected(param.isParseComments());
@@ -313,7 +324,8 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
 		param.setMaxDepth(getSliderMaxDepth().getValue());
 		param.setThreadCount(getSliderThreads().getValue());
-		param.setScopeString(getDomainScopeTextArea().getText());
+		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());
+		param.setConfirmRemoveDomainAlwaysInScope(getDomainsAlwaysInScopePanel().isRemoveWithoutConfirmation());
 		param.setProcessForm(getChkProcessForm().isSelected());
 		param.setPostForm(getChkPostForm().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
@@ -355,35 +367,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			sliderThreads = new PositiveValuesSlider(Constant.MAX_THREADS_PER_SCAN);
 		}
 		return sliderThreads;
-	}
-
-	/**
-	 * This method initializes the text area for the domain scope.
-	 * 
-	 * @return org.zaproxy.zap.utils.ZapTextArea
-	 */
-	private ZapTextArea getDomainScopeTextArea() {
-		if (txtDomainScope == null) {
-			txtDomainScope = new ZapTextArea();
-			txtDomainScope.setLineWrap(true);
-			txtDomainScope.setRows(3);
-			txtDomainScope.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-		}
-		return txtDomainScope;
-	}
-
-	/**
-	 * This method initializes the ScrollPane for the domain scope.
-	 * 
-	 * @return javax.swing.JScrollPane
-	 */
-	private JScrollPane getDomainsScrollPane() {
-		if (scrollPaneDomainScope == null) {
-			scrollPaneDomainScope = new JScrollPane();
-			scrollPaneDomainScope.setPreferredSize(new java.awt.Dimension(294, 30));
-			scrollPaneDomainScope.setViewportView(getDomainScopeTextArea());
-		}
-		return scrollPaneDomainScope;
 	}
 
 	/**
@@ -511,6 +494,20 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		return handleParameters;
 	}
 
+	private DomainsAlwaysInScopeMultipleOptionsPanel getDomainsAlwaysInScopePanel() {
+		if (domainsAlwaysInScopePanel == null) {
+			domainsAlwaysInScopePanel = new DomainsAlwaysInScopeMultipleOptionsPanel(getDomainsAlwaysInScopeTableModel());
+		}
+		return domainsAlwaysInScopePanel;
+	}
+
+	private DomainsAlwaysInScopeTableModel getDomainsAlwaysInScopeTableModel() {
+		if (domainsAlwaysInScopeTableModel == null) {
+			domainsAlwaysInScopeTableModel = new DomainsAlwaysInScopeTableModel();
+		}
+		return domainsAlwaysInScopeTableModel;
+	}
+
 	/**
 	 * A renderer for properly displaying the name of the HandleParametersOptions in a ComboBox.
 	 */
@@ -540,6 +537,86 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.options.spider";
+	}
+
+	private static class DomainsAlwaysInScopeMultipleOptionsPanel extends
+			AbstractMultipleOptionsTablePanel<DomainAlwaysInScopeMatcher> {
+
+		private static final long serialVersionUID = 2332044353650231701L;
+
+		private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("spider.options.domains.in.scope.dialog.remove.title");
+		private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("spider.options.domains.in.scope.dialog.remove.text");
+
+		private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("spider.options.domains.in.scope.dialog.remove.button.confirm");
+		private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("spider.options.domains.in.scope.dialog.remove.button.cancel");
+
+		private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("spider.options.domains.in.scope.dialog.remove.checkbox.label");
+
+		private DialogAddDomainAlwaysInScope addDialog = null;
+		private DialogModifyDomainAlwaysInScope modifyDialog = null;
+
+		public DomainsAlwaysInScopeMultipleOptionsPanel(DomainsAlwaysInScopeTableModel model) {
+			super(model);
+
+			getTable().setVisibleRowCount(5);
+			getTable().setSortOrder(2, SortOrder.ASCENDING);
+		}
+
+		@Override
+		public DomainAlwaysInScopeMatcher showAddDialogue() {
+			if (addDialog == null) {
+				addDialog = new DialogAddDomainAlwaysInScope(View.getSingleton().getOptionsDialog(null));
+				addDialog.pack();
+			}
+			addDialog.setVisible(true);
+
+			DomainAlwaysInScopeMatcher hostAuthentication = addDialog.getDomainAlwaysInScope();
+			addDialog.clear();
+
+			return hostAuthentication;
+		}
+
+		@Override
+		public DomainAlwaysInScopeMatcher showModifyDialogue(DomainAlwaysInScopeMatcher e) {
+			if (modifyDialog == null) {
+				modifyDialog = new DialogModifyDomainAlwaysInScope(View.getSingleton().getOptionsDialog(null));
+				modifyDialog.pack();
+			}
+			modifyDialog.setDomainAlwaysInScope(e);
+			modifyDialog.setVisible(true);
+
+			DomainAlwaysInScopeMatcher excludedDomain = modifyDialog.getDomainAlwaysInScope();
+			modifyDialog.clear();
+
+			if (!excludedDomain.equals(e)) {
+				return excludedDomain;
+			}
+
+			return null;
+		}
+
+		@Override
+		public boolean showRemoveDialogue(DomainAlwaysInScopeMatcher e) {
+			JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+			Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
+			int option = JOptionPane.showOptionDialog(
+					View.getSingleton().getMainFrame(),
+					messages,
+					REMOVE_DIALOG_TITLE,
+					JOptionPane.OK_CANCEL_OPTION,
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL },
+					null);
+
+			if (option == JOptionPane.OK_OPTION) {
+				setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+
+				return true;
+			}
+
+			return false;
+		}
 	}
 
 }

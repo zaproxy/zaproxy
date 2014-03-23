@@ -43,6 +43,8 @@
 // ZAP: 2013/12/11 Corrected log.info calls to use debug
 // ZAP: 2014/03/04 Issue 1043: Custom active scan dialog
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
+// ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
+// and enhance the usability of some options
 
 package org.parosproxy.paros.network;
 
@@ -173,7 +175,7 @@ public class HttpSender {
 
 	private HttpClient createHttpClientViaProxy() {
 
-		if (param.getProxyChainName().equals("")) {
+		if (!param.isUseProxyChain()) {
 			return createHttpClient();
 		}
 
@@ -182,7 +184,7 @@ public class HttpSender {
 		HttpClient clientProxy = new HttpClient(httpConnManagerProxy);
 		clientProxy.getHostConfiguration().setProxy(param.getProxyChainName(), param.getProxyChainPort());
 
-		if (!param.getProxyChainUserName().equals("")) {
+		if (param.isUseProxyChainAuth()) {
 			// NTCredentials credentials = new NTCredentials(
 			// param.getProxyChainUserName(), param.getProxyChainPassword(),
 			// param.getProxyChainName(), param.getProxyChainName());

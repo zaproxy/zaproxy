@@ -207,17 +207,10 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    ConnectionParam connectionParam = optionsParam.getConnectionParam();
 	    
 	    // set Proxy Chain parameters
-	    if (connectionParam.getProxyChainName().equals("")) {
-	    } else {
-		    
-		    if (connectionParam.getProxyChainUserName().equals("")) {
-		    } else {
-		        txtProxyChainRealm.setText(connectionParam.getProxyChainRealm());
-		        txtProxyChainRealm.discardAllEdits();
-		        txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
-		        txtProxyChainUserName.discardAllEdits();
-		    }
-	    }
+		txtProxyChainRealm.setText(connectionParam.getProxyChainRealm());
+		txtProxyChainRealm.discardAllEdits();
+		txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
+		txtProxyChainUserName.discardAllEdits();
 	}
 
 	@Override

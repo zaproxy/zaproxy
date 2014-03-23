@@ -29,10 +29,13 @@
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
 // ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
+// ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
+// and enhance the usability of some options
 
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -49,12 +52,21 @@ public class ConnectionParam extends AbstractParam {
 
 	private static final String CONNECTION_BASE_KEY = "connection";
 
+    private static final String USE_PROXY_CHAIN_KEY = CONNECTION_BASE_KEY + ".proxyChain.enabled";
 	private static final String PROXY_CHAIN_NAME = CONNECTION_BASE_KEY + ".proxyChain.hostName";
 	private static final String PROXY_CHAIN_PORT = CONNECTION_BASE_KEY + ".proxyChain.port";
-	private static final String PROXY_CHAIN_SKIP_NAME = CONNECTION_BASE_KEY + ".proxyChain.skipName";
+    private static final String USE_PROXY_CHAIN_AUTH_KEY = CONNECTION_BASE_KEY + ".proxyChain.authEnabled";
 	private static final String PROXY_CHAIN_REALM = CONNECTION_BASE_KEY + ".proxyChain.realm";
 	private static final String PROXY_CHAIN_USER_NAME = CONNECTION_BASE_KEY + ".proxyChain.userName";
 	private static final String PROXY_CHAIN_PASSWORD = CONNECTION_BASE_KEY + ".proxyChain.password";
+
+    private static final String PROXY_EXCLUDED_DOMAIN_KEY = CONNECTION_BASE_KEY + ".proxyChain.exclusions";
+    private static final String ALL_PROXY_EXCLUDED_DOMAINS_KEY = PROXY_EXCLUDED_DOMAIN_KEY + ".exclusion";
+    private static final String PROXY_EXCLUDED_DOMAIN_VALUE_KEY = "name";
+    private static final String PROXY_EXCLUDED_DOMAIN_REGEX_KEY = "regex";
+    private static final String PROXY_EXCLUDED_DOMAIN_ENABLED_KEY = "enabled";
+    private static final String CONFIRM_REMOVE_EXCLUDED_DOMAIN = CONNECTION_BASE_KEY
+            + ".proxyChain.confirmRemoveExcludedDomain";
 
     private static final String AUTH_KEY = CONNECTION_BASE_KEY + ".auths";
     private static final String ALL_AUTHS_KEY = AUTH_KEY + ".auth";
@@ -73,9 +85,11 @@ public class ConnectionParam extends AbstractParam {
     
     private static final String CONFIRM_REMOVE_AUTH_KEY = CONNECTION_BASE_KEY + ".confirmRemoveAuth";
 
+    private boolean useProxyChain;
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
-	private String proxyChainSkipName = "";
+	private boolean confirmRemoveProxyExcludeDomain = true;
+	private boolean useProxyChainAuth;
 	private String proxyChainRealm = "";
 	private String proxyChainUserName = "";
 	private String proxyChainPassword = "";
@@ -83,13 +97,13 @@ public class ConnectionParam extends AbstractParam {
 	private boolean httpStateEnabled = false;
 	private List<HostAuthentication> listAuth = new ArrayList<>(0);
     private List<HostAuthentication> listAuthEnabled = new ArrayList<>(0);
+    private List<ProxyExcludedDomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
+    private List<ProxyExcludedDomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
 	private int timeoutInSecs = 120;
 
-	private Pattern	patternSkip = null;
-	
 	private boolean singleCookieRequestHeader = true;
 	
 	private boolean confirmRemoveAuth = true;
@@ -117,7 +131,10 @@ public class ConnectionParam extends AbstractParam {
 	
 	@Override
 	protected void parse() {
-		removeOldOptions();
+		updateOptions();
+
+		useProxyChain = getConfig().getBoolean(USE_PROXY_CHAIN_KEY, false);
+		useProxyChainAuth = getConfig().getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
 
 		setProxyChainName(getConfig().getString(PROXY_CHAIN_NAME, ""));
 		try {
@@ -126,8 +143,15 @@ public class ConnectionParam extends AbstractParam {
         	// ZAP: Log exceptions
         	log.error(e.getMessage(), e);
 		}
+
+		loadProxyExcludedDomains();
 		try {
-			setProxyChainSkipName(getConfig().getString(PROXY_CHAIN_SKIP_NAME, ""));
+		    this.confirmRemoveProxyExcludeDomain = getConfig().getBoolean(CONFIRM_REMOVE_EXCLUDED_DOMAIN, true);
+		} catch (ConversionException e) {
+		    log.error("Error while loading the confirm excluded domain remove option: " + e.getMessage(), e);
+		}
+
+		try {
 			setProxyChainRealm(getConfig().getString(PROXY_CHAIN_REALM, ""));
 			setProxyChainUserName(getConfig().getString(PROXY_CHAIN_USER_NAME, ""));
 		} catch (Exception e) {
@@ -173,19 +197,124 @@ public class ConnectionParam extends AbstractParam {
         }
 	}
 	
-	private void removeOldOptions() {
+	private void updateOptions() {
 		final String oldKey = CONNECTION_BASE_KEY + "sslConnectPorts";
 		if (getConfig().containsKey(oldKey)) {
 			getConfig().clearProperty(oldKey);
 		}
+
+		final String oldSkipNameKey = CONNECTION_BASE_KEY + ".proxyChain.skipName";
+		if (getConfig().containsKey(oldSkipNameKey)) {
+			migrateOldSkipNameOption(getConfig().getString(oldSkipNameKey, ""));
+			getConfig().clearProperty(oldSkipNameKey);
+		}
+
+		String proxyName = getConfig().getString(PROXY_CHAIN_NAME, "");
+		if (!proxyName.isEmpty()) {
+			setUseProxyChain(true);
+		}
+
+		String proxyUserName = getConfig().getString(PROXY_CHAIN_USER_NAME, "");
+		if (!proxyUserName.isEmpty()) {
+			setUseProxyChainAuth(true);
+		}
 	}
 	
+    private void migrateOldSkipNameOption(String skipNames) {
+        List<ProxyExcludedDomainMatcher> excludedDomains = convertOldSkipNameOption(skipNames);
+
+        if (!excludedDomains.isEmpty()) {
+            setProxyExcludedDomains(excludedDomains);
+        }
+    }
+
+    private static List<ProxyExcludedDomainMatcher> convertOldSkipNameOption(String skipNames) {
+        if (skipNames == null || skipNames.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        ArrayList<ProxyExcludedDomainMatcher> excludedDomains = new ArrayList<>();
+        String[] names = skipNames.split(";");
+        for (String name : names) {
+            String excludedDomain = name.trim();
+            if (!excludedDomain.isEmpty()) {
+                if (excludedDomain.contains("*")) {
+                    excludedDomain = excludedDomain.replace(".", "\\.").replace("*", ".*?");
+                    try {
+                        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+                        excludedDomains.add(new ProxyExcludedDomainMatcher(pattern));
+                    } catch (IllegalArgumentException e) {
+                        log.error("Failed to migrate the excluded domain name: " + name, e);
+                    }
+                } else {
+                    excludedDomains.add(new ProxyExcludedDomainMatcher(excludedDomain));
+                }
+            }
+        }
+        excludedDomains.trimToSize();
+        return excludedDomains;
+    }
+
+    /**
+     * Tells whether or not the outgoing connections should use the proxy set.
+     * 
+     * @return {@code true} if outgoing connections should use the proxy set, {@code false} otherwise.
+     * @since 2.3.0
+     * @see #setUseProxyChain(boolean)
+     */
+    public boolean isUseProxyChain() {
+        return useProxyChain;
+    }
+
+    /**
+     * Sets whether or not the outgoing connections should use the proxy set.
+     * <p>
+     * <strong>Note:</strong> The call to this method has no effect if set to use the proxy but the proxy was not previously
+     * configured.
+     * 
+     * @param useProxyChain {@code true} if outgoing connections should use the proxy set, {@code false} otherwise.
+     * @since 2.3.0
+     * @see #isUseProxyChain()
+     * @see #setProxyChainName(String)
+     * @see #setProxyChainPort(int)
+     */
+    public void setUseProxyChain(boolean useProxyChain) {
+        if (useProxyChain && (getProxyChainName() == null || getProxyChainName().isEmpty())) {
+            return;
+        }
+
+        this.useProxyChain = useProxyChain;
+        getConfig().setProperty(USE_PROXY_CHAIN_KEY, Boolean.valueOf(this.useProxyChain));
+    }
+
+	/**
+	 * Returns the name of the outgoing proxy. The returned name is never {@code null}.
+	 * 
+	 * @return the name of the outgoing proxy, never {@code null}.
+	 * @see #isUseProxyChain()
+	 * @see #setProxyChainName(String)
+	 */
 	public String getProxyChainName() {
 		return proxyChainName;
 	}
 	
+	/**
+	 * Sets the name of the outgoing proxy. If empty the use of the outgoing proxy will be disabled.
+	 * <p>
+	 * <strong>Note:</strong> The call to this method has no effect if the given {@code proxyChainName} is {@code null}.
+	 * 
+	 * @param proxyChainName the name of the outgoing proxy
+	 * @see #getProxyChainName()
+	 * @see #setUseProxyChain(boolean)
+	 */
 	public void setProxyChainName(String proxyChainName) {
+	    if (proxyChainName == null) {
+	        return;
+	    }
 		this.proxyChainName = proxyChainName.trim();
+		if (proxyChainName.isEmpty()) {
+			setUseProxyChain(false);
+		}
 		getConfig().setProperty(PROXY_CHAIN_NAME, this.proxyChainName);
 	}
 	
@@ -198,15 +327,68 @@ public class ConnectionParam extends AbstractParam {
 		getConfig().setProperty(PROXY_CHAIN_PORT, Integer.toString(this.proxyChainPort));
 	}
 
+	/**
+	 * @deprecated (2.3.0) Replaced by {@link #getProxyExcludedDomains()} and {@link #getProxyExcludedDomainsEnabled()}.
+	 *             <strong>Note:</strong> Newer regular expression excluded domains will not be returned by this method.
+	 */
+	@Deprecated
+	@SuppressWarnings({ "javadoc" })
 	public String getProxyChainSkipName() {
-		return proxyChainSkipName;
+		StringBuilder skipNamesStringBuilder = new StringBuilder("");
+		for (ProxyExcludedDomainMatcher excludedDomain : proxyExcludedDomains) {
+			if (!excludedDomain.isRegex()) {
+				skipNamesStringBuilder.append(excludedDomain.getValue()).append(';');
+			}
+		}
+		return skipNamesStringBuilder.toString();
 	}
 	
+	
+	/**
+	 * @deprecated (2.3.0) Replaced by {@link #setProxyExcludedDomains(List)}.
+	 */
+	@Deprecated
+	@SuppressWarnings({ "javadoc" })
 	public void setProxyChainSkipName(String proxyChainSkipName) {
-		this.proxyChainSkipName = proxyChainSkipName.trim();
-		getConfig().setProperty(PROXY_CHAIN_SKIP_NAME, this.proxyChainSkipName);
-		parseProxyChainSkip(this.proxyChainSkipName);
+		setProxyExcludedDomains(convertOldSkipNameOption(proxyChainSkipName));
 	}
+
+    /**
+     * Tells whether or not the outgoing connections should use the proxy authentication credentials set.
+     * 
+     * @return {@code true} if outgoing connections should use the proxy authentication credentials set, {@code false}
+     *         otherwise.
+     * @since 2.3.0
+     * @see #isUseProxyChain()
+     * @see #setUseProxyChainAuth(boolean)
+     */
+    public boolean isUseProxyChainAuth() {
+        return useProxyChainAuth;
+    }
+
+    /**
+     * Sets whether or not the outgoing connections should use the proxy authentication credentials set.
+     * <p>
+     * <strong>Note:</strong> The call to this method has no effect if set to use the credentials but the credentials were not
+     * previously set.
+     * 
+     * @param useProxyChainAuth {@code true} if outgoing connections should use the proxy authentication credentials set,
+     *            {@code false} otherwise.
+     * @since 2.3.0
+     * @see #isUseProxyChainAuth()
+     * @see #setUseProxyChain(boolean)
+     * @see #setProxyChainUserName(String)
+     * @see #setProxyChainPassword(String)
+     * @see #setProxyChainRealm(String)
+     */
+    public void setUseProxyChainAuth(boolean useProxyChainAuth) {
+        if (useProxyChainAuth && (getProxyChainUserName() == null || getProxyChainUserName().isEmpty())) {
+            return;
+        }
+
+        this.useProxyChainAuth = useProxyChainAuth;
+        getConfig().setProperty(USE_PROXY_CHAIN_AUTH_KEY, Boolean.valueOf(this.useProxyChainAuth));
+    }
 
 	public String getProxyChainRealm() {
 		return proxyChainRealm;
@@ -253,30 +435,25 @@ public class ConnectionParam extends AbstractParam {
         return this.proxyChainPrompt;
     }
 
-	
-	/**
-	Check if via proxy chain.
-	@return	True = use proxy chain
-	*/
-	private boolean isUseProxyChain() {
-		if (getProxyChainName().equals("")) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	/**
-	Check if the given host name is in the proxy chain skip list
-	@param	hostName	Host name to be checked.
-	*/
-	private boolean isSkipProxyChain(String hostName) {
-		if (patternSkip == null || hostName == null) {
-			return false;
-		}
-		
-		return patternSkip.matcher(hostName).find();
-	}
+    /**
+     * Tells whether or not the given {@code domainName} should be excluded from the outgoing proxy.
+     * 
+     * @param domainName the domain to be checked
+     * @return {@code true} if the given {@code domainName} should be excluded, {@code false} otherwise.
+     * @since 2.3.0
+     */
+    private boolean isDomainExcludedFromProxy(String domainName) {
+        if (domainName == null || domainName.isEmpty()) {
+            return false;
+        }
+
+        for (ProxyExcludedDomainMatcher excludedDomain : proxyExcludedDomainsEnabled) {
+            if (excludedDomain.matches(domainName)) {
+                return true;
+            }
+        }
+        return false;
+    }
 	
 	/**
 	Check if given host name need to send using proxy.
@@ -284,29 +461,13 @@ public class ConnectionParam extends AbstractParam {
 	@return	true = need to send via proxy.
 	*/
 	public boolean isUseProxy(String hostName) {
-		if (!isUseProxyChain() || isSkipProxyChain(hostName)) {
+		if (!isUseProxyChain() || isDomainExcludedFromProxy(hostName)) {
 			return false;
 		} else {
 			return true;
 		}
 	}
 	
-	/**
-	Parse the proxy chain skip text string and build the regex pattern.
-	*/
-	private void parseProxyChainSkip(String skipName) {
-		patternSkip = null;
-
-		if (skipName == null || skipName.equals("")) {
-			return;
-		}
-		
-		skipName = skipName.replaceAll("\\.", "\\\\.");
-		skipName = skipName.replaceAll("\\*",".*?").replaceAll("(;+$)|(^;+)", "");
-		skipName = "(" + skipName.replaceAll(";+", "|") + ")$";
-		patternSkip = Pattern.compile(skipName, Pattern.CASE_INSENSITIVE);
-	}
-
     /**
      * @return Returns the listAuth.
      */
@@ -435,4 +596,132 @@ public class ConnectionParam extends AbstractParam {
 		this.singleCookieRequestHeader = singleCookieRequestHeader;
 		getConfig().setProperty(SINGLE_COOKIE_REQUEST_HEADER, Boolean.valueOf(singleCookieRequestHeader));
 	}
+
+    /**
+     * Returns the domains excluded from the outgoing proxy.
+     *
+     * @return the domains excluded from the outgoing proxy.
+     * @since 2.3.0
+     * @see #isUseProxy(String)
+     * @see #getProxyExcludedDomainsEnabled()
+     * @see #setProxyExcludedDomains(List)
+     */
+    public List<ProxyExcludedDomainMatcher> getProxyExcludedDomains() {
+        return proxyExcludedDomains;
+    }
+
+    /**
+     * Returns the, enabled, domains excluded from the outgoing proxy.
+     *
+     * @return the enabled domains excluded from the outgoing proxy.
+     * @since 2.3.0
+     * @see #isUseProxy(String)
+     * @see #getProxyExcludedDomains()
+     * @see #setProxyExcludedDomains(List)
+     */
+    public List<ProxyExcludedDomainMatcher> getProxyExcludedDomainsEnabled() {
+        return proxyExcludedDomainsEnabled;
+    }
+
+    /**
+     * Sets the domains that will be excluded from the outgoing proxy.
+     * 
+     * @param proxyExcludedDomains the domains that will be excluded.
+     * @since 2.3.0
+     * @see #getProxyExcludedDomains()
+     * @see #getProxyExcludedDomainsEnabled()
+     */
+    public void setProxyExcludedDomains(List<ProxyExcludedDomainMatcher> proxyExcludedDomains) {
+        if (proxyExcludedDomains == null || proxyExcludedDomains.isEmpty()) {
+            ((HierarchicalConfiguration) getConfig()).clearTree(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
+
+            this.proxyExcludedDomains = Collections.emptyList();
+            this.proxyExcludedDomainsEnabled = Collections.emptyList();
+            return;
+        }
+
+        this.proxyExcludedDomains = new ArrayList<>(proxyExcludedDomains);
+
+        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
+
+        int size = proxyExcludedDomains.size();
+        ArrayList<ProxyExcludedDomainMatcher> enabledExcludedDomains = new ArrayList<>(size);
+        for (int i = 0; i < size; ++i) {
+            String elementBaseKey = ALL_PROXY_EXCLUDED_DOMAINS_KEY + "(" + i + ").";
+            ProxyExcludedDomainMatcher excludedDomain = proxyExcludedDomains.get(i);
+
+            getConfig().setProperty(elementBaseKey + PROXY_EXCLUDED_DOMAIN_VALUE_KEY, excludedDomain.getValue());
+            getConfig().setProperty(elementBaseKey + PROXY_EXCLUDED_DOMAIN_REGEX_KEY, Boolean.valueOf(excludedDomain.isRegex()));
+            getConfig().setProperty(
+                    elementBaseKey + PROXY_EXCLUDED_DOMAIN_ENABLED_KEY,
+                    Boolean.valueOf(excludedDomain.isEnabled()));
+
+            if (excludedDomain.isEnabled()) {
+                enabledExcludedDomains.add(excludedDomain);
+            }
+        }
+
+        enabledExcludedDomains.trimToSize();
+        this.proxyExcludedDomainsEnabled = enabledExcludedDomains;
+    }
+
+    private void loadProxyExcludedDomains() {
+        List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
+        this.proxyExcludedDomains = new ArrayList<>(fields.size());
+        ArrayList<ProxyExcludedDomainMatcher> excludedDomainsEnabled = new ArrayList<>(fields.size());
+        for (HierarchicalConfiguration sub : fields) {
+            String value = sub.getString(PROXY_EXCLUDED_DOMAIN_VALUE_KEY, "");
+            if (value.isEmpty()) {
+                log.warn("Failed to read an outgoing proxy excluded domain entry, required value is empty.");
+                continue;
+            }
+
+            ProxyExcludedDomainMatcher excludedDomain = null;
+            boolean regex = sub.getBoolean(PROXY_EXCLUDED_DOMAIN_REGEX_KEY, false);
+            if (regex) {
+                try {
+                    Pattern pattern = ProxyExcludedDomainMatcher.createPattern(value);
+                    excludedDomain = new ProxyExcludedDomainMatcher(pattern);
+                } catch (IllegalArgumentException e) {
+                    log.error("Failed to read an outgoing proxy excluded domain entry with regex: " + value, e);
+                }
+            } else {
+                excludedDomain = new ProxyExcludedDomainMatcher(value);
+            }
+
+            if (excludedDomain != null) {
+                excludedDomain.setEnabled(sub.getBoolean(PROXY_EXCLUDED_DOMAIN_ENABLED_KEY, true));
+
+                proxyExcludedDomains.add(excludedDomain);
+
+                if (excludedDomain.isEnabled()) {
+                    excludedDomainsEnabled.add(excludedDomain);
+                }
+            }
+        }
+
+        excludedDomainsEnabled.trimToSize();
+        this.proxyExcludedDomainsEnabled = excludedDomainsEnabled;
+    }
+
+    /**
+     * Tells whether or not the remotion of a proxy exclusion needs confirmation.
+     * 
+     * @return {@code true} if the remotion needs confirmation, {@code false} otherwise.
+     * @since 2.3.0
+     */
+    public boolean isConfirmRemoveProxyExcludedDomain() {
+        return this.confirmRemoveProxyExcludeDomain;
+    }
+
+    /**
+     * Sets whether or not the remotion of a proxy exclusion needs confirmation.
+     * 
+     * @param confirmRemove {@code true} if the remotion needs confirmation, {@code false} otherwise.
+     * @since 2.3.0
+     */
+    public void setConfirmRemoveProxyExcludedDomain(boolean confirmRemove) {
+        this.confirmRemoveProxyExcludeDomain = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_EXCLUDED_DOMAIN, Boolean.valueOf(confirmRemoveProxyExcludeDomain));
+    }
 }

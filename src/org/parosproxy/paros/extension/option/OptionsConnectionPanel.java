@@ -25,28 +25,35 @@
 // ZAP: 2013/01/30 Issue 478: Allow to choose to send ZAP's managed cookies on 
 // a single Cookie request header and set it as the default
 // ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
+// ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
+// and enhance the usability of some options
 
 package org.parosproxy.paros.extension.option;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.SortOrder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
-import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 import org.zaproxy.zap.view.ProxyDialog;
 
 
@@ -56,13 +63,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private JCheckBox chkUseProxyChain = null;
 	private JPanel jPanel = null;
 	private JPanel panelProxyAuth = null;
-	private JScrollPane jScrollPane = null;
 	//private OptionsParam optionsParam = null;
 	private JPanel panelProxyChain = null;
 	private ZapTextField txtProxyChainName = null;
 	// ZAP: Do not allow invalid port numbers
 	private ZapPortNumberSpinner spinnerProxyChainPort = null;
-	private ZapTextArea txtProxyChainSkipName = null;
 	private ZapTextField txtProxyChainRealm = null;
 	private ZapTextField txtProxyChainUserName = null;
 	private ZapTextField txtProxyChainPassword = null;
@@ -72,6 +77,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
     private JCheckBox checkBoxSingleCookieRequestHeader;
+
+    private ProxyExcludedDomainsMultipleOptionsPanel proxyExcludedDomainsPanel;
+    private ProxyExcludedDomainsTableModel proxyExcludedDomainsTableModel;
 	
     public OptionsConnectionPanel() {
         super();
@@ -190,7 +198,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			jPanel.add(jLabel6, gridBagConstraints41);
 			jPanel.add(getTxtProxyChainPort(), gridBagConstraints51);
 			jPanel.add(jLabel7, gridBagConstraints61);
-			jPanel.add(getJScrollPane(), gridBagConstraints71);
+	        jPanel.add(getProxyExcludedDomainsPanel(), gridBagConstraints71);
 		}
 		return jPanel;
 	}
@@ -298,19 +306,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return panelProxyAuth;
 	}
-	/**
-	 * This method initializes jScrollPane	
-	 * 	
-	 * @return javax.swing.JScrollPane	
-	 */    
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTxtProxyChainSkipName());
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		}
-		return jScrollPane;
-	}
+
 	/**
 	 * This method initializes panelProxyChain	
 	 * 	
@@ -318,15 +314,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelProxyChain() {
 		if (panelProxyChain == null) {
-			panelProxyChain = new JPanel();
-			panelProxyChain.setLayout(new GridBagLayout());
+			panelProxyChain = new JPanel(new BorderLayout());
 			panelProxyChain.setName("ProxyChain");
+			JPanel innerPanel = new JPanel(new GridBagLayout());
 
 			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
 			java.awt.GridBagConstraints gridBagConstraints92 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints102 = new GridBagConstraints();
-			javax.swing.JLabel jLabel8 = new JLabel();
 
 			gridBagConstraints72.gridx = 0;
 			gridBagConstraints72.gridy = 0;
@@ -346,18 +340,15 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gridBagConstraints92.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints92.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints92.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			jLabel8.setText("");
-			gridBagConstraints102.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints102.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints102.gridx = 0;
-			gridBagConstraints102.gridy = 3;
-			gridBagConstraints102.weightx = 1.0D;
-			gridBagConstraints102.weighty = 1.0D;
 
-			panelProxyChain.add(getPanelGeneral(), gridBagConstraints72);
-			panelProxyChain.add(getJPanel(), gridBagConstraints82);
-			panelProxyChain.add(getPanelProxyAuth(), gridBagConstraints92);
-			panelProxyChain.add(jLabel8, gridBagConstraints102);
+			innerPanel.add(getPanelGeneral(), gridBagConstraints72);
+			innerPanel.add(getJPanel(), gridBagConstraints82);
+			innerPanel.add(getPanelProxyAuth(), gridBagConstraints92);
+			
+			JScrollPane scrollPane = new JScrollPane(innerPanel);
+			scrollPane.setBorder(BorderFactory.createEmptyBorder());
+
+			panelProxyChain.add(scrollPane, BorderLayout.CENTER);
 		}
 		return panelProxyChain;
 	}
@@ -384,26 +375,14 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return spinnerProxyChainPort;
 	}
-	/**
-	 * This method initializes txtProxyChainSkipName	
-	 * 	
-	 * @return org.zaproxy.zap.utils.ZapTextArea	
-	 */    
-	private ZapTextArea getTxtProxyChainSkipName() {
-		if (txtProxyChainSkipName == null) {
-			txtProxyChainSkipName = new ZapTextArea();
-			txtProxyChainSkipName.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			txtProxyChainSkipName.setMinimumSize(new java.awt.Dimension(0,32));
-			txtProxyChainSkipName.setRows(2);
-		}
-		return txtProxyChainSkipName;
-	}
+
 	/**
 	 * This method initializes this
 	 */
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("conn.options.title"));
+        
         this.add(getPanelProxyChain(), getPanelProxyChain().getName());
 
 
@@ -419,66 +398,47 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    txtTimeoutInSecs.discardAllEdits();
 	    
 	    checkBoxSingleCookieRequestHeader.setSelected(connectionParam.isSingleCookieRequestHeader());
+        
+	    getProxyExcludedDomainsTableModel().setExcludedDomains(connectionParam.getProxyExcludedDomains());
+	    getProxyExcludedDomainsPanel().setRemoveWithoutConfirmation(!connectionParam.isConfirmRemoveProxyExcludedDomain());
 	    
+        chkUseProxyChain.setSelected(connectionParam.isUseProxyChain());
+	        
 	    // set Proxy Chain parameters
-	    if (connectionParam.getProxyChainName().equals("")) {
-	        chkUseProxyChain.setSelected(false);
-	        setProxyChainEnabled(false);
-	    } else {
-	        chkUseProxyChain.setSelected(true);
-	        setProxyChainEnabled(true);
-		    txtProxyChainName.setText(connectionParam.getProxyChainName());
-		    txtProxyChainName.discardAllEdits();
-			// ZAP: Do not allow invalid port numbers
-		    spinnerProxyChainPort.setValue(connectionParam.getProxyChainPort());
-		    txtProxyChainSkipName.setText(connectionParam.getProxyChainSkipName());
-		    txtProxyChainSkipName.discardAllEdits();
-		    
-		    if (connectionParam.getProxyChainUserName().equals("")) {
-		        chkProxyChainAuth.setSelected(false);
-		        setProxyChainAuthEnabled(false);
-		    } else {
-		        chkProxyChainAuth.setSelected(true);
-		        setProxyChainAuthEnabled(true);
-		        txtProxyChainRealm.setText(connectionParam.getProxyChainRealm());
-		        txtProxyChainRealm.discardAllEdits();
-		        txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
-		        txtProxyChainUserName.discardAllEdits();
-		        
-		    	// ZAP: Added prompt option
-		        if (connectionParam.isProxyChainPrompt()) {
-			        chkProxyChainPrompt.setSelected(true);
-			        setProxyChainPromptEnabled(true);
-		        	
-		        } else {
-			        chkProxyChainPrompt.setSelected(false);
-			        setProxyChainPromptEnabled(false);
-			        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
-			        txtProxyChainPassword.discardAllEdits();
-		        }
-		    }
-		    
-	    }
+	    txtProxyChainName.setText(connectionParam.getProxyChainName());
+	    txtProxyChainName.discardAllEdits();
+		// ZAP: Do not allow invalid port numbers
+	    spinnerProxyChainPort.setValue(connectionParam.getProxyChainPort());
+	    
+	    chkProxyChainAuth.setSelected(connectionParam.isUseProxyChainAuth());
+        
+        txtProxyChainRealm.setText(connectionParam.getProxyChainRealm());
+        txtProxyChainRealm.discardAllEdits();
+        txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
+        txtProxyChainUserName.discardAllEdits();
+        
+        chkProxyChainPrompt.setSelected(connectionParam.isProxyChainPrompt());
+
+        setProxyChainEnabled(connectionParam.isUseProxyChain());
+
+        if (!connectionParam.isProxyChainPrompt()) {
+	        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
+	        txtProxyChainPassword.discardAllEdits();
+        }
 	}
 	
 	private void setProxyChainEnabled(boolean isEnabled) {
 	    txtProxyChainName.setEnabled(isEnabled);
 	    spinnerProxyChainPort.setEnabled(isEnabled);
-	    txtProxyChainSkipName.setEnabled(isEnabled);
+	    getProxyExcludedDomainsPanel().setComponentEnabled(isEnabled);
 	    chkProxyChainAuth.setEnabled(isEnabled);
+	    setProxyChainAuthEnabled(isEnabled && chkProxyChainAuth.isSelected());
 	    Color color = Color.WHITE;
 	    if (!isEnabled) {
-	        txtProxyChainName.setText("");
-	    	// ZAP: Do not allow invalid port numbers
-	        spinnerProxyChainPort.changeToDefaultValue();
-	        txtProxyChainSkipName.setText("");
-	        chkProxyChainAuth.setSelected(false);
-	        setProxyChainAuthEnabled(false);
 	        color = panelProxyChain.getBackground();
 	    }
 	    txtProxyChainName.setBackground(color);
 	    spinnerProxyChainPort.setBackground(color);
-	    txtProxyChainSkipName.setBackground(color);
 	    
 	}
 	
@@ -490,13 +450,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    // ZAP: Added prompt option
         chkProxyChainPrompt.setEnabled(isEnabled);
 	    
+        if (chkProxyChainPrompt.isSelected()) {
+            setProxyChainPromptEnabled(true);
+        }
+
 	    Color color = Color.WHITE;
 	    if (!isEnabled) {
 	    	// ZAP: Added prompt option
-	        chkProxyChainPrompt.setSelected(false);
-	        txtProxyChainRealm.setText("");
-	        txtProxyChainUserName.setText("");
-	        txtProxyChainPassword.setText("");
 	        color = panelProxyChain.getBackground();
 	    }
 	    txtProxyChainRealm.setBackground(color);
@@ -535,6 +495,11 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
                 throw new Exception(Constant.messages.getString("conn.options.proxy.address.empty"));
         	}
 
+            if (chkProxyChainAuth.isSelected() && !chkProxyChainPrompt.isSelected()
+                    && txtProxyChainUserName.getText().isEmpty()) {
+                txtProxyChainUserName.requestFocus();
+                throw new Exception(Constant.messages.getString("conn.options.proxy.username.empty"));
+            }
         }
 	    
 	}
@@ -556,14 +521,15 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    connectionParam.setProxyChainName(txtProxyChainName.getText());
 		// ZAP: Do not allow invalid port numbers
 	    connectionParam.setProxyChainPort(spinnerProxyChainPort.getValue());
-	    connectionParam.setProxyChainSkipName(txtProxyChainSkipName.getText());
+	    
+	    connectionParam.setProxyExcludedDomains(getProxyExcludedDomainsTableModel().getElements());
+        connectionParam.setConfirmRemoveProxyExcludedDomain(!getProxyExcludedDomainsPanel().isRemoveWithoutConfirmation());
 
 	    connectionParam.setProxyChainRealm(txtProxyChainRealm.getText());
 	    connectionParam.setProxyChainUserName(txtProxyChainUserName.getText());
+        connectionParam.setProxyChainPrompt(chkProxyChainPrompt.isSelected());
 		// ZAP: Added prompt option
-	    if (chkProxyChainPrompt.isSelected()) {
-	    	connectionParam.setProxyChainPrompt(true);
-	    	
+	    if (chkUseProxyChain.isSelected() && chkProxyChainAuth.isSelected() && chkProxyChainPrompt.isSelected()) {
 	    	if (View.isInitialised()) {
 		    	// And prompt now
 				ProxyDialog dialog = new ProxyDialog(View.getSingleton().getMainFrame(), true);
@@ -572,12 +538,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    	}
 	    	
 	    } else {
-	    	connectionParam.setProxyChainPrompt(false);
 		    connectionParam.setProxyChainPassword(txtProxyChainPassword.getText());
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
-	    
+
+        connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
+        connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
 	}
 
 	/**
@@ -711,10 +678,105 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
         return checkBoxSingleCookieRequestHeader;
     }
+
+    private ProxyExcludedDomainsMultipleOptionsPanel getProxyExcludedDomainsPanel() {
+        if (proxyExcludedDomainsPanel == null) {
+            proxyExcludedDomainsPanel = new ProxyExcludedDomainsMultipleOptionsPanel(getProxyExcludedDomainsTableModel());
+        }
+        return proxyExcludedDomainsPanel;
+    }
+
+    private ProxyExcludedDomainsTableModel getProxyExcludedDomainsTableModel() {
+        if (proxyExcludedDomainsTableModel == null) {
+            proxyExcludedDomainsTableModel = new ProxyExcludedDomainsTableModel();
+        }
+        return proxyExcludedDomainsTableModel;
+    }
 	
 	@Override
 	public String getHelpIndex() {
 		// ZAP: added help index
 		return "ui.dialogs.options.connection";
 	}
+	
+    private static class ProxyExcludedDomainsMultipleOptionsPanel extends
+            AbstractMultipleOptionsTablePanel<ProxyExcludedDomainMatcher> {
+
+        private static final long serialVersionUID = 2332044353650231701L;
+
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("conn.options.proxy.excluded.domain.dialog.remove.title");
+        private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("conn.options.proxy.excluded.domain.dialog.remove.text");
+
+        private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("conn.options.proxy.excluded.domain.dialog.remove.button.confirm");
+        private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("conn.options.proxy.excluded.domain.dialog.remove.button.cancel");
+
+        private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("conn.options.proxy.excluded.domain.dialog.remove.checkbox.label");
+
+        private DialogAddProxyExcludedDomain addDialog = null;
+        private DialogModifyProxyExcludedDomain modifyDialog = null;
+
+        public ProxyExcludedDomainsMultipleOptionsPanel(ProxyExcludedDomainsTableModel model) {
+            super(model);
+
+            getTable().setVisibleRowCount(5);
+            getTable().setSortOrder(2, SortOrder.ASCENDING);
+        }
+
+        @Override
+        public ProxyExcludedDomainMatcher showAddDialogue() {
+            if (addDialog == null) {
+                addDialog = new DialogAddProxyExcludedDomain(View.getSingleton().getOptionsDialog(null));
+                addDialog.pack();
+            }
+            addDialog.setVisible(true);
+
+            ProxyExcludedDomainMatcher hostAuthentication = addDialog.getProxyExcludedDomain();
+            addDialog.clear();
+
+            return hostAuthentication;
+        }
+
+        @Override
+        public ProxyExcludedDomainMatcher showModifyDialogue(ProxyExcludedDomainMatcher e) {
+            if (modifyDialog == null) {
+                modifyDialog = new DialogModifyProxyExcludedDomain(View.getSingleton().getOptionsDialog(null));
+                modifyDialog.pack();
+            }
+            modifyDialog.setProxyExcludedDomain(e);
+            modifyDialog.setVisible(true);
+
+            ProxyExcludedDomainMatcher excludedDomain = modifyDialog.getProxyExcludedDomain();
+            modifyDialog.clear();
+
+            if (!excludedDomain.equals(e)) {
+                return excludedDomain;
+            }
+
+            return null;
+        }
+
+        @Override
+        public boolean showRemoveDialogue(ProxyExcludedDomainMatcher e) {
+            JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
+            int option = JOptionPane.showOptionDialog(
+                    View.getSingleton().getMainFrame(),
+                    messages,
+                    REMOVE_DIALOG_TITLE,
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL },
+                    null);
+
+            if (option == JOptionPane.OK_OPTION) {
+                setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+
+                return true;
+            }
+
+            return false;
+        }
+    }
+	
 }  //  @jve:decl-index=0:visual-constraint="10,10"
