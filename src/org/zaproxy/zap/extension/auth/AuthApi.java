@@ -14,6 +14,7 @@ import org.zaproxy.zap.model.Context;
  * 
  * @deprecated Use the new {@link ExtensionAuthentication}
  */
+@Deprecated
 public class AuthApi {
 
 	public HttpMessage getLoginRequest(int contextID) {

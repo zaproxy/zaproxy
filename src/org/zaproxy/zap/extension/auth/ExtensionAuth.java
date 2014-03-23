@@ -16,6 +16,7 @@ import org.zaproxy.zap.extension.users.ExtensionUserManagement;
  * @deprecated The new {@link ExtensionAuthentication} and {@link ExtensionUserManagement} should be
  *             used instead.
  */
+@Deprecated
 public class ExtensionAuth extends ExtensionAdaptor {
 
 	public static final String NAME = "ExtensionAuth";
