@@ -27,6 +27,7 @@
 // ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
+// ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 
 package org.parosproxy.paros.extension.option;
 
@@ -77,6 +78,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
     private JCheckBox checkBoxSingleCookieRequestHeader;
+
+    private SecurityProtocolsPanel securityProtocolsPanel;
 
     private ProxyExcludedDomainsMultipleOptionsPanel proxyExcludedDomainsPanel;
     private ProxyExcludedDomainsTableModel proxyExcludedDomainsTableModel;
@@ -329,19 +332,21 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gridBagConstraints72.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
 			gridBagConstraints82.gridx = 0;
-			gridBagConstraints82.gridy = 1;
+			gridBagConstraints82.gridy = 2;
 			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints82.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gridBagConstraints82.weightx = 1.0D;
 			
 			gridBagConstraints92.gridx = 0;
-			gridBagConstraints92.gridy = 2;
+			gridBagConstraints92.gridy = 3;
 			gridBagConstraints92.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints92.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			gridBagConstraints92.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
 			innerPanel.add(getPanelGeneral(), gridBagConstraints72);
+			gridBagConstraints72.gridy = 1;
+			innerPanel.add(getSecurityProtocolsPanel(), gridBagConstraints72);
 			innerPanel.add(getJPanel(), gridBagConstraints82);
 			innerPanel.add(getPanelProxyAuth(), gridBagConstraints92);
 			
@@ -425,6 +430,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
 	        txtProxyChainPassword.discardAllEdits();
         }
+
+        securityProtocolsPanel.setSecurityProtocolsEnabled(connectionParam.getSecurityProtocolsEnabled());
 	}
 	
 	private void setProxyChainEnabled(boolean isEnabled) {
@@ -502,6 +509,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             }
         }
 	    
+	    securityProtocolsPanel.validateSecurityProtocols();
 	}
 
 	@Override
@@ -545,6 +553,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
+
+        connectionParam.setSecurityProtocolsEnabled(securityProtocolsPanel.getSelectedProtocols());
 	}
 
 	/**
@@ -664,6 +674,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return panelGeneral;
 	}
+
+    private SecurityProtocolsPanel getSecurityProtocolsPanel() {
+        if (securityProtocolsPanel == null) {
+            securityProtocolsPanel = new SecurityProtocolsPanel();
+        }
+        return securityProtocolsPanel;
+    }
 
 	private ZapTextField getTxtTimeoutInSecs() {
 		if (txtTimeoutInSecs == null) {

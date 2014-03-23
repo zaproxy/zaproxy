@@ -27,14 +27,19 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
+// ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 
 package org.parosproxy.paros.core.proxy;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.Arrays;
+import java.util.List;
 
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.network.SSLConnector;
 
 /**
  * @author simon
@@ -45,6 +50,8 @@ public class ProxyParam extends AbstractParam {
     //	private static final String PROXY = "proxy";
     private static final Logger logger = Logger.getLogger(ProxyParam.class);
 
+    private static final String PROXY_BASE_KEY = "proxy";
+
     private static final String PROXY_IP = "proxy.ip";
     private static final String PROXY_PORT = "proxy.port";
     //	private static final String PROXY_SSL_IP = "proxy.SSLIp";
@@ -54,6 +61,10 @@ public class ProxyParam extends AbstractParam {
     private static final String REVERSE_PROXY_IP = "proxy.reverseProxy.ip";
     private static final String REVERSE_PROXY_HTTP_PORT = "proxy.reverseProxy.httpPort";
     private static final String REVERSE_PROXY_HTTPS_PORT = "proxy.reverseProxy.httpsPort";
+
+
+    private static final String SECURITY_PROTOCOLS_ENABLED = PROXY_BASE_KEY + ".securityProtocolsEnabled";
+    private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + ".protocol";
 
     /**
      * The configuration key for the option that controls whether the proxy
@@ -84,6 +95,8 @@ public class ProxyParam extends AbstractParam {
      * The option that controls whether the proxy should always decode gzipped content or not.
      */
     private boolean alwaysDecodeGzip = true;
+
+    private String[] securityProtocolsEnabled;
 
     public ProxyParam() {
     }
@@ -120,6 +133,7 @@ public class ProxyParam extends AbstractParam {
         modifyAcceptEncodingHeader = getConfig().getBoolean(MODIFY_ACCEPT_ENCODING_HEADER, true);
         alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
 
+        loadSecurityProtocolsEnabled();
     }
 
     public String getProxyIp() {
@@ -254,4 +268,55 @@ public class ProxyParam extends AbstractParam {
         getConfig().setProperty(ALWAYS_DECODE_GZIP, Boolean.valueOf(alwaysDecodeGzip));
 	}
     
+    /**
+     * Returns the security protocols enabled (SSL/TLS) for outgoing connections.
+     * 
+     * @return the security protocols enabled for outgoing connections.
+     * @since 2.3.0
+     */
+    public String[] getSecurityProtocolsEnabled() {
+        return Arrays.copyOf(securityProtocolsEnabled, securityProtocolsEnabled.length);
+    }
+
+    /**
+     * Sets the security protocols enabled (SSL/TLS) for outgoing connections.
+     * <p>
+     * The call has no effect if the given array is null or empty.
+     * </p>
+     * 
+     * @param enabledProtocols the security protocols enabled (SSL/TLS) for outgoing connections.
+     * @throws IllegalArgumentException if at least one of the {@code enabledProtocols} is {@code null} or empty.
+     * @since 2.3.0
+     */
+    public void setSecurityProtocolsEnabled(String[] enabledProtocols) {
+        if (enabledProtocols == null || enabledProtocols.length == 0) {
+            return;
+        }
+        for (int i= 0; i < enabledProtocols.length; i++) {
+            if (enabledProtocols[i] == null || enabledProtocols[i].isEmpty()) {
+                throw new IllegalArgumentException("The parameter enabledProtocols must not contain null or empty elements.");
+            }
+        }
+
+        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
+
+        for (int i = 0; i < enabledProtocols.length; ++i) {
+            String elementBaseKey = ALL_SECURITY_PROTOCOLS_ENABLED_KEY + "(" + i + ")";
+            getConfig().setProperty(elementBaseKey, enabledProtocols[i]);
+        }
+
+        this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
+        SSLConnector.setServerEnabledProtocols(enabledProtocols);
+    }
+
+    private void loadSecurityProtocolsEnabled() {
+        List<Object> protocols = getConfig().getList(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
+        if (protocols.size() != 0) {
+            securityProtocolsEnabled = new String[protocols.size()];
+            securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
+            SSLConnector.setServerEnabledProtocols(securityProtocolsEnabled);
+        } else {
+            setSecurityProtocolsEnabled(SSLConnector.getServerEnabledProtocols());
+        }
+    }
 }

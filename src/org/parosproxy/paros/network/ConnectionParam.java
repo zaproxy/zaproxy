@@ -31,10 +31,12 @@
 // ZAP: 2013/12/13 Issue 939: ZAP should accept SSL connections on non-standard ports automatically
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
+// ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -68,6 +70,10 @@ public class ConnectionParam extends AbstractParam {
     private static final String CONFIRM_REMOVE_EXCLUDED_DOMAIN = CONNECTION_BASE_KEY
             + ".proxyChain.confirmRemoveExcludedDomain";
 
+    private static final String SECURITY_PROTOCOLS_ENABLED = CONNECTION_BASE_KEY + ".securityProtocolsEnabled";
+    private static final String SECURITY_PROTOCOL_ELEMENT_KEY = "protocol";
+    private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + "." + SECURITY_PROTOCOL_ELEMENT_KEY;
+
     private static final String AUTH_KEY = CONNECTION_BASE_KEY + ".auths";
     private static final String ALL_AUTHS_KEY = AUTH_KEY + ".auth";
     private static final String AUTH_NAME_KEY = "name";
@@ -99,6 +105,8 @@ public class ConnectionParam extends AbstractParam {
     private List<HostAuthentication> listAuthEnabled = new ArrayList<>(0);
     private List<ProxyExcludedDomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
     private List<ProxyExcludedDomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
+
+    private String[] securityProtocolsEnabled;
 	
 	// ZAP: Added prompt option and timeout
 	private boolean proxyChainPrompt = false;
@@ -195,6 +203,8 @@ public class ConnectionParam extends AbstractParam {
         } catch (ConversionException e) {
             log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
         }
+
+        loadSecurityProtocolsEnabled();
 	}
 	
 	private void updateOptions() {
@@ -723,5 +733,57 @@ public class ConnectionParam extends AbstractParam {
     public void setConfirmRemoveProxyExcludedDomain(boolean confirmRemove) {
         this.confirmRemoveProxyExcludeDomain = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_EXCLUDED_DOMAIN, Boolean.valueOf(confirmRemoveProxyExcludeDomain));
+    }
+
+    /**
+     * Returns the security protocols enabled (SSL/TLS) for outgoing connections.
+     * 
+     * @return the security protocols enabled for outgoing connections.
+     * @since 2.3.0
+     */
+    public String[] getSecurityProtocolsEnabled() {
+        return Arrays.copyOf(securityProtocolsEnabled, securityProtocolsEnabled.length);
+    }
+
+    /**
+     * Sets the security protocols enabled (SSL/TLS) for outgoing connections.
+     * <p>
+     * The call has no effect if the given array is null or empty.
+     * </p>
+     * 
+     * @param enabledProtocols the security protocols enabled (SSL/TLS) for outgoing connections.
+     * @throws IllegalArgumentException if at least one of the {@code enabledProtocols} is {@code null} or empty.
+     * @since 2.3.0
+     */
+    public void setSecurityProtocolsEnabled(String[] enabledProtocols) {
+        if (enabledProtocols == null || enabledProtocols.length == 0) {
+            return;
+        }
+        for (int i= 0; i < enabledProtocols.length; i++) {
+            if (enabledProtocols[i] == null || enabledProtocols[i].isEmpty()) {
+                throw new IllegalArgumentException("The parameter enabledProtocols must not contain null or empty elements.");
+            }
+        }
+
+        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
+
+        for (int i = 0; i < enabledProtocols.length; ++i) {
+            String elementBaseKey = ALL_SECURITY_PROTOCOLS_ENABLED_KEY + "(" + i + ")";
+            getConfig().setProperty(elementBaseKey, enabledProtocols[i]);
+        }
+
+        this.securityProtocolsEnabled = Arrays.copyOf(enabledProtocols, enabledProtocols.length);
+        SSLConnector.setClientEnabledProtocols(enabledProtocols);
+    }
+
+    private void loadSecurityProtocolsEnabled() {
+        List<Object> protocols = getConfig().getList(ALL_SECURITY_PROTOCOLS_ENABLED_KEY);
+        if (protocols.size() != 0) {
+            securityProtocolsEnabled = new String[protocols.size()];
+            securityProtocolsEnabled = protocols.toArray(securityProtocolsEnabled);
+            SSLConnector.setClientEnabledProtocols(securityProtocolsEnabled);
+        } else {
+            setSecurityProtocolsEnabled(SSLConnector.getClientEnabledProtocols());
+        }
     }
 }

@@ -25,6 +25,7 @@
 // option to control whether the "Accept-Encoding" request-header field is 
 // modified/removed or not.
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
+// ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 
 package org.parosproxy.paros.extension.option;
 
@@ -60,6 +61,8 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
     private JCheckBox chkModifyAcceptEncodingHeader = null;
     private JCheckBox chkAlwaysDecodeGzip = null;
+
+    private SecurityProtocolsPanel securityProtocolsPanel;
 
     // ZAP: Do not allow invalid port numbers
     private ZapPortNumberSpinner spinnerProxyPort = null;
@@ -344,7 +347,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             gridBagConstraints81.weighty = 0.0D;
             
             gridBagConstraints91.gridx = 0;
-            gridBagConstraints91.gridy = 2;
+            gridBagConstraints91.gridy = 3;
             gridBagConstraints91.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints91.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints91.weightx = 1.0D;
@@ -356,18 +359,20 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             
             gridBagConstraints14.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints14.gridx = 0;
-            gridBagConstraints14.gridy = 2;
+            gridBagConstraints14.gridy = 3;
             gridBagConstraints14.weightx = 1.0D;
             gridBagConstraints14.weighty = 1.0D;
             
             gridBagConstraints2.gridx = 0;
-            gridBagConstraints2.gridy = 1;
+            gridBagConstraints2.gridy = 2;
             gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints2.insets = new java.awt.Insets(2, 2, 2, 2);
             gridBagConstraints2.weightx = 1.0D;
             
             panelProxy.add(getPanelLocalProxy(), gridBagConstraints81);
+            gridBagConstraints81.gridy = 1;
+            panelProxy.add(securityProtocolsPanel, gridBagConstraints81);
             panelProxy.add(getChkReverseProxy(), gridBagConstraints2);
             panelProxy.add(getPanelReverseProxy(), gridBagConstraints91);
             panelProxy.add(jLabel4, gridBagConstraints14);
@@ -452,6 +457,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             this.setSize(391, 320);
         }
         
+        securityProtocolsPanel = new SecurityProtocolsPanel();
         this.add(getPanelProxy(), getPanelProxy().getName());
 
         getChkReverseProxy().setVisible(Constant.isSP());
@@ -486,10 +492,13 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
         chkReverseProxy.setSelected(proxyParam.isUseReverseProxy());
         setReverseProxyEnabled(proxyParam.isUseReverseProxy());
+
+        securityProtocolsPanel.setSecurityProtocolsEnabled(proxyParam.getSecurityProtocolsEnabled());
     }
 
     @Override
     public void validateParam(Object obj) throws Exception {
+        securityProtocolsPanel.validateSecurityProtocols();
     }
 
     @Override
@@ -511,6 +520,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         proxyParam.setReverseProxyHttpsPort(spinnerReverseProxyHttpsPort.getValue());
         proxyParam.setUseReverseProxy(getChkReverseProxy().isSelected());
 
+        proxyParam.setSecurityProtocolsEnabled(securityProtocolsPanel.getSelectedProtocols());
     }
 
     /**
