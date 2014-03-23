@@ -63,6 +63,7 @@ public class VariantUserDefined implements Variant {
     	this.injectionPoints = injectionPointMap.get(url);
     }
 
+    @Override
     public List<NameValuePair> getParamList() {
     	List<NameValuePair> list = new ArrayList<NameValuePair>();
     	if (this.injectionPoints!= null) {
@@ -76,6 +77,7 @@ public class VariantUserDefined implements Variant {
     	}
     	return list;
     }
+    @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
     	int[] injPoint = this.injectionPoints[originalPair.getPosition()];
 		if (isInHeader(injPoint)) {
@@ -100,6 +102,7 @@ public class VariantUserDefined implements Variant {
     	return "value";
     }
     
+    @Override
     public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String param, String value) {
     	return this.setParameter(msg, originalPair, param, value);
     }

@@ -222,6 +222,7 @@ public class PluginFactory {
         return listAllPlugin;
     }
     
+    @Override
     public PluginFactory clone () {
     	PluginFactory clone = new PluginFactory();
     	Plugin pluginCopy;

@@ -81,6 +81,7 @@ public abstract class AbstractParam {
         return config;
     } 
     
+    @Override
     public AbstractParam clone()  {
     	try {
 			AbstractParam clone = this.getClass().newInstance();

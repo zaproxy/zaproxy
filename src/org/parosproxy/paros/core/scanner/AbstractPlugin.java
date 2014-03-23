@@ -752,6 +752,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return config;
     }
     
+    @Override
     public void saveTo(Configuration conf) {
         if (getProperty("enabled") == null) {
             setProperty(conf, "enabled", "1");
@@ -760,6 +761,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         setProperty(conf, "strength", getProperty("strength"));
     }
     
+    @Override
     public void loadFrom(Configuration conf) {
         if (getProperty(conf, "enabled") == null) {
             setProperty("enabled", "1");
@@ -768,6 +770,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         setProperty("strength", getProperty(conf, "strength"));
     }
 
+    @Override
     public void cloneInto(Plugin plugin) {
     	if (plugin instanceof AbstractPlugin) {
     		AbstractPlugin ap = (AbstractPlugin) plugin;

@@ -309,6 +309,7 @@ public class Control extends AbstractControl implements SessionListener {
 
 		if (View.isInitialised()) {
 			SwingUtilities.invokeLater(new Runnable() {
+				@Override
 				public void run() {
 					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
 				}
