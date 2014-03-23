@@ -45,13 +45,8 @@ public class LargeResponseUtil {
             if (httpMessage.getResponseBody() == null) {
                 return false;
             }
-            
-            int contentLength = httpMessage.getResponseHeader().getContentLength();
-            if (contentLength < 0) {
-                contentLength = httpMessage.getResponseBody().length();
-            }
-            
-            return contentLength > minContentLength;
+
+            return httpMessage.getResponseBody().length() > minContentLength;
         }
         
         return false;
