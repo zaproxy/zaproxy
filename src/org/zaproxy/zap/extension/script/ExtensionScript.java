@@ -715,6 +715,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.scriptUI = scriptUI;
 	}
 
+	public void removeScriptUI() {
+		this.scriptUI = null;
+	}
+
 	public <T> T getInterface(ScriptWrapper script, Class<T> class1) throws ScriptException, IOException {
 	
 		T iface = script.getInterface(class1);
