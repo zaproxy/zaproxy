@@ -32,7 +32,7 @@
 // ZAP: 2014/01/10 Issue 974: Scan URL path elements
 // ZAP: 2014/02/08 Added Custom Script management settings
 // ZAP: 2014/02/13 Added HTTP parameter exclusion configuration on Active Scanning
-//
+// ZAP: 2014/03/23 Issue 1076: Change active scanner to not delete the temporary messages generated
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -53,7 +53,6 @@ public class ScannerParam extends AbstractParam {
     // ZAP: Added support for delayInMs
     private static final String DELAY_IN_MS = "scanner.delayInMs";
     private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
-    private static final String DELETE_RECORDS_ON_SHUTDOWN = "scanner.deleteOnShutdown";
     private static final String LEVEL = "scanner.level";
     private static final String STRENGTH = "scanner.strength";
     private static final String MAX_RESULTS_LIST = "scanner.maxResults";
@@ -94,7 +93,6 @@ public class ScannerParam extends AbstractParam {
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
     private boolean handleAntiCSRFTokens = false;
-    private boolean deleteRequestsOnShutdown = true;
     private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM;
     private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
     
@@ -114,6 +112,8 @@ public class ScannerParam extends AbstractParam {
 
     @Override
     protected void parse() {
+        removeOldOptions();
+
         try {
             this.threadPerHost = getConfig().getInt(THREAD_PER_HOST, 1);
         } catch (Exception e) {}
@@ -132,10 +132,6 @@ public class ScannerParam extends AbstractParam {
         
         try {
             this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
-        } catch (Exception e) {}
-        
-        try {
-            this.deleteRequestsOnShutdown = getConfig().getBoolean(DELETE_RECORDS_ON_SHUTDOWN, true);
         } catch (Exception e) {}
         
         try {
@@ -197,6 +193,13 @@ public class ScannerParam extends AbstractParam {
             addScannerParamFilter("(?i)jsessionid", NameValuePair.TYPE_UNDEFINED, "*");
             addScannerParamFilter("cfid", NameValuePair.TYPE_COOKIE, "*");
             addScannerParamFilter("cftoken", NameValuePair.TYPE_COOKIE, "*");
+        }
+    }
+
+    private void removeOldOptions() {
+        final String oldKey = "scanner.deleteOnShutdown";
+        if (getConfig().containsKey(oldKey)) {
+            getConfig().clearProperty(oldKey);
         }
     }
 
@@ -333,23 +336,6 @@ public class ScannerParam extends AbstractParam {
     public void setHandleAntiCSRFTokens(boolean handleAntiCSRFTokens) {
         this.handleAntiCSRFTokens = handleAntiCSRFTokens;
         getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
-    }
-
-    /**
-     * 
-     * @return 
-     */
-    public boolean isDeleteRequestsOnShutdown() {
-        return deleteRequestsOnShutdown;
-    }
-
-    /**
-     * 
-     * @param deleteRequestsOnShutdown 
-     */
-    public void setDeleteRequestsOnShutdown(boolean deleteRequestsOnShutdown) {
-        this.deleteRequestsOnShutdown = deleteRequestsOnShutdown;
-        getConfig().setProperty(DELETE_RECORDS_ON_SHUTDOWN, deleteRequestsOnShutdown);
     }
 
     /**

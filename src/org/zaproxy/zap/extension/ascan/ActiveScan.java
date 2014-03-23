@@ -20,10 +20,8 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.Enumeration;
-import java.util.List;
 
 import javax.swing.DefaultListModel;
 
@@ -33,7 +31,6 @@ import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteMap;
@@ -58,16 +55,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private int totalRequests = 0;
 	private Date timeStarted = null;
 	private Date timeFinished = null;
-	private boolean deleteRecordsOnExit = true;
 	private int maxResultsToList = 0;
 	
-    /**
-     * A list containing all the {@code HistoryReference} IDs that are added to
-     * the instance variable {@code list}. Used to delete the
-     * {@code HistoryReference}s from the database when no longer needed.
-     */
-    private List<Integer> historyReferencesToDelete = new ArrayList<>();
-
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
 	public ActiveScan(String site, ScannerParam scannerParam, 
@@ -75,7 +64,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		super(scannerParam, param, pluginFactory);
 		this.site = site;
 		this.maxResultsToList = scannerParam.getMaxResultsToList();
-		this.deleteRecordsOnExit = scannerParam.isDeleteRequestsOnShutdown();
 		if (activeScanPanel != null) {
 			this.activeScanPanel = activeScanPanel;
 			this.addScannerListener(activeScanPanel);
@@ -210,7 +198,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	                    // (because hRef is temporary), and the condition to create it is when the HistoryReference of the 
 	                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
 	                    msg.setHistoryRef(null);
-	                    this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
 	                    this.messagesTableModel.addHistoryReference(hRef);
 	                } catch (HttpMalformedHeaderException e) {
 	                    log.error(e.getMessage(), e);
@@ -239,14 +226,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void reset() {
         this.messagesTableModel.clear();
         this.messagesTableModel = new ActiveScanTableModel();
-        if (deleteRecordsOnExit && historyReferencesToDelete.size() != 0) {
-            try {
-                Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
-            } catch (SQLException e) {
-                log.error(e.getMessage(), e);
-            }
-        }
-        this.historyReferencesToDelete = new ArrayList<>();
 	}
 
 	@Override

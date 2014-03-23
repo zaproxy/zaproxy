@@ -56,7 +56,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JLabel labelDelayInMsValue = null;
     private ZapNumberSpinner spinnerMaxResultsList = null;
     private JCheckBox chkHandleAntiCrsfTokens = null;
-    private JCheckBox chkDeleteRequestsOnShutdown = null;
     private JComboBox<String> comboThreshold = null;
     private JLabel labelThresholdNotes = null;
     private JComboBox<String> comboStrength = null;
@@ -117,25 +116,23 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             // ---------------------------------------------            
             panelScanner.add(getChkHandleAntiCSRFTokens(),
                     LayoutHelper.getGBC(0, 7, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
-            panelScanner.add(getChkDeleteRequestsOnShutdown(),
-                    LayoutHelper.getGBC(0, 8, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
 
             // Add Attack settings section
             // ---------------------------------------------
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.level.label")),
-                    LayoutHelper.getGBC(0, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, 8, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(getComboThreshold(),
-                    LayoutHelper.getGBC(1, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, 8, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
             panelScanner.add(getThresholdNotes(),
-                    LayoutHelper.getGBC(2, 9, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+                    LayoutHelper.getGBC(2, 8, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.strength.label")),
-                    LayoutHelper.getGBC(0, 10, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(0, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getComboStrength(),
-                    LayoutHelper.getGBC(1, 10, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, 9, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getStrengthNotes(),
-                    LayoutHelper.getGBC(2, 10, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(2, 9, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
             // Close Panel
             panelScanner.add(
@@ -230,7 +227,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         setLabelDelayInMsValue(param.getDelayInMs());
         getSpinnerMaxResultsList().setValue(param.getMaxResultsToList());
         getChkHandleAntiCSRFTokens().setSelected(param.getHandleAntiCSRFTokens());
-        getChkDeleteRequestsOnShutdown().setSelected(param.isDeleteRequestsOnShutdown());
         
         switch (param.getAlertThreshold()) {
             case LOW:
@@ -297,7 +293,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setDelayInMs(getDelayInMs());
         param.setMaxResultsToList(this.getSpinnerMaxResultsList().getValue());
         param.setHandleAntiCSRFTokens(getChkHandleAntiCSRFTokens().isSelected());
-        param.setDeleteRequestsOnShutdown(this.getChkDeleteRequestsOnShutdown().isSelected());
 
         // Set the Attack Threshold Configuration Section
         Plugin.AlertThreshold threshold;    
@@ -482,11 +477,4 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return chkHandleAntiCrsfTokens;
     }
 
-    private JCheckBox getChkDeleteRequestsOnShutdown() {
-        if (chkDeleteRequestsOnShutdown == null) {
-            chkDeleteRequestsOnShutdown = new JCheckBox();
-            chkDeleteRequestsOnShutdown.setText(Constant.messages.getString("ascan.options.deleterecs.label"));
-        }
-        return chkDeleteRequestsOnShutdown;
-    }
 }
