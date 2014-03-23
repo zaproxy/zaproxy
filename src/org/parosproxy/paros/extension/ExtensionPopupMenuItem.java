@@ -27,6 +27,7 @@
 // ZAP: 2012/08/29 Issue 250: Support for authentication management
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2014/03/23 Changed to implement the interface ExtensionPopupMenuComponent
+// ZAP: 2014/03/23 Changed to implement the new method from ExtensionPopupMenuComponent
 
 package org.parosproxy.paros.extension;
 
@@ -35,6 +36,7 @@ import java.awt.Component;
 import javax.swing.JMenuItem;
 
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 
 public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupMenuComponent {
 
@@ -61,10 +63,24 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
     
     /**
      * By default, the pop up menu item button is enabled and it is enable for all {@code invoker}s.
+     * 
+     * @see #isEnableForMessageContainer(MessageContainer)
      */
     @Override
     public boolean isEnableForComponent(Component invoker) {
         return true;
+    }
+
+    /**
+     * Defaults to call the method {@code isEnableForComponent(Component)} passing as parameter the component returned by the
+     * method {@code MessageContainer#getComponent()} called on the given {@code invoker}.
+     * 
+     * @see #isEnableForComponent(Component)
+     * @see MessageContainer#getComponent()
+     */
+    @Override
+    public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
+        return isEnableForComponent(invoker.getComponent());
     }
     
     public String getParentMenuName() {

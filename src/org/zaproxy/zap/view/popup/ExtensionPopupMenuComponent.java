@@ -21,6 +21,8 @@ package org.zaproxy.zap.view.popup;
 
 import java.awt.Component;
 
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
+
 /**
  * A component that can be shown/handled in pop up menus (for example, {@code MainPopupMenu}) with enhanced behaviour (compared
  * to {@code JMenu}s and {@code JMenuItem}s).
@@ -29,6 +31,8 @@ import java.awt.Component;
  * <ul>
  * <li>to know if it is enable or not for the {@code Component} where the pop up menu is being invoked, by calling
  * {@link #isEnableForComponent(Component)};</li>
+ * <li>to know if it is enable or not for the {@code MessageContainer} where the pop up menu is being invoked, by calling
+ * {@link #isEnableForMessageContainer(MessageContainer)};</li>
  * <li>to know if its action is safe or not so it can be automatically disabled when it's not safe and the {@code Control.Mode}
  * doesn't allow potential dangerous operations, by calling {@link #isSafe()};</li>
  * <li>its position in the pop up menu, by calling {@link #getMenuIndex()}.</li>
@@ -42,6 +46,7 @@ import java.awt.Component;
  * @see org.parosproxy.paros.extension.ExtensionPopupMenuItem
  * @see org.parosproxy.paros.view.MainPopupMenu
  * @see org.parosproxy.paros.control.Control.Mode
+ * @see MessageContainer
  */
 public interface ExtensionPopupMenuComponent {
 
@@ -59,8 +64,25 @@ public interface ExtensionPopupMenuComponent {
      * 
      * @param invoker the component where the pop up menu was invoked
      * @return {@code true} if the menu component is enable for the given {@code invoker}, {@code false} otherwise.
+     * @see #isEnableForMessageContainer(MessageContainer)
      */
     boolean isEnableForComponent(Component invoker);
+
+    /**
+     * Tells whether or not the pop up menu component is enable for the given {@code invoker}, therefore shown (or not) in the
+     * pop up menu.
+     * <p>
+     * It is responsibility of the pop up menu component to enable/disable itself in case it should be shown but shouldn't be
+     * active/enabled.
+     * <p>
+     * <strong>Note:</strong> Calling this method implies that the pop up menu in which this pop up menu component is, is being
+     * invoked.
+     * 
+     * @param invoker the message container where the pop up menu was invoked
+     * @return {@code true} if the menu component is enable for the given {@code invoker}, {@code false} otherwise.
+     * @see #isEnableForComponent(Component)
+     */
+    boolean isEnableForMessageContainer(MessageContainer<?> invoker);
 
     /**
      * Returns the position that the pop up menu component should occupy in the pop up menu.

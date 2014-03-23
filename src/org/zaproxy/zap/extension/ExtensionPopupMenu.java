@@ -24,6 +24,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 
 import org.zaproxy.zap.view.PopupMenuHistoryReference;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 
 public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuComponent {
@@ -57,6 +58,7 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 	 * </p>
 	 * 
 	 * @see #processExtensionPopupChildren(Component)
+	 * @see #isEnableForMessageContainer(MessageContainer)
 	 */
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
@@ -86,6 +88,19 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 			}
 		}
 		return childEnable;
+	}
+
+	/**
+	 * Defaults to call the method {@code isEnableForComponent(Component)} passing as parameter the component returned by the
+	 * method {@code MessageContainer#getComponent()} called on the given {@code invoker}.
+	 * 
+	 * @see #isEnableForComponent(Component)
+	 * @see MessageContainer#getComponent()
+	 * @since 2.3.0
+	 */
+	@Override
+	public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
+		return isEnableForComponent(invoker.getComponent());
 	}
 
 	public String getParentMenuName() {
