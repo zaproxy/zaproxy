@@ -391,6 +391,8 @@ public abstract class ScanPanel extends AbstractPanel {
 				    String item = (String) siteSelect.getSelectedItem();
 				    if (item != null && siteSelect.getSelectedIndex() > 0) {
 				        siteSelected(item);
+				    } else {
+				        siteSelected(null);
 				    }
 				}
 			});
@@ -504,6 +506,15 @@ public abstract class ScanPanel extends AbstractPanel {
 	}
 	
 	protected void siteSelected(String site, boolean forceRefresh) {
+		if (site == null) {
+			currentSite = null;
+			// call with empty string instead of null because of backward compatibility reasons
+			switchView("");
+			resetScanState();
+
+			return;
+		}
+
 		if (Mode.safe.equals(this.mode)) {
 			// Safe mode so ignore this
 			return;

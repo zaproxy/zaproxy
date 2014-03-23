@@ -51,6 +51,8 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(SpiderPanel.class);
 
+	private static final SpiderPanelTableModel EMPTY_RESULTS_MODEL = new SpiderPanelTableModel();
+
 	/** The Constant defining the PANEL's NAME. */
 	public static final String PANEL_NAME = "SpiderPanel";
 
@@ -61,7 +63,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	private JScrollPane workPane;
 
 	/** The results model. */
-	private SpiderPanelTableModel currentResultsModel;
+	private SpiderPanelTableModel currentResultsModel = EMPTY_RESULTS_MODEL;
 
 	/** The found count name label. */
 	private JLabel foundCountNameLabel;
@@ -145,6 +147,11 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * @param site the site
 	 */
 	private void updateCurrentScanResultsModel(String site) {
+		if ("".equals(site)) {
+			this.currentResultsModel = EMPTY_RESULTS_MODEL;
+			return;
+		}
+
 		SpiderThread st = (SpiderThread) this.getScanThread(site);
 		this.currentResultsModel = st.getResultsTableModel();
 	}
@@ -157,7 +164,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	private JTable getScanResultsTable() {
 		if (resultsTable == null) {
 			// Create the table with a default, empty TableModel and the proper settings
-			resultsTable = new JTable(new SpiderPanelTableModel());
+			resultsTable = new JTable(EMPTY_RESULTS_MODEL);
 			resultsTable.setColumnSelectionAllowed(false);
 			resultsTable.setCellSelectionEnabled(false);
 			resultsTable.setRowSelectionAllowed(true);
@@ -236,8 +243,6 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * Update the count of found URIs.
 	 */
 	protected void updateFoundCount() {
-		if (this.currentResultsModel != null){
-			this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));
-		}
+		this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));
 	}
 }

@@ -53,6 +53,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.SwingUtilities;
 
 import org.apache.commons.httpclient.URI;
@@ -84,6 +85,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private static final Logger logger = Logger.getLogger(BruteForcePanel.class);
 
 	public static final String PANEL_NAME = "bruteforce";
+
+	private static final ListModel<BruteForceItem> EMPTY_RESULTS_MODEL = new DefaultListModel<>();
 	
 	//private ExtensionBruteForce extension = null;
 	private BruteForceParam bruteForceParam = null;
@@ -497,12 +500,12 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 
 	private void resetBruteForceList() {
-		getBruteForceList().setModel(new DefaultListModel<BruteForceItem>());
+		getBruteForceList().setModel(EMPTY_RESULTS_MODEL);
 	}
 
 	protected JList<BruteForceItem> getBruteForceList() {
 		if (bruteForceList == null) {
-			bruteForceList = new JList<>();
+			bruteForceList = new JList<>(EMPTY_RESULTS_MODEL);
 			bruteForceList.setDoubleBuffered(true);
 			bruteForceList.setCellRenderer(getBruteForcePanelCellRenderer());
 			bruteForceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -545,9 +548,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			        }			    	
 			    }
 			});
-
-			
-			resetBruteForceList();
 		}
 		return bruteForceList;
 	}
@@ -604,6 +604,8 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 				    ScanTarget item = (ScanTarget) siteSelect.getSelectedItem();
 				    if (item != null && siteSelect.getSelectedIndex() > 0) {
 				        siteSelected(item, false);
+				    } else {
+				        siteSelected(null, false);
 				    }
 				}
 			});
@@ -621,9 +623,14 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	}
 	
 	private void siteSelected(ScanTarget scanTarget, boolean forceRefresh) {
-	    if (scanTarget == null) {
-	        return;
-	    }
+		if (scanTarget == null) {
+			currentSite = null;
+			resetScanState();
+			resetBruteForceList();
+
+			return;
+		}
+
 		if (Mode.safe.equals(this.mode)) {
 			// Safe mode so ignore this
 			return;

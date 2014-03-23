@@ -38,6 +38,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 import javax.swing.ListCellRenderer;
+import javax.swing.ListModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -68,6 +69,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private static final long serialVersionUID = 1L;
 
 	public static final String PANEL_NAME = "ascan";
+
+    private static final ListModel<HistoryReference> EMPTY_RESULTS_MODEL = new DefaultListModel<>();
 	
 	private JScrollPane jScrollPane = null;
     private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
@@ -78,7 +81,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private HttpPanel responsePanel = null;
 
 	private JButton optionsButton = null;
-	private JButton progressButton = null;
+	private JButton progressButton;
 	private JLabel numRequests;
 
     private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
@@ -128,17 +131,13 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	private JButton getProgressButton() {
 		if (progressButton == null) {
 			progressButton = new JButton();
-			// TODO For some reason this enabling and disabling of this button doesnt work :(
-			//progressButton.setEnabled(false);
+			progressButton.setEnabled(false);
 			progressButton.setToolTipText(Constant.messages.getString("ascan.toolbar.button.progress"));
 			progressButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/system-monitor.png")));
 			progressButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (progressButton.isEnabled()) {
-						// No idea why the button isnt getting disabled in the UI!
-						showScanProgressDialog();
-					}
+					showScanProgressDialog();
 				}
 			});
 		}
@@ -173,12 +172,12 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	}
 
 	private void resetMessageList() {
-		getMessageList().setModel(new DefaultListModel<HistoryReference>());
+		getMessageList().setModel(EMPTY_RESULTS_MODEL);
 	}
 
 	private synchronized JList<HistoryReference> getMessageList() {
 		if (messageList == null) {
-			messageList = new JList<>();
+			messageList = new JList<>(EMPTY_RESULTS_MODEL);
 			messageList.setDoubleBuffered(true);
 			messageList.setCellRenderer(getActiveScanPanelCellRenderer());
 			messageList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -234,8 +233,6 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
                         }
 				    }
 				}});
-			
-			resetMessageList();
 		}
 		return messageList;
 	}
@@ -287,6 +284,11 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 	@Override
 	protected void switchView(String site) {
+		if ("".equals(site)) {
+			resetMessageList();
+			return;
+		}
+
 		GenericScanner thread = this.getScanThread(site);
 		if (thread != null) {
 			getMessageList().setModel(((ActiveScan)thread).getList());
@@ -374,7 +376,6 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		} else {
 			this.getProgressButton().setEnabled(false);
 		}
-		this.getProgressButton().repaint();
 	}
 	
 	@Override
