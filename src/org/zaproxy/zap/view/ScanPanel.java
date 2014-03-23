@@ -34,8 +34,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -787,12 +785,9 @@ public abstract class ScanPanel extends AbstractPanel {
 	public void reset() {
 		log.debug("reset " + prefix);
 		// Stop all scans
-		Set<Entry<String, GenericScanner>> set = scanMap.entrySet();
-		Iterator<Entry<String, GenericScanner>> iter = set.iterator();
-		while (iter.hasNext()) {
-			Entry<String, GenericScanner> entry = iter.next();
-			entry.getValue().stopScan();
-			entry.getValue().reset();
+		for (GenericScanner scanner : scanMap.values()) {
+			scanner.stopScan();
+			scanner.reset();
 		}
 		// Allow 2 secs for the threads to stop - if we wait 'for ever' then we can get deadlocks
 		for (int i = 0; i < 20; i++) {

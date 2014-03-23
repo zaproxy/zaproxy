@@ -37,8 +37,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.DefaultListModel;
@@ -862,12 +860,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 
 	public void reset() {
 		// Stop all scans
-		Set<Entry<String, BruteForce>> set = bruteForceMap.entrySet();
-		Iterator<Entry<String, BruteForce>> iter = set.iterator();
-		while (iter.hasNext()) {
-			Entry<String, BruteForce> entry = iter.next();
-			entry.getValue().stopScan();
-			entry.getValue().clearList();
+		for (BruteForce bruteForce : bruteForceMap.values()) {
+			bruteForce.stopScan();
+			bruteForce.clearList();
 		}
 		// Wait until all threads have stopped
 		while (activeScans.size() > 0) {
