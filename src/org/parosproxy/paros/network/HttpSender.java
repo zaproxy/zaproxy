@@ -64,6 +64,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -455,8 +456,8 @@ public class HttpSender {
 		// no more retry
 		modifyUserAgent(msg);
 		method = helper.createRequestMethod(msg.getRequestHeader(), msg.getRequestBody());
-		if (!(method instanceof GenericMethod)) {
-			// cant do this for Generic methods - it will fail
+		if (!(method instanceof EntityEnclosingMethod)) {
+			// cant do this for EntityEnclosingMethod methods - it will fail
 			method.setFollowRedirects(isFollowRedirect);
 		}
 		// ZAP: Use custom HttpState if needed
