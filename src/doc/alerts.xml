@@ -69,6 +69,7 @@ This list the alerts
 10029   Cookie poisoning
 10030   User controllable charset
 10031   User controllable HTML element attribute (potential XSS)
+10032   Viewstate scanner
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
