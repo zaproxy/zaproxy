@@ -23,7 +23,6 @@ import java.util.List;
 
 import net.htmlparser.jericho.Source;
 
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
@@ -32,6 +31,12 @@ import org.zaproxy.zap.extension.pscan.PassiveScanner;
 public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	private PassiveScanThread parent = null;
+
+    private final ExtensionAntiCSRF extAntiCSRF;
+
+    public AntiCsrfDetectScanner(ExtensionAntiCSRF extAntiCSRF) {
+        this.extAntiCSRF = extAntiCSRF;
+    }
 
 	@Override
 	public void setParent (PassiveScanThread parent) {
@@ -45,13 +50,6 @@ public class AntiCsrfDetectScanner implements PassiveScanner {
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		ExtensionAntiCSRF extAntiCSRF = 
-			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);
-
-		if (extAntiCSRF == null) {
-			return;
-		}
-
 		List<AntiCsrfToken> list = extAntiCSRF.getTokensFromResponse(msg, source);
 		for (AntiCsrfToken token : list) {
 			if (parent != null) {

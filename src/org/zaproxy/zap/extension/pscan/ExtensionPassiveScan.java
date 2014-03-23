@@ -44,9 +44,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfDetectScanner;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.params.ParamScanner;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
@@ -264,9 +262,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
             // Read from the configs
             scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
-
-            addPassiveScannerImpl(new AntiCsrfDetectScanner());
-            addPassiveScannerImpl(new ParamScanner());
 
             // Dynamically load 'switchable' plugins
             List<PluginPassiveScanner> listTest = ExtensionFactory.getAddOnLoader().getImplementors(

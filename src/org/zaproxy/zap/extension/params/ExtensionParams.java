@@ -50,6 +50,7 @@ import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -69,6 +70,7 @@ public class ExtensionParams extends ExtensionAdaptor
     private Logger logger = Logger.getLogger(ExtensionParams.class);
     
     private ExtensionHttpSessions extensionHttpSessions;
+    private ParamScanner paramScanner;
     
 	/**
      * 
@@ -115,8 +117,28 @@ public class ExtensionParams extends ExtensionAdaptor
 
 	        ExtensionHelp.enableHelpKey(getParamsPanel(), "ui.tabs.params");
 	    }
+
+        ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
+                .getExtensionLoader()
+                .getExtension(ExtensionPassiveScan.NAME);
+        if (extensionPassiveScan != null) {
+            paramScanner = new ParamScanner(this);
+            extensionPassiveScan.addPassiveScanner(new ParamScanner(this));
+        }
 	}
 	
+	@Override
+	public void unload() {
+		ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
+				.getExtensionLoader()
+				.getExtension(ExtensionPassiveScan.NAME);
+		if (extensionPassiveScan != null) {
+			extensionPassiveScan.removePassiveScanner(paramScanner);
+		}
+
+		super.unload();
+	}
+
 	private PopupMenuParamSearch getPopupMenuParamSearch() {
 		if (popupMenuSearch == null) {
 			popupMenuSearch = new PopupMenuParamSearch();

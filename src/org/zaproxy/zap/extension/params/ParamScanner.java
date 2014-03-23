@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.params;
 
 import net.htmlparser.jericho.Source;
 
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
@@ -29,28 +28,24 @@ import org.zaproxy.zap.extension.pscan.PassiveScanner;
 
 public class ParamScanner implements PassiveScanner {
 
+    private final ExtensionParams extParams;
+
+    public ParamScanner(ExtensionParams extParams) {
+        this.extParams = extParams;
+    }
+
 	@Override
 	public void setParent (PassiveScanThread parent) {
 	}
 
 	@Override
 	public void scanHttpRequestSend(HttpMessage msg, int id) {
-		ExtensionParams extParams = 
-			(ExtensionParams) Control.getSingleton().getExtensionLoader().getExtension(ExtensionParams.NAME);
-		
-		if (extParams != null) {
-			extParams.onHttpRequestSend(msg);
-		}
+		extParams.onHttpRequestSend(msg);
 	}
 
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
-		ExtensionParams extParams = 
-			(ExtensionParams) Control.getSingleton().getExtensionLoader().getExtension(ExtensionParams.NAME);
-		
-		if (extParams != null) {
-			extParams.onHttpResponseReceive(msg);
-		}
+		extParams.onHttpResponseReceive(msg);
 	}
 
 	@Override

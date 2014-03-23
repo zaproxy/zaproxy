@@ -53,6 +53,7 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
+import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChangedListener {
 
@@ -69,6 +70,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	private static Logger log = Logger.getLogger(ExtensionAntiCSRF.class);
 
+	private AntiCsrfDetectScanner antiCsrfDetectScanner;
+
 	public ExtensionAntiCSRF() {
 		super();
 		initialize();
@@ -78,6 +81,11 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
         this.setName(NAME);
         this.setOrder(50);
 	}
+
+    @Override
+    public void init() {
+        antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
+    }
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
@@ -90,12 +98,31 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	        extensionHook.getHookMenu().addPopupMenuItem(this.getPopupMenuGenerateForm());
 	    }
 
+        ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
+                .getExtensionLoader()
+                .getExtension(ExtensionPassiveScan.NAME);
+        if (extensionPassiveScan != null) {
+            extensionPassiveScan.addPassiveScanner(antiCsrfDetectScanner);
+        }
+
 	    AntiCsrfAPI api = new AntiCsrfAPI(this);
         api.addApiOptions(getParam());
         API.getInstance().registerApiImplementor(api);
 
 	}
 	
+	@Override
+	public void unload() {
+		ExtensionPassiveScan extensionPassiveScan = (ExtensionPassiveScan) Control.getSingleton()
+				.getExtensionLoader()
+				.getExtension(ExtensionPassiveScan.NAME);
+		if (extensionPassiveScan != null) {
+			extensionPassiveScan.removePassiveScanner(antiCsrfDetectScanner);
+		}
+
+		super.unload();
+	}
+
 	private PopupMenuGenerateForm getPopupMenuGenerateForm() {
 		if (popupMenuGenerateForm == null) {
 			this.popupMenuGenerateForm = new PopupMenuGenerateForm(Constant.messages.getString("anticsrf.genForm.popup"));
@@ -255,7 +282,6 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 					session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
 			HistoryFilter filter = new HistoryFilter();
 			filter.setTags(Arrays.asList(new String[] {TAG}));
-			AntiCsrfDetectScanner scanner = new AntiCsrfDetectScanner();
 			
 			for (Integer i : list) {
 				HistoryReference hRef = new HistoryReference(i);
@@ -266,7 +292,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 					Source src = new Source(response);
 
 					if (msg.isResponseFromTargetHost()) {
-						scanner.scanHttpResponseReceive(msg, hRef.getHistoryId(), src);
+					    antiCsrfDetectScanner.scanHttpResponseReceive(msg, hRef.getHistoryId(), src);
 					}
 				}
 			}
