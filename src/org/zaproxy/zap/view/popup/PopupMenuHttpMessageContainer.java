@@ -27,6 +27,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
+import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
@@ -324,7 +325,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
     protected final static Invoker getInvoker(HttpMessageContainer httpMessageContainer) {
         Invoker invoker;
         switch (httpMessageContainer.getName()) {
-        case "ListLog":
+        case "History Table":
             invoker = Invoker.HISTORY_PANEL;
             break;
         case "treeSite":
@@ -336,13 +337,13 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
         case "listSearch":
             invoker = Invoker.SEARCH_PANEL;
             break;
-        case ActiveScanPanel.PANEL_NAME:
+        case ActiveScanPanel.MESSAGE_CONTAINER_NAME:
             invoker = Invoker.ACTIVE_SCANNER_PANEL;
             break;
         case HttpFuzzerContentPanel.PANEL_NAME:
             invoker = Invoker.FUZZER_PANEL;
             break;
-        case "bruteforce":
+        case BruteForcePanel.MESSAGE_CONTAINER_NAME:
             invoker = Invoker.FORCED_BROWSE_PANEL;
             break;
         default:

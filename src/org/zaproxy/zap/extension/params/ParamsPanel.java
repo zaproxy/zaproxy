@@ -29,10 +29,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.SiteNode;
@@ -57,7 +57,7 @@ public class ParamsPanel extends AbstractPanel{
 	private SortedComboBoxModel<String> siteModel = new SortedComboBoxModel<>();
 	//private JButton optionsButton = null;
 
-	private JTable paramsTable = null;
+	private JXTable paramsTable = null;
 	private ParamsTableModel paramsModel = new ParamsTableModel();
 	
     //private static Log log = LogFactory.getLog(ParamsPanel.class);
@@ -204,7 +204,6 @@ public class ParamsPanel extends AbstractPanel{
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getParamsTable());
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane;
 	}
@@ -212,39 +211,34 @@ public class ParamsPanel extends AbstractPanel{
 	private void setParamsTableColumnSizes() {
 		
 		paramsTable.getColumnModel().getColumn(0).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(0).setMaxWidth(200);
 		paramsTable.getColumnModel().getColumn(0).setPreferredWidth(100);	// type
 		
 		paramsTable.getColumnModel().getColumn(1).setMinWidth(100);
-		paramsTable.getColumnModel().getColumn(1).setMaxWidth(400);
 		paramsTable.getColumnModel().getColumn(1).setPreferredWidth(200);	// name
 		
 		paramsTable.getColumnModel().getColumn(2).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(2).setMaxWidth(200);
 		paramsTable.getColumnModel().getColumn(2).setPreferredWidth(100);	// used
 		
 		paramsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(3).setMaxWidth(200);
 		paramsTable.getColumnModel().getColumn(3).setPreferredWidth(100);	// numvals
 		
 		paramsTable.getColumnModel().getColumn(4).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(4).setMaxWidth(200);
 		paramsTable.getColumnModel().getColumn(4).setPreferredWidth(100);	// % change
 		
 		paramsTable.getColumnModel().getColumn(5).setMinWidth(50);
-		paramsTable.getColumnModel().getColumn(5).setMaxWidth(400);
 		paramsTable.getColumnModel().getColumn(5).setPreferredWidth(200);	// flags
 		
 	}
 	
-	protected JTable getParamsTable() {
+	protected JXTable getParamsTable() {
 		if (paramsTable == null) {
-			paramsTable = new JTable(paramsModel);
+			paramsTable = new JXTable(paramsModel);
 
 			paramsTable.setColumnSelectionAllowed(false);
 			paramsTable.setCellSelectionEnabled(false);
 			paramsTable.setRowSelectionAllowed(true);
 			paramsTable.setAutoCreateRowSorter(true);
+			paramsTable.setColumnControlVisible(true);
 
 			this.setParamsTableColumnSizes();
 

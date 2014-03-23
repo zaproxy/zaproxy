@@ -31,6 +31,7 @@ import javax.swing.JTable;
 import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -53,7 +54,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	
     private static final Logger logger = Logger.getLogger(HttpFuzzerContentPanel.class);
 
-    private JTable fuzzResultTable;
+    private JXTable fuzzResultTable;
     private HttpFuzzTableModel resultsModel;
 
     private HttpPanel requestPanel;
@@ -88,12 +89,13 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
     private JTable getFuzzResultTable() {
         if (fuzzResultTable == null) {
-            fuzzResultTable = new JTable(resultsModel);
+            fuzzResultTable = new JXTable(resultsModel);
             fuzzResultTable.setDoubleBuffered(true);
             fuzzResultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
             fuzzResultTable.setName(PANEL_NAME);
             fuzzResultTable.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
             fuzzResultTable.setDefaultRenderer(Pair.class, new IconTableCellRenderer());
+            fuzzResultTable.setColumnControlVisible(true);
 
             int[] widths = {
                     10, 25, 550, 30, 85, 55, 40, 70

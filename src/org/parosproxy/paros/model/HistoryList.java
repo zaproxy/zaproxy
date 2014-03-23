@@ -19,6 +19,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
+// with tables instead of lists
 package org.parosproxy.paros.model;
 
 
@@ -26,6 +28,11 @@ import java.util.Hashtable;
 
 import javax.swing.DefaultListModel;
 
+/**
+ * @deprecated (2.3.0) Replaced with use of {@link org.zaproxy.zap.view.table.HistoryReferencesTableModel}. It will be removed
+ *             in a future release.
+ */
+@Deprecated
 public class HistoryList extends DefaultListModel<HistoryReference> {
     
 	private static final long serialVersionUID = 1L;

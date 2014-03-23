@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.bruteforce;
 import java.awt.CardLayout;
 import java.awt.Event;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -40,21 +39,16 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.SwingUtilities;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
@@ -68,13 +62,12 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.FilenameExtensionFilter;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapToggleButton;
+import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
 
@@ -84,9 +77,20 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	
 	private static final Logger logger = Logger.getLogger(BruteForcePanel.class);
 
+	/**
+	 * @deprecated (2.3.0) Replaced by {@link #MESSAGE_CONTAINER_NAME}.
+	 */
+	@Deprecated
 	public static final String PANEL_NAME = "bruteforce";
 
-	private static final ListModel<BruteForceItem> EMPTY_RESULTS_MODEL = new DefaultListModel<>();
+	/**
+	 * The name of the forced browse HTTP messages container.
+	 * 
+	 * @see org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer
+	 */
+	public static final String MESSAGE_CONTAINER_NAME = "ForcedBrowseMessageContainer";
+
+	private static final BruteForceTableModel EMPTY_RESULTS_MODEL = new BruteForceTableModel();
 	
 	//private ExtensionBruteForce extension = null;
 	private BruteForceParam bruteForceParam = null;
@@ -96,7 +100,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JLabel activeScansNameLabel = null;
 	private JLabel activeScansValueLabel = null;
 	private List<ScanTarget> activeScans = new ArrayList<>();
-    private BruteForcePanelCellRenderer bfPanelCellRenderer = null;
     private List<ForcedBrowseFile> fileList = null;
 	private JComboBox<ForcedBrowseFile> fileSelect = null;
 	private DefaultComboBoxModel<ForcedBrowseFile> fileSelectModel = null;
@@ -115,12 +118,9 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private ZapToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	//private JButton launchButton = null;
-	private JList<BruteForceItem> bruteForceList = null;
+	private HistoryReferencesTable bruteForceTable = null;
 	private JProgressBar progressBar = null;
 	private Map <ScanTarget, BruteForce> bruteForceMap = new HashMap <>();
-
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
 
 	private ScanStatus scanStatus = null;
 	private Mode mode = Control.getSingleton().getMode();
@@ -492,94 +492,24 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getBruteForceList());
+			jScrollPane.setViewportView(getBruteForceTable());
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane;
 	}
 
-	private void resetBruteForceList() {
-		getBruteForceList().setModel(EMPTY_RESULTS_MODEL);
+	private void resetBruteForceTable() {
+		getBruteForceTable().setModel(EMPTY_RESULTS_MODEL);
 	}
 
-	protected JList<BruteForceItem> getBruteForceList() {
-		if (bruteForceList == null) {
-			bruteForceList = new JList<>(EMPTY_RESULTS_MODEL);
-			bruteForceList.setDoubleBuffered(true);
-			bruteForceList.setCellRenderer(getBruteForcePanelCellRenderer());
-			bruteForceList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			bruteForceList.setName(PANEL_NAME);
-			bruteForceList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-			
-			bruteForceList.setFixedCellHeight(16);	// Significantly speeds up rendering
+	protected HistoryReferencesTable getBruteForceTable() {
+		if (bruteForceTable == null) {
+		    bruteForceTable = new HistoryReferencesTable();
+		    bruteForceTable.setName(MESSAGE_CONTAINER_NAME);
 
-			bruteForceList.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
-
-				@Override
-				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-				    if (bruteForceList.getSelectedValue() == null) {
-				        return;
-				    }
-                    
-				    displayMessage(bruteForceList.getSelectedValue());
-				}
-			});
-			
-			bruteForceList.addMouseListener(new java.awt.event.MouseAdapter() { 
-			    @Override
-			    public void mousePressed(java.awt.event.MouseEvent e) {
-					if (SwingUtilities.isRightMouseButton(e)) {
-
-						// Select list item
-					    int Idx = bruteForceList.locationToIndex( e.getPoint() );
-					    if ( Idx >= 0 ) {
-					    	Rectangle Rect = bruteForceList.getCellBounds( Idx, Idx );
-					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-					    }
-					    if ( Idx < 0 || !bruteForceList.getSelectionModel().isSelectedIndex( Idx ) ) {
-					    	bruteForceList.getSelectionModel().clearSelection();
-					    	if ( Idx >= 0 ) {
-					    		bruteForceList.getSelectionModel().setSelectionInterval( Idx, Idx );
-					    	}
-					    }
-						
-						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-			        }			    	
-			    }
-			});
+			resetBruteForceTable();
 		}
-		return bruteForceList;
-	}
-
-    private void displayMessage(BruteForceItem sr) {
-        HttpMessage msg;
-		try {
-			msg = new HistoryReference(sr.getHistoryId()).getHttpMessage();
-	        if (msg.getRequestHeader().isEmpty()) {
-	            requestPanel.clearView(true);
-	        } else {
-	            requestPanel.setMessage(msg);
-	        }
-	        
-	        if (msg.getResponseHeader().isEmpty()) {
-	            responsePanel.clearView(false);
-	        } else {
-	            responsePanel.setMessage(msg, true);
-	        }
-		} catch (Exception e) {
-			log.error("Failed to access message id " + sr.getHistoryId(), e);
-		}
-    }
-
-	private ListCellRenderer<BruteForceItem> getBruteForcePanelCellRenderer() {
-        if (bfPanelCellRenderer == null) {
-            bfPanelCellRenderer = new BruteForcePanelCellRenderer();
-            bfPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-            bfPanelCellRenderer.setBackground(java.awt.Color.white);
-            bfPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        return bfPanelCellRenderer;
+		return bruteForceTable;
 	}
 
 	private JComboBox<ForcedBrowseFile> getFileSelect() {
@@ -630,7 +560,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		if (scanTarget == null) {
 			currentSite = null;
 			resetScanState();
-			resetBruteForceList();
+			resetBruteForceTable();
 
 			return;
 		}
@@ -674,7 +604,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 			
 			getProgressBar().setValue(bruteForce.getWorkDone());
 			getProgressBar().setMaximum(bruteForce.getWorkTotal());
-			bruteForceList.setModel(bruteForce.getList());
+			bruteForceTable.setModel(bruteForce.getModel());
 			currentSite = (ScanTarget) siteModel.getSelectedItem();
 		}
 		if (Mode.protect.equals(this.mode)) {
@@ -805,7 +735,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 		setActiveScanLabels();
 		getProgressBar().setEnabled(true);
 		getProgressBar().setMaximum(bruteForce.getWorkTotal());
-		bruteForceList.setModel(bruteForce.getList());
+		bruteForceTable.setModel(bruteForce.getModel());
 
 		currentSite.setScanned(true);
 		siteModel.elementChanged(currentSite);
@@ -859,7 +789,7 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	private void stopAllScans() {
 		for (BruteForce scanner : bruteForceMap.values()) {
 			scanner.stopScan();
-			scanner.clearList();
+			scanner.clearModel();
 		}
 		// Allow 2 secs for the threads to stop - if we wait 'for ever' then we can get deadlocks
 		for (int i = 0; i < 20; i++) {
@@ -889,12 +819,6 @@ public class BruteForcePanel extends AbstractPanel implements BruteForceListenne
 	public void foundDir(URL url, int statusCode, String responce,
 			String baseCase, String rawResponce, BaseCase baseCaseObj) {
 	}
-
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
-        this.requestPanel = requestPanel;
-        this.responsePanel = responsePanel;
-
-    }
 
 	public boolean isScanning(SiteNode node) {
 		ScanTarget target = createScanTarget(node);

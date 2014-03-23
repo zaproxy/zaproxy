@@ -20,28 +20,19 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Event;
-import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.DefaultListModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
-import javax.swing.ListCellRenderer;
-import javax.swing.ListModel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -52,37 +43,40 @@ import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ScanPanel;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
-import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {
 	
 	private static final long serialVersionUID = 1L;
 
+	/**
+	 * @deprecated (2.3.0) Replaced by {@link #MESSAGE_CONTAINER_NAME}.
+	 */
+	@Deprecated
 	public static final String PANEL_NAME = "ascan";
 
-    private static final ListModel<HistoryReference> EMPTY_RESULTS_MODEL = new DefaultListModel<>();
+	/**
+	 * The name of the active scan HTTP messages container.
+	 * 
+	 * @see org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer
+	 */
+	public static final String MESSAGE_CONTAINER_NAME = "ActiveScanMessageContainer";
+
+    private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
 	
-	private JScrollPane jScrollPane = null;
-    private ActiveScanPanelCellRenderer activeScanPanelCellRenderer = null;
-	private static JList<HistoryReference> messageList = null;
+	private JScrollPane jScrollPane;
+	private HistoryReferencesTable messagesTable;
     private List<String> excludeUrls = null;
     
-	private HttpPanel requestPanel = null;
-	private HttpPanel responsePanel = null;
-
 	private JButton optionsButton = null;
 	private JButton progressButton;
 	private JLabel numRequests;
@@ -167,118 +161,22 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	protected JScrollPane getWorkPanel() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getMessageList());
+			jScrollPane.setViewportView(getMessagesTable());
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane;
 	}
 
-	private void resetMessageList() {
-		getMessageList().setModel(EMPTY_RESULTS_MODEL);
+	private void resetMessagesTable() {
+	    getMessagesTable().setModel(EMPTY_RESULTS_MODEL);
 	}
 
-	private synchronized JList<HistoryReference> getMessageList() {
-		if (messageList == null) {
-			messageList = new JList<>(EMPTY_RESULTS_MODEL);
-			messageList.setDoubleBuffered(true);
-			messageList.setCellRenderer(getActiveScanPanelCellRenderer());
-			messageList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			messageList.setName(PANEL_NAME);
-			messageList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-			
-			messageList.setFixedCellHeight(16);	// Significantly speeds up rendering
-			
-			messageList.addMouseListener(new java.awt.event.MouseAdapter() { 
-				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {    
-					showPopupMenuIfTriggered(e);
-				}
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-					if (e.isPopupTrigger()) {
-						// Select list item on right click
-					    int Idx = messageList.locationToIndex( e.getPoint() );
-					    if ( Idx >= 0 ) {
-					    	Rectangle Rect = messageList.getCellBounds( Idx, Idx );
-					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-					    }
-					    if ( Idx < 0 || !messageList.getSelectionModel().isSelectedIndex( Idx ) ) {
-					    	messageList.getSelectionModel().clearSelection();
-					    	if ( Idx >= 0 ) {
-					    		messageList.getSelectionModel().setSelectionInterval( Idx, Idx );
-					    	}
-					    }
-                        final List<HistoryReference> historyReferences = messageList.getSelectedValuesList();
-                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
-                                messageList.getName(),
-                                messageList,
-                                Collections.<HistoryReference> emptyList(),
-                                historyReferences);
-				        View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
-				    }	
-				}
-			});
-
-			messageList.addListSelectionListener(new ListSelectionListener() {
-
-				@Override
-				public void valueChanged(ListSelectionEvent e) {
-				    if (!e.getValueIsAdjusting()) {
-    	                HistoryReference hRef = messageList.getSelectedValue();
-    			        if (hRef == null) {
-                            return;
-                        }
-    			        
-    				    try {
-    				        displayMessage(hRef.getHttpMessage());
-    				    } catch (HttpMalformedHeaderException ex) {
-    				        logger.error(ex.getMessage(), ex);
-                        } catch (SQLException ex) {
-                            logger.error(ex.getMessage(), ex);
-                        }
-				    }
-				}});
-		}
-		return messageList;
-	}
-	
-    private void displayMessage(HttpMessage msg) {
-    	if (msg == null) {
-    		return;
-    	}
-    	if (msg.getRequestHeader() != null) {
-    		logger.debug("displayMessage " + msg.getRequestHeader().getURI());
-    	} else {
-    		logger.debug("displayMessage null header");
-    	}
-    	
-        if (msg.getRequestHeader() != null && msg.getRequestHeader().isEmpty()) {
-            requestPanel.clearView(true);
-        } else {
-            requestPanel.setMessage(msg);
-        }
-        
-        if (msg.getResponseHeader() != null && msg.getResponseHeader().isEmpty()) {
-            responsePanel.clearView(false);
-        } else {
-            responsePanel.setMessage(msg, true);
-        }
-    }
-
-
-
-	private ListCellRenderer<HistoryReference> getActiveScanPanelCellRenderer() {
-        if (activeScanPanelCellRenderer == null) {
-            activeScanPanelCellRenderer = new ActiveScanPanelCellRenderer();
-            activeScanPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-            activeScanPanelCellRenderer.setBackground(java.awt.Color.white);
-            activeScanPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        return activeScanPanelCellRenderer;
+	private HistoryReferencesTable getMessagesTable() {
+	    if (messagesTable == null) {
+	        messagesTable = new HistoryReferencesTable(EMPTY_RESULTS_MODEL);
+	        messagesTable.setName(MESSAGE_CONTAINER_NAME);
+	    }
+	    return messagesTable;
 	}
 
 	@Override
@@ -294,13 +192,13 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	@Override
 	protected void switchView(String site) {
 		if ("".equals(site)) {
-			resetMessageList();
+			resetMessagesTable();
 			return;
 		}
 
 		GenericScanner thread = this.getScanThread(site);
 		if (thread != null) {
-			getMessageList().setModel(((ActiveScan)thread).getList());
+		    getMessagesTable().setModel(((ActiveScan)thread).getMessagesTableModel());
 		}
 	}
 
@@ -347,16 +245,10 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	public void notifyNewMessage(HttpMessage msg) {
 	}
 
-    public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
-        this.requestPanel = requestPanel;
-        this.responsePanel = responsePanel;
-
-    }
-    
 	@Override
 	public void reset() {
 		super.reset();
-		this.resetMessageList();
+		this.resetMessagesTable();
 		this.getProgressButton().setEnabled(false);
 	}
 

@@ -24,6 +24,8 @@
 // ZAP: 2012/05/02 Changed to use the class literal, instead of getting the
 // class at runtime, to get the resources.
 // ZAP: 2012/10/08 Issue 391: Performance improvements
+// ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
+// with tables instead of lists
 
 package org.parosproxy.paros.extension.history;
 
@@ -43,6 +45,11 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 
+/**
+ * @deprecated (2.3.0) Replaced with use of {@link org.zaproxy.zap.view.table.HistoryReferencesTable}. It will be removed in a
+ *             future release.
+ */
+@Deprecated
 public class LogPanelCellRenderer extends JPanel implements ListCellRenderer<HistoryReference> {
 
 	private static final long serialVersionUID = 1L;

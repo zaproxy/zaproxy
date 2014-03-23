@@ -31,12 +31,12 @@ import java.util.prefs.Preferences;
 
 import javax.swing.ImageIcon;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
@@ -51,7 +51,7 @@ public class BreakpointsPanel extends AbstractPanel {
 	private javax.swing.JPanel panelCommand = null;
 	private javax.swing.JLabel jLabel = null;
 	private JScrollPane jScrollPane = null;
-	private javax.swing.JTable breakpointsTable = null;
+	private JXTable breakpointsTable = null;
 	private BreakpointsTableModel model = new BreakpointsTableModel();
 	
 	private static final String BRK_TABLE = "brk.table";
@@ -129,23 +129,21 @@ public class BreakpointsPanel extends AbstractPanel {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getBreakpoints());
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane;
 	}
 
-	protected JTable getBreakpoints() {
+	protected JXTable getBreakpoints() {
 		if (breakpointsTable == null) {
-			breakpointsTable = new JTable(model);
+			breakpointsTable = new JXTable(model);
 
 			breakpointsTable.setColumnSelectionAllowed(false);
 			breakpointsTable.setCellSelectionEnabled(false);
 			breakpointsTable.setRowSelectionAllowed(true);
+			breakpointsTable.setColumnControlVisible(true);
 
-			breakpointsTable.getColumnModel().getColumn(0).setMinWidth(20);
 			breakpointsTable.getColumnModel().getColumn(0).setPreferredWidth(restoreColumnWidth(BRK_TABLE, 100));
 			breakpointsTable.getColumnModel().getColumn(0).addPropertyChangeListener(new ColumnResizedListener(BRK_TABLE));
-            breakpointsTable.getColumnModel().getColumn(0).setMaxWidth(250);
 			
 			breakpointsTable.getColumnModel().getColumn(2).setResizable(false);
 

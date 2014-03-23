@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
-import javax.swing.DefaultListModel;
 import javax.swing.SwingUtilities;
 
 import org.apache.log4j.Logger;
@@ -40,7 +39,6 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.network.HttpRequestBody;
 import org.zaproxy.zap.network.HttpResponseBody;
-import org.zaproxy.zap.utils.SortedListModel;
 
 import com.sittinglittleduck.DirBuster.BaseCase;
 import com.sittinglittleduck.DirBuster.ExtToCheck;
@@ -50,7 +48,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	private ScanTarget target;
 	private File file;
 	private String directory;
-	private SortedListModel<BruteForceItem> list;
+	private BruteForceTableModel tableModel;
 	private boolean stopScan = false;
 	private boolean pauseScan = false;
 	private boolean unpauseScan = false;
@@ -75,7 +73,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		
 		this.onlyUnderDirectory = false;
 
-		this.list = new SortedListModel<>();
+		this.tableModel = new BruteForceTableModel();
 		log.info("BruteForce : " + target.getURI() + "/" + directory + " threads: " + threads);
 
 		manager = new DirBusterManager(this);
@@ -120,7 +118,7 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	@Override
 	public void run() {
         try {
-        	list.clear();
+            tableModel.clear();
         	
             URL targetURL = new URL(target.getURI().toString());
             manager.setTargetURL(targetURL);
@@ -213,13 +211,13 @@ public class BruteForce extends Thread implements BruteForceListenner {
 		return this.manager.getTotal();
 	}
 
-	public DefaultListModel<BruteForceItem> getList() {
-		return list;
+	public BruteForceTableModel getModel() {
+		return tableModel;
 	}
 	
-	public void clearList() {
-		if (this.list != null) {
-			this.list.clear();
+	public void clearModel() {
+		if (this.tableModel != null) {
+			this.tableModel.clear();
 		}
 	}
 		
@@ -239,18 +237,11 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	@Override
 	public void foundDir(URL url, int statusCode, String response,
 			String baseCase, String rawResponse, BaseCase baseCaseObj) {
-		String reason = "";
-		HttpResponseHeader resHeader = null;
-		int historyId = -1;
-
 		try {
 			// Analyse and store the request
-			HttpRequestHeader reqHeader; 
-			HttpRequestBody reqBody;
-			HttpResponseBody resBody;
 
 			// Manually set up the header the DirBuster code uses
-			reqHeader = new HttpRequestHeader(HttpRequestHeader.GET + " " + url.toString() + " " + HttpHeader.HTTP11 + 
+			HttpRequestHeader reqHeader = new HttpRequestHeader(HttpRequestHeader.GET + " " + url.toString() + " " + HttpHeader.HTTP11 + 
 					HttpHeader.CRLF + HttpHeader.CRLF);
 			
         	reqHeader.setHeader(HttpRequestHeader.HOST, url.getHost() + (url.getPort() > 0? ":" + Integer.toString(url.getPort()):""));
@@ -258,17 +249,19 @@ public class BruteForce extends Thread implements BruteForceListenner {
 	        reqHeader.setHeader(HttpHeader.PROXY_CONNECTION,"Keep-Alive");
 			reqHeader.setContentLength(0);
 			
-			reqBody = new HttpRequestBody();
+			HttpRequestBody reqBody = new HttpRequestBody();
 
 			int bodyOffset = rawResponse.indexOf(HttpHeader.CRLF + HttpHeader.CRLF);
-			resHeader = new HttpResponseHeader(rawResponse.substring(0, bodyOffset));
-			resBody = new HttpResponseBody(rawResponse.substring(bodyOffset + (HttpHeader.CRLF + HttpHeader.CRLF).length()));
+			HttpResponseHeader resHeader = new HttpResponseHeader(rawResponse.substring(0, bodyOffset));
+			HttpResponseBody resBody = new HttpResponseBody(rawResponse.substring(bodyOffset + (HttpHeader.CRLF + HttpHeader.CRLF).length()));
 
 			HttpMessage msg = new HttpMessage(reqHeader, reqBody, resHeader, resBody);
+			msg.setTimeSentMillis(System.currentTimeMillis());
 
 			final HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(), 
 					HistoryReference.TYPE_BRUTE_FORCE, msg);
-			historyId = ref.getHistoryId();
+			
+			tableModel.addHistoryReference(ref);
 			
 			SwingUtilities.invokeLater(new Runnable(){
 				@Override
@@ -280,18 +273,6 @@ public class BruteForce extends Thread implements BruteForceListenner {
 			
 		} catch (Exception e) {
 			log.error("Failed to analyse response from " + url, e);
-		}
-
-		if (statusCode == 200) {
-			// For some reason 200's dont seem to get parsed successfully
-			reason = "OK";
-		} else if (resHeader != null) {
-			reason = resHeader.getReasonPhrase();
-		}
-
-		BruteForceItem bfi = new BruteForceItem(url.toString(), statusCode, reason, historyId);
-		if (! list.contains(bfi)) {
-			list.addElement(bfi);
 		}
 
 	}

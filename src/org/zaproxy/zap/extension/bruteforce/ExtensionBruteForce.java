@@ -107,8 +107,6 @@ public class ExtensionBruteForce extends ExtensionAdaptor
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectory());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuBruteForceDirectoryAndChildren());
 
-	        this.getBruteForcePanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
-
 	    	ExtensionHelp.enableHelpKey(getBruteForcePanel(), "ui.tabs.bruteforce");
 	    }
 	}

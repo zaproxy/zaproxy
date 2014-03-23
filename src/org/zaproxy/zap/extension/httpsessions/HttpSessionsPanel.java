@@ -34,10 +34,10 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -66,7 +66,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private JScrollPane jScrollPane = null;
 	private JComboBox<String> siteSelect = null;
 	private JButton newSessionButton = null;
-	private JTable sessionsTable = null;
+	private JXTable sessionsTable = null;
 	private JButton optionsButton = null;
 
 	/** The current site. */
@@ -262,7 +262,6 @@ public class HttpSessionsPanel extends AbstractPanel {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getHttpSessionsTable());
 			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return jScrollPane;
 	}
@@ -273,15 +272,12 @@ public class HttpSessionsPanel extends AbstractPanel {
 	private void setSessionsTableColumnSizes() {
 
 		sessionsTable.getColumnModel().getColumn(0).setMinWidth(60);
-		sessionsTable.getColumnModel().getColumn(0).setMaxWidth(80);
 		sessionsTable.getColumnModel().getColumn(0).setPreferredWidth(60); // active
 
 		sessionsTable.getColumnModel().getColumn(1).setMinWidth(120);
-		sessionsTable.getColumnModel().getColumn(1).setMaxWidth(400);
 		sessionsTable.getColumnModel().getColumn(1).setPreferredWidth(200); // name
 
 		sessionsTable.getColumnModel().getColumn(3).setMinWidth(100);
-		sessionsTable.getColumnModel().getColumn(3).setMaxWidth(200);
 		sessionsTable.getColumnModel().getColumn(3).setPreferredWidth(150); // matched
 	}
 
@@ -290,14 +286,15 @@ public class HttpSessionsPanel extends AbstractPanel {
 	 * 
 	 * @return the http sessions table
 	 */
-	private JTable getHttpSessionsTable() {
+	private JXTable getHttpSessionsTable() {
 		if (sessionsTable == null) {
-			sessionsTable = new JTable(sessionsModel);
+			sessionsTable = new JXTable(sessionsModel);
 
 			sessionsTable.setColumnSelectionAllowed(false);
 			sessionsTable.setCellSelectionEnabled(false);
 			sessionsTable.setRowSelectionAllowed(true);
 			sessionsTable.setAutoCreateRowSorter(true);
+			sessionsTable.setColumnControlVisible(true);
 
 			this.setSessionsTableColumnSizes();
 

@@ -41,12 +41,12 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertNode;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
-import org.zaproxy.zap.extension.bruteforce.BruteForceItem;
 import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
 import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
+import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 /**
  * @deprecated (2.3.0) Superseded by {@link PopupMenuItemHistoryReferenceContainer}. It will be removed in a future release.
@@ -60,6 +60,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 	private JTree treeInvoker = null;
     private JList<?> listInvoker = null;
     private JTable tableInvoker = null;
+    private HistoryReferencesTable hrefsTableInvoker = null;
     private HistoryReferenceTable hrefTableInvoker = null;
     private Invoker lastInvoker = null;
     private boolean multiSelect = false;
@@ -138,7 +139,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
     		case ascan:
     		case history:
-        	    ref = (HistoryReference) listInvoker.getSelectedValue();
+    		case bruteforce:
+        	    ref = hrefsTableInvoker.getSelectedHistoryReference();
 				break;
 
 			case fuzz:
@@ -165,10 +167,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             	    	ref = msg.getHistoryRef();
             	    }
         	    }
-				break;
-    		case bruteforce:
-    	    	BruteForceItem bfi = (BruteForceItem) listInvoker.getSelectedValue();
-    	    	ref = new HistoryReference(bfi.getHistoryId());
 				break;
     		case hreftable:
     			ref = hrefTableInvoker.getSelectedValue();
@@ -200,12 +198,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 
     		case ascan:
     		case history:
-        	    selectedValues = listInvoker.getSelectedValuesList();
-        	    if (selectedValues != null) {
-        	    	for (Object obj : selectedValues) {
-        	    		refs.add((HistoryReference)obj);
-        	    	}
-        	    }
+    		case bruteforce:
+        	    refs = hrefsTableInvoker.getSelectedHistoryReferences();
 				break;
 
             case fuzz:
@@ -239,15 +233,6 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
         	    	}
         	    }
 				break;
-    		case bruteforce:
-        	    selectedValues = listInvoker.getSelectedValuesList();
-        	    if (selectedValues != null) {
-        	    	for (Object obj : selectedValues) {
-                	    BruteForceItem bfi = (BruteForceItem)obj;
-            	    	refs.add(new HistoryReference(bfi.getHistoryId()));
-        	    	}
-        	    }
-				break;
     		case hreftable:
     			refs = hrefTableInvoker.getSelectedValues();
     			break;
@@ -266,9 +251,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     		return false;
     	}
     	
-        if (invoker.getName().equals("ListLog")) {
+        if (invoker.getName().equals("History Table")) {
         	this.lastInvoker = Invoker.history;
-            this.listInvoker = (JList<?>) invoker;
+            this.hrefsTableInvoker = (HistoryReferencesTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker instanceof JTree && invoker.getName().equals("treeSite")) {
@@ -299,9 +284,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             this.listInvoker = (JList<?>) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName().equals(ActiveScanPanel.PANEL_NAME)) {
+        } else if (invoker.getName().equals(ActiveScanPanel.MESSAGE_CONTAINER_NAME)) {
         	this.lastInvoker = Invoker.ascan;
-            this.listInvoker = (JList<?>) invoker;
+            this.hrefsTableInvoker = (HistoryReferencesTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker.getName().equals(HttpFuzzerContentPanel.PANEL_NAME)) {
@@ -309,9 +294,9 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             this.tableInvoker = (JTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName().equals(BruteForcePanel.PANEL_NAME)) {
+        } else if (invoker.getName().equals(BruteForcePanel.MESSAGE_CONTAINER_NAME)) {
         	this.lastInvoker = Invoker.bruteforce;
-            this.listInvoker = (JList<?>) invoker;
+            this.hrefsTableInvoker = (HistoryReferencesTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
         } else if (invoker instanceof HistoryReferenceTable) {

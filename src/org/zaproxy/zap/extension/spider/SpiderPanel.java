@@ -25,11 +25,11 @@ import java.awt.event.KeyEvent;
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.model.SiteNode;
@@ -57,7 +57,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	public static final String PANEL_NAME = "SpiderPanel";
 
 	/** The results table. */
-	private JTable resultsTable;
+	private JXTable resultsTable;
 
 	/** The results pane. */
 	private JScrollPane workPane;
@@ -117,7 +117,6 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 			workPane.setName("SpiderResultsPane");
 			workPane.setViewportView(getScanResultsTable());
 			workPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			workPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return workPane;
 	}
@@ -127,17 +126,14 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 */
 	private void setScanResultsTableColumnSizes() {
 		resultsTable.getColumnModel().getColumn(0).setMinWidth(80);
-		resultsTable.getColumnModel().getColumn(0).setMaxWidth(90);
 		resultsTable.getColumnModel().getColumn(0).setPreferredWidth(90); // processed
 
 		resultsTable.getColumnModel().getColumn(1).setMinWidth(60);
-		resultsTable.getColumnModel().getColumn(1).setMaxWidth(80);
 		resultsTable.getColumnModel().getColumn(1).setPreferredWidth(70); // method
 
 		resultsTable.getColumnModel().getColumn(2).setMinWidth(300); // name
 
 		resultsTable.getColumnModel().getColumn(3).setMinWidth(50);
-		resultsTable.getColumnModel().getColumn(3).setMaxWidth(600);
 		resultsTable.getColumnModel().getColumn(3).setPreferredWidth(250); // flags
 	}
 
@@ -161,14 +157,15 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * 
 	 * @return the scan results table
 	 */
-	private JTable getScanResultsTable() {
+	private JXTable getScanResultsTable() {
 		if (resultsTable == null) {
 			// Create the table with a default, empty TableModel and the proper settings
-			resultsTable = new JTable(EMPTY_RESULTS_MODEL);
+			resultsTable = new JXTable(EMPTY_RESULTS_MODEL);
 			resultsTable.setColumnSelectionAllowed(false);
 			resultsTable.setCellSelectionEnabled(false);
 			resultsTable.setRowSelectionAllowed(true);
 			resultsTable.setAutoCreateRowSorter(true);
+			resultsTable.setColumnControlVisible(true);
 
 			this.setScanResultsTableColumnSizes();
 

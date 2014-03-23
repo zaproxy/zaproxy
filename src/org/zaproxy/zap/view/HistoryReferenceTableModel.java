@@ -32,7 +32,11 @@ import org.parosproxy.paros.model.HistoryReference;
 
 /**
  * A generic customizable TableModel for use by any panel that displays HistoryReferences.
+ * 
+ * @deprecated (2.3.0) Superseded by {@link org.zaproxy.zap.view.table.HistoryReferencesTableModel}. It will be removed in a
+ *             future release.
  */
+@Deprecated
 public class HistoryReferenceTableModel extends AbstractTableModel {
 
 	/** The Constant serialVersionUID. */
@@ -155,7 +159,6 @@ public class HistoryReferenceTableModel extends AbstractTableModel {
 	}
 
 	private ImageIcon getHrefTypeIcon(HistoryReference href) {
-		// TODO
 		/*
     	switch (href.getHistoryType()) {
     	case Alert.RISK_INFO:	return new ImageIcon(Constant.INFO_FLAG_IMAGE_URL);

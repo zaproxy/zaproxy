@@ -37,6 +37,11 @@ import org.zaproxy.zap.view.HistoryReferenceTableModel.COLUMN;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 
+/**
+ * @deprecated (2.3.0) Superseded by {@link org.zaproxy.zap.view.table.HistoryReferencesTable}. It will be removed in a future
+ *             release.
+ */
+@Deprecated
 public class HistoryReferenceTable extends JTable {
 
 	private static final long serialVersionUID = 1L;

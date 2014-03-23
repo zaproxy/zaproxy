@@ -35,6 +35,8 @@
 // ZAP: 2014/02/07 Issue 207: Give the most suitable component focus on tab switch
 // ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
+// ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
+// with tables instead of lists
 
 package org.parosproxy.paros.extension.history;
 
@@ -42,10 +44,8 @@ import java.awt.BorderLayout;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
-import java.awt.Rectangle;
 import java.awt.event.KeyEvent;
 import java.sql.SQLException;
-import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -72,15 +72,16 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.ZapToggleButton;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
-import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
+import org.zaproxy.zap.view.table.HistoryReferencesTable;
+import org.zaproxy.zap.view.table.HistoryReferencesTableModel;
 
 public class LogPanel extends AbstractPanel implements Runnable {
 	private static final long serialVersionUID = 1L;
 	// ZAP: Added logger.
 	private static final Logger logger = Logger.getLogger(LogPanel.class);
 	private javax.swing.JScrollPane scrollLog = null;
-	private javax.swing.JList<HistoryReference> listLog = null;
+	private HistoryReferencesTable historyReferencesTable = null;
 	// ZAP: Added history (filter) toolbar
 	private javax.swing.JPanel historyPanel = null;
 	private javax.swing.JToolBar panelToolbar = null;
@@ -125,7 +126,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	@Override
 	public void tabSelected() {
 		// Give the history list focus so that the user can immediatelly use the arrow keys to navigate
-		getListLog().requestFocusInWindow();
+	    getHistoryReferenceTable().requestFocusInWindow();
 	}
 
     void setExtension(ExtensionHistory extension) {
@@ -144,10 +145,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private javax.swing.JScrollPane getScrollLog() {
 		if (scrollLog == null) {
 			scrollLog = new javax.swing.JScrollPane();
-			scrollLog.setViewportView(getListLog());
-			scrollLog.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			scrollLog.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-			scrollLog.setPreferredSize(new java.awt.Dimension(800,200));
+			scrollLog.setViewportView(getHistoryReferenceTable());
 			scrollLog.setName("scrollLog");
 		}
 		return scrollLog;
@@ -316,58 +314,12 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		return null;
 	}
 
-	/**
-	 * This method initializes listLog	
-	 * 	
-	 * @return javax.swing.JList	
-	 */
-	protected javax.swing.JList<HistoryReference> getListLog() {
-		if (listLog == null) {
-			listLog = new javax.swing.JList<>();
-			listLog.setDoubleBuffered(true);
-            listLog.setCellRenderer(getLogPanelCellRenderer());
-			listLog.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			listLog.setName("ListLog");
-			listLog.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
-			listLog.setFixedCellHeight(16);	// Significantly speeds up rendering
-			listLog.addMouseListener(new java.awt.event.MouseAdapter() { 
-				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-					
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-				
-				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-					if (e.isPopupTrigger()) {
-				    	
-						// ZAP: Select history list item on right click
-					    int Idx = listLog.locationToIndex( e.getPoint() );
-					    if ( Idx >= 0 ) {
-					    	Rectangle Rect = listLog.getCellBounds( Idx, Idx );
-					    	Idx = Rect.contains( e.getPoint().x, e.getPoint().y ) ? Idx : -1;
-					    }
-					    if ( Idx < 0 || !listLog.getSelectionModel().isSelectedIndex( Idx ) ) {
-					    	listLog.getSelectionModel().clearSelection();
-					    	if ( Idx >= 0 ) {
-					    		listLog.getSelectionModel().setSelectionInterval( Idx, Idx );
-					    	}
-					    }
-
-                        final List<HistoryReference> historyReferences = listLog.getSelectedValuesList();
-                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
-                                listLog.getName(),
-                                listLog,
-                                Collections.<HistoryReference> emptyList(),
-                                historyReferences);
-				        View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
-				        return;
-				    }	
-				    
-				}
+	private HistoryReferencesTable getHistoryReferenceTable() {
+		if (historyReferencesTable == null) {
+			historyReferencesTable = new HistoryReferencesTable();
+			historyReferencesTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			historyReferencesTable.setName("History Table");
+			historyReferencesTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
 				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
@@ -378,17 +330,16 @@ public class LogPanel extends AbstractPanel implements Runnable {
 				}
 			});
 			
-			listLog.addListSelectionListener(new javax.swing.event.ListSelectionListener() { 
+			historyReferencesTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
 
 				@Override
 				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
 					// ZAP: Changed to only display the message when there are no more selection changes.
 					if (!e.getValueIsAdjusting()) {
-					    if (listLog.getSelectedValue() == null) {
+						HistoryReference historyRef = getHistoryReferenceTable().getSelectedHistoryReference();
+						if (historyRef == null) {
 					        return;
 					    }
-	                    
-						final HistoryReference historyRef = listLog.getSelectedValue();
 	
 	                    readAndDisplay(historyRef);
 					}
@@ -399,7 +350,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			});
 
 		}
-		return listLog;
+		return historyReferencesTable;
 	}
 	
 //    private void readAndDisplay(HistoryReference historyRef) {
@@ -429,22 +380,10 @@ public class LogPanel extends AbstractPanel implements Runnable {
     
     private Vector<HistoryReference> displayQueue = new Vector<>();
     private Thread thread = null;
-    private LogPanelCellRenderer logPanelCellRenderer = null;  //  @jve:decl-index=0:visual-constraint="10,304"
     
     protected void display(final HistoryReference historyRef) {
     	this.readAndDisplay(historyRef);
-    	for (int i = 0; i < listLog.getModel().getSize(); i++) {
-    		// Bit nasty, but its the only way I've found...
-    		if (listLog.getModel().getElementAt(i).getHistoryId() == historyRef.getHistoryId()) {
-    			listLog.setSelectedIndex(i);
-    			listLog.ensureIndexIsVisible(i);
-    			break;
-    			/* Doesnt work - the records are not always in order
-    		} else if (((HistoryReference)listLog.getModel().getElementAt(i)).getHistoryId() > historyRef.getHistoryId()) {
-    			break;
-    			*/
-    		}
-    	}
+    	getHistoryReferenceTable().selectHistoryReference(historyRef.getHistoryId());
     }
 
     public void clearDisplayQueue() {
@@ -518,7 +457,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
                     @Override
                     public void run() {
                         displayMessage(msg);
-                        listLog.requestFocus();
+                        getHistoryReferenceTable().requestFocus();
 
                     }
                 });
@@ -535,23 +474,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
         } while (true);
         
         
-    }
-    
-    /**
-     * This method initializes logPanelCellRenderer	
-     * 	
-     * @return org.parosproxy.paros.extension.history.LogPanelCellRenderer	
-     */
-    private LogPanelCellRenderer getLogPanelCellRenderer() {
-        if (logPanelCellRenderer == null) {
-            logPanelCellRenderer = new LogPanelCellRenderer();
-    	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
-    	    	logPanelCellRenderer.setSize(new java.awt.Dimension(328,21));
-    	    }
-            logPanelCellRenderer.setBackground(java.awt.Color.white);
-            logPanelCellRenderer.setFont(new java.awt.Font("MS Sans Serif", java.awt.Font.PLAIN, 12));
-        }
-        return logPanelCellRenderer;
     }
 
     public void setFilterStatus (HistoryFilter filter) {
@@ -572,5 +494,17 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		public void valueChanged(TreeSelectionEvent e) {
 			extension.updateLinkWithSitesTreeBaseUri(getLinkWithSitesTreeBaseUri((SiteNode) e.getPath().getLastPathComponent()));
 		}
+	}
+
+	public HistoryReference getSelectedHistoryReference() {
+		return getHistoryReferenceTable().getSelectedHistoryReference();
+	}
+
+	public List<HistoryReference> getSelectedHistoryReferences() {
+		return getHistoryReferenceTable().getSelectedHistoryReferences();
+	}
+
+	public void setModel(HistoryReferencesTableModel<DefaultHistoryReferencesTableEntry> historyTableModel) {
+		getHistoryReferenceTable().setModel(historyTableModel);
 	}
 }

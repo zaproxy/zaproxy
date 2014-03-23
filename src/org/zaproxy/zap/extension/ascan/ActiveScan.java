@@ -52,7 +52,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private ActiveScanPanel activeScanPanel;
 	private int progress = 0;
 	private boolean isAlive = false;
-	private DefaultListModel<HistoryReference> list = new DefaultListModel<>();
+	private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
 	private SiteNode startNode = null;
 	private Context startContext = null;
 	private int totalRequests = 0;
@@ -137,7 +137,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 				}
 			}
 		}
-		list.clear();
+		messagesTableModel.clear();
 		this.progress = 0;
 		if (startNode != null) {
 			this.start(startNode);
@@ -188,12 +188,16 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public DefaultListModel<HistoryReference> getList() {
-		return list;
+		return null;
+	}
+
+	public ActiveScanTableModel getMessagesTableModel() {
+	    return messagesTableModel;
 	}
 	
 	@Override
 	public void notifyNewMessage(final HttpMessage msg) {
-	    synchronized (list) {
+	    synchronized (messagesTableModel) {
 	        HistoryReference hRef = msg.getHistoryRef();
         	this.totalRequests++;
         	if (this.totalRequests <= this.maxResultsToList) {
@@ -207,14 +211,14 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
 	                    msg.setHistoryRef(null);
 	                    this.historyReferencesToDelete.add(Integer.valueOf(hRef.getHistoryId()));
-	                    this.list.addElement(hRef);
+	                    this.messagesTableModel.addHistoryReference(hRef);
 	                } catch (HttpMalformedHeaderException e) {
 	                    log.error(e.getMessage(), e);
 	                } catch (SQLException e) {
 	                    log.error(e.getMessage(), e);
 	                }
 	            } else {
-	                this.list.addElement(hRef);
+	                this.messagesTableModel.addHistoryReference(hRef);
 	            }
         	}
         }
@@ -233,8 +237,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void reset() {
-        this.list.clear();
-        this.list = new DefaultListModel<>();
+        this.messagesTableModel.clear();
+        this.messagesTableModel = new ActiveScanTableModel();
         if (deleteRecordsOnExit && historyReferencesToDelete.size() != 0) {
             try {
                 Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
