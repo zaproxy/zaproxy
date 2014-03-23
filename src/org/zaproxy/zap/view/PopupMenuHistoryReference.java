@@ -41,7 +41,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertNode;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
-import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzTableModel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.extension.search.SearchResult;
@@ -294,7 +293,7 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
             this.tableInvoker = (JTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));
             display = true;
-        } else if (invoker.getName().equals(BruteForcePanel.MESSAGE_CONTAINER_NAME)) {
+        } else if (invoker.getName().equals("ForcedBrowseMessageContainer")) {
         	this.lastInvoker = Invoker.bruteforce;
             this.hrefsTableInvoker = (HistoryReferencesTable) invoker;
             this.setEnabled(isEnabledForHistoryReferences(getSelectedHistoryReferences()));

@@ -27,7 +27,6 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
-import org.zaproxy.zap.extension.bruteforce.BruteForcePanel;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
@@ -343,7 +342,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
         case HttpFuzzerContentPanel.PANEL_NAME:
             invoker = Invoker.FUZZER_PANEL;
             break;
-        case BruteForcePanel.MESSAGE_CONTAINER_NAME:
+        case "ForcedBrowseMessageContainer":
             invoker = Invoker.FORCED_BROWSE_PANEL;
             break;
         default:

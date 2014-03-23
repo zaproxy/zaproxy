@@ -64,10 +64,6 @@
 		<maxPort>10240</maxPort>
 	</portscan>
 	
-	<bruteforce>
-		<threadPerHost>10</threadPerHost>
-	</bruteforce>
-	
 	<pscans>
 		<autoTagScanners>
 			<scanner>
