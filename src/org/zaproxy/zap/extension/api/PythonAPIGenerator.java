@@ -82,7 +82,7 @@ public class PythonAPIGenerator {
 							(element.getOptionalParamNames() != null &&
 								element.getOptionalParamNames().size() > 0);
 				
-		if (! hasParams) {
+		if (!(hasParams || type.equals("action"))) {
 			out.write("    @property\n");
 		}
 		out.write("    def " + createFunctionName(element.getName()) + "(self");
