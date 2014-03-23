@@ -53,7 +53,8 @@ public class API {
 	public enum Format {XML, HTML, JSON, JSONP, UI, OTHER};
 	public enum RequestType {action, view, other};
 	
-	public static String API_URL = "http://zap/";
+	public static String API_DOMAIN = "zap";
+	public static String API_URL = "http://" + API_DOMAIN + "/";
 	public static String API_KEY_PARAM = "apikey";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
