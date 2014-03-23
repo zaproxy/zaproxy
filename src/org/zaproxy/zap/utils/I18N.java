@@ -24,8 +24,7 @@ public class I18N {
 	private static final Logger logger = Logger.getLogger(I18N.class);
 
     public I18N (Locale locale) {
-    	this.locale = locale;
-    	this.stdMessages = ResourceBundle.getBundle(Constant.MESSAGES_PREFIX, locale);
+    	setLocale(locale);
     }
     
     public void addMessageBundle(String prefix, ResourceBundle bundle) {
@@ -78,7 +77,19 @@ public class I18N {
 		return '\u0000';
     }
     
+	/**
+	 * Sets the current locale to the given one and gets a resource bundle for new locale.
+	 * <p>
+	 * The call to this method has no effect if the given locale is the same as the current one.
+	 * </p>
+	 *
+	 * @param locale the new locale
+	 * @see ResourceBundle#getBundle(String, Locale)
+	 */
 	public void setLocale (Locale locale) {
+		if (locale.equals(this.locale)) {
+			return;
+		}
     	this.locale = locale;
     	this.stdMessages = ResourceBundle.getBundle(Constant.MESSAGES_PREFIX, locale);
     }
