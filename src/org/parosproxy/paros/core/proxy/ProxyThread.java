@@ -46,6 +46,7 @@
 // any address in which case the requests to the proxy itself were not correctly detected.
 // ZAP: 2014/03/23 Issue 122: ProxyThread logging timeout readings with incorrect message (URL)
 // ZAP: 2014/03/23 Issue 585: Proxy - "502 Bad Gateway" errors responded as "504 Gateway Timeout"
+// ZAP: 2014/03/23 Issue 969: Proxy - Do not include the response body when answering unsuccessful HEAD requests
 
 package org.parosproxy.paros.core.proxy;
 
@@ -264,9 +265,11 @@ class ProxyThread implements Runnable {
                 .append("]: ")
                 .append(cause.getLocalizedMessage());
 
-        msg.setResponseBody(strBuilder.toString());
+        if (!HttpRequestHeader.HEAD.equals(msg.getRequestHeader().getMethod())) {
+            msg.setResponseBody(strBuilder.toString());
+        }
 
-        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(msg.getResponseBody().length()));
+        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(strBuilder.length()));
         msg.getResponseHeader().addHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
     }
 
