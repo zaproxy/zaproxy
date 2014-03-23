@@ -26,6 +26,8 @@
 // ZAP: 2013/01/25 Added method for removing listener.
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/03/23 Tidy up, removed the instance variable rootTreePath, no need to
+// cache the path
 
 package org.parosproxy.paros.view;
 
@@ -66,7 +68,6 @@ public class SiteMapPanel extends AbstractPanel {
 
 	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
-	private TreePath rootTreePath = null;
 	private View view = null;
 	
 	// ZAP: Added SiteMapListenners
@@ -227,9 +228,10 @@ public class SiteMapPanel extends AbstractPanel {
 	
 	public void expandRoot() {
         TreeNode root = (TreeNode) treeSite.getModel().getRoot();
-        if (rootTreePath == null || root != rootTreePath.getPathComponent(0)) {
-            rootTreePath = new TreePath(root);
+        if (root == null) {
+            return;
         }
+        final TreePath rootTreePath = new TreePath(root);
 	    
 		if (EventQueue.isDispatchThread()) {
 		    getTreeSite().expandPath(rootTreePath);
