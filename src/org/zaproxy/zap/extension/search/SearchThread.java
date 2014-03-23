@@ -77,6 +77,14 @@ public class SearchThread extends Thread {
 
 	@Override
 	public void run() {
+		try {
+			search();
+		} finally {
+			this.searchListenner.searchComplete();
+		}
+	}
+
+	private void search() {
 	    Session session = Model.getSingleton().getSession();
         Pattern pattern = Pattern.compile(filter, Pattern.MULTILINE| Pattern.CASE_INSENSITIVE);
 		Matcher matcher = null;
@@ -93,7 +101,6 @@ public class SearchThread extends Thread {
         				searchListenner.addSearchResult(sr);
         			}
         		}
-        		this.searchListenner.searchComplete();
         		return;
         	}
 
@@ -242,7 +249,6 @@ public class SearchThread extends Thread {
 		} catch (SQLException e) {
 	        log.error(e.getMessage(), e);
 		}
-		this.searchListenner.searchComplete();
 	}
 
 	private void notifyInverseMatchFound(HttpMessage message, SearchMatch.Location location) {
