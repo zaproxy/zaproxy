@@ -26,13 +26,14 @@ import org.apache.commons.httpclient.HttpConnection;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
 
 /**
  * An HTTP DELETE method implementation that ignores malformed HTTP response header lines.
  * 
  * @see DeleteMethod
  */
-public class ZapDeleteMethod extends DeleteMethod {
+public class ZapDeleteMethod extends EntityEnclosingMethod {
 
     public ZapDeleteMethod() {
         super();
@@ -40,6 +41,17 @@ public class ZapDeleteMethod extends DeleteMethod {
 
     public ZapDeleteMethod(String uri) {
         super(uri);
+    }
+
+    /**
+     * Returns <tt>"DELETE"</tt>.
+     * @return <tt>"DELETE"</tt>
+     *
+     * @since 2.0
+     */
+    @Override
+    public String getName() {
+        return "DELETE";
     }
 
     /**
