@@ -89,6 +89,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
     private JTable getFuzzResultTable() {
         if (fuzzResultTable == null) {
+            resultsModel = new HttpFuzzTableModel();
             fuzzResultTable = new JXTable(resultsModel);
             fuzzResultTable.setDoubleBuffered(true);
             fuzzResultTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -96,6 +97,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             fuzzResultTable.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
             fuzzResultTable.setDefaultRenderer(Pair.class, new IconTableCellRenderer());
             fuzzResultTable.setColumnControlVisible(true);
+            fuzzResultTable.setRowSorter(new HttpFuzzTableRowSorter(resultsModel));
 
             int[] widths = {
                     10, 25, 550, 30, 85, 55, 40, 70
@@ -128,7 +130,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                         final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedRows);
                         if (countSelectedRows > 0) {
                             for (int selectedRow : fuzzResultTable.getSelectedRows()) {
-                                historyReferences.add(resultsModel.getHistoryReferenceAtRow(selectedRow));
+                                historyReferences.add(resultsModel.getHistoryReferenceAtRow(fuzzResultTable.convertRowIndexToModel(selectedRow)));
                             }
                         }
                         SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
@@ -150,7 +152,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                             return;
                         }
 
-                        final int row = fuzzResultTable.getSelectedRow();
+                        final int row = fuzzResultTable.convertRowIndexToModel(fuzzResultTable.getSelectedRow());
                         final HistoryReference historyReference = resultsModel.getHistoryReferenceAtRow(row);
 
                         try {
@@ -163,13 +165,32 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                     }
                 }
             });
-
-            resetFuzzResultTable();
         }
         return fuzzResultTable;
     }
 
     private void resetFuzzResultTable() {
+        if (EventQueue.isDispatchThread()) {
+            if (resultsModel == null) {
+                getFuzzResultTable();
+            }
+            resultsModel.clear();
+        } else {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        if (resultsModel == null) {
+                            getFuzzResultTable();
+                        }
+                        resultsModel.clear();
+                    }
+                });
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
         if (historyReferencesToDelete.size() != 0) {
             try {
                 Database.getSingleton().getTableHistory().delete(historyReferencesToDelete);
@@ -177,9 +198,6 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                 logger.error(e.getMessage(), e);
             }
         }
-        resultsModel = new HttpFuzzTableModel();
-        historyReferencesToDelete = new ArrayList<>();
-        getFuzzResultTable().setModel(resultsModel);
     }
 
     private void addFuzzResult(final State state, final HttpMessage  msg) {

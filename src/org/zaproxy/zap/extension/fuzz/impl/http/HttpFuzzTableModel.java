@@ -18,7 +18,7 @@
 package org.zaproxy.zap.extension.fuzz.impl.http;
 
 import java.sql.SQLException;
-import java.util.LinkedList;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -55,7 +55,7 @@ public class HttpFuzzTableModel extends AbstractTableModel {
     
     private static final int COLUMN_COUNT = COLUMN_NAMES.length;
     
-    private List<Pair<HttpFuzzerContentPanel.State, HistoryReference>> data = new LinkedList<>();
+    private List<Pair<HttpFuzzerContentPanel.State, HistoryReference>> data = new ArrayList<>();
     
     @Override
     public int getColumnCount() {
@@ -159,10 +159,9 @@ public class HttpFuzzTableModel extends AbstractTableModel {
     public Class<?> getColumnClass(int columnIndex) {
         Class<?> clazz;
         switch(columnIndex) {
-        case 0:
-        case 3:
+        case 4:
         case 5:
-            clazz = String.class;
+            clazz = Integer.class;
             break;
         case 6:
             clazz = Pair.class;
@@ -201,5 +200,10 @@ public class HttpFuzzTableModel extends AbstractTableModel {
         return data;
     }
 
+    public void clear() {
+        data.clear();
+        data = new ArrayList<>();
+        fireTableDataChanged();
+    }
 
 }
