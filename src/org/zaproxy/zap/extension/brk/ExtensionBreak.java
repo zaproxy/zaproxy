@@ -276,12 +276,25 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	}
 
     public void addUiBreakpoint(Message aMessage) {
-        BreakpointsUiManagerInterface uiManager = mapMessageUiManager.get(aMessage.getClass());
+        BreakpointsUiManagerInterface uiManager = getBreakpointUiManager(aMessage.getClass());
         if (uiManager != null) {
             uiManager.handleAddBreakpoint(aMessage);
         }
      }
      
+    private BreakpointsUiManagerInterface getBreakpointUiManager(Class<?> clazz) {
+        if (!Message.class.isAssignableFrom(clazz)) {
+            return null;
+        }
+
+        BreakpointsUiManagerInterface uiManager = mapMessageUiManager.get(clazz);
+        if (uiManager == null) {
+            uiManager = getBreakpointUiManager(clazz.getSuperclass());
+        }
+
+        return uiManager;
+    }
+ 
     public void editUiSelectedBreakpoint() {
         BreakpointMessageInterface breakpoint = getBreakpointsPanel().getSelectedBreakpoint();
         if (breakpoint != null) {
