@@ -291,7 +291,7 @@ public final class AddOnInstaller {
             }
         }
 
-        Control.getSingleton().getExtensionLoader().addonFilesAdded();
+        Control.getSingleton().getExtensionLoader().addonFilesRemoved();
 
         return uninstalledWithoutErrors;
     }
