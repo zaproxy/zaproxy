@@ -18,6 +18,7 @@
 package org.zaproxy.zap.utils;
 
 import java.awt.EventQueue;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.SortedSet;
@@ -29,8 +30,8 @@ import javax.swing.table.AbstractTableModel;
 import org.apache.log4j.Logger;
 
 /**
- * A paginated {@code TableModel}. The model will have at most {@value #MAX_PAGE_SIZE} rows loaded in memory at any given time.
- * The advertised row count will be of all the entries (as if they were all loaded in memory).
+ * A paginated {@code TableModel}. The model will have at most, by default, {@value #DEFAULT_MAX_PAGE_SIZE} rows loaded in
+ * memory at any given time. The advertised row count will be of all the entries (as if they were all loaded in memory).
  * <p>
  * If a {@code JTable}, using this model, is wrapped in a {@code JScrollPane} the vertical scroll bar will be shown as if all
  * the entries were loaded.
@@ -50,6 +51,7 @@ import org.apache.log4j.Logger;
  * 
  * @param <T> the type of elements in this table model
  * @see #loadPage(int, int)
+ * @see #setMaxPageSize(int)
  * @see javax.swing.table.TableModel
  * @see javax.swing.JTable
  * @see javax.swing.JScrollPane
@@ -65,9 +67,14 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	public static final String DEFAULT_SEGMENT_LOADER_THREAD_NAME = "ZAP-PagingTableModel-SegmentLoaderThread";
 
 	/**
-	 * Maximum page size.
+	 * Default maximum page size.
 	 */
-	public static final int MAX_PAGE_SIZE = 50;
+	public static final int DEFAULT_MAX_PAGE_SIZE = 50;
+
+	/**
+	 * The maximum size of the page.
+	 */
+	private int maxPageSize;
 
 	private int dataOffset = 0;
 	private List<T> data = Collections.emptyList();
@@ -77,22 +84,118 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 
 	/**
 	 * Constructs a {@code PagingTableModel} with default default segment loader thread name (
-	 * {@value #DEFAULT_SEGMENT_LOADER_THREAD_NAME}).
+	 * {@value #DEFAULT_SEGMENT_LOADER_THREAD_NAME}) and default maximum page size ({@value #DEFAULT_MAX_PAGE_SIZE}).
 	 */
 	public PagingTableModel() {
-		this(DEFAULT_SEGMENT_LOADER_THREAD_NAME);
+		this(DEFAULT_SEGMENT_LOADER_THREAD_NAME, DEFAULT_MAX_PAGE_SIZE);
 	}
 
 	/**
-	 * Constructs a {@code PagingTableModel} with the given segment loader thread name.
+	 * Constructs a {@code PagingTableModel} with the given segment loader thread name and default maximum page size 
+	 * ({@value #DEFAULT_MAX_PAGE_SIZE}).
 	 * 
 	 * @param segmentLoaderThreadName the name for segment loader thread
 	 * @throws IllegalArgumentException if {@code maxPageSize} is negative or zero.
 	 */
 	public PagingTableModel(String segmentLoaderThreadName) {
+		this(segmentLoaderThreadName, DEFAULT_MAX_PAGE_SIZE);
+	}
+
+	/**
+	 * Constructs a {@code PagingTableModel} with the given maximum page size and default segment loader thread name (
+	 * {@value #DEFAULT_SEGMENT_LOADER_THREAD_NAME}).
+	 * 
+	 * @param maxPageSize the maximum page size
+	 * @throws IllegalArgumentException if {@code maxPageSize} is negative or zero.
+	 */
+	public PagingTableModel(final int maxPageSize) {
+		this(DEFAULT_SEGMENT_LOADER_THREAD_NAME, maxPageSize);
+	}
+
+	/**
+	 * Constructs a {@code PagingTableModel} with the given segment loader thread name and given maximum page size.
+	 * 
+	 * @param segmentLoaderThreadName the name for segment loader thread
+	 * @param maxPageSize the maximum page size
+	 * @throws IllegalArgumentException if {@code maxPageSize} is negative or zero.
+	 */
+	public PagingTableModel(String segmentLoaderThreadName, int maxPageSize) {
 		this.segmentLoaderThreadName = segmentLoaderThreadName;
+
+		setMaxPageSizeWithoutPageChanges(maxPageSize);
 	}
 	
+	/**
+	 * Returns the maximum page size.
+	 * 
+	 * @return the maximum page size.
+	 */
+	public int getMaxPageSize() {
+		return maxPageSize;
+	}
+
+	/**
+	 * Sets the maximum size of the page.
+	 * <p>
+	 * If the given maximum size is greater than the current maximum size a new page will be loaded, otherwise the current page
+	 * will be shrunk to meet the given maximum size. In both cases the {@code TableModelListener} will be notified of the
+	 * change.
+	 * </p>
+	 * <p>
+	 * The call to this method has no effect if the given maximum size is equal to the current maximum size.
+	 * </p>
+	 * 
+	 * @param maxPageSize the new maximum page size
+	 * @throws IllegalArgumentException if {@code maxPageSize} is negative or zero.
+	 * @see #setMaxPageSizeWithoutPageChanges(int)
+	 * @see TableModelListener
+	 */
+	public void setMaxPageSize(final int maxPageSize) {
+		if (maxPageSize <= 0) {
+			throw new IllegalArgumentException("Parameter maxPageSize must be greater than zero.");
+		}
+		if (this.maxPageSize == maxPageSize) {
+			return;
+		}
+		int oldMaxPageSize = this.maxPageSize;
+		setMaxPageSizeWithoutPageChanges(maxPageSize);
+
+		int rowCount = getRowCount();
+		if (rowCount > 0) {
+			if (maxPageSize > oldMaxPageSize) {
+				schedule(dataOffset);
+			} else if (data.size() > maxPageSize) {
+				final List<T> shrunkData = data.subList(0, maxPageSize);
+
+				EventQueue.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						setData(dataOffset, new ArrayList<>(shrunkData));
+					}
+				});
+			}
+		}
+
+	}
+
+	/**
+	 * Sets the maximum size of the page.
+	 * <p>
+	 * As opposed to method {@code #setMaxPageSize(int)} no changes will be made to the current page.
+	 * </p>
+	 * 
+	 * @param maxPageSize the new maximum page size
+	 * @throws IllegalArgumentException if {@code maxPageSize} is negative or zero.
+	 * @see #setMaxPageSize(int)
+	 */
+	public void setMaxPageSizeWithoutPageChanges(final int maxPageSize) {
+		if (maxPageSize <= 0) {
+			throw new IllegalArgumentException("Parameter maxPageSize must be greater than zero.");
+		}
+		this.maxPageSize = maxPageSize;
+	}
+
 	@Override
     public void fireTableDataChanged() {
 		// clear cached data
@@ -174,8 +277,8 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 			return;
 		}
 		
-		int startOffset = Math.max(0, offset - MAX_PAGE_SIZE / 2);
-		int length = offset + MAX_PAGE_SIZE / 2 - startOffset;
+		int startOffset = Math.max(0, offset - maxPageSize / 2);
+		int length = offset + maxPageSize / 2 - startOffset;
 		
 		load(startOffset, length);
 	}
@@ -193,7 +296,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 			return seg.contains(offset);
 		}
 		
-		Segment low = new Segment(offset - MAX_PAGE_SIZE, 0);
+		Segment low = new Segment(offset - maxPageSize, 0);
 		Segment high = new Segment(offset + 1, 0);
 		
 		// search pending segments that may contain offset
