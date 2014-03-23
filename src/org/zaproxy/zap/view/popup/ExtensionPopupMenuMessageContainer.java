@@ -56,16 +56,17 @@ public class ExtensionPopupMenuMessageContainer extends ExtensionPopupMenu {
      * least one of the child menu items is enable for the given {@code invoker}.
      * <p>
      * Although the pop up menu is allowed to contain child menus and menu items of any type of {@code JMenu} or
-     * {@code JMenuItem} the only children considered as enablers are the ones of the type of {@code PopupMenuHistoryReference}.
+     * {@code JMenuItem} the only children considered as enablers are the ones of the type of
+     * {@code ExtensionPopupMenuComponent}.
      * </p>
      * <p>
-     * The {@code PopupMenuHistoryReference}s are considered enable if the corresponding method
+     * The {@code ExtensionPopupMenuComponent}s are considered enable if the corresponding method
      * {@code isEnableForMessageContainer(MessageContainer)}, with {@code invoker} as parameter, returns {@code true}.
      * </p>
      * <p>
      * <strong>Implementation Note:</strong> The method {@code isEnableForMessageContainer(MessageContainer)} is called on all
-     * child {@code PopupMenuHistoryReference}s, even if a previous child has returned {@code true}, as it allows to notify all
-     * the children that the pop up menu in which they are, is being invoked. Subclasses should take it into account when
+     * child {@code ExtensionPopupMenuComponent}s, even if a previous child has returned {@code true}, as it allows to notify
+     * all the children that the pop up menu in which they are, is being invoked. Subclasses should take it into account when
      * overriding this the method.
      * </p>
      */

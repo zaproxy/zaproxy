@@ -98,6 +98,17 @@ public final class PopupMenuUtils {
     }
 
     /**
+     * Tells whether or not the given {@code component} is an {@code ExtensionPopupMenuComponent}.
+     * 
+     * @param component the component that will be checked.
+     * @return {@code true} if the given component is an {@code ExtensionPopupMenuComponent}, {@code false} otherwise.
+     * @see ExtensionPopupMenuComponent
+     */
+    public static boolean isExtensionPopupMenuComponent(Component component) {
+        return (component instanceof ExtensionPopupMenuComponent);
+    }
+
+    /**
      * Tells whether or not the given {@code component} is a {@code JPopupMenu.Separator}.
      * 
      * @param component the component that will be checked.

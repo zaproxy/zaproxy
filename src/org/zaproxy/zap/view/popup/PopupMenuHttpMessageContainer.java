@@ -225,7 +225,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
      * <h3>Notifying and processing child menus</h3>
      * <p>
      * When the method {@code isProcessExtensionPopupChildren()} returns true, the method
-     * {@code isEnableForComponent(Component)} is called on all child {@code PopupMenuHistoryReference}s.
+     * {@code isEnableForComponent(Component)} is called on all child {@code ExtensionPopupMenuComponent}s.
      * </p>
      * <p>
      * <strong>Note:</strong> Override of this method should be done with extra care as it might break all the expected

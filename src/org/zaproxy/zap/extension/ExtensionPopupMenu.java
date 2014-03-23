@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension;
 import java.awt.Component;
 
 import javax.swing.JMenu;
-import javax.swing.JMenuItem;
 
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
@@ -41,23 +40,25 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 
 	/**
 	 * By default, the pop up menu button is enabled and the pop up menu is only enable for the given {@code invoker} if at
-	 * least one of the child menu items is enable for the given {@code invoker}.
+	 * least one of the child menus and menu items is enable for the given {@code invoker}.
 	 * <p>
 	 * Although the pop up menu is allowed to contain child menus and menu items of any type of {@code JMenu} or
-	 * {@code JMenuItem} the only children considered as enablers are the ones of the type of {@code PopupMenuHistoryReference}.
+	 * {@code JMenuItem} the only children considered as enablers are the ones of the type of
+	 * {@code ExtensionPopupMenuComponent}.
 	 * </p>
 	 * <p>
-	 * The {@code PopupMenuHistoryReference}s are considered enable if the corresponding method
+	 * The {@code ExtensionPopupMenuComponent}s are considered enable if the corresponding method
 	 * {@code isEnableForComponent(Component)}, with {@code invoker} as parameter, returns {@code true}.
 	 * </p>
 	 * <p>
 	 * <strong>Implementation Note:</strong> The method {@code isEnableForComponent(Component)} is called on all child
-	 * {@code PopupMenuHistoryReference}s, even if a previous child has returned {@code true}, as it allows to notify all the
+	 * {@code ExtensionPopupMenuComponent}s, even if a previous child has returned {@code true}, as it allows to notify all the
 	 * children that the pop up menu in which they are, is being invoked. Subclasses should take it into account when overriding
 	 * this the method.
 	 * </p>
 	 * 
 	 * @see #processExtensionPopupChildren(PopupMenuUtils.PopupMenuInvokerWrapper)
+	 * @see ExtensionPopupMenuComponent#isEnableForComponent(Component)
 	 * @see #isEnableForMessageContainer(MessageContainer)
 	 */
 	@Override
@@ -66,42 +67,31 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 	}
 
 	/**
-	 * Returns {@code true} if at least one of the child {@code PopupMenuHistoryReference} items is enable, {@code false}
+	 * Returns {@code true} if at least one of the child {@code ExtensionPopupMenuComponent}s is enable, {@code false}
 	 * otherwise.
 	 * <p>
-	 * The method {@code isEnableForComponent(Component)} is called on all child {@code PopupMenuHistoryReference}s.
+	 * The method {@code isEnableForComponent(Component)} or {@code isEnableForMessageContainer(MessageContainer)}, depending on
+	 * actual implementation of the given {@code invokerWrapper}, is called on all child {@code ExtensionPopupMenuComponent}s.
 	 * </p>
 	 * 
 	 * @param invokerWrapper the wrapped invoker
 	 * @return {@code true} if at least one of the child items is enable, {@code false} otherwise.
+	 * @see ExtensionPopupMenuComponent#isEnableForComponent(Component)
+	 * @see ExtensionPopupMenuComponent#isEnableForMessageContainer(MessageContainer)
 	 */
 	protected boolean processExtensionPopupChildren(PopupMenuUtils.PopupMenuInvokerWrapper invokerWrapper) {
 		boolean childEnable = false;
-		for (int index = 0; index < this.getItemCount(); index++) {
-			JMenuItem item = this.getItem(index);
-			if (isEnableForComponent(item, invokerWrapper)) {
-				childEnable = true;
+		for (int i = 0; i < getMenuComponentCount(); ++i) {
+			Component menuComponent = getMenuComponent(i);
+			if (PopupMenuUtils.isExtensionPopupMenuComponent(menuComponent)) {
+				boolean enable = invokerWrapper.isEnable((ExtensionPopupMenuComponent) menuComponent);
+				if (enable) {
+					childEnable = true;
+				}
+				menuComponent.setVisible(enable);
 			}
 		}
 		return childEnable;
-	}
-
-	/**
-	 * The class {@code PopupMenuHistoryReference} is deprecated but it must still be used for backward compatibility, so to
-	 * avoid hiding future deprecations of other methods/classes this method was added to suppress the deprecation warning
-	 * locally (instead of the whole method {@code isEnableForComponent(Component)}).
-	 * 
-	 * @see org.zaproxy.zap.view.PopupMenuHistoryReference
-	 */
-	@SuppressWarnings({ "deprecation", "javadoc" })
-	private static boolean isEnableForComponent(JMenuItem item, PopupMenuUtils.PopupMenuInvokerWrapper invokerWrapper) {
-		if (item instanceof org.zaproxy.zap.view.PopupMenuHistoryReference) {
-			org.zaproxy.zap.view.PopupMenuHistoryReference itemRef = (org.zaproxy.zap.view.PopupMenuHistoryReference) item;
-			if (invokerWrapper.isEnable(itemRef)) {
-				return true;
-			}
-		}
-		return false;
 	}
 
 	/**
