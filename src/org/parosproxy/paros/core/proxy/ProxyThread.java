@@ -45,6 +45,7 @@
 // ZAP: 2014/03/23 Fixed an issue with ProxyThread that happened when the proxy was set to listen on
 // any address in which case the requests to the proxy itself were not correctly detected.
 // ZAP: 2014/03/23 Issue 122: ProxyThread logging timeout readings with incorrect message (URL)
+// ZAP: 2014/03/23 Issue 585: Proxy - "502 Bad Gateway" errors responded as "504 Gateway Timeout"
 
 package org.parosproxy.paros.core.proxy;
 
@@ -89,6 +90,9 @@ class ProxyThread implements Runnable {
 //	private static ArrayList 		processForwardList = new ArrayList();
     
 	private static Logger log = Logger.getLogger(ProxyThread.class);
+
+    private static final String BAD_GATEWAY_RESPONSE_STATUS = "502 Bad Gateway";
+    private static final String GATEWAY_TIMEOUT_RESPONSE_STATUS = "504 Gateway Timeout";
     
 	// change httpSender to static to be shared among proxies to reuse keep-alive connections
 
@@ -210,11 +214,9 @@ class ProxyThread implements Runnable {
 					// Unluckily Firefox and Internet Explorer will not show this message.
 					// We should find a way to let the browsers display this error message.
 					// May we can redirect to some kind of ZAP custom error page.
-					final HttpMessage errmsg = new HttpMessage();
-					errmsg.setRequestHeader(firstHeader);
-					errmsg.setResponseBody("ZAP SSL Error: " + e.getLocalizedMessage());
-			    	int len = errmsg.getResponseBody().length();
-			    	errmsg.setResponseHeader("HTTP/1.1 504 Gateway Timeout\r\nContent-Length: " + len + "\r\nContent-Type: text/plain;");
+
+					final HttpMessage errmsg = new HttpMessage(firstHeader);
+					setErrorResponse(errmsg, BAD_GATEWAY_RESPONSE_STATUS, e, "ZAP SSL Error");
 
 			    	writeHttpResponse(errmsg, httpOut);
 
@@ -245,6 +247,28 @@ class ProxyThread implements Runnable {
     		}
 		}
 	}
+
+    private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause)
+            throws HttpMalformedHeaderException {
+        setErrorResponse(msg, responseStatus, cause, "ZAP Error");
+    }
+
+    private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause, String errorType)
+            throws HttpMalformedHeaderException {
+        msg.setResponseHeader("HTTP/1.1 " + responseStatus);
+
+        StringBuilder strBuilder = new StringBuilder();
+        strBuilder.append(errorType)
+                .append(" [")
+                .append(cause.getClass().getName())
+                .append("]: ")
+                .append(cause.getLocalizedMessage());
+
+        msg.setResponseBody(strBuilder.toString());
+
+        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(msg.getResponseBody().length()));
+        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
+    }
 
     private static void writeHttpResponse(HttpMessage msg, HttpOutputStream outputStream) throws IOException {
         outputStream.write(msg.getResponseHeader());
@@ -338,10 +362,12 @@ class ProxyThread implements Runnable {
 			    } catch (HttpException e) {
 //			    	System.out.println("HttpException");
 			    	throw e;
+			    } catch (SocketTimeoutException e) {
+			        setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, e);
+
+			        writeHttpResponse(msg, httpOut);
 			    } catch (IOException e) {
-			    	msg.setResponseBody("ZAP Error: " + e.getLocalizedMessage());
-			    	int len = msg.getResponseBody().length();
-			    	msg.setResponseHeader("HTTP/1.1 504 Gateway Timeout\r\nContent-Length: " + len + "\r\nContent-Type: text/plain;");
+			    	setErrorResponse(msg, BAD_GATEWAY_RESPONSE_STATUS, e);
 			    	
 			        notifyListenerResponseReceive(msg);
 
