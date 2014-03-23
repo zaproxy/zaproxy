@@ -27,6 +27,7 @@ import java.util.Enumeration;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 import java.util.TreeMap;
 import java.util.Vector;
@@ -210,16 +211,39 @@ public class ExtensionFactory {
     }
     
     private static void loadMessages(Extension ext) {
-    	// Try to load a message bundle in the same package as the extension 
-		String name = ext.getClass().getPackage().getName() + "." + Constant.MESSAGES_PREFIX;
-		try {
-			ResourceBundle msg = ResourceBundle.getBundle(name, Constant.getLocale(), ext.getClass().getClassLoader(),
-					ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
+		ResourceBundle msg = getExtensionResourceBundle(ext);
+		if (msg != null) {
 			ext.setMessages(msg);
 			Constant.messages.addMessageBundle(ext.getI18nPrefix(), ext.getMessages());
-		} catch (Exception e) {
-			// Ignore - it will be using the standard message bundle
 		}
+    }
+
+    private static ResourceBundle getExtensionResourceBundle(Extension ext) {
+        String extensionPackage = ext.getClass().getPackage().getName();
+        ClassLoader classLoader = ext.getClass().getClassLoader();
+        try {
+            // Try to load a message bundle in the new/default location
+            String name = extensionPackage + ".resources." + Constant.MESSAGES_PREFIX;
+            return getPropertiesResourceBundle(name, classLoader);
+        } catch (MissingResourceException ignore) {
+            // Try to load in the old location
+            String oldLocation = extensionPackage + "." + Constant.MESSAGES_PREFIX;
+            try {
+                return getPropertiesResourceBundle(oldLocation, classLoader);
+            } catch (MissingResourceException ignoreAgain) {
+                // It will be using the standard message bundle
+            }
+        }
+        return null;
+    }
+
+    private static ResourceBundle getPropertiesResourceBundle(String name, ClassLoader classLoader)
+            throws MissingResourceException {
+        return ResourceBundle.getBundle(
+                name,
+                Constant.getLocale(),
+                classLoader,
+                ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
     }
 
     /**
@@ -242,12 +266,22 @@ public class ExtensionFactory {
     
     private static URL getExtensionHelpSetUrl(Extension extension) {
         String extensionPackage = extension.getClass().getPackage().getName().replace('.', '/') + "/";
-        return findResource(
+        URL helpSetUrl = findResource(
                 extension.getClass().getClassLoader(),
-                extensionPackage + "resource/help",
+                extensionPackage + "resources/help",
                 "helpset",
                 ".hs",
                 Constant.getLocale());
+        if (helpSetUrl == null) {
+            // Search in old location
+            helpSetUrl = findResource(
+                    extension.getClass().getClassLoader(),
+                    extensionPackage + "resource/help",
+                    "helpset",
+                    ".hs",
+                    Constant.getLocale());
+        }
+        return helpSetUrl;
     }
     
 	public static List<Extension> getAllExtensions() {
