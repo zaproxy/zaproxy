@@ -19,8 +19,14 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/03/23 Issue 1021: OutOutOfMemoryError while running the active scanner
 package org.parosproxy.paros.core.scanner;
 
+import java.sql.SQLException;
+
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 class SampleResponse {
@@ -32,25 +38,25 @@ class SampleResponse {
 	static final int	ERROR_PAGE_DYNAMIC_BUT_DETERMINISTIC	= 4;
 	static final int	ERROR_PAGE_UNDETERMINISTIC				= 5;
 
-	private HttpMessage message = null;
+	private HistoryReference historyReference = null;
 	private int	errorPageType = ERROR_PAGE_RFC;
 	
-	SampleResponse(HttpMessage message, int errorPageType) {
-	    this.message = message;
+	SampleResponse(HttpMessage message, int errorPageType) throws HttpMalformedHeaderException, SQLException {
+	    this.historyReference = createHistoryReference(message);
 	    this.errorPageType = errorPageType;
 	    
 	}
     /**
      * @return Returns the message.
      */
-    public HttpMessage getMessage() {
-        return message;
+    public HttpMessage getMessage() throws HttpMalformedHeaderException, SQLException {
+        return historyReference.getHttpMessage();
     }
     /**
      * @param message The message to set.
      */
-    public void setMessage(HttpMessage message) {
-        this.message = message;
+    public void setMessage(HttpMessage message) throws HttpMalformedHeaderException, SQLException {
+        this.historyReference = createHistoryReference(message);
     }
     /**
      * @return Returns the errorPageType.
@@ -63,5 +69,10 @@ class SampleResponse {
      */
     public void setErrorPageType(int errorPageType) {
         this.errorPageType = errorPageType;
+    }
+
+    private static HistoryReference createHistoryReference(HttpMessage message) throws HttpMalformedHeaderException,
+            SQLException {
+        return new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, message);
     }
 }

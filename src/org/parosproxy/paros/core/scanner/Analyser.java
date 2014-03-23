@@ -27,10 +27,12 @@
 // ZAP: 2012/10/08 Issue 391: Performance improvements
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/03/23 Issue 1021: OutOutOfMemoryError while running the active scanner
 
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -43,6 +45,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
@@ -91,7 +94,11 @@ public class Analyser {
     }
     
 	private void addAnalysedHost(URI uri, HttpMessage msg, int errorIndicator) {
-        mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
+        try {
+            mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
+        } catch (HttpMalformedHeaderException | SQLException e) {
+            logger.error("Failed to persist the message: " + e.getMessage(), e);
+        }
 	}
 	
 	/**
@@ -393,8 +400,12 @@ public class Analyser {
 		// static response
 		String body = msg.getResponseBody().toString().replaceAll(p_REMOVE_HEADER, "");
 		if (sample.getErrorPageType() == SampleResponse.ERROR_PAGE_STATIC) {
-			if (sample.getMessage().getResponseBody().toString().equals(body)) {
-				return false;
+			try {
+				if (sample.getMessage().getResponseBody().toString().equals(body)) {
+					return false;
+				}
+			} catch (HttpMalformedHeaderException | SQLException e) {
+				logger.error("Failed to read the message: " + e.getMessage(), e);
 			}
 			return true;
 		}
