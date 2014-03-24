@@ -1,0 +1,31 @@
+Welcome to the OWASP Zed Attack Proxy
+=====================================
+The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing 
+tool for finding vulnerabilities in web applications.
+
+For more details on ZAP please goto the home page:
+	https://www.owasp.org/index.php/ZAP
+	
+We welcome feedback, either via the Issues, User Group or Developer Group.
+ZAP is also a community based project, and contributions are welcomed.
+See the ZAP wiki for more information.
+
+Weekly Release
+--------------
+This is a weekly ZAP release, and as such is intended for people who want to
+try the very latest features in ZAP.
+While we endeavour to ensure that weekly releases are robust, things may be 
+broken or only partially implemented.
+If you have not used ZAP before it might be better to start with the latest
+'full' release.
+
+Weekly releases do not include an installer.
+You will need to download and install Java 1.7 (minimum) in order to run 
+weekly ZAP releases.
+
+How to start ZAP
+----------------
+On Windows use the 'zap.bat' file
+On Linux and Mac OS use the 'zap.sh' file
+
+Both of these files are in the installation directory. 

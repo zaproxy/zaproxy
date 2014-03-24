@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+
+<!DOCTYPE suppressions PUBLIC
+    "-//Puppy Crawl//DTD Suppressions 1.1//EN"
+    "http://www.puppycrawl.com/dtds/suppressions_1_1.dtd">
+
+<suppressions>
+    <suppress checks="HideUtilityClassConstructor" files="\w*TestSuite\.java" /> <!-- TestSuites are no utility classes -->
+    <suppress checks="JavaNCSS" files="\w*TestSuite\.java" /> <!-- Test suites can (and should) have lots and lots of tests so it makes no sense to force them to be small -->
+    <suppress checks="ClassFanOutComplexity" files="\w*Test\.java" /> <!-- Tests will likely be dependent on too many classes if the class under test depends on too many classes. Refactoring the class under test should solve this for the tests as well -->
+    <suppress checks="AvoidStarImport" files="\w*Test\.java" /> <!-- Simplifies multiple static imports for mocks, matchers and builder -->
+    <suppress checks="IllegalThrows" files="\w*Test(Case)?\.java" /> <!-- Test, setup and teardown methods should throw Exception instead of handling those themselves -->
+</suppressions>

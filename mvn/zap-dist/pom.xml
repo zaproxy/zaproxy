@@ -1,0 +1,148 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  
+  <parent>
+    <groupId>org.owasp.zaproxy</groupId>
+    <artifactId>zaproxy-parent</artifactId>
+    <version>1.5-SNAPSHOT</version>
+  </parent>
+
+  <artifactId>zap-dist</artifactId>
+  <packaging>jar</packaging>
+
+  <name>zap-dist</name>
+  
+  <properties>
+    <gpg.skip>true</gpg.skip>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.owasp.zaproxy</groupId>
+      <artifactId>zap</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.owasp.zaproxy</groupId>
+      <artifactId>zap-api</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.owasp.zaproxy</groupId>
+      <artifactId>zap-help</artifactId>
+      <version>${project.version}</version>
+      <scope>runtime</scope>
+    </dependency>
+  </dependencies>
+  
+  <build>
+    <resources>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+      </resource>
+      <resource>
+        <directory>${basedir}/src/main/resources</directory>
+        <targetPath>${project.build.directory}/${project.build.finalName}/OWASP ZAP.app/Contents/Resources/Java</targetPath>
+      </resource>
+    </resources>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-antrun-plugin</artifactId>
+        <version>1.7</version>
+        <executions>
+          <execution>
+            <id>duplicate-default-lang-file_issue151</id>
+            <phase>process-resources</phase>
+            <goals>
+              <goal>run</goal>
+            </goals>
+            <configuration>
+              <target>
+                <copy 
+                  file="${basedir}/src/main/resources/lang/Messages.properties" 
+                  tofile="${project.build.outputDirectory}/lang/Messages_en_GB.properties"
+                  overwrite="true"
+                  verbose="true"
+                />
+                <copy 
+                  file="${basedir}/src/main/resources/lang/Messages.properties" 
+                  tofile="${project.build.directory}/${project.build.finalName}/OWASP ZAP.app/Contents/Resources/Java/lang/Messages_en_GB.properties"
+                  overwrite="true"
+                  verbose="true"
+                />
+              </target>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+      <!-- can be built on any OS so always build linux bundle -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-assembly-plugin</artifactId>
+        <version>2.2.1</version>
+        <executions>
+          <execution>
+            <id>build-linux-bundle</id>
+            <phase>package</phase>
+            <goals>
+              <goal>single</goal>
+            </goals>
+            <configuration>
+              <finalName>ZAP_${project.version}_Linux</finalName>
+              <appendAssemblyId>false</appendAssemblyId>
+              <descriptors>
+                <descriptor>${basedir}/src/main/assemblies/linux.xml</descriptor>
+              </descriptors>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+  
+  <profiles>
+    <profile>
+      <id>macosx</id>
+      <activation>
+        <os>
+          <name>mac os x</name>
+          <family>mac</family>
+        </os>
+        <property>
+          <name>env</name>
+          <value>all</value>
+        </property>
+      </activation>
+      <build>
+        <plugins>
+		      <plugin>
+		        <groupId>org.apache.maven.plugins</groupId>
+		        <artifactId>maven-assembly-plugin</artifactId>
+		        <version>2.2.1</version>
+		        <executions>
+		          <execution>
+		            <id>build-macosx-bundle</id>
+		            <phase>package</phase>
+		            <goals>
+		              <goal>single</goal>
+		            </goals>
+		            <configuration>
+		              <finalName>ZAP_${project.version}_Mac_OS_X</finalName>
+		              <appendAssemblyId>false</appendAssemblyId>
+		              <descriptors>
+		                <descriptor>${basedir}/src/main/assemblies/mac_os_x.xml</descriptor>
+		              </descriptors>
+		            </configuration>
+		          </execution>
+		        </executions>
+		      </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+  
+</project>

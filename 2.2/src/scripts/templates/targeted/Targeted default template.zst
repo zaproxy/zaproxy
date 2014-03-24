@@ -1,0 +1,43 @@
+{
+  "about": "This is a Zest script. For more details about Zest visit https://developer.mozilla.org/en-US/docs/Zest",
+  "zestVersion": "0.3",
+  "title": "Targeted Script Template",
+  "description": "A template targeted script",
+  "prefix": "",
+  "type": "Targeted",
+  "parameters": {
+    "tokenStart": "{{",
+    "tokenEnd": "}}",
+    "tokens": {
+      "request.header": "",
+      "request.body": "",
+      "request.method": "",
+      "request.url": ""
+    },
+    "elementType": "ZestVariables"
+  },
+  "statements": [
+    {
+      "comment": "Targeted scripts are invoked manually for URLs, typically via 'right click' menus.\nThe template script just repeats the request and prints out the URL its been called for.\n",
+      "index": 1,
+      "elementType": "ZestComment"
+    },
+    {
+      "urlToken": "{{request.url}}",
+      "data": "{{request.body}}",
+      "method": "{{request.method}}",
+      "headers": "{{request.header}}",
+      "assertions": [],
+      "index": 2,
+      "elementType": "ZestRequest"
+    },
+    {
+      "message": "Called {{request.url}}",
+      "index": 3,
+      "elementType": "ZestActionPrint"
+    }
+  ],
+  "authentication": [],
+  "index": 0,
+  "elementType": "ZestScript"
+}

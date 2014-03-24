@@ -1,0 +1,34 @@
+import org.apache.commons.httpclient.URI;
+import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.model.*;
+
+Tree () {
+	
+	find (SiteNode node, String resource) {
+		if (node == null) return;
+		ref = node.getHistoryReference();
+		if ((ref != null) && (!node.isLeaf())) {
+			checkExists(ref, resource);    
+		}
+		for (i=0;i<node.getChildCount();i++) {   
+			try {
+				find (node.getChildAt(i), resource);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+	
+	checkExists(ref, resource) {
+		u = ref.getHttpMessage().getRequestHeader().getURI().toString() + "/" + resource;
+		msg = ref.getHttpMessage();
+		msg.getRequestHeader().setURI(new URI(u));
+		sender.sendAndReceive(msg, true);
+		if (msg.getResponseHeader().getStatusCode() == 200) {
+			print("Found: "+msg.getRequestHeader().getURI().toString());
+		}
+	}
+	
+	
+	return this;
+}
