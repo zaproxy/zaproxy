@@ -8,6 +8,7 @@ import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage.Location.BODY;
 import static org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessageBuilder.aFuzzableTextHttpMessage;
 
