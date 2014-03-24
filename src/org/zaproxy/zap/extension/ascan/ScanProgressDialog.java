@@ -41,6 +41,7 @@ import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.LookAndFeel;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
@@ -210,7 +211,11 @@ public class ScanProgressDialog extends AbstractDialog {
             @Override
             public void run() {
                 while (!stopThread) {
-                    showProgress();
+                	SwingUtilities.invokeLater(new Runnable(){
+						@Override
+						public void run() {
+							showProgress();
+						}});
                     
                     try {
                         sleep(200);
