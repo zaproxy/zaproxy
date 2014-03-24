@@ -68,6 +68,13 @@ public class AddOnCollection {
 	        String[] addOnIds = config.getStringArray("addon");
         	for (String id: addOnIds) {
             	logger.debug("Found addon " + id);
+            	URL infoUrl = null;
+            	try {
+					infoUrl = new URL(config.getString("addon_" + id + ".info"));
+				} catch (Exception e) {
+					// Ignore
+				}
+            	
         		AddOn ao = new AddOn(
         						id, 
         						config.getString("addon_" + id + ".name"), 
@@ -80,7 +87,8 @@ public class AddOnCollection {
         						new File(downloadDir, config.getString("addon_" + id + ".file")),
         						config.getLong("addon_" + id + ".size"),
         						config.getString("addon_" + id + ".not-before-version", ""),
-        						config.getString("addon_" + id + ".not-from-version", ""));
+        						config.getString("addon_" + id + ".not-from-version", ""),
+        						infoUrl);
         		if (ao.canLoad()) {
         			// Ignore ones that dont apply to this version
         			this.addOns.add(ao);

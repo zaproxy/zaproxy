@@ -41,6 +41,8 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
@@ -52,6 +54,7 @@ import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
+import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateCallback {
@@ -71,7 +74,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JScrollPane marketPlaceScrollPane = null;
     private WaitMessageDialog waitDialog = null;
 
-	//private JButton addOnInfoButton = null;
+	private JButton addOnInfoButton = null;
 	private JButton coreNotesButton = null;
 	private JButton downloadZapButton = null;
 	private JButton checkForUpdatesButton = null;
@@ -282,7 +285,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			uninstalledAddOnsPanel.add(getMarketPlaceScrollPane(), LayoutHelper.getGBC(0, row++, 4, 1.0D, 1.0D));
 			uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			uninstalledAddOnsPanel.add(getInstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
-			//uninstalledAddOnsPanel.add(getAddOnInfoButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
+			uninstalledAddOnsPanel.add(getAddOnInfoButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
 			uninstalledAddOnsPanel.add(getClose2Button(), LayoutHelper.getGBC(3, row, 1, 0.0D));
 
 		}
@@ -418,6 +421,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				@Override
 				public void tableChanged(TableModelEvent e) {
 					getInstallButton().setEnabled(uninstalledAddOnsModel.canIinstallSelected());
+				}});
+			
+			uninstalledAddOnsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener(){
+				@Override
+				public void valueChanged(ListSelectionEvent e) {
+					getAddOnInfoButton().setEnabled(false);
+					if (DesktopUtils.canOpenUrlInBrowser() && getUninstalledAddOnsTable ().getSelectedRowCount() == 1) {
+						AddOnWrapper ao = uninstalledAddOnsModel.getElement(getUninstalledAddOnsTable ().getSelectedRow());
+						if (ao != null && ao.getAddOn().getInfo() != null) {
+							getAddOnInfoButton().setEnabled(true);
+						}
+					}
 				}});
 			
 			uninstalledAddOnsTable.setModel(uninstalledAddOnsModel);
@@ -725,22 +740,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return installButton;
 	}
 
-	/*
-	// Change to View Online or equiv?
 	private JButton getAddOnInfoButton() {
 		if (addOnInfoButton == null) {
 			addOnInfoButton = new JButton();
 			addOnInfoButton.setText(Constant.messages.getString("cfu.button.addons.info"));
-			//addOnInfoButton.setEnabled(false);	// Nothing will be selected initially
-			final ManageAddOnsDialog dialog = this;
+			addOnInfoButton.setEnabled(false);	// Nothing will be selected initially
 			addOnInfoButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					if (uninstalledAddOns != null && uninstalledAddOns.size() > 0) {
-						for (AddOnWrapper aoi : uninstalledAddOns) {
-							if (aoi.isEnabled()) {
-								break;
-							}
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					if (getUninstalledAddOnsTable ().getSelectedRow() >= 0) {
+						AddOnWrapper ao = uninstalledAddOnsModel.getElement(getUninstalledAddOnsTable ().getSelectedRow());
+						if (ao != null && ao.getAddOn().getInfo() != null) {
+							DesktopUtils.openUrlInBrowser(ao.getAddOn().getInfo().toString());
 						}
 					}
 				}
@@ -749,7 +760,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		}
 		return addOnInfoButton;
 	}
-	*/
 
 	public void showProgress() {
 		if (this.state.equals(State.DOWNLOADING_UPDATES)) {
