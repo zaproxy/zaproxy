@@ -95,10 +95,11 @@ public final class AddOnInstaller {
      */
     public static boolean uninstall(AddOn addOn) {
         boolean uninstalledWithoutErrors = true;
-        uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn);
         uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn);
         uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn);
         uninstalledWithoutErrors &= uninstallAddOnFiles(addOn);
+        // This will remove the message bundle, so do it last in case the rules use it
+        uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn);
 
         return uninstalledWithoutErrors;
     }
