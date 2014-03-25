@@ -91,6 +91,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_VARIANT_ODATA = "variant.options.rpc.odata.label";
     private static final String FIELD_VARIANT_CUSTOM = "variant.options.rpc.custom.label";
 
+    private static final String FIELD_DISABLE_VARIANTS_MSG = "variant.options.disable";
+
     private static Logger logger = Logger.getLogger(CustomScanDialog.class);
 
     private static final long serialVersionUID = 1L;
@@ -116,8 +118,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JButton addCustomButton = null;
     private JButton removeCustomButton = null;
     private JList<Highlight> injectionPointList = null;
-    private final DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<Highlight>();
-    private final JLabel customPanelStatus = new JLabel();
+    private DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<Highlight>();
+    private JLabel customPanelStatus = new JLabel();
+    private JCheckBox disableNonCustomVectors = null;
 
     public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
         super(owner, "ascan.custom.title", dim, new String[]{
@@ -186,6 +189,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.addCheckBoxField(1, FIELD_VARIANT_ODATA, (rpcEnabled & ScannerParam.RPC_ODATA) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_CUSTOM, (rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
         this.addPadding(1);
+        this.addReadOnlyField(1, FIELD_DISABLE_VARIANTS_MSG, "", true);
 
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
@@ -356,6 +360,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             splitPane.setDividerLocation(550);
             customPanel.add(splitPane, LayoutHelper.getGBC(0, 0, 1, 1, 1.0D, 1.0D));
             customPanel.add(customPanelStatus, LayoutHelper.getGBC(0, 1, 1, 1, 1.0D, 0.0D));
+            customPanel.add(getDisableNonCustomVectors(), LayoutHelper.getGBC(0, 2, 1, 1, 1.0D, 0.0D));
         }
         
         return customPanel;
@@ -430,6 +435,39 @@ public class CustomScanDialog extends StandardFieldsDialog {
         
         return removeCustomButton;
     }
+    
+    private JCheckBox getDisableNonCustomVectors() {
+    	if (disableNonCustomVectors == null) {
+    		disableNonCustomVectors = new JCheckBox(Constant.messages.getString("ascan.custom.label.disableiv"));
+    		disableNonCustomVectors.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Enable/disable all of the input vector options as appropriate
+		    		getField(FIELD_VARIANT_URL_QUERY).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_URL_PATH).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_POST_DATA).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_HEADERS).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_COOKIE).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_MULTIPART).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_XML).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_JSON).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_GWT).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_ODATA).setEnabled(!disableNonCustomVectors.isSelected());
+		    		getField(FIELD_VARIANT_CUSTOM).setEnabled(!disableNonCustomVectors.isSelected());
+		    		
+		    		if (disableNonCustomVectors.isSelected()) {
+		    			setFieldValue(FIELD_DISABLE_VARIANTS_MSG, 
+		    					Constant.messages.getString("ascan.custom.warn.disabled"));
+		    		} else {
+		    			setFieldValue(FIELD_DISABLE_VARIANTS_MSG, "");
+		    		}
+
+				}});
+    		
+    	}
+    	return disableNonCustomVectors;
+    }
 
     private void setFieldStates() {
         int userDefStart = getRequestField().getSelectionStart();
@@ -439,6 +477,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             customPanelStatus.setText(Constant.messages.getString("ascan.custom.status.recurse"));
             getAddCustomButton().setEnabled(false);
             getRemoveCustomButton().setEnabled(false);
+            getDisableNonCustomVectors().setEnabled(false);
         
         } else {
             customPanelStatus.setText(Constant.messages.getString("ascan.custom.status.highlight"));
@@ -468,6 +507,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 getAddCustomButton().setEnabled(false);
                 getRemoveCustomButton().setEnabled(false);
             }
+            getDisableNonCustomVectors().setEnabled(true);
         }
         
         getRequestField().getCaret().setVisible(true);
@@ -562,53 +602,55 @@ public class CustomScanDialog extends StandardFieldsDialog {
     public void save() {
         // Set Injectable Targets
         int targets = 0;
-        if (this.getBoolValue(FIELD_VARIANT_URL_QUERY)) {
-            targets |= ScannerParam.TARGET_QUERYSTRING;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_URL_PATH)) {
-            targets |= ScannerParam.TARGET_URLPATH;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_POST_DATA)) {
-            targets |= ScannerParam.TARGET_POSTDATA;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_HEADERS)) {
-            targets |= ScannerParam.TARGET_HTTPHEADERS;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_COOKIE)) {
-            targets |= ScannerParam.TARGET_COOKIE;
-        }
-        
-        this.scannerParam.setTargetParamsInjectable(targets);
-
-        // Set Enabled RPC schemas
         int enabledRpc = 0;
-        if (this.getBoolValue(FIELD_VARIANT_MULTIPART)) {
-            enabledRpc |= ScannerParam.RPC_MULTIPART;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_XML)) {
-            enabledRpc |= ScannerParam.RPC_XML;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_JSON)) {
-            enabledRpc |= ScannerParam.RPC_JSON;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_GWT)) {
-            enabledRpc |= ScannerParam.RPC_GWT;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_ODATA)) {
-            enabledRpc |= ScannerParam.RPC_ODATA;
-        }
-        
-        if (this.getBoolValue(FIELD_VARIANT_CUSTOM)) {
-            enabledRpc |= ScannerParam.RPC_CUSTOM;
-        }
+
+        if (! getDisableNonCustomVectors().isSelected()) {
+        	// Only set these if the user hasnt disabled them
+	        if (this.getBoolValue(FIELD_VARIANT_URL_QUERY)) {
+	            targets |= ScannerParam.TARGET_QUERYSTRING;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_URL_PATH)) {
+	            targets |= ScannerParam.TARGET_URLPATH;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_POST_DATA)) {
+	            targets |= ScannerParam.TARGET_POSTDATA;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_HEADERS)) {
+	            targets |= ScannerParam.TARGET_HTTPHEADERS;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_COOKIE)) {
+	            targets |= ScannerParam.TARGET_COOKIE;
+	        }
+
+	        // Set Enabled RPC schemas
+	        if (this.getBoolValue(FIELD_VARIANT_MULTIPART)) {
+	            enabledRpc |= ScannerParam.RPC_MULTIPART;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_XML)) {
+	            enabledRpc |= ScannerParam.RPC_XML;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_JSON)) {
+	            enabledRpc |= ScannerParam.RPC_JSON;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_GWT)) {
+	            enabledRpc |= ScannerParam.RPC_GWT;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_ODATA)) {
+	            enabledRpc |= ScannerParam.RPC_ODATA;
+	        }
+	        
+	        if (this.getBoolValue(FIELD_VARIANT_CUSTOM)) {
+	            enabledRpc |= ScannerParam.RPC_CUSTOM;
+	        }
+    	}        
         
         if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
             int[][] injPoints = new int[injectionPointModel.getSize()][];
@@ -630,6 +672,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 logger.error(e.getMessage(), e);
             }
         }
+        scannerParam.setTargetParamsInjectable(targets);
         scannerParam.setTargetParamsEnabledRPC(enabledRpc);
 
         Object[] contextSpecificObjects = new Object[]{
