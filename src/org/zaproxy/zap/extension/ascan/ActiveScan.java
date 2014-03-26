@@ -23,6 +23,7 @@ import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultListModel;
 
@@ -54,7 +55,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
 	private SiteNode startNode = null;
 	private Context startContext = null;
-	private int totalRequests = 0;
+	private AtomicInteger totalRequests = new AtomicInteger(0);
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private int maxResultsToList = 0;
@@ -127,7 +128,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 				}
 			}
 		}
-		messagesTableModel.clear();
+		reset();
 		this.progress = 0;
 		if (startNode != null) {
 			this.start(startNode);
@@ -187,8 +188,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	
 	@Override
 	public void notifyNewMessage(final HttpMessage msg) {
-        this.totalRequests++;
-        if (this.totalRequests <= this.maxResultsToList) {
+        if (this.totalRequests.incrementAndGet() <= this.maxResultsToList) {
             // Very large lists significantly impact the UI responsiveness
             // limiting them makes large scans _much_ quicker
             HistoryReference hRef = msg.getHistoryRef();
@@ -209,8 +209,18 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
     	}
 	}
 
-    private void addHistoryReference(final HistoryReference hRef) {
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+    private void addHistoryReference(HistoryReference hRef) {
+        if (View.isInitialised()) {
+            addHistoryReferenceInEdt(hRef);
+        } else {
+            synchronized (messagesTableModel) {
+                messagesTableModel.addHistoryReference(hRef);
+            }
+        }
+	}
+
+    private void addHistoryReferenceInEdt(final HistoryReference hRef) {
+        if (EventQueue.isDispatchThread()) {
             messagesTableModel.addHistoryReference(hRef);
         } else {
             EventQueue.invokeLater(new Runnable() {
@@ -236,8 +246,17 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void reset() {
-        this.messagesTableModel.clear();
-        this.messagesTableModel = new ActiveScanTableModel();
+	    if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+	        this.messagesTableModel.clear();
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    reset();
+                }
+            });
+        }
 	}
 
 	@Override
@@ -247,7 +266,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	public int getTotalRequests() {
-		return totalRequests;
+		return totalRequests.intValue();
 	}
 
 	public Date getTimeStarted() {
