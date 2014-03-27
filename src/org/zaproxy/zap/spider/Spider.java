@@ -220,10 +220,12 @@ public class Spider {
 				// If the port is not 80 or 443, add it to the URI
 				// SVN entries can exist in multiple directories, so make sure to add in the full path.
 				String fullpath = uri.getPath();
-				String name = uri.getName();
+				String name = uri.getName();				
 				if (fullpath==null) fullpath="";
+				if (name==null) name="";
 				
 				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
+				if (pathminusfilename.equals("")) pathminusfilename="/";
 				
 				//if it's not an svn folder, add the seeds.
 				Matcher matcherSvnUrl = svnUrlPattern.matcher(pathminusfilename);
@@ -252,7 +254,10 @@ public class Spider {
 				String fullpath = uri.getPath();
 				String name = uri.getName();
 				if (fullpath==null) fullpath="";
+				if (name==null) name="";
+				
 				String pathminusfilename = fullpath.substring( 0, fullpath.lastIndexOf(name));
+				if (pathminusfilename.equals("")) pathminusfilename="/";
 				
 				//if it's not in a Git folder, add the seed.
 				Matcher matcherGitUrl = gitUrlPattern.matcher(pathminusfilename);
