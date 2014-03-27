@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as far as possible
+
 package org.parosproxy.paros.db;
 
 import java.sql.Connection;
@@ -188,7 +190,45 @@ public class DbUtils {
         
         return columnType;
     }
-    
+
+    /**
+     * Gets the size of the given column {@code columnName} of the table
+     * {@code tableName}.
+     * 
+     * @param connection
+     *            the connection to the database
+     * @param tableName
+     *            the name of the table that has the column
+     * @param columnName
+     *            the name of the column that will be used to get the size
+     * @return the length of the column, or -1 if the column doesn't exist, or if the type has no size.
+     * @throws SQLException
+     *             if an error occurred while checking the size of the column
+     */
+    public static int getColumnSize(final Connection connection, final String tableName, final String columnName) throws SQLException {
+        int columnSize = -1;
+        
+        ResultSet rs = null;
+        try {
+            rs = connection.getMetaData().getColumns(null, null, tableName, columnName);
+            if (rs.next()) {
+                columnSize = rs.getInt("COLUMN_SIZE");
+            }
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException e) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug(e.getMessage(), e);
+                }
+            }
+        }
+        
+        return columnSize;
+    }
+
     /**
      * Executes and closes the given {@code preparedStatement}.
      * 

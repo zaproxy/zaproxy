@@ -30,6 +30,7 @@
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 // ZAP: 2014/03/23 Issue 1075: Change TableHistory to delete records in batches
 // ZAP: 2014/03/23 Issue 1091: CoreAPI - Do not get the IDs of temporary history records
+// ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as far as possible
 
 package org.parosproxy.paros.db;
 
@@ -51,6 +52,8 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.log4j.Logger;
 import org.hsqldb.types.Types;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -99,8 +102,20 @@ public class TableHistory extends AbstractTable {
     public TableHistory() {
     }
     
+	//ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
+    int configuredrequestbodysize = -1;    
+    int configuredresponsebodysize = -1;
+
     @Override
     protected void reconnect(Connection conn) throws SQLException {
+    	//ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
+    	//re-load the configuration data from file, to get the configured length of the request and response bodies
+    	//this will later be compared to the actual lengths of these fields in the database (in updateTable(Connection c))
+    	DatabaseParam dbparams = new DatabaseParam ();
+    	dbparams.load(Constant.getInstance().FILE_CONFIG);
+    	this.configuredrequestbodysize = dbparams.getRequestBodySize();
+    	this.configuredresponsebodysize = dbparams.getResponseBodySize();
+    	    	
         bodiesAsBytes = true;
 
         updateTable(conn);
@@ -188,6 +203,32 @@ public class TableHistory extends AbstractTable {
             DbUtils.executeUpdateAndClose(connection.prepareStatement("UPDATE " + TABLE_NAME + " SET " + RESPONSE_FROM_TARGET_HOST
                     + " = TRUE "));
         }
+        
+        int requestbodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, REQBODY);
+        int responsebodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, RESBODY);
+        try {	        
+	        if (requestbodysizeindb != this.configuredrequestbodysize && this.configuredrequestbodysize > 0) {
+	        	if (log.isDebugEnabled()) log.debug("Extending table "+ TABLE_NAME + " request body length from "+ requestbodysizeindb + " to " + this.configuredrequestbodysize);
+	        	DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE " + TABLE_NAME + " ALTER COLUMN "
+	                + REQBODY + " VARBINARY("+this.configuredrequestbodysize+")"));
+	        	if (log.isDebugEnabled()) log.debug("Completed extending table "+ TABLE_NAME + " request body length from "+ requestbodysizeindb + " to " + this.configuredrequestbodysize);
+	        }
+	        
+	        if (responsebodysizeindb != this.configuredresponsebodysize && this.configuredresponsebodysize > 0) {
+	        	if (log.isDebugEnabled()) log.debug("Extending table "+ TABLE_NAME + " response body length from "+ responsebodysizeindb + " to " + this.configuredresponsebodysize);
+	        	DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE " + TABLE_NAME + " ALTER COLUMN "
+	                + RESBODY + " VARBINARY("+this.configuredresponsebodysize+")"));
+	        	if (log.isDebugEnabled()) log.debug("Completed extending table "+ TABLE_NAME + " response body length from "+ responsebodysizeindb + " to " + this.configuredresponsebodysize);
+	        }
+        }
+        catch (SQLException e) {
+        	log.error("An error occurred while modifying a column length on "+ TABLE_NAME);
+        	log.error("The 'Maximum Request Body Size' value in the Database Options needs to be set to at least " + requestbodysizeindb + " to avoid this error" );
+        	log.error("The 'Maximum Response Body Size' value in the Database Options needs to be set to at least " + responsebodysizeindb + " to avoid this error" );
+        	log.error("The SQL Exception was:", e);
+        	throw e;
+        }
+        
     }
     
 	public synchronized RecordHistory read(int historyId) throws HttpMalformedHeaderException, SQLException {
@@ -233,6 +274,14 @@ public class TableHistory extends AbstractTable {
 	private synchronized RecordHistory write(long sessionId, int histType, long timeSentMillis, int timeElapsedMillis,
 	        String method, String uri, int statusCode,
 	        String reqHeader, byte[] reqBody, String resHeader, byte[] resBody, String tag, String note, boolean responseFromTargetHost) throws HttpMalformedHeaderException, SQLException {
+
+		//ZAP: Allow the request and response body sizes to be user-specifiable as far as possible
+		if (reqBody.length > this.configuredrequestbodysize) {
+			throw new SQLException("The actual Request Body length "+ reqBody.length + " is greater than the configured request body length "+ this.configuredrequestbodysize);
+		}
+		if (resBody.length > this.configuredresponsebodysize) {
+			throw new SQLException("The actual Response Body length "+ resBody.length + " is greater than the configured response body length "+ this.configuredresponsebodysize);
+		}
 
 	    psInsert.setLong(1, sessionId);
 	    psInsert.setInt(2, histType);

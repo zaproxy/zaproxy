@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as far as possible
 
 package org.parosproxy.paros.extension.option;
 
@@ -25,7 +26,9 @@ import org.parosproxy.paros.common.AbstractParam;
  * <p>
  * It allows to change, programmatically, the following database options:
  * <ul>
- * <li>Compact - allows to compact the database on exit.</li>
+ * <li>Compact - allows the database to be compacted on exit.</li>
+ * <li>Request Body Size - the size of the request body in the 'History' database table.</li>
+ * <li>Response Body Size - the size of the response body in the 'History' database table.</li>
  * </ul>
  * </p>
  */
@@ -40,7 +43,17 @@ public class DatabaseParam extends AbstractParam {
      * The configuration key for the compact option.
      */
     private static final String PARAM_COMPACT_DATABASE = PARAM_BASE_KEY + ".compact";
-
+    
+    /**
+     * The configuration key for the request body size.
+     */
+    private static final String PARAM_REQUEST_BODY_SIZE = PARAM_BASE_KEY + ".request.bodysize";
+    
+    /**
+     * The configuration key for the response body size.
+     */
+    private static final String PARAM_RESPONSE_BODY_SIZE = PARAM_BASE_KEY + ".response.bodysize";
+    
     /**
      * The compact option, whether the database should be compacted on exit.
      * Default is {@code false}.
@@ -48,11 +61,27 @@ public class DatabaseParam extends AbstractParam {
      * @see org.parosproxy.paros.db.Database#close(boolean)
      */
     private boolean compactDatabase;
+    
+    /**
+     * The request body size in the history table.
+     * Default is 16777216.
+     * 
+     */    
+    private int requestbodysize;
+
+    /**
+     * The response body size in the history table.
+     * Default is 16777216.
+     * 
+     */    
+    private int responsebodysize;
 
     public DatabaseParam() {
         super();
         
         compactDatabase = false;
+        requestbodysize = 16777216;
+		responsebodysize = 16777216;
     }
 
     /**
@@ -60,13 +89,17 @@ public class DatabaseParam extends AbstractParam {
      * <p>
      * The following database options are parsed:
      * <ul>
-     * <li>Compact - allows to compact the database on exit.</li>
+     * <li>Compact - allows the database to be compacted on exit.</li>
+     * <li>Request Body Size - the size of the request body in the 'History' database table.</li>
+     * <li>Response Body Size - the size of the response body in the 'History' database table.</li>
      * </ul>
      * </p>
      */
     @Override
     protected void parse() {
         compactDatabase = getConfig().getBoolean(PARAM_COMPACT_DATABASE, compactDatabase);
+        requestbodysize = getConfig().getInt(PARAM_REQUEST_BODY_SIZE, requestbodysize);
+        responsebodysize = getConfig().getInt(PARAM_RESPONSE_BODY_SIZE, responsebodysize);
     }
 
     /**
@@ -92,6 +125,44 @@ public class DatabaseParam extends AbstractParam {
     public void setCompactDatabase(boolean compactDatabase) {
         this.compactDatabase = compactDatabase;
         getConfig().setProperty(PARAM_COMPACT_DATABASE, Boolean.valueOf(compactDatabase));
+    }
+
+    /**
+     * Gets the request body size
+     * 
+     * @return the size of the request body, specified in bytes
+     */
+    public int getRequestBodySize() {
+        return requestbodysize;
+    }
+
+    /**
+     * Sets the request body size
+     * 
+     * @param requestbodysize the request body size
+     */
+    public void setRequestBodySize(int requestbodysize) {
+        this.requestbodysize = requestbodysize;
+        getConfig().setProperty(PARAM_REQUEST_BODY_SIZE, Integer.valueOf(requestbodysize));
+    }
+
+    /**
+     * Gets the response body size
+     * 
+     * @return the size of the response body, specified in bytes
+     */
+    public int getResponseBodySize() {
+        return responsebodysize;
+    }
+
+    /**
+     * Sets the response body size
+     * 
+     * @param responsebodysize the response body size
+     */
+    public void setResponseBodySize(int responsebodysize) {
+        this.responsebodysize = responsebodysize;
+        getConfig().setProperty(PARAM_RESPONSE_BODY_SIZE, Integer.valueOf(responsebodysize));
     }
 
 }
