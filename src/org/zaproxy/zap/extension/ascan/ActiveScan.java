@@ -19,9 +19,11 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.awt.EventQueue;
 import java.sql.SQLException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultListModel;
 
@@ -38,6 +40,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.users.User;
@@ -52,7 +55,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
 	private SiteNode startNode = null;
 	private Context startContext = null;
-	private int totalRequests = 0;
+	private AtomicInteger totalRequests = new AtomicInteger(0);
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private int maxResultsToList = 0;
@@ -125,7 +128,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 				}
 			}
 		}
-		messagesTableModel.clear();
+		reset();
 		this.progress = 0;
 		if (startNode != null) {
 			this.start(startNode);
@@ -185,29 +188,48 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	
 	@Override
 	public void notifyNewMessage(final HttpMessage msg) {
-	    synchronized (messagesTableModel) {
-	        HistoryReference hRef = msg.getHistoryRef();
-        	this.totalRequests++;
-        	if (this.totalRequests <= this.maxResultsToList) {
-        		// Very large lists significantly impact the UI responsiveness
-        		// limiting them makes large scans _much_ quicker
-	            if (hRef == null) {
-	                try {
-	                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
-	                    // If an alert is raised because of the HttpMessage msg a new HistoryReference must be created 
-	                    // (because hRef is temporary), and the condition to create it is when the HistoryReference of the 
-	                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
-	                    msg.setHistoryRef(null);
-	                    this.messagesTableModel.addHistoryReference(hRef);
-	                } catch (HttpMalformedHeaderException e) {
-	                    log.error(e.getMessage(), e);
-	                } catch (SQLException e) {
-	                    log.error(e.getMessage(), e);
-	                }
-	            } else {
-	                this.messagesTableModel.addHistoryReference(hRef);
-	            }
-        	}
+        if (this.totalRequests.incrementAndGet() <= this.maxResultsToList) {
+            // Very large lists significantly impact the UI responsiveness
+            // limiting them makes large scans _much_ quicker
+            HistoryReference hRef = msg.getHistoryRef();
+            if (hRef == null) {
+                try {
+                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
+                    // If an alert is raised because of the HttpMessage msg a new HistoryReference must be created
+                    // (because hRef is temporary), and the condition to create it is when the HistoryReference of the
+                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
+                    msg.setHistoryRef(null);
+                } catch (HttpMalformedHeaderException | SQLException e) {
+                    log.error(e.getMessage(), e);
+                }
+            }
+            if (hRef != null) {
+                addHistoryReference(hRef);
+            }
+    	}
+	}
+
+    private void addHistoryReference(HistoryReference hRef) {
+        if (View.isInitialised()) {
+            addHistoryReferenceInEdt(hRef);
+        } else {
+            synchronized (messagesTableModel) {
+                messagesTableModel.addHistoryReference(hRef);
+            }
+        }
+	}
+
+    private void addHistoryReferenceInEdt(final HistoryReference hRef) {
+        if (EventQueue.isDispatchThread()) {
+            messagesTableModel.addHistoryReference(hRef);
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    addHistoryReference(hRef);
+                }
+            });
         }
 	}
 	
@@ -224,8 +246,17 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void reset() {
-        this.messagesTableModel.clear();
-        this.messagesTableModel = new ActiveScanTableModel();
+	    if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+	        this.messagesTableModel.clear();
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    reset();
+                }
+            });
+        }
 	}
 
 	@Override
@@ -235,7 +266,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	public int getTotalRequests() {
-		return totalRequests;
+		return totalRequests.intValue();
 	}
 
 	public Date getTimeStarted() {

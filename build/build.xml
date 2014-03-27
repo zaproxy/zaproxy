@@ -90,7 +90,7 @@
             <!-- zaproxy project core add-ons -->
             <ccfiles basedir="${src}/org/zaproxy/zap/extension/" exportpatternprefix="/zaproxy/add-ons/">
                 <!-- core-addons/ -->
-                <ccinclude source="*/Messages.properties" 
+                <ccinclude source="*/resources/Messages.properties" 
                     crowdinpath="/core/*/%original_file_name%"
                     exportpattern="*/%file_name%_%locale_with_underscore%.%file_extension%" />
             </ccfiles>
@@ -98,7 +98,7 @@
             <!-- alpha extensions -->
             <ccfiles basedir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" 
                 exportpatternprefix="/zap-extensions/alpha/">
-                <ccinclude id="addons.include.messages" source="*/Messages.properties" 
+                <ccinclude id="addons.include.messages" source="*/resources/Messages.properties" 
                     crowdinpath="/extensions/*/%original_file_name%"
                     exportpattern="*/%file_name%_%locale_with_underscore%.%file_extension%" />
             </ccfiles>
@@ -148,27 +148,27 @@
             <ccfiles basedir="${zap.extensions.alpha.dir}/src/org/zaproxy/zap/extension/" 
                 exportpatternprefix="/zap-extensions/alpha/">
                 <!-- contents -->
-                <ccinclude id="addons.include.help.contents" source="*/resource/help/zaphelp/**/*.html"
+                <ccinclude id="addons.include.help.contents" source="*/resources/help/contents/**/*.html"
                     crowdinpath="/extensions/*/contents/**/%original_file_name%"
-                    exportpattern="*/resource/help_%locale_with_underscore%/contents/**/%original_file_name%" />
+                    exportpattern="*/resources/help_%locale_with_underscore%/contents/**/%original_file_name%" />
                 <!-- helpset -->
-                <ccinclude id="addons.include.help.file.hs" source="*/resource/help/helpset.hs" 
+                <ccinclude id="addons.include.help.file.hs" source="*/resources/help/helpset.hs" 
                     crowdinpath="/extensions/*/%file_name%.xml" 
-                    exportpattern="*/resource/help_%locale_with_underscore%/%file_name%_%locale_with_underscore%.%file_extension%">
+                    exportpattern="*/resources/help_%locale_with_underscore%/%file_name%_%locale_with_underscore%.%file_extension%">
                     <cctranslatableelement xpath="/helpset/title" />
                     <cctranslatableelement xpath="/helpset/presentation/title" />
                     <cctranslatableelement xpath="/helpset/view/label" />
                 </ccinclude>
                 <!-- toc -->
-                <ccinclude id="addons.include.help.file.toc" source="*/resource/help/toc.xml" 
+                <ccinclude id="addons.include.help.file.toc" source="*/resources/help/toc.xml" 
                     crowdinpath="/extensions/*/%original_file_name%"
-                    exportpattern="*/resource/help_%locale_with_underscore%/%original_file_name%">
+                    exportpattern="*/resources/help_%locale_with_underscore%/%original_file_name%">
                     <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" />
                 </ccinclude>
                 <!-- index -->
-                <ccinclude id="addons.include.help.file.index" source="*/resource/help/index.xml" 
+                <ccinclude id="addons.include.help.file.index" source="*/resources/help/index.xml" 
                     crowdinpath="/extensions/*/%original_file_name%" 
-                    exportpattern="*/resource/help_%locale_with_underscore%/%original_file_name%">
+                    exportpattern="*/resources/help_%locale_with_underscore%/%original_file_name%">
                     <cctranslatableelement xpath="/index/descendant::indexitem[@text]" />
                 </ccinclude>
             </ccfiles>

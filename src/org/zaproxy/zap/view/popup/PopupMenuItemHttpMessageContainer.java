@@ -556,12 +556,15 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
 
         @Override
         public void actionPerformed(ActionEvent evt) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("actionPerformed " + invoker.name() + " " + evt.getActionCommand());
+            if (referenceHttpMessageContainer == null) {
+                if (logger.isDebugEnabled()) {
+                    logger.debug("actionPerformed, ignoring no message container referenced: " + (invoker != null ? invoker.name() : "null invoker") + " " + evt.getActionCommand());
+                }
+                return;
             }
 
-            if (referenceHttpMessageContainer == null) {
-                return;
+            if (logger.isDebugEnabled()) {
+                logger.debug("actionPerformed " + (invoker != null ? invoker.name() : "null invoker") + " " + evt.getActionCommand());
             }
 
             HttpMessageContainer httpMessageContainer = referenceHttpMessageContainer.get();
