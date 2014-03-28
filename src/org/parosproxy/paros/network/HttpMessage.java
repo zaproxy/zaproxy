@@ -38,6 +38,7 @@
 // the request body is not "x-www-form-urlencoded"
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/03/23 Tidy up, do not allow to set null request/response headers/bodies.
+// ZAP: 2014/03/28 Issue 1127: 	Allow scripts to generate breaks
 
 package org.parosproxy.paros.network;
 
@@ -87,6 +88,8 @@ public class HttpMessage implements Message {
 	private HttpSession httpSession = null;
 	// ZAP: Added support for requesting the message to be sent as a particular User
 	private User requestUser;
+	// Can be set by scripts to force a break
+	private boolean forceIntercept = false;
 
     /**
      * Flag that indicates if the response has been received or not from the target host.
@@ -866,7 +869,11 @@ public class HttpMessage implements Message {
 				}
 			}
 		}
-		return false;
+		return forceIntercept;
+	}
+	
+	public void setForceIntercept(boolean force) {
+		this.forceIntercept = force;
 	}
 
 	/**
