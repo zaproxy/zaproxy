@@ -45,6 +45,7 @@
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
+// ZAP: 2014/03/29 Issue 1132: 	HttpSender ignores the "Send single cookie request header" option
 
 package org.parosproxy.paros.network;
 
@@ -137,6 +138,14 @@ public class HttpSender {
 
 		client = createHttpClient();
 		clientViaProxy = createHttpClientViaProxy();
+		
+		// Set how cookie headers are sent no matter of the "allowState", in case a state is forced by
+		// other extensions (e.g. Authentication)
+		final boolean singleCookieRequestHeader = param.isSingleCookieRequestHeader();
+		client.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER,
+				singleCookieRequestHeader);
+		clientViaProxy.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER,
+				singleCookieRequestHeader);
 
 		if (this.allowState) {
 			checkState();
@@ -155,11 +164,6 @@ public class HttpSender {
 			clientViaProxy.setState(param.getHttpState());
 			client.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
 			clientViaProxy.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			final boolean singleCookieRequestHeader = param.isSingleCookieRequestHeader();
-			client.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER,
-					singleCookieRequestHeader);
-			clientViaProxy.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER,
-					singleCookieRequestHeader);
 		} else {
 			client.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
 			clientViaProxy.getParams().setCookiePolicy(CookiePolicy.IGNORE_COOKIES);
