@@ -70,6 +70,8 @@ import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.control.AddOnLoader;
+import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.utils.I18N;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -94,12 +96,13 @@ public final class Constant {
     private static final String DEV_VERSION = "Dev Build";
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
-    // Note: Change this before building a release!
-    //public static final String PROGRAM_VERSION = "1.4.0.1";
     
+    // TODO - switch to 2003000 before release
     private static final long VERSION_TAG = 2002000;
+    //private static final long VERSION_TAG = 2003000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
     private static final long V_2_0_0_TAG = 2000000;
 	private static final long V_1_4_1_TAG = 1004001;
@@ -115,7 +118,7 @@ public final class Constant {
 //  note the above
 //  ************************************************************
     
-    // These are no longer final
+    // These are no longer final - version is now loaded from the manifest file
     public static String PROGRAM_VERSION = DEV_VERSION;
     public static String PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
     
@@ -409,6 +412,9 @@ public final class Constant {
 	            	if (ver <= V_2_1_0_TAG) {
 	            		// Nothing to do
 	            	}
+	            	if (ver <= V_2_2_0_TAG) {
+	            		upgradeFrom2_2_0(config);
+	            	}
 	            	log.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -645,6 +651,20 @@ public final class Constant {
         // Remove the manual request editor configurations that were incorrectly created.
         config.clearTree("nullrequest");
         config.clearTree("nullresponse");
+    }
+
+    private void upgradeFrom2_2_0(XMLConfiguration config) {
+    	if ( ! config.getBoolean(OptionsParamCheckForUpdates.CHECK_ON_START, false)) {
+    		/*
+    		 * Check-for-updates on start set to false - force another prompt to ask the user,
+    		 * as this option can have been unset incorrectly before.
+    		 * And we want to encourage users to use this ;)
+    		 */
+    		config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
+    	}
+    	// Clear the block list - addons were incorrectly added to this if an update failed
+		config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
+    	
     }
 
 	public static void setLocale (String loc) {
