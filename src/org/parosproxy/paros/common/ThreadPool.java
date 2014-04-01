@@ -18,15 +18,22 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
+// ZAP: 2014/04/01 Changed to allow to set a name to created threads.
 package org.parosproxy.paros.common;
 
 
 public class ThreadPool {
 
 	private Thread[]	pool		= null;
+	private final String threadsBaseName;
 	
 	public ThreadPool(int maxThreadCount) {
+		this(maxThreadCount, null);
+	}
+
+	public ThreadPool(int maxThreadCount, String threadsBaseName) {
 		pool = new Thread[maxThreadCount];
+		this.threadsBaseName = threadsBaseName;
 	}
 
 	/**
@@ -37,6 +44,9 @@ public class ThreadPool {
 		for (int i=0; i<pool.length; i++) {
 			if (pool[i] == null || !pool[i].isAlive()) {
 				pool[i] = new Thread(runnable);
+				if (threadsBaseName != null) {
+					pool[i].setName(threadsBaseName + i);
+				}
 				pool[i].setDaemon(true);
 				pool[i].start();
 				return pool[i];
