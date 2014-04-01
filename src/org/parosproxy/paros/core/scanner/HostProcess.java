@@ -38,6 +38,7 @@
 // ZAP: 2014/01/16 Add support to plugin skipping
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
+// ZAP: 2014/04/01 Changed to set a name to created threads.
 
 package org.parosproxy.paros.core.scanner;
 
@@ -92,13 +93,15 @@ public class HostProcess implements Runnable {
         this.pluginFactory = pluginFactory;
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
+        int maxNumberOfThreads;
         if (scannerParam.getHandleAntiCSRFTokens()) {
             // Single thread if handling anti CSRF tokens, otherwise token requests might get out of step
-            threadPool = new ThreadPool(1);
+            maxNumberOfThreads = 1;
         
         } else {
-            threadPool = new ThreadPool(scannerParam.getThreadPerHost());
+            maxNumberOfThreads = scannerParam.getThreadPerHost();
         }
+        threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
     }
 
     public void setStartNode(SiteNode startNode) {
