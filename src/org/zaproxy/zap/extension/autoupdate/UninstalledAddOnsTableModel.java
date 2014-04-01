@@ -107,6 +107,8 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
         		return Constant.messages.getString("cfu.download.failed");
         	} else if (progress > 0) {
         		return progress + "%";
+        	} else if (getElement(rowIndex).getStatus().equals(AddOnWrapper.Status.newAddon)) {
+        		return Constant.messages.getString("cfu.table.label.new");
         	} else {
         		// TODO change to date ??
         		return getElement(rowIndex).getAddOn().getVersion();

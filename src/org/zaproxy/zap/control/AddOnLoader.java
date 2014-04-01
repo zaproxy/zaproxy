@@ -62,7 +62,7 @@ import org.parosproxy.paros.view.View;
  */
 public class AddOnLoader extends URLClassLoader {
 
-	private static final String ADDONS_BLOCK_LIST = "addons.block";
+	public static final String ADDONS_BLOCK_LIST = "addons.block";
 	
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
     private AddOnCollection aoc = null;
