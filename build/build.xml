@@ -92,7 +92,7 @@
                 <!-- core-addons/ -->
                 <ccinclude source="*/resources/Messages.properties" 
                     crowdinpath="/core/*/%original_file_name%"
-                    exportpattern="*/%file_name%_%locale_with_underscore%.%file_extension%" />
+                    exportpattern="*/resources/%file_name%_%locale_with_underscore%.%file_extension%" />
             </ccfiles>
             <!-- zap-extensions project -->
             <!-- alpha extensions -->
@@ -100,7 +100,7 @@
                 exportpatternprefix="/zap-extensions/alpha/">
                 <ccinclude id="addons.include.messages" source="*/resources/Messages.properties" 
                     crowdinpath="/extensions/*/%original_file_name%"
-                    exportpattern="*/%file_name%_%locale_with_underscore%.%file_extension%" />
+                    exportpattern="*/resources/%file_name%_%locale_with_underscore%.%file_extension%" />
             </ccfiles>
             <!-- beta extensions -->
             <ccfiles basedir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
@@ -111,7 +111,7 @@
             <ccfiles basedir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/" 
                 exportpatternprefix="/zap-extensions/trunk/">
                 <ccinclude refid="addons.include.messages" />
-                <ccexclude id="exclude.examples" path="example*/*" />
+                <ccexclude id="exclude.examples" path="example*/resources/*" />
             </ccfiles>
         </ccproject>
         <!-- translation of help resources -->
@@ -134,13 +134,21 @@
                 <ccinclude source="zaphelp/toc.xml" 
                     crowdinpath="/%original_file_name%"
                     exportpattern="zaphelp_%locale_with_underscore%/%original_file_name%">
-                    <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" />
+                    <!-- Crowdin doesn't seem to support descendant axis -->
+                    <!-- <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" /> -->
+                    <cctranslatableelement xpath="/toc/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem/tocitem[@text]" />
                 </ccinclude>
                 <!-- index -->
                 <ccinclude source="zaphelp/index.xml" 
                     crowdinpath="/%original_file_name%" 
                     exportpattern="zaphelp_%locale_with_underscore%/%original_file_name%">
-                    <cctranslatableelement xpath="/index/descendant::indexitem[@text]" />
+                    <!-- Crowdin doesn't seem to support descendant axis -->
+                    <!-- <cctranslatableelement xpath="/index/descendant::indexitem[@text]" /> -->
+                    <cctranslatableelement xpath="/index/indexitem[@text]" />
                 </ccinclude>
             </ccfiles>
             <!-- zap-extensions project -->
@@ -163,13 +171,21 @@
                 <ccinclude id="addons.include.help.file.toc" source="*/resources/help/toc.xml" 
                     crowdinpath="/extensions/*/%original_file_name%"
                     exportpattern="*/resources/help_%locale_with_underscore%/%original_file_name%">
-                    <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" />
+                    <!-- Crowdin doesn't seem to support descendant axis -->
+                    <!-- <cctranslatableelement xpath="/toc/descendant::tocitem[@text]" /> -->
+                    <cctranslatableelement xpath="/toc/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem[@text]" />
+                    <cctranslatableelement xpath="/toc/tocitem/tocitem/tocitem/tocitem/tocitem[@text]" />
                 </ccinclude>
                 <!-- index -->
                 <ccinclude id="addons.include.help.file.index" source="*/resources/help/index.xml" 
                     crowdinpath="/extensions/*/%original_file_name%" 
                     exportpattern="*/resources/help_%locale_with_underscore%/%original_file_name%">
-                    <cctranslatableelement xpath="/index/descendant::indexitem[@text]" />
+                    <!-- Crowdin doesn't seem to support descendant axis -->
+                    <!-- <cctranslatableelement xpath="/index/descendant::indexitem[@text]" /> -->
+                    <cctranslatableelement xpath="/index/indexitem[@text]" />
                 </ccinclude>
             </ccfiles>
             <!-- beta extensions -->
@@ -420,10 +436,10 @@
         date is newer than the modification date in Crowdin.
         Use updateneweronly as true whenever possible as it updates/uploads only the necessary files.
         Note: when moving add-ons between branches updateneweronly has to be false to force the update of export pattern -->
-        <crowdinupdatesources configrefid="crowdin.config" dryrun="true" verbose="true" updateoption="update_as_unapproved" 
-            xmlcontentsegmentation="false" updateneweronly="false" deleteremoved="false">
+        <crowdinupdatesources configrefid="crowdin.config" dryrun="false" verbose="true" updateoption="update_as_unapproved" 
+            xmlcontentsegmentation="false" updateneweronly="true" deleteremoved="true">
             <!-- For SVN repo, uses commit date (from svn info) -->
-            <!-- <clastmodifieddateprovider name="svn" cmdpath="${svn.cmd}" failonerror="true" /> -->
+            <clastmodifieddateprovider name="svn" cmdpath="${svn.cmd}" failonerror="true" />
             <!-- For Git repo, uses "committer date" (from git log) -->
             <!-- <clastmodifieddateprovider name="git" cmdpath="${git.cmd}" failonerror="true" /> -->
             <!-- File system file's last modified date. Not recommended, unless files' last
@@ -433,20 +449,23 @@
     </target>
 
     <target name="crowdin-download-translations" description="Downloads and updates the translations, from Crowdin, for all ZAP projects">
-        <crowdindownloadtranslations configrefid="crowdin.config" dryrun="true" verbose="true" workingdir="${build.crowdin.dir}" />
-    	<crowdinupdatehelpsetlangattribute configrefid="crowdin.config" verbose="true" helpsetfilename="helpset.hs" />
+        <delete dir="${build.crowdin.dir}" includeEmptyDirs="true" />
+        <mkdir dir="${build.crowdin.dir}" />
+        <crowdindownloadtranslations configrefid="crowdin.config" verbose="false" workingdir="${build.crowdin.dir}" />
+        <delete dir="${build.crowdin.dir}" includeEmptyDirs="true" />
+        <crowdinupdatehelpsetlangattribute configrefid="crowdin.config" verbose="false" helpsetfilename="helpset.hs" />
     </target>
 
     <target name="crowdin-trigger-export-packages" description="Triggers the build of ZAP's Crowdin projects translation package">
-        <crowdinexport projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" dryrun="true" />
-        <crowdinexport projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" dryrun="true" />
+        <crowdinexport projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" />
+        <crowdinexport projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" />
     </target>
 
     <target name="crowdin-download-packages" description="Downloads ZAP's Crowdin projects translation packages">
         <crowdindownload projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}" 
-            to="${crowdin.dir}/${crowdin.zap.project.id}.zip" language="all" dryrun="true" />
+            to="${crowdin.dir}/${crowdin.zap.project.id}.zip" language="all" />
         <crowdindownload projectid="${crowdin.zap.help.project.id}" apikey="${crowdin.zap.help.api.key}" 
-            to="${crowdin.dir}/${crowdin.zap.help.project.id}.zip" language="all" dryrun="true" />
+            to="${crowdin.dir}/${crowdin.zap.help.project.id}.zip" language="all" />
     </target>
 
     <macrodef name="set-svn-mime-type-prop">
