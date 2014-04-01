@@ -93,6 +93,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	//private ZapRelease latestRelease = null;
 	private String currentVersion = null;
 	private AddOnCollection latestInfo = null;
+	private AddOnCollection prevInfo = null;
 	private List<AddOnWrapper> installedAddOns = null;
 	private List<AddOnWrapper> uninstalledAddOns = null;
 	private ExtensionAutoUpdate extension = null;
@@ -145,6 +146,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			jTabbed.addTab(Constant.messages.getString("cfu.tab.browse"), this.getBrowsePanel());
 		}
 		return jTabbed;
+	}
+	
+	protected void selectMarketplaceTab() {
+		getJTabbed().setSelectedIndex(1);
 	}
 	
 	private JPanel getInstalledPanel() {
@@ -334,7 +339,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			setLatestVersionInfo(latestInfo);
 		}
 	}
-	
+
+	protected void setPreviousVersionInfo(AddOnCollection prevInfo) {
+		this.prevInfo = prevInfo;
+	}
+
 	protected void setLatestVersionInfo(AddOnCollection latestInfo) {
 		this.latestInfo = latestInfo;
 		getCorePanel(true);
@@ -362,12 +371,19 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 					}
 				}
 				if (! found) {
-					this.uninstalledAddOns.add(new AddOnWrapper(addOn, AddOnWrapper.Status.uninstalled));
+					if (this.prevInfo != null && this.prevInfo.getAddOn(addOn.getId()) == null) {
+						// Not in the previous set
+						this.uninstalledAddOns.add(new AddOnWrapper(addOn, AddOnWrapper.Status.newAddon));
+					} else {
+						this.uninstalledAddOns.add(new AddOnWrapper(addOn, AddOnWrapper.Status.uninstalled));
+					}
 				}
 			}
 			installedAddOnsModel.setAddOns(this.sortAddOns(this.installedAddOns, false));
 			uninstalledAddOnsModel.setAddOns(this.sortAddOns(this.uninstalledAddOns, true));
 		}
+		getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
+
 	}
 	
 	private JTable getInstalledAddOnsTable () {
@@ -855,7 +871,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		
 		if (aoc != null) {
 			setLatestVersionInfo(aoc);
-			getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
 		} else {
 			View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.check.failed"));
 		}

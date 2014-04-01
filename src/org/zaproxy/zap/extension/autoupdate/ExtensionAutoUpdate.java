@@ -66,6 +66,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/V4aWX
     private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
+    // TODO - use this one for 2.3.0
+    // private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/VjEJBR";
+    
     private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
 
 	// URLs for use when testing locally ;)
@@ -276,6 +279,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private synchronized ManageAddOnsDialog getAddOnsDialog() {
 		if (addonsDialog == null) {
 			addonsDialog = new ManageAddOnsDialog(this, this.getCurrentVersion(), this.getInstalledAddOns());
+			if (this.previousVersionInfo != null) {
+				addonsDialog.setPreviousVersionInfo(this.previousVersionInfo);
+			}
 			if (this.latestVersionInfo != null) {
 				addonsDialog.setLatestVersionInfo(this.latestVersionInfo);
 			}
@@ -625,6 +631,21 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		return response;
     }
     
+    private boolean installUpdatedScannerRules() {
+    	if (this.getLatestVersionInfo() == null ||
+    			this.getLatestVersionInfo().getZapRelease() == null) {
+    		return false;
+    	}
+    	boolean response = false;
+		for (AddOn ao : getUpdatedAddOns()) {
+			if (ao.getId().contains("scanrules")) {
+				this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize());
+				response = true;
+			}
+		}
+		return response;
+    }
+    
     protected boolean installAddOn(String id) {
     	for (AddOn ao : this.getLatestVersionInfo().getAddOns()) {
     		if (ao.getId().equals(id)) {
@@ -815,6 +836,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 					if (View.isInitialised()) {
 						getAddOnsDialog().setDownloadingAllUpdates();
 					}
+				} else if (options.isInstallScannerRules() && installUpdatedScannerRules()) {
+					logger.debug("Auto-downloading scanner rules");
+					if (View.isInitialised()) {
+						// Not strictly true, but has the right effect
+						getAddOnsDialog().setDownloadingAllUpdates();
+					}
 				} else if (options.isCheckAddonUpdates()) {
 					// Just show the dialog
 					getAddOnsDialog().setVisible(true);
@@ -845,6 +872,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				}
 				if (report) {
 					getAddOnsDialog().setVisible(true);
+					getAddOnsDialog().selectMarketplaceTab();
 				}
 			}
 		} catch (Exception e) {
