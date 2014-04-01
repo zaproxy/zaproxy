@@ -114,9 +114,13 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     }
 
     @Override
-    public void addEntry(final DefaultHistoryReferencesTableEntry historyReference) {
-        hrefList.add(historyReference);
-        final int rowIndex = hrefList.size() - 1;
+    public  void addEntry(final DefaultHistoryReferencesTableEntry historyReference) {
+        int rowIndex;
+    	synchronized (hrefList) {
+    		// We need these to be atomic
+            hrefList.add(historyReference);
+            rowIndex = hrefList.size() - 1;
+    	}
         historyIdToRow.put(Integer.valueOf(historyReference.getHistoryReference().getHistoryId()), Integer.valueOf(rowIndex));
         fireTableRowsInserted(rowIndex, rowIndex);
     }
@@ -140,7 +144,10 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
         if (row != null) {
             final int rowIndex = row.intValue();
 
-            hrefList.remove(rowIndex);
+            if (rowIndex >= 0 && rowIndex < hrefList.size()) {
+            	// This may seem overly defensive, but in practice it seems to be needed :/
+            	hrefList.remove(rowIndex);
+            }
             historyIdToRow.remove(key);
 
             for (Entry<Integer, Integer> mapping : historyIdToRow.subMap(
