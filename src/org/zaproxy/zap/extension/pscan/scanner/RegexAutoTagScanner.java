@@ -231,4 +231,79 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
 		this.parent = parent;
 	}
 
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = super.hashCode();
+        result = prime * result + ((config == null) ? 0 : config.hashCode());
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((requestHeaderRegex == null) ? 0 : requestHeaderRegex.hashCode());
+        result = prime * result + ((requestUrlRegex == null) ? 0 : requestUrlRegex.hashCode());
+        result = prime * result + ((responseBodyRegex == null) ? 0 : responseBodyRegex.hashCode());
+        result = prime * result + ((responseHeaderRegex == null) ? 0 : responseHeaderRegex.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (this == object) {
+            return true;
+        }
+        if (!super.equals(object)) {
+            return false;
+        }
+        if (getClass() != object.getClass()) {
+            return false;
+        }
+        RegexAutoTagScanner other = (RegexAutoTagScanner) object;
+        if (config == null) {
+            if (other.config != null) {
+                return false;
+            }
+        } else if (!config.equals(other.config)) {
+            return false;
+        }
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (requestHeaderRegex == null) {
+            if (other.requestHeaderRegex != null) {
+                return false;
+            }
+        } else if (!requestHeaderRegex.equals(other.requestHeaderRegex)) {
+            return false;
+        }
+        if (requestUrlRegex == null) {
+            if (other.requestUrlRegex != null) {
+                return false;
+            }
+        } else if (!requestUrlRegex.equals(other.requestUrlRegex)) {
+            return false;
+        }
+        if (responseBodyRegex == null) {
+            if (other.responseBodyRegex != null) {
+                return false;
+            }
+        } else if (!responseBodyRegex.equals(other.responseBodyRegex)) {
+            return false;
+        }
+        if (responseHeaderRegex == null) {
+            if (other.responseHeaderRegex != null) {
+                return false;
+            }
+        } else if (!responseHeaderRegex.equals(other.responseHeaderRegex)) {
+            return false;
+        }
+        if (type != other.type) {
+            return false;
+        }
+        return true;
+    }
+
+	
 }
