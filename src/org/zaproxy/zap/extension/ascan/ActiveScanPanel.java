@@ -179,6 +179,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	    if (messagesTable == null) {
 	        messagesTable = new HistoryReferencesTable(EMPTY_RESULTS_MODEL);
 	        messagesTable.setName(MESSAGE_CONTAINER_NAME);
+	        messagesTable.setAutoCreateColumnsFromModel(false);
 	    }
 	    return messagesTable;
 	}
