@@ -111,6 +111,11 @@ This list the alerts
 50000	Active Scan scripts
 50001	Passive Scan scripts
 
+60000	Example simple passive rule 
+60001	Example file passive rule 
+60100	Example simple active rule 
+60101	Example file active rule 
+
 90018	SQL Injection SQLMap
 90019	Code Injection
 90020	Command Injection
