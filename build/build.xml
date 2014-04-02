@@ -61,6 +61,7 @@
     <typedef name="ccproject" classname="org.zaproxy.ant.crowdin.types.Project" loaderref="lib.path.loader" />
     <typedef name="ccfiles" classname="org.zaproxy.ant.crowdin.types.FileSet" loaderref="lib.path.loader" />
     <typedef name="ccinclude" classname="org.zaproxy.ant.crowdin.types.Include" loaderref="lib.path.loader" />
+    <typedef name="cclocalresources" classname="org.zaproxy.ant.crowdin.types.LocalResourceSet" loaderref="lib.path.loader" />
     <typedef name="cctranslatableelement" classname="org.zaproxy.ant.crowdin.types.TranslatableElement" loaderref="lib.path.loader" />
     <typedef name="clastmodifieddateprovider" classname="org.zaproxy.ant.crowdin.types.ModifiedDateProvider" loaderref="lib.path.loader" />
     <!-- Crowdin related Ant tasks -->
@@ -150,6 +151,14 @@
                     <!-- <cctranslatableelement xpath="/index/descendant::indexitem[@text]" /> -->
                     <cctranslatableelement xpath="/index/indexitem[@text]" />
                 </ccinclude>
+                <cclocalresources source="zaphelp/map.jhm" 
+                    dest="zaphelp_%locale_with_underscore%/%original_file_name%"
+                    exportpattern="zaphelp_%locale_with_underscore%" />
+                <cclocalresources source="zaphelp/contents/**" 
+                    dest="zaphelp_%locale_with_underscore%/contents/**"
+                    exportpattern="zaphelp_%locale_with_underscore%">
+                    <ccexclude path="zaphelp/contents/**/*.html" />
+                </cclocalresources>
             </ccfiles>
             <!-- zap-extensions project -->
             <!-- alpha extensions -->
@@ -187,6 +196,14 @@
                     <!-- <cctranslatableelement xpath="/index/descendant::indexitem[@text]" /> -->
                     <cctranslatableelement xpath="/index/indexitem[@text]" />
                 </ccinclude>
+                <cclocalresources id="addons.resources.help.file.map" source="*/resources/help/map.jhm" 
+                    dest="*/resources/help_%locale_with_underscore%/%original_file_name%"
+                    exportpattern="*/resources/help_%locale_with_underscore%" />
+                <cclocalresources id="addons.resources.help.contents" source="*/resources/help/contents/**" 
+                    dest="*/resources/help_%locale_with_underscore%/contents/**"
+                    exportpattern="*/resources/help_%locale_with_underscore%">
+                    <ccexclude path="*/resources/help/contents/**/*.html" />
+                </cclocalresources>
             </ccfiles>
             <!-- beta extensions -->
             <ccfiles basedir="${zap.extensions.beta.dir}/src/org/zaproxy/zap/extension/" 
@@ -195,6 +212,8 @@
                 <ccinclude refid="addons.include.help.file.hs" />
                 <ccinclude refid="addons.include.help.file.toc" />
                 <ccinclude refid="addons.include.help.file.index" />
+                <cclocalresources refid="addons.resources.help.file.map" />
+                <cclocalresources refid="addons.resources.help.contents" />
             </ccfiles>
             <!-- trunk extensions -->
             <ccfiles basedir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/" 
@@ -204,6 +223,8 @@
                 <ccinclude refid="addons.include.help.file.toc" />
                 <ccinclude refid="addons.include.help.file.index" />
                 <ccexclude refid="exclude.examples" />
+                <cclocalresources refid="addons.resources.help.file.map" />
+                <cclocalresources refid="addons.resources.help.contents" />
             </ccfiles>
         </ccproject>
     </crowdinconfiguration>
