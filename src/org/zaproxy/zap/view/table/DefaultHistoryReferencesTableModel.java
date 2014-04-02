@@ -21,9 +21,10 @@ package org.zaproxy.zap.view.table;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Map.Entry;
 import java.util.SortedMap;
+import java.util.SortedSet;
 import java.util.TreeMap;
+import java.util.TreeSet;
 
 import org.parosproxy.paros.model.HistoryReference;
 
@@ -55,7 +56,8 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
 
     private ArrayList<DefaultHistoryReferencesTableEntry> hrefList;
 
-    private SortedMap<Integer, Integer> historyIdToRow;
+    private SortedMap<Integer, RowIndex> historyIdToRow;
+    private SortedSet<RowIndex> rowIndexes;
 
     /**
      * Constructs a {@code DefaultHistoryReferencesTableModel} with the default columns.
@@ -76,6 +78,7 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
         super(columns);
         this.hrefList = new ArrayList<>();
         this.historyIdToRow = new TreeMap<>();
+        this.rowIndexes = new TreeSet<>();
     }
 
     @Override
@@ -116,9 +119,10 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     @Override
     public void addEntry(final DefaultHistoryReferencesTableEntry historyReference) {
         hrefList.add(historyReference);
-        final int rowIndex = hrefList.size() - 1;
-        historyIdToRow.put(Integer.valueOf(historyReference.getHistoryReference().getHistoryId()), Integer.valueOf(rowIndex));
-        fireTableRowsInserted(rowIndex, rowIndex);
+        RowIndex rowIndex = new RowIndex(hrefList.size() - 1);
+        historyIdToRow.put(Integer.valueOf(historyReference.getHistoryReference().getHistoryId()), rowIndex);
+        rowIndexes.add(rowIndex);
+        fireTableRowsInserted(rowIndex.getValue(), rowIndex.getValue());
     }
 
     @Override
@@ -136,21 +140,44 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
     @Override
     public void removeEntry(final int historyReferenceId) {
         Integer key = Integer.valueOf(historyReferenceId);
-        Integer row = historyIdToRow.get(key);
-        if (row != null) {
-            final int rowIndex = row.intValue();
-
-            hrefList.remove(rowIndex);
+        RowIndex rowIndex = historyIdToRow.get(key);
+        if (rowIndex != null) {
+            hrefList.remove(rowIndex.getValue());
             historyIdToRow.remove(key);
+            rowIndexes.remove(rowIndex);
+            decreaseRowIndexes(rowIndex);
 
-            for (Entry<Integer, Integer> mapping : historyIdToRow.subMap(
-                    Integer.valueOf(key.intValue() + 1),
-                    Integer.valueOf(Integer.MAX_VALUE)).entrySet()) {
-                mapping.setValue(Integer.valueOf(mapping.getValue().intValue() - 1));
-            }
-
-            fireTableRowsDeleted(rowIndex, rowIndex);
+            fireTableRowsDeleted(rowIndex.getValue(), rowIndex.getValue());
         }
+    }
+
+    /**
+     * Decreases, by one unit, all the row indexes greater than or equal to {@code fromRowIndex} contained in {@code rowIndexes}.
+     * 
+     * @param fromRowIndex the start row index
+     * @see #rowIndexes
+     */
+    private void decreaseRowIndexes(RowIndex fromRowIndex) {
+        RowIndex[] indexes = removeRowIndexes(fromRowIndex);
+        for (RowIndex rowIndex : indexes) {
+            rowIndex.decreaseValue();
+        }
+        rowIndexes.addAll(Arrays.asList(indexes));
+    }
+
+    /**
+     * Removes and returns all the row indexes greater than or equal to {@code fromRowIndex} contained in {@code rowIndexes}.
+     * 
+     * @param fromRowIndex the start row index
+     * @return the removed row indexes
+     * @see #rowIndexes
+     */
+    private RowIndex[] removeRowIndexes(RowIndex fromRowIndex) {
+        SortedSet<RowIndex> indexes = rowIndexes.tailSet(fromRowIndex);
+        RowIndex[] removedIndexes = new RowIndex[indexes.size()];
+        removedIndexes = indexes.toArray(removedIndexes);
+        indexes.clear();
+        return removedIndexes;
     }
 
     @Override
@@ -159,15 +186,16 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
         hrefList.trimToSize();
 
         historyIdToRow = new TreeMap<>();
+        rowIndexes = new TreeSet<>();
 
         fireTableDataChanged();
     }
 
     @Override
     public int getEntryRowIndex(final int historyReferenceId) {
-        final Integer row = historyIdToRow.get(Integer.valueOf(historyReferenceId));
-        if (row != null) {
-            return row.intValue();
+        final RowIndex rowIndex = historyIdToRow.get(Integer.valueOf(historyReferenceId));
+        if (rowIndex != null) {
+            return rowIndex.getValue();
         }
         return -1;
     }
@@ -212,4 +240,42 @@ public class DefaultHistoryReferencesTableModel extends AbstractHistoryReference
         return null;
     }
 
+    /**
+     * A row index, as opposed to an {@code Integer} it allows to change its value.
+     * <p>
+     * Used for mappings between history IDs and row indexes.
+     * 
+     * @see DefaultHistoryReferencesTableModel#historyIdToRow
+     * @see DefaultHistoryReferencesTableModel#rowIndexes
+     */
+    private static class RowIndex implements Comparable<RowIndex> {
+
+        private int value;
+
+        public RowIndex(int value) {
+            this.value = value;
+        }
+
+        public void decreaseValue() {
+            this.value -= 1;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        @Override
+        public int compareTo(RowIndex other) {
+            if (other == null) {
+                return 1;
+            }
+
+            if (value > other.value) {
+                return 1;
+            } else if (value < other.value) {
+                return -1;
+            }
+            return 0;
+        }
+    }
 }
