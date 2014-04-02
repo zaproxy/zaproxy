@@ -46,11 +46,11 @@ class DialogModifyAutoTagScanner extends DialogAddAutoTagScanner {
     }
     
     @Override
-    protected boolean validateFields() {
-        if (scanner.getName().equals(getNameTextField().getText())) {
+    protected boolean validateName(String name) {
+        if (scanner.getName().equals(name)) {
             return true;
         }
-        return super.validateFields();
+        return super.validateName(name);
     }
 
     @Override
