@@ -29,6 +29,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JViewport;
@@ -42,6 +43,9 @@ import javax.swing.table.TableModel;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.IconValues;
+import org.jdesktop.swingx.renderer.MappedValue;
+import org.jdesktop.swingx.renderer.StringValues;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
 import org.parosproxy.paros.model.HistoryReference;
@@ -57,6 +61,7 @@ import org.zaproxy.zap.view.renderer.SizeBytesStringValue;
 import org.zaproxy.zap.view.renderer.TimeDurationStringValue;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 import org.zaproxy.zap.view.table.decorator.AlertRiskTableCellItemIconHighlighter;
+import org.zaproxy.zap.view.table.decorator.NoteTableCellItemIconHighlighter;
 
 /**
  * A table specialised in showing data from {@code HistoryReference}s obtained from {@code HistoryReferencesTableModel}s.
@@ -446,6 +451,16 @@ public class HistoryReferencesTable extends JXTable {
                 }
             }
 
+            final int noteColumnIndex = hRefModel.getColumnIndex(Column.NOTE);
+            if (noteColumnIndex != -1) {
+                if (columnExt.getModelIndex() == noteColumnIndex && model.getColumnClass(noteColumnIndex) == Boolean.class) {
+                    columnExt.setCellRenderer(new DefaultTableRenderer(
+                            new MappedValue(StringValues.EMPTY, IconValues.NONE),
+                            JLabel.CENTER));
+                    columnExt.setHighlighters(new NoteTableCellItemIconHighlighter(noteColumnIndex));
+                }
+            }
+            
             installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.SIZE_MESSAGE), model);
             installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.SIZE_REQUEST_HEADER), model);
             installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.SIZE_REQUEST_BODY), model);
