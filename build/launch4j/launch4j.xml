@@ -19,7 +19,7 @@
   </classPath>
   <jre>
     <path></path>
-    <minVersion>1.6.0</minVersion>
+    <minVersion>1.7.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJdk</jdkPreference>
     <maxHeapSize>512</maxHeapSize>
@@ -27,12 +27,12 @@
     <opt>-XX:PermSize=256M</opt>
   </jre>
   <versionInfo>
-    <fileVersion>1.4.0.1</fileVersion>
-    <txtFileVersion>1.4.0</txtFileVersion>
+    <fileVersion>2.3.0.0</fileVersion>
+    <txtFileVersion>2.3.0</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>The OWASP Zed Attack Proxy Project</copyright>
-    <productVersion>1.4.0.1</productVersion>
-    <txtProductVersion>1.4.0</txtProductVersion>
+    <productVersion>2.3.0.0</productVersion>
+    <txtProductVersion>2.3.0</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName>OWASP</companyName>
     <internalName>ZAP</internalName>
