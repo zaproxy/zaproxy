@@ -32,6 +32,7 @@ public class ApiResponseElement extends ApiResponse {
 	public static final ApiResponseElement FAIL = new ApiResponseElement("Result", "FAIL"); 
 	
 	private String value = null;
+	private ApiResponse apiResponse;
 
 	public ApiResponseElement(String name) {
 		super(name);
@@ -40,6 +41,11 @@ public class ApiResponseElement extends ApiResponse {
 	public ApiResponseElement(String name, String value) {
 		super(name);
 		this.value = value;
+	}
+
+	public ApiResponseElement(ApiResponse value) {
+		super(value.getName());
+		this.apiResponse = value;
 	}
 
 	public ApiResponseElement(Node node, ApiResponse template) {
@@ -59,28 +65,40 @@ public class ApiResponseElement extends ApiResponse {
 
 	@Override
 	public JSON toJSON() {
-		if (value == null) {
+		if (value == null && apiResponse == null) {
 			return null;
 		}
 		JSONObject jo = new JSONObject();
-		jo.put(this.getName(), this.value);
+		if (apiResponse == null) {
+			jo.put(this.getName(), this.value);
+		} else {
+			jo.put(this.getName(), apiResponse.toJSON());
+		}
 		return jo;
 	}
 
 	@Override
 	public void toXML(Document doc, Element parent) {
-		parent.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.getValue())));
+		if (apiResponse == null) {
+			parent.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.getValue())));
+		} else {
+			apiResponse.toXML(doc, parent);
+		}
 	}
 
 	@Override
 	public void toHTML(StringBuilder sb) {
-		sb.append("<table border=\"1\">\n");
-		sb.append("<tr><td>\n");
-		sb.append(this.getName());
-		sb.append("</td><td>\n");
-		sb.append(StringEscapeUtils.escapeHtml(this.getValue()));
-		sb.append("</td></tr>\n");
-		sb.append("</table>\n");
+		if (apiResponse == null) {
+			sb.append("<table border=\"1\">\n");
+			sb.append("<tr><td>\n");
+			sb.append(this.getName());
+			sb.append("</td><td>\n");
+			sb.append(StringEscapeUtils.escapeHtml(this.getValue()));
+			sb.append("</td></tr>\n");
+			sb.append("</table>\n");
+		} else {
+			apiResponse.toHTML(sb);
+		}
 	}
 
 	@Override
@@ -92,7 +110,11 @@ public class ApiResponseElement extends ApiResponse {
 		sb.append("ApiResponseElement ");
 		sb.append(this.getName());
 		sb.append(" = " );
-		sb.append(this.getValue());
+		if (apiResponse == null) {
+			sb.append(this.getValue());
+		} else {
+			sb.append(apiResponse.toString(indent+1));
+		}
 		sb.append("\n");
 		return sb.toString();
 	}
