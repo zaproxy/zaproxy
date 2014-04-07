@@ -28,8 +28,8 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseElement extends ApiResponse {
 	
-	public static ApiResponseElement OK = new ApiResponseElement("Result", "OK"); 
-	public static ApiResponseElement FAIL = new ApiResponseElement("Result", "FAIL"); 
+	public static final ApiResponseElement OK = new ApiResponseElement("Result", "OK"); 
+	public static final ApiResponseElement FAIL = new ApiResponseElement("Result", "FAIL"); 
 	
 	private String value = null;
 
