@@ -596,7 +596,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
 		} else if (VIEW_VERSION.equals(name)) {
-			result = new ApiResponseList(name);
 			result = new ApiResponseElement(name, Constant.PROGRAM_VERSION);
 		} else if (VIEW_EXCLUDED_FROM_PROXY.equals(name)) {
 			result = new ApiResponseList(name);
