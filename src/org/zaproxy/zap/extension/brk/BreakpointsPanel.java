@@ -144,8 +144,7 @@ public class BreakpointsPanel extends AbstractPanel {
 
 			breakpointsTable.getColumnModel().getColumn(0).setPreferredWidth(restoreColumnWidth(BRK_TABLE, 100));
 			breakpointsTable.getColumnModel().getColumn(0).addPropertyChangeListener(new ColumnResizedListener(BRK_TABLE));
-			
-			breakpointsTable.getColumnModel().getColumn(2).setResizable(false);
+			breakpointsTable.getColumnModel().getColumn(0).setMaxWidth(250);
 
 			breakpointsTable.getTableHeader().setReorderingAllowed(false);
 			
