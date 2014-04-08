@@ -67,7 +67,8 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 		return extension;
 	}
 	
-	private int getId () {
+	@Override
+	public int getPluginId () {
 		return 50001;
 	}
 	
@@ -111,7 +112,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 			String param, String attack, String otherInfo, String solution, String evidence, 
 			int cweId, int wascId, HttpMessage msg) {
 		
-		Alert alert = new Alert(getId(), risk, reliability, name);
+		Alert alert = new Alert(getPluginId(), risk, reliability, name);
 		     
 		alert.setDetail(description, msg.getRequestHeader().getURI().toString(), 
 				param, attack, otherInfo, solution, null, evidence, cweId, wascId, msg);		// Left out reference to match ScriptsActiveScanner
