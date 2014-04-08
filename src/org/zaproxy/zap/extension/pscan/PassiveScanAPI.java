@@ -122,7 +122,6 @@ public class PassiveScanAPI extends ApiImplementor {
 
 		switch (name) {
 		case VIEW_RECORDS_TO_SCAN:
-			result = new ApiResponseList(name);
 			result = new ApiResponseElement(name, String.valueOf(extension.getRecordsToScan()));
 			break;
 		case VIEW_SCANNERS:

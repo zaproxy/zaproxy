@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.awt.Dialog;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
@@ -54,6 +55,12 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
     
     private static final String TITLE_DISPLAY_NAME_REPEATED_DIALOG = Constant.messages.getString("pscan.options.dialog.scanner.warning.name.repeated.title");
     private static final String TEXT_DISPLAY_NAME_REPEATED_DIALOG = Constant.messages.getString("pscan.options.dialog.scanner.warning.name.repeated.text");
+
+    private static final String TITLE_WARNING_INVALID_REGEX = Constant.messages.getString("pscan.options.dialog.scanner.warning.invalid.regex.title");
+    private static final String MESSAGE_INVALID_REQUEST_HEADER_REGEX = Constant.messages.getString("pscan.options.dialog.scanner.warning.invalid.requestHeaderRegex");
+    private static final String MESSAGE_INVALID_REQUEST_URL_REGEX = Constant.messages.getString("pscan.options.dialog.scanner.warning.invalid.requestUrlRegex");
+    private static final String MESSAGE_INVALID_RESPONSE_BODY_REGEX = Constant.messages.getString("pscan.options.dialog.scanner.warning.invalid.responseBodyRegex");
+    private static final String MESSAGE_INVALID_RESPONSE_HEADER_REGEX = Constant.messages.getString("pscan.options.dialog.scanner.warning.invalid.responseHeaderRegex");
 
     private ZapTextField nameTextField;
     private ZapTextField typeTextField;
@@ -165,7 +172,27 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
 
     @Override
     protected boolean validateFields() {
-        String name = getNameTextField().getText();
+        if(!validateName(getNameTextField().getText())) {
+            return false;
+        }
+
+        if (!validateRegex(getRequestHeaderRegexTextField(), MESSAGE_INVALID_REQUEST_HEADER_REGEX)) {
+            return false;
+        }
+        if (!validateRegex(getRequestUrlRegexTextField(), MESSAGE_INVALID_REQUEST_URL_REGEX)) {
+            return false;
+        }
+        if (!validateRegex(getResponseHeaderRegexTextField(), MESSAGE_INVALID_RESPONSE_HEADER_REGEX)) {
+            return false;
+        }
+        if (!validateRegex(getResponseBodyRegexTextField(), MESSAGE_INVALID_RESPONSE_BODY_REGEX)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    protected boolean validateName(String name) {
         for (RegexAutoTagScanner s : scanners) {
             if (name.equals(s.getName())) {
                 JOptionPane.showMessageDialog(this, TEXT_DISPLAY_NAME_REPEATED_DIALOG,
@@ -175,7 +202,17 @@ class DialogAddAutoTagScanner extends AbstractFormDialog {
                 return false;
             }
         }
+        return true;
+    }
 
+    private boolean validateRegex(ZapTextField regexTextField, String warningMessage) {
+        try {
+            Pattern.compile(regexTextField.getText(), Pattern.CASE_INSENSITIVE);
+        } catch (IllegalArgumentException e) {
+            JOptionPane.showMessageDialog(this, warningMessage, TITLE_WARNING_INVALID_REGEX, JOptionPane.WARNING_MESSAGE);
+            regexTextField.requestFocusInWindow();
+            return false;
+        }
         return true;
     }
 

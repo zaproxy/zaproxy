@@ -20,9 +20,11 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.Event;
+import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +58,8 @@ import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
 public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {
 	
+	private static final Logger LOGGER = Logger.getLogger(ActiveScanPanel.class);
+
 	private static final long serialVersionUID = 1L;
 
 	/**
@@ -175,6 +179,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	    if (messagesTable == null) {
 	        messagesTable = new HistoryReferencesTable(EMPTY_RESULTS_MODEL);
 	        messagesTable.setName(MESSAGE_CONTAINER_NAME);
+	        messagesTable.setAutoCreateColumnsFromModel(false);
 	    }
 	    return messagesTable;
 	}
@@ -190,7 +195,22 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 
 	@Override
-	protected void switchView(String site) {
+	protected void switchView(final String site) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						switchView(site);
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				LOGGER.error("Failed to switch view: " + e.getMessage(), e);
+			}
+			return;
+		}
+
 		if ("".equals(site)) {
 			resetMessagesTable();
 			return;

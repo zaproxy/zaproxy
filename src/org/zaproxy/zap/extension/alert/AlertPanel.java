@@ -506,6 +506,7 @@ public class AlertPanel extends AbstractPanel {
 				        if (obj instanceof Alert) {
 				            Alert alert = (Alert) obj;
 						    setMessage(alert.getMessage(), alert.getEvidence());
+						    treeAlert.requestFocusInWindow();
 						    getAlertViewPanel().displayAlert(alert);
 				        } else {
 						    getAlertViewPanel().clearAlert();
