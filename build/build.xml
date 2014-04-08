@@ -566,6 +566,42 @@
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
     </target>
 
+    <target name="package-lite" description="package the cross platform 'lite' release">
+        <echo message="Packaging the Lite build..." />
+
+        <!-- delete previously build packages -->
+        <delete file="ZAP_${version}_Lite.tar.gz" />
+
+        <!-- Tar up the release -->
+        <tar destfile="ZAP_${version}_Lite.tar.gz" compression="gzip">
+            <tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
+                <include name="**" />
+                <exclude name="**/.svn/**" />
+                <exclude name="**/_svn/**" />
+                <exclude name="zap.sh" />
+            	<!-- This filters out all but the specified add-ons -->
+                <exclude name="plugin/**" />
+            </tarfileset>
+            <tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
+            	<!-- The list of 'lite' add-ons -->
+                <include name="plugin/ascanrules-*.zap" />
+                <include name="plugin/bruteforce-*.zap" />
+                <include name="plugin/coreLang-*.zap" />
+                <include name="plugin/diff-*.zap" />
+                <include name="plugin/invoke-*.zap" />
+                <include name="plugin/plugnhack-*.zap" />
+                <include name="plugin/pscan-*.zap" />
+                <include name="plugin/quickstart-*.zap" />
+                <include name="plugin/reveal-*.zap" />
+                <include name="plugin/saverawmessage-*.zap" />
+                <include name="plugin/scripts-*.zap" />
+                <include name="plugin/zest-*.zap" />
+            </tarfileset>
+            <tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
+                <include name="zap.sh" />
+            </tarfileset>
+        </tar>
+    </target>
 
     <target name="package-linux" description="package the Linux build">
         <echo message="Packaging the Linux build..." />
@@ -652,6 +688,14 @@
                 <include name="zap.sh" />
             </zipfileset>
         </zip>
+    </target>
+
+    <target name="lite-release">
+        <!-- Load the version from a file -->
+        <loadfile property="version" srcfile="version.txt" />
+
+        <antcall target="dist" />
+        <antcall target="package-lite" />
     </target>
 
     <target name="full-release">
