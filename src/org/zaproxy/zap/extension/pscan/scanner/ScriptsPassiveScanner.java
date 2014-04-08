@@ -43,6 +43,8 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 	
 	// private Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
 
+	private int currentHRefId;
+
 	public ScriptsPassiveScanner() {
 	}
 	
@@ -77,6 +79,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 	@Override
 	public void scanHttpResponseReceive(HttpMessage msg, int id, Source source) {
 		if (this.getExtension() != null) {
+			currentHRefId = id;
 			List<ScriptWrapper> scripts = extension.getScripts(ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE);
 			for (ScriptWrapper script : scripts) {
 				StringWriter writer = new StringWriter();
@@ -113,7 +116,7 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 		alert.setDetail(description, msg.getRequestHeader().getURI().toString(), 
 				param, attack, otherInfo, solution, null, evidence, cweId, wascId, msg);		// Left out reference to match ScriptsActiveScanner
 
-		this.parent.raiseAlert(this.getId(), alert);
+		this.parent.raiseAlert(currentHRefId, alert);
 	}
 
 	@Override
