@@ -172,7 +172,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 	public void raiseAlert(int id, Alert alert) {
 		if (currentId != id) {
-			logger.error("Alert id != crurentId! " + id + " " + currentId);
+			logger.error("Alert id != currentId! " + id + " " + currentId);
 		}
 		alert.setSourceHistoryId(href.getHistoryId());
 		
