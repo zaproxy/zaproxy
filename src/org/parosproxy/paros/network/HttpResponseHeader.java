@@ -27,10 +27,12 @@
 // ZAP: 2013/02/12 Modified isText() to also consider atom+xml as text
 // ZAP: 2013/03/08 Improved parse error reporting
 // ZAP: 2014/02/21 i1046: The getHttpCookies() method in the HttpResponseHeader does not properly set the domain
+// ZAP: 2014/04/09 i1145: Cookie parsing error if a comma is used
 
 package org.parosproxy.paros.network;
 
 import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,10 +41,13 @@ import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.log4j.Logger;
+
 public class HttpResponseHeader extends HttpHeader {
 
 	private static final long serialVersionUID = 2812716126742059785L;
-	
+    private static final Logger log = Logger.getLogger(HttpResponseHeader.class);
+
 	public static final String HTTP_CLIENT_BAD_REQUEST = "HTTP/1.0 400 Bad request" + CRLF + CRLF;
 	private static final String _CONTENT_TYPE_IMAGE = "image";
 	private static final String _CONTENT_TYPE_TEXT = "text";
@@ -253,30 +258,50 @@ public class HttpResponseHeader extends HttpHeader {
 		
 		if (cookiesS != null) {
 			for (String c : cookiesS) {
-				List<HttpCookie> parsedCookies = HttpCookie.parse(c);
-				if (defaultDomain != null)
-					for (HttpCookie cookie : parsedCookies) {
-						if (cookie.getDomain() == null)
-							cookie.setDomain(defaultDomain);
-					}
-				cookies.addAll(parsedCookies);
+				cookies.addAll(parseCookieString(c, defaultDomain));
 			}
 		}
 
 		cookiesS = getHeaders(HttpHeader.SET_COOKIE2);
 		if (cookiesS != null) {
 			for (String c : cookiesS) {
-				List<HttpCookie> parsedCookies = HttpCookie.parse(c);
-				if (defaultDomain != null)
-					for (HttpCookie cookie : parsedCookies) {
-						if (cookie.getDomain() == null)
-							cookie.setDomain(defaultDomain);
-					}
-				cookies.addAll(parsedCookies);
+				cookies.addAll(parseCookieString(c, defaultDomain));
 			}
 		}
 		
 		return cookies;
+	}
+	
+	private List<HttpCookie> parseCookieString (String c, String defaultDomain) {
+		try {
+			List<HttpCookie> parsedCookies = HttpCookie.parse(c);
+			if (defaultDomain != null) {
+				for (HttpCookie cookie : parsedCookies) {
+					if (cookie.getDomain() == null) {
+						cookie.setDomain(defaultDomain);
+					}
+				}
+			}
+			return parsedCookies;
+		} catch (IllegalArgumentException e) {
+			if (c.indexOf(',') >= 0) {
+				try {
+					// Some sites seem to use comma separators, which HttpCookie doesnt like, try replacing them
+					List<HttpCookie> parsedCookies = HttpCookie.parse(c.replace(',', ';'));
+					if (defaultDomain != null) {
+						for (HttpCookie cookie : parsedCookies) {
+							if (cookie.getDomain() == null) {
+								cookie.setDomain(defaultDomain);
+							}
+						}
+					}
+					return parsedCookies;
+				} catch (IllegalArgumentException e2) {
+					log.error("Failed to parse cookie: " + c, e);
+				}
+			}
+		}
+		return new ArrayList<HttpCookie>();
 	}
 	
 	/**
