@@ -75,6 +75,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
 
            if (node.getHistoryReference()!= null) {
                node.getHistoryReference().delete();
+               map.removeHistoryReference(node.getHistoryReference().getHistoryId());
            }
 
            // delete past reference in node
@@ -85,6 +86,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
                }
                ref.delete();
                node.getPastHistoryReference().remove(0);
+               map.removeHistoryReference(ref.getHistoryId());
            }
            
            map.removeNodeFromParent(node);

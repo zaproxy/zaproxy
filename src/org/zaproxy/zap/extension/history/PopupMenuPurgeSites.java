@@ -108,6 +108,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                     }
                 }
                 node.getHistoryReference().delete();
+                map.removeHistoryReference(node.getHistoryReference().getHistoryId());
             }
 
             // delete past reference in node
@@ -123,6 +124,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                 ext.removeFromHistoryList(ref);
                 ref.delete();
                 node.getPastHistoryReference().remove(0);
+                map.removeHistoryReference(ref.getHistoryId());
             }
 
             map.removeNodeFromParent(node);

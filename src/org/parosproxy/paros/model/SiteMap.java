@@ -34,6 +34,7 @@
 // ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 // ZAP: 2014/04/10 Initialise the root SiteNode with a reference to SiteMap
+// ZAP: 2014/04/10 Allow to delete history ID to SiteNode map entries
 
 package org.parosproxy.paros.model;
 
@@ -542,6 +543,10 @@ public class SiteMap extends DefaultTreeModel {
     	return hrefMap.get(href);
     }
     
+    public void removeHistoryReference(int historyId) {
+        hrefMap.remove(Integer.valueOf(historyId));
+    }
+
     // returns a representation of the host name in the site map
 	private String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				

@@ -102,6 +102,7 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
             PopupMenuPurgeSites.purge(map, node);
         } else {
             node.getPastHistoryReference().remove(ref);
+            map.removeHistoryReference(ref.getHistoryId());
         }
     }
 
