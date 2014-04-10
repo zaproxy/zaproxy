@@ -147,8 +147,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         this.setName(NAME);
         this.setOrder(16);
 
-        ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
-
 	}
 	
 	/**
@@ -207,6 +205,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportMessage2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportResponse2());
             extensionHook.getHookMenu().addReportMenuItem(getPopupMenuExportURLs());
+
+            ExtensionHelp.enableHelpKey(this.getLogPanel(), "ui.tabs.history");
 	    }
 
 	}
