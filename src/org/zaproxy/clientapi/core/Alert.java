@@ -185,6 +185,116 @@ public class Alert {
 	}
 	
 	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((alert == null) ? 0 : alert.hashCode());
+		result = prime * result + ((attack == null) ? 0 : attack.hashCode());
+		result = prime * result + cweId;
+		result = prime * result + ((description == null) ? 0 : description.hashCode());
+		result = prime * result + ((evidence == null) ? 0 : evidence.hashCode());
+		result = prime * result + ((other == null) ? 0 : other.hashCode());
+		result = prime * result + ((param == null) ? 0 : param.hashCode());
+		result = prime * result + ((reference == null) ? 0 : reference.hashCode());
+		result = prime * result + ((reliability == null) ? 0 : reliability.hashCode());
+		result = prime * result + ((risk == null) ? 0 : risk.hashCode());
+		result = prime * result + ((solution == null) ? 0 : solution.hashCode());
+		result = prime * result + ((url == null) ? 0 : url.hashCode());
+		result = prime * result + wascId;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object object) {
+		if (this == object) {
+			return true;
+		}
+		if (object == null) {
+			return false;
+		}
+		if (getClass() != object.getClass()) {
+			return false;
+		}
+		Alert otherAlert = (Alert) object;
+		if (alert == null) {
+			if (otherAlert.alert != null) {
+				return false;
+			}
+		} else if (!alert.equals(otherAlert.alert)) {
+			return false;
+		}
+		if (attack == null) {
+			if (otherAlert.attack != null) {
+				return false;
+			}
+		} else if (!attack.equals(otherAlert.attack)) {
+			return false;
+		}
+		if (cweId != otherAlert.cweId) {
+			return false;
+		}
+		if (description == null) {
+			if (otherAlert.description != null) {
+				return false;
+			}
+		} else if (!description.equals(otherAlert.description)) {
+			return false;
+		}
+		if (evidence == null) {
+			if (otherAlert.evidence != null) {
+				return false;
+			}
+		} else if (!evidence.equals(otherAlert.evidence)) {
+			return false;
+		}
+		if (this.other == null) {
+			if (otherAlert.other != null) {
+				return false;
+			}
+		} else if (!this.other.equals(otherAlert.other)) {
+			return false;
+		}
+		if (param == null) {
+			if (otherAlert.param != null) {
+				return false;
+			}
+		} else if (!param.equals(otherAlert.param)) {
+			return false;
+		}
+		if (reference == null) {
+			if (otherAlert.reference != null) {
+				return false;
+			}
+		} else if (!reference.equals(otherAlert.reference)) {
+			return false;
+		}
+		if (reliability != otherAlert.reliability) {
+			return false;
+		}
+		if (risk != otherAlert.risk) {
+			return false;
+		}
+		if (solution == null) {
+			if (otherAlert.solution != null) {
+				return false;
+			}
+		} else if (!solution.equals(otherAlert.solution)) {
+			return false;
+		}
+		if (url == null) {
+			if (otherAlert.url != null) {
+				return false;
+			}
+		} else if (!url.equals(otherAlert.url)) {
+			return false;
+		}
+		if (wascId != otherAlert.wascId) {
+			return false;
+		}
+		return true;
+	}
+
+    @Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("\tAlert: ").append(getAlert()).append(", ");
