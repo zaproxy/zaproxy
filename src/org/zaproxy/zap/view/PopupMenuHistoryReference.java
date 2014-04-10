@@ -151,10 +151,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
 			case alerts:
     			AlertNode aNode = (AlertNode) treeInvoker.getLastSelectedPathComponent();
         	    if (aNode.getUserObject() != null) {
-        	        if (aNode.getUserObject() instanceof Alert) {
-        	            Alert alert = (Alert) aNode.getUserObject();
-        	            ref = alert.getHistoryRef();
-        	        }
+    	            Alert alert = aNode.getUserObject();
+    	            ref = alert.getHistoryRef();
         	    }
 				break;
     		case hreftable:
@@ -203,10 +201,8 @@ public abstract class PopupMenuHistoryReference extends ExtensionPopupMenuItem {
     		    // Only support single items
     			AlertNode aNode = (AlertNode) treeInvoker.getLastSelectedPathComponent();
         	    if (aNode.getUserObject() != null) {
-        	        if (aNode.getUserObject() instanceof Alert) {
-        	            Alert alert = (Alert) aNode.getUserObject();
-        	            refs.add(alert.getHistoryRef());
-        	        }
+    	            Alert alert = aNode.getUserObject();
+    	            refs.add(alert.getHistoryRef());
         	    }
 				break;
     		case hreftable:

@@ -83,7 +83,7 @@ class AlertTreeModel extends DefaultTreeModel {
             if (child.getChildCount() == 0) {
             	// Its a leaf node
 	        	if (child.getUserObject() != null && 
-	        			((Alert)child.getUserObject()).getAlertId() == alert.getAlertId()) {
+	        			child.getUserObject().getAlertId() == alert.getAlertId()) {
 	        		return child;
 	        	}
             } else {
@@ -228,7 +228,7 @@ class AlertTreeModel extends DefaultTreeModel {
                     return null;
                 }
                 
-                Alert tmp = (Alert) child.getUserObject();
+                Alert tmp = child.getUserObject();
 
                 if (tmp.getParam().equals(alert.getParam()) && tmp.getAttack().equals(alert.getAttack())) {
                 	return child;

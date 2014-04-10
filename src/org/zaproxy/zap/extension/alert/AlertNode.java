@@ -21,10 +21,13 @@ package org.zaproxy.zap.extension.alert;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
+import org.parosproxy.paros.core.scanner.Alert;
+
 public class AlertNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
 	private String nodeName = null;
     private int risk = -1;
+    private Alert alert;
     
 	public AlertNode(int risk, String nodeName) {
         super();
@@ -32,6 +35,19 @@ public class AlertNode extends DefaultMutableTreeNode {
         this.setRisk(risk);
     }
     
+    @Override
+    public void setUserObject(Object userObject) {
+        if (!(userObject instanceof Alert)) {
+            throw new IllegalArgumentException("Parameter userObject must be an Alert.");
+        }
+        this.alert = (Alert) userObject;
+    }
+
+    @Override
+    public Alert getUserObject() {
+        return alert;
+    }
+
     @Override
     public String toString() {
     	if (this.getChildCount() > 1) {

@@ -592,8 +592,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	private void filterTree(AlertNode node) {
-		if (node.getUserObject() != null && node.getUserObject() instanceof Alert) {
-			Alert alert = (Alert) node.getUserObject();
+		if (node.getUserObject() != null) {
+			Alert alert = node.getUserObject();
 			if (this.isInFilter(alert)) {
 				this.getFilteredTreeModel().addPath(alert);
 			}
