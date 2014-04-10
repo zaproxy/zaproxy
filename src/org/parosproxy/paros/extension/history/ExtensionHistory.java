@@ -51,6 +51,7 @@
 // ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
 // with tables instead of lists
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
+// ZAP: 2014/04/10 Remove cached history reference when a history reference is removed
 
 package org.parosproxy.paros.extension.history;
 
@@ -273,6 +274,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public void removeFromHistoryList(final HistoryReference href) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             this.getHistoryTableModel().removeEntry(href.getHistoryId());
+            historyIdToRef.remove(Integer.valueOf(href.getHistoryId()));
         } else {
             EventQueue.invokeLater(new Runnable() {
 
