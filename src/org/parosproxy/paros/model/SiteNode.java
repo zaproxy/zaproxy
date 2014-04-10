@@ -34,6 +34,7 @@
 // ZAP: 2013/08/23 Make sure #nodeChanged() is called after removing a custom icon
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
+// ZAP: 2014/04/10 Do not allow to set the parent node as itself
 
 package org.parosproxy.paros.model;
 
@@ -43,6 +44,7 @@ import java.util.List;
 import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
@@ -269,8 +271,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     		return;
     	}
     	this.alerts.add(alert);
-    	if (this.getParent() != null && 
- 			   (! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+    	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
  			((SiteNode)this.getParent()).addAlert(alert);
     	}
 		this.nodeChanged();
@@ -288,8 +289,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 		if (foundAlert != null) {
 			this.alerts.remove(foundAlert);
 			this.alerts.add(alert);
-		 	if (this.getParent() != null && 
-		 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+		 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
 		 		((SiteNode)this.getParent()).updateAlert(alert);
 		 	}
 			
@@ -320,8 +320,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 	    		c = (SiteNode) this.getChildAfter(c);
 	    	}
 		}
-	 	if (removed && this.getParent() != null && 
-	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+	 	if (removed && this.getParent() != null && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
 	 	}
     }
@@ -330,8 +329,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 		alerts.remove(alert);
 		
 		// Remove from parents, if not in siblings
-	 	if (this.getParent() != null && 
-	 			(! this.getParent().equals(this)) && this.getParent() instanceof SiteNode) {
+	 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
 	 	}
 		this.nodeChanged();
@@ -404,4 +402,11 @@ public class SiteNode extends DefaultMutableTreeNode {
 		}
 	}
 	
+	@Override
+	public void setParent(MutableTreeNode newParent) {
+		if (newParent == this) {
+			return;
+		}
+		super.setParent(newParent);
+	}
 }
