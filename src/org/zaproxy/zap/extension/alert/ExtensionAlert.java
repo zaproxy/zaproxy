@@ -502,7 +502,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     	AlertNode parent = (AlertNode) getAlertPanel().getTreeAlert().getModel().getRoot();
     	if (parent != null) {
             for (int i=0; i<parent.getChildCount(); i++) {
-                AlertNode child = (AlertNode) parent.getChildAt(i);
+                AlertNode child = parent.getChildAt(i);
             	switch (child.getRisk()) {
             	case Alert.RISK_INFO:	totalInfo++;	break;
             	case Alert.RISK_LOW:	totalLow++;		break;
@@ -599,7 +599,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 			}
 		}
 		for (int i=0; i < node.getChildCount(); i++) {
-			this.filterTree((AlertNode)node.getChildAt(i));
+			this.filterTree(node.getChildAt(i));
 		}
 	}
 

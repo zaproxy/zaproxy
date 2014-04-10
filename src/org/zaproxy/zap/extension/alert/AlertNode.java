@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.alert;
 
 import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.MutableTreeNode;
 
 import org.parosproxy.paros.core.scanner.Alert;
 
@@ -46,6 +47,32 @@ public class AlertNode extends DefaultMutableTreeNode {
     @Override
     public Alert getUserObject() {
         return alert;
+    }
+
+    @Override
+    public AlertNode getChildAt(int index) {
+        return (AlertNode) super.getChildAt(index);
+    }
+
+    @Override
+    public AlertNode getParent() {
+        return (AlertNode) super.getParent();
+    }
+
+    @Override
+    public void add(MutableTreeNode newChild) {
+        if (!(newChild instanceof AlertNode)) {
+            throw new IllegalArgumentException("Parameter newChild must be an AlertNode.");
+        }
+        super.add(newChild);
+    }
+
+    @Override
+    public void insert(MutableTreeNode newChild, int childIndex) {
+        if (!(newChild instanceof AlertNode)) {
+            throw new IllegalArgumentException("Parameter newChild must be an AlertNode.");
+        }
+        super.insert(newChild, childIndex);
     }
 
     @Override

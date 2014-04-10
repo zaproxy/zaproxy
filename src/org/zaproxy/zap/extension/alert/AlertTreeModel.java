@@ -79,7 +79,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private AlertNode findLeafNodeForAlert(AlertNode parent, Alert alert) {
         for (int i=0; i<parent.getChildCount(); i++) {
-            AlertNode child = (AlertNode) parent.getChildAt(i);
+            AlertNode child = parent.getChildAt(i);
             if (child.getChildCount() == 0) {
             	// Its a leaf node
 	        	if (child.getUserObject() != null && 
@@ -120,7 +120,7 @@ class AlertTreeModel extends DefaultTreeModel {
         if (node != null) {
         	
         	// Remove the old version
-        	AlertNode parent = (AlertNode) node.getParent();
+        	AlertNode parent = node.getParent();
 
         	this.removeNodeFromParent(node);
             nodeStructureChanged(parent);
@@ -168,7 +168,7 @@ class AlertTreeModel extends DefaultTreeModel {
             }
             int pos = parent.getChildCount();
             for (int i=0; i< parent.getChildCount(); i++) {
-            	String childName = ((AlertNode)parent.getChildAt(i)).getNodeName();
+            	String childName = parent.getChildAt(i).getNodeName();
                 if (nodeName.compareToIgnoreCase(childName) <= 0) {
                     pos = i;
                     break;
@@ -204,7 +204,7 @@ class AlertTreeModel extends DefaultTreeModel {
     private void nodesChangedEventHandler(AlertNode node) {
     	// Loop up as parent node names include counts which might have changed
     	this.nodeChanged(node);
-    	AlertNode parent = (AlertNode) node.getParent();
+    	AlertNode parent = node.getParent();
     	if (parent != null) {
     		nodesChangedEventHandler(parent);
     	}
@@ -212,7 +212,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private AlertNode findChild(AlertNode parent, String nodeName) {
         for (int i=0; i<parent.getChildCount(); i++) {
-            AlertNode child = (AlertNode) parent.getChildAt(i);
+            AlertNode child = parent.getChildAt(i);
             if (child.getNodeName().equals(nodeName)) {
                 return child;
             }
@@ -222,7 +222,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private AlertNode findLeaf(AlertNode parent, String nodeName, Alert alert) {
         for (int i=0; i<parent.getChildCount(); i++) {
-            AlertNode child = (AlertNode) parent.getChildAt(i);
+            AlertNode child = parent.getChildAt(i);
             if (child.getNodeName().equals(nodeName)) {
                 if (child.getUserObject() == null) {
                     return null;
@@ -244,7 +244,7 @@ class AlertTreeModel extends DefaultTreeModel {
         if (node != null) {
         	
         	// Remove it
-        	AlertNode parent = (AlertNode) node.getParent();
+        	AlertNode parent = node.getParent();
 
         	this.removeNodeFromParent(node);
             nodeStructureChanged(parent);
