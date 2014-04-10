@@ -94,6 +94,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                     .getExtensionLoader()
                     .getExtension(ExtensionHistory.NAME);
             ext.removeFromHistoryList(node.getHistoryReference());
+            ext.clearLogPanelDisplayQueue();
 
             ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
                     .getExtensionLoader()
@@ -122,6 +123,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                     }
                 }
                 ext.removeFromHistoryList(ref);
+                ext.clearLogPanelDisplayQueue();
                 ref.delete();
                 node.getPastHistoryReference().remove(0);
                 map.removeHistoryReference(ref.getHistoryId());
