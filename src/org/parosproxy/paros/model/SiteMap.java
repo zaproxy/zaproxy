@@ -33,6 +33,7 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
+// ZAP: 2014/04/10 Initialise the root SiteNode with a reference to SiteMap
 
 package org.parosproxy.paros.model;
 
@@ -73,9 +74,11 @@ public class SiteMap extends DefaultTreeModel {
     private static Logger log = Logger.getLogger(SiteMap.class);
     
     public static SiteMap createTree(Model model) {
-        SiteNode root = new SiteNode(null, -1, Constant.messages.getString("tab.sites"));
+        SiteMap siteMap = new SiteMap(null, model);
+        SiteNode root = new SiteNode(siteMap, -1, Constant.messages.getString("tab.sites"));
+        siteMap.setRoot(root);
         hrefMap = new HashMap<>();
-        return new SiteMap(root, model);        
+        return siteMap;
     }
     
     public SiteMap(SiteNode root, Model model) {        
