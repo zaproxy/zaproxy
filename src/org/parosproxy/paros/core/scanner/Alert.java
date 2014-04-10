@@ -86,7 +86,7 @@ public class Alert implements Comparable<Object>  {
 	private int		sourceHistoryId = 0;
 	private HistoryReference historyRef = null;
 	// ZAP: Added logger
-	Logger logger = Logger.getLogger(Alert.class);
+	private static final Logger logger = Logger.getLogger(Alert.class);
 	// Cache this info so that we dont have to keep a ref to the HttpMessage
 	private String method = null;
 	private String postData;
