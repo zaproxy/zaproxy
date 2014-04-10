@@ -94,40 +94,40 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                     .getExtensionLoader()
                     .getExtension(ExtensionHistory.NAME);
             ext.removeFromHistoryList(node.getHistoryReference());
+            ext.clearLogPanelDisplayQueue();
 
             ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
                     .getExtensionLoader()
                     .getExtension(ExtensionAlert.NAME);
 
             if (node.getHistoryReference() != null) {
-                if (extAlert != null) {
-                    // Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-                    while (!node.getHistoryReference().getAlerts().isEmpty()) {
-                        // Note the alert is removed as a side effect
-                        extAlert.deleteAlert(node.getHistoryReference().getAlerts().get(0));
-                    }
-                }
+                deleteAlertsFromExtensionAlert(extAlert, node.getHistoryReference());
                 node.getHistoryReference().delete();
+                map.removeHistoryReference(node.getHistoryReference().getHistoryId());
             }
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
                 HistoryReference ref = node.getPastHistoryReference().get(0);
-                if (extAlert != null) {
-                    // Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-                    while (!ref.getAlerts().isEmpty()) {
-                        extAlert.deleteAlert(ref.getAlerts().get(0));
-                        ref.getAlerts().remove(0);
-                    }
-                }
+                deleteAlertsFromExtensionAlert(extAlert, ref);
                 ext.removeFromHistoryList(ref);
+                ext.clearLogPanelDisplayQueue();
                 ref.delete();
                 node.getPastHistoryReference().remove(0);
+                map.removeHistoryReference(ref.getHistoryId());
             }
 
             map.removeNodeFromParent(node);
         }
 
+    }
+
+    private static void deleteAlertsFromExtensionAlert(ExtensionAlert extAlert, HistoryReference historyReference) {
+        if (extAlert == null) {
+            return;
+        }
+
+        extAlert.deleteHistoryReferenceAlerts(historyReference);
     }
 
 }

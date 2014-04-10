@@ -145,28 +145,22 @@ public class PopupPurgeMenu extends ExtensionPopupMenuItem {
 
             if (node.getHistoryReference()!= null) {
         		if (extAlert != null) {
-        			//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-        			while (!node.getHistoryReference().getAlerts().isEmpty()) {
-        				extAlert.deleteAlert(node.getHistoryReference().getAlerts().get(0));
-        				node.getHistoryReference().getAlerts().remove(0);
-        			}
+        		    extAlert.deleteHistoryReferenceAlerts(node.getHistoryReference());
         		}
                 node.getHistoryReference().delete();
+                map.removeHistoryReference(node.getHistoryReference().getHistoryId());
             }
 
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
                 HistoryReference ref = node.getPastHistoryReference().get(0);
                 if (extAlert != null) {
-	        		//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-        			while (!ref.getAlerts().isEmpty()) {
-        				extAlert.deleteAlert(ref.getAlerts().get(0));
-        				ref.getAlerts().remove(0);
-        			}
+                    extAlert.deleteHistoryReferenceAlerts(ref);
 	            }
                 ext.removeFromHistoryList(ref);
                 ref.delete();
                 node.getPastHistoryReference().remove(0);
+                map.removeHistoryReference(ref.getHistoryId());
             }
 
             map.removeNodeFromParent(node);

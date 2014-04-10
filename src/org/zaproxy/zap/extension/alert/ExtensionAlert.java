@@ -24,15 +24,16 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
@@ -42,6 +43,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
@@ -56,7 +58,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
 
     public static final String NAME = "ExtensionAlert";
-    private List<HistoryReference> hrefs = new ArrayList<>();
+    private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
     private AlertTreeModel filteredTreeModel = null;
     private AlertPanel alertPanel = null;
@@ -118,7 +120,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.setHistoryRef(ref);
             }
 
-            hrefs.add(ref);
+            hrefs.put(Integer.valueOf(ref.getHistoryId()), ref);
 
             writeAlertToDB(alert, ref);
             addAlertToTree(alert, ref, alert.getMessage());
@@ -318,21 +320,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void sessionChangedEventHandler(Session session) {
-        AlertTreeModel tree = this.getTreeModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getRoot();
-
-        while (root.getChildCount() > 0) {
-            tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
-        }
+        setTreeModel(new AlertTreeModel());
         
-        tree = this.getFilteredTreeModel();
-        root = (DefaultMutableTreeNode) tree.getRoot();
-
-        while (root.getChildCount() > 0) {
-            tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
-        }
-        
-        hrefs = new ArrayList<>();
+        treeModel = null;
+        filteredTreeModel = null;
+        hrefs = new HashMap<>();
 
     	if (session == null) {
     		// Null session indicated we're sutting down
@@ -341,12 +333,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         try {
             refreshAlert(session);
-            // this prevent the UI getting corrupted
-            tree.nodeStructureChanged(root);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         }
-        this.recalcAlerts();
+        setTreeModel(getTreeModel());
     }
 
     private void refreshAlert(Session session) throws SQLException {
@@ -355,14 +345,37 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v = tableAlert.getAlertList();
 
+        final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
+                .getExtensionLoader()
+                .getExtension(ExtensionHistory.NAME);
+
         for (int i = 0; i < v.size(); i++) {
             int alertId = v.get(i).intValue();
             RecordAlert recAlert = tableAlert.read(alertId);
-            Alert alert = new Alert(recAlert);
-            if (alert.getHistoryRef() != null) {
+            int historyId = recAlert.getHistoryId();
+            HistoryReference historyReference = null;
+            if (extensionHistory != null) {
+                historyReference = extensionHistory.getHistoryReference(historyId);
+            }
+
+            if (historyReference == null) {
+                historyReference = this.hrefs.get(Integer.valueOf(historyId));
+            }
+
+            Alert alert;
+            if (historyReference != null) {
+                alert = new Alert(recAlert, historyReference);
+            } else {
+                alert = new Alert(recAlert);
+            }
+            historyReference = alert.getHistoryRef();
+            if (historyReference != null) {
                 // The ref can be null if hrefs are purged
-                addAlertToTree(alert, alert.getHistoryRef(), null);
-                this.hrefs.add(alert.getHistoryRef());
+                addAlertToTree(alert, historyReference, null);
+                Integer key = Integer.valueOf(historyId);
+                if (!hrefs.containsKey(key)) {
+                    this.hrefs.put(key, alert.getHistoryRef());
+                }
             }
         }
         siteTree.nodeStructureChanged((SiteNode) siteTree.getRoot());
@@ -441,6 +454,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
         SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
         if (node != null && node.hasAlert(alert)) {
+            node.deleteAlert(alert);
             siteNodeChanged(node);
         }
 
@@ -448,31 +462,58 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         	this.getTreeModel().deletePath(alert);
         	this.getFilteredTreeModel().deletePath(alert);
             List<HistoryReference> toDelete = new ArrayList<>();
-            for (HistoryReference href : hrefs) {
+            for (HistoryReference href : hrefs.values()) {
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
-                    try {
-                        // TODO Ideally should cache the param names (and change findNode) so we dont have to get
-                        // the message from the db
-                        node = siteTree.findNode(href.getHttpMessage());
-                        if (node != null) {
-	                        node.deleteAlert(alert);
-	                        siteNodeChanged(node);
-                        }
-                        if (href.getAlerts().size() == 0) {
-                            toDelete.add(href);
-                        }
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
+                    node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
+                    if (node != null) {
+                        node.deleteAlert(alert);
+                        siteNodeChanged(node);
+                    }
+                    if (href.getAlerts().size() == 0) {
+                        toDelete.add(href);
                     }
                 }
             }
             for (HistoryReference href : toDelete) {
-                hrefs.remove(href);
+                hrefs.remove(Integer.valueOf(href.getHistoryId()));
             }
         }
 
         this.recalcAlerts();
+    }
+
+    public void deleteHistoryReferenceAlerts(HistoryReference hRef) {
+        List<Alert> alerts = hRef.getAlerts();
+        SiteMap siteTree = this.getModel().getSession().getSiteTree();
+        
+        synchronized (this.getTreeModel()) {
+            for (int i = 0; i < alerts.size(); i++) {
+                Alert alert = alerts.get(i);
+
+                this.getTreeModel().deletePath(alert);
+                this.getFilteredTreeModel().deletePath(alert);
+
+                try {
+                    getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
+                } catch (SQLException e) {
+                    logger.error("Failed to delete alert with ID: " + alert.getAlertId(), e);
+                }
+            }
+
+            SiteNode node = hRef.getSiteNode();
+            if (node == null) {
+                node = siteTree.findNode(hRef.getURI(), hRef.getMethod(), hRef.getRequestBody());
+            }
+
+            if (node != null) {
+                node.deleteAlerts(alerts);
+            }
+            alerts.clear();
+            this.recalcAlerts();
+        }
+
+        hrefs.remove(hRef);
     }
     
     /**
@@ -502,7 +543,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     	AlertNode parent = (AlertNode) getAlertPanel().getTreeAlert().getModel().getRoot();
     	if (parent != null) {
             for (int i=0; i<parent.getChildCount(); i++) {
-                AlertNode child = (AlertNode) parent.getChildAt(i);
+                AlertNode child = parent.getChildAt(i);
             	switch (child.getRisk()) {
             	case Alert.RISK_INFO:	totalInfo++;	break;
             	case Alert.RISK_LOW:	totalLow++;		break;
@@ -592,14 +633,14 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 	private void filterTree(AlertNode node) {
-		if (node.getUserObject() != null && node.getUserObject() instanceof Alert) {
-			Alert alert = (Alert) node.getUserObject();
+		if (node.getUserObject() != null) {
+			Alert alert = node.getUserObject();
 			if (this.isInFilter(alert)) {
 				this.getFilteredTreeModel().addPath(alert);
 			}
 		}
 		for (int i=0; i < node.getChildCount(); i++) {
-			this.filterTree((AlertNode)node.getChildAt(i));
+			this.filterTree(node.getChildAt(i));
 		}
 	}
 

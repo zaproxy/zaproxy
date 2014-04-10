@@ -83,9 +83,7 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
                 .getExtension(ExtensionAlert.NAME);
 
         if (extAlert != null) {
-            while (!ref.getAlerts().isEmpty()) {
-                extAlert.deleteAlert(ref.getAlerts().get(0));
-            }
+            extAlert.deleteHistoryReferenceAlerts(ref);
         }
 
         ref.delete();
@@ -102,6 +100,7 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
             PopupMenuPurgeSites.purge(map, node);
         } else {
             node.getPastHistoryReference().remove(ref);
+            map.removeHistoryReference(ref.getHistoryId());
         }
     }
 
