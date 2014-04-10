@@ -24,7 +24,9 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -56,7 +58,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
 
     public static final String NAME = "ExtensionAlert";
-    private List<HistoryReference> hrefs = new ArrayList<>();
+    private Map<Integer, HistoryReference> hrefs = new HashMap<>();
     private AlertTreeModel treeModel = null;
     private AlertTreeModel filteredTreeModel = null;
     private AlertPanel alertPanel = null;
@@ -118,7 +120,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.setHistoryRef(ref);
             }
 
-            hrefs.add(ref);
+            hrefs.put(Integer.valueOf(ref.getHistoryId()), ref);
 
             writeAlertToDB(alert, ref);
             addAlertToTree(alert, ref, alert.getMessage());
@@ -332,7 +334,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
         }
         
-        hrefs = new ArrayList<>();
+        hrefs = new HashMap<>();
 
     	if (session == null) {
     		// Null session indicated we're sutting down
@@ -362,7 +364,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             if (alert.getHistoryRef() != null) {
                 // The ref can be null if hrefs are purged
                 addAlertToTree(alert, alert.getHistoryRef(), null);
-                this.hrefs.add(alert.getHistoryRef());
+                Integer key = Integer.valueOf(alert.getHistoryRef().getHistoryId());
+                if (!hrefs.containsKey(key)) {
+                    this.hrefs.put(key, alert.getHistoryRef());
+                }
             }
         }
         siteTree.nodeStructureChanged((SiteNode) siteTree.getRoot());
@@ -448,7 +453,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         	this.getTreeModel().deletePath(alert);
         	this.getFilteredTreeModel().deletePath(alert);
             List<HistoryReference> toDelete = new ArrayList<>();
-            for (HistoryReference href : hrefs) {
+            for (HistoryReference href : hrefs.values()) {
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
                     try {
@@ -468,7 +473,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 }
             }
             for (HistoryReference href : toDelete) {
-                hrefs.remove(href);
+                hrefs.remove(Integer.valueOf(href.getHistoryId()));
             }
         }
 
