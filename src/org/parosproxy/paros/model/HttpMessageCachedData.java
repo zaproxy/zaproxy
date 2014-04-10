@@ -19,6 +19,8 @@
  */
 package org.parosproxy.paros.model;
 
+import java.lang.ref.WeakReference;
+
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -35,6 +37,7 @@ public class HttpMessageCachedData {
     private final int responseHeaderLength;
     private final int responseBodyLength;
     private boolean note;
+    private WeakReference<String> wrRequestBody;
 
     public HttpMessageCachedData(HttpMessage msg) {
         this.method = msg.getRequestHeader().getMethod();
@@ -48,6 +51,7 @@ public class HttpMessageCachedData {
         this.requestBodyLength = msg.getRequestBody().length();
         this.responseHeaderLength = msg.getResponseHeader().toString().length();
         this.responseBodyLength = msg.getResponseBody().length();
+        this.wrRequestBody = new WeakReference<>(msg.getRequestBody().toString());
     }
 
     public String getMethod() {
@@ -100,6 +104,15 @@ public class HttpMessageCachedData {
 
     public int getResponseBodyLength() {
         return responseBodyLength;
+    }
+
+    public String getRequestBody() {
+        return wrRequestBody.get();
+    }
+
+    public void setRequestBody(String requestBody) {
+        this.wrRequestBody.clear();
+        this.wrRequestBody = new WeakReference<>(requestBody);
     }
 
 }

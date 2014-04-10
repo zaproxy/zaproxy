@@ -19,21 +19,32 @@
  */
 package org.zaproxy.zap.extension.alert;
 
+import java.util.Collections;
+import java.util.Comparator;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
 import org.parosproxy.paros.core.scanner.Alert;
+import javax.swing.tree.TreeNode;
 
 public class AlertNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 1L;
+
+    private final Comparator<AlertNode> childComparator;
 	private String nodeName = null;
     private int risk = -1;
     private Alert alert;
     
 	public AlertNode(int risk, String nodeName) {
+        this(risk, nodeName, null);
+    }
+
+    public AlertNode(int risk, String nodeName, Comparator<AlertNode> childComparator) {
         super();
         this.nodeName = nodeName;
         this.setRisk(risk);
+        this.childComparator = childComparator;
     }
     
     @Override
@@ -73,6 +84,37 @@ public class AlertNode extends DefaultMutableTreeNode {
             throw new IllegalArgumentException("Parameter newChild must be an AlertNode.");
         }
         super.insert(newChild, childIndex);
+    }
+
+    @Override
+    public int getIndex(TreeNode aChild) {
+        if (aChild == null) {
+            throw new IllegalArgumentException("argument is null");
+        }
+        if (!(aChild instanceof AlertNode)) {
+            return -1;
+        }
+
+        if (!isNodeChild(aChild)) {
+            return -1;
+        }
+
+        int idx = findIndex((AlertNode) aChild);
+        if (idx < 0) {
+            return -1;
+        }
+        return idx;
+    }
+
+    public int findIndex(AlertNode aChild) {
+        if (children == null) {
+            return -1;
+        }
+        // Safe, only child AlertNode are allowed to be added/inserted to AlertNode;
+        // Variable idx is only used to add the @SuppressWarnings annotation locally (instead of the whole method).
+        @SuppressWarnings("unchecked")
+        int idx = Collections.binarySearch(children, aChild, childComparator);
+        return idx;
     }
 
     @Override

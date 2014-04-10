@@ -52,6 +52,7 @@
 // with tables instead of lists
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 // ZAP: 2014/04/10 Remove cached history reference when a history reference is removed
+// ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 
 package org.parosproxy.paros.extension.history;
 
@@ -94,9 +95,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
 	public static final String NAME = "ExtensionHistory";
 
+	private static final DefaultHistoryReferencesTableModel EMPTY_MODEL = new DefaultHistoryReferencesTableModel();
+
 	private LogPanel logPanel = null;  //  @jve:decl-index=0:visual-constraint="161,134"
 	private ProxyListenerLog proxyListener = null;
-	private DefaultHistoryReferencesTableModel historyTableModel = null;
+	private DefaultHistoryReferencesTableModel historyTableModel;
     
 	// ZAP: added filter plus dialog
 	private HistoryFilterPlusDialog filterPlusDialog = null;
@@ -165,6 +168,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 			logPanel.setHideable(false);
 
             logPanel.setExtension(this);
+            logPanel.setModel(historyTableModel);
 		}
 		return logPanel;
 	}
@@ -181,6 +185,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return getLogPanel().getSelectedHistoryReferences();
 	}
 	
+	@Override
+	public void init() {
+		super.init();
+
+		historyTableModel = new DefaultHistoryReferencesTableModel();
+	}
+
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -214,48 +225,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
 	@Override
 	public void sessionChanged(final Session session)  {
-	    if (EventQueue.isDispatchThread()) {
-		    sessionChangedEventHandler(session);
-	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	        		    sessionChangedEventHandler(session);
-	                }
-	            });
-	        } catch (Exception e) {
-	            // ZAP: Added logging.
-	            logger.error(e.getMessage(), e);
-	        }
-	    }
+		// Actual work done in sessionScopeChanged
 	}
-	
-	private void sessionChangedEventHandler(Session session) {
-	    getHistoryTableModel().clear();
-	    historyIdToRef.clear();
-	    getLogPanel().setModel(getHistoryTableModel());
-	    if (getView() != null) { 
-	    	getView().getRequestPanel().clearView(true);
-	    	getView().getResponsePanel().clearView(false);
-	    }
-		if (session == null) {
-			// Closedown
-			return;
-		}
-
-		try {
-		    // ZAP: Added type argument.
-			List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
-				session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
-
-		    buildHistory(list);
-		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
-		}
-	    
-	}
-	
 	
 	private ProxyListenerLog getProxyListenerLog() {
         if (proxyListener == null) {
@@ -264,16 +235,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         return proxyListener;
 	}
 	
-	private DefaultHistoryReferencesTableModel getHistoryTableModel() {
-	    if (historyTableModel == null) {
-	        historyTableModel = new DefaultHistoryReferencesTableModel();
-	    }
-	    return historyTableModel;
-	}
-	
 	public void removeFromHistoryList(final HistoryReference href) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            this.getHistoryTableModel().removeEntry(href.getHistoryId());
+            this.historyTableModel.removeEntry(href.getHistoryId());
             historyIdToRef.remove(Integer.valueOf(href.getHistoryId()));
         } else {
             EventQueue.invokeLater(new Runnable() {
@@ -288,7 +252,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	
     public void notifyHistoryItemChanged(final HistoryReference href) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            this.getHistoryTableModel().refreshEntryRow(href.getHistoryId());
+            this.historyTableModel.refreshEntryRow(href.getHistoryId());
         } else {
             EventQueue.invokeLater(new Runnable() {
 
@@ -301,7 +265,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	public HistoryReference getHistoryReference (int historyId) {
-	    HistoryReference href = getHistoryTableModel().getHistoryReference(historyId);
+	    HistoryReference href = historyTableModel.getHistoryReference(historyId);
 		if (href != null) {
 			return href;
 		}
@@ -332,7 +296,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     
     public void addHistory (HistoryReference historyRef) {
         try {
-            synchronized (getHistoryTableModel()) {
+            synchronized (historyTableModel) {
                 final int historyType = historyRef.getHistoryType();
                 if (historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
                         || historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
@@ -368,7 +332,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
     private void addHistoryInEventQueue(final HistoryReference ref) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            getHistoryTableModel().addHistoryReference(ref);
+            historyTableModel.addHistoryReference(ref);
         } else {
             try {
                 EventQueue.invokeAndWait(new Runnable() {
@@ -400,13 +364,10 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    }
 	}
 	
-	private void buildHistory(List<Integer> dbList) {
-		buildHistory(dbList, null);
-	}
-	
 	private void buildHistory(List<Integer> dbList, HistoryFilter historyFilter) {
 	    HistoryReference historyRef = null;
 	    synchronized (historyTableModel) {
+	        getLogPanel().setModel(EMPTY_MODEL);
 	        historyTableModel.clear();
 	        
 	        for (int i=0; i<dbList.size(); i++) {
@@ -418,7 +379,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            			sn.getHistoryReference().getHistoryId() == historyId) {
 	            		historyRef = sn.getHistoryReference();
 	            	} else {
-	                    historyRef = new HistoryReference(historyId);
+	                    historyRef = getHistoryReference(historyId);
 	                    historyRef.setSiteNode(sn);
 	            	}
 	            	final String uri = historyRef.getURI().toString();
@@ -441,6 +402,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    			logger.error(e.getMessage(), e);
 	            }
 	        }
+	        getLogPanel().setModel(historyTableModel);
 	    }
 	}
 
@@ -651,7 +613,28 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	}
 	
 	@Override
-	public void sessionAboutToChange(Session session) {
+	public void sessionAboutToChange(final Session session) {
+		if (getView() == null || EventQueue.isDispatchThread()) {
+			historyTableModel.clear();
+			historyIdToRef.clear();
+
+			if (getView() != null) { 
+				getView().getRequestPanel().clearView(true);
+				getView().getResponsePanel().clearView(false);
+			}
+		} else {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						sessionChanged(session);
+					}
+				});
+			} catch (Exception e) {
+				// ZAP: Added logging.
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	@Override

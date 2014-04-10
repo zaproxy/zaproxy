@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.awt.EventQueue;
+import java.util.Comparator;
 
 import javax.swing.tree.DefaultTreeModel;
 
@@ -32,10 +33,13 @@ class AlertTreeModel extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 1L;
 	
+    private static final Comparator<AlertNode> GROUP_ALERT_CHILD_COMPARATOR = new GroupAlertChildNodeComparator();
+    private static final Comparator<AlertNode> ALERT_CHILD_COMPARATOR = new AlertChildNodeComparator();
+
     private static Logger logger = Logger.getLogger(AlertTreeModel.class);
 
     AlertTreeModel() {
-        super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title")));
+        super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title"), GROUP_ALERT_CHILD_COMPARATOR));
     }
     
     private String getRiskString (Alert alert) {
@@ -136,52 +140,42 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
-        AlertNode result = findChild(parent, nodeName);
-        if (result == null) {
-            AlertNode newNode = new AlertNode(alert.getRisk(), nodeName);
-            if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-            	// Special case!
-            	newNode.setRisk(-1);
-            }
-            int pos = parent.getChildCount();
-            for (int i=0; i< parent.getChildCount(); i++) {
-                if (nodeName.compareToIgnoreCase(parent.getChildAt(i).toString()) <= 0) {
-                    pos = i;
-                    break;
-                }
-            }
-            insertNodeInto(newNode, parent, pos);
-            result = newNode;
-            result.setUserObject(alert);
+        int risk = alert.getRisk();
+        if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+            // Special case!
+            risk = -1;
         }
-        return result;
+
+        int idx = parent.findIndex(new AlertNode(risk, nodeName));
+        if (idx < 0) {
+            idx = -(idx+1);
+            AlertNode node = new AlertNode(risk, nodeName, GROUP_ALERT_CHILD_COMPARATOR);
+            node.setUserObject(alert);
+            parent.insert(node, idx);
+            nodesWereInserted(parent, new int[] { idx });
+            return node;
+        }
+        return parent.getChildAt(idx);
     }
 
     private AlertNode findAndAddLeaf(AlertNode parent, String nodeName, Alert alert) {
-        AlertNode result = findLeaf(parent, nodeName, alert);
-        
-        if (result == null) {
-            AlertNode newNode = new AlertNode(alert.getRisk(), nodeName);
-            if (alert.getReliability() == Alert.FALSE_POSITIVE) {
-            	// Special case!
-            	newNode.setRisk(-1);
-            }
-            int pos = parent.getChildCount();
-            for (int i=0; i< parent.getChildCount(); i++) {
-            	String childName = parent.getChildAt(i).getNodeName();
-                if (nodeName.compareToIgnoreCase(childName) <= 0) {
-                    pos = i;
-                    break;
-                    
-                }
-            }
-            
-            insertNodeInto(newNode, parent, pos);
-            result = newNode;
-            result.setUserObject(alert);
-        	this.nodesChanged(newNode);
+        int risk = alert.getRisk();
+        if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+            // Special case!
+            risk = -1;
         }
-        return result;
+
+        int idx = parent.findIndex(new AlertNode(risk, nodeName));
+        if (idx < 0) {
+            idx = -(idx+1);
+            AlertNode node = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
+            node.setUserObject(alert);
+            parent.insert(node, idx);
+            nodesWereInserted(parent, new int[] { idx });
+        }
+        AlertNode node = parent.getChildAt(idx);
+        nodesChanged(node);
+        return node;
     }
     
     private void nodesChanged(final AlertNode node) {
@@ -210,34 +204,6 @@ class AlertTreeModel extends DefaultTreeModel {
     	}
     }
 
-    private AlertNode findChild(AlertNode parent, String nodeName) {
-        for (int i=0; i<parent.getChildCount(); i++) {
-            AlertNode child = parent.getChildAt(i);
-            if (child.getNodeName().equals(nodeName)) {
-                return child;
-            }
-        }
-        return null;
-    }
-
-    private AlertNode findLeaf(AlertNode parent, String nodeName, Alert alert) {
-        for (int i=0; i<parent.getChildCount(); i++) {
-            AlertNode child = parent.getChildAt(i);
-            if (child.getNodeName().equals(nodeName)) {
-                if (child.getUserObject() == null) {
-                    return null;
-                }
-                
-                Alert tmp = child.getUserObject();
-
-                if (tmp.getParam().equals(alert.getParam()) && tmp.getAttack().equals(alert.getAttack())) {
-                	return child;
-                }
-            }
-        }
-        return null;
-    }
-
     public synchronized void deletePath(Alert alert) {
 
         AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
@@ -257,4 +223,32 @@ class AlertTreeModel extends DefaultTreeModel {
         }
     }
     
+    private static class GroupAlertChildNodeComparator implements Comparator<AlertNode> {
+
+        @Override
+        public int compare(AlertNode alertNode, AlertNode anotherAlertNode) {
+            return alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
+        }
+    }
+
+    private static class AlertChildNodeComparator implements Comparator<AlertNode> {
+
+        @Override
+        public int compare(AlertNode alertNode, AlertNode anotherAlertNode) {
+            int result = alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
+            if (result != 0) {
+                return result;
+            }
+
+            Alert alert = alertNode.getUserObject();
+            Alert anotherAlert = anotherAlertNode.getUserObject();
+
+            result = anotherAlert.getParam().compareTo(anotherAlert.getParam());
+            if (result != 0) {
+                return result;
+            }
+
+            return alert.getAttack().compareTo(anotherAlert.getAttack());
+        }
+    }
 }

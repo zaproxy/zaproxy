@@ -32,6 +32,7 @@
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2013/11/16 Issue 892: Cache of response body length in HistoryReference might not be correct
 // ZAP: 2014/04/10 Changed to use HttpMessageCachedData and expose the cached data
+// ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 
 package org.parosproxy.paros.model;
 
@@ -511,4 +512,17 @@ public class HistoryReference {
 		return httpMessageCachedData.getResponseBodyLength();
 	} 
 	
+	public String getRequestBody() {
+		String requestBody = httpMessageCachedData.getRequestBody();
+		if (requestBody == null) {
+			try {
+				requestBody = getHttpMessage().getRequestBody().toString();
+				httpMessageCachedData.setRequestBody(requestBody);
+			} catch (HttpMalformedHeaderException | SQLException e) {
+				log.error("Failed to reload request body from database with history ID: " + historyId, e);
+				requestBody = "";
+			}
+		}
+		return requestBody;
+	}
 }

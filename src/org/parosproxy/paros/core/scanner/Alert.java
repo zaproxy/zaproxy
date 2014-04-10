@@ -33,6 +33,7 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
 // ZAP: 2013/11/16 Issue 866: Alert keeps HttpMessage longer than needed when HistoryReference is set/available
+// ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 
 package org.parosproxy.paros.core.scanner;
 
@@ -113,7 +114,7 @@ public class Alert implements Comparable<Object>  {
             		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
             		recordAlert.getSolution(), recordAlert.getReference(),
             		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-            		hRef.getHttpMessage());
+            		null);
 
             setHistoryRef(hRef);
         } catch (HttpMalformedHeaderException e) {
@@ -130,16 +131,11 @@ public class Alert implements Comparable<Object>  {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getReliability(), recordAlert.getAlert());
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
-        try {
-            setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
-            		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
-            		recordAlert.getSolution(), recordAlert.getReference(), 
-            		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
-            		ref == null ? null : ref.getHttpMessage());
-        } catch (Exception e) {
-        	// ZAP: Log the exception
-        	logger.error(e.getMessage(), e);
-        }
+        setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
+        		recordAlert.getParam(), recordAlert.getAttack(), recordAlert.getOtherInfo(), 
+        		recordAlert.getSolution(), recordAlert.getReference(), 
+        		recordAlert.getEvidence(), recordAlert.getCweId(), recordAlert.getWascId(),
+        		null);
         setHistoryRef(ref);
 	}
 
@@ -505,6 +501,9 @@ public class Alert implements Comparable<Object>  {
 		this.historyRef = historyRef;
 		if (historyRef != null) {
 			this.message = null;
+			this.method = historyRef.getMethod();
+			this.msgUri = historyRef.getURI();
+			this.postData = historyRef.getRequestBody();
 			this.sourceHistoryId = historyRef.getHistoryId();
 		}
 	}

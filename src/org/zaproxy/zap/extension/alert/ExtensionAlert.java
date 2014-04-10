@@ -29,12 +29,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Vector;
 
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.RecordAlert;
@@ -44,6 +43,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
@@ -320,20 +320,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void sessionChangedEventHandler(Session session) {
-        AlertTreeModel tree = this.getTreeModel();
-        DefaultMutableTreeNode root = (DefaultMutableTreeNode) tree.getRoot();
-
-        while (root.getChildCount() > 0) {
-            tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
-        }
+        setTreeModel(new AlertTreeModel());
         
-        tree = this.getFilteredTreeModel();
-        root = (DefaultMutableTreeNode) tree.getRoot();
-
-        while (root.getChildCount() > 0) {
-            tree.removeNodeFromParent((MutableTreeNode) root.getChildAt(0));
-        }
-        
+        treeModel = null;
+        filteredTreeModel = null;
         hrefs = new HashMap<>();
 
     	if (session == null) {
@@ -343,12 +333,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         try {
             refreshAlert(session);
-            // this prevent the UI getting corrupted
-            tree.nodeStructureChanged(root);
         } catch (SQLException e) {
             logger.error(e.getMessage(), e);
         }
-        this.recalcAlerts();
+        setTreeModel(getTreeModel());
     }
 
     private void refreshAlert(Session session) throws SQLException {
@@ -357,14 +345,34 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v = tableAlert.getAlertList();
 
+        final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
+                .getExtensionLoader()
+                .getExtension(ExtensionHistory.NAME);
+
         for (int i = 0; i < v.size(); i++) {
             int alertId = v.get(i).intValue();
             RecordAlert recAlert = tableAlert.read(alertId);
-            Alert alert = new Alert(recAlert);
-            if (alert.getHistoryRef() != null) {
+            int historyId = recAlert.getHistoryId();
+            HistoryReference historyReference = null;
+            if (extensionHistory != null) {
+                historyReference = extensionHistory.getHistoryReference(historyId);
+            }
+
+            if (historyReference == null) {
+                historyReference = this.hrefs.get(Integer.valueOf(historyId));
+            }
+
+            Alert alert;
+            if (historyReference != null) {
+                alert = new Alert(recAlert, historyReference);
+            } else {
+                alert = new Alert(recAlert);
+            }
+            historyReference = alert.getHistoryRef();
+            if (historyReference != null) {
                 // The ref can be null if hrefs are purged
-                addAlertToTree(alert, alert.getHistoryRef(), null);
-                Integer key = Integer.valueOf(alert.getHistoryRef().getHistoryId());
+                addAlertToTree(alert, historyReference, null);
+                Integer key = Integer.valueOf(historyId);
                 if (!hrefs.containsKey(key)) {
                     this.hrefs.put(key, alert.getHistoryRef());
                 }
@@ -456,19 +464,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             for (HistoryReference href : hrefs.values()) {
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
-                    try {
-                        // TODO Ideally should cache the param names (and change findNode) so we dont have to get
-                        // the message from the db
-                        node = siteTree.findNode(href.getHttpMessage());
-                        if (node != null) {
-	                        node.deleteAlert(alert);
-	                        siteNodeChanged(node);
-                        }
-                        if (href.getAlerts().size() == 0) {
-                            toDelete.add(href);
-                        }
-                    } catch (Exception e) {
-                        logger.error(e.getMessage(), e);
+                    node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
+                    if (node != null) {
+                        node.deleteAlert(alert);
+                        siteNodeChanged(node);
+                    }
+                    if (href.getAlerts().size() == 0) {
+                        toDelete.add(href);
                     }
                 }
             }

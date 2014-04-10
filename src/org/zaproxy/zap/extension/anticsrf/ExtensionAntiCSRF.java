@@ -72,6 +72,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	private AntiCsrfDetectScanner antiCsrfDetectScanner;
 
+	private HistoryReferenceFactory historyReferenceFactory;
+
 	public ExtensionAntiCSRF() {
 		super();
 		initialize();
@@ -90,6 +92,27 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
+
+		final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
+				.getExtensionLoader()
+				.getExtension(ExtensionHistory.NAME);
+		if (extensionHistory != null) {
+			historyReferenceFactory = new HistoryReferenceFactory() {
+
+				@Override
+				public HistoryReference createHistoryReference(int id) {
+					return extensionHistory.getHistoryReference(id);
+				}
+			};
+		} else {
+			historyReferenceFactory = new HistoryReferenceFactory() {
+
+				@Override
+				public HistoryReference createHistoryReference(int id) throws HttpMalformedHeaderException, SQLException {
+					return new HistoryReference(id);
+				}
+			};
+		}
 
 	    extensionHook.addSessionListener(this);
 
@@ -285,7 +308,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			
 			AntiCsrfDetectScanner antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
 			for (Integer i : list) {
-				HistoryReference hRef = new HistoryReference(i);
+				HistoryReference hRef = historyReferenceFactory.createHistoryReference(i.intValue());
 				if (filter.matches(hRef)) {
 					HttpMessage msg = hRef.getHttpMessage();
 					String response = msg.getResponseHeader().toString() + 
@@ -388,5 +411,11 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		}
 
 		return null;
+	}
+
+	private static interface HistoryReferenceFactory {
+
+		HistoryReference createHistoryReference(int id) throws SQLException, HttpMalformedHeaderException;
+
 	}
 }
