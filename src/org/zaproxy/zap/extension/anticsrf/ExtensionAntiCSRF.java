@@ -283,6 +283,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			HistoryFilter filter = new HistoryFilter();
 			filter.setTags(Arrays.asList(new String[] {TAG}));
 			
+			AntiCsrfDetectScanner antiCsrfDetectScanner = new AntiCsrfDetectScanner(this);
 			for (Integer i : list) {
 				HistoryReference hRef = new HistoryReference(i);
 				if (filter.matches(hRef)) {
