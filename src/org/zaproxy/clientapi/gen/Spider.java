@@ -128,6 +128,16 @@ public class Spider {
 		return api.callApi("spider", "view", "optionHandleODataParametersVisited", map);
 	}
 
+	public ApiResponse optionDomainsAlwaysInScope() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionDomainsAlwaysInScope", map);
+	}
+
+	public ApiResponse optionDomainsAlwaysInScopeEnabled() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionDomainsAlwaysInScopeEnabled", map);
+	}
+
 	public ApiResponse scan(String apikey, String url) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -163,13 +173,6 @@ public class Spider {
 		return api.callApi("spider", "action", "excludeFromScan", map);
 	}
 
-	public ApiResponse setOptionScopeString(String apikey, String string) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("String", string);
-		return api.callApi("spider", "action", "setOptionScopeString", map);
-	}
-
 	public ApiResponse setOptionSkipURLString(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -182,6 +185,13 @@ public class Spider {
 		map = new HashMap<String, String>();
 		map.put("String", string);
 		return api.callApi("spider", "action", "setOptionHandleParameters", map);
+	}
+
+	public ApiResponse setOptionScopeString(String apikey, String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("String", string);
+		return api.callApi("spider", "action", "setOptionScopeString", map);
 	}
 
 	public ApiResponse setOptionUserAgent(String apikey, String string) throws ClientApiException {

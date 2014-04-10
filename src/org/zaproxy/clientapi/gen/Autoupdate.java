@@ -48,11 +48,6 @@ public class Autoupdate {
 		return api.callApi("autoupdate", "view", "isLatestVersion", map);
 	}
 
-	public ApiResponse optionCheckOnStartUnset() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("autoupdate", "view", "optionCheckOnStartUnset", map);
-	}
-
 	public ApiResponse optionCheckOnStart() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("autoupdate", "view", "optionCheckOnStart", map);
@@ -99,10 +94,10 @@ public class Autoupdate {
 		return api.callApi("autoupdate", "action", "downloadLatestRelease", map);
 	}
 
-	public ApiResponse setOptionCheckOnStart(String apikey, int i) throws ClientApiException {
+	public ApiResponse setOptionCheckOnStart(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("Integer", Integer.toString(i));
+		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionCheckOnStart", map);
 	}
 
