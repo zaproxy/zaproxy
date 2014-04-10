@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.alert;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,7 +28,6 @@ import javax.swing.ImageIcon;
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuHistoryReferenceContainer;
 
@@ -67,17 +65,11 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 
 	@Override
     public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
-		URI hrefURI = null;
 		List<Alert> alerts = href.getAlerts();
 		if (href.getSiteNode() != null) {
 			alerts = href.getSiteNode().getAlerts();
 		}
-		try {
-			hrefURI = href.getURI();
-		} catch (HttpMalformedHeaderException | SQLException e) {
-			// Probably closing the session?
-			return false;
-		}
+		URI hrefURI = href.getURI();
 		List<PopupMenuShowAlert> alertList = new ArrayList<>(alerts.size()); 
 		for (Alert alert : alerts) {
 			// Just show ones for this node

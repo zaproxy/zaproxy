@@ -45,7 +45,6 @@ import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 import java.util.List;
 import java.util.Vector;
 
@@ -66,7 +65,6 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
@@ -304,11 +302,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		if (!siteNode.isRoot()) {
 			HistoryReference historyReference = siteNode.getHistoryReference();
 			if (historyReference != null) {
-				try {
-					return historyReference.getURI().toString();
-				} catch (HttpMalformedHeaderException | SQLException e) {
-					logger.warn(e.getMessage(), e);
-				}
+				return historyReference.getURI().toString();
 			}
 		}
 		return null;

@@ -19,17 +19,13 @@
  */
 package org.zaproxy.zap.view.table;
 
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
 
 /**
@@ -38,8 +34,6 @@ import org.zaproxy.zap.view.table.HistoryReferencesTableModel.Column;
  * Only the necessary column values will be kept in memory as specified in constructor.
  */
 public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReferencesTableEntry {
-
-    private static final Logger LOGGER = Logger.getLogger(DefaultHistoryReferencesTableEntry.class);
 
     private static final String VALUES_SEPARATOR = Constant.messages.getString("generic.value.text.separator.comma");
 
@@ -78,23 +72,25 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         reason = hasColumn(sortedColumns, Column.STATUS_REASON) ? historyReference.getReason() : null;
         rtt = hasColumn(sortedColumns, Column.RTT) ? Integer.valueOf(historyReference.getRtt()) : null;
 
-        HttpMessage msg = null;
-        if (isMessageNeeded(sortedColumns)) {
-            try {
-                msg = historyReference.getHttpMessage();
-            } catch (HttpMalformedHeaderException | SQLException e) {
-                LOGGER.warn("Failed to read message from database: " + e.getMessage(), e);
-            }
-        }
-
-        uri = extractUriValue(msg, hasColumn(sortedColumns, Column.URL));
-        timeSentMillis = extractRequestTimestamp(msg, hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP));
-        timeReceivedMillis = extractResponseTimestamp(msg, hasColumn(sortedColumns, Column.RESPONSE_TIMESTAMP));
-        requestHeaderSize = extractRequestHeaderSize(msg, hasColumn(sortedColumns, Column.SIZE_REQUEST_HEADER));
-        requestBodySize = extractRequestBodySize(msg, hasColumn(sortedColumns, Column.SIZE_REQUEST_BODY));
-        responseHeaderSize = extractResponseHeaderSize(msg, hasColumn(sortedColumns, Column.SIZE_RESPONSE_HEADER));
-        responseBodySize = extractResponseBodySize(msg, hasColumn(sortedColumns, Column.SIZE_RESPONSE_BODY));
-        messageSize = extractMessageSize(msg, hasColumn(sortedColumns, Column.SIZE_MESSAGE));
+        uri = hasColumn(sortedColumns, Column.URL) ? historyReference.getURI().toString() : null;
+        timeSentMillis = hasColumn(sortedColumns, Column.REQUEST_TIMESTAMP)
+                ? new Date(historyReference.getTimeSentMillis())
+                : null;
+        timeReceivedMillis = hasColumn(sortedColumns, Column.RESPONSE_TIMESTAMP) ? new Date(
+                historyReference.getTimeReceivedMillis()) : null;
+        requestHeaderSize = hasColumn(sortedColumns, Column.SIZE_REQUEST_HEADER)
+                ? Integer.valueOf(historyReference.getRequestHeaderLength())
+                : null;
+        requestBodySize = hasColumn(sortedColumns, Column.SIZE_REQUEST_BODY)
+                ? Integer.valueOf(historyReference.getRequestBodyLength())
+                : null;
+        responseHeaderSize = hasColumn(sortedColumns, Column.SIZE_RESPONSE_HEADER)
+                ? Integer.valueOf(historyReference.getResponseHeaderLength())
+                : null;
+        responseBodySize = hasColumn(sortedColumns, Column.SIZE_RESPONSE_BODY)
+                ? Integer.valueOf(historyReference.getResponseBodyLength())
+                : null;
+        messageSize = extractMessageSize(historyReference, hasColumn(sortedColumns, Column.SIZE_MESSAGE));
 
         highestAlertColumn = hasColumn(sortedColumns, Column.HIGHEST_ALERT);
         noteColumn = hasColumn(sortedColumns, Column.NOTE);
@@ -103,97 +99,13 @@ public class DefaultHistoryReferencesTableEntry extends AbstractHistoryReference
         refreshCachedValues();
     }
 
-    private final String extractUriValue(HttpMessage msg, boolean required) {
-        if (!required) {
-            return null;
-        }
-        if (msg == null) {
-            return super.getUri();
-        }
-        String uriString = msg.getRequestHeader().getURI().toString();
-        if (uriString == null) {
-            return super.getUri();
-        }
-        return uriString;
-    }
-
-    private Date extractRequestTimestamp(HttpMessage msg, boolean required) {
-        if (!required) {
-            return null;
-        }
-        if (msg == null) {
-            return super.getRequestTimestamp();
-        }
-        return new Date(msg.getTimeSentMillis());
-    }
-
-    private Date extractResponseTimestamp(HttpMessage msg, boolean required) {
-        if (!required) {
-            return null;
-        }
-        if (msg == null) {
-            return super.getResponseTimestamp();
-        }
-        return new Date(msg.getTimeSentMillis() + msg.getTimeElapsedMillis());
-    }
-
-    private Integer extractRequestHeaderSize(HttpMessage msg, boolean required) {
-        if (!required) {
-            return Integer.valueOf(0);
-        }
-        if (msg == null) {
-            return super.getRequestHeaderSize();
-        }
-        return Integer.valueOf(msg.getRequestHeader().toString().length());
-    }
-
-    private Integer extractRequestBodySize(HttpMessage msg, boolean required) {
-        if (!required) {
-            return Integer.valueOf(0);
-        }
-        if (msg == null) {
-            return super.getRequestBodySize();
-        }
-        return Integer.valueOf(msg.getRequestBody().length());
-    }
-
-    private Integer extractResponseHeaderSize(HttpMessage msg, boolean required) {
-        if (!required) {
-            return Integer.valueOf(0);
-        }
-        if (msg == null) {
-            return super.getResponseHeaderSize();
-        }
-        return Integer.valueOf(msg.getResponseHeader().toString().length());
-    }
-
-    private Integer extractResponseBodySize(HttpMessage msg, boolean required) {
-        if (!required) {
-            return Integer.valueOf(0);
-        }
-        if (msg == null) {
-            return super.getResponseBodySize();
-        }
-        return Integer.valueOf(msg.getResponseBody().length());
-    }
-
-    private Long extractMessageSize(HttpMessage msg, boolean required) {
+    private Long extractMessageSize(HistoryReference historyReference, boolean required) {
         if (!required) {
             return Long.valueOf(0);
         }
-        if (msg == null) {
-            return super.getMessageSize();
-        }
 
-        return Long.valueOf(extractRequestHeaderSize(msg, true).intValue() + extractRequestBodySize(msg, true).intValue()
-                + extractResponseHeaderSize(msg, true).intValue() + extractResponseBodySize(msg, true).intValue());
-    }
-
-    private static boolean isMessageNeeded(Column[] columns) {
-        return hasColumn(columns, Column.URL) || hasColumn(columns, Column.REQUEST_TIMESTAMP)
-                || hasColumn(columns, Column.RESPONSE_TIMESTAMP) || hasColumn(columns, Column.SIZE_MESSAGE)
-                || hasColumn(columns, Column.SIZE_REQUEST_HEADER) || hasColumn(columns, Column.SIZE_REQUEST_BODY)
-                || hasColumn(columns, Column.SIZE_RESPONSE_HEADER) || hasColumn(columns, Column.SIZE_RESPONSE_BODY);
+        return Long.valueOf(historyReference.getRequestHeaderLength() + historyReference.getRequestBodyLength()
+                + historyReference.getResponseHeaderLength() + historyReference.getResponseBodyLength());
     }
 
     private static boolean hasColumn(Column[] columns, Column column) {

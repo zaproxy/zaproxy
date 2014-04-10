@@ -31,6 +31,7 @@
 // ZAP: 2013/08/07 Added TYPE_AUTHENTICATION
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2013/11/16 Issue 892: Cache of response body length in HistoryReference might not be correct
+// ZAP: 2014/04/10 Changed to use HttpMessageCachedData and expose the cached data
 
 package org.parosproxy.paros.model;
 
@@ -116,17 +117,12 @@ public class HistoryReference {
 	// ZAP: Support for linking Alerts to Hrefs
 	private List<Alert> alerts;
 	
-	private String method = null;
-	private URI uri = null;
-	private int statusCode = -1;
-	private int rtt = -1;
-	private String reason = null;
 	private List<String> tags = new ArrayList<>();
-	private boolean hasNote = false;
 	private Boolean webSocketUpgrade = null;	// Deliberately a Boolean so we can initialise it from the msg
-	private int responseBodyLength = -1;
 
     private static Logger log = Logger.getLogger(HistoryReference.class);
+
+    private HttpMessageCachedData httpMessageCachedData;
 
 	/**
      * @return Returns the sessionId.
@@ -159,7 +155,6 @@ public class HistoryReference {
 		RecordHistory history = null;	
 		this.icons =  new ArrayList<>();
 		this.clearIfManual = new ArrayList<>();
-		this.uri = msg.getRequestHeader().getURI();
 		history = staticTableHistory.write(session.getSessionId(), historyType, msg);		
 		build(session.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 		// ZAP: Init HttpMessage HistoryReference field
@@ -217,14 +212,7 @@ public class HistoryReference {
 		msg.setHistoryRef(this);
 		
 		// Cache info commonly used so that we dont need to keep reading the HttpMessage from the db. 
-		this.method = msg.getRequestHeader().getMethod();
-		this.uri = msg.getRequestHeader().getURI();
-		this.statusCode = msg.getResponseHeader().getStatusCode();
-        this.reason = msg.getResponseHeader().getReasonPhrase();
-        this.rtt = msg.getTimeElapsedMillis();
-        this.hasNote = msg.getNote() != null && msg.getNote().length() > 0;
-        this.responseBodyLength = msg.getResponseBody().length();
-
+		httpMessageCachedData = new HttpMessageCachedData(msg);
 	}
 	
 	public static void setTableHistory(TableHistory tableHistory) {
@@ -262,11 +250,8 @@ public class HistoryReference {
 		return history.getHttpMessage();
 	}
 	
-	public URI getURI() throws HttpMalformedHeaderException, SQLException {
-		if (this.uri == null) {
-			this.uri = this.getHttpMessage().getRequestHeader().getURI();
-		}
-		return this.uri;
+	public URI getURI() {
+		return httpMessageCachedData.getUri();
 	}
 	
 	@Override
@@ -365,7 +350,7 @@ public class HistoryReference {
    public void setNote(String note) {
        try {
            staticTableHistory.updateNote(historyId, note);
-           this.hasNote = note != null && note.length() > 0;
+           httpMessageCachedData.setNote(note != null && note.length() > 0);
        } catch (SQLException e) {
            log.error(e.getMessage(), e);
        }
@@ -467,31 +452,19 @@ public class HistoryReference {
    }
 
 	public String getMethod() {
-		return method;
-	}
-
-	public void setMethod(String method) {
-		this.method = method;
+		return httpMessageCachedData.getMethod();
 	}
 
 	public int getStatusCode() {
-		return statusCode;
-	}
-
-	public void setStatusCode(int statusCode) {
-		this.statusCode = statusCode;
+		return httpMessageCachedData.getStatusCode();
 	}
 
 	public String getReason() {
-		return reason;
+		return httpMessageCachedData.getReason();
 	}
 
 	public int getRtt() {
-		return rtt;
-	}
-
-	public void setRtt(int rtt) {
-		this.rtt = rtt;
+		return httpMessageCachedData.getRtt();
 	}
 
 	public void setTags(Vector<String> tags) {
@@ -499,7 +472,15 @@ public class HistoryReference {
 	}
 	
 	public boolean hasNote() {
-		return this.hasNote;
+		return httpMessageCachedData.hasNote();
+	}
+
+	public long getTimeSentMillis() {
+		return httpMessageCachedData.getTimeSentMillis();
+	}
+
+	public long getTimeReceivedMillis() {
+		return httpMessageCachedData.getTimeReceivedMillis();
 	}
 
 	public boolean isWebSocketUpgrade() {
@@ -514,8 +495,20 @@ public class HistoryReference {
 		return webSocketUpgrade;
 	}
 
+	public int getRequestHeaderLength() {
+		return httpMessageCachedData.getRequestHeaderLength();
+	}
+
+	public int getRequestBodyLength() {
+		return httpMessageCachedData.getRequestBodyLength();
+	}
+
+	public int getResponseHeaderLength() {
+		return httpMessageCachedData.getResponseHeaderLength();
+	}
+
 	public int getResponseBodyLength() {
-		return responseBodyLength;
+		return httpMessageCachedData.getResponseBodyLength();
 	} 
 	
 }

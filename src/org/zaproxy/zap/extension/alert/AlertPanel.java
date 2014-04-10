@@ -27,7 +27,6 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.SortedSet;
@@ -58,7 +57,6 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -370,11 +368,7 @@ public class AlertPanel extends AbstractPanel {
         String uri = null;
         HistoryReference historyReference = siteNode.getHistoryReference();
         if (historyReference != null) {
-            try {
-                uri = historyReference.getURI().toString();
-            } catch (HttpMalformedHeaderException | SQLException e) {
-                logger.warn(e.getMessage(), e);
-            }
+            uri = historyReference.getURI().toString();
         }
         for (Alert alert : siteNode.getAlerts()) {
             // Just show ones for this node
