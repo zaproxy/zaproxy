@@ -97,9 +97,7 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    // TODO - switch to 2003000 before release
-    private static final long VERSION_TAG = 2002000;
-    //private static final long VERSION_TAG = 2003000;
+    private static final long VERSION_TAG = 2003000;
     
     // Old version numbers - for upgrade
     private static final long V_2_2_0_TAG = 2002000;
