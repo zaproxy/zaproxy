@@ -454,6 +454,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
         SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
         if (node != null && node.hasAlert(alert)) {
+            node.deleteAlert(alert);
             siteNodeChanged(node);
         }
 
@@ -480,6 +481,39 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
 
         this.recalcAlerts();
+    }
+
+    public void deleteHistoryReferenceAlerts(HistoryReference hRef) {
+        List<Alert> alerts = hRef.getAlerts();
+        SiteMap siteTree = this.getModel().getSession().getSiteTree();
+        
+        synchronized (this.getTreeModel()) {
+            for (int i = 0; i < alerts.size(); i++) {
+                Alert alert = alerts.get(i);
+
+                this.getTreeModel().deletePath(alert);
+                this.getFilteredTreeModel().deletePath(alert);
+
+                try {
+                    getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
+                } catch (SQLException e) {
+                    logger.error("Failed to delete alert with ID: " + alert.getAlertId(), e);
+                }
+            }
+
+            SiteNode node = hRef.getSiteNode();
+            if (node == null) {
+                node = siteTree.findNode(hRef.getURI(), hRef.getMethod(), hRef.getRequestBody());
+            }
+
+            if (node != null) {
+                node.deleteAlerts(alerts);
+            }
+            alerts.clear();
+            this.recalcAlerts();
+        }
+
+        hrefs.remove(hRef);
     }
     
     /**

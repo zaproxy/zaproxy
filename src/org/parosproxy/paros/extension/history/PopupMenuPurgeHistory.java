@@ -132,10 +132,7 @@ public class PopupMenuPurgeHistory extends ExtensionPopupMenuItem {
 		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
 
 		if (extAlert != null) {
-			//Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-			while (!ref.getAlerts().isEmpty()) {
-				extAlert.deleteAlert(ref.getAlerts().get(0));
-			}
+		    extAlert.deleteHistoryReferenceAlerts(ref);
 		}
         
         ref.delete();

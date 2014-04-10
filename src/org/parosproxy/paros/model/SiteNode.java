@@ -35,6 +35,7 @@
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
 // ZAP: 2014/04/10 Do not allow to set the parent node as itself
+// ZAP: 2014/04/10 Issue 1118: Alerts Tab can get out of sync
 
 package org.parosproxy.paros.model;
 
@@ -335,6 +336,35 @@ public class SiteNode extends DefaultMutableTreeNode {
 		this.nodeChanged();
 	}
 	
+    public void deleteAlerts(List<Alert> alerts) {
+        List<Alert> alertsToRemove = new ArrayList<>(alerts);
+        if (this.alerts.removeAll(alertsToRemove)) {
+            // Remove from parents, if not in siblings
+            if (this.getParent() != null && this.getParent() instanceof SiteNode) {
+                ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
+            }
+            this.nodeChanged();
+        }
+    }
+
+    private void clearChildAlerts(List<Alert> alerts) {
+        List<Alert> alertsToRemove = new ArrayList<>(alerts);
+        if (this.getChildCount() > 0) {
+            SiteNode c = (SiteNode) this.getFirstChild();
+            while (c != null) {
+                alertsToRemove.removeAll(c.alerts);
+                c = (SiteNode) this.getChildAfter(c);
+            }
+        }
+        boolean changed = this.alerts.removeAll(alertsToRemove);
+        if (changed) {
+            if (this.getParent() != null && this.getParent() instanceof SiteNode) {
+                ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
+            }
+            nodeChangedEventHandler();
+        }
+    }
+
 	public boolean hasHistoryType (int type) {
 		if (this.historyReference == null) {
 			return false;

@@ -101,13 +101,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                     .getExtension(ExtensionAlert.NAME);
 
             if (node.getHistoryReference() != null) {
-                if (extAlert != null) {
-                    // Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-                    while (!node.getHistoryReference().getAlerts().isEmpty()) {
-                        // Note the alert is removed as a side effect
-                        extAlert.deleteAlert(node.getHistoryReference().getAlerts().get(0));
-                    }
-                }
+                deleteAlertsFromExtensionAlert(extAlert, node.getHistoryReference());
                 node.getHistoryReference().delete();
                 map.removeHistoryReference(node.getHistoryReference().getHistoryId());
             }
@@ -115,13 +109,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
             // delete past reference in node
             while (node.getPastHistoryReference().size() > 0) {
                 HistoryReference ref = node.getPastHistoryReference().get(0);
-                if (extAlert != null) {
-                    // Iterating over the getAlerts() while deleting the alert will result in a ConcurrentModificationException.
-                    while (!ref.getAlerts().isEmpty()) {
-                        extAlert.deleteAlert(ref.getAlerts().get(0));
-                        ref.getAlerts().remove(0);
-                    }
-                }
+                deleteAlertsFromExtensionAlert(extAlert, ref);
                 ext.removeFromHistoryList(ref);
                 ext.clearLogPanelDisplayQueue();
                 ref.delete();
@@ -132,6 +120,14 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
             map.removeNodeFromParent(node);
         }
 
+    }
+
+    private static void deleteAlertsFromExtensionAlert(ExtensionAlert extAlert, HistoryReference historyReference) {
+        if (extAlert == null) {
+            return;
+        }
+
+        extAlert.deleteHistoryReferenceAlerts(historyReference);
     }
 
 }
