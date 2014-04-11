@@ -47,6 +47,7 @@
 // ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2013/12/13 Issue 919: Support for multiple language vulnerability files.
+// ZAP: 2014/04/11 Issue 1148: ZAP 2.3.0 does not launch after upgrading in some situations
 
 package org.parosproxy.paros;
 
@@ -64,6 +65,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
@@ -425,6 +427,12 @@ public final class Constant {
 	            //  overwrite previous configuration file 
 	            // ZAP: changed to use the correct file
 	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
+
+	        } catch (ConversionException e) {
+	            //  if there is any error in config file (eg config file not exist),
+	            //  overwrite previous configuration file 
+	            // ZAP: changed to use the correct file
+	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
 	
 	        } catch (NoSuchElementException e) {
 	            //  overwrite previous configuration file if config file corrupted
@@ -652,15 +660,20 @@ public final class Constant {
     }
 
     private void upgradeFrom2_2_0(XMLConfiguration config) {
-    	if ( ! config.getBoolean(OptionsParamCheckForUpdates.CHECK_ON_START, false)) {
-    		/*
-    		 * Check-for-updates on start set to false - force another prompt to ask the user,
-    		 * as this option can have been unset incorrectly before.
-    		 * And we want to encourage users to use this ;)
-    		 */
-    		config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
-    	}
-    	// Clear the block list - addons were incorrectly added to this if an update failed
+    	try {
+			if ( ! config.getBoolean(OptionsParamCheckForUpdates.CHECK_ON_START, false)) {
+				/*
+				 * Check-for-updates on start set to false - force another prompt to ask the user,
+				 * as this option can have been unset incorrectly before.
+				 * And we want to encourage users to use this ;)
+				 */
+				config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
+			}
+		} catch (Exception e) {
+			// At one stage this was an integer, which will cause an exception to be thrown
+			config.setProperty(OptionsParamCheckForUpdates.DAY_LAST_CHECKED, "");
+		}
+		// Clear the block list - addons were incorrectly added to this if an update failed
 		config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
     	
     }
