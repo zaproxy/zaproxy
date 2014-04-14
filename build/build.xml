@@ -16,7 +16,7 @@
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
-    <property name="zap.java.api.version" value="4" />
+    <property name="zap.java.api.version" value="7" />
 
     <property name="crowdin.zap.project.id" value="owasp-zap" />
     <property name="crowdin.zap.help.project.id" value="owasp-zap-help" />
@@ -441,6 +441,8 @@
     </target>
 
     <target name="generate-language-file" description="generates the language file (note the X should be changed;)">
+        <!-- Load the version from a file -->
+        <loadfile property="version" srcfile="version.txt" />
         <property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
         <!-- delete the previous one (if present) -->
         <delete file="${langfile}" />
@@ -561,6 +563,14 @@
     </target>
 
     <target name="copy-jar-to-extension-projects" depends="dist">
+        <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
+        <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
+        <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
+    </target>
+
+    <target name="copy-versioned-jar-to-extension-projects">
+        <loadfile property="version" srcfile="version.txt" />
+        <antcall target="dist" />
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
@@ -690,14 +700,6 @@
         </zip>
     </target>
 
-    <target name="lite-release">
-        <!-- Load the version from a file -->
-        <loadfile property="version" srcfile="version.txt" />
-
-        <antcall target="dist" />
-        <antcall target="package-lite" />
-    </target>
-
     <target name="full-release">
         <!-- Load the version from a file -->
         <loadfile property="version" srcfile="version.txt" />
@@ -705,6 +707,7 @@
         <antcall target="dist" />
         <antcall target="package-linux" />
         <antcall target="package-macosx" />
+        <antcall target="package-lite" />
     </target>
 
     <target name="day-stamped-release">
