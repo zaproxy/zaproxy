@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,16 +25,16 @@ class users(object):
         self.zap = zap
 
     def users_list(self, contextid=''):
-        return self.zap._request(self.zap.base + 'users/view/usersList/', {'contextId' : contextid})
+        return self.zap._request(self.zap.base + 'users/view/usersList/', {'contextId' : contextid}).get('usersList')
 
     def get_user_by_id(self, contextid='', userid=''):
-        return self.zap._request(self.zap.base + 'users/view/getUserById/', {'contextId' : contextid, 'userId' : userid})
+        return self.zap._request(self.zap.base + 'users/view/getUserById/', {'contextId' : contextid, 'userId' : userid}).get('getUserById')
 
     def get_authentication_credentials_config_params(self, contextid):
-        return self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentialsConfigParams/', {'contextId' : contextid})
+        return self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentialsConfigParams/', {'contextId' : contextid}).get('getAuthenticationCredentialsConfigParams')
 
     def get_authentication_credentials(self, contextid, userid):
-        return self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid})
+        return self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid}).get('getAuthenticationCredentials')
 
     def new_user(self, contextid, name, apikey=''):
         return self.zap._request(self.zap.base + 'users/action/newUser/', {'contextId' : contextid, 'name' : name})

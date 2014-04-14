@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,6 +28,6 @@ class params(object):
         """
         Shows the parameters for the specified site, or for all sites if the site is not specified
         """
-        return self.zap._request(self.zap.base + 'params/view/params/', {'site' : site})
+        return self.zap._request(self.zap.base + 'params/view/params/', {'site' : site}).get('params')
 
 

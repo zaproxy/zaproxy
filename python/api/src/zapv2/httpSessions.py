@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -25,13 +25,13 @@ class httpSessions(object):
         self.zap = zap
 
     def sessions(self, site, session=''):
-        return self.zap._request(self.zap.base + 'httpSessions/view/sessions/', {'site' : site, 'session' : session})
+        return self.zap._request(self.zap.base + 'httpSessions/view/sessions/', {'site' : site, 'session' : session}).get('sessions')
 
     def active_session(self, site):
-        return self.zap._request(self.zap.base + 'httpSessions/view/activeSession/', {'site' : site})
+        return self.zap._request(self.zap.base + 'httpSessions/view/activeSession/', {'site' : site}).get('activeSession')
 
     def session_tokens(self, site):
-        return self.zap._request(self.zap.base + 'httpSessions/view/sessionTokens/', {'site' : site})
+        return self.zap._request(self.zap.base + 'httpSessions/view/sessionTokens/', {'site' : site}).get('sessionTokens')
 
     def create_empty_session(self, site, session='', apikey=''):
         return self.zap._request(self.zap.base + 'httpSessions/action/createEmptySession/', {'site' : site, 'session' : session})

@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,16 +29,16 @@ class authentication(object):
         return self.zap._request(self.zap.base + 'authentication/view/getSupportedAuthenticationMethods/').get('getSupportedAuthenticationMethods')
 
     def get_authentication_method_config_params(self, authmethodname):
-        return self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethodConfigParams/', {'authMethodName' : authmethodname})
+        return self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethodConfigParams/', {'authMethodName' : authmethodname}).get('getAuthenticationMethodConfigParams')
 
     def get_authentication_method(self, contextid):
-        return self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethod/', {'contextId' : contextid})
+        return self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethod/', {'contextId' : contextid}).get('getAuthenticationMethod')
 
     def get_logged_in_indicator(self, contextid):
-        return self.zap._request(self.zap.base + 'authentication/view/getLoggedInIndicator/', {'contextId' : contextid})
+        return self.zap._request(self.zap.base + 'authentication/view/getLoggedInIndicator/', {'contextId' : contextid}).get('getLoggedInIndicator')
 
     def get_logged_out_indicator(self, contextid):
-        return self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid})
+        return self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid}).get('getLoggedOutIndicator')
 
     def set_authentication_method(self, contextid, authmethodname, authmethodconfigparams='', apikey=''):
         return self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams})
