@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,10 +29,10 @@ class sessionManagement(object):
         return self.zap._request(self.zap.base + 'sessionManagement/view/getSupportedSessionManagementMethods/').get('getSupportedSessionManagementMethods')
 
     def get_session_management_method_config_params(self, methodname):
-        return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethodConfigParams/', {'methodName' : methodname})
+        return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethodConfigParams/', {'methodName' : methodname}).get('getSessionManagementMethodConfigParams')
 
     def get_session_management_method(self, contextid):
-        return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid})
+        return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid}).get('getSessionManagementMethod')
 
     def set_session_management_method(self, contextid, methodname, methodconfigparams='', apikey=''):
         return self.zap._request(self.zap.base + 'sessionManagement/action/setSessionManagementMethod/', {'contextId' : contextid, 'methodName' : methodname, 'methodConfigParams' : methodconfigparams})

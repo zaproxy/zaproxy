@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -35,13 +35,13 @@ class context(object):
         """
         List excluded regexs for context
         """
-        return self.zap._request(self.zap.base + 'context/view/excludeRegexs/', {'contextName' : contextname})
+        return self.zap._request(self.zap.base + 'context/view/excludeRegexs/', {'contextName' : contextname}).get('excludeRegexs')
 
     def include_regexs(self, contextname):
         """
         List included regexs for context
         """
-        return self.zap._request(self.zap.base + 'context/view/includeRegexs/', {'contextName' : contextname})
+        return self.zap._request(self.zap.base + 'context/view/includeRegexs/', {'contextName' : contextname}).get('includeRegexs')
 
     def exclude_from_context(self, contextname, regex, apikey=''):
         """

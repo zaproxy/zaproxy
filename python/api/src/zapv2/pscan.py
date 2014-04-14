@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -38,11 +38,9 @@ class pscan(object):
     def set_enabled(self, enabled, apikey=''):
         return self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled})
 
-    @property
     def enable_all_scanners(self, apikey=''):
         return self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/').get('enableAllScanners')
 
-    @property
     def disable_all_scanners(self, apikey=''):
         return self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/').get('disableAllScanners')
 

@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,10 +31,6 @@ class autoupdate(object):
     @property
     def is_latest_version(self):
         return self.zap._request(self.zap.base + 'autoupdate/view/isLatestVersion/').get('isLatestVersion')
-
-    @property
-    def option_check_on_start_unset(self):
-        return self.zap._request(self.zap.base + 'autoupdate/view/optionCheckOnStartUnset/').get('CheckOnStartUnset')
 
     @property
     def option_check_on_start(self):
@@ -68,12 +64,11 @@ class autoupdate(object):
     def option_report_alpha_addons(self):
         return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/').get('ReportAlphaAddons')
 
-    @property
     def download_latest_release(self, apikey=''):
         return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/').get('downloadLatestRelease')
 
-    def set_option_check_on_start(self, integer, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Integer' : integer})
+    def set_option_check_on_start(self, boolean, apikey=''):
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Boolean' : boolean})
 
     def set_option_download_new_release(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean})

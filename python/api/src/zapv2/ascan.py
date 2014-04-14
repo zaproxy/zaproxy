@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright the ZAP development team
+# Copyright 2014 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,7 +33,7 @@ class ascan(object):
         return self.zap._request(self.zap.base + 'ascan/view/excludedFromScan/').get('excludedFromScan')
 
     def scanners(self, policyid=''):
-        return self.zap._request(self.zap.base + 'ascan/view/scanners/', {'policyId' : policyid})
+        return self.zap._request(self.zap.base + 'ascan/view/scanners/', {'policyId' : policyid}).get('scanners')
 
     @property
     def policies(self):
@@ -64,10 +64,6 @@ class ascan(object):
         return self.zap._request(self.zap.base + 'ascan/view/optionHandleAntiCSRFTokens/').get('HandleAntiCSRFTokens')
 
     @property
-    def option_delete_requests_on_shutdown(self):
-        return self.zap._request(self.zap.base + 'ascan/view/optionDeleteRequestsOnShutdown/').get('DeleteRequestsOnShutdown')
-
-    @property
     def option_alert_threshold(self):
         return self.zap._request(self.zap.base + 'ascan/view/optionAlertThreshold/').get('AlertThreshold')
 
@@ -86,18 +82,15 @@ class ascan(object):
     def scan(self, url, recurse='', inscopeonly='', apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly})
 
-    @property
     def clear_excluded_from_scan(self, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/clearExcludedFromScan/').get('clearExcludedFromScan')
 
     def exclude_from_scan(self, regex, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/excludeFromScan/', {'regex' : regex})
 
-    @property
     def enable_all_scanners(self, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/enableAllScanners/').get('enableAllScanners')
 
-    @property
     def disable_all_scanners(self, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/disableAllScanners/').get('disableAllScanners')
 
@@ -142,9 +135,6 @@ class ascan(object):
 
     def set_option_handle_anti_csrf_tokens(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionHandleAntiCSRFTokens/', {'Boolean' : boolean})
-
-    def set_option_delete_requests_on_shutdown(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'ascan/action/setOptionDeleteRequestsOnShutdown/', {'Boolean' : boolean})
 
     def set_option_target_params_injectable(self, integer, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionTargetParamsInjectable/', {'Integer' : integer})
