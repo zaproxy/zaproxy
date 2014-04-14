@@ -165,6 +165,8 @@ public class PythonAPIGenerator {
 			} else {
 				out.write(").get('" + element.getName() + "')");
 			}
+		} else {
+			out.write(")");
 		}
 		out.write("\n\n");
 		
