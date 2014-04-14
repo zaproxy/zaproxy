@@ -7,11 +7,16 @@ src/zapv2/__init__.py
 src/zapv2/acsrf.py
 src/zapv2/ascan.py
 src/zapv2/auth.py
+src/zapv2/authentication.py
 src/zapv2/autoupdate.py
+src/zapv2/brk.py
 src/zapv2/context.py
 src/zapv2/core.py
+src/zapv2/forcedUser.py
 src/zapv2/httpSessions.py
 src/zapv2/params.py
 src/zapv2/pscan.py
 src/zapv2/search.py
+src/zapv2/sessionManagement.py
 src/zapv2/spider.py
+src/zapv2/users.py
