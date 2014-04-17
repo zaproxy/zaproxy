@@ -49,6 +49,7 @@
 // ZAP: 2014/03/23 Issue 969: Proxy - Do not include the response body when answering unsuccessful HEAD requests
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
+// ZAP: 2014/04/17 Issue 1156: Proxy gzip decoder doesn't update content length in response headers
 
 package org.parosproxy.paros.core.proxy;
 
@@ -414,6 +415,7 @@ class ProxyThread implements Runnable {
                 }
                 msg.setResponseBody(sb.toString());
                 msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
+                msg.getResponseHeader().setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(sb.length()));
             } catch (IOException e) {
                 log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
             }
