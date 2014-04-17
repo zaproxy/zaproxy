@@ -357,6 +357,7 @@ public class View implements ViewDelegate {
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
+            requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
             		KeyEvent.VK_R, Event.CTRL_MASK | Event.SHIFT_MASK, false));
