@@ -48,6 +48,7 @@
 // ZAP: 2014/01/19 Added option to execute code after init of the panels when showing the session dialog
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/03/23 Issue 1085: Do not add/remove pop up menu items through the method View#getPopupMenu()
+// ZAP: 2014/04/17 Issue 1155: Historical Request Tab Doesn't allow formatting changes
 
 package org.parosproxy.paros.view;
 
@@ -357,6 +358,7 @@ public class View implements ViewDelegate {
     		// ZAP: Added 'right arrow' icon
     		requestPanel.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/105.png")));
             requestPanel.setName(Constant.messages.getString("http.panel.request.title"));	// ZAP: i18n
+            requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
             		KeyEvent.VK_R, Event.CTRL_MASK | Event.SHIFT_MASK, false));
