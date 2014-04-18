@@ -54,24 +54,43 @@ public class GlobalExcludeURLParam extends AbstractParam {
         "^.*\\.(pdf|docx?|xlsx?|pptx?)$",
         "^.*\\.(css|js)$",
         "^.*\\.(sw[fa]|flv)$",
+        "^[^\\?]*\\.(gif|jpe?g|png|ico|icns|bmp)\\?.*$",
+        "^[^\\?]*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
+        "^[^\\?]*\\.(pdf|docx?|xlsx?|pptx?)\\?.*$",
+        "^[^\\?]*\\.(css|js)\\?.*$",
+        "^[^\\?]*\\.(sw[fa]|flv)\\?.*$",
+        "^[^\\?]*/(WebResource|ScriptResource)\\.axd\\?d=.*$",
+        "^https?://api\\.bing\\.com/qsml\\.aspx?query=.*$",
         "^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
         "^https?://([^/])*\\.?lastpass\\.com",
         "^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
-        "^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)"
+        "^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
+        // some from http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
+        "^https?://(.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
+        "^https?://clients2\\.google\\.com/service/update2/crx.*$"
     };
 
     // XXX these must be in the same order as above - there are better ways to implement this.  
     // XXX This will crash if array lengths not equal.
     private static final String[] DEFAULT_TOKENS_DESCRIPTIONS = { 
-        "Image (ends with .ext)",
-        "Audio/Video (ends with .ext)",
-        "PDF & MS Office (ends with .ext)",
-        "Stylesheet, JavaScript (ends with .ext)",
-        "Flash & related (ends with .ext)",
-        "Google malware detector updates",
-        "Lastpass manager",
-        "Firefox browser updates",
-        "Firefox extensions phoning home"
+        "Ext - Image (ends with .ext)",
+        "Ext - Audio/Video (ends with .ext)",
+        "Ext - PDF & Office (ends with .ext)",
+        "Ext - Stylesheet, JavaScript (ends with .ext)",
+        "Ext - Flash & related (ends with .ext)",
+        "Ext/Param - Image (ext plus ?params=values)",
+        "Ext/Param - Audio/Video (ext plus ?params=values)",
+        "Ext/Param - PDF & Office (ext plus ?params=values)",
+        "Ext/Param - Stylesheet, JavaScript (ext plus ?params=values)",
+        "Ext/Param - Flash & related (ext plus ?params=values)",
+        "Ext/Param - .NET adx resources (SR/WR.adx?d=)",
+        "Site - Bing API queries",
+        "Site - Google malware detector updates",
+        "Site - Lastpass manager",
+        "Site - Mozilla Firefox browser updates",
+        "Site - Mozilla Firefox extensions phoning home",
+        "Site - Microsoft Windows updates",
+        "Site - Google Chrome extension updates"
     };
 
     private List<GlobalExcludeURLParamToken> tokens = null;
