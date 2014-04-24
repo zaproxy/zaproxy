@@ -78,5 +78,5 @@ fi
 
 #Start ZAP
 
-exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap.jar" $*
+exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap.jar" "$@"
 
