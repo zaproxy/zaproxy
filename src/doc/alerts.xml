@@ -70,6 +70,10 @@ This list the alerts
 10030   User controllable charset
 10031   User controllable HTML element attribute (potential XSS)
 10032   Viewstate scanner
+10033   Directory Browsing
+10034   Heartbleed OpenSSL Vulnerability
+  
+
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
@@ -80,6 +84,7 @@ This list the alerts
 20006	IBM WebSphere default files (Depreciated)
 20010	URL Redirector Abuse
 20014	HTTP Parameter Pollution
+20015   Heartbleed OpenSSL Vulnerability
 
 30000	External redirect 
 
