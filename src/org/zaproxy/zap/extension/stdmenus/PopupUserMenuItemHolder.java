@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,18 +30,19 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.users.ContextUserAuthManager;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuMessageContainer;
 
 /**
  * The Class PopupUserMenuItemHolder is used as a holder for multiple {@link PopupUserMenu}.
  * Depending on the initialization, it can be shown by itself containing the Popup Menus for each
  * User or it can just place the Popup Menus in its parent.
  */
-public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenu {
+public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenuMessageContainer {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 4454384312614225721L;
@@ -123,14 +123,14 @@ public abstract class PopupUserMenuItemHolder extends ExtensionPopupMenu {
 	}
 
 	@Override
-	public boolean isEnableForComponent(Component invoker) {
+	public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
 		resetMenu();
 
 		if (extensionUserAuth == null) {
 			return false;
 		}
 		if (visibleItself) {
-			return super.isEnableForComponent(invoker);
+			return super.isEnableForMessageContainer(invoker);
 		}
 		return false;
 	}

@@ -1,6 +1,5 @@
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.awt.Component;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,8 +9,9 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.messagecontainer.MessageContainer;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemContext;
 
 /**
@@ -19,7 +19,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemContext;
  * on the initialization, it can be shown by itself containing the Popup Menus for each Context or it can just
  * place the Popup Menus in its parent.
  */
-public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
+public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenuMessageContainer {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 2976582263073602339L;
@@ -88,11 +88,11 @@ public abstract class PopupContextMenuItemHolder extends ExtensionPopupMenu {
 	}
 
 	@Override
-	public boolean isEnableForComponent(Component invoker) {
+	public boolean isEnableForMessageContainer(MessageContainer<?> invoker) {
 		resetMenu();
 
 		if (visibleItself) {
-			return super.isEnableForComponent(invoker);
+			return super.isEnableForMessageContainer(invoker);
 		}
 		return false;
 	}
