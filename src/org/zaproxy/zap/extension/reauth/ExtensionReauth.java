@@ -112,7 +112,6 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 		extensionHook.addSessionListener(this);
-		// TODO addthis to the extensionHook??
 		Model.getSingleton().addContextDataFactory(this);
 
 	    if (getView() != null) {	
@@ -598,7 +597,6 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 		}
 		HttpMessage msg = ca.getLoginMsg().cloneRequest();
 		try {
-			// TODO log in history or relevant tab
 			this.getHttpSender().sendAndReceive(msg, true);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
@@ -615,7 +613,6 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 		}
 		HttpMessage msg = ca.getLogoutMsg().cloneRequest();
 		try {
-			// TODO log in history or relevant tab
 			this.getHttpSender().sendAndReceive(msg, true);
 		} catch (Exception e) {
 			logger.error(e.getMessage(), e);
