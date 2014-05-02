@@ -51,12 +51,14 @@
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/04/17 Issue 1156: Proxy gzip decoder doesn't update content length in response headers
 // ZAP: 2014/05/01 Issue 1156: Proxy gzip decoder removes newlines in decoded response
+// ZAP: 2014/05/01 Issue 1168: Add support for deflate encoded responses
 
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
@@ -66,6 +68,8 @@ import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.Inflater;
+import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
@@ -359,7 +363,7 @@ class ProxyThread implements Runnable {
 			        if (send) {
                         getHttpSender().sendAndReceive(msg);
 
-		                decodeGZIPResponseIfNeeded(msg);
+						decodeResponseIfNeeded(msg);
 
 			             if (!notifyOverrideListenersResponseReceived(msg)) {
                             if (!notifyListenerResponseReceive(msg)) {
@@ -400,27 +404,40 @@ class ProxyThread implements Runnable {
 		
     }
 
-    private void decodeGZIPResponseIfNeeded(HttpMessage msg) {
-        if (proxyParam.isAlwaysDecodeGzip()
-                && HttpHeader.GZIP.equalsIgnoreCase(msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-            // Uncompress gziped content
+	private FilterInputStream buildStreamDecoder(String encoding, ByteArrayInputStream bais) throws IOException {
+		if (encoding.equalsIgnoreCase(HttpHeader.DEFLATE)) {
+			return new InflaterInputStream(bais, new Inflater(true));
+		} else {
+			return new GZIPInputStream(bais);
+		}
+	}
+
+	private void decodeResponseIfNeeded(HttpMessage msg) {
+		String encoding = msg.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING);
+		if (proxyParam.isAlwaysDecodeGzip() && encoding != null && !encoding.equalsIgnoreCase(HttpHeader.IDENTITY)) {
+			encoding = Pattern.compile("^x-", Pattern.CASE_INSENSITIVE).matcher(encoding).replaceAll("");
+			if (!encoding.equalsIgnoreCase(HttpHeader.DEFLATE) && !encoding.equalsIgnoreCase(HttpHeader.GZIP)) {
+				log.warn("Unsupported content encoding method: " + encoding);
+				return;
+			}
+            // Uncompress content
             try (ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
-                 GZIPInputStream gis = new GZIPInputStream(bais);
-                 BufferedInputStream bis = new BufferedInputStream(gis);) {
-                ByteArrayOutputStream out = new ByteArrayOutputStream();
-                int readLength;
-                byte[] readBuffer = new byte[1024];
-                while ((readLength = bis.read(readBuffer, 0,1024)) != -1) {
-                    out.write(readBuffer, 0, readLength);
-                }
-                msg.setResponseBody(out.toByteArray());
-                msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
-                if (msg.getResponseHeader().getHeader(HttpHeader.CONTENT_LENGTH) != null) {
-                    msg.getResponseHeader().setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(out.size()));
-                }
-            } catch (IOException e) {
-                log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
-            }
+                 FilterInputStream fis = buildStreamDecoder(encoding, bais);
+				 BufferedInputStream bis = new BufferedInputStream(fis);
+				 ByteArrayOutputStream out = new ByteArrayOutputStream();) {
+				int readLength;
+				byte[] readBuffer = new byte[1024];
+				while ((readLength = bis.read(readBuffer, 0,1024)) != -1) {
+					out.write(readBuffer, 0, readLength);
+				}
+				msg.setResponseBody(out.toByteArray());
+				msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
+				if (msg.getResponseHeader().getHeader(HttpHeader.CONTENT_LENGTH) != null) {
+					msg.getResponseHeader().setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(out.size()));
+				}
+			} catch (IOException e) {
+				log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
+			}
         }
     }
 
