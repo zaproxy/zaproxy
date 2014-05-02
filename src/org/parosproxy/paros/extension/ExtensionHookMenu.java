@@ -25,7 +25,6 @@
 // and POPUP_MENU_SEPARATOR if there is a view.
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts
 // ZAP: 2014/05/02 Fixed method links in Javadocs
-// ZAP: 2014/05/02 Made menu getter methods protected for ease of testing
 
 package org.parosproxy.paros.extension;
 
@@ -70,27 +69,27 @@ public class ExtensionHookMenu {
         }
     }
     
-    protected List<JMenuItem> getNewMenus() {
+    List<JMenuItem> getNewMenus() {
         return newMenuList;
     }
 
-    protected List<JMenuItem> getFile() {
+    List<JMenuItem> getFile() {
         return fileMenuItemList;
     }
 
-    protected List<JMenuItem> getEdit() {
+    List<JMenuItem> getEdit() {
         return editMenuItemList;
     }
 
-    protected List<JMenuItem> getView() {
+    List<JMenuItem> getView() {
         return viewMenuItemList;
     }
 
-    protected List<JMenuItem> getAnalyse() {
+    List<JMenuItem> getAnalyse() {
         return analyseMenuItemList;
     }
 
-    protected List<JMenuItem> getTools() {
+    List<JMenuItem> getTools() {
         return toolsMenuItemList;
     }
     
@@ -100,15 +99,15 @@ public class ExtensionHookMenu {
      * Get the plugin popup menu used for the whole workbench.
      * @return
      */
-    protected List<JMenuItem> getPopupMenus() {
+    List<JMenuItem> getPopupMenus() {
         return popupMenuList;
     }
 
-    protected List<JMenuItem> getHelpMenus() {
+    List<JMenuItem> getHelpMenus() {
         return helpMenuList;
     }
 
-    protected List<JMenuItem> getReportMenus() {
+    List<JMenuItem> getReportMenus() {
         return reportMenuList;
     }
 
