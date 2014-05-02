@@ -50,14 +50,14 @@
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/04/17 Issue 1156: Proxy gzip decoder doesn't update content length in response headers
+// ZAP: 2014/05/01 Issue 1156: Proxy gzip decoder removes newlines in decoded response
 
 package org.parosproxy.paros.core.proxy;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
@@ -406,16 +406,18 @@ class ProxyThread implements Runnable {
             // Uncompress gziped content
             try (ByteArrayInputStream bais = new ByteArrayInputStream(msg.getResponseBody().getBytes());
                  GZIPInputStream gis = new GZIPInputStream(bais);
-                 InputStreamReader isr = new InputStreamReader(gis);
-                 BufferedReader br = new BufferedReader(isr);) {
-                StringBuilder sb = new StringBuilder();
-                String line = null;
-                while ((line = br.readLine()) != null) {
-                    sb.append(line);
+                 BufferedInputStream bis = new BufferedInputStream(gis);) {
+                ByteArrayOutputStream out = new ByteArrayOutputStream();
+                int readLength;
+                byte[] readBuffer = new byte[1024];
+                while ((readLength = bis.read(readBuffer, 0,1024)) != -1) {
+                    out.write(readBuffer, 0, readLength);
                 }
-                msg.setResponseBody(sb.toString());
+                msg.setResponseBody(out.toByteArray());
                 msg.getResponseHeader().setHeader(HttpHeader.CONTENT_ENCODING, null);
-                msg.getResponseHeader().setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(sb.length()));
+                if (msg.getResponseHeader().getHeader(HttpHeader.CONTENT_LENGTH) != null) {
+                    msg.getResponseHeader().setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(out.size()));
+                }
             } catch (IOException e) {
                 log.error("Unable to uncompress gzip content: " + e.getMessage(), e);
             }
