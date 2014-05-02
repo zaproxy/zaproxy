@@ -23,7 +23,8 @@
 // ZAP: 2012/03/15 Added the method addPopupMenuItem(ExtensionPopupMenu menu).
 // ZAP: 2012/05/03 Changed to only initialise the class variables MENU_SEPARATOR
 // and POPUP_MENU_SEPARATOR if there is a view.
-// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts
+// ZAP: 2014/05/02 Fixed method links in Javadocs
 
 package org.parosproxy.paros.extension;
 
@@ -113,7 +114,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the File menu
      *
-     * @deprecated use {@link addFileMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addFileMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addFileMenuItem(JMenuItem menuItem) {
@@ -123,7 +124,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the Edit menu
      *
-     * @deprecated use {@link addEditMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addEditMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addEditMenuItem(JMenuItem menuItem) {
@@ -133,7 +134,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the View menu
      *
-     * @deprecated use {@link addViewMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addViewMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addViewMenuItem(JMenuItem menuItem) {
@@ -143,7 +144,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the Analyse menu
      *
-     * @deprecated use {@link addAnalyseMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addAnalyseMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addAnalyseMenuItem(JMenuItem menuItem) {
@@ -153,7 +154,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the Tools menu
      *
-     * @deprecated use {@link addToolsMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addToolsMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addToolsMenuItem(JMenuItem menuItem) {
@@ -202,7 +203,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the Help menu
      *
-     * @deprecated use {@link addHelpMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addHelpMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addHelpMenuItem(JMenuItem menuItem) {
@@ -212,7 +213,7 @@ public class ExtensionHookMenu {
     /**
      * Add a menu item to the Report menu
      *
-     * @deprecated use {@link addReportMenuItem(ZapMenuItem menuItem)} instead.  
+     * @deprecated use {@link #addReportMenuItem(ZapMenuItem menuItem)} instead.
      */
     @Deprecated
     public void addReportMenuItem(JMenuItem menuItem) {
