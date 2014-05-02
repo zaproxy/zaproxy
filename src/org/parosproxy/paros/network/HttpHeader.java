@@ -83,7 +83,9 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String SCHEME_HTTPS = "https://";
     public static final String HTTP = "http";
     public static final String HTTPS = "https";
+    public static final String DEFLATE = "deflate";
     public static final String GZIP = "gzip";
+    public static final String IDENTITY = "identity";
     public static final String SEC_PROXY_INTERCEPT = "intercept";
     public static final String SEC_PROXY_RECORD = "record";
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
