@@ -73,7 +73,7 @@ public class HostProcess implements Runnable {
     private String hostAndPort = "";
     private Analyser analyser = null;
     private Kb kb = null;
-	private User user = null;
+    private User user = null;
 
     // time related 
     private Map<Long, Long> mapPluginStartTime = new HashMap<Long, Long>();
@@ -380,8 +380,10 @@ public class HostProcess implements Runnable {
             String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
             sb.append(" in ").append(diffTimeString);
         }
-        
+
+        // Probably too verbose evaluate 4 the future
         log.info(sb.toString());
+        
         pluginFactory.setRunningPluginCompleted(plugin);
         notifyHostProgress(null);
     }
