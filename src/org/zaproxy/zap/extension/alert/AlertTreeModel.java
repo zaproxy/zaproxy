@@ -219,7 +219,9 @@ class AlertTreeModel extends DefaultTreeModel {
         		// Parent has no other children, remove it also
         		this.removeNodeFromParent(parent);
                 nodeStructureChanged((AlertNode) this.getRoot());
-        	}
+            } else if (parent.getUserObject() == node.getUserObject()) {
+                parent.setUserObject(parent.getChildAt(0).getUserObject());
+            }
         }
     }
     
