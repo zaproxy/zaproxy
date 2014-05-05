@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.utils.DesktopUtils;
@@ -47,9 +46,7 @@ public class PopupMenuGenerateForm extends PopupMenuItemHistoryReferenceContaine
     public boolean isButtonEnabledForHistoryReference (HistoryReference href) {
 		if (API.getInstance().isEnabled() && DesktopUtils.canOpenUrlInBrowser()) {
 			try {
-				HttpMessage msg = href.getHttpMessage();
-				if (msg.getRequestHeader().getMethod().equals(HttpRequestHeader.POST) &&
-						msg.getRequestBody().length() > 0) {
+				if (HttpRequestHeader.POST.equals(href.getMethod()) && href.getRequestBodyLength() > 0) {
 					return true;
 				}
 			} catch (Exception e) {

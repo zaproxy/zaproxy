@@ -36,6 +36,7 @@
 // ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
 // ZAP: 2014/04/10 Do not allow to set the parent node as itself
 // ZAP: 2014/04/10 Issue 1118: Alerts Tab can get out of sync
+// ZAP: 2014/05/05 Issue 1181: Vulnerable pages active scanned only once
 
 package org.parosproxy.paros.model;
 
@@ -219,6 +220,11 @@ public class SiteNode extends DefaultMutableTreeNode {
 				}
         		this.nodeChanged();
     		}
+            if (HistoryReference.TYPE_SCANNER == historyReference.getHistoryType()) {
+                getPastHistoryReference().add(historyReference);
+                return;
+            }
+
             // above code commented as to always add all into past reference.  For use in scanner
             if (!getPastHistoryReference().contains(historyReference)) {
                 getPastHistoryReference().add(getHistoryReference());
