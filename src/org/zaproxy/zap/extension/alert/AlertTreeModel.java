@@ -149,7 +149,7 @@ class AlertTreeModel extends DefaultTreeModel {
         int idx = parent.findIndex(new AlertNode(risk, nodeName));
         if (idx < 0) {
             idx = -(idx+1);
-            AlertNode node = new AlertNode(risk, nodeName, GROUP_ALERT_CHILD_COMPARATOR);
+            AlertNode node = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
             node.setUserObject(alert);
             parent.insert(node, idx);
             nodesWereInserted(parent, new int[] { idx });
@@ -165,12 +165,12 @@ class AlertTreeModel extends DefaultTreeModel {
             risk = -1;
         }
 
-        int idx = parent.findIndex(new AlertNode(risk, nodeName));
+        AlertNode needle = new AlertNode(risk, nodeName);
+        needle.setUserObject(alert);
+        int idx = parent.findIndex(needle);
         if (idx < 0) {
             idx = -(idx+1);
-            AlertNode node = new AlertNode(risk, nodeName, ALERT_CHILD_COMPARATOR);
-            node.setUserObject(alert);
-            parent.insert(node, idx);
+            parent.insert(needle, idx);
             nodesWereInserted(parent, new int[] { idx });
         }
         AlertNode node = parent.getChildAt(idx);
@@ -243,7 +243,7 @@ class AlertTreeModel extends DefaultTreeModel {
             Alert alert = alertNode.getUserObject();
             Alert anotherAlert = anotherAlertNode.getUserObject();
 
-            result = anotherAlert.getParam().compareTo(anotherAlert.getParam());
+            result = alert.getParam().compareTo(anotherAlert.getParam());
             if (result != 0) {
                 return result;
             }
