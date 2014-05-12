@@ -22,6 +22,7 @@
 // now they are changed dynamically.
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/12/13 Added support for a new option 'show tab names'.
+// ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 
 package org.parosproxy.paros.extension.option;
 
@@ -38,12 +39,19 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.TimeStamp;
 
 // ZAP: 2011: added more configuration options
 
 public class OptionsViewPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
+	
+	private static final String TIMESTAMPFORMAT_COMBOBOX_TOOL_TIP = Constant.messages.getString("options.display.timestampformat.combobox.tooltip");
+	private static final String TIMESTAMPFORMAT_DEFAULT =  Constant.messages.getString("timestampformat.default");
+	private static final String TIMESTAMPFORMAT_DATETIME =  Constant.messages.getString("timestampformat.datetime");
+	private static final String TIMESTAMPFORMAT_ISO8601 =  Constant.messages.getString("timestampformat.iso8601");
+	private static final String TIMESTAMPFORMAT_TIMEONLY =  Constant.messages.getString("timestampformat.timeonly");
 	
 	private JPanel panelMisc = null;
 	
@@ -53,9 +61,11 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkAdvancedView = null;
 	private JCheckBox chkAskOnExit = null;
 	private JCheckBox chkWmUiHandling = null;
+	private JCheckBox chkOutputTabsTimeStamps = null; 
 	
 	private JComboBox<String> brkPanelViewSelect = null;
 	private JComboBox<String> displaySelect = null;
+	private JComboBox<String> timeStampsFormatSelect = null; 
 	
 	private JLabel brkPanelViewLabel = null;
 	private JLabel advancedViewLabel = null;
@@ -65,6 +75,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel showMainToolbarLabel = null;
 	private JLabel processImagesLabel = null;
 	private JLabel showTabNames = null;
+	private JLabel outputTabsTimeStampsLabel = null; 
+	private JLabel outputTabsTimeStampsExampleLabel = null; 
 
 	
     public OptionsViewPanel() {
@@ -114,6 +126,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			GridBagConstraints gbc6_1 = new GridBagConstraints();
 			GridBagConstraints gbc7_0 = new GridBagConstraints();
 			GridBagConstraints gbc7_1 = new GridBagConstraints();
+			GridBagConstraints gbc8_0 = new GridBagConstraints(); 
+			GridBagConstraints gbc8_1 = new GridBagConstraints(); 
+			GridBagConstraints gbc9_0 = new GridBagConstraints(); 
+			GridBagConstraints gbc9_1 = new GridBagConstraints(); 
 			
 			GridBagConstraints gbcX = new GridBagConstraints();
 
@@ -263,8 +279,44 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			gbc7_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc7_1.weightx = 1.0D;
 			
+			gbc8_0.gridx = 0;
+			gbc8_0.gridy = 8;
+			gbc8_0.ipadx = 0;
+			gbc8_0.ipady = 0;
+			gbc8_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc8_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc8_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc8_0.weightx = 1.0D;
+
+			gbc8_1.gridx = 1;
+			gbc8_1.gridy = 8;
+			gbc8_1.ipadx = 0;
+			gbc8_1.ipady = 0;
+			gbc8_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc8_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc8_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc8_1.weightx = 1.0D;
+			
+			gbc9_0.gridx = 0;
+			gbc9_0.gridy = 9;
+			gbc9_0.ipadx = 0;
+			gbc9_0.ipady = 0;
+			gbc9_0.insets = new java.awt.Insets(2,2,2,2);
+			gbc9_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc9_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc9_0.weightx = 1.0D;
+			
+			gbc9_1.gridx = 1;
+			gbc9_1.gridy = 9;
+			gbc9_1.ipadx = 0;
+			gbc9_1.ipady = 0;
+			gbc9_1.insets = new java.awt.Insets(2,2,2,2);
+			gbc9_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc9_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc9_1.weightx = 1.0D;
+			
 			gbcX.gridx = 0;
-			gbcX.gridy = 8;
+			gbcX.gridy = 10;
 			gbcX.ipadx = 0;
 			gbcX.ipady = 0;
 			gbcX.insets = new java.awt.Insets(2,2,2,2);
@@ -282,6 +334,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			showMainToolbarLabel = new JLabel(Constant.messages.getString("view.options.label.showMainToolbar"));
 			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
 			showTabNames = new JLabel(Constant.messages.getString("view.options.label.showTabNames"));
+			outputTabsTimeStampsLabel = new JLabel(Constant.messages.getString("options.display.timestampformat.outputtabstimestamps.label"));
+			
+            TimeStamp aTimeStamp = new TimeStamp();			
+			outputTabsTimeStampsExampleLabel = new JLabel(aTimeStamp.getTimeStamp(TIMESTAMPFORMAT_DEFAULT));
 			
 			panelMisc.add(displayLabel, gbc0_0);
 			panelMisc.add(getDisplaySelect(), gbc0_1);
@@ -306,6 +362,12 @@ public class OptionsViewPanel extends AbstractParamPanel {
 
 			panelMisc.add(showTabNames, gbc7_0);
 			panelMisc.add(getShowTabNames(), gbc7_1);
+			
+			panelMisc.add(outputTabsTimeStampsLabel, gbc8_0);
+			panelMisc.add(getChkOutputTabsTimeStamps(), gbc8_1);
+			
+			panelMisc.add(getTimeStampsFormatSelect(), gbc9_0);
+			panelMisc.add(outputTabsTimeStampsExampleLabel, gbc9_1);
 			
 			panelMisc.add(new JLabel(""), gbcX);
 
@@ -388,6 +450,47 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return chkAdvancedView;
 	}
 	
+	private JCheckBox getChkOutputTabsTimeStamps() {
+		if (chkOutputTabsTimeStamps == null) {
+			chkOutputTabsTimeStamps = new JCheckBox();
+			chkOutputTabsTimeStamps.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkOutputTabsTimeStamps.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+			chkOutputTabsTimeStamps.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	JCheckBox actionSource = (JCheckBox)e.getSource();
+        			if (actionSource.isSelected()) 
+        				timeStampsFormatSelect.setEnabled(true);
+        			else
+        				timeStampsFormatSelect.setEnabled(false);
+                };
+            });	
+		}
+		return chkOutputTabsTimeStamps;
+	}
+	
+	
+	private JComboBox<String> getTimeStampsFormatSelect() {
+		String[] timeStampFormatStrings = {TIMESTAMPFORMAT_DATETIME, TIMESTAMPFORMAT_ISO8601, TIMESTAMPFORMAT_TIMEONLY};
+		if (timeStampsFormatSelect == null) {
+			timeStampsFormatSelect = new JComboBox<String>(timeStampFormatStrings);
+			timeStampsFormatSelect.setToolTipText(TIMESTAMPFORMAT_COMBOBOX_TOOL_TIP);
+			timeStampsFormatSelect.setSelectedItem(getTimeStampsFormatSelect().getSelectedItem());
+			timeStampsFormatSelect.setEditable(true); 
+			timeStampsFormatSelect.addActionListener(new java.awt.event.ActionListener() {
+			
+            @Override
+            public void actionPerformed(java.awt.event.ActionEvent e) {
+				JComboBox<String> actionSource = (JComboBox<String>)e.getSource();
+                String selectedDateFormat = (String)actionSource.getSelectedItem();
+                TimeStamp aTimeStamp = new TimeStamp();
+                outputTabsTimeStampsExampleLabel.setText(aTimeStamp.getTimeStamp(selectedDateFormat)); 
+            };
+        });	
+		}
+		return timeStampsFormatSelect; 
+	}
 	
 	@Override
 	public void initParam(Object obj) {
@@ -400,6 +503,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
 	    chkAskOnExit.setSelected(options.getViewParam().getAskOnExitOption() > 0);
 	    chkWmUiHandling.setSelected(options.getViewParam().getWmUiHandlingOption() > 0);
+	    getChkOutputTabsTimeStamps().setSelected(options.getViewParam().getOutputTabsTimeStampsOption()); 
+	    timeStampsFormatSelect.setSelectedItem(options.getViewParam().getOutputTabsTimeStampsFormat());
 	}
 	
 	@Override
@@ -418,6 +523,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);
 	    options.getViewParam().setAskOnExitOption(getChkAskOnExit().isSelected() ? 1 : 0);
 	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);
+	    options.getViewParam().setOutputTabsTimeStampsOption(getChkOutputTabsTimeStamps().isSelected()); 
+	    options.getViewParam().setOutputTabsTimeStampsFormat((String) getTimeStampsFormatSelect().getSelectedItem()); 
 	}
 
 	@Override

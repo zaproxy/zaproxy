@@ -25,11 +25,13 @@
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2013/12/13 Added support for optional names in tabs.
 // ZAP: 2014/03/23 Issue 589: Move Reveal extension to ZAP extensions project
+// ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.view.View;
@@ -37,6 +39,8 @@ import org.parosproxy.paros.view.View;
 // ZAP: Added support for selecting the locale
 
 public class OptionsParamView extends AbstractParam {
+	
+	private static final String TIMESTAMPFORMAT_DEFAULT =  Constant.messages.getString("timestampformat.default");
 	
 	public static final String BASE_VIEW_KEY = "view";
 
@@ -54,6 +58,8 @@ public class OptionsParamView extends AbstractParam {
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String MODE_OPTION = "view.mode";
 	public static final String TAB_OPTION = "view.tab";
+	public static final String OUTPUT_TABS_TIMESTAMPS_OPTION = "view.outputTabsTimeStampsOption"; //RM
+	public static final String OUTPUT_TABS_TIMESTAMPS_FORMAT = "view.outputTabsTimeStampsFormat"; //RM
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -65,8 +71,10 @@ public class OptionsParamView extends AbstractParam {
 	private int askOnExitEnabled = 1;
 	private int wmUiHandlingEnabled = 0;
 	private boolean warnOnTabDoubleClick = false;
-  private boolean showTabNames = true;
+    private boolean showTabNames = true;
 	private String mode = Mode.standard.name();
+	private boolean outputTabsTimeStampsOption = true; //RM
+	private String outputTabsTimeStampsFormat = TIMESTAMPFORMAT_DEFAULT; //RM
 	
     public OptionsParamView() {
     }
@@ -86,6 +94,8 @@ public class OptionsParamView extends AbstractParam {
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
 	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
+	    outputTabsTimeStampsOption = getConfig().getBoolean(OUTPUT_TABS_TIMESTAMPS_OPTION, true); //RM
+	    outputTabsTimeStampsFormat = getConfig().getString(OUTPUT_TABS_TIMESTAMPS_FORMAT, TIMESTAMPFORMAT_DEFAULT); //RM
     }
 
 	/**
@@ -230,4 +240,22 @@ public class OptionsParamView extends AbstractParam {
 		getConfig().setProperty(MODE_OPTION, mode);
 	}
 	
+	//RM
+	public void setOutputTabsTimeStampsOption(boolean isEnabled) {
+		outputTabsTimeStampsOption = isEnabled;
+		getConfig().setProperty(OUTPUT_TABS_TIMESTAMPS_OPTION, isEnabled);
+	}
+
+	public boolean getOutputTabsTimeStampsOption() {
+		return outputTabsTimeStampsOption;
+	}
+	
+	public void setOutputTabsTimeStampsFormat(String isEnabled) {
+		outputTabsTimeStampsFormat = isEnabled;
+		getConfig().setProperty(OUTPUT_TABS_TIMESTAMPS_FORMAT, isEnabled);
+	}
+
+	public String getOutputTabsTimeStampsFormat() {
+		return outputTabsTimeStampsFormat;
+	}
 }

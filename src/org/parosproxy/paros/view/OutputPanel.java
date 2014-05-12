@@ -23,6 +23,7 @@
 // ZAP: 2013/11/16 Issue 886: Main pop up menu invoked twice on some components
 // ZAP: 2013/11/16 Issue 890: Allow to clear "Output" tab
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 
 package org.parosproxy.paros.view;
 
@@ -45,6 +46,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.utils.TimeStamp;
 
 public class OutputPanel extends AbstractPanel {
 
@@ -169,20 +171,37 @@ public class OutputPanel extends AbstractPanel {
 		return txtOutput;
 	}
 
+    /** 
+     * check output panel timestamp options and optionally return the message with a pre-pended timestamp 
+     * @param msg the message which may need to be timestamped
+     * @return msg with timestamp if applicable
+     */
+	public final String getFinalMessage(String msg) {
+		if (Model.getSingleton().getOptionsParam().getViewParam().getOutputTabsTimeStampsOption()) {
+			TimeStamp aTimeStamp = new TimeStamp();
+			final String currentTimeStampFormat = Model.getSingleton().getOptionsParam().getViewParam().getOutputTabsTimeStampsFormat(); 
+			final String currentTimeStamp = aTimeStamp.getTimeStamp(currentTimeStampFormat);
+			msg = currentTimeStamp+" : "+msg;
+			return msg;
+		}
+		else
+			return msg;		
+	}
+	
 	public void appendDirty(final String msg) {
-		getTxtOutput().append(msg);
+		getTxtOutput().append(getFinalMessage(msg));
 	}
 
 	public void append(final String msg) {
 		if (EventQueue.isDispatchThread()) {
-			getTxtOutput().append(msg);
+			getTxtOutput().append(getFinalMessage(msg));
 			return;
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					getTxtOutput().append(msg);
+					getTxtOutput().append(getFinalMessage(msg));
 				}
 			});
 		} catch (Exception e) {
