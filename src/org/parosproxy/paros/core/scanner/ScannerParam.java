@@ -33,6 +33,8 @@
 // ZAP: 2014/02/08 Added Custom Script management settings
 // ZAP: 2014/02/13 Added HTTP parameter exclusion configuration on Active Scanning
 // ZAP: 2014/03/23 Issue 1076: Change active scanner to not delete the temporary messages generated
+// ZAP: 2014/05/13 Issue 1193: Scan URL path elements - turn off by default
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -84,7 +86,7 @@ public class ScannerParam extends AbstractParam {
     public static final int RPC_USERDEF     = 1<<8;
     
     // Defaults for initial configuration
-    public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_URLPATH;
+    public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
     public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA;
         
     // Internal variables
