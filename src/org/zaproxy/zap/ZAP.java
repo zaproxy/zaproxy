@@ -406,6 +406,13 @@ public class ZAP {
 			public void run() {
             	View.setDaemon(true);	// Prevents the View ever being initialised
         		Control.initSingletonWithoutView(getOverrides());
+                try {
+                    // Allow extensions to pick up command line args in daemon mode
+                    Control.getSingleton().getExtensionLoader().hookCommandLineListener(cmdLine);
+                    Control.getSingleton().runCommandLine();
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
         		// This is the only non-daemon thread, so should keep running
         		// CoreAPI.handleApiAction uses System.exit to shutdown
         		while (true) {
