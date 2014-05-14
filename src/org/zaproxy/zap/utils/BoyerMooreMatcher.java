@@ -62,7 +62,7 @@ public class BoyerMooreMatcher {
         int n = content.length();
         int m = pattern.length();
         int skip;
-        int val;
+        char val;
 
         for (int i = 0; i <= n - m; i = i + skip) {
             skip = 0;
