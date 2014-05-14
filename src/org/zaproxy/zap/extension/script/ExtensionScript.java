@@ -809,7 +809,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         return arguments;
     }
 
-	//@Override
+	@Override
 	public boolean handleFile(File file) {
 		int dotIndex = file.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
