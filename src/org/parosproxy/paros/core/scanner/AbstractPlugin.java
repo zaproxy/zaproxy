@@ -38,6 +38,7 @@
 // ZAP: 2014/01/16 Add support to plugin skipping
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/05/15 Issue 1196: AbstractPlugin.bingo incorrectly sets evidence to attack
 
 package org.parosproxy.paros.core.scanner;
 
@@ -323,7 +324,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         }
         
         alert.setDetail(description, uri, param, attack, otherInfo, solution, this.getReference(),
-                attack, this.getCweId(), this.getWascId(), msg);
+                "", this.getCweId(), this.getWascId(), msg);
         
         parent.alertFound(alert);
     }
