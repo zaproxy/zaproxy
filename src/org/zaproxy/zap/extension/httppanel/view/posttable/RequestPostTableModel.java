@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
+// ZAP: 2014/05/16 Issue 81: ZAP changes request data (while switching views)
 package org.zaproxy.zap.extension.httppanel.view.posttable;
 
 import java.io.UnsupportedEncodingException;
@@ -82,6 +83,7 @@ public class RequestPostTableModel extends AbstractTableModel {
     }
 
     public synchronized void setText(String body) {
+        isChanged = false;
         listPair.clear();
         String name = null;
         String value = null;
