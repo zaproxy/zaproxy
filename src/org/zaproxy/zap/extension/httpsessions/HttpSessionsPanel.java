@@ -469,7 +469,7 @@ public class HttpSessionsPanel extends AbstractPanel {
 			// No row selected
 			return null;
 		}
-		final int rowIndex = sessionsTable.convertRowIndexToModel(this.sessionsTable.getSelectedRow());
+		final int rowIndex = sessionsTable.convertRowIndexToModel(selectedRow);
 		return this.sessionsModel.getHttpSessionAt(rowIndex);
 	}
 }
