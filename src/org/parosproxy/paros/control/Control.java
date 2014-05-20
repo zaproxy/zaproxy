@@ -47,6 +47,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/02/27 Issue 1055: Load extensions before plugins
 // ZAP: 2014/05/20 Issue 1114: core.newSession doesn't clear Sites
+// ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 
 package org.parosproxy.paros.control;
 
@@ -291,16 +292,12 @@ public class Control extends AbstractControl implements SessionListener {
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
 	}
     
-    public void runCommandLineOpenSession(String fileName) {
+    public void runCommandLineOpenSession(String fileName) throws Exception {
 	    log.debug("runCommandLineOpenSession " + fileName);
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
     	Session session = Model.getSingleton().getSession();
-    	try {
-    		Model.getSingleton().openSession(fileName);
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
+    	Model.getSingleton().openSession(fileName);
 	    log.info("Session file opened");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
@@ -338,6 +335,14 @@ public class Control extends AbstractControl implements SessionListener {
 
 		return session;
 	}
+
+    public void newSession(String fileName, final SessionListener callback) {
+        log.info("New Session");
+        getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+        lastCallback = callback;
+        model.newSession();
+        model.saveSession(fileName, this);
+    }
 	
     public void saveSession(final String fileName) {
     	this.saveSession(fileName, null);

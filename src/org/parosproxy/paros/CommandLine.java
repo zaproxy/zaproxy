@@ -28,6 +28,7 @@
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
+// ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 
 package org.parosproxy.paros;
 
@@ -274,10 +275,8 @@ public class CommandLine {
 	private boolean parseKeywords(String[] args, int i) throws Exception {
 	    boolean result = false;
 	    if (checkPair(args, NEW_SESSION, i)) {
-            setGUI(false);
             result = true;
 	    } else if (checkPair(args, SESSION, i)) {
-	        setGUI(false);
 	        result = true;
 	    } else if (checkPair(args, DIR, i)) {
 	    	Constant.setZapHome(keywords.get(DIR));
@@ -365,8 +364,9 @@ public class CommandLine {
         } else {
             sb.append("\tzap.sh ");
         }
-        sb.append("[-h |-help] [-newsession session_file_path] [options] [-dir directory]\n" +
-        		"\t\t[-installdir directory] [-host host] [-port port] [-daemon] [-cmd] [-version]\n");
+        sb.append("[-h |-help] [-newsession session_file_path | -session existing_session_file_path]\n" +
+        		"\t\t [options] [-dir directory] [-installdir directory] [-host host] [-port port]\n" + 
+        		"\t\t [-daemon] [-cmd] [-version]");
         sb.append("options:\n");
 
         for (int i=0; i<commandList.size(); i++) {

@@ -21,6 +21,8 @@ package org.zaproxy.zap;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -50,6 +52,7 @@ import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.dynssl.DynSSLParam;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
@@ -354,14 +357,18 @@ public class ZAP {
 	            System.out.println(help);
 	        } else if (cmdLine.isReportVersion()) {
 	            System.out.println(Constant.PROGRAM_VERSION);
-	        } else {
-	            control.runCommandLine();
+            } else {
+                if (handleCmdLineSessionOptionsSynchronously(control)) {
+                    control.runCommandLine();
 
-	            try {
-	                Thread.sleep(1000);
-	            } catch (final InterruptedException e) {}
+                    try {
+                        Thread.sleep(1000);
+                    } catch (final InterruptedException e) {
+                    }
+                } else {
+                    rc = 1;
+                }
 	        }
-		    rc = 0;
 	    } catch (final Exception e) {
 	        log.error(e.getMessage(), e);
 	        System.out.println(e.getMessage());
@@ -387,8 +394,33 @@ public class ZAP {
 	    view.postInit();
 	    view.getMainFrame().setVisible(true);
 
-	    control.getMenuFileControl().newSession(false);
-	    
+        boolean createNewSession = true;
+        if (cmdLine.isEnabled(CommandLine.SESSION) && cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
+            View.getSingleton().showWarningDialog(
+                    Constant.messages.getString(
+                            "start.gui.cmdline.invalid.session.options",
+                            CommandLine.SESSION,
+                            CommandLine.NEW_SESSION));
+        } else if (cmdLine.isEnabled(CommandLine.SESSION)) {
+            String filePath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.SESSION));
+            if (!Files.exists(Paths.get(filePath))) {
+                View.getSingleton().showWarningDialog(Constant.messages.getString("start.gui.cmdline.session.does.not.exist"));
+            } else {
+                createNewSession = !control.getMenuFileControl().openSession(filePath);
+            }
+        } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
+            String filePath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.NEW_SESSION));
+            if (Files.exists(Paths.get(filePath))) {
+                View.getSingleton().showWarningDialog(Constant.messages.getString("start.gui.cmdline.newsession.already.exist"));
+            } else {
+                createNewSession = !control.getMenuFileControl().newSession(filePath);
+            }
+        }
+
+        if (createNewSession) {
+            control.getMenuFileControl().newSession(false);
+        }
+
         try {
         	// Allow extensions to pick up command line args in GUI mode
 			control.getExtensionLoader().hookCommandLineListener(cmdLine);
@@ -406,10 +438,16 @@ public class ZAP {
 			public void run() {
             	View.setDaemon(true);	// Prevents the View ever being initialised
         		Control.initSingletonWithoutView(getOverrides());
+                Control control = Control.getSingleton();
+                
+                if (!handleCmdLineSessionOptionsSynchronously(control)) {
+                    return;
+                }
+                
                 try {
                     // Allow extensions to pick up command line args in daemon mode
-                    Control.getSingleton().getExtensionLoader().hookCommandLineListener(cmdLine);
-                    Control.getSingleton().runCommandLine();
+                    control.getExtensionLoader().hookCommandLineListener(cmdLine);
+                    control.runCommandLine();
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
                 }
@@ -426,6 +464,45 @@ public class ZAP {
         t.setName("ZAP-daemon");
         t.start();
 	}
+
+    private boolean handleCmdLineSessionOptionsSynchronously(Control control) {
+        if (cmdLine.isEnabled(CommandLine.SESSION) && cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
+            System.err.println("Error: Invalid command line options: option '" + CommandLine.SESSION + "' not allowed with option '"
+                    + CommandLine.NEW_SESSION + "'");
+            return false;
+        }
+
+        if (cmdLine.isEnabled(CommandLine.SESSION)) {
+            String session = cmdLine.getArgument(CommandLine.SESSION);
+            String filePath = SessionUtils.getSessionPath(session);
+            try {
+                control.runCommandLineOpenSession(filePath);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                System.err.println("Failed to open session: " + filePath);
+                e.printStackTrace(System.err);
+                return false;
+            }
+        } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
+            String session = cmdLine.getArgument(CommandLine.NEW_SESSION);
+            String filePath = SessionUtils.getSessionPath(session);
+            if (Files.exists(Paths.get(filePath))) {
+                System.err.println("Failed to create a new session, file already exists: " + filePath);
+                return false;
+            }
+
+            try {
+                control.runCommandLineNewSession(session);
+            } catch (Exception e) {
+                log.error(e.getMessage(), e);
+                System.err.println("Failed to create a new session: " + session);
+                e.printStackTrace(System.err);
+                return false;
+            }
+        }
+
+        return true;
+    }
 
 	private boolean showLicense() {
 		boolean shown = false;

@@ -66,6 +66,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.HarUtils;
 
 import edu.umass.cs.benchlab.har.HarEntries;
@@ -200,22 +201,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			thread.start();
 
 		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
-			String sessionName = params.getString(PARAM_SESSION);
-			session.setSessionName(name);
-			if (!sessionName.endsWith(".session")) {
-				sessionName = sessionName + ".session";
-			}
-			
-			File file = new File(sessionName);
+			File file = new File(SessionUtils.getSessionPath(params.getString(PARAM_SESSION)));
 			String filename = file.getAbsolutePath();
-			
-			if (! sessionName.equals(filename)) {
-				// Treat as a relative path
-				filename = Model.getSingleton().getOptionsParam()
-						.getUserDirectory()
-						+ File.separator + sessionName;
-				file = new File(filename);
-			} 
 			
 			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
 			
@@ -282,21 +269,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 			
 		} else if (ACTION_LOAD_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
-			String sessionName = params.getString(PARAM_SESSION);
-			if (!sessionName.endsWith(".session")) {
-				sessionName = sessionName + ".session";
-			}
-			
-			File file = new File(sessionName);
+			File file = new File(SessionUtils.getSessionPath(params.getString(PARAM_SESSION)));
 			String filename = file.getAbsolutePath();
-
-			if (! sessionName.equals(filename)) {
-				// Treat as a relative path
-				filename = Model.getSingleton().getOptionsParam()
-						.getUserDirectory()
-						+ File.separator + sessionName;
-				file = new File(filename);
-			} 
 
 			if (!file.exists()) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, filename);
@@ -326,20 +300,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				}
 				Control.getSingleton().newSession();
 			} else {
-				session.setSessionName(name);
-				if (!sessionName.endsWith(".session")) {
-					sessionName = sessionName + ".session";
-				}
-				File file = new File(sessionName);
+				File file = new File(SessionUtils.getSessionPath(sessionName));
 				String filename = file.getAbsolutePath();
-				
-				if (! sessionName.equals(filename)) {
-					// Treat as a relative path
-					filename = Model.getSingleton().getOptionsParam()
-							.getUserDirectory()
-							+ File.separator + sessionName;
-					file = new File(filename);
-				} 
 				
 				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
 				
