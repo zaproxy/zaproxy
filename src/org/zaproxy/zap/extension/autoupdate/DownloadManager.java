@@ -43,6 +43,7 @@ public class DownloadManager extends Thread {
 	public DownloadManager (ConnectionParam connectionParam) {
 		super("ZAP-DownloadManager");
 		this.connectionParam = connectionParam;
+		setDaemon(true);
 		
 		// TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
 		Authenticator.setDefault(new ZapProxyAuthenticator());
