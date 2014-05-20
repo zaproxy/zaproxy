@@ -46,6 +46,7 @@
 // ZAP: 2014/01/16 Issue 979: Sites and Alerts trees can get corrupted
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/02/27 Issue 1055: Load extensions before plugins
+// ZAP: 2014/05/20 Issue 1114: core.newSession doesn't clear Sites
 
 package org.parosproxy.paros.control;
 
@@ -268,8 +269,24 @@ public class Control extends AbstractControl implements SessionListener {
 	    log.debug("runCommandLineNewSession " + fileName);
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		
-    	Session session = Model.getSingleton().newSession();
-		Model.getSingleton().saveSession(fileName);
+		model.createAndOpenUntitledDb();
+    	final Session session = model.newSession();
+		model.saveSession(fileName);
+
+		if (View.isInitialised()) {
+			SwingUtilities.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+
+					// refresh display
+					view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
+					view.getOutputPanel().clear();
+				}
+			});
+		}
+
 	    log.info("New session file created");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
 	}
