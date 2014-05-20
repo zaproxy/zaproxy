@@ -16,6 +16,7 @@
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
+    <property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
     <property name="zap.java.api.version" value="4" />
 
     <property name="crowdin.zap.project.id" value="owasp-zap" />
@@ -722,6 +723,69 @@
         <delete file="${dist}/README" />
         <copy file="${src}/doc/README.weekly" tofile="${dist}/README"/>
         <antcall target="package-daily" />
+    </target>
+
+    <macrodef name="svn-cleanup">
+        <attribute name="dir"/>
+        <sequential>
+            <exec executable="${svn.cmd}" failonerror="yes" dir="@{dir}">
+                <arg value="cleanup" />
+            </exec>
+        </sequential>
+    </macrodef>
+
+    <target name="package-workspace-zap" description="package ZAP (Eclipse) workspace">
+        <echo message="Packaging ZAP workspace..." />
+
+        <local name="workspace.zap" />
+        <property name="workspace.zap" location="workspace-zap.zip" />
+        <delete file="${workspace.zap}" />
+
+        <local name="zaproxy.dir" />
+        <property name="zaproxy.dir" location="${src}/../" />
+
+        <local name="metadata.dir" />
+        <property name="metadata.dir" location="${zaproxy.dir}/../.metadata" />
+
+        <svn-cleanup dir="${zaproxy.dir}" />
+        <svn-cleanup dir="${zap.extensions.alpha.dir}" />
+        <svn-cleanup dir="${zap.extensions.beta.dir}" />
+        <svn-cleanup dir="${zap.extensions.trunk.dir}" />
+        <svn-cleanup dir="${zap.test.trunk.dir}" />
+
+        <zip destfile="${workspace.zap}" level="9">
+            <zipfileset dir="${metadata.dir}" prefix="workspace-zap/.metadata" defaultexcludes="false">
+                <include name="version.ini" />
+                <include name=".plugins/org.eclipse.core.resources/.root/*.tree" />
+                <include name=".plugins/org.eclipse.core.resources/.safetable/org.eclipse.core.resources" />
+                <include name=".plugins/org.eclipse.debug.core/.launches/ZAP.launch" />
+                <include name=".plugins/org.eclipse.debug.ui/launchConfigurationHistory.xml" />
+            </zipfileset>
+            <zipfileset dir="${zaproxy.dir}" prefix="workspace-zap/zaproxy" defaultexcludes="false">
+                <exclude name="bin/" />
+                <exclude name="build/build/" />
+                <exclude name="build/zap/" />
+            </zipfileset>
+            <zipfileset dir="${zap.extensions.alpha.dir}" prefix="workspace-zap/zap-extensions-alpha" defaultexcludes="false">
+                <exclude name="bin/" />
+                <exclude name="build/build/" />
+                <exclude name="build/zap-exts/" />
+            </zipfileset>
+            <zipfileset dir="${zap.extensions.beta.dir}" prefix="workspace-zap/zap-extensions-beta" defaultexcludes="false">
+                <exclude name="bin/" />
+                <exclude name="build/build/" />
+                <exclude name="build/zap-exts/" />
+            </zipfileset>
+            <zipfileset dir="${zap.extensions.trunk.dir}" prefix="workspace-zap/zap-extensions" defaultexcludes="false">
+                <exclude name="bin/" />
+                <exclude name="build/build/" />
+                <exclude name="build/zap-exts/" />
+            </zipfileset>
+            <zipfileset dir="${zap.test.trunk.dir}" prefix="workspace-zap/zaproxy-test" defaultexcludes="false">
+                <exclude name="bin/" />
+                <exclude name="build/" />
+            </zipfileset>
+        </zip>
     </target>
 
 </project>
