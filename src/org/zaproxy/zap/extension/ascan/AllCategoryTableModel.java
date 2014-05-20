@@ -22,6 +22,7 @@
 // method Boolean.valueOf.
 // ZAP: 2012/05/03 Moved a statement in the method setValueAt(Object, int , int).
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+// ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.Collections;
@@ -32,6 +33,7 @@ import java.util.Map;
 import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
@@ -215,14 +217,24 @@ public class AllCategoryTableModel extends DefaultTableModel {
     }
 
     private void setPluginCategoryThreshold(int category, AlertThreshold at) {
+        boolean enable = !AlertThreshold.OFF.equals(at);
         for (int i = 0; i < allPlugins.size(); i++) {
             Plugin plugin = allPlugins.get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
-        
+
+            if (enable) {
+                String[] dependencies = plugin.getDependency();
+                if (dependencies != null && dependencies.length != 0) {
+                    if (!Control.getSingleton().getPluginFactory().hasAllDependenciesAvailable(plugin)) {
+                        continue;
+                    }
+                }
+            }
+
             plugin.setAlertThreshold(at);
-            plugin.setEnabled(!AlertThreshold.OFF.equals(at));
+            plugin.setEnabled(enable);
         }
     }
 

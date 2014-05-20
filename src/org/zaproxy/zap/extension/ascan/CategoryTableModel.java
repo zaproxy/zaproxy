@@ -23,9 +23,11 @@
 // ZAP: 2013/01/27 Changed to only notify the listeners if the value was really changed.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+// ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 
 package org.zaproxy.zap.extension.ascan;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -34,9 +36,13 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
+import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.View;
 
 
 public class CategoryTableModel extends DefaultTableModel {
@@ -51,6 +57,8 @@ public class CategoryTableModel extends DefaultTableModel {
 		Constant.messages.getString("ascan.policy.table.strength") };
 	
     private Vector<Plugin> listTestCategory = new Vector<>();
+
+    private int category;
     
     /**
      * 
@@ -60,6 +68,7 @@ public class CategoryTableModel extends DefaultTableModel {
     
     public void setTable(int category, List<Plugin> allTest) {
         listTestCategory.clear();
+        this.category = category ;
         for (int i=0; i<allTest.size(); i++) {
             Plugin test = allTest.get(i);
             if (test.getCategory() == category) {
@@ -95,9 +104,47 @@ public class CategoryTableModel extends DefaultTableModel {
         switch (col) {
         	case 0:	break;
         	case 1: AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
-        			test.setAlertThreshold(af);
-        			test.setEnabled(!AlertThreshold.OFF.equals(af));
+                    boolean enable = !AlertThreshold.OFF.equals(af);
+                    if (test.isEnabled() != enable) {
+                        if (enable) {
+                            String[] dependencies = test.getDependency();
+                            if (dependencies != null && dependencies.length != 0) {
+                                List<Plugin> allDeps = new ArrayList<>(dependencies.length);
+                                if (!Control.getSingleton().getPluginFactory().addAllDependencies(test, allDeps)) {
+                                    View.getSingleton().showWarningDialog(
+                                            Constant.messages.getString("ascan.policy.unfulfilled.dependencies"));
+                                    return;
+                                }
+
+                                List<Plugin> disabledDependencies = new ArrayList<>();
+                                for (Plugin plugin : allDeps) {
+                                    if (!plugin.isEnabled()) {
+                                        disabledDependencies.add(plugin);
+                                    }
+                                }
+
+                                if (!disabledDependencies.isEmpty()) {
+                                    setPluginsEnabled(disabledDependencies, true);
+                                }
+                            }
+                        } else {
+                            List<Plugin> enabledDependents = new ArrayList<>();
+                            for (Plugin plugin : Control.getSingleton().getPluginFactory().getDependentPlugins(test)) {
+                                if (plugin.isEnabled()) {
+                                    enabledDependents.add(plugin);
+                                }
+                            }
+    
+                            if (!enabledDependents.isEmpty()) {
+                                setPluginsEnabled(enabledDependents, false);
+                            }
+                        }
+                    }
+
+                    test.setAlertThreshold(af);
+                    test.setEnabled(enable);
                     fireTableCellUpdated(row, col);
+
         			break;
         	case 2: test.setAttackStrength(AttackStrength.valueOf(i18nToStr((String)value)));
                 	fireTableCellUpdated(row, col);
@@ -105,6 +152,33 @@ public class CategoryTableModel extends DefaultTableModel {
         }
     }
     
+    private void setPluginsEnabled(List<Plugin> plugins, boolean enabled) {
+        AlertThreshold defaultAlertThreshold = ((ScannerParam) Model.getSingleton()
+                .getOptionsParam()
+                .getParamSet(ScannerParam.class)).getAlertThreshold();
+        AlertThreshold alertThreshold = enabled ? defaultAlertThreshold : AlertThreshold.OFF;
+        for (Plugin plugin : plugins) {
+            plugin.setEnabled(enabled);
+            plugin.setAlertThreshold(alertThreshold);
+
+            if (plugin.getCategory() == category) {
+                int rowDep = getPluginRow(plugin);
+                if (rowDep != -1) {
+                    fireTableCellUpdated(rowDep, 1);
+                }
+            }
+        }
+    }
+
+    private int getPluginRow(Plugin plugin) {
+        for (int i = 0; i < listTestCategory.size(); i++) {
+            if (plugin.equals(listTestCategory.get(i))) {
+                return i;
+            }
+        }
+        return -1;
+    }
+
     private String strToI18n (String str) {
     	// I18n's threshold and strength enums
     	return Constant.messages.getString("ascan.policy.level." + str.toLowerCase());
