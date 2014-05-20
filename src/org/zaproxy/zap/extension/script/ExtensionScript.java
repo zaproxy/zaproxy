@@ -351,6 +351,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void removeScript(ScriptWrapper script) {
 		script.setLoadOnStart(false);
+		this.getScriptParam().removeScript(script);
 		this.getScriptParam().saveScripts();
 		this.getTreeModel().removeScript(script);
 		for (ScriptEventListener listener : this.listeners) {
