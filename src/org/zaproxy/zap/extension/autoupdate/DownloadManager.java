@@ -41,6 +41,7 @@ public class DownloadManager extends Thread {
 	private ConnectionParam connectionParam;
 
 	public DownloadManager (ConnectionParam connectionParam) {
+		super("ZAP-DownloadManager");
 		this.connectionParam = connectionParam;
 		
 		// TODO Remove once the class Downloader uses HttpClient instead of URL to download the file
