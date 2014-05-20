@@ -53,16 +53,24 @@ import org.zaproxy.zap.view.LayoutHelper;
  */
 public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
-	private static final String CONFIG_NOT_NEEDED = Constant.messages
-			.getString("sessionmanagement.panel.label.noConfigPanel");
+	private static final Logger log = Logger.getLogger(ContextAuthenticationPanel.class);
+	private static final long serialVersionUID = -898084998156067286L;
 
 	/** The Constant PANEL NAME. */
 	private static final String PANEL_NAME = Constant.messages.getString("authentication.panel.title");
 
-	private static final Logger log = Logger.getLogger(ContextAuthenticationPanel.class);
-
-	/** The Constant serialVersionUID. */
-	private static final long serialVersionUID = -898084998156067286L;
+	private static final String FIELD_LABEL_LOGGED_IN_INDICATOR = Constant.messages
+			.getString("authentication.panel.label.loggedIn");
+	private static final String FIELD_LABEL_LOGGED_OUT_INDICATOR = Constant.messages
+			.getString("authentication.panel.label.loggedOut");
+	private static final String FIELD_LABEL_TYPE_SELECT = Constant.messages
+			.getString("authentication.panel.label.typeSelect");
+	private static final String LABEL_DESCRIPTION = Constant.messages
+			.getString("authentication.panel.label.description");
+	private static final String PANEL_TITLE_CONFIG = Constant.messages
+			.getString("authentication.panel.label.configTitle");
+	private static final String LABEL_CONFIG_NOT_NEEDED = Constant.messages
+			.getHtmlWrappedString("sessionmanagement.panel.label.noConfigPanel");
 
 	/** The extension. */
 	private ExtensionAuthentication extension;
@@ -113,11 +121,10 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		this.setLayout(new GridBagLayout());
 		this.setBorder(new EmptyBorder(2, 2, 2, 2));
 
-		this.add(new JLabel(Constant.messages.getString("authentication.panel.label.description")),
-				LayoutHelper.getGBC(0, 0, 1, 1.0D));
+		this.add(new JLabel(LABEL_DESCRIPTION), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 
 		// Method type combo box
-		this.add(new JLabel(Constant.messages.getString("authentication.panel.label.typeSelect")),
+		this.add(new JLabel(FIELD_LABEL_TYPE_SELECT),
 				LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(20, 0, 5, 5)));
 		this.add(getAuthenticationMethodsComboBox(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
 
@@ -125,9 +132,9 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		this.add(getConfigContainerPanel(), LayoutHelper.getGBC(0, 3, 1, 1.0d, new Insets(10, 0, 10, 0)));
 
 		// Logged In/Out indicators
-		this.add(new JLabel("Logged In Indicator Pattern:"), LayoutHelper.getGBC(0, 4, 1, 1.0D));
+		this.add(new JLabel(FIELD_LABEL_LOGGED_IN_INDICATOR), LayoutHelper.getGBC(0, 4, 1, 1.0D));
 		this.add(getLoggedInIndicaterRegexField(), LayoutHelper.getGBC(0, 5, 1, 1.0D));
-		this.add(new JLabel("Logged Out Indicator Pattern:"), LayoutHelper.getGBC(0, 6, 1, 1.0D));
+		this.add(new JLabel(FIELD_LABEL_LOGGED_OUT_INDICATOR), LayoutHelper.getGBC(0, 6, 1, 1.0D));
 		this.add(getLoggedOutIndicaterRegexField(), LayoutHelper.getGBC(0, 7, 1, 1.0D));
 
 		// Padding
@@ -167,8 +174,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			getConfigContainerPanel().add(shownConfigPanel, BorderLayout.CENTER);
 		} else {
 			shownConfigPanel = null;
-			getConfigContainerPanel().add(new JLabel("<html><p>" + CONFIG_NOT_NEEDED + "</p></html>"),
-					BorderLayout.CENTER);
+			getConfigContainerPanel().add(new JLabel(LABEL_CONFIG_NOT_NEEDED), BorderLayout.CENTER);
 		}
 		this.shownMethodType = newMethodType;
 
@@ -254,8 +260,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		if (configContainerPanel == null) {
 			configContainerPanel = new JPanel(new BorderLayout());
 			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
-					Constant.messages.getString("authentication.panel.label.configTitle"),
-					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+					PANEL_TITLE_CONFIG, javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
 							java.awt.Font.BOLD, 12), java.awt.Color.black));
 		}
@@ -335,8 +340,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			Pattern.compile(getLoggedInIndicaterRegexField().getText());
 			Pattern.compile(getLoggedOutIndicaterRegexField().getText());
 		} catch (PatternSyntaxException e) {
-			throw new IllegalStateException("One of the patterns you have defined for context "
-					+ getUISharedContext().getName() + " is not valid.", e);
+			throw new IllegalStateException(Constant.messages.getString(
+					"authentication.panel.error.illegalPattern", getUISharedContext().getName()), e);
 		}
 	}
 
