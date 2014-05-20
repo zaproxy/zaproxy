@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.ConnectionParam;
 
 public class DownloadManager extends Thread {
-	private Logger logger = Logger.getLogger(DownloadManager.class);
+	private static final Logger logger = Logger.getLogger(DownloadManager.class);
 	private List<Downloader> currentDownloads = new ArrayList<>();
 	private List<Downloader> completedDownloads = new ArrayList<>();
 	private boolean shutdown = false;
