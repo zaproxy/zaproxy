@@ -45,12 +45,11 @@
 // ZAP: 2013/12/13 Added support for Full Layout DISPLAY_OPTION_TOP_FULL in the hookView function.
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/03/23 Issue 1090: Do not add pop up menus if target extension is not enabled
-//
+// ZAP: 2014/05/20 Issue 1202: Issue with loading addons that did not initialize correctly
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -83,7 +82,7 @@ import org.zaproxy.zap.view.TabbedPanel2;
 public class ExtensionLoader {
 
     private Vector<Extension> extensionList = new Vector<>();
-    private Vector<ExtensionHook> hookList = new Vector<>();
+    private Map<Extension, ExtensionHook> extensionHooks = new HashMap<>();
     private Model model = null;
 
     private View view = null;
@@ -178,9 +177,7 @@ public class ExtensionLoader {
     }
     
     public void hookProxyListener(Proxy proxy) {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<ProxyListener> listenerList = hook.getProxyListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -212,9 +209,7 @@ public class ExtensionLoader {
     }
     
     public void hookOverrideMessageProxyListener(Proxy proxy) {
-        Iterator<ExtensionHook> iter = hookList.iterator();
-        while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -246,9 +241,7 @@ public class ExtensionLoader {
     }
     
     public void hookPersistentConnectionListener(Proxy proxy) {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -280,9 +273,7 @@ public class ExtensionLoader {
     
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -316,9 +307,7 @@ public class ExtensionLoader {
     }
     
     public void optionsChangedAllPlugin(OptionsParam options) {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -336,23 +325,19 @@ public class ExtensionLoader {
     }
     
     public void runCommandLine() {
-        ExtensionHook hook = null;
         Extension ext = null;
         for (int i=0; i<getExtensionCount(); i++) {
             ext = getExtension(i);
-            hook = hookList.get(i);
             if (ext instanceof CommandLineListener) {
                 CommandLineListener listener = (CommandLineListener) ext;
-                listener.execute(hook.getCommandLineArgument());
+                listener.execute(extensionHooks.get(ext).getCommandLineArgument());
             }
         }
     }
     
     public void sessionChangedAllPlugin(Session session) {
     	logger.debug("sessionChangedAllPlugin");
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -371,9 +356,7 @@ public class ExtensionLoader {
     
     public void sessionAboutToChangeAllPlugin(Session session) {
     	logger.debug("sessionAboutToChangeAllPlugin");
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -391,9 +374,7 @@ public class ExtensionLoader {
     
     public void sessionScopeChangedAllPlugin(Session session) {
     	logger.debug("sessionScopeChangedAllPlugin");
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -411,9 +392,7 @@ public class ExtensionLoader {
     
     public void sessionModeChangedAllPlugin(Mode mode) {
     	logger.debug("sessionModeChangedAllPlugin");
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -430,9 +409,7 @@ public class ExtensionLoader {
     }
 
     public void addonFilesAdded() {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -445,9 +422,7 @@ public class ExtensionLoader {
     }
 
     public void addonFilesRemoved() {
-    	Iterator<ExtensionHook> iter = hookList.iterator();
-    	while (iter.hasNext()) {
-            ExtensionHook hook = iter.next();
+    	for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
             for (int j=0; j<listenerList.size(); j++) {
                 try {
@@ -461,7 +436,11 @@ public class ExtensionLoader {
 
     public void startAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).start();
+            try {
+                getExtension(i).start();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
     
@@ -484,7 +463,7 @@ public class ExtensionLoader {
         try {
         	ExtensionHook extHook = new ExtensionHook(model, view);
 			ext.hook(extHook);
-			hookList.add(extHook);
+			extensionHooks.put(ext, extHook);
 			
 			if (view != null) {
 			    // no need to hook view if no GUI
@@ -580,9 +559,10 @@ public class ExtensionLoader {
         ExtensionHook extHook = null;
         for (int i=0; i<getExtensionCount(); i++) {
             try {
+				Extension ext = getExtension(i);
 				extHook = new ExtensionHook(model, view);
-				getExtension(i).hook(extHook);
-				hookList.add(extHook);
+				ext.hook(extHook);
+				extensionHooks.put(ext, extHook);
 				
 				if (view != null) {
 				    // no need to hook view if no GUI
@@ -591,7 +571,7 @@ public class ExtensionLoader {
 
 				}
 				hookOptions(extHook);
-				getExtension(i).optionsLoaded();
+				ext.optionsLoaded();
 			} catch (Throwable e) {
 				// Catch Errors thrown by out of date extensions as well as Exceptions
 				logger.error(e.getMessage(), e);
@@ -612,14 +592,15 @@ public class ExtensionLoader {
     public void hookCommandLineListener (CommandLine cmdLine) throws Exception {
         Vector<CommandLineArgument[]> allCommandLineList = new Vector<>();
         Map<String, CommandLineListener> extMap = new HashMap<String, CommandLineListener>();
-        for (int i=0; i<hookList.size(); i++) {
-            ExtensionHook hook = hookList.get(i);
+        for (Map.Entry<Extension, ExtensionHook> entry : extensionHooks.entrySet()) {
+            ExtensionHook hook = entry.getValue();
             CommandLineArgument[] arg = hook.getCommandLineArgument();
             if (arg.length > 0) {
                 allCommandLineList.add(arg);
             }
-            if (extensionList.get(i) instanceof CommandLineListener) {
-            	CommandLineListener cli = (CommandLineListener) extensionList.get(i);
+            Extension extension = entry.getKey();
+            if (extension instanceof CommandLineListener) {
+            	CommandLineListener cli = (CommandLineListener) extension;
             	List<String> exts = cli.getHandledExtensions();
             	if (exts != null) {
             		for (String ext : exts) {
@@ -916,13 +897,21 @@ public class ExtensionLoader {
 
     private void initAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).init();
+            try {
+                getExtension(i).init();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 
     private void initModelAllExtension(Model model) {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).initModel(model);
+            try {
+                getExtension(i).initModel(model);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 
@@ -932,13 +921,21 @@ public class ExtensionLoader {
         }
         
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).initView(view);
+            try {
+                getExtension(i).initView(view);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }
     }
 
     private void initXMLAllExtension(Session session, OptionsParam options) {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).initXML(session, options);
+            try {
+                getExtension(i).initXML(session, options);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }        
     }
 
@@ -956,7 +953,7 @@ public class ExtensionLoader {
 		// the following listeners are no longer informed:
 		// 		* SessionListeners
 		// 		* OptionsChangedListeners
-		hookList.remove(hook);
+		extensionHooks.values().remove(hook);
 		
 		unloadOptions(hook);
 		
