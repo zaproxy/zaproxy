@@ -351,6 +351,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void removeScript(ScriptWrapper script) {
 		script.setLoadOnStart(false);
+		this.getScriptParam().removeScript(script);
 		this.getScriptParam().saveScripts();
 		this.getTreeModel().removeScript(script);
 		for (ScriptEventListener listener : this.listeners) {
@@ -809,7 +810,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         return arguments;
     }
 
-	//@Override
+	@Override
 	public boolean handleFile(File file) {
 		int dotIndex = file.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
