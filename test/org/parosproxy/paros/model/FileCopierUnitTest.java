@@ -24,6 +24,7 @@ public class FileCopierUnitTest {
 	@Before
 	public void setUp() throws Exception {
 		fileCopier = new FileCopier();
+		tempFolder.create();
 	}
 
 	@Test
