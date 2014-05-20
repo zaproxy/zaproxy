@@ -58,6 +58,16 @@ public class I18N {
     	}
     	return this.stdMessages.getString(key);
     }
+
+    /**
+     * Gets the String with the given key surrounded by <i>&lt;html&gt;&lt;p&gt; tags.
+     */
+	public String getHtmlWrappedString(String key) {
+		String values = getString(key);
+		if (values == null)
+			return null;
+		return "<html><p>" + values + "</p></html>";
+    }
     
     /**
      * Returns the specified char from the language file. 

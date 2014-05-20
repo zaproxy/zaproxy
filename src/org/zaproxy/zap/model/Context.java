@@ -35,6 +35,9 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType.ManualAuthenticationMethod;
+import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
+import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod;
+import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType.CookieBasedSessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethod;
 
@@ -58,6 +61,9 @@ public class Context {
 	/** The session management method. */
 	private SessionManagementMethod sessionManagementMethod;
 
+	/** The authorization detection method used for this context. */
+	private AuthorizationDetectionMethod authorizationDetectionMethod;
+	
 	private TechSet techSet = new TechSet(Tech.builtInTech);
 	private boolean inScope = true;
 	private ParameterParser urlParamParser = new StandardParameterParser();
@@ -69,6 +75,8 @@ public class Context {
 		this.name = String.valueOf(index);
 		this.sessionManagementMethod = new CookieBasedSessionManagementMethod(index);
 		this.authenticationMethod = new ManualAuthenticationMethod(index);
+		this.authorizationDetectionMethod = new BasicAuthorizationDetectionMethod(null, null, null,
+				LogicalOperator.AND);
 	}
 
 	public boolean isIncludedInScope(SiteNode sn) {
@@ -394,6 +402,24 @@ public class Context {
 	public void setSessionManagementMethod(SessionManagementMethod sessionManagementMethod) {
 		this.sessionManagementMethod = sessionManagementMethod;
 	}
+
+	/**
+	 * Gets the authorization detection method corresponding to this context.
+	 * 
+	 * @return the authorization detection method
+	 */
+	public AuthorizationDetectionMethod getAuthorizationDetectionMethod() {
+		return authorizationDetectionMethod;
+	}
+
+	/**
+	 * Sets the authorization detection method corresponding to this context.
+	 * 
+	 * @param authorizationDetectionMethod the new authorization detectionmethod
+	 */
+	public void setAuthorizationDetectionMethod(AuthorizationDetectionMethod authorizationDetectionMethod) {
+		this.authorizationDetectionMethod = authorizationDetectionMethod;
+	}
 	
 	public ParameterParser getUrlParamParser() {
 		return urlParamParser;
@@ -481,6 +507,7 @@ public class Context {
 		newContext.sessionManagementMethod = this.sessionManagementMethod.clone();
 		newContext.urlParamParser = this.urlParamParser.clone();
 		newContext.postParamParser = this.postParamParser.clone();
+		newContext.authorizationDetectionMethod = this.authorizationDetectionMethod.clone();
 		return newContext;
 	}
 
