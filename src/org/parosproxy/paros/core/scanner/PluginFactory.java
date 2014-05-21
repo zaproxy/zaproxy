@@ -32,10 +32,12 @@
 // ZAP: 2014/01/16 Added skip support functions and changed obsolete collections
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
@@ -106,27 +108,65 @@ public class PluginFactory {
     private void enableDependency(Plugin plugin) {
 
         String[] dependency = plugin.getDependency();
-        if (dependency == null) {
+        if (dependency == null || dependency.length == 0) {
             return;
         }
         
-        for (int i = 0; i < dependency.length; i++) {
-            try {
-                Object obj = mapAllPluginOrderCodeName.get(dependency[i]);
-                if (obj == null) {
-                    continue;
+        List<Plugin> dependencies = new ArrayList<>(dependency.length);
+        if (addAllDependencies(plugin, dependencies)) {
+            for (Plugin dep : dependencies) {
+                if (!dep.isEnabled()) {
+                    dep.setEnabled(true);
                 }
-                
-                Plugin p = (Plugin) obj;
-                p.setEnabled(true);
-                enableDependency(p);
-
-            } catch (Exception e) {
-                // ZAP: Added logging.
-                log.error(e.getMessage(), e);
             }
+        } else {
+            plugin.setEnabled(false);
+            plugin.setAlertThreshold(Plugin.AlertThreshold.OFF);
+            log.warn("Disabled scanner '" + plugin.getName() + "' because of unfulfilled dependencies.");
+        }
+    }
+
+    public boolean hasAllDependenciesAvailable(Plugin plugin) {
+        List<Plugin> deps = new ArrayList<>();
+        return addAllDependencies(plugin, deps);
+    }
+
+    public boolean addAllDependencies(Plugin plugin, List<Plugin> to) {
+        String[] dependencies = plugin.getDependency();
+        if (dependencies == null || dependencies.length == 0) {
+            return true;
         }
 
+        boolean allDepsAvailable = true;
+        List<String> deps = new ArrayList<>(Arrays.asList(dependencies));
+        for (String dependency : deps) {
+            Plugin pluginDep = mapAllPluginOrderCodeName.get(dependency);
+            if (pluginDep == null) {
+                allDepsAvailable = false;
+            } else if (!to.contains(pluginDep)) {
+                to.add(pluginDep);
+                allDepsAvailable &= addAllDependencies(pluginDep, to);
+            }
+        }
+        return allDepsAvailable;
+    }
+
+    public List<Plugin> getDependentPlugins(Plugin plugin) {
+        List<Plugin> dependentPlugins = new ArrayList<>();
+        addDependentPlugins(plugin.getCodeName(), dependentPlugins);
+        return dependentPlugins;
+    }
+
+    private void addDependentPlugins(String pluginName, List<Plugin> to) {
+        for (Plugin plugin : listAllPlugin) {
+            String[] dependencies = plugin.getDependency();
+            if (dependencies != null && dependencies.length != 0) {
+                if (Arrays.asList(dependencies).contains(pluginName) && !to.contains(plugin)) {
+                    to.add(plugin);
+                    addDependentPlugins(plugin.getCodeName(), to);
+                }
+            }
+        }
     }
 
     /**
@@ -369,7 +409,7 @@ public class PluginFactory {
         // note the plugin object checked may not be the exact plugin object stored in the completed list.
         // but the comparison is basing on pluginId (see equals method) so it will work.
         String[] dependency = plugin.getDependency();
-        if (dependency == null) {
+        if (dependency == null || dependency.length == 0) {
             return true;
         }
         
