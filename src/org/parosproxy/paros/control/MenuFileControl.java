@@ -36,9 +36,11 @@
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/08/05 Proper call for starting Session Properties dialog
 // ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
+// ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 
 package org.parosproxy.paros.control;
  
+import java.awt.EventQueue;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -95,6 +97,98 @@ public class MenuFileControl implements SessionListener {
 
 	}
 	
+    public boolean newSession(String fileName) {
+        final Object[] created = { Boolean.TRUE };
+        waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.newSession.wait.dialogue"));
+        control.newSession(fileName, new SessionListener() {
+
+            @Override
+            public void sessionSnapshot(Exception e) {
+            }
+
+            @Override
+            public void sessionSaved(final Exception e) {
+                if (EventQueue.isDispatchThread()) {
+                    if (e == null) {
+                        setTitle();
+                        view.getSiteTreePanel().getTreeSite().setModel(model.getSession().getSiteTree());
+                    } else {
+                        view.showWarningDialog(Constant.messages.getString("menu.file.newSession.error"));
+                        log.error("Error creating session file " + model.getSession().getFileName(), e);
+                        created[0] = Boolean.FALSE;
+                    }
+
+                    if (waitMessageDialog != null) {
+                        waitMessageDialog.setVisible(false);
+                        waitMessageDialog = null;
+                    }
+                } else {
+                    EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            sessionSaved(e);
+                        }
+                    });
+                }
+            }
+
+            @Override
+            public void sessionOpened(File file, Exception e) {
+            }
+        });
+
+        waitMessageDialog.setVisible(true);
+        return created[0] == Boolean.TRUE;
+    }
+    
+    public boolean openSession(String session) {
+        final Object[] opened = { Boolean.TRUE };
+        File sessionFile = new File(session);
+        waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.loadSession"));
+        log.info("opening session file " + sessionFile.getAbsolutePath());
+        control.openSession(sessionFile, new SessionListener() {
+
+            @Override
+            public void sessionSnapshot(Exception e) {
+            }
+
+            @Override
+            public void sessionSaved(Exception e) {
+            }
+
+            @Override
+            public void sessionOpened(final File file, final Exception e) {
+                if (EventQueue.isDispatchThread()) {
+                    if (e != null) {
+                        view.showWarningDialog(Constant.messages.getString("menu.file.openSession.error"));
+                        log.error("error opening session file " + model.getSession().getFileName(), e);
+                        opened[0] = Boolean.FALSE;
+                    }
+
+                    view.getSiteTreePanel().getTreeSite().setModel(model.getSession().getSiteTree());
+                    setTitle();
+
+                    if (waitMessageDialog != null) {
+                        waitMessageDialog.setVisible(false);
+                        waitMessageDialog = null;
+                    }
+                } else {
+                    EventQueue.invokeLater(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            sessionOpened(file, e);
+                        }
+                    });
+                }
+            }
+        });
+        waitMessageDialog.setVisible(true);
+        
+        return opened[0] == Boolean.TRUE;
+    }
+
 	public void openSession() {
 		JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
 		File file = null;
