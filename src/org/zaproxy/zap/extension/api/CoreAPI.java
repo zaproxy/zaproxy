@@ -23,6 +23,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.security.cert.Certificate;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
@@ -201,18 +204,24 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			thread.start();
 
 		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
-			File file = new File(SessionUtils.getSessionPath(params.getString(PARAM_SESSION)));
-			String filename = file.getAbsolutePath();
+			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
+			if (!sessionPath.isAbsolute()) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
+			}
+			String filename = sessionPath.toAbsolutePath().toString();
 			
 			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
 			
 			boolean sameSession = false;
 			if (!session.isNewState()) {
-				final File fileCurrentSession = new File(session.getFileName());
-				sameSession = fileCurrentSession.getAbsolutePath().equals(file.getAbsolutePath());
+				try {
+					sameSession = Files.isSameFile(Paths.get(session.getFileName()), sessionPath);
+				} catch (IOException e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
 			}
 			
-			if (file.exists() && (!overwrite || sameSession)) {
+			if (Files.exists(sessionPath) && (!overwrite || sameSession)) {
 				throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 						filename);
 			}
@@ -269,10 +278,13 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 			
 		} else if (ACTION_LOAD_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
-			File file = new File(SessionUtils.getSessionPath(params.getString(PARAM_SESSION)));
-			String filename = file.getAbsolutePath();
+			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
+			if (!sessionPath.isAbsolute()) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
+			}
+			String filename = sessionPath.toAbsolutePath().toString();
 
-			if (!file.exists()) {
+			if (!Files.exists(sessionPath)) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, filename);
 			}
 			try {
@@ -300,12 +312,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				}
 				Control.getSingleton().newSession();
 			} else {
-				File file = new File(SessionUtils.getSessionPath(sessionName));
-				String filename = file.getAbsolutePath();
+				Path sessionPath = SessionUtils.getSessionPath(sessionName);
+				if (!sessionPath.isAbsolute()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
+				}
+				String filename = sessionPath.toAbsolutePath().toString();
 				
 				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
 				
-				if (file.exists() && !overwrite) {
+				if (Files.exists(sessionPath) && !overwrite) {
 					throw new ApiException(ApiException.Type.ALREADY_EXISTS,
 							filename);
 				}

@@ -19,9 +19,8 @@
  */
 package org.zaproxy.zap.model;
 
-import java.io.File;
-
-import org.parosproxy.paros.model.Model;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * Helper class with utility methods for ZAP {@code Session}s.
@@ -35,20 +34,15 @@ public final class SessionUtils {
     private SessionUtils() {
     }
 
-    public static String getSessionPath(String session) {
-        String sessionPath = getNormalisedSessionPath(session);
-        File file = new File(sessionPath);
-        if (!sessionPath.equals(file.getAbsolutePath())) {
-            // Treat as a relative path
-            sessionPath = Model.getSingleton().getOptionsParam().getUserDirectory() + File.separator + sessionPath;
-        }
-        return sessionPath;
+    public static Path getSessionPath(String session) {
+        String normalisedSession = getNormalisedSessionName(session);
+        return Paths.get(normalisedSession);
     }
 
-    private static String getNormalisedSessionPath(String sessionPath) {
-        if (!sessionPath.endsWith(SESSION_EXTENSION)) {
-            return sessionPath + SESSION_EXTENSION;
+    private static String getNormalisedSessionName(String session) {
+        if (!session.endsWith(SESSION_EXTENSION)) {
+            return session + SESSION_EXTENSION;
         }
-        return sessionPath;
+        return session;
     }
 }

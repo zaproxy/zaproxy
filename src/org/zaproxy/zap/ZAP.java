@@ -22,7 +22,7 @@ package org.zaproxy.zap;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.Locale;
 
@@ -402,18 +402,30 @@ public class ZAP {
                             CommandLine.SESSION,
                             CommandLine.NEW_SESSION));
         } else if (cmdLine.isEnabled(CommandLine.SESSION)) {
-            String filePath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.SESSION));
-            if (!Files.exists(Paths.get(filePath))) {
-                View.getSingleton().showWarningDialog(Constant.messages.getString("start.gui.cmdline.session.does.not.exist"));
+            Path sessionPath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.SESSION));
+            if (!sessionPath.isAbsolute()) {
+                View.getSingleton().showWarningDialog(
+                        Constant.messages.getString("start.gui.cmdline.session.absolute.path.required"));
             } else {
-                createNewSession = !control.getMenuFileControl().openSession(filePath);
+                if (!Files.exists(sessionPath)) {
+                    View.getSingleton().showWarningDialog(
+                            Constant.messages.getString("start.gui.cmdline.session.does.not.exist"));
+                } else {
+                    createNewSession = !control.getMenuFileControl().openSession(sessionPath.toAbsolutePath().toString());
+                }
             }
         } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
-            String filePath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.NEW_SESSION));
-            if (Files.exists(Paths.get(filePath))) {
-                View.getSingleton().showWarningDialog(Constant.messages.getString("start.gui.cmdline.newsession.already.exist"));
+            Path sessionPath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.NEW_SESSION));
+            if (!sessionPath.isAbsolute()) {
+                View.getSingleton().showWarningDialog(
+                        Constant.messages.getString("start.gui.cmdline.session.absolute.path.required"));
             } else {
-                createNewSession = !control.getMenuFileControl().newSession(filePath);
+                if (Files.exists(sessionPath)) {
+                    View.getSingleton().showWarningDialog(
+                            Constant.messages.getString("start.gui.cmdline.newsession.already.exist"));
+                } else {
+                    createNewSession = !control.getMenuFileControl().newSession(sessionPath.toAbsolutePath().toString());
+                }
             }
         }
 
@@ -473,29 +485,39 @@ public class ZAP {
         }
 
         if (cmdLine.isEnabled(CommandLine.SESSION)) {
-            String session = cmdLine.getArgument(CommandLine.SESSION);
-            String filePath = SessionUtils.getSessionPath(session);
+            Path sessionPath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.SESSION));
+            if (!sessionPath.isAbsolute()) {
+                System.err.println("Error: Invalid command line value: option '" + CommandLine.SESSION
+                        + "' requires an absolute path");
+                return false;
+            }
+            String absolutePath = sessionPath.toAbsolutePath().toString();
             try {
-                control.runCommandLineOpenSession(filePath);
+                control.runCommandLineOpenSession(absolutePath);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                System.err.println("Failed to open session: " + filePath);
+                System.err.println("Failed to open session: " + absolutePath);
                 e.printStackTrace(System.err);
                 return false;
             }
         } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
-            String session = cmdLine.getArgument(CommandLine.NEW_SESSION);
-            String filePath = SessionUtils.getSessionPath(session);
-            if (Files.exists(Paths.get(filePath))) {
-                System.err.println("Failed to create a new session, file already exists: " + filePath);
+            Path sessionPath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.NEW_SESSION));
+            if (!sessionPath.isAbsolute()) {
+                System.err.println("Error: Invalid command line value: option '" + CommandLine.NEW_SESSION
+                        + "' requires an absolute path");
+                return false;
+            }
+            String absolutePath = sessionPath.toAbsolutePath().toString();
+            if (Files.exists(sessionPath)) {
+                System.err.println("Failed to create a new session, file already exists: " + absolutePath);
                 return false;
             }
 
             try {
-                control.runCommandLineNewSession(session);
+                control.runCommandLineNewSession(sessionPath.toAbsolutePath().toString());
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
-                System.err.println("Failed to create a new session: " + session);
+                System.err.println("Failed to create a new session: " + absolutePath);
                 e.printStackTrace(System.err);
                 return false;
             }
