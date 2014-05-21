@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
@@ -9,7 +10,6 @@
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
-  <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
   <manifest></manifest>
   <icon>..\..\src\resource\zap.ico</icon>
@@ -19,20 +19,22 @@
   </classPath>
   <jre>
     <path></path>
+    <bundledJre64Bit>false</bundledJre64Bit>
     <minVersion>1.7.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJdk</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
     <maxHeapSize>512</maxHeapSize>
     <maxHeapPercent>25</maxHeapPercent>
     <opt>-XX:PermSize=256M</opt>
   </jre>
   <versionInfo>
-    <fileVersion>2.3.0.0</fileVersion>
-    <txtFileVersion>2.3.0</txtFileVersion>
+    <fileVersion>2.3.1.0</fileVersion>
+    <txtFileVersion>2.3.1</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>The OWASP Zed Attack Proxy Project</copyright>
-    <productVersion>2.3.0.0</productVersion>
-    <txtProductVersion>2.3.0</txtProductVersion>
+    <productVersion>2.3.1.0</productVersion>
+    <txtProductVersion>2.3.1</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName>OWASP</companyName>
     <internalName>ZAP</internalName>
