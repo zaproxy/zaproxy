@@ -514,7 +514,7 @@ public class ZAP {
             }
 
             try {
-                control.runCommandLineNewSession(sessionPath.toAbsolutePath().toString());
+                control.runCommandLineNewSession(absolutePath);
             } catch (Exception e) {
                 log.error(e.getMessage(), e);
                 System.err.println("Failed to create a new session: " + absolutePath);
