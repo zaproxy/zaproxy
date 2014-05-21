@@ -272,7 +272,6 @@ public class Control extends AbstractControl implements SessionListener {
 		Model.getSingleton().saveSession(fileName);
 	    log.info("New session file created");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
-		getExtensionLoader().runCommandLine();
 	}
     
     public void runCommandLineOpenSession(String fileName) {

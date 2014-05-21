@@ -57,7 +57,7 @@ public class AddOn  {
 	private List<String> pscanrules = null;
 	private List<String> files = null;
 	
-	private Logger logger = Logger.getLogger(AddOn.class);
+	private static final Logger logger = Logger.getLogger(AddOn.class);
 	
 	public static boolean isAddOn(String fileName) {
 		if (! fileName.toLowerCase().endsWith(".zap")) {
