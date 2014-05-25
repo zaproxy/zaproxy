@@ -33,6 +33,7 @@
 // ZAP: 2013/11/16 Issue 892: Cache of response body length in HistoryReference might not be correct
 // ZAP: 2014/04/10 Changed to use HttpMessageCachedData and expose the cached data
 // ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
+// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 
 package org.parosproxy.paros.model;
 

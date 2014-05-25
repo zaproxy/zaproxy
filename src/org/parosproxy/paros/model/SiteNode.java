@@ -37,6 +37,7 @@
 // ZAP: 2014/04/10 Do not allow to set the parent node as itself
 // ZAP: 2014/04/10 Issue 1118: Alerts Tab can get out of sync
 // ZAP: 2014/05/05 Issue 1181: Vulnerable pages active scanned only once
+// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 
 package org.parosproxy.paros.model;
 
