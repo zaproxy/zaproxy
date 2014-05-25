@@ -85,6 +85,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 			tableTest.setModel(getCategoryTableModel());
 			tableTest.setRowHeight(18);
 			tableTest.setIntercellSpacing(new java.awt.Dimension(1,1));
+            tableTest.setAutoCreateRowSorter(true);
 	        for (int i = 0; i < 3; i++) {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
