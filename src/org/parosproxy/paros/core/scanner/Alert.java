@@ -34,6 +34,7 @@
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
 // ZAP: 2013/11/16 Issue 866: Alert keeps HttpMessage longer than needed when HistoryReference is set/available
 // ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
+// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 
 package org.parosproxy.paros.core.scanner;
 
@@ -59,18 +60,45 @@ public class Alert implements Comparable<Object>  {
 
 	// ZAP: Added FALSE_POSITIVE
 	public static final int FALSE_POSITIVE = 0;
+	/**
+	 * @deprecated
+	 * SUSPICIOUS reliability has been deprecated in favour of using LOW confidence
+	 */
+	@Deprecated
 	public static final int SUSPICIOUS = 1;
+	public static final int LOW = 1;
+	/**
+	 * @deprecated
+	 * WARNING reliability has been deprecated in favour of using MEDIUM confidence
+	 */
+	@Deprecated
 	public static final int WARNING = 2;
+	public static final int MEDIUM = 2;
+	public static final int HIGH = 3;
+	public static final int CONFIRMED = 4;
 	
 	public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
 	// ZAP: Added "false positive"
-	public static final String[] MSG_RELIABILITY = {"False Positive", "Suspicious", "Warning"};
+	/**
+	 * @deprecated
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
+	public static final String[] MSG_RELIABILITY = {"False Positive", "Low", "Medium", "High", "Confirmed"};
+	public static final String[] MSG_CONFIDENCE = {"False Positive", "Low", "Medium", "High", "Confirmed"};
+	
 	
 	private int		alertId = -1;	// ZAP: Changed default alertId
 	private int		pluginId = 0;
 	private String 	alert = "";
 	private int risk = RISK_INFO;
-	private int reliability = WARNING;
+	/**
+	 * @deprecated
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
+	private int reliability = MEDIUM;
+	private int confidence = MEDIUM;
 	private String 	description = "";
 	private String 	uri = "";
 	private String 	param = "";
@@ -98,14 +126,14 @@ public class Alert implements Comparable<Object>  {
 		
 	}
 	
-	public Alert(int pluginId, int risk, int reliability, String alert) {
+	public Alert(int pluginId, int risk, int confidence, String alert) {
 		this(pluginId);
-		setRiskReliability(risk, reliability);
+		setRiskConfidence(risk, confidence);
 		setAlert(alert);
 	}
 
 	public Alert(RecordAlert recordAlert) {
-	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getReliability(), recordAlert.getAlert());
+	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
         try {
@@ -128,7 +156,7 @@ public class Alert implements Comparable<Object>  {
 	}
 	
 	public Alert(RecordAlert recordAlert, HistoryReference ref) {
-	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getReliability(), recordAlert.getAlert());
+	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
         setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
@@ -138,10 +166,19 @@ public class Alert implements Comparable<Object>  {
         		null);
         setHistoryRef(ref);
 	}
-
-	public void setRiskReliability(int risk, int reliability) {
+	/**
+	 * @deprecated
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
+	public void setRiskReliability(int risk, int confidence) {
 		this.risk = risk;
-		this.reliability = reliability;
+		this.confidence = confidence;
+	}
+	
+	public void setRiskConfidence(int risk, int confidence) {
+		this.risk = risk;
+		this.confidence = confidence;
 	}
 	
 	public void setAlert(String alert) {
@@ -256,9 +293,9 @@ public class Alert implements Comparable<Object>  {
 			return 1;
 		}
 		
-		if (reliability < alert2.reliability) {
+		if (confidence < alert2.confidence) {
 			return -1;
-		} else if (reliability > alert2.reliability) {
+		} else if (confidence > alert2.confidence) {
 			return 1;
 		}
 		
@@ -304,7 +341,7 @@ public class Alert implements Comparable<Object>  {
 	*/
 	public Alert newInstance() {
 		Alert item = new Alert(this.pluginId);
-		item.setRiskReliability(this.risk, this.reliability);
+		item.setRiskConfidence(this.risk, this.confidence);
 		item.setAlert(this.alert);
 		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.historyRef);
 		return item;
@@ -316,8 +353,8 @@ public class Alert implements Comparable<Object>  {
 		sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
 		sb.append("  <alert>").append(alert).append("</alert>\r\n");
 		sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
-		sb.append("  <reliability>").append(reliability).append("</reliability>\r\n");
-		sb.append("  <riskdesc>").append(replaceEntity(MSG_RISK[risk] + " (" + MSG_RELIABILITY[reliability] + ")")).append("</riskdesc>\r\n");
+		sb.append("  <confidence>").append(confidence).append("</confidence>\r\n");
+		sb.append("  <riskdesc>").append(replaceEntity(MSG_RISK[risk] + " (" + MSG_CONFIDENCE[confidence] + ")")).append("</riskdesc>\r\n");
         sb.append("  <desc>").append(paragraph(replaceEntity(description))).append("</desc>\r\n");
 
         sb.append(urls);
@@ -418,11 +455,21 @@ public class Alert implements Comparable<Object>  {
         return reference;
     }
     /**
+     * @deprecated
      * @return Returns the reliability.
      */
+    @Deprecated
     public int getReliability() {
-        return reliability;
+        return confidence;
     }
+    
+    /**
+     * @return Returns the confidence.
+     */
+    public int getConfidence() {
+        return confidence;
+    }
+    
     /**
      * @return Returns the risk.
      */
@@ -431,7 +478,8 @@ public class Alert implements Comparable<Object>  {
     }
     
     public URL getIconUrl() {
-    	if (reliability == Alert.FALSE_POSITIVE) {
+    	//TODO: Shouldn't be necessary to check both but let's be careful
+    	if (reliability == Alert.FALSE_POSITIVE || confidence == Alert.FALSE_POSITIVE) {
     		// Special case - theres no risk - use the green flag
 			return Constant.OK_FLAG_IMAGE_URL;
     	}
@@ -553,5 +601,3 @@ public class Alert implements Comparable<Object>  {
 	}
     
 }	
-
-

@@ -70,7 +70,7 @@ public class AlertViewPanel extends AbstractPanel {
 	private ZapTextField alertUrl = null;
 	private JLabel alertName = null;
 	private JLabel alertRisk = null;
-	private JLabel alertReliability = null;
+	private JLabel alertConfidence = null;
 	private JLabel alertParam = null;
 	private JLabel alertAttack = null;
 	private JLabel alertEvidence = null;
@@ -83,7 +83,7 @@ public class AlertViewPanel extends AbstractPanel {
 	
 	private JComboBox<String> alertEditName = null;
 	private JComboBox<String> alertEditRisk = null;
-	private JComboBox<String> alertEditReliability = null;
+	private JComboBox<String> alertEditConfidence = null;
 	private JComboBox<String> alertEditParam = null;
 	private ZapTextField alertEditAttack = null;
 	private ZapTextField alertEditEvidence = null;
@@ -212,8 +212,8 @@ public class AlertViewPanel extends AbstractPanel {
 			});
 
 			alertEditRisk = new JComboBox<>(Alert.MSG_RISK);
-			alertEditReliability = new JComboBox<>(Alert.MSG_RELIABILITY);
-			alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[Alert.SUSPICIOUS]);
+			alertEditConfidence = new JComboBox<>(Alert.MSG_CONFIDENCE);
+			alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[Alert.MEDIUM]);
 			alertEditAttack = new ZapTextField();
 			
 			paramListModel = new DefaultComboBoxModel<>();
@@ -232,7 +232,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertName.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
 
 			alertRisk = new JLabel();
-			alertReliability = new JLabel();
+			alertConfidence = new JLabel();
 			alertParam = new JLabel();
 			alertAttack = new JLabel();
 			alertEvidence = new JLabel();
@@ -306,10 +306,10 @@ public class AlertViewPanel extends AbstractPanel {
 						LayoutHelper.getGBC(0, 2, 1, 0.25D, new Insets(1,1,1,1)));
 				alertDisplay.add(alertEditRisk, 
 						LayoutHelper.getGBC(1, 2, 1, 0.75D, new Insets(1,1,1,1)));
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")),
+				// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.confidence")),
 						LayoutHelper.getGBC(0, 3, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertEditReliability, 
+				alertDisplay.add(alertEditConfidence, 
 						LayoutHelper.getGBC(1, 3, 1, 0.75D, new Insets(1,1,1,1)));
 				
 				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")),
@@ -351,10 +351,10 @@ public class AlertViewPanel extends AbstractPanel {
 						LayoutHelper.getGBC(0, 2, 1, 0.25D, new Insets(1,1,1,1)));
 				alertDisplay.add(alertRisk, 
 						LayoutHelper.getGBC(1, 2, 1, 0.75D, new Insets(1,1,1,1)));
-				
-				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.reliability")), 
+				// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence
+				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.confidence")), 
 						LayoutHelper.getGBC(0, 3, 1, 0.25D, new Insets(1,1,1,1)));
-				alertDisplay.add(alertReliability,
+				alertDisplay.add(alertConfidence,
 						LayoutHelper.getGBC(1, 3, 1, 0.75D, new Insets(1,1,1,1)));
 				
 				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.parameter")), 
@@ -405,7 +405,7 @@ public class AlertViewPanel extends AbstractPanel {
 			nameListModel.addElement(alert.getAlert());
 			alertEditName.setSelectedItem(alert.getAlert());
 			alertEditRisk.setSelectedItem(Alert.MSG_RISK[alert.getRisk()]);
-			alertEditReliability.setSelectedItem(Alert.MSG_RELIABILITY[alert.getReliability()]);
+			alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 			alertEditParam.setSelectedItem(alert.getParam());
 			alertEditAttack.setText(alert.getAttack());
 			alertEditAttack.discardAllEdits();
@@ -418,14 +418,15 @@ public class AlertViewPanel extends AbstractPanel {
 			alertName.setText(alert.getAlert());
 	
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
-	    	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+			// TODO: Shouldn't really need to check both, but lets be overly cautious
+	    	if (alert.getConfidence() == Alert.FALSE_POSITIVE || alert.getReliability() == Alert.FALSE_POSITIVE) {
 	    		// Special case - theres no risk - use the green flag
 				alertRisk.setIcon(new ImageIcon(Constant.OK_FLAG_IMAGE_URL));
 	    	} else {
 				alertRisk.setIcon(new ImageIcon(alert.getIconUrl()));
 	    	}
 			
-			alertReliability.setText(Alert.MSG_RELIABILITY[alert.getReliability()]);
+			alertConfidence.setText(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
 			alertEvidence.setText(alert.getEvidence());
@@ -450,7 +451,7 @@ public class AlertViewPanel extends AbstractPanel {
 
         alertName.setText("");
         alertRisk.setText("");
-        alertReliability.setText("");
+        alertConfidence.setText("");
         alertParam.setText("");
         alertAttack.setText("");
         alertDescription.setText("");
@@ -532,8 +533,8 @@ public class AlertViewPanel extends AbstractPanel {
 			alert.setAlertId(originalAlert.getAlertId());
 			alert.setAlert((String)alertEditName.getSelectedItem());
 			alert.setParam((String)alertEditParam.getSelectedItem());
-			alert.setRiskReliability(alertEditRisk.getSelectedIndex(), 
-					alertEditReliability.getSelectedIndex());
+			alert.setRiskConfidence(alertEditRisk.getSelectedIndex(), 
+					alertEditConfidence.getSelectedIndex());
 			alert.setDescription(alertDescription.getText());
 			alert.setOtherInfo(alertOtherInfo.getText());
 			alert.setSolution(alertSolution.getText());
@@ -547,7 +548,7 @@ public class AlertViewPanel extends AbstractPanel {
 		}
 		
 		Alert alert = new Alert(-1, alertEditRisk.getSelectedIndex(), 
-				alertEditReliability.getSelectedIndex(), (String) alertEditName.getSelectedItem());
+				alertEditConfidence.getSelectedIndex(), (String) alertEditName.getSelectedItem());
 		alert.setHistoryRef(historyRef);
 		if (originalAlert != null) {
 			alert.setAlertId(originalAlert.getAlertId());

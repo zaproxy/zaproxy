@@ -105,7 +105,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 						s.scan(this, msg, param, value);
 						
 					} else {
-						writer.append(Constant.messages.getString("scripts.interface.passive.error"));
+						writer.append(Constant.messages.getString("scripts.interface.active.error"));
 						extension.setError(script, writer.toString());
 						extension.setEnabled(script, false);
 					}
@@ -138,10 +138,10 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     	super.sendAndReceive(msg, isFollowRedirect, handleAntiCSRF);
     }
 
-	public void raiseAlert(int risk, int reliability, String name, String description, String uri, 
+	public void raiseAlert(int risk, int confidence, String name, String description, String uri, 
 			String param, String attack, String otherInfo, String solution, String evidence, 
 			int cweId, int wascId, HttpMessage msg) {
-		super.bingo(risk, reliability, name, description, uri, param, attack, 
+		super.bingo(risk, confidence, name, description, uri, param, attack, 
 				otherInfo, solution, evidence, cweId, wascId, msg);
 	}
 

@@ -835,7 +835,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("alert", alert.getAlert());
 		map.put("description", alert.getDescription());
 		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
-		map.put("reliability", Alert.MSG_RELIABILITY[alert.getReliability()]);
+		map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 		map.put("url", alert.getUri());
 		map.put("other", alert.getOtherInfo());
 		map.put("param", alert.getParam());
@@ -864,7 +864,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				RecordAlert recAlert = tableAlert.read(alertId);
 				Alert alert = new Alert(recAlert);
 
-				if (alert.getReliability() != Alert.FALSE_POSITIVE
+				if (alert.getConfidence() != Alert.FALSE_POSITIVE
 						&& !alerts.contains(alert)) {
 					if (baseUrl != null && ! alert.getUri().startsWith(baseUrl)) {
 						// Not subordinate to the specified URL

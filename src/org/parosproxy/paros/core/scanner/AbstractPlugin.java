@@ -281,16 +281,16 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * name, description, solution of this Plugin will be used.
      *
      * @param risk
-     * @param reliability
+     * @param confidence
      * @param uri
      * @param param
      * @param otherInfo
      * @param msg
      */
-    protected void bingo(int risk, int reliability, String uri, String param, String attack, String otherInfo,
+    protected void bingo(int risk, int confidence, String uri, String param, String attack, String otherInfo,
             HttpMessage msg) {
         
-        bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(),
+        bingo(risk, confidence, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(),
                 msg);
     }
 
@@ -299,7 +299,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * alert name, description and solution will be used.
      *
      * @param risk
-     * @param reliability
+     * @param confidence
      * @param name
      * @param description
      * @param uri
@@ -308,13 +308,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param solution
      * @param msg
      */
-    protected void bingo(int risk, int reliability, String name, String description, String uri,
+    protected void bingo(int risk, int confidence, String name, String description, String uri,
             String param, String attack, String otherInfo, String solution,
             HttpMessage msg) {
         
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
         
-        Alert alert = new Alert(this.getId(), risk, reliability, name);
+        Alert alert = new Alert(this.getId(), risk, confidence, name);
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();
         }
@@ -334,16 +334,16 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * name, description, solution of this Plugin will be used.
      *
      * @param risk
-     * @param reliability
+     * @param confidence
      * @param uri
      * @param param
      * @param otherInfo
      * @param msg
      */
-    protected void bingo(int risk, int reliability, String uri, String param, String attack, String otherInfo,
+    protected void bingo(int risk, int confidence, String uri, String param, String attack, String otherInfo,
             String evidence, HttpMessage msg) {
         
-        bingo(risk, reliability, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(),
+        bingo(risk, confidence, this.getName(), this.getDescription(), uri, param, attack, otherInfo, this.getSolution(),
                 evidence, msg);
     }
 
@@ -352,7 +352,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * alert name, description and solution will be used.
      *
      * @param risk
-     * @param reliability
+     * @param confidence
      * @param name
      * @param description
      * @param uri
@@ -361,12 +361,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param solution
      * @param msg
      */
-    protected void bingo(int risk, int reliability, String name, String description, String uri,
+    protected void bingo(int risk, int confidence, String name, String description, String uri,
             String param, String attack, String otherInfo, String solution,
             String evidence, HttpMessage msg) {
         
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
-        Alert alert = new Alert(this.getId(), risk, reliability, name);
+        Alert alert = new Alert(this.getId(), risk, confidence, name);
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();
         }
@@ -381,12 +381,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.alertFound(alert);
     }
 
-    protected void bingo(int risk, int reliability, String name, String description, String uri,
+    protected void bingo(int risk, int confidence, String name, String description, String uri,
             String param, String attack, String otherInfo, String solution,
             String evidence, int cweId, int wascId, HttpMessage msg) {
        
         log.debug("New alert pluginid=" + +this.getId() + " " + name + " uri=" + uri);
-        Alert alert = new Alert(this.getId(), risk, reliability, name);
+        Alert alert = new Alert(this.getId(), risk, confidence, name);
         
         if (uri == null || uri.equals("")) {
             uri = msg.getRequestHeader().getURI().toString();

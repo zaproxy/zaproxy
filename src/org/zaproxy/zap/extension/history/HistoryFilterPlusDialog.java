@@ -73,7 +73,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JList<String> methodList = null;
 	private JList<Integer> codeList = null;
 	private JList<String> riskList = null;
-	private JList<String> reliabilityList = null;
+	private JList<String> confidenceList = null;
 	private JList<String> tagList = null;
 	private JTextArea regexInc = null;
 	private JTextArea regexExc = null;
@@ -84,7 +84,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JScrollPane codeScroller = null;
 	private JScrollPane tagScroller = null;
 	private JScrollPane riskScroller = null;
-	private JScrollPane reliabilityScroller = null;
+	private JScrollPane confidenceScroller = null;
 	private JComboBox<String> notesComboBox = null;
 	private JScrollPane urlRegxIncScroller = null;
 	private JScrollPane urlRegxExcScroller = null;
@@ -100,9 +100,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	 *      | |          | |     | |           | +---------------+ +-------------+ |
 	 *      | |          | |     | |           | +---------------+ Exc URL Regexes |
 	 *      | |          | |     | |           | | False Positive| +-------------+ |
-	 *      | |          | |     | |           | | Suspicious    | |             | |
-	 *      | |          | |     | |           | | Warning       | |             | |
-	 *      | |          | |     | |           | |               | |             | |
+	 *      | |          | |     | |           | | Low           | |             | |
+	 *      | |          | |     | |           | | Medium        | |             | |
+	 *      | |          | |     | |           | | High          | |             | |
+	 *      | |          | |     | |           | | Confirmed     | |             | |
 	 *      | +----------+ +-----+ +-----------+ +---------------+ +-------------+ |
 	 *      | Notes [Ignore [v]]    Images [Include [v]]                           |
 	 *      |                      [ Cancel ] [Clear ] [Apply ]                    |
@@ -232,7 +233,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 						filter.setCodes(codeList.getSelectedValuesList());
 						filter.setTags(tagList.getSelectedValuesList());
 						filter.setRisks(riskList.getSelectedValuesList());
-						filter.setReliabilities(reliabilityList.getSelectedValuesList());
+						filter.setReliabilities(confidenceList.getSelectedValuesList());
 						filter.setNote(notesComboBox.getSelectedItem());
 						filter.setUrlIncPatternList(strToRegexList(regexInc.getText()));
 						filter.setUrlExcPatternList(strToRegexList(regexExc.getText()));
@@ -327,7 +328,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 					codeList.setSelectedIndices(new int[0]);
 					tagList.setSelectedIndices(new int[0]);
 					riskList.setSelectedIndices(new int[0]);
-					reliabilityList.setSelectedIndices(new int[0]);
+					confidenceList.setSelectedIndices(new int[0]);
 					notesComboBox.setSelectedItem(HistoryFilter.NOTES_IGNORE);
 					regexInc.setText("");
 					regexExc.setText("");
@@ -392,7 +393,7 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 
 			jPanel2.add(new JLabel(Constant.messages.getString("history.filter.label.urlexcregex")), gbc24);
 
-			jPanel2.add(getReliabilityScroller(), gbc33);
+			jPanel2.add(getConfidenceScroller(), gbc33);
 			jPanel2.add(getUrlRegxExcScroller(), gbc34);
 			getUrlRegxExcScroller();
 
@@ -442,15 +443,15 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 		return riskScroller;
 	}
 	
-	private JScrollPane getReliabilityScroller() {
-		if (reliabilityScroller == null) {
-			reliabilityList = new JList<>(Alert.MSG_RELIABILITY);
-			reliabilityList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			reliabilityList.setLayoutOrientation(JList.VERTICAL);
-			reliabilityList.setVisibleRowCount(Alert.MSG_RELIABILITY.length);
-			reliabilityScroller = new JScrollPane(reliabilityList);
+	private JScrollPane getConfidenceScroller() {
+		if (confidenceScroller == null) {
+			confidenceList = new JList<>(Alert.MSG_CONFIDENCE);
+			confidenceList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+			confidenceList.setLayoutOrientation(JList.VERTICAL);
+			confidenceList.setVisibleRowCount(Alert.MSG_CONFIDENCE.length);
+			confidenceScroller = new JScrollPane(confidenceList);
 		}
-		return reliabilityScroller;
+		return confidenceScroller;
 	}
 	
 	private JScrollPane getUrlRegxIncScroller() {

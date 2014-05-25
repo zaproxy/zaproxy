@@ -19,11 +19,11 @@ function scan(as, msg, param, value) {
 	
 	// Test the response here, and make other requests as required
 	if (true) {	// Change to a test which detects the vulnerability
-		// raiseAlert(risk, int reliability, String name, String description, String uri, 
+		// raiseAlert(risk, int confidence, String name, String description, String uri, 
 		//		String param, String attack, String otherInfo, String solution, String evidence, 
 		//		int cweId, int wascId, HttpMessage msg)
 		// risk: 0: info, 1: low, 2: medium, 3: high
-		// reliability: 0: falsePassitive, 1: suspicious, 2: warning
+		// confidence: 0: falsePassitive, 1: low, 2: medium, 3: high, 4: confirmed
 		as.raiseAlert(1, 1, 'Active Vulnerability title', 'Full description', 
 		msg.getRequestHeader().getURI().toString(), 
 			param, 'Your attack', 'Any other info', 'The solution ', '', 0, 0, msg);

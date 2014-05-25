@@ -39,7 +39,7 @@ public class HistoryFilter {
 	private List<String> methodList = new ArrayList<>();
 	private List<Integer> codeList = new ArrayList<>();
 	private List<String> riskList = new ArrayList<>();
-	private List<String> reliabilityList = new ArrayList<>();
+	private List<String> confidenceList = new ArrayList<>();
 	private List<String> tagList = new ArrayList<>();
 	private String note = null;
 	private List<Pattern> urlIncPatternList = new ArrayList<>();
@@ -64,8 +64,8 @@ public class HistoryFilter {
 		riskList.addAll(risks);
 	}
 	public void setReliabilities(List<String> reliabilities) {
-		reliabilityList.clear();
-		reliabilityList.addAll(reliabilities);
+		confidenceList.clear();
+		confidenceList.addAll(reliabilities);
 	}
 	
 	public void reset () {
@@ -73,7 +73,7 @@ public class HistoryFilter {
 		this.codeList.clear();
 		this.tagList.clear();
 		this.riskList.clear();
-		this.reliabilityList.clear();
+		this.confidenceList.clear();
 		this.note = null;
 	}
 	
@@ -101,12 +101,12 @@ public class HistoryFilter {
 			}
 			boolean foundAlert = false;
 			List <Alert> historyAlerts = historyRef.getAlerts();
-			if (riskList.size() > 0 || reliabilityList.size() > 0) {
+			if (riskList.size() > 0 || confidenceList.size() > 0) {
 				for (Alert alert: historyAlerts) {
 					if ((riskList.size() == 0 || 
 							riskList.contains(Alert.MSG_RISK[alert.getRisk()])) &&
-						(reliabilityList.size() == 0 ||
-							reliabilityList.contains(Alert.MSG_RELIABILITY[alert.getReliability()]))) {
+						(confidenceList.size() == 0 ||
+								confidenceList.contains(Alert.MSG_CONFIDENCE[alert.getConfidence()]))) {
 						foundAlert = true;
 					}
 				}
@@ -182,7 +182,7 @@ public class HistoryFilter {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.tags"));
 		}
-		if (riskList.size() > 0 || reliabilityList.size() > 0) {
+		if (riskList.size() > 0 || confidenceList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
 				sb.append(' ');
@@ -286,7 +286,7 @@ public class HistoryFilter {
 				sb.append(' ');
 			}
 		}
-		if (riskList.size() > 0 || reliabilityList.size() > 0) {
+		if (riskList.size() > 0 || confidenceList.size() > 0) {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.alerts"));
 			sb.append(": ");
@@ -294,7 +294,7 @@ public class HistoryFilter {
 				sb.append(risk);
 				sb.append(' ');
 			}
-			for (String rel : reliabilityList) {
+			for (String rel : confidenceList) {
 				sb.append(rel);
 				sb.append(' ');
 			}

@@ -44,7 +44,7 @@ class AlertTreeModel extends DefaultTreeModel {
     
     private String getRiskString (Alert alert) {
     	// Note that the number comments are to ensure the right ordering in the tree :)
-    	if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+    	if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
     		return "<html><!--5--><img src=\"" + Constant.OK_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
     	}
 		return "<html><!--" + (5 - alert.getRisk()) + "--><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
@@ -141,7 +141,7 @@ class AlertTreeModel extends DefaultTreeModel {
     
     private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
-        if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+        if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }
@@ -160,7 +160,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private AlertNode findAndAddLeaf(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
-        if (alert.getReliability() == Alert.FALSE_POSITIVE) {
+        if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }

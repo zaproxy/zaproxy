@@ -260,7 +260,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             scanId = recordScan.getScanId();
         }
         RecordAlert recordAlert = tableAlert.write(
-                scanId, alert.getPluginId(), alert.getAlert(), alert.getRisk(), alert.getReliability(),
+                scanId, alert.getPluginId(), alert.getAlert(), alert.getRisk(), alert.getConfidence(),
                 alert.getDescription(), alert.getUri(), alert.getParam(), alert.getAttack(),
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(),
@@ -282,7 +282,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(),
-                alert.getReliability(), alert.getDescription(), alert.getUri(),
+                alert.getConfidence(), alert.getDescription(), alert.getUri(),
                 alert.getParam(), alert.getAttack(), alert.getOtherInfo(), alert.getSolution(), alert.getReference(), 
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(), alert.getSourceHistoryId());
     }
@@ -587,7 +587,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
         for (Alert alert : alerts) {
-            if (alert.getReliability() != Alert.FALSE_POSITIVE) {
+            if (alert.getConfidence() != Alert.FALSE_POSITIVE) {
                 String urlParamXML = alert.getUrlParamXML();
                 xml.append(alert.toPluginXML(urlParamXML));
             }

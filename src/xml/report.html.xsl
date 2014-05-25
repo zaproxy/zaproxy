@@ -60,7 +60,7 @@
 
 <xsl:apply-templates select="descendant::alertitem">
   <xsl:sort order="descending" data-type="number" select="riskcode"/>
-  <xsl:sort order="descending" data-type="number" select="reliability"/>
+  <xsl:sort order="descending" data-type="number" select="confidence"/>
 </xsl:apply-templates>
 </body>
 </html>

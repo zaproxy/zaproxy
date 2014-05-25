@@ -36,10 +36,10 @@ public class AlertCheckTask extends ZapTask {
 			List<Alert> ignoreAlerts = new ArrayList<>(ignoreAlertTasks.size());
 			List<Alert> requireAlerts = new ArrayList<>(requireAlertTasks.size());
 			for (AlertTask alert: ignoreAlertTasks) {
-				ignoreAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
+				ignoreAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getConfidence(), alert.getParam(), alert.getOther()));
 			}
 			for (AlertTask alert: requireAlertTasks) {
-				requireAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getReliability(), alert.getParam(), alert.getOther()));
+				requireAlerts.add(new Alert(alert.getAlert(), alert.getUrl(), alert.getRisk(), alert.getConfidence(), alert.getParam(), alert.getOther()));
 			}
 			
 			this.getClientApi().checkAlerts(ignoreAlerts, requireAlerts);

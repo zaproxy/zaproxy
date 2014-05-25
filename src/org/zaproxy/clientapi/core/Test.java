@@ -1,6 +1,6 @@
 package org.zaproxy.clientapi.core;
 
-import org.zaproxy.clientapi.core.Alert.Reliability;
+import org.zaproxy.clientapi.core.Alert.Confidence;
 import org.zaproxy.clientapi.core.Alert.Risk;
 
 import java.util.ArrayList;
@@ -29,8 +29,8 @@ public class Test {
 		// * Complete tasks - more for internal use than anything else
 
 		List<Alert> ignoreAlerts = new ArrayList<>(2);
-		ignoreAlerts.add(new Alert("Cookie set without HttpOnly flag", null, Risk.Low, Reliability.Warning, null, null));
-		ignoreAlerts.add(new Alert(null, null, Risk.Low, Reliability.Warning, null, null));
+		ignoreAlerts.add(new Alert("Cookie set without HttpOnly flag", null, Risk.Low, Confidence.Medium, null, null));
+		ignoreAlerts.add(new Alert(null, null, Risk.Low, Confidence.Medium, null, null));
 		
 		try {
 			(new ClientApi("localhost", 8090)).checkAlerts(ignoreAlerts, null );
@@ -41,7 +41,7 @@ public class Test {
 
 		List<Alert> requireAlerts = new ArrayList<>(1);
 		//ignoreAlerts.add(new Alert(null, null, null, null, null, null));
-		requireAlerts.add(new Alert("Not present", null, Risk.Low, Reliability.Warning, null, null));
+		requireAlerts.add(new Alert("Not present", null, Risk.Low, Confidence.Medium, null, null));
 		try {
 			(new ClientApi("localhost", 8090)).checkAlerts(ignoreAlerts, requireAlerts);
 		} catch (Exception e) {

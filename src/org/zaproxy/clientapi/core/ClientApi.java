@@ -44,7 +44,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
 import org.w3c.dom.Document;
-import org.zaproxy.clientapi.core.Alert.Reliability;
+import org.zaproxy.clientapi.core.Alert.Confidence;
 import org.zaproxy.clientapi.core.Alert.Risk;
 import org.zaproxy.clientapi.gen.Acsrf;
 import org.zaproxy.clientapi.gen.Ascan;
@@ -164,7 +164,7 @@ public class ClientApi {
                 		alertSet.getAttribute("alert"),
                         alertSet.getAttribute("url"),
                         Risk.valueOf(alertSet.getAttribute("risk")),
-                        Reliability.valueOf(alertSet.getAttribute("reliability")),
+                        Confidence.valueOf(alertSet.getAttribute("confidence")),
                         alertSet.getAttribute("param"),
                         alertSet.getAttribute("other"),
                         alertSet.getAttribute("attack"),

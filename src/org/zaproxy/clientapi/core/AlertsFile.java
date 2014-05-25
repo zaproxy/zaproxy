@@ -68,7 +68,7 @@ public class AlertsFile {
         if (alert.getRisk() != null)
             alertElement.setAttribute("risk", alert.getRisk().name());
         if (alert.getUrl() != null)
-            alertElement.setAttribute("reliability", alert.getReliability().name());
+            alertElement.setAttribute("confidence", alert.getConfidence().name());
         if (alert.getUrl() != null)
             alertElement.setAttribute("url", alert.getUrl());
         if (alert.getParam() != null)
@@ -97,7 +97,7 @@ public class AlertsFile {
                     element.getAttributeValue("alert"),
                     element.getAttributeValue("url"),
                     element.getAttributeValue("risk"),
-                    element.getAttributeValue("reliability"),
+                    element.getAttributeValue("confidence"),
                     element.getAttributeValue("param"),
                     element.getAttributeValue("other"));
             alerts.add(alert);

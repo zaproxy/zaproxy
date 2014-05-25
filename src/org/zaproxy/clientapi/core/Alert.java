@@ -23,11 +23,23 @@ package org.zaproxy.clientapi.core;
 public class Alert {
 
     public enum Risk {Informational, Low, Medium, High};
+	/**
+	 * @deprecated
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
 	public enum Reliability {Suspicious, Warning};
+	public enum Confidence {Low, Medium, High, Confirmed};
 	
 	private String alert;
 	private Risk risk;
+	/**
+	 * @deprecated
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
 	private Reliability reliability;
+	private Confidence confidence;
 	private String url;
 	private String other;
 	private String param;
@@ -39,7 +51,7 @@ public class Alert {
     private int cweId;
     private int wascId;
 	
-    public Alert(String alert, String url, String riskStr, String reliabilityStr,
+    public Alert(String alert, String url, String riskStr, String confidenceStr,
                  String param, String other) {
         super();
         this.alert = alert;
@@ -49,18 +61,18 @@ public class Alert {
         if (riskStr != null) {
             this.risk = Risk.valueOf(riskStr);
         }
-        if (reliabilityStr != null) {
-            this.reliability = Reliability.valueOf(reliabilityStr);
+        if (confidenceStr != null) {
+            this.confidence = Confidence.valueOf(confidenceStr);
         }
     }
 	
-	public Alert(String alert, String url, Risk risk, Reliability reliability, 
+	public Alert(String alert, String url, Risk risk, Confidence confidence, 
 			String param, String other, String attack, String description, String reference, String solution,
 			String evidence, int cweId, int wascId) {
 		super();
 		this.alert = alert;
 		this.risk = risk;
-		this.reliability = reliability;
+		this.confidence = confidence;
 		this.url = url;
 		this.other = other;
 		this.param = param;
@@ -73,22 +85,22 @@ public class Alert {
         this.wascId = wascId;
 	}
 
-    public Alert(String alert, String url, Risk risk, Reliability reliability,
+    public Alert(String alert, String url, Risk risk, Confidence confidence,
                  String param, String other) {
         super();
         this.alert = alert;
         this.risk = risk;
-        this.reliability = reliability;
+        this.confidence = confidence;
         this.url = url;
         this.other = other;
         this.param = param;
     }
 	
-	public Alert(String alert, String url, Risk risk, Reliability reliability) {
+	public Alert(String alert, String url, Risk risk, Confidence confidence) {
 		super();
 		this.alert = alert;
 		this.risk = risk;
-		this.reliability = reliability;
+		this.confidence = confidence;
 		this.url = url;
 	}
 
@@ -113,14 +125,41 @@ public class Alert {
 	public void setRisk(String risk) {
 		this.risk = Risk.valueOf(risk);
 	}
+	/**
+	 * @deprecated
+	 * {@link #getConfidence()}
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
 	public Reliability getReliability() {
 		return reliability;
 	}
+	/**
+	 * @deprecated
+	 * {@link #setConfidence(Confidence)}
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
 	public void setReliability(Reliability reliability) {
 		this.reliability = reliability;
 	}
+	/**
+	 * @deprecated
+	 * {@link #setConfidence(String)}
+	 * Use of reliability has been deprecated in favour of using confidence
+	 */
+	@Deprecated
 	public void setReliability(String reliability) {
 		this.reliability = Reliability.valueOf(reliability);
+	}
+	public Confidence getConfidence() {
+		return confidence;
+	}
+	public void setConfidence(Confidence confidence) {
+		this.confidence = confidence;
+	}
+	public void setConfidence(String confidence) {
+		this.confidence = Confidence.valueOf(confidence);
 	}
 	public String getUrl() {
 		return url;
@@ -177,7 +216,7 @@ public class Alert {
 		if (alertFilter.getRisk() != null && ! alertFilter.getRisk().equals(risk) ) {
 			matches = false;
 		}
-		if (alertFilter.getReliability() != null && ! alertFilter.getReliability().equals(reliability) ) {
+		if (alertFilter.getConfidence() != null && ! alertFilter.getConfidence().equals(confidence) ) {
 			matches = false;
 		}
 
@@ -196,7 +235,7 @@ public class Alert {
 		result = prime * result + ((other == null) ? 0 : other.hashCode());
 		result = prime * result + ((param == null) ? 0 : param.hashCode());
 		result = prime * result + ((reference == null) ? 0 : reference.hashCode());
-		result = prime * result + ((reliability == null) ? 0 : reliability.hashCode());
+		result = prime * result + ((confidence == null) ? 0 : confidence.hashCode());
 		result = prime * result + ((risk == null) ? 0 : risk.hashCode());
 		result = prime * result + ((solution == null) ? 0 : solution.hashCode());
 		result = prime * result + ((url == null) ? 0 : url.hashCode());
@@ -268,7 +307,7 @@ public class Alert {
 		} else if (!reference.equals(otherAlert.reference)) {
 			return false;
 		}
-		if (reliability != otherAlert.reliability) {
+		if (confidence != otherAlert.confidence) {
 			return false;
 		}
 		if (risk != otherAlert.risk) {
@@ -305,9 +344,9 @@ public class Alert {
 			sb.append("null");
 		}
 		sb.append(", ");
-		sb.append("Reliability: ");
-		if (getReliability() != null) {
-			sb.append(getReliability().name());
+		sb.append("Confidence: ");
+		if (getConfidence() != null) {
+			sb.append(getConfidence().name());
 		} else {
 			sb.append("null");
 		}

@@ -21,6 +21,7 @@
 // ZAP: 2012/01/02 Separate param and attack
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
+// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 
 package org.parosproxy.paros.db;
 
@@ -32,7 +33,7 @@ public class RecordAlert {
     private int pluginId = 0;
     private String alert = "";
     private int risk = 0;
-    private int reliability = 0;
+    private int confidence = 0;
     private String description = "";
     private String uri = "";
     private String param = "";
@@ -52,7 +53,7 @@ public class RecordAlert {
 	}
 
 	public RecordAlert(int alertId, int scanId, int pluginId, String alert, 
-			int risk, int reliability, String description, String uri, String param, String attack, 
+			int risk, int confidence, String description, String uri, String param, String attack, 
 			String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
 			int sourceHistoryId) {
 	    setAlertId(alertId);
@@ -60,7 +61,7 @@ public class RecordAlert {
 	    setPluginId(pluginId);
 	    setAlert(alert);
 	    setRisk(risk);
-	    setReliability(reliability);
+	    setConfidence(confidence);
 	    setDescription(description);
 	    setUri(uri);
 	    setParam(param);
@@ -168,16 +169,32 @@ public class RecordAlert {
         this.reference = reference;
     }
     /**
+     * @deprecated
      * @return Returns the reliability.
      */
+	@Deprecated
     public int getReliability() {
-        return reliability;
+        return confidence;
     }
     /**
+     * @deprecated
      * @param reliability The reliability to set.
      */
-    public void setReliability(int reliability) {
-        this.reliability = reliability;
+	@Deprecated
+    public void setReliability(int confidence) {
+        this.confidence = confidence;
+    }
+    /**
+     * @return Returns the confidence.
+     */
+    public int getConfidence() {
+        return confidence;
+    }
+    /**
+     * @param confidence the confidence to set.
+     */
+    public void setConfidence(int confidence) {
+        this.confidence = confidence;
     }
     /**
      * @return Returns the risk.

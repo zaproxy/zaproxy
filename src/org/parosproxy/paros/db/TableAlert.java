@@ -27,6 +27,7 @@
 // ZAP: 2013/07/11 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2014/03/04 Issue 1042: Add ALERT_INDEX to speed up session load
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
+// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 
 package org.parosproxy.paros.db;
 
@@ -161,7 +162,7 @@ public class TableAlert extends AbstractTable {
     
 
     public synchronized RecordAlert write(int scanId, int pluginId, String alert, 
-            int risk, int reliability, String description, String uri, String param, String attack, 
+            int risk, int confidence, String description, String uri, String param, String attack, 
             String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
             int sourceHistoryId) throws SQLException {
         
@@ -169,7 +170,7 @@ public class TableAlert extends AbstractTable {
         psInsert.setInt(2, pluginId);
         psInsert.setString(3, alert);
         psInsert.setInt(4, risk);
-        psInsert.setInt(5, reliability);
+        psInsert.setInt(5, confidence);
         psInsert.setString(6, description);
         psInsert.setString(7, uri);
         psInsert.setString(8, param);
@@ -275,13 +276,13 @@ public class TableAlert extends AbstractTable {
     }
     
     public synchronized void update(int alertId, String alert, 
-            int risk, int reliability, String description, String uri, 
+            int risk, int confidence, String description, String uri, 
             String param, String attack, String otherInfo, String solution, String reference,
             String evidence, int cweId, int wascId, int sourceHistoryId) throws SQLException {
         
         psUpdate.setString(1, alert);
         psUpdate.setInt(2, risk);
-        psUpdate.setInt(3, reliability);
+        psUpdate.setInt(3, confidence);
         psUpdate.setString(4, description);
         psUpdate.setString(5, uri);
         psUpdate.setString(6, param);
