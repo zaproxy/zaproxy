@@ -58,8 +58,8 @@ public class OptionsParamView extends AbstractParam {
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String MODE_OPTION = "view.mode";
 	public static final String TAB_OPTION = "view.tab";
-	public static final String OUTPUT_TABS_TIMESTAMPS_OPTION = "view.outputTabsTimeStampsOption"; //RM
-	public static final String OUTPUT_TABS_TIMESTAMPS_FORMAT = "view.outputTabsTimeStampsFormat"; //RM
+	public static final String OUTPUT_TABS_TIMESTAMPS_OPTION = "view.outputTabsTimeStampsOption"; 
+	public static final String OUTPUT_TABS_TIMESTAMPS_FORMAT = "view.outputTabsTimeStampsFormat"; 
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -73,8 +73,8 @@ public class OptionsParamView extends AbstractParam {
 	private boolean warnOnTabDoubleClick = false;
     private boolean showTabNames = true;
 	private String mode = Mode.standard.name();
-	private boolean outputTabsTimeStampsOption = true; //RM
-	private String outputTabsTimeStampsFormat = TIMESTAMPFORMAT_DEFAULT; //RM
+	private boolean outputTabsTimeStampsOption = true; 
+	private String outputTabsTimeStampsFormat = TIMESTAMPFORMAT_DEFAULT; 
 	
     public OptionsParamView() {
     }
@@ -94,8 +94,8 @@ public class OptionsParamView extends AbstractParam {
 	    askOnExitEnabled = getConfig().getInt(ASKONEXIT_OPTION, 1);
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
 	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
-	    outputTabsTimeStampsOption = getConfig().getBoolean(OUTPUT_TABS_TIMESTAMPS_OPTION, true); //RM
-	    outputTabsTimeStampsFormat = getConfig().getString(OUTPUT_TABS_TIMESTAMPS_FORMAT, TIMESTAMPFORMAT_DEFAULT); //RM
+	    outputTabsTimeStampsOption = getConfig().getBoolean(OUTPUT_TABS_TIMESTAMPS_OPTION, true); 
+	    outputTabsTimeStampsFormat = getConfig().getString(OUTPUT_TABS_TIMESTAMPS_FORMAT, TIMESTAMPFORMAT_DEFAULT); 
     }
 
 	/**
@@ -240,7 +240,6 @@ public class OptionsParamView extends AbstractParam {
 		getConfig().setProperty(MODE_OPTION, mode);
 	}
 	
-	//RM
 	public void setOutputTabsTimeStampsOption(boolean isEnabled) {
 		outputTabsTimeStampsOption = isEnabled;
 		getConfig().setProperty(OUTPUT_TABS_TIMESTAMPS_OPTION, isEnabled);
