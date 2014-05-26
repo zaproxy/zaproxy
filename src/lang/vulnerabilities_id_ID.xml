@@ -3,8 +3,8 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Permisos de autenticación insuficientes</alert>
-	<desc>La autentificación insuficiente ocurre cuando un sitio web permite al atacante acceder a contenido sensible o funcionalidades sin autenticarse correctamente. Herramientas de administración en ambientes web son buenos ejemplos de sitios que proveen acceso a funcionalidades sensibles. Dependiendo de el recurso en la web, estas aplicaciones no debieran ser accesible directamente sin requerir usuario para verificar correctamente su identidad.
+	<alert>Insufficient Authentication</alert>
+	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
 
 To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
 	<solution>Phase: Architecture and Design
@@ -477,7 +477,7 @@ Many web sites are designed to authenticate and track a user when communication 
 
 <vuln_items>wasc_19</vuln_items>
 <vuln_item_wasc_19>
-	<alert>Falla por Inyección SQL</alert>
+	<alert>SQL Injection</alert>
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>

@@ -957,7 +957,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_42</vuln_items>
 <vuln_item_wasc_42>
-	<alert>Abuse of Functionality</alert>
+	<alert>Zloupotreba Funkcionalnosti</alert>
 	<desc>Abuse of Functionality is an attack technique that uses a web site's own features and functionality to attack itself or others. Abuse of Functionality can be described as the abuse of an application's intended functionality to perform an undesirable outcome. These attacks have varied results such as consuming resources, circumventing access controls, or leaking information. The potential and level of abuse will vary from web site to web site and application to application. Abuse of functionality attacks are often a combination of other attack types and/or utilize other attack vectors.</desc>
 	<solution>Always utilize APIs in the specified manner.</solution>
 	<reference>http://projects.webappsec.org/Abuse-of-Functionality</reference>
@@ -966,7 +966,7 @@ Ensure that all failures in resource allocation place the system into a safe pos
 
 <vuln_items>wasc_43</vuln_items>
 <vuln_item_wasc_43>
-	<alert>XML External Entities</alert>
+	<alert>XML Vanjski Entiteti</alert>
 	<desc>This technique takes advantage of a feature of XML to build documents dynamically at the time of processing. An XML message can either provide data explicitly or by pointing to an URI where the data exists. In the attack technique, external entities may replace the entity value with malicious data, alternate referrals or may compromise the security of the data the server/XML application has access to.
 	Attackers may also use External Entities to have the web services server download malicious code or content to the server for use in secondary or follow on attacks.</desc>
 	<solution>TBA</solution>
@@ -1026,7 +1026,7 @@ A Web application should invalidate a session after a predefined idle time has p
 
 <vuln_items>wasc_48</vuln_items>
 <vuln_item_wasc_48>
-	<alert>Insecure Indexing</alert>
+	<alert>Nesigurno Indeksiranje</alert>
 	<desc>Insecure Indexing is a threat to the data confidentiality of the web-site. Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
