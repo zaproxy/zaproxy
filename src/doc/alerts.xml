@@ -53,7 +53,7 @@ This list the alerts
 10013	Weak HTTP authentication over an unsecured connection
 10014	Cross Site Request Forgery
 10015	Incomplete or no cache-control and pragma HTTPHeader set
-10016   IE8's XSS protection filter not disabled
+10016   Web Browser XSS Protection Not Enabled
 10017	Cross-domain JavaScript source file inclusion
 10018	Untrusted domains in JavaScript source code
 10019	Content-Type header missing
