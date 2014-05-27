@@ -76,6 +76,7 @@ This list the alerts
 10036	Server Leaks Version Information via "Server" HTTP Response Header Field
 10037	Server Leaks Information via "X-Powered-By" HTTP Response Header Field(s)
 10038	Content Security Policy (CSP) Header Not Set
+10039	X-Backend-Server Header Information Leak
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
