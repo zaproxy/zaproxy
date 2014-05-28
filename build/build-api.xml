@@ -1,46 +1,38 @@
 <project name="zap" default="wave-test" basedir=".">
 	<description>Build ZAP.</description>
-	<!-- set global properties for this build -->
-	<property name="src" location="../src" />
-	<property name="dist" location="zap" />
 
-	<!--
-	In Eclipse you can get these taskdefs to work by adding the following jars to the 'Ant Home Entries'.
-	To get there: Windows / Preferences / Ant / Runtime
-	TODO: Work out how this should be done properly and document ;)
-	lib/json-lib-2.4-jdk15.jar
-	lib/commons-lang-2.6.jar
-	lib/commons-logging-1.1.1.jar
-	lib/commons-collections-3.2.1.jar
-	lib/commons-beanutils-1.8.3.jar
-	lib/ezmorph-1.0.6.jar
-	build/zap/zap-api.jar (after you've run the dist target in build.xml)
-	
-	-->
-	<taskdef name="accessUrlTask" classname="org.zaproxy.clientapi.ant.AccessUrlTask"/>
-	<taskdef name="activeScanUrlTask" classname="org.zaproxy.clientapi.ant.ActiveScanUrlTask"/>
-    <taskdef name="activeScanSiteTask" classname="org.zaproxy.clientapi.ant.ActiveScanSiteTask"/>
-	<taskdef name="alertCheckTask" classname="org.zaproxy.clientapi.ant.AlertCheckTask"/>
-	<taskdef name="loadSessionTask" classname="org.zaproxy.clientapi.ant.LoadSessionTask"/>
-	<taskdef name="newSessionTask" classname="org.zaproxy.clientapi.ant.NewSessionTask"/>
-	<taskdef name="saveSessionTask" classname="org.zaproxy.clientapi.ant.SaveSessionTask"/>
-	<taskdef name="spiderUrlTask" classname="org.zaproxy.clientapi.ant.SpiderUrlTask"/>
-	<taskdef name="stopZapTask" classname="org.zaproxy.clientapi.ant.StopZapTask"/>
-	<taskdef name="alert" classname="org.zaproxy.clientapi.ant.AlertTask"/>
+    <!--
+    These settings are for ZAP built from trunk (with build.xml) listening on localhost:8090 and 
+    testing the ZAP Web App Vulnerability Examples running on localhost:8080 
+    -->
+    <property name="targetHost" value="http://localhost:8080/" />
+    <property name="targetApp" value="${targetHost}zap-wave/"/>
+    <property name="zapaddr" value="localhost" />
+    <property name="zapport" value="8090" />
+    <property name="zapdir" location="zap" />
+    <property name="zaphome" location="${zapdir}/home" />
 
-	<!--
-	These settings are for ZAP installed in the standard location on a Windows machine
-	listenning on localhost:8090 and 
-	testing the ZAP Web App Vulnerability Examples running on localhost:8080 
-	-->
-	<property name="targetHost" value="http://localhost:8080/" />
-	<property name="targetApp" value="${targetHost}zap-wave/"/>
-	<property name="zapaddr" value="localhost" />
-	<property name="zapport" value="8090" />
-	<property name="zapdir" value="C:\Program Files\OWASP\Zed Attack Proxy" />
+    <path id="build.classpath">
+        <fileset dir="${zapdir}" includes="zap.jar"/>
+    </path>
+
+	<taskdef name="accessUrlTask" classname="org.zaproxy.clientapi.ant.AccessUrlTask" classpathref="build.classpath" />
+	<taskdef name="activeScanUrlTask" classname="org.zaproxy.clientapi.ant.ActiveScanUrlTask" classpathref="build.classpath" />
+    <taskdef name="activeScanSiteTask" classname="org.zaproxy.clientapi.ant.ActiveScanSubtreeTask" classpathref="build.classpath" />
+	<taskdef name="alertCheckTask" classname="org.zaproxy.clientapi.ant.AlertCheckTask" classpathref="build.classpath" />
+	<taskdef name="loadSessionTask" classname="org.zaproxy.clientapi.ant.LoadSessionTask" classpathref="build.classpath" />
+	<taskdef name="newSessionTask" classname="org.zaproxy.clientapi.ant.NewSessionTask" classpathref="build.classpath" />
+	<taskdef name="saveSessionTask" classname="org.zaproxy.clientapi.ant.SaveSessionTask" classpathref="build.classpath" />
+	<taskdef name="spiderUrlTask" classname="org.zaproxy.clientapi.ant.SpiderUrlTask" classpathref="build.classpath" />
+	<taskdef name="stopZapTask" classname="org.zaproxy.clientapi.ant.StopZapTask" classpathref="build.classpath" />
+	<taskdef name="alert" classname="org.zaproxy.clientapi.ant.AlertTask" classpathref="build.classpath" />
 
 	<target name="startZap">
 		<java classname="org.zaproxy.zap.ZAP" fork="true" spawn="true" dir="${zapdir}">
+			<arg value="-port"/>
+			<arg value="${zapport}"/>
+			<arg value="-dir"/>
+			<arg value="${zaphome}"/>
 			<classpath>
 				<pathelement location="${zapdir}/zap.jar"/>
 			</classpath>
@@ -52,6 +44,10 @@
 	<target name="startZapDaemon">
 		<java classname="org.zaproxy.zap.ZAP" fork="true" spawn="true" dir="${zapdir}">
 			<arg value="-daemon"/>
+			<arg value="-port"/>
+			<arg value="${zapport}"/>
+			<arg value="-dir"/>
+			<arg value="${zaphome}"/>
 			<classpath>
 				<pathelement location="${zapdir}/zap.jar"/>
 			</classpath>
@@ -86,20 +82,20 @@
 
 		<!-- Spider the whole site -->
 	    <spiderUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}" debug="true"/>
-		<sleep seconds="5"/>
-		<!-- Need to Spider again - and need to investigate why this is required ;) -->
-	    <spiderUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}" debug="true"/>
-		<sleep seconds="5"/>
+		<sleep seconds="10"/>
+		<!-- And spider the app (in case it's not accessible directly) -->
+	    <spiderUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetApp}" debug="true"/>
+		<sleep seconds="10"/>
 		
 		<!-- Active scan the whole site -->
-	    <activeScanUrlTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}" debug="true"/>
-		<sleep seconds="5"/>
+	    <activeScanSiteTask zapAddress="${zapaddr}" zapPort="${zapport}" url="${targetHost}" debug="true"/>
+		<sleep seconds="75"/>
 
 		<!-- Save to a timestamped session file -->
 		<tstamp>
 			<format property="timestamp" pattern="MM-dd-yyyy HH-mm-ss"/>
 		</tstamp>
-	    <saveSessionTask zapAddress="${zapaddr}" zapPort="${zapport}" name="test ${timestamp}" debug="true"/>
+	    <saveSessionTask zapAddress="${zapaddr}" zapPort="${zapport}" name="${zaphome}/session/test ${timestamp}" debug="true"/>
 
 		<!-- Give the passive scanner thread a chance to catch up -->
 		<sleep seconds="20"/>
@@ -118,29 +114,38 @@
 	    	<ignoreAlert alert="Cookie set without HttpOnly flag" risk="Low" reliability="Warning"/>
 	    	<ignoreAlert alert="URL Redirector Abuse" risk="High" reliability="Warning" 
 	    		url="${targetApp}active/redirect/redirect-url-basic.jsp?redir=http://www.owasp.org"/> 
+	    	<!-- Ignore all of the following for now -->
+	    	<ignoreAlert alert="X-Content-Type-Options header missing" />
+	    	<ignoreAlert alert="X-Frame-Options header not set" />
+	    	<ignoreAlert alert="HTTP Parameter Override" />
+	    	<ignoreAlert alert="Absence of Anti-CSRF Tokens" />
+	    	<ignoreAlert alert="Anti CSRF tokens scanner" />
 
+	    	<requireAlert alert="Application Error disclosure" risk="Medium" reliability="Warning" 
+	    	    url="${targetApp}passive/info/info-server-stack-trace.jsp"/>
+	    	<requireAlert alert="Weak Authentication Method" risk="Medium" reliability="Warning" 
+	    	    url="${targetApp}passive/session/weak-authentication-basic.jsp"/>
 	    	<requireAlert alert="Cookie set without HttpOnly flag" risk="Low" reliability="Warning" 
 	    		url="${targetApp}passive/info/info-app-stack-trace.jsp"/>
 	    	<requireAlert alert="Password Autocomplete in browser" risk="Low" reliability="Warning" 
 	    			url="${targetApp}passive/session/session-password-autocomplete.jsp"/>
-	    	<requireAlert alert="Cross site scripting" risk="High" reliability="Warning" 
+	    	<requireAlert alert="Cross Site Scripting (Reflected)" risk="High" reliability="Warning"
 	    		url="${targetApp}active/xss/xss-url-basic.jsp.*"/> 
-	    	<requireAlert alert="Cross site scripting" risk="High" reliability="Warning" 
+	    	<requireAlert alert="Cross Site Scripting (Reflected)" risk="High" reliability="Warning" 
 	    		url="${targetApp}active/xss/xss-form-basic.jsp"/> 
+	    	<!-- XXX Following XSS no longer reported...
 	    	<requireAlert alert="Cross site scripting" risk="High" reliability="Warning" 
-	    		url="${targetApp}active/xss/xss-form-strip-script.jsp"/> 
-	    	<requireAlert alert="SQL Injection Fingerprinting" risk="High" reliability="Suspicious" 
+	    		url="${targetApp}active/xss/xss-form-strip-script.jsp"/> -->
+	    	<requireAlert alert="SQL Injection - Hypersonic SQL" risk="High" reliability="Warning" 
 	    		url="${targetApp}active/inject/inject-sql-url-basic.jsp.*"/>
-	    	<requireAlert alert="SQL Injection Fingerprinting" risk="High" reliability="Suspicious" 
+	    	<requireAlert alert="SQL Injection - Hypersonic SQL" risk="High" reliability="Warning" 
 	    		url="${targetApp}active/inject/inject-sql-form-basic.jsp"/>
-	    	<requireAlert alert="SQL Injection" risk="High" reliability="Suspicious" 
-	    		url="${targetApp}active/inject/inject-sql-url-basic.jsp.*"/>
-	    	<requireAlert alert="SQL Injection" risk="High" reliability="Suspicious" 
-		    	url="${targetApp}active/inject/inject-sql-form-basic.jsp"/>
+	    	<!-- The examples might not be available...
 	    	<requireAlert alert="Session ID in URL rewrite" risk="Low" reliability="Warning" 
-	    		url="http://localhost:8080/servlets-examples/servlet/SessionExample.*"/>
+	    		url="${targetHost}servlets-examples/servlet/SessionExample.*"/> -->
+	    	<!-- XXX Following XSS no longer reported...
 	    	<requireAlert alert="Cross site scripting" risk="High" reliability="Warning" 
-	    		url="http://localhost:8080/zap-wave/active/xss/xss-form-anti-csrf.jsp"/>
+	    		url="${targetApp}active/xss/xss-form-anti-csrf.jsp"/> -->
 
 	    </alertCheckTask>
 		
