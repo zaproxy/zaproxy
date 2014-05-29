@@ -25,12 +25,16 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultRowSorter;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.table.TableColumn;
 
 import org.parosproxy.paros.Constant;
@@ -86,6 +90,13 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 			tableTest.setRowHeight(18);
 			tableTest.setIntercellSpacing(new java.awt.Dimension(1,1));
             tableTest.setAutoCreateRowSorter(true);
+            
+            //Default sort by name (column 1)
+            DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>)tableTest.getRowSorter());
+            List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+            sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
+            sorter.setSortKeys(sortKeys); 
+            
 	        for (int i = 0; i < 3; i++) {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
