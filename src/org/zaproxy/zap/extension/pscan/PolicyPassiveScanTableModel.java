@@ -30,6 +30,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel;
+import org.zaproxy.zap.utils.ScannerUtils;
 
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
@@ -37,10 +38,12 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     
     private static final String[] columnNames = {
         Constant.messages.getString("ascan.policy.table.testname"),
-        Constant.messages.getString("ascan.policy.table.threshold")};
+        Constant.messages.getString("ascan.policy.table.threshold"),
+        Constant.messages.getString("ascan.policy.table.quality")};
 
     private PolicyAllCategoryPanel allPanel = null;
     private List<PluginPassiveScanner> listScanners = new ArrayList<>();
+    private Map<Integer, String> scannersQuality = new HashMap<>();
     private Map<String, String> i18nToStr = null;
 
     /**
@@ -62,7 +65,12 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      * @param scanner 
      */
     public void addScanner(PluginPassiveScanner scanner) {
-        listScanners.add(scanner);
+        String quality = new String();
+        ScannerUtils scannerQuality = new ScannerUtils();
+        
+        listScanners.add(scanner);   
+        quality = scannerQuality.getPluginQuality(scanner);
+        scannersQuality.put(scanner.getPluginId(),quality);
         fireTableDataChanged();
     }
 
@@ -158,7 +166,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     @Override
     public int getColumnCount() {
-        return 2;
+        return columnNames.length;
     }
 
     @Override
@@ -174,14 +182,18 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         PassiveScanner test = listScanners.get(row);
         Object result = null;
         switch (col) {
-            case 0:
+            case 0: // Plugin/Rule Name Column
                 result = test.getName();
                 break;
                 
-            case 1:
+            case 1: // Threshold Column
                 result = strToI18n(test.getLevel().name());
                 break;
                 
+            case 2: // Quality Column
+                result = scannersQuality.get(((PluginPassiveScanner) test).getPluginId());
+                break;  
+            
             default:
                 result = "";
         }

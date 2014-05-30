@@ -43,18 +43,22 @@ import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
+import org.zaproxy.zap.utils.ScannerUtils;
 
 
 public class CategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
 	private Map<String, String> i18nToStr = null;
+    private Map<Integer, String> scannersQuality = new HashMap<>();
 	
 	// ZAP: i18n
 	private static final String[] columnNames = {
 		Constant.messages.getString("ascan.policy.table.testname"), 
 		Constant.messages.getString("ascan.policy.table.threshold"), 
-		Constant.messages.getString("ascan.policy.table.strength") };
+		Constant.messages.getString("ascan.policy.table.strength"),
+		Constant.messages.getString("ascan.policy.table.quality")};
 	
     private Vector<Plugin> listTestCategory = new Vector<>();
 
@@ -67,12 +71,17 @@ public class CategoryTableModel extends DefaultTableModel {
     }
     
     public void setTable(int category, List<Plugin> allTest) {
+        String quality = new String();
+        ScannerUtils scannerQuality = new ScannerUtils();
+        
         listTestCategory.clear();
         this.category = category ;
         for (int i=0; i<allTest.size(); i++) {
             Plugin test = allTest.get(i);
             if (test.getCategory() == category) {
                 listTestCategory.add(test);
+                quality = scannerQuality.getPluginQuality(test);
+                scannersQuality.put(test.getId(),quality);
             }
         }
         fireTableDataChanged();
@@ -219,6 +228,8 @@ public class CategoryTableModel extends DefaultTableModel {
         			break;
         	case 2: result = strToI18n(test.getAttackStrength(true).name());
     				break;
+        	case 3: result = scannersQuality.get(test.getId());
+        			break;
         	default: result = "";
         }
         return result;

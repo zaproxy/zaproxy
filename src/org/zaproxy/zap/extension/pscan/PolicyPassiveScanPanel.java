@@ -99,7 +99,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
             tableTest.setIntercellSpacing(new java.awt.Dimension(1, 1));
             tableTest.setAutoCreateRowSorter(true);
             
-            //Default sort by name (column 1)
+            //Default sort by name (column 0)
             DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>)tableTest.getRowSorter());
             List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
