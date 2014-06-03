@@ -52,9 +52,11 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
 
 /**
  * An abstract class which allows simple 'Field = Value' dialogs to be created with
@@ -759,6 +761,33 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		
 		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, text, panel, 0.0D);
 		this.incTabOffset(tabIndex);
+	}
+	
+	public void addContextSelectField(String fieldLabel, Context selectedContext){
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		ContextSelectComboBox field = new ContextSelectComboBox();
+		if (selectedContext != null) {
+			field.setSelectedItem(selectedContext);
+		}
+		this.addField(fieldLabel, field, field, 0.0D);
+	}
+	
+	public void addContextSelectField(int tabIndex, String fieldLabel, Context selectedContext){
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		ContextSelectComboBox field = new ContextSelectComboBox();
+		if (selectedContext != null) {
+			field.setSelectedItem(selectedContext);
+		}
+		
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
+		incTabOffset(tabIndex);
 	}
 	
 	/*
