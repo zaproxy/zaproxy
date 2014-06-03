@@ -42,6 +42,7 @@
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert bug/issue list here.
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
+// ZAP: 2014/05/26 Added listeners for contexts changed events.
 
 package org.parosproxy.paros.model;
 
@@ -143,6 +144,8 @@ public class Session extends FileXML {
 	    	View.getSingleton().discardContexts();
 		}
 	    this.contexts.clear();
+	    for(OnContextsChangedListener l:contextsChangedListeners)
+	    	l.contextsChanged();
 	    nextContextIndex = 1;
 	}
 
@@ -1043,6 +1046,9 @@ public class Session extends FileXML {
 		this.contexts.add(c);
 		this.model.loadContext(c);
 
+		for (OnContextsChangedListener l : contextsChangedListeners)
+			l.contextAdded(c);
+		
 		if (View.isInitialised()) {
 			View.getSingleton().addContext(c);
 		}
@@ -1167,5 +1173,33 @@ public class Session extends FileXML {
 		return this.getUrlParamParser(uri.toString()).getTreePath(uri);
 	}
 
+	
+	// ZAP: Added listeners for contexts changed events.
+	// TODO: Might be better structured elsewhere, so maybe just a temporary solution.
+	private List<OnContextsChangedListener> contextsChangedListeners = new LinkedList<>();
+
+	public void addOnContextsChangedListener(OnContextsChangedListener l) {
+		contextsChangedListeners.add(l);
+	}
+
+	public void removeOnContextsChangedListener(OnContextsChangedListener l) {
+		contextsChangedListeners.remove(l);
+	}
+	
+	/**
+	 * Listener notified whenever the registered list of contexts changes.
+	 */
+	public interface OnContextsChangedListener {
+
+		/**
+		 * Called whenever a new context is created and added.
+		 */
+		public void contextAdded(Context context);
+
+		/**
+		 * Called whenever the whole contexts list was changed.
+		 */
+		public void contextsChanged();
+	}
 }
  
