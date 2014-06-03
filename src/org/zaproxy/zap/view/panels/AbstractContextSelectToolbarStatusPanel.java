@@ -1,3 +1,20 @@
+/*
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.zaproxy.zap.view.panels;
 
 import java.awt.Component;
@@ -24,9 +41,8 @@ import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
 
 /**
- * Under development... 
- * 
- * @deprecated
+ * A base implementation for a status panel with a control toolbar that shows information/actions
+ * based on a selected {@link Context}.
  */
 public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPanel implements
 		OnContextsChangedListener {
@@ -118,6 +134,11 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 		this.addToolBarElements(toolbar, TOOLBAR_LOCATION_END, x);
 	}
 
+	/**
+	 * Gets the options button.
+	 *
+	 * @return the options button
+	 */
 	protected JButton getOptionsButton() {
 		if (optionsButton == null) {
 			optionsButton = new JButton();
@@ -135,6 +156,11 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 		return optionsButton;
 	}
 
+	/**
+	 * Gets the Context select combo box.
+	 *
+	 * @return the context select combo box
+	 */
 	protected ContextSelectComboBox getContextSelectComboBox() {
 		if (contextSelectBox == null) {
 			contextSelectBox = new ContextSelectComboBox();
@@ -157,21 +183,17 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * <li>{@link #TOOLBAR_LOCATION_END}</li>
 	 * <li>other {@code TOOLBAR_LOCATION_*} constants defined in extending classes (if case)</li>
 	 * </ul>
-	 * 
+	 * <p/>
 	 * Should be overridden by all subclasses that want to add new elements to the ScanPanel's tool
 	 * bar.
-	 * 
-	 * <p>
+	 * <p/>
 	 * The tool bar uses a {@link GridBagLayout}, so elements have to be added with a
 	 * {@link GridBagConstraints}. For this, the {@link LayoutHelper#getGBC(int, int, int, double)}
 	 * methods can be used. The {@code gridX} parameter specifies the cell (as used in
 	 * {@link GridBagConstraints#gridx}) of the current row where the elements can be added.
-	 * </p>
-	 * 
-	 * <p>
+	 * <p/>
 	 * The method must return the new coordinates of the current cell, after the elements have been
 	 * added.
-	 * </p>
 	 * 
 	 * @param toolBar the tool bar
 	 * @param location the current location where elements will be added
@@ -185,29 +207,33 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 		return gridX;
 	}
 
+	/**
+	 * Method called whenever a new context is selected.
+	 */
 	protected void contextSelected(Context context) {
-		contextSelected(context, false);
-	}
-
-	protected void contextSelected(Context context, boolean forceRefresh) {
 		log.debug("Selected new context: " + context);
 		selectedContext = context;
 		switchViewForContext(context);
 	}
 
+	/**
+	 * Gets the selected context.
+	 *
+	 * @return the selected context
+	 */
 	public Context getSelectedContext() {
 		return selectedContext;
 	}
 
 	@Override
 	public void contextAdded(Context context) {
-		log.info("Context added...");
+		log.debug("Context added...");
 		contextSelectBox.reloadContexts();
 	}
 
 	@Override
 	public void contextsChanged() {
-		log.info("Contexts changed...");
+		log.debug("Contexts changed...");
 		contextSelectBox.reloadContexts();
 	}
 

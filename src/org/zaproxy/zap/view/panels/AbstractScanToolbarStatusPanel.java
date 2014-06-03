@@ -4,6 +4,7 @@ import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -12,22 +13,40 @@ import javax.swing.JProgressBar;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.scan.BaseScannerThread;
+import org.zaproxy.zap.scan.BaseScannerThreadManager;
+import org.zaproxy.zap.scan.ScanListener;
+import org.zaproxy.zap.scan.ScanStartOptions;
+import org.zaproxy.zap.utils.ThreadUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.ZapToggleButton;
 
 /**
- * Under development...
+ * An extended implementation of a {@link AbstractContextSelectToolbarStatusPanel} that should be
+ * used for status panels for scans. Contains a toolbar with the following elements: context
+ * selection, scan control buttons (start, stop, pause) and a progress bar.
+ * <p/>
+ * This panel should be used in a scan based on a <b>{@link BaseScannerThread}</b>. It also requires
+ * a corresponding {@link BaseScannerThreadManager} that is used for obtaining the scanner threads
+ * for given contexts. Certain control actions (stop, pause, resume) are being forwarded directly to
+ * the {@link BaseScannerThread scanner thread}, while the start action is being left unimplemented
+ * to be properly handled by implementing classes.
  * 
- * @deprecated
+ * @see BaseScannerThread
+ * @see BaseScannerThreadManager
+ * @see ScanStartOptions
  */
-public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSelectToolbarStatusPanel {
+public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSelectToolbarStatusPanel
+		implements ScanListener {
 
 	private static final long serialVersionUID = -2351280081989616482L;
+	private static final Logger log = Logger.getLogger(AbstractScanToolbarStatusPanel.class);
 
 	/**
 	 * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items after the
@@ -47,11 +66,14 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 	private JProgressBar progressBar;
 
 	private Mode mode;
+	private BaseScannerThreadManager<?> threadManager;
 
-	public AbstractScanToolbarStatusPanel(String prefix, ImageIcon icon) {
+	public AbstractScanToolbarStatusPanel(String prefix, ImageIcon icon,
+			BaseScannerThreadManager<?> threadManager) {
 		super(prefix, icon);
 
 		mode = Control.getSingleton().getMode();
+		this.threadManager = threadManager;
 	}
 
 	@Override
@@ -75,7 +97,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 
 		x = this.addToolBarElements(toolbar, TOOLBAR_LOCATION_AFTER_BUTTONS, x);
 
-		toolbar.add(getProgressBar(), LayoutHelper.getGBC(x++, 0, 1, 0, insets));
+		toolbar.add(getProgressBar(), LayoutHelper.getGBC(x++, 0, 1, 1, insets));
 
 		x = this.addToolBarElements(toolbar, TOOLBAR_LOCATION_AFTER_PROGRESS_BAR, x);
 
@@ -155,7 +177,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 	}
 
 	@Override
-	protected void contextSelected(Context context, boolean forceRefresh) {
+	protected void contextSelected(Context context) {
 		if (context == null) {
 			resetScanButtonsAndProgressBarStates(false);
 			return;
@@ -173,8 +195,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 			return;
 		}
 
-		if (forceRefresh || getSelectedContext() == null
-				|| context.getIndex() != getSelectedContext().getIndex()) {
+		if (getSelectedContext() == null || context.getIndex() != getSelectedContext().getIndex()) {
 			if (isScanStarted(context)) {
 				getStartScanButton().setEnabled(false);
 				getStopScanButton().setEnabled(true);
@@ -191,7 +212,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 
 		// Calling super takes care of updating the selectedContext and triggering a work panel view
 		// switch
-		super.contextSelected(context, forceRefresh);
+		super.contextSelected(context);
 
 	}
 
@@ -200,9 +221,13 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 		getProgressBar().setValue(0);
 	}
 
+	/**
+	 * Method used for setting the state of the scan buttons and of the progress bar.
+	 * 
+	 * NOTE: Must be called from the main thread.
+	 */
 	private void setScanButtonsAndProgressBarStates(boolean isStarted, boolean isPaused,
 			boolean allowStartScan) {
-		// TODO: Make sure this is called on the main thread
 		if (isStarted) {
 			getStartScanButton().setEnabled(false);
 			getPauseScanButton().setEnabled(true);
@@ -227,33 +252,151 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 			// 'refresh' the UI if needed
 			getContextSelectComboBox().setEnabled(true);
 			if (getSelectedContext() != null) {
-				this.contextSelected(getSelectedContext(), true);
+				this.contextSelected(getSelectedContext());
 			}
 			break;
 		case safe:
 			// If the mode is 'safe', stop scans and disable controls
-			// Stop all scans
-			// stopAllScans();
-			// And disable everything
 			resetScanButtonsAndProgressBarStates(false);
 			getContextSelectComboBox().setEnabled(false);
 		}
 	}
 
+	/*
+	 * Basic implementation for scanner thread related options.
+	 */
+	/**
+	 * Method called when the pause button is pressed. Base implementation forward the calls to the
+	 * Scanner Thread that corresponds to the provided Context and obtained via the Thread Manager
+	 * specified in the constructor.
+	 */
+	protected void pauseScan(Context context) {
+		log.debug("Access Control pause on Context: " + context);
+		threadManager.getScannerThread(context.getIndex()).pauseScan();
+	}
+
+	/**
+	 * Method called when the resume button is pressed. Base implementation forward the calls to the
+	 * Scanner Thread that corresponds to the provided Context and obtained via the Thread Manager
+	 * specified in the constructor.
+	 */
+	protected void resumeScan(Context context) {
+		log.debug("Access Control resume on Context: " + context);
+		threadManager.getScannerThread(context.getIndex()).resumeScan();
+	}
+
+	/**
+	 * Method called when the stop button is pressed. Base implementation forward the calls to the
+	 * Scanner Thread that corresponds to the provided Context and obtained via the Thread Manager
+	 * specified in the constructor.
+	 */
+	protected void stopScan(Context context) {
+		log.debug("Access Control stop on Context: " + context);
+		threadManager.getScannerThread(context.getIndex()).stopScan();
+	}
+
+	/**
+	 * Method called to check whether the scan for a given Context has started. Base implementation
+	 * forward the calls to the Scanner Thread that corresponds to the provided Context and obtained
+	 * via the Thread Manager specified in the constructor.
+	 */
+	protected boolean isScanStarted(Context context) {
+		return threadManager.getScannerThread(context.getIndex()).isRunning();
+	}
+
+	/**
+	 * Method called to check whether the scan for a given Context is paused. Base implementation
+	 * forward the calls to the Scanner Thread that corresponds to the provided Context and obtained
+	 * via the Thread Manager specified in the constructor.
+	 */
+	protected boolean isScanPaused(Context context) {
+		return threadManager.getScannerThread(context.getIndex()).isPaused();
+	}
+
+	/**
+	 * Method called to check the scan progress for a given Context. Base implementation forward the
+	 * calls to the Scanner Thread that corresponds to the provided Context and obtained via the
+	 * Thread Manager specified in the constructor.
+	 */
+	protected int getScanProgress(Context context) {
+		return threadManager.getScannerThread(context.getIndex()).getScanProgress();
+	}
+
+	/**
+	 * Method called to check the scan maximum progress for a given Context. Base implementation
+	 * forward the calls to the Scanner Thread that corresponds to the provided Context and obtained
+	 * via the Thread Manager specified in the constructor.
+	 */
+	protected int getScanMaximumProgress(Context context) {
+		return threadManager.getScannerThread(context.getIndex()).getScanMaximumProgress();
+	}
+
+	@Override
+	public void scanStarted(final int contextId) {
+		Runnable handler = new Runnable() {
+			@Override
+			public void run() {
+				log.debug("ScanStarted " + panelPrefix + " on context" + contextId);
+				if (getSelectedContext() != null && contextId == getSelectedContext().getIndex()) {
+					setScanButtonsAndProgressBarStates(true, false, false);
+					getProgressBar().setValue(0);
+				}
+			}
+		};
+
+		try {
+			ThreadUtils.invokeAndWait(handler);
+		} catch (InvocationTargetException | InterruptedException e) {
+			log.error("Error while starting scan: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void scanFinished(final int contextId) {
+		Runnable handler = new Runnable() {
+			@Override
+			public void run() {
+				log.debug("ScanFinished " + panelPrefix + " on context" + contextId);
+				if (getSelectedContext() != null && contextId == getSelectedContext().getIndex()) {
+					setScanButtonsAndProgressBarStates(false, false, true);
+				}
+			}
+		};
+
+		try {
+			ThreadUtils.invokeAndWait(handler);
+		} catch (InvocationTargetException | InterruptedException e) {
+			log.error("Error while finishing scan: " + e.getMessage(), e);
+		}
+	}
+
+	@Override
+	public void scanProgress(final int contextId, final int progress, final int maximum) {
+		Runnable handler = new Runnable() {
+			@Override
+			public void run() {
+				log.debug("scanProgress " + panelPrefix + " on context " + contextId + " " + progress);
+				if (getSelectedContext() != null && contextId == getSelectedContext().getIndex()) {
+					getProgressBar().setValue(progress);
+					getProgressBar().setMaximum(maximum);
+				}
+			}
+		};
+
+		try {
+			ThreadUtils.invokeAndWait(handler);
+		} catch (InvocationTargetException | InterruptedException e) {
+			log.error("Error while updating progress: " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Method called when the user has pressed the 'start scan' button.
+	 * <p/>
+	 * Normally, implementing classes could create a dialog for specifying scan options or directly
+	 * build the proper {@link ScanStartOptions} and start the {@link BaseScannerThread}.
+	 * 
+	 * @param context the context selected when starting the scan.
+	 */
 	protected abstract void startScan(Context context);
-
-	protected abstract void pauseScan(Context context);
-
-	protected abstract void resumeScan(Context context);
-
-	protected abstract void stopScan(Context context);
-
-	protected abstract boolean isScanStarted(Context context);
-
-	protected abstract boolean isScanPaused(Context context);
-
-	protected abstract int getScanProgress(Context context);
-
-	protected abstract int getScanMaximumProgress(Context context);
-
 }
