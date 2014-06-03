@@ -18,32 +18,16 @@
 package org.zaproxy.zap.scan;
 
 /**
- * A listener interface for events related to Scanner Threads on Contexts.
+ * The common interface for options provided to {@link BaseScannerThread scanner threads} at startup
+ * that should be used for fully specifying the configuration for a particular scan. The scan
+ * options should be provided to the Scanner Thread before being started via the
+ * {@link BaseScannerThread#setStartOptions(ScanStartOptions)} method.
+ * <p/>
+ * Examples of configuration required might include: context and/or site node to scan, user to scan
+ * as, policy etc.
  * 
- * @see BaseContextScannerThread
+ * @see BaseScannerThread
  */
-public interface ScanListener {
+public interface ScanStartOptions {
 
-	/**
-	 * Callback method called when the scan has started.
-	 *
-	 * @param contextId the context id
-	 */
-	void scanStarted(int contextId);
-
-	/**
-	 * Callback method called when the scan has finished.
-	 *
-	 * @param contextId the context id
-	 */
-	void scanFinished(int contextId);
-
-	/**
-	 * Callback method called when the scan has changes its progress.
-	 *
-	 * @param contextId the context id
-	 * @param progress the progress
-	 * @param maximumProgress the maximum
-	 */
-	void scanProgress(int contextId, int progress, int maximumProgress);
 }
