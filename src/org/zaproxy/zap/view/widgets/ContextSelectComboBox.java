@@ -46,6 +46,17 @@ public class ContextSelectComboBox extends JComboBox<Context> {
 	}
 
 	/**
+	 * Returns the selected {@link Context}. Behaves the same as {@link #getSelectedItem()}, but
+	 * performs a cast.
+	 * 
+	 * @see #getSelectedItem()
+	 * @return the selected context, if any
+	 */
+	public Context getSelectedContext() {
+		return (Context) getSelectedItem();
+	}
+
+	/**
 	 * A renderer for properly displaying the name of Context in a ComboBox.
 	 */
 	private static class ContextComboBoxRenderer extends BasicComboBoxRenderer {
