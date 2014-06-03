@@ -37,10 +37,12 @@ public class ContextSelectComboBox extends JComboBox<Context> {
 	 * Reloads/refreshes the list of {@link Context Contexts} from the {@link Session}.
 	 */
 	public void reloadContexts() {
+		Context selected = (Context) getSelectedItem();
 		List<Context> contexts = Model.getSingleton().getSession().getContexts();
 		Context[] contextsArray = contexts.toArray(new Context[contexts.size()]);
 		ComboBoxModel<Context> model = new DefaultComboBoxModel<>(contextsArray);
 		this.setModel(model);
+		this.setSelectedItem(selected);
 	}
 
 	/**
