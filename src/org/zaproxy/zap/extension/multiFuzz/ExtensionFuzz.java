@@ -95,8 +95,8 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	        extensionHook.getHookView().addOptionPanel(getOptionsFuzzerPanel());
 	        extensionHook.addSessionListener(this);
 	    	ExtensionHelp.enableHelpKey(getFuzzerPanel(), "ui.tabs.fuzz");
-	    	fuzzableMessageHandlers = new HashMap<>();
 	    }
+	    fuzzableMessageHandlers = new HashMap<>();
 	    this.hook = extensionHook;
         extensionHook.addOptionsParamSet(getFuzzerParam());
         extensionHook.addAddonFilesChangedListener(this);
