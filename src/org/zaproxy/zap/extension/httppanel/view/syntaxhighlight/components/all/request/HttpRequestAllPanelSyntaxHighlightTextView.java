@@ -25,13 +25,11 @@ import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
+import org.zaproxy.zap.extension.multiFuzz.FuzzableComponent;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
@@ -46,7 +44,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 		return new HttpRequestAllPanelSyntaxHighlightTextArea();
 	}
 	
-	protected static class HttpRequestAllPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea implements FuzzableComponent {
+	protected static class HttpRequestAllPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea implements FuzzableComponent<HttpMessage> {
 
 		private static final long serialVersionUID = 923466158533211593L;
 		
@@ -79,53 +77,9 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 	    }
 
 		@Override
-		public FuzzableMessage getFuzzableMessage() {
+		public HttpMessage getFuzzableMessage() {
 			HttpMessage httpMessage = (HttpMessage)getMessage();
-			//This only happens in the Request/Response Header
-			//As we replace all \r\n with \n we must add one character
-			//for each line until the line where the selection is.
-			int tHeader = 0;
-			String header = httpMessage.getRequestHeader().toString();
-			int pos = 0;
-			while ((pos = header.indexOf("\r\n", pos)) != -1) {
-				pos += 2;
-				++tHeader;
-			}
-
-			int start = getSelectionStart();
-			int end = getSelectionEnd();
-			FuzzableTextHttpMessage.Location location;
-			
-			int headerLen = header.length();
-			if (start + tHeader < headerLen) {
-				try {
-					start += getLineOfOffset(start);
-				} catch (BadLocationException e) {
-					//Shouldn't happen, but in case it does log it and return.
-					log.error(e.getMessage(), e);
-					return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
-				}
-				
-				try {
-					end += getLineOfOffset(end);
-				} catch (BadLocationException e) {
-					//Shouldn't happen, but in case it does log it and return.
-					log.error(e.getMessage(), e);
-					return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, 0);
-				}
-				
-				if (end > headerLen) {
-					end = headerLen;
-				}
-				location = FuzzableTextHttpMessage.Location.HEADER;
-			} else {
-				start += tHeader - headerLen;
-				end += tHeader - headerLen;
-				
-				location = FuzzableTextHttpMessage.Location.BODY;
-			}
-			
-			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), location, start, end);
+			return httpMessage;
 		}
 
 		@Override
@@ -136,15 +90,6 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
 			
 			//Currently do not allow to fuzz if the text area is editable, because the HttpMessage used is not updated with the changes.
 			return !isEditable();
-		}
-		
-		@Override
-		public String getFuzzTarget() {
-			final String selectedText = getSelectedText();
-			if (selectedText != null) {
-				return selectedText;
-			}
-			return "";
 		}
 		
 		@Override

@@ -1,12 +1,12 @@
 package org.zaproxy.zap.extension.httppanel.component.split.request;
 
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
+import org.zaproxy.zap.extension.multiFuzz.FuzzableComponent;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 
-public abstract class FuzzableHttpRequestPanelTextArea extends HttpPanelTextArea implements FuzzableComponent {
+public abstract class FuzzableHttpRequestPanelTextArea extends HttpPanelTextArea implements FuzzableComponent<HttpMessage> {
 	
 	private static final long serialVersionUID = 4129376491067755149L;
 
@@ -38,15 +38,6 @@ public abstract class FuzzableHttpRequestPanelTextArea extends HttpPanelTextArea
 		
 		//Currently do not allow to fuzz if the text area is editable, because the HttpMessage used is not updated with the changes.
 		return !isEditable();
-	}
-	
-	@Override
-	public String getFuzzTarget() {
-		final String selectedText = getSelectedText();
-		if (selectedText != null) {
-			return selectedText;
-		}
-		return "";
 	}
 
 }

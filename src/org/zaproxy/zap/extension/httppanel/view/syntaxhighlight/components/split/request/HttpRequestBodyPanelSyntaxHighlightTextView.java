@@ -26,14 +26,12 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
+import org.zaproxy.zap.extension.multiFuzz.FuzzableComponent;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
@@ -48,7 +46,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		return new HttpRequestBodyPanelSyntaxHighlightTextArea();
 	}
 	
-	private static class HttpRequestBodyPanelSyntaxHighlightTextArea extends AutoDetectSyntaxHttpPanelTextArea implements FuzzableComponent {
+	private static class HttpRequestBodyPanelSyntaxHighlightTextArea extends AutoDetectSyntaxHttpPanelTextArea implements FuzzableComponent<HttpMessage> {
 
 		private static final long serialVersionUID = -2102275261139781996L;
 
@@ -95,17 +93,8 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		}
 		
 		@Override
-		public String getFuzzTarget() {
-			final String selectedText = getSelectedText();
-			if (selectedText != null) {
-				return selectedText;
-			}
-			return "";
-		}
-		
-		@Override
-		public FuzzableMessage getFuzzableMessage() {
-			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.BODY, getSelectionStart(), getSelectionEnd());
+		public HttpMessage getFuzzableMessage() {
+			return (HttpMessage)getMessage();
 		}
 
 		@Override

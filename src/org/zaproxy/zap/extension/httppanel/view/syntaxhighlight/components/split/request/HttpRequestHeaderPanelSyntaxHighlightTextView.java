@@ -25,13 +25,11 @@ import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
+import org.zaproxy.zap.extension.multiFuzz.FuzzableComponent;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
@@ -46,7 +44,7 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
 		return new HttpRequestHeaderPanelSyntaxHighlightTextArea();
 	}
 	
-	private static class HttpRequestHeaderPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea implements FuzzableComponent {
+	private static class HttpRequestHeaderPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea implements FuzzableComponent<HttpMessage> {
 
 		private static final long serialVersionUID = -4532294585338584747L;
 		
@@ -91,35 +89,8 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
 		}
 		
 		@Override
-		public String getFuzzTarget() {
-			final String selectedText = getSelectedText();
-			if (selectedText != null) {
-				return selectedText;
-			}
-			return "";
-		}
-		
-		@Override
-		public FuzzableMessage getFuzzableMessage() {
-			int start = getSelectionStart();
-			try {
-				start += getLineOfOffset(start);
-			} catch (BadLocationException e) {
-				//Shouldn't happen, but in case it does log it and return.
-				log.error(e.getMessage(), e);
-				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
-			}
-
-			int end = getSelectionEnd();
-			try {
-				end += getLineOfOffset(end);
-			} catch (BadLocationException e) {
-				//Shouldn't happen, but in case it does log it and return.
-				log.error(e.getMessage(), e);
-				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
-			}
-			
-			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, end);
+		public HttpMessage getFuzzableMessage() {
+			return (HttpMessage)getMessage();
 		}
 		
 		@Override
