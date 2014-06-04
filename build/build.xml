@@ -77,6 +77,7 @@
         <!-- translation of UI strings -->
         <ccproject projectid="${crowdin.zap.project.id}" apikey="${crowdin.zap.api.key}">
             <ccexclude path="/videos/**" />
+            <ccexclude path="/docs/**" />
             <!-- zaproxy project -->
             <ccfiles basedir="${lang.dir}" exportpatternprefix="/zaproxy/lang/">
                 <!-- UI strings -->
