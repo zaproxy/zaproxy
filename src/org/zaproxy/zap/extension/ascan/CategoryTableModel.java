@@ -43,7 +43,6 @@ import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.zaproxy.zap.utils.ScannerUtils;
 
 
@@ -101,10 +100,18 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        if (columnIndex > 0) {
-            return true;
+        switch (columnIndex) {
+	        case 0: // Name 
+	        	return false;
+	        case 1: // Strength
+	        	return true;
+	        case 2: // Alert
+	        	return true;
+	        case 3: // Quality
+	        	return false;
+	        default:
+	        	return false;
         }
-        return false;
     }
 
     @Override

@@ -65,7 +65,7 @@ public class PolicyDialog extends AbstractParamDialog {
      */
     private void initialize() {
         this.setTitle(POLICY);
-        this.setSize(650, 416);
+        this.setSize(750, 420); // TODO: This shouldn't be statically defined.
         addParamPanel(null, getPolicyAllCategoryPanel(), false);
         
         for (int i = 0; i < Category.getAllNames().length; i++) {

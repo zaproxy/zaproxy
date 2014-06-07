@@ -107,7 +107,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      */
     private void initialize() {
         this.setLayout(new GridBagLayout());
-        this.setSize(375, 204);
+        this.setSize(375, 205);
         this.setName("categoryPanel");
 
         // Add Attack settings section - a copy of the options dialog
@@ -205,7 +205,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
             sorter.setSortKeys(sortKeys); 
             
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < tableTest.getColumnCount()-1; i++) {
                 TableColumn column = tableTest.getColumnModel().getColumn(i);
                 column.setPreferredWidth(width[i]);
             }

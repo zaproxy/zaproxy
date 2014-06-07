@@ -49,7 +49,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	private JTable tableTest = null;
 	private JScrollPane jScrollPane = null;
 	private CategoryTableModel categoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
-	private static final int[] width = {300,100, 100};
+	private static final int[] width = {300,100, 100, 200};
     /**
      *
      */
@@ -97,7 +97,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
             sorter.setSortKeys(sortKeys); 
             
-	        for (int i = 0; i < 3; i++) {
+	        for (int i = 0; i < tableTest.getColumnCount()-1; i++) {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);
 	            column.setPreferredWidth(width[i]);
 	        }

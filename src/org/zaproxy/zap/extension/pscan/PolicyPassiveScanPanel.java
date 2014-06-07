@@ -84,7 +84,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
         this.add(getJScrollPane(), gridBagConstraints11);
     }
     
-    private static final int[] width = {300, 60};
+    private static final int[] width = {300, 60, 100};
 
     /**
      * This method initializes tableTest
@@ -105,7 +105,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
             sorter.setSortKeys(sortKeys); 
             
-            for (int i = 0; i < 2; i++) {
+            for (int i = 0; i < tableTest.getColumnCount()-1; i++) {
                 TableColumn column = tableTest.getColumnModel().getColumn(i);
                 column.setPreferredWidth(width[i]);
             }
