@@ -76,7 +76,7 @@ public class FuzzerPanel extends AbstractPanel{
 	private  void initialize() {
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
-        this.setName(Constant.messages.getString("fuzz.panel.title"));
+        this.setName(Constant.messages.getString("fuzz.panel.title.multi"));
 		this.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/097.png")));
         this.add(getPanelCommand(), getPanelCommand().getName());
         
@@ -84,7 +84,7 @@ public class FuzzerPanel extends AbstractPanel{
         scanStatus = new ScanStatus(
         				new ImageIcon(
         					FuzzerPanel.class.getResource("/resource/icon/16/097.png")),
-        					Constant.messages.getString("fuzz.panel.title"));
+        					Constant.messages.getString("fuzz.panel.title.multi"));
        
         View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
 
@@ -100,7 +100,7 @@ public class FuzzerPanel extends AbstractPanel{
 
 			panelCommand = new javax.swing.JPanel();
 			panelCommand.setLayout(new java.awt.GridBagLayout());
-			panelCommand.setName("Fuzzer");
+			panelCommand.setName("MultiFuzzer");
 			
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -138,7 +138,7 @@ public class FuzzerPanel extends AbstractPanel{
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-			panelToolbar.setName("FuzzToolbar");
+			panelToolbar.setName("MultiFuzzToolbar");
 			
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
@@ -302,7 +302,7 @@ public class FuzzerPanel extends AbstractPanel{
 			initialMessage.setEditable(false);
 			initialMessage.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			initialMessage.setContentType("text/html");
-			initialMessage.setText(Constant.messages.getString("fuzz.label.initialMessage"));
+			initialMessage.setText(Constant.messages.getString("fuzz.label.initialMessage.multi"));
 		}
 		
 		return initialMessage;
