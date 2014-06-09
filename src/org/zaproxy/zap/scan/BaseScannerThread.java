@@ -19,7 +19,6 @@ package org.zaproxy.zap.scan;
 
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-import java.util.logging.Logger;
 
 /**
  * The base implementation that needs to be extended for a thread that is used to run a Scan.
@@ -144,7 +143,6 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	 * @see #checkPausedAndWait()
 	 */
 	public void setPaused(boolean paused) {
-		Logger.getAnonymousLogger().info("Paused status: " + paused);
 		// Make use of a lock when modifying the paused variable to avoid any race conditions
 		pauseLock.lock();
 		this.paused = paused;
@@ -169,11 +167,8 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 		// While the status is paused, keep waiting
 		while (paused) {
 			try {
-				Logger.getAnonymousLogger().info("Waiting");
 				pausedCondition.await();
-				Logger.getAnonymousLogger().info("Waking up");
 			} catch (InterruptedException e) {
-				Logger.getAnonymousLogger().info("Interrupted");
 			}
 		}
 
