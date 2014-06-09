@@ -46,6 +46,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
+import javax.swing.border.EmptyBorder;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -74,6 +75,8 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 	private static final Logger logger = Logger.getLogger(StandardFieldsDialog.class);
 
 	private static final long serialVersionUID = 1L;
+	private static final EmptyBorder FULL_BORDER = new EmptyBorder(8, 8, 8, 8);
+	private static final EmptyBorder TOP_BOTTOM_BORDER = new EmptyBorder(8, 0, 8, 0);
 
 	private JPanel mainPanel = null;
 	private List<JPanel> tabPanels = null;
@@ -141,6 +144,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new GridBagLayout());
+		contentPanel.setBorder(TOP_BOTTOM_BORDER);
 		contentPanel.setPreferredSize(dim);
 		this.setContentPane(contentPanel);
 		
@@ -170,6 +174,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		for (String label : tabLabels) {
 			JPanel tabPanel = new JPanel();
 			tabPanel.setLayout(new GridBagLayout());
+			tabPanel.setBorder(FULL_BORDER);
 			tabbedPane.addTab(Constant.messages.getString(label), tabPanel);
 			this.tabPanels.add(tabPanel);
 			this.tabOffsets.add(0);
@@ -180,6 +185,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		
 		JPanel contentPanel = new JPanel();
 		contentPanel.setLayout(new GridBagLayout());
+		contentPanel.setBorder(FULL_BORDER);
 		contentPanel.setPreferredSize(dim);
 		this.setContentPane(contentPanel);
 		
@@ -307,6 +313,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		}
 		JLabel label = new JLabel(Constant.messages.getString(fieldLabel));
 		label.setLabelFor(field);
+		label.setVerticalAlignment(JLabel.TOP);
 		panel.add(label, 
 				LayoutHelper.getGBC(0, indexy, 1, labelWeight, weighty, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
 		panel.add(wrapper,
