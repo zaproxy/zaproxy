@@ -76,7 +76,7 @@ public class FuzzerPanel extends AbstractPanel{
 	private  void initialize() {
         this.setLayout(new CardLayout());
         this.setSize(474, 251);
-        this.setName(Constant.messages.getString("fuzz.panel.title.multi"));
+        this.setName(Constant.messages.getString("fuzz.panel.title"));
 		this.setIcon(new ImageIcon(FuzzerPanel.class.getResource("/resource/icon/16/097.png")));
         this.add(getPanelCommand(), getPanelCommand().getName());
         
@@ -84,7 +84,7 @@ public class FuzzerPanel extends AbstractPanel{
         scanStatus = new ScanStatus(
         				new ImageIcon(
         					FuzzerPanel.class.getResource("/resource/icon/16/097.png")),
-        					Constant.messages.getString("fuzz.panel.title.multi"));
+        					Constant.messages.getString("fuzz.panel.title"));
        
         View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(scanStatus.getCountLabel());
 
@@ -100,7 +100,7 @@ public class FuzzerPanel extends AbstractPanel{
 
 			panelCommand = new javax.swing.JPanel();
 			panelCommand.setLayout(new java.awt.GridBagLayout());
-			panelCommand.setName("MultiFuzzer");
+			panelCommand.setName("Fuzzer");
 			
 			GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -138,7 +138,7 @@ public class FuzzerPanel extends AbstractPanel{
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
 			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-			panelToolbar.setName("MultiFuzzToolbar");
+			panelToolbar.setName("FuzzToolbar");
 			
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
