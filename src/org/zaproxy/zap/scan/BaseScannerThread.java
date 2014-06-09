@@ -17,6 +17,10 @@
  */
 package org.zaproxy.zap.scan;
 
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Logger;
+
 /**
  * The base implementation that needs to be extended for a thread that is used to run a Scan.
  * <p/>
@@ -50,6 +54,15 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	private int maximumProgress = 100;
 	private boolean paused;
 	private boolean running;
+
+	/** The pause lock, used for locking access to the "paused" variable. */
+	private ReentrantLock pauseLock = new ReentrantLock();
+
+	/**
+	 * The condition that is used to wait on, when the scan is paused. When the scan is resumed, all
+	 * the waiting threads are awakened.
+	 */
+	private Condition pausedCondition = pauseLock.newCondition();
 
 	/**
 	 * Gets the start options.
@@ -124,20 +137,55 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	}
 
 	/**
-	 * Sets the paused.
+	 * Sets the paused state of the thread and, if the thread needs to be resumed and was paused and
+	 * sleeping, it gets signaled.
 	 *
-	 * @param paused the new paused
+	 * @param paused whether the thread should be paused or not
+	 * @see #checkPausedAndWait()
 	 */
 	public void setPaused(boolean paused) {
+		Logger.getAnonymousLogger().info("Paused status: " + paused);
+		// Make use of a lock when modifying the paused variable to avoid any race conditions
+		pauseLock.lock();
 		this.paused = paused;
+		// Wake up all threads that are currently paused
+		if (!this.paused)
+			pausedCondition.signalAll();
+		pauseLock.unlock();
 	}
 
 	/**
-	 * Sets the running.
-	 *
-	 * @param running the new running
+	 * Checks whether the scan is paused and, if it is, sleeps until it's resumed. Internally, this
+	 * method makes use of threading synchronization features ({@link ReentrantLock} and
+	 * {@link Condition}) to cause the calling thread to wait, if needed. Thus, it is
+	 * <b>mandatory</b> to eventually call {@link #setPaused(boolean) setPaused(false)} from another
+	 * thread to wake the calling thread.
+	 * 
+	 * @see #setPaused(boolean)
 	 */
-	public void setRunning(boolean running) {
+	protected void checkPausedAndWait() {
+		pauseLock.lock();
+
+		// While the status is paused, keep waiting
+		while (paused) {
+			try {
+				Logger.getAnonymousLogger().info("Waiting");
+				pausedCondition.await();
+				Logger.getAnonymousLogger().info("Waking up");
+			} catch (InterruptedException e) {
+				Logger.getAnonymousLogger().info("Interrupted");
+			}
+		}
+
+		pauseLock.unlock();
+	}
+
+	/**
+	 * Sets the running state of the thread.
+	 *
+	 * @param running whether the thread is running or not
+	 */
+	public void setRunningState(boolean running) {
 		this.running = running;
 	}
 
@@ -161,10 +209,12 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	 * thread's paused state, but should be overridden if necessary.
 	 * <p/>
 	 * Note: Implementations must be careful to make sure the scan actually gets paused (either by
-	 * overriding this method or by constantly checking the {@link #isPaused()} status in the
-	 * {@link #scan()} method).
+	 * overriding this method or by constantly checking the {@link #isPaused()} status or using the
+	 * {@link #checkPausedAndWait()} method in the {@link #scan()} method).
 	 * <p/>
 	 * Note: This method is not always run on the scanner thread.
+	 * 
+	 * @see #setPaused(boolean)
 	 */
 	public void pauseScan() {
 		setPaused(true);
@@ -174,11 +224,13 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	 * Method called when the scan is resumed. The base implementation handles the update of the
 	 * thread's paused state, but should be overridden if necessary.
 	 * <p/>
-	 * Note: Implementations must be careful to make sure the scan actually gets resumed (either by
-	 * overriding this method or by constantly checking the {@link #isPaused()} status in the
-	 * {@link #scan()} method).
+	 * Note: Implementations must be careful to make sure the scan actually gets paused (either by
+	 * overriding this method or by constantly checking the {@link #isPaused()} status or using the
+	 * {@link #checkPausedAndWait()} method in the {@link #scan()} method).
 	 * <p/>
 	 * Note: This method is not always run on the scanner thread.
+	 * 
+	 * @see #setPaused(boolean)
 	 */
 	public void resumeScan() {
 		setPaused(false);
@@ -186,7 +238,9 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 
 	/**
 	 * Method called when the scan is stopped before it finished. The base implementation handles
-	 * the update of the thread's running state, but should be overridden if necessary.
+	 * the update of the thread's running state, but should be overridden if necessary. If the
+	 * thread is now stopped, also updates the paused state to {@code false}, to make sure that, if
+	 * the thread was sleeping, it gets awakened.
 	 * <p/>
 	 * Note: Implementations must be careful to make sure the scan is stopped and the thread
 	 * finishes (either by overriding this method or by constantly checking the {@link #isRunning()}
@@ -195,7 +249,8 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	 * Note: This method is not always run on the scanner thread.
 	 */
 	public void stopScan() {
-		setRunning(false);
+		setPaused(false);
+		setRunningState(false);
 	}
 
 	/**
@@ -205,7 +260,7 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 	 * Note: This method is being run on the scanner thread.
 	 */
 	public void startScan() {
-		setRunning(true);
+		setRunningState(true);
 		this.scan();
 	}
 
