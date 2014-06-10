@@ -115,6 +115,7 @@ This list the alerts
 40021	SQL Injection Oracle
 40022	SQL Injection Postgresql
 40023	Username Enumeration
+40024	Method Scanner
 
 50000	Active Scan scripts
 50001	Passive Scan scripts
