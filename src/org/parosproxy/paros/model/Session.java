@@ -43,6 +43,7 @@
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 // ZAP: 2014/05/26 Added listeners for contexts changed events.
+// ZAP: 2014/06/10 Added helper method for removing data for context and type
 
 package org.parosproxy.paros.model;
 
@@ -995,6 +996,10 @@ public class Session extends FileXML {
 
 	public void setContextData(int contextId, int type, List<String> dataList) throws SQLException {
 		model.getDb().getTableContext().setData(contextId, type, dataList);
+	}
+	
+	public void clearContextDataForType(int contextId, int type) throws SQLException{
+		model.getDb().getTableContext().deleteAllDataForContextAndType(contextId, type);
 	}
 	
 	private List<String> techListToStringList (TreeSet<Tech> techList) {

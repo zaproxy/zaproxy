@@ -53,6 +53,12 @@ public class RecordContext {
 	public static final int TYPE_SESSION_MANAGEMENT_FIELD_4 = 224;
 	public static final int TYPE_SESSION_MANAGEMENT_FIELD_5 = 225;
 	
+	public static final int TYPE_AUTHORIZATION_METHOD_TYPE = 230;
+	public static final int TYPE_AUTHORIZATION_METHOD_FIELD_1 = 231;
+	public static final int TYPE_AUTHORIZATION_METHOD_FIELD_2 = 232;
+	public static final int TYPE_AUTHORIZATION_METHOD_FIELD_3 = 233;
+	public static final int TYPE_AUTHORIZATION_METHOD_FIELD_4 = 234;
+	
 	public static final int TYPE_USER = 300;
 	public static final int TYPE_FORCED_USER_ID = 310;
 
@@ -60,7 +66,7 @@ public class RecordContext {
 	public static final int TYPE_URL_PARSER_CONFIG = 401;
 	public static final int TYPE_POST_PARSER_CLASSNAME = 402;
 	public static final int TYPE_POST_PARSER_CONFIG = 403;
-
+	
     private long dataId = 0;
     private int contextId = 0;
     private int type = 0;
