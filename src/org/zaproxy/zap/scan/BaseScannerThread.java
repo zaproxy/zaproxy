@@ -259,6 +259,15 @@ public abstract class BaseScannerThread<StartOptions extends ScanStartOptions> e
 		this.scan();
 	}
 
+	@Override
+	public synchronized void start() {
+		// Make sure start options have been set.
+		if (startOptions == null) {
+			throw new IllegalStateException("No scan start options have been set for the Scanner thread.");
+		}
+		super.start();
+	}
+
 	/**
 	 * Method called on the scanner thread in order to perform the work required by the scan.
 	 */
