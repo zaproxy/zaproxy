@@ -253,5 +253,5 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * 
 	 * @param context the context for which to display the panel
 	 */
-	protected abstract Component switchViewForContext(Context context);
+	protected abstract void switchViewForContext(Context context);
 }
