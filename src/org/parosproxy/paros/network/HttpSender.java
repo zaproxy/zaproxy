@@ -88,6 +88,7 @@ public class HttpSender {
 	public static final int MANUAL_REQUEST_INITIATOR = 6;
 	public static final int CHECK_FOR_UPDATES_INITIATOR = 7;
 	public static final int BEAN_SHELL_INITIATOR = 8;
+	public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
 
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
