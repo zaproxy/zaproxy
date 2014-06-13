@@ -29,20 +29,29 @@ public class ContextSelectComboBox extends JComboBox<Context> {
 	@SuppressWarnings("unchecked")
 	public ContextSelectComboBox() {
 		super();
-		reloadContexts();
+		reloadContexts(false);
 		this.setRenderer(new ContextComboBoxRenderer());
 	}
 
 	/**
 	 * Reloads/refreshes the list of {@link Context Contexts} from the {@link Session}.
+	 * 
+	 * @param keepSelected whether the previously selected context is tried to be restored. If
+	 *            {@code false}, defaults to no selection.
 	 */
-	public void reloadContexts() {
-		Context selected = (Context) getSelectedItem();
+	public void reloadContexts(boolean keepSelected) {
+		Context selected = null;
+		if (keepSelected)
+			selected = (Context) getSelectedItem();
+
 		List<Context> contexts = Model.getSingleton().getSession().getContexts();
 		Context[] contextsArray = contexts.toArray(new Context[contexts.size()]);
 		ComboBoxModel<Context> model = new DefaultComboBoxModel<>(contextsArray);
+		// No matter what, set selected item, so it either defaults to 'nothing selected' or
+		// restores the previously selected item
+		model.setSelectedItem(selected);
+
 		this.setModel(model);
-		this.setSelectedItem(selected);
 	}
 
 	/**

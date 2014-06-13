@@ -180,35 +180,36 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 	protected void contextSelected(Context context) {
 		if (context == null) {
 			resetScanButtonsAndProgressBarStates(false);
+			super.contextSelected(context);
 			return;
 		}
 
 		// If we are in 'Safe' mode, there's no need to disable anything as it was already disabled
 		// when switching the mode
 		if (Mode.safe.equals(this.mode)) {
+			super.contextSelected(context);
 			return;
 		}
 
 		// If context is not in scope and we are in 'Protect' mode, disable scanning.
 		if (Mode.protect.equals(this.mode) && !context.isInScope()) {
 			resetScanButtonsAndProgressBarStates(false);
+			super.contextSelected(context);
 			return;
 		}
 
-		if (getSelectedContext() == null || context.getIndex() != getSelectedContext().getIndex()) {
-			if (isScanStarted(context)) {
-				getStartScanButton().setEnabled(false);
-				getStopScanButton().setEnabled(true);
-				getPauseScanButton().setEnabled(true);
-				getPauseScanButton().setSelected(isScanPaused(context));
-				getProgressBar().setEnabled(true);
-			} else {
-				resetScanButtonsAndProgressBarStates(true);
-			}
-
-			getProgressBar().setValue(getScanProgress(context));
-			getProgressBar().setMaximum(getScanMaximumProgress(context));
+		if (isScanStarted(context)) {
+			getStartScanButton().setEnabled(false);
+			getStopScanButton().setEnabled(true);
+			getPauseScanButton().setEnabled(true);
+			getPauseScanButton().setSelected(isScanPaused(context));
+			getProgressBar().setEnabled(true);
+		} else {
+			resetScanButtonsAndProgressBarStates(true);
 		}
+
+		getProgressBar().setValue(getScanProgress(context));
+		getProgressBar().setMaximum(getScanMaximumProgress(context));
 
 		// Calling super takes care of updating the selectedContext and triggering a work panel view
 		// switch

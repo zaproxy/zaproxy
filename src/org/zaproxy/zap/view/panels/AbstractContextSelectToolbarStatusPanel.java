@@ -67,7 +67,6 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	protected short TOOLBAR_LOCATION_END = 99;
 
 	protected String panelPrefix;
-	private Context selectedContext;
 
 	private JToolBar panelToolbar = null;
 	private JButton optionsButton = null;
@@ -212,7 +211,6 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 */
 	protected void contextSelected(Context context) {
 		log.debug("Selected new context: " + context);
-		selectedContext = context;
 		switchViewForContext(context);
 	}
 
@@ -222,19 +220,19 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * @return the selected context
 	 */
 	public Context getSelectedContext() {
-		return selectedContext;
+		return contextSelectBox.getSelectedContext();
 	}
 
 	@Override
 	public void contextAdded(Context context) {
 		log.debug("Context added...");
-		contextSelectBox.reloadContexts();
+		contextSelectBox.reloadContexts(true);
 	}
 
 	@Override
 	public void contextsChanged() {
 		log.debug("Contexts changed...");
-		contextSelectBox.reloadContexts();
+		contextSelectBox.reloadContexts(false);
 	}
 
 	/**
