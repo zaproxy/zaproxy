@@ -30,10 +30,10 @@ import org.zaproxy.zap.model.Context;
  * @see ScanListener
  * @see Context
  */
-public abstract class BaseContextScannerThread<StartOptions extends ScanStartOptions> extends
-		BaseScannerThread<StartOptions> {
+public abstract class BaseContextScannerThread<StartOptions extends ScanStartOptions, Listener extends ScanListener>
+		extends BaseScannerThread<StartOptions> {
 
-	protected Set<ScanListener> listeners;
+	protected Set<Listener> listeners;
 	protected int contextId;
 
 	/**
@@ -44,20 +44,20 @@ public abstract class BaseContextScannerThread<StartOptions extends ScanStartOpt
 	public BaseContextScannerThread(int contextId) {
 		super();
 		this.contextId = contextId;
-		this.listeners = new LinkedHashSet<ScanListener>();
+		this.listeners = new LinkedHashSet<Listener>();
 	}
 
 	/**
 	 * Adds a new scan listener.
 	 */
-	public void addScanListener(ScanListener l) {
+	public void addScanListener(Listener l) {
 		listeners.add(l);
 	}
 
 	/**
 	 * Removes a scan listener.
 	 */
-	public void removeScanListener(ScanListener l) {
+	public void removeScanListener(Listener l) {
 		listeners.remove(l);
 	}
 
