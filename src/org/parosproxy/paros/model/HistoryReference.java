@@ -34,6 +34,7 @@
 // ZAP: 2014/04/10 Changed to use HttpMessageCachedData and expose the cached data
 // ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
+// ZAP: 2014/06/10 Added TYPE_ACCESS_CONTROL
 
 package org.parosproxy.paros.model;
 
@@ -97,6 +98,8 @@ public class HistoryReference {
    public static final int TYPE_SPIDER_AJAX = 10;
    // ZAP: Added TYPE_AUTHENTICATION for use in authentication methods
    public static final int TYPE_AUTHENTICATION = 11;
+   // ZAP: Added TYPE_ACCESS_CONTROL for use in access control testing methods
+   public static final int TYPE_ACCESS_CONTROL = 13;
    public static final int TYPE_RESERVED_11 = 12;	// Reserved by Psiinon
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
