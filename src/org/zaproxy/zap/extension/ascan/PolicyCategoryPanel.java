@@ -29,7 +29,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultRowSorter;
 import javax.swing.JComboBox;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -92,10 +91,9 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
             tableTest.setAutoCreateRowSorter(true);
             
             //Default sort by name (column 0)
-            DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>)tableTest.getRowSorter());
             List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
-            sorter.setSortKeys(sortKeys); 
+            tableTest.getRowSorter().setSortKeys(sortKeys);
             
 	        for (int i = 0; i < tableTest.getColumnCount()-1; i++) {
 	            TableColumn column = tableTest.getColumnModel().getColumn(i);

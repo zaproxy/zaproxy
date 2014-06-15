@@ -33,7 +33,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
-import javax.swing.DefaultRowSorter;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFileChooser;
@@ -200,10 +199,9 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
             tableTest.setAutoCreateRowSorter(true);
             
             //Default sort by name (column 0)
-            DefaultRowSorter<?, ?> sorter = ((DefaultRowSorter<?, ?>)tableTest.getRowSorter());
-            List <RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>();
+            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
             sortKeys.add(new RowSorter.SortKey(0, SortOrder.ASCENDING));
-            sorter.setSortKeys(sortKeys); 
+            tableTest.getRowSorter().setSortKeys(sortKeys);
             
             for (int i = 0; i < tableTest.getColumnCount()-1; i++) {
                 TableColumn column = tableTest.getColumnModel().getColumn(i);
