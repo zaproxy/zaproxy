@@ -70,8 +70,6 @@ public class CategoryTableModel extends DefaultTableModel {
     }
     
     public void setTable(int category, List<Plugin> allTest) {
-        String quality = new String();
-        ScannerUtils scannerQuality = new ScannerUtils();
         
         listTestCategory.clear();
         this.category = category ;
@@ -79,8 +77,7 @@ public class CategoryTableModel extends DefaultTableModel {
             Plugin test = allTest.get(i);
             if (test.getCategory() == category) {
                 listTestCategory.add(test);
-                quality = scannerQuality.getPluginQuality(test);
-                scannersQuality.put(test.getId(),quality);
+                scannersQuality.put(test.getId(),ScannerUtils.getPluginQuality(test));
             }
         }
         fireTableDataChanged();

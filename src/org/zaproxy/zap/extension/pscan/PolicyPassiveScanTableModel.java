@@ -65,13 +65,11 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      * @param scanner 
      */
     public void addScanner(PluginPassiveScanner scanner) {
-        String quality = new String();
-        ScannerUtils scannerQuality = new ScannerUtils();
-        
+                
         listScanners.add(scanner);   
-        quality = scannerQuality.getPluginQuality(scanner);
-        scannersQuality.put(scanner.getPluginId(),quality);
+        scannersQuality.put(scanner.getPluginId(),ScannerUtils.getPluginQuality(scanner));
         fireTableDataChanged();
+        
     }
 
     /**
@@ -179,7 +177,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        PassiveScanner test = listScanners.get(row);
+        PluginPassiveScanner test = listScanners.get(row);
         Object result = null;
         switch (col) {
             case 0: // Plugin/Rule Name Column
@@ -191,7 +189,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 break;
                 
             case 2: // Quality Column
-                result = scannersQuality.get(((PluginPassiveScanner) test).getPluginId());
+                result = scannersQuality.get((test).getPluginId());
                 break;  
             
             default:

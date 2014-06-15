@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2014 The ZAP Development Team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -20,6 +20,9 @@
 
 package org.zaproxy.zap.utils;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -28,62 +31,78 @@ import org.parosproxy.paros.core.scanner.Plugin;
  * Class to facilitate getting various details from extension plug-ins/rules
  * @author kingthorin+owaspzap@gmail.com
  */
-
-public class ScannerUtils {
+public final class ScannerUtils {
 
 	private static final String QUALITY_RELEASE = 
-			Constant.messages.getString("ascan.policy.table.qualityrelease");
+			Constant.messages.getString("ascan.policy.table.quality.release");
 	private static final String QUALITY_BETA = 
-			Constant.messages.getString("ascan.policy.table.qualitybeta");
+			Constant.messages.getString("ascan.policy.table.quality.beta");
 	private static final String QUALITY_ALPHA = 
-			Constant.messages.getString("ascan.policy.table.qualityalpha");
+			Constant.messages.getString("ascan.policy.table.quality.alpha");
 	private static final String QUALITY_SCRIPT_RULES = 
-			Constant.messages.getString("ascan.policy.table.qualityscriptrules");
+			Constant.messages.getString("ascan.policy.table.quality.scriptrules");
 	
-	private static final String BETA_REGEX = ".*beta.*";
-	private static final String ALPHA_REGEX = ".*alpha.*";
-	private static final String SCRIPT_RULES_REGEX = ".*script.*rules.*";
-		
+	private static final Pattern BETA_REGEX = Pattern.compile("(?i).*beta.*");
+	private static final Pattern ALPHA_REGEX = Pattern.compile("(?i).*alpha.*");
+	private static final Pattern SCRIPT_RULES_REGEX = Pattern.compile("(?i).*script.*rules.*");
+	
     /** 
-     * get the quality or status of the Passive scanner in question
-     * @param scanner the scanner we want to know the quality/status of
+     * Default constructor 
+     */
+	public ScannerUtils() {
+	
+	}
+	
+    /** 
+     * Gets the quality or status of the given {@code scanner}, using regular expressions
+     * on the scanner and package name values.
+     * @param the name of the scanner
+     * @param the name of the scanner package
      * @return quality 
      */
-	public String getPluginQuality(PluginPassiveScanner scanner) {
-        String parentExtension = scanner.getClass().getCanonicalName();
-        String quality = new String();
+	private static String getSpecificQuality(String scannerName, String scannerPackage) {
+
+        String quality = "";
+
+        Matcher alphaMatcher = ALPHA_REGEX.matcher(scannerPackage);
+        Matcher betaMatcher = BETA_REGEX.matcher(scannerPackage);
+        Matcher scriptRulesMatcher = SCRIPT_RULES_REGEX.matcher(scannerName);
         
-        if (parentExtension.toLowerCase().matches(BETA_REGEX))
+        if (betaMatcher.matches())
         	quality = QUALITY_BETA;
-        if (parentExtension.toLowerCase().matches(ALPHA_REGEX)) 
+        else if (alphaMatcher.matches()) 
         	quality = QUALITY_ALPHA;
-        if (scanner.getName().toLowerCase().matches(SCRIPT_RULES_REGEX)) 
+        else if (scriptRulesMatcher.matches()) 
         	quality = QUALITY_SCRIPT_RULES;
-        if (quality == null || quality.length() == 0) // We haven't matched yet so it must be Release
+        else  // We haven't matched yet so it must be Release
         	quality = QUALITY_RELEASE;
         
         return quality;
+	}
+	
+    /** 
+     * Gets the quality or status of the given passive {@code scanner}.
+     * @param the scanner we want to know the quality/status of
+     * @return quality 
+     */
+	public static String getPluginQuality(PluginPassiveScanner scanner) {
+        String scannerPackage = scanner.getClass().getCanonicalName();
+        String scannerName = scanner.getName();
+        
+        return (getSpecificQuality(scannerName, scannerPackage));
+        
         }
 	
     /** 
-     * get the quality or status of the scanner in question
-     * @param scanner the scanner we want to know the quality/status of
+     * Gets the quality or status of the given {@code scanner}.
+     * @param the scanner we want to know the quality/status of
      * @return quality 
      */
-	public String getPluginQuality(Plugin scanner) {
-        String parentExtension = scanner.getClass().getCanonicalName();
-        String quality = new String();
+	public static String getPluginQuality(Plugin scanner) {
+        String scannerPackage = scanner.getClass().getCanonicalName();
+        String scannerName = scanner.getName().toLowerCase();
         
-        if (parentExtension.toLowerCase().matches(BETA_REGEX))
-        	quality = QUALITY_BETA;
-        if (parentExtension.toLowerCase().matches(ALPHA_REGEX)) 
-        	quality = QUALITY_ALPHA;
-        if (scanner.getName().toLowerCase().matches(SCRIPT_RULES_REGEX)) 
-        	quality = QUALITY_SCRIPT_RULES;
-        if (quality == null || quality.length() == 0) // We haven't matched yet so it must be Release
-        	quality = QUALITY_RELEASE;
-        
-        return quality;
+        return (getSpecificQuality(scannerName, scannerPackage));
         
         }
 }
