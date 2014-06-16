@@ -49,7 +49,7 @@ public final class ScannerUtils {
     /** 
      * Default constructor 
      */
-	public ScannerUtils() {
+	private ScannerUtils() {
 	
 	}
 	
