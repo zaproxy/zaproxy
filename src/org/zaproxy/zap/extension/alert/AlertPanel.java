@@ -75,7 +75,6 @@ public class AlertPanel extends AbstractPanel {
 	
 	private ViewDelegate view = null;
 	private JTree treeAlert = null;
-	private TreePath rootTreePath = null;	
 	
 	private JScrollPane paneScroll = null;
 
@@ -544,20 +543,15 @@ public class AlertPanel extends AbstractPanel {
 
     
 	public void expandRoot() {
-        TreeNode root = (TreeNode) getTreeAlert().getModel().getRoot();
-        if (rootTreePath == null || root != rootTreePath.getPathComponent(0)) {
-            rootTreePath = new TreePath(root);
-        }
-	    
 		if (EventQueue.isDispatchThread()) {
-		    getTreeAlert().expandPath(rootTreePath);
+		    getTreeAlert().expandPath(new TreePath(getTreeAlert().getModel().getRoot()));
 		    return;
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-				    getTreeAlert().expandPath(rootTreePath);
+				    expandRoot();
 				}
 			});
 		} catch (Exception e) {
