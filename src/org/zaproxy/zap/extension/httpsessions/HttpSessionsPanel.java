@@ -28,7 +28,6 @@ import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
 import java.awt.event.KeyEvent;
-import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -39,7 +38,6 @@ import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
-import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -54,8 +52,6 @@ import org.zaproxy.zap.view.ScanPanel;
  * user to view and control the http sessions.
  */
 public class HttpSessionsPanel extends AbstractPanel {
-
-	private static final Logger LOGGER = Logger.getLogger(HttpSessionsPanel.class);
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
@@ -369,32 +365,44 @@ public class HttpSessionsPanel extends AbstractPanel {
 	}
 
 	/**
-	 * Add a new site to the {@link ExtensionHttpSessions}.
+	 * Adds a new site to the "Http Sessions" tab.
+	 * <p>
+	 * The method must be called in the EDT, failing to do so might result in thread interference or memory consistency errors.
+	 * </p>
 	 * 
 	 * @param site the site
+	 * @see #addSiteAsynchronously(String)
+	 * @see EventQueue
 	 */
-	public void addSite(final String site) {
-		if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-			if (siteModel.getIndexOf(site) < 0) {
-				siteModel.addElement(site);
-				if (currentSite == null) {
-					// First site added, automatically select it
-					siteModel.setSelectedItem(site);
-				}
-			}
-		} else {
-			try {
-				EventQueue.invokeAndWait(new Runnable() {
-
-					@Override
-					public void run() {
-						addSite(site);
-					}
-				});
-			} catch (InvocationTargetException | InterruptedException e) {
-				LOGGER.error("Failed to add site: " + e.getMessage(), e);
+	public void addSite(String site) {
+		if (siteModel.getIndexOf(site) < 0) {
+			siteModel.addElement(site);
+			if (currentSite == null) {
+				// First site added, automatically select it
+				siteModel.setSelectedItem(site);
 			}
 		}
+	}
+
+	/**
+	 * Adds a new site, asynchronously, to the "Http Sessions" tab.
+	 * <p>
+	 * The call to this method will return immediately and the site will be added in the EDT (by calling the method
+	 * {@code EventQueue#invokeLater(Runnable)}) after all pending events have been processed.
+	 * </p>
+	 *
+	 * @param site the site
+	 * @see #addSite(String)
+	 * @see EventQueue#invokeLater(Runnable)
+	 */
+	public void addSiteAsynchronously(final String site) {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				addSite(site);
+			}
+		});
 	}
 
 	/**
