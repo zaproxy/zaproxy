@@ -21,8 +21,11 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -83,6 +86,15 @@ public class ScannerParamFilter {
         this.paramNamePattern = Pattern.compile(paramNameRegex);
     }
 
+    public static boolean isValidParamNameRegex(String paramNameRegex) {
+        try {
+            Pattern.compile(paramNameRegex);
+            return true;
+        } catch (PatternSyntaxException e) {
+            return false;
+        }
+    }
+
     public String getWildcardedUrl() {
         return wildcardedUrl;
     }
@@ -93,9 +105,11 @@ public class ScannerParamFilter {
             this.urlPattern = null;
             
         } else {        
-            String wname = wildcardedUrl.toUpperCase();
-            wname = wname.replaceAll("\\?", ".");
-            wname = wname.replaceAll("\\*", ".*");
+            String wname = wildcardedUrl.toUpperCase(Locale.ROOT);
+            wname = Pattern.quote(wname);
+            wname = wname.replaceAll("\\?", "\\\\E.\\\\Q");
+            wname = wname.replaceAll("\\*", "\\\\E.*\\\\Q");
+            wname = wname.replaceAll("\\\\Q\\\\E", "");
 
             this.urlPattern = Pattern.compile(wname);    
         }
@@ -111,7 +125,7 @@ public class ScannerParamFilter {
         // Verify if check for the paramType should be maintained because
         // It's currently optimized using a Map in the container
         return ((paramType < 0) || (param.getType() == paramType)) &&
-                ((urlPattern == null) || urlPattern.matcher(msg.getRequestHeader().getURI().toString()).matches()) && 
+                ((urlPattern == null) || urlPattern.matcher(msg.getRequestHeader().getURI().toString().toUpperCase(Locale.ROOT)).matches()) && 
                 (paramNamePattern.matcher(param.getName()).matches());
     }
     

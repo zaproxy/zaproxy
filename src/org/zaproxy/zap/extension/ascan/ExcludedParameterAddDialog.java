@@ -48,6 +48,9 @@ class ExcludedParameterAddDialog extends AbstractFormDialog {
     private static final String TITLE_NAME_REPEATED_DIALOG = Constant.messages.getString("variant.options.excludedparam.dialog.token.warning.name.repeated.title");
     private static final String TEXT_NAME_REPEATED_DIALOG = Constant.messages.getString("variant.options.excludedparam.dialog.token.warning.name.repeated.text");
     
+    private static final String TITLE_WARNING_INVALID_REGEX = Constant.messages.getString("variant.options.excludedparam.dialog.token.warning.invalid.regex.title");
+    private static final String MESSAGE_INVALID_NAME_REGEX = Constant.messages.getString("variant.options.excludedparam.dialog.token.warning.invalid.regex.field.name");
+
     private ZapTextField nameTextField;
     private ZapTextField urlTextField;
     private JComboBox<String> typeTextField;
@@ -117,7 +120,24 @@ class ExcludedParameterAddDialog extends AbstractFormDialog {
 
     @Override
     protected boolean validateFields() {
-        String tokenName = getNameTextField().getText();
+        if (!validateName(getNameTextField().getText())) {
+            return false;
+        }
+
+        if (!ScannerParamFilter.isValidParamNameRegex(getNameTextField().getText())) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    MESSAGE_INVALID_NAME_REGEX,
+                    TITLE_WARNING_INVALID_REGEX,
+                    JOptionPane.WARNING_MESSAGE);
+            getNameTextField().requestFocusInWindow();
+            return false;
+        }
+
+        return true;
+    }
+
+    protected boolean validateName(String tokenName) {
         for (ScannerParamFilter t : tokens) {
             if (tokenName.equals(t.getParamName())) {
                 JOptionPane.showMessageDialog(

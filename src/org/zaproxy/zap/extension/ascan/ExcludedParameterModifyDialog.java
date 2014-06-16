@@ -43,12 +43,12 @@ class ExcludedParameterModifyDialog extends ExcludedParameterAddDialog {
     }
     
     @Override
-    protected boolean validateFields() {
-        if (token.getParamName().equals(getNameTextField().getText())) {
+    protected boolean validateName(String tokenName) {
+        if (token.getParamName().equals(tokenName)) {
             return true;
         }
         
-        return super.validateFields();
+        return super.validateName(tokenName);
     }
 
     @Override
