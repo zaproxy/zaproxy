@@ -26,6 +26,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import org.apache.commons.lang.StringUtils;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.parosproxy.paros.Constant;
@@ -161,8 +162,7 @@ public class HarUtils {
                 contentType = "";
                 text = requestBody.toString();
             } else {
-                String lcContentType = contentType.trim().toLowerCase(Locale.ROOT);
-                if (HttpHeader.FORM_URLENCODED_CONTENT_TYPE.equals(lcContentType)) {
+                if (StringUtils.startsWithIgnoreCase(contentType.trim(), HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
                     for (HtmlParameter param : httpMessage.getFormParams()) {
                         params.addPostDataParam(new HarPostDataParam(param.getName(), param.getValue()));
                     }
