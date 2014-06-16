@@ -23,11 +23,14 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
+import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -39,6 +42,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -48,6 +53,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
@@ -341,16 +347,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			ApiResponseList resultList = new ApiResponseList(name);
 			for (Plugin scanner : scanners) {
 				if (policyId == -1 || policyId == scanner.getCategory()) {
-					Map<String, String> map = new HashMap<>();
-					map.put("id", String.valueOf(scanner.getId()));
-					map.put("name", scanner.getName());
-					map.put("cweId", String.valueOf(scanner.getCweId()));
-					map.put("wascId", String.valueOf(scanner.getWascId()));
-					map.put("attackStrength", String.valueOf(scanner.getAttackStrength(true)));
-					map.put("alertThreshold", String.valueOf(scanner.getAlertThreshold(true)));
-					map.put("policyId", String.valueOf(scanner.getCategory()));
-					map.put("enabled", String.valueOf(scanner.isEnabled()));
-					resultList.addItem(new ApiResponseSet("scanner", map));
+					resultList.addItem(new ScannerApiResponse(scanner));
 				}
 			}
 
@@ -448,5 +445,108 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 	@Override
 	public void scannerComplete() {
+	}
+
+	private static class ScannerApiResponse extends ApiResponse {
+
+		final Map<String, String> scannerData;
+		final ApiResponseList dependencies;
+
+		public ScannerApiResponse(Plugin scanner) {
+			super("scanner");
+
+			scannerData = new HashMap<>();
+			scannerData.put("id", String.valueOf(scanner.getId()));
+			scannerData.put("name", scanner.getName());
+			scannerData.put("cweId", String.valueOf(scanner.getCweId()));
+			scannerData.put("wascId", String.valueOf(scanner.getWascId()));
+			scannerData.put("attackStrength", String.valueOf(scanner.getAttackStrength(true)));
+			scannerData.put("alertThreshold", String.valueOf(scanner.getAlertThreshold(true)));
+			scannerData.put("policyId", String.valueOf(scanner.getCategory()));
+			scannerData.put("enabled", String.valueOf(scanner.isEnabled()));
+
+			boolean allDepsAvailable = Control.getSingleton().getPluginFactory().hasAllDependenciesAvailable(scanner);
+			scannerData.put("allDependenciesAvailable", Boolean.toString(allDepsAvailable));
+
+			dependencies = new ApiResponseList("dependencies");
+			for (Plugin dependency : Control.getSingleton().getPluginFactory().getDependencies(scanner)) {
+				dependencies.addItem(new ApiResponseElement("dependency", Integer.toString(dependency.getId())));
+			}
+		}
+
+		@Override
+		public void toXML(Document doc, Element parent) {
+			parent.setAttribute("type", "set");
+			for (Entry<String, String> val : scannerData.entrySet()) {
+				Element el = doc.createElement(val.getKey());
+				el.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(val.getValue())));
+				parent.appendChild(el);
+			}
+
+			Element el = doc.createElement(dependencies.getName());
+			dependencies.toXML(doc, el);
+			parent.appendChild(el);
+		}
+
+		@Override
+		public JSON toJSON() {
+			JSONObject jo = new JSONObject();
+			for (Entry<String, String> val : scannerData.entrySet()) {
+				jo.put(val.getKey(), val.getValue());
+			}
+			jo.put(dependencies.getName(), ((JSONObject) dependencies.toJSON()).getJSONArray(dependencies.getName()));
+			return jo;
+		}
+
+		@Override
+		public void toHTML(StringBuilder sb) {
+			sb.append("<h2>" + this.getName() + "</h2>\n");
+			sb.append("<table border=\"1\">\n");
+			for (Entry<String, String> val : scannerData.entrySet()) {
+				sb.append("<tr><td>\n");
+				sb.append(val.getKey());
+				sb.append("</td><td>\n");
+				sb.append(StringEscapeUtils.escapeHtml(val.getValue()));
+				sb.append("</td></tr>\n");
+			}
+			sb.append("<tr><td>\n");
+			sb.append(dependencies.getName());
+			sb.append("</td><td>\n");
+			sb.append("<table border=\"1\">\n");
+			for (ApiResponse resp : this.dependencies.getItems()) {
+				sb.append("<tr><td>\n");
+				resp.toHTML(sb);
+				sb.append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
+			sb.append("</td></tr>\n");
+			sb.append("</table>\n");
+		}
+
+		@Override
+		public String toString(int indent) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < indent; i++) {
+				sb.append("	");
+			}
+			sb.append("ScannerApiResponse ");
+			sb.append(this.getName());
+			sb.append(" : [\n");
+			for (Entry<String, String> val : scannerData.entrySet()) {
+				for (int i = 0; i < indent + 1; i++) {
+					sb.append("\t");
+				}
+				sb.append(val.getKey());
+				sb.append(" = ");
+				sb.append(val.getValue());
+				sb.append("\n");
+			}
+			dependencies.toString(indent + 1);
+			for (int i = 0; i < indent; i++) {
+				sb.append("\t");
+			}
+			sb.append("]\n");
+			return sb.toString();
+		}
 	}
 }

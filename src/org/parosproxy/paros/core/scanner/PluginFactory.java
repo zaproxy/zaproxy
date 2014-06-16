@@ -169,6 +169,23 @@ public class PluginFactory {
         }
     }
 
+    public List<Plugin> getDependencies(Plugin plugin) {
+        String[] dependencies = plugin.getDependency();
+        if (dependencies == null || dependencies.length == 0) {
+            return Collections.emptyList();
+        }
+
+        List<String> deps = new ArrayList<>(Arrays.asList(dependencies));
+        List<Plugin> depsPlugins = new ArrayList<>(deps.size());
+        for (String dependency : deps) {
+            Plugin pluginDep = mapAllPluginOrderCodeName.get(dependency);
+            if (pluginDep != null) {
+                depsPlugins.add(pluginDep);
+            }
+        }
+        return depsPlugins;
+    }
+    
     /**
      * 
      * @param config 
