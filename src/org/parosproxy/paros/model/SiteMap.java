@@ -35,6 +35,7 @@
 // ZAP: 2014/03/23 Issue 997: Session.open complains about improper use of addPath
 // ZAP: 2014/04/10 Initialise the root SiteNode with a reference to SiteMap
 // ZAP: 2014/04/10 Allow to delete history ID to SiteNode map entries
+// ZAP: 2014/06/16 Issue 1227: Active scanner sends GET requests with content in request body
 
 package org.parosproxy.paros.model;
 
@@ -531,6 +532,7 @@ public class SiteMap extends DefaultTreeModel {
         newMsg.getRequestHeader().setURI(uri);
         newMsg.getRequestHeader().setMethod(HttpRequestHeader.GET);
         newMsg.getRequestBody().setBody("");
+        newMsg.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, null);
         newMsg.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
         
 		//HistoryReference historyRef = new HistoryReference(model.getSession(), baseRef.getHistoryType(), newMsg);
