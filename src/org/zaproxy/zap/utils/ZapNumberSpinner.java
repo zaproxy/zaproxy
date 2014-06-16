@@ -46,7 +46,7 @@ public class ZapNumberSpinner extends JSpinner {
 	public ZapNumberSpinner(int minValue, int defaultValue, int maxValue) {
 		this.minValue = minValue;
 		this.maxValue = maxValue;
-		if (defaultValue < minValue || defaultValue > maxValue) {
+		if (!isValidValue(defaultValue)) {
 			this.defaultValue = minValue;
 		} else {
 			this.defaultValue = defaultValue;
@@ -54,6 +54,13 @@ public class ZapNumberSpinner extends JSpinner {
 		setModel(new SpinnerNumberModel(this.defaultValue, minValue, maxValue, 1));
 		((NumberEditor)getEditor()).getTextField().setFormatterFactory(
 				new DefaultFormatterFactory(new ZapNumberFormatter(minValue, maxValue)));
+	}
+
+	private boolean isValidValue(int value) {
+		if (value < minValue || value > maxValue) {
+			return false;
+		}
+		return true;
 	}
 
 	public void changeToDefaultValue() {
@@ -65,12 +72,15 @@ public class ZapNumberSpinner extends JSpinner {
 		if ((value == null) || !(value instanceof Number)) {
 			return;
 		}
-		final int intValue = ((Number)value).intValue();
-		if (intValue < minValue || intValue > maxValue) {
+		setValue(((Number) value).intValue());
+	}
+
+	public void setValue(int value) {
+		if (!isValidValue(value)) {
 			return;
 		}
 		
-		super.setValue(Integer.valueOf(intValue));
+		super.setValue(Integer.valueOf(value));
 	}
 
 	@Override
