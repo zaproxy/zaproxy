@@ -38,6 +38,9 @@
 // ZAP: 2014/04/10 Issue 1118: Alerts Tab can get out of sync
 // ZAP: 2014/05/05 Issue 1181: Vulnerable pages active scanned only once
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
+// ZAP: 2014/06/16 Fixed an issue in SiteNode#setHistoryReference(HistoryReference) that led
+// to multiple occurrences of same HistoryReference(s) in the pastHistoryList.
+
 
 package org.parosproxy.paros.model;
 
@@ -227,7 +230,7 @@ public class SiteNode extends DefaultMutableTreeNode {
             }
 
             // above code commented as to always add all into past reference.  For use in scanner
-            if (!getPastHistoryReference().contains(historyReference)) {
+            if (!getPastHistoryReference().contains(getHistoryReference())) {
                 getPastHistoryReference().add(getHistoryReference());
             }
         }
