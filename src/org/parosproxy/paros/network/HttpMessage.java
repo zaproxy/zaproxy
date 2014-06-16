@@ -39,6 +39,8 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/03/23 Tidy up, do not allow to set null request/response headers/bodies.
 // ZAP: 2014/03/28 Issue 1127: 	Allow scripts to generate breaks
+// ZAP: 2014/06/16 Issue 1217: Table format does not display information when charset is
+// present in Content-Type header
 
 package org.parosproxy.paros.network;
 
@@ -54,6 +56,7 @@ import java.util.Vector;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -557,7 +560,8 @@ public class HttpMessage implements Message {
 	// ZAP: Added getFormParams
 	public TreeSet<HtmlParameter> getFormParams() {
 		final String contentType = mReqHeader.getHeader(HttpRequestHeader.CONTENT_TYPE);
-		if (contentType == null || !HttpHeader.FORM_URLENCODED_CONTENT_TYPE.equalsIgnoreCase(contentType)) {
+		if (contentType == null
+				|| !StringUtils.startsWithIgnoreCase(contentType.trim(), HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
 			return new TreeSet<>();
 		}
 
