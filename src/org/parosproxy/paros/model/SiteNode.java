@@ -40,6 +40,7 @@
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/06/16 Fixed an issue in SiteNode#setHistoryReference(HistoryReference) that led
 // to multiple occurrences of same HistoryReference(s) in the pastHistoryList.
+// ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 
 
 package org.parosproxy.paros.model;
@@ -354,6 +355,20 @@ public class SiteNode extends DefaultMutableTreeNode {
                 ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
             }
             this.nodeChanged();
+        }
+    }
+
+    /**
+     * Deletes all alerts of this node and all child nodes recursively.
+     */
+    public void deleteAllAlerts() {
+        for(int i = 0; i < getChildCount(); i++) {
+            ((SiteNode) getChildAt(i)).deleteAllAlerts();
+        }
+
+        if (!alerts.isEmpty()) {
+            alerts.clear();
+            nodeChanged();
         }
     }
 

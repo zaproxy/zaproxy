@@ -28,6 +28,7 @@
 // ZAP: 2014/03/04 Issue 1042: Add ALERT_INDEX to speed up session load
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
+// ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 
 package org.parosproxy.paros.db;
 
@@ -72,6 +73,7 @@ public class TableAlert extends AbstractTable {
     private CallableStatement psGetIdLastInsert = null;
 
     private PreparedStatement psDeleteAlert = null;
+    private PreparedStatement psDeleteAllAlerts = null;
     //private PreparedStatement psDeleteScan = null;
 
     private PreparedStatement psUpdate = null;
@@ -96,6 +98,7 @@ public class TableAlert extends AbstractTable {
                  + "," + SOURCEHISTORYID + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
         psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
         psDeleteAlert = conn.prepareStatement("DELETE FROM " + TABLE_NAME + " WHERE " + ALERTID + " = ?");
+        psDeleteAllAlerts = conn.prepareStatement("DELETE FROM " + TABLE_NAME);
         //psDeleteScan = conn.prepareStatement("DELETE FROM ALERT WHERE " + SCANID + " = ?");
 
         // ZAP: New prepared statement for updating an alert
@@ -275,6 +278,10 @@ public class TableAlert extends AbstractTable {
         psDeleteAlert.execute();
     }
     
+    public int deleteAllAlerts() throws SQLException {
+        return psDeleteAllAlerts.executeUpdate();
+    }
+
     public synchronized void update(int alertId, String alert, 
             int risk, int confidence, String description, String uri, 
             String param, String attack, String otherInfo, String solution, String reference,

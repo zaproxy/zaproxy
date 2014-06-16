@@ -68,6 +68,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.HarUtils;
@@ -91,6 +92,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_SET_HOME_DIRECTORY = "setHomeDirectory";
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	private static final String ACTION_SEND_REQUEST = "sendRequest";
+	private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -143,6 +145,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				ACTION_SEND_REQUEST,
 				new String[] { PARAM_REQUEST },
 				new String[] { PARAM_FOLLOW_REDIRECTS }));
+		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
@@ -383,6 +386,24 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			} catch (Exception e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 			}
+		} else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
+            final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
+                    .getExtensionLoader()
+                    .getExtension(ExtensionAlert.NAME);
+            if (extAlert != null) {
+                extAlert.deleteAllAlerts();
+            } else {
+                try {
+                    Model.getSingleton().getDb().getTableAlert().deleteAllAlerts();
+                } catch (SQLException e) {
+                    logger.error(e.getMessage(), e);
+                }
+
+                SiteNode rootNode = (SiteNode) Model.getSingleton().getSession().getSiteTree().getRoot();
+                rootNode.deleteAllAlerts();
+
+                removeHistoryReferenceAlerts(rootNode);
+            }
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -468,6 +489,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			});
 		}
 	}
+	
+    private static void removeHistoryReferenceAlerts(SiteNode siteNode) {
+        for (int i = 0; i < siteNode.getChildCount(); i++) {
+            removeHistoryReferenceAlerts((SiteNode) siteNode.getChildAt(i));
+        }
+        if (siteNode.getHistoryReference() != null) {
+            siteNode.getHistoryReference().deleteAllAlerts();
+        }
+        for (HistoryReference hRef : siteNode.getPastHistoryReference()) {
+            hRef.deleteAllAlerts();
+        }
+    }
 
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params)

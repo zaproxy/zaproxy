@@ -425,6 +425,27 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     }
 
+    public void deleteAllAlerts() {
+        try {
+            getModel().getDb().getTableAlert().deleteAllAlerts();
+        } catch (SQLException e) {
+            logger.error(e.getMessage(), e);
+        }
+
+        SiteMap siteTree = this.getModel().getSession().getSiteTree();
+        ((SiteNode) siteTree.getRoot()).deleteAllAlerts();
+
+        for (HistoryReference href : hrefs.values()) {
+            href.deleteAllAlerts();
+        }
+
+        hrefs = new HashMap<>();
+
+        treeModel = null;
+        filteredTreeModel = null;
+        setTreeModel(getTreeModel());
+    }
+
     private void deleteAlertFromDisplay(final Alert alert) {
         if (getView() == null) {
             // Running as a daemon

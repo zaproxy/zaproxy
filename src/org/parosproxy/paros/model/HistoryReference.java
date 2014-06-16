@@ -35,6 +35,7 @@
 // ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/06/10 Added TYPE_ACCESS_CONTROL
+// ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 
 package org.parosproxy.paros.model;
 
@@ -427,6 +428,12 @@ public class HistoryReference {
 	   }
    }
    
+    public synchronized void deleteAllAlerts() {
+        if (alerts != null) {
+            alerts.clear();
+        }
+    }
+
    public int getHighestAlert() {
 	   int i = -1;
 	   //If there are no alerts
