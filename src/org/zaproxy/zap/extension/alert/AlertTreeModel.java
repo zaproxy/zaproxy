@@ -250,6 +250,17 @@ class AlertTreeModel extends DefaultTreeModel {
                 return result;
             }
 
+            if (alert.getAttack() == null) {
+                if (anotherAlert.getAttack() == null) {
+                    return 0;
+                }
+                return -1;
+            }
+
+            if (anotherAlert.getAttack() == null) {
+                return 1;
+            }
+
             return alert.getAttack().compareTo(anotherAlert.getAttack());
         }
     }
