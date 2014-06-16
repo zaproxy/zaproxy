@@ -422,7 +422,7 @@ public class AddOnLoader extends URLClassLoader {
                 }
             }
         } catch (Exception e) {
-        	logger.error(e.getMessage(), e);
+        	logger.error("Failed to open file: " + file.getAbsolutePath(), e);
         }
         return classNames;
     }
