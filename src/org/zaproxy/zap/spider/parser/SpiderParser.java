@@ -114,15 +114,16 @@ public abstract class SpiderParser {
 	 * {@link #notifyListenersPostResourceFound(HttpMessage, int, String, String)} and
 	 * {@link #notifyListenersResourceFound(HttpMessage, int, String)} to announce the found URIs.
 	 * <p/>
-	 * The return value specifies whether the resource should be considered 'completely processed'
-	 * and should not be processed by subsequent parsers.
+	 * The return value specifies whether the resource should be considered 'completely
+	 * processed'/consumed and should be treated accordingly by subsequent parsers. For example, any
+	 * parsers which are meant to be 'fall-back' parsers should skip messages already processed by
+	 * other parsers.
 	 * 
 	 * @param message the full http message containing the request and the response
 	 * @param source a Jericho source with the Response Body from the HTTP message. This parameter
 	 *            can be {@code null}, in which case the parser implementation should ignore it.
 	 * @param depth the depth of this resource
-	 * @return whether the resource is completely parsed and it should not be parsed by subsequent
-	 *         parsers
+	 * @return whether the resource is considered to be exhaustively processed
 	 */
 	public abstract boolean parseResource(final HttpMessage message, Source source, int depth);
 
@@ -133,14 +134,14 @@ public abstract class SpiderParser {
 	 * another Parser, this method should decide whether the
 	 * {@link #parseResource(HttpMessage, Source, int)} should be invoked.
 	 * <p/>
-	 * The {@code wasAlreadyParsed} could be used by parsers which represent a 'back-fall' parser to
-	 * check whether any other parser has processed the message before.
+	 * The {@code wasAlreadyConsumed} could be used by parsers which represent a 'fall-back' parser
+	 * to check whether any other parser has processed the message before.
 	 * 
 	 *
 	 * @param message the full http message containing the request and the response
 	 * @param path the resource path, provided for convenience
-	 * @param wasAlreadyParsed if the resource was already parsed by another SpiderParser
+	 * @param wasAlreadyConsumed if the resource was already parsed by another SpiderParser
 	 * @return true, if the {@link #parseResource(HttpMessage, Source, int)} should be invoked.
 	 */
-	public abstract boolean canParseResource(final HttpMessage message, String path, boolean wasAlreadyParsed);
+	public abstract boolean canParseResource(final HttpMessage message, String path, boolean wasAlreadyConsumed);
 }
