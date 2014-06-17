@@ -25,6 +25,7 @@ import net.htmlparser.jericho.Source;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
@@ -195,15 +196,31 @@ public class SpiderTask implements Runnable {
 	/**
 	 * Process a resource, searching for links (uris) to other resources.
 	 * 
-	 * @param msg the HTTP Message
+	 * @param message the HTTP Message
 	 */
-	private void processResource(HttpMessage msg) {
+	private void processResource(HttpMessage message) {
+		List<SpiderParser> parsers = parent.getController().getParsers();
 
+		// Prepare the Jericho source
+		Source source = new Source(message.getResponseBody().toString());
+		
+		// Get the full path of the file
+		String path = null;
+		try {
+			path = message.getRequestHeader().getURI().getPath();
+		} catch (URIException e) {
+		} finally {
+			// Handle null paths.
+			if (path == null)
+				path = "";
+		}
+		
 		// Parse the resource
-		List<SpiderParser> parsers = parent.getController().getParsers(msg);
-		Source source = new Source(msg.getResponseBody().toString());
+		boolean alreadyConsumed = false;
 		for (SpiderParser parser : parsers) {
-			parser.parseResource(msg, source, depth);
+			if (parser.canParseResource(message, path, alreadyConsumed))
+				if (parser.parseResource(message, source, depth))
+					alreadyConsumed = true;
 		}
 	}
 

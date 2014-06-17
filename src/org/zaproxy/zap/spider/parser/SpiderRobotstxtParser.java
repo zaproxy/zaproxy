@@ -53,10 +53,11 @@ public class SpiderRobotstxtParser extends SpiderParser {
 	}
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
 		if (message == null || !params.isParseRobotsTxt()) {
-			return;
+			return false;
 		}
+		log.debug("Parsing a robots.txt resource...");
 
 		// Get the response content
 		String content = message.getResponseBody().toString();
@@ -139,6 +140,13 @@ public class SpiderRobotstxtParser extends SpiderParser {
 			}
 		}
 
-		return;
+		// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+		return true;
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+		// If it's a robots.txt file
+		return path != null && path.equalsIgnoreCase("/robots.txt");
 	}
 }

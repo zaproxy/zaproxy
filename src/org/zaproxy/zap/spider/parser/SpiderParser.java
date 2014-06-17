@@ -27,8 +27,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
- * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of these
- * Parsers is to find links (uris) to resources in the provided content. Uses the Jericho Library for parsing.
+ * The Abstract Class SpiderParser is the base for parsers used by the spider. The main purpose of
+ * these Parsers is to find links (uris) to resources in the provided content. Uses the Jericho
+ * Library for parsing.
  */
 public abstract class SpiderParser {
 
@@ -78,7 +79,8 @@ public abstract class SpiderParser {
 	 * @param uri the uri
 	 * @param requestBody the request body
 	 */
-	protected void notifyListenersPostResourceFound(HttpMessage message, int depth, String uri, String requestBody) {
+	protected void notifyListenersPostResourceFound(HttpMessage message, int depth, String uri,
+			String requestBody) {
 		for (SpiderParserListener l : listeners) {
 			l.resourcePostURIFound(message, depth, uri, requestBody);
 		}
@@ -104,13 +106,41 @@ public abstract class SpiderParser {
 	}
 
 	/**
-	 * Parses the resource. The HTTP message containing the request and the response is given. Also, if
-	 * possible, a Jericho source with the Response Body is provided.
+	 * Parses the resource. The HTTP message containing the request and the response is given. Also,
+	 * if possible, a Jericho source with the Response Body is provided.
+	 * <p/>
+	 * When a link is encountered, implementations can use
+	 * {@link #processURL(HttpMessage, int, String, String)},
+	 * {@link #notifyListenersPostResourceFound(HttpMessage, int, String, String)} and
+	 * {@link #notifyListenersResourceFound(HttpMessage, int, String)} to announce the found URIs.
+	 * <p/>
+	 * The return value specifies whether the resource should be considered 'completely processed'
+	 * and should not be processed by subsequent parsers.
 	 * 
 	 * @param message the full http message containing the request and the response
-	 * @param source a Jericho source with the Response Body from the HTTP message. This parameter can be
-	 *        {@code null}, in which case the parser implementation should ignore it.
+	 * @param source a Jericho source with the Response Body from the HTTP message. This parameter
+	 *            can be {@code null}, in which case the parser implementation should ignore it.
 	 * @param depth the depth of this resource
+	 * @return whether the resource is completely parsed and it should not be parsed by subsequent
+	 *         parsers
 	 */
-	public abstract void parseResource(final HttpMessage message, Source source, int depth);
+	public abstract boolean parseResource(final HttpMessage message, Source source, int depth);
+
+	/**
+	 * Checks whether the parser should be called to parse the given HttpMessage.
+	 * <p/>
+	 * Based on the specifics of the HttpMessage and whether this message was already processed by
+	 * another Parser, this method should decide whether the
+	 * {@link #parseResource(HttpMessage, Source, int)} should be invoked.
+	 * <p/>
+	 * The {@code wasAlreadyParsed} could be used by parsers which represent a 'back-fall' parser to
+	 * check whether any other parser has processed the message before.
+	 * 
+	 *
+	 * @param message the full http message containing the request and the response
+	 * @param path the resource path, provided for convenience
+	 * @param wasAlreadyParsed if the resource was already parsed by another SpiderParser
+	 * @return true, if the {@link #parseResource(HttpMessage, Source, int)} should be invoked.
+	 */
+	public abstract boolean canParseResource(final HttpMessage message, String path, boolean wasAlreadyParsed);
 }

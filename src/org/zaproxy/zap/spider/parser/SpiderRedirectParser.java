@@ -21,6 +21,7 @@ import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 
 /**
  * The Class SpiderRedirectParser is used for parsing of HTTP Redirection messages.
@@ -28,11 +29,11 @@ import org.parosproxy.paros.network.HttpMessage;
 public class SpiderRedirectParser extends SpiderParser {
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
-		log.debug("Parsing HTTP redirection resource.");
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
+		log.debug("Parsing an HTTP redirection resource...");
 
 		if (message == null || message.getResponseHeader() == null) {
-			return;
+			return false;
 		}
 
 		String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
@@ -42,5 +43,13 @@ public class SpiderRedirectParser extends SpiderParser {
 			String baseURL = message.getRequestHeader().getURI().toString();
 			processURL(message, depth, location, baseURL);
 		}
+		// We consider the message fully parsed
+		return true;
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+		return message.getResponseHeader() != null
+				&& HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode());
 	}
 }

@@ -69,11 +69,11 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	}
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
-
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
+		log.debug("Parsing an HTML message for forms...");
 		// If form processing is disabled, don't parse anything
 		if (!param.isProcessForm()) {
-			return;
+			return false;
 		}
 
 		// Prepare the source, if not provided
@@ -141,7 +141,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				// Build the absolute canonical URL
 				String fullURL = URLCanonicalizer.getCanonicalURL(action, baseURL);
 				if (fullURL == null) {
-					return;
+					return false;
 				}
 
 				log.debug("Canonical URL constructed using '" + action + "': " + fullURL);
@@ -172,6 +172,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 		}
 
+		return false;
 	}
 
 	/**
@@ -369,5 +370,12 @@ public class SpiderHtmlFormParser extends SpiderParser {
 		}
 
 		return request.toString();
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
+		// Fallback parser - if it's a HTML message which has not already been processed		
+		return !wasAlreadyConsumed && message.getResponseHeader() != null
+				&& message.getResponseHeader().isHtml();
 	}
 }

@@ -25,6 +25,7 @@ import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Enumeration;
+import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
@@ -44,6 +45,9 @@ import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.filters.FetchFilter;
+import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -53,6 +57,8 @@ import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
  */
 public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ProxyListener, SiteMapListener {
 
+	public static final int EXTENSION_ORDER = 30;
+	
 	/** The Constant logger. */
 	private static final Logger log = Logger.getLogger(ExtensionSpider.class);
 
@@ -73,6 +79,10 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 	/** The params for the spider. */
 	private SpiderParam params = null;
+	
+	private List<SpiderParser> customParsers;
+	private List<FetchFilter> customFetchFilters;
+	private List<ParseFilter> customParseFilters;
 
 	/**
 	 * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
@@ -84,7 +94,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * Instantiates a new spider extension.
 	 */
 	public ExtensionSpider() {
-		super();
+		super(NAME);
 		initialize();
 	}
 
@@ -101,8 +111,10 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * This method initializes this extension.
 	 */
 	private void initialize() {
-		this.setOrder(30);
-		this.setName(NAME);
+		this.setOrder(EXTENSION_ORDER);
+		this.customParsers = new LinkedList<>();
+		this.customFetchFilters = new LinkedList<>();
+		this.customParseFilters = new LinkedList<>();
 	}
 
 	@Override
@@ -379,4 +391,67 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.getSpiderPanel().reset();
 	}
 
+	/**
+	 * Gets the custom parsers loaded.
+	 *
+	 * @return the custom parsers
+	 */
+	public List<SpiderParser> getCustomParsers() {
+		return customParsers;
+	}
+	
+	/**
+	 * Gets the custom fetch filters loaded.
+	 *
+	 * @return the custom fetch filters
+	 */
+	public List<FetchFilter> getCustomFetchFilters() {
+		return customFetchFilters;
+	}
+
+	/**
+	 * Gets the custom parse filters loaded.
+	 *
+	 * @return the custom parse filters
+	 */
+	public List<ParseFilter> getCustomParseFilters() {
+		return customParseFilters;
+	}
+
+	/**
+	 * Adds a new custom Spider Parser. The parser is added at the beginning of the parsers list so
+	 * it will be processed before other already loaded parsers and before the default parsers.
+	 * <p/>
+	 * This method should be used to customize the Spider from any other extension of ZAP. The
+	 * parsers added will be loaded whenever starting any scan.
+	 * 
+	 * @param parser the parser
+	 */
+	public void addCustomParser(SpiderParser parser) {
+		this.customParsers.add(parser);
+	}
+
+	/**
+	 * Adds a custom fetch filter that would be used during the spidering.
+	 * <p/>
+	 * This method should be used to customize the Spider from any other extension of ZAP. The
+	 * filters added will be loaded whenever starting any scan.
+	 * 
+	 * @param filter the filter
+	 */
+	public void addCustomFetchFilter(FetchFilter filter) {
+		this.customFetchFilters.add(filter);
+	}
+
+	/**
+	 * Adds a custom parse filter that would be used during the spidering.
+	 * <p/>
+	 * This method should be used to customize the Spider from any other extension of ZAP. The
+	 * filters added will be loaded whenever starting any scan.
+	 * 
+	 * @param filter the filter
+	 */
+	public void addCustomParseFilter(ParseFilter filter) {
+		this.customParseFilters.add(filter);
+	}
 }

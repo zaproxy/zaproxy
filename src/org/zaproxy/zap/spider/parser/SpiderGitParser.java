@@ -44,6 +44,8 @@ public class SpiderGitParser extends SpiderParser {
 			
 	/** a pattern to match the content of the Git index file */
 	private static final Pattern gitIndexContentPattern = Pattern.compile ("^DIRC");
+
+	private Pattern GIT_FILE_PATTERN = Pattern.compile("/\\.git/index$");
 	
 	/**
 	 * Instantiates a new spider Git Index parser.
@@ -57,12 +59,14 @@ public class SpiderGitParser extends SpiderParser {
 
 	@SuppressWarnings("unused")
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
 		
 		//parse the Git index file, based on publicly available (but incomplete) documentation of the file format, and some reverse-engineering.
 		if (message == null || !params.isParseGit()) {
-			return;
+			return false;
 		}
+		log.debug("Parsing a Git resource...");
+		
 		// Get the response content
 		byte [] data = message.getResponseBody().getBytes();
 		String baseURL = message.getRequestHeader().getURI().toString();
@@ -214,7 +218,8 @@ public class SpiderGitParser extends SpiderParser {
 						}
 					}
 					//all good, we're outta here.
-					return;					 
+					// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+					return true;				 
 				}
 				else {					
 					throw new Exception ("The file '"+ fullpath + "' could not be parsed as a Git Index file due to unexpected content");
@@ -227,7 +232,15 @@ public class SpiderGitParser extends SpiderParser {
 			
 		} catch (Exception e) {
 			log.error("An error occurred trying to parse Git url '"+ baseURL + "': "+ e);
-			return;
+			// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+			return true;
 		}
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+		// matches the file name of files that should be parsed with the GIT file parser 
+		Matcher matcher = GIT_FILE_PATTERN.matcher(path);
+		return matcher.find();
 	}
 }

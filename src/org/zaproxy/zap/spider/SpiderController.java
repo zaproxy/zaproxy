@@ -17,15 +17,14 @@
  */
 package org.zaproxy.zap.spider;
 
-import java.util.HashSet;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ArrayList;
-import java.util.Set;
 import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Set;
 
 import net.htmlparser.jericho.Config;
 
@@ -34,7 +33,6 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
-import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
@@ -64,14 +62,9 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	private LinkedList<ParseFilter> parseFilters;
 
-	/** The parsers for HTML files. */
-	private List<SpiderParser> htmlParsers;
-
-	/** The text parsers. Initialized dynamically, only if needed. */
-	private List<SpiderParser> txtParsers;
-
-	/** The parsers for xml files (i.e. OData Atom content) */
-	private List<SpiderParser> xmlParsers;
+	/** The parsers used by the spider. */
+	private LinkedList<SpiderParser> parsers;
+	private List<SpiderParser> parsersUnmodifiableView;
 
 	/** The spider. */
 	private Spider spider;
@@ -90,7 +83,7 @@ public class SpiderController implements SpiderParserListener {
 	 * 
 	 * @param spider the spider
 	 */
-	protected SpiderController(Spider spider) {
+	protected SpiderController(Spider spider, List<SpiderParser> customParsers) {
 		super();
 		this.spider = spider;
 		this.fetchFilters = new LinkedList<>();
@@ -98,32 +91,68 @@ public class SpiderController implements SpiderParserListener {
 		this.visitedGet = new HashSet<>();
 		this.visitedPost = new HashMap<String, ArrayList<String>>();
 
-		// Prepare the parsers for HTML
-		this.htmlParsers = new LinkedList<>();
-		// Simple HTML parser
-		SpiderParser parser = new SpiderHtmlParser(spider.getSpiderParam());
+		prepareDefaultParsers();
+		for (SpiderParser parser : customParsers) {
+			log.info("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
+			parser.addSpiderParserListener(this);
+			this.parsers.addFirst(parser);
+		}
+	}
+
+	private void prepareDefaultParsers() {
+		this.parsers = new LinkedList<>();
+		SpiderParser parser;
+
+		// If parsing of robots.txt is enabled
+		if (spider.getSpiderParam().isParseRobotsTxt()) {
+			parser = new SpiderRobotstxtParser(spider.getSpiderParam());
+			parser.addSpiderParserListener(this);
+			parsers.add(parser);
+		}
+
+		// If parsing of SVN entries is enabled
+		if (spider.getSpiderParam().isParseSVNEntries()) {
+			parser = new SpiderSVNEntriesParser(spider.getSpiderParam());
+			parser.addSpiderParserListener(this);
+			parsers.add(parser);
+		}
+
+		// If parsing of GIT entries is enabled
+		if (spider.getSpiderParam().isParseGit()) {
+			parser = new SpiderGitParser(spider.getSpiderParam());
+			parser.addSpiderParserListener(this);
+			parsers.add(parser);
+		}
+		
+		// Redirect requests parser
+		parser = new SpiderRedirectParser();
 		parser.addSpiderParserListener(this);
-		this.htmlParsers.add(parser);
-		Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
+		parsers.add(parser);
+
+		// Simple HTML parser
+		parser = new SpiderHtmlParser(spider.getSpiderParam());
+		parser.addSpiderParserListener(this);
+		this.parsers.add(parser);
 
 		// HTML Form parser
 		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
 		parser.addSpiderParserListener(this);
-		this.htmlParsers.add(parser);
-
-		// Prepare the parsers for simple non-HTML files
-		this.txtParsers = new LinkedList<>();
-		parser = new SpiderTextParser();
-		parser.addSpiderParserListener(this);
-		this.txtParsers.add(parser);
-
+		this.parsers.add(parser);
+		Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
+		
 		// Prepare the parsers for OData ATOM files
-		this.xmlParsers = new LinkedList<>();
 		parser = new SpiderODataAtomParser();
 		parser.addSpiderParserListener(this);
-		this.xmlParsers.add(parser);
-	}
+		this.parsers.add(parser);
 
+		// Prepare the parsers for simple non-HTML files
+		parser = new SpiderTextParser();
+		parser.addSpiderParserListener(this);
+		this.parsers.add(parser);
+		
+		this.parsersUnmodifiableView = Collections.unmodifiableList(parsers);
+	}
+	
 	/**
 	 * Adds a new seed, if it wasn't already processed.
 	 * 
@@ -169,6 +198,7 @@ public class SpiderController implements SpiderParserListener {
 	 * @param filter the filter
 	 */
 	public void addFetchFilter(FetchFilter filter) {
+		log.info("Loading fetch filter: " + filter.getClass().getSimpleName());
 		fetchFilters.add(filter);
 	}
 
@@ -187,6 +217,7 @@ public class SpiderController implements SpiderParserListener {
 	 * @param filter the filter
 	 */
 	public void addParseFilter(ParseFilter filter) {
+		log.info("Loading parse filter: " + filter.getClass().getSimpleName());
 		parseFilters.add(filter);
 	}
 
@@ -196,91 +227,6 @@ public class SpiderController implements SpiderParserListener {
 	public void reset() {
 		visitedGet.clear();
 		visitedPost.clear();
-	}
-
-	/**
-	 * Gets the instances for the parsers.
-	 * 
-	 * @return the parser
-	 */
-	public List<SpiderParser> getParsers(HttpMessage message) {
-		
-		// Get the full path of the file
-		String path = null;
-		try {
-			path = message.getRequestHeader().getURI().getPath();
-			log.debug("Getting parsers for " + path);
-		} catch (URIException e) {
-		}
-		//handle null paths.
-		if (path == null) path = "";
-
-		// If parsing of robots.txt is enabled, try to see if it's necessary
-		if (spider.getSpiderParam().isParseRobotsTxt()) {			
-			// If it's a robots.txt file
-			if (path != null && path.equalsIgnoreCase("/robots.txt")) {
-			
-				log.info("Parsing a robots.txt resource...");
-				SpiderParser parser = new SpiderRobotstxtParser(spider.getSpiderParam());
-				parser.addSpiderParserListener(this);
-				List<SpiderParser> robotsParsers = new LinkedList<>();
-				robotsParsers.add(parser);
-				return robotsParsers;
-			}
-		}
-
-		// is SVN entries file parsing enabled, and are we parsing SVN entries file?
-		if (spider.getSpiderParam().isParseSVNEntries()) {
-			//matches the file name of files that should be parsed with the SVN entries file parser 
-			Pattern svnEntriesFilePattern = Pattern.compile("/\\.svn/entries$|/\\.svn/wc.db$");
-
-			Matcher matcher = svnEntriesFilePattern.matcher(path);
-			if (matcher.find()) {			
-				log.info("Parsing an SVN resource...");
-				SpiderParser parser = new SpiderSVNEntriesParser(spider.getSpiderParam());
-				parser.addSpiderParserListener(this);
-				List<SpiderParser> svnEntriesParsers = new LinkedList<>();
-				svnEntriesParsers.add(parser);
-				return svnEntriesParsers;
-			}
-		}
-
-		// is Git file parsing enabled?
-		if (spider.getSpiderParam().isParseGit()) {
-			//matches the file name of files that should be parsed with the Git file parser 
-			Pattern gitFilePattern = Pattern.compile("/\\.git/index$");
-
-			Matcher matcher = gitFilePattern.matcher(path);
-			if (matcher.find()) {			
-				log.info("Parsing a Git resource...");
-				SpiderParser parser = new SpiderGitParser(spider.getSpiderParam());
-				parser.addSpiderParserListener(this);
-				List<SpiderParser> gitParsers = new LinkedList<>();
-				gitParsers.add(parser);
-				return gitParsers;
-			}
-		}
-
-
-		// If the response is a HTTP redirect message
-		if (HttpStatusCode.isRedirection(message.getResponseHeader().getStatusCode())) {
-			log.info("Parsing a HTTP Redirect message...");
-			SpiderRedirectParser parser = new SpiderRedirectParser();
-			parser.addSpiderParserListener(this);
-			List<SpiderParser> redirectParsers = new LinkedList<>();
-			redirectParsers.add(parser);
-			return redirectParsers;
-		}
-
-		// If it reached this point, it is definitely text
-		if (message.getResponseHeader().isHtml()) {
-			return htmlParsers;
-		} else if (message.getResponseHeader().isXml()) {
-			return xmlParsers;
-		} else {
-			// Parsing non-HTML text resource.
-			return txtParsers;
-		}
 	}
 
 	@Override
@@ -436,5 +382,14 @@ public class SpiderController implements SpiderParserListener {
 			return null;
 		}
 		return uriV;
+	}
+
+	/**
+	 * Gets an unmodifiable view of the list of that should be used during the scan.
+	 *
+	 * @return the parsers
+	 */
+	public List<SpiderParser> getParsers() {
+		return parsersUnmodifiableView;
 	}
 }

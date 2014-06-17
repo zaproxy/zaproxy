@@ -37,6 +37,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.filters.DefaultFetchFilter;
 import org.zaproxy.zap.spider.filters.DefaultParseFilter;
@@ -88,6 +89,9 @@ public class Spider {
 
 	/** The seed list. */
 	private List<URI> seedList;
+	
+	/** The extension. */
+	private ExtensionSpider extension;
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(Spider.class);
@@ -125,23 +129,26 @@ public class Spider {
 
 	/**
 	 * Instantiates a new spider.
-	 * 
+	 *
+	 * @param extension the extension
 	 * @param spiderParam the spider param
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
 	 */
-	public Spider(SpiderParam spiderParam, ConnectionParam connectionParam, Model model, Context scanContext) {
+	public Spider(ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
+			Model model, Context scanContext) {
 		super();
 		log.info("Spider initializing...");
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
-		this.controller = new SpiderController(this);
+		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
 		this.seedList = new ArrayList<>();
 		this.cookieManager = new CookieManager();
-		this.scanContext=scanContext;
+		this.scanContext = scanContext;
+		this.extension = extension;
 		
 		init();
 	}
@@ -156,14 +163,21 @@ public class Spider {
 		this.tasksTotalCount = new AtomicInteger(0);
 		this.initialized = false;
 
-		// Add a default fetch filter
+		// Add a default fetch filter and any custom ones
 		defaultFetchFilter = new DefaultFetchFilter();
 		this.addFetchFilter(defaultFetchFilter);
+		for (FetchFilter filter : extension.getCustomFetchFilters())
+			this.addFetchFilter(filter);
+
+		// Add a default parse filter and any custom ones
+		this.addParseFilter(new DefaultParseFilter());
+		for (ParseFilter filter : extension.getCustomParseFilters())
+			this.addParseFilter(filter);
+		
 		// Add the scan context, if any
 		defaultFetchFilter.setScanContext(this.scanContext);
 		defaultFetchFilter.setDomainsAlwaysInScope(spiderParam.getDomainsAlwaysInScopeEnabled());
-		// Add a default parse filter
-		this.addParseFilter(new DefaultParseFilter());
+
 	}
 
 	/* SPIDER Related */

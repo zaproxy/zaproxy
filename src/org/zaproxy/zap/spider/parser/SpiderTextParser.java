@@ -35,8 +35,8 @@ public class SpiderTextParser extends SpiderParser {
 	private static final Pattern patternURL = Pattern.compile("\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#]+)");
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
-		log.debug("Parsing non-HTML text resource.");
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
+		log.debug("Parsing a non-HTML text resource.");
 
 		// Use a simple pattern matcher to find urls
 		if (message.getResponseBody() != null) {
@@ -47,6 +47,14 @@ public class SpiderTextParser extends SpiderParser {
 			}
 		}
 
+		return false;
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
+		// Fall-back parser - if it's a text message which has not already been processed
+		return !wasAlreadyConsumed && message.getResponseHeader() != null
+				&& message.getResponseHeader().isText();
 	}
 
 }

@@ -57,7 +57,7 @@ public class SpiderHtmlParser extends SpiderParser {
 	}
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
 
 		// Prepare the source, if not provided
 		if (source == null) {
@@ -94,7 +94,8 @@ public class SpiderHtmlParser extends SpiderParser {
 				parseSource(message, s, depth, baseURL);
 			}
 		}
-
+		
+		return false;
 	}
 
 	/**
@@ -106,6 +107,7 @@ public class SpiderHtmlParser extends SpiderParser {
 	 * @param baseURL the base url
 	 */
 	private void parseSource(HttpMessage message, Source source, int depth, String baseURL) {
+		log.debug("Parsing an HTML message...");
 		// Process A elements
 		List<Element> elements = source.getAllElements(HTMLElementName.A);
 		for (Element el : elements) {
@@ -189,6 +191,13 @@ public class SpiderHtmlParser extends SpiderParser {
 		}
 
 		processURL(message, depth, localURL, baseURL);
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
+		// Fallback parser - if it's a HTML message which has not already been processed
+		return !wasAlreadyConsumed && message.getResponseHeader() != null
+				&& message.getResponseHeader().isHtml();
 	}
 
 }

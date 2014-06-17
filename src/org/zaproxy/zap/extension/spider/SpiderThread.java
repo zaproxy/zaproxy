@@ -201,7 +201,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 		// If the spider hasn't been initialized, do it now
 		if (spider == null) {
-			spider = new Spider(extension.getSpiderParam(), extension.getModel().getOptionsParam()
+			spider = new Spider(extension, extension.getSpiderParam(), extension.getModel().getOptionsParam()
 					.getConnectionParam(), extension.getModel(), this.scanContext);
 
 			// Register this thread as a Spider Listener, so it gets notified of events and is able

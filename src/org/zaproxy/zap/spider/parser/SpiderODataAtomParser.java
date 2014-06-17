@@ -40,8 +40,8 @@ public class SpiderODataAtomParser extends SpiderParser {
 
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
-		log.debug("Parsing OData Atom resource.");
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
+		log.debug("Parsing an OData Atom resource.");
 		
 		// Get the context (base url)
 		String baseURL = message.getRequestHeader().getURI().toString();
@@ -67,7 +67,17 @@ public class SpiderODataAtomParser extends SpiderParser {
 				
 			processURL(message, depth, s,baseURL);
 		}
-				
+		
+		// We don't consider the resource consumed, as there might be other files processing it
+		return false;
+	}
+
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+		// Fallback parser - if it's an XML message which has not already been processed
+		return !wasAlreadyParsed && message.getResponseHeader() != null
+				&& message.getResponseHeader().isXml();
 	}
 
 }

@@ -75,6 +75,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 	
 	/** used to parse the XML based .svn/entries file format */ 
 	private static DocumentBuilder dBuilder;
+
+	private Pattern SVN_ENTRIES_FILE_PATTERN = Pattern.compile("/\\.svn/entries$|/\\.svn/wc.db$");
 	
 	/** statically initialise the XML DocumentBuilderFactory and DocumentBuilder */
 	static {
@@ -97,10 +99,12 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 	}
 
 	@Override
-	public void parseResource(HttpMessage message, Source source, int depth) {
+	public boolean parseResource(HttpMessage message, Source source, int depth) {
 		if (message == null || !params.isParseSVNEntries()) {
-			return;
+			return false;
 		}
+		log.debug("Parsing an SVN resource...");
+		
 		// Get the response content
 		String content = message.getResponseBody().toString();
 
@@ -241,7 +245,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 
 			} catch (IOException | ClassNotFoundException e) {
 				log.error("An error occurred trying to set up to parse the SQLite based file: "+ e);
-				return;
+				// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+				return true;
 			}
 			
 		} else if (svnXMLFormatMatcher.find()) {
@@ -255,7 +260,8 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				doc = dBuilder.parse(new InputSource(new ByteArrayInputStream(content.getBytes("utf-8"))));
 			} catch (SAXException | IOException e) {
 				log.error("An error occurred trying to parse the XML based .svn/entries file: "+ e);
-				return;
+				// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+				return true;
 			}
 			NodeList nodelist = doc.getElementsByTagName("entry");
 			for ( int i=0; i< nodelist.getLength(); i++) {
@@ -343,6 +349,14 @@ public class SpiderSVNEntriesParser extends SpiderParser {
 				previousline = line;
 			}
 		}
-		return;
+		// We consider the message fully parsed, so it doesn't get parsed by 'fallback' parsers
+		return true;
+	}
+
+	@Override
+	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
+		// matches the file name of files that should be parsed with the SVN entries file parser
+		Matcher matcher = SVN_ENTRIES_FILE_PATTERN.matcher(path);
+		return matcher.find();
 	}
 }
