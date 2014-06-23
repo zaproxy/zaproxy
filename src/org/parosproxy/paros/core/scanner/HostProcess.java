@@ -39,6 +39,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
 // ZAP: 2014/04/01 Changed to set a name to created threads.
+// ZAP: 2014/06/23 Issue 1241: Active scanner might not report finished state when using host scanners
 
 package org.parosproxy.paros.core.scanner;
 
@@ -148,8 +149,11 @@ public class HostProcess implements Runnable {
         mapPluginStartTime.put(Long.valueOf(plugin.getId()), Long.valueOf(System.currentTimeMillis()));
         
         if (plugin instanceof AbstractHostPlugin) {
-            scanSingleNode(plugin, startNode);
-        
+            if (!scanSingleNode(plugin, startNode)) {
+                // Mark the plugin as as completed if it was not run so the scan process can continue as expected.
+                // The plugin might not be run if the startNode: is not in scope, is explicitly excluded, ...
+                pluginCompleted(plugin);
+            }
         } else if (plugin instanceof AbstractAppPlugin) {
             traverse(plugin, startNode, true);
             threadPool.waitAllThreadComplete(600000);
@@ -223,8 +227,9 @@ public class HostProcess implements Runnable {
      *
      * @param plugin
      * @param node. If node == null, run for server level plugin
+     * @return {@code true} if the {@code plugin} was run, {@code false} otherwise.
      */
-    private void scanSingleNode(Plugin plugin, SiteNode node) {
+    private boolean scanSingleNode(Plugin plugin, SiteNode node) {
         log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node);
         Thread thread = null;
         Plugin test = null;
@@ -236,17 +241,17 @@ public class HostProcess implements Runnable {
         try {
             if (node == null || node.getHistoryReference() == null) {
                 log.debug("scanSingleNode node or href null, returning: node=" + node);
-                return;
+                return false;
             }
             
             if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
                 log.debug("Ignoring \"scanner\" type href");
-                return;
+                return false;
             }
 
             if (!nodeInScope(node)) {
                 log.debug("scanSingleNode node not in scope");
-                return;
+                return false;
             }
             
             msg = node.getHistoryReference().getHttpMessage();
@@ -254,7 +259,7 @@ public class HostProcess implements Runnable {
             if (msg == null) {
                 // Likely to be a temporary node
                 log.debug("scanSingleNode msg null");
-                return;
+                return false;
             }
 
             test = plugin.getClass().newInstance();
@@ -273,7 +278,7 @@ public class HostProcess implements Runnable {
                 log.error(e.getMessage(), e);
             }
             
-            return;
+            return false;
         }
 
         do {
@@ -284,6 +289,7 @@ public class HostProcess implements Runnable {
             
         } while (thread == null);
 
+        return true;
     }
 
     /**
