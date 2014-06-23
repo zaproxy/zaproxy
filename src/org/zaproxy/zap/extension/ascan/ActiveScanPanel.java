@@ -187,8 +187,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	@Override
 	protected GenericScanner newScanThread(String site, AbstractParam params) {
 		ActiveScan as = new ActiveScan(site, ((ExtensionActiveScan)this.getExtension()).getScannerParam(), 
-				this.getExtension().getModel().getOptionsParam().getConnectionParam(), this,
-				Control.getSingleton().getPluginFactory().clone());
+				this.getExtension().getModel().getOptionsParam().getConnectionParam(), this);
 		as.setExcludeList(this.excludeUrls);
 		return as;
 	}

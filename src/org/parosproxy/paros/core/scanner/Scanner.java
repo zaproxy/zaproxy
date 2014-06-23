@@ -29,6 +29,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/06/23 Issue 1151: Active Scan in Scope finishes before scanning all
 // messages in scope if multiple domains available
+// ZAP: 2014/06/23 Issue 1242: Active scanner might use outdated policy settings
 
 package org.parosproxy.paros.core.scanner;
 
@@ -40,6 +41,7 @@ import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -126,7 +128,7 @@ public class Scanner implements Runnable {
 	        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
 	            SiteNode child = (SiteNode) node.getChildAt(i);
 	            String hostAndPort = getHostAndPort(child);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory.clone());
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
 	            hostProcess.setStartNode(child);
 	            hostProcess.setUser(this.user);
 	            this.hostProcesses.add(hostProcess);
@@ -141,7 +143,7 @@ public class Scanner implements Runnable {
 	    } else {
             String hostAndPort = getHostAndPort(node);
 
-            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory);
+            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory());
             hostProcess.setStartNode(node);
             hostProcess.setUser(this.user);
             this.hostProcesses.add(hostProcess);
@@ -305,6 +307,13 @@ public class Scanner implements Runnable {
 
 	public void setPluginFactory(PluginFactory pluginFactory) {
 		this.pluginFactory = pluginFactory;
+	}
+
+	private PluginFactory getPluginFactory() {
+		if (pluginFactory == null) {
+			pluginFactory = Control.getSingleton().getPluginFactory().clone();
+		}
+		return pluginFactory;
 	}
 
 	/**

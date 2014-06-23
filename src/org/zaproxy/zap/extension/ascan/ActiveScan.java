@@ -63,6 +63,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
 	public ActiveScan(String site, ScannerParam scannerParam, 
+			ConnectionParam param, ActiveScanPanel activeScanPanel) {
+		this(site, scannerParam, param, activeScanPanel, null);
+	}
+
+	public ActiveScan(String site, ScannerParam scannerParam, 
 			ConnectionParam param, ActiveScanPanel activeScanPanel, PluginFactory pluginFactory) {
 		super(scannerParam, param, pluginFactory);
 		this.site = site;
