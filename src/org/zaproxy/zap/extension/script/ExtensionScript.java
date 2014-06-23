@@ -423,9 +423,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 					loadTemplate(f, type, engine, false);
 				}
 			}
-			for (File f : stdDir.listFiles()) {
-				// Dont log errors on duplicates - 'local' templates should take presidence
-				loadTemplate(f, type, engine, true);
+			if (stdDir.exists()) {
+				for (File f : stdDir.listFiles()) {
+					// Dont log errors on duplicates - 'local' templates should take presidence
+					loadTemplate(f, type, engine, true);
+				}
 			}
 		}
 	}
