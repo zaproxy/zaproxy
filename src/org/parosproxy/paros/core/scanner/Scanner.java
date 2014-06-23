@@ -27,6 +27,8 @@
 // ZAP: 2013/01/19 Issue 460 Add support for a scan progress dialog
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/06/23 Issue 1151: Active Scan in Scope finishes before scanning all
+// messages in scope if multiple domains available
 
 package org.parosproxy.paros.core.scanner;
 
@@ -124,7 +126,7 @@ public class Scanner implements Runnable {
 	        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
 	            SiteNode child = (SiteNode) node.getChildAt(i);
 	            String hostAndPort = getHostAndPort(child);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory);
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, pluginFactory.clone());
 	            hostProcess.setStartNode(child);
 	            hostProcess.setUser(this.user);
 	            this.hostProcesses.add(hostProcess);
