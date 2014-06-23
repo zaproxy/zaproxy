@@ -94,7 +94,7 @@ public class HttpFuzzComponent implements
 	}
 
 	@Override
-	public void highlight(ArrayList<HttpFuzzGap> allLocs, HttpFuzzGap curSel) {
+	public void highlight(ArrayList<HttpFuzzGap> allLocs) {
 		removeHighlights();
 		for (int i = 0; i < allLocs.size(); i++) {
 			HttpFuzzLocation l = allLocs.get(i).getLocation();

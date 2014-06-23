@@ -23,13 +23,20 @@ import java.util.regex.Pattern;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.search.SearchResult;
 
-public interface FuzzerHandler<M extends Message, D extends FuzzDialog<?,?,?,?>> {
+public interface FuzzerHandler<M extends Message, D extends FuzzDialog<?, ?, ?, ?>> {
 	ExtensionFuzz getExtension();
-    void showFuzzDialog(FuzzableComponent<M> fc);
-    FuzzerContentPanel getFuzzerContentPanel();
-    List<SearchResult> searchResults(Pattern pattern, boolean inverse);
+
+	void showFuzzDialog(FuzzableComponent<M> fc);
+
+	FuzzerContentPanel getFuzzerContentPanel();
+
+	List<SearchResult> searchResults(Pattern pattern, boolean inverse);
+
 	public void startFuzzers();
+
 	public void stopFuzzers();
+
 	public void pauseFuzzers();
+
 	public void resumeFuzzers();
 }

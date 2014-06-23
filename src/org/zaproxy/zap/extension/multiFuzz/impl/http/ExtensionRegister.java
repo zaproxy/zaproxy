@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
-
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.multiFuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.multiFuzz.impl.http.HttpFuzzerHandler;
@@ -33,24 +32,26 @@ import org.parosproxy.paros.extension.ExtensionHook;
 
 public class ExtensionRegister extends ExtensionAdaptor {
 
-    public ExtensionRegister() {
-        super();
-    }
+	public ExtensionRegister() {
+		super();
+	}
 
-    /**
-     * @param name
-     */
-    public ExtensionRegister(String name) {
-        super(name);
-    }
+	/**
+	 * @param name
+	 */
+	public ExtensionRegister(String name) {
+		super(name);
+	}
 
 	@Override
 	public void hook(ExtensionHook extensionHook) {
-	    super.hook(extensionHook);
-	    ExtensionFuzz anchor = ((ExtensionFuzz) Control.getSingleton().getExtensionLoader().getExtension("MultiExtensionFuzz"));
-	    anchor.addFuzzerHandler(HttpMessage.class, new HttpFuzzerHandler(anchor));
+		super.hook(extensionHook);
+		ExtensionFuzz anchor = ((ExtensionFuzz) Control.getSingleton()
+				.getExtensionLoader().getExtension("MultiExtensionFuzz"));
+		anchor.addFuzzerHandler(HttpMessage.class,
+				new HttpFuzzerHandler(anchor));
 	}
-	
+
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
@@ -70,4 +71,3 @@ public class ExtensionRegister extends ExtensionAdaptor {
 		}
 	}
 }
-

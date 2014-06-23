@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.multiFuzz;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
@@ -30,57 +29,44 @@ import java.util.Iterator;
 
 import org.apache.log4j.Logger;
 
-public class FileFuzzer<P extends Payload>{
-	
+public class FileFuzzer<P extends Payload> {
+
 	private String name = null;
 	private File file = null;
-	private int length = -1;
 	private ArrayList<P> payloads = new ArrayList<>();
 	private PayloadFactory<P> factory;
-    private static Logger log = Logger.getLogger(FileFuzzer.class);
+	private int length;
+	private static Logger log = Logger.getLogger(FileFuzzer.class);
 
-    public FileFuzzer(String s, PayloadFactory<P> f){
-    	this.file = null;
-    	this.name = s;
-    	this.factory = f;
-    }
+	public FileFuzzer(String s, PayloadFactory<P> f) {
+		this.file = null;
+		this.name = s;
+		this.factory = f;
+	}
+
 	public FileFuzzer(File file, PayloadFactory<P> f) {
 		this.file = file;
 		this.name = file.getName();
 		this.factory = f;
 		init();
 	}
-	
+
 	private void init() {
+		this.length = 0;
 		BufferedReader in = null;
 		try {
-			in = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-			
-			String line = in.readLine();
-			if(line.startsWith("#<type=\"") && line.endsWith("\">")){
-				String type = line.substring(8, (line.length() - 2));
-				do  {
-					if (line.trim().length() > 0 && ! line.startsWith("#")) {
-						payloads.add(factory.createPayload(type, line));
-					}
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(
+					file)));
+			String line;
+			while ((line = in.readLine()) != null) {
+				if (!line.startsWith("#")) {
+					this.length++;
 				}
-				while((line = in.readLine()) != null);	
 			}
-			else{
-				do  {
-					if (line.trim().length() > 0 && ! line.startsWith("#")) {
-						payloads.add(factory.createPayload(line));
-					}
-				}
-				while((line = in.readLine()) != null);
-			}
-			
-		} catch (FileNotFoundException e) {
-			log.error(e.getMessage(), e);
+
 		} catch (IOException e) {
 			log.error(e.getMessage(), e);
-		}
-		finally {
+		} finally {
 			if (in != null) {
 				try {
 					in.close();
@@ -89,35 +75,62 @@ public class FileFuzzer<P extends Payload>{
 				}
 			}
 		}
-		
-		length = payloads.size();
 	}
-	public ArrayList<P> getList(){
+
+	private void read() {
+		BufferedReader in = null;
+		try {
+			in = new BufferedReader(new InputStreamReader(new FileInputStream(
+					file)));
+
+			String line = in.readLine();
+			if (line.startsWith("#<type=\"") && line.endsWith("\">")) {
+				String type = line.substring(8, (line.length() - 2));
+				do {
+					if (line.trim().length() > 0 && !line.startsWith("#")) {
+						payloads.add(factory.createPayload(type, line));
+					}
+				} while ((line = in.readLine()) != null);
+			} else {
+				do {
+					if (line.trim().length() > 0 && !line.startsWith("#")) {
+						payloads.add(factory.createPayload(line));
+					}
+				} while ((line = in.readLine()) != null);
+			}
+
+		} catch (IOException e) {
+			log.error(e.getMessage(), e);
+		} finally {
+			if (in != null) {
+				try {
+					in.close();
+				} catch (IOException e) {
+					log.error(e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+	public ArrayList<P> getList() {
+		if (payloads == null) {
+			read();
+		}
 		return this.payloads;
 	}
+
 	public Iterator<P> getIterator() {
-		if (length == -1) {
-			init();
+		if (payloads == null) {
+			read();
 		}
 		return payloads.iterator();
 	}
-	
-	public int getLength() {
-		if (length == -1) {
-			init();
-		}
-		return payloads.size();
-	}
-	
+
 	public boolean hasNext() {
 		return getIterator().hasNext();
 	}
-	
+
 	public String getFileName() {
 		return this.name;
 	}
-	public void setLength(int maximumValue) {
-		this.length = maximumValue;
-	}
-
 }

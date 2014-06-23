@@ -33,27 +33,31 @@ public class FuzzerParam extends AbstractParam {
 	private String defaultCategory = "XSS";
 	private int threadPerScan = 5;
 	private int delayInMs = 0;
-	
+
 	private File lastSelectedDirectory = new File("");
 
-    public FuzzerParam() {
-    }
+	public FuzzerParam() {
+	}
 
-    @Override
-    protected void parse(){
-        
+	@Override
+	protected void parse() {
+
 		try {
 			setThreadPerScan(getConfig().getInt(THREADS_PER_SCAN, 1));
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		try {
 			setDefaultCategory(getConfig().getString(DEFAULT_CATEGORY, "XSS"));
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 		try {
 			setDelayInMs(getConfig().getInt(DELAY_IN_MS, 0));
-		} catch (Exception e) {}
+		} catch (Exception e) {
+		}
 
-		setLastSelectedDirectory(getConfig().getString(LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY, ""));
-    }
+		setLastSelectedDirectory(getConfig().getString(
+				LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY, ""));
+	}
 
 	public void setDelayInMs(int delayInMs) {
 		this.delayInMs = delayInMs;
@@ -70,7 +74,7 @@ public class FuzzerParam extends AbstractParam {
 
 	public void setDefaultCategory(String defaultCategory) {
 		this.defaultCategory = defaultCategory;
-        getConfig().setProperty(DEFAULT_CATEGORY, this.defaultCategory);
+		getConfig().setProperty(DEFAULT_CATEGORY, this.defaultCategory);
 	}
 
 	public int getThreadPerScan() {
@@ -79,34 +83,38 @@ public class FuzzerParam extends AbstractParam {
 
 	public void setThreadPerScan(int threadPerScan) {
 		this.threadPerScan = threadPerScan;
-        getConfig().setProperty(THREADS_PER_SCAN, Integer.toString(this.threadPerScan));
+		getConfig().setProperty(THREADS_PER_SCAN,
+				Integer.toString(this.threadPerScan));
 	}
-	
-    public File getLastSelectedDirectory() {
-        return lastSelectedDirectory;
-    }
 
-    public void setLastSelectedDirectory(File directory) {
-        if (directory == null) {
-            throw new IllegalArgumentException("Parameter directory must not be null.");
-        }
-        if (!directory.isDirectory()) {
-            throw new IllegalArgumentException("Parameter directory must be a directory.");
-        }
-        if (lastSelectedDirectory.equals(directory)) {
-            return;
-        }
+	public File getLastSelectedDirectory() {
+		return lastSelectedDirectory;
+	}
 
-        lastSelectedDirectory = directory;
-        getConfig().setProperty(LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY, lastSelectedDirectory.getAbsolutePath());
-    }
+	public void setLastSelectedDirectory(File directory) {
+		if (directory == null) {
+			throw new IllegalArgumentException(
+					"Parameter directory must not be null.");
+		}
+		if (!directory.isDirectory()) {
+			throw new IllegalArgumentException(
+					"Parameter directory must be a directory.");
+		}
+		if (lastSelectedDirectory.equals(directory)) {
+			return;
+		}
 
-    private void setLastSelectedDirectory(String pathDirectory) {
-        final File directory = new File(pathDirectory);
-        if (!directory.isDirectory()) {
-            return;
-        }
+		lastSelectedDirectory = directory;
+		getConfig().setProperty(LAST_SELECTED_DIRECTORY_ADD_CUSTOM_FILE_KEY,
+				lastSelectedDirectory.getAbsolutePath());
+	}
 
-        lastSelectedDirectory = directory;
-    }
+	private void setLastSelectedDirectory(String pathDirectory) {
+		final File directory = new File(pathDirectory);
+		if (!directory.isDirectory()) {
+			return;
+		}
+
+		lastSelectedDirectory = directory;
+	}
 }

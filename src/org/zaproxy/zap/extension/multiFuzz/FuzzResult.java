@@ -21,31 +21,31 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
 
-    public enum State {
-        SUCCESSFUL, REFLECTED, ERROR
-    }
+	public enum State {
+		SUCCESSFUL, REFLECTED, ERROR
+	}
 
-    private State state;
-    private Message message;
+	private State state;
+	private Message message;
 
-    public FuzzResult() {
-        state = State.SUCCESSFUL;
-    }
+	public FuzzResult() {
+		state = State.SUCCESSFUL;
+	}
 
-    public void setState(State aState) {
-        state = aState;
-    }
+	public void setState(State aState) {
+		state = aState;
+	}
 
-    public State getState() {
-        return state;
-    }
+	public State getState() {
+		return state;
+	}
 
-    public void setMessage(Message aMessage) {
-        this.message = aMessage;
-    }
+	public void setMessage(Message aMessage) {
+		this.message = aMessage;
+	}
 
-    public Message getMessage() {
-        return message;
-    }
+	public Message getMessage() {
+		return message;
+	}
 
 }

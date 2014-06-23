@@ -34,29 +34,31 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
 	private Component lastInvoker = null;
-    private JFrame parentFrame = null;
-    
+	private JFrame parentFrame = null;
+	private ExtensionFuzz ext;
+
 	/**
-     * @return Returns the lastInvoker.
-     */
-    public Component getLastInvoker() {
-        return lastInvoker;
-    }
-    
-    /**
-	 * This method initializes 
+	 * @return Returns the lastInvoker.
+	 */
+	public Component getLastInvoker() {
+		return lastInvoker;
+	}
+
+	/**
+	 * This method initializes
 	 * 
 	 */
 	public PopupFuzzMenu(ExtensionFuzz extension) {
 		super();
 		initialize();
+		this.ext = extension;
 	}
-	
+
 	/**
 	 * This method initializes this
 	 */
 	private void initialize() {
-        this.setText(Constant.messages.getString("fuzz.tools.menu.fuzz"));
+		this.setText(Constant.messages.getString("fuzz.tools.menu.multiFuzz"));
 	}
 
 	@Override
@@ -65,82 +67,84 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
 		if (invoker instanceof FuzzableComponent) {
 			visible = true;
-			
-			FuzzableComponent<?> fuzzableComponent = (FuzzableComponent<?>)invoker;
-			
-        	if (!fuzzableComponent.canFuzz()) {
-        		this.setEnabled(false);
-        	} else {
-        		this.setEnabled(true);
-        	}
-        	if (Control.getSingleton().getMode().equals(Mode.protect)) {
-        		// In protected mode, so disable if not in scope
-        		Message aMessage = fuzzableComponent.getFuzzableMessage();
-        		
-        		if (!aMessage.isInScope()) {
-        			this.setEnabled(false);
-        		}
-        	}
-        	
-            setLastInvoker(invoker);
-            Container c = getLastInvoker().getParent();
-            while (!(c instanceof JFrame)) {
-                c = c.getParent();
-            }
-            setParentFrame((JFrame) c);
-        }
-		else if (invoker instanceof org.zaproxy.zap.extension.fuzz.FuzzableComponent){
+
+			FuzzableComponent<?> fuzzableComponent = (FuzzableComponent<?>) invoker;
+			if (!fuzzableComponent.canFuzz()
+					|| !ext.canFuzz(fuzzableComponent.getMessageClass())) {
+				this.setEnabled(false);
+			} else {
+				this.setEnabled(true);
+			}
+			if (Control.getSingleton().getMode().equals(Mode.protect)) {
+				// In protected mode, so disable if not in scope
+				Message aMessage = fuzzableComponent.getFuzzableMessage();
+
+				if (!aMessage.isInScope()) {
+					this.setEnabled(false);
+				}
+			}
+
+			setLastInvoker(invoker);
+			Container c = getLastInvoker().getParent();
+			while (!(c instanceof JFrame)) {
+				c = c.getParent();
+			}
+			setParentFrame((JFrame) c);
+		} else if (invoker instanceof org.zaproxy.zap.extension.fuzz.FuzzableComponent) {
 			visible = true;
-			
-			org.zaproxy.zap.extension.fuzz.FuzzableComponent fuzzableComponent = (org.zaproxy.zap.extension.fuzz.FuzzableComponent)invoker;
-			
-        	if (!fuzzableComponent.canFuzz()) {
-        		this.setEnabled(false);
-        	} else {
-        		this.setEnabled(true);
-        	}
-        	if (Control.getSingleton().getMode().equals(Mode.protect)) {
-        		// In protected mode, so disable if not in scope
-        		Message aMessage = fuzzableComponent.getFuzzableMessage().getMessage();
-        		
-        		if (!aMessage.isInScope()) {
-        			this.setEnabled(false);
-        		}
-        	}
-        	
-            setLastInvoker(invoker);
-            Container c = getLastInvoker().getParent();
-            while (!(c instanceof JFrame)) {
-                c = c.getParent();
-            }
-            setParentFrame((JFrame) c);
-        }
-		else {
-        	// Its not fuzzable
-            setLastInvoker(null);
-        }
-        return visible;
-    }
 
-    /**
-     * @return Returns the parentFrame.
-     */
-    public JFrame getParentFrame() {
-        return parentFrame;
-    }
+			org.zaproxy.zap.extension.fuzz.FuzzableComponent fuzzableComponent = (org.zaproxy.zap.extension.fuzz.FuzzableComponent) invoker;
 
-    /**
-     * @param parentFrame The parentFrame to set.
-     */
-    public void setParentFrame(JFrame parentFrame) {
-        this.parentFrame = parentFrame;
-    }
+			if (!fuzzableComponent.canFuzz()
+					|| !ext.canFuzz(fuzzableComponent.getMessageClass())) {
+				this.setEnabled(false);
+			} else {
+				this.setEnabled(true);
+			}
+			if (Control.getSingleton().getMode().equals(Mode.protect)) {
+				// In protected mode, so disable if not in scope
+				Message aMessage = fuzzableComponent.getFuzzableMessage()
+						.getMessage();
 
-    /**
-     * @param lastInvoker The lastInvoker to set.
-     */
-    public void setLastInvoker(Component lastInvoker) {
-        this.lastInvoker = lastInvoker;
-    }
-    
+				if (!aMessage.isInScope()) {
+					this.setEnabled(false);
+				}
+			}
+
+			setLastInvoker(invoker);
+			Container c = getLastInvoker().getParent();
+			while (!(c instanceof JFrame)) {
+				c = c.getParent();
+			}
+			setParentFrame((JFrame) c);
+		} else {
+			// Its not fuzzable
+			setLastInvoker(null);
+		}
+		return visible;
+	}
+
+	/**
+	 * @return Returns the parentFrame.
+	 */
+	public JFrame getParentFrame() {
+		return parentFrame;
+	}
+
+	/**
+	 * @param parentFrame
+	 *            The parentFrame to set.
+	 */
+	public void setParentFrame(JFrame parentFrame) {
+		this.parentFrame = parentFrame;
+	}
+
+	/**
+	 * @param lastInvoker
+	 *            The lastInvoker to set.
+	 */
+	public void setLastInvoker(Component lastInvoker) {
+		this.lastInvoker = lastInvoker;
+	}
+
 }

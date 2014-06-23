@@ -34,33 +34,34 @@ import org.zaproxy.zap.utils.Pair;
  */
 public class IconTableCellRenderer extends JLabel implements TableCellRenderer {
 
-    private static final long serialVersionUID = 4181897788209983012L;
+	private static final long serialVersionUID = 4181897788209983012L;
 
-    @Override
-    public Component getTableCellRendererComponent(JTable table, Object value,
-            boolean isSelected, boolean hasFocus, int row, int column) {
-        @SuppressWarnings("unchecked")
-		Pair<String, ImageIcon> data = (Pair<String, ImageIcon>)value;
+	@Override
+	public Component getTableCellRendererComponent(JTable table, Object value,
+			boolean isSelected, boolean hasFocus, int row, int column) {
+		@SuppressWarnings("unchecked")
+		Pair<String, ImageIcon> data = (Pair<String, ImageIcon>) value;
 
-        this.setOpaque(true);
+		this.setOpaque(true);
 
-        if (isSelected) {
-            this.setBackground(table.getSelectionBackground());
-            this.setForeground(table.getSelectionForeground());
-        } else {
-            this.setForeground(table.getForeground());
-            
-	        if (row % 2 == 0) {
-	            this.setBackground(UIManager.getColor("Table.alternateRowColor"));
-	        } else {
-	            this.setBackground(Color.WHITE);
-	        }
-        }
-        
-        this.setText(data.first);
-        this.setIcon(data.second);
-        
-        return this;
-    }
+		if (isSelected) {
+			this.setBackground(table.getSelectionBackground());
+			this.setForeground(table.getSelectionForeground());
+		} else {
+			this.setForeground(table.getForeground());
+
+			if (row % 2 == 0) {
+				this.setBackground(UIManager
+						.getColor("Table.alternateRowColor"));
+			} else {
+				this.setBackground(Color.WHITE);
+			}
+		}
+
+		this.setText(data.first);
+		this.setIcon(data.second);
+
+		return this;
+	}
 
 }

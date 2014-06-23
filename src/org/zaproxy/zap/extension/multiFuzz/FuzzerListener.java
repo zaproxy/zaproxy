@@ -19,10 +19,11 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
-
 public interface FuzzerListener<P, R> {
-    void notifyFuzzerStarted(P process);
+	void notifyFuzzerStarted(P process);
+
 	void notifyFuzzerPaused(P process);
+
 	void notifyFuzzerComplete(R result);
 
 }

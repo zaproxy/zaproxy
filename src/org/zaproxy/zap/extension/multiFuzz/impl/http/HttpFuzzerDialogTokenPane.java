@@ -43,8 +43,10 @@ public class HttpFuzzerDialogTokenPane {
 	private JCheckBox enableCheck = new JCheckBox();
 	private AntiCsrfToken token;
 
-	public HttpFuzzerDialogTokenPane(boolean enable, AntiCsrfToken token, String targetURL) {
-		this(enable, token.getMsg().getRequestHeader().getURI().toString(), targetURL, token.getName(), token.getValue());
+	public HttpFuzzerDialogTokenPane(boolean enable, AntiCsrfToken token,
+			String targetURL) {
+		this(enable, token.getMsg().getRequestHeader().getURI().toString(),
+				targetURL, token.getName(), token.getValue());
 		this.token = token;
 	}
 
@@ -53,7 +55,6 @@ public class HttpFuzzerDialogTokenPane {
 		this.enableCheck.setEnabled(false);
 	}
 
-
 	private HttpFuzzerDialogTokenPane(boolean enable, String sourceURL,
 			String targetURL, String tokenName, String prevValue) {
 		super();
@@ -61,50 +62,62 @@ public class HttpFuzzerDialogTokenPane {
 		this.targetURL.setText(targetURL);
 		this.tokenName.setText(tokenName);
 		this.prevValue.setText(prevValue);
-		
+
 		pane = new JScrollPane();
 		String tmpName = null;
-		pane.setBorder(
-				javax.swing.BorderFactory.createTitledBorder(
-						null, tmpName, //"TBI Anti CRSF Tokens", // Constant.messages.getString("invoke.options.edit"), 
-						javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
-						javax.swing.border.TitledBorder.DEFAULT_POSITION, 
-						new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), 
-						java.awt.Color.black));
+		pane.setBorder(javax.swing.BorderFactory.createTitledBorder(
+				null,
+				tmpName, // "TBI Anti CRSF Tokens", //
+							// Constant.messages.getString("invoke.options.edit"),
+				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+				javax.swing.border.TitledBorder.DEFAULT_POSITION,
+				new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+				java.awt.Color.black));
 		pane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		pane.setMinimumSize(new Dimension(50, 120));
-		
+
 		pane2 = new JPanel();
 		pane2.setLayout(new GridBagLayout());
 
 		enableCheck.setSelected(enable);
 
-		pane2.add(new JLabel(Constant.messages.getString("fuzz.acsrf.label.name")), getGBC(0, 1, 1, 0.25D));
+		pane2.add(
+				new JLabel(Constant.messages.getString("fuzz.acsrf.label.name")),
+				getGBC(0, 1, 1, 0.25D));
 		pane2.add(this.tokenName, getGBC(1, 1, 1, 0.75D));
 
-		pane2.add(new JLabel(Constant.messages.getString("fuzz.acsrf.label.source")), getGBC(0, 2, 1, 0.25D));
+		pane2.add(
+				new JLabel(Constant.messages
+						.getString("fuzz.acsrf.label.source")),
+				getGBC(0, 2, 1, 0.25D));
 		pane2.add(this.sourceURL, getGBC(1, 2, 1, 0.75D));
 
-		pane2.add(new JLabel(Constant.messages.getString("fuzz.acsrf.label.target")), getGBC(0, 3, 1, 0.25D));
+		pane2.add(
+				new JLabel(Constant.messages
+						.getString("fuzz.acsrf.label.target")),
+				getGBC(0, 3, 1, 0.25D));
 		pane2.add(this.targetURL, getGBC(1, 3, 1, 0.75D));
 
-		pane2.add(new JLabel(Constant.messages.getString("fuzz.acsrf.label.prev")), getGBC(0, 4, 1, 0.25D));
+		pane2.add(
+				new JLabel(Constant.messages.getString("fuzz.acsrf.label.prev")),
+				getGBC(0, 4, 1, 0.25D));
 		pane2.add(this.prevValue, getGBC(1, 4, 1, 0.75D));
 
 		pane.setViewportView(pane2);
 		pane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		pane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_NEVER);
 	}
-		
+
 	private GridBagConstraints getGBC(int x, int y, int width, double weightx) {
 		return this.getGBC(x, y, width, weightx, 0.0);
 	}
-	
-	private GridBagConstraints getGBC(int x, int y, int width, double weightx, double weighty) {
+
+	private GridBagConstraints getGBC(int x, int y, int width, double weightx,
+			double weighty) {
 		GridBagConstraints gbc = new GridBagConstraints();
 		gbc.gridx = x;
 		gbc.gridy = y;
-		gbc.insets = new java.awt.Insets(1,5,1,5);
+		gbc.insets = new java.awt.Insets(1, 5, 1, 5);
 		gbc.anchor = java.awt.GridBagConstraints.NORTHWEST;
 		gbc.fill = java.awt.GridBagConstraints.BOTH;
 		gbc.weightx = weightx;
@@ -113,11 +126,10 @@ public class HttpFuzzerDialogTokenPane {
 		return gbc;
 	}
 
-
 	public JComponent getPane() {
 		return this.pane;
 	}
-	
+
 	public void setAll(boolean enable, AntiCsrfToken token, String targetURL) {
 		this.enableCheck.setSelected(enable);
 		this.setPrevValue(token.getValue());
@@ -126,7 +138,7 @@ public class HttpFuzzerDialogTokenPane {
 		this.setTokenName(token.getName());
 		this.token = token;
 	}
-	
+
 	public void reset() {
 		this.enableCheck.setSelected(false);
 		this.setPrevValue(null);
@@ -135,7 +147,7 @@ public class HttpFuzzerDialogTokenPane {
 		this.setTokenName(null);
 		this.token = null;
 	}
-	
+
 	public boolean isEnable() {
 		return enableCheck.isSelected();
 	}
@@ -172,7 +184,6 @@ public class HttpFuzzerDialogTokenPane {
 		this.prevValue.setText(prevValue);
 	}
 
-
 	public AntiCsrfToken getToken() {
 		return token;
 	}
@@ -180,8 +191,7 @@ public class HttpFuzzerDialogTokenPane {
 	public void setEnabled(boolean enabled) {
 		pane.setEnabled(enabled);
 		pane2.setEnabled(enabled);
-		
+
 	}
-	
-	
+
 }

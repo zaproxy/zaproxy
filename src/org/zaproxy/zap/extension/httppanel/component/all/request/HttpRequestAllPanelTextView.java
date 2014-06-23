@@ -26,7 +26,9 @@ import javax.swing.text.BadLocationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.component.split.request.FuzzableHttpRequestPanelTextArea;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -49,8 +51,53 @@ public class HttpRequestAllPanelTextView extends HttpPanelTextView {
 		private static final long serialVersionUID = 6236551060576387786L;
 		
 		@Override
-		public HttpMessage getFuzzableMessage() {
-			return (HttpMessage)getMessage();
+		public FuzzableMessage getFuzzableMessage() {
+			HttpMessage httpMessage = (HttpMessage)getMessage();
+			//This only happens in the Request/Response Header
+			//As we replace all \r\n with \n we must add one character
+			//for each line until the line where the selection is.
+			int tHeader = 0;
+			String header = httpMessage.getRequestHeader().toString();
+			int pos = 0;
+			while ((pos = header.indexOf("\r\n", pos)) != -1) {
+				pos += 2;
+				++tHeader;
+			}
+
+			int start = getSelectionStart();
+			int end = getSelectionEnd();
+			FuzzableTextHttpMessage.Location location;
+			
+			int headerLen = header.length();
+			if (start + tHeader < headerLen) {
+				try {
+					start += getLineOfOffset(start);
+				} catch (BadLocationException e) {
+					//Shouldn't happen, but in case it does log it and return.
+					log.error(e.getMessage(), e);
+					return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+				}
+				
+				try {
+					end += getLineOfOffset(end);
+				} catch (BadLocationException e) {
+					//Shouldn't happen, but in case it does log it and return.
+					log.error(e.getMessage(), e);
+					return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, 0);
+				}
+				
+				if (end > headerLen) {
+					end = headerLen;
+				}
+				location = FuzzableTextHttpMessage.Location.HEADER;
+			} else {
+				start += tHeader - headerLen;
+				end += tHeader - headerLen;
+				
+				location = FuzzableTextHttpMessage.Location.BODY;
+			}
+			
+			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), location, start, end);
 		}
 		
 		@Override

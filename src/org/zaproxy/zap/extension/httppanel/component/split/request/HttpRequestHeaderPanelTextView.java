@@ -25,7 +25,9 @@ import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestHeaderStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -46,6 +48,29 @@ public class HttpRequestHeaderPanelTextView extends HttpPanelTextView {
 	private static class HttpRequestHeaderPanelTextArea extends FuzzableHttpRequestPanelTextArea {
 
 		private static final long serialVersionUID = 985537589818833350L;
+		
+		@Override
+		public FuzzableMessage getFuzzableMessage() {
+			int start = getSelectionStart();
+			try {
+				start += getLineOfOffset(start);
+			} catch (BadLocationException e) {
+				//Shouldn't happen, but in case it does log it and return.
+				log.error(e.getMessage(), e);
+				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+			}
+
+			int end = getSelectionEnd();
+			try {
+				end += getLineOfOffset(end);
+			} catch (BadLocationException e) {
+				//Shouldn't happen, but in case it does log it and return.
+				log.error(e.getMessage(), e);
+				return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, 0, 0);
+			}
+			
+			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.HEADER, start, end);
+		}
 		
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
@@ -102,11 +127,6 @@ public class HttpRequestHeaderPanelTextView extends HttpPanelTextView {
 			}
 			
 			highlight(sm.getStart()-t, sm.getEnd()-t);
-		}
-
-		@Override
-		public HttpMessage getFuzzableMessage() {
-			return (HttpMessage) getMessage();
 		}
 		
 	}

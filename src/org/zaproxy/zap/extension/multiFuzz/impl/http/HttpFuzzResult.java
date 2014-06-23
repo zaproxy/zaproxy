@@ -24,18 +24,18 @@ import org.zaproxy.zap.extension.multiFuzz.FuzzResult;
 
 public class HttpFuzzResult extends FuzzResult<HttpMessage, HttpFuzzLocation> {
 
-    private List<HttpMessage> tokenRequestMessages;
+	private List<HttpMessage> tokenRequestMessages;
 
-    public HttpFuzzResult() {
-        super();
-    }
-    
-    public void setTokenRequestMessages(List<HttpMessage> messages) {
-        this.tokenRequestMessages = messages;
-    }
-    
-    public List<HttpMessage> getTokenRequestMessages() {
-        return tokenRequestMessages;
-    }
-    
+	public HttpFuzzResult() {
+		super();
+	}
+
+	public void setTokenRequestMessages(List<HttpMessage> messages) {
+		this.tokenRequestMessages = messages;
+	}
+
+	public List<HttpMessage> getTokenRequestMessages() {
+		return tokenRequestMessages;
+	}
+
 }

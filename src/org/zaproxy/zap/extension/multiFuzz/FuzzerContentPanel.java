@@ -21,10 +21,10 @@ import javax.swing.JComponent;
 
 public interface FuzzerContentPanel {
 
-    JComponent getComponent();
+	JComponent getComponent();
 
-    void clear();
-    
-    void addFuzzResult(FuzzResult<?,?> fuzzResult);
-    
+	void clear();
+
+	void addFuzzResult(FuzzResult<?, ?> fuzzResult);
+
 }

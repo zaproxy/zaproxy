@@ -3,6 +3,8 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
+ * Copyright 2010 psiinon@gmail.com
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -19,11 +21,31 @@ package org.zaproxy.zap.extension.multiFuzz;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-public interface FuzzableComponent<M extends Message> {
+public class FuzzableComponentWrapper implements FuzzableComponent {
 
-	Class<? extends Message> getMessageClass();
+	private org.zaproxy.zap.extension.fuzz.FuzzableComponent oldComponent;
 
-	M getFuzzableMessage();
+	public FuzzableComponentWrapper(
+			org.zaproxy.zap.extension.fuzz.FuzzableComponent oldComponent) {
+		this.oldComponent = oldComponent;
+	}
 
-	boolean canFuzz();
+	@Override
+	public boolean canFuzz() {
+		return oldComponent.canFuzz();
+	}
+
+	@Override
+	public Class<? extends Message> getMessageClass() {
+		return oldComponent.getMessageClass();
+	}
+
+	@Override
+	public Message getFuzzableMessage() {
+		return oldComponent.getFuzzableMessage().getMessage();
+	}
+
+	public org.zaproxy.zap.extension.fuzz.FuzzableComponent getOldComponent() {
+		return oldComponent;
+	}
 }

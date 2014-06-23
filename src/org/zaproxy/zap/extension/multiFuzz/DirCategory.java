@@ -24,23 +24,24 @@ import java.util.List;
 public class DirCategory {
 	private String name;
 	private List<File> fuzzers = new ArrayList<>();
-	
+
 	public List<File> getFuzzers() {
 		return fuzzers;
 	}
+
 	public DirCategory(String name) {
 		super();
 		this.name = name;
 	}
-	
+
 	public void addFuzzer(File fileFuzzer) {
 		this.fuzzers.add(fileFuzzer);
 	}
-	
+
 	public String getName() {
 		return this.name;
 	}
-	
+
 	public File getFuzzerFile(String name) {
 		for (File ff : fuzzers) {
 			if (ff.getName().equals(name)) {

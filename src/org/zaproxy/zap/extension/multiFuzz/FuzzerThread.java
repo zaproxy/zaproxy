@@ -19,16 +19,25 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
+import java.io.IOException;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.log4j.Logger;
-import org.zaproxy.zap.extension.httppanel.Message;
+import javax.script.ScriptException;
 
-public class FuzzerThread<PL extends Payload, M extends Message,  L extends FuzzLocation<M>, R extends FuzzResult<M, L>, G extends FuzzGap<M, L, PL>, P extends FuzzProcess<R, PL, L>>
+import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
+import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.extension.script.ExtensionScript;
+import org.zaproxy.zap.extension.script.ScriptWrapper;
+
+public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzLocation<M>, R extends FuzzResult<M, L>, G extends FuzzGap<M, L, PL>, P extends FuzzProcess<R, PL, M, L>>
 		implements Runnable {
 
 	private static final Logger log = Logger.getLogger(FuzzerThread.class);
@@ -44,10 +53,15 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 	private boolean pause = false;
 	private boolean isStop = false;
 
+	private int comb_count = 0;
+	private int threadCount = 1;
 	private int delayInMs = 0;
 
 	public FuzzerThread(FuzzerParam fuzzerParam) {
 		delayInMs = fuzzerParam.getDelayInMs();
+		threadCount = fuzzerParam.getThreadPerScan();
+		preprocessors = new ArrayList<FuzzMessageProcessor<M>>();
+		postprocessors = new ArrayList<FuzzMessageProcessor<M>>();
 	}
 
 	public void start() {
@@ -58,12 +72,21 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 	}
 
 	public void stop() {
-		threadPool.shutdown();
+		threadPool.shutdownNow();
+		try {
+			threadPool.awaitTermination(5, TimeUnit.SECONDS);
+		} catch (InterruptedException e) {
+			if (log.isDebugEnabled()) {
+				log.debug(e.getMessage());
+			}
+		}
 		isStop = true;
 	}
+
 	public void addHandlerListener(FuzzerListener<Integer, Boolean> listener) {
 		this.handlerListener = listener;
 	}
+
 	public void addFuzzerListener(FuzzerListener<Integer, R> listener) {
 		listenerList.add(listener);
 	}
@@ -88,23 +111,22 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 
 	@Override
 	public void run() {
-		while(!isStop){
-			log.info("fuzzer started");
+		log.info("fuzzer started");
+		this.fuzz(gaps);
 
-			this.fuzz(gaps);
-			
-			while(threadPool.getCompletedTaskCount() < threadPool.getMaximumPoolSize()){
-				try {
-					Thread.sleep(100);
-				} catch (InterruptedException e) {
-					log.info(e.getMessage());
+		while (threadPool.getCompletedTaskCount() < comb_count && !isStop) {
+			try {
+				Thread.sleep(100);
+			} catch (InterruptedException e) {
+				if (log.isDebugEnabled()) {
+					log.debug(e.getMessage());
 				}
 			}
-			
-			handlerListener.notifyFuzzerComplete(true);
-			log.info("fuzzer stopped");
-			isStop = true;
 		}
+
+		handlerListener.notifyFuzzerComplete(true);
+		log.info("fuzzer stopped");
+		isStop = true;
 	}
 
 	private void fuzz(ArrayList<G> gaps) {
@@ -124,11 +146,14 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 				mod[j] *= lens[i];
 			}
 		}
-		this.threadPool = new ThreadPoolExe(total, total, 100, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<P>());
+		comb_count = total;
+		int core = (total < threadCount) ? total : threadCount;
+		this.threadPool = new ThreadPoolExe(core, threadCount, 100,
+				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<P>());
 		for (FuzzerListener<Integer, R> listener : listenerList) {
 			listener.notifyFuzzerStarted(total);
 		}
-		log.info(total + "Fuzz Combinations");
+		log.info(total + " Fuzz Combinations");
 		for (int nr = 0; nr < total; nr++) {
 			HashMap<L, PL> subs = new HashMap<L, PL>();
 			for (int g = 0; g < gaps.size(); g++) {
@@ -148,7 +173,6 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 			try {
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
-				// Ignore
 			}
 		}
 
@@ -156,12 +180,12 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 			try {
 				Thread.sleep(delayInMs);
 			} catch (InterruptedException e) {
-				// Ignore
 			}
 		}
 
 		P fp = fuzzProcessFactory.getFuzzProcess(subs);
-
+		fp.setPreProcessors(preprocessors);
+		fp.setPostProcessors(postprocessors);
 		fp.addFuzzerListener(new FuzzerListener<Integer, R>() {
 			@Override
 			public void notifyFuzzerStarted(Integer process) {
@@ -198,6 +222,67 @@ public class FuzzerThread<PL extends Payload, M extends Message,  L extends Fuzz
 
 	public boolean isPaused() {
 		return pause;
+	}
+
+	public void importScripts() {
+		ExtensionScript extension = (ExtensionScript) Control.getSingleton()
+				.getExtensionLoader().getExtension(ExtensionScript.NAME);
+		if (extension != null) {
+			List<ScriptWrapper> scripts = extension
+					.getScripts(ExtensionFuzz.SCRIPT_TYPE_FUZZ);
+			for (ScriptWrapper script : scripts) {
+				Writer writer = new StringWriter();
+				if (script.getWriter() != null) {
+					writer = script.getWriter();
+				}
+				try {
+					if (script.isEnabled()) {
+						final FuzzScript s = extension.getInterface(script,
+								FuzzScript.class);
+
+						if (s != null) {
+							preprocessors.add(new FuzzMessageProcessor<M>() {
+								@Override
+								public M process(M orig) {
+									try {
+										s.preProcess(orig);
+									} catch (ScriptException e) {
+										e.printStackTrace();
+									}
+									return orig;
+								}
+							});
+							postprocessors.add(new FuzzMessageProcessor<M>() {
+								@Override
+								public M process(M orig) {
+									try {
+										s.postProcess(orig);
+									} catch (Exception e) {
+										e.printStackTrace();
+									}
+									return orig;
+								}
+							});
+
+						} else {
+							writer.append(Constant.messages
+									.getString("scripts.interface.active.error"));
+							extension.setError(script, writer.toString());
+							extension.setEnabled(script, false);
+						}
+					}
+
+				} catch (Exception e) {
+					try {
+						writer.append(e.toString());
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+					extension.setError(script, e);
+					extension.setEnabled(script, false);
+				}
+			}
+		}
 	}
 
 }

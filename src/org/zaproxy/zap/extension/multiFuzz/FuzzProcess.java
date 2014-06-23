@@ -19,21 +19,29 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
+import java.util.ArrayList;
 import java.util.Map;
 
-public interface FuzzProcess<R extends FuzzResult<?,?>, P extends Payload, L extends FuzzLocation<?>> extends Runnable {
+import org.zaproxy.zap.extension.httppanel.Message;
+
+public interface FuzzProcess<R extends FuzzResult<?, ?>, P extends Payload, M extends Message, L extends FuzzLocation<M>>
+		extends Runnable {
 	@Override
 	public void run();
-	
+
 	public void stop();
-	
+
 	public void pause();
-	
+
 	public void resume();
-	
+
 	public void addFuzzerListener(FuzzerListener<Integer, R> listener);
 
 	public void removeFuzzerListener(FuzzerListener<Integer, R> listener);
+
+	public void setPreProcessors(ArrayList<FuzzMessageProcessor<M>> post);
+
+	public void setPostProcessors(ArrayList<FuzzMessageProcessor<M>> post);
 
 	void setPayload(Map<L, P> subs);
 }
