@@ -64,7 +64,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public int getCategory() {
-        return Category.INJECTION;
+        return Category.MISC;
     }
 
     @Override
