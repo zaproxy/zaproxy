@@ -254,6 +254,8 @@ public class ScanProgressDialog extends AbstractDialog {
                 ScanProgressItem item = (ScanProgressItem)value;                
                 JProgressBar bar = new JProgressBar();
                 bar.setMaximum(100);
+                
+                int val = item.getProgressPercentage();
                 bar.setValue(item.getProgressPercentage());                
                 result = bar;
                 

@@ -40,6 +40,7 @@
 // ZAP: 2014/03/23 Issue 1084: NullPointerException while selecting a node in the "Sites" tab
 // ZAP: 2014/04/01 Changed to set a name to created threads.
 // ZAP: 2014/06/23 Issue 1241: Active scanner might not report finished state when using host scanners
+// ZAP: 2014/06/26 Added the possibility to evaluate the current plugin/process progress
 
 package org.parosproxy.paros.core.scanner;
 
@@ -61,8 +62,8 @@ import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
 
-    private static Logger log = Logger.getLogger(HostProcess.class);
-    private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
+    private static final Logger log = Logger.getLogger(HostProcess.class);
+    private static final DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
     
     private SiteNode startNode = null;
     private boolean isStop = false;
@@ -77,15 +78,28 @@ public class HostProcess implements Runnable {
     private User user = null;
 
     // time related 
-    private Map<Long, Long> mapPluginStartTime = new HashMap<Long, Long>();
-    private Set<Integer> listPluginIdSkipped = new HashSet<Integer>();
+    // ZAP: changed to Integer because the pluginId is int
+    private final Map<Integer, Long> mapPluginStartTime = new HashMap<>();
+    private final Set<Integer> listPluginIdSkipped = new HashSet<>();
     private long hostProcessStartTime = 0;
 
+    // ZAP: progress related
+    private int nodeInScopeCount = -1;
+    private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
+    
     /**
-     *
+     * Intantiate a new HostProcess service
+     * 
+     * @param hostAndPort the host:port value of the site that need to be processed
+     * @param parentScanner the scanner instance which instantiated this process
+     * @param scannerParam the session scanner parameters
+     * @param connectionParam the connection parameters
+     * @param pluginFactory the Factory object for plugin management and instantiation
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
-    		ScannerParam scannerParam, ConnectionParam connectionParam, PluginFactory pluginFactory) {
+    		ScannerParam scannerParam, ConnectionParam connectionParam, 
+                PluginFactory pluginFactory) {
+        
         super();
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
@@ -94,6 +108,7 @@ public class HostProcess implements Runnable {
         this.pluginFactory = pluginFactory;
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
+        
         int maxNumberOfThreads;
         if (scannerParam.getHandleAntiCSRFTokens()) {
             // Single thread if handling anti CSRF tokens, otherwise token requests might get out of step
@@ -102,28 +117,46 @@ public class HostProcess implements Runnable {
         } else {
             maxNumberOfThreads = scannerParam.getThreadPerHost();
         }
+        
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
     }
 
+    /**
+     * Set the initial starting node.
+     * Should be set after the HostProcess initialization
+     * @param startNode the start node we should start from
+     */
     public void setStartNode(SiteNode startNode) {
         this.startNode = startNode;
     }
 
+    /**
+     * Stop the current scanning process
+     */
     public void stop() {
         isStop = true;
         getAnalyser().stop();
     }
 
+    /**
+     * Main execution method
+     */
     @Override
     public void run() {
         log.debug("HostProcess.run");
 
         hostProcessStartTime = System.currentTimeMillis();
+        // ZAP: before all get back the size of this scan
+        nodeInScopeCount = getNodeInScopeCount(startNode, true);
+        
+        // ZAP: begin to analyze the scope
         getAnalyser().start(startNode);
-
-        Plugin plugin = null;
+        
+        Plugin plugin;
+        
         while (!isStop() && pluginFactory.existPluginToRun()) {
             plugin = pluginFactory.nextPlugin();
+            
             if (plugin != null) {
                 plugin.setDelayInMs(this.scannerParam.getDelayInMs());
                 plugin.setDefaultAlertThreshold(this.scannerParam.getAlertThreshold());
@@ -146,7 +179,8 @@ public class HostProcess implements Runnable {
         log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
                 + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
         
-        mapPluginStartTime.put(Long.valueOf(plugin.getId()), Long.valueOf(System.currentTimeMillis()));
+        mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
+        mapPluginProgress.put(plugin.getId(), 0);
         
         if (plugin instanceof AbstractHostPlugin) {
             if (!scanSingleNode(plugin, startNode)) {
@@ -154,6 +188,7 @@ public class HostProcess implements Runnable {
                 // The plugin might not be run if the startNode: is not in scope, is explicitly excluded, ...
                 pluginCompleted(plugin);
             }
+            
         } else if (plugin instanceof AbstractAppPlugin) {
             traverse(plugin, startNode, true);
             threadPool.waitAllThreadComplete(600000);
@@ -230,10 +265,11 @@ public class HostProcess implements Runnable {
      * @return {@code true} if the {@code plugin} was run, {@code false} otherwise.
      */
     private boolean scanSingleNode(Plugin plugin, SiteNode node) {
+        Thread thread;
+        Plugin test;
+        HttpMessage msg;
+        
         log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node);
-        Thread thread = null;
-        Plugin test = null;
-        HttpMessage msg = null;
 
         // do not poll for isStop here to allow every plugin to run but terminate immediately.
         //if (isStop()) return;
@@ -293,22 +329,108 @@ public class HostProcess implements Runnable {
     }
 
     /**
+     * ZAP: method to get back the number of tests that need to be performed
+     * @return the number of tests that need to be executed for this Scanner
+     */
+    public int getTestTotalCount() {
+        return nodeInScopeCount;
+    }
+
+    /**
+     * ZAP: method to get back the current progress status of a specific plugin
+     * @param plugin the plugin we're asking the progress
+     * @return the current managed test count
+     */
+    public int getTestCurrentCount(Plugin plugin) {
+        return mapPluginProgress.get(plugin.getId());
+    }
+
+    /**
+     * ZAP: method to set the current progress status for a specific plugin
+     * @param plugin the plugin we're setting the progress
+     * @param value the value that need to be set
+     */
+    public void setTestCurrentCount(Plugin plugin, int value) {        
+        mapPluginProgress.put(plugin.getId(), value);
+    }
+
+    /**
+     * ZAP: inner recursive method to count nodes in scope
+     * @param node the starting node
+     * @param incRelatedSiblings true if siblings should be included
+     * @return the number of nodes
+     */
+    private int getNodeInScopeCount(SiteNode node, boolean incRelatedSiblings) {
+        if (node == null) {
+            return 0;
+        }
+        
+        int nodeCount = 1;
+        if (parentScanner.scanChildren()) {
+            
+            Set<SiteNode> parentNodes = new HashSet<>();
+            parentNodes.add(node);
+                        
+            if (incRelatedSiblings) {
+                // Also match siblings with the same hierarchic name
+                // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
+                // note that this is only done for the top level.
+                SiteNode sibling = node;
+                while ((sibling = (SiteNode) sibling.getPreviousSibling()) != null) {
+                    if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
+                        // count also sibling
+                        parentNodes.add(sibling);
+                        nodeCount++;
+                    }
+                }
+
+                sibling = node;
+                while ((sibling = (SiteNode) sibling.getNextSibling()) != null) {
+                    if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
+                        // count also sibling
+                        parentNodes.add(sibling);
+                        nodeCount++;
+                    }
+                }
+            }
+            
+            for (SiteNode pNode : parentNodes) {
+                
+                for (int i = 0; i < pNode.getChildCount(); i++) {
+                    nodeCount += getNodeInScopeCount((SiteNode)pNode.getChildAt(i), false);
+                }
+            }
+        }
+        
+        return nodeCount;
+    }
+    
+    /**
      * @return Returns the httpSender.
      */
     public HttpSender getHttpSender() {
         return httpSender;
     }
 
+    /**
+     * Check if the current host scan has been stopped
+     * @return true if the process has been stopped
+     */
     public boolean isStop() {
         return (isStop || parentScanner.isStop());
     }
     
+    /**
+     * Check if the current host scan has been paused
+     * @return true if the process has been paused
+     */
     public boolean isPaused() {
         return parentScanner.isPaused();
     }
 
     private void notifyHostProgress(String msg) {
         int percentage = 0;
+        
         if (pluginFactory.totalPluginToRun() == 0) {
             percentage = 100;
     
@@ -335,10 +457,15 @@ public class HostProcess implements Runnable {
         parentScanner.notifyAlertFound(alert);
     }
 
+    /**
+     * Give back the current process's Analyzer
+     * @return the HTTP analyzer
+     */
     public Analyser getAnalyser() {
         if (analyser == null) {
             analyser = new Analyser(getHttpSender(), this);
         }
+        
         return analyser;
     }
 
@@ -348,7 +475,7 @@ public class HostProcess implements Runnable {
 
     /**
      * Skip the current executing plugin
-     * @param plugin 
+     * @param plugin the plugin instance that need to be skipped
      */
     public void pluginSkipped(Plugin plugin) {
         if (pluginFactory.isRunning(plugin)) {
@@ -357,16 +484,20 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * 
-     * @param plugin
-     * @return 
+     * Check if a specific plugin has been explicitly skipped by the user 
+     * @param plugin the plugin instance currently running
+     * @return true if the user has skipped this instance
      */
     public boolean isSkipped(Plugin plugin) {
         return (!listPluginIdSkipped.isEmpty() && listPluginIdSkipped.contains(plugin.getId()));
     }
     
+    /**
+     * Complete the current plugin and update statistics
+     * @param plugin the plugin that need to be marked as completed
+     */
     void pluginCompleted(Plugin plugin) {
-        Object obj = mapPluginStartTime.get(Long.valueOf(plugin.getId()));
+        Object obj = mapPluginStartTime.get(plugin.getId());
         StringBuilder sb = new StringBuilder();
         if (isStop()) {
             sb.append("stopped host/plugin ");
@@ -381,7 +512,7 @@ public class HostProcess implements Runnable {
         
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
         if (obj != null) {
-            long startTimeMillis = ((Long) obj).longValue();
+            long startTimeMillis = (Long)obj;
             long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
             String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
             sb.append(" in ").append(diffTimeString);
@@ -392,6 +523,9 @@ public class HostProcess implements Runnable {
         
         pluginFactory.setRunningPluginCompleted(plugin);
         notifyHostProgress(null);
+                
+        // ZAP: update progress as finished
+        mapPluginProgress.put(plugin.getId(), nodeInScopeCount);
     }
 
     /**

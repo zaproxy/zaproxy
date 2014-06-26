@@ -106,9 +106,9 @@ public class ScanProgressItem {
      * @return the percentage value from 0 to 100
      */
     public int getProgressPercentage()  {
-        // NEED TO BE IMPLEMENTED
+        // Implemented using node counts...
         if (isRunning()) {
-            return 50;
+            return (int)((hProcess.getTestCurrentCount(plugin) * 100) / hProcess.getTestTotalCount());
             
         } else if (isCompleted()) {
             return 100;        
