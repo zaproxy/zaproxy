@@ -82,12 +82,13 @@ public class ScannerParam extends AbstractParam {
     public static final int RPC_JSON        = 1<<2;
     public static final int RPC_GWT         = 1<<3;
     public static final int RPC_ODATA       = 1<<4;
+    public static final int RPC_DWR         = 1<<5;
     public static final int RPC_CUSTOM      = 1<<7;
     public static final int RPC_USERDEF     = 1<<8;
     
     // Defaults for initial configuration
-    public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
-    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA;
+    public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_COOKIE | TARGET_HTTPHEADERS | TARGET_URLPATH;
+    public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR;
         
     // Internal variables
     private int hostPerScan = 2;
