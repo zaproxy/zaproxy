@@ -56,18 +56,19 @@ public final class ScannerUtils {
      * Gets the quality or status of the given scanner, using regular expressions
      * on the scanner and package name values.
      * @param scannerName the name of the scanner
-     * @param scannerPackage the name of the scanner package
+     * @param scanner the scanner for which quality is being identified
      * @return quality 
      */
-	private static String getSpecificQuality(String scannerName, String scannerPackage) {
+	private static String getSpecificQuality(String scannerName, Object scanner) {
 
+		String scannerPackage=scanner.getClass().getCanonicalName();
         String quality = "";
         
         if (BETA_REGEX.matcher(scannerPackage).matches())
         	quality = QUALITY_BETA;
         else if (ALPHA_REGEX.matcher(scannerPackage).matches()) 
         	quality = QUALITY_ALPHA;
-        else if (SCRIPT_RULES_REGEX.matcher(scannerPackage).matches()) 
+        else if (SCRIPT_RULES_REGEX.matcher(scannerName).matches()) 
         	quality = QUALITY_SCRIPT_RULES;
         else  // We haven't matched yet so it must be Release
         	quality = QUALITY_RELEASE;
@@ -81,23 +82,23 @@ public final class ScannerUtils {
      * @return quality 
      */
 	public static String getPluginQuality(PluginPassiveScanner scanner) {
-        String scannerPackage = scanner.getClass().getCanonicalName();
+//        String scannerPackage = scanner.getClass().getCanonicalName();
         String scannerName = scanner.getName();
         
-        return (getSpecificQuality(scannerName, scannerPackage));
+        return (getSpecificQuality(scannerName, scanner));
         
         }
 	
     /** 
      * Gets the quality or status of the given {@code scanner}.
-     * @param the scanner we want to know the quality/status of
+     * @param scanner the scanner we want to know the quality/status of
      * @return quality 
      */
 	public static String getPluginQuality(Plugin scanner) {
-        String scannerPackage = scanner.getClass().getCanonicalName();
-        String scannerName = scanner.getName().toLowerCase();
+//        String scannerPackage = scanner.getClass().getCanonicalName();
+        String scannerName = scanner.getName();
         
-        return (getSpecificQuality(scannerName, scannerPackage));
+        return (getSpecificQuality(scannerName, scanner));
         
         }
 }
