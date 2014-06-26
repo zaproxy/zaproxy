@@ -113,6 +113,9 @@ public abstract class HttpHeader implements java.io.Serializable {
 	public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
 	public static final String ACCESS_CONTROL_ALLOW_METHODS = "Access-Control-Allow-Methods";
 	public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
+	//ZAP: added "Allow" and "Public" Headers, for response to "OPTIONS" method
+	public static final String METHODS_ALLOW = "Allow";
+	public static final String METHODS_PUBLIC = "Allow";  //IIS specific?
 
     public HttpHeader() {
         init();
