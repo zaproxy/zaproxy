@@ -82,7 +82,7 @@ public final class ScannerUtils {
      * @return quality 
      */
 	public static String getPluginQuality(PluginPassiveScanner scanner) {
-//        String scannerPackage = scanner.getClass().getCanonicalName();
+
         String scannerName = scanner.getName();
         
         return (getSpecificQuality(scannerName, scanner));
@@ -95,8 +95,8 @@ public final class ScannerUtils {
      * @return quality 
      */
 	public static String getPluginQuality(Plugin scanner) {
-//        String scannerPackage = scanner.getClass().getCanonicalName();
-        String scannerName = scanner.getName();
+
+		String scannerName = scanner.getName();
         
         return (getSpecificQuality(scannerName, scanner));
         
