@@ -89,6 +89,11 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
             if ((enabledRPC & ScannerParam.RPC_GWT) != 0) {
                 listVariant.add(new VariantGWTQuery());
             }
+            
+            // ZAP: To handle Direct Web Remoting (DWR) POST requests
+            if ((enabledRPC & ScannerParam.RPC_DWR) != 0) {
+                listVariant.add(new VariantDirectWebRemotingQuery());
+            }
 
         }
 
