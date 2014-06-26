@@ -93,7 +93,7 @@ public final class TimeStampUtils {
     * @see SimpleDateFormat
     */
 	public static String getTimeStampedMessage(String message, String format){
-		return currentFormattedTimeStamp(format)+message;
+		return currentFormattedTimeStamp(format)+" : "+message;
 	}
 	
 }

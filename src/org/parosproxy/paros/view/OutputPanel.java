@@ -171,40 +171,26 @@ public class OutputPanel extends AbstractPanel {
 		return txtOutput;
 	}
 
-    /** 
-     * check output panel timestamp options and optionally return the message with a pre-pended timestamp 
-     * @param msg the message which may need to be timestamped
-     * @return msg with timestamp if applicable
-     */
-	public final String getFinalMessage(String msg) {
-		if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled()) {
-			final String currentTimeStampFormat = Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat(); 
-			final String currentTimeStamp = TimeStampUtils.currentFormattedTimeStamp(currentTimeStampFormat);
-			msg = currentTimeStamp+" : "+msg;
-			return msg;
-		}
-		else
-			return msg;		
-	}
-	
 	public void appendDirty(final String msg) {
-		if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled()) {
-			getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(msg,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
-		}
-		else
-			getTxtOutput().append(msg);
+		getTxtOutput().append(msg);
 	}
 
 	public void append(final String msg) {
 		if (EventQueue.isDispatchThread()) {
-			getTxtOutput().append(getFinalMessage(msg));
+			if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled())
+				getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(msg,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
+			else
+				getTxtOutput().append(msg);
 			return;
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					getTxtOutput().append(getFinalMessage(msg));
+					if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled())
+						getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(msg,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
+					else
+						getTxtOutput().append(msg);
 				}
 			});
 		} catch (Exception e) {
