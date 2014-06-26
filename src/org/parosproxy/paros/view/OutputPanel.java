@@ -46,7 +46,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.utils.ZapTextArea;
-import org.zaproxy.zap.utils.TimeStamp;
+import org.zaproxy.zap.utils.TimeStampUtils;
 
 public class OutputPanel extends AbstractPanel {
 
@@ -177,10 +177,9 @@ public class OutputPanel extends AbstractPanel {
      * @return msg with timestamp if applicable
      */
 	public final String getFinalMessage(String msg) {
-		if (Model.getSingleton().getOptionsParam().getViewParam().getOutputTabsTimeStampsOption()) {
-			TimeStamp aTimeStamp = new TimeStamp();
-			final String currentTimeStampFormat = Model.getSingleton().getOptionsParam().getViewParam().getOutputTabsTimeStampsFormat(); 
-			final String currentTimeStamp = aTimeStamp.getTimeStamp(currentTimeStampFormat);
+		if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled()) {
+			final String currentTimeStampFormat = Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat(); 
+			final String currentTimeStamp = TimeStampUtils.currentFormattedTimeStamp(currentTimeStampFormat);
 			msg = currentTimeStamp+" : "+msg;
 			return msg;
 		}
@@ -189,7 +188,11 @@ public class OutputPanel extends AbstractPanel {
 	}
 	
 	public void appendDirty(final String msg) {
-		getTxtOutput().append(getFinalMessage(msg));
+		if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled()) {
+			getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(msg,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
+		}
+		else
+			getTxtOutput().append(msg);
 	}
 
 	public void append(final String msg) {
