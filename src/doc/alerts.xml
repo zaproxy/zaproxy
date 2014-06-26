@@ -139,7 +139,7 @@ This list the alerts
 90024	Generic Padding Oracle
 90025	Expression Language Injection
 
-90027	Detect gaps in cookie checking
+90027	Cookie Slack Detector
 
 To be developed:
 .	Check session cookie for secured
