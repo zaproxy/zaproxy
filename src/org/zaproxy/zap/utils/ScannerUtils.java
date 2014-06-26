@@ -20,7 +20,6 @@
 
 package org.zaproxy.zap.utils;
 
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
@@ -54,25 +53,21 @@ public final class ScannerUtils {
 	}
 	
     /** 
-     * Gets the quality or status of the given {@code scanner}, using regular expressions
+     * Gets the quality or status of the given scanner, using regular expressions
      * on the scanner and package name values.
-     * @param the name of the scanner
-     * @param the name of the scanner package
+     * @param scannerName the name of the scanner
+     * @param scannerPackage the name of the scanner package
      * @return quality 
      */
 	private static String getSpecificQuality(String scannerName, String scannerPackage) {
 
         String quality = "";
-
-        Matcher alphaMatcher = ALPHA_REGEX.matcher(scannerPackage);
-        Matcher betaMatcher = BETA_REGEX.matcher(scannerPackage);
-        Matcher scriptRulesMatcher = SCRIPT_RULES_REGEX.matcher(scannerName);
         
-        if (betaMatcher.matches())
+        if (BETA_REGEX.matcher(scannerPackage).matches())
         	quality = QUALITY_BETA;
-        else if (alphaMatcher.matches()) 
+        else if (ALPHA_REGEX.matcher(scannerPackage).matches()) 
         	quality = QUALITY_ALPHA;
-        else if (scriptRulesMatcher.matches()) 
+        else if (SCRIPT_RULES_REGEX.matcher(scannerPackage).matches()) 
         	quality = QUALITY_SCRIPT_RULES;
         else  // We haven't matched yet so it must be Release
         	quality = QUALITY_RELEASE;
@@ -82,7 +77,7 @@ public final class ScannerUtils {
 	
     /** 
      * Gets the quality or status of the given passive {@code scanner}.
-     * @param the scanner we want to know the quality/status of
+     * @param scanner the scanner we want to know the quality/status of
      * @return quality 
      */
 	public static String getPluginQuality(PluginPassiveScanner scanner) {

@@ -189,7 +189,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 break;
                 
             case 2: // Quality Column
-                result = scannersQuality.get((test).getPluginId());
+                result = scannersQuality.get(test.getPluginId());
                 break;  
             
             default:
