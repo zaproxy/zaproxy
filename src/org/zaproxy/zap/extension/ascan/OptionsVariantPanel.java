@@ -63,6 +63,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkRPCJSON = null;
     private JCheckBox chkRPCGWT = null;
     private JCheckBox chkRPCoData = null;
+    private JCheckBox chkRPCDWR = null;
     private JCheckBox chkRPCCustom = null;
     
     // Table for Parameter exclusions
@@ -145,6 +146,9 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             panelRPC.add(
                     this.getChkRPCoData(), 
                     LayoutHelper.getGBC(0, 5, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));            
+            panelRPC.add(
+                    this.getChkRPCDWR(), 
+                    LayoutHelper.getGBC(0, 6, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
             
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.rpc.label")),
@@ -197,6 +201,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkRPCJSON().setSelected((rpcEnabled & ScannerParam.RPC_JSON) != 0);
         this.getChkRPCGWT().setSelected((rpcEnabled & ScannerParam.RPC_GWT) != 0);
         this.getChkRPCoData().setSelected((rpcEnabled & ScannerParam.RPC_ODATA) != 0);
+        this.getChkRPCDWR().setSelected((rpcEnabled & ScannerParam.RPC_DWR) != 0);
         this.getChkRPCCustom().setSelected((rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
         
         ExtensionScript extension = (ExtensionScript)Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
@@ -269,7 +274,11 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (this.getChkRPCoData().isSelected()) {
             enabledRpc |= ScannerParam.RPC_ODATA;
         }
-        
+
+        if (this.getChkRPCDWR().isSelected()) {
+            enabledRpc |= ScannerParam.RPC_DWR;
+        }
+
         if (this.getChkRPCCustom().isSelected()) {
             enabledRpc |= ScannerParam.RPC_CUSTOM;
         }
@@ -378,6 +387,14 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             chkRPCoData.setText(Constant.messages.getString("variant.options.rpc.odata.label"));
         }
         return chkRPCoData;
+    }
+
+    private JCheckBox getChkRPCDWR() {
+        if (chkRPCDWR == null) {
+            chkRPCDWR = new JCheckBox();
+            chkRPCDWR.setText(Constant.messages.getString("variant.options.rpc.dwr.label"));
+        }
+        return chkRPCDWR;
     }
     
     private JCheckBox getChkRPCCustom() {
