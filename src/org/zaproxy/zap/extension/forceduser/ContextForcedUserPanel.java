@@ -23,24 +23,16 @@ import java.awt.CardLayout;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
-import javax.swing.AbstractListModel;
-import javax.swing.ComboBoxModel;
-import javax.swing.DefaultComboBoxModel;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.border.EmptyBorder;
-import javax.swing.event.TableModelEvent;
-import javax.swing.event.TableModelListener;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.extension.users.UsersTableModel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
-import org.zaproxy.zap.view.renderer.UserListCellRenderer;
+import org.zaproxy.zap.view.widgets.ContextPanelUsersSelectComboBox;
 
 public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
@@ -49,11 +41,9 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 	/** The Constant PANEL NAME. */
 	private static final String PANEL_NAME = Constant.messages.getString("forceduser.panel.title");
 
-	private static final Logger log = Logger.getLogger(ContextForcedUserPanel.class);
-
 	private ExtensionForcedUser extension;
 
-	private JComboBox<User> usersComboBox;
+	private ContextPanelUsersSelectComboBox usersComboBox;
 
 	public ContextForcedUserPanel(ExtensionForcedUser extensionForcedUser, int contextId) {
 		super(contextId);
@@ -80,28 +70,16 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 		this.add(new JLabel(), LayoutHelper.getGBC(0, 99, 1, 1.0D, 1.0D));
 	}
 
-	@SuppressWarnings("unchecked")
-	private JComboBox<User> getUsersComboBox() {
+	private ContextPanelUsersSelectComboBox getUsersComboBox() {
 		if (usersComboBox == null) {
-			usersComboBox = new JComboBox<>();
-			usersComboBox.setRenderer(new UserListCellRenderer());
+			usersComboBox = new ContextPanelUsersSelectComboBox(getContextIndex());
 		}
 		return usersComboBox;
 	}
 
 	@Override
 	public void initContextData(Session session, Context uiSharedContext) {
-		UsersTableModel currentUsers = extension.getUserManagementExtension().getUIConfiguredUsersModel(
-				getContextIndex());
-		if (currentUsers != null) {
-			UsersListModel usersModel = new UsersListModel(currentUsers);
-			usersModel.setSelectedInternalItem(extension.getForcedUser(getContextIndex()));
-			getUsersComboBox().setModel(usersModel);
-		} else {
-			getUsersComboBox().setModel(new DefaultComboBoxModel<User>());
-			log.error("Current users not obtained properly. Disabling Forced Users panel for context: "
-					+ getContextIndex());
-		}
+		usersComboBox.setSelectedInternalItem(extension.getForcedUser(getContextIndex()));
 	}
 
 	@Override
@@ -123,94 +101,5 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 	public String getHelpIndex() {
 		// TODO Needs to be filled
 		return null;
-	}
-
-	public static class UsersListModel extends AbstractListModel<User> implements ComboBoxModel<User>,
-			TableModelListener {
-
-		private static final long serialVersionUID = 5648260449088479312L;
-		Object selectedItem;
-		UsersTableModel tableModel;
-
-		public UsersListModel(UsersTableModel tableModel) {
-			super();
-			this.tableModel = tableModel;
-			this.tableModel.addTableModelListener(this);
-		}
-
-		@Override
-		public User getElementAt(int index) {
-			return tableModel.getElement(index);
-		}
-
-		@Override
-		public int getSize() {
-			return tableModel.getUsers().size();
-		}
-
-		@Override
-		public void tableChanged(TableModelEvent e) {
-			// Handle the situation when something is selected and but there aren't any users to
-			// select
-			if (selectedItem != null && getSize() == 0)
-				setSelectedItem(null);
-			// Handle the situation when nothing selected or the event is a deletion or update and
-			// the previously selected item does not exist any more
-			else if (selectedItem == null
-					|| ((e.getType() == TableModelEvent.DELETE || e.getType() == TableModelEvent.UPDATE) && getIndexOf(selectedItem) == -1))
-				if (getSize() > 0)
-					setSelectedItem(getElementAt(0));
-			fireContentsChanged(this, e.getFirstRow(), e.getLastRow());
-		}
-
-		@Override
-		public Object getSelectedItem() {
-			return selectedItem;
-		}
-
-		@Override
-		public void setSelectedItem(Object anItem) {
-			// No item is selected and object is null, so no change required.
-			if (selectedItem == null && anItem == null)
-				return;
-
-			// object is already selected so no change required.
-			if (selectedItem != null && selectedItem.equals(anItem))
-				return;
-
-			// Simply return if object is not in the list.
-			if (anItem != null && getIndexOf(anItem) == -1)
-				return;
-
-			// Here we know that object is either an item in the list or null.
-			selectedItem = anItem;
-			fireContentsChanged(this, -1, -1);
-		}
-
-		/**
-		 * Sets the selected item as the actual internal item with the same id as the provided user.
-		 * 
-		 * @param user the new selected internal item
-		 */
-		public void setSelectedInternalItem(User user) {
-			int index = getIndexOf(user);
-			if (index != -1)
-				setSelectedItem(tableModel.getUsers().get(index));
-			else if (getSize() > 0)
-				setSelectedItem(getElementAt(0));
-			else
-				setSelectedItem(null);
-
-		}
-
-		/**
-		 * Returns the index of the specified element in the model's item list.
-		 * 
-		 * @param object the element.
-		 * @return The index of the specified element in the model's item list.
-		 */
-		public int getIndexOf(Object object) {
-			return tableModel.getUsers().indexOf(object);
-		}
 	}
 }
