@@ -17,20 +17,17 @@
  */
 package org.zaproxy.zap.view.widgets;
 
-import java.awt.Component;
 import java.util.List;
 
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.DefaultListCellRenderer;
 import javax.swing.JList;
 import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
-import javax.swing.border.Border;
-import javax.swing.border.EmptyBorder;
 
 import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.view.renderer.UserListCellRenderer;
 
 /**
  * A {@link JList} widget that displays the list of {@link User Users} for a given context and
@@ -62,13 +59,14 @@ public class UsersMultiSelectList extends JList<User> {
 	 * @param contextId the context id
 	 * @param selectionModel the selection model, as in {@link ListSelectionModel} constants
 	 */
+	@SuppressWarnings("unchecked")
 	public UsersMultiSelectList(int contextId, int selectionModel) {
 		super();
 		// Force loading the UserManagement extension to make sure it's enabled.
 		loadUsersManagementExtension();
 		reloadUsers(contextId);
 		this.setSelectionMode(selectionModel);
-		this.setCellRenderer(new UserListRenderer());
+		this.setCellRenderer(new UserListCellRenderer());
 	}
 
 	/**
@@ -79,28 +77,5 @@ public class UsersMultiSelectList extends JList<User> {
 		User[] usersArray = users.toArray(new User[users.size()]);
 		ListModel<User> usersModel = new DefaultComboBoxModel<User>(usersArray);
 		this.setModel(usersModel);
-	}
-
-	/**
-	 * A renderer for properly displaying the name of User in a ComboBox.
-	 */
-	private static class UserListRenderer extends DefaultListCellRenderer {
-
-		private static final Border BORDER = new EmptyBorder(2, 8, 2, 8);
-		private static final long serialVersionUID = 3272133514462699823L;
-
-		@Override
-		@SuppressWarnings("rawtypes")
-		public Component getListCellRendererComponent(JList list, Object value, int index,
-				boolean isSelected, boolean cellHasFocus) {
-			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-
-			if (value != null) {
-				User item = (User) value;
-				setText(item.getName());
-				setBorder(BORDER);
-			}
-			return this;
-		}
 	}
 }

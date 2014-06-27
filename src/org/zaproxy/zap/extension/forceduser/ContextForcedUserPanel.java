@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.forceduser;
 
 import java.awt.CardLayout;
-import java.awt.Component;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 
@@ -29,12 +28,9 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.border.Border;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
-import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -44,6 +40,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
+import org.zaproxy.zap.view.renderer.UserListCellRenderer;
 
 public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 
@@ -87,7 +84,7 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 	private JComboBox<User> getUsersComboBox() {
 		if (usersComboBox == null) {
 			usersComboBox = new JComboBox<>();
-			usersComboBox.setRenderer(new UserRenderer());
+			usersComboBox.setRenderer(new UserListCellRenderer());
 		}
 		return usersComboBox;
 	}
@@ -214,32 +211,6 @@ public class ContextForcedUserPanel extends AbstractContextPropertiesPanel {
 		 */
 		public int getIndexOf(Object object) {
 			return tableModel.getUsers().indexOf(object);
-		}
-	}
-
-	/**
-	 * A renderer for properly displaying the name of an HttpSession in a ComboBox.
-	 */
-	private static class UserRenderer extends BasicComboBoxRenderer {
-		private static final long serialVersionUID = 3654541772447187317L;
-
-		private static final Border BORDER = new EmptyBorder(2, 3, 3, 3);
-
-		@Override
-		@SuppressWarnings("rawtypes")
-		public Component getListCellRendererComponent(JList list, Object value, int index,
-				boolean isSelected, boolean cellHasFocus) {
-			super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-			if (value != null) {
-				User item = (User) value;
-				setBorder(BORDER);
-				if (!item.isEnabled())
-					setText(item.getName() + " (disabled)");
-				else
-					setText(item.getName());
-				setEnabled(item.isEnabled());
-			}
-			return this;
 		}
 	}
 }
