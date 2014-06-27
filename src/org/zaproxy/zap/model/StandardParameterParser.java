@@ -202,8 +202,11 @@ public class StandardParameterParser implements ParameterParser {
 		String path = uri.getPath();
 		List<String> list = new ArrayList<String>();
 		if (path != null) {
-			for (String str : path.split("/")) {
-				list.add(str);
+			// Note: Start from the 2nd path element as the first on is always the empty string due
+			// to the split
+			String[] pathList = path.split("/");
+			for (int i = 1; i < pathList.length; i++) {
+				list.add(pathList[i]);
 			}
 		}
 		// Add any structural params
@@ -213,7 +216,45 @@ public class StandardParameterParser implements ParameterParser {
 				list.add(param.getValue());
 			}
 		}
-		
+
 		return list;
 	}
+
+	@Override
+	public String getAncestorPath(URI uri, int depth) throws URIException {
+		// If the depth is 0, return an empty path
+		String path = uri.getPath();
+		if (depth == 0 || path == null)
+			return "";
+
+		// Add the 'normal' path elements until we finish them or we reach the desired depth
+		String[] pathList = path.split("/");
+		StringBuilder parentPath = new StringBuilder(path.length());
+		// Note: Start from the 2nd path element as the first on is always the empty string due to
+		// the split
+		for (int i = 1; i < pathList.length && depth > 0; i++, depth--) {
+			parentPath.append('/').append(pathList[i]);
+		}
+		// If we're done or we have no structural parameters, just return
+		if (depth == 0 || structuralParameters.isEmpty())
+			return parentPath.toString();
+
+		// Add the 'structural params' path elements
+		boolean firstElement = true;
+		Map<String, String> urlParams = this.parse(uri.getQuery());
+		for (Entry<String, String> param : urlParams.entrySet()) {
+			if (this.structuralParameters.contains(param.getKey())) {
+				if (firstElement) {
+					firstElement = false;
+					parentPath.append('?');
+				} else
+					parentPath.append(keyValuePairSeparators);
+				parentPath.append(param.getKey()).append(keyValueSeparators).append(param.getValue());
+				if ((--depth) == 0)
+					break;
+			}
+		}
+		return parentPath.toString();
+	}
+
 }
