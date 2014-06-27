@@ -140,6 +140,7 @@ This list the alerts
 90025	Expression Language Injection
 
 90027	Cookie Slack Detector
+90028	Insecure HTTP Method
 
 To be developed:
 .	Check session cookie for secured
@@ -147,7 +148,6 @@ To be developed:
 .	check SSI
 .	handle cookie check in XSS and SQL injection
 
-90028	Insecure HTTP Method
 =======================================================
 
 -->
