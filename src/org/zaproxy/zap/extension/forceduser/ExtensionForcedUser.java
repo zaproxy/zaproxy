@@ -354,10 +354,8 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 				// Note: Do not persist whether the 'Forced User Mode' is enabled as there's no need
 				// for this and the mode can be easily enabled/disabled directly
 			} else {
-				// If we don't have a forced user, set an 'empty' list to force deletion of any
-				// previous values
-				session.setContextData(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID,
-						Collections.<String> emptyList());
+				// If we don't have a forced user, force deletion of any previous values
+				session.clearContextDataForType(context.getIndex(), RecordContext.TYPE_FORCED_USER_ID);
 			}
 		} catch (Exception e) {
 			log.error("Unable to persist forced user.", e);
