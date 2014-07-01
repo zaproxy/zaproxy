@@ -84,6 +84,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	private List<FetchFilter> customFetchFilters;
 	private List<ParseFilter> customParseFilters;
 
+	private SpiderAPI spiderApi;
+
 	/**
 	 * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
 	 * Popup Menu.
@@ -137,7 +139,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		extensionHook.addOptionsParamSet(getSpiderParam());
 
 		// Register as an API implementor
-		SpiderAPI spiderApi = new SpiderAPI(this);
+		spiderApi = new SpiderAPI(this);
 		spiderApi.addApiOptions(getSpiderParam());
 		API.getInstance().registerApiImplementor(spiderApi);
 	}
@@ -168,6 +170,10 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
+		if (spiderApi != null) {
+			spiderApi.reset();
+		}
+
 		// Shut all of the scans down
 		this.getSpiderPanel().reset();
 	}
