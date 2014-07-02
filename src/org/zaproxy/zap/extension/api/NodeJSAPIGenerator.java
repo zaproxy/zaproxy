@@ -166,6 +166,15 @@ public class NodeJSAPIGenerator {
                     out.write("'" + param + "' : " + safeName(param.toLowerCase()));
                 }
             }
+            if (type.equals("action") || type.equals("other")) {
+                // Always add the API key - we've no way of knowing if it will be required or not
+                if (first) {
+                    first = false;
+                } else {
+                    out.write(", ");
+                }
+                out.write("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
+            }
             out.write("}");
         }
         out.write(", callback);\n");
