@@ -91,12 +91,18 @@ public class Autoupdate {
 	public ApiResponse downloadLatestRelease(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("autoupdate", "action", "downloadLatestRelease", map);
 	}
 
 	public ApiResponse setOptionCheckOnStart(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionCheckOnStart", map);
 	}
@@ -104,6 +110,9 @@ public class Autoupdate {
 	public ApiResponse setOptionDownloadNewRelease(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionDownloadNewRelease", map);
 	}
@@ -111,6 +120,9 @@ public class Autoupdate {
 	public ApiResponse setOptionCheckAddonUpdates(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionCheckAddonUpdates", map);
 	}
@@ -118,6 +130,9 @@ public class Autoupdate {
 	public ApiResponse setOptionInstallAddonUpdates(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionInstallAddonUpdates", map);
 	}
@@ -125,6 +140,9 @@ public class Autoupdate {
 	public ApiResponse setOptionInstallScannerRules(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionInstallScannerRules", map);
 	}
@@ -132,6 +150,9 @@ public class Autoupdate {
 	public ApiResponse setOptionReportReleaseAddons(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionReportReleaseAddons", map);
 	}
@@ -139,6 +160,9 @@ public class Autoupdate {
 	public ApiResponse setOptionReportBetaAddons(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionReportBetaAddons", map);
 	}
@@ -146,6 +170,9 @@ public class Autoupdate {
 	public ApiResponse setOptionReportAlphaAddons(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionReportAlphaAddons", map);
 	}

@@ -72,6 +72,9 @@ public class Context {
 	public ApiResponse excludeFromContext(String apikey, String contextname, String regex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextName", contextname);
 		map.put("regex", regex);
 		return api.callApi("context", "action", "excludeFromContext", map);
@@ -83,6 +86,9 @@ public class Context {
 	public ApiResponse includeInContext(String apikey, String contextname, String regex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextName", contextname);
 		map.put("regex", regex);
 		return api.callApi("context", "action", "includeInContext", map);
@@ -94,6 +100,9 @@ public class Context {
 	public ApiResponse newContext(String apikey, String contextname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextName", contextname);
 		return api.callApi("context", "action", "newContext", map);
 	}
@@ -104,6 +113,9 @@ public class Context {
 	public ApiResponse setContextInScope(String apikey, String contextname, String booleaninscope) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextName", contextname);
 		map.put("booleanInScope", booleaninscope);
 		return api.callApi("context", "action", "setContextInScope", map);

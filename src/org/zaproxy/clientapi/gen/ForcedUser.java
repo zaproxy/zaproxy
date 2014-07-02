@@ -53,6 +53,9 @@ public class ForcedUser {
 	public ApiResponse setForcedUser(String apikey, String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		return api.callApi("forcedUser", "action", "setForcedUser", map);
@@ -61,6 +64,9 @@ public class ForcedUser {
 	public ApiResponse setForcedUserModeEnabled(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("boolean", Boolean.toString(bool));
 		return api.callApi("forcedUser", "action", "setForcedUserModeEnabled", map);
 	}

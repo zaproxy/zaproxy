@@ -121,6 +121,9 @@ public class Search {
 	public byte[] harByUrlRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("regex", regex);
 		map.put("baseurl", baseurl);
 		map.put("start", start);
@@ -131,6 +134,9 @@ public class Search {
 	public byte[] harByRequestRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("regex", regex);
 		map.put("baseurl", baseurl);
 		map.put("start", start);
@@ -141,6 +147,9 @@ public class Search {
 	public byte[] harByResponseRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("regex", regex);
 		map.put("baseurl", baseurl);
 		map.put("start", start);
@@ -151,6 +160,9 @@ public class Search {
 	public byte[] harByHeaderRegex(String apikey, String regex, String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("regex", regex);
 		map.put("baseurl", baseurl);
 		map.put("start", start);

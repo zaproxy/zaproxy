@@ -205,12 +205,18 @@ public class Core {
 	public ApiResponse shutdown(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("core", "action", "shutdown", map);
 	}
 
 	public ApiResponse newSession(String apikey, String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("name", name);
 		map.put("overwrite", overwrite);
 		return api.callApi("core", "action", "newSession", map);
@@ -219,6 +225,9 @@ public class Core {
 	public ApiResponse loadSession(String apikey, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("name", name);
 		return api.callApi("core", "action", "loadSession", map);
 	}
@@ -226,6 +235,9 @@ public class Core {
 	public ApiResponse saveSession(String apikey, String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("name", name);
 		map.put("overwrite", overwrite);
 		return api.callApi("core", "action", "saveSession", map);
@@ -234,18 +246,27 @@ public class Core {
 	public ApiResponse snapshotSession(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("core", "action", "snapshotSession", map);
 	}
 
 	public ApiResponse clearExcludedFromProxy(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("core", "action", "clearExcludedFromProxy", map);
 	}
 
 	public ApiResponse excludeFromProxy(String apikey, String regex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("regex", regex);
 		return api.callApi("core", "action", "excludeFromProxy", map);
 	}
@@ -253,6 +274,9 @@ public class Core {
 	public ApiResponse setHomeDirectory(String apikey, String dir) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("dir", dir);
 		return api.callApi("core", "action", "setHomeDirectory", map);
 	}
@@ -260,12 +284,18 @@ public class Core {
 	public ApiResponse generateRootCA(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("core", "action", "generateRootCA", map);
 	}
 
 	public ApiResponse sendRequest(String apikey, String request, String followredirects) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("request", request);
 		map.put("followRedirects", followredirects);
 		return api.callApi("core", "action", "sendRequest", map);
@@ -274,6 +304,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainName(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainName", map);
 	}
@@ -281,6 +314,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainRealm(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainRealm", map);
 	}
@@ -288,6 +324,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainUserName(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainUserName", map);
 	}
@@ -295,6 +334,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainPassword(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainPassword", map);
 	}
@@ -302,6 +344,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainSkipName(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainSkipName", map);
 	}
@@ -309,6 +354,9 @@ public class Core {
 	public ApiResponse setOptionHttpStateEnabled(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionHttpStateEnabled", map);
 	}
@@ -316,6 +364,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainPort(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("core", "action", "setOptionProxyChainPort", map);
 	}
@@ -323,6 +374,9 @@ public class Core {
 	public ApiResponse setOptionProxyChainPrompt(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionProxyChainPrompt", map);
 	}
@@ -330,6 +384,9 @@ public class Core {
 	public ApiResponse setOptionTimeoutInSecs(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("core", "action", "setOptionTimeoutInSecs", map);
 	}
@@ -337,6 +394,9 @@ public class Core {
 	public ApiResponse setOptionUseProxyChain(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionUseProxyChain", map);
 	}
@@ -344,6 +404,9 @@ public class Core {
 	public ApiResponse setOptionUseProxyChainAuth(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionUseProxyChainAuth", map);
 	}
@@ -351,6 +414,9 @@ public class Core {
 	public ApiResponse setOptionSingleCookieRequestHeader(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionSingleCookieRequestHeader", map);
 	}
@@ -358,18 +424,27 @@ public class Core {
 	public byte[] proxypac(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApiOther("core", "other", "proxy.pac", map);
 	}
 
 	public byte[] rootcert(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApiOther("core", "other", "rootcert", map);
 	}
 
 	public byte[] setproxy(String apikey, String proxy) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("proxy", proxy);
 		return api.callApiOther("core", "other", "setproxy", map);
 	}
@@ -377,12 +452,18 @@ public class Core {
 	public byte[] xmlreport(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApiOther("core", "other", "xmlreport", map);
 	}
 
 	public byte[] messagesHar(String apikey, String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("baseurl", baseurl);
 		map.put("start", start);
 		map.put("count", count);
@@ -392,6 +473,9 @@ public class Core {
 	public byte[] sendHarRequest(String apikey, String request, String followredirects) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("request", request);
 		map.put("followRedirects", followredirects);
 		return api.callApiOther("core", "other", "sendHarRequest", map);

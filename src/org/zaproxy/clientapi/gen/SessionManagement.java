@@ -60,6 +60,9 @@ public class SessionManagement {
 	public ApiResponse setSessionManagementMethod(String apikey, String contextid, String methodname, String methodconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("methodName", methodname);
 		map.put("methodConfigParams", methodconfigparams);

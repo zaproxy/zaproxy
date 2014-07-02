@@ -41,6 +41,9 @@ public class Break {
 	public ApiResponse brk(String apikey, String type, String scope, String state) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("type", type);
 		map.put("scope", scope);
 		map.put("state", state);
@@ -50,6 +53,9 @@ public class Break {
 	public ApiResponse addHttpBreakpoint(String apikey, String string, String location, String match, String inverse, String ignorecase) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("string", string);
 		map.put("location", location);
 		map.put("match", match);
@@ -61,6 +67,9 @@ public class Break {
 	public ApiResponse removeHttpBreakpoint(String apikey, String string, String location, String match, String inverse, String ignorecase) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("string", string);
 		map.put("location", location);
 		map.put("match", match);
