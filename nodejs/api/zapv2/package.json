@@ -1,7 +1,7 @@
 {
   "name": "zaproxy",
   "description": "ZAProxy Client API for Node.js",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "homepage": "https://github.com/TeamPraxis/node-zaproxy",
   "author": {
     "name": "Keith Hamasaki",

@@ -1,7 +1,8 @@
 node-zaproxy
 ============
 
-ZAProxy Client API for Node.js. Generated using the ZAProxy API generator.
+ZAProxy Client API for Node.js. Generated using the ZAProxy API
+generator. API version is 2.3.
 
 ## Getting Started
 Install with:
