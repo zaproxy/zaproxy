@@ -49,15 +49,15 @@ class search(object):
         return self.zap._request(self.zap.base + 'search/view/messagesByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}).get('messagesByHeaderRegex')
 
     def har_by_url_regex(self, regex, baseurl='', start='', count='', apikey=''):
-        return self.zap._request_other(self.zap.base_other + 'search/other/harByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+        return self.zap._request_other(self.zap.base_other + 'search/other/harByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey})
 
     def har_by_request_regex(self, regex, baseurl='', start='', count='', apikey=''):
-        return self.zap._request_other(self.zap.base_other + 'search/other/harByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+        return self.zap._request_other(self.zap.base_other + 'search/other/harByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey})
 
     def har_by_response_regex(self, regex, baseurl='', start='', count='', apikey=''):
-        return self.zap._request_other(self.zap.base_other + 'search/other/harByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+        return self.zap._request_other(self.zap.base_other + 'search/other/harByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey})
 
     def har_by_header_regex(self, regex, baseurl='', start='', count='', apikey=''):
-        return self.zap._request_other(self.zap.base_other + 'search/other/harByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count})
+        return self.zap._request_other(self.zap.base_other + 'search/other/harByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey})
 
 

@@ -25,12 +25,12 @@ class brk(object):
         self.zap = zap
 
     def brk(self, type, scope, state, apikey=''):
-        return self.zap._request(self.zap.base + 'break/action/break/', {'type' : type, 'scope' : scope, 'state' : state})
+        return self.zap._request(self.zap.base + 'break/action/break/', {'type' : type, 'scope' : scope, 'state' : state, 'apikey' : apikey})
 
     def add_http_breakpoint(self, string, location, match, inverse, ignorecase, apikey=''):
-        return self.zap._request(self.zap.base + 'break/action/addHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase})
+        return self.zap._request(self.zap.base + 'break/action/addHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase, 'apikey' : apikey})
 
     def remove_http_breakpoint(self, string, location, match, inverse, ignorecase, apikey=''):
-        return self.zap._request(self.zap.base + 'break/action/removeHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase})
+        return self.zap._request(self.zap.base + 'break/action/removeHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase, 'apikey' : apikey})
 
 
