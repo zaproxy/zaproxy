@@ -74,6 +74,7 @@ public class Authentication {
 	public ApiResponse setAuthenticationMethod(String apikey, String contextid, String authmethodname, String authmethodconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		map.put("apikey", apikey);
 		map.put("contextId", contextid);
 		map.put("authMethodName", authmethodname);
 		map.put("authMethodConfigParams", authmethodconfigparams);
@@ -83,6 +84,7 @@ public class Authentication {
 	public ApiResponse setLoggedInIndicator(String apikey, String contextid, String loggedinindicatorregex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		map.put("apikey", apikey);
 		map.put("contextId", contextid);
 		map.put("loggedInIndicatorRegex", loggedinindicatorregex);
 		return api.callApi("authentication", "action", "setLoggedInIndicator", map);
@@ -91,6 +93,7 @@ public class Authentication {
 	public ApiResponse setLoggedOutIndicator(String apikey, String contextid, String loggedoutindicatorregex) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		map.put("apikey", apikey);
 		map.put("contextId", contextid);
 		map.put("loggedOutIndicatorRegex", loggedoutindicatorregex);
 		return api.callApi("authentication", "action", "setLoggedOutIndicator", map);
