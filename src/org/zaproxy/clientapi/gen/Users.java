@@ -71,7 +71,9 @@ public class Users {
 	public ApiResponse newUser(String apikey, String contextid, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("name", name);
 		return api.callApi("users", "action", "newUser", map);
@@ -80,7 +82,9 @@ public class Users {
 	public ApiResponse removeUser(String apikey, String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		return api.callApi("users", "action", "removeUser", map);
@@ -89,7 +93,9 @@ public class Users {
 	public ApiResponse setUserEnabled(String apikey, String contextid, String userid, String enabled) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		map.put("enabled", enabled);
@@ -99,7 +105,9 @@ public class Users {
 	public ApiResponse setUserName(String apikey, String contextid, String userid, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		map.put("name", name);
@@ -109,7 +117,9 @@ public class Users {
 	public ApiResponse setAuthenticationCredentials(String apikey, String contextid, String userid, String authcredentialsconfigparams) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		map.put("authCredentialsConfigParams", authcredentialsconfigparams);

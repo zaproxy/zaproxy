@@ -54,7 +54,9 @@ public class Pscan {
 	public ApiResponse setEnabled(String apikey, String enabled) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("enabled", enabled);
 		return api.callApi("pscan", "action", "setEnabled", map);
 	}
@@ -62,21 +64,27 @@ public class Pscan {
 	public ApiResponse enableAllScanners(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("pscan", "action", "enableAllScanners", map);
 	}
 
 	public ApiResponse disableAllScanners(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		return api.callApi("pscan", "action", "disableAllScanners", map);
 	}
 
 	public ApiResponse enableScanners(String apikey, String ids) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("ids", ids);
 		return api.callApi("pscan", "action", "enableScanners", map);
 	}
@@ -84,7 +92,9 @@ public class Pscan {
 	public ApiResponse disableScanners(String apikey, String ids) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("ids", ids);
 		return api.callApi("pscan", "action", "disableScanners", map);
 	}

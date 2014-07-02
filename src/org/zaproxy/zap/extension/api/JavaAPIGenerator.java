@@ -147,8 +147,10 @@ public class JavaAPIGenerator {
 			out.write("\t\tmap = new HashMap<String, String>();\n"); 
 			
 			if (type.equals("action") || type.equals("other")) {
-				// Always add the API key - we've no way of knowing if it will be required or not
-				out.write("\t\tmap.put(\"apikey\", apikey);\n");
+				// Always add the API key (if not null) - we've no way of knowing if it will be required or not
+				out.write("\t\tif (apikey != null) {\n");
+				out.write("\t\t\tmap.put(\"apikey\", apikey);\n");
+				out.write("\t\t}\n");
 			}
 			if (element.getMandatoryParamNames() != null) {
 				for (String param : element.getMandatoryParamNames()) {

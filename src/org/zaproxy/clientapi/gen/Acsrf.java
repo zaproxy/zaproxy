@@ -51,7 +51,9 @@ public class Acsrf {
 	public ApiResponse addOptionToken(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("acsrf", "action", "addOptionToken", map);
 	}
@@ -59,7 +61,9 @@ public class Acsrf {
 	public ApiResponse removeOptionToken(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("String", string);
 		return api.callApi("acsrf", "action", "removeOptionToken", map);
 	}
@@ -70,7 +74,9 @@ public class Acsrf {
 	public byte[] genForm(String apikey, String hrefid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("apikey", apikey);
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
 		map.put("hrefId", hrefid);
 		return api.callApiOther("acsrf", "other", "genForm", map);
 	}
