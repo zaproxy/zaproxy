@@ -30,7 +30,7 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class NodeJSAPIGenerator {
-    private File dir = new File("nodejs/api/src/zapv2"); 
+    private File dir = new File("nodejs/api/zapv2"); 
     
     private final String HEADER = 
             "/* Zed Attack Proxy (ZAP) and its related class files.\n" +

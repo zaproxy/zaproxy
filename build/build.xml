@@ -552,12 +552,17 @@
     <target name="generate-apis" description="generates the client APIs">
         <path id="classpath">
             <pathelement location="../bin" />
+            <pathelement location="./zap/zap.jar" />
+            <pathelement location="./zap" />
             <fileset dir="../lib" includes="**/*.jar" />
         </path>
 		<java classname="org.zaproxy.zap.extension.api.JavaAPIGenerator" dir=".." fork="yes">
 			<classpath refid="classpath" />
 		</java>
 		<java classname="org.zaproxy.zap.extension.api.PythonAPIGenerator" dir=".." fork="yes">
+			<classpath refid="classpath" />
+		</java>
+		<java classname="org.zaproxy.zap.extension.api.NodeJSAPIGenerator" dir=".." fork="yes">
 			<classpath refid="classpath" />
 		</java>
     </target>
