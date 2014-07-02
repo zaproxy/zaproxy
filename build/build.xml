@@ -16,7 +16,7 @@
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
-    <property name="zap.java.api.version" value="7" />
+    <property name="zap.java.api.version" value="8" />
 
     <property name="crowdin.zap.project.id" value="owasp-zap" />
     <property name="crowdin.zap.help.project.id" value="owasp-zap-help" />
@@ -576,6 +576,50 @@
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
     </target>
+
+	<target name="test" depends="">
+        <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
+        <junit printsummary="yes" haltonerror="on">
+            <classpath>
+        		<fileset dir="lib">
+        			<include name="*.jar" />
+        		</fileset>
+        		<fileset dir="lib">
+        			<include name="*.jar" />
+        			<exclude name="ant*.jar" />
+        			<exclude name="junit*.jar" />
+        		</fileset>
+        		<fileset dir="zap">
+        			<include name="zap.jar" />
+        			<exclude name="ant*.jar" />
+        		</fileset>
+            	
+        		<pathelement location="${zaproxy-extensions}/bin"/>		<!-- When running in Eclipse -->
+        		<pathelement location="${zaproxy-extensions}/build/build"/>	<!-- When running on build server -->
+        		<pathelement location="${zaproxy-extensions-beta}/bin"/>
+        		<pathelement location="${zaproxy-extensions-beta}/build/build"/>
+        		<pathelement location="${zaproxy-extensions-alpha}/bin"/>
+        		<pathelement location="${zaproxy-extensions-alpha}/build/build"/>
+        		<pathelement location="bin"/>		<!-- When running in Eclipse -->
+        		<pathelement location="build"/>		<!-- When running on build server -->
+            </classpath>
+            <formatter type="plain"/>
+            <formatter type="xml"/>
+            <batchtest fork="yes" todir="results">
+                <fileset dir="../bin">
+                    <include name="**/*UnitTest.class"/>
+                    <exclude name="**/Abstract*Test.class"/>
+                </fileset>
+            </batchtest>
+		</junit>
+        <!-- Run the quick unit tests -->
+		<!-- TODO
+		<antcall target="unit-test-start-stop"/>
+		--> 
+		<!-- The 2.2 tests will fail as the add-ons are not backwards compatible
+		<antcall target="unit-test-2.2-start-stop"/>
+		--> 
+	</target>
 
     <target name="package-lite" description="package the cross platform 'lite' release">
         <echo message="Packaging the Lite build..." />
