@@ -33,15 +33,15 @@ class acsrf(object):
         return self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/').get('TokensNames')
 
     def add_option_token(self, string, apikey=''):
-        return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string})
+        return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string, 'apikey' : apikey})
 
     def remove_option_token(self, string, apikey=''):
-        return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string})
+        return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string, 'apikey' : apikey})
 
     def gen_form(self, hrefid, apikey=''):
         """
         Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
         """
-        return self.zap._request_other(self.zap.base_other + 'acsrf/other/genForm/', {'hrefId' : hrefid})
+        return self.zap._request_other(self.zap.base_other + 'acsrf/other/genForm/', {'hrefId' : hrefid, 'apikey' : apikey})
 
 

@@ -65,30 +65,30 @@ class autoupdate(object):
         return self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/').get('ReportAlphaAddons')
 
     def download_latest_release(self, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/').get('downloadLatestRelease')
+        return self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/', {'apikey' : apikey})
 
     def set_option_check_on_start(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_download_new_release(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_check_addon_updates(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_install_addon_updates(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_install_scanner_rules(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_report_release_addons(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_report_beta_addons(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean, 'apikey' : apikey})
 
     def set_option_report_alpha_addons(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean})
+        return self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean, 'apikey' : apikey})
 
 

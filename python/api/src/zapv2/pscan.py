@@ -36,18 +36,18 @@ class pscan(object):
         return self.zap._request(self.zap.base + 'pscan/view/scanners/').get('scanners')
 
     def set_enabled(self, enabled, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled})
+        return self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled, 'apikey' : apikey})
 
     def enable_all_scanners(self, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/').get('enableAllScanners')
+        return self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/', {'apikey' : apikey})
 
     def disable_all_scanners(self, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/').get('disableAllScanners')
+        return self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/', {'apikey' : apikey})
 
     def enable_scanners(self, ids, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids})
+        return self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey})
 
     def disable_scanners(self, ids, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids})
+        return self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey})
 
 

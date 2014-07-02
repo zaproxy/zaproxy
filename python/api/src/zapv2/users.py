@@ -37,18 +37,18 @@ class users(object):
         return self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid}).get('getAuthenticationCredentials')
 
     def new_user(self, contextid, name, apikey=''):
-        return self.zap._request(self.zap.base + 'users/action/newUser/', {'contextId' : contextid, 'name' : name})
+        return self.zap._request(self.zap.base + 'users/action/newUser/', {'contextId' : contextid, 'name' : name, 'apikey' : apikey})
 
     def remove_user(self, contextid, userid, apikey=''):
-        return self.zap._request(self.zap.base + 'users/action/removeUser/', {'contextId' : contextid, 'userId' : userid})
+        return self.zap._request(self.zap.base + 'users/action/removeUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey})
 
     def set_user_enabled(self, contextid, userid, enabled, apikey=''):
-        return self.zap._request(self.zap.base + 'users/action/setUserEnabled/', {'contextId' : contextid, 'userId' : userid, 'enabled' : enabled})
+        return self.zap._request(self.zap.base + 'users/action/setUserEnabled/', {'contextId' : contextid, 'userId' : userid, 'enabled' : enabled, 'apikey' : apikey})
 
     def set_user_name(self, contextid, userid, name, apikey=''):
-        return self.zap._request(self.zap.base + 'users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name})
+        return self.zap._request(self.zap.base + 'users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name, 'apikey' : apikey})
 
     def set_authentication_credentials(self, contextid, userid, authcredentialsconfigparams='', apikey=''):
-        return self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams})
+        return self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams, 'apikey' : apikey})
 
 

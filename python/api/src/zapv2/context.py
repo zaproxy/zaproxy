@@ -47,24 +47,24 @@ class context(object):
         """
         Add exclude regex to context
         """
-        return self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex})
+        return self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey})
 
     def include_in_context(self, contextname, regex, apikey=''):
         """
         Add include regex to context
         """
-        return self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex})
+        return self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey})
 
     def new_context(self, contextname='', apikey=''):
         """
         Creates a new context in the current session
         """
-        return self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname})
+        return self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey})
 
     def set_context_in_scope(self, contextname, booleaninscope, apikey=''):
         """
         Sets a context to in scope (contexts are in scope by default)
         """
-        return self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope})
+        return self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey})
 
 
