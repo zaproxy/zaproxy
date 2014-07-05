@@ -81,6 +81,7 @@ This list the alerts
 10041	HTTP to HTTPS insecure transition in form post
 10042	HTTPS to HTTP insecure transition in form post
 10043	User controllable javascript event (XSS)
+10044	Big Redirect Response
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
