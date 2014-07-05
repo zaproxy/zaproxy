@@ -565,6 +565,9 @@
 		<java classname="org.zaproxy.zap.extension.api.NodeJSAPIGenerator" dir=".." fork="yes">
 			<classpath refid="classpath" />
 		</java>
+		<java classname="org.zaproxy.zap.extension.api.PhpAPIGenerator" dir=".." fork="yes">
+			<classpath refid="classpath" />
+		</java>
     </target>
 
     <target name="copy-jar-to-extension-projects" depends="dist">
