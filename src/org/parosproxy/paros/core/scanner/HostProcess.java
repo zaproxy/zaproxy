@@ -41,6 +41,7 @@
 // ZAP: 2014/04/01 Changed to set a name to created threads.
 // ZAP: 2014/06/23 Issue 1241: Active scanner might not report finished state when using host scanners
 // ZAP: 2014/06/26 Added the possibility to evaluate the current plugin/process progress
+// ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 
 package org.parosproxy.paros.core.scanner;
 
@@ -58,6 +59,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 
 public class HostProcess implements Runnable {
@@ -76,6 +78,7 @@ public class HostProcess implements Runnable {
     private Analyser analyser = null;
     private Kb kb = null;
     private User user = null;
+    private TechSet techSet = null;
 
     // time related 
     // ZAP: changed to Integer because the pluginId is int
@@ -161,6 +164,7 @@ public class HostProcess implements Runnable {
                 plugin.setDelayInMs(this.scannerParam.getDelayInMs());
                 plugin.setDefaultAlertThreshold(this.scannerParam.getAlertThreshold());
                 plugin.setDefaultAttackStrength(this.scannerParam.getAttackStrength());
+                plugin.setTechSet(this.techSet);
                 processPlugin(plugin);
             
             } else {
@@ -303,6 +307,7 @@ public class HostProcess implements Runnable {
             test.setDelayInMs(plugin.getDelayInMs());
             test.setDefaultAlertThreshold(plugin.getAlertThreshold());
             test.setDefaultAttackStrength(plugin.getAttackStrength());
+            test.setTechSet(getTechSet());
             test.init(msg, this);
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 
@@ -566,4 +571,13 @@ public class HostProcess implements Runnable {
 			httpSender.setUser(user);
 		}
 	}
+
+	public TechSet getTechSet() {
+		return techSet;
+	}
+
+	public void setTechSet(TechSet techSet) {
+		this.techSet = techSet;
+	}
+
 }

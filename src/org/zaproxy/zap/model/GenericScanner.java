@@ -80,4 +80,5 @@ public interface GenericScanner extends Runnable {
 	
 	void setScanAsUser(User user);
 
+	void setTechSet(TechSet techSet);
 }

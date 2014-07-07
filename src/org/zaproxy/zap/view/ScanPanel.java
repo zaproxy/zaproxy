@@ -707,6 +707,10 @@ public abstract class ScanPanel extends AbstractPanel {
 		}
 		scanThread.setScanAsUser(scanUser);
 		
+		if (scanContext != null) {
+			scanThread.setTechSet(scanContext.getTechSet());
+		}
+		
 		scanThread.setScanChildren(scanChildren);
 		if (contextSpecificObjects != null) {
 			this.handleContextSpecificObject(scanThread, contextSpecificObjects);

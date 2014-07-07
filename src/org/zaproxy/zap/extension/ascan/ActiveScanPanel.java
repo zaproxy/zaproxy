@@ -52,6 +52,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner;
 import org.zaproxy.zap.model.ScanListenner;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
@@ -307,6 +308,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 				ascan.setScannerParam((ScannerParam)obj);
 			} else if (obj instanceof PluginFactory) {
 				ascan.setPluginFactory((PluginFactory)obj);
+			} else if (obj instanceof TechSet) {
+				ascan.setTechSet((TechSet) obj);
 			} else {
 				logger.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
 			}

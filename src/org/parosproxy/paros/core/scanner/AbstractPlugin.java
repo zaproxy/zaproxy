@@ -40,6 +40,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/05/15 Issue 1196: AbstractPlugin.bingo incorrectly sets evidence to attack
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
+// ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 
 package org.parosproxy.paros.core.scanner;
 
@@ -781,6 +782,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     		ap.setAttackStrength(this.getAttackStrength());
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);
+    		ap.setTechSet(this.getTechSet());
     	} else {
     		throw new InvalidParameterException("Not an AbstractPlugin");
     	}
@@ -830,6 +832,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void setTechSet(TechSet ts) {
         this.techSet = ts;
+    }
+    
+    public TechSet getTechSet() {
+    	return this.techSet;
     }
 
     @Override

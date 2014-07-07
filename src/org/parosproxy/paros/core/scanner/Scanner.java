@@ -30,6 +30,7 @@
 // ZAP: 2014/06/23 Issue 1151: Active Scan in Scope finishes before scanning all
 // messages in scope if multiple domains available
 // ZAP: 2014/06/23 Issue 1242: Active scanner might use outdated policy settings
+// ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 
 package org.parosproxy.paros.core.scanner;
 
@@ -46,6 +47,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 
 
@@ -68,6 +70,7 @@ public class Scanner implements Runnable {
 	private boolean justScanInScope = false;
 	private boolean scanChildren = true;
 	private User user = null;
+    private TechSet techSet = null;
 
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
@@ -131,6 +134,7 @@ public class Scanner implements Runnable {
 	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
 	            hostProcess.setStartNode(child);
 	            hostProcess.setUser(this.user);
+	            hostProcess.setTechSet(this.techSet);
 	            this.hostProcesses.add(hostProcess);
 	            do { 
 	                thread = pool.getFreeThreadAndRun(hostProcess);
@@ -146,6 +150,7 @@ public class Scanner implements Runnable {
             hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory());
             hostProcess.setStartNode(node);
             hostProcess.setUser(this.user);
+            hostProcess.setTechSet(this.techSet);
             this.hostProcesses.add(hostProcess);
             thread = pool.getFreeThreadAndRun(hostProcess);
             notifyHostNewScan(hostAndPort, hostProcess);
@@ -324,4 +329,11 @@ public class Scanner implements Runnable {
 		this.user = user;
 	}
 	
+	public TechSet getTechSet() {
+		return techSet;
+	}
+
+	public void setTechSet(TechSet techSet) {
+		this.techSet = techSet;
+	}
 }

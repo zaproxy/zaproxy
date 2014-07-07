@@ -19,6 +19,9 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import it.cnr.imaa.essi.lablib.gui.checkboxtree.CheckboxTree;
+import it.cnr.imaa.essi.lablib.gui.checkboxtree.TreeCheckingModel;
+
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -29,7 +32,11 @@ import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -47,6 +54,11 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.Highlight;
 import javax.swing.text.Highlighter.HighlightPainter;
+import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
+import javax.swing.tree.TreeNode;
+import javax.swing.tree.TreePath;
 
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.FileConfiguration;
@@ -66,6 +78,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Tech;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -114,6 +128,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private PluginFactory pluginFactory = null;
 
     private JPanel customPanel = null;
+    private JPanel techPanel = null;
     private ZapTextArea requestField = null;
     private JButton addCustomButton = null;
     private JButton removeCustomButton = null;
@@ -121,12 +136,16 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<Highlight>();
     private JLabel customPanelStatus = new JLabel();
     private JCheckBox disableNonCustomVectors = null;
+	private CheckboxTree techTree = null;
+	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
+	private TreeModel techModel = null;
 
     public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
         super(owner, "ascan.custom.title", dim, new String[]{
             "ascan.custom.tab.scope",
             "ascan.custom.tab.input",
             "ascan.custom.tab.custom",
+            "ascan.custom.tab.tech",
             "ascan.custom.tab.policy"
         });
         this.extension = ext;
@@ -136,15 +155,18 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     public void init(SiteNode node) {
-        logger.debug("init " + node);
-        this.node = node;
+        if (node != null) {
+        	// If one isnt specified then leave the previously selected one
+        	this.node = node;
+        }
+        logger.debug("init " + this.node);
 
         this.removeAllFields();
         this.injectionPointModel.clear();
         this.headerLength = -1;
         this.urlPathStart = -1;;
 
-        this.addNodeSelectField(0, FIELD_START, node, false, false);
+        this.addNodeSelectField(0, FIELD_START, this.node, false, false);
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
@@ -158,6 +180,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setUsers();
+                setTech();
             }
         });
         this.addFieldListener(FIELD_RECURSE, new ActionListener() {
@@ -193,8 +216,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
-        populateRequestField(node);
 
+        // Technology panel
+        this.setCustomTabPanel(3, getTechPanel());
+        
         // Policy panel
         AbstractParamContainerPanel policyPanel
                 = new AbstractParamContainerPanel(Constant.messages.getString("ascan.custom.tab.policy"));
@@ -215,10 +240,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
         
         policyPanel.showDialog(true);
 
-        this.setCustomTabPanel(3, policyPanel);
-        // Set up the fields correctly
-        this.siteNodeSelected(FIELD_START, node);	
-        this.setUsers();
+        this.setCustomTabPanel(4, policyPanel);
+        if (node != null) {
+	        // Set up the fields if a node has been specified, otherwise leave as previously set
+	        this.populateRequestField(this.node);
+	        this.siteNodeSelected(FIELD_START, this.node);	
+	        this.setUsers();
+	        this.setTech();
+        }
         this.pack();
     }
 
@@ -266,6 +295,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
             for (Context context : contexts) {
             	ctxNames.add(context.getName());
             }
+            
+            this.setTech();
         }
         this.setComboFields(FIELD_CONTEXT, ctxNames, "");
        	this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
@@ -308,6 +339,38 @@ public class CustomScanDialog extends StandardFieldsDialog {
        	this.getField(FIELD_USER).setEnabled(userNames.size() > 1);	// Theres always 1..
     }
 
+    private void setTech() {
+    	Context context = this.getSelectedContext();
+
+    	TreeCheckingModel chModel = techTree.getCheckingModel();
+		chModel.clearChecking();
+
+		// start by walking the local tree
+		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
+			TreePath tp = this.getTechPath(node.getValue());
+			if (context == null || context.getTechSet() == null || context.getTechSet().includes(node.getKey())) {
+				// Check the tech if theres no context set or if its in scope for the context
+				chModel.addCheckingPath(tp);
+			}
+		}
+
+    }
+
+	private TreePath getTechPath(TreeNode node) {
+		List<TreeNode> list = new ArrayList<>();
+
+		// Add all nodes to list
+		while (node != null) {
+			list.add(node);
+			node = node.getParent();
+		}
+		Collections.reverse(list);
+
+		// Convert array of nodes to TreePath
+		return new TreePath(list.toArray());
+	}
 
     private ZapTextArea getRequestField() {
         if (requestField == null) {
@@ -469,6 +532,71 @@ public class CustomScanDialog extends StandardFieldsDialog {
     	return disableNonCustomVectors;
     }
 
+    private JPanel getTechPanel() {
+        if (techPanel == null) {
+            techPanel = new JPanel(new GridBagLayout());
+
+            JScrollPane scrollPane = new JScrollPane();
+            scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+			scrollPane.setViewportView(getTechTree());
+			scrollPane.setBorder(javax.swing.BorderFactory
+					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+
+            techPanel.add(scrollPane, LayoutHelper.getGBC(0, 0, 1, 1, 1.0D, 1.0D));
+        }
+        
+        return techPanel;
+    }
+
+	private CheckboxTree getTechTree() {
+		if (techTree == null) {
+			techTree = new CheckboxTree() {
+				private static final long serialVersionUID = 1L;
+
+				@Override
+				protected void setExpandedState(TreePath path, boolean state) {
+					// Ignore all collapse requests; collapse events will not be fired
+					if (state) {
+						super.setExpandedState(path, state);
+					}
+				}
+			};
+			techTree.getCheckingModel().setCheckingMode(TreeCheckingModel.CheckingMode.PROPAGATE_UP_UNCHECK);
+			// Initialise the structure based on all the tech we know about
+			TechSet ts = new TechSet(Tech.builtInTech);
+			Iterator<Tech> iter = ts.getIncludeTech().iterator();
+
+			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+			Tech tech;
+			DefaultMutableTreeNode parent;
+			DefaultMutableTreeNode node;
+			while (iter.hasNext()) {
+				tech = iter.next();
+				if (tech.getParent() != null) {
+					parent = techToNodeMap.get(tech.getParent());
+				} else {
+					parent = null;
+				}
+				if (parent == null) {
+					parent = root;
+				}
+				node = new DefaultMutableTreeNode(tech.getName());
+				parent.add(node);
+				techToNodeMap.put(tech, node);
+			}
+
+			techModel = new DefaultTreeModel(root);
+			techTree.setModel(techModel);
+			techTree.expandAll();
+			TreeCheckingModel chModel = techTree.getCheckingModel();
+			chModel.setPathEnabled(new TreePath(root), false);
+			// Enable everything on init - will be overriden when a node is selected
+            this.setTech();
+
+		}
+		return techTree;
+	}
+
     private void setFieldStates() {
         int userDefStart = getRequestField().getSelectionStart();
 
@@ -512,6 +640,25 @@ public class CustomScanDialog extends StandardFieldsDialog {
         
         getRequestField().getCaret().setVisible(true);
     }
+    
+	private TechSet getTechSet(){
+		TreeCheckingModel chModel = techTree.getCheckingModel();
+		TechSet techSet = new TechSet();
+
+		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+		while (iter.hasNext()) {
+			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
+			TreePath tp = this.getTechPath(node.getValue());
+			Tech tech = node.getKey();
+			if (chModel.isPathChecked(tp)) {
+				techSet.include(tech);
+			} else {
+				techSet.exclude(tech);
+			}
+		}
+		return techSet;
+	}
+
 
     private JList<Highlight> getInjectionPointList() {
         if (injectionPointList == null) {
@@ -677,7 +824,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         Object[] contextSpecificObjects = new Object[]{
             scannerParam,
-            pluginFactory.clone()
+            pluginFactory.clone(),
+            this.getTechSet()
         };
 
         this.extension.startScanCustom(

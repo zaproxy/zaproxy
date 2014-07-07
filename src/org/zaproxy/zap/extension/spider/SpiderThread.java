@@ -36,6 +36,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
@@ -424,6 +425,11 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public void setScanAsUser(User user) {
 		this.scanUser = user;
+	}
+
+	@Override
+	public void setTechSet(TechSet techSet) {
+		// Ignore
 	}
 
 }
