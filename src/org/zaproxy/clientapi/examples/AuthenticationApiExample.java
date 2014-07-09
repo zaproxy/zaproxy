@@ -1,4 +1,4 @@
-package org.zaproxy.clientapi.core.examples;
+package org.zaproxy.clientapi.examples;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.LinkedList;
