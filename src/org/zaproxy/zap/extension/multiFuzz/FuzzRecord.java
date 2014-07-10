@@ -17,16 +17,17 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
-import javax.swing.JComponent;
+import java.util.List;
 
-public interface FuzzerContentPanel {
+import javax.swing.ImageIcon;
 
-	JComponent getComponent();
+import org.zaproxy.zap.utils.Pair;
 
-	void clear();
-
-	void addFuzzResult(FuzzResult<?, ?> fuzzResult);
-
-	void showDiagrams();
-
+public interface FuzzRecord {
+	public void setName(String s);
+	public String getName();
+	public Pair<String, ImageIcon> getResult();
+	public List<String> getPayloads();
+	public Boolean isIncluded();
+	public void setIncluded(Boolean b);
 }

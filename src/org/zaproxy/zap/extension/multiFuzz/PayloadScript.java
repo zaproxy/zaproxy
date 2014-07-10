@@ -26,5 +26,4 @@ public interface PayloadScript {
 	void insertPayloads(FuzzGap<?, ?, ?> g, PayloadFactory<?> pf)
 			throws ScriptException;
 
-	int count() throws ScriptException;
 }

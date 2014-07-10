@@ -17,53 +17,39 @@
  */
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
-import java.sql.SQLException;
+import org.apache.log4j.Logger;
+import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
+import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.Pair;
+
 import java.util.LinkedList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-import javax.swing.table.AbstractTableModel;
-
-import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.network.HttpMalformedHeaderException;
-import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.utils.Pair;
-
-public class HttpFuzzTableModel extends AbstractTableModel {
-
-	private static final long serialVersionUID = -8627752081308487147L;
+public class HttpFuzzTableModel extends AbstractTreeTableModel {
 
 	private static final Logger logger = Logger
 			.getLogger(HttpFuzzTableModel.class);
-
-	private static final String[] COLUMN_NAMES = {
+	private static final String[] COLUMN_NAMES = { 
+			Constant.messages.getString("fuzz.http.table.header.name"),
 			Constant.messages.getString("fuzz.http.table.header.method"),
 			Constant.messages.getString("fuzz.http.table.header.uri"),
-			Constant.messages.getString("fuzz.http.table.header.status"),
-			Constant.messages.getString("fuzz.http.table.header.reason"),
 			Constant.messages.getString("fuzz.http.table.header.rtt"),
 			Constant.messages.getString("fuzz.http.table.header.size"),
+			Constant.messages.getString("fuzz.http.table.header.status"),
+			Constant.messages.getString("fuzz.http.table.header.reason"),
 			Constant.messages.getString("fuzz.http.table.header.state"),
-			Constant.messages.getString("fuzz.http.table.header.fuzz") };
+			Constant.messages.getString("fuzz.http.table.header.payloads"),
+			Constant.messages.getString("fuzz.http.table.header.include")};
 
-	private static final String STATE_ERROR_LABEL = Constant.messages
-			.getString("fuzz.http.table.field.state.error");
-	private static final String STATE_REFLECTED_LABEL = Constant.messages
-			.getString("fuzz.http.table.field.state.reflected");
-	private static final String STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL = Constant.messages
-			.getString("fuzz.http.table.field.state.antiCsrfTokenRequest");
-	private static final String STATE_SUCCESSFUL_LABEL = Constant.messages
-			.getString("fuzz.http.table.field.state.successful");
+	private List<HttpFuzzRecord> data = new LinkedList<>();
 
-	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-
-	private List<Pair<HttpFuzzerContentPanel.State, HistoryReference>> data = new LinkedList<>();
+	public HttpFuzzTableModel() {
+		super(new Object());
+	}
 
 	@Override
 	public int getColumnCount() {
-		return COLUMN_COUNT;
+		return COLUMN_NAMES.length;
 	}
 
 	@Override
@@ -72,148 +58,138 @@ public class HttpFuzzTableModel extends AbstractTableModel {
 	}
 
 	@Override
-	public int getRowCount() {
+	public boolean isCellEditable(Object node, int column) {
+		return true;
+	}
+
+	@Override
+	public boolean isLeaf(Object node) {
+		return (node instanceof HttpFuzzRequestRecord);
+	}
+
+	@Override
+	public Object getValueAt(Object node, int column) {
+		if (node instanceof HttpFuzzRecord) {
+			HttpFuzzRecord result = (HttpFuzzRecord) node;
+			switch (column) {
+			case 0:
+				return result.getName();
+			case 1:
+				return result.getMethod();
+			case 2:
+				return result.getURI();
+			case 3:
+				return result.getRTT();
+			case 4:
+				return result.getSize();
+			case 5:
+				return result.getState();
+			case 6:
+				return result.getReason();
+			case 7:
+				return result.getResult();
+			case 8:
+				StringBuilder pay = new StringBuilder("");
+				for (int i = 0; i < result.getPayloads().size(); i++) {
+					pay.append(i + ". gap -> " + result.getPayloads().get(i)
+							+ "   \t");
+				}
+				return pay.toString();
+			case 9:
+				return result.isIncluded();
+			default:
+				return "";
+			}
+		}
+		return null;
+	}
+	@Override
+	public void setValueAt(Object inValue, Object row, int col)  {
+		if(col == 0 && (inValue instanceof String)){
+			((HttpFuzzRecord) row).setName((String) inValue);
+		}
+		else if (col == 9 && (inValue instanceof Boolean)){
+        	((HttpFuzzRecord) row).setIncluded((Boolean)inValue);
+        }
+        return;
+	}
+	@Override
+	public Object getChild(Object parent, int index) {
+		if (parent instanceof HttpFuzzRecordGroup) {
+			HttpFuzzRecordGroup group = (HttpFuzzRecordGroup) parent;
+			return group.getMembers().get(index);
+		}
+		return data.get(index);
+	}
+
+	@Override
+	public int getChildCount(Object parent) {
+		if (parent instanceof HttpFuzzRecordGroup) {
+			HttpFuzzRecordGroup group = (HttpFuzzRecordGroup) parent;
+			return group.getMembers().size();
+		}
 		return data.size();
 	}
 
 	@Override
-	public Object getValueAt(int row, int column) {
-		Pair<HttpFuzzerContentPanel.State, HistoryReference> result = data
-				.get(row);
-		HistoryReference historyReference = result.second;
-
-		Object value = "";
-
-		switch (column) {
-		case 0:
-			HttpMessage msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = msg.getRequestHeader().getMethod();
-			}
-			break;
-		case 1:
-			msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = msg.getRequestHeader().getURI().toString();
-			}
-			break;
-		case 2:
-			msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = Integer.toString(msg.getResponseHeader()
-						.getStatusCode());
-			}
-			break;
-		case 3:
-			msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = msg.getResponseHeader().getReasonPhrase();
-			}
-			break;
-		case 4:
-			msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = Integer.valueOf(msg.getTimeElapsedMillis());
-			}
-			break;
-		case 5:
-			msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = Integer.valueOf(msg.getResponseBody().length());
-			}
-			break;
-		case 6:
-			HttpFuzzerContentPanel.State state = result.first;
-			String status;
-			ImageIcon icon;
-
-			switch (state) {
-			case ERROR:
-				status = STATE_ERROR_LABEL;
-				icon = new ImageIcon(
-						HttpFuzzTableModel.class
-								.getResource("/resource/icon/16/150.png"));
-				break;
-			case REFLECTED:
-				status = STATE_REFLECTED_LABEL;
-				icon = new ImageIcon(
-						HttpFuzzTableModel.class
-								.getResource("/resource/icon/16/099.png")); // Yellow
-																			// fuzzy
-																			// circle
-				break;
-			case ANTI_CRSF_TOKEN:
-				status = STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL;
-				icon = new ImageIcon(
-						HttpFuzzTableModel.class
-								.getResource("/resource/icon/16/183.png"));
-				break;
-			case SUCCESSFUL:
-			default:
-				status = STATE_SUCCESSFUL_LABEL;
-				icon = null;
-			}
-
-			value = new Pair<>(status, icon);
-
-			break;
-		case 7:
-			msg = getHttpMessage(historyReference);
-			if (msg != null) {
-				value = msg.getNote();
-			}
-			break;
-		default:
+	public int getIndexOfChild(Object parent, Object child) {
+		if (parent instanceof HttpFuzzRecordGroup
+				&& child instanceof HttpFuzzRequestRecord) {
+			HttpFuzzRecordGroup group = (HttpFuzzRecordGroup) parent;
+			HttpFuzzRequestRecord rec = (HttpFuzzRequestRecord) child;
+			return group.getMembers().indexOf(rec);
 		}
+		return data.indexOf(child);
+	}
 
-		return value;
+	public void addFuzzRecord(HttpFuzzRecord httpFuzzRecord) {
+		data.add(httpFuzzRecord);
+
 	}
 
 	@Override
 	public Class<?> getColumnClass(int columnIndex) {
-		Class<?> clazz;
 		switch (columnIndex) {
-		case 0:
 		case 3:
+			return Integer.class;
+		case 4:
+			return Integer.class;
 		case 5:
-			clazz = String.class;
-			break;
-		case 6:
-			clazz = Pair.class;
-			break;
+			return Integer.class;
+		case 7:
+			return Pair.class;
+		case 9:
+			return Boolean.class;
 		default:
-			clazz = String.class;
+			return String.class;
 		}
-		return clazz;
 	}
 
-	private HttpMessage getHttpMessage(HistoryReference historyReference) {
-		HttpMessage msg = null;
-
-		try {
-			msg = historyReference.getHttpMessage();
-		} catch (HttpMalformedHeaderException e) {
-			logger.error(e.getMessage(), e);
-		} catch (SQLException e) {
-			logger.error(e.getMessage(), e);
+	public List<HttpFuzzRecord> getEntries() {
+		if (data == null) {
+			data = new LinkedList<HttpFuzzRecord>();
 		}
-
-		return msg;
-	}
-
-	public HistoryReference getHistoryReferenceAtRow(int row) {
-		return data.get(row).second;
-	}
-
-	public void addHistoryReference(HttpFuzzerContentPanel.State state,
-			HistoryReference historyReference) {
-		final int row = data.size();
-		data.add(new Pair<>(state, historyReference));
-		fireTableRowsInserted(row, row);
-	}
-
-	public List<Pair<HttpFuzzerContentPanel.State, HistoryReference>> getHistoryReferences() {
 		return data;
+	}
+
+	public List<HttpFuzzRequestRecord> getHistoryReferences() {
+		List<HttpFuzzRequestRecord> res = new LinkedList<HttpFuzzRequestRecord>();
+		for (HttpFuzzRecord rec : data) {
+			if (rec instanceof HttpFuzzRequestRecord) {
+				res.add((HttpFuzzRequestRecord) rec);
+			}
+		}
+		return res;
+	}
+
+	public void removeFuzzRecord(HttpFuzzRecord entry) {
+		if (!data.remove(entry)) {
+			for (HttpFuzzRecord r : data) {
+				if (r instanceof HttpFuzzRecordGroup) {
+					((HttpFuzzRecordGroup) r).getMembers().remove(entry);
+				}
+			}
+		}
 	}
 
 }

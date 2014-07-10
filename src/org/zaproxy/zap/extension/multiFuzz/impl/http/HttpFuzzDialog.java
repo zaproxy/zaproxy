@@ -70,10 +70,6 @@ public class HttpFuzzDialog extends
 
 	@Override
 	public FuzzProcessFactory<HttpFuzzProcess, HttpPayload, HttpFuzzLocation> getFuzzProcessFactory() {
-		AntiCsrfToken token = null;
-		if (getEnableTokens().isSelected() && getTokensPane().isEnable()) {
-			token = getTokensPane().getToken();
-		}
 		return new HttpFuzzProcessFactory(fuzzableMessage, getFollowRedirects()
 				.isSelected());
 	}
@@ -81,23 +77,6 @@ public class HttpFuzzDialog extends
 	public HttpFuzzDialog(ExtensionFuzz ext, HttpMessage msg,
 			HttpFuzzLocation loc) {
 		super(ext, loc, msg);
-		fuzzableMessage = msg;
-		ExtensionAntiCSRF extAntiCSRF = (ExtensionAntiCSRF) Control
-				.getSingleton().getExtensionLoader()
-				.getExtension(ExtensionAntiCSRF.NAME);
-		List<AntiCsrfToken> tokens = null;
-		if (extAntiCSRF != null) {
-			tokens = extAntiCSRF.getTokens(msg);
-		}
-		if (tokens == null || tokens.size() == 0) {
-			incAcsrfToken = false;
-		} else {
-			incAcsrfToken = true;
-		}
-		if (incAcsrfToken) {
-			setAntiCsrfTokens(tokens);
-			this.setSize(500, 550);
-		}
 		this.factory = new HttpPayloadFactory();
 		getTargetField().getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
@@ -106,9 +85,8 @@ public class HttpFuzzDialog extends
 						if (!conModification) {
 							conModification = true;
 							if (targetTable.getSelectedRow() > -1) {
-								HttpFuzzGap mod = (HttpFuzzGap) targetModel
-										.getEntries().get(
-												targetTable.getSelectedRow());
+								HttpFuzzGap mod = targetModel.getEntries().get(
+										targetTable.getSelectedRow());
 								PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> payDialog = new PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>(
 										mod,
 										(HttpPayloadFactory) getPayloadFactory(),
@@ -135,10 +113,16 @@ public class HttpFuzzDialog extends
 																.size() < 1) {
 													targetModel
 															.removeEntry(result);
-													if(targetModel.getRowCount() < 1){
-														getStartButton().setEnabled(false);
+													if (targetModel
+															.getRowCount() < 1) {
+														getStartButton()
+																.setEnabled(
+																		false);
 													}
-													getMessageContent().highlight(targetModel.getEntries());
+													getMessageContent()
+															.highlight(
+																	targetModel
+																			.getEntries());
 												}
 											}
 										});
@@ -152,6 +136,7 @@ public class HttpFuzzDialog extends
 
 	@Override
 	protected int addCustomComponents(JPanel panel, int currentRow) {
+		checkAntiCSRF();
 		if (incAcsrfToken) { // Options for AcsrfTokens
 			panel.add(
 					new JLabel(Constant.messages
@@ -187,6 +172,24 @@ public class HttpFuzzDialog extends
 		currentRow++;
 
 		return currentRow;
+	}
+
+	private void checkAntiCSRF() {
+		ExtensionAntiCSRF extAntiCSRF = (ExtensionAntiCSRF) Control
+				.getSingleton().getExtensionLoader()
+				.getExtension(ExtensionAntiCSRF.NAME);
+		List<AntiCsrfToken> tokens = null;
+		if (extAntiCSRF != null) {
+			tokens = extAntiCSRF.getTokens(fuzzableMessage);
+		}
+		if (tokens == null || tokens.size() == 0) {
+			incAcsrfToken = false;
+		} else {
+			incAcsrfToken = true;
+		}
+		if (incAcsrfToken) {
+			setAntiCsrfTokens(tokens);
+		}
 	}
 
 	private HttpFuzzerDialogTokenPane getTokensPane() {
@@ -300,41 +303,37 @@ public class HttpFuzzDialog extends
 	private class HttpAddFuzzAction extends AddFuzzAction {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (adding) {
-				if (isValidLocation(getMessageContent().selection())) {
-					PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> payDia = new PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>(
-							new HttpFuzzGap(getMessage(), getMessageContent()
-									.selection()),
-							(HttpPayloadFactory) getPayloadFactory(), res);
-					payDia.setModalityType(ModalityType.APPLICATION_MODAL);
-					payDia.addListener(new FuzzerListener<PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>, HttpFuzzGap>() {
-						@Override
-						public void notifyFuzzerStarted(
-								PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
-						}
+			if (isValidLocation(getMessageContent().selection())) {
+				PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> payDia = new PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>(
+						new HttpFuzzGap(getMessage(), getMessageContent()
+								.selection()),
+						(HttpPayloadFactory) getPayloadFactory(), res);
+				payDia.setModalityType(ModalityType.APPLICATION_MODAL);
+				payDia.addListener(new FuzzerListener<PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>, HttpFuzzGap>() {
+					@Override
+					public void notifyFuzzerStarted(
+							PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
+					}
 
-						@Override
-						public void notifyFuzzerPaused(
-								PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
-						}
+					@Override
+					public void notifyFuzzerPaused(
+							PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
+					}
 
-						@Override
-						public void notifyFuzzerComplete(HttpFuzzGap result) {
-							if (result.getPayloads() != null
-									&& result.getPayloads().size() >= 0) {
-								targetModel.addEntry(result);
-								getStartButton().setEnabled(true);
-							}
+					@Override
+					public void notifyFuzzerComplete(HttpFuzzGap result) {
+						if (result.getPayloads() != null
+								&& result.getPayloads().size() > 0) {
+							targetModel.addEntry(result);
+							getStartButton().setEnabled(true);
 						}
-					});
-					payDia.setVisible(true);
-					super.actionPerformed(e);
-				} else {
-					JOptionPane.showMessageDialog(null, Constant.messages
-							.getString("fuzz.warning.intervalOverlap"));
-				}
-			} else {
+					}
+				});
+				payDia.setVisible(true);
 				super.actionPerformed(e);
+			} else {
+				JOptionPane.showMessageDialog(null, Constant.messages
+						.getString("fuzz.warning.intervalOverlap"));
 			}
 		}
 	}

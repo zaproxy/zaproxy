@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
+import java.util.ArrayList;
+
 import org.zaproxy.zap.extension.httppanel.Message;
 
 public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
@@ -24,14 +26,28 @@ public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
 	public enum State {
 		SUCCESSFUL, REFLECTED, ERROR
 	}
-
+	
+	private String name;
+	private ArrayList<String> payloads;
 	private State state;
 	private Message message;
 
 	public FuzzResult() {
 		state = State.SUCCESSFUL;
 	}
-
+	
+	public void setName(String n){
+		name = n;
+	}
+	public String getName(){
+		return name;
+	}
+	public void setPayloads(ArrayList<String> pay){
+		payloads = pay;
+	}
+	public ArrayList<String> getPayloads(){
+		return payloads;
+	}
 	public void setState(State aState) {
 		state = aState;
 	}

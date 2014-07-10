@@ -358,7 +358,7 @@ class NFA {
 					p.empty.remove(rem);
 					p.empty.add(rep);
 				}
-				for (HashSet target : p.out.values()) {
+				for (HashSet<State> target : p.out.values()) {
 					if (target.contains(rem)) {
 						target.remove(rem);
 						target.add(rep);

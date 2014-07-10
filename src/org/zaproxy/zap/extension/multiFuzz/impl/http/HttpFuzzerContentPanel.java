@@ -18,19 +18,30 @@
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.awt.EventQueue;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTreeTable;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -52,12 +63,15 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	private static final Logger logger = Logger
 			.getLogger(HttpFuzzerContentPanel.class);
 
-	private JTable fuzzResultTable;
+	private JXTreeTable fuzzResultTable;
 	private HttpFuzzTableModel resultsModel;
 
 	private HttpPanel requestPanel;
 	private HttpPanel responsePanel;
 
+	private HttpResultGroupingPopupFuzzMenu grouping;
+	private HttpResultRenamePopupFuzzMenu rename;
+	private HttpResultAllIncludePopupFuzzMenu allIn;
 	/**
 	 * A list containing all the {@code HistoryReference} IDs that are added to
 	 * the instance variable {@code resultsModel}. Used to delete the
@@ -67,14 +81,67 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
 	private boolean showTokenRequests;
 
-	enum State {
-		SUCCESSFUL, REFLECTED, ERROR, ANTI_CRSF_TOKEN,
-	}
-
 	public HttpFuzzerContentPanel() {
 		super();
-
 		showTokenRequests = false;
+		View.getSingleton().getPopupList().add(getResultRename());
+		View.getSingleton().getPopupList().add(getResultGrouping());
+		View.getSingleton().getPopupList().add(getAllInclude());
+	}
+
+	private JMenuItem getAllInclude() {
+		if (allIn == null) {
+			allIn = new HttpResultAllIncludePopupFuzzMenu();
+			allIn.addActionListener(new ActionListener() {
+				boolean flag = false;
+
+				@Override
+				public void actionPerformed(ActionEvent click) {
+					for (HttpFuzzRecord r : getResultsModel().getEntries()) {
+						getResultsModel().setValueAt(flag, r, 9);
+					}
+					flag = !flag;
+					if (flag) {
+						allIn.setText(Constant.messages
+								.getString("fuzz.result.allinclude"));
+					} else {
+						allIn.setText(Constant.messages
+								.getString("fuzz.result.allexclude"));
+					}
+				}
+			});
+		}
+		return allIn;
+	}
+
+	private HttpResultGroupingPopupFuzzMenu getResultGrouping() {
+		if (grouping == null) {
+			grouping = new HttpResultGroupingPopupFuzzMenu(this);
+		}
+		return grouping;
+	}
+
+	public HttpFuzzTableModel getResultsModel() {
+		if (resultsModel == null) {
+			resultsModel = new HttpFuzzTableModel();
+		}
+		return this.resultsModel;
+	}
+
+	private HttpResultRenamePopupFuzzMenu getResultRename() {
+		if (rename == null) {
+			rename = new HttpResultRenamePopupFuzzMenu();
+			rename.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent click) {
+					String name = JOptionPane.showInputDialog(Constant.messages
+							.getString("fuzz.result.rename.new"));
+					getResultsModel().setValueAt(name,
+							getEntry(rename.getLastEntry()), 0);
+				}
+			});
+		}
+		return rename;
 	}
 
 	public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
@@ -82,13 +149,14 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 		this.responsePanel = responsePanel;
 	}
 
-	public JTable getFuzzResultTable() {
+	public JXTreeTable getFuzzResultTable() {
 		if (fuzzResultTable == null) {
-			fuzzResultTable = new JTable(resultsModel);
+			resetFuzzResultTable();
+			fuzzResultTable = new JXTreeTable(getResultsModel());
+			fuzzResultTable.setName("HttpFuzzResultTable");
 			fuzzResultTable.setDoubleBuffered(true);
 			fuzzResultTable
 					.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
-			fuzzResultTable.setName(PANEL_NAME);
 			fuzzResultTable.setFont(new java.awt.Font("Default",
 					java.awt.Font.PLAIN, 12));
 			fuzzResultTable.setDefaultRenderer(Pair.class,
@@ -100,11 +168,21 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 						.getColumn(i);
 				column.setPreferredWidth(widths[i]);
 			}
-
 			fuzzResultTable.addMouseListener(new java.awt.event.MouseAdapter() {
 				@Override
 				public void mousePressed(java.awt.event.MouseEvent e) {
-					if (SwingUtilities.isRightMouseButton(e)) {
+					showPopupMenuIfTriggered(e);
+				}
+
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
+
+				private void showPopupMenuIfTriggered(
+						java.awt.event.MouseEvent e) {
+					if (e.isPopupTrigger()
+							&& SwingUtilities.isRightMouseButton(e)) {
 						// Select list item on right click
 						JTable table = (JTable) e.getSource();
 						int row = table.rowAtPoint(e.getPoint());
@@ -116,6 +194,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 								.show(e.getComponent(), e.getX(), e.getY());
 					}
 				}
+
 			});
 
 			fuzzResultTable.getSelectionModel().addListSelectionListener(
@@ -128,27 +207,101 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 								if (fuzzResultTable.getSelectedRowCount() == 0) {
 									return;
 								}
-
 								final int row = fuzzResultTable
 										.getSelectedRow();
-								final HistoryReference historyReference = resultsModel
-										.getHistoryReferenceAtRow(row);
-
-								try {
-									displayMessage(historyReference
-											.getHttpMessage());
-								} catch (HttpMalformedHeaderException ex) {
-									logger.error(ex.getMessage(), ex);
-								} catch (SQLException ex) {
-									logger.error(ex.getMessage(), ex);
+								if (getEntry(row) instanceof HttpFuzzRequestRecord) {
+									final HistoryReference historyReference = ((HttpFuzzRequestRecord) getEntry(row))
+											.getHistory();
+									try {
+										displayMessage(historyReference
+												.getHttpMessage());
+									} catch (HttpMalformedHeaderException
+											| SQLException ex) {
+										logger.error(ex.getMessage(), ex);
+									}
 								}
 							}
 						}
 					});
+			fuzzResultTable.getTableHeader().addMouseListener(
+					new MouseListener() {
+						int sortedOn = -1;
 
-			resetFuzzResultTable();
+						@Override
+						public void mouseReleased(MouseEvent arg0) {
+						}
+
+						@Override
+						public void mousePressed(MouseEvent arg0) {
+						}
+
+						@Override
+						public void mouseExited(MouseEvent arg0) {
+						}
+
+						@Override
+						public void mouseEntered(MouseEvent arg0) {
+						}
+
+						@Override
+						public void mouseClicked(MouseEvent e) {
+							int index = fuzzResultTable.columnAtPoint(e
+									.getPoint());
+							List<HttpFuzzRecord> list = getResultsModel()
+									.getEntries();
+							if (list.size() == 0) {
+								return;
+							}
+							HttpFuzzRecordComparator comp = new HttpFuzzRecordComparator();
+							comp.setFeature(index);
+							if (index == sortedOn) {
+								Collections.sort(list, comp);
+								Collections.reverse(list);
+								sortedOn = -1;
+							} else {
+								Collections.sort(list, comp);
+								sortedOn = index;
+							}
+							fuzzResultTable.updateUI();
+						}
+					});
+			fuzzResultTable.setRootVisible(false);
+			fuzzResultTable.setVisible(true);
 		}
 		return fuzzResultTable;
+	}
+
+	public HttpFuzzRecord getEntry(int row) {
+		int c = 0;
+		for (int i = 0; i < getResultsModel().getEntries().size(); i++) {
+			if (c != row) {
+				if (getResultsModel().getEntries().get(i) instanceof HttpFuzzRequestRecord) {
+					c++;
+				} else if (getResultsModel().getEntries().get(i) instanceof HttpFuzzRecordGroup) {
+					c++;
+					if (!getFuzzResultTable().isCollapsed(i)) {
+						HttpFuzzRecordGroup g = (HttpFuzzRecordGroup) getResultsModel()
+								.getEntries().get(i);
+						if (row < c + g.getMembers().size()) {
+							return g.getMembers().get(row - c);
+						} else {
+							c += g.getMembers().size();
+						}
+					}
+				}
+			} else {
+				return getResultsModel().getEntries().get(i);
+			}
+		}
+		return null;
+	}
+
+	public List<HttpFuzzRecord> getEntries(int[] indices) {
+		LinkedList<HttpFuzzRecord> res = new LinkedList<HttpFuzzRecord>();
+		for (int i : indices) {
+			res.add(getEntry(i));
+		}
+		return res;
 	}
 
 	private void resetFuzzResultTable() {
@@ -162,20 +315,21 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 		}
 		resultsModel = new HttpFuzzTableModel();
 		historyReferencesToDelete = new ArrayList<>();
-		getFuzzResultTable().setModel(resultsModel);
 	}
 
-	private void addFuzzResult(final State state, final HttpMessage msg) {
+	private void addFuzzResult(final String name,
+			final HttpFuzzRequestRecord.State state,
+			final ArrayList<String> pay, final HttpMessage msg) {
 
 		if (EventQueue.isDispatchThread()) {
-			addFuzzResultToView(state, msg);
+			addFuzzResultToView(name, state, pay, msg);
 			return;
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					addFuzzResultToView(state, msg);
+					addFuzzResultToView(name, state, pay, msg);
 				}
 			});
 		} catch (Exception e) {
@@ -183,7 +337,9 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 		}
 	}
 
-	private void addFuzzResultToView(final State state, final HttpMessage msg) {
+	private void addFuzzResultToView(final String name,
+			final HttpFuzzRequestRecord.State state,
+			final ArrayList<String> pay, final HttpMessage msg) {
 		try {
 			HistoryReference historyReference = new HistoryReference(Model
 					.getSingleton().getSession(),
@@ -191,10 +347,11 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 			this.historyReferencesToDelete.add(Integer.valueOf(historyReference
 					.getHistoryId()));
 
-			resultsModel.addHistoryReference(state, historyReference);
-		} catch (HttpMalformedHeaderException e) {
-			logger.error(e.getMessage(), e);
-		} catch (SQLException e) {
+			resultsModel.addFuzzRecord(new HttpFuzzRequestRecord(name, state,
+					pay, historyReference));
+			fuzzResultTable.updateUI();
+			fuzzResultTable.repaint();
+		} catch (HttpMalformedHeaderException | SQLException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -241,11 +398,11 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 			return results;
 		}
 
-		Iterator<Pair<State, HistoryReference>> it = resultsModel
+		Iterator<HttpFuzzRequestRecord> it = resultsModel
 				.getHistoryReferences().iterator();
 		Matcher matcher;
 		while (it.hasNext()) {
-			HistoryReference historyReference = it.next().second;
+			HistoryReference historyReference = it.next().getHistory();
 			try {
 				HttpMessage msg = historyReference.getHttpMessage();
 				if (msg != null) {
@@ -309,31 +466,34 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	}
 
 	@Override
-	public void addFuzzResult(FuzzResult fuzzResult) {
+	public void addFuzzResult(FuzzResult<?, ?> fuzzResult) {
 		HttpFuzzResult httpFuzzResult = (HttpFuzzResult) fuzzResult;
 		if (showTokenRequests) {
 
-			for (HttpMessage tokenMsg : httpFuzzResult
-					.getTokenRequestMessages()) {
-				addFuzzResult(State.ANTI_CRSF_TOKEN, tokenMsg);
+			for (int i = 0; i < httpFuzzResult.getTokenRequestMessages().size(); i++) {
+				addFuzzResult(fuzzResult.getName() + "." + i,
+						HttpFuzzRequestRecord.State.ANTI_CRSF_TOKEN,
+						fuzzResult.getPayloads(), httpFuzzResult
+								.getTokenRequestMessages().get(i));
 			}
 		}
-		addFuzzResult(convertState(fuzzResult.getState()),
+		addFuzzResult(fuzzResult.getName(),
+				convertState(fuzzResult.getState()), fuzzResult.getPayloads(),
 				(HttpMessage) fuzzResult.getMessage());
 	}
 
-	private State convertState(FuzzResult.State fuzzState) {
-		State state;
+	private HttpFuzzRequestRecord.State convertState(FuzzResult.State fuzzState) {
+		HttpFuzzRequestRecord.State state;
 		switch (fuzzState) {
 		case REFLECTED:
-			state = State.REFLECTED;
+			state = HttpFuzzRequestRecord.State.REFLECTED;
 			break;
 		case ERROR:
-			state = State.ERROR;
+			state = HttpFuzzRequestRecord.State.ERROR;
 			break;
 		case SUCCESSFUL:
 		default:
-			state = State.SUCCESSFUL;
+			state = HttpFuzzRequestRecord.State.SUCCESSFUL;
 			break;
 		}
 		return state;
@@ -342,10 +502,53 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	@Override
 	public void clear() {
 		resetFuzzResultTable();
+
+	}
+
+	@Override
+	public void showDiagrams() {
+		HttpFuzzResultDialog dia = new HttpFuzzResultDialog(getResultsModel());
+		dia.setVisible(true);
 	}
 
 	protected void setShowTokenRequests(boolean showTokenRequests) {
 		this.showTokenRequests = showTokenRequests;
 	}
 
+	private static class HttpFuzzRecordComparator implements
+			Comparator<HttpFuzzRecord> {
+		private int feature = 0;
+
+		public void setFeature(int f) {
+			feature = f;
+		}
+
+		@Override
+		public int compare(HttpFuzzRecord fst, HttpFuzzRecord snd) {
+			switch (feature) {
+			case 0:
+				return fst.getName().compareTo(snd.getName());
+			case 1:
+				return fst.getMethod().compareTo(snd.getMethod());
+			case 2:
+				return fst.getURI().compareTo(snd.getURI());
+			case 3:
+				return fst.getRTT() - snd.getRTT();
+			case 4:
+				return fst.getSize() - snd.getSize();
+			case 5:
+				return fst.getState() - snd.getState();
+			case 6:
+				return fst.getReason().compareTo(snd.getReason());
+			case 7:
+				return fst.getResult().first.compareTo(snd.getResult().first);
+			case 8:
+				return 0;
+			case 9:
+				return fst.isIncluded().compareTo(snd.isIncluded());
+			default:
+				return 0;
+			}
+		}
+	}
 }

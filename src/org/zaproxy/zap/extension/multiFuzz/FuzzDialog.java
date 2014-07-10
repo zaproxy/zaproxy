@@ -60,8 +60,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	protected ExtensionFuzz res;
 	protected M fuzzableMessage;
 
-	protected boolean adding = false;
-
 	private JPanel background;
 	private JSplitPane splitPane;
 	private JLabel info;
@@ -90,7 +88,7 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 	protected abstract int addCustomComponents(JPanel panel, int currentRow);
 
-	protected abstract FuzzComponent<L, G> getMessageContent();
+	protected abstract FuzzComponent<M, L, G> getMessageContent();
 
 	/**
 	 * 
@@ -104,12 +102,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 		this.res = ext;
 		fuzzableMessage = msg;
 		initialize();
-		getAddFuzzAction().actionPerformed(
-				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
-		getMessageContent().markUp(loc);
-		getAddFuzzAction().actionPerformed(
-				new ActionEvent(this, ActionEvent.ACTION_PERFORMED, null));
-		getStartButton().setEnabled(true);
 	}
 
 	/**
@@ -319,8 +311,10 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 		if (addComponentButton == null) {
 			addComponentButton = new JButton();
 			addComponentButton.setAction(getAddFuzzAction());
+			getAddComponentButton().setText(
+					Constant.messages.getString("fuzz.button.add.add"));
+			addComponentButton.setEnabled(true);
 		}
-		addComponentButton.setEnabled(true);
 		return addComponentButton;
 	}
 
@@ -414,18 +408,8 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			if (adding) {
-				getAddComponentButton().setText(
-						Constant.messages.getString("fuzz.button.add.add"));
-				getInfo().setText(Constant.messages.getString("fuzz.info.gen"));
-				adding = false;
-				getMessageContent().highlight(targetModel.getEntries());
-			} else {
-				info.setText(Constant.messages.getString("fuzz.info.add"));
-				getAddComponentButton().setText(
-						Constant.messages.getString("fuzz.button.add.done"));
-				adding = true;
-			}
+			getInfo().setText(Constant.messages.getString("fuzz.info.gen"));
+			getMessageContent().highlight(targetModel.getEntries());
 		}
 	}
 
@@ -513,7 +497,7 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			this.isBordered = isBordered;
 			setOpaque(true); // MUST do this for background to show up.
 		}
-
+		@Override
 		public Component getTableCellRendererComponent(JTable table,
 				Object color, boolean isSelected, boolean hasFocus, int row,
 				int column) {

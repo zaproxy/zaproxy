@@ -27,5 +27,5 @@ public interface FuzzScript {
 
 	void preProcess(Message msg) throws ScriptException;
 
-	void postProcess(Message msg) throws ScriptException;
+	void postProcess(FuzzResult msg) throws ScriptException;
 }

@@ -15,18 +15,17 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-package org.zaproxy.zap.extension.multiFuzz;
+package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
-import javax.swing.JComponent;
+import org.zaproxy.zap.extension.multiFuzz.FuzzRecord;
 
-public interface FuzzerContentPanel {
-
-	JComponent getComponent();
-
-	void clear();
-
-	void addFuzzResult(FuzzResult<?, ?> fuzzResult);
-
-	void showDiagrams();
+public interface HttpFuzzRecord extends FuzzRecord{
+	
+	public String getMethod();
+	public String getURI();
+	public int getRTT();
+	public int getSize();
+	public int getState();
+	public String getReason();
 
 }

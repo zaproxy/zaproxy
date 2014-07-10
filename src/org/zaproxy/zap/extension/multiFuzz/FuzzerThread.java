@@ -46,7 +46,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 	private FuzzerListener<Integer, Boolean> handlerListener;
 	private ArrayList<G> gaps;
 	private ArrayList<FuzzMessageProcessor<M>> preprocessors;
-	private ArrayList<FuzzMessageProcessor<M>> postprocessors;
+	private ArrayList<FuzzResultProcessor<R>> postprocessors;
 	FuzzProcessFactory<P, PL, L> fuzzProcessFactory;
 	private ThreadPoolExe threadPool;
 
@@ -61,7 +61,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		delayInMs = fuzzerParam.getDelayInMs();
 		threadCount = fuzzerParam.getThreadPerScan();
 		preprocessors = new ArrayList<FuzzMessageProcessor<M>>();
-		postprocessors = new ArrayList<FuzzMessageProcessor<M>>();
+		postprocessors = new ArrayList<FuzzResultProcessor<R>>();
 	}
 
 	public void start() {
@@ -99,7 +99,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		this.preprocessors.add(pre);
 	}
 
-	public void addPostprocessor(FuzzMessageProcessor<M> post) {
+	public void addPostprocessor(FuzzResultProcessor<R> post) {
 		this.postprocessors.add(post);
 	}
 
@@ -161,14 +161,14 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 				PL sub = gaps.get(g).getPayloads().get((nr / mod[g]) % lens[g]);
 				subs.put(fl, sub);
 			}
-			fuzz(subs);
+			fuzz(subs, nr);
 			if (isStop()) {
 				break;
 			}
 		}
 	}
 
-	private void fuzz(HashMap<L, PL> subs) {
+	private void fuzz(HashMap<L, PL> subs, int id) {
 		while (pause && !isStop()) {
 			try {
 				Thread.sleep(500);
@@ -183,7 +183,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 			}
 		}
 
-		P fp = fuzzProcessFactory.getFuzzProcess(subs);
+		P fp = fuzzProcessFactory.getFuzzProcess(subs, id);
 		fp.setPreProcessors(preprocessors);
 		fp.setPostProcessors(postprocessors);
 		fp.addFuzzerListener(new FuzzerListener<Integer, R>() {
@@ -252,9 +252,9 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 									return orig;
 								}
 							});
-							postprocessors.add(new FuzzMessageProcessor<M>() {
+							postprocessors.add(new FuzzResultProcessor<R>() {
 								@Override
-								public M process(M orig) {
+								public R process(R orig) {
 									try {
 										s.postProcess(orig);
 									} catch (Exception e) {

@@ -21,6 +21,6 @@ import java.util.HashMap;
 
 public interface FuzzProcessFactory<P extends FuzzProcess<?, ?, ?, ?>, PL extends Payload, L extends FuzzLocation<?>> {
 
-	P getFuzzProcess(HashMap<L, PL> hm);
+	P getFuzzProcess(HashMap<L, PL> hm, int id);
 
 }

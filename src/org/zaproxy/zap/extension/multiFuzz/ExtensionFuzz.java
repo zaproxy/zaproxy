@@ -57,7 +57,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 
 	public static final String NAME = "MultiExtensionFuzz";
 	public static final String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
-	public static final String SCRIPT_TYPE_FUZZ = "Fuzz";
+	public static final String SCRIPT_TYPE_FUZZ = "fuzz";
 	public static final String SCRIPT_TYPE_PAYLOAD = "payload";
 	private static final ImageIcon SCRIPT_ICON = new ImageIcon(
 			ZAP.class.getResource("/resource/icon/16/script-pscan.png"));

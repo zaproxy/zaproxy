@@ -40,8 +40,8 @@ public class HttpFuzzProcessFactory implements
 
 	@Override
 	public HttpFuzzProcess getFuzzProcess(
-			HashMap<HttpFuzzLocation, HttpPayload> subs) {
-		HttpFuzzProcess fuzzProcess = new HttpFuzzProcess(httpSender, msg);
+			HashMap<HttpFuzzLocation, HttpPayload> subs, int id) {
+		HttpFuzzProcess fuzzProcess = new HttpFuzzProcess(httpSender, msg, id);
 		fuzzProcess.setPayload(subs);
 		return fuzzProcess;
 	}

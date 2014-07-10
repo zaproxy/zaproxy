@@ -23,12 +23,14 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.multiFuzz.FuzzMessageProcessor;
 import org.zaproxy.zap.extension.multiFuzz.FuzzProcess;
 import org.zaproxy.zap.extension.multiFuzz.FuzzResult.State;
+import org.zaproxy.zap.extension.multiFuzz.FuzzResultProcessor;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerListener;
 
 public class HttpFuzzProcess implements
@@ -37,20 +39,21 @@ public class HttpFuzzProcess implements
 	private static final Logger logger = Logger
 			.getLogger(HttpFuzzProcess.class);
 	private HashMap<HttpFuzzLocation, HttpPayload> payloads;
+	private final int id;
 	private HttpSender httpSender;
 	private HttpMessage orig;
 	private HttpFuzzResult result;
-	private boolean paused = false;
 	private ArrayList<FuzzMessageProcessor<HttpMessage>> preprocessors;
-	private ArrayList<FuzzMessageProcessor<HttpMessage>> postprocessors;
+	private ArrayList<FuzzResultProcessor<HttpFuzzResult>> postprocessors;
 	private ArrayList<FuzzerListener<Integer, HttpFuzzResult>> listeners;
 
-	public HttpFuzzProcess(HttpSender httpSender, HttpMessage msg) {
+	public HttpFuzzProcess(HttpSender httpSender, HttpMessage msg, int id) {
 		this.httpSender = httpSender;
 		this.orig = msg;
+		this.id = id;
 		listeners = new ArrayList<FuzzerListener<Integer, HttpFuzzResult>>();
 		this.preprocessors = new ArrayList<FuzzMessageProcessor<HttpMessage>>();
-		this.postprocessors = new ArrayList<FuzzMessageProcessor<HttpMessage>>();
+		this.postprocessors = new ArrayList<FuzzResultProcessor<HttpFuzzResult>>();
 	}
 
 	private boolean isFuzzStringReflected(HttpMessage msg,
@@ -102,14 +105,20 @@ public class HttpFuzzProcess implements
 			logger.error(e.getMessage(), e);
 			fuzzResult.setState(State.ERROR);
 		}
-		for (FuzzMessageProcessor<HttpMessage> post : postprocessors) {
+		fuzzResult.setMessage(request);
+		fuzzResult.setName(Constant.messages.getString("fuzz.http.name") + id);
+		ArrayList<String> paySig = new ArrayList<String>();
+		for(HttpPayload p : payloads.values()){
+			paySig.add(p.getData());
+		}
+		fuzzResult.setPayloads(paySig);
+		for (FuzzResultProcessor<HttpFuzzResult> post : postprocessors) {
 			try {
-				request = post.process(request);
+				fuzzResult = post.process(fuzzResult);
 			} catch (Exception e) {
 				logger.error("Post processor error:", e);
 			}
 		}
-		fuzzResult.setMessage(request);
 		this.result = fuzzResult;
 		this.stop();
 	}
@@ -122,7 +131,7 @@ public class HttpFuzzProcess implements
 
 	@Override
 	public void setPostProcessors(
-			ArrayList<FuzzMessageProcessor<HttpMessage>> post) {
+			ArrayList<FuzzResultProcessor<HttpFuzzResult>> post) {
 		this.postprocessors = post;
 	}
 
@@ -193,12 +202,10 @@ public class HttpFuzzProcess implements
 
 	@Override
 	public void pause() {
-		this.paused = true;
 	}
 
 	@Override
 	public void resume() {
-		this.paused = false;
 	}
 
 	@Override

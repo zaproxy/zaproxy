@@ -36,20 +36,25 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.multiFuzz.FuzzComponent;
 
 public class HttpFuzzComponent implements
-		FuzzComponent<HttpFuzzLocation, HttpFuzzGap> {
-	HttpMessage message;
-	JSplitPane bgSplit;
-	JTextArea headView;
-	JTextArea bodyView;
+		FuzzComponent<HttpMessage, HttpFuzzLocation, HttpFuzzGap> {
+	private HttpMessage message;
+	private JSplitPane bgSplit;
+	private JTextArea headView;
+	private JTextArea bodyView;
 	boolean headerFocus = true;
 
 	public HttpFuzzComponent(HttpMessage msg) {
 		message = msg;
 		bgSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
 		bgSplit.setDividerLocation(0.5);
-		headView = new JTextArea(message.getRequestHeader().toString());
+		try{
+			headView = new JTextArea(message.getRequestHeader().toString());
+			bodyView = new JTextArea(message.getRequestBody().toString());
+		}catch (Exception e){
+			headView = new JTextArea("");
+			bodyView = new JTextArea("");
+		}
 		headView.setEditable(false);
-		bodyView = new JTextArea(message.getRequestBody().toString());
 		bodyView.setEditable(false);
 		bgSplit.setTopComponent(headView);
 		bgSplit.setBottomComponent(bodyView);
@@ -61,6 +66,8 @@ public class HttpFuzzComponent implements
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				bodyView.select(0, 0);
+				bodyView.getCaret().setVisible(false);
+				headView.getCaret().setVisible(true);
 				headerFocus = true;
 			}
 		});
@@ -72,6 +79,8 @@ public class HttpFuzzComponent implements
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				headView.select(0, 0);
+				headView.getCaret().setVisible(false);
+				bodyView.getCaret().setVisible(true);
 				headerFocus = false;
 			}
 		});
@@ -193,5 +202,11 @@ public class HttpFuzzComponent implements
 			Toolkit.getDefaultToolkit().beep();
 		}
 
+	}
+	@Override
+	public void setMessage(HttpMessage msg) {
+		this.message = msg;
+		headView.setText(message.getRequestHeader().toString());
+		bodyView.setText(message.getRequestBody().toString());
 	}
 }

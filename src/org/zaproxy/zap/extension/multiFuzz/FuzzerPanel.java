@@ -56,6 +56,7 @@ public class FuzzerPanel extends AbstractPanel {
 	private JTextPane initialMessage = null;
 
 	private JButton stopScanButton = null;
+	private JButton showDiagrams = null;
 	private ZapToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	private JProgressBar progressBar = null;
@@ -180,6 +181,8 @@ public class FuzzerPanel extends AbstractPanel {
 
 			gridBagConstraints9.gridx = 8;
 			gridBagConstraints9.gridy = 0;
+			gridBagConstraints9.weightx = 1.0;
+			gridBagConstraints9.weighty = 1.0;
 			gridBagConstraints9.insets = new java.awt.Insets(0, 0, 0, 0);
 			gridBagConstraints9.anchor = java.awt.GridBagConstraints.EAST;
 
@@ -205,6 +208,7 @@ public class FuzzerPanel extends AbstractPanel {
 			panelToolbar.add(getPauseScanButton(), gridBagConstraints6);
 			panelToolbar.add(getStopScanButton(), gridBagConstraints7);
 			panelToolbar.add(getProgressBar(), gridBagConstraints8);
+			panelToolbar.add(getShowDiagrams(), gridBagConstraints9);
 
 			panelToolbar.add(t1, gridBagConstraintsx);
 			panelToolbar.add(getOptionsButton(), gridBagConstraintsy);
@@ -255,7 +259,20 @@ public class FuzzerPanel extends AbstractPanel {
 		}
 		return stopScanButton;
 	}
-
+	private JButton getShowDiagrams() {
+		if (showDiagrams == null) {
+			showDiagrams = new JButton(Constant.messages.getString("fuzz.panel.button.diagrams"));
+			showDiagrams.setToolTipText(Constant.messages.getString("fuzz.panel.button.diagrams"));
+			showDiagrams.setEnabled(true);
+			showDiagrams.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					showDiagrams();
+				}
+			});
+		}
+		return showDiagrams;
+	}
 	private JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
 			pauseScanButton = new ZapToggleButton();
@@ -333,7 +350,12 @@ public class FuzzerPanel extends AbstractPanel {
 		logger.debug("Stopping fuzzing");
 		extension.stopFuzzers();
 	}
-
+	private void showDiagrams(){
+		if(contentPanel != null){
+			contentPanel.showDiagrams();
+		}
+		
+	}
 	private void pauseScan() {
 		if (getPauseScanButton().getModel().isSelected()) {
 			logger.debug("Pausing fuzzing");

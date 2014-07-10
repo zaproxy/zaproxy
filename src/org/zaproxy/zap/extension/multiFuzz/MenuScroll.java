@@ -23,6 +23,7 @@ import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+
 import javax.swing.Icon;
 import javax.swing.JComponent;
 import javax.swing.JMenu;
@@ -367,7 +368,6 @@ public class MenuScroll extends JMenu {
 		setInterval(interval);
 		setTopFixedCount(topFixedCount);
 		setBottomFixedCount(bottomFixedCount);
-
 		this.menu = menu;
 		menu.addPopupMenuListener(menuListener);
 	}
@@ -556,7 +556,7 @@ public class MenuScroll extends JMenu {
 			}
 
 			JComponent parent = (JComponent) upItem.getParent();
-			parent.revalidate();
+			parent.validate();
 			parent.repaint();
 		}
 	}
