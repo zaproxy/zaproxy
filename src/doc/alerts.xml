@@ -96,6 +96,7 @@ This list the alerts
 20015   Heartbleed OpenSSL Vulnerability
 20016	Cross-Domain Requests Permitted
 20017	Source Code Disclosure - CVE-2012-1823
+20018	Remote Code Execution - CVE-2012-1823
 
 30000	External redirect 
 
