@@ -6,6 +6,7 @@ import javax.swing.JComboBox;
 import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.extension.users.UsersTableModel;
@@ -57,6 +58,14 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 	}
 
 	/**
+	 * Allows adding 'custom' users besides the ones already loaded from the context. Can be used,
+	 * for example, to add a 'Any User' entry or 'Unauthenticated' entry.
+	 */
+	public void setCustomUsers(User[] customUsers) {
+		((UsersListModel) getModel()).setCustomUsers(customUsers);
+	}
+
+	/**
 	 * Sets the selected item as the actual internal item with the same id as the provided user.
 	 * 
 	 * @param user the new selected internal item
@@ -69,8 +78,9 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 			TableModelListener {
 
 		private static final long serialVersionUID = 5648260449088479312L;
-		Object selectedItem;
+		User selectedItem;
 		UsersTableModel tableModel;
+		User[] customUsers;
 
 		public UsersListModel(UsersTableModel tableModel) {
 			super();
@@ -80,12 +90,16 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 
 		@Override
 		public User getElementAt(int index) {
-			return tableModel.getElement(index);
+			if (index < tableModel.getRowCount())
+				return tableModel.getElement(index);
+			else if (customUsers != null)
+				return customUsers[index - tableModel.getRowCount()];
+			return null;
 		}
 
 		@Override
 		public int getSize() {
-			return tableModel.getUsers().size();
+			return tableModel.getUsers().size() + (customUsers == null ? 0 : customUsers.length);
 		}
 
 		@Override
@@ -97,9 +111,12 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 			// Handle the situation when nothing selected or the event is a deletion or update and
 			// the previously selected item does not exist any more
 			else if (selectedItem == null
-					|| ((e.getType() == TableModelEvent.DELETE || e.getType() == TableModelEvent.UPDATE) && getIndexOf(selectedItem) == -1))
+					|| ((e.getType() == TableModelEvent.DELETE || e.getType() == TableModelEvent.UPDATE) && getIndexOf(selectedItem) == -1)) {
 				if (getSize() > 0)
 					setSelectedItem(getElementAt(0));
+				else
+					setSelectedItem(null);
+			}
 			fireContentsChanged(this, e.getFirstRow(), e.getLastRow());
 		}
 
@@ -114,6 +131,10 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 			if (selectedItem == null && anItem == null)
 				return;
 
+			// Wrong class element selected
+			if (!(anItem instanceof User))
+				return;
+
 			// object is already selected so no change required.
 			if (selectedItem != null && selectedItem.equals(anItem))
 				return;
@@ -123,7 +144,7 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 				return;
 
 			// Here we know that object is either an item in the list or null.
-			selectedItem = anItem;
+			selectedItem = (User) anItem;
 			fireContentsChanged(this, -1, -1);
 		}
 
@@ -147,10 +168,18 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 		 * Returns the index of the specified element in the model's item list.
 		 * 
 		 * @param object the element.
-		 * @return The index of the specified element in the model's item list.
+		 * @return The index of the specified element in the model's item list, or -1 if it wasn't
+		 *         found
 		 */
 		public int getIndexOf(Object object) {
-			return tableModel.getUsers().indexOf(object);
+			int index = tableModel.getUsers().indexOf(object);
+			if (index < 0 && customUsers != null)
+				return ArrayUtils.indexOf(customUsers, object);
+			return index;
+		}
+
+		public void setCustomUsers(User[] users) {
+			customUsers = users;
 		}
 	}
 }
