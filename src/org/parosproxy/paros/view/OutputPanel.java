@@ -172,25 +172,19 @@ public class OutputPanel extends AbstractPanel {
 	}
 
 	public void appendDirty(final String msg) {
-		getTxtOutput().append(msg);
+		doAppend(msg);
 	}
 
 	public void append(final String msg) {
 		if (EventQueue.isDispatchThread()) {
-			if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled())
-				getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(msg,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
-			else
-				getTxtOutput().append(msg);
+			doAppend(msg);
 			return;
 		}
 		try {
 			EventQueue.invokeAndWait(new Runnable() {
 				@Override
 				public void run() {
-					if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled())
-						getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(msg,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
-					else
-						getTxtOutput().append(msg);
+					doAppend(msg);
 				}
 			});
 		} catch (Exception e) {
@@ -201,12 +195,19 @@ public class OutputPanel extends AbstractPanel {
 
 	// ZAP: New method for printing out stack traces
 	public void append(final Exception e) {
-		this.append(ExceptionUtils.getStackTrace(e));
+		doAppend(ExceptionUtils.getStackTrace(e));
 	}
 
 	public void clear() {
 	    getTxtOutput().setText("");
 	}
 	
+	// ZAP : New method for handling time stamping options
+	public void doAppend(String message){
+		if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled())
+			getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(message,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
+		else
+			getTxtOutput().append(message);
+	}
 	
   }  //  @jve:decl-index=0:visual-constraint="10,10"

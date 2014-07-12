@@ -25,6 +25,7 @@ import org.zaproxy.zap.view.ScanStatus;
 
 public class ZapOutputWriter extends WriterAppender {
 
+	private final static String NEWLINE = "\n";
 	private ScanStatus scanStatus = null;
 	
 	public ZapOutputWriter () {
@@ -48,14 +49,13 @@ public class ZapOutputWriter extends WriterAppender {
 				scanStatus.incScanCount();
 			}
 			
-			View.getSingleton().getOutputPanel().appendDirty(event.getRenderedMessage());
-			View.getSingleton().getOutputPanel().appendDirty("\n");
+			String renderMessage = new StringBuilder(event.getRenderedMessage()).append(NEWLINE).toString();
+			View.getSingleton().getOutputPanel().appendDirty(renderMessage);
 
 			String [] tsr = event.getThrowableStrRep();
 			if (tsr != null) {
 				for (String str : tsr) {
-					View.getSingleton().getOutputPanel().appendDirty(str);
-					View.getSingleton().getOutputPanel().appendDirty("\n");
+					View.getSingleton().getOutputPanel().appendDirty(new StringBuilder(str).append(NEWLINE).toString());
 				}
 			}
 		}

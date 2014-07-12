@@ -33,6 +33,7 @@ import org.parosproxy.paros.Constant;
 public final class TimeStampUtils {
      
 	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.default");
+	private static final String TIME_STAMP_DELIMITER =  Constant.messages.getString("timestamp.format.delimiter");
 	private static final String SAFE_TIME_STAMP_FORMAT = "yyyy-MM-dd HH:mm:ss"; // Just in-case something goes wrong in translation
     
 	/** 
@@ -85,7 +86,11 @@ public final class TimeStampUtils {
     * Returns the provided {@code message} along with a date/time based 
     * on the provided {@code format} which is a SimpleDateFormat string. 
     * If application of the provided {@code format} fails a default format is used. 
-    * The DEFAULT is defined in Messages.properties.
+    * The DEFAULT format is defined in Messages.properties.
+    * The position of the time stamp is controlled via timestamp.format.message.order
+    * defined in Messages.properties for internationalisation. This allows right-to-left
+    * languages to specify that the time stamp should appear to the right of the message
+    * if necessary.
     * @param message the message to be time stamped
     * @param the format to be used in creating the time stamp
     * @return a time stamp in the designated format along with the original message
@@ -93,7 +98,15 @@ public final class TimeStampUtils {
     * @see SimpleDateFormat
     */
 	public static String getTimeStampedMessage(String message, String format){
-		return currentFormattedTimeStamp(format)+" : "+message;
+		StringBuilder timeStampedMessage = new StringBuilder();
+		
+		timeStampedMessage.append(currentFormattedTimeStamp(format)); //Timestamp
+		timeStampedMessage.append(" "); //Space
+		timeStampedMessage.append(TIME_STAMP_DELIMITER); //Delimiter
+		timeStampedMessage.append(" "); //Space
+		timeStampedMessage.append(message); //Original message
+		
+		return timeStampedMessage.toString();
 	}
 	
 }
