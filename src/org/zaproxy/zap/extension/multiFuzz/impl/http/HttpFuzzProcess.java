@@ -27,11 +27,12 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
-import org.zaproxy.zap.extension.multiFuzz.FuzzMessageProcessor;
+import org.zaproxy.zap.extension.multiFuzz.FuzzMessagePreProcessor;
 import org.zaproxy.zap.extension.multiFuzz.FuzzProcess;
 import org.zaproxy.zap.extension.multiFuzz.FuzzResult.State;
 import org.zaproxy.zap.extension.multiFuzz.FuzzResultProcessor;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerListener;
+import org.zaproxy.zap.extension.multiFuzz.PayloadProcessor;
 
 public class HttpFuzzProcess implements
 		FuzzProcess<HttpFuzzResult, HttpPayload, HttpMessage, HttpFuzzLocation> {
@@ -43,7 +44,8 @@ public class HttpFuzzProcess implements
 	private HttpSender httpSender;
 	private HttpMessage orig;
 	private HttpFuzzResult result;
-	private ArrayList<FuzzMessageProcessor<HttpMessage>> preprocessors;
+	private ArrayList<PayloadProcessor<HttpPayload>> payloadprocessors;
+	private ArrayList<FuzzMessagePreProcessor<HttpMessage, HttpFuzzLocation, HttpPayload>> preprocessors;
 	private ArrayList<FuzzResultProcessor<HttpFuzzResult>> postprocessors;
 	private ArrayList<FuzzerListener<Integer, HttpFuzzResult>> listeners;
 
@@ -52,7 +54,8 @@ public class HttpFuzzProcess implements
 		this.orig = msg;
 		this.id = id;
 		listeners = new ArrayList<FuzzerListener<Integer, HttpFuzzResult>>();
-		this.preprocessors = new ArrayList<FuzzMessageProcessor<HttpMessage>>();
+		this.payloadprocessors = new ArrayList<PayloadProcessor<HttpPayload>>();
+		this.preprocessors = new ArrayList<FuzzMessagePreProcessor<HttpMessage, HttpFuzzLocation, HttpPayload>>();
 		this.postprocessors = new ArrayList<FuzzResultProcessor<HttpFuzzResult>>();
 	}
 
@@ -83,9 +86,9 @@ public class HttpFuzzProcess implements
 
 		request = inject(request);
 
-		for (FuzzMessageProcessor<HttpMessage> pre : preprocessors) {
+		for (FuzzMessagePreProcessor<HttpMessage, HttpFuzzLocation, HttpPayload> pre : preprocessors) {
 			try {
-				request = pre.process(request);
+				request = pre.process(request, payloads);
 			} catch (Exception e) {
 				logger.error("Pre processor error:", e);
 			}
@@ -122,10 +125,14 @@ public class HttpFuzzProcess implements
 		this.result = fuzzResult;
 		this.stop();
 	}
-
+	@Override
+	public void setPayloadProcessors(
+			ArrayList<PayloadProcessor<HttpPayload>> pay) {
+		this.payloadprocessors = pay;
+	}
 	@Override
 	public void setPreProcessors(
-			ArrayList<FuzzMessageProcessor<HttpMessage>> pre) {
+			ArrayList<FuzzMessagePreProcessor<HttpMessage, HttpFuzzLocation, HttpPayload>> pre) {
 		this.preprocessors = pre;
 	}
 
@@ -162,7 +169,11 @@ public class HttpFuzzProcess implements
 					}
 					head.append(origHead.substring(currPosHead, fuzzLoc.begin()
 							+ hl));
-					head.append(payloads.get(fuzzLoc).getData());
+					HttpPayload payload = payloads.get(fuzzLoc);
+					for(PayloadProcessor<HttpPayload> p : payloadprocessors){
+						payload = p.process(payload);
+					}
+					head.append(payload.getData());
 					currPosHead = fuzzLoc.end + hl;
 				}
 			} else {
@@ -173,7 +184,11 @@ public class HttpFuzzProcess implements
 					end -= origHead.length();
 				}
 				body.append(origBody.substring(currPosBody, start));
-				body.append(payloads.get(fuzzLoc).getData());
+				HttpPayload payload = payloads.get(fuzzLoc);
+				for(PayloadProcessor<HttpPayload> p : payloadprocessors){
+					payload = p.process(payload);
+				}
+				body.append(payload.getData());
 				currPosBody = end;
 			}
 			note += payloads.get(fuzzLoc).getData();

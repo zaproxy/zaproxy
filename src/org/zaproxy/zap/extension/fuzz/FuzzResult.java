@@ -22,7 +22,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public class FuzzResult {
 
     public enum State {
-        SUCCESSFUL, REFLECTED, ERROR
+        SUCCESSFUL, REFLECTED, ERROR, CUSTOM
     }
 
     private State state;

@@ -19,13 +19,17 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
+import java.util.Map;
+
 import javax.script.ScriptException;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-public interface FuzzScript {
-
-	void preProcess(Message msg) throws ScriptException;
+public interface FuzzScript<M extends Message, L extends FuzzLocation<M>>{
+	
+	void processPayload(Payload p) throws ScriptException;
+	
+	void preProcess(M msg, Map<L, Payload> paymap) throws ScriptException;
 
 	void postProcess(FuzzResult msg) throws ScriptException;
 }

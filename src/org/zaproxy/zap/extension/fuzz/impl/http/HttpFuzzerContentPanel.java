@@ -66,6 +66,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
         REFLECTED,
         ERROR,
         ANTI_CRSF_TOKEN,
+        CUSTOM
     }
 
     public HttpFuzzerContentPanel() {
@@ -208,9 +209,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             HistoryReference historyReference = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
 
             resultsModel.addHistoryReference(state, historyReference);
-        } catch (HttpMalformedHeaderException e) {
-            logger.error(e.getMessage(), e);
-        } catch (SQLException e) {
+        } catch (HttpMalformedHeaderException | SQLException e) {
             logger.error(e.getMessage(), e);
         }
     }
@@ -327,6 +326,9 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
         case ERROR:
             state = State.ERROR;
             break;
+        case CUSTOM:
+        	state = State.CUSTOM;
+        	break;
         case SUCCESSFUL:
         default:
             state = State.SUCCESSFUL;

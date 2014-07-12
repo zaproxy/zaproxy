@@ -57,11 +57,12 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 
 	public static final String NAME = "MultiExtensionFuzz";
 	public static final String JBROFUZZ_CATEGORY_PREFIX = "jbrofuzz / ";
-	public static final String SCRIPT_TYPE_FUZZ = "fuzz";
+	public static final String SCRIPT_TYPE_FUZZ = "Fuzz";
 	public static final String SCRIPT_TYPE_PAYLOAD = "payload";
-	private static final ImageIcon SCRIPT_ICON = new ImageIcon(
-			ZAP.class.getResource("/resource/icon/16/script-pscan.png"));
-
+	private static final ImageIcon FUZZ_SCRIPT_ICON = new ImageIcon(
+			ZAP.class.getResource("/resource/icon/16/script-fuzz.png"));
+	private static final ImageIcon PAYLOAD_SCRIPT_ICON = new ImageIcon(
+			ZAP.class.getResource("/resource/icon/16/script-payload.png"));
 	private PopupFuzzMenu popupFuzzMenu = null;
 	private FuzzerParam fuzzerParam = null;
 	private FuzzerPanel fuzzerPanel = null;
@@ -115,9 +116,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 				.getExtensionLoader().getExtension(ExtensionScript.NAME);
 		if (extScript != null) {
 			extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_FUZZ,
-					"fuzz.scripts.type.fuzz", SCRIPT_ICON, true));
+					"fuzz.scripts.type.fuzz", FUZZ_SCRIPT_ICON, true));
 			extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_PAYLOAD,
-					"fuzz.scripts.type.payload", SCRIPT_ICON, true));
+					"fuzz.scripts.type.payload", PAYLOAD_SCRIPT_ICON, true));
 		}
 	}
 

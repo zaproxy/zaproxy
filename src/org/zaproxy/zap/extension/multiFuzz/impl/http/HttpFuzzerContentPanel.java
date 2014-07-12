@@ -317,19 +317,19 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 		historyReferencesToDelete = new ArrayList<>();
 	}
 
-	private void addFuzzResult(final String name,
+	private void addFuzzResult(final String name, final String custom,
 			final HttpFuzzRequestRecord.State state,
 			final ArrayList<String> pay, final HttpMessage msg) {
 
 		if (EventQueue.isDispatchThread()) {
-			addFuzzResultToView(name, state, pay, msg);
+			addFuzzResultToView(name, custom, state, pay, msg);
 			return;
 		}
 		try {
 			EventQueue.invokeLater(new Runnable() {
 				@Override
 				public void run() {
-					addFuzzResultToView(name, state, pay, msg);
+					addFuzzResultToView(name, custom, state, pay, msg);
 				}
 			});
 		} catch (Exception e) {
@@ -338,6 +338,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	}
 
 	private void addFuzzResultToView(final String name,
+			final String custom,
 			final HttpFuzzRequestRecord.State state,
 			final ArrayList<String> pay, final HttpMessage msg) {
 		try {
@@ -347,7 +348,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 			this.historyReferencesToDelete.add(Integer.valueOf(historyReference
 					.getHistoryId()));
 
-			resultsModel.addFuzzRecord(new HttpFuzzRequestRecord(name, state,
+			resultsModel.addFuzzRecord(new HttpFuzzRequestRecord(name, custom, state,
 					pay, historyReference));
 			fuzzResultTable.updateUI();
 			fuzzResultTable.repaint();
@@ -472,12 +473,13 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
 			for (int i = 0; i < httpFuzzResult.getTokenRequestMessages().size(); i++) {
 				addFuzzResult(fuzzResult.getName() + "." + i,
+						fuzzResult.getCustom(),
 						HttpFuzzRequestRecord.State.ANTI_CRSF_TOKEN,
 						fuzzResult.getPayloads(), httpFuzzResult
 								.getTokenRequestMessages().get(i));
 			}
 		}
-		addFuzzResult(fuzzResult.getName(),
+		addFuzzResult(fuzzResult.getName(), fuzzResult.getCustom(),
 				convertState(fuzzResult.getState()), fuzzResult.getPayloads(),
 				(HttpMessage) fuzzResult.getMessage());
 	}
@@ -490,6 +492,9 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 			break;
 		case ERROR:
 			state = HttpFuzzRequestRecord.State.ERROR;
+			break;
+		case CUSTOM:
+			state = HttpFuzzRequestRecord.State.CUSTOM;
 			break;
 		case SUCCESSFUL:
 		default:

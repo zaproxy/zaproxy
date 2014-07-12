@@ -30,4 +30,5 @@ public interface FuzzRecord {
 	public List<String> getPayloads();
 	public Boolean isIncluded();
 	public void setIncluded(Boolean b);
+	public String getCustom();
 }

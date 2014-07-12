@@ -130,6 +130,7 @@ public class HttpFuzzTableModel extends AbstractTableModel {
             	status = STATE_REFLECTED_LABEL;
                 icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/099.png")); // Yellow fuzzy circle
                 break;
+            
             case ANTI_CRSF_TOKEN:
             	status = STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL;
                 icon = new ImageIcon(HttpFuzzTableModel.class.getResource("/resource/icon/16/183.png"));

@@ -24,10 +24,11 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
 
 	public enum State {
-		SUCCESSFUL, REFLECTED, ERROR
+		SUCCESSFUL, REFLECTED, ERROR, CUSTOM
 	}
 	
 	private String name;
+	private String custom;
 	private ArrayList<String> payloads;
 	private State state;
 	private Message message;
@@ -62,6 +63,14 @@ public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
 
 	public Message getMessage() {
 		return message;
+	}
+
+	public String getCustom() {
+		return custom;
+	}
+
+	public void setCustom(String custom) {
+		this.custom = custom;
 	}
 
 }

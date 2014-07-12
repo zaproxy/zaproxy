@@ -31,7 +31,7 @@ import org.zaproxy.zap.utils.Pair;
 
 public class HttpFuzzRequestRecord implements HttpFuzzRecord {
 	enum State {
-		SUCCESSFUL, REFLECTED, ERROR, ANTI_CRSF_TOKEN,
+		SUCCESSFUL, REFLECTED, ERROR, ANTI_CRSF_TOKEN, CUSTOM
 	}
 
 	private static final ImageIcon ERROR_ICON = new ImageIcon(
@@ -53,14 +53,16 @@ public class HttpFuzzRequestRecord implements HttpFuzzRecord {
 	private static final Logger logger = Logger
 			.getLogger(HttpFuzzRequestRecord.class);
 	private String name;
+	private String custom;
 	private State state;
 	private ArrayList<String> payloads;
 	private HistoryReference historyReference;
 	private boolean incl;
 
-	public HttpFuzzRequestRecord(String n, State s, ArrayList<String> pay,
+	public HttpFuzzRequestRecord(String n, String custom, State s, ArrayList<String> pay,
 			HistoryReference history) {
 		this.name = n;
+		this.custom = custom;
 		this.state = s;
 		this.payloads = pay;
 		this.historyReference = history;
@@ -148,6 +150,10 @@ public class HttpFuzzRequestRecord implements HttpFuzzRecord {
 			status = STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL;
 			icon = ANTI_CSRF_ICON;
 			break;
+		case CUSTOM:
+			status = getCustom();
+			icon = null;
+			break;
 		case SUCCESSFUL:
 		default:
 			status = STATE_SUCCESSFUL_LABEL;
@@ -187,5 +193,13 @@ public class HttpFuzzRequestRecord implements HttpFuzzRecord {
 	@Override
 	public void setName(String s) {
 		this.name = s;
+	}
+
+	public String getCustom() {
+		return custom;
+	}
+
+	public void setCustom(String custom) {
+		this.custom = custom;
 	}
 }

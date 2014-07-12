@@ -28,6 +28,7 @@ import org.zaproxy.zap.utils.Pair;
 public class HttpFuzzRecordGroup implements HttpFuzzRecord {
 	
 	private String name;
+	private String custom;
 	private ArrayList<HttpFuzzRecord> members = new ArrayList<HttpFuzzRecord>();
 	private String method;
 	private String URI;
@@ -142,6 +143,14 @@ public class HttpFuzzRecordGroup implements HttpFuzzRecord {
 	public void add(HttpFuzzRecord entry) {
 		this.members.add(entry);
 		update();
+	}
+
+	public String getCustom() {
+		return custom;
+	}
+
+	public void setCustom(String custom) {
+		this.custom = custom;
 	}
 
 }

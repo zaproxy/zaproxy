@@ -1,15 +1,17 @@
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.io.IOException;
+import java.util.Map;
 
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
-import org.zaproxy.zap.extension.multiFuzz.FuzzMessageProcessor;
+import org.zaproxy.zap.extension.multiFuzz.FuzzMessagePreProcessor;
+import org.zaproxy.zap.extension.multiFuzz.Payload;
 
-public class AntiCSRFProcessor implements FuzzMessageProcessor<HttpMessage> {
+public class AntiCSRFProcessor implements FuzzMessagePreProcessor<HttpMessage, HttpFuzzLocation, HttpPayload> {
 
 	private HttpSender httpSender;
 	private ExtensionAntiCSRF extAntiCSRF;
@@ -25,7 +27,7 @@ public class AntiCSRFProcessor implements FuzzMessageProcessor<HttpMessage> {
 	}
 
 	@Override
-	public HttpMessage process(HttpMessage orig) {
+	public HttpMessage process(HttpMessage orig, Map<HttpFuzzLocation, HttpPayload> payMap) {
 		HttpMessage msg = orig.cloneRequest();
 		String tokenValue = null;
 		// This currently just supports a single token in one page
@@ -54,4 +56,5 @@ public class AntiCSRFProcessor implements FuzzMessageProcessor<HttpMessage> {
 		msg.getRequestHeader().setContentLength(msg.getRequestBody().length());
 		return msg;
 	}
+
 }
