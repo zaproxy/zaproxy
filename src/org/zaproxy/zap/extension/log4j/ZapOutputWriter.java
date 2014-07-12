@@ -50,13 +50,16 @@ public class ZapOutputWriter extends WriterAppender {
 			}
 			
 			String renderMessage = new StringBuilder(event.getRenderedMessage()).append(NEWLINE).toString();
-			View.getSingleton().getOutputPanel().appendDirty(renderMessage);
+			View.getSingleton().getOutputPanel().append(renderMessage);
 
-			String [] tsr = event.getThrowableStrRep();
+			String [] tsr = event.getThrowableStrRep();			
 			if (tsr != null) {
+				StringBuilder eventThrowableStrRep = new StringBuilder();
 				for (String str : tsr) {
-					View.getSingleton().getOutputPanel().appendDirty(new StringBuilder(str).append(NEWLINE).toString());
+					eventThrowableStrRep.append(str).append(NEWLINE);
 				}
+				//Send it as a single string
+				View.getSingleton().getOutputPanel().append(new StringBuilder(eventThrowableStrRep).toString());
 			}
 		}
 	}

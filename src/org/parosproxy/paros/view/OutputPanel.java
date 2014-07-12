@@ -171,6 +171,7 @@ public class OutputPanel extends AbstractPanel {
 		return txtOutput;
 	}
 
+	@Deprecated
 	public void appendDirty(final String msg) {
 		doAppend(msg);
 	}
