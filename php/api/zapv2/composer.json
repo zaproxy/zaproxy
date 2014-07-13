@@ -2,7 +2,7 @@
     "name": "zaproxy/php-owasp-zap-v2",
     "description": "PHP client API for OWASP ZAP",
     "keywords": ["ZAP"],
-    "license": "Apache License, Version 2.0",
+    "license": "Apache-2.0",
     "authors": [
         {
             "name": "ZAP development team",
