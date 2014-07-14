@@ -77,7 +77,7 @@ public class ApiGeneratorUtils {
 
 		imps.add(new ParamsAPI(null));
 		
-		api = new ActiveScanAPI(null);
+		api = new ActiveScanAPI(null, null);
 		api.addApiOptions(new ScannerParam());
 		imps.add(api);
 

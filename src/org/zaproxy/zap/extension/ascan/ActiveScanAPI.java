@@ -20,10 +20,15 @@ package org.zaproxy.zap.extension.ascan;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
@@ -38,9 +43,11 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.ScannerListener;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -53,14 +60,23 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
-public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
+public class ActiveScanAPI extends ApiImplementor {
 
     private static Logger log = Logger.getLogger(ActiveScanAPI.class);
 
 	private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";
+	private static final String ACTION_PAUSE_SCAN = "pause";
+	private static final String ACTION_RESUME_SCAN = "resume";
+	private static final String ACTION_STOP_SCAN = "stop";
+	private static final String ACTION_PAUSE_ALL_SCANS = "pauseAllScans";
+	private static final String ACTION_RESUME_ALL_SCANS = "resumeAllScans";
+	private static final String ACTION_STOP_ALL_SCANS = "stopAllScans";
+	private static final String ACTION_REMOVE_SCAN = "removeScan";
+	private static final String ACTION_REMOVE_ALL_SCANS = "removeAllScans";
 
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
@@ -73,8 +89,11 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String ACTION_SET_POLICY_ALERT_THRESHOLD = "setPolicyAlertThreshold";
 	private static final String ACTION_SET_SCANNER_ATTACK_STRENGTH = "setScannerAttackStrength";
 	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
-    
+
 	private static final String VIEW_STATUS = "status";
+	private static final String VIEW_SCANS = "scans";
+	private static final String VIEW_MESSAGES_IDS = "messagesIds";
+	private static final String VIEW_ALERTS_IDS = "alertsIds";
 	private static final String VIEW_EXCLUDED_FROM_SCAN = "excludedFromScan";
 	private static final String VIEW_SCANNERS = "scanners";
 	private static final String VIEW_POLICIES = "policies";
@@ -88,14 +107,78 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 	private static final String PARAM_ATTACK_STRENGTH = "attackStrength";
 	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
 	private static final String PARAM_POLICY_ID = "policyId";
+	private static final String PARAM_SCAN_ID = "scanId";
 
 	private ExtensionActiveScan extension;
-	private ActiveScan activeScan = null;
-	private int progress = 0;
+
+	private final ExtensionAlert extensionAlert;
+
+	/**
+	 * The {@code Lock} for exclusive access of instance variables related to multiple active scans.
+	 * 
+	 * @see #activeScans
+	 * @see #scanIdCounter
+	 * @see #lastActiveScanAvailable
+	 */
+	private final Lock activeScansLock;
+
+	/**
+	 * The counter used to give an unique ID to active scans.
+	 * <p>
+	 * <strong>Note:</strong> All accesses (both write and read) should be done while holding the {@code Lock}
+	 * {@code activeScansLock}.
+	 * </p>
+	 * 
+	 * @see #activeScansLock
+	 * @see #scanURL(String, boolean, boolean)
+	 */
+	private int scanIdCounter;
+
+	/**
+	 * A map that contains all {@code ActiveApiScan}s created (and not yet removed). Used to control (i.e. pause/resume and
+	 * stop) the multiple active scans and get its results. The instance variable is never {@code null}. The map key is the ID
+	 * of the scan.
+	 * <p>
+	 * <strong>Note:</strong> All accesses (both write and read) should be done while holding the {@code Lock}
+	 * {@code activeScansLock}.
+	 * </p>
+	 * 
+	 * @see #activeScansLock
+	 * @see #scanURL(String, boolean, boolean)
+	 * @see #scanIdCounter
+	 */
+	private Map<Integer, ActiveApiScan> activeScans;
+
+	/**
+	 * The last {@code ActiveApiScan} available. Might be {@code null}, when no scan was created or all scans were removed.
+	 * <p>
+	 * The multiple active scans are accessed/controlled using its ID but to keep backward compatibility we keep a reference to
+	 * the last scan so it's still possible to get the status without using a scan ID.
+	 * </p>
+	 * <p>
+	 * <strong>Note:</strong> All accesses (both write and read) should be done while holding the {@code Lock}
+	 * {@code activeScansLock}.
+	 * </p>
+	 * 
+	 * @see #activeScansLock
+	 * @see #scanURL(String, boolean, boolean)
+	 */
+	private ActiveApiScan lastActiveScanAvailable;
 	
-	public ActiveScanAPI (ExtensionActiveScan extension) {
+	public ActiveScanAPI (ExtensionActiveScan extension, ExtensionAlert extensionAlert) {
+		this.activeScansLock = new ReentrantLock();
 		this.extension = extension;
+		this.extensionAlert = extensionAlert;
+		this.activeScans = new HashMap<>();
         this.addApiAction(new ApiAction(ACTION_SCAN, new String[] {PARAM_URL}, new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE}));
+		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
+		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
+		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, new String[] { PARAM_SCAN_ID }));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN, new String[] { PARAM_SCAN_ID }));
+		this.addApiAction(new ApiAction(ACTION_PAUSE_ALL_SCANS));
+		this.addApiAction(new ApiAction(ACTION_RESUME_ALL_SCANS));
+		this.addApiAction(new ApiAction(ACTION_STOP_ALL_SCANS));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_ALL_SCANS));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_SCAN));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_SCAN, new String[] {PARAM_REGEX}));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_SCANNERS));
@@ -108,7 +191,10 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ATTACK_STRENGTH, new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }));
 		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD, new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }));
 
-		this.addApiView(new ApiView(VIEW_STATUS));
+		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
+		this.addApiView(new ApiView(VIEW_MESSAGES_IDS, new String[] { PARAM_SCAN_ID }));
+		this.addApiView(new ApiView(VIEW_ALERTS_IDS, new String[] { PARAM_SCAN_ID }));
+		this.addApiView(new ApiView(VIEW_SCANS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS, null, new String[] {PARAM_POLICY_ID}));
 		this.addApiView(new ApiView(VIEW_POLICIES));
@@ -129,8 +215,76 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			if (url == null || url.length() == 0) {
 				throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
 			}
-		    scanURL(params.getString(PARAM_URL), this.getParam(params, PARAM_RECURSE, true), this.getParam(params, PARAM_JUST_IN_SCOPE, false));
+			int scanId = scanURL(
+					params.getString(PARAM_URL),
+					this.getParam(params, PARAM_RECURSE, true),
+					this.getParam(params, PARAM_JUST_IN_SCOPE, false));
 
+			return new ApiResponseElement(name, Integer.toString(scanId));
+
+		case ACTION_PAUSE_SCAN:
+			getActiveScan(params).pause();
+			break;
+		case ACTION_RESUME_SCAN:
+			getActiveScan(params).resume();
+			break;
+		case ACTION_STOP_SCAN:
+			getActiveScan(params).stop();
+			break;
+		case ACTION_REMOVE_SCAN:
+			activeScansLock.lock();
+			try {
+				ActiveApiScan activeScan = activeScans.remove(Integer.valueOf(params.getInt(PARAM_SCAN_ID)));
+				if (activeScan == null) {
+					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
+				}
+				activeScan.stop();
+
+				if (lastActiveScanAvailable == activeScan) {
+					if (activeScans.isEmpty()) {
+						lastActiveScanAvailable = null;
+					} else {
+						ActiveApiScan[] scans = new ActiveApiScan[activeScans.size()];
+						scans = activeScans.values().toArray(scans);
+						lastActiveScanAvailable = scans[scans.length - 1];
+					}
+				}
+			} finally {
+				activeScansLock.unlock();
+			}
+			break;
+		case ACTION_PAUSE_ALL_SCANS:
+			activeScansLock.lock();
+			try {
+				for (ActiveApiScan scan : activeScans.values()) {
+					scan.pause();
+				}
+			} finally {
+				activeScansLock.unlock();
+			}
+			break;
+		case ACTION_RESUME_ALL_SCANS:
+			activeScansLock.lock();
+			try {
+				for (ActiveApiScan scan : activeScans.values()) {
+					scan.resume();
+				}
+			} finally {
+				activeScansLock.unlock();
+			}
+			break;
+		case ACTION_STOP_ALL_SCANS:
+			activeScansLock.lock();
+			try {
+				for (ActiveApiScan scan : activeScans.values()) {
+					scan.stop();
+				}
+			} finally {
+				activeScansLock.unlock();
+			}
+			break;
+		case ACTION_REMOVE_ALL_SCANS:
+			removeAllScans();
             break;
 		case ACTION_CLEAR_EXCLUDED_FROM_SCAN:
 			try {
@@ -196,6 +350,38 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+	/**
+	 * Returns a {@code ActiveApiScan} from the available {@code activeScans} or the {@code lastActiveScanAvailable}. If a scan
+	 * ID ({@code PARAM_SCAN_ID}) is present in the given {@code params} it will be used to the get the {@code ActiveApiScan}
+	 * from the available {@code activeScans}, otherwise it's returned the {@code lastActiveScanAvailable}.
+	 *
+	 * @param params the parameters of the API call
+	 * @return the {@code ActiveApiScan} with the given scan ID or, if not present, the {@code lastActiveScanAvailable}
+	 * @throws ApiException if there's no scan with the given scan ID
+	 * @see #PARAM_SCAN_ID
+	 * @see #activeScans
+	 * @see #lastActiveScanAvailable
+	 */
+	private ActiveApiScan getActiveScan(JSONObject params) throws ApiException {
+		activeScansLock.lock();
+		try {
+			int id = getParam(params, PARAM_SCAN_ID, -1);
+
+			if (id == -1) {
+				return lastActiveScanAvailable;
+			}
+
+			ActiveApiScan activeScan = activeScans.get(Integer.valueOf(id));
+			if (activeScan == null) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
+			}
+
+			return activeScan;
+		} finally {
+			activeScansLock.unlock();
+		}
 	}
 
 	private void setScannersEnabled(JSONObject params, boolean enabled) {
@@ -291,12 +477,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 		return scanner;
 	}
 
-	private void scanURL(String url, boolean scanChildren, boolean scanJustInScope) throws ApiException {
-		
-		if (activeScan != null && ! activeScan.isStopped()) {
-			throw new ApiException(ApiException.Type.SCAN_IN_PROGRESS);
-		}
-
+	private int scanURL(String url, boolean scanChildren, boolean scanJustInScope) throws ApiException {
 		// Try to find node
 		SiteNode startNode;
 		try {
@@ -308,16 +489,25 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 		}
 
-		activeScan = new ActiveScan(url, extension.getScannerParam(), 
-				extension.getModel().getOptionsParam().getConnectionParam(), null,
-				Control.getSingleton().getPluginFactory().clone());
-		
-		progress = 0;
-        activeScan.setJustScanInScope(scanJustInScope);
-		activeScan.addScannerListener(this);
-		activeScan.setStartNode(startNode);
-        activeScan.setScanChildren(scanChildren);
-		activeScan.start();
+		activeScansLock.lock();
+		try {
+			int scanId = scanIdCounter++;
+			ActiveApiScan activeApiScan = new ActiveApiScan(
+					extension,
+					extensionAlert,
+					url,
+					startNode,
+					scanChildren,
+					scanJustInScope,
+					scanId);
+			activeScans.put(Integer.valueOf(scanId), activeApiScan);
+			activeApiScan.start();
+			lastActiveScanAvailable = activeApiScan;
+
+			return scanId;
+		} finally {
+			activeScansLock.unlock();
+		}
 	}
 
 	@Override
@@ -327,7 +517,52 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 
 		switch(name) {
 		case VIEW_STATUS:
+			ActiveApiScan activeScan = getActiveScan(params);
+			int progress = 0;
+			if (activeScan != null) {
+				progress = activeScan.getProgress();
+			}
 			result = new ApiResponseElement(name, String.valueOf(progress));
+			break;
+		case VIEW_SCANS:
+			ApiResponseList resultList = new ApiResponseList(name);
+			activeScansLock.lock();
+			try {
+				for (ActiveApiScan scan : activeScans.values()) {
+					Map<String, String> map = new HashMap<>();
+					map.put("id", Integer.toString(scan.getId()));
+					map.put("progress", Integer.toString(scan.getProgress()));
+					map.put("state", scan.getState());
+					resultList.addItem(new ApiResponseSet("scan", map));
+				}
+			} finally {
+				activeScansLock.unlock();
+			}
+			result = resultList;
+			break;
+		case VIEW_MESSAGES_IDS:
+			resultList = new ApiResponseList(name);
+			activeScan = getActiveScan(params);
+			if (activeScan != null) {
+				synchronized (activeScan.getMessagesIds()) {
+					for (Integer id : activeScan.getMessagesIds()) {
+						resultList.addItem(new ApiResponseElement("id", id.toString()));
+					}
+				}
+			}
+			result = resultList;
+			break;
+		case VIEW_ALERTS_IDS:
+			resultList = new ApiResponseList(name);
+			activeScan = getActiveScan(params);
+			if (activeScan != null) {
+				synchronized (activeScan.getAlertsIds()) {
+					for (Integer id : activeScan.getAlertsIds()) {
+						resultList.addItem(new ApiResponseElement("id", id.toString()));
+					}
+				}
+			}
+			result = resultList;
 			break;
 		case VIEW_EXCLUDED_FROM_SCAN:
 			result = new ApiResponseList(name);
@@ -344,7 +579,7 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			if (policyId != -1 && !hasPolicyWithId(policyId)) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_POLICY_ID);
 			}
-			ApiResponseList resultList = new ApiResponseList(name);
+			resultList = new ApiResponseList(name);
 			for (Plugin scanner : scanners) {
 				if (policyId == -1 || policyId == scanner.getCategory()) {
 					resultList.addItem(new ScannerApiResponse(scanner));
@@ -415,36 +650,6 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			}
 		}
 		return alertThreshold;
-	}
-
-	@Override
-	public void alertFound(Alert alert) {
-		ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
-		if (extAlert != null) {
-			extAlert.alertFound(alert, alert.getHistoryRef());
-		}
-	}
-
-	@Override
-	public void hostComplete(String hostAndPort) {
-        activeScan.reset();
-	}
-
-	@Override
-	public void hostNewScan(String hostAndPort, HostProcess hostThread) {
-	}
-
-	@Override
-	public void hostProgress(String hostAndPort, String msg, int percentage) {
-		this.progress = percentage;
-	}
-
-	@Override
-	public void notifyNewMessage(HttpMessage msg) {
-	}
-
-	@Override
-	public void scannerComplete() {
 	}
 
 	private static class ScannerApiResponse extends ApiResponse {
@@ -547,6 +752,278 @@ public class ActiveScanAPI extends ApiImplementor implements ScannerListener {
 			}
 			sb.append("]\n");
 			return sb.toString();
+		}
+	}
+
+	void reset() {
+		activeScansLock.lock();
+		try {
+			removeAllScans();
+			this.activeScans = new HashMap<>();
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+
+	private void removeAllScans() {
+		activeScansLock.lock();
+		try {
+			for (Iterator<ActiveApiScan> it = activeScans.values().iterator(); it.hasNext();) {
+				it.next().stop();
+				it.remove();
+			}
+			lastActiveScanAvailable = null;
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+
+	private static class ActiveApiScan implements ScanListenner, ScannerListener {
+
+		private static enum State {
+			NOT_STARTED,
+			RUNNING,
+			PAUSED,
+			FINISHED
+		};
+
+		private final Lock lock;
+
+		private final int id;
+
+		private final List<Integer> hRefs;
+
+		private final List<Integer> alerts;
+
+		private final ActiveScan activeScan;
+
+		private final ExtensionAlert extensionAlert;
+
+		private State state;
+
+		private int progress;
+
+		public ActiveApiScan(
+				ExtensionActiveScan extension,
+				ExtensionAlert extensionAlert,
+				String url,
+				SiteNode startNode,
+				boolean scanChildren,
+				boolean scanJustInScope,
+				int scanId) {
+			lock = new ReentrantLock();
+			id = scanId;
+
+			hRefs = Collections.synchronizedList(new ArrayList<Integer>());
+			alerts = Collections.synchronizedList(new ArrayList<Integer>());
+
+			this.extensionAlert = extensionAlert;
+
+			state = State.NOT_STARTED;
+
+			activeScan = new ActiveScan(url, extension.getScannerParam(), extension.getModel()
+					.getOptionsParam()
+					.getConnectionParam(), null, Control.getSingleton().getPluginFactory().clone()) {
+
+				@Override
+				public void notifyNewMessage(HttpMessage msg) {
+					HistoryReference hRef = msg.getHistoryRef();
+					if (hRef == null) {
+						try {
+							hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
+							msg.setHistoryRef(null);
+							hRefs.add(Integer.valueOf(hRef.getHistoryId()));
+						} catch (HttpMalformedHeaderException | SQLException e) {
+							log.error(e.getMessage(), e);
+						}
+					} else {
+						hRefs.add(Integer.valueOf(hRef.getHistoryId()));
+					}
+				}
+			};
+
+			activeScan.setJustScanInScope(scanJustInScope);
+			activeScan.setStartNode(startNode);
+			activeScan.setScanChildren(scanChildren);
+		}
+
+		/**
+		 * Returns the ID of the scan.
+		 *
+		 * @return the ID of the scan
+		 */
+		public int getId() {
+			return id;
+		}
+
+		/**
+		 * Returns the {@code String} representation of the scan state (not started, running, paused or finished).
+		 *
+		 * @return the {@code String} representation of the scan state.
+		 */
+		public String getState() {
+			lock.lock();
+			try {
+				return state.toString();
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		/**
+		 * Returns the progress of the scan, an integer between 0 and 100.
+		 *
+		 * @return the progress of the scan.
+		 */
+		public int getProgress() {
+			return progress;
+		}
+
+		/**
+		 * Starts the scan.
+		 * <p>
+		 * The call to this method has no effect if the scan was already started.
+		 * </p>
+		 */
+		public void start() {
+			lock.lock();
+			try {
+				if (State.NOT_STARTED.equals(state)) {
+					activeScan.addScannerListener(this);
+					activeScan.start();
+					state = State.RUNNING;
+				}
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		/**
+		 * Pauses the scan.
+		 * <p>
+		 * The call to this method has no effect if the scan is not running.
+		 * </p>
+		 */
+		public void pause() {
+			lock.lock();
+			try {
+				if (State.RUNNING.equals(state)) {
+					activeScan.pauseScan();
+					state = State.PAUSED;
+				}
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		/**
+		 * Resumes the scan.
+		 * <p>
+		 * The call to this method has no effect if the scan is not paused.
+		 * </p>
+		 */
+		public void resume() {
+			lock.lock();
+			try {
+				if (State.PAUSED.equals(state)) {
+					activeScan.resumeScan();
+					state = State.RUNNING;
+				}
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		/**
+		 * Stops the scan.
+		 * <p>
+		 * The call to this method has no effect if the scan was not yet started or has already finished.
+		 * </p>
+		 */
+		public void stop() {
+			lock.lock();
+			try {
+				if (!State.NOT_STARTED.equals(state) && !State.FINISHED.equals(state)) {
+					activeScan.stopScan();
+					state = State.FINISHED;
+				}
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		/**
+		 * Returns the IDs of all messages sent/created during the scan. The message must be recreated with a HistoryReference.
+		 * <p>
+		 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
+		 * {@code ConcurrentModificationException}.
+		 * </p>
+		 *
+		 * @return the IDs of all the messages sent/created during the scan
+		 * @see HistoryReference
+		 * @see ConcurrentModificationException
+		 */
+		public List<Integer> getMessagesIds() {
+			return hRefs;
+		}
+
+		/**
+		 * Returns the IDs of all alerts raised during the scan.
+		 * <p>
+		 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
+		 * {@code ConcurrentModificationException}.
+		 * </p>
+		 *
+		 * @return the IDs of all the alerts raised during the scan
+		 * @see ConcurrentModificationException
+		 */
+		public List<Integer> getAlertsIds() {
+			return alerts;
+		}
+
+		@Override
+		public void alertFound(Alert alert) {
+			extensionAlert.alertFound(alert, alert.getHistoryRef());
+
+			int alertId = alert.getAlertId();
+			if (alertId != -1) {
+				alerts.add(Integer.valueOf(alert.getAlertId()));
+			}
+		}
+
+		@Override
+		public void hostComplete(String hostAndPort) {
+		}
+
+		@Override
+		public void hostNewScan(String hostAndPort, HostProcess hostThread) {
+		}
+
+		@Override
+		public void hostProgress(String hostAndPort, String msg, int percentage) {
+			this.progress = percentage;
+		}
+
+		@Override
+		public void notifyNewMessage(HttpMessage msg) {
+		}
+
+		@Override
+		public void scannerComplete() {
+			lock.lock();
+			try {
+				state = State.FINISHED;
+			} finally {
+				lock.unlock();
+			}
+		}
+
+		@Override
+		public void scanFinshed(String host) {
+		}
+
+		@Override
+		public void scanProgress(String host, int progress, int maximum) {
 		}
 	}
 }

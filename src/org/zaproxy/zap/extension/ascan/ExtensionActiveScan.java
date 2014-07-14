@@ -109,6 +109,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private JButton policyButton = null;
 	private CustomScanDialog customScanDialog = null;
 
+	private ActiveScanAPI activeScanApi;
+
     /**
      *
      */
@@ -163,9 +165,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", SCRIPT_ICON_VARIANT, true));
         }
 
-        ActiveScanAPI api = new ActiveScanAPI(this);
-        api.addApiOptions(getScannerParam());
-        API.getInstance().registerApiImplementor(api);
+        activeScanApi = new ActiveScanAPI(this, (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
+        activeScanApi.addApiOptions(getScannerParam());
+        API.getInstance().registerApiImplementor(activeScanApi);
     }
 
     private ActiveScanPanel getActiveScanPanel() {
@@ -459,6 +461,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     @Override
     public void sessionAboutToChange(final Session session) {
+        if (activeScanApi != null) {
+            activeScanApi.reset();
+        }
+
         // Shut all of the scans down
         this.getActiveScanPanel().reset();
     }
