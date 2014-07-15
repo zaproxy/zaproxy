@@ -9,7 +9,6 @@ import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.multiFuzz.FuzzMessagePreProcessor;
-import org.zaproxy.zap.extension.multiFuzz.Payload;
 
 public class AntiCSRFProcessor implements FuzzMessagePreProcessor<HttpMessage, HttpFuzzLocation, HttpPayload> {
 
