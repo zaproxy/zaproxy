@@ -12,7 +12,7 @@ function processPayload(p){
 
 // This function is called for each request after the payloads have been inserted
 // and before the request is sent.
-// The arguments are the HttpMessage corresponding to the request and a map between
+// The arguments are the message corresponding to the request and a map between
 // The fuzzlocations and payloads that have been inserted into those locations.
 function preProcess(msg, p){
 	// Debugging can be done using println like this
