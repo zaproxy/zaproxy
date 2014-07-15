@@ -35,6 +35,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.Cookie;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -389,8 +391,9 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 			public void handleAction(JSONObject params) throws ApiException {
 				Context context = ApiUtils.getContextByParamId(params, AuthenticationAPI.PARAM_CONTEXT_ID);
 				ManualAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
-				if (!context.getAuthenticationMethod().isSameType(method))
+				if (!context.getAuthenticationMethod().isSameType(method)) {
 					apiChangedAuthenticationMethodForContext(context.getIndex());
+				}
 				context.setAuthenticationMethod(method);
 			}
 		};
@@ -405,10 +408,11 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				Context context = ApiUtils.getContextByParamId(params, UsersAPI.PARAM_CONTEXT_ID);
 				int userId = ApiUtils.getIntParam(params, UsersAPI.PARAM_USER_ID);
 				// Make sure the type of authentication method is compatible
-				if (!isTypeForMethod(context.getAuthenticationMethod()))
+				if (!isTypeForMethod(context.getAuthenticationMethod())) {
 					throw new ApiException(ApiException.Type.BAD_TYPE,
 							"User's credentials should match authentication method type of the context: "
 									+ context.getAuthenticationMethod().getType().getName());
+				}
 				// NOTE: no need to check if extension is loaded as this method
 				// is called only if
 				// the Users
@@ -416,24 +420,28 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				ExtensionUserManagement extensionUserManagement = (ExtensionUserManagement) Control.getSingleton()
 						.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
 				User user = extensionUserManagement.getContextUserAuthManager(context.getIndex()).getUserById(userId);
-				if (user == null)
+				if (user == null) {
 					throw new ApiException(Type.USER_NOT_FOUND, UsersAPI.PARAM_USER_ID);
+				}
 				String sessionName = ApiUtils.getNonEmptyStringParam(params, PARAM_SESSION_NAME);
 
 				// Get the matching session
 				ExtensionHttpSessions extensionHttpSessions = (ExtensionHttpSessions) Control.getSingleton().getExtensionLoader()
 						.getExtension(ExtensionHttpSessions.NAME);
-				if (extensionHttpSessions == null)
+				if (extensionHttpSessions == null) {
 					throw new ApiException(Type.NO_IMPLEMENTOR, "HttpSessions extension is not loaded.");
+				}
 				List<HttpSession> sessions = extensionHttpSessions.getHttpSessionsForContext(context);
 				HttpSession matchedSession = null;
-				for (HttpSession session : sessions)
+				for (HttpSession session : sessions) {
 					if (session.getName().equals(sessionName)) {
 						matchedSession = session;
 						break;
 					}
-				if (matchedSession == null)
+				}
+				if (matchedSession == null) {
 					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SESSION_NAME);
+				}
 
 				// Set the credentials
 				ManualAuthenticationCredentials credentials = createAuthenticationCredentials();
@@ -441,5 +449,15 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 				user.setAuthenticationCredentials(credentials);
 			}
 		};
+	}
+
+	@Override
+	public void exportData(Configuration config, AuthenticationMethod authMethod) {
+		// Nothing to do
+	}
+
+	@Override
+	public void importData(Configuration config, AuthenticationMethod authMethod) throws ConfigurationException {
+		// Nothing to do
 	}
 }

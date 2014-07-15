@@ -27,27 +27,48 @@ package org.zaproxy.zap.view;
 
 import java.awt.CardLayout;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.io.File;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
+import javax.swing.filechooser.FileFilter;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 
 public class ContextListPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = -8337361808959321380L;
+	
+	private static final String CONTEXT_EXT = ".context";
+
+	private Logger logger = Logger.getLogger(this.getClass());
 
 	private JPanel panelContext = null;
 	private JTable tableExt = null;
 	private JScrollPane jScrollPane = null;
 	private ContextListTableModel model = new ContextListTableModel();
+	
+	private JButton exportButton = null;
+	private JButton importButton = null;
 	
     public ContextListPanel() {
         super();
@@ -78,11 +99,135 @@ public class ContextListPanel extends AbstractParamPanel {
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 		    	panelContext.setSize(180, 101);
 		    }
-		    panelContext.add(getJScrollPane(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 1.0D));
+		    panelContext.add(getJScrollPane(), LayoutHelper.getGBC(0, 0, 4, 1.0D, 1.0D));
+		    panelContext.add(new JLabel(""), LayoutHelper.getGBC(0, 1, 1, 1.0D, 0.0D));	// left spacer
+		    panelContext.add(getExportButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D, 0.0D));
+		    panelContext.add(getImportButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D, 0.0D));
+		    panelContext.add(new JLabel(""), LayoutHelper.getGBC(3, 1, 1, 1.0D, 0.0D));	// right spacer
 		}
 		return panelContext;
 	}
 	
+	private JButton getExportButton() {
+		if (exportButton == null) {
+			exportButton = new JButton(Constant.messages.getString("context.export.button"));
+			exportButton.setToolTipText(Constant.messages.getString("context.export.tooltip"));
+			exportButton.setEnabled(false);	// Only enabled when one context selected
+			final ContextListPanel panel = this;
+			exportButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					int row = getTableExtension().getSelectedRow();
+					if (row >= 0) {
+						int ctxId = (Integer)model.getValueAt(row, 0);
+						String ctxName = (String)model.getValueAt(row, 1);
+						
+						JFileChooser chooser = new JFileChooser(Constant.getContextsDir());
+						File file = null;
+					    chooser.setFileFilter(new FileFilter() {
+					           @Override
+					           public boolean accept(File file) {
+					                if (file.isDirectory()) {
+					                    return true;
+					                } else if (file.isFile() && file.getName().endsWith(CONTEXT_EXT)) {
+					                    return true;
+					                }
+					                return false;
+					            }
+					           @Override
+					           public String getDescription() {
+					               return Constant.messages.getString("file.format.zap.context");
+					           }
+					    });
+					    chooser.setSelectedFile(new File(ctxName));
+					    
+					    int rc = chooser.showSaveDialog(panel);
+					    if(rc == JFileChooser.APPROVE_OPTION) {
+							try {
+					    		file = chooser.getSelectedFile();
+					    		if (file == null) {
+					    			return;
+					    		}
+							    if (! file.getName().endsWith(CONTEXT_EXT)) {
+							    	// Force the extension 
+							    	file = new File(file.getAbsolutePath() + CONTEXT_EXT);
+							    }
+							    
+								Model.getSingleton().getSession().exportContext(ctxId, file);
+							} catch (Exception e1) {
+								View.getSingleton().showWarningDialog(panel, MessageFormat.format(
+										Constant.messages.getString("context.export.error"), e1.getMessage()));
+							}
+					    }
+					}
+				}});
+		}
+		return exportButton;
+	}
+	
+	private void setButtonStates() {
+		if (this.getTableExtension().getSelectedRowCount() == 1) {
+			this.getExportButton().setEnabled(true);
+		} else {
+			this.getExportButton().setEnabled(false);
+		}
+	}
+	
+	private JButton getImportButton() {
+		if (importButton == null) {
+			importButton = new JButton(Constant.messages.getString("context.import.button"));
+			final ContextListPanel panel = this;
+			importButton.addActionListener(new ActionListener() {
+
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					JFileChooser chooser = new JFileChooser(Constant.getContextsDir());
+					File file = null;
+				    chooser.setFileFilter(new FileFilter() {
+				           @Override
+				           public boolean accept(File file) {
+				                if (file.isDirectory()) {
+				                    return true;
+				                } else if (file.isFile() && file.getName().endsWith(".context")) {
+				                    return true;
+				                }
+				                return false;
+				            }
+				           @Override
+				           public String getDescription() {
+				               return Constant.messages.getString("file.format.zap.context");
+				           }
+				    });
+				    
+				    int rc = chooser.showOpenDialog(panel);
+				    if(rc == JFileChooser.APPROVE_OPTION) {
+						try {
+				    		file = chooser.getSelectedFile();
+				    		if (file == null || ! file.exists()) {
+				    			return;
+				    		}
+							Context ctx = Model.getSingleton().getSession().importContext(file);
+							
+						    Object[] values = new Object[] {ctx.getIndex(), ctx.getName(), ctx.isInScope()};
+						    model.addValues(values);
+
+						    // Update the panels
+						    View.getSingleton().showSessionDialog(Model.getSingleton().getSession(), panel.getName(), true);
+							
+						} catch (Exception e1) {
+							logger.debug(e1.getMessage(), e1);
+							View.getSingleton().showWarningDialog(panel, MessageFormat.format(
+									Constant.messages.getString("context.import.error"), e1.getMessage()));
+						}
+				    }
+
+				}
+			});
+		}
+		return importButton;
+	}
+
 	/**
 	 * This method initializes jScrollPane	
 	 * 	
@@ -112,6 +257,50 @@ public class ContextListPanel extends AbstractParamPanel {
 			// Issue 954: Force the JTable cell to auto-save when the focus changes.
 			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
 			tableExt.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
+			
+			tableExt.addMouseListener(new MouseListener() {
+
+				@Override
+				public void mouseClicked(MouseEvent e) {
+					setButtonStates();
+				}
+
+				@Override
+				public void mousePressed(MouseEvent e) {
+					setButtonStates();
+				}
+
+				@Override
+				public void mouseReleased(MouseEvent e) {
+					setButtonStates();
+				}
+
+				@Override
+				public void mouseEntered(MouseEvent e) {
+					setButtonStates();
+				}
+
+				@Override
+				public void mouseExited(MouseEvent e) {
+					setButtonStates();
+				}});
+			
+			tableExt.addKeyListener(new KeyListener() {
+
+				@Override
+				public void keyTyped(KeyEvent e) {
+					setButtonStates();
+				}
+
+				@Override
+				public void keyPressed(KeyEvent e) {
+					setButtonStates();
+				}
+
+				@Override
+				public void keyReleased(KeyEvent e) {
+					setButtonStates();
+				}});
 
 			// Disable for now - would be useful but had some problems with this ;)
 			/*

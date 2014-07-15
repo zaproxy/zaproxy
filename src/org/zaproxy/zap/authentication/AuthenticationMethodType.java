@@ -23,6 +23,8 @@ import java.sql.SQLException;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
@@ -151,6 +153,21 @@ public abstract class AuthenticationMethodType {
 	 */
 	public abstract void persistMethodToSession(Session session, int contextId,
 			AuthenticationMethod authMethod) throws UnsupportedAuthenticationMethodException, SQLException;
+
+	/**
+	 * Export the specified method to the configuration
+	 * @param config
+	 * @param authMethod
+	 */
+	public abstract void exportData(Configuration config, AuthenticationMethod authMethod);
+
+	/**
+	 * Import the method from the confuguration
+	 * @param config
+	 * @param authMethod
+	 * @throws ConfigurationException
+	 */
+	public abstract void importData(Configuration config, AuthenticationMethod authMethod) throws ConfigurationException;
 
 	@Override
 	public String toString() {

@@ -49,6 +49,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/03/23 Issue 1085: Do not add/remove pop up menu items through the method View#getPopupMenu()
 // ZAP: 2014/04/17 Issue 1155: Historical Request Tab Doesn't allow formatting changes
+// ZAP: 2014/07/15 Issue 1265: Context import and export
 
 package org.parosproxy.paros.view;
 
@@ -69,6 +70,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -95,12 +97,12 @@ import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextIncludePanel;
 import org.zaproxy.zap.view.ContextListPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
+import org.zaproxy.zap.view.ContextStructurePanel;
 import org.zaproxy.zap.view.ContextTechnologyPanel;
 import org.zaproxy.zap.view.MessagePanelsPositionController;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
-import org.zaproxy.zap.view.ContextStructurePanel;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -266,39 +268,59 @@ public class View implements ViewDelegate {
 
 	@Override
 	public int showConfirmDialog(String msg) {
-		return JOptionPane.showConfirmDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
-	}
-	
-	@Override
-	public int showYesNoCancelDialog(String msg) {
-		return JOptionPane.showConfirmDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
-	}
-	
-	@Override
-	public void showWarningDialog(String msg) {
-		JOptionPane.showMessageDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
-	}
-
-	@Override
-	public void showMessageDialog(String msg) {
-		JOptionPane.showMessageDialog(getMainFrame(), msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+		return showConfirmDialog(getMainFrame(), msg);
 	}
 	
 	public int showConfirmDialog(JFrame parent, String msg) {
 		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
 	}
 	
+	public int showConfirmDialog(JPanel parent, String msg) {
+		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+	}
+
+	
+	@Override
+	public int showYesNoCancelDialog(String msg) {
+		return showConfirmDialog(getMainFrame(), msg);
+	}
+	
 	public int showYesNoCancelDialog(JFrame parent, String msg) {
 		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
 	}
+
+	public int showYesNoCancelDialog(JPanel parent, String msg) {
+		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
+	}
+
 	
+	@Override
+	public void showWarningDialog(String msg) {
+		showWarningDialog(getMainFrame(), msg);
+	}
+
 	public void showWarningDialog(JFrame parent, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
 	}
 
+	public void showWarningDialog(JPanel parent, String msg) {
+		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+	}
+
+	
+	@Override
+	public void showMessageDialog(String msg) {
+		showMessageDialog(getMainFrame(), msg);
+	}
+	
 	public void showMessageDialog(JFrame parent, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
+	
+	public void showMessageDialog(JPanel parent, String msg) {
+		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
+	}
+	
 	
 	// ZAP: FindBugs fix - make method synchronised
 	public static synchronized View getSingleton() {

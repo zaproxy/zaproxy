@@ -23,6 +23,8 @@ import java.sql.SQLException;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -132,6 +134,21 @@ public abstract class SessionManagementMethodType {
 	 */
 	public abstract void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
 			throws UnsupportedSessionManagementMethodException, SQLException;
+
+	/**
+	 * Export the method to the configuration
+	 * @param config
+	 * @param sessionMethod
+	 */
+	public abstract void exportData(Configuration config, SessionManagementMethod sessionMethod);
+
+	/**
+	 * Import the method from the configuration
+	 * @param config
+	 * @param sessionMethod
+	 * @throws ConfigurationException
+	 */
+	public abstract void importData(Configuration config, SessionManagementMethod sessionMethod) throws ConfigurationException;
 
 	/**
 	 * Thrown when an unsupported type of SessionManagement is used.

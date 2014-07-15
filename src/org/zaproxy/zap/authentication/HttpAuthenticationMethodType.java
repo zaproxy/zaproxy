@@ -14,6 +14,8 @@ import javax.swing.JLabel;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.log4j.Logger;
@@ -43,6 +45,11 @@ import org.zaproxy.zap.view.LayoutHelper;
  * @see {@link http://www.w3.org/Protocols/HTTP/1.0/spec.html#AA}
  */
 public class HttpAuthenticationMethodType extends AuthenticationMethodType {
+
+	public static final String CONTEXT_CONFIG_AUTH_HTTP = AuthenticationMethod.CONTEXT_CONFIG_AUTH + ".http";
+	public static final String CONTEXT_CONFIG_AUTH_HTTP_HOSTNAME = CONTEXT_CONFIG_AUTH_HTTP + ".hostname";
+	public static final String CONTEXT_CONFIG_AUTH_HTTP_REALM = CONTEXT_CONFIG_AUTH_HTTP + ".realm";
+	public static final String CONTEXT_CONFIG_AUTH_HTTP_PORT = CONTEXT_CONFIG_AUTH_HTTP + ".port";
 
 	private static final Logger log = Logger.getLogger(HttpAuthenticationMethodType.class);
 
@@ -348,6 +355,30 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 	@Override
 	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
 		return UsernamePasswordAuthenticationCredentials.getSetCredentialsForUserApiAction(this);
+	}
+
+	@Override
+	public void exportData(Configuration config, AuthenticationMethod authMethod) {
+		if (!(authMethod instanceof HttpAuthenticationMethod)) {
+			throw new UnsupportedAuthenticationMethodException(
+					"HTTP based authentication type only supports: " + HttpAuthenticationMethod.class.getName());
+		}
+		HttpAuthenticationMethod method = (HttpAuthenticationMethod) authMethod;
+		config.setProperty(CONTEXT_CONFIG_AUTH_HTTP_HOSTNAME, method.hostname);
+		config.setProperty(CONTEXT_CONFIG_AUTH_HTTP_REALM, method.realm);
+		config.setProperty(CONTEXT_CONFIG_AUTH_HTTP_PORT, method.port);
+	}
+
+	@Override
+	public void importData(Configuration config, AuthenticationMethod authMethod) throws ConfigurationException {
+		if (!(authMethod instanceof HttpAuthenticationMethod)) {
+			throw new UnsupportedAuthenticationMethodException(
+					"HTTP based authentication type only supports: " + HttpAuthenticationMethod.class.getName());
+		}
+		HttpAuthenticationMethod method = (HttpAuthenticationMethod) authMethod;
+		method.hostname = config.getString(CONTEXT_CONFIG_AUTH_HTTP_HOSTNAME);
+		method.realm = config.getString(CONTEXT_CONFIG_AUTH_HTTP_REALM);
+		method.port = config.getInt(CONTEXT_CONFIG_AUTH_HTTP_PORT);
 	}
 
 }

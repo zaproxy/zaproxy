@@ -48,6 +48,7 @@
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2013/12/13 Issue 919: Support for multiple language vulnerability files.
 // ZAP: 2014/04/11 Issue 1148: ZAP 2.3.0 does not launch after upgrading in some situations
+// ZAP: 2014/07/15 Issue 1265: Context import and export
 
 package org.parosproxy.paros;
 
@@ -71,6 +72,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.PropertyConfigurator;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.FileCopier;
+import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOnLoader;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
@@ -167,6 +169,8 @@ public final class Constant {
     private static String staticEyeCatcher = "0W45pz4p";
     private static boolean staticSP = false;
     
+    private static final String USER_CONTEXTS_DIR = "contexts";
+
     // 
     // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set to default loc
     private static String zapHome = null;
@@ -760,6 +764,17 @@ public final class Constant {
     public static String getZapHome () {
     	return zapHome;
     }
+
+	public static File getContextsDir () {
+		File f = new File(Constant.getZapHome(), USER_CONTEXTS_DIR);
+		if (! f.exists()) {
+			f.mkdirs();
+		}
+		if (f.isDirectory() && f.canWrite()) {
+			return f;
+		}
+		return Model.getSingleton().getOptionsParam().getUserDirectory();
+	}
 
     public static void setZapInstall (String dir) {
     	zapInstall = dir;

@@ -32,6 +32,7 @@
 // ZAP: 2013/11/16 Issue 881: Fail immediately if zapdb.script file is not found
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
+// ZAP: 2014/07/15 Issue 1265: Context import and export
 
 package org.parosproxy.paros.model;
 
@@ -43,6 +44,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
@@ -428,6 +431,29 @@ public class Model {
 	public void saveContext(Context ctx) {
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.persistContextData(getSession(), ctx);
+		}
+	}
+
+	/**
+	 * Import a context from the given configuration
+	 * @param ctx
+	 * @param config
+	 * @throws ConfigurationException
+	 */
+	public void importContext(Context ctx, Configuration config) throws ConfigurationException {
+		for (ContextDataFactory cdf : this.contextDataFactories) {
+			cdf.importContextData(ctx, config);
+		}
+	}
+
+	/**
+	 * Export a context into the given configuration
+	 * @param ctx
+	 * @param config
+	 */
+	public void exportContext(Context ctx, Configuration config) {
+		for (ContextDataFactory cdf : this.contextDataFactories) {
+			cdf.exportContextData(ctx, config);
 		}
 	}
 

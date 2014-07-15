@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -36,6 +38,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBasedAuthenticationMethod;
 import org.zaproxy.zap.control.ExtensionFactory;
@@ -288,6 +291,38 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	@Override
 	public void discardContexts() {
 		contextPanelsMap.clear();
+	}
+
+	@Override
+	public void exportContextData(Context ctx, Configuration config) {
+		config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE, ctx.getAuthenticationMethod().getType().getUniqueIdentifier());
+		if (ctx.getAuthenticationMethod().getLoggedInIndicatorPattern() != null) {
+			config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, 
+					ctx.getAuthenticationMethod().getLoggedInIndicatorPattern().toString());
+		}
+		if (ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern() != null) {
+			config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, 
+					ctx.getAuthenticationMethod().getLoggedOutIndicatorPattern().toString());
+		}
+		ctx.getAuthenticationMethod().getType().exportData(config, ctx.getAuthenticationMethod());
+
+	}
+	
+	@Override
+	public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
+		ctx.setAuthenticationMethod(
+				getAuthenticationMethodTypeForIdentifier(
+						config.getInt(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE)).createAuthenticationMethod(ctx.getIndex()));
+		String str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDIN, "");
+		if (str.length() > 0) {
+			ctx.getAuthenticationMethod().setLoggedInIndicatorPattern(str);
+		}
+		str = config.getString(AuthenticationMethod.CONTEXT_CONFIG_AUTH_LOGGEDOUT, "");
+		if (str.length() > 0) {
+			ctx.getAuthenticationMethod().setLoggedOutIndicatorPattern(str);
+		}
+		ctx.getAuthenticationMethod().getType().importData(config, ctx.getAuthenticationMethod());
+
 	}
 
 }

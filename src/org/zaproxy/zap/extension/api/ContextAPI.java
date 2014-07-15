@@ -17,12 +17,14 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.model.Context;
 
@@ -35,12 +37,15 @@ public class ContextAPI extends ApiImplementor {
     private static final String INCLUDE_IN_CONTEXT_REGEX = "includeInContext";
     private static final String ACTION_NEW_CONTEXT = "newContext";
     private static final String ACTION_SET_CONTEXT_IN_SCOPE = "setContextInScope";
+    private static final String ACTION_EXPORT_CONTEXT = "exportContext";
+    private static final String ACTION_IMPORT_CONTEXT = "importContext";
     private static final String VIEW_EXCLUDE_REGEXS = "excludeRegexs";
     private static final String VIEW_INCLUDE_REGEXS = "includeRegexs";
     private static final String VIEW_CONTEXT_LIST = "contextList";
     private static final String REGEX_PARAM = "regex";
     private static final String CONTEXT_NAME = "contextName";
     private static final String IN_SCOPE = "booleanInScope";
+    private static final String CONTEXT_FILE_PARAM = "contextFile";
 
     public ContextAPI() {
         List<String> contextNameAndRegexParam = new ArrayList<>(2);
@@ -52,6 +57,8 @@ public class ContextAPI extends ApiImplementor {
         this.addApiAction(new ApiAction(EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, null, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_EXPORT_CONTEXT, new String[] {CONTEXT_NAME, CONTEXT_FILE_PARAM}, null));
+        this.addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
 
         List<String> contextInScopeParams = new ArrayList<>(2);
         contextInScopeParams.add(CONTEXT_NAME);
@@ -88,6 +95,47 @@ public class ContextAPI extends ApiImplementor {
             }
             getContext(params).setInScope(params.getBoolean(IN_SCOPE));
             Model.getSingleton().getSession().saveContext(getContext(params));
+        } else if (ACTION_IMPORT_CONTEXT.equals(name)){
+            String filename = params.getString(CONTEXT_FILE_PARAM);
+            File f = new File(filename);
+            if (! f.exists()) {
+            	// Try relative to the contexts dir
+            	f = new File(Constant.getContextsDir(), filename);
+            }
+            if (! f.exists()) {
+	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, f.getAbsolutePath());
+            } else {
+            	try {
+					Model.getSingleton().getSession().importContext(f);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
+            }
+        } else if (ACTION_EXPORT_CONTEXT.equals(name)){
+            String filename = params.getString(CONTEXT_FILE_PARAM);
+            String ctxname = params.getString(CONTEXT_NAME);
+            
+            Context ctx = Model.getSingleton().getSession().getContext(ctxname);
+            if (ctx == null) {
+	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ctxname);
+            }
+            
+            File f = new File(filename);
+            if (! f.getAbsolutePath().equals(filename)) {
+            	// Not an absolute filename, use one relative to the contexts dir
+            	f = new File(Constant.getContextsDir(), filename);
+            }
+            if (! f.getParentFile().canWrite()) {
+            	// Cant write to the parent dir so not looking good
+	            throw new ApiException(ApiException.Type.NO_ACCESS, f.getAbsolutePath());
+            } else {
+            	try {
+					Model.getSingleton().getSession().exportContext(ctx, f);
+				} catch (Exception e) {
+		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
+            }
         } else {
             throw new ApiException(ApiException.Type.BAD_ACTION);
         }

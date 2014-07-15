@@ -29,6 +29,7 @@ import java.util.Map;
 
 import javax.management.relation.Role;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -59,6 +60,9 @@ import org.zaproxy.zap.view.ContextPanelFactory;
  */
 public class ExtensionUserManagement extends ExtensionAdaptor implements ContextPanelFactory,
 		ContextDataFactory {
+
+	public static final String CONTEXT_CONFIG_USERS = Context.CONTEXT_CONFIG + ".users";
+	public static final String CONTEXT_CONFIG_USERS_USER = CONTEXT_CONFIG_USERS + ".user";
 
 	/**
 	 * The extension's order during loading. Make sure we load this extension AFTER the
@@ -251,8 +255,9 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		try {
 			List<String> encodedUsers = new ArrayList<>();
 			ContextUserAuthManager m = contextManagers.get(context.getIndex());
-			for (User u : m.getUsers())
+			for (User u : m.getUsers()) {
 				encodedUsers.add(User.encode(u));
+			}
 			session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
 		} catch (Exception ex) {
 			log.error("Unable to persist Users.", ex);
@@ -291,5 +296,22 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	 */
 	public void removeContextUsers(int contextId) {
 		this.getContextUserAuthManager(contextId).removeAllUsers();
+	}
+
+	@Override
+	public void exportContextData(Context ctx, Configuration config) {
+		ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
+		for (User u : m.getUsers()) {
+			config.setProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+		}
+	}
+
+	@Override
+	public void importContextData(Context ctx, Configuration config) {
+		List<Object> list = config.getList(CONTEXT_CONFIG_USERS_USER);
+		for (Object o : list) {
+			User u = User.decode(o.toString());
+			getContextUserAuthManager(u.getContextId()).addUser(u);
+		}
 	}
 }

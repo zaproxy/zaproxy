@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordContext;
@@ -143,6 +145,23 @@ public class ExtensionAuthorization extends ExtensionAdaptor implements ContextP
 	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
+	}
+
+	@Override
+	public void exportContextData(Context ctx, Configuration config) {
+		config.setProperty(AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE, 
+				ctx.getAuthorizationDetectionMethod().getMethodUniqueIdentifier());
+		ctx.getAuthorizationDetectionMethod().exportMethodData(config);
+	}
+
+	@Override
+	public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
+		int type = config.getInt(AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH_TYPE);
+		switch (type) {
+		case BasicAuthorizationDetectionMethod.METHOD_UNIQUE_ID:
+			ctx.setAuthorizationDetectionMethod(new BasicAuthorizationDetectionMethod(config));
+			break;
+		}
 	}
 
 }

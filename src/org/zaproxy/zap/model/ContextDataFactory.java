@@ -19,6 +19,8 @@
  */
 package org.zaproxy.zap.model;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.model.Session;
 
 /**
@@ -42,4 +44,19 @@ public interface ContextDataFactory {
 	 * @param context the context to persist from
 	 */
 	void persistContextData(Session session, Context context);
+
+	/**
+	 * Export the Context data into the given configuration
+	 * @param ctx
+	 * @param config
+	 */
+	void exportContextData(Context ctx, Configuration config);
+
+	/**
+	 * Import the Context data from the given configuration
+	 * @param ctx
+	 * @param config
+	 * @throws Exception 
+	 */
+	void importContextData(Context ctx, Configuration config) throws ConfigurationException;
 }

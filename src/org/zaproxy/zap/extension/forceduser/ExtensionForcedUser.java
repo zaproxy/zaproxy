@@ -31,6 +31,7 @@ import java.util.Map;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -359,6 +360,24 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 			}
 		} catch (Exception e) {
 			log.error("Unable to persist forced user.", e);
+		}
+	}
+
+	@Override
+	public void exportContextData(Context ctx, Configuration config) {
+		User user = getForcedUser(ctx.getIndex());
+		if (user != null) {
+			config.setProperty("context.forceduser", user.getId());
+		} else {
+			config.setProperty("context.forceduser", -1);
+		}
+	}
+
+	@Override
+	public void importContextData(Context ctx, Configuration config) {
+		int id = config.getInt("context.forceduser");
+		if (id >= 0) {
+			this.setForcedUser(ctx.getIndex(), id);
 		}
 	}
 

@@ -25,6 +25,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
@@ -34,6 +35,11 @@ import org.zaproxy.zap.users.User;
  * entity in a particular WebApplication.
  */
 public abstract class AuthenticationMethod {
+
+	public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authentication";
+	public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
+	public static final String CONTEXT_CONFIG_AUTH_LOGGEDIN = CONTEXT_CONFIG_AUTH + ".loggedin";
+	public static final String CONTEXT_CONFIG_AUTH_LOGGEDOUT = CONTEXT_CONFIG_AUTH + ".loggedout";
 
 	/**
 	 * Checks if the authentication method is fully configured.

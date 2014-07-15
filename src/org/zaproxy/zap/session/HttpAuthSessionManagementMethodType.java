@@ -4,6 +4,8 @@ import java.sql.SQLException;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -152,6 +154,14 @@ public class HttpAuthSessionManagementMethodType extends SessionManagementMethod
 			throws UnsupportedSessionManagementMethodException, SQLException {
 		// Nothing to persist
 
+	}
+
+	public void exportData(Configuration config, SessionManagementMethod sessionMethod) {
+		// nothing to do
+	}
+
+	public void importData(Configuration config, SessionManagementMethod sessionMethod) throws ConfigurationException {
+		// nothing to do
 	}
 
 	@Override

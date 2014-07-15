@@ -8,6 +8,8 @@ import java.util.List;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.Cookie;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
@@ -256,6 +258,14 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 	}
 
+	public void exportData(Configuration config, SessionManagementMethod sessionMethod) {
+		// nothing to do
+	}
+
+	public void importData(Configuration config, SessionManagementMethod sessionMethod) throws ConfigurationException {
+		// nothing to do
+	}
+	
 	private static final String API_METHOD_NAME = "cookieBasedSessionManagement";
 
 	@Override

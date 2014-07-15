@@ -48,6 +48,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -91,6 +93,10 @@ import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContextMenuFactory;
  * posting a form with user and password.
  */
 public class FormBasedAuthenticationMethodType extends AuthenticationMethodType {
+
+	public static final String CONTEXT_CONFIG_AUTH_FORM = AuthenticationMethod.CONTEXT_CONFIG_AUTH + ".form";
+	public static final String CONTEXT_CONFIG_AUTH_FORM_LOGINURL = CONTEXT_CONFIG_AUTH_FORM + ".loginurl";
+	public static final String CONTEXT_CONFIG_AUTH_FORM_LOGINBODY = CONTEXT_CONFIG_AUTH_FORM + ".loginbody";
 
 	private static final int METHOD_IDENTIFIER = 2;
 
@@ -864,9 +870,10 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod)
 			throws SQLException {
-		if (!(authMethod instanceof FormBasedAuthenticationMethod))
+		if (!(authMethod instanceof FormBasedAuthenticationMethod)) {
 			throw new UnsupportedAuthenticationMethodException(
 					"Form based authentication type only supports: " + FormBasedAuthenticationMethod.class);
+		}
 
 		FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) authMethod;
 		session.setContextData(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1, method.loginRequestURL);
@@ -902,8 +909,9 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_LOGIN_URL);
 				}
 				String postData = "";
-				if (params.containsKey(PARAM_LOGIN_REQUEST_DATA))
+				if (params.containsKey(PARAM_LOGIN_REQUEST_DATA)) {
 					postData = params.getString(PARAM_LOGIN_REQUEST_DATA);
+				}
 
 				// Set the method
 				FormBasedAuthenticationMethod method = createAuthenticationMethod(context.getIndex());
@@ -924,6 +932,34 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	@Override
 	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
 		return UsernamePasswordAuthenticationCredentials.getSetCredentialsForUserApiAction(this);
+	}
+
+	@Override
+	public void exportData(Configuration config, AuthenticationMethod authMethod) {
+		if (!(authMethod instanceof FormBasedAuthenticationMethod)) {
+			throw new UnsupportedAuthenticationMethodException(
+					"Form based authentication type only supports: " + FormBasedAuthenticationMethod.class.getName());
+		}
+		FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) authMethod;
+
+		config.setProperty(CONTEXT_CONFIG_AUTH_FORM_LOGINURL, method.loginRequestURL);
+		config.setProperty(CONTEXT_CONFIG_AUTH_FORM_LOGINBODY, method.loginRequestBody);
+	}
+
+	@Override
+	public void importData(Configuration config, AuthenticationMethod authMethod) throws ConfigurationException {
+		if (!(authMethod instanceof FormBasedAuthenticationMethod)) {
+			throw new UnsupportedAuthenticationMethodException(
+					"Form based authentication type only supports: " + FormBasedAuthenticationMethod.class.getName());
+		}
+		FormBasedAuthenticationMethod method = (FormBasedAuthenticationMethod) authMethod;
+		
+		try {
+			method.setLoginRequest(config.getString(CONTEXT_CONFIG_AUTH_FORM_LOGINURL), 
+					config.getString(CONTEXT_CONFIG_AUTH_FORM_LOGINBODY));
+		} catch (Exception e) {
+			throw new ConfigurationException(e);
+		}
 	}
 
 }

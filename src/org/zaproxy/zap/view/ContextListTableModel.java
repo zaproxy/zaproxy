@@ -103,6 +103,12 @@ public class ContextListTableModel extends AbstractTableModel {
 
 	public void setValues(List<Object[]> values) {
 		this.values = values;
+		this.fireTableDataChanged();
 	}
-	
+
+	public void addValues(Object[] values) {
+		this.values.add(values);
+		this.fireTableDataChanged();
+	}
+
 }

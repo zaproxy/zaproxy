@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordContext;
@@ -37,6 +39,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethodType;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
@@ -49,6 +52,9 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 	/** The NAME of the extension. */
 	public static final String NAME = "ExtensionSessionManagement";
+
+	public static final String CONTEXT_CONFIG_SESSION = Context.CONTEXT_CONFIG + ".session";
+	public static final String CONTEXT_CONFIG_SESSION_TYPE = CONTEXT_CONFIG_SESSION + ".type";
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(ExtensionSessionManagement.class);
@@ -130,8 +136,9 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 		this.sessionManagementMethodTypes = ExtensionFactory.getAddOnLoader().getImplementors(
 				"org.zaproxy.zap", SessionManagementMethodType.class);
 
-		for (SessionManagementMethodType t : sessionManagementMethodTypes)
+		for (SessionManagementMethodType t : sessionManagementMethodTypes) {
 			t.hook(extensionHook);
+		}
 
 		if (log.isInfoEnabled()) {
 			log.info("Loaded session management method types: " + sessionManagementMethodTypes);
@@ -164,8 +171,9 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 			if (typeL != null && typeL.size() > 0) {
 				SessionManagementMethodType t = getSessionManagementMethodTypeForIdentifier(Integer
 						.parseInt(typeL.get(0)));
-				if (t != null)
+				if (t != null) {
 					context.setSessionManagementMethod(t.loadMethodFromSession(session, context.getIndex()));
+				}
 			}
 		} catch (SQLException e) {
 			log.error("Unable to load Session Management method.", e);
@@ -182,6 +190,21 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 			t.persistMethodToSession(session, context.getIndex(), context.getSessionManagementMethod());
 		} catch (SQLException e) {
 			log.error("Unable to persist Session Management method.", e);
+		}
+	}
+
+	@Override
+	public void exportContextData(Context ctx, Configuration config) {
+		config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, ctx.getSessionManagementMethod().getType().getUniqueIdentifier());
+	}
+
+	@Override
+	public void importContextData(Context ctx, Configuration config) throws ConfigurationException {
+		SessionManagementMethodType t = getSessionManagementMethodTypeForIdentifier(config.getInt(CONTEXT_CONFIG_SESSION_TYPE));
+		if (t != null) {
+			SessionManagementMethod method = t.createSessionManagementMethod(ctx.getIndex());
+			t.importData(config, method);
+			ctx.setSessionManagementMethod(method);
 		}
 	}
 

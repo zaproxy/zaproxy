@@ -44,12 +44,14 @@
 // ZAP: 2014/03/23 Issue 999: History loaded in wrong order
 // ZAP: 2014/05/26 Added listeners for contexts changed events.
 // ZAP: 2014/06/10 Added helper method for removing data for context and type
+// ZAP: 2014/07/15 Issue 1265: Context import and export
 
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -61,6 +63,7 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -80,6 +83,8 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.Tech;
+import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 
 public class Session extends FileXML {
@@ -1100,6 +1105,99 @@ public class Session extends FileXML {
 			}
 		}
 		return ctxList;
+	}
+
+	/**
+	 * Export the specified context to a file
+	 * @param contextIndex
+	 * @param file
+	 * @throws ConfigurationException
+	 */
+	public void exportContext (int contextIndex, File file) throws ConfigurationException {
+		this.exportContext(this.getContext(contextIndex), file);
+	}
+
+	/**
+	 * Export the specified context to a file
+	 * @param c
+	 * @param file
+	 * @throws ConfigurationException
+	 */
+	public void exportContext (Context c, File file) throws ConfigurationException {
+		ZapXmlConfiguration config = new ZapXmlConfiguration();
+
+		config.setProperty(Context.CONTEXT_CONFIG_NAME, c.getName());
+		config.setProperty(Context.CONTEXT_CONFIG_DESC, c.getDescription());
+		config.setProperty(Context.CONTEXT_CONFIG_INSCOPE, c.isInScope());
+		config.setProperty(Context.CONTEXT_CONFIG_INC_REGEXES, c.getIncludeInContextRegexs());
+		config.setProperty(Context.CONTEXT_CONFIG_EXC_REGEXES, c.getExcludeFromContextRegexs());
+		config.setProperty(Context.CONTEXT_CONFIG_TECH_INCLUDE, techListToStringList(c.getTechSet().getIncludeTech()));
+		config.setProperty(Context.CONTEXT_CONFIG_TECH_EXCLUDE, techListToStringList(c.getTechSet().getExcludeTech()));
+		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER, c.getUrlParamParser().getClass().getCanonicalName());
+		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER_CONFIG, c.getUrlParamParser().getConfig());
+		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CLASS, c.getPostParamParser().getClass().getCanonicalName());
+		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
+		model.exportContext(c, config);
+		config.save(file);
+	}
+
+	/**
+	 * Import a context from the specified file
+	 * @param file
+	 * @return
+	 * @throws ConfigurationException
+	 * @throws ClassNotFoundException
+	 * @throws InstantiationException
+	 * @throws IllegalAccessException
+	 * @throws IllegalArgumentException
+	 * @throws InvocationTargetException
+	 * @throws NoSuchMethodException
+	 * @throws SecurityException
+	 */
+	public Context importContext (File file) throws ConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
+		ZapXmlConfiguration config = new ZapXmlConfiguration(file);
+		
+		Context c = this.getNewContext();
+
+		c.setName(config.getString(Context.CONTEXT_CONFIG_NAME));
+		c.setDescription(Context.CONTEXT_CONFIG_DESC);
+		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
+		for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
+			c.addIncludeInContextRegex(obj.toString());
+		}
+		for (Object obj : config.getList(Context.CONTEXT_CONFIG_EXC_REGEXES)) {
+			c.addExcludeFromContextRegex(obj.toString());
+		}
+
+		TechSet techSet = new TechSet();
+		for (Object obj : config.getList(Context.CONTEXT_CONFIG_TECH_INCLUDE)) {
+			techSet.include(new Tech(obj.toString()));
+		}
+		for (Object obj : config.getList(Context.CONTEXT_CONFIG_TECH_EXCLUDE)) {
+			techSet.exclude(new Tech(obj.toString()));
+		}
+		c.setTechSet(techSet );
+		
+		Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS));
+		if (cl == null) {
+			throw new ConfigurationException("Failed to load URL parser for context " + config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS));
+		} else {
+			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
+    		parser.init(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG));
+	    	c.setUrlParamParser(parser);
+		}
+
+		cl = ExtensionFactory.getAddOnLoader().loadClass(config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS));
+		if (cl == null) {
+			throw new ConfigurationException("Failed to load POST parser for context " + config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS));
+		} else {
+			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
+    		parser.init(config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG));
+	    	c.setPostParamParser(parser);
+		}
+		model.importContext(c, config);
+		Model.getSingleton().getSession().saveContext(c);
+		return c;
 	}
 
 	/**

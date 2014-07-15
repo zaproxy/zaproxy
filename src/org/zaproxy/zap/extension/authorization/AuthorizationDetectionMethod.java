@@ -19,13 +19,18 @@ package org.zaproxy.zap.extension.authorization;
 
 import java.sql.SQLException;
 
+import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.Context;
 
 /**
  * Defines the process of identifying how the server responds to unauthorized requests.
  */
 public interface AuthorizationDetectionMethod {
+
+	public static final String CONTEXT_CONFIG_AUTH = Context.CONTEXT_CONFIG + ".authorization";
+	public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
 
 	/**
 	 * Checks whether the responds received was for an unauthorized request.
@@ -55,4 +60,10 @@ public interface AuthorizationDetectionMethod {
 	 */
 	public void persistMethodToSession(Session session, int contextId) throws SQLException;
 
+	/**
+	 * Export the method data to the configuration
+	 * @param config
+	 */
+	public void exportMethodData(Configuration config);
+	
 }

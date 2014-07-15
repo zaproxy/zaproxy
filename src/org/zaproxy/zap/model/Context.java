@@ -43,6 +43,22 @@ import org.zaproxy.zap.session.SessionManagementMethod;
 
 public class Context {
 
+	public static final String CONTEXT_CONFIG = "context";
+	public static final String CONTEXT_CONFIG_NAME = CONTEXT_CONFIG + ".name";
+	public static final String CONTEXT_CONFIG_DESC = CONTEXT_CONFIG + ".desc";
+	public static final String CONTEXT_CONFIG_INSCOPE = CONTEXT_CONFIG + ".inscope";
+	public static final String CONTEXT_CONFIG_INC_REGEXES = CONTEXT_CONFIG + ".incregexes";
+	public static final String CONTEXT_CONFIG_EXC_REGEXES = CONTEXT_CONFIG + ".excregexes";
+	public static final String CONTEXT_CONFIG_TECH = CONTEXT_CONFIG + ".tech";
+	public static final String CONTEXT_CONFIG_TECH_INCLUDE = CONTEXT_CONFIG_TECH + ".include";
+	public static final String CONTEXT_CONFIG_TECH_EXCLUDE = CONTEXT_CONFIG_TECH + ".exclude";
+	public static final String CONTEXT_CONFIG_URLPARSER = CONTEXT_CONFIG + ".urlparser";
+	public static final String CONTEXT_CONFIG_URLPARSER_CLASS = CONTEXT_CONFIG_URLPARSER + ".class";
+	public static final String CONTEXT_CONFIG_URLPARSER_CONFIG = CONTEXT_CONFIG_URLPARSER + ".config";
+	public static final String CONTEXT_CONFIG_POSTPARSER = CONTEXT_CONFIG + ".urlparser";
+	public static final String CONTEXT_CONFIG_POSTPARSER_CLASS = CONTEXT_CONFIG_POSTPARSER + ".class";
+	public static final String CONTEXT_CONFIG_POSTPARSER_CONFIG = CONTEXT_CONFIG_POSTPARSER + ".config";
+
 	private static Logger log = Logger.getLogger(Context.class);
 
 	private Session session;

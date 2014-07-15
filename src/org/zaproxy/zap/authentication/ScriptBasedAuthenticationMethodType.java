@@ -7,6 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -28,6 +29,8 @@ import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -57,6 +60,10 @@ import org.zaproxy.zap.view.DynamicFieldsPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodType {
+
+	public static final String CONTEXT_CONFIG_AUTH_SCRIPT = AuthenticationMethod.CONTEXT_CONFIG_AUTH + ".script";
+	public static final String CONTEXT_CONFIG_AUTH_SCRIPT_NAME = CONTEXT_CONFIG_AUTH_SCRIPT + ".name";
+	public static final String CONTEXT_CONFIG_AUTH_SCRIPT_PARAMS = CONTEXT_CONFIG_AUTH_SCRIPT + ".params";
 
 	public static final int METHOD_IDENTIFIER = 4;
 
@@ -488,8 +495,17 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		ScriptBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
 
 		// Load the script and make sure it still exists and still follows the required interface
-		List<String> scripts = session.getContextDataStrings(contextId,
-				RecordContext.TYPE_AUTH_METHOD_FIELD_1);
+		this.loadMethod(method, 
+				session.getContextDataStrings(contextId,RecordContext.TYPE_AUTH_METHOD_FIELD_1), 
+				session.getContextDataStrings(contextId,RecordContext.TYPE_AUTH_METHOD_FIELD_2));
+
+		return method;
+	}
+
+	public void loadMethod(
+			ScriptBasedAuthenticationMethod method, List<String> scripts, List<String> paramValuesS) {
+
+		// Load the script and make sure it still exists and still follows the required interface
 		String scriptName = "";
 		if (scripts != null && scripts.size() > 0) {
 			scriptName = scripts.get(0);
@@ -497,8 +513,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			if (script == null) {
 				log.error("Unable to find script while loading Script Based Authentication Method for name: "
 						+ scriptName);
-			} else
+			} else {
 				log.info("Loaded script:" + script.getName());
+			}
 			method.script = script;
 
 			// Check script interface and make sure we load the credentials parameter names
@@ -520,8 +537,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		}
 
 		// Load the parameter values
-		List<String> paramValuesS = session.getContextDataStrings(contextId,
-				RecordContext.TYPE_AUTH_METHOD_FIELD_2);
 		Map<String, String> paramValues = null;
 		if (paramValuesS != null && paramValuesS.size() > 0) {
 			paramValues = EncodingUtils.stringToMap(paramValuesS.get(0));
@@ -531,8 +546,6 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			log.error("Unable to load script parameter values loading Script Based Authentication Method for name: "
 					+ scriptName);
 		}
-
-		return method;
 	}
 
 	@Override
@@ -661,5 +674,36 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 	@Override
 	public ApiDynamicActionImplementor getSetCredentialsForUserApiAction() {
 		return GenericAuthenticationCredentials.getSetCredentialsForUserApiAction(this);
+	}
+
+	@Override
+	public void exportData(Configuration config, AuthenticationMethod authMethod) {
+		if (!(authMethod instanceof ScriptBasedAuthenticationMethod)) {
+			throw new UnsupportedAuthenticationMethodException(
+					"Script based authentication type only supports: " + ScriptBasedAuthenticationMethod.class.getName());
+		}
+		ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
+		config.setProperty(CONTEXT_CONFIG_AUTH_SCRIPT_NAME, method.script.getName());
+		config.setProperty(CONTEXT_CONFIG_AUTH_SCRIPT_PARAMS, EncodingUtils.mapToString(method.paramValues));
+	}
+
+	@Override
+	public void importData(Configuration config, AuthenticationMethod authMethod) throws ConfigurationException {
+		if (!(authMethod instanceof ScriptBasedAuthenticationMethod)) {
+			throw new UnsupportedAuthenticationMethodException(
+					"Script based authentication type only supports: " + ScriptBasedAuthenticationMethod.class.getName());
+		}
+		ScriptBasedAuthenticationMethod method = (ScriptBasedAuthenticationMethod) authMethod;
+		this.loadMethod(method, 
+				objListToStrList(config.getList(CONTEXT_CONFIG_AUTH_SCRIPT_NAME)), 
+				objListToStrList(config.getList(CONTEXT_CONFIG_AUTH_SCRIPT_PARAMS)));
+	}
+	
+	private List<String> objListToStrList(List<Object> oList) {
+		List<String> sList = new ArrayList<String>(oList.size());
+		for (Object o : oList) {
+			sList.add(o.toString());
+		}
+		return sList;
 	}
 }

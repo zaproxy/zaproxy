@@ -4,6 +4,8 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Pattern;
 
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
@@ -16,6 +18,12 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 
 	public static final int METHOD_UNIQUE_ID = 0;
 	public static final int NO_STATUS_CODE = -1;
+
+	public static final String CONTEXT_CONFIG_AUTH_BASIC = AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH + ".basic";
+	public static final String CONTEXT_CONFIG_AUTH_BASIC_HEADER = CONTEXT_CONFIG_AUTH_BASIC + ".header";
+	public static final String CONTEXT_CONFIG_AUTH_BASIC_BODY = CONTEXT_CONFIG_AUTH_BASIC + ".body";
+	public static final String CONTEXT_CONFIG_AUTH_BASIC_LOGIC = CONTEXT_CONFIG_AUTH_BASIC + ".logic";
+	public static final String CONTEXT_CONFIG_AUTH_BASIC_CODE = CONTEXT_CONFIG_AUTH_BASIC + ".code";
 
 	/**
 	 * Defines how the conditions are composed one with another to obtain the final result.
@@ -37,6 +45,13 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 		this.statusCode = statusCode != null ? statusCode : NO_STATUS_CODE;
 	}
 
+	public BasicAuthorizationDetectionMethod(Configuration config) throws ConfigurationException {
+		this.headerPattern = buildPattern(config.getString(CONTEXT_CONFIG_AUTH_BASIC_HEADER));
+		this.bodyPattern = buildPattern(config.getString(CONTEXT_CONFIG_AUTH_BASIC_BODY));
+		this.logicalOperator = LogicalOperator.valueOf(config.getString(CONTEXT_CONFIG_AUTH_BASIC_LOGIC));
+		this.statusCode = config.getInt(CONTEXT_CONFIG_AUTH_BASIC_CODE);
+	}
+
 	private BasicAuthorizationDetectionMethod(int statusCode, Pattern headerPattern, Pattern bodyPattern,
 			LogicalOperator composition) {
 		this.headerPattern = headerPattern;
@@ -49,6 +64,13 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 		if (regex == null || regex.isEmpty())
 			return null;
 		return Pattern.compile(regex);
+	}
+	
+	private static String getPatternString (Pattern pattern) {
+		if (pattern == null) {
+			return "";
+		}
+		return pattern.pattern();
 	}
 
 	@Override
@@ -164,5 +186,13 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 		}
 
 		return new BasicAuthorizationDetectionMethod(statusCode, headerRegex, bodyRegex, operator);
+	}
+
+	@Override
+	public void exportMethodData(Configuration config) {
+		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_HEADER, getPatternString(this.headerPattern));
+		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_BODY, getPatternString(this.bodyPattern));
+		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_LOGIC, this.logicalOperator.name());
+		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_CODE, this.statusCode);
 	}
 }

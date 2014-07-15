@@ -30,6 +30,7 @@ import java.util.regex.Pattern;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
+import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -773,5 +774,15 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 		authPanelMap.clear();
 		contextAuthMap.clear();
 		
+	}
+
+	@Override
+	public void exportContextData(Context ctx, Configuration config) {
+		// This class is deprecated so not implementing this method
+	}
+
+	@Override
+	public void importContextData(Context ctx, Configuration config) {
+		// This class is deprecated so not implementing this method
 	}
 }
