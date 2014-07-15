@@ -79,7 +79,7 @@ public class UserUnitTest {
 		doReturn(mockedContext).when(user).getContext();
 		// When
 		String encoded = User.encode(user);
-		User result = User.decode(encoded, mockedExtension);
+		User result = User.decode(mockedContext.getIndex(), encoded, mockedExtension);
 		// Then
 		assertEquals(user.getName(), result.getName());
 		assertEquals(user.isEnabled(), result.isEnabled());

@@ -283,7 +283,6 @@ public class User extends Enableable {
 	public static String encode(User user) {
 		StringBuilder out = new StringBuilder();
 		out.append(user.id).append(FIELD_SEPARATOR);
-		out.append(user.contextId).append(FIELD_SEPARATOR);
 		out.append(user.isEnabled()).append(FIELD_SEPARATOR);
 		out.append(Base64.encodeBase64String(user.name.getBytes())).append(FIELD_SEPARATOR);
 		out.append(user.getContext().getAuthenticationMethod().getType().getUniqueIdentifier()).append(
@@ -301,9 +300,9 @@ public class User extends Enableable {
 	 * @param encodedString the encoded string
 	 * @return the user
 	 */
-	public static User decode(String encodedString) {
+	public static User decode(int contextId, String encodedString) {
 		// Added proxy call to help in testing
-		return decode(encodedString, User.getAuthenticationExtension());
+		return decode(contextId, encodedString, User.getAuthenticationExtension());
 	}
 
 	/**
@@ -313,14 +312,13 @@ public class User extends Enableable {
 	 * @param authenticationExtension the authentication extension
 	 * @return the user
 	 */
-	protected static User decode(String encodedString, ExtensionAuthentication authenticationExtension) {
+	protected static User decode(int contextId, String encodedString, ExtensionAuthentication authenticationExtension) {
 		String[] pieces = encodedString.split(FIELD_SEPARATOR);
 		User user = null;
 		try {
 			int id = Integer.parseInt(pieces[0]);
 			if (id >= ID_SOURCE)
 				ID_SOURCE = id + 1;
-			int contextId = Integer.parseInt(pieces[1]);
 			boolean enabled = pieces[2].equals("true");
 			String name = new String(Base64.decodeBase64(pieces[3]));
 			int authTypeId = Integer.parseInt(pieces[4]);
