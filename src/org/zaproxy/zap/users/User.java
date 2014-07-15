@@ -319,15 +319,15 @@ public class User extends Enableable {
 			int id = Integer.parseInt(pieces[0]);
 			if (id >= ID_SOURCE)
 				ID_SOURCE = id + 1;
-			boolean enabled = pieces[2].equals("true");
-			String name = new String(Base64.decodeBase64(pieces[3]));
-			int authTypeId = Integer.parseInt(pieces[4]);
+			boolean enabled = pieces[1].equals("true");
+			String name = new String(Base64.decodeBase64(pieces[2]));
+			int authTypeId = Integer.parseInt(pieces[3]);
 			user = new User(contextId, name, id);
 			user.setEnabled(enabled);
 
 			AuthenticationCredentials cred = authenticationExtension
 					.getAuthenticationMethodTypeForIdentifier(authTypeId).createAuthenticationCredentials();
-			cred.decode(pieces[5]);
+			cred.decode(pieces[4]);
 			user.setAuthenticationCredentials(cred);
 		} catch (Exception ex) {
 			log.error("An error occured while decoding user from: " + encodedString, ex);
