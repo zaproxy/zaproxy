@@ -303,7 +303,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	public void exportContextData(Context ctx, Configuration config) {
 		ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
 		for (User u : m.getUsers()) {
-			config.setProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+			config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
 		}
 	}
 
