@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.commons.httpclient.Cookie;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
@@ -371,14 +372,16 @@ public class HttpSessionsSite {
 			return;
 		}
 		// Create an auxiliary map of token values and insert keys for every token
-		Map<String, String> tokenValues = new HashMap<>();
+		Map<String, Cookie> tokenValues = new HashMap<>();
 
 		// Get new values that were set for tokens (e.g. using SET-COOKIE headers), if any
-		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies();
+		
+		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies(message.getRequestHeader().getHostName());
 		for (HttpCookie cookie : cookiesToSet) {
 			String lcCookieName = cookie.getName();
 			if (siteTokensSet.isSessionToken(lcCookieName)) {
-				tokenValues.put(lcCookieName, cookie.getValue());
+				Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) cookie.getMaxAge(),cookie.getSecure());				
+				tokenValues.put(lcCookieName, ck);
 			}
 		}
 
@@ -415,7 +418,22 @@ public class HttpSessionsSite {
 				String cookieName = cookie.getName();
 				if (siteTokensSet.isSessionToken(cookieName)) {
 					if (!tokenValues.containsKey(cookieName)) {
-						tokenValues.put(cookieName, cookie.getValue());
+						
+						// We must ensure that a cookie as always a valid domain and path in order to be able to reuse it.
+						// HttpClient will discard invalid cookies
+						
+						String domain = cookie.getDomain();
+						if (domain == null) {
+							domain = message.getRequestHeader().getHostName();
+						}
+						
+						String path = cookie.getPath();
+						if (path == null) {
+							path = "/"; // Default path
+						}
+							
+						Cookie ck = new Cookie(domain, cookieName, cookie.getValue(), path,	(int) cookie.getMaxAge(), cookie.getSecure());
+						tokenValues.put(cookieName,ck);
 					}
 				}
 			}
@@ -424,7 +442,7 @@ public class HttpSessionsSite {
 
 		// Update the session
 		if (!tokenValues.isEmpty()) {
-			for (Entry<String, String> tv : tokenValues.entrySet()) {
+			for (Entry<String, Cookie> tv : tokenValues.entrySet()) {
 				session.setTokenValue(tv.getKey(), tv.getValue());
 			}
 		}

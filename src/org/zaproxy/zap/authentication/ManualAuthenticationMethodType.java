@@ -117,11 +117,8 @@ public class ManualAuthenticationMethodType extends AuthenticationMethodType {
 			// visible in the other
 			ManualAuthenticationCredentials mc = (ManualAuthenticationCredentials) credentials;
 			WebSession session = new CookieBasedSessionManagementMethodType.CookieBasedSession();
-			for (Entry<String, String> v : mc.getSelectedSession().getTokenValuesUnmodifiableMap().entrySet()) {
-				Cookie c = new Cookie();
-				c.setName(v.getKey());
-				c.setValue(v.getValue());
-				session.getHttpState().addCookie(c);
+			for (Entry<String, Cookie> v : mc.getSelectedSession().getTokenValuesUnmodifiableMap().entrySet()) {
+				session.getHttpState().addCookie(v.getValue());
 			}
 			return session;
 		}

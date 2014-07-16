@@ -4,6 +4,7 @@ import java.util.Set;
 
 import net.sf.json.JSONObject;
 
+import org.apache.commons.httpclient.Cookie;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -195,7 +196,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			extension.addHttpSessionToken(cleanSite(params.getString(ACTION_PARAM_SITE)), 
 					params.getString(ACTION_PARAM_TOKEN_NAME));
 			sessionSST.setTokenValue(params.getString(ACTION_PARAM_TOKEN_NAME),
-					params.getString(ACTION_PARAM_TOKEN_VALUE));
+					new Cookie(null /* domain */, params.getString(ACTION_PARAM_TOKEN_NAME), params.getString(ACTION_PARAM_TOKEN_VALUE)));
 			return ApiResponseElement.OK;
 		case ACTION_RENAME_SESSION:
 			site = extension.getHttpSessionsSite(cleanSite(params.getString(ACTION_PARAM_SITE)), false);

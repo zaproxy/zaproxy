@@ -22,6 +22,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.httpclient.Cookie;
+
 /**
  * The Class HttpSession defines the data that is stored regarding an existing HTTP session on a
  * particular site.
@@ -38,7 +40,7 @@ public class HttpSession {
 	private boolean active;
 
 	/** The session tokens' values for this session. */
-	private Map<String, String> tokenValues;
+	private Map<String, Cookie> tokenValues;
 
 	/** Whether this session is valid. */
 	private boolean valid;
@@ -111,7 +113,7 @@ public class HttpSession {
 	 * @param tokenName the token name
 	 * @param value the new value of the token, or null, if the token has to be deleted
 	 */
-	public void setTokenValue(String tokenName, String value) {
+	public void setTokenValue(String tokenName, Cookie value) {
 		if (value == null) {
 			tokenValues.remove(tokenName);
 		} else {
@@ -126,7 +128,11 @@ public class HttpSession {
 	 * @return the token value
 	 */
 	public String getTokenValue(String tokenName) {
-		return tokenValues.get(tokenName);
+		Cookie ck = tokenValues.get(tokenName);
+		if (ck != null) {
+			return ck.getValue();
+		}
+		return null;
 	}
 
 	/**
@@ -145,7 +151,7 @@ public class HttpSession {
 		}
 
 		// Check the value of the token from the cookie
-		String tokenValue = tokenValues.get(tokenName);
+		String tokenValue = getTokenValue(tokenName);
 		if (tokenValue != null && tokenValue.equals(cookie.getValue())) {
 			return true;
 		}
@@ -177,8 +183,8 @@ public class HttpSession {
 		}
 		StringBuilder buf = new StringBuilder();
 
-		for (Map.Entry<String, String> entry : tokenValues.entrySet()) {
-			buf.append(entry.getKey()).append('=').append(entry.getValue()).append(';');
+		for (Map.Entry<String, Cookie> entry : tokenValues.entrySet()) {
+			buf.append(entry.getKey()).append('=').append(entry.getValue().getValue()).append(';');
 		}
 		buf.deleteCharAt(buf.length() - 1);
 
@@ -248,7 +254,7 @@ public class HttpSession {
 	 * 
 	 * @return the token values unmodifiable map
 	 */
-	public Map<String, String> getTokenValuesUnmodifiableMap() {
+	public Map<String, Cookie> getTokenValuesUnmodifiableMap() {
 		return Collections.unmodifiableMap(tokenValues);
 	}
 
