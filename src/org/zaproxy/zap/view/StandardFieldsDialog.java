@@ -29,6 +29,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -40,6 +41,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -47,6 +49,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.KeyStroke;
 import javax.swing.border.EmptyBorder;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -797,6 +800,86 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		incTabOffset(tabIndex);
 	}
 	
+	public void addFileSelectField(String fieldLabel, final File dir, final int mode, final FileFilter filter) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		final ZapTextField text = new ZapTextField();
+		text.setEditable(false);
+		if (dir != null) {
+			text.setText(dir.getAbsolutePath());
+		}
+		final StandardFieldsDialog sfd = this;
+		JButton selectButton = new JButton("...");
+		selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				JFileChooser chooser = new JFileChooser(dir);
+				chooser.setFileSelectionMode(mode);
+				if (filter != null) {
+					chooser.setFileFilter(filter);
+				}
+			    
+			    int rc = chooser.showSaveDialog(sfd);
+			    if(rc == JFileChooser.APPROVE_OPTION) {
+		    		File file = chooser.getSelectedFile();
+		    		if (file == null) {
+		    			return;
+		    		}
+		    		text.setText(file.getAbsolutePath());
+			    }
+			}
+		});
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		this.addField(fieldLabel, text, panel, 0.0D);
+	}
+	
+	public void addFileSelectField(int tabIndex, final String fieldLabel, final File dir, final int mode, final FileFilter filter) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		final ZapTextField text = new ZapTextField();
+		text.setEditable(false);
+		if (dir != null) {
+			text.setText(dir.getAbsolutePath());
+		}
+		final StandardFieldsDialog sfd = this;
+		JButton selectButton = new JButton("...");
+		selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				JFileChooser chooser = new JFileChooser(dir);
+				chooser.setFileSelectionMode(mode);
+				if (filter != null) {
+					chooser.setFileFilter(filter);
+				}
+			    
+			    int rc = chooser.showSaveDialog(sfd);
+			    if(rc == JFileChooser.APPROVE_OPTION) {
+		    		File file = chooser.getSelectedFile();
+		    		if (file == null) {
+		    			return;
+		    		}
+		    		text.setText(file.getAbsolutePath());
+			    }
+			}
+		});
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, text, panel, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
+
 	/*
 	 * Override to do something useful
 	 */
@@ -823,6 +906,18 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 				return ((ZapTextArea)c).getText();
 			} else if (c instanceof JComboBox) {
 				return (String)((JComboBox<?>)c).getSelectedItem();
+			} else {
+				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			}
+		}
+		return null;
+	}
+	
+	public Context getContextValue(String fieldLabel) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c != null) {
+			if (c instanceof ContextSelectComboBox) {
+				return ((ContextSelectComboBox)c).getSelectedContext();
 			} else {
 				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
 			}

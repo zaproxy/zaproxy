@@ -30,11 +30,16 @@
 package org.parosproxy.paros.view;
 
 import java.awt.Event;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.text.MessageFormat;
 
+import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
+import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -45,6 +50,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.AboutDialog;
+import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class MainMenuBar extends JMenuBar {
@@ -62,6 +68,8 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem menuFileOpen = null;
 	private ZapMenuItem menuFileSaveAs = null;
 	private ZapMenuItem menuFileSnapshot = null;
+	private ZapMenuItem menuFileContextExport = null;
+	private ZapMenuItem menuFileContextImport = null;
 	private ZapMenuItem menuFileExit = null;
 	private ZapMenuItem menuFileProperties = null;
 	private JMenu menuHelp = null;
@@ -195,6 +203,11 @@ public class MainMenuBar extends JMenuBar {
 			menuFile.add(getMenuFileSnapshot());
 			menuFile.addSeparator();
 			menuFile.add(getMenuFileProperties());
+			
+			menuFile.addSeparator();
+			menuFile.add(getMenuContextImport());
+			menuFile.add(getMenuContextExport());
+			
 			menuFile.addSeparator();
 			menuFile.add(getMenuFileExit());
 		}
@@ -359,7 +372,73 @@ public class MainMenuBar extends JMenuBar {
 		}
 		return menuFileProperties;
 	}
-	
+
+	private ZapMenuItem getMenuContextImport() {
+		if (menuFileContextImport == null) {
+			menuFileContextImport = new ZapMenuItem("menu.file.context.import");
+			menuFileContextImport.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+				    
+					JFileChooser chooser = new JFileChooser(Constant.getContextsDir());
+					File file = null;
+				    chooser.setFileFilter(new FileFilter() {
+				           @Override
+				           public boolean accept(File file) {
+				                if (file.isDirectory()) {
+				                    return true;
+				                } else if (file.isFile() && file.getName().endsWith(".context")) {
+				                    return true;
+				                }
+				                return false;
+				            }
+				           @Override
+				           public String getDescription() {
+				               return Constant.messages.getString("file.format.zap.context");
+				           }
+				    });
+				    
+				    int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
+				    if(rc == JFileChooser.APPROVE_OPTION) {
+						try {
+				    		file = chooser.getSelectedFile();
+				    		if (file == null || ! file.exists()) {
+				    			return;
+				    		}
+				    		// Import the context
+							Model.getSingleton().getSession().importContext(file);
+							
+							// Show the dialog
+						    View.getSingleton().showSessionDialog(
+						    		Model.getSingleton().getSession(), 
+						    		Constant.messages.getString("context.list"), true);
+							
+						} catch (Exception e1) {
+							logger.debug(e1.getMessage(), e1);
+							View.getSingleton().showWarningDialog(MessageFormat.format(
+									Constant.messages.getString("context.import.error"), e1.getMessage()));
+						}
+				    }
+				}
+			});
+
+		}
+		return menuFileContextImport;
+	}
+
+	private ZapMenuItem getMenuContextExport() {
+		if (menuFileContextExport == null) {
+			menuFileContextExport = new ZapMenuItem("menu.file.context.export");
+			menuFileContextExport.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					ContextExportDialog exportDialog = new ContextExportDialog(View.getSingleton().getMainFrame());
+					exportDialog.setVisible(true);
+			}});
+		}
+		return menuFileContextExport;
+	}
+
 	/**
 	 * This method initializes menuHelp	
 	 * 	
