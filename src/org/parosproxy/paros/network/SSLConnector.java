@@ -25,6 +25,7 @@
 // ZAP: 2013/06/01 Issue 669: Certificate algorithm constraints in Java 1.7
 // ZAP: 2014/03/23 Tidy up, removed and deprecated unused methods other minor changes
 // ZAP: 2014/03/23 Issue 951: TLS' versions 1.1 and 1.2 not enabled by default
+// ZAP: 2014/07/17 Issue 704: ZAP Error: handshake alert: unrecognized_name
 
 package org.parosproxy.paros.network;
 
@@ -46,16 +47,20 @@ import java.security.UnrecoverableKeyException;
 import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.concurrent.TimeUnit;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLEngine;
+import javax.net.ssl.SSLException;
 import javax.net.ssl.SSLSocket;
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509ExtendedTrustManager;
 
+import org.apache.commons.collections.MapIterator;
+import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.httpclient.ConnectTimeoutException;
 import org.apache.commons.httpclient.params.HttpConnectionParams;
 import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
@@ -68,6 +73,8 @@ import ch.csnc.extension.httpclient.SSLContextManager;
 public class SSLConnector implements SecureProtocolSocketFactory {
 
 	private static final String SSL = "SSL";
+
+	private static final String CONTENTS_UNRECOGNIZED_NAME_EXCEPTION = "unrecognized_name";
 
 	public static final String SECURITY_PROTOCOL_SSL_V3 = "SSLv3";
 	public static final String SECURITY_PROTOCOL_TLS_V1 = "TLSv1";
@@ -93,6 +100,43 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static ServerSslSocketsDecorator serverSslSocketsDecorator;
 	private static ClientSslSocketsDecorator clientSslSocketsDecorator;
 
+    /**
+     * The maximum time, in minutes, that the cached misconfigured hosts are considered valid.
+     * 
+     * @see #cacheMisconfiguredHost(String, int, InetAddress)
+     */
+    private static long MAX_AGE_MISCONFIGURED_HOST_IN_MIN = 5;
+
+    /**
+     * The maximum time, in milliseconds, that the cached misconfigured hosts are considered valid.
+     * 
+     * @see #MAX_AGE_MISCONFIGURED_HOST_IN_MIN
+     * @see #cacheMisconfiguredHost(String, int, InetAddress)
+     */
+    private static long MAX_AGE_MISCONFIGURED_HOST_IN_MS = TimeUnit.MINUTES.toMillis(MAX_AGE_MISCONFIGURED_HOST_IN_MIN);
+
+    /**
+     * A cache of misconfigured hosts (i.e. secure connection cannot be established because of "unrecognized_name" exception).
+     * The hosts are cached for a (short) period of time to avoid (most likely) failed connections.
+     * <p>
+     * The {@code key} is the hostname+port and the {@code value} the address of the host.
+     * 
+     * @see #MAX_AGE_MISCONFIGURED_HOST_IN_MIN
+     * @see #timeStampLastStaleCheck
+     * @see #cacheMisconfiguredHost(String, int, InetAddress)
+     * @see #getCachedMisconfiguredHost(String, int)
+     * @see #removeStaleCachedMisconfiguredHosts()
+     */
+	private static LRUMap misconfiguredHosts;
+	
+	/**
+	 * Time stamp of last time the cache of misconfigured hosts was checked for stale entries.
+	 * 
+	 * @see #misconfiguredHosts
+	 * @see #removeStaleCachedMisconfiguredHosts()
+	 */
+	private static long timeStampLastStaleCheck;
+
 	// server related socket factories
 	
 	// ZAP: removed ServerSocketFaktory
@@ -108,6 +152,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		    clientSslSocketsDecorator = new ClientSslSocketsDecorator();
 
 			clientSSLSockFactory = getClientSocketFactory(SSL);
+			misconfiguredHosts = new LRUMap(10);
 		}
 		// ZAP: removed ServerSocketFaktory
 		if (sslContextManager == null) {
@@ -302,7 +347,24 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		}
 		int timeout = params.getConnectionTimeout();
 		if (timeout == 0) {
-			return clientSSLSockFactory.createSocket(host, port, localAddress, localPort);
+			InetAddress hostAddress = getCachedMisconfiguredHost(host, port);
+			if (hostAddress != null) {
+				return clientSSLSockFactory.createSocket(hostAddress, port, localAddress, localPort);
+			}
+			try {
+				SSLSocket sslSocket = (SSLSocket) clientSSLSockFactory.createSocket(host, port, localAddress, localPort);
+				sslSocket.startHandshake();
+
+				return sslSocket;
+			} catch (SSLException e) {
+				if (!e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)) {
+					throw e;
+				}
+
+				hostAddress = InetAddress.getByName(host);
+				cacheMisconfiguredHost(host, port, hostAddress);
+				return clientSSLSockFactory.createSocket(hostAddress, port, localAddress, localPort);
+			}
 		}
 		Socket socket = clientSSLSockFactory.createSocket();
 		SocketAddress localAddr = new InetSocketAddress(localAddress, localPort);
@@ -311,6 +373,64 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		socket.connect(remoteAddr, timeout);
 		
 		return socket;
+	}
+
+	private static void cacheMisconfiguredHost(String host, int port, InetAddress address) {
+		synchronized (misconfiguredHosts) {
+			if (!misconfiguredHosts.isEmpty()) {
+				removeStaleCachedMisconfiguredHosts();
+			}
+
+			logger.info("Caching address of misconfigured (\"unrecognized_name\") host [host=" + host + ", port=" + port
+					+ "] for the next " + MAX_AGE_MISCONFIGURED_HOST_IN_MIN
+					+ " minutes, following connections will not use the hostname.");
+			misconfiguredHosts.put(host + port, new MisconfiguredHostCacheEntry(host, port, address));
+		}
+	}
+
+    /**
+     * Removes all stale cached misconfigured hosts.
+     * <p>
+     * <strong>Note:</strong> This method should be called in a {@code synchronized} block with the object
+     * {@code misconfiguredHosts}.
+     *
+     * @see #misconfiguredHosts
+     * @see #cacheMisconfiguredHost(String, int, InetAddress)
+     * @see #getCachedMisconfiguredHost(String, int)
+     */
+	private static void removeStaleCachedMisconfiguredHosts() {
+		long currentTime = System.currentTimeMillis();
+		if (!((currentTime - timeStampLastStaleCheck) >= MAX_AGE_MISCONFIGURED_HOST_IN_MS)) {
+			return;
+		}
+		timeStampLastStaleCheck = currentTime;
+
+		for (MapIterator it = misconfiguredHosts.mapIterator(); it.hasNext();) {
+			it.next();
+
+			MisconfiguredHostCacheEntry entry = (MisconfiguredHostCacheEntry) it.getValue();
+			if (entry.isStale(currentTime)) {
+				logger.info("Removing stale cached address of misconfigured (\"unrecognized_name\") host [host="
+						+ entry.getHost() + ", port=" + entry.getPort()
+						+ "], following connections will be attempted with the hostname.");
+				it.remove();
+			}
+		}
+	}
+
+	private static InetAddress getCachedMisconfiguredHost(String host, int port) {
+		synchronized (misconfiguredHosts) {
+			if (misconfiguredHosts.isEmpty()) {
+				return null;
+			}
+			removeStaleCachedMisconfiguredHosts();
+
+			MisconfiguredHostCacheEntry entry = (MisconfiguredHostCacheEntry) misconfiguredHosts.get(host + port);
+			if (entry != null) {
+				return entry.getAddress();
+			}
+			return null;
+		}
 	}
 
 	/**
@@ -331,7 +451,24 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	@Override
 	public Socket createSocket(Socket socket, String host, int port,
 			boolean autoClose) throws IOException, UnknownHostException {
-		return clientSSLSockFactory.createSocket(socket, host, port, autoClose);
+		InetAddress inetAddress = getCachedMisconfiguredHost(host, port);
+		if (inetAddress != null) {
+			return clientSSLSockFactory.createSocket(socket, inetAddress.getHostAddress(), port, autoClose);
+		}
+
+		try {
+			SSLSocket socketSSL = (SSLSocket) clientSSLSockFactory.createSocket(socket, host, port, autoClose);
+			socketSSL.startHandshake();
+
+			return socketSSL;
+		} catch (SSLException e) {
+			if (e.getMessage().contains(CONTENTS_UNRECOGNIZED_NAME_EXCEPTION)) {
+				cacheMisconfiguredHost(host, port, InetAddress.getByName(host));
+			}
+			// Throw the exception anyway because the socket might no longer be usable (e.g. closed). The connection will be 
+			// retried (see HttpMethodDirector#executeWithRetry(HttpMethod) for more information on the retry policy).
+			throw e;
+		}
 	}
 
 	/**
@@ -414,6 +551,37 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 				readSupportedProtocols(sslSocket);
 			}
 			sslSocket.setEnabledProtocols(getClientEnabledProtocols());
+		}
+	}
+
+	private static class MisconfiguredHostCacheEntry {
+
+		private final String host;
+		private final int port;
+		private final InetAddress address;
+		private final long timeStampCreation;
+
+		public MisconfiguredHostCacheEntry(String host, int port, InetAddress address) {
+			this.host= host;
+			this.port = port;
+			this.address = address;
+			this.timeStampCreation = System.currentTimeMillis();
+		}
+
+		public String getHost() {
+			return host;
+		}
+
+		public int getPort() {
+			return port;
+		}
+
+		public InetAddress getAddress() {
+			return address;
+		}
+
+		public boolean isStale(long currentTime) {
+			return (currentTime - timeStampCreation) >= MAX_AGE_MISCONFIGURED_HOST_IN_MS;
 		}
 	}
 
