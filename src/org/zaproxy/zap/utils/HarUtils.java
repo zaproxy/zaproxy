@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Logger;
 import org.codehaus.jackson.JsonFactory;
 import org.codehaus.jackson.JsonParser;
 import org.parosproxy.paros.Constant;
@@ -60,6 +61,8 @@ import edu.umass.cs.benchlab.har.HarResponse;
 import edu.umass.cs.benchlab.har.tools.HarFileWriter;
 
 public class HarUtils {
+
+    private static final Logger LOGGER = Logger.getLogger(HarUtils.class);
 
     private HarUtils() {
     }
@@ -142,8 +145,13 @@ public class HarUtils {
         HttpRequestHeader requestHeader = httpMessage.getRequestHeader();
 
         HarCookies harCookies = new HarCookies();
-        for (HttpCookie cookie : requestHeader.getHttpCookies()) {
-            harCookies.addCookie(new HarCookie(cookie.getName(), cookie.getValue()));
+        try {
+            for (HttpCookie cookie : requestHeader.getHttpCookies()) {
+                harCookies.addCookie(new HarCookie(cookie.getName(), cookie.getValue()));
+            }
+        } catch (IllegalArgumentException e) {
+            LOGGER.warn("Ignoring cookies for HAR (\"request\") \"cookies\" list. Request contains invalid cookie: "
+                    + e.getMessage());
         }
 
         HarQueryString harQueryString = new HarQueryString();
