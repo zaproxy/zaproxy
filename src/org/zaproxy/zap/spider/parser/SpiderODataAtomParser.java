@@ -68,8 +68,8 @@ public class SpiderODataAtomParser extends SpiderParser {
 			processURL(message, depth, s,baseURL);
 		}
 		
-		// We don't consider the resource consumed, as there might be other files processing it
-		return false;
+		// resource consumed is consumed
+		return true;
 	}
 
 
