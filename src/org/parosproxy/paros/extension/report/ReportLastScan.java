@@ -26,6 +26,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
+// ZAP: 2014/07/15 Issue 1263: Generate Report Clobbers Existing Files Without Prompting
 
 package org.parosproxy.paros.extension.report;
 
@@ -33,6 +34,7 @@ import java.io.File;
 import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
@@ -108,10 +110,35 @@ public class ReportLastScan {
     }
 
     public void generateHtml(ViewDelegate view, Model model) {
-
+   	
         // ZAP: Allow scan report file name to be specified
         try {
-            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory()) {
+
+				private static final long serialVersionUID = 8006039587938347440L;
+
+				@Override
+	        	public void approveSelection(){
+	        		File f = getSelectedFile();
+	        		if(f.exists()){
+	        			int result = JOptionPane.showConfirmDialog(this, 
+	        					Constant.messages.getString("report.write.overwrite.dialog.message"),
+	        					Constant.messages.getString("report.write.overwrite.dialog.title"),
+	        					JOptionPane.YES_NO_OPTION);
+	        			switch(result){
+	        			case JOptionPane.YES_OPTION:
+	        				super.approveSelection();
+	        				return;
+	        			case JOptionPane.NO_OPTION:
+	        				return;
+	        			case JOptionPane.CLOSED_OPTION:
+	        				return;
+	        			}
+	        		}
+	        		super.approveSelection();
+	        	}
+	        };
+	        
             chooser.setFileFilter(new FileFilter() {
 
                 @Override
@@ -135,17 +162,12 @@ public class ReportLastScan {
             });
 
             File file = null;
+            chooser.setSelectedFile(new File(".html")); //Default the filename to a reasonable extension
             int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
-                if (file != null) {
-                    Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-                    String fileNameLc = file.getAbsolutePath().toLowerCase();
-                    if (!fileNameLc.endsWith(".htm")
-                            && !fileNameLc.endsWith(".html")) {
-                        file = new File(file.getAbsolutePath() + ".html");
-                    }
-                }
+
+                Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
 
                 if (!file.getParentFile().canWrite()) {
                     view.showMessageDialog(
@@ -183,7 +205,33 @@ public class ReportLastScan {
 
         // ZAP: Allow scan report file name to be specified
         try {
-            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory())
+            {
+            
+            	private static final long serialVersionUID = -4747814076090619161L;
+            	
+				@Override
+	        	public void approveSelection(){
+	        		File f = getSelectedFile();
+	        		if(f.exists()){
+	        			int result = JOptionPane.showConfirmDialog(this, 
+	        					Constant.messages.getString("report.write.overwrite.dialog.message"),
+	        					Constant.messages.getString("report.write.overwrite.dialog.title"),
+	        					JOptionPane.YES_NO_OPTION);
+	        			switch(result){
+	        			case JOptionPane.YES_OPTION:
+	        				super.approveSelection();
+	        				return;
+	        			case JOptionPane.NO_OPTION:
+	        				return;
+	        			case JOptionPane.CLOSED_OPTION:
+	        				return;
+	        			}
+	        		}
+	        		super.approveSelection();
+	        	}
+	        };
+
             chooser.setFileFilter(new FileFilter() {
 
                 @Override
@@ -204,16 +252,10 @@ public class ReportLastScan {
             });
 
             File file = null;
+            chooser.setSelectedFile(new File(".xml")); //Default the filename to a reasonable extension
             int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
-                if (file != null) {
-                    Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
-                    String fileNameLc = file.getAbsolutePath().toLowerCase();
-                    if (!fileNameLc.endsWith(".xml")) {
-                        file = new File(file.getAbsolutePath() + ".xml");
-                    }
-                }
 
                 if (!file.getParentFile().canWrite()) {
                     view.showMessageDialog(
