@@ -60,7 +60,8 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final String IF_NONE_MATCH = "If-None-Match";
     public static final String USER_AGENT = "User-Agent";
     public static final String ACCEPT_ENCODING = "Accept-Encoding";
-    public static final String CACHE_CONTROL = "Cache-control";
+    // ZAP:  the correct case is "Cache-Control", not "Cache-control"
+    public static final String CACHE_CONTROL = "Cache-Control";
     public static final String PRAGMA = "Pragma";
     public static final String REFERER = "Referer";
     public static final String X_ZAP_REQUESTID = "X-ZAP-RequestID";
@@ -115,7 +116,7 @@ public abstract class HttpHeader implements java.io.Serializable {
 	public static final String ACCESS_CONTROL_EXPOSE_HEADERS = "Access-Control-Expose-Headers";
 	//ZAP: added "Allow" and "Public" Headers, for response to "OPTIONS" method
 	public static final String METHODS_ALLOW = "Allow";
-	public static final String METHODS_PUBLIC = "Allow";  //IIS specific?
+	public static final String METHODS_PUBLIC = "Public";  //IIS specific?
 
     public HttpHeader() {
         init();
