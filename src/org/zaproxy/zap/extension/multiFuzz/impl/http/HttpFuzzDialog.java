@@ -74,9 +74,8 @@ public class HttpFuzzDialog extends
 				.isSelected());
 	}
 
-	public HttpFuzzDialog(ExtensionFuzz ext, HttpMessage msg,
-			HttpFuzzLocation loc) {
-		super(ext, loc, msg);
+	public HttpFuzzDialog(ExtensionFuzz ext, HttpMessage msg) {
+		super(ext, msg);
 		this.factory = new HttpPayloadFactory();
 		getTargetField().getSelectionModel().addListSelectionListener(
 				new ListSelectionListener() {
@@ -191,7 +190,11 @@ public class HttpFuzzDialog extends
 			setAntiCsrfTokens(tokens);
 		}
 	}
-
+	
+	public boolean getShowTokens(){
+		return getShowTokenRequests().isSelected();
+	}
+	
 	private HttpFuzzerDialogTokenPane getTokensPane() {
 		if (tokenPane == null) {
 			tokenPane = new HttpFuzzerDialogTokenPane();

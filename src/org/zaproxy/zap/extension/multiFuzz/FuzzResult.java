@@ -24,7 +24,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
 
 	public enum State {
-		SUCCESSFUL, REFLECTED, ERROR, CUSTOM
+		SUCCESSFUL, REFLECTED, ERROR, ANTICSRF, CUSTOM
 	}
 	
 	private String name;

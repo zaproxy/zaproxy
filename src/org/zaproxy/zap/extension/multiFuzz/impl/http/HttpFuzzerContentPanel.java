@@ -22,6 +22,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -39,10 +43,13 @@ import javax.swing.JTable;
 import javax.swing.SwingUtilities;
 import javax.swing.table.TableColumn;
 
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVPrinter;
+import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTreeTable;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -62,28 +69,29 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
 	private static final Logger logger = Logger
 			.getLogger(HttpFuzzerContentPanel.class);
-
+	private static final String STATE_ERROR_LABEL = Constant.messages
+			.getString("fuzz.http.table.field.state.error");
+	private static final String STATE_REFLECTED_LABEL = Constant.messages
+			.getString("fuzz.http.table.field.state.reflected");
+	private static final String STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL = Constant.messages
+			.getString("fuzz.http.table.field.state.antiCsrfTokenRequest");
+	private static final String STATE_SUCCESSFUL_LABEL = Constant.messages
+			.getString("fuzz.http.table.field.state.successful");
 	private JXTreeTable fuzzResultTable;
 	private HttpFuzzTableModel resultsModel;
 
 	private HttpPanel requestPanel;
 	private HttpPanel responsePanel;
 
+	private CSVPrinter printer;
+	private CSVParser parser;
+
 	private HttpResultGroupingPopupFuzzMenu grouping;
 	private HttpResultRenamePopupFuzzMenu rename;
 	private HttpResultAllIncludePopupFuzzMenu allIn;
-	/**
-	 * A list containing all the {@code HistoryReference} IDs that are added to
-	 * the instance variable {@code resultsModel}. Used to delete the
-	 * {@code HistoryReference}s from the database when no longer needed.
-	 */
-	private List<Integer> historyReferencesToDelete = new ArrayList<>();
-
-	private boolean showTokenRequests;
 
 	public HttpFuzzerContentPanel() {
 		super();
-		showTokenRequests = false;
 		View.getSingleton().getPopupList().add(getResultRename());
 		View.getSingleton().getPopupList().add(getResultGrouping());
 		View.getSingleton().getPopupList().add(getAllInclude());
@@ -305,16 +313,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	}
 
 	private void resetFuzzResultTable() {
-		if (historyReferencesToDelete.size() != 0) {
-			try {
-				Database.getSingleton().getTableHistory()
-						.delete(historyReferencesToDelete);
-			} catch (SQLException e) {
-				logger.error(e.getMessage(), e);
-			}
-		}
-		resultsModel = new HttpFuzzTableModel();
-		historyReferencesToDelete = new ArrayList<>();
+		resultsModel.removeAll();
 	}
 
 	private void addFuzzResult(final String name, final String custom,
@@ -337,19 +336,16 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 		}
 	}
 
-	private void addFuzzResultToView(final String name,
-			final String custom,
+	private void addFuzzResultToView(final String name, final String custom,
 			final HttpFuzzRequestRecord.State state,
 			final ArrayList<String> pay, final HttpMessage msg) {
 		try {
 			HistoryReference historyReference = new HistoryReference(Model
 					.getSingleton().getSession(),
 					HistoryReference.TYPE_TEMPORARY, msg);
-			this.historyReferencesToDelete.add(Integer.valueOf(historyReference
-					.getHistoryId()));
 
-			resultsModel.addFuzzRecord(new HttpFuzzRequestRecord(name, custom, state,
-					pay, historyReference));
+			resultsModel.addFuzzRecord(new HttpFuzzRequestRecord(name, custom,
+					state, pay, historyReference));
 			fuzzResultTable.updateUI();
 			fuzzResultTable.repaint();
 		} catch (HttpMalformedHeaderException | SQLException e) {
@@ -469,13 +465,12 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	@Override
 	public void addFuzzResult(FuzzResult<?, ?> fuzzResult) {
 		HttpFuzzResult httpFuzzResult = (HttpFuzzResult) fuzzResult;
-		if (showTokenRequests) {
-
+		if (httpFuzzResult.getTokenRequestMessages() != null) {
 			for (int i = 0; i < httpFuzzResult.getTokenRequestMessages().size(); i++) {
 				addFuzzResult(fuzzResult.getName() + "." + i,
 						fuzzResult.getCustom(),
 						HttpFuzzRequestRecord.State.ANTI_CRSF_TOKEN,
-						fuzzResult.getPayloads(), httpFuzzResult
+						new ArrayList<String>(), httpFuzzResult
 								.getTokenRequestMessages().get(i));
 			}
 		}
@@ -487,6 +482,8 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	private HttpFuzzRequestRecord.State convertState(FuzzResult.State fuzzState) {
 		HttpFuzzRequestRecord.State state;
 		switch (fuzzState) {
+		case ANTICSRF:
+			state = HttpFuzzRequestRecord.State.ANTI_CRSF_TOKEN;
 		case REFLECTED:
 			state = HttpFuzzRequestRecord.State.REFLECTED;
 			break;
@@ -507,17 +504,12 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	@Override
 	public void clear() {
 		resetFuzzResultTable();
-
 	}
 
 	@Override
 	public void showDiagrams() {
 		HttpFuzzResultDialog dia = new HttpFuzzResultDialog(getResultsModel());
 		dia.setVisible(true);
-	}
-
-	protected void setShowTokenRequests(boolean showTokenRequests) {
-		this.showTokenRequests = showTokenRequests;
 	}
 
 	private static class HttpFuzzRecordComparator implements
@@ -554,6 +546,103 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 			default:
 				return 0;
 			}
+		}
+	}
+
+	@Override
+	public void saveRecords(File f) {
+		try {
+			printer = new CSVPrinter(new FileWriter(f), CSVFormat.DEFAULT);
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.name"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.custom"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.result"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.payloadSize"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.payload"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.reqHead"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.reqBody"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.respHead"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.respBody"));
+			printer.print(Constant.messages
+					.getString("fuzz.http.csv.head.respTime"));
+			printer.println();
+			for (HttpFuzzRecord r : getResultsModel().getEntries()) {
+				if (r instanceof HttpFuzzRequestRecord) {
+					printer.print(r.getName());
+					printer.print(r.getCustom());
+					printer.print(r.getResult().first);
+					printer.print(r.getPayloads().size());
+					printer.print(r.getPayloads());
+					HttpMessage m = ((HttpFuzzRequestRecord) r).getHistory()
+							.getHttpMessage();
+					printer.print(m.getRequestHeader().toString());
+					printer.print(m.getRequestBody().toString());
+					printer.print(m.getResponseHeader().toString());
+					printer.print(m.getResponseBody().toString());
+					printer.print(m.getTimeElapsedMillis());
+					printer.println();
+				}
+			}
+			printer.flush();
+		} catch (IOException | SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void loadRecords(File f) {
+		try {
+			parser = new CSVParser(new FileReader(f), CSVFormat.DEFAULT);
+			boolean header = true;
+			for (CSVRecord rec : parser) {
+				if (!header) {
+					String name = rec.get(0);
+					String custom = rec.get(1);
+					HttpFuzzRequestRecord.State s;
+					if (rec.get(2).equals(STATE_SUCCESSFUL_LABEL)) {
+						s = HttpFuzzRequestRecord.State.SUCCESSFUL;
+					} else if (rec.get(2).equals(STATE_REFLECTED_LABEL)) {
+						s = HttpFuzzRequestRecord.State.REFLECTED;
+					} else if (rec.get(2).equals(
+							STATE_ANTI_CSRF_TOKEN_REQUEST_LABEL)) {
+						s = HttpFuzzRequestRecord.State.ANTI_CRSF_TOKEN;
+					} else if (rec.get(2).equals(STATE_ERROR_LABEL)) {
+						s = HttpFuzzRequestRecord.State.ERROR;
+					} else {
+						s = HttpFuzzRequestRecord.State.CUSTOM;
+					}
+
+					int l = Integer.parseInt(rec.get(3));
+					ArrayList<String> pay = new ArrayList<String>();
+					if (l == 0) {
+						l++;
+					} else {
+						for (int i = 4; i < l + 4; i++) {
+							pay.add(rec.get(i).substring(1,
+									rec.get(i).length() - 1));
+						}
+					}
+					HttpMessage m = new HttpMessage();
+					m.setRequestHeader(rec.get(l + 4));
+					m.setRequestBody(rec.get(l + 5));
+					m.setResponseHeader(rec.get(l + 6));
+					m.setResponseBody(rec.get(l + 7));
+					m.setTimeElapsedMillis(Integer.parseInt(rec.get(l + 8)));
+					addFuzzResult(name, custom, s, pay, m);
+				} else {
+					header = false;
+				}
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 }

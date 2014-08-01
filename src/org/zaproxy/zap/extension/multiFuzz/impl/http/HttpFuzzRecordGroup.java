@@ -75,7 +75,7 @@ public class HttpFuzzRecordGroup implements HttpFuzzRecord {
 				reason = "";
 			}
 			if(!members.get(i).getResult().first.equals(result.first)){
-				result = null;
+				result = new Pair<String, ImageIcon>("",null);
 			}
 		}
 		avgRTT /= members.size();

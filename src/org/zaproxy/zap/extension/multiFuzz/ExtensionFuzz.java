@@ -371,6 +371,9 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 	public void sessionAboutToChange(Session session) {
 		if (getView() != null) {
 			getFuzzerPanel().reset();
+			for(FuzzerHandler fh : fuzzableMessageHandlers.values()){
+				fh.reset();
+			}
 		}
 	}
 

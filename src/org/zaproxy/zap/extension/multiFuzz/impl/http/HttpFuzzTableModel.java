@@ -25,6 +25,8 @@ import org.zaproxy.zap.utils.Pair;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.tree.TreePath;
+
 public class HttpFuzzTableModel extends AbstractTreeTableModel {
 
 	private static final Logger logger = Logger
@@ -144,7 +146,7 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 
 	public void addFuzzRecord(HttpFuzzRecord httpFuzzRecord) {
 		data.add(httpFuzzRecord);
-
+		modelSupport.fireChildAdded(new TreePath(httpFuzzRecord), data.size() - 1, httpFuzzRecord);
 	}
 
 	@Override
@@ -186,10 +188,15 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 		if (!data.remove(entry)) {
 			for (HttpFuzzRecord r : data) {
 				if (r instanceof HttpFuzzRecordGroup) {
-					((HttpFuzzRecordGroup) r).getMembers().remove(entry);
+					if(((HttpFuzzRecordGroup) r).getMembers().contains(entry)){
+						modelSupport.fireChildRemoved(new TreePath(r), ((HttpFuzzRecordGroup) r).getMembers().indexOf(entry), entry);
+						((HttpFuzzRecordGroup) r).getMembers().remove(entry);
+					}
 				}
 			}
 		}
 	}
-
+	public void removeAll() {
+		data.clear();
+	}
 }

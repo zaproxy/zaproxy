@@ -23,9 +23,11 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JProgressBar;
@@ -57,6 +59,9 @@ public class FuzzerPanel extends AbstractPanel {
 
 	private JButton stopScanButton = null;
 	private JButton showDiagrams = null;
+	private JButton saveResults = null;
+	private JButton loadResults = null;
+	
 	private ZapToggleButton pauseScanButton = null;
 	private JButton optionsButton = null;
 	private JProgressBar progressBar = null;
@@ -151,6 +156,7 @@ public class FuzzerPanel extends AbstractPanel {
 			GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
 			GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
+			GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
 			// Dummy
 			GridBagConstraints gridBagConstraintsx = new GridBagConstraints();
 			GridBagConstraints gridBagConstraintsy = new GridBagConstraints();
@@ -190,7 +196,12 @@ public class FuzzerPanel extends AbstractPanel {
 			gridBagConstraints10.gridy = 0;
 			gridBagConstraints10.insets = new java.awt.Insets(0, 0, 0, 0);
 			gridBagConstraints10.anchor = java.awt.GridBagConstraints.EAST;
-
+			
+			gridBagConstraints11.gridx = 10;
+			gridBagConstraints11.gridy = 0;
+			gridBagConstraints11.insets = new java.awt.Insets(0, 0, 0, 0);
+			gridBagConstraints11.anchor = java.awt.GridBagConstraints.EAST;
+			
 			gridBagConstraintsx.gridx = 20;
 			gridBagConstraintsx.gridy = 0;
 			gridBagConstraintsx.weightx = 1.0;
@@ -209,7 +220,8 @@ public class FuzzerPanel extends AbstractPanel {
 			panelToolbar.add(getStopScanButton(), gridBagConstraints7);
 			panelToolbar.add(getProgressBar(), gridBagConstraints8);
 			panelToolbar.add(getShowDiagrams(), gridBagConstraints9);
-
+			panelToolbar.add(getLoadResults(), gridBagConstraints10);
+			panelToolbar.add(getSaveResults(), gridBagConstraints11);
 			panelToolbar.add(t1, gridBagConstraintsx);
 			panelToolbar.add(getOptionsButton(), gridBagConstraintsy);
 		}
@@ -261,7 +273,8 @@ public class FuzzerPanel extends AbstractPanel {
 	}
 	private JButton getShowDiagrams() {
 		if (showDiagrams == null) {
-			showDiagrams = new JButton(Constant.messages.getString("fuzz.panel.button.diagrams"));
+			showDiagrams = new JButton(Constant.messages.getString("fuzz.panel.button.diagrams"), new ImageIcon(FuzzerPanel.class
+					.getResource("/resource/icon/16/081.png")));
 			showDiagrams.setToolTipText(Constant.messages.getString("fuzz.panel.button.diagrams"));
 			showDiagrams.setEnabled(true);
 			showDiagrams.addActionListener(new ActionListener() {
@@ -272,6 +285,36 @@ public class FuzzerPanel extends AbstractPanel {
 			});
 		}
 		return showDiagrams;
+	}
+	private JButton getLoadResults() {
+		if (loadResults == null) {
+			loadResults = new JButton(Constant.messages.getString("fuzz.panel.button.load"),  new ImageIcon(FuzzerPanel.class
+					.getResource("/resource/icon/16/046.png")));
+			loadResults.setToolTipText(Constant.messages.getString("fuzz.panel.button.load.tool"));
+			loadResults.setEnabled(true);
+			loadResults.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					loadResults();
+				}
+			});
+		}
+		return loadResults;
+	}
+	private JButton getSaveResults() {
+		if (saveResults == null) {
+			saveResults = new JButton(Constant.messages.getString("fuzz.panel.button.save"),  new ImageIcon(FuzzerPanel.class
+					.getResource("/resource/icon/16/047.png")));
+			saveResults.setToolTipText(Constant.messages.getString("fuzz.panel.button.save.tool"));
+			saveResults.setEnabled(true);
+			saveResults.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					saveResults();
+				}
+			});
+		}
+		return saveResults;
 	}
 	private JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
@@ -354,7 +397,26 @@ public class FuzzerPanel extends AbstractPanel {
 		if(contentPanel != null){
 			contentPanel.showDiagrams();
 		}
-		
+	}
+	private void loadResults(){
+		if(contentPanel != null){
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showOpenDialog(View.getSingleton().getMainFrame());
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	            File file = fc.getSelectedFile();
+				contentPanel.loadRecords(file);
+	        }
+		}
+	}
+	private void saveResults(){
+		if(contentPanel != null){
+			JFileChooser fc = new JFileChooser();
+			int returnVal = fc.showSaveDialog(View.getSingleton().getMainFrame());
+	        if (returnVal == JFileChooser.APPROVE_OPTION) {
+	            File file = fc.getSelectedFile();
+				contentPanel.saveRecords(file);
+	        }
+		}
 	}
 	private void pauseScan() {
 		if (getPauseScanButton().getModel().isSelected()) {

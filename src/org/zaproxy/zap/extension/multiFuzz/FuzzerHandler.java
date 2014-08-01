@@ -31,7 +31,9 @@ public interface FuzzerHandler<M extends Message, D extends FuzzDialog<?, ?, ?, 
 	FuzzerContentPanel getFuzzerContentPanel();
 
 	List<SearchResult> searchResults(Pattern pattern, boolean inverse);
-
+	
+	public void reset();
+	
 	public void startFuzzers();
 
 	public void stopFuzzers();

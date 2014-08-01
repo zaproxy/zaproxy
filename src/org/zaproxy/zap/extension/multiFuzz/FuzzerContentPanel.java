@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
+import java.io.File;
+
 import javax.swing.JComponent;
 
 public interface FuzzerContentPanel {
@@ -28,5 +30,8 @@ public interface FuzzerContentPanel {
 	void addFuzzResult(FuzzResult<?, ?> fuzzResult);
 
 	void showDiagrams();
-
+	
+	void saveRecords(File f);
+	
+	void loadRecords(File f);
 }

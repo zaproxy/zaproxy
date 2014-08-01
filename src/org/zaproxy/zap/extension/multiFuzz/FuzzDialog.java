@@ -96,7 +96,7 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	 * @param fuzzTarget
 	 * @throws HeadlessException
 	 */
-	public FuzzDialog(ExtensionFuzz ext, L loc, M msg) throws HeadlessException {
+	public FuzzDialog(ExtensionFuzz ext, M msg) throws HeadlessException {
 		super(View.getSingleton().getMainFrame(), true);
 		this.setTitle(Constant.messages.getString("fuzz.title"));
 		this.res = ext;

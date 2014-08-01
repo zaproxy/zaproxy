@@ -24,8 +24,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import javax.swing.JTextArea;
-
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -33,7 +31,6 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.multiFuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.multiFuzz.FuzzableComponent;
-import org.zaproxy.zap.extension.multiFuzz.FuzzableComponentWrapper;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerContentPanel;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerHandler;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerListener;
@@ -47,48 +44,17 @@ public class HttpFuzzerHandler implements
 	private ExtensionFuzz ext;
 	private HttpFuzzDialog dia;
 	private HttpFuzzerContentPanel fuzzerPanel;
-	private boolean showTokenRequests;
 	private ArrayList<HttpFuzzGap> payloads;
 	private FuzzerParam fuzzerParam;
 	private FuzzerThread<HttpPayload, HttpMessage, HttpFuzzLocation, HttpFuzzResult, HttpFuzzGap, HttpFuzzProcess> fuzzerThread;
-
+	
 	public HttpFuzzerHandler(ExtensionFuzz parent) {
 		this.ext = parent;
-		showTokenRequests = false;
-	}
-
-	void setShowTokenRequests(boolean showTokenRequests) {
-		this.showTokenRequests = showTokenRequests;
 	}
 
 	@Override
 	public void showFuzzDialog(FuzzableComponent<HttpMessage> comp) {
-		final JTextArea compbase;
-		if (comp instanceof FuzzableComponentWrapper) {
-			compbase = (JTextArea) ((FuzzableComponentWrapper) comp)
-					.getOldComponent();
-		} else {
-			compbase = (JTextArea) comp;
-		}
-		int s = compbase.getSelectionStart();
-		int e = compbase.getSelectionEnd();
-		String header = comp.getFuzzableMessage().getRequestHeader().toString();
-		int hl = 0;
-		int pos = 0;
-		while (((pos = header.indexOf("\r\n", pos)) != -1) && (pos <= s + hl)) {
-			pos += 2;
-			++hl;
-		}
-		if (!comp.getFuzzableMessage().getRequestHeader().toString()
-				.substring(s + hl, e + hl)
-				.equals(compbase.getText().substring(s, e))) {
-			s += comp.getFuzzableMessage().getRequestHeader().toString()
-					.length();
-			e += comp.getFuzzableMessage().getRequestHeader().toString()
-					.length();
-		}
-		dia = new HttpFuzzDialog(getExtension(), comp.getFuzzableMessage(),
-				new HttpFuzzLocation(s + hl, e + hl));
+		dia = new HttpFuzzDialog(getExtension(), comp.getFuzzableMessage());
 		dia.addFuzzerListener(new FuzzerListener<HttpFuzzDialog, ArrayList<HttpFuzzGap>>() {
 			@Override
 			public void notifyFuzzerStarted(HttpFuzzDialog process) {
@@ -102,7 +68,7 @@ public class HttpFuzzerHandler implements
 			public void notifyFuzzerComplete(ArrayList<HttpFuzzGap> result) {
 				payloads = result;
 				dia.setVisible(false);
-				startFuzzers();
+				startFuzzers( );
 			}
 		});
 		dia.setVisible(true);
@@ -120,7 +86,6 @@ public class HttpFuzzerHandler implements
 			fuzzerPanel.setDisplayPanel(View.getSingleton().getRequestPanel(),
 					View.getSingleton().getResponsePanel());
 		}
-		fuzzerPanel.setShowTokenRequests(showTokenRequests);
 		return fuzzerPanel;
 	}
 
@@ -143,6 +108,7 @@ public class HttpFuzzerHandler implements
 		if (tokens != null && tokens.size() > 0) {
 			fuzzerThread.addPreprocessor(new AntiCSRFProcessor(factory
 					.getSender(), extAntiCSRF, tokens.get(0)));
+			fuzzerThread.addPostprocessor(new AntiCSRFResultProcessor(tokens.get(0), dia.getShowTokens()));
 		}
 		if (dia.getScripting()) {
 			fuzzerThread.importScripts();
@@ -212,6 +178,11 @@ public class HttpFuzzerHandler implements
 	@Override
 	public ExtensionFuzz getExtension() {
 		return ext;
+	}
+
+	@Override
+	public void reset() {
+		fuzzerPanel = null;
 	}
 
 }

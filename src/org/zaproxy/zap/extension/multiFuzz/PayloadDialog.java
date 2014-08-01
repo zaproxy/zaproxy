@@ -9,6 +9,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.AbstractAction;
@@ -202,23 +203,56 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 
 	private ComboMenuBar getCategoryField() {
 		if (categoryField == null) {
-			ArrayList<JMenu> catMenus = new ArrayList<JMenu>();
+			JMenu menu = ComboMenuBar.createMenu(res.getDefaultCategory());
 			// Add File based fuzzers (fuzzdb)
 			for (String category : res.getFileFuzzerCategories()) {
-				JMenu cat = new JMenu(category);
-				for (String fuzzer : res.getFileFuzzerNames(category)) {
-					cat.add(new JMenuItem(fuzzer));
+				ArrayList<String> entries = new ArrayList<String>(Arrays.asList(category.split(" / ")));
+				JMenu parent = menu;
+				while(entries.size() > 0){
+					boolean exists = false;
+					for( int i = 0; i < parent.getItemCount(); i++){
+						if(parent.getItem(i).getText().equals(entries.get(0))){
+							parent = (JMenu) parent.getItem(i);
+							exists = true;
+							break;
+						}
+					}
+					if(!exists){
+						JMenu i = new JMenu(entries.get(0));
+						MenuScroll.setScrollerFor(i, 10, 125, 0, 0);
+						parent.add(i);
+						parent = i;
+					}
+					entries.remove(0);
 				}
-				catMenus.add(cat);
+				for (String fuzzer : res.getFileFuzzerNames(category)) {
+					parent.add(new JMenuItem(fuzzer));
+				}
 			}
 
 			// Add jbrofuzz fuzzers
 			for (String category : res.getJBroFuzzCategories()) {
-				JMenu cat = new JMenu(category);
-				for (String fuzzer : res.getJBroFuzzFuzzerNames(category)) {
-					cat.add(new JMenuItem(fuzzer));
+				ArrayList<String> entries = new ArrayList<String>(Arrays.asList(category.split(" / ")));
+				JMenu parent = menu;
+				while(entries.size() > 0){
+					boolean exists = false;
+					for( int i = 0; i < parent.getItemCount(); i++){
+						if(parent.getItem(i).getText().equals(entries.get(0))){
+							parent = (JMenu) parent.getItem(i);
+							exists = true;
+							break;
+						}
+					}
+					if(!exists){
+						JMenu i = new JMenu(entries.get(0));
+						parent.add(i);
+						parent = i;
+					}
+					entries.remove(0);
 				}
-				catMenus.add(cat);
+				for (String fuzzer : res.getJBroFuzzFuzzerNames(category)) {
+					parent.add(new JMenuItem(fuzzer));
+				}
 			}
 
 			// Custom category
@@ -227,13 +261,8 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 			for (String fuzzer : res.getCustomFileList()) {
 				cat.add(new JMenuItem(fuzzer));
 			}
-			catMenus.add(cat);
-			JMenu menu = ComboMenuBar.createMenu(res.getDefaultCategory());
-			for (JMenu c : catMenus) {
-				MenuScroll.setScrollerFor(c, 10, 125, 0, 0);
-				menu.add(c);
-			}
-			MenuScroll.setScrollerFor(menu, 10, 125, 0, 0);
+			menu.add(cat);
+			//MenuScroll.setScrollerFor(menu, 10, 125, 0, 0);
 			categoryField = new ComboMenuBar(menu);
 		}
 		return categoryField;
@@ -502,7 +531,12 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 				JMenuItem item = (JMenuItem) e.getSource();
 				menu.setText(item.getText());
 				JPopupMenu popUp = ((JPopupMenu) item.getParent());
-				cat = ((JMenu) popUp.getInvoker()).getText();
+				cat = "";
+				while(popUp.getInvoker() instanceof JMenu && popUp.getInvoker().getParent() instanceof JPopupMenu){
+					cat = ((JMenu) popUp.getInvoker()).getText() + " / " + cat;
+					popUp = (JPopupMenu) popUp.getInvoker().getParent();
+				}
+				cat = cat.substring(0, cat.length() - 3);
 				menu.requestFocus();
 			}
 		}
