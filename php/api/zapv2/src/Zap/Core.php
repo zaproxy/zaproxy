@@ -191,10 +191,6 @@ class Core {
 		return $this->zap->request($this->zap->base . 'core/action/sendRequest/', array('request' => $request, 'followRedirects' => $followredirects, 'apikey' => $apikey));
 	}
 
-	public function deleteAllAlerts($apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/deleteAllAlerts/', array('apikey' => $apikey));
-	}
-
 	public function setOptionProxyChainName($string, $apikey='') {
 		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainName/', array('String' => $string, 'apikey' => $apikey));
 	}

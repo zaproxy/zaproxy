@@ -32,20 +32,12 @@ class Spider {
 		$this->zap = $zap;
 	}
 
-	public function status($scanid='') {
-		return $this->zap->request($this->zap->base . 'spider/view/status/', array('scanId' => $scanid))->{'status'};
+	public function status() {
+		return $this->zap->request($this->zap->base . 'spider/view/status/')->{'status'};
 	}
 
-	public function results($scanid='') {
-		return $this->zap->request($this->zap->base . 'spider/view/results/', array('scanId' => $scanid))->{'results'};
-	}
-
-	public function fullResults($scanid) {
-		return $this->zap->request($this->zap->base . 'spider/view/fullResults/', array('scanId' => $scanid))->{'fullResults'};
-	}
-
-	public function scans() {
-		return $this->zap->request($this->zap->base . 'spider/view/scans/')->{'scans'};
+	public function results() {
+		return $this->zap->request($this->zap->base . 'spider/view/results/')->{'results'};
 	}
 
 	public function excludedFromScan() {
@@ -128,36 +120,8 @@ class Spider {
 		return $this->zap->request($this->zap->base . 'spider/action/scanAsUser/', array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey));
 	}
 
-	public function pause($scanid, $apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/pause/', array('scanId' => $scanid, 'apikey' => $apikey));
-	}
-
-	public function resume($scanid, $apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/resume/', array('scanId' => $scanid, 'apikey' => $apikey));
-	}
-
-	public function stop($scanid='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/stop/', array('scanId' => $scanid, 'apikey' => $apikey));
-	}
-
-	public function removeScan($scanid, $apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/removeScan/', array('scanId' => $scanid, 'apikey' => $apikey));
-	}
-
-	public function pauseAllScans($apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/pauseAllScans/', array('apikey' => $apikey));
-	}
-
-	public function resumeAllScans($apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/resumeAllScans/', array('apikey' => $apikey));
-	}
-
-	public function stopAllScans($apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/stopAllScans/', array('apikey' => $apikey));
-	}
-
-	public function removeAllScans($apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/removeAllScans/', array('apikey' => $apikey));
+	public function stop($apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/stop/', array('apikey' => $apikey));
 	}
 
 	public function clearExcludedFromScan($apikey='') {
