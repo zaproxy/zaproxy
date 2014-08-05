@@ -96,8 +96,8 @@ public class HttpFuzzComponent implements
 			s = headView.getSelectionStart();
 			e = headView.getSelectionEnd();
 		} else {
-			s = headView.getText().length() + bodyView.getSelectionStart();
-			e = headView.getText().length() + bodyView.getSelectionEnd();
+			s = headView.getText().length() + 1 + bodyView.getSelectionStart();
+			e = headView.getText().length() + 1 + bodyView.getSelectionEnd();
 		}
 		return new HttpFuzzLocation(s, e);
 	}
@@ -113,8 +113,8 @@ public class HttpFuzzComponent implements
 							new MyHighlightPainter(getColor(i + 1)));
 				} else {
 					bodyView.getHighlighter().addHighlight(
-							l.begin() - headView.getText().length(),
-							l.end() - headView.getText().length(),
+							l.begin() - headView.getText().length() - 1,
+							l.end() - headView.getText().length() - 1,
 							new MyHighlightPainter(getColor(i + 1)));
 				}
 			} catch (Exception e) {
@@ -197,6 +197,9 @@ public class HttpFuzzComponent implements
 
 		int length = findText.length();
 		if (startPos > -1) {
+			if(startPos > headView.getText().length()){
+				startPos++;
+			}
 			this.markUp(new HttpFuzzLocation(startPos, startPos + length));
 		} else {
 			Toolkit.getDefaultToolkit().beep();

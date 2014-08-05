@@ -69,11 +69,14 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	private JButton startButton = null;
 
 	private JButton addComponentButton;
+	private JButton editComponentButton;
+	private JButton delComponentButton;
 	private JTextArea searchField;
 
 	private JCheckBox scriptEnabled;
 	protected TargetModel targetModel;
 	protected JTable targetTable;
+	private ArrayList<SubComponent> subs = new ArrayList<SubComponent>();
 	private ArrayList<FuzzerListener<?, ArrayList<G>>> listeners = new ArrayList<FuzzerListener<?, ArrayList<G>>>();
 
 	public abstract FileFuzzer<P> convertToFileFuzzer(Fuzzer jBroFuzzer);
@@ -96,11 +99,12 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	 * @param fuzzTarget
 	 * @throws HeadlessException
 	 */
-	public FuzzDialog(ExtensionFuzz ext, M msg) throws HeadlessException {
+	public FuzzDialog(ExtensionFuzz ext, M msg, ArrayList<SubComponent> subs) throws HeadlessException {
 		super(View.getSingleton().getMainFrame(), true);
 		this.setTitle(Constant.messages.getString("fuzz.title"));
 		this.res = ext;
 		fuzzableMessage = msg;
+		this.subs = subs;
 		initialize();
 	}
 
@@ -179,13 +183,16 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 			targetDisplay.add(
 					new JScrollPane(getTargetField()),
-					getGBC(0, currentRow, 3, 1.0, 1.0,
+					getGBC(0, currentRow, 4, 1.0, 1.0,
 							java.awt.GridBagConstraints.BOTH));
 			currentRow++;
 
 			targetDisplay.add(getAddComponentButton(),
 					getGBC(1, currentRow, 1, 0.0));
-
+			targetDisplay.add(getEditComponentButton(),
+					getGBC(2, currentRow, 1, 0.0));
+			targetDisplay.add(getDelComponentButton(),
+					getGBC(3, currentRow, 1, 0.0));
 			general.setLayout(new GridBagLayout());
 			currentRow = 0;
 			JLabel messageOpts = new JLabel(
@@ -201,7 +208,9 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			general.add(getScriptEnabled(), getGBC(2, currentRow, 4, 0.125));
 			currentRow++;
 			currentRow = addCustomComponents(general, currentRow);
-
+			for(SubComponent c : subs){
+				currentRow = c.addOptions(general, currentRow);
+			}
 			tabbed.addTab(Constant.messages.getString("fuzz.tab.targets"),
 					targetDisplay);
 			tabbed.addTab(Constant.messages.getString("fuzz.tab.general"),
@@ -317,7 +326,26 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 		}
 		return addComponentButton;
 	}
-
+	protected JButton getEditComponentButton() {
+		if (editComponentButton == null) {
+			editComponentButton = new JButton();
+			editComponentButton.setAction(getEditFuzzAction());
+			editComponentButton.setText(
+					Constant.messages.getString("fuzz.button.edit"));
+			editComponentButton.setEnabled(true);
+		}
+		return editComponentButton;
+	}
+	protected JButton getDelComponentButton() {
+		if (delComponentButton == null) {
+			delComponentButton = new JButton();
+			delComponentButton.setAction(getDelFuzzAction());
+			delComponentButton.setText(
+					Constant.messages.getString("fuzz.button.del"));
+			delComponentButton.setEnabled(true);
+		}
+		return delComponentButton;
+	}
 	protected JButton getStartButton() {
 		if (startButton == null) {
 			startButton = new JButton();
@@ -349,7 +377,15 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	protected AddFuzzAction getAddFuzzAction() {
 		return new AddFuzzAction();
 	}
-
+	
+	protected EditFuzzAction getEditFuzzAction() {
+		return new EditFuzzAction();
+	}
+	
+	protected DelFuzzAction getDelFuzzAction() {
+		return new DelFuzzAction();
+	}
+	
 	protected StartFuzzAction getStartFuzzAction() {
 		return new StartFuzzAction();
 	}
@@ -389,6 +425,41 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 		}
 	}
 
+	protected class DelFuzzAction extends AbstractAction {
+
+		private static final long serialVersionUID = -961522394390805325L;
+
+		public DelFuzzAction() {
+			super(Constant.messages.getString("fuzz.button.del"));
+			setEnabled(true);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[] sel = getTargetField().getSelectedRows();
+			for(int i = 0; i < sel.length; i++){
+				targetModel.removeEntry(sel[i] - i);
+			}
+			if (targetModel.getRowCount() < 1) {
+				getStartButton().setEnabled(false);
+			}
+			getInfo().setText(Constant.messages.getString("fuzz.info.gen"));
+			getMessageContent().highlight(targetModel.getEntries());
+		}
+	}
+	protected class EditFuzzAction extends AbstractAction {
+
+		private static final long serialVersionUID = -961522394390805325L;
+
+		public EditFuzzAction() {
+			super(Constant.messages.getString("fuzz.button.edit"));
+			setEnabled(true);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+		}
+	}
 	protected class AddFuzzAction extends AbstractAction {
 
 		private static final long serialVersionUID = -961522394390805325L;
@@ -479,6 +550,13 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			return targets;
 		}
 
+		public void removeEntry(int idx){
+			if (idx != -1) {
+                targets.remove(idx);
+                fireTableRowsDeleted(idx, idx);
+            } 
+		}
+		
 		public void removeEntry(G t) {
 			int idx = targets.indexOf(t);
             if (idx != -1) {

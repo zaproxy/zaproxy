@@ -18,27 +18,21 @@
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.StringWriter;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Stack;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.owasp.jbrofuzz.core.NoSuchFuzzerException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
-import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.extension.multiFuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.multiFuzz.FileFuzzer;
 import org.zaproxy.zap.extension.multiFuzz.FuzzDialog;
@@ -48,6 +42,7 @@ import org.zaproxy.zap.extension.multiFuzz.PayloadDialog;
 import org.zaproxy.zap.extension.multiFuzz.PayloadFactory;
 import org.zaproxy.zap.extension.multiFuzz.PayloadScript;
 import org.zaproxy.zap.extension.multiFuzz.RegExStringGenerator;
+import org.zaproxy.zap.extension.multiFuzz.SubComponent;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
 
@@ -57,15 +52,11 @@ public class HttpFuzzDialog extends
 	private static final long serialVersionUID = -6286527080805168790L;
 
 	private HttpFuzzComponent fuzzComponent;
-	private JCheckBox enableTokens;
-	private JCheckBox showTokenRequests;
+
 	private JCheckBox followRedirects;
 	private JCheckBox urlEncode;
 
-	private boolean incAcsrfToken = false;
 	private HttpPayloadFactory factory;
-	private HttpFuzzerDialogTokenPane tokenPane;
-
 	private boolean conModification = false;
 
 	@Override
@@ -74,89 +65,13 @@ public class HttpFuzzDialog extends
 				.isSelected());
 	}
 
-	public HttpFuzzDialog(ExtensionFuzz ext, HttpMessage msg) {
-		super(ext, msg);
+	public HttpFuzzDialog(ExtensionFuzz ext, HttpMessage msg, ArrayList<SubComponent> s) {
+		super(ext, msg, s);
 		this.factory = new HttpPayloadFactory();
-		getTargetField().getSelectionModel().addListSelectionListener(
-				new ListSelectionListener() {
-					@Override
-					public void valueChanged(ListSelectionEvent sel) {
-						if (!conModification) {
-							conModification = true;
-							if (targetTable.getSelectedRow() > -1) {
-								HttpFuzzGap mod = targetModel.getEntries().get(
-										targetTable.getSelectedRow());
-								PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> payDialog = new PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>(
-										mod,
-										(HttpPayloadFactory) getPayloadFactory(),
-										res);
-								payDialog
-										.setModalityType(ModalityType.APPLICATION_MODAL);
-								payDialog
-										.addListener(new FuzzerListener<PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>, HttpFuzzGap>() {
-											@Override
-											public void notifyFuzzerStarted(
-													PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
-											}
-
-											@Override
-											public void notifyFuzzerPaused(
-													PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
-											}
-
-											@Override
-											public void notifyFuzzerComplete(
-													HttpFuzzGap result) {
-												if (result == null
-														|| result.getPayloads()
-																.size() < 1) {
-													targetModel
-															.removeEntry(result);
-													if (targetModel
-															.getRowCount() < 1) {
-														getStartButton()
-																.setEnabled(
-																		false);
-													}
-													getMessageContent()
-															.highlight(
-																	targetModel
-																			.getEntries());
-												}
-											}
-										});
-								payDialog.setVisible(true);
-							}
-							conModification = false;
-						}
-					}
-				});
 	}
 
 	@Override
 	protected int addCustomComponents(JPanel panel, int currentRow) {
-		checkAntiCSRF();
-		if (incAcsrfToken) { // Options for AcsrfTokens
-			panel.add(
-					new JLabel(Constant.messages
-							.getString("fuzz.label.anticsrf")),
-					getGBC(0, currentRow, 6, 2.0D));
-			currentRow++;
-			panel.add(getEnableTokens(), getGBC(0, currentRow, 6, 0.0D));
-			currentRow++;
-			panel.add(
-					getTokensPane().getPane(),
-					getGBC(0, currentRow, 6, 1.0D, 0.0D,
-							java.awt.GridBagConstraints.BOTH));
-			currentRow++;
-
-			panel.add(
-					new JLabel(Constant.messages
-							.getString("fuzz.label.showtokens")),
-					getGBC(0, currentRow, 2, 1.0D));
-			panel.add(getShowTokenRequests(), getGBC(2, currentRow, 4, 0.0D));
-			currentRow++;
-		}
 		panel.add(
 				new JLabel(Constant.messages
 						.getString("fuzz.label.followredirects")),
@@ -171,72 +86,6 @@ public class HttpFuzzDialog extends
 		currentRow++;
 
 		return currentRow;
-	}
-
-	private void checkAntiCSRF() {
-		ExtensionAntiCSRF extAntiCSRF = (ExtensionAntiCSRF) Control
-				.getSingleton().getExtensionLoader()
-				.getExtension(ExtensionAntiCSRF.NAME);
-		List<AntiCsrfToken> tokens = null;
-		if (extAntiCSRF != null) {
-			tokens = extAntiCSRF.getTokens(fuzzableMessage);
-		}
-		if (tokens == null || tokens.size() == 0) {
-			incAcsrfToken = false;
-		} else {
-			incAcsrfToken = true;
-		}
-		if (incAcsrfToken) {
-			setAntiCsrfTokens(tokens);
-		}
-	}
-	
-	public boolean getShowTokens(){
-		return getShowTokenRequests().isSelected();
-	}
-	
-	private HttpFuzzerDialogTokenPane getTokensPane() {
-		if (tokenPane == null) {
-			tokenPane = new HttpFuzzerDialogTokenPane();
-		}
-		return tokenPane;
-	}
-
-	private void setAntiCsrfTokens(List<AntiCsrfToken> acsrfTokens) {
-		if (acsrfTokens != null && acsrfTokens.size() > 0) {
-			getTokensPane().setAll(true, acsrfTokens.get(0),
-					acsrfTokens.get(0).getTargetURL());
-			this.getEnableTokens().setSelected(true);
-			this.getEnableTokens().setEnabled(true);
-			this.getTokensPane().getPane().setVisible(true);
-		} else {
-			getTokensPane().reset();
-			this.getEnableTokens().setSelected(false);
-			this.getEnableTokens().setEnabled(false);
-			this.getTokensPane().getPane().setVisible(false);
-		}
-	}
-
-	private JCheckBox getEnableTokens() {
-		if (enableTokens == null) {
-			enableTokens = new JCheckBox();
-			enableTokens.addActionListener(new ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					getTokensPane().setEnabled(enableTokens.isSelected());
-					getShowTokenRequests()
-							.setEnabled(enableTokens.isSelected());
-				}
-			});
-		}
-		return enableTokens;
-	}
-
-	private JCheckBox getShowTokenRequests() {
-		if (showTokenRequests == null) {
-			showTokenRequests = new JCheckBox();
-		}
-		return showTokenRequests;
 	}
 
 	private JCheckBox getFollowRedirects() {
@@ -301,6 +150,59 @@ public class HttpFuzzDialog extends
 	@Override
 	protected AddFuzzAction getAddFuzzAction() {
 		return new HttpAddFuzzAction();
+	}
+
+	@Override
+	protected EditFuzzAction getEditFuzzAction() {
+		return new HttpEditFuzzAction();
+	}
+
+	private class HttpEditFuzzAction extends EditFuzzAction {
+		@Override
+		public void actionPerformed(ActionEvent evt) {
+			if (!conModification) {
+				conModification = true;
+				if (targetTable.getSelectedRow() > -1) {
+					HttpFuzzGap mod = targetModel.getEntries().get(
+							targetTable.getSelectedRow());
+					PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> payDialog = new PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>(
+							mod, (HttpPayloadFactory) getPayloadFactory(), res);
+					payDialog.setModalityType(ModalityType.APPLICATION_MODAL);
+					payDialog
+							.addListener(new FuzzerListener<PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory>, HttpFuzzGap>() {
+								@Override
+								public void notifyFuzzerStarted(
+										PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
+								}
+
+								@Override
+								public void notifyFuzzerPaused(
+										PayloadDialog<HttpFuzzGap, HttpPayload, HttpPayloadFactory> process) {
+								}
+
+								@Override
+								public void notifyFuzzerComplete(
+										HttpFuzzGap result) {
+									if (result == null
+											|| result.getPayloads().size() < 1) {
+										targetModel.removeEntry(result);
+										if (targetModel.getRowCount() < 1) {
+											getStartButton().setEnabled(false);
+										}
+										getMessageContent().highlight(
+												targetModel.getEntries());
+									}
+									/*else{
+										targetModel.replace(mod, result);
+									}*/
+								}
+							});
+					payDialog.setVisible(true);
+				}
+				conModification = false;
+			}
+		}
+
 	}
 
 	private class HttpAddFuzzAction extends AddFuzzAction {

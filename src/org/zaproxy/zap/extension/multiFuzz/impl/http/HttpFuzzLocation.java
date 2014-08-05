@@ -38,12 +38,12 @@ public class HttpFuzzLocation implements TextFuzzLocation<HttpMessage> {
 		String rep = "";
 		if (start > headLen) {
 			rep = msg.getRequestBody().toString()
-					.substring(start - headLen, end - headLen);
+					.substring(start - headLen - 1, end - headLen - 1);
 		} else {
 			rep = msg.getRequestHeader().toString().substring(start, end);
 		}
 		if(rep.equals("")){
-			rep = ((start > headLen) ? ("Body: Loc " + (start-headLen)) : ("Head: Loc " + start));
+			rep = ((start > headLen) ? ("Body: Loc " + (start - headLen - 1)) : ("Head: Loc " + start));
 		}
 		return rep;
 	}

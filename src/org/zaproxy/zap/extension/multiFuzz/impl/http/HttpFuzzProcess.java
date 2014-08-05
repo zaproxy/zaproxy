@@ -158,7 +158,7 @@ public class HttpFuzzProcess implements
 		int currPosBody = 0;
 		String note = "";
 		for (HttpFuzzLocation fuzzLoc : intervals) {
-			if (fuzzLoc.begin() <= origHead.length()) {
+			if (fuzzLoc.begin() < origHead.length()) {
 				if (fuzzLoc.begin() >= currPosHead) {
 					int hl = 0;
 					int pos = 0;
@@ -180,8 +180,8 @@ public class HttpFuzzProcess implements
 				int start = fuzzLoc.begin();
 				int end = fuzzLoc.end();
 				if (start > origBody.length()) {
-					start -= origHead.length();
-					end -= origHead.length();
+					start -= origHead.length() + 1;
+					end -= origHead.length() + 1;
 				}
 				body.append(origBody.substring(currPosBody, start));
 				HttpPayload payload = payloads.get(fuzzLoc);

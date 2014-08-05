@@ -36,6 +36,7 @@ import org.zaproxy.zap.extension.multiFuzz.FuzzerHandler;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerListener;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerParam;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerThread;
+import org.zaproxy.zap.extension.multiFuzz.SubComponent;
 import org.zaproxy.zap.extension.search.SearchResult;
 
 public class HttpFuzzerHandler implements
@@ -47,14 +48,19 @@ public class HttpFuzzerHandler implements
 	private ArrayList<HttpFuzzGap> payloads;
 	private FuzzerParam fuzzerParam;
 	private FuzzerThread<HttpPayload, HttpMessage, HttpFuzzLocation, HttpFuzzResult, HttpFuzzGap, HttpFuzzProcess> fuzzerThread;
-	
+	private AntiCSRFComponent antiCSRF;
+
 	public HttpFuzzerHandler(ExtensionFuzz parent) {
 		this.ext = parent;
 	}
 
 	@Override
 	public void showFuzzDialog(FuzzableComponent<HttpMessage> comp) {
-		dia = new HttpFuzzDialog(getExtension(), comp.getFuzzableMessage());
+		antiCSRF = new AntiCSRFComponent(comp.getFuzzableMessage());
+		ArrayList<SubComponent> httpSubs = new ArrayList<SubComponent>();
+		httpSubs.add(antiCSRF);
+		dia = new HttpFuzzDialog(getExtension(), comp.getFuzzableMessage(),
+				httpSubs);
 		dia.addFuzzerListener(new FuzzerListener<HttpFuzzDialog, ArrayList<HttpFuzzGap>>() {
 			@Override
 			public void notifyFuzzerStarted(HttpFuzzDialog process) {
@@ -68,7 +74,7 @@ public class HttpFuzzerHandler implements
 			public void notifyFuzzerComplete(ArrayList<HttpFuzzGap> result) {
 				payloads = result;
 				dia.setVisible(false);
-				startFuzzers( );
+				startFuzzers();
 			}
 		});
 		dia.setVisible(true);
@@ -100,15 +106,18 @@ public class HttpFuzzerHandler implements
 				getFuzzerParam());
 		HttpFuzzProcessFactory factory = (HttpFuzzProcessFactory) dia
 				.getFuzzProcessFactory();
-		ExtensionAntiCSRF extAntiCSRF = (ExtensionAntiCSRF) Control
-				.getSingleton().getExtensionLoader()
-				.getExtension(ExtensionAntiCSRF.NAME);
-		List<AntiCsrfToken> tokens = null;
-		tokens = extAntiCSRF.getTokens(dia.getMessage());
-		if (tokens != null && tokens.size() > 0) {
-			fuzzerThread.addPreprocessor(new AntiCSRFProcessor(factory
-					.getSender(), extAntiCSRF, tokens.get(0)));
-			fuzzerThread.addPostprocessor(new AntiCSRFResultProcessor(tokens.get(0), dia.getShowTokens()));
+		if (antiCSRF.getTokensEnabled()) {
+			ExtensionAntiCSRF extAntiCSRF = (ExtensionAntiCSRF) Control
+					.getSingleton().getExtensionLoader()
+					.getExtension(ExtensionAntiCSRF.NAME);
+			List<AntiCsrfToken> tokens = extAntiCSRF
+					.getTokens(dia.getMessage());
+			if (tokens != null && tokens.size() > 0) {
+				fuzzerThread.addPreprocessor(new AntiCSRFProcessor(factory
+						.getSender(), extAntiCSRF, tokens.get(0)));
+				fuzzerThread.addPostprocessor(new AntiCSRFResultProcessor(
+						tokens.get(0), antiCSRF.getShowTokens()));
+			}
 		}
 		if (dia.getScripting()) {
 			fuzzerThread.importScripts();

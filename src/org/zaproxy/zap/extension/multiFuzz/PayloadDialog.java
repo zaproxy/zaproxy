@@ -47,7 +47,9 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 	private PayloadTableModel payloadModel = null;
 
 	private JPanel background;
-
+	
+	private JButton deletePayloadButton;
+	
 	private JButton addSinglePayloadButton;
 	private JTextArea payloadText;
 
@@ -71,6 +73,7 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 		this.res = ext;
 		initialize();
 		getDoneButton().setEnabled( target.getPayloads().size() > 0 );
+		((CancelAction)getCancelButton().getAction()).setPayloads((ArrayList<P>) target.getPayloads().clone());
 	}
 
 	protected void initialize() {
@@ -98,6 +101,9 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 					new JScrollPane(getPayloadField()),
 					getGBC(0, currentRow, 4, 1.0, 1.0,
 							java.awt.GridBagConstraints.BOTH));
+			currentRow++;
+			background.add(getDeletePayloadButton(),
+					getGBC(3, currentRow, 1, 0.25));
 			currentRow++;
 			JLabel addSinglePayload = new JLabel(
 					Constant.messages.getString("fuzz.add.singlePayload"));
@@ -320,7 +326,9 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 		return getCategoryField().getSelectedCategory().startsWith(
 				ExtensionFuzz.JBROFUZZ_CATEGORY_PREFIX);
 	}
-
+	protected DeletePayloadAction getDeletePayloadAction() {
+		return new DeletePayloadAction();
+	}
 	protected AddSinglePayloadAction getAddSinglePayloadAction() {
 		return new AddSinglePayloadAction();
 	}
@@ -345,6 +353,14 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 		return new CancelAction();
 	}
 
+	protected JButton getDeletePayloadButton() {
+		if (deletePayloadButton == null) {
+			deletePayloadButton = new JButton();
+			deletePayloadButton.setAction(getDeletePayloadAction());
+		}
+		return deletePayloadButton;
+	}
+	
 	protected JButton getAddFuzzScriptButton() {
 		if (addScriptButton == null) {
 			addScriptButton = new JButton();
@@ -391,6 +407,25 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 			cancelButton.setAction(getCancelAction());
 		}
 		return cancelButton;
+	}
+
+	protected class DeletePayloadAction extends AbstractAction {
+		public DeletePayloadAction() {
+			super(Constant.messages.getString("fuzz.add.deletePayload"));
+			setEnabled(true);
+		}
+
+		@Override
+		public void actionPerformed(ActionEvent e) {
+			int[] sel = getPayloadField().getSelectedRows();
+			for(int i = 0; i < sel.length; i++){
+				payloadModel.deleteEntry(sel[i] - i);
+				target.getPayloads().remove(sel[i] - i);
+			}
+			if(getPayloadField().getRowCount() < 1){
+				getDoneButton().setEnabled(false);
+			}
+		}
 	}
 
 	protected class AddSinglePayloadAction extends AbstractAction {
@@ -498,14 +533,19 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 	protected class CancelAction extends AbstractAction {
 
 		private static final long serialVersionUID = -6716179197963523133L;
-
+		private ArrayList<P> payloads;
 		public CancelAction() {
-			super(Constant.messages.getString("fuzz.button.del"));
+			super(Constant.messages.getString("fuzz.button.cancel"));
+			payloads = new ArrayList<P>();
+		}
+
+		public void setPayloads(ArrayList<P> p) {
+			payloads = p;
 		}
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			target.setPayloads(new ArrayList<P>());
+			target.setPayloads(payloads);
 			listen.notifyFuzzerComplete(target);
 			setVisible(false);
 		}
@@ -672,7 +712,10 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 			payloads.add(pay);
 			fireTableRowsInserted(payloads.size() - 1, payloads.size() - 1);
 		}
-
+		public void deleteEntry(int i) {
+			payloads.remove(i);
+			fireTableRowsDeleted(i, i);
+		}
 		@Override
 		public void setValueAt(Object value, int row, int col) {
 			try {
