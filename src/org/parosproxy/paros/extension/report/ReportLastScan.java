@@ -56,6 +56,8 @@ import edu.stanford.ejalbert.BrowserLauncher;
 public class ReportLastScan {
 
     private Logger logger = Logger.getLogger(ReportLastScan.class);
+    
+    public enum reportTypes {HTML, XML}
 
     public ReportLastScan() {
     }
@@ -109,8 +111,8 @@ public class ReportLastScan {
         return extensionXml;
     }
 
-    public void generateHtml(ViewDelegate view, Model model) {
-   	
+    
+    public void generateReport(ViewDelegate view, Model model, final reportTypes reportType){
         // ZAP: Allow scan report file name to be specified
         try {
             JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory()) {
@@ -119,8 +121,16 @@ public class ReportLastScan {
 
 				@Override
 	        	public void approveSelection(){
-	        		File f = getSelectedFile();
-	        		if(f.exists()){
+	        		File selectedFile = getSelectedFile();
+	        		
+	        		if(!java.nio.file.Files.isWritable(selectedFile.getParentFile().toPath())){
+	        			JOptionPane.showMessageDialog(this, 
+    					Constant.messages.getString("report.write.permission.dialog.title"),
+    					Constant.messages.getString("report.write.permission.dialog.message"),
+    					JOptionPane.ERROR_MESSAGE);
+	        			return;
+	        		}
+	        		if(selectedFile.exists()){
 	        			int result = JOptionPane.showConfirmDialog(this, 
 	        					Constant.messages.getString("report.write.overwrite.dialog.message"),
 	        					Constant.messages.getString("report.write.overwrite.dialog.title"),
@@ -141,130 +151,58 @@ public class ReportLastScan {
 	        
             chooser.setFileFilter(new FileFilter() {
 
-                @Override
+            	@Override
                 public boolean accept(File file) {
                     if (file.isDirectory()) {
                         return true;
-                    } else if (file.isFile()
-                            && file.getName().toLowerCase().endsWith(".htm")) {
-                        return true;
-                    } else if (file.isFile()
-                            && file.getName().toLowerCase().endsWith(".html")) {
-                        return true;
+                    } else if (file.isFile()) {
+                    	String lcFileName=file.getName().toLowerCase();
+                    	switch (reportType) {
+                        case HTML:
+                            return (lcFileName.endsWith(".htm") || lcFileName.endsWith(".html"));
+                        case XML:
+                            return lcFileName.endsWith(".xml");
+                        }
                     }
                     return false;
                 }
 
                 @Override
                 public String getDescription() {
-                    return Constant.messages.getString("file.format.html");
+                	switch(reportType) {
+                	case HTML:
+                		return Constant.messages.getString("file.format.html");
+                	case XML:
+                		return Constant.messages.getString("file.format.xml");
+                	default: //Should never hit this, but just in case
+                		return Constant.messages.getString("file.format.html"); 
+                	}
                 }
             });
 
             File file = null;
-            chooser.setSelectedFile(new File(".html")); //Default the filename to a reasonable extension
+            String reportXSL="";
+        	switch(reportType) {
+        	case HTML:
+        		chooser.setSelectedFile(new File(".html")); //Default the filename to a reasonable extension;
+        		reportXSL = (Constant.getZapInstall() + "/xml/report.html.xsl");
+        		break;
+        	case XML:
+        		chooser.setSelectedFile(new File(".xml")); //Default the filename to a reasonable extension;
+        		reportXSL = (Constant.getZapInstall() + "/xml/report.xml.xsl");
+        		break;
+        	default: //Default to html just in case
+        		chooser.setSelectedFile(new File(".html")); //Default the filename to a reasonable extension;
+        		reportXSL = (Constant.getZapInstall() + "/xml/report.html.xsl");
+        		break;
+        	}
             int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
 
                 Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
 
-                if (!file.getParentFile().canWrite()) {
-                    view.showMessageDialog(
-                            MessageFormat.format(Constant.messages.getString("report.write.error"),
-                            new Object[]{file.getAbsolutePath()}));
-                    return;
-                }
-
-                File report = generate(file.getAbsolutePath(), model, Constant.getZapInstall() + "/xml/report.html.xsl");
-                if (report == null) {
-                    view.showMessageDialog(
-                            MessageFormat.format(Constant.messages.getString("report.unknown.error"),
-                            new Object[]{file.getAbsolutePath()}));
-                    return;
-                }
-
-                try {
-                    BrowserLauncher bl = new BrowserLauncher();
-                    bl.openURLinBrowser("file://" + report.getAbsolutePath());
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
-                    view.showMessageDialog(
-                            MessageFormat.format(Constant.messages.getString("report.complete.warning"),
-                            new Object[]{report.getAbsolutePath()}));
-                }
-            }
-
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-            view.showWarningDialog("File creation error.");
-        }
-    }
-
-    public void generateXml(ViewDelegate view, Model model) {
-
-        // ZAP: Allow scan report file name to be specified
-        try {
-            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory())
-            {
-            
-            	private static final long serialVersionUID = -4747814076090619161L;
-            	
-				@Override
-	        	public void approveSelection(){
-	        		File f = getSelectedFile();
-	        		if(f.exists()){
-	        			int result = JOptionPane.showConfirmDialog(this, 
-	        					Constant.messages.getString("report.write.overwrite.dialog.message"),
-	        					Constant.messages.getString("report.write.overwrite.dialog.title"),
-	        					JOptionPane.YES_NO_OPTION);
-	        			switch(result){
-	        			case JOptionPane.YES_OPTION:
-	        				super.approveSelection();
-	        				return;
-	        			case JOptionPane.NO_OPTION:
-	        				return;
-	        			case JOptionPane.CLOSED_OPTION:
-	        				return;
-	        			}
-	        		}
-	        		super.approveSelection();
-	        	}
-	        };
-
-            chooser.setFileFilter(new FileFilter() {
-
-                @Override
-                public boolean accept(File file) {
-                    if (file.isDirectory()) {
-                        return true;
-                    } else if (file.isFile()
-                            && file.getName().toLowerCase().endsWith(".xml")) {
-                        return true;
-                    }
-                    return false;
-                }
-
-                @Override
-                public String getDescription() {
-                    return Constant.messages.getString("file.format.xml");
-                }
-            });
-
-            File file = null;
-            chooser.setSelectedFile(new File(".xml")); //Default the filename to a reasonable extension
-            int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
-            if (rc == JFileChooser.APPROVE_OPTION) {
-                file = chooser.getSelectedFile();
-
-                if (!file.getParentFile().canWrite()) {
-                    view.showMessageDialog(
-                            MessageFormat.format(Constant.messages.getString("report.write.error"),
-                            new Object[]{file.getAbsolutePath()}));
-                    return;
-                }
-
-                File report = generate(file.getAbsolutePath(), model, Constant.getZapInstall() + "/xml/report.xml.xsl");
+                File report = generate(file.getAbsolutePath(), model, reportXSL);
                 if (report == null) {
                     view.showMessageDialog(
                             MessageFormat.format(Constant.messages.getString("report.unknown.error"),
@@ -288,4 +226,21 @@ public class ReportLastScan {
             view.showWarningDialog(Constant.messages.getString("report.unexpected.warning"));
         }
     }
+    
+	/**
+	 * @deprecated
+	 * generateXml has been deprecated in favour of using {@link #generateReport(ViewDelegate, Model, String)}
+	 */
+    public void generateHtml(ViewDelegate view, Model model) {
+    	generateReport(view, model, reportTypes.HTML); 
+    }
+    
+	/**
+	 * @deprecated
+	 * generateXml has been deprecated in favour of using {@link #generateReport(ViewDelegate, Model, String)}
+	 */
+    public void generateXml(ViewDelegate view, Model model) {
+    	generateReport(view, model, reportTypes.XML); 
+    }
+
 }
