@@ -1,22 +1,22 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2011 The Zed Attack Proxy dev team
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
- */
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package org.zaproxy.zap.extension.multiFuzz;
 
 import java.io.BufferedReader;
@@ -30,7 +30,9 @@ import java.util.Iterator;
 import org.apache.log4j.Logger;
 
 public class FileFuzzer<P extends Payload> {
-
+	public static final String TYPE_SIG_BEG = "#<type=\"";
+	public static final String TYPE_SIG_END = "\">";
+	public static final String COMMENT = "#";
 	private String name = null;
 	private File file = null;
 	private ArrayList<P> payloads = new ArrayList<>();
@@ -59,7 +61,7 @@ public class FileFuzzer<P extends Payload> {
 					file)));
 			String line;
 			while ((line = in.readLine()) != null) {
-				if (!line.startsWith("#")) {
+				if (!line.startsWith(COMMENT)) {
 					this.length++;
 				}
 			}
@@ -84,16 +86,31 @@ public class FileFuzzer<P extends Payload> {
 					file)));
 
 			String line = in.readLine();
-			if (line.startsWith("#<type=\"") && line.endsWith("\">")) {
+			if (line.startsWith(TYPE_SIG_BEG) && line.endsWith(TYPE_SIG_END)) {
 				String type = line.substring(8, (line.length() - 2));
 				do {
-					if (line.trim().length() > 0 && !line.startsWith("#")) {
-						payloads.add(factory.createPayload(type, line));
+					if (line.trim().length() > 0 && !line.startsWith(COMMENT)) {
+						Payload.Type t;
+						switch (type) {
+						case "FILE":
+							t = Payload.Type.FILE;
+							break;
+						case "REGEX":
+							t = Payload.Type.REGEX;
+							break;
+						case "SCRIPT":
+							t = Payload.Type.SCRIPT;
+							break;
+						default:
+							t = Payload.Type.STRING;
+							break;
+						}
+						payloads.add(factory.createPayload(t, line));
 					}
 				} while ((line = in.readLine()) != null);
 			} else {
 				do {
-					if (line.trim().length() > 0 && !line.startsWith("#")) {
+					if (line.trim().length() > 0 && !line.startsWith(COMMENT)) {
 						payloads.add(factory.createPayload(line));
 					}
 				} while ((line = in.readLine()) != null);

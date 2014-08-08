@@ -1,22 +1,22 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
- */
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package org.zaproxy.zap.extension.multiFuzz;
 
 import java.util.ArrayList;
@@ -62,8 +62,8 @@ class CharTypes {
 
 class ParseTree {
 	int label = -1;
-	ArrayList<Character> value = new ArrayList<Character>();
-	ArrayList<ParseTree> children = new ArrayList<ParseTree>();
+	ArrayList<Character> value = new ArrayList<>();
+	ArrayList<ParseTree> children = new ArrayList<>();
 
 	public ParseTree(int label) {
 		this.label = label;
@@ -206,9 +206,8 @@ class Parser {
 		}
 		if (remainder.equals("")) {
 			return t;
-		} else {
-			return parse(remainder, t);
 		}
+		return parse(remainder, t);
 	}
 
 	private int getFunc(char c) {
@@ -226,7 +225,7 @@ class Parser {
 	}
 
 	private ArrayList<Character> parseSet(String s) {
-		ArrayList<Character> vals = new ArrayList<Character>();
+		ArrayList<Character> vals = new ArrayList<>();
 		int index = 0;
 		while (s.length() > index) {
 			char c = s.charAt(index);
@@ -251,7 +250,7 @@ class Parser {
 
 	private ArrayList<Character> getSet(char c) {
 
-		ArrayList<Character> ret = new ArrayList<Character>();
+		ArrayList<Character> ret = new ArrayList<>();
 		switch (c) {
 		case 'd':
 			ret.addAll(Arrays.asList(DIGITS));
@@ -290,8 +289,8 @@ class Parser {
 }
 
 class State {
-	ArrayList<State> empty = new ArrayList<State>();
-	HashMap<Character, HashSet<State>> out = new HashMap<Character, HashSet<State>>();
+	ArrayList<State> empty = new ArrayList<>();
+	HashMap<Character, HashSet<State>> out = new HashMap<>();
 
 	public void addTransition(State goal, Character t) {
 		if (t == null) {
@@ -306,12 +305,12 @@ class State {
 }
 
 class NFA {
-	ArrayList<State> states = new ArrayList<State>();
-	int end = states.size();
-	HashMap<String, HashSet<State>> travers = new HashMap<String, HashSet<State>>();
+	ArrayList<State> states = new ArrayList<>();
+	int end;
+	HashMap<String, HashSet<State>> travers = new HashMap<>();
 
 	void reset() {
-		travers = new HashMap<String, HashSet<State>>();
+		travers = new HashMap<>();
 		travers.put("", new HashSet<State>());
 		travers.get("").add(states.get(0));
 		travers.get("").addAll(states.get(0).empty);
@@ -325,7 +324,7 @@ class NFA {
 		switch (t.getLabel()) {
 		case 0: // START
 			b = new State();
-			states = new ArrayList<State>();
+			states = new ArrayList<>();
 			states.add(b);
 			end = 0;
 			break;
@@ -400,7 +399,7 @@ class NFA {
 			for (Character c : t.getValue()) {
 				b.addTransition(e, c);
 			}
-			states = new ArrayList<State>();
+			states = new ArrayList<>();
 			states.add(b);
 			states.add(e);
 			end = 1;
@@ -409,24 +408,23 @@ class NFA {
 			b = new State();
 			e = new State();
 			b.addTransition(e, t.getValue().get(0));
-			states = new ArrayList<State>();
+			states = new ArrayList<>();
 			states.add(b);
 			states.add(e);
 			end = 1;
-		default:
 			break;
 		}
 	}
 
 	public HashSet<String> traversStep(int cutoff) {
 		int limit = cutoff;
-		HashSet<String> valid = new HashSet<String>();
-		HashMap<String, HashSet<State>> newTravers = new HashMap<String, HashSet<State>>();
+		HashSet<String> valid = new HashSet<>();
+		HashMap<String, HashSet<State>> newTravers = new HashMap<>();
 		for (String hist : travers.keySet()) {
 			for (State s : travers.get(hist)) {
 				for (Character c : s.out.keySet()) {
 					String key = hist + c;
-					HashSet<State> possOld = new HashSet<State>();
+					HashSet<State> possOld = new HashSet<>();
 					HashSet<State> poss = s.out.get(c);
 					while (!possOld.containsAll(poss)) {
 						possOld.addAll(poss);
@@ -454,7 +452,7 @@ class NFA {
 	}
 
 	public ArrayList<String> travers(int depth, int cutoff) {
-		ArrayList<String> results = new ArrayList<String>();
+		ArrayList<String> results = new ArrayList<>();
 		reset();
 		int limit = cutoff;
 		for (int i = 0; i < depth; i++) {
@@ -478,7 +476,7 @@ public class RegExStringGenerator {
 			NFA d = new NFA(t);
 			return d.travers(depth, cutoff);
 		} catch (Exception e) {
-			return new ArrayList<String>();
+			return new ArrayList<>(0);
 		}
 	}
 }

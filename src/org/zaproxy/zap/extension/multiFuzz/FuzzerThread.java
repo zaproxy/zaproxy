@@ -1,27 +1,24 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.multiFuzz;
 
-import java.io.IOException;
-import java.io.StringWriter;
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Map;
 import java.util.HashMap;
@@ -47,7 +44,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 	private FuzzerListener<Integer, Boolean> handlerListener;
 	private ArrayList<G> gaps;
 	private ArrayList<PayloadProcessor<PL>> payprocessors;
-	private ArrayList<FuzzMessagePreProcessor<M,L,PL>> preprocessors;
+	private ArrayList<FuzzMessagePreProcessor<M, L, PL>> preprocessors;
 	private ArrayList<FuzzResultProcessor<R>> postprocessors;
 	FuzzProcessFactory<P, PL, L> fuzzProcessFactory;
 	private ThreadPoolExe threadPool;
@@ -62,9 +59,9 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 	public FuzzerThread(FuzzerParam fuzzerParam) {
 		delayInMs = fuzzerParam.getDelayInMs();
 		threadCount = fuzzerParam.getThreadPerScan();
-		payprocessors = new ArrayList<PayloadProcessor<PL>>();
-		preprocessors = new ArrayList<FuzzMessagePreProcessor<M,L,PL>>();
-		postprocessors = new ArrayList<FuzzResultProcessor<R>>();
+		payprocessors = new ArrayList<>();
+		preprocessors = new ArrayList<>();
+		postprocessors = new ArrayList<>();
 	}
 
 	public void start() {
@@ -98,7 +95,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		listenerList.remove(listener);
 	}
 
-	public void addPreprocessor(FuzzMessagePreProcessor<M,L,PL> pre) {
+	public void addPreprocessor(FuzzMessagePreProcessor<M, L, PL> pre) {
 		this.preprocessors.add(pre);
 	}
 
@@ -152,13 +149,13 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		comb_count = total;
 		int core = (total < threadCount) ? total : threadCount;
 		this.threadPool = new ThreadPoolExe(core, threadCount, 100,
-				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<P>());
+				TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>());
 		for (FuzzerListener<Integer, R> listener : listenerList) {
 			listener.notifyFuzzerStarted(total);
 		}
 		log.info(total + " Fuzz Combinations");
 		for (int nr = 0; nr < total; nr++) {
-			HashMap<L, PL> subs = new HashMap<L, PL>();
+			HashMap<L, PL> subs = new HashMap<>();
 			for (int g = 0; g < gaps.size(); g++) {
 				L fl = gaps.get(g).getLocation();
 				PL sub = gaps.get(g).getPayloads().get((nr / mod[g]) % lens[g]);
@@ -234,11 +231,7 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		if (extension != null) {
 			List<ScriptWrapper> scripts = extension
 					.getScripts(ExtensionFuzz.SCRIPT_TYPE_FUZZ);
-			for (ScriptWrapper script : scripts) {
-				Writer writer = new StringWriter();
-				if (script.getWriter() != null) {
-					writer = script.getWriter();
-				}
+			for (final ScriptWrapper script : scripts) {
 				try {
 					if (script.isEnabled()) {
 						final FuzzScript s = extension.getInterface(script,
@@ -252,49 +245,78 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 									try {
 										s.processPayload(orig);
 									} catch (ScriptException e) {
-										e.printStackTrace();
+										try {
+											if (script.getWriter() != null) {
+												script.getWriter().append(
+														e.toString());
+											}
+										} catch (Exception e1) {
+											log.debug(e1.getMessage());
+										}
 									}
 									return orig;
 								}
 							});
-							preprocessors.add(new FuzzMessagePreProcessor<M, L,PL>() {
+							preprocessors
+									.add(new FuzzMessagePreProcessor<M, L, PL>() {
 
-								@Override
-								public M process(M orig,
-										Map<L,PL> payMap) {
-									try {
-										s.preProcess(orig, payMap);
-									} catch (ScriptException e) {
-										e.printStackTrace();
-									}
-									return orig;
-								}
-							});
+										@Override
+										public M process(M orig,
+												Map<L, PL> payMap) {
+											try {
+												s.preProcess(orig, payMap);
+											} catch (ScriptException e) {
+												try {
+													if (script.getWriter() != null) {
+														script.getWriter()
+																.append(e
+																		.toString());
+													}
+												} catch (Exception e1) {
+													log.debug(e1.getMessage());
+												}
+											}
+											return orig;
+										}
+									});
 							postprocessors.add(new FuzzResultProcessor<R>() {
 								@Override
 								public R process(R orig) {
 									try {
 										s.postProcess(orig);
 									} catch (Exception e) {
-										e.printStackTrace();
+										try {
+											if (script.getWriter() != null) {
+												script.getWriter().append(
+														e.toString());
+											}
+										} catch (Exception e1) {
+											log.debug(e1.getMessage());
+										}
 									}
 									return orig;
 								}
 							});
 
 						} else {
-							writer.append(Constant.messages
-									.getString("scripts.interface.active.error"));
-							extension.setError(script, writer.toString());
+							if(script.getWriter() != null){
+							script.getWriter()
+									.append(Constant.messages
+											.getString("scripts.interface.active.error"));
+							}
+							extension.setError(script, script.getWriter()
+									.toString());
 							extension.setEnabled(script, false);
 						}
 					}
 
 				} catch (Exception e) {
 					try {
-						writer.append(e.toString());
-					} catch (IOException e1) {
-						e1.printStackTrace();
+						if (script.getWriter() != null) {
+							script.getWriter().append(e.toString());
+						}
+					} catch (Exception e1) {
+						log.debug(e1.getMessage());
 					}
 					extension.setError(script, e);
 					extension.setEnabled(script, false);

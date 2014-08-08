@@ -1,22 +1,22 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
- */
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package org.zaproxy.zap.extension.multiFuzz;
 
 import java.awt.Color;
@@ -45,7 +45,6 @@ import javax.swing.border.Border;
 import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import org.apache.log4j.Logger;
 import org.owasp.jbrofuzz.core.Fuzzer;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
@@ -56,7 +55,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 		extends AbstractDialog {
 
 	private static final long serialVersionUID = 3855005636913607013L;
-	private static final Logger logger = Logger.getLogger(FuzzDialog.class);
 	protected ExtensionFuzz res;
 	protected M fuzzableMessage;
 
@@ -74,10 +72,10 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	private JTextArea searchField;
 
 	private JCheckBox scriptEnabled;
-	protected TargetModel targetModel;
+	protected TargetModel<G> targetModel;
 	protected JTable targetTable;
-	private ArrayList<SubComponent> subs = new ArrayList<SubComponent>();
-	private ArrayList<FuzzerListener<?, ArrayList<G>>> listeners = new ArrayList<FuzzerListener<?, ArrayList<G>>>();
+	private ArrayList<SubComponent> subs = new ArrayList<>();
+	private ArrayList<FuzzerListener<?, ArrayList<G>>> listeners = new ArrayList<>();
 
 	public abstract FileFuzzer<P> convertToFileFuzzer(Fuzzer jBroFuzzer);
 
@@ -129,17 +127,17 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			Font headLine = new Font(Font.SERIF, Font.BOLD, 20);
 			JLabel headL = new JLabel(Constant.messages.getString("fuzz.title"));
 			headL.setFont(headLine);
-			GridBagConstraints h = getGBC(0, currentRow, 2, 1.0, 0.0,
+			GridBagConstraints h = Util.getGBC(0, currentRow, 2, 1.0, 0.0,
 					java.awt.GridBagConstraints.HORIZONTAL);
 			h.anchor = java.awt.GridBagConstraints.PAGE_START;
 			background.add(headL, h);
 			currentRow++;
-			GridBagConstraints i = getGBC(0, currentRow, 2, 1.0, 0.0,
+			GridBagConstraints i = Util.getGBC(0, currentRow, 2, 1.0, 0.0,
 					java.awt.GridBagConstraints.HORIZONTAL);
 			i.anchor = java.awt.GridBagConstraints.PAGE_START;
 			background.add(getInfo(), i);
 			currentRow++;
-			GridBagConstraints b = getGBC(0, currentRow, 2, 1.0, 1.0,
+			GridBagConstraints b = Util.getGBC(0, currentRow, 2, 1.0, 1.0,
 					java.awt.GridBagConstraints.BOTH);
 			b.anchor = java.awt.GridBagConstraints.CENTER;
 			background.add(getJTabbed(), b);
@@ -158,12 +156,12 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			int currentRow = 0;
 			left.add(
 					getMessageContent().messageView(),
-					getGBC(0, currentRow, 2, 1.0, 1.0,
+					Util.getGBC(0, currentRow, 2, 1.0, 1.0,
 							java.awt.GridBagConstraints.BOTH));
 			currentRow++;
 			left.add(
 					getSearchBar(),
-					getGBC(0, currentRow, 2, 1.0, 0.0,
+					Util.getGBC(0, currentRow, 2, 1.0, 0.0,
 							java.awt.GridBagConstraints.HORIZONTAL));
 
 			JPanel rbg = new JPanel();
@@ -178,38 +176,39 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			JLabel targetHead = new JLabel(
 					Constant.messages.getString("fuzz.targetHead"));
 			targetHead.setFont(headLine);
-			targetDisplay.add(targetHead, getGBC(0, currentRow, 6, 1));
+			targetDisplay.add(targetHead, Util.getGBC(0, currentRow, 6, 1));
 			currentRow++;
 
 			targetDisplay.add(
 					new JScrollPane(getTargetField()),
-					getGBC(0, currentRow, 4, 1.0, 1.0,
+					Util.getGBC(0, currentRow, 4, 1.0, 1.0,
 							java.awt.GridBagConstraints.BOTH));
 			currentRow++;
 
 			targetDisplay.add(getAddComponentButton(),
-					getGBC(1, currentRow, 1, 0.0));
+					Util.getGBC(1, currentRow, 1, 0.0));
 			targetDisplay.add(getEditComponentButton(),
-					getGBC(2, currentRow, 1, 0.0));
+					Util.getGBC(2, currentRow, 1, 0.0));
 			targetDisplay.add(getDelComponentButton(),
-					getGBC(3, currentRow, 1, 0.0));
+					Util.getGBC(3, currentRow, 1, 0.0));
 			general.setLayout(new GridBagLayout());
 			currentRow = 0;
 			JLabel messageOpts = new JLabel(
 					Constant.messages.getString("fuzz.message.options"));
 
 			messageOpts.setFont(headLine);
-			general.add(messageOpts, getGBC(0, currentRow, 6, 1));
+			general.add(messageOpts, Util.getGBC(0, currentRow, 6, 1));
 			currentRow++;
 			general.add(
 					new JLabel(Constant.messages
 							.getString("fuzz.label.scriptEnabled")),
-					getGBC(0, currentRow, 2, 0.125));
-			general.add(getScriptEnabled(), getGBC(2, currentRow, 4, 0.125));
+					Util.getGBC(0, currentRow, 2, 0.125));
+			general.add(getScriptEnabled(), Util.getGBC(2, currentRow, 4, 0.125));
 			currentRow++;
 			currentRow = addCustomComponents(general, currentRow);
 			for(SubComponent c : subs){
-				currentRow = c.addOptions(general, currentRow);
+				general.add(c.addOptions(), Util.getGBC(0, currentRow, 4, 0.125));
+				currentRow++;
 			}
 			tabbed.addTab(Constant.messages.getString("fuzz.tab.targets"),
 					targetDisplay);
@@ -218,9 +217,9 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 			rbg.setLayout(new GridBagLayout());
 			rbg.add(tabbed,
-					getGBC(0, 0, 3, 1.0, 1.0, java.awt.GridBagConstraints.BOTH));
-			rbg.add(getStartButton(), getGBC(0, 1, 1, 0.0));
-			rbg.add(getCancelButton(), getGBC(2, 1, 1, 0.0));
+					Util.getGBC(0, 0, 3, 1.0, 1.0, java.awt.GridBagConstraints.BOTH));
+			rbg.add(getStartButton(), Util.getGBC(0, 1, 1, 0.0));
+			rbg.add(getCancelButton(), Util.getGBC(2, 1, 1, 0.0));
 
 			Dimension minimumSize = new Dimension(50, 50);
 			left.setMinimumSize(minimumSize);
@@ -260,41 +259,16 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			searchField.setEditable(true);
 			searchBar
 					.add(searchField,
-							getGBC(0, 0, 4, 0.8, 1.0,
+							Util.getGBC(0, 0, 4, 0.8, 1.0,
 									java.awt.GridBagConstraints.BOTH));
 			JButton search = new JButton();
 			search.setAction(getSearchAction());
-			searchBar.add(search, getGBC(5, 0, 1, 0.2));
+			searchBar.add(search, Util.getGBC(5, 0, 1, 0.2));
 		}
 		return searchBar;
 	}
 
 	// Right Panel
-	private Color getColor(int n) {
-		float hue = (float) (n % 5) / 5;
-		float sat = (float) Math.ceil((float) n / 5) / 2;
-		float bright = (float) Math.ceil((float) n / 5);
-		return Color.getHSBColor(hue, sat, bright);
-	}
-
-	protected GridBagConstraints getGBC(int x, int y, int width, double weightx) {
-		return getGBC(x, y, width, weightx, 0.0,
-				java.awt.GridBagConstraints.NONE);
-	}
-
-	protected GridBagConstraints getGBC(int x, int y, int width,
-			double weightx, double weighty, int fill) {
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = x;
-		gbc.gridy = y;
-		gbc.insets = new java.awt.Insets(1, 5, 1, 5);
-		gbc.anchor = java.awt.GridBagConstraints.NORTHWEST;
-		gbc.fill = fill;
-		gbc.weightx = weightx;
-		gbc.weighty = weighty;
-		gbc.gridwidth = width;
-		return gbc;
-	}
 
 	public void addFuzzerListener(FuzzerListener<?, ArrayList<G>> listener) {
 		listeners.add(listener);
@@ -322,7 +296,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			addComponentButton.setAction(getAddFuzzAction());
 			getAddComponentButton().setText(
 					Constant.messages.getString("fuzz.button.add.add"));
-			addComponentButton.setEnabled(true);
 		}
 		return addComponentButton;
 	}
@@ -332,7 +305,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			editComponentButton.setAction(getEditFuzzAction());
 			editComponentButton.setText(
 					Constant.messages.getString("fuzz.button.edit"));
-			editComponentButton.setEnabled(true);
 		}
 		return editComponentButton;
 	}
@@ -342,7 +314,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			delComponentButton.setAction(getDelFuzzAction());
 			delComponentButton.setText(
 					Constant.messages.getString("fuzz.button.del"));
-			delComponentButton.setEnabled(true);
 		}
 		return delComponentButton;
 	}
@@ -431,7 +402,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 		public DelFuzzAction() {
 			super(Constant.messages.getString("fuzz.button.del"));
-			setEnabled(true);
 		}
 
 		@Override
@@ -440,7 +410,7 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			for(int i = 0; i < sel.length; i++){
 				targetModel.removeEntry(sel[i] - i);
 			}
-			if (targetModel.getRowCount() < 1) {
+			if (targetModel.getRowCount() == 0) {
 				getStartButton().setEnabled(false);
 			}
 			getInfo().setText(Constant.messages.getString("fuzz.info.gen"));
@@ -453,7 +423,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 		public EditFuzzAction() {
 			super(Constant.messages.getString("fuzz.button.edit"));
-			setEnabled(true);
 		}
 
 		@Override
@@ -466,13 +435,15 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 
 		public AddFuzzAction() {
 			super(Constant.messages.getString("fuzz.button.add.add"));
-			setEnabled(true);
 		}
 
 		protected boolean isValidLocation(L l) {
 			boolean valid = true;
 			for (G g : targetModel.getEntries()) {
 				valid &= !l.overlap(g.getLocation());
+				if(!valid){
+					break;
+				}
 			}
 			return valid;
 		}
@@ -495,11 +466,11 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 		}
 	}
 
-	public class TargetModel extends AbstractTableModel {
-		private String[] columnNames = {
+	public static class TargetModel<G extends FuzzGap<?,?,?>> extends AbstractTableModel {
+		static final String[] columnNames = {
 				Constant.messages.getString("fuzz.table.origHead"),
 				Constant.messages.getString("fuzz.table.color") };
-		private ArrayList<G> targets = new ArrayList<G>();
+		private ArrayList<G> targets = new ArrayList<>();
 
 		@Override
 		public int getColumnCount() {
@@ -521,14 +492,19 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 			if (col == 0) {
 				return targets.get(row).orig();
 			} else if (col == 1) {
-				return getColor(row + 1);
+				return Util.getColor(row + 1);
 			}
 			return null;
 		}
 
 		@Override
 		public Class<?> getColumnClass(int c) {
-			return getValueAt(0, c).getClass();
+			switch (c) {
+			case 1:
+				return Color.class;
+			default:
+				return String.class;
+			}
 		}
 
 		@Override
@@ -596,9 +572,6 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 					setBorder(unselectedBorder);
 				}
 			}
-
-			setToolTipText("RGB value: " + newColor.getRed() + ", "
-					+ newColor.getGreen() + ", " + newColor.getBlue());
 			return this;
 		}
 	}

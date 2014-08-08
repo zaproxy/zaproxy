@@ -3,13 +3,13 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2013 The ZAP development team
+ * Copyright 2014 The ZAP Development Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
@@ -25,11 +25,11 @@ import javax.script.ScriptException;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
-public interface FuzzScript<M extends Message, L extends FuzzLocation<M>>{
+public interface FuzzScript{
 	
 	void processPayload(Payload p) throws ScriptException;
 	
-	void preProcess(M msg, Map<L, Payload> paymap) throws ScriptException;
+	void preProcess(Message msg, Map<?,?> paymap) throws ScriptException;
 
-	void postProcess(FuzzResult msg) throws ScriptException;
+	void postProcess(FuzzResult<?,?> msg) throws ScriptException;
 }

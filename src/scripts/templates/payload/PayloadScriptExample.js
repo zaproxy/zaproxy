@@ -15,7 +15,7 @@ function insertPayloads(gap, pf) {
 
 	// 2. Pre-defined fuzzing files
 	// Mark as "FILE" and pass 'category + " --> " + file name' as argument
-	gap.addPayload(pf.createPayload("FILE", "jbrofuzz / Base --> Base02 (binary)"))
+	gap.addPayload(pf.createPayload(org.zaproxy.zap.extension.multiFuzz.Payload.Type.FILE, "jbrofuzz / Base --> Base02 (binary)"))
 	// 3. Regular expressions
 	// Due to the use of a custom generator not all operators are accessible. Possible expressions contain:
 	//	- literals
@@ -27,7 +27,7 @@ function insertPayloads(gap, pf) {
 	//	- '\d' for any digit
 	//	- for any whitespace '\s'
 	// Mark as "REGEX" and pass the expression and a limit for the number of payloads to be generated as arguments
-	regex = pf.createPayload("REGEX","(a|\\d|[bcd]z)*h", 30)
+	regex = pf.createPayload(org.zaproxy.zap.extension.multiFuzz.Payload.Type.REGEX,"(a|\\d|[bcd]z)*h", 30)
 	// Set the maximum length of payload strings that are generated
 	regex.setLength(4)
 	gap.addPayload(regex)

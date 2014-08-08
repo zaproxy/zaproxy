@@ -1,23 +1,24 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
- */
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
-import org.apache.log4j.Logger;
 import org.jdesktop.swingx.treetable.AbstractTreeTableModel;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.Pair;
@@ -29,8 +30,6 @@ import javax.swing.tree.TreePath;
 
 public class HttpFuzzTableModel extends AbstractTreeTableModel {
 
-	private static final Logger logger = Logger
-			.getLogger(HttpFuzzTableModel.class);
 	private static final String[] COLUMN_NAMES = { 
 			Constant.messages.getString("fuzz.http.table.header.name"),
 			Constant.messages.getString("fuzz.http.table.header.method"),
@@ -44,7 +43,7 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 			Constant.messages.getString("fuzz.http.table.header.include")};
 
 	private List<HttpFuzzRecord> data = new LinkedList<>();
-
+	
 	public HttpFuzzTableModel() {
 		super(new Object());
 	}
@@ -91,10 +90,12 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 			case 7:
 				return result.getResult();
 			case 8:
-				StringBuilder pay = new StringBuilder("");
+				StringBuilder pay = new StringBuilder();
 				for (int i = 0; i < result.getPayloads().size(); i++) {
-					pay.append(i + ". gap -> " + result.getPayloads().get(i)
-							+ "   \t");
+					pay.append(i);
+					pay.append(". gap -> ");
+					pay.append(result.getPayloads().get(i));
+					pay.append("   \t");
 				}
 				return pay.toString();
 			case 9:
@@ -169,13 +170,13 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 
 	public List<HttpFuzzRecord> getEntries() {
 		if (data == null) {
-			data = new LinkedList<HttpFuzzRecord>();
+			data = new LinkedList<>();
 		}
 		return data;
 	}
 
 	public List<HttpFuzzRequestRecord> getHistoryReferences() {
-		List<HttpFuzzRequestRecord> res = new LinkedList<HttpFuzzRequestRecord>();
+		List<HttpFuzzRequestRecord> res = new LinkedList<>();
 		for (HttpFuzzRecord rec : data) {
 			if (rec instanceof HttpFuzzRequestRecord) {
 				res.add((HttpFuzzRequestRecord) rec);
@@ -189,8 +190,8 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 			for (HttpFuzzRecord r : data) {
 				if (r instanceof HttpFuzzRecordGroup) {
 					if(((HttpFuzzRecordGroup) r).getMembers().contains(entry)){
-						modelSupport.fireChildRemoved(new TreePath(r), ((HttpFuzzRecordGroup) r).getMembers().indexOf(entry), entry);
 						((HttpFuzzRecordGroup) r).getMembers().remove(entry);
+						modelSupport.fireChildRemoved(new TreePath(r), ((HttpFuzzRecordGroup) r).getMembers().indexOf(entry), entry);
 					}
 				}
 			}
@@ -198,5 +199,6 @@ public class HttpFuzzTableModel extends AbstractTreeTableModel {
 	}
 	public void removeAll() {
 		data.clear();
+		modelSupport.fireNewRoot();
 	}
 }

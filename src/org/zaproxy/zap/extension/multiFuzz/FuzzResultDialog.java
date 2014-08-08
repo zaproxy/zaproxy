@@ -1,20 +1,22 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
- */
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package org.zaproxy.zap.extension.multiFuzz;
 
 import java.awt.Component;
@@ -60,15 +62,15 @@ public abstract class FuzzResultDialog extends AbstractDialog {
 			background = new JPanel();
 			background.setLayout(new GridBagLayout());
 			int currentRow = 0;
-			background.add(getMessageInspection().messageView(), getGBC(0, currentRow, 1, 0.4, 1, GridBagConstraints.BOTH));
-			background.add(getDiagrams(), getGBC(1, currentRow, 2, 0.6, 1, GridBagConstraints.BOTH));
+			background.add(getMessageInspection().messageView(), Util.getGBC(0, currentRow, 1, 0.4, 1, GridBagConstraints.BOTH));
+			background.add(getDiagrams(), Util.getGBC(1, currentRow, 2, 0.6, 1, GridBagConstraints.BOTH));
 			currentRow++;
-			GridBagConstraints tableConstraints = getGBC(0,currentRow, 3, 1 , 1, GridBagConstraints.HORIZONTAL);
+			GridBagConstraints tableConstraints = Util.getGBC(0,currentRow, 3, 1 , 1, GridBagConstraints.HORIZONTAL);
 			tableConstraints.anchor = GridBagConstraints.PAGE_END;
 			tableConstraints.ipady = 150;
 			background.add(getScrollPane(), tableConstraints);
 			currentRow++;
-			background.add(getCloseButton(), getGBC(2, currentRow, 1, 0));
+			background.add(getCloseButton(), Util.getGBC(2, currentRow, 1, 0));
 		}
 		return background;
 	}
@@ -89,33 +91,16 @@ public abstract class FuzzResultDialog extends AbstractDialog {
 	
 	private Component getCloseButton() {
 		if(close == null){
-			close = new JButton(Constant.messages.getString("fuzz.result.close"));
+			close = new JButton();
 			close.setAction(new CloseAction());
 		}
 		return close;
 	}
-	protected GridBagConstraints getGBC(int x, int y, int width, double weightx) {
-		return getGBC(x, y, width, weightx, 0.0,
-				java.awt.GridBagConstraints.NONE);
-	}
 
-	protected GridBagConstraints getGBC(int x, int y, int width,
-			double weightx, double weighty, int fill) {
-		GridBagConstraints gbc = new GridBagConstraints();
-		gbc.gridx = x;
-		gbc.gridy = y;
-		gbc.insets = new java.awt.Insets(1, 5, 1, 5);
-		gbc.anchor = java.awt.GridBagConstraints.NORTHWEST;
-		gbc.fill = fill;
-		gbc.weightx = weightx;
-		gbc.weighty = weighty;
-		gbc.gridwidth = width;
-		return gbc;
-	}
 	private class CloseAction extends AbstractAction{
 		
 		public CloseAction(){
-			super("Close");
+			super(Constant.messages.getString("fuzz.button.close"));
 		}
 		
 		

@@ -3,18 +3,20 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
+ * Copyright 2014 The ZAP Development Team
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
- *   http://www.apache.org/licenses/LICENSE-2.0
+ * http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- */
+ */ 
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.awt.EventQueue;
@@ -82,9 +84,6 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
 	private HttpPanel requestPanel;
 	private HttpPanel responsePanel;
-
-	private CSVPrinter printer;
-	private CSVParser parser;
 
 	private HttpResultGroupingPopupFuzzMenu grouping;
 	private HttpResultRenamePopupFuzzMenu rename;
@@ -292,9 +291,8 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 								.getEntries().get(i);
 						if (row < c + g.getMembers().size()) {
 							return g.getMembers().get(row - c);
-						} else {
-							c += g.getMembers().size();
 						}
+						c += g.getMembers().size();
 					}
 				}
 			} else {
@@ -305,7 +303,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 	}
 
 	public List<HttpFuzzRecord> getEntries(int[] indices) {
-		LinkedList<HttpFuzzRecord> res = new LinkedList<HttpFuzzRecord>();
+		LinkedList<HttpFuzzRecord> res = new LinkedList<>();
 		for (int i : indices) {
 			res.add(getEntry(i));
 		}
@@ -479,21 +477,22 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 				(HttpMessage) fuzzResult.getMessage());
 	}
 
-	private HttpFuzzRequestRecord.State convertState(FuzzResult.State fuzzState) {
+	private HttpFuzzRequestRecord.State convertState(String fuzzState) {
 		HttpFuzzRequestRecord.State state;
 		switch (fuzzState) {
-		case ANTICSRF:
+		case HttpFuzzResult.STATE_ANTICSRF:
 			state = HttpFuzzRequestRecord.State.ANTI_CRSF_TOKEN;
-		case REFLECTED:
+			break;
+		case HttpFuzzResult.STATE_REFLECTED:
 			state = HttpFuzzRequestRecord.State.REFLECTED;
 			break;
-		case ERROR:
+		case FuzzResult.STATE_ERROR:
 			state = HttpFuzzRequestRecord.State.ERROR;
 			break;
-		case CUSTOM:
+		case FuzzResult.STATE_CUSTOM:
 			state = HttpFuzzRequestRecord.State.CUSTOM;
 			break;
-		case SUCCESSFUL:
+		case FuzzResult.STATE_SUCCESSFUL:
 		default:
 			state = HttpFuzzRequestRecord.State.SUCCESSFUL;
 			break;
@@ -551,8 +550,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
 	@Override
 	public void saveRecords(File f) {
-		try {
-			printer = new CSVPrinter(new FileWriter(f), CSVFormat.DEFAULT);
+		try (CSVPrinter printer = new CSVPrinter(new FileWriter(f), CSVFormat.DEFAULT);){
 			printer.print(Constant.messages
 					.getString("fuzz.http.csv.head.name"));
 			printer.print(Constant.messages
@@ -593,14 +591,15 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 			}
 			printer.flush();
 		} catch (IOException | SQLException e) {
-			e.printStackTrace();
+			logger.debug(e.getMessage());
+			JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(), Constant.messages
+					.getString("fuzz.http.csv.writeError"));
 		}
 	}
 
 	@Override
 	public void loadRecords(File f) {
-		try {
-			parser = new CSVParser(new FileReader(f), CSVFormat.DEFAULT);
+		try (CSVParser parser = new CSVParser(new FileReader(f), CSVFormat.DEFAULT);){
 			boolean header = true;
 			for (CSVRecord rec : parser) {
 				if (!header) {
@@ -621,7 +620,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 					}
 
 					int l = Integer.parseInt(rec.get(3));
-					ArrayList<String> pay = new ArrayList<String>();
+					ArrayList<String> pay = new ArrayList<>();
 					if (l == 0) {
 						l++;
 					} else {
@@ -642,7 +641,9 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 				}
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			logger.debug(e.getMessage());
+			JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(), Constant.messages
+					.getString("fuzz.http.csv.readError"));
 		}
 	}
 }

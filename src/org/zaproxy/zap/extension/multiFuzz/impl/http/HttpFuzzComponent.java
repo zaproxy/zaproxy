@@ -1,22 +1,22 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Copyright 2010 psiinon@gmail.com
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
- */
+ *
+ * Copyright 2014 The ZAP Development Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */ 
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.awt.Color;
@@ -32,30 +32,35 @@ import javax.swing.JTextArea;
 import javax.swing.text.DefaultHighlighter.DefaultHighlightPainter;
 import javax.swing.text.Highlighter;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.multiFuzz.FuzzComponent;
+import org.zaproxy.zap.extension.multiFuzz.Util;
 
 public class HttpFuzzComponent implements
 		FuzzComponent<HttpMessage, HttpFuzzLocation, HttpFuzzGap> {
-	private HttpMessage message;
+	
+	private static final Logger logger = Logger
+			.getLogger(HttpFuzzComponent.class);
 	private JSplitPane bgSplit;
 	private JTextArea headView;
 	private JTextArea bodyView;
 	boolean headerFocus = true;
 
+	public HttpFuzzComponent() {
+	    this(null);
+	}
+
 	public HttpFuzzComponent(HttpMessage msg) {
-		message = msg;
-		bgSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
-		bgSplit.setDividerLocation(0.5);
-		try{
-			headView = new JTextArea(message.getRequestHeader().toString());
-			bodyView = new JTextArea(message.getRequestBody().toString());
-		}catch (Exception e){
-			headView = new JTextArea("");
-			bodyView = new JTextArea("");
-		}
-		headView.setEditable(false);
-		bodyView.setEditable(false);
+	    bgSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, false);
+	    bgSplit.setDividerLocation(0.5);
+	    headView = new JTextArea();
+	    bodyView = new JTextArea();
+	    if (msg != null) {
+	        setMessage(msg);
+	    }
+	    headView.setEditable(false);
+	    bodyView.setEditable(false);
 		bgSplit.setTopComponent(headView);
 		bgSplit.setBottomComponent(bodyView);
 		headView.addFocusListener(new FocusListener() {
@@ -87,7 +92,7 @@ public class HttpFuzzComponent implements
 		headView.setMinimumSize(new Dimension(50, 50));
 		bodyView.setMinimumSize(new Dimension(50, 50));
 	}
-
+	
 	@Override
 	public HttpFuzzLocation selection() {
 		int s = 0;
@@ -110,24 +115,17 @@ public class HttpFuzzComponent implements
 			try {
 				if (l.begin() < headView.getText().length()) {
 					headView.getHighlighter().addHighlight(l.begin(), l.end(),
-							new MyHighlightPainter(getColor(i + 1)));
+							new MyHighlightPainter(Util.getColor(i + 1)));
 				} else {
 					bodyView.getHighlighter().addHighlight(
 							l.begin() - headView.getText().length() - 1,
 							l.end() - headView.getText().length() - 1,
-							new MyHighlightPainter(getColor(i + 1)));
+							new MyHighlightPainter(Util.getColor(i + 1)));
 				}
 			} catch (Exception e) {
-				e.printStackTrace();
+				logger.debug(e.getMessage());
 			}
 		}
-	}
-
-	private Color getColor(int n) {
-		float hue = (float) (n % 5) / 5;
-		float sat = (float) Math.ceil((float) n / 5) / 2;
-		float bright = (float) Math.ceil((float) n / 5);
-		return Color.getHSBColor(hue, sat, bright);
 	}
 
 	private void removeHighlights() {
@@ -208,8 +206,7 @@ public class HttpFuzzComponent implements
 	}
 	@Override
 	public void setMessage(HttpMessage msg) {
-		this.message = msg;
-		headView.setText(message.getRequestHeader().toString());
-		bodyView.setText(message.getRequestBody().toString());
+		headView.setText(msg.getRequestHeader().toString());
+		bodyView.setText(msg.getRequestBody().toString());
 	}
 }
