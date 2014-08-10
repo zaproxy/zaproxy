@@ -84,6 +84,7 @@ This list the alerts
 10044	Big Redirect Response
 10045	Source Code Disclosure - WEB-INF folder
 10046	Insecure Component
+10047	HTTPS Content Available via HTTP
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
