@@ -170,10 +170,13 @@ public class OutputPanel extends AbstractPanel {
 		}
 		return txtOutput;
 	}
-
+	/**
+	 * @deprecated
+	 * appendDirty has been deprecated in favour of using {@link #append(String)}
+	 */
 	@Deprecated
 	public void appendDirty(final String msg) {
-		doAppend(msg);
+		append(msg);
 	}
 
 	public void append(final String msg) {
@@ -196,15 +199,14 @@ public class OutputPanel extends AbstractPanel {
 
 	// ZAP: New method for printing out stack traces
 	public void append(final Exception e) {
-		doAppend(ExceptionUtils.getStackTrace(e));
+		append(ExceptionUtils.getStackTrace(e));
 	}
 
 	public void clear() {
 	    getTxtOutput().setText("");
 	}
 	
-	// ZAP : New method for handling time stamping options
-	public void doAppend(String message){
+	private void doAppend(String message){
 		if (Model.getSingleton().getOptionsParam().getViewParam().isOutputTabTimeStampingEnabled())
 			getTxtOutput().append(TimeStampUtils.getTimeStampedMessage(message,Model.getSingleton().getOptionsParam().getViewParam().getOutputTabTimeStampsFormat()));
 		else

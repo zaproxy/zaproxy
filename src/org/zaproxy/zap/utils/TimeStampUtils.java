@@ -87,10 +87,6 @@ public final class TimeStampUtils {
     * on the provided {@code format} which is a SimpleDateFormat string. 
     * If application of the provided {@code format} fails a default format is used. 
     * The DEFAULT format is defined in Messages.properties.
-    * The position of the time stamp is controlled via timestamp.format.message.order
-    * defined in Messages.properties for internationalisation. This allows right-to-left
-    * languages to specify that the time stamp should appear to the right of the message
-    * if necessary.
     * @param message the message to be time stamped
     * @param the format to be used in creating the time stamp
     * @return a time stamp in the designated format along with the original message
@@ -98,12 +94,10 @@ public final class TimeStampUtils {
     * @see SimpleDateFormat
     */
 	public static String getTimeStampedMessage(String message, String format){
-		StringBuilder timeStampedMessage = new StringBuilder();
+		StringBuilder timeStampedMessage = new StringBuilder(format.length()+TIME_STAMP_DELIMITER.length()+message.length()+2);
 		
 		timeStampedMessage.append(currentFormattedTimeStamp(format)); //Timestamp
-		timeStampedMessage.append(" "); //Space
-		timeStampedMessage.append(TIME_STAMP_DELIMITER); //Delimiter
-		timeStampedMessage.append(" "); //Space
+		timeStampedMessage.append(' ').append(TIME_STAMP_DELIMITER).append(' '); //Padded Delimiter
 		timeStampedMessage.append(message); //Original message
 		
 		return timeStampedMessage.toString();

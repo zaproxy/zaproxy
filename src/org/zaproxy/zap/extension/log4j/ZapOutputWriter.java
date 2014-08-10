@@ -25,7 +25,7 @@ import org.zaproxy.zap.view.ScanStatus;
 
 public class ZapOutputWriter extends WriterAppender {
 
-	private final static String NEWLINE = "\n";
+	private final static char NEWLINE = '\n';
 	private ScanStatus scanStatus = null;
 	
 	public ZapOutputWriter () {
@@ -54,12 +54,12 @@ public class ZapOutputWriter extends WriterAppender {
 
 			String [] tsr = event.getThrowableStrRep();			
 			if (tsr != null) {
-				StringBuilder eventThrowableStrRep = new StringBuilder();
+				StringBuilder eventThrowableStrRep = new StringBuilder(tsr.length*75);//Capacity is guessed, but more than 16 for sure
 				for (String str : tsr) {
 					eventThrowableStrRep.append(str).append(NEWLINE);
 				}
 				//Send it as a single string
-				View.getSingleton().getOutputPanel().append(new StringBuilder(eventThrowableStrRep).toString());
+				View.getSingleton().getOutputPanel().append(eventThrowableStrRep.toString());
 			}
 		}
 	}
