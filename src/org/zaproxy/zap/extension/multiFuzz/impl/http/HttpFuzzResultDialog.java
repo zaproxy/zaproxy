@@ -303,7 +303,7 @@ public class HttpFuzzResultDialog extends FuzzResultDialog {
 				} else {
 					statesMap.put(r.getReason(), 1);
 				}
-				if (resultMap.containsKey(r.getResult())) {
+				if (resultMap.containsKey(r.getResult().first)) {
 					resultMap.put(r.getResult().first,
 							resultMap.get(r.getResult().first) + 1);
 				} else {

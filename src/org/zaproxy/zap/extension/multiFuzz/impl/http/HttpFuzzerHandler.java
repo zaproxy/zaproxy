@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 
@@ -96,6 +97,9 @@ public class HttpFuzzerHandler implements
 
 	@Override
 	public List<SearchResult> searchResults(Pattern pattern, boolean inverse) {
+		if(fuzzerPanel == null){
+			return Collections.emptyList();
+		}
 		return fuzzerPanel.searchResults(pattern, inverse);
 	}
 

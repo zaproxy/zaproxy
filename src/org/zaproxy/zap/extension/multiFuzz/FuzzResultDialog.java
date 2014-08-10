@@ -65,7 +65,7 @@ public abstract class FuzzResultDialog extends AbstractDialog {
 			background.add(getMessageInspection().messageView(), Util.getGBC(0, currentRow, 1, 0.4, 1, GridBagConstraints.BOTH));
 			background.add(getDiagrams(), Util.getGBC(1, currentRow, 2, 0.6, 1, GridBagConstraints.BOTH));
 			currentRow++;
-			GridBagConstraints tableConstraints = Util.getGBC(0,currentRow, 3, 1 , 1, GridBagConstraints.HORIZONTAL);
+			GridBagConstraints tableConstraints = Util.getGBC(0,currentRow, 3, 1 , 0, GridBagConstraints.BOTH);
 			tableConstraints.anchor = GridBagConstraints.PAGE_END;
 			tableConstraints.ipady = 150;
 			background.add(getScrollPane(), tableConstraints);
