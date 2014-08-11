@@ -22,9 +22,9 @@ function preProcess(msg, p){
 // It receives the fuzzResult as an argument - the corresponding request can be obtained
 // by calling res.getMessage()
 function postProcess(res){
-	if(res.getState() == HttpFuzzResult.STATE_REFLECTED || res.getState() == FuzzResult.STATE_ERROR){
+	if(res.getState() == org.zaproxy.zap.extension.multiFuzz.impl.http.HttpFuzzResult.STATE_REFLECTED || res.getState() == org.zaproxy.zap.extension.multiFuzz.FuzzResult.STATE_ERROR){
 		println('Attempt failes')
-		res.setState(FuzzResult.STATE_CUSTOM)
+		res.setState(org.zaproxy.zap.extension.multiFuzz.FuzzResult.STATE_CUSTOM)
 		res.setCustom('Custom comment')
 	}
 }

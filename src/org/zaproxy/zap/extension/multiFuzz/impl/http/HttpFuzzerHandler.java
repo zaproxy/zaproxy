@@ -139,6 +139,7 @@ public class HttpFuzzerHandler implements
 			@Override
 			public void notifyFuzzerComplete(Boolean result) {
 				ext.getFuzzerPanel().scanFinished();
+				fuzzerThread.stop();
 			}
 
 		});
