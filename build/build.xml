@@ -671,7 +671,7 @@
         <echo message="Creating ZIP archive for the Mac OS X release..." />
         <delete file="ZAP_${version}_Mac_OS_X.zip" />
         <exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
-            <arg line="-y -r ../ZAP_${version}_Mac_OS_X.zip '${app.name}'" />
+            <arg line="-y -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
         </exec>
 
         <!-- Housekeeping: Delete the mac distribution directory -->
