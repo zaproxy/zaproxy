@@ -945,7 +945,7 @@ public class Session extends FileXML {
     
 		this.globalExcludeURLRegexs.add(ignoredRegex);
 		
-		// This probably isn't needed in the active session, need input here. 
+		// XXX This probably isn't needed in the active session, need advice here. 
 		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
 	}
 
@@ -960,7 +960,7 @@ public class Session extends FileXML {
 
 		this.globalExcludeURLRegexs = stripEmptyLines(ignoredRegexs);
 
-		// This probably isn't needed in the active session, need input here. 
+		// XXX This probably isn't needed in the active session, need advice here. 
 		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
 	    log.info("<<< setGlobalExcludeURLRegexs" );
 	}

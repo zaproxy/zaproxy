@@ -49,6 +49,7 @@ import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.extension.option.OptionsParamCertificate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.network.ConnectionParam;
+// ZAP: new imports
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
@@ -69,7 +70,7 @@ public class OptionsParam extends AbstractParam {
 	private ConnectionParam connectionParam = new ConnectionParam();
 	private OptionsParamView viewParam = new OptionsParamView();
 	private OptionsParamCertificate certificateParam = new OptionsParamCertificate();
-	// ZAP: Added OptionsParamCheckForUpdates, InvokeParam, AntiCsrfParam, OptionsParamApi, GlobalExcludeURLParam
+	// ZAP: Added many instance variables for new functionality.
 	private OptionsParamCheckForUpdates checkForUpdatesParam = new OptionsParamCheckForUpdates();
 	private AntiCsrfParam antiCsrfParam = new AntiCsrfParam();
 	private OptionsParamApi apiParam = new OptionsParamApi();
