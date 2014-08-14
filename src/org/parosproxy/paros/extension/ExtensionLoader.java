@@ -47,6 +47,7 @@
 // ZAP: 2014/03/23 Issue 1090: Do not add pop up menus if target extension is not enabled
 // ZAP: 2014/05/20 Issue 1202: Issue with loading addons that did not initialize correctly
 // ZAP: 2014/08/14 Catch Exceptions thrown by extensions when stopping them
+// ZAP: 2014/08/14 Issue 1309: NullPointerExceptions during a failed uninstallation of an add-on
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -954,6 +955,12 @@ public class ExtensionLoader {
 	public void removeExtension(Extension extension, ExtensionHook hook) {
 		extensionList.remove(extension);
 		
+		if (hook == null) {
+			logger.info("ExtensionHook is null for \"" + extension.getClass().getCanonicalName()
+					+ "\" the hooked objects will not be automatically removed.");
+			return;
+		}
+
 		// by removing the ExtensionHook object,
 		// the following listeners are no longer informed:
 		// 		* SessionListeners

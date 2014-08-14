@@ -94,14 +94,19 @@ public final class AddOnInstaller {
      * @see org.parosproxy.paros.core.scanner.Plugin
      */
     public static boolean uninstall(AddOn addOn) {
-        boolean uninstalledWithoutErrors = true;
-        uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn);
-        uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn);
-        uninstalledWithoutErrors &= uninstallAddOnFiles(addOn);
-        // This will remove the message bundle, so do it last in case the rules use it
-        uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn);
-
-        return uninstalledWithoutErrors;
+        try {
+            boolean uninstalledWithoutErrors = true;
+            uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn);
+            uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn);
+            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn);
+            // This will remove the message bundle, so do it last in case the rules use it
+            uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn);
+    
+            return uninstalledWithoutErrors;
+        } catch (Exception e) {
+            logger.error("An error occurred while uninstalling the add-on: " + addOn.getId(), e);
+            return false;
+        }
     }
 
     private static List<Extension> installAddOnExtensions(AddOn addOn) {
@@ -131,8 +136,14 @@ public final class AddOnInstaller {
                 if (ext != null && ext.isEnabled()) {
                     if (ext.canUnload()) {
                         logger.debug("Unloading ext: " + ext.getName());
-                        ext.unload();
-                        ExtensionFactory.unloadAddOnExtension(ext);
+                        try {
+                            ext.unload();
+                            ExtensionFactory.unloadAddOnExtension(ext);
+                        } catch (Exception e) {
+                            logger.error("An error occurred while uninstalling the extension \"" + name
+                                    + "\" bundled in the add-on \"" + addOn.getId() + "\":", e);
+                            uninstalledWithoutErrors = false;
+                        }
                     } else {
                         logger.debug("Cant dynamically unload ext: " + name);
                         uninstalledWithoutErrors = false;
@@ -279,7 +290,7 @@ public final class AddOnInstaller {
                     logger.error("Failed to delete: " + file.getAbsolutePath());
                     uninstalledWithoutErrors = false;
                 }
-                if (parent.list().length == 0) {
+                if (parent.isDirectory() && parent.list().length == 0) {
                     logger.debug("Deleting: " + parent.getAbsolutePath());
                     if (!parent.delete()) {
                         // Ignore - check for <= 2 as on *nix '.' and '..' are returned

@@ -241,6 +241,11 @@ public class AddOnLoader extends URLClassLoader {
 			return false;
 		}
 
+		if (!this.aoc.includesAddOn(ao.getId())) {
+			logger.warn("Trying to uninstall an add-on that is not installed: " + ao.getId());
+			return false;
+		}
+
 		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao);
 
 		if (! this.aoc.removeAddOn(ao)) {
