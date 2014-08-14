@@ -307,8 +307,6 @@
         <copy todir="${dist}/lang">
             <fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
         </copy>
-        <!-- Special case - duplicate the default lang file (issue 151)-->
-        <copy file="${src}/lang/Messages.properties" tofile="${dist}/lang/Messages_en_GB.properties"/>
 
         <copy todir="${dist}/license">
             <fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />

@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.util.Enumeration;
 import java.util.Locale;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.UIManager;
@@ -111,6 +112,10 @@ public class ZAP {
 		} else {
 			BasicConfigurator.configure();
 		}
+
+        if (zap.cmdLine.isGUI()) {
+            setViewLocale(Constant.getLocale());
+        }
         
         log = Logger.getLogger(ZAP.class);
 	    log.info(msg);
@@ -125,7 +130,12 @@ public class ZAP {
 
 	}
 
-	/**
+    private static void setViewLocale(Locale locale) {
+        JComponent.setDefaultLocale(locale);
+        JOptionPane.setDefaultLocale(locale);
+    }
+
+    /**
 	 * Initialization without dependence on any data model nor view creation.
 	 * @param args
 	 */
@@ -223,12 +233,14 @@ public class ZAP {
 				final Locale userloc = determineUsersSystemLocale();
 		    	if (userloc == null) {
 		    		// Only show the dialog, when the user's language can't be guessed.
+					setViewLocale(Constant.getSystemsLocale());
 					final LocaleDialog dialog = new LocaleDialog(null, true);
 					dialog.init(Model.getSingleton().getOptionsParam());
 					dialog.setVisible(true);
 				} else {
 					Model.getSingleton().getOptionsParam().getViewParam().setLocale(userloc);
 				}
+				setViewLocale(createLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale().split("_")));
 				Constant.setLocale(Model.getSingleton().getOptionsParam().getViewParam().getLocale());
 				Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
 		    }
@@ -284,14 +296,14 @@ public class ZAP {
 
 	/**
 	 * Determines the {@link Locale} of the current user's system.
-	 * It will match the {@link Locale#getDefault()} with the available
+	 * It will match the {@link Constant#getSystemsLocale()} with the available
 	 * locales from ZAPs translation files. It may return null, if the users
 	 * system locale is not in the list of available translations of ZAP.
 	 * @return
 	 */
 	private Locale determineUsersSystemLocale() {
 		Locale userloc = null;
-		final Locale systloc = Locale.getDefault();
+		final Locale systloc = Constant.getSystemsLocale();
 		// first, try full match
 		for (String ls : LocaleUtils.getAvailableLocales()){
 			String[] langArray = ls.split("_");
@@ -319,13 +331,7 @@ public class ZAP {
 			for (String ls : LocaleUtils.getAvailableLocales()){
 				String[] langArray = ls.split("_");
 				if (systloc.getLanguage().equals(langArray[0])) {
-					if (langArray.length == 1) {
-						userloc = new Locale(langArray[0]);
-					} else if (langArray.length == 2) {
-						userloc = new Locale(langArray[0], langArray[1]);
-					} else if (langArray.length == 3) {
-						userloc = new Locale(langArray[0], langArray[1], langArray[2]);
-					}
+					userloc = createLocale(langArray);
 					break;
 				}
 			}
@@ -333,6 +339,22 @@ public class ZAP {
 		return userloc;
 	}
 	
+	private static Locale createLocale(String[] localeFields) {
+		if (localeFields == null || localeFields.length == 0) {
+			return null;
+		}
+		Locale.Builder localeBuilder = new Locale.Builder();
+		localeBuilder.setLanguage(localeFields[0]);
+
+		if (localeFields.length >= 2) {
+			localeBuilder.setRegion(localeFields[1]);
+		}
+		if (localeFields.length >= 3) {
+			localeBuilder.setVariant(localeFields[2]);
+		}
+		return localeBuilder.build();
+	}
+
 	private ControlOverrides getOverrides() {
 		ControlOverrides overrides = new ControlOverrides();
 		overrides.setProxyPort(this.cmdLine.getPort());

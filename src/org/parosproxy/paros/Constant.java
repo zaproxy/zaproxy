@@ -49,6 +49,7 @@
 // ZAP: 2013/12/13 Issue 919: Support for multiple language vulnerability files.
 // ZAP: 2014/04/11 Issue 1148: ZAP 2.3.0 does not launch after upgrading in some situations
 // ZAP: 2014/07/15 Issue 1265: Context import and export
+// ZAP: 2014/08/14 Issue 1300: Add-ons show incorrect language when English is selected on non English locale
 
 package org.parosproxy.paros;
 
@@ -181,6 +182,15 @@ public final class Constant {
     
     // ZAP: Added i18n
     public static I18N messages = null;
+
+    /**
+     * The system's locale (as determined by the JVM at startup, {@code Locale#getDefault()}).
+     * <p>
+     * The locale is kept here because the default locale is later overridden with the user's chosen locale/language.
+     * 
+     * @see Locale#getDefault()
+     */
+    private static final Locale SYSTEMS_LOCALE = Locale.getDefault();
 
     /**
      * Pointer and filename part for the vulnerabilities file.
@@ -472,6 +482,8 @@ public final class Constant {
             System.out.println("Failed to initialise locale " + e);
         }
         
+        Locale.setDefault(locale);
+
         messages = new I18N(locale);
     }
     
@@ -685,6 +697,8 @@ public final class Constant {
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
         Locale locale = new Locale(langArray[0], langArray[1]);
+
+        Locale.setDefault(locale);
         if (messages == null) {
         	messages = new I18N(locale);
         } else {
@@ -695,6 +709,20 @@ public final class Constant {
 	public static Locale getLocale () {
 		return messages.getLocal();
 	}
+
+    /**
+     * Returns the system's {@code Locale} (as determined by the JVM at startup, {@code Locale#getDefault()}). Should be used to
+     * show locale dependent information in the system's locale.
+     * <p>
+     * <strong>Note:</strong> The default locale is overridden with the ZAP's user defined locale/language.
+     *
+     * @return the system's {@code Locale}
+     * @see Locale#getDefault()
+     * @see Locale#setDefault(Locale)
+     */
+    public static Locale getSystemsLocale() {
+        return SYSTEMS_LOCALE;
+    }
     
     public static Constant getInstance() {
         if (instance==null) {
