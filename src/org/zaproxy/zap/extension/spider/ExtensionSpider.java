@@ -395,6 +395,10 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
     public void destroy() {
 		// Shut all of the scans down
 		this.getSpiderPanel().reset();
+
+		if (spiderApi != null) {
+			spiderApi.reset();
+		}
 	}
 
 	/**

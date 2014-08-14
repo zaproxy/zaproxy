@@ -503,6 +503,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void destroy() {
         // Shut all of the scans down
         this.getActiveScanPanel().reset();
+
+        if (activeScanApi != null) {
+            activeScanApi.reset();
+        }
     }
 
     public void stopScan(SiteNode startNode) {

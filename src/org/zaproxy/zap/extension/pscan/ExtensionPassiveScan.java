@@ -397,6 +397,13 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     @Override
+    public void destroy() {
+        super.destroy();
+
+        stopPassiveScanThread();
+    }
+
+    @Override
     public List<Class<?>> getDependencies() {
         return DEPENDENCIES;
     }

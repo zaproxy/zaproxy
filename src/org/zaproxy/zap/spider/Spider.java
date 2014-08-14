@@ -23,6 +23,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
@@ -379,7 +381,14 @@ public class Spider {
 			return;
 		}
 		this.tasksTotalCount.incrementAndGet();
-		this.threadPool.execute(task);
+		try {
+			this.threadPool.execute(task);
+		} catch (RejectedExecutionException e) {
+			if (log.isDebugEnabled()) {
+				log.debug("Submitted task was rejected (" + task + "), spider state: [stopped=" + isStopped() + ", terminated="
+						+ isTerminated() + "].");
+			}
+		}
 	}
 
 	/* SPIDER PROCESS maintenance - pause, resume, shutdown, etc. */
@@ -431,12 +440,20 @@ public class Spider {
 	 * Stops the Spider crawling. Must not be called from any of the threads in the thread pool.
 	 */
 	public void stop() {
-		log.info("Stopping spidering process by request.");
-		// Issue the shutdown command
-		if (!this.stopped) {
-			this.threadPool.shutdownNow();
+		if (stopped) {
+			return;
 		}
 		this.stopped = true;
+		log.info("Stopping spidering process by request.");
+		// Issue the shutdown command
+		this.threadPool.shutdownNow();
+		try {
+			if (!this.threadPool.awaitTermination(2, TimeUnit.SECONDS)) {
+				log.warn("Failed to await for all spider threads to stop in the given time (2s)...");
+			}
+		} catch (InterruptedException ignore) {
+			log.warn("Interrupted while awaiting for all spider threads to stop...");
+		}
 		if (httpSender != null) {
 			this.getHttpSender().shutdown();
 			httpSender = null;

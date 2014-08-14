@@ -122,6 +122,13 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 		}
 	}
 
+	@Override
+	public void destroy() {
+		super.destroy();
+
+		stopFuzzers();
+	}
+
 	public ExtensionHook getHook() {
 		return this.hook;
 	}

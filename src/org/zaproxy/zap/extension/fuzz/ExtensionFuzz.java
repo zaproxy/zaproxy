@@ -118,6 +118,13 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 
 	}
 	
+	@Override
+	public void destroy() {
+		super.destroy();
+
+		stopFuzzers();
+	}
+
     private Database getDB() {
     	if (jbroFuzzDB == null) {
     		jbroFuzzDB = new Database();

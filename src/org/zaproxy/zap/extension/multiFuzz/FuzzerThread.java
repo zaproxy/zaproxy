@@ -49,8 +49,8 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 	FuzzProcessFactory<P, PL, L> fuzzProcessFactory;
 	private ThreadPoolExe threadPool;
 
-	private boolean pause = false;
-	private boolean isStop = false;
+	private volatile boolean pause = false;
+	private volatile boolean isStop = false;
 
 	private int comb_count = 0;
 	private int threadCount = 1;

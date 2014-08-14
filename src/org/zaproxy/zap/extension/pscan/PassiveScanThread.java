@@ -36,7 +36,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	private int lastId = -1;
 	private int mainSleep = 5000;
 	private int postSleep = 200;
-	private boolean shutDown = false;
+	private volatile boolean shutDown = false;
 	
 	private final ExtensionHistory extHist;
 	private final ExtensionAlert extAlert;
@@ -113,15 +113,15 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					
 					for (PassiveScanner scanner : scannerList.list()) {
 						try {
+							if (shutDown) {
+								return;
+							}
 							if (scanner.isEnabled()) {
 								scanner.setParent(this);
 								scanner.scanHttpRequestSend(msg, href.getHistoryId());
 								if (msg.isResponseFromTargetHost()) {
 									scanner.scanHttpResponseReceive(msg, href.getHistoryId(), src);
 								}
-							}
-							if (shutDown) {
-								return;
 							}
 						} catch (Exception e) {
 							if (shutDown) {
@@ -171,6 +171,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	}
 
 	public void raiseAlert(int id, Alert alert) {
+		if (shutDown) {
+			return;
+		}
+
 		if (currentId != id) {
 			logger.error("Alert id != currentId! " + id + " " + currentId);
 		}
@@ -194,6 +198,10 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
     }
 	
 	public void addTag(int id, String tag) {
+		if (shutDown) {
+			return;
+		}
+
 		try {
 			if (! href.getTags().contains(tag)) {
 				href.addTag(tag);

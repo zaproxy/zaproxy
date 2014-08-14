@@ -38,8 +38,8 @@ public class FuzzerThread implements Runnable {
 	
 	FuzzProcessFactory fuzzProcessFactory;
 
-	private boolean pause = false;
-    private boolean isStop = false;
+	private volatile boolean pause = false;
+    private volatile boolean isStop = false;
     
     private ThreadPool pool = null;
     private int delayInMs = 0;
@@ -96,7 +96,10 @@ public class FuzzerThread implements Runnable {
     		this.fuzz(fuzzers);
     	}
 	    
-	    pool.waitAllThreadComplete(0);
+	    pool.waitAllThreadComplete(1000);
+        if (!pool.isAllThreadComplete()) {
+            log.warn("Failed to await for all fuzz threads to stop in the given time (1s for each)...");
+        }
 	    notifyFuzzerComplete();
 
         log.info("fuzzer stopped");

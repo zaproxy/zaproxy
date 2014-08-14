@@ -174,8 +174,10 @@ public class HttpFuzzerHandler implements
 
 	@Override
 	public void stopFuzzers() {
-		fuzzerThread.stop();
-		ext.getFuzzerPanel().scanFinished();
+		if (fuzzerThread != null) {
+			fuzzerThread.stop();
+			ext.getFuzzerPanel().scanFinished();
+		}
 	}
 
 	@Override
