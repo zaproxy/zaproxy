@@ -236,7 +236,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 
 	@Override
 	public String getDescription() {
-		return Constant.messages.getString("reveal.desc");
+		return Constant.messages.getString("keyboard.desc");
 	}
 
 	@Override
