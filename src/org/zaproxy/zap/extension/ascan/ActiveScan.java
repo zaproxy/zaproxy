@@ -199,7 +199,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
             HistoryReference hRef = msg.getHistoryRef();
             if (hRef == null) {
                 try {
-                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
+                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_SCANNER_TEMPORARY, msg);
                     // If an alert is raised because of the HttpMessage msg a new HistoryReference must be created
                     // (because hRef is temporary), and the condition to create it is when the HistoryReference of the
                     // Alert "retrieved" through the HttpMessage is null. So it must be set to null.

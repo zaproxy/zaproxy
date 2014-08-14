@@ -36,6 +36,7 @@
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/06/10 Added TYPE_ACCESS_CONTROL
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
+// ZAP: 2014/08/14 Issue 1311: Differentiate temporary internal messages from temporary scanner messages
 
 package org.parosproxy.paros.model;
 
@@ -102,6 +103,11 @@ public class HistoryReference {
    // ZAP: Added TYPE_ACCESS_CONTROL for use in access control testing methods
    public static final int TYPE_ACCESS_CONTROL = 13;
    public static final int TYPE_RESERVED_11 = 12;	// Reserved by Psiinon
+
+    /**
+     * A HTTP message sent by the (active) scanner which is set as temporary (i.e. deleted when the session is closed).
+     */
+    public static final int TYPE_SCANNER_TEMPORARY = 14;
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;

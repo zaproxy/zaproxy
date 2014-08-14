@@ -830,7 +830,10 @@ public class ActiveScanAPI extends ApiImplementor {
 					HistoryReference hRef = msg.getHistoryRef();
 					if (hRef == null) {
 						try {
-							hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
+							hRef = new HistoryReference(
+									Model.getSingleton().getSession(),
+									HistoryReference.TYPE_SCANNER_TEMPORARY,
+									msg);
 							msg.setHistoryRef(null);
 							hRefs.add(Integer.valueOf(hRef.getHistoryId()));
 						} catch (HttpMalformedHeaderException | SQLException e) {

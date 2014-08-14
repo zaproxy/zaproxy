@@ -51,6 +51,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
@@ -138,6 +139,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+
+        extensionHook.getModel().getDb().getTableHistory().setHistoryTypeAsTemporary(HistoryReference.TYPE_SCANNER_TEMPORARY);
+
         if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
             extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
