@@ -159,7 +159,7 @@ public class MainPopupMenu extends JPopupMenu {
 	 * compatibility, so to avoid hiding future deprecations of other methods/classes this method was added to suppress the
 	 * deprecation warning locally (instead of the whole method {@code showImpl(PopupMenuInvokerWrapper, int, int))}).
 	 * 
-	 * @see ExtensionPopupMenu#preprepareShow()
+	 * @see ExtensionPopupMenu#prepareShow()
 	 */
 	@SuppressWarnings({"deprecation", "javadoc"})
 	private static void prepareShow(ExtensionPopupMenu popupMenu) {

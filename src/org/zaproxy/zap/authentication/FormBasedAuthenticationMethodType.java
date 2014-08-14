@@ -152,7 +152,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * Prepares a request message, by filling the appropriate 'username' and 'password' fields
 		 * in the request URI and the POST data, if any.
 		 * 
-		 * @param requestMessage the request message
 		 * @param credentials the credentials
 		 * @throws SQLException
 		 * @throws HttpMalformedHeaderException
@@ -257,7 +256,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		/**
 		 * Sets the login request as being an existing SiteNode.
 		 * 
-		 * @param sn the new login request
+		 * @param loginSiteNode the new login request
 		 */
 		public void setLoginRequest(SiteNode loginSiteNode) throws Exception {
 			this.loginSiteNode = loginSiteNode;
@@ -273,8 +272,8 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		/**
 		 * Gets the login request message.
 		 * 
-		 * Method added for use with the 'mock' up {@link ExtensionAuth}. Should be eliminated after
-		 * ZAP 2.3 is released.
+		 * Method added for use with the 'mock' up {@link org.zaproxy.zap.extension.auth.ExtensionAuth}. Should be eliminated 
+		 * after ZAP 2.3 is released.
 		 * 
 		 */
 		@Deprecated

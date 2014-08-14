@@ -245,7 +245,7 @@ public class ZapTocMerger extends UniteAppendMerge {
     /**
      * The {@code ForceMergeRequirement} class contains the requirements to do a forced merging.
      * 
-     * @see ZapTocMerger.ForceMergeRequirement#ForceMergeRequirement(int, String)
+     * @see ForceMergeRequirement#ForceMergeRequirement(int, String)
      */
     public static final class ForceMergeRequirement {
 

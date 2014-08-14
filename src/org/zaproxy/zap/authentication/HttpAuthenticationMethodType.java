@@ -42,7 +42,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * The implementation for an {@link AuthenticationMethodType} where the Users are authenticated
  * through HTTP Authentication.
  * 
- * @see {@link http://www.w3.org/Protocols/HTTP/1.0/spec.html#AA}
+ * @see <a href="http://www.w3.org/Protocols/HTTP/1.0/spec.html#AA">HTTP/1.0 - Access Authentication</a>
  */
 public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 

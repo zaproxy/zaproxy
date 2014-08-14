@@ -87,10 +87,10 @@ public interface Plugin extends Runnable {
      * returns the maximum risk alert that is thrown by the plugin
      *
      * @return the maximum risk alert that is thrown by the plugin
-     * @see Alert.RISK_HIGH
-     * @see Alert.RISK_MEDIUM
-     * @see Alert.RISK_LOW
-     * @see Alert.RISK_INFO
+     * @see Alert#RISK_HIGH
+     * @see Alert#RISK_MEDIUM
+     * @see Alert#RISK_LOW
+     * @see Alert#RISK_INFO
      * @since 2.0.0
      */
     int getRisk();

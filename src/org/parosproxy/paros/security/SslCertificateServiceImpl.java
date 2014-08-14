@@ -69,7 +69,7 @@ import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
  * At least, Firefox v3.x does.
  *
  * @author MaWoKi
- * @see AttrCertExample how to manage CAs and stuff
+ * @see org.bouncycastle.x509.examples.AttrCertExample how to manage CAs and stuff
  * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {

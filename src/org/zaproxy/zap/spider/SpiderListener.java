@@ -25,7 +25,7 @@ import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
  * The listener interface for receiving spider related events. The class that is interested in
  * processing a spider event implements this interface, and the object created with that class is
  * registered with a component using the component's
- * <code>addSpiderListener<code> method. When  the spider event occurs, that object's appropriate
+ * <code>addSpiderListener</code> method. When  the spider event occurs, that object's appropriate
  * method is invoked.
  */
 public interface SpiderListener {

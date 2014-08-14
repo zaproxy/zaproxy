@@ -88,7 +88,7 @@ public abstract class AuthenticationMethodType {
 	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
 	 * used for configuration.
 	 * 
-	 * @see AuthenticationMethodFactory#buildOptionsPanel(int);
+	 * @see #buildOptionsPanel(Context)
 	 * 
 	 * @return true, if it needs one
 	 */
@@ -136,7 +136,7 @@ public abstract class AuthenticationMethodType {
 	 * Authentication method type.
 	 * 
 	 * @param session the session
-	 * @param context the context
+	 * @param contextId the ID of the context
 	 * @return the authentication method
 	 */
 	public abstract AuthenticationMethod loadMethodFromSession(Session session, int contextId)

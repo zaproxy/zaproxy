@@ -26,7 +26,8 @@ package org.zaproxy.zap.utils;
  * or the similarity ratio between two strings.
  * This implementation is using Hirschber's algorithm B and algorithm C.
  *
- * @see http://code.google.com/p/algorithm800/source/browse/trunk/src/Hirschberg.java
+ * @see <a href="http://code.google.com/p/algorithm800/source/browse/trunk/src/Hirschberg.java">Hirschberg&apos;s algorithm
+ *      implementation of project algorithm800</a>
  *
  * @author Valentinos Georgiades
  * @author Minh Nguyen

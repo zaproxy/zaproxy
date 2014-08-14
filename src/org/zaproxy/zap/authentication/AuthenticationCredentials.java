@@ -33,7 +33,6 @@ import org.zaproxy.zap.extension.api.ApiResponse;
  * username.
  * </p>
  * 
- * @param <T> the type of the corresponding authentication method
  */
 public interface AuthenticationCredentials {
 
