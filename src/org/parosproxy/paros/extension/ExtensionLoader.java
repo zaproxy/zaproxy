@@ -46,6 +46,7 @@
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/03/23 Issue 1090: Do not add pop up menus if target extension is not enabled
 // ZAP: 2014/05/20 Issue 1202: Issue with loading addons that did not initialize correctly
+// ZAP: 2014/08/14 Catch Exceptions thrown by extensions when stopping them
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -479,7 +480,11 @@ public class ExtensionLoader {
     
     public void stopAllExtension() {
         for (int i=0; i<getExtensionCount(); i++) {
-            getExtension(i).stop();
+            try {
+                getExtension(i).stop();
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
         }
         
     }
