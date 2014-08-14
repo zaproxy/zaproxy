@@ -38,4 +38,9 @@ public class PopupPasteMenu extends ExtensionPopupMenuItem {
         this.lastInvoker = null;
         return false;
     }
+
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

@@ -108,4 +108,9 @@ public class PopupMenuAlertEdit extends ExtensionPopupMenuItem {
     void setExtension(ExtensionAlert extension) {
         this.extension = extension;
     }
+
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

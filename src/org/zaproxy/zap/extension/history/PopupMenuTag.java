@@ -47,4 +47,8 @@ public class PopupMenuTag extends PopupMenuItemHistoryReferenceContainer {
         extension.showManageTagsDialog(href, href.getTags());
     }
 
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

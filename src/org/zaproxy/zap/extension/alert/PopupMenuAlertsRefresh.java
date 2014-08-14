@@ -78,4 +78,9 @@ public class PopupMenuAlertsRefresh extends ExtensionPopupMenuItem {
     void setExtension(ExtensionAlert extension) {
         this.extension = extension;
     }
+
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

@@ -411,6 +411,11 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 		public boolean succeedWithSeparator() {
 			return succeedWithSeparator;
 		}
+		
+		@Override
+		public boolean isSafe() {
+			return true;
+		}
 	}
 
 }

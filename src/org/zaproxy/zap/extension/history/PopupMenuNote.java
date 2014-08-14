@@ -57,4 +57,9 @@ public class PopupMenuNote extends PopupMenuItemHistoryReferenceContainer {
             logger.error(e.getMessage(), e);
         }
     }
+
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
 }

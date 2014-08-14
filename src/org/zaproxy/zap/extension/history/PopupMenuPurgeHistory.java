@@ -104,4 +104,9 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
         }
     }
 
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
+
 }

@@ -130,4 +130,9 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
         extAlert.deleteHistoryReferenceAlerts(historyReference);
     }
 
+    @Override
+    public boolean isSafe() {
+        return true;
+    }
+
 }
