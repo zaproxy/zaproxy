@@ -28,10 +28,11 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
-//
+// ZAP: 2014/08/14 Issue 1312: Misleading error message when unable to bind the local proxy to specified address
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
+import java.net.BindException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -150,25 +151,24 @@ public class ProxyServer implements Runnable {
                 }
                 
                 return -1;
-                
-            } catch (Exception e) {
-                if (!isDynamicPort) {
-                    // ZAP: Warn the user if we cant listen on the static port
-                    if (View.isInitialised()) {
-                        View.getSingleton().showWarningDialog(Constant.messages.getString("proxy.error.port") + " " + port);
-                    
-                    } else {
-                        System.out.println(Constant.messages.getString("proxy.error.port") + " " + port);
-                    
-                    }
-                    
+            } catch (BindException e) {
+                if ("Cannot assign requested address".equals(e.getMessage())) {
+                    showErrorMessage(Constant.messages.getString("proxy.error.address") + " " + ip);
                     return -1;
-                
-                } else {
-                    if (port < 65535) {
+                } else if ("Permission denied".equals(e.getMessage()) || "Address already in use".equals(e.getMessage())) {
+                    if (!isDynamicPort) {
+                        showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + port);
+                        return -1;
+                    } else if (port < 65535) {
                         port++;
                     }
+                } else {
+                    handleUnknownException(e);
+                    return -1;
                 }
+            } catch (IOException e) {
+                handleUnknownException(e);
+                return -1;
             }
 
         }
@@ -181,6 +181,19 @@ public class ProxyServer implements Runnable {
 
         return proxySocket.getLocalPort();
 
+    }
+
+    private static void showErrorMessage(String error) {
+        if (View.isInitialised()) {
+            View.getSingleton().showWarningDialog(error);
+        } else {
+            System.out.println(error);
+        }
+    }
+
+    private static void handleUnknownException(Exception e) {
+        log.error("Failed to start the proxy server: ", e);
+        showErrorMessage(Constant.messages.getString("proxy.error.generic") + e.getLocalizedMessage());
     }
 
     /**
