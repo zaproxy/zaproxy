@@ -46,6 +46,7 @@
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
 // ZAP: 2014/03/29 Issue 1132: 	HttpSender ignores the "Send single cookie request header" option
+// ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
 
 package org.parosproxy.paros.network;
 
@@ -61,6 +62,7 @@ import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
@@ -661,4 +663,24 @@ public class HttpSender {
 	public void setUser(User user) {
 		this.user = user;
 	}
+
+    /**
+     * Sets whether or not the authentication headers ("Authorization" and "Proxy-Authorization") already present in the request
+     * should be removed if received an authentication challenge (status codes 401 and 407).
+     * <p>
+     * If {@code true} new authentication headers will be generated and the old ones removed otherwise the authentication
+     * headers already present in the request will be used to authenticate.
+     * <p>
+     * Default is {@code false}, i.e. use the headers already present in the request header.
+     * <p>
+     * Processes that reuse messages previously sent should consider setting this to {@code true}, otherwise new authentication
+     * challenges might fail.
+     *
+     * @param removeHeaders {@code true} if the the authentication headers already present should be removed when challenged,
+     *            {@code false} otherwise
+     */
+    public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {
+        client.getParams().setBooleanParameter(HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
+        clientViaProxy.getParams().setBooleanParameter(HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
+    }
 }

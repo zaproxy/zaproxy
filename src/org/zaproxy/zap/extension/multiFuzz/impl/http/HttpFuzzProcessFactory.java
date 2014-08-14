@@ -38,6 +38,7 @@ public class HttpFuzzProcessFactory implements
 		httpSender = new HttpSender(Model.getSingleton().getOptionsParam()
 				.getConnectionParam(), true, HttpSender.FUZZER_INITIATOR);
 		httpSender.setFollowRedirect(followRedirects);
+		httpSender.setRemoveUserDefinedAuthHeaders(true);
 	}
 
 	@Override

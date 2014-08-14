@@ -42,6 +42,7 @@
 // ZAP: 2014/06/23 Issue 1241: Active scanner might not report finished state when using host scanners
 // ZAP: 2014/06/26 Added the possibility to evaluate the current plugin/process progress
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
+// ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
 
 package org.parosproxy.paros.core.scanner;
 
@@ -111,6 +112,7 @@ public class HostProcess implements Runnable {
         this.pluginFactory = pluginFactory;
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
+        httpSender.setRemoveUserDefinedAuthHeaders(true);
         
         int maxNumberOfThreads;
         if (scannerParam.getHandleAntiCSRFTokens()) {
