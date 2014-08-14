@@ -24,6 +24,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
+// ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 
 package org.parosproxy.paros.extension.option;
 
@@ -55,8 +56,9 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
 
+import ch.csnc.extension.httpclient.PKCS11Configuration;
+import ch.csnc.extension.httpclient.PKCS11Configuration.PCKS11ConfigurationBuilder;
 import ch.csnc.extension.httpclient.SSLContextManager;
-import ch.csnc.extension.httpclient.SunPKCS11Configuration;
 import ch.csnc.extension.ui.AliasTableModel;
 import ch.csnc.extension.ui.CertificateView;
 import ch.csnc.extension.ui.DriversView;
@@ -587,17 +589,20 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				kspass = null;
 			}
 			
-			SunPKCS11Configuration configuration = new SunPKCS11Configuration(name, library);
+			PCKS11ConfigurationBuilder confBuilder = PKCS11Configuration.builder();
+			confBuilder.setName(name).setLibrary(library);
 			if (usePkcs11ExperimentalSliSupportCheckBox.isSelected()) {
-				configuration.setSlotListIndex(slotListIndex);
+				confBuilder.setSlotListIndex(slotListIndex);
 			} else {
-				configuration.setSlotId(slot);
+				confBuilder.setSlotId(slot);
 			}
 			
-			int ksIndex = contextManager.initPKCS11(configuration, kspass);
+			int ksIndex = contextManager.initPKCS11(confBuilder.build(), kspass);
 			
 			if (ksIndex == -1) {
-				logger.error("The required Sun PKCS#11 provider is not available (sun.security.pkcs11.SunPKCS11).");
+				logger.error("The required PKCS#11 provider is not available ("
+						+ SSLContextManager.SUN_PKCS11_CANONICAL_CLASS_NAME + " or "
+						+ SSLContextManager.IBM_PKCS11_CONONICAL_CLASS_NAME + ").");
 				showErrorMessageSunPkcs11ProviderNotAvailable();
 				return;
 			}
@@ -687,20 +692,28 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 	}//GEN-LAST:event_addPkcs11ButtonActionPerformed
 
 	private void showErrorMessageSunPkcs11ProviderNotAvailable() {
-		final String reference = Constant.messages.getString("options.cert.error.pkcs11notavailable.hyperlink");
-		Object hyperlink = null;
+		final String sunReference = Constant.messages.getString("options.cert.error.pkcs11notavailable.sun.hyperlink");
+		final String ibmReference = Constant.messages.getString("options.cert.error.pkcs11notavailable.ibm.hyperlink");
+		Object[] hyperlinks = new Object[2];
 		try {
 			JXHyperlink hyperlinkLabel = new JXHyperlink();
-			hyperlinkLabel.setURI(URI.create(reference));
-			hyperlink = hyperlinkLabel;
+			hyperlinkLabel.setURI(URI.create(sunReference));
+			hyperlinkLabel.setText(Constant.messages.getString("options.cert.error.pkcs11notavailable.sun.hyperlink.text"));
+			hyperlinks[0] = hyperlinkLabel;
+
+			hyperlinkLabel = new JXHyperlink();
+			hyperlinkLabel.setURI(URI.create(ibmReference));
+			hyperlinkLabel.setText(Constant.messages.getString("options.cert.error.pkcs11notavailable.ibm.hyperlink.text"));
+			hyperlinks[1] = hyperlinkLabel;
 		} catch (UnsupportedOperationException e) {
 			// Show plain text instead of a hyperlink if the current platform doesn't support Desktop.
-			hyperlink = reference;
+			hyperlinks[0] = sunReference;
+			hyperlinks[1] = ibmReference;
 		}
 		
 		JOptionPane.showMessageDialog(null, new Object[] {
 				Constant.messages.getString("options.cert.error"),
-				Constant.messages.getString("options.cert.error.pkcs11notavailable"), hyperlink},
+				Constant.messages.getString("options.cert.error.pkcs11notavailable"), hyperlinks},
 				Constant.messages.getString("options.cert.label.client.cert"), JOptionPane.ERROR_MESSAGE);
 	}
 

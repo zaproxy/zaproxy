@@ -26,6 +26,7 @@
 // ZAP: 2014/03/23 Tidy up, removed and deprecated unused methods other minor changes
 // ZAP: 2014/03/23 Issue 951: TLS' versions 1.1 and 1.2 not enabled by default
 // ZAP: 2014/07/17 Issue 704: ZAP Error: handshake alert: unrecognized_name
+// ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 
 package org.parosproxy.paros.network;
 
@@ -500,7 +501,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 		//	KeyStore ks;
 		try {
 			SSLContext ctx = SSLContext.getInstance(SSL);
-			KeyManagerFactory kmf = KeyManagerFactory.getInstance("SunX509");
+			// Normally "SunX509", "IbmX509"...
+			KeyManagerFactory kmf = KeyManagerFactory.getInstance(KeyManagerFactory.getDefaultAlgorithm());
 
 			SslCertificateService scs = CachedSslCertifificateServiceImpl.getService();
 			KeyStore ks = scs.createCertForHost(hostname);

@@ -21,12 +21,16 @@ public class SSLContextManagerUnitTest {
 		// Given
 		boolean pkcs11ProviderAvailable = true;
 		try {
-			Class.forName("sun.security.pkcs11.SunPKCS11");
+			Class.forName(SSLContextManager.SUN_PKCS11_CANONICAL_CLASS_NAME);
 		} catch (ClassNotFoundException e) {
-			pkcs11ProviderAvailable = false;			
+			try {
+				Class.forName(SSLContextManager.IBM_PKCS11_CONONICAL_CLASS_NAME);
+			} catch (ClassNotFoundException e2) {
+				pkcs11ProviderAvailable = false;
+			}
 		}
 		// When
-		boolean result = sslContextManager.isProviderAvailable("PKCS11");
+		boolean result = sslContextManager.isProviderAvailable(SSLContextManager.PKCS11_PROVIDER_TYPE);
 		// Then
 		assertThat(result, is(equalTo(pkcs11ProviderAvailable)));
 	}

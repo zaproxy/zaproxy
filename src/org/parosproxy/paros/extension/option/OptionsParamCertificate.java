@@ -22,6 +22,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
+// ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 
 package org.parosproxy.paros.extension.option;
 
@@ -156,9 +157,10 @@ public class OptionsParamCertificate extends AbstractParam {
     /**
      * Sets whether or not the unsafe SSL renegotiation is enabled.
      * <p>
-     * Calling this method changes the system property "sun.security.ssl.allowUnsafeRenegotiation". It must be set before
-     * establishing any SSL connection. Further changes after establishing a SSL connection will have no effect on the
-     * renegotiation but the value will be saved and restored next time ZAP is restarted.
+     * Calling this method changes the system property "sun.security.ssl.allowUnsafeRenegotiation" and
+     * "com.ibm.jsse2.renegotiate". It must be set before establishing any SSL connection. Further changes after establishing a
+     * SSL connection will have no effect on the renegotiation but the value will be saved and restored next time ZAP is
+     * restarted.
      * </p>
      * 
      * @param allow {@code true} if the unsafe SSL renegotiation should be enabled, {@code false} otherwise.
@@ -175,8 +177,8 @@ public class OptionsParamCertificate extends AbstractParam {
     }
 
     /**
-     * Sets the given value to system property "sun.security.ssl.allowUnsafeRenegotiation" which enables or not the unsafe SSL
-     * renegotiation.
+     * Sets the given value to system property "sun.security.ssl.allowUnsafeRenegotiation" and sets the appropriate value to
+     * system property "com.ibm.jsse2.renegotiate", which enables or not the unsafe SSL renegotiation.
      * <p>
      * It must be set before establishing any SSL connection. Further changes after establishing a SSL connection will have no
      * effect.
@@ -186,11 +188,15 @@ public class OptionsParamCertificate extends AbstractParam {
      * @see #setAllowUnsafeSslRenegotiation(boolean)
      */
     private static void setAllowUnsafeSslRenegotiationSystemProperty(boolean allow) {
+        String ibmSystemPropertyValue;
         if (allow) {
             logger.info("Unsafe SSL renegotiation enabled.");
+            ibmSystemPropertyValue = "ALL";
         } else {
             logger.info("Unsafe SSL renegotiation disabled.");
+            ibmSystemPropertyValue = "NONE";
         }
+        System.setProperty("com.ibm.jsse2.renegotiate", ibmSystemPropertyValue);
         System.setProperty("sun.security.ssl.allowUnsafeRenegotiation", String.valueOf(allow));
     }
 }

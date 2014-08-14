@@ -21,12 +21,13 @@
 
 package ch.csnc.extension.httpclient;
 
-import java.io.ByteArrayInputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.security.KeyManagementException;
@@ -61,6 +62,37 @@ import ch.csnc.extension.util.Encoding;
 import ch.csnc.extension.util.NullComparator;
 
 public class SSLContextManager {
+
+	/**
+	 * The canonical class name of Sun PKCS#11 Provider.
+	 */
+	public static final String SUN_PKCS11_CANONICAL_CLASS_NAME = "sun.security.pkcs11.SunPKCS11";
+
+	/**
+	 * The canonical class name of IBMPKCS11Impl Provider.
+	 */
+	public static final String IBM_PKCS11_CONONICAL_CLASS_NAME = "com.ibm.crypto.pkcs11impl.provider.IBMPKCS11Impl";
+
+	/**
+	 * The name for providers of type PKCS#11.
+	 * 
+	 * @see #isProviderAvailable(String)
+	 */
+	public static final String PKCS11_PROVIDER_TYPE = "PKCS11";
+
+	/**
+	 * The name of the {@code KeyStore} type of Sun PKCS#11 Provider.
+	 * 
+	 * @see KeyStore#getInstance(String, Provider)
+	 */
+	private static final String SUN_PKCS11_KEYSTORE_TYPE = "PKCS11";
+
+	/**
+	 * The name of the {@code KeyStore} type of IBMPKCS11Impl Provider.
+	 * 
+	 * @see KeyStore#getInstance(String, Provider)
+	 */
+	private static final String IBM_PKCS11_KEYSTORE_TYPE = "PKCS11IMPLKS";
 
 	private Map<String, SSLContext> _contextMaps = new TreeMap<String, SSLContext>(new NullComparator());
 	private SSLContext _noClientCertContext;
@@ -109,9 +141,14 @@ public class SSLContextManager {
 
 	public boolean isProviderAvailable(String type) {
 		try {
-			if (type.equals("PKCS11")) {	
-				Class.forName("sun.security.pkcs11.SunPKCS11");
-				return true;
+			if (type.equals(PKCS11_PROVIDER_TYPE)) {	
+				try {
+					Class.forName(SUN_PKCS11_CANONICAL_CLASS_NAME);
+					return true;
+				} catch (Throwable ignore) {
+					Class.forName(IBM_PKCS11_CONONICAL_CLASS_NAME);
+					return true;
+				}
 			} else if (type.equals("msks")) {
 				Class.forName("se.assembla.jce.provider.ms.MSProvider");
 				return true;
@@ -176,10 +213,16 @@ public class SSLContextManager {
 		try {
 			Enumeration<String> en = ks.aliases();
 
+			boolean isIbm = isIbmPKCS11Provider();
 			while (en.hasMoreElements()) {
 				String alias = en.nextElement();
-				if (ks.isKeyEntry(alias)) {
+				// Sun's and IBM's KeyStore implementations behave differently...
+				// With IBM's KeyStore impl #getCertificate(String) returns null when #isKeyEntry(String) returns true.
+				// If IBM add all certificates and let the user choose the correct one. 
+				if (ks.isKeyEntry(alias) || (isIbm && ks.isCertificateEntry(alias))) {
 					Certificate cert = ks.getCertificate(alias);
+					// IBM: Maybe we should check the KeyUsage?
+					// ((X509Certificate) cert).getKeyUsage()[0]
 					AliasCertificate aliasCert = new AliasCertificate(cert, alias);
 					aliases.add(aliasCert);
 				}
@@ -293,27 +336,70 @@ public class SSLContextManager {
 	 * 
 	 * return addKeyStore(ks, "CryptoAPI", null); }
 	 */
-	public int initPKCS11(SunPKCS11Configuration configuration, String kspassword)
+	public int initPKCS11(PKCS11Configuration configuration, String kspassword)
 		throws IOException, KeyStoreException,
 			CertificateException, NoSuchAlgorithmException,
 			ClassNotFoundException, SecurityException, NoSuchMethodException,
 			IllegalArgumentException, InstantiationException,
 			IllegalAccessException, InvocationTargetException {
 
-		if (!isProviderAvailable("PKCS11")) {
+		if (!isProviderAvailable(PKCS11_PROVIDER_TYPE)) {
 			return -1;
 		}
-        
-        Class<?> pkcs11Class = Class.forName("sun.security.pkcs11.SunPKCS11");
-        Constructor<?> c = pkcs11Class.getConstructor(new Class[] { InputStream.class });
-        Provider pkcs11 = (Provider) c.newInstance(new Object[] { new ByteArrayInputStream(configuration.toString().getBytes()) });
-        
+
+		Provider pkcs11 = createPKCS11Provider(configuration);
+
         Security.addProvider(pkcs11);
 
 		// init the key store
-		KeyStore ks = KeyStore.getInstance("PKCS11", Security.getProvider(pkcs11.getName()));
+		KeyStore ks = getPKCS11KeyStore(pkcs11.getName());
 		ks.load(null, kspassword == null ? null : kspassword.toCharArray());
 		return addKeyStore(ks, "PKCS#11: " + configuration.getName(), ""); // do not store pin code
+	}
+
+	private static Provider createPKCS11Provider(PKCS11Configuration configuration) throws ClassNotFoundException,
+			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+		Provider pkcs11 = null;
+		if (isSunPKCS11Provider()) {
+			pkcs11 = (Provider) createInstance(SUN_PKCS11_CANONICAL_CLASS_NAME, InputStream.class, configuration.toInpuStream());
+		} else if (isIbmPKCS11Provider()) {
+			pkcs11 = (Provider) createInstance(IBM_PKCS11_CONONICAL_CLASS_NAME, BufferedReader.class, new BufferedReader(
+					new InputStreamReader(configuration.toInpuStream())));
+		}
+		return pkcs11;
+	}
+
+	private static Object createInstance(String name, Class<?> paramClass, Object param) throws ClassNotFoundException,
+			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
+		Class<?> instanceClass = Class.forName(name);
+		Constructor<?> c = instanceClass.getConstructor(new Class[] { paramClass });
+		return c.newInstance(new Object[] { param });
+	}
+
+	private static boolean isSunPKCS11Provider() {
+		try {
+			Class.forName(SUN_PKCS11_CANONICAL_CLASS_NAME);
+			return true;
+		} catch (Throwable ignore) {
+		}
+		return false;
+	}
+
+	private static boolean isIbmPKCS11Provider() {
+		try {
+			Class.forName(IBM_PKCS11_CONONICAL_CLASS_NAME);
+			return true;
+		} catch (Throwable ignore) {
+		}
+		return false;
+	}
+
+	private static KeyStore getPKCS11KeyStore(String providerName) throws KeyStoreException {
+		String keyStoreType = SUN_PKCS11_KEYSTORE_TYPE;
+		if (isIbmPKCS11Provider()) {
+			keyStoreType = IBM_PKCS11_KEYSTORE_TYPE;
+		}
+		return KeyStore.getInstance(keyStoreType, Security.getProvider(providerName));
 	}
 
 	public int loadPKCS12Certificate(String filename, String ksPassword)
