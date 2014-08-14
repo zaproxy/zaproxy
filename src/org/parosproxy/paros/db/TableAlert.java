@@ -29,6 +29,8 @@
 // ZAP: 2014/03/23 Changed to use try-with-resource statements.
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
+// ZAP: 2014/08/14 Issue 1283: SQLDataException: data exception: string data,
+// right truncation while writing an alert to DB
 
 package org.parosproxy.paros.db;
 
@@ -143,7 +145,7 @@ public class TableAlert extends AbstractTable {
         
         if (!DbUtils.hasColumn(connection, TABLE_NAME, EVIDENCE)) {
         	// Evidence, cweId and wascId all added at the same time
-            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+EVIDENCE+" VARCHAR(32768) DEFAULT ''"));
+            DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+EVIDENCE+" VARCHAR(16777216) DEFAULT ''"));
             DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+CWEID+" INT DEFAULT -1"));
             DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+WASCID+" INT DEFAULT -1"));
         }
