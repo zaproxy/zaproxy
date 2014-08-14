@@ -29,6 +29,7 @@
 // ZAP: 2014/03/23 Changed to implement the interface ExtensionPopupMenuComponent
 // ZAP: 2014/03/23 Changed to implement the new method from ExtensionPopupMenuComponent
 // ZAP: 2014/03/23 Issue 1095: Replace main pop up sub menus with ExtensionPopupMenu when appropriate
+// ZAP: 2014/08/14 Issue 1302: Context menu item action might not get executed
 
 package org.parosproxy.paros.extension;
 
@@ -148,5 +149,9 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
     @Override
     public boolean isSafe() {
     	return false;
+    }
+
+    @Override
+    public void dismissed() {
     }
 }

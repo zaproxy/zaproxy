@@ -39,7 +39,9 @@ import org.zaproxy.zap.view.messagecontainer.MessageContainer;
  * </ul>
  * The menu component can require the presence of menu separators before and/or after the menu component itself with the methods
  * {@link #precedeWithSeparator()} and {@link #succeedWithSeparator()}, respectively.
- * 
+ * <p>
+ * The menu component will be notified when no longer shown (i.e. the pop up menu was dismissed) by calling {@link #dismissed()},
+ *  so it can free any resources (e.g. clean any references to UI components).
  * 
  * @since 2.3.0
  * @see org.zaproxy.zap.extension.ExtensionPopupMenu
@@ -119,5 +121,20 @@ public interface ExtensionPopupMenuComponent {
      * @see org.parosproxy.paros.control.Control.Mode
      */
     boolean isSafe();
+
+    /**
+     * Called after the pop up menu in which this pop up menu component is is dismissed.
+     * <p>
+     * Can be used to free any resources no longer needed (e.g. references to UI components) after being shown in the pop up
+     * menu.
+     * <p>
+     * <strong>Note:</strong> This method will not be called if this pop up menu component is not enabled for the
+     * {@code invoker}.
+     * 
+     * @since 2.4
+     * @see #isEnableForComponent(Component)
+     * @see #isEnableForMessageContainer(MessageContainer)
+     */
+    void dismissed();
 
 }

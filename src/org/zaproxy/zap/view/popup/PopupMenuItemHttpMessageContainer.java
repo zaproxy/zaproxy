@@ -21,7 +21,6 @@ package org.zaproxy.zap.view.popup;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -72,9 +71,9 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
     private Invoker invoker;
 
     /**
-     * A reference to invoker message container. Might be {@code null}.
+     * The invoker message container. Might be {@code null}.
      */
-    private WeakReference<HttpMessageContainer> referenceHttpMessageContainer;
+    private HttpMessageContainer httpMessageContainer;
 
     /**
      * Flag that indicates that the menu item accepts multiple selections.
@@ -104,7 +103,7 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
     public PopupMenuItemHttpMessageContainer(String label, boolean multiSelect) {
         super(label);
         invoker = null;
-        referenceHttpMessageContainer = null;
+        httpMessageContainer = null;
 
         this.multiSelect = multiSelect;
 
@@ -161,10 +160,8 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
      */
     @Override
     public boolean isEnableForMessageContainer(MessageContainer<?> messageContainer) {
-        if (referenceHttpMessageContainer != null) {
-            clearReferenceHttpMessageContainer();
-        }
         invoker = null;
+        httpMessageContainer = null;
 
         if (!(messageContainer instanceof HttpMessageContainer)) {
             return false;
@@ -195,7 +192,7 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
         }
 
         if (enabled) {
-            referenceHttpMessageContainer = new WeakReference<>(httpMessageContainer);
+            this.httpMessageContainer = httpMessageContainer;
         }
 
         setEnabled(enabled);
@@ -203,12 +200,11 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
         return true;
     }
 
-    /**
-     * Clears the reference to the message container.
-     */
-    private void clearReferenceHttpMessageContainer() {
-        referenceHttpMessageContainer.clear();
-        referenceHttpMessageContainer = null;
+    @Override
+    public void dismissed() {
+        super.dismissed();
+
+        httpMessageContainer = null;
     }
 
     /**
@@ -553,22 +549,8 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
 
         @Override
         public void actionPerformed(ActionEvent evt) {
-            if (referenceHttpMessageContainer == null) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("actionPerformed, ignoring no message container referenced: " + (invoker != null ? invoker.name() : "null invoker") + " " + evt.getActionCommand());
-                }
-                return;
-            }
-
             if (logger.isDebugEnabled()) {
                 logger.debug("actionPerformed " + (invoker != null ? invoker.name() : "null invoker") + " " + evt.getActionCommand());
-            }
-
-            HttpMessageContainer httpMessageContainer = referenceHttpMessageContainer.get();
-            clearReferenceHttpMessageContainer();
-
-            if (httpMessageContainer == null) {
-                return;
             }
 
             try {
@@ -578,6 +560,7 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
             }
 
             invoker = null;
+            httpMessageContainer = null;
         }
     }
 }

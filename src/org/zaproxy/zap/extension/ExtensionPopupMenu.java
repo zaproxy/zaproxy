@@ -283,6 +283,10 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 		return true;
 	}
 
+	@Override
+	public void dismissed() {
+	}
+
 	/**
 	 * @deprecated (2.3.0) The preparations should be made when the methods {@code isEnableForComponent(Component)} and/or
 	 *             {@code isEnableForMessageContainer(MessageContainer)} are called. It will be removed in a future release.

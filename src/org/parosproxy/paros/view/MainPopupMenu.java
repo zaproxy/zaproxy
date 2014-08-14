@@ -40,6 +40,7 @@
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
 // ZAP: 2014/03/23 Issue 1079: Remove misplaced main pop up menu separators
 // ZAP: 2014/03/23 Issue 1088: Deprecate the method ExtensionPopupMenu#prepareShow
+// ZAP: 2014/08/14 Issue 1302: Context menu item action might not get executed
 
 package org.parosproxy.paros.view;
 
@@ -59,6 +60,7 @@ import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 import org.zaproxy.zap.view.popup.PopupMenuUtils;
 import org.zaproxy.zap.view.popup.PopupMenuUtils.PopupMenuInvokerWrapper;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
@@ -151,6 +153,27 @@ public class MainPopupMenu extends JPopupMenu {
 
 		if (PopupMenuUtils.isAtLeastOneChildComponentVisible(this)) {
 			super.show(invoker.getComponent(), x, y);
+		}
+	}
+
+	/**
+	 * {@inheritDoc}
+	 * <p>
+	 * Overridden to call the method {@code ExtensionPopupMenuComponent#dismissed()} of child (ExtensionPopupMenuComponent)
+	 * components when the pop up menu is hidden.
+	 * 
+	 * @see ExtensionPopupMenuComponent#dismissed()
+	 */
+	@Override
+	public void setVisible(boolean b) {
+		super.setVisible(b);
+		if (!b) {
+			for (int i = 0; i < getComponentCount(); i++) {
+				Component component = getComponent(i);
+				if (component instanceof ExtensionPopupMenuComponent) {
+					((ExtensionPopupMenuComponent) component).dismissed();
+				}
+			}
 		}
 	}
 
