@@ -572,12 +572,12 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 				return;
 			}
 			
-			Integer slot = driverConfig.getSlots().get(indexSelectedDriver);
+			int slot = driverConfig.getSlots().get(indexSelectedDriver).intValue();
 			if (slot < 0) {
 				return;
 			}
 			
-			Integer slotListIndex = driverConfig.getSlotIndexes().get(indexSelectedDriver);
+			int slotListIndex = driverConfig.getSlotIndexes().get(indexSelectedDriver).intValue();
 			if (slotListIndex < 0) {
 				return;
 			}
