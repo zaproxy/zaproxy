@@ -30,11 +30,13 @@
 // ZAP: 2014/01/10 Issue 974: Scan URL path elements
 // ZAP: 2014/02/07 Issue 1018: Give AbstractAppParamPlugin implementations access to the parameter type
 // ZAP: 2014/02/09 Add custom input vector scripting capabilities
-//
+// ZAP: 2014/08/14 Issue 1279: Active scanner excluded parameters not working when "Where" is "Any"
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.network.HttpMessage;
@@ -183,22 +185,39 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
      * @return true if it need to be excluded
      */
     private boolean isToExclude(NameValuePair param) {
-        
-        List<ScannerParamFilter> excludedParameters = 
-                this.getParent().getScannerParam().getExcludedParamList(param.getType());
+        List<ScannerParamFilter> excludedParameters = getParameterExclusionFilters(param);
         
         // We can use the base one, we don't do anything with it
         HttpMessage msg = getBaseMsg();
         
-        if (excludedParameters != null) {
-            for (ScannerParamFilter filter : excludedParameters) {
-                if (filter.isToExclude(msg, param)) {
-                    return true;
-                }
+        for (ScannerParamFilter filter : excludedParameters) {
+            if (filter.isToExclude(msg, param)) {
+                return true;
             }
         }
         
         return false;
+    }
+
+    private List<ScannerParamFilter> getParameterExclusionFilters(NameValuePair parameter) {
+        List<ScannerParamFilter> globalExclusionFilters = this.getParent()
+                .getScannerParam()
+                .getExcludedParamList(NameValuePair.TYPE_UNDEFINED);
+        List<ScannerParamFilter> exclusionFilters = getParent().getScannerParam().getExcludedParamList(parameter.getType());
+
+        if (globalExclusionFilters == null) {
+            if (exclusionFilters != null) {
+                return exclusionFilters;
+            }
+            return Collections.emptyList();
+        } else if (exclusionFilters == null) {
+            return globalExclusionFilters;
+        }
+
+        List<ScannerParamFilter> allFilters = new ArrayList<>(globalExclusionFilters.size() + exclusionFilters.size());
+        allFilters.addAll(globalExclusionFilters);
+        allFilters.addAll(exclusionFilters);
+        return allFilters;
     }
 
     /**

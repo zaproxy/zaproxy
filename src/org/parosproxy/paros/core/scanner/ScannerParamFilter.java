@@ -33,6 +33,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * Module for parameter filtering according to URL, 
  * type and parameter name regexes
  * @author yhawke (2014)
+ * @see NameValuePair
  */
 public class ScannerParamFilter {
     private String wildcardedUrl;
@@ -58,7 +59,7 @@ public class ScannerParamFilter {
      */
     public ScannerParamFilter() {
         this.wildcardedUrl = "*";
-        this.paramType = -1;
+        this.paramType = NameValuePair.TYPE_UNDEFINED;
         this.paramNamePattern = null;
         this.urlPattern = null;
     }
@@ -122,9 +123,7 @@ public class ScannerParamFilter {
      * @return true if the parameter should be excluded
      */
     public boolean isToExclude(HttpMessage msg, NameValuePair param) {
-        // Verify if check for the paramType should be maintained because
-        // It's currently optimized using a Map in the container
-        return ((paramType < 0) || (param.getType() == paramType)) &&
+        return ((paramType == NameValuePair.TYPE_UNDEFINED) || (param.getType() == paramType)) &&
                 ((urlPattern == null) || urlPattern.matcher(msg.getRequestHeader().getURI().toString().toUpperCase(Locale.ROOT)).matches()) && 
                 (paramNamePattern.matcher(param.getName()).matches());
     }
