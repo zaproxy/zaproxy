@@ -35,6 +35,7 @@
 // ZAP: 2013/02/06 Issue 499: NullPointerException while uninstalling an add-on
 // with a manual request editor
 // ZAP: 2014/03/23 Issue 1094: Change ExtensionManualRequestEditor to only add view components if in GUI mode
+// ZAP: 2014/08/14 Issue 1292: NullPointerException while attempting to remove an unregistered ManualRequestEditorDialog
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -106,14 +107,16 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 		// remove from list
 		ManualRequestEditorDialog dialogue = dialogues.remove(messageType);
 		
-		// remove from GUI
-		dialogue.clear();
-		dialogue.dispose();
+		if (dialogue != null) {
+			// remove from GUI
+			dialogue.clear();
+			dialogue.dispose();
 
-		if (getView() != null) {
-			// unload menu items
-			ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
-			extLoader.removeToolsMenuItem(dialogue.getMenuItem());
+			if (getView() != null) {
+				// unload menu items
+				ExtensionLoader extLoader = Control.getSingleton().getExtensionLoader();
+				extLoader.removeToolsMenuItem(dialogue.getMenuItem());
+			}
 		}
 	}
 	
