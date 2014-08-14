@@ -287,5 +287,21 @@ public class TabbedPanel2 extends TabbedPanel {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Overridden to call the method {@code AbstractPanel#tabSelected()} on the currently selected {@code AbstractPanel}, if
+     * any.
+     * 
+     * @see AbstractPanel#tabSelected()
+     */
+    @Override
+    protected void fireStateChanged() {
+        super.fireStateChanged();
 
+        Component comp = getSelectedComponent();
+        if (comp instanceof AbstractPanel) {
+            ((AbstractPanel) comp).tabSelected();
+        }
+    }
 }

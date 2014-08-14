@@ -23,6 +23,7 @@
 // ZAP: 2013/12/13 Added support for remembering the old tab name, which is used for nameless tabs.
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/02/07 Issue 207: Added tabSelected method
+// ZAP: 2014/08/14 Issue 1301: AbstractPanel leak through TabbedPanel2
 
 package org.parosproxy.paros.extension;
 
@@ -32,8 +33,6 @@ import javax.swing.Icon;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
 import javax.swing.KeyStroke;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.TabbedPanel2;
@@ -96,14 +95,6 @@ public class AbstractPanel extends JPanel {
 	
 	public void setParent(final TabbedPanel2 parent) {
 		this.parent = parent;
-		
-		parent.addChangeListener(new ChangeListener() {
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				if (AbstractPanel.this.equals(parent.getSelectedComponent())) {
-					tabSelected();
-				}
-			}});
 	}
 	
 	/**
