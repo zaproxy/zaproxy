@@ -41,6 +41,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -421,8 +423,14 @@ public class SpiderAPI extends ApiImplementor {
 			SpiderScan spiderScan = getSpiderScan(params);
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
 			synchronized (spiderScan.getResults()) {
-				for (String url : spiderScan.getResults()) {
-					resultList.addItem(new ApiResponseElement("url", url));
+				for (SpiderResource sr : spiderScan.getResourcesFound()) {
+					Map<String, String> map = new HashMap<>();
+					map.put("messageId", Integer.toString(sr.getHistoryId()));
+					map.put("method", sr.getMethod());
+					map.put("url", sr.getUri());
+					map.put("statusCode", Integer.toString(sr.getStatusCode()));
+					map.put("statusReason", sr.getStatusReason());
+					resultList.addItem(new ApiResponseSet("resource", map));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -508,6 +516,8 @@ public class SpiderAPI extends ApiImplementor {
 
 		private final Set<String> foundURIs;
 
+		private final List<SpiderResource> resourcesFound;
+
 		private final Set<String> foundURIsOutOfScope;
 
 		private final SpiderThread spiderThread;
@@ -521,6 +531,7 @@ public class SpiderAPI extends ApiImplementor {
 			id = scanId;
 
 			foundURIs = Collections.synchronizedSet(new HashSet<String>());
+			resourcesFound = Collections.synchronizedList(new ArrayList<SpiderResource>());
 			foundURIsOutOfScope = Collections.synchronizedSet(new HashSet<String>());
 
 			state = State.NOT_STARTED;
@@ -658,6 +669,20 @@ public class SpiderAPI extends ApiImplementor {
 		}
 
 		/**
+		 * Returns the resources found during the scan.
+		 * <p>
+		 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
+		 * {@code ConcurrentModificationException}.
+		 * </p>
+		 *
+		 * @return the resources found during the scan
+		 * @see ConcurrentModificationException
+		 */
+		public List<SpiderResource> getResourcesFound() {
+			return resourcesFound;
+		}
+
+		/**
 		 * Returns the URLs, out of scope, found during the scan.
 		 * <p>
 		 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
@@ -673,6 +698,14 @@ public class SpiderAPI extends ApiImplementor {
 
 		@Override
 		public void readURI(HttpMessage msg) {
+			HttpRequestHeader requestHeader = msg.getRequestHeader();
+			HttpResponseHeader responseHeader = msg.getResponseHeader();
+			resourcesFound.add(new SpiderResource(
+					msg.getHistoryRef().getHistoryId(),
+					requestHeader.getMethod(),
+					requestHeader.getURI().toString(),
+					responseHeader.getStatusCode(),
+					responseHeader.getReasonPhrase()));
 		}
 
 		@Override
@@ -708,6 +741,49 @@ public class SpiderAPI extends ApiImplementor {
 			} else if (FETCH_STATUS_OUT_OF_SCOPE.contains(status)) {
 				foundURIsOutOfScope.add(uri);
 			}
+		}
+	}
+
+	/**
+	 * A resource (e.g. webpage) found while spidering.
+	 * <p>
+	 * Contains the HTTP method used to fetch the resource, status code and reason, URI and the ID of the corresponding
+	 * (persisted) HTTP message.
+	 */
+	private static class SpiderResource {
+
+		private final int historyId;
+		private final String method;
+		private final String uri;
+		private final int statusCode;
+		private final String statusReason;
+
+		public SpiderResource(int historyId, String method, String uri, int statusCode, String statusReason) {
+			this.historyId = historyId;
+			this.method = method;
+			this.uri = uri;
+			this.statusCode = statusCode;
+			this.statusReason = statusReason;
+		}
+
+		public int getHistoryId() {
+			return historyId;
+		}
+
+		public String getMethod() {
+			return method;
+		}
+
+		public String getUri() {
+			return uri;
+		}
+
+		public int getStatusCode() {
+			return statusCode;
+		}
+
+		public String getStatusReason() {
+			return statusReason;
 		}
 	}
 }
