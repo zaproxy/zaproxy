@@ -105,6 +105,13 @@ public class API {
 			return;
 		}
 		implementors.remove(impl.getPrefix());
+		for (String shortcut : impl.getApiShortcuts()) {
+			String key = "/" + shortcut;
+			if (this.shortcuts.containsKey(key)) {
+				logger.debug("Removing registered API shortcut: " + shortcut);
+				this.shortcuts.remove(key);
+			}
+		}
 	}
 	
 	public boolean isEnabled() {
