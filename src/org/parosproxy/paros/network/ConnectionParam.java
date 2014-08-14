@@ -33,6 +33,7 @@
 // and enhance the usability of some options
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2014/03/23 Issue 1100: Annotate option methods that shouldn't be exposed in the ZAP API
+// ZAP: 2041/08/14 Issue 1305: Outgoing proxy is disabled when updating from old versions
 
 package org.parosproxy.paros.network;
 
@@ -221,14 +222,18 @@ public class ConnectionParam extends AbstractParam {
 			getConfig().clearProperty(oldSkipNameKey);
 		}
 
-		String proxyName = getConfig().getString(PROXY_CHAIN_NAME, "");
-		if (!proxyName.isEmpty()) {
-			setUseProxyChain(true);
+		if (!getConfig().containsKey(USE_PROXY_CHAIN_KEY)) {
+			String proxyName = getConfig().getString(PROXY_CHAIN_NAME, "");
+			if (!proxyName.isEmpty()) {
+				getConfig().setProperty(USE_PROXY_CHAIN_KEY, Boolean.TRUE);
+			}
 		}
 
-		String proxyUserName = getConfig().getString(PROXY_CHAIN_USER_NAME, "");
-		if (!proxyUserName.isEmpty()) {
-			setUseProxyChainAuth(true);
+		if (!getConfig().containsKey(USE_PROXY_CHAIN_AUTH_KEY)) {
+			String proxyUserName = getConfig().getString(PROXY_CHAIN_USER_NAME, "");
+			if (!proxyUserName.isEmpty()) {
+				getConfig().setProperty(USE_PROXY_CHAIN_AUTH_KEY, Boolean.TRUE);
+			}
 		}
 	}
 	
