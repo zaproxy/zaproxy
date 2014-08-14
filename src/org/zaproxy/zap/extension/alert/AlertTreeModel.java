@@ -43,11 +43,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     private String getRiskString (Alert alert) {
-    	// Note that the number comments are to ensure the right ordering in the tree :)
-    	if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
-    		return "<html><!--5--><img src=\"" + Constant.OK_FLAG_IMAGE_URL + "\">&nbsp;" + alert.getAlert() + "<html>";
-    	}
-		return "<html><!--" + (5 - alert.getRisk()) + "--><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
+		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
     }
     
     void addPath(final Alert alert) {
@@ -229,6 +225,12 @@ class AlertTreeModel extends DefaultTreeModel {
 
         @Override
         public int compare(AlertNode alertNode, AlertNode anotherAlertNode) {
+            if (alertNode.getRisk() < anotherAlertNode.getRisk()) {
+                return 1;
+            } else if (alertNode.getRisk() > anotherAlertNode.getRisk()) {
+                return -1;
+            }
+
             return alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
         }
     }
