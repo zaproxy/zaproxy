@@ -27,6 +27,7 @@
 // ZAP: 2014/03/23 Issue 951: TLS' versions 1.1 and 1.2 not enabled by default
 // ZAP: 2014/07/17 Issue 704: ZAP Error: handshake alert: unrecognized_name
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
+// ZAP: 2014/08/14 Issue 1274: ZAP Error [javax.net.ssl.SSLException]: Unsupported record version SSLv2Hello
 
 package org.parosproxy.paros.network;
 
@@ -77,6 +78,7 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 
 	private static final String CONTENTS_UNRECOGNIZED_NAME_EXCEPTION = "unrecognized_name";
 
+	public static final String SECURITY_PROTOCOL_SSL_V2_HELLO = "SSLv2Hello";
 	public static final String SECURITY_PROTOCOL_SSL_V3 = "SSLv3";
 	public static final String SECURITY_PROTOCOL_TLS_V1 = "TLSv1";
 	public static final String SECURITY_PROTOCOL_TLS_V1_1 = "TLSv1.1";

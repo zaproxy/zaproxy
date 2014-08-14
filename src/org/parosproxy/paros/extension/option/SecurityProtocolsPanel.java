@@ -63,7 +63,12 @@ public class SecurityProtocolsPanel extends JPanel {
         gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 
         checkBoxesSslTlsProtocols = new HashMap<>();
-        JCheckBox checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.ssl3.label"));
+        JCheckBox checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.ssl2hello.label"));
+        checkBox.setEnabled(false);
+        checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_SSL_V2_HELLO, checkBox);
+        add(checkBox, gbc);
+
+        checkBox = new JCheckBox(Constant.messages.getString("generic.options.panel.security.protocols.ssl3.label"));
         checkBox.setEnabled(false);
         checkBoxesSslTlsProtocols.put(SSLConnector.SECURITY_PROTOCOL_SSL_V3, checkBox);
         add(checkBox, gbc);
@@ -91,6 +96,15 @@ public class SecurityProtocolsPanel extends JPanel {
                 JCheckBox checkBox = checkBoxesSslTlsProtocols.get(protocol);
                 if (checkBox != null) {
                     checkBox.setEnabled(true);
+                }
+            }
+            String toolTip = null;
+            for (JCheckBox checkBox : checkBoxesSslTlsProtocols.values()) {
+                if (!checkBox.isEnabled()) {
+                    if (toolTip == null) {
+                        toolTip = Constant.messages.getString("generic.options.panel.security.protocols.protocol.not.supported.tooltip");
+                    }
+                    checkBox.setToolTipText(toolTip);
                 }
             }
             supportedSecurityProtocolsInitialised = true;
