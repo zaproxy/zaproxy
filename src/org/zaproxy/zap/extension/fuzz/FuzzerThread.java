@@ -22,10 +22,16 @@ package org.zaproxy.zap.extension.fuzz;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadFactory;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.Condition;
+import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
 import org.owasp.jbrofuzz.core.Fuzzer;
-import org.parosproxy.paros.common.ThreadPool;
 
 public class FuzzerThread implements Runnable {
 
@@ -41,15 +47,16 @@ public class FuzzerThread implements Runnable {
 	private volatile boolean pause = false;
     private volatile boolean isStop = false;
     
-    private ThreadPool pool = null;
     private int delayInMs = 0;
+    private FuzzExecutor pool;
+    private int threadsPerScan;
 
     /**
      * 
      */
     public FuzzerThread(FuzzerParam fuzzerParam) {
-	    pool = new ThreadPool(fuzzerParam.getThreadPerScan());
 	    delayInMs = fuzzerParam.getDelayInMs();
+	    threadsPerScan = fuzzerParam.getThreadPerScan();
     }
     
     
@@ -62,6 +69,12 @@ public class FuzzerThread implements Runnable {
     }
     
     public void stop() {
+        if (isStop) {
+            return;
+        }
+        if (pool != null) {
+            pool.shutdownNow();
+        }
         isStop = true;
     }
    
@@ -90,20 +103,46 @@ public class FuzzerThread implements Runnable {
     public void run() {
         log.info("fuzzer started");
         
+        pool = new FuzzExecutor(threadsPerScan);
+
     	if (customFuzzers != null) {
     		this.fuzz(customFuzzers);
     	} else {
     		this.fuzz(fuzzers);
     	}
 	    
-	    pool.waitAllThreadComplete(1000);
-        if (!pool.isAllThreadComplete()) {
-            log.warn("Failed to await for all fuzz threads to stop in the given time (1s for each)...");
+        while (!isStop && !isCompleted()) {
+            try {
+                Thread.sleep(500);
+            } catch (InterruptedException ignore) {
+            }
         }
+
+        if (isStop && !isCompleted()) {
+            boolean terminated = false;
+            try {
+                terminated = pool.awaitTermination(5, TimeUnit.SECONDS);
+            } catch (InterruptedException ignore) {
+            }
+            if (!terminated) {
+                log.warn("Failed to await for all fuzz threads to stop in the given time (5s).");
+            }
+        } else {
+            pool.shutdown();
+        }
+        pool = null;
+
 	    notifyFuzzerComplete();
 
         log.info("fuzzer stopped");
 	}
+
+    private boolean isCompleted() {
+        if (pool == null) {
+            return true;
+        }
+        return pool.getCompletedTaskCount() == pool.getTaskCount();
+    }
 	
 	private void fuzz(FileFuzzer[] customFuzzers) {
 		
@@ -145,18 +184,7 @@ public class FuzzerThread implements Runnable {
     }
 
 	private void fuzz(Iterator<String> it) {
-	    while (it.hasNext()) {
-            
-            while (pause && ! isStop()) {
-                try {
-                    Thread.sleep(500);
-                } catch (InterruptedException e) {
-                    // Ignore
-                }
-            }
-            if (isStop()) {
-                break;
-            }
+	    while (it.hasNext() && !isStop()) {
             if (delayInMs > 0) {
                 try {
                     Thread.sleep(delayInMs);
@@ -173,17 +201,10 @@ public class FuzzerThread implements Runnable {
                 fp.addFuzzerListener(listener);
             }
 
-            Thread thread;
-            do { 
-                thread = pool.getFreeThreadAndRun(fp);
-                if (thread == null) {
-                    try {
-                        Thread.sleep(500);
-                    } catch (InterruptedException e) {
-                        // Ignore
-                    }
-                }
-            } while (thread == null && !isStop());
+            if (isStop()) {
+                break;
+            }
+            pool.submit(fp);
 
         }
 	}
@@ -195,14 +216,91 @@ public class FuzzerThread implements Runnable {
 	
 	public void pause() {
 		this.pause = true;
+		pool.pause();
 	}
 	
 	public void resume () {
 		this.pause = false;
+		pool.resume();
 	}
 	
 	public boolean isPaused() {
 		return pause;
 	}
 
+	private static class FuzzExecutor extends ThreadPoolExecutor {
+
+		private boolean paused;
+		private ReentrantLock pauseLock = new ReentrantLock();
+		private Condition unpaused = pauseLock.newCondition();
+
+		public FuzzExecutor(int numberOfThreads) {
+			super(numberOfThreads,
+				  numberOfThreads,
+				  0L,
+				  TimeUnit.MILLISECONDS,
+				  new LinkedBlockingQueue<Runnable>(),
+				  new FuzzerThreadFactory());
+		}
+
+		@Override
+		protected void beforeExecute(Thread t, Runnable r) {
+			super.beforeExecute(t, r);
+			pauseLock.lock();
+			try {
+				while (paused) {
+					unpaused.await();
+				}
+			} catch (InterruptedException ie) {
+				t.interrupt();
+			} finally {
+				pauseLock.unlock();
+			}
+		}
+
+		public void pause() {
+			pauseLock.lock();
+			try {
+				paused = true;
+			} finally {
+				pauseLock.unlock();
+			}
+		}
+
+		public void resume() {
+			pauseLock.lock();
+			try {
+				paused = false;
+				unpaused.signalAll();
+			} finally {
+				pauseLock.unlock();
+			}
+		}
+	}
+	
+	private static class FuzzerThreadFactory implements ThreadFactory {
+
+		private static final AtomicInteger poolNumber = new AtomicInteger(1);
+		private final ThreadGroup group;
+		private final AtomicInteger threadNumber = new AtomicInteger(1);
+		private final String namePrefix;
+
+		FuzzerThreadFactory() {
+			SecurityManager s = System.getSecurityManager();
+			group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+			namePrefix = "ZAP-FuzzerPool-" + poolNumber.getAndIncrement() + "-thread-";
+		}
+
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+			if (t.isDaemon()) {
+				t.setDaemon(false);
+			}
+			if (t.getPriority() != Thread.NORM_PRIORITY) {
+				t.setPriority(Thread.NORM_PRIORITY);
+			}
+			return t;
+		}
+	}
 }
