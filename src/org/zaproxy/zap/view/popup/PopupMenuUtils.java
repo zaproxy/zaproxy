@@ -33,6 +33,7 @@ import org.zaproxy.zap.view.messagecontainer.MessageContainer;
  * A helper class with common utility methods for pop up menus ({@code JPopupMenu}) and its related classes ({@code JMenu}s,
  * {@code JMenuItem}s, {@code ExtensionPopupMenu}s, {@code ExtensionPopupMenuItem}s).
  * 
+ * @since 2.3.0
  * @see JPopupMenu
  * @see JMenu
  * @see ExtensionPopupMenu
