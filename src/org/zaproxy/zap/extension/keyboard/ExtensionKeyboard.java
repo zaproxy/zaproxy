@@ -21,14 +21,13 @@ import java.awt.Component;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.KeyStroke;
 
+import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -46,7 +45,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	
 	private OptionsKeyboardShortcutPanel optionsKeyboardPanel = null;
 	private KeyboardParam keyboardParam = null;
-	private Map<String, KeyboardMapping> map = new HashMap<String, KeyboardMapping>();
+	private ReferenceMap map = new ReferenceMap();
 	private KeyboardAPI api = null;
 
 	public ExtensionKeyboard() {
@@ -95,7 +94,12 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	
 	public void registerMenuItem(ZapMenuItem zme) {
 		KeyboardMapping mapping = menuToMapping(zme);
-		this.map.put(mapping.getIdentifier(), mapping);
+		String identifier = mapping.getIdentifier();
+		if (identifier != null) {
+			this.map.put(identifier, mapping);
+		} else {
+			logger.warn("ZapMenuItem \"" + mapping.getName() + "\" has a null identifier.");
+		}
 	}
 
 	private void initAllMenuItems(JMenu menu) {
@@ -189,7 +193,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	}
 	
 	public KeyStroke getShortcut(String identifier) {
-		KeyboardMapping mapping = this.map.get(identifier);
+		KeyboardMapping mapping = (KeyboardMapping) this.map.get(identifier);
 		if (mapping == null) {
 			return null;
 		}
@@ -197,7 +201,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	}
 	
 	public void setShortcut(String identifier, KeyStroke ks) {
-		KeyboardMapping mapping = this.map.get(identifier);
+		KeyboardMapping mapping = (KeyboardMapping) this.map.get(identifier);
 		if (mapping == null) {
 			logger.error("No mapping found for keyboard shortcut: " + identifier);
 			return;
