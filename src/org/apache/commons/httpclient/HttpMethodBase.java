@@ -51,10 +51,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 /*
- * Forked class... needed by the (forked) HttpMethodDirector class.
+ * Forked class... (previously needed only by the (forked) HttpMethodDirector class).
  * 
  * Changes:
  *  - Removed the characters "$" from the previous SVN keywords (HeadURL, Revision and Date) to avoid accidental expansions.
+ *  - Always add the "?" character to the request URI (Issue 1180) in the method #generateRequestLine(HttpConnection, String, 
+ *  String, String, String) to preserve the intended request URI.
  * 
  */
 /**
@@ -1579,9 +1581,10 @@ public abstract class HttpMethodBase implements HttpMethod {
         }
         // Append query, if any
         if (query != null) {
-            if (query.indexOf("?") != 0) {
+            // ZAP: If commented out to not change the intended request URI (i.e. if the query component starts with a "?" char)
+            //if (query.indexOf("?") != 0) {
                 buf.append("?");
-            }
+            //}
             buf.append(query);
         }
         // Append protocol
