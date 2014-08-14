@@ -47,12 +47,12 @@ public class SSLContextManagerUnitTest {
 	}
 	
 	@Test
-	public void shouldAlwaysReturnTrueForOtherThanPKCS11AndMsksProvider() {
+	public void shouldAlwaysReturnFalseForOtherThanPKCS11AndMsksProvider() {
 		// Given
 		// When
 		boolean result = sslContextManager.isProviderAvailable("thisProviderDoesNotExist");
 		// Then
-		assertThat(result, is(true));
+		assertThat(result, is(false));
 	}
 	
 

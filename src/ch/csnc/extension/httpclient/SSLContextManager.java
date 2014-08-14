@@ -111,13 +111,14 @@ public class SSLContextManager {
 		try {
 			if (type.equals("PKCS11")) {	
 				Class.forName("sun.security.pkcs11.SunPKCS11");
+				return true;
 			} else if (type.equals("msks")) {
 				Class.forName("se.assembla.jce.provider.ms.MSProvider");
+				return true;
 			}
-		} catch (Throwable t) {
-			return false;
+		} catch (Throwable ignore) {
 		}
-		return true;
+		return false;
 	}
 
 	private boolean isProviderLoaded(String keyStoreType) {
