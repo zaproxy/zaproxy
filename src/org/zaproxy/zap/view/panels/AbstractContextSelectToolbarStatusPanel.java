@@ -54,17 +54,17 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items at the
 	 * beginning of the toolbar.
 	 */
-	protected short TOOLBAR_LOCATION_START = 0;
+	protected static final short TOOLBAR_LOCATION_START = 0;
 	/**
 	 * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items right
 	 * after the context selection box.
 	 */
-	protected short TOOLBAR_LOCATION_AFTER_CONTEXTS_SELECT = 1;
+	protected static final short TOOLBAR_LOCATION_AFTER_CONTEXTS_SELECT = 1;
 	/**
 	 * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items at the
 	 * end of the toolbar
 	 */
-	protected short TOOLBAR_LOCATION_END = 99;
+	protected static final short TOOLBAR_LOCATION_END = 99;
 
 	protected String panelPrefix;
 

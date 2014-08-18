@@ -52,13 +52,13 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 	 * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items after the
 	 * buttons.
 	 */
-	protected short TOOLBAR_LOCATION_AFTER_BUTTONS = 10;
+	protected static final short TOOLBAR_LOCATION_AFTER_BUTTONS = 10;
 
 	/**
 	 * Location provided to {@link #addToolBarElements(JToolBar, short, int)} to add items after the
 	 * progress bar.
 	 */
-	protected short TOOLBAR_LOCATION_AFTER_PROGRESS_BAR = 11;
+	protected static final short TOOLBAR_LOCATION_AFTER_PROGRESS_BAR = 11;
 
 	private JButton startScanButton;
 	private JButton stopScanButton;
