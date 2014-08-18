@@ -50,6 +50,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
@@ -115,39 +116,7 @@ public class ReportLastScan {
     public void generateReport(ViewDelegate view, Model model, final reportTypes reportType){
         // ZAP: Allow scan report file name to be specified
         try {
-            JFileChooser chooser = new JFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory()) {
-
-				private static final long serialVersionUID = 8006039587938347440L;
-
-				@Override
-	        	public void approveSelection(){
-	        		File selectedFile = getSelectedFile();
-	        		
-	        		if(!java.nio.file.Files.isWritable(selectedFile.getParentFile().toPath())){
-	        			JOptionPane.showMessageDialog(this, 
-    					Constant.messages.getString("report.write.permission.dialog.title"),
-    					Constant.messages.getString("report.write.permission.dialog.message"),
-    					JOptionPane.ERROR_MESSAGE);
-	        			return;
-	        		}
-	        		if(selectedFile.exists()){
-	        			int result = JOptionPane.showConfirmDialog(this, 
-	        					Constant.messages.getString("report.write.overwrite.dialog.message"),
-	        					Constant.messages.getString("report.write.overwrite.dialog.title"),
-	        					JOptionPane.YES_NO_OPTION);
-	        			switch(result){
-	        			case JOptionPane.YES_OPTION:
-	        				super.approveSelection();
-	        				return;
-	        			case JOptionPane.NO_OPTION:
-	        				return;
-	        			case JOptionPane.CLOSED_OPTION:
-	        				return;
-	        			}
-	        		}
-	        		super.approveSelection();
-	        	}
-	        };
+            JFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
 	        
             chooser.setFileFilter(new FileFilter() {
 
@@ -199,8 +168,6 @@ public class ReportLastScan {
             int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
-
-                Model.getSingleton().getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
 
                 File report = generate(file.getAbsolutePath(), model, reportXSL);
                 if (report == null) {
