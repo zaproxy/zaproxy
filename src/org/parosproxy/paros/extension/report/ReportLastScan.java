@@ -48,6 +48,7 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.XmlReporterExtension;
+import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
@@ -178,8 +179,7 @@ public class ReportLastScan {
                 }
 
                 try {
-                    BrowserLauncher bl = new BrowserLauncher();
-                    bl.openURLinBrowser("file://" + report.getAbsolutePath());
+                	DesktopUtils.openUrlInBrowser(report.toURI());
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                     view.showMessageDialog(

@@ -52,6 +52,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DesktopUtils;
 
 import edu.stanford.ejalbert.BrowserLauncher;
 
@@ -294,8 +295,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 					    		outputFile.getAbsolutePath());
 
 			    		try {
-							BrowserLauncher bl = new BrowserLauncher();
-							bl.openURLinBrowser("file://" + outputFile.getAbsolutePath());
+							DesktopUtils.openUrlInBrowser(outputFile.toURI());
 						} catch (Exception e) {
 				        	log.error(e.getMessage(), e);
 							View.getSingleton().showMessageDialog(
