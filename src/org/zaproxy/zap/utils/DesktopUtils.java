@@ -13,7 +13,15 @@ import edu.stanford.ejalbert.exception.UnsupportedOperatingSystemException;
 public class DesktopUtils {
 	
 	private static enum BrowserInvoker {desktop, browserlauncher, none};
+
 	private static BrowserInvoker DEFAULT_INVOKER = BrowserInvoker.desktop;
+	// Initialize the default invoker to desktop, if it's supported
+	static {
+		if (Desktop.isDesktopSupported())
+			DEFAULT_INVOKER = BrowserInvoker.desktop;
+		else
+			DEFAULT_INVOKER = BrowserInvoker.browserlauncher;
+	}
 
 	private static BrowserInvoker invoker = null; 
     private static BrowserLauncher launcher = null;
@@ -21,6 +29,7 @@ public class DesktopUtils {
     private static Logger log = Logger.getLogger(DesktopUtils.class);
 
 	public static boolean openUrlInBrowser (URI uri) {
+		
 		try {
 			switch (getInvoker()) {
 			case desktop:
