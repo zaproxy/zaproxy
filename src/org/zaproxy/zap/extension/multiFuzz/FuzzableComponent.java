@@ -20,12 +20,25 @@
 package org.zaproxy.zap.extension.multiFuzz;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Interface to be implemented by all UI components from which fuzzing can be invoked.
+ *
+ * @param <M>	type of messages to be fuzzed
+ */
 public interface FuzzableComponent<M extends Message> {
-
+	/**
+	 * Gets underlying message class.
+	 * @return message class
+	 */
 	Class<? extends Message> getMessageClass();
-
+	/**
+	 * Gets message displayed in the component
+	 * @return the message displayed
+	 */
 	M getFuzzableMessage();
-
+	/**
+	 * Indicates whether fuzzing is enabled and possible.
+	 * @return boolean indicating if fuzzing is possible.
+	 */
 	boolean canFuzz();
 }

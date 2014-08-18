@@ -50,7 +50,14 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * The main UI component for the choice of fuzzing options and targets for a specific message.
+ *
+ * @param <M>	the target message type
+ * @param <L>	the associated {@link FuzzLocation} type
+ * @param <P>	the associated {@link Payload} type
+ * @param <G>	the associated {@link FuzzGap} type
+ */
 public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P extends Payload, G extends FuzzGap<M, L, P>>
 		extends AbstractDialog {
 
@@ -76,25 +83,50 @@ public abstract class FuzzDialog<M extends Message, L extends FuzzLocation<M>, P
 	protected JTable targetTable;
 	private ArrayList<SubComponent> subs = new ArrayList<>();
 	private ArrayList<FuzzerListener<?, ArrayList<G>>> listeners = new ArrayList<>();
-
+	
+	/**
+	 * Converts a JBroFuzzer into a simple FileFuzzer
+	 * @param jBroFuzzer	The JBroFuzzer
+	 * @return	the resulting @FileFuzzer
+	 */
 	public abstract FileFuzzer<P> convertToFileFuzzer(Fuzzer jBroFuzzer);
-
+	/**
+	 * Generates and returns the {@link FuzzProcessFactory} for the generation of {@link FuzzProcess} instances
+	 * according to the users choice of options.
+	 * @return the {@link FuzzProcessFactory}
+	 */
 	public abstract FuzzProcessFactory getFuzzProcessFactory();
-
+	/**
+	 * Generates and returns the {@link PayloadFactory} for the generation of {@link Payload} instances
+	 * that are defined by the user.
+	 * @return the {@link PayloadFactory}
+	 */
 	protected abstract PayloadFactory<P> getPayloadFactory();
-
+	/**
+	 * Returns the target message of the current fuzzing procedure for which {@link Payload} are defined and other options are determined.
+	 * @return the target message
+	 */
 	public M getMessage() {
 		return this.fuzzableMessage;
 	}
-
+	/**
+	 * To be overridden to include components that enable the user to choose options for the fuzzing process specific to the message type.
+	 * @param panel the panel the components are added to
+	 * @param currentRow row in the GridBagLayout they are inserted in
+	 * @return the next row in the GridBagLayout after the custom components
+	 */
 	protected abstract int addCustomComponents(JPanel panel, int currentRow);
-
+	/**
+	 * To be overridden to provide an implementation of {@link FuzzComponent} to display the current message and fuzz targets in
+	 * @return the {@link FuzzComponent}
+	 */
 	protected abstract FuzzComponent<M, L, G> getMessageContent();
 
 	/**
-	 * 
-	 * @param extension
-	 * @param fuzzTarget
+	 * The standard constructor.
+	 * @param ext the {@link ExtensionFuzz} resources can be loaded from
+	 * @param msg the target message.
+	 * @param subs a list of subcomponents to be displayed
 	 * @throws HeadlessException
 	 */
 	public FuzzDialog(ExtensionFuzz ext, M msg, ArrayList<SubComponent> subs) throws HeadlessException {

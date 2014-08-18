@@ -28,7 +28,11 @@ import java.util.ArrayList;
 import java.util.Iterator;
 
 import org.apache.log4j.Logger;
-
+/**
+ * Represents a collection of payloads which are read from a file.
+ *
+ * @param <P>	the payload type
+ */
 public class FileFuzzer<P extends Payload> {
 	public static final String TYPE_SIG_BEG = "#<type=\"";
 	public static final String TYPE_SIG_END = "\">";
@@ -39,20 +43,27 @@ public class FileFuzzer<P extends Payload> {
 	private PayloadFactory<P> factory;
 	private int length;
 	private static Logger log = Logger.getLogger(FileFuzzer.class);
-
+	/**
+	 * Constructor of an empty FileFuzzer
+	 * @param s		the FileFuzzers name
+	 * @param f		the {@link PayloadFactory} for generation of {@link Payload}
+	 */
 	public FileFuzzer(String s, PayloadFactory<P> f) {
 		this.file = null;
 		this.name = s;
 		this.factory = f;
 	}
-
+	/**
+	 * Constructor directly from a file
+	 * @param file	the file
+	 * @param f		the {@link PayloadFactory} for generation of {@link Payload}
+	 */
 	public FileFuzzer(File file, PayloadFactory<P> f) {
 		this.file = file;
 		this.name = file.getName();
 		this.factory = f;
 		init();
 	}
-
 	private void init() {
 		this.length = 0;
 		BufferedReader in = null;
@@ -78,7 +89,6 @@ public class FileFuzzer<P extends Payload> {
 			}
 		}
 	}
-
 	private void read() {
 		BufferedReader in = null;
 		try {
@@ -128,25 +138,30 @@ public class FileFuzzer<P extends Payload> {
 			}
 		}
 	}
-
+	/**
+	 * Generates the list of payloads in this FileFuzzer
+	 * @return	the list of payloads
+	 */
 	public ArrayList<P> getList() {
 		if (payloads == null) {
 			read();
 		}
 		return this.payloads;
 	}
-
+	/**
+	 * Generates the iterator over all payloads.
+	 * @return	the iterator
+	 */
 	public Iterator<P> getIterator() {
 		if (payloads == null) {
 			read();
 		}
 		return payloads.iterator();
 	}
-
-	public boolean hasNext() {
-		return getIterator().hasNext();
-	}
-
+	/**
+	 * The FileFuzzers name or file location
+	 * @return	The name
+	 */
 	public String getFileName() {
 		return this.name;
 	}

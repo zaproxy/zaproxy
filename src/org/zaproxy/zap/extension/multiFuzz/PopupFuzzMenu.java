@@ -29,7 +29,9 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Popup-menu item invoking the fuzzing extension on the component the right-click has been aimed at.
+ */
 public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 
 	private static final long serialVersionUID = 1L;
@@ -45,8 +47,8 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 	}
 
 	/**
-	 * This method initializes
-	 * 
+	 * The standard constructor
+	 * @param extension the {@link ExtensionFuzz} for the multi-fuzz extension
 	 */
 	public PopupFuzzMenu(ExtensionFuzz extension) {
 		super();
@@ -60,7 +62,9 @@ public class PopupFuzzMenu extends ExtensionPopupMenuItem {
 	private void initialize() {
 		this.setText(Constant.messages.getString("fuzz.tools.menu.multiFuzz"));
 	}
-
+	/**
+	 * Checks if the chosen Component actually contains content that can be fuzzed.
+	 */
 	@Override
 	public boolean isEnableForComponent(Component invoker) {
 		boolean visible = false;

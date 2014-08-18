@@ -20,10 +20,23 @@
 package org.zaproxy.zap.extension.multiFuzz;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Represents a specific target location in a message.
+ *
+ * @param <M> the messages type
+ */
 public interface FuzzLocation<M extends Message> extends
 		Comparable<FuzzLocation<M>> {
+	/**
+	 * A String representation of the content at this location in a message
+	 * @param msg the message
+	 * @return the String representation
+	 */
 	public String getRepresentation(M msg);
-
+	/**
+	 * Indicates if this location overlaps with another one.
+	 * @param loc	the location against which the check is done
+	 * @return	boolean indicating overlap
+	 */
 	public boolean overlap(FuzzLocation<M> loc);
 }

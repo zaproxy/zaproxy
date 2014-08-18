@@ -22,7 +22,12 @@ package org.zaproxy.zap.extension.multiFuzz;
 import java.util.ArrayList;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * The result of one fuzz combination.
+ *
+ * @param <M>	type of the fuzzed message
+ * @param <L>	type of the corresponding {@link FuzzLocation}
+ */
 public class FuzzResult<M extends Message, L extends FuzzLocation<M>> {
 
 	public static final String STATE_SUCCESSFUL = "SUCCESSFUL";

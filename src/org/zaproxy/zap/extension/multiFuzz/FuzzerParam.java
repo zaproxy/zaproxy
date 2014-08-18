@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.multiFuzz;
 import java.io.File;
 
 import org.parosproxy.paros.common.AbstractParam;
-
+/**
+ * Collection of settings for the fuzzing process
+ */
 public class FuzzerParam extends AbstractParam {
 
 	private static final String DEFAULT_CATEGORY = "fuzzer.defaultCategory";

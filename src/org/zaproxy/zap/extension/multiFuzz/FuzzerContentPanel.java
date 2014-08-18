@@ -22,18 +22,37 @@ package org.zaproxy.zap.extension.multiFuzz;
 import java.io.File;
 
 import javax.swing.JComponent;
-
+/**
+ * Interface to be implemented by components displaying {@link FuzzResult} or {@link FuzzRecord} for different message types.
+ *
+ */
 public interface FuzzerContentPanel {
-
+	/**
+	 * Gets the component itself.
+	 * @return The component
+	 */
 	JComponent getComponent();
-
+	/**
+	 * Removes fuzzing results that are currently being displayed.
+	 */
 	void clear();
-
+	/**
+	 * Adds a single entry
+	 * @param fuzzResult the {@link FuzzResult} corresponding to the entry.
+	 */
 	void addFuzzResult(FuzzResult<?, ?> fuzzResult);
-
+	/**
+	 * Opens a {@link FuzzResultDialog} containing a graphical representation of the current entries.
+	 */
 	void showDiagrams();
-	
+	/**
+	 * Saves the current entries to a specified file.
+	 * @param f	the target file
+	 */
 	void saveRecords(File f);
-	
+	/**
+	 * Adds entries from a file.
+	 * @param f	the target file
+	 */
 	void loadRecords(File f);
 }

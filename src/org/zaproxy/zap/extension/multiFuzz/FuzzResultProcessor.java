@@ -18,7 +18,16 @@
  * limitations under the License.
  */
 package org.zaproxy.zap.extension.multiFuzz;
-
+/**
+ * Interface for the manipulation of {@link FuzzResult} . 
+ *
+ * @param <R>	the type of {@link FuzzResult} to be manipulated.
+ */
 public interface FuzzResultProcessor<R extends FuzzResult> {
+	/**
+	 * Called for each {@link FuzzResult} generated.
+	 * @param orig	the {@link FuzzResult}
+	 * @return the processed version of the {@link FuzzResult}
+	 */
 	public R process(R orig);
 }

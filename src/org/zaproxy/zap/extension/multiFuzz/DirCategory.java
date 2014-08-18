@@ -23,27 +23,47 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Class administrating the fuzzers and files of a particular fuzzing category.
+ * 
+ */
 public class DirCategory {
 	private String name;
 	private List<File> fuzzers = new ArrayList<>();
-
+	/**
+	 * Gets a list of fuzzing files in this category. To access these a {@link FileFuzzer} needs to be created for each individual file.
+	 * @return the list of fuzzing file
+	 */
 	public List<File> getFuzzers() {
 		return fuzzers;
 	}
-
+	/**
+	 * The standard constructor
+	 * @param name the category name
+	 */
 	public DirCategory(String name) {
 		super();
 		this.name = name;
 	}
-
+	/**
+	 * Adds a file to this category
+	 * @param fileFuzzer the file
+	 */
 	public void addFuzzer(File fileFuzzer) {
 		this.fuzzers.add(fileFuzzer);
 	}
-
+	/**
+	 * Returns the categories name as displayed in a {@link PayloadDialog}.
+	 * @return the category name
+	 */
 	public String getName() {
 		return this.name;
 	}
-
+	/**
+	 * Checks if a fuzzing file of the specified name is part of this category. If so it returns the associated file, otherwise null.
+	 * @param name	the name to search for
+	 * @return	a file of that name or null
+	 */
 	public File getFuzzerFile(String name) {
 		for (File ff : fuzzers) {
 			if (ff.getName().equals(name)) {

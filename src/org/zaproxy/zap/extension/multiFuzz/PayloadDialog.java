@@ -55,7 +55,13 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
-
+/**
+ * A dialog allowing the user to define {@link Payload} for a specific {@link FuzzGap}.
+ *
+ * @param <G>	the type of the {@link FuzzGap} target
+ * @param <P>	the type of {@link Payload} defined
+ * @param <F>	the type of {@link PayloadFactory} used for {@link Payload} definition
+ */
 public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F extends PayloadFactory<P>>
 		extends AbstractDialog {
 	private F factory;
@@ -84,7 +90,12 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 
 	private JButton cancelButton;
 	private JButton doneButton;
-
+	/**
+	 * The standard constructor
+	 * @param g	the {@link FuzzGap} target
+	 * @param factory the {@link PayloadFactory} used for {@link Payload} definition
+	 * @param ext the {@link ExtensionFuzz} to load resources from
+	 */
 	public PayloadDialog(G g, F factory, ExtensionFuzz ext) {
 		super(View.getSingleton().getMainFrame(), true);
 		this.target = g;
@@ -97,13 +108,18 @@ public class PayloadDialog<G extends FuzzGap<?, ?, P>, P extends Payload, F exte
 					.setPayloads((ArrayList<P>) target.getPayloads().clone());
 		}
 	}
-
+	/**
+	 * Initializes this
+	 */
 	protected void initialize() {
 		this.setTitle(Constant.messages.getString("fuzz.title"));
 		this.setContentPane(getJPanel());
 		this.setSize(800, 400);
 	}
-
+	/**
+	 * Initializes the UI
+	 * @return a JPanel containing all components
+	 */
 	private JPanel getJPanel() {
 		if (background == null) {
 			background = new JPanel();

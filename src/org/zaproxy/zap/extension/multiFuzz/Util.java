@@ -21,20 +21,43 @@ package org.zaproxy.zap.extension.multiFuzz;
 
 import java.awt.Color;
 import java.awt.GridBagConstraints;
-
+/**
+ * Fuzzing utility class containing methods shared between multiple classes.
+ */
 public class Util {
+	/**
+	 * Generates and returns different colors which are allocated to fuzzing gaps in order.
+	 * @param n the index of the color to be generated (should not exceed 15)
+	 * @return	The n-th color
+	 */
 	public static Color getColor(int n) {
 		float hue = (float) (n % 5) / 5;
 		float sat = (float) Math.ceil((float) n / 5) / 2;
 		float bright = (float) Math.ceil((float) n / 5);
 		return Color.getHSBColor(hue, sat, bright);
 	}
-
+	/**
+	 * Returns {@link GridBagConstraints} with the specified parameters
+	 * @param x	x value
+	 * @param y y value
+	 * @param width width value
+	 * @param weightx weightx value
+	 * @return The specified {@link GridBagConstraints}
+	 */
 	public static GridBagConstraints getGBC(int x, int y, int width, double weightx) {
 		return getGBC(x, y, width, weightx, 0.0,
 				java.awt.GridBagConstraints.NONE);
 	}
-
+	/**
+	 * Returns {@link GridBagConstraints} with the specified parameters
+	 * @param x	x value
+	 * @param y y value
+	 * @param width width value
+	 * @param weightx weightx value
+	 * @param weighty weighty value
+	 * @param fill fill value
+	 * @return The specified {@link GridBagConstraints}
+	 */
 	public static GridBagConstraints getGBC(int x, int y, int width,
 			double weightx, double weighty, int fill) {
 		GridBagConstraints gbc = new GridBagConstraints();

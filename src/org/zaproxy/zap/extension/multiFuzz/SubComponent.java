@@ -20,7 +20,13 @@
 package org.zaproxy.zap.extension.multiFuzz;
 
 import javax.swing.JComponent;
-
+/**
+ * Interface for ui part of subcomponents like AntiCSRF etc.
+ */
 public interface SubComponent {
+	/**
+	 * JComponent containing option fields which is displayed in the FuzzDialog.
+	 * @return The JComponent
+	 */
 	public JComponent addOptions();
 }

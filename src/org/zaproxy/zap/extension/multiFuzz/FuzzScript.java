@@ -24,12 +24,27 @@ import java.util.Map;
 import javax.script.ScriptException;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Interface for the inclusion of fuzzing scripts.
+ */
 public interface FuzzScript{
-	
+	/**
+	 * Called to alter each {@link Payload} before insertion into a target message.
+	 * @param p	the {@link Payload}
+	 * @throws ScriptException
+	 */
 	void processPayload(Payload p) throws ScriptException;
-	
+	/**
+	 * Called for the manipulation of a message after payload insertion before sending it.
+	 * @param msg	the message
+	 * @param paymap	a map between {@link FuzzLocation} and inserted {@link Payload}
+	 * @throws ScriptException
+	 */
 	void preProcess(Message msg, Map<?,?> paymap) throws ScriptException;
-
+	/**
+	 * Called for the manipulation of a {@link FuzzResult} generated after sending and receiving a message
+	 * @param msg	the generated {@link FuzzResult}
+	 * @throws ScriptException
+	 */
 	void postProcess(FuzzResult<?,?> msg) throws ScriptException;
 }

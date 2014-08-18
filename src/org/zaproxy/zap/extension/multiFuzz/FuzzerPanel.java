@@ -44,7 +44,10 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapToggleButton;
-
+/**
+ * The fuzzing tab containing the fuzzing toolbar and a table displaying fuzzresults obtained.
+ *
+ */
 public class FuzzerPanel extends AbstractPanel {
 
 	public static final String PANEL_NAME = "fuzzpanel";
@@ -69,7 +72,10 @@ public class FuzzerPanel extends AbstractPanel {
 	private ScanStatus scanStatus = null;
 
 	private FuzzerContentPanel contentPanel;
-
+	/**
+	 * Standard constructor
+	 * @param extension	The {@link ExtensionFuzz} instance handling this extension
+	 */
 	public FuzzerPanel(ExtensionFuzz extension) {
 		super();
 		this.extension = extension;

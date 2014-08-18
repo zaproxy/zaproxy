@@ -24,20 +24,33 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
-
+/**
+ * Extension of {@link ThreadPoolExecutor} that allows to interrupt and resume
+ * process execution
+ *
+ */
 public class ThreadPoolExe extends ThreadPoolExecutor {
 
 	private boolean isPaused;
 	private ReentrantLock pauseLock = new ReentrantLock();
 	private Condition unpaused = pauseLock.newCondition();
-
+	/**
+	 * Standard constructor
+	 * @param corePoolsize	target pool size of the {@link ThreadPoolExecutor}
+	 * @param maximumPoolSize maximum pool size of the {@link ThreadPoolExecutor}
+	 * @param keepAliveTime keep alive time of the {@link ThreadPoolExecutor}
+	 * @param unit unit of keep alive time of the {@link ThreadPoolExecutor}
+	 * @param workQueue initial queue of the {@link ThreadPoolExecutor}
+	 */
 	public ThreadPoolExe(int corePoolsize, int maximumPoolSize,
 			long keepAliveTime, TimeUnit unit,
 			BlockingQueue<Runnable> workQueue) {
 		super(corePoolsize, maximumPoolSize, keepAliveTime, unit,
 				 workQueue);
 	}
-
+	/**
+	 * Sets up locking mechanism
+	 */
 	@Override
 	protected void beforeExecute(Thread t, Runnable r) {
 		super.beforeExecute(t, r);
@@ -52,7 +65,9 @@ public class ThreadPoolExe extends ThreadPoolExecutor {
 			pauseLock.unlock();
 		}
 	}
-
+	/**
+	 * Pauses execution.
+	 */
 	public void pause() {
 		pauseLock.lock();
 		try {
@@ -61,7 +76,9 @@ public class ThreadPoolExe extends ThreadPoolExecutor {
 			pauseLock.unlock();
 		}
 	}
-
+	/**
+	 * Resumes execution.
+	 */
 	public void resume() {
 		pauseLock.lock();
 		try {

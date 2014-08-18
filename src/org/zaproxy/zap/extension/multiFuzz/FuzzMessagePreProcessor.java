@@ -22,7 +22,19 @@ package org.zaproxy.zap.extension.multiFuzz;
 import java.util.Map;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Interface for the manipulation messages after payload insertion and previous to generation of a {@link FuzzResult}.
+ *
+ * @param <FM> type of message to be processed
+ * @param <L>  type of {@link FuzzLocation} associated
+ * @param <P>  type of {@link Payload} associated
+ */
 public interface FuzzMessagePreProcessor<FM extends Message, L extends FuzzLocation<FM>, P extends Payload> {
+	/**
+	 * Processing routine for a single message
+	 * @param orig	the original message
+	 * @param payMap	the map of {@link FuzzLocation} and {@link Payload}
+	 * @return		the resulting message
+	 */
 	public FM process(FM orig, Map<L, P> payMap);
 }

@@ -20,9 +20,21 @@
 package org.zaproxy.zap.extension.multiFuzz;
 
 import java.util.HashMap;
-
+/**
+ * Interface for factories generating {@link FuzzProcess} of the same type sharing certain parameters
+ *
+ * @param <P>	the type of {@link FuzzProcess} generated
+ * @param <PL>	the type of {@link PayLoad} to be inserted.
+ * @param <L>	the type of {@link FuzzLocation denoting} target locations.
+ */
 public interface FuzzProcessFactory<P extends FuzzProcess<?, ?, ?, ?>, PL extends Payload, L extends FuzzLocation<?>> {
-
+	/**
+	 * Generates and returns a new {@link FuzzProcess} with all message specific parameters set for this factory
+	 * and defining target sections and their payloads. 
+	 * @param hm	mapping between {@link FuzzLocation} targets and the {@link Payload} to be inserted
+	 * @param id	the unique process id to be set
+	 * @return		the generated {@link FuzzProcess}
+	 */
 	P getFuzzProcess(HashMap<L, PL> hm, int id);
 
 }

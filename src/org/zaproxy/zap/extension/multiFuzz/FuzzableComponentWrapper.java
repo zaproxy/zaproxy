@@ -21,10 +21,17 @@ package org.zaproxy.zap.extension.multiFuzz;
 
 import org.zaproxy.zap.extension.httppanel.Message;
 
+/**
+ * Provides compatibility to previous versions of the {@link org.zaproxy.zap.extension.fuzz.FuzzableComponent} interface 
+ *
+ */
 public class FuzzableComponentWrapper implements FuzzableComponent {
 
 	private org.zaproxy.zap.extension.fuzz.FuzzableComponent oldComponent;
-
+	/**
+	 * The standard constructor
+	 * @param oldComponent	the old FuzzComponent to be wrapped up
+	 */
 	public FuzzableComponentWrapper(
 			org.zaproxy.zap.extension.fuzz.FuzzableComponent oldComponent) {
 		this.oldComponent = oldComponent;

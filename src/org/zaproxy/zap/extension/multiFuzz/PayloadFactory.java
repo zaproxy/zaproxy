@@ -18,12 +18,30 @@
  * limitations under the License.
  */
 package org.zaproxy.zap.extension.multiFuzz;
-
+/**
+ * Interface for factories creating {@link Payload} objects of a certain type
+ *
+ * @param <P>	the {@link Payload} type generated
+ */
 public interface PayloadFactory<P extends Payload> {
-
+	/**
+	 * Creates a simple String {@link Payload} with the content specified.
+	 * @param data	String content
+	 * @return	the {@link Payload} object created
+	 */
 	P createPayload(String data);
-
+	/**
+	 * Creates a {@link Payload} of the type specified.
+	 * @param type	payload type to be generated
+	 * @param data	String content, file path or regular expression depending on the type parameter
+	 * @return the {@link Payload} object created
+	 */
 	P createPayload(Payload.Type type, String data);
-
+	/**
+	 * Creates a {@link Payload} of the type specified.
+	 * @param type	payload type to be generated
+	 * @param data	String content, file path or regular expression depending on the type parameter
+	 * @param limit	limit parameter for Regex payloads
+	 */
 	P createPayload(Payload.Type type, String data, int limit);
 }

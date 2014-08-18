@@ -178,21 +178,13 @@ public class HttpFuzzProcess implements
 		for (HttpFuzzLocation fuzzLoc : intervals) {
 			if (fuzzLoc.begin() < origHead.length()) {
 				if (fuzzLoc.begin() >= currPosHead) {
-					int hl = 0;
-					int pos = 0;
-					while (((pos = origHead.indexOf("\r\n", pos)) != -1)
-							&& (pos <= fuzzLoc.start + hl)) {
-						pos += 2;
-						++hl;
-					}
-					head.append(origHead.substring(currPosHead, fuzzLoc.begin()
-							+ hl));
+					head.append(origHead.substring(currPosHead, fuzzLoc.begin()));
 					HttpPayload payload = payloads.get(fuzzLoc);
 					for (PayloadProcessor<HttpPayload> p : payloadprocessors) {
 						payload = p.process(payload);
 					}
 					head.append(payload.getData());
-					currPosHead = fuzzLoc.end + hl;
+					currPosHead = fuzzLoc.end;
 				}
 			} else {
 				int start = fuzzLoc.begin();

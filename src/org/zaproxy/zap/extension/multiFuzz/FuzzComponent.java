@@ -23,17 +23,42 @@ import java.awt.Component;
 import java.util.ArrayList;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Interface for UI components which display target messages and highlight fuzzing targets within them.
+ * 
+ * @param <M>	the message type
+ * @param <L>	the associated {@link FuzzLocation} implementation
+ * @param <G>	the associated {@link FuzzGap} implementation
+ */
 public interface FuzzComponent<M extends Message, L extends FuzzLocation<M>, G extends FuzzGap<M, L, ?>> {
+	/**
+	 * Returns the {@link FuzzLocation} in the message that has been selected by the user in the component.
+	 * @return	the FuzzLocation
+	 */
 	L selection();
-
+	/**
+	 * Highlights a new set of locations in the component.
+	 * @param allLocs	list of locations to be highlighted
+	 */
 	void highlight(ArrayList<G> allLocs);
-
+	/**
+	 * The component itself
+	 * @return	the component
+	 */
 	Component messageView();
-
+	/**
+	 * Changes the user selection in the Component to a specific {@link FuzzLocation} in the message.
+	 * @param f	the target {@link FuzzLocation}
+	 */
 	void markUp(L f);
-
+	/**
+	 * Searches through the message and cycles through parts matching a certain String representation. The current match is being selected.
+	 * @param text	search String
+	 */
 	void search(String text);
-
+	/**
+	 * Sets the message displayed
+	 * @param message the new message
+	 */
 	void setMessage(M message);
 }

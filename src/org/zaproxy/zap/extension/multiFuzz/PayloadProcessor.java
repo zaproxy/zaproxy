@@ -18,7 +18,16 @@
  * limitations under the License.
  */
 package org.zaproxy.zap.extension.multiFuzz;
-
+/**
+ * Interface for manipulation of {@link Payload} previous to insertion.
+ *
+ * @param <P> the type of {@link Payload} to be manipulated.
+ */
 public interface PayloadProcessor<P extends Payload> {
+	/**
+	 * Processing routine for a single {@link Payload}
+	 * @param orig	the {@link Payload} to be processed.
+	 * @return	the resulting {@link Payload}
+	 */
 	public P process(P orig);
 }

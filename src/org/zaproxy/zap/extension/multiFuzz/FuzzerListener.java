@@ -19,11 +19,27 @@
  */ 
 package org.zaproxy.zap.extension.multiFuzz;
 
+/**
+ * Listener to propagate state of {@link FuzzProcess}
+ *
+ * @param <P>	the {@link FuzzProcess} type
+ * @param <R>	the {@link FuzzResult} type
+ */
 public interface FuzzerListener<P, R> {
+	/**
+	 * Notification that a process has started
+	 * @param process the {@link FuzzProcess}
+	 */
 	void notifyFuzzerStarted(P process);
-
+	/**
+	 * Notification that a process has been paused
+	 * @param process the {@link FuzzProcess}
+	 */
 	void notifyFuzzerPaused(P process);
-
+	/**
+	 * Notification that a process has finished 
+	 * @param result the {@link FuzzProcess}
+	 */
 	void notifyFuzzerComplete(R result);
 
 }

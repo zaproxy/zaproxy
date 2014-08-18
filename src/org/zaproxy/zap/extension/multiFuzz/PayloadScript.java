@@ -20,9 +20,16 @@
 package org.zaproxy.zap.extension.multiFuzz;
 
 import javax.script.ScriptException;
-
+/**
+ * Interface for the inclusion {@link Payload} generating scripts
+ */
 public interface PayloadScript {
-
+	/**
+	 * Method for generating and adding a {@link Payload} to a {@link FuzzGap}
+	 * @param g	the {@link FuzzGap}
+	 * @param pf the {@link PayloadFactory} used for {@link Payload} generation
+	 * @throws ScriptException
+	 */
 	void insertPayloads(FuzzGap<?, ?, ?> g, PayloadFactory<?> pf)
 			throws ScriptException;
 

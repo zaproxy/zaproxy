@@ -35,28 +35,50 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
-
+/**
+ * An abstract class providing the structure of a dialog displaying a list of {@link FuzzRecord} and
+ * diagrams for further analysis of those.
+ */
 public abstract class FuzzResultDialog extends AbstractDialog {
 	private JPanel background;
 	private JButton close;
 	private JScrollPane jScrollPane;
+	/**
+	 * Abstract method to be overwritten to provide a suitable table for listing {@link FuzzRecord} of a certain type.
+	 * @return the table
+	 */
 	public abstract JXTreeTable getTable();
+	/**
+	 * Abstract method to be overwritten to provide a suitable implementation of {@link FuzzComponent} to present chosen messages for closer inspection.
+	 * @return the {@link FuzzComponent}
+	 */
 	public abstract FuzzComponent getMessageInspection();
+	/**
+	 * Abstract method to be overwritten to provide a {@link JTabbedPane} containing the diagrams for analysis of the results
+	 * @return the {@link JTabbedPane}
+	 */
 	public abstract JTabbedPane getDiagrams();
 	
-	
+	/**
+	 * The standard constructor
+	 */
 	public FuzzResultDialog() {
 		super(View.getSingleton().getMainFrame(), true);
 		initialize();
 	}
 	
-	
+	/**
+	 * Initializes this
+	 */
 	protected void initialize() {
 		this.setTitle(Constant.messages.getString("fuzz.title"));
 		this.setContentPane(getJPanel());
 		this.setSize(800, 400);
 	}
-
+	/**
+	 * Provides the main UI content
+	 * @return
+	 */
 	private JPanel getJPanel() {
 		if (background == null) {
 			background = new JPanel();

@@ -51,7 +51,11 @@ import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.extension.search.SearchResult;
-
+/**
+ * This extensions implementation of {@link ExtensionAdaptor}. This class is responsible for communication with the main framework, the
+ * loading of key resources and the initialization of the fuzzing procedure.
+ *
+ */
 public class ExtensionFuzz extends ExtensionAdaptor implements
 		SessionChangedListener, AddonFilesChangedListener {
 

@@ -34,7 +34,16 @@ import org.parosproxy.paros.control.Control;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
-
+/**
+ * Thread administrating the construction and execution of {@link FuzzProcess} in the {@link ThreadPool}.
+ *
+ * @param <PL>	type of inserted {@link Payload}
+ * @param <M>	type of the fuzzed message
+ * @param <L>	type of target {@link FuzzLocation} 
+ * @param <R>	type of generated {@link FuzzResult}
+ * @param <G>	type of target {@link FuzzGap}
+ * @param <P>	type of {@link FuzzProcess} run
+ */
 public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzLocation<M>, R extends FuzzResult<M, L>, G extends FuzzGap<M, L, PL>, P extends FuzzProcess<R, PL, M, L>>
 		implements Runnable {
 
@@ -55,7 +64,10 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 	private int comb_count = 0;
 	private int threadCount = 1;
 	private int delayInMs = 0;
-
+	/**
+	 * Standard constructor.
+	 * @param fuzzerParam Current fuzzing settings
+	 */
 	public FuzzerThread(FuzzerParam fuzzerParam) {
 		delayInMs = fuzzerParam.getDelayInMs();
 		threadCount = fuzzerParam.getThreadPerScan();
@@ -63,14 +75,18 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		preprocessors = new ArrayList<>();
 		postprocessors = new ArrayList<>();
 	}
-
+	/**
+	 * Starts execution of this thread.
+	 */
 	public void start() {
 		isStop = false;
 		Thread thread = new Thread(this, "ZAP-FuzzerThread");
 		thread.setPriority(Thread.NORM_PRIORITY - 2);
 		thread.start();
 	}
-
+	/**
+	 * Stops execution of this thread.
+	 */
 	public void stop() {
 		threadPool.shutdownNow();
 		try {
@@ -82,33 +98,54 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		}
 		isStop = true;
 	}
-
+	/**
+	 * Adds a listener monitoring this thread from a {@link FuzzerHandler}.
+	 * @param listener the new listener
+	 */
 	public void addHandlerListener(FuzzerListener<Integer, Boolean> listener) {
 		this.handlerListener = listener;
 	}
-
+	/**
+	 * Adds a listener to the FuzzProcesses controlled by this thread.
+	 * @param listener the new listener
+	 */
 	public void addFuzzerListener(FuzzerListener<Integer, R> listener) {
 		listenerList.add(listener);
 	}
-
+	/**
+	 * Removes a listener monitoring the {@link FuzzProcess} instances controlled by this thread.
+	 * @param listener the listener
+	 */
 	public void removeFuzzerListener(FuzzerListener<Integer, R> listener) {
 		listenerList.remove(listener);
 	}
-
+	/**
+	 * Adds a {@link FuzzMessagePreProcessor} to be employed in the {@link FuzzProcess} instances created.
+	 * @param pre the {@link FuzzMessagePreProcessor}
+	 */
 	public void addPreprocessor(FuzzMessagePreProcessor<M, L, PL> pre) {
 		this.preprocessors.add(pre);
 	}
-
+	/**
+	 * Adds a {@link FuzzResultProcessor} to be employed in the {@link FuzzProcess} instances created.
+	 * @param post the {@link FuzzResultProcessor}
+	 */
 	public void addPostprocessor(FuzzResultProcessor<R> post) {
 		this.postprocessors.add(post);
 	}
-
+	/**
+	 * Sets the list of target {@link FuzzGap} and the {@link FuzzProcessFactory} containing the general parameters for the {@link FuzzProcess} instances to be created.
+	 * @param gaps	the list of targets
+	 * @param fuzzProcessFactory the {@link FuzzProcessFactory}
+	 */
 	public void setTarget(ArrayList<G> gaps,
 			FuzzProcessFactory<P, PL, L> fuzzProcessFactory) {
 		this.gaps = gaps;
 		this.fuzzProcessFactory = fuzzProcessFactory;
 	}
-
+	/**
+	 * Starts thread execution
+	 */
 	@Override
 	public void run() {
 		log.info("fuzzer started");
@@ -128,7 +165,10 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		log.info("fuzzer stopped");
 		isStop = true;
 	}
-
+	/**
+	 * Iterates over all possible {@link Payload} combinations for the targets and creates a {@link FuzzProcess} for each of them.
+	 * @param gaps the target {@link FuzzGap}
+	 */
 	private void fuzz(ArrayList<G> gaps) {
 		int total = 1;
 		int[] lens = new int[gaps.size()];
@@ -206,25 +246,37 @@ public class FuzzerThread<PL extends Payload, M extends Message, L extends FuzzL
 		threadPool.execute(fp);
 
 	}
-
+	/**
+	 * Checks if the thread is stopped.
+	 * @return
+	 */
 	public boolean isStop() {
 		return isStop;
 	}
-
+	/**
+	 * Pauses the thread.
+	 */
 	public void pause() {
 		this.threadPool.pause();
 		this.pause = true;
 	}
-
+	/**
+	 * Resumes running the thread.
+	 */
 	public void resume() {
 		this.threadPool.resume();
 		this.pause = false;
 	}
-
+	/**
+	 * Checks if the thread execution is paused.
+	 * @return
+	 */
 	public boolean isPaused() {
 		return pause;
 	}
-
+	/**
+	 * Wraps included fuzzing scripts in Payload-/Pre- and ResultProcessors.
+	 */
 	public void importScripts() {
 		ExtensionScript extension = (ExtensionScript) Control.getSingleton()
 				.getExtensionLoader().getExtension(ExtensionScript.NAME);

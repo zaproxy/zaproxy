@@ -18,20 +18,48 @@
  * limitations under the License.
  */
 package org.zaproxy.zap.extension.multiFuzz;
-
+/**
+ * Interface for different types of data to be inserted into selected {@link FuzzLocation} in a message 
+ */
 public interface Payload {
+	/**
+	 * Enumeration of different payload types.
+	 */
 	enum Type{
 		STRING, REGEX, FILE, SCRIPT
 	}
+	/**
+	 * Gets length parameter for String and Regex payloads
+	 * Strings: Character count to which the String is cut/expanded to
+	 * Regex: Maximum length of matching Strings generated
+	 * @return	length parameter
+	 */
 	public int getLength();
-
+	/**
+	 * Sets length parameter for String and Regex payloads
+	 * Strings: Character count to which the String is cut/expanded to
+	 * Regex: Maximum length of matching Strings generated
+	 * @param len	the new length parameter
+	 */
 	public void setLength(int len);
-
+	/**
+	 * Gets if recursive fuzzing is enabled for a file payload.
+	 * @return	recursive parameter
+	 */
 	public boolean getRecursive();
-
+	/**
+	 * Sets dis-/enabling recursive fuzzing for a file payload.
+	 * @param rec	recursive parameter
+	 */
 	public void setRecursive(boolean rec);
-
+	/**
+	 * Gets limit parameter of Regex payloads.
+	 * @return maximum number of matching Strings generated
+	 */
 	public int getLimit();
-
+	/**
+	 * Sets maximum number of generated Strings
+	 * @param l	the new limit
+	 */
 	public void setLimit(int l);
 }

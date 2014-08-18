@@ -25,7 +25,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 
 import org.apache.commons.lang.ArrayUtils;
-
+/**
+ * Helper-class providing methods for the categorization of characters as letters, digits, symbols etc.
+ */
 class CharTypes {
 	static boolean isLetter(char c) {
 		return (('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z'));
@@ -59,7 +61,9 @@ class CharTypes {
 		return (c == '\r' || c == '\n' || c == '\f');
 	}
 }
-
+/**
+ * Class representing a parse tree of a String as a regular expression
+ */
 class ParseTree {
 	int label = -1;
 	ArrayList<Character> value = new ArrayList<>();
@@ -112,7 +116,9 @@ class ParseTree {
 
 	}
 }
-
+/**
+ * Parser class transforming a String containing a regular expression into an equivalent parse-tree.
+ */
 class Parser {
 	final int INVALID = -1;
 	// ParseTokens
@@ -287,7 +293,9 @@ class Parser {
 		}
 	}
 }
-
+/**
+ * A state of a non-deterministic finite state machine
+ */
 class State {
 	ArrayList<State> empty = new ArrayList<>();
 	HashMap<Character, HashSet<State>> out = new HashMap<>();
@@ -303,7 +311,9 @@ class State {
 		out.get(t).add(goal);
 	}
 }
-
+/**
+ * An implementation of a non-deterministic finite state machine which is able to calculate all possible paths that could be taken for a certain input.
+ */
 class NFA {
 	ArrayList<State> states = new ArrayList<>();
 	int end;
@@ -466,7 +476,9 @@ class NFA {
 		return results;
 	}
 }
-
+/**
+ * Class parsing a regular expression from strings, transforming the parse-trees into NFAs and creating matching strings of a certain maximum length.
+ */
 public class RegExStringGenerator {
 	public ArrayList<String> regexExpansion(String s, int depth, int cutoff) {
 		Parser p = new Parser();

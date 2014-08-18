@@ -20,9 +20,20 @@
 package org.zaproxy.zap.extension.multiFuzz;
 
 import org.zaproxy.zap.extension.httppanel.Message;
-
+/**
+ * Extension of the {@link FuzzLocation} interfaced for text-based message types 
+ *
+ * @param <M> the underlying message type
+ */
 public interface TextFuzzLocation<M extends Message> extends FuzzLocation<M> {
+	/**
+	 * Indicates the starting position of the target section in an underlying text.
+	 * @return the starting position
+	 */
 	public int begin();
-
+	/**
+	 * Indicates the end position of the target section in an underlying text.
+	 * @return the end position
+	 */
 	public int end();
 }
