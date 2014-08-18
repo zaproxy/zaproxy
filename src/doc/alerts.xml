@@ -143,9 +143,11 @@ This list the alerts
 90023	XXE External Entity
 90024	Generic Padding Oracle
 90025	Expression Language Injection
-
+90026  SOAP Action Spoofing
 90027	Cookie Slack Detector
 90028	Insecure HTTP Method
+90029  SOAP XML Injection
+90030  WSDL File Detection
 
 To be developed:
 .	Check session cookie for secured
