@@ -233,6 +233,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	public void contextsChanged() {
 		log.debug("Contexts changed...");
 		contextSelectBox.reloadContexts(false);
+		contextSelectBox.setSelectedIndex(-1);
 	}
 
 	/**
