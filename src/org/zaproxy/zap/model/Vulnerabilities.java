@@ -24,7 +24,7 @@ import java.util.List;
 
 import org.parosproxy.paros.Constant;
 
-public class Vulnerabilities {
+public final class Vulnerabilities {
 	
 	private static VulnerabilitiesI18NMap vulnerabilitiesI18NMap = null;
 	
@@ -71,5 +71,33 @@ public class Vulnerabilities {
 		if (vulnerabilitiesI18NMap == null) {
 			init();
 		}
+	}
+	
+	public static String getDescription(Vulnerability vuln) {
+		if (vuln != null) {
+			return vuln.getDescription();
+		}
+		return "Failed to load vulnerability description from file";
+	}
+
+	public static String getSolution(Vulnerability vuln) {
+		if (vuln != null) {
+			return vuln.getSolution();
+		}
+		return "Failed to load vulnerability solution from file";
+	}
+
+	public static String getReference(Vulnerability vuln) {
+		if (vuln != null) {
+			StringBuilder sb = new StringBuilder();
+			for (String ref : vuln.getReferences()) {
+				if (sb.length() > 0) {
+					sb.append('\n');
+				}
+				sb.append(ref);
+			}
+			return sb.toString();
+		}
+		return "Failed to load vulnerability reference from file";
 	}
 }
