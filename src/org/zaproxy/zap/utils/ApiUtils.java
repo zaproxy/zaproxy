@@ -29,7 +29,7 @@ import org.zaproxy.zap.model.Context;
 /**
  * Utils for manipulating API calls and parameters.
  */
-public class ApiUtils {
+public final class ApiUtils {
 
 	/**
 	 * Gets the int param with a given name and throws an exception accordingly if not found or
@@ -58,8 +58,9 @@ public class ApiUtils {
 	 * @return the optional string param
 	 */
 	public static String getOptionalStringParam(JSONObject params, String paramName) {
-		if (params.containsKey(paramName))
+		if (params.containsKey(paramName)) {
 			return params.getString(paramName);
+		}
 		return null;
 	}
 
@@ -73,12 +74,37 @@ public class ApiUtils {
 	 * @throws ApiException the api exception thown if param not found or string empty
 	 */
 	public static String getNonEmptyStringParam(JSONObject params, String paramName) throws ApiException {
-		if (!params.containsKey(paramName))
+		if (!params.containsKey(paramName)) {
 			throw new ApiException(Type.MISSING_PARAMETER, paramName);
+		}
 		String value = params.getString(paramName);
-		if (value == null || value.isEmpty())
+		if (value == null || value.isEmpty()) {
 			throw new ApiException(Type.MISSING_PARAMETER, paramName);
+		}
 		return value;
+	}
+
+	/**
+	 * Gets an optional enum param, returning <code>null</code> if the parameter was not found.
+	 *
+	 * @param params the params
+	 * @param paramName the param name
+	 * @return the enum, or <code>null</code>
+	 * @throws ApiException if the param value does not match any of the possible enum values
+	 */
+	public static <E extends Enum<E>> E getOptionalEnumParam(JSONObject params, String paramName,
+			Class<E> enumType) throws ApiException {
+		String enumValS = params.optString(paramName, null);
+		E enumVal = null;
+		if (enumValS != null && !enumValS.isEmpty()) {
+			try {
+				enumVal = Enum.valueOf(enumType, enumValS);
+			} catch (Exception ex) {
+				throw new ApiException(ApiException.Type.BAD_FORMAT, paramName + ": "
+						+ ex.getLocalizedMessage());
+			}
+		}
+		return enumVal;
 	}
 
 	/**
@@ -94,8 +120,13 @@ public class ApiUtils {
 			throws ApiException {
 		int contextId = getIntParam(params, contextIdParamName);
 		Context context = Model.getSingleton().getSession().getContext(contextId);
-		if (context == null)
+		if (context == null) {
 			throw new ApiException(Type.CONTEXT_NOT_FOUND, contextIdParamName);
+		}
 		return context;
+	}
+
+	private ApiUtils() {
+		// Utility class
 	}
 }

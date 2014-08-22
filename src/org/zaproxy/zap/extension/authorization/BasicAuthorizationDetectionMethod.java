@@ -1,7 +1,9 @@
 package org.zaproxy.zap.extension.authorization;
 
 import java.sql.SQLException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
@@ -9,6 +11,8 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
 
 /**
  * A simple authorization detection method based on matching the status code of the response and
@@ -19,7 +23,8 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 	public static final int METHOD_UNIQUE_ID = 0;
 	public static final int NO_STATUS_CODE = -1;
 
-	public static final String CONTEXT_CONFIG_AUTH_BASIC = AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH + ".basic";
+	public static final String CONTEXT_CONFIG_AUTH_BASIC = AuthorizationDetectionMethod.CONTEXT_CONFIG_AUTH
+			+ ".basic";
 	public static final String CONTEXT_CONFIG_AUTH_BASIC_HEADER = CONTEXT_CONFIG_AUTH_BASIC + ".header";
 	public static final String CONTEXT_CONFIG_AUTH_BASIC_BODY = CONTEXT_CONFIG_AUTH_BASIC + ".body";
 	public static final String CONTEXT_CONFIG_AUTH_BASIC_LOGIC = CONTEXT_CONFIG_AUTH_BASIC + ".logic";
@@ -65,8 +70,8 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 			return null;
 		return Pattern.compile(regex);
 	}
-	
-	private static String getPatternString (Pattern pattern) {
+
+	private static String getPatternString(Pattern pattern) {
 		if (pattern == null) {
 			return "";
 		}
@@ -194,5 +199,16 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_BODY, getPatternString(this.bodyPattern));
 		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_LOGIC, this.logicalOperator.name());
 		config.setProperty(CONTEXT_CONFIG_AUTH_BASIC_CODE, this.statusCode);
+	}
+
+	@Override
+	public ApiResponse getApiResponseRepresentation() {
+		Map<String, String> values = new HashMap<>();
+		values.put(AuthorizationAPI.PARAM_HEADER_REGEX, headerPattern == null ? "" : headerPattern.pattern());
+		values.put(AuthorizationAPI.PARAM_BODY_REGEX, bodyPattern == null ? "" : bodyPattern.pattern());
+		values.put(AuthorizationAPI.PARAM_STATUS_CODE, Integer.toString(this.statusCode));
+		values.put(AuthorizationAPI.PARAM_LOGICAL_OPERATOR, this.logicalOperator.name());
+		values.put(AuthorizationAPI.RESPONSE_TYPE, "basic");
+		return new ApiResponseSet(AuthorizationAPI.RESPONSE_TAG, values);
 	}
 }

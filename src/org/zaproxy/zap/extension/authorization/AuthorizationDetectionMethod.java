@@ -3,6 +3,8 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
+ * Copyright 2014 The ZAP Development Team.
+ * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
  * You may obtain a copy of the License at 
@@ -22,6 +24,7 @@ import java.sql.SQLException;
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.model.Context;
 
 /**
@@ -62,8 +65,16 @@ public interface AuthorizationDetectionMethod {
 
 	/**
 	 * Export the method data to the configuration
+	 * 
 	 * @param config
 	 */
 	public void exportMethodData(Configuration config);
-	
+
+	/**
+	 * Gets the api response representation of the authorization method.
+	 *
+	 * @return the api response representation
+	 */
+	public ApiResponse getApiResponseRepresentation();
+
 }
