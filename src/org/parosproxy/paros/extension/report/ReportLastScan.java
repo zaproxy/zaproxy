@@ -32,9 +32,9 @@ package org.parosproxy.paros.extension.report;
 
 import java.io.File;
 import java.text.MessageFormat;
+import java.util.Locale;
 
 import javax.swing.JFileChooser;
-import javax.swing.JOptionPane;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
@@ -53,13 +53,15 @@ import org.zaproxy.zap.utils.XMLStringUtil;
 import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.widgets.WritableFileChooser;
 
-import edu.stanford.ejalbert.BrowserLauncher;
-
 public class ReportLastScan {
 
     private Logger logger = Logger.getLogger(ReportLastScan.class);
     
-    public enum reportTypes {HTML, XML}
+    private final static String HTM_FILE_EXTENSION=".htm";
+    private final static String HTML_FILE_EXTENSION=".html";
+    private final static String XML_FILE_EXTENSION=".xml";
+    
+    public enum ReportType {HTML, XML}
 
     public ReportLastScan() {
     }
@@ -114,7 +116,7 @@ public class ReportLastScan {
     }
 
     
-    public void generateReport(ViewDelegate view, Model model, final reportTypes reportType){
+    public void generateReport(ViewDelegate view, Model model, final ReportType reportType){
         // ZAP: Allow scan report file name to be specified
         try {
             JFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
@@ -126,12 +128,12 @@ public class ReportLastScan {
                     if (file.isDirectory()) {
                         return true;
                     } else if (file.isFile()) {
-                    	String lcFileName=file.getName().toLowerCase();
+                    	String lcFileName=file.getName().toLowerCase(Locale.ROOT);
                     	switch (reportType) {
                         case HTML:
-                            return (lcFileName.endsWith(".htm") || lcFileName.endsWith(".html"));
+                            return (lcFileName.endsWith(HTM_FILE_EXTENSION) || lcFileName.endsWith(HTML_FILE_EXTENSION));
                         case XML:
-                            return lcFileName.endsWith(".xml");
+                            return lcFileName.endsWith(XML_FILE_EXTENSION);
                         }
                     }
                     return false;
@@ -140,33 +142,32 @@ public class ReportLastScan {
                 @Override
                 public String getDescription() {
                 	switch(reportType) {
-                	case HTML:
-                		return Constant.messages.getString("file.format.html");
                 	case XML:
                 		return Constant.messages.getString("file.format.xml");
+                	case HTML:
                 	default: //Should never hit this, but just in case
                 		return Constant.messages.getString("file.format.html"); 
                 	}
                 }
             });
 
-            File file = null;
             String reportXSL="";
+            String fileExtension="";
         	switch(reportType) {
-        	case HTML:
-        		chooser.setSelectedFile(new File(".html")); //Default the filename to a reasonable extension;
-        		reportXSL = (Constant.getZapInstall() + "/xml/report.html.xsl");
-        		break;
         	case XML:
-        		chooser.setSelectedFile(new File(".xml")); //Default the filename to a reasonable extension;
+        		fileExtension=XML_FILE_EXTENSION;
         		reportXSL = (Constant.getZapInstall() + "/xml/report.xml.xsl");
         		break;
+        	case HTML:
         	default: //Default to html just in case
-        		chooser.setSelectedFile(new File(".html")); //Default the filename to a reasonable extension;
+        		fileExtension=HTML_FILE_EXTENSION;
         		reportXSL = (Constant.getZapInstall() + "/xml/report.html.xsl");
         		break;
         	}
+        	chooser.setSelectedFile(new File(fileExtension)); //Default the filename to a reasonable extension;
+        	
             int rc = chooser.showSaveDialog(View.getSingleton().getMainFrame());
+            File file = null;
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
 
@@ -190,24 +191,24 @@ public class ReportLastScan {
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
-            view.showWarningDialog(Constant.messages.getString("report.unexpected.warning"));
+            view.showWarningDialog(Constant.messages.getString("report.unexpected.error"));
         }
     }
     
 	/**
 	 * @deprecated
-	 * generateXml has been deprecated in favour of using {@link #generateReport(ViewDelegate, Model, String)}
+	 * generateHtml has been deprecated in favor of using {@link #generateReport(ViewDelegate, Model, ReportType)}
 	 */
     public void generateHtml(ViewDelegate view, Model model) {
-    	generateReport(view, model, reportTypes.HTML); 
+    	generateReport(view, model, ReportType.HTML); 
     }
     
 	/**
 	 * @deprecated
-	 * generateXml has been deprecated in favour of using {@link #generateReport(ViewDelegate, Model, String)}
+	 * generateXml has been deprecated in favor of using {@link #generateReport(ViewDelegate, Model, ReportType)}
 	 */
     public void generateXml(ViewDelegate view, Model model) {
-    	generateReport(view, model, reportTypes.XML); 
+    	generateReport(view, model, ReportType.XML); 
     }
 
 }

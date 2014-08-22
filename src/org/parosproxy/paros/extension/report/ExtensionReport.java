@@ -39,7 +39,6 @@ import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.zaproxy.zap.view.ZapMenuItem;
-import org.parosproxy.paros.extension.report.ReportLastScan;
 
 public class ExtensionReport extends ExtensionAdaptor implements CommandLineListener {
 
@@ -98,7 +97,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    ReportLastScan report = new ReportLastScan();
-				    report.generateReport(getView(), getModel(), ReportLastScan.reportTypes.HTML);
+				    report.generateReport(getView(), getModel(), ReportLastScan.ReportType.HTML);
 	                
 				}
 			});
@@ -116,7 +115,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
 
 				    ReportLastScan report = new ReportLastScan();
-				    report.generateReport(getView(), getModel(), ReportLastScan.reportTypes.XML);
+				    report.generateReport(getView(), getModel(), ReportLastScan.ReportType.XML);
 	                
 				}
 			});

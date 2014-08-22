@@ -1,6 +1,7 @@
 package org.zaproxy.zap.view.widgets;
 
 import java.io.File;
+import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -26,7 +27,8 @@ public class WritableFileChooser extends JFileChooser {
 
 		if (!java.nio.file.Files.isWritable(selectedFile.getParentFile().toPath())) {
 			JOptionPane.showMessageDialog(this,
-					Constant.messages.getString("report.write.permission.dialog.message"),
+					MessageFormat.format(Constant.messages.getString("report.write.permission.dialog.message"),
+		                	selectedFile.getAbsolutePath()),
 					Constant.messages.getString("report.write.permission.dialog.title"),
 					JOptionPane.ERROR_MESSAGE);
 			return;
@@ -41,7 +43,6 @@ public class WritableFileChooser extends JFileChooser {
 				super.approveSelection();
 				return;
 			case JOptionPane.NO_OPTION:
-				return;
 			case JOptionPane.CLOSED_OPTION:
 				return;
 			}
