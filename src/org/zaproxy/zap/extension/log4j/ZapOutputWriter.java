@@ -49,8 +49,18 @@ public class ZapOutputWriter extends WriterAppender {
 				scanStatus.incScanCount();
 			}
 			
-			String renderMessage = new StringBuilder(event.getRenderedMessage()).append(NEWLINE).toString();
-			View.getSingleton().getOutputPanel().append(renderMessage);
+			String renderMessage = "";
+			try{
+				renderMessage = new StringBuilder(event.getRenderedMessage()).append(NEWLINE).toString();
+			} catch (NullPointerException e) {
+				//This generally happens when an extension fails to load, if the NPE isn't caught a FATAL may occur
+				renderMessage = ""; 
+			}
+
+			if (!renderMessage.isEmpty()) { //If we caught an NPE above renderMessage might be empty
+				//Only append if there is something to append
+				View.getSingleton().getOutputPanel().append(renderMessage);
+			}
 
 			String [] tsr = event.getThrowableStrRep();			
 			if (tsr != null) {

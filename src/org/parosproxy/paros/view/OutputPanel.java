@@ -176,7 +176,7 @@ public class OutputPanel extends AbstractPanel {
 	 */
 	@Deprecated
 	public void appendDirty(final String msg) {
-		append(msg);
+		doAppend(msg); //Mimic old behavior
 	}
 
 	public void append(final String msg) {
