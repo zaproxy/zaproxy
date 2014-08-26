@@ -13,6 +13,7 @@
     <property name="javadocs.dir" location="../javadocs" />
     <property name="lang.dir" value="${src}/lang" />
     <property name="help.dir" value="${src}/help" />
+    <property name="wiki.dir" location="../../zaproxy-wiki/" />
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
@@ -51,6 +52,9 @@
     <path id="build.classpath">
         <fileset dir="${build.lib.dir}" includes="*.jar"/>
     </path>
+
+    <!-- Ant task to generate the wiki -->
+    <taskdef classpathref="build.classpath" resource="wikitasks.properties" />
 
     <!-- Ant task to generate JavaHelp jars -->
     <taskdef name="generatejavahelpjars" classname="org.zaproxy.ant.javahelp.taskdefs.GenerateJavaHelpJars" classpathref="build.classpath" />
@@ -423,6 +427,31 @@
         <copy todir="${build}">
             <fileset dir="${src}" includes="**/*.java" />
         </copy>
+    </target>
+
+    <target name="generate-wiki" description="Generates the core wiki help pages">
+        <generatewiki basesrcdir="${help.dir}" basedestdir="${wiki.dir}"
+            helpcontentsdir="contents/" helpcontentsinclude=".*\.html"
+            srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://zaproxy.googlecode.com/svn/wiki/images/"
+            outputfilenameprefix="Help" includeoutputfiles="Help.*\.wiki" excludeoutputfiles="HelpAddons.*\.wiki"
+            helpfileextension=".html" wikifileextension=".wiki"
+            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="TableOfContents-CoreUserGuide" wikitocentryinitpadding="2">
+
+            <!-- Default language is at root of dest dir -->
+            <helpdir src="zaphelp" dest="" />
+            <!-- Do not generate until the pages are synced with Crowdin to fix the HTML errors and broken links.
+            <helpdir src="zaphelp_bs_BA" dest="bs" />
+            <helpdir src="zaphelp_de_DE" dest="de" />
+            <helpdir src="zaphelp_el_GR" dest="el" />
+            <helpdir src="zaphelp_es_ES" dest="es" />
+            <helpdir src="zaphelp_fa_IR" dest="fa" />
+            <helpdir src="zaphelp_fr_FR" dest="fr" />
+            <helpdir src="zaphelp_it_IT" dest="it" />
+            <helpdir src="zaphelp_ja_JP" dest="ja" />
+            <helpdir src="zaphelp_pl_PL" dest="pl" />
+            <helpdir src="zaphelp_pt_BR" dest="pt-BR" />
+            <helpdir src="zaphelp_ru_RU" dest="ru" /> -->
+        </generatewiki>
     </target>
 
     <target name="generate-help-jars" description="Generates all ZAP (core) help jars (default and i18n) and copies them to the right place (lib directory)">
