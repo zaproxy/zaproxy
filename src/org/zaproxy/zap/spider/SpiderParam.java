@@ -59,6 +59,9 @@ public class SpiderParam extends AbstractParam {
 	/** The Constant SPIDER_PARSE_ROBOTS_TXT. */
 	private static final String SPIDER_PARSE_ROBOTS_TXT = "spider.parseRobotsTxt";
 	
+	/** The Constant SPIDER_PARSE_SITEMAP_XML. */
+	private static final String SPIDER_PARSE_SITEMAP_XML = "spider.parseSitemapXml";
+	
 	/** The Constant SPIDER_PARSE_SVN_ENTRIES. */
 	private static final String SPIDER_PARSE_SVN_ENTRIES = "spider.parseSVNentries";
 
@@ -111,6 +114,8 @@ public class SpiderParam extends AbstractParam {
 	private boolean parseComments = true;
 	/** Whether robots.txt file should be parsed for URIs. */
 	private boolean parseRobotsTxt = false;
+	/** Whether sitemap.xml file should be parsed for URIs. */
+	private boolean parseSitemapXml = false;
 	/** Whether SVN entries files should be parsed for URIs. */
 	private boolean parseSVNentries = false;
 	/** Whether Git files should be parsed for URIs. */
@@ -202,6 +207,12 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			this.parseRobotsTxt = getConfig().getBoolean(SPIDER_PARSE_ROBOTS_TXT, false);
+		} catch (Exception e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+		
+		try {
+			this.parseSitemapXml = getConfig().getBoolean(SPIDER_PARSE_SITEMAP_XML, false);
 		} catch (Exception e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -542,6 +553,15 @@ public class SpiderParam extends AbstractParam {
 	}
 
 	/**
+	 * Checks if the spider should parse the sitemap.xml for URIs.
+	 * 
+	 * @return true, if it parses the file
+	 */
+	public boolean isParseSitemapXml() {
+		return parseSitemapXml;
+	}
+
+	/**
 	 * Checks if the spider should parse the SVN entries files for URIs (not related to following the directions).
 	 * 
 	 * @return true, if it parses the file
@@ -567,6 +587,16 @@ public class SpiderParam extends AbstractParam {
 	public void setParseRobotsTxt(boolean parseRobotsTxt) {
 		this.parseRobotsTxt = parseRobotsTxt;
 		getConfig().setProperty(SPIDER_PARSE_ROBOTS_TXT, Boolean.toString(parseRobotsTxt));
+	}
+	
+	/**
+	 * Sets the whether the spider parses the sitemap.xml for URIs.
+	 * 
+	 * @param parseSitemapXml the new value for parseSitemapXml
+	 */
+	public void setParseSitemapXml(boolean parseSitemapXml) {
+		this.parseSitemapXml = parseSitemapXml;
+		getConfig().setProperty(SPIDER_PARSE_SITEMAP_XML, Boolean.toString(parseSitemapXml));
 	}
 
 	/**

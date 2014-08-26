@@ -45,6 +45,7 @@ import org.zaproxy.zap.spider.parser.SpiderParserListener;
 import org.zaproxy.zap.spider.parser.SpiderRedirectParser;
 import org.zaproxy.zap.spider.parser.SpiderRobotstxtParser;
 import org.zaproxy.zap.spider.parser.SpiderSVNEntriesParser;
+import org.zaproxy.zap.spider.parser.SpiderSitemapXMLParser;
 import org.zaproxy.zap.spider.parser.SpiderTextParser;
 
 /**
@@ -108,6 +109,16 @@ public class SpiderController implements SpiderParserListener {
 			parser = new SpiderRobotstxtParser(spider.getSpiderParam());
 			parser.addSpiderParserListener(this);
 			parsers.add(parser);
+		}
+		
+		// If parsing of sitemap.xml is enabled		
+		if (spider.getSpiderParam().isParseSitemapXml()) {
+			if (log.isDebugEnabled()) log.debug("Adding SpiderSitemapXMLParser");
+			parser = new SpiderSitemapXMLParser(spider.getSpiderParam());
+			parser.addSpiderParserListener(this);
+			parsers.add(parser);
+		} else {
+			if (log.isDebugEnabled()) log.debug("NOT Adding SpiderSitemapXMLParser");
 		}
 
 		// If parsing of SVN entries is enabled

@@ -160,7 +160,7 @@ public class SpiderTask implements Runnable {
 
 		// Notify the SpiderListeners that a resource was read
 		parent.notifyListenersReadURI(msg);
-
+		
 		// Check the parse filters to see if the resource should be skipped from parsing
 		boolean isFiltered = false;
 		for (ParseFilter filter : parent.getController().getParseFilters()) {
@@ -217,10 +217,14 @@ public class SpiderTask implements Runnable {
 		
 		// Parse the resource
 		boolean alreadyConsumed = false;
-		for (SpiderParser parser : parsers) {
-			if (parser.canParseResource(message, path, alreadyConsumed))
+		for (SpiderParser parser : parsers) {			
+			if (parser.canParseResource(message, path, alreadyConsumed)) {
+				if (log.isDebugEnabled()) log.debug("Parser "+ parser +" can parse resource '"+ path + "'");
 				if (parser.parseResource(message, source, depth))
 					alreadyConsumed = true;
+			} else {
+				if (log.isDebugEnabled()) log.debug("Parser "+ parser +" cannot parse resource '"+ path + "'");
+			}
 		}
 	}
 

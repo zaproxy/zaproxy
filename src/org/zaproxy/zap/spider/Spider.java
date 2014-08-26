@@ -229,6 +229,23 @@ public class Spider {
 				log.warn("Error while creating URI for robots.txt file for site " + uri, e);
 			}
 		}
+		// Add the appropriate 'sitemap.xml' as a seed
+		if (getSpiderParam().isParseSitemapXml()) {
+			try {
+				// Build the URI of the sitemap.xml file
+				URI sitemapUri;
+				// If the port is not 80 or 443, add it to the URI
+				if (uri.getPort() == 80 || uri.getPort() == 443) {
+					sitemapUri = new URI(uri.getScheme() + "://" + host + "/sitemap.xml", true);
+				} else {
+					sitemapUri = new URI(uri.getScheme() + "://" + host + ":" + uri.getPort() + "/sitemap.xml",
+							true);
+				}
+				this.seedList.add(sitemapUri);
+			} catch (Exception e) {
+				log.warn("Error while creating URI for sitemap.xml file for site " + uri, e);
+			}
+		}
 		// And add '.svn/entries' as a seed, for SVN based spidering
 		if (getSpiderParam().isParseSVNEntries()) {
 			try {

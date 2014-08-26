@@ -76,6 +76,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox parseComments = null;
 	private JCheckBox parseRobotsTxt = null;
+	private JCheckBox parseSitemapXml = null;
 	private JCheckBox parseSVNEntries = null;
 	private JCheckBox parseGit = null;
 	private JCheckBox handleODataSpecificParameters = null;
@@ -131,6 +132,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
 			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
 			GridBagConstraints parseRobotsTxtGridBag = new GridBagConstraints();
+			GridBagConstraints parseSitemapXmlGridBag = new GridBagConstraints();
 			GridBagConstraints parseSVNEntriesGridBag = new GridBagConstraints();
 			GridBagConstraints parseGitGridBag = new GridBagConstraints();
 			GridBagConstraints handleODataSpecificParametersGridBag = new GridBagConstraints();
@@ -232,22 +234,29 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			parseRobotsTxtGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseRobotsTxtGridBag.insets = new Insets(2, 2, 2, 2);
 
+			parseSitemapXmlGridBag.gridx = 0;
+			parseSitemapXmlGridBag.gridy = 13;
+			parseSitemapXmlGridBag.weightx = 1.0;
+			parseSitemapXmlGridBag.fill = GridBagConstraints.HORIZONTAL;
+			parseSitemapXmlGridBag.anchor = GridBagConstraints.NORTHWEST;
+			parseSitemapXmlGridBag.insets = new Insets(2, 2, 2, 2);
+			
 			parseSVNEntriesGridBag.gridx = 0;
-			parseSVNEntriesGridBag.gridy = 13;
+			parseSVNEntriesGridBag.gridy = 14;
 			parseSVNEntriesGridBag.weightx = 1.0;
 			parseSVNEntriesGridBag.fill = GridBagConstraints.HORIZONTAL;
 			parseSVNEntriesGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseSVNEntriesGridBag.insets = new Insets(2, 2, 2, 2);
 
 			parseGitGridBag.gridx = 0;
-			parseGitGridBag.gridy = 14;
+			parseGitGridBag.gridy = 15;
 			parseGitGridBag.weightx = 1.0;
 			parseGitGridBag.fill = GridBagConstraints.HORIZONTAL;
 			parseGitGridBag.anchor = GridBagConstraints.NORTHWEST;
 			parseGitGridBag.insets = new Insets(2, 2, 2, 2);
 
 			handleODataSpecificParametersGridBag.gridx = 0;
-			handleODataSpecificParametersGridBag.gridy = 15;
+			handleODataSpecificParametersGridBag.gridy = 16;
 			handleODataSpecificParametersGridBag.weightx = 1.0;
 			handleODataSpecificParametersGridBag.fill = GridBagConstraints.HORIZONTAL;
 			handleODataSpecificParametersGridBag.anchor = GridBagConstraints.NORTHWEST;
@@ -279,6 +288,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			innerPanel.add(getChkPostForm(), postFormGridBag);
 			innerPanel.add(getChkParseComments(), parseCommentsGridBag);
 			innerPanel.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
+			innerPanel.add(getChkParseSitemapXml(), parseSitemapXmlGridBag);
 			innerPanel.add(getChkParseSVNEntries(), parseSVNEntriesGridBag);
 			innerPanel.add(getChkParseGit(), parseGitGridBag);
 			innerPanel.add(handleParametersLabel, handleParametersLabelGridBag);
@@ -306,6 +316,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getChkPostForm().setSelected(param.isPostForm());
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
+		getChkParseSitemapXml().setSelected(param.isParseSitemapXml());
 		getChkParseSVNEntries().setSelected(param.isParseSVNEntries());
 		getChkParseGit().setSelected(param.isParseGit());
 		getComboHandleParameters().setSelectedItem(param.getHandleParameters());
@@ -330,6 +341,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setPostForm(getChkPostForm().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
 		param.setParseRobotsTxt(getChkParseRobotsTxt().isSelected());
+		param.setParseSitemapXml(getChkParseSitemapXml().isSelected());
 		param.setParseSVNEntries(getChkParseSVNEntries().isSelected());
 		param.setParseGit(getChkParseGit().isSelected());
 		param.setHandleParameters((HandleParametersOption) getComboHandleParameters().getSelectedItem());
@@ -437,7 +449,20 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		}
 		return parseRobotsTxt;
 	}
-	
+
+	/**
+	 * This method initializes the Parse sitemap.xml checkbox.
+	 * 
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getChkParseSitemapXml() {
+		if (parseSitemapXml == null) {
+			parseSitemapXml = new JCheckBox();
+			parseSitemapXml.setText(Constant.messages.getString("spider.options.label.sitemapxml"));
+		}
+		return parseSitemapXml;
+	}
+
 	/**
 	 * This method initializes the Parse "SVN Entries" checkbox.
 	 * 
