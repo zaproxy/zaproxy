@@ -48,7 +48,6 @@ import org.zaproxy.clientapi.core.Alert.Confidence;
 import org.zaproxy.clientapi.core.Alert.Risk;
 import org.zaproxy.clientapi.gen.Acsrf;
 import org.zaproxy.clientapi.gen.Ascan;
-import org.zaproxy.clientapi.gen.Auth;
 import org.zaproxy.clientapi.gen.Autoupdate;
 import org.zaproxy.clientapi.gen.Break;
 import org.zaproxy.clientapi.gen.Context;
@@ -67,7 +66,6 @@ public class ClientApi {
 	// Note that any new API implementations added have to be added here manually
 	public Acsrf acsrf = new Acsrf(this);
 	public Ascan ascan = new Ascan(this);
-	public Auth auth = new Auth(this);
 	public Autoupdate autoupdate = new Autoupdate(this);
 	public Core core = new Core(this);
 	public HttpSessions httpSessions = new HttpSessions(this);
