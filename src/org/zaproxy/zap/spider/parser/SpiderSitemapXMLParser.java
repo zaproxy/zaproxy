@@ -47,10 +47,10 @@ import org.zaproxy.zap.spider.SpiderParam;
 public class SpiderSitemapXMLParser extends SpiderParser {
 	
 	/** a pattern to match the sitemap.xml file name*/
-	private Pattern SITEMAP_XML_FILENAME_PATTERN = Pattern.compile("/sitemap.xml$");
+	private Pattern SITEMAP_XML_FILENAME_PATTERN = Pattern.compile("/sitemap\\.xml$");
 	
 	/** a pattern to match the sitemap.xml file.. hint: It's XML*/
-	private static final Pattern xmlPattern = Pattern.compile ("^<\\?xml\\s*version\\s*=\\s*\"[0-9.]+\"\\s+encoding\\s*=\\s*\"[^\"]+\"\\?>");
+	private static final Pattern xmlPattern = Pattern.compile ("^<\\?xml\\s+version\\s*=\\s*\"[0-9.]+\"\\s+encoding\\s*=\\s*\"[^\"]+\"\\s*\\?>");
 
 	/** The Spider parameters. */
 	private SpiderParam params;
@@ -67,8 +67,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 	private static  XPathExpression xpathLocationExpression;
 
 	/** statically initialise the XML DocumentBuilderFactory and DocumentBuilder */
-	static {
-		if (log.isDebugEnabled()) log.debug("Static initialisation commenced");
+	static {		
 		dbFactory = DocumentBuilderFactory.newInstance();
 		try {
 			dBuilder = dbFactory.newDocumentBuilder();
@@ -77,7 +76,6 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 		} catch (ParserConfigurationException | XPathExpressionException e) {
 			log.error(e);
 		}
-		if (log.isDebugEnabled()) log.debug("Static initialisation complete");
 	}
 
 	/**
