@@ -48,15 +48,19 @@ import org.zaproxy.clientapi.core.Alert.Confidence;
 import org.zaproxy.clientapi.core.Alert.Risk;
 import org.zaproxy.clientapi.gen.Acsrf;
 import org.zaproxy.clientapi.gen.Ascan;
+import org.zaproxy.clientapi.gen.Authentication;
 import org.zaproxy.clientapi.gen.Autoupdate;
 import org.zaproxy.clientapi.gen.Break;
 import org.zaproxy.clientapi.gen.Context;
 import org.zaproxy.clientapi.gen.Core;
+import org.zaproxy.clientapi.gen.ForcedUser;
 import org.zaproxy.clientapi.gen.HttpSessions;
 import org.zaproxy.clientapi.gen.Params;
 import org.zaproxy.clientapi.gen.Pscan;
 import org.zaproxy.clientapi.gen.Search;
+import org.zaproxy.clientapi.gen.SessionManagement;
 import org.zaproxy.clientapi.gen.Spider;
+import org.zaproxy.clientapi.gen.Users;
 
 public class ClientApi {
 	private Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8090));
@@ -66,15 +70,19 @@ public class ClientApi {
 	// Note that any new API implementations added have to be added here manually
 	public Acsrf acsrf = new Acsrf(this);
 	public Ascan ascan = new Ascan(this);
+	public Authentication authentication = new Authentication(this);
 	public Autoupdate autoupdate = new Autoupdate(this);
 	public Break brk = new Break(this);
 	public Context context = new Context(this);
 	public Core core = new Core(this);
+	public ForcedUser forcedUser = new ForcedUser(this);
 	public HttpSessions httpSessions = new HttpSessions(this);
 	public Params params = new Params(this);
 	public Pscan pscan = new Pscan(this);
 	public Search search = new Search(this);
+	public SessionManagement sessionManagement = new SessionManagement(this);
 	public Spider spider = new Spider(this);
+	public Users users = new Users(this);
 
 	public ClientApi (String zapAddress, int zapPort) {
 		this(zapAddress, zapPort, false);
