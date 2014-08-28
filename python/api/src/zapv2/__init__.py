@@ -25,7 +25,6 @@ import json
 import urllib
 from acsrf import acsrf
 from ascan import ascan
-from auth import auth
 from authentication import authentication
 from autoupdate import autoupdate
 from brk import brk
@@ -72,7 +71,6 @@ class ZAPv2(object):
         
         self.acsrf = acsrf(self)
         self.ascan = ascan(self)
-        self.auth = auth(self)
         self.authentication = authentication(self)
         self.autoupdate = autoupdate(self)
         self.brk = brk(self)
