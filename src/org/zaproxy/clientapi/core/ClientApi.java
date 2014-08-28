@@ -67,14 +67,14 @@ public class ClientApi {
 	public Acsrf acsrf = new Acsrf(this);
 	public Ascan ascan = new Ascan(this);
 	public Autoupdate autoupdate = new Autoupdate(this);
+	public Break brk = new Break(this);
+	public Context context = new Context(this);
 	public Core core = new Core(this);
 	public HttpSessions httpSessions = new HttpSessions(this);
 	public Params params = new Params(this);
 	public Pscan pscan = new Pscan(this);
 	public Search search = new Search(this);
 	public Spider spider = new Spider(this);
-    public Context context = new Context(this);
-    public Break brk = new Break(this);
 
 	public ClientApi (String zapAddress, int zapPort) {
 		this(zapAddress, zapPort, false);
