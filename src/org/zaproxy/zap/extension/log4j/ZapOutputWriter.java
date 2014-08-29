@@ -49,8 +49,9 @@ public class ZapOutputWriter extends WriterAppender {
 				scanStatus.incScanCount();
 			}
 			
-			if (event.getRenderedMessage()!=null) {
-				View.getSingleton().getOutputPanel().append(new StringBuilder(event.getRenderedMessage()).append(NEWLINE).toString());
+			String renderedmessage=event.getRenderedMessage();
+			if (renderedmessage!=null) {
+				View.getSingleton().getOutputPanel().append(new StringBuilder(renderedmessage).append(NEWLINE).toString());
 			}
 
 			String [] tsr = event.getThrowableStrRep();			
