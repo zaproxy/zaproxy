@@ -151,7 +151,12 @@ public class ExtensionPopupMenuItem extends JMenuItem implements ExtensionPopupM
     	return false;
     }
 
+    /**
+     * Does nothing by default.
+     * 
+     * @since 2.4.0
+     */
     @Override
-    public void dismissed() {
+    public void dismissed(ExtensionPopupMenuComponent selectedMenuComponent) {
     }
 }

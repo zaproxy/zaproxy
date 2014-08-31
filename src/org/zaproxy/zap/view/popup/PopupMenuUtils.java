@@ -24,6 +24,7 @@ import java.awt.Container;
 
 import javax.swing.JMenu;
 import javax.swing.JPopupMenu;
+import javax.swing.MenuElement;
 
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
@@ -107,6 +108,18 @@ public final class PopupMenuUtils {
      */
     public static boolean isExtensionPopupMenuComponent(Component component) {
         return (component instanceof ExtensionPopupMenuComponent);
+    }
+
+    /**
+     * Tells whether or not the given {@code menuElement} is an {@code ExtensionPopupMenuComponent}.
+     * 
+     * @param menuElement the menu element that will be checked.
+     * @return {@code true} if the given menu element is an {@code ExtensionPopupMenuComponent}, {@code false} otherwise.
+     * @since 2.4.0
+     * @see ExtensionPopupMenuComponent
+     */
+    public static boolean isExtensionPopupMenuComponent(MenuElement menuElement) {
+        return (menuElement instanceof ExtensionPopupMenuComponent);
     }
 
     /**

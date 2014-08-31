@@ -52,6 +52,12 @@ import java.util.Map;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JPopupMenu;
+import javax.swing.MenuElement;
+import javax.swing.MenuSelectionManager;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.PopupMenuEvent;
+import javax.swing.event.PopupMenuListener;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -75,6 +81,28 @@ public class MainPopupMenu extends JPopupMenu {
     Map<String, JMenu> superMenus = new HashMap<>();
     View view = null;
     private static Logger log = Logger.getLogger(MainPopupMenu.class);
+
+    /**
+     * The change listener responsible for updating the {@code pathSelectedMenu} when the path to the currently selected menu
+     * item changes.
+     * 
+     * @see #pathSelectedMenu
+     * @see MenuSelectionListenerInstaller
+     */
+    private MenuSelectionChangeListener menuSelectionChangeListener;
+
+    /**
+     * The path to the currently selected menu item, {@code null} when there are no selected menus or the pop up menu was
+     * cancelled.
+     * <p>
+     * Used in the method {@code setVisible(boolean)} to inform the {@code ExtensionPopupMenuComponent}s of which menu is
+     * selected when the pop up menu is hidden.
+     * 
+     * @see #menuSelectionChangeListener
+     * @see #setVisible(boolean)
+     */
+    private MenuElement[] pathSelectedMenu;
+
     /**
      * 
      */
@@ -108,6 +136,9 @@ public class MainPopupMenu extends JPopupMenu {
 //        this.add(getPopupFindMenu());
         //this.add(getPopupDeleteMenu());
         this.add(getPopupMenuPurgeSites());
+
+        this.menuSelectionChangeListener = new MenuSelectionChangeListener();
+        addPopupMenuListener(new MenuSelectionListenerInstaller());
 	}
 
 	public void show(final MessageContainer<?> invoker, final int x, final int y) {
@@ -159,19 +190,28 @@ public class MainPopupMenu extends JPopupMenu {
 	/**
 	 * {@inheritDoc}
 	 * <p>
-	 * Overridden to call the method {@code ExtensionPopupMenuComponent#dismissed()} of child (ExtensionPopupMenuComponent)
-	 * components when the pop up menu is hidden.
+	 * Overridden to call the method {@code ExtensionPopupMenuComponent#dismissed(ExtensionPopupMenuComponent)} of child
+	 * {@code ExtensionPopupMenuComponent}s when the pop up menu is hidden.
 	 * 
-	 * @see ExtensionPopupMenuComponent#dismissed()
+	 * @see ExtensionPopupMenuComponent#dismissed(ExtensionPopupMenuComponent)
 	 */
 	@Override
 	public void setVisible(boolean b) {
 		super.setVisible(b);
 		if (!b) {
+			ExtensionPopupMenuComponent selectedMenuComponent = null;
+			if (pathSelectedMenu != null) {
+				MenuElement selectedMenuElement = pathSelectedMenu[pathSelectedMenu.length - 1];
+				if (PopupMenuUtils.isExtensionPopupMenuComponent(selectedMenuElement)) {
+					selectedMenuComponent = (ExtensionPopupMenuComponent) selectedMenuElement;
+				}
+				pathSelectedMenu = null;
+			}
+
 			for (int i = 0; i < getComponentCount(); i++) {
 				Component component = getComponent(i);
-				if (component instanceof ExtensionPopupMenuComponent) {
-					((ExtensionPopupMenuComponent) component).dismissed();
+				if (PopupMenuUtils.isExtensionPopupMenuComponent(component)) {
+					((ExtensionPopupMenuComponent) component).dismissed(selectedMenuComponent);
 				}
 			}
 		}
@@ -312,5 +352,47 @@ public class MainPopupMenu extends JPopupMenu {
 		itemList.remove(menu);
 	}
 	
+	/**
+	 * A {@code ChangeListener} responsible for updating the {@code pathSelectedMenu} when the path to the currently selected
+	 * menu item changes.
+	 *
+	 * @see #pathSelectedMenu
+	 * @see MenuSelectionManager#getSelectedPath()
+	 * @see MenuSelectionListenerInstaller
+	 */
+	private class MenuSelectionChangeListener implements ChangeListener {
+
+		@Override
+		public void stateChanged(ChangeEvent e) {
+			pathSelectedMenu = MenuSelectionManager.defaultManager().getSelectedPath();
+		}
+	}
+
+	/**
+	 * A {@code PopupMenuListener} responsible for adding and removing the {@code menuSelectionChangeListener} when the menu
+	 * becomes visible and invisible, respectively. It also sets the {@code pathSelectedMenu} to {@code null} when the menu is
+	 * cancelled.
+	 * 
+	 * @see #menuSelectionChangeListener
+	 * @see #pathSelectedMenu
+	 * @see PopupMenuListener
+	 */
+	private class MenuSelectionListenerInstaller implements PopupMenuListener {
+
+		@Override
+		public void popupMenuWillBecomeVisible(PopupMenuEvent e) {
+			MenuSelectionManager.defaultManager().addChangeListener(menuSelectionChangeListener);
+		}
+
+		@Override
+		public void popupMenuWillBecomeInvisible(PopupMenuEvent e) {
+			MenuSelectionManager.defaultManager().removeChangeListener(menuSelectionChangeListener);
+		}
+
+		@Override
+		public void popupMenuCanceled(PopupMenuEvent e) {
+			pathSelectedMenu = null;
+		}
+	}
 }
 

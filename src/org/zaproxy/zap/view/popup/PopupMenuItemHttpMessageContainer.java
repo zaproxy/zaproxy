@@ -160,8 +160,7 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
      */
     @Override
     public boolean isEnableForMessageContainer(MessageContainer<?> messageContainer) {
-        invoker = null;
-        httpMessageContainer = null;
+        resetState();
 
         if (!(messageContainer instanceof HttpMessageContainer)) {
             return false;
@@ -200,10 +199,28 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
         return true;
     }
 
+    /**
+     * Clears the reference to the invoker of this pop up menu item, if this was not the selected menu.
+     *
+     * @since 2.4.0
+     */
     @Override
-    public void dismissed() {
-        super.dismissed();
+    public void dismissed(ExtensionPopupMenuComponent selectedMenuComponent) {
+        super.dismissed(selectedMenuComponent);
 
+        if (this != selectedMenuComponent) {
+            resetState();
+        }
+    }
+
+    /**
+     * Resets the state of this menu item by setting the {@code invoker} and {@code httpMessageContainer} to {@code null}.
+     *
+     * @see #invoker
+     * @see #httpMessageContainer
+     */
+    private void resetState() {
+        invoker = null;
         httpMessageContainer = null;
     }
 
@@ -559,8 +576,7 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
                 logger.error(e.getMessage(), e);
             }
 
-            invoker = null;
-            httpMessageContainer = null;
+            resetState();
         }
     }
 }

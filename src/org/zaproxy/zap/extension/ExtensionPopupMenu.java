@@ -283,8 +283,20 @@ public class ExtensionPopupMenu extends JMenu implements ExtensionPopupMenuCompo
 		return true;
 	}
 
+	/**
+	 * Defaults to call the method {@link ExtensionPopupMenuComponent#dismissed(ExtensionPopupMenuComponent)
+	 * dismissed(ExtensionPopupMenuComponent)} on all child {@code ExtensionPopupMenuComponent}s.
+	 * 
+	 * @since 2.4.0
+	 */
 	@Override
-	public void dismissed() {
+	public void dismissed(ExtensionPopupMenuComponent selectedMenuComponent) {
+		for (int i = 0; i < getMenuComponentCount(); ++i) {
+			Component menuComponent = getMenuComponent(i);
+			if (PopupMenuUtils.isExtensionPopupMenuComponent(menuComponent)) {
+				((ExtensionPopupMenuComponent) menuComponent).dismissed(selectedMenuComponent);
+			}
+		}
 	}
 
 	/**
