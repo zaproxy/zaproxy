@@ -130,7 +130,7 @@ public interface ExtensionPopupMenuComponent {
      * menu.
      * <p>
      * <strong>Note 1:</strong> Any resource needed to execute the action should only be freed in this method if the menu was
-     * not selected. In that case the resources should be freed only after executing the action.
+     * not selected. If it was selected the resources should only be freed after executing the action.
      * <p>
      * <strong>Note 2:</strong> This method will not be called if this pop up menu component is not enabled for the
      * {@code invoker}.
