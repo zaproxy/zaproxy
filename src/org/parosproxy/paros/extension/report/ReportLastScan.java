@@ -57,9 +57,9 @@ public class ReportLastScan {
 
     private Logger logger = Logger.getLogger(ReportLastScan.class);
     
-    private final static String HTM_FILE_EXTENSION=".htm";
-    private final static String HTML_FILE_EXTENSION=".html";
-    private final static String XML_FILE_EXTENSION=".xml";
+    private static final String HTM_FILE_EXTENSION=".htm";
+    private static final String HTML_FILE_EXTENSION=".html";
+    private static final String XML_FILE_EXTENSION=".xml";
     
     public enum ReportType {HTML, XML}
 
@@ -115,9 +115,23 @@ public class ReportLastScan {
         return extensionXml;
     }
 
-    
-    public void generateReport(ViewDelegate view, Model model, final ReportType reportType){
+    /** 
+     * Generates a report. Defaults to HTML report if reportType is null.
+     * @param view
+     * @param model
+     * @param reportType
+     */
+    public void generateReport(ViewDelegate view, Model model, ReportType reportType){
         // ZAP: Allow scan report file name to be specified
+    	
+    	final ReportType localReportType;
+    	
+    	if(reportType == null) {
+    		localReportType=ReportType.HTML;
+    	} else {
+    		localReportType=reportType;	
+    	}
+    	
         try {
             JFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
 	        
@@ -129,11 +143,12 @@ public class ReportLastScan {
                         return true;
                     } else if (file.isFile()) {
                     	String lcFileName=file.getName().toLowerCase(Locale.ROOT);
-                    	switch (reportType) {
-                        case HTML:
-                            return (lcFileName.endsWith(HTM_FILE_EXTENSION) || lcFileName.endsWith(HTML_FILE_EXTENSION));
+                    	switch (localReportType) {
                         case XML:
                             return lcFileName.endsWith(XML_FILE_EXTENSION);
+                        case HTML:
+                        default:
+                            return (lcFileName.endsWith(HTM_FILE_EXTENSION) || lcFileName.endsWith(HTML_FILE_EXTENSION));
                         }
                     }
                     return false;
@@ -141,11 +156,11 @@ public class ReportLastScan {
 
                 @Override
                 public String getDescription() {
-                	switch(reportType) {
+                	switch(localReportType) {
                 	case XML:
                 		return Constant.messages.getString("file.format.xml");
                 	case HTML:
-                	default: //Should never hit this, but just in case
+                	default:
                 		return Constant.messages.getString("file.format.html"); 
                 	}
                 }
@@ -153,13 +168,13 @@ public class ReportLastScan {
 
             String reportXSL="";
             String fileExtension="";
-        	switch(reportType) {
+        	switch(localReportType) {
         	case XML:
         		fileExtension=XML_FILE_EXTENSION;
         		reportXSL = (Constant.getZapInstall() + "/xml/report.xml.xsl");
         		break;
         	case HTML:
-        	default: //Default to html just in case
+        	default: 
         		fileExtension=HTML_FILE_EXTENSION;
         		reportXSL = (Constant.getZapInstall() + "/xml/report.html.xsl");
         		break;
@@ -199,7 +214,7 @@ public class ReportLastScan {
 	 * @deprecated
 	 * generateHtml has been deprecated in favor of using {@link #generateReport(ViewDelegate, Model, ReportType)}
 	 */
-    public void generateHtml(ViewDelegate view, Model model) {
+    @Deprecated public void generateHtml(ViewDelegate view, Model model) {
     	generateReport(view, model, ReportType.HTML); 
     }
     
@@ -207,7 +222,7 @@ public class ReportLastScan {
 	 * @deprecated
 	 * generateXml has been deprecated in favor of using {@link #generateReport(ViewDelegate, Model, ReportType)}
 	 */
-    public void generateXml(ViewDelegate view, Model model) {
+    @Deprecated public void generateXml(ViewDelegate view, Model model) {
     	generateReport(view, model, ReportType.XML); 
     }
 
