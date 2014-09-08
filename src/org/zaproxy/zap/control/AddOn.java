@@ -153,7 +153,12 @@ public class AddOn  {
 		if (nl.getLength() > 0) {
 			list = new ArrayList<>();
 			for (int i=0; i < nl.getLength(); i++) {
-				list.add(nl.item(i).getTextContent());
+				String entry = nl.item(i).getTextContent();
+				if (!entry.isEmpty()) {
+					list.add(entry);
+				} else {
+					logger.warn("Ignoring empty \"" + element + "\" entry in add-on \"" + name + "\".");
+				}
 			}
 		}
 		return list;
