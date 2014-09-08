@@ -54,8 +54,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.DesktopUtils;
 
-import edu.stanford.ejalbert.BrowserLauncher;
-
 public class ExtensionCompare extends ExtensionAdaptor implements SessionChangedListener, SessionListener {
 
 	private static final String CRLF = "\r\n";
