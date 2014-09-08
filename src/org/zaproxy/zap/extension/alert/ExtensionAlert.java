@@ -534,7 +534,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             this.recalcAlerts();
         }
 
-        hrefs.remove(hRef);
+        hrefs.remove(Integer.valueOf(hRef.getHistoryId()));
     }
     
     /**
