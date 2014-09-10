@@ -39,7 +39,7 @@ public class LocaleUtils {
 	 * @return The list of available translations, ZAP provides
 	 */
 	public static List<String> getAvailableLocales() {
-		File dir = new File(Constant.getZapInstall() + Constant.LANG_DIR));
+		File dir = new File(Constant.getZapInstall() + Constant.LANG_DIR);
 		FilenameFilter filter = new MessagesPropertiesFilenameFilter();
 		String[] files = dir.list(filter);
 
