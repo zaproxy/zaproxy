@@ -25,6 +25,7 @@ import java.net.URLDecoder;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -188,7 +189,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	public boolean requestHasToken(String reqBody) {
-		Set<String> tokens = valueToToken.keySet();
+		Set<String> tokens = Collections.unmodifiableSet(valueToToken.keySet());
 		for (String token : tokens) {
 			if (reqBody.indexOf(token) >= 0) {
 				return true;
@@ -203,7 +204,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	
 	private List<AntiCsrfToken> getTokens(String reqBody, String targetUrl) {
 		List<AntiCsrfToken> tokens = new ArrayList<>();
-		Set<String> values = valueToToken.keySet();
+		Set<String> values = Collections.unmodifiableSet(valueToToken.keySet());
 		for (String value : values) {
 			if (reqBody.indexOf(value) >= 0) {
 				AntiCsrfToken token = valueToToken.get(value).clone();
