@@ -51,6 +51,9 @@ import org.zaproxy.zap.extension.multiFuzz.FuzzResultDialog;
 import org.zaproxy.zap.utils.Pair;
 
 public class HttpFuzzResultDialog extends FuzzResultDialog {
+
+	private static final long serialVersionUID = -235856563071555190L;
+	
 	private static final Logger logger = Logger
 			.getLogger(HttpFuzzResultDialog.class);
 	public static final String DIALOG_NAME = "HttpFuzzResultDialog";
@@ -70,6 +73,7 @@ public class HttpFuzzResultDialog extends FuzzResultDialog {
 	public HttpFuzzResultDialog(HttpFuzzTableModel m) {
 		super();
 		model = m;
+		table = new JXTreeTable();
 		table.setTreeTableModel(model);
 		table.updateUI();
 		updateValues();
@@ -232,7 +236,7 @@ public class HttpFuzzResultDialog extends FuzzResultDialog {
 							((HttpFuzzRequestRecord) getEntry(row))
 									.getHistory().getHttpMessage());
 				} catch (HttpMalformedHeaderException | SQLException e) {
-					logger.equals(e.getMessage());
+					logger.error(e.getMessage());
 				}
 			}
 		}
