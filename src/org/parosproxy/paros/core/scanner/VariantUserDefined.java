@@ -71,7 +71,7 @@ public class VariantUserDefined implements Variant {
 	    		if (isInHeader(this.injectionPoints[i]) || isInBody(this.injectionPoints[i]) ) {
 	    			list.add(new NameValuePair(NameValuePair.TYPE_UNDEFINED, "", "", i));
 	    		} else {
-	    			logger.warn("Invalid injection point: " + this.injectionPoints[i]);
+	    			logger.warn("Invalid injection point: " + java.util.Arrays.toString(this.injectionPoints[i]));
 	    		}
 	    	}
     	}
