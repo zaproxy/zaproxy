@@ -85,7 +85,6 @@ This list the alerts
 10045	Source Code Disclosure - WEB-INF folder
 10046	Insecure Component
 10047	HTTPS Content Available via HTTP
-10048	Big Redirects
 
 10101	Insufficient Authentication
 10102	Insufficient Authorization
