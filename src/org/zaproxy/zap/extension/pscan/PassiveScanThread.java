@@ -105,31 +105,35 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 						(href.getHistoryType() == HistoryReference.TYPE_PROXIED ||
 						href.getHistoryType() == HistoryReference.TYPE_ZAP_USER ||
 						href.getHistoryType() == HistoryReference.TYPE_SPIDER)) {
-					// Note that scanning TYPE_SCANNER records will result in a loop ;)
-					// Parse the record
-					HttpMessage msg = href.getHttpMessage();
-					String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
-					Source src = new Source(response);
-					
-					for (PassiveScanner scanner : scannerList.list()) {
-						try {
-							if (shutDown) {
-								return;
-							}
-							if (scanner.isEnabled()) {
-								scanner.setParent(this);
-								scanner.scanHttpRequestSend(msg, href.getHistoryId());
-								if (msg.isResponseFromTargetHost()) {
-									scanner.scanHttpResponseReceive(msg, href.getHistoryId(), src);
+					try {
+						// Note that scanning TYPE_SCANNER records will result in a loop ;)
+						// Parse the record
+						HttpMessage msg = href.getHttpMessage();
+						String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
+						Source src = new Source(response);
+						
+						for (PassiveScanner scanner : scannerList.list()) {
+							try {
+								if (shutDown) {
+									return;
 								}
+								if (scanner.isEnabled()) {
+									scanner.setParent(this);
+									scanner.scanHttpRequestSend(msg, href.getHistoryId());
+									if (msg.isResponseFromTargetHost()) {
+										scanner.scanHttpResponseReceive(msg, href.getHistoryId(), src);
+									}
+								}
+							} catch (Exception e) {
+								if (shutDown) {
+									return;
+								}
+								logger.error("Scanner " + scanner.getName() + 
+										" failed on record " + currentId + " from History table", e);
 							}
-						} catch (Exception e) {
-							if (shutDown) {
-								return;
-							}
-							logger.error("Scanner " + scanner.getName() + 
-									" failed on record " + currentId + " from History table", e);
 						}
+					} catch (Exception e) {
+						logger.error("Parser failed on record " + currentId + " from History table", e);
 					}
 					
 				}
