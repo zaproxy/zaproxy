@@ -45,6 +45,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
@@ -91,6 +92,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     //Could be after the last one that saves the HttpMessage, as this ProxyListener doesn't change the HttpMessage.
     public static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
     private static final List<Class<?>> DEPENDENCIES;
+    
+    private AttackModeScanner attackModeScanner;
 
     static {
         List<Class<?>> dep = new ArrayList<>(1);
@@ -133,6 +136,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private void initialize() {
         this.setName(NAME);
         this.setOrder(28);
+        attackModeScanner = new AttackModeScanner(this);
 
     }
 
@@ -140,7 +144,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
 
-        extensionHook.getModel().getDb().getTableHistory().setHistoryTypeAsTemporary(HistoryReference.TYPE_SCANNER_TEMPORARY);
+		TableHistory.setHistoryTypeAsTemporary(HistoryReference.TYPE_SCANNER_TEMPORARY);
 
         if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
@@ -151,6 +155,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extensionHook.getHookView().addOptionPanel(getOptionsVariantPanel());
 
 	        View.getSingleton().addMainToolbarButton(this.getPolicyButton());
+			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(
+					attackModeScanner.getScanStatus().getCountLabel());
 
             ExtensionHelp.enableHelpKey(getActiveScanPanel(), "ui.tabs.ascan");
         }
@@ -496,11 +502,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     @Override
     public void sessionScopeChanged(Session session) {
         this.getActiveScanPanel().sessionScopeChanged(session);
+        this.attackModeScanner.sessionScopeChanged(session);
     }
 
     @Override
     public void sessionModeChanged(Mode mode) {
         this.getActiveScanPanel().sessionModeChanged(mode);
+        this.attackModeScanner.sessionModeChanged(mode);
     }
 
     @Override

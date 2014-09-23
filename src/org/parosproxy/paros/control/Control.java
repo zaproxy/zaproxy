@@ -48,6 +48,7 @@
 // ZAP: 2014/02/27 Issue 1055: Load extensions before plugins
 // ZAP: 2014/05/20 Issue 1114: core.newSession doesn't clear Sites
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
+// ZAP: 2014/09/22 Issue 1345: Support Attack mode
 
 package org.parosproxy.paros.control;
 
@@ -78,7 +79,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
  */
 public class Control extends AbstractControl implements SessionListener {
 
-	public enum Mode {safe, protect, standard};
+	public enum Mode {safe, protect, standard, attack};
 	
     private static Logger log = Logger.getLogger(Control.class);
 
@@ -246,8 +247,6 @@ public class Control extends AbstractControl implements SessionListener {
     public static void initSingletonWithView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), View.getSingleton());
         control.init(overrides);
-        // Initialise the mode
-        control.setMode(control.getMode());
     }
     
     public static void initSingletonWithoutView(ControlOverrides overrides) {

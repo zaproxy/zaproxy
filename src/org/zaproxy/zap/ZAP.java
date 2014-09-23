@@ -50,6 +50,8 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ControlOverrides;
+import org.zaproxy.zap.eventBus.EventBus;
+import org.zaproxy.zap.eventBus.SimpleEventBus;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.extension.dynssl.DynSSLParam;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
@@ -65,6 +67,7 @@ public class ZAP {
 
     private static Logger log = null;
     private CommandLine cmdLine = null;
+    private static EventBus eventBus = new SimpleEventBus();
 
     static {
 		Thread.setDefaultUncaughtExceptionHandler(new UncaughtExceptionLogger());
@@ -575,6 +578,10 @@ public class ZAP {
 	    }
 	    
 	    return shown;
+	}
+	
+	public static EventBus getEventBus() {
+		return eventBus;
 	}
 
 	private static final class UncaughtExceptionLogger implements Thread.UncaughtExceptionHandler {

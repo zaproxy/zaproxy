@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -189,8 +190,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	public boolean requestHasToken(String reqBody) {
-		Set<String> tokens = Collections.unmodifiableSet(valueToToken.keySet());
-		for (String token : tokens) {
+		Set<String> values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+		for (String token : values) {
 			if (reqBody.indexOf(token) >= 0) {
 				return true;
 			}
@@ -204,7 +205,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	
 	private List<AntiCsrfToken> getTokens(String reqBody, String targetUrl) {
 		List<AntiCsrfToken> tokens = new ArrayList<>();
-		Set<String> values = Collections.unmodifiableSet(valueToToken.keySet());
+		Set<String> values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+		
 		for (String value : values) {
 			if (reqBody.indexOf(value) >= 0) {
 				AntiCsrfToken token = valueToToken.get(value).clone();

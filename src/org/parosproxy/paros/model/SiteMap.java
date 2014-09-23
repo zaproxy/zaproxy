@@ -36,6 +36,7 @@
 // ZAP: 2014/04/10 Initialise the root SiteNode with a reference to SiteMap
 // ZAP: 2014/04/10 Allow to delete history ID to SiteNode map entries
 // ZAP: 2014/06/16 Issue 1227: Active scanner sends GET requests with content in request body
+// ZAP: 2014/09/22 Issue 1345: Support Attack mode
 
 package org.parosproxy.paros.model;
 
@@ -63,6 +64,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.model.Target;
 
 public class SiteMap extends DefaultTreeModel {
 
@@ -347,7 +351,10 @@ public class SiteMap extends DefaultTreeModel {
             newNode.setIncludedInScope(model.getSession().isIncludedInScope(newNode), true);
             newNode.setExcludedFromScope(model.getSession().isExcludedFromScope(newNode), true);
             hrefMap.put(result.getHistoryReference().getHistoryId(), result);
-            
+
+            ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
+            		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(result)));
+
         }
         // ZAP: Cope with getSiteNode() returning null
         if (baseRef.getSiteNode() == null) {
@@ -403,6 +410,9 @@ public class SiteMap extends DefaultTreeModel {
             // Check if its in or out of scope - has to be done after the node is entered into the tree
             node.setIncludedInScope(model.getSession().isIncludedInScope(node), true);
             node.setExcludedFromScope(model.getSession().isExcludedFromScope(node), true);
+
+            ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
+            		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(node)));
         } else {
            
             // do not replace if
@@ -565,5 +575,5 @@ public class SiteMap extends DefaultTreeModel {
 		}
 		
 		return host.toString();
-	}    
+	}
 }

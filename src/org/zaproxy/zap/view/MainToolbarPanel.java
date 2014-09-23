@@ -61,7 +61,6 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnOptions = null;
 
 	private ButtonGroup expandButtons;
-  	private ButtonGroup tabNameButtons;
 	private JToggleButton btnExpandSites = null;
 	private JToggleButton btnExpandReports = null;
 	private JToggleButton btnExpandFull = null;
@@ -81,7 +80,6 @@ public class MainToolbarPanel extends JPanel {
 		this.setBorder(BorderFactory.createEtchedBorder());
 
 		expandButtons = new ButtonGroup();
-    tabNameButtons = new ButtonGroup();
 
 		GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -171,6 +169,7 @@ public class MainToolbarPanel extends JPanel {
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.safe.select"));
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.protect.select"));
 			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.standard.select"));
+			modeSelect.addItem(Constant.messages.getString("view.toolbar.mode.attack.select"));
 			
 			modeSelect.setToolTipText(Constant.messages.getString("view.toolbar.mode.tooltip"));
 			// Increase the time the tooltip is displayed, to give people a chance to read it!
@@ -183,6 +182,7 @@ public class MainToolbarPanel extends JPanel {
 				case safe:		modeSelect.setSelectedIndex(0); break;
 				case protect:	modeSelect.setSelectedIndex(1); break;
 				case standard:	modeSelect.setSelectedIndex(2); break;
+				case attack:	modeSelect.setSelectedIndex(3); break;
 			}
 
 			modeSelect.addActionListener(new java.awt.event.ActionListener() { 
@@ -193,6 +193,7 @@ public class MainToolbarPanel extends JPanel {
 						case 0:	mode = Mode.safe;	break;
 						case 1:	mode = Mode.protect;	break;
 						case 2:	mode = Mode.standard;	break;
+						case 3: mode = Mode.attack;	break;
 						default: return;	// Not recognised
 					}
 					Control.getSingleton().setMode(mode);

@@ -50,6 +50,7 @@
 // ZAP: 2014/03/23 Issue 1085: Do not add/remove pop up menu items through the method View#getPopupMenu()
 // ZAP: 2014/04/17 Issue 1155: Historical Request Tab Doesn't allow formatting changes
 // ZAP: 2014/07/15 Issue 1265: Context import and export
+// ZAP: 2014/09/22 Issue 1345: Support Attack mode
 
 package org.parosproxy.paros.view;
 
@@ -66,6 +67,7 @@ import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
@@ -131,6 +133,8 @@ public class View implements ViewDelegate {
 	private Vector<JMenuItem> popupList = new Vector<>();
 
 	private JMenu menuShowTabs = null;
+	
+	private JCheckBox rememberCheckbox = null;
 
   private List<AbstractParamPanel> contextPanels = new ArrayList<>();
   private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
@@ -321,7 +325,31 @@ public class View implements ViewDelegate {
 		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
 	
+	private JCheckBox getRememberCheckbox() {
+		if (rememberCheckbox == null) {
+			rememberCheckbox = new JCheckBox(Constant.messages.getString("view.dialog.remember"));
+		}
+		return rememberCheckbox;
+	}
 	
+	public boolean isRememberLastDialogChosen() {
+		return this.getRememberCheckbox().isSelected();
+	}
+	
+	public int showYesNoRememberDialog(JFrame parent, String msg) {
+		// The checkbox is used for all dialogs, so always reset
+		this.getRememberCheckbox().setSelected(false);
+		return JOptionPane.showConfirmDialog(parent, 
+    		new Object[] {msg, this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
+	}
+
+	public int showYesNoRememberDialog(JPanel parent, String msg) {
+		// The checkbox is used for all dialogs, so always reset
+		this.getRememberCheckbox().setSelected(false);
+		return JOptionPane.showConfirmDialog(parent, 
+    		new Object[] {msg + "\n", this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
+	}
+
 	// ZAP: FindBugs fix - make method synchronised
 	public static synchronized View getSingleton() {
 		if (view == null) {

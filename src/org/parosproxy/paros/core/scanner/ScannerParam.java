@@ -34,6 +34,7 @@
 // ZAP: 2014/02/13 Added HTTP parameter exclusion configuration on Active Scanning
 // ZAP: 2014/03/23 Issue 1076: Change active scanner to not delete the temporary messages generated
 // ZAP: 2014/05/13 Issue 1193: Scan URL path elements - turn off by default
+// ZAP: 2014/09/22 Issue 1345: Support Attack mode
 
 package org.parosproxy.paros.core.scanner;
 
@@ -55,6 +56,8 @@ public class ScannerParam extends AbstractParam {
     // ZAP: Added support for delayInMs
     private static final String DELAY_IN_MS = "scanner.delayInMs";
     private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
+    private static final String PROMPT_IN_ATTACK_MODE = "scanner.attackPrompt";
+    private static final String RESCAN_IN_ATTACK_MODE = "scanner.attackRescan";
     private static final String LEVEL = "scanner.level";
     private static final String STRENGTH = "scanner.strength";
     private static final String MAX_RESULTS_LIST = "scanner.maxResults";
@@ -96,6 +99,8 @@ public class ScannerParam extends AbstractParam {
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
     private boolean handleAntiCSRFTokens = false;
+    private boolean promptInAttackMode = true;
+    private boolean rescanInAttackMode = true;
     private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM;
     private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
     
@@ -136,7 +141,15 @@ public class ScannerParam extends AbstractParam {
         try {
             this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
         } catch (Exception e) {}
-        
+
+        try {
+            this.promptInAttackMode = getConfig().getBoolean(PROMPT_IN_ATTACK_MODE, true);
+        } catch (Exception e) {}
+
+        try {
+            this.rescanInAttackMode = getConfig().getBoolean(RESCAN_IN_ATTACK_MODE, true);
+        } catch (Exception e) {}
+
         try {
             this.alertThreshold = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
         } catch (Exception e) {}
@@ -341,7 +354,25 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(HANDLE_ANTI_CSRF_TOKENS, handleAntiCSRFTokens);
     }
 
-    /**
+    public boolean isRescanInAttackMode() {
+		return rescanInAttackMode;
+	}
+
+	public void setRescanInAttackMode(boolean rescanInAttackMode) {
+		this.rescanInAttackMode = rescanInAttackMode;
+        getConfig().setProperty(RESCAN_IN_ATTACK_MODE, rescanInAttackMode);
+	}
+
+	public boolean isPromptInAttackMode() {
+		return promptInAttackMode;
+	}
+
+	public void setPromptInAttackMode(boolean promptInAttackMode) {
+		this.promptInAttackMode = promptInAttackMode;
+        getConfig().setProperty(PROMPT_IN_ATTACK_MODE, promptInAttackMode);
+	}
+
+	/**
      * 
      * @return 
      */
