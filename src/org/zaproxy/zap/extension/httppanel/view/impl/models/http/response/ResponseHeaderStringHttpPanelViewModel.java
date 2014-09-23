@@ -31,8 +31,14 @@ public class ResponseHeaderStringHttpPanelViewModel extends AbstractHttpStringHt
 		if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
 			return "";
 		}
+		String header = httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
 		
-		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
+		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+			// The body will be un-gziped so we need to remover the gzip header or it will break in the browser
+			header = header.replaceFirst(HttpHeader.CONTENT_ENCODING +".*" + HttpHeader.GZIP + HttpHeader.LF, "");
+		}
+		
+		return header;
 	}
 
 	@Override
