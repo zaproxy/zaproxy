@@ -86,7 +86,9 @@ public class ResponseBodyStringHttpPanelViewModel extends AbstractHttpStringHttp
 				//this.log.error(e.getMessage(), e);
 				System.out.println(e);
 			}
-		}
+		} else {
+			httpMessage.getResponseBody().setBody(data);
+			HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);		}
 		
 	}
 }
