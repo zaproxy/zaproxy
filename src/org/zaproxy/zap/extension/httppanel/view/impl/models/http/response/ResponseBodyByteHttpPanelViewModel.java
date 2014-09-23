@@ -18,10 +18,14 @@
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import org.parosproxy.paros.network.HttpHeader;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.AbstractHttpByteHttpPanelViewModel;
@@ -66,8 +70,22 @@ public class ResponseBodyByteHttpPanelViewModel extends AbstractHttpByteHttpPane
 		if (httpMessage == null) {
 			return ;
 		}
-		
-		httpMessage.getResponseBody().setBody(data);
-		HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+			// Uncompress gziped content
+			try {
+				ByteArrayOutputStream baos = new ByteArrayOutputStream();
+				GZIPOutputStream gis = new GZIPOutputStream(baos);
+				BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
+				bw.append(new String(data));
+				bw.close();
+				gis.close();
+				baos.close();
+				httpMessage.getResponseBody().setBody(baos.toByteArray());
+				HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+			} catch (IOException e) {
+				//this.log.error(e.getMessage(), e);
+				System.out.println(e);
+			}
+		}
 	}
 }

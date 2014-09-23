@@ -17,6 +17,16 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.impl.models.http.response;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -32,14 +42,34 @@ public class ResponseStringHttpPanelViewModel extends AbstractHttpStringHttpPane
 		if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
 			return "";
 		}
-		String header = httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF);
-		
-		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
-			// The body will be un-gziped so we need to remover the gzip header or it will break in the browser
-			header = header.replaceFirst(HttpHeader.CONTENT_ENCODING +".*" + HttpHeader.GZIP + HttpHeader.LF, "");
-		}
 
-		return header + httpMessage.getResponseBody().toString();
+		return httpMessage.getResponseHeader().toString().replaceAll(HttpHeader.CRLF, HttpHeader.LF) + getBody();
+	}
+	
+	private String getBody() {
+		if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+			// Uncompress gziped content
+			try {
+				ByteArrayInputStream bais = new ByteArrayInputStream(httpMessage.getResponseBody().getBytes());
+				GZIPInputStream gis = new GZIPInputStream(bais);
+				InputStreamReader isr = new InputStreamReader(gis);
+				BufferedReader br = new BufferedReader(isr);
+				StringBuilder sb = new StringBuilder();
+				String line = null;
+				while ((line = br.readLine()) != null) {
+					sb.append(line);
+				}
+				br.close();
+				isr.close();
+				gis.close();
+				bais.close();
+				return sb.toString();
+			} catch (IOException e) {
+				//this.log.error(e.getMessage(), e);
+				System.out.println(e);
+			}
+		}
+		return httpMessage.getResponseBody().toString();
 	}
 
 	@Override
@@ -55,7 +85,26 @@ public class ResponseStringHttpPanelViewModel extends AbstractHttpStringHttpPane
 		}
 		
 		if (parts.length > 1) {
-			httpMessage.setResponseBody(data.substring(parts[0].length()+2));
+			String body = data.substring(parts[0].length()+2);
+			if (HttpHeader.GZIP.equals(httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_ENCODING))) {
+				// Recompress gziped content
+				try {
+					ByteArrayOutputStream baos = new ByteArrayOutputStream();
+					GZIPOutputStream gis = new GZIPOutputStream(baos);
+					BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(gis, "UTF-8"));
+					bw.write(body);
+					bw.close();
+					gis.close();
+					baos.close();
+					httpMessage.getResponseBody().setBody(baos.toByteArray());
+					HttpPanelViewModelUtils.updateResponseContentLength(httpMessage);
+				} catch (IOException e) {
+					//this.log.error(e.getMessage(), e);
+					System.out.println(e);
+				}
+			} else {
+				httpMessage.setResponseBody(body);
+			}
 		} else {
 			httpMessage.setResponseBody("");
 		}

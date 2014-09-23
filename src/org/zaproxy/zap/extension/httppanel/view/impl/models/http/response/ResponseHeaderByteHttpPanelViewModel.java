@@ -32,7 +32,7 @@ public class ResponseHeaderByteHttpPanelViewModel extends AbstractHttpByteHttpPa
 		if (httpMessage == null || httpMessage.getResponseHeader().isEmpty()) {
 			return new byte[0];
 		}
-		
+
 		return httpMessage.getResponseHeader().toString().getBytes();
 	}
 
