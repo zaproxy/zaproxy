@@ -285,6 +285,10 @@ public class Scanner implements Runnable {
 	public void setStartNode(SiteNode startNode) {
 		this.startNode = startNode;
 	}
+	
+	public SiteNode getStartNode() {
+		return this.startNode;
+	}
 
 	public void setJustScanInScope(boolean scanInScope) {
 		justScanInScope = scanInScope;

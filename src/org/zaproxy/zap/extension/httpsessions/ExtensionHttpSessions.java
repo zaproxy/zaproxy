@@ -28,6 +28,8 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -553,7 +555,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	@Override
-	public void onHttpRequestSend(HttpMessage msg, int initiator) {
+	public void onHttpRequestSend(final HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
@@ -573,13 +575,19 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 					&& !this.isRemovedDefaultSessionToken(site, cookie.getName()))
 				this.addHttpSessionToken(site, cookie.getName());
 
-		// Forward the request for proper processing
-		HttpSessionsSite session = this.getHttpSessionsSite(site);
-		session.processHttpRequestMessage(msg);
+		final String siteFinal = site;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				// Forward the request for proper processing
+				HttpSessionsSite session = getHttpSessionsSite(siteFinal);
+				session.processHttpRequestMessage(msg);
+				
+			}});
 	}
 
 	@Override
-	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
+	public void onHttpResponseReceive(final HttpMessage msg, int initiator) {
 		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR) {
 			// Not a session we care about
 			return;
@@ -605,9 +613,14 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 					&& !this.isRemovedDefaultSessionToken(site, cookie.getName()))
 				this.addHttpSessionToken(site, cookie.getName());
 
-		// Forward the request for proper processing
-		HttpSessionsSite sessionsSite = this.getHttpSessionsSite(site);
-		sessionsSite.processHttpResponseMessage(msg);
+		final String siteFinal = site;
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				// Forward the request for proper processing
+				HttpSessionsSite sessionsSite = getHttpSessionsSite(siteFinal);
+				sessionsSite.processHttpResponseMessage(msg);
+			}});
 	}
 
 }

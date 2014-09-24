@@ -50,6 +50,8 @@ import org.zaproxy.zap.view.ScanStatus;
 
 public class AttackModeScanner implements EventConsumer {
 
+	private static final String ATTACK_ICON_RESOURCE = "/resource/icon/16/093.png";
+
 	private boolean running = false;
 	private ExtensionActiveScan extension;
 	private Date lastUpdated = new Date(); 
@@ -80,6 +82,7 @@ public class AttackModeScanner implements EventConsumer {
 		this.addAllInScope();
 		
 		Thread t = new Thread(new AttackModeThread());
+		t.setName("ZAP-AttackMode");
 		t.start();
 		
 	}
@@ -165,6 +168,14 @@ public class AttackModeScanner implements EventConsumer {
 		}
 	}
 	
+	public boolean isRescanOnChange() {
+		return rescanOnChange;
+	}
+
+	public void setRescanOnChange(boolean rescanOnChange) {
+		this.rescanOnChange = rescanOnChange;
+	}
+
 	private ExtensionAlert getExtensionAlert() {
 		if (extAlert == null) {
 			extAlert = (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME);
@@ -185,6 +196,10 @@ public class AttackModeScanner implements EventConsumer {
 					updateCount();
 				}
 				if (nodeStack.size() == 0 || scanners.size() == scannerCount) {
+					if (scanners.size() > 0) {
+						// Check to see if any have finished
+						scannerComplete();
+					}
 					// Still scanning a node or nothing to scan now
 					try {
 						Thread.sleep(500);
@@ -193,16 +208,23 @@ public class AttackModeScanner implements EventConsumer {
 					}
 					continue;
 				}
-				SiteNode node = nodeStack.remove(0);
-				log.debug("Attacking node " + node.getNodeName());
-				Scanner scanner = new Scanner(extension.getScannerParam(), 
-						extension.getModel().getOptionsParam().getConnectionParam(), 
-						Control.getSingleton().getPluginFactory().clone());
-				scanner.setStartNode(node);
-				scanner.setScanChildren(false);
-				scanner.addScannerListener(this);
-				this.scanners.add(scanner);
-				scanner.run();
+				while (nodeStack.size() > 0 && scanners.size() < scannerCount) {
+					SiteNode node = nodeStack.remove(0);
+					log.debug("Attacking node " + node.getNodeName());
+					Scanner scanner = new Scanner(extension.getScannerParam(), 
+							extension.getModel().getOptionsParam().getConnectionParam(), 
+							Control.getSingleton().getPluginFactory().clone());
+					scanner.setStartNode(node);
+					scanner.setScanChildren(false);
+					scanner.addScannerListener(this);
+					this.scanners.add(scanner);
+					
+					if (View.isInitialised()) {
+						// set icon to show its being scanned
+						node.addCustomIcon(ATTACK_ICON_RESOURCE, false);
+					}
+					scanner.start(node);
+				}
 			}
 			for (Scanner scanner : this.scanners) {
 				scanner.stop();
@@ -213,15 +235,22 @@ public class AttackModeScanner implements EventConsumer {
 		@Override
 		public void scannerComplete() {
 			// Clear so we can attack the next node
-			log.debug("Finished attacking node");
 			List<Scanner> stoppedScanners = new ArrayList<Scanner>();
 			for (Scanner scanner : this.scanners) {
 				if (scanner.isStop()) {
+					SiteNode node = scanner.getStartNode();
+					if (node != null) {
+						log.debug("Finished attacking node " + node.getNodeName());
+						if (View.isInitialised()) {
+							// Remove the icon
+							node.removeCustomIcon(ATTACK_ICON_RESOURCE);
+						}
+					}
 					stoppedScanners.add(scanner);
 				}
 			}
 			for (Scanner scanner : stoppedScanners) {
-				// Cant remove them in the above loop 
+				// Cant remove them in the above loop
 				scanners.remove(scanner);
 			}
 			updateCount();

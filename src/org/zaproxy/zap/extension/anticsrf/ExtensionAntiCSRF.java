@@ -181,7 +181,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	public void registerAntiCsrfToken(AntiCsrfToken token) {
 		log.debug("registerAntiCsrfToken " + token.getMsg().getRequestHeader().getURI().toString() + " " + token.getValue());
-		valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+		synchronized (valueToToken) {
+			valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+		}
 		urlToToken.put(token.getMsg().getRequestHeader().getURI().toString(), token);
 	}
 
@@ -190,7 +192,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	}
 	
 	public boolean requestHasToken(String reqBody) {
-		Set<String> values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+		Set<String> values;
+		synchronized (valueToToken) {
+			values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+		}
 		for (String token : values) {
 			if (reqBody.indexOf(token) >= 0) {
 				return true;
@@ -205,7 +210,10 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	
 	private List<AntiCsrfToken> getTokens(String reqBody, String targetUrl) {
 		List<AntiCsrfToken> tokens = new ArrayList<>();
-		Set<String> values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+		Set<String> values;
+		synchronized (valueToToken) {
+			values = Collections.unmodifiableSet(new HashSet<String>(valueToToken.keySet()));
+		}
 		
 		for (String value : values) {
 			if (reqBody.indexOf(value) >= 0) {
@@ -300,7 +308,9 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			return;
 		}
 
-		valueToToken = new HashMap<>();
+		synchronized (valueToToken) {
+			valueToToken = new HashMap<>();
+		}
 		urlToToken = new HashMap<>();
 		// search for tokens...
         try {
