@@ -1,0 +1,29 @@
+# This dockerfile builds the zap weekly release
+FROM debian:jessie
+MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
+
+RUN apt-get update && apt-get clean
+RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk rubygems wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools && apt-get clean
+RUN mkdir /zap 
+RUN gem install zapr
+WORKDIR /zap
+RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - 
+RUN unzip *.zip && rm *.zip
+RUN mv ZAP* weekly 
+
+RUN useradd -d /home/zap -m -s /bin/bash zap 
+RUN echo zap:zap | chpasswd
+
+RUN mkdir /home/zap/.vnc
+RUN echo "openbox &" > /home/zap/.xinitrc
+RUN echo "xsetroot -solid black" >> /home/zap/.xinitrc
+run echo "zap.sh" >> /home/zap/.xinitrc
+RUN chmod a+x /home/zap/.xinitrc
+RUN chown -R zap /home/zap/
+RUN chmod -R u+rw /home/zap/
+ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
+ENV PATH $JAVA_HOME/bin:/zap/weekly/:$PATH
+ENV ZAP_PATH /zap/weekly/zap.sh
+ENV HOME /home/zap/
+
+
