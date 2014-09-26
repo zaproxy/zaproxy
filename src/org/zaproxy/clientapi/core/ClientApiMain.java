@@ -50,6 +50,7 @@ public class ClientApiMain {
         }catch (Exception e){
             e.printStackTrace();
             showHelp();
+            System.exit(1);
         }
     }
 
