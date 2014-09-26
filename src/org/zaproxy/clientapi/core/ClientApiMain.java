@@ -34,7 +34,8 @@ public class ClientApiMain {
     private boolean debug = false;
 
     private enum Task{
-        stop, showAlerts, checkAlerts, saveSession, newSession, activeScanUrl, activeScanSiteInScope,
+        stop, showAlerts, checkAlerts, saveSession, newSession, activeScanUrl, activeScanSubtree,
+        activeScanSubtreeInScope, spider,
         addExcludeRegexToContext, addIncludeRegexToContext, addIncludeOneMatchingNodeToContext
     }
 
@@ -109,17 +110,16 @@ public class ClientApiMain {
                     }
                     break;
                 case activeScanUrl:
-                    if (params.get("url") == null){
-                        System.out.println("No url supplied\n");
-                        showHelp();
-                        System.exit(1);
-                    }else{
-                        api.ascan.scan((String)params.get("apikey"), (String)params.get("url"), "true", "false");
-                    }
+                	checkForUrlParam();
+                    api.activeScanAndPoll((String)params.get("apikey"), (String)params.get("url"), false, false);
                     break;
-                case activeScanSiteInScope:
-                    checkForUrlParam();
-                    api.activeScanSiteInScope((String)params.get("apikey"), (String)params.get("url"));
+                case activeScanSubtree:
+                	checkForUrlParam();
+                    api.activeScanAndPoll((String)params.get("apikey"), (String)params.get("url"), true, false);
+                    break;
+                case activeScanSubtreeInScope:
+                	checkForUrlParam();
+                    api.activeScanAndPoll((String)params.get("apikey"), (String)params.get("url"), true, true);
                     break;
                 case addExcludeRegexToContext:
                     checkForContextNameParam();
@@ -135,6 +135,10 @@ public class ClientApiMain {
                     checkForContextNameParam();
                     checkForRegexParam();
                     api.includeOneMatchingNodeInContext((String)params.get("apikey"), (String)params.get("contextName"), (String)params.get("regex"));
+                    break;
+                case spider:
+                	checkForUrlParam();
+                    api.spiderAndPoll((String)params.get("apikey"), (String)params.get("url"));
                     break;
             }
         } catch (ConnectException e){
@@ -231,9 +235,12 @@ public class ClientApiMain {
                 "\tcheckAlerts\n"+
                 "\tshowAlerts\n"+
                 "\tsaveSession\n"+
-                "\tnewSession\n";
+                "\tnewSession\n"+
+                "\tactiveScanUrl\n"+
+                "\tactiveScanSubtree\n"+
+                "\tactiveScanSubtreeInScope\n"+
+                "\tspider\n";
         } else{
-        	// TODO add case for activeScanSiteInScope
             switch (task){
                 case stop:
                     help = "usage: stop [zapaddr={ip}] [zapport={port}]\n\n" +
@@ -291,8 +298,32 @@ public class ClientApiMain {
                                     "Start new session using zap listening on 192.168.1.1:7080, creating session files at /Users/me/My Documents/mysession/newsession\n" +
                             "Note: for paths containing spaces ensure path is enclosed in quotes";
                     break;
+                case spider:
+                    help = "usage: spider url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
+                    break;
                 case activeScanUrl:
                     help = "usage: activeScanUrl url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
+                    break;
+                case activeScanSubtree:
+                    help = "usage: activeScanSubtree url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
+                            "Examples:\n\t" +
+                            "1. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +
+                            "2. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' zapaddr=192.168.1.1 zapport=7080' \n\t\t" +
+                            "Execute and active scan on http://myurl.com/ using zap listening on 192.168.1.1:7080\n\t";
+                    break;
+                case activeScanSubtreeInScope:
+                    help = "usage: activeScanSubtreeInScope url={url} [zapaddr={ip}] [zapport={port}]\n\n" +
                             "Examples:\n\t" +
                             "1. Type 'java -jar zap-api.jar activeScanUrl url=http://myurl.com/' \n\t\t" +
                             "Execute and active scan on http://myurl.com/ using zap listening on localhost:8090\n\t" +

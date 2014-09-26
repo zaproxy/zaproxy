@@ -16,7 +16,7 @@
     <property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
     <property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
-    <property name="zap.java.api.version" value="8" />
+    <property name="zap.java.api.version" value="9" />
 
     <property name="crowdin.zap.project.id" value="owasp-zap" />
     <property name="crowdin.zap.help.project.id" value="owasp-zap-help" />
@@ -759,7 +759,7 @@
 
         <antcall target="dist" />
         <antcall target="package-linux" />
-        <antcall target="package-macosx" />
+        <!--antcall target="package-macosx" /-->
         <antcall target="package-lite" />
     </target>
 

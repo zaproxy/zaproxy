@@ -392,9 +392,26 @@ public class ClientApi {
         return sessionUrls;
     }
 
-    public void activeScanSiteInScope(String apikey, String url) throws Exception {
-        ascan.scan(apikey, url, "true", "true");
+    public void spiderAndPoll(String apikey, String url) throws Exception {
+        spider.scan(apikey, url);
         // Poll until spider finished
+        int status = 0;
+        while ( status < 100) {
+            status = statusToInt(spider.status());
+            if(debug){
+                String format = "Spider %s Progress: %d%%";
+                System.out.println(String.format(format, url, status));
+            }try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                // Ignore
+            }
+        }
+    }
+
+    public void activeScanAndPoll(String apikey, String url, boolean recurse, boolean inScopeOnly) throws Exception {
+        ascan.scan(apikey, url, Boolean.toString(recurse), Boolean.toString(inScopeOnly));
+        // Poll until active scanner finished
         int status = 0;
         while ( status < 100) {
             status = statusToInt(ascan.status());

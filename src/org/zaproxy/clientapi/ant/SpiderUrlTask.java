@@ -20,6 +20,7 @@
 package org.zaproxy.clientapi.ant;
 
 import org.apache.tools.ant.BuildException;
+import org.zaproxy.clientapi.core.ApiResponseElement;
 
 public class SpiderUrlTask extends ZapTask {
 	
@@ -29,11 +30,24 @@ public class SpiderUrlTask extends ZapTask {
 	@Override
 	public void execute() throws BuildException {
 		try {
+			int status;
 			this.getClientApi().spider.scan(apikey, url);
+			
+			while (true) {
+				Thread.sleep(1000);
+				status = getStatusValue((ApiResponseElement) this.getClientApi().spider.status()); 
+				if (status >= 100) {
+					break;
+				}
+			}
 			
 		} catch (Exception e) {
 			throw new BuildException(e);
 		}
+	}
+	
+	private int getStatusValue(ApiResponseElement element) {
+		return Integer.parseInt(element.getValue());
 	}
 
 	public String getUrl() {
