@@ -275,12 +275,11 @@ public class HttpMethodDirector {
 
     private void authenticateHost(final HttpMethod method) throws AuthenticationException {
         // Clean up existing authentication headers
-        if (!cleanAuthHeaders(method, WWW_AUTH_RESP)) {
-            // User defined authentication header(s) present
-            if (!method.getParams().getBooleanParameter(PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, false)) {
-                return;
+        boolean userDefinedAuthenticationHeaders = !cleanAuthHeaders(method, WWW_AUTH_RESP);
+        if (userDefinedAuthenticationHeaders) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("User defined '" + WWW_AUTH_RESP + "' headers present in the request.");
             }
-            method.removeRequestHeader(WWW_AUTH_RESP);
         }
         AuthState authstate = method.getHostAuthState();
         AuthScheme authscheme = authstate.getAuthScheme();
@@ -302,6 +301,20 @@ public class HttpMethodDirector {
             }
             Credentials credentials = this.state.getCredentials(authscope);
             if (credentials != null) {
+                if (userDefinedAuthenticationHeaders) {
+                    if (!method.getParams().getBooleanParameter(PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, false)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Ignoring authentication, user defined '" + WWW_AUTH_RESP
+                                    + "' headers present in the request.");
+                        } 
+                        return;
+                    }
+                    method.removeRequestHeader(WWW_AUTH_RESP);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Removed user defined '" + WWW_AUTH_RESP + "' headers.");
+                    }
+                }
+
                 String authstring = authscheme.authenticate(credentials, method);
                 if (authstring != null) {
                     method.addRequestHeader(new Header(WWW_AUTH_RESP, authstring, true));
@@ -321,12 +334,11 @@ public class HttpMethodDirector {
 
     private void authenticateProxy(final HttpMethod method) throws AuthenticationException {
         // Clean up existing authentication headers
-        if (!cleanAuthHeaders(method, PROXY_AUTH_RESP)) {
-            // User defined authentication header(s) present
-            if (!method.getParams().getBooleanParameter(PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, false)) {
-                return;
+        boolean userDefinedAuthenticationHeaders = !cleanAuthHeaders(method, PROXY_AUTH_RESP);
+        if (userDefinedAuthenticationHeaders) {
+            if (LOG.isDebugEnabled()) {
+                LOG.debug("User defined '" + PROXY_AUTH_RESP + "' headers present in the request.");
             }
-            method.removeRequestHeader(PROXY_AUTH_RESP);
         }
         AuthState authstate = method.getProxyAuthState();
         AuthScheme authscheme = authstate.getAuthScheme();
@@ -343,6 +355,20 @@ public class HttpMethodDirector {
             }
             Credentials credentials = this.state.getProxyCredentials(authscope);
             if (credentials != null) {
+                if (userDefinedAuthenticationHeaders) {
+                    if (!method.getParams().getBooleanParameter(PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, false)) {
+                        if (LOG.isDebugEnabled()) {
+                            LOG.debug("Ignoring proxy authentication, user defined '" + PROXY_AUTH_RESP
+                                    + "' headers present in the request.");
+                        }
+                        return;
+                    }
+                    method.removeRequestHeader(PROXY_AUTH_RESP);
+                    if (LOG.isDebugEnabled()) {
+                        LOG.debug("Removed user defined '" + PROXY_AUTH_RESP + "' headers.");
+                    }
+                }
+
                 String authstring = authscheme.authenticate(credentials, method);
                 if (authstring != null) {
                     method.addRequestHeader(new Header(PROXY_AUTH_RESP, authstring, true));
