@@ -1,18 +1,16 @@
 FROM debian:jessie
 MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
 
-
 RUN apt-get update && apt-get clean
-RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk rubygems wget && apt-get clean
+RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk rubygems wget curl git xmlstarlet x11vnc xvfb openbox xterm net-tools && apt-get clean
 RUN mkdir /zap 
 RUN gem install zapr
-RUN cd /zap && wget http://downloads.sourceforge.net/project/zaproxy/2.3.1/ZAP_2.3.1_Linux.tar.gz
-RUN cd /zap && tar -zxvf ZAP_2.3.1_Linux.tar.gz 
+WORKDIR /zap
+RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
 
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd
 
-RUN apt-get install -y git x11vnc xvfb openbox xterm net-tools python-numpy
 RUN mkdir /home/zap/.vnc
 # use this to create static pass for x11vnc
 #RUN x11vnc -storepasswd zap /home/zap/.vnc/passwd
@@ -26,3 +24,8 @@ ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.3.1/:$PATH
 ENV ZAP_PATH /zap/ZAP_2.3.1/zap.sh
 ENV HOME /home/zap/
+
+# download addons
+WORKDIR /zap/ZAP_2.3.1/plugins/
+RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i .zap/download | grep -i release |wget --content-disposition -i - 
+
