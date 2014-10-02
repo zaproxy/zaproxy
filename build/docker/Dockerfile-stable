@@ -1,6 +1,7 @@
 FROM debian:jessie
 MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
 
+
 RUN apt-get update && apt-get clean
 RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk rubygems wget curl git xmlstarlet x11vnc xvfb openbox xterm net-tools && apt-get clean
 RUN mkdir /zap 
@@ -25,7 +26,18 @@ ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.3.1/:$PATH
 ENV ZAP_PATH /zap/ZAP_2.3.1/zap.sh
 ENV HOME /home/zap/
 
+
 # download addons
 WORKDIR /zap/ZAP_2.3.1/plugins/
-RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i .zap/download | grep -i release |wget --content-disposition -i - 
+RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i .zap/download | egrep '(ascanrules-.*|bruteforce-.*|coreLang-.*|diff-.*|directorylistv1-.*|invoke-.*|plugnhack-.*|pscanrules-.*|quickstart-.*|reveal-.*|saverawmessage-.*|scripts-.*|spiderAjax-.*|websocket-.*|zest-.*)'|wget --content-disposition -i - 
+
+# For noVNC support. Currently broken. Please fix.
+#RUN git clone http://github.com/kanaka/noVNC
+#RUN chown -R zap /noVNC/
+#RUN chmod -R u+xrw /noVNC/
+#RUN echo '#!/bin/sh' > /bin/startzap.sh
+#RUN echo 'x11vnc --usepw -passwdfile /home/zap/.vnc/passwd --forever -q -bg --create &' >> /bin/startzap.sh
+#RUN echo 'cd /noVNC/utils ' >> /bin/startzap.sh
+#RUN echo 'sh launch.sh --vnc localhost:5900' >> /bin/startzap.sh
+#RUN chmod a+x /bin/startzap.sh 
 
