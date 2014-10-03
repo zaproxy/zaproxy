@@ -19,17 +19,20 @@
  */
 package org.zaproxy.zap.extension.brk;
 
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
+import java.awt.CardLayout;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * The GUI breakpoints options panel.
@@ -47,25 +50,26 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
     private static final long serialVersionUID = 7483614036849207715L;
 
     private JCheckBox checkBoxConfirmDropMessage = null;
+    private JComboBox<String> buttonMode = null;
 
     public BreakpointsOptionsPanel() {
         super();
         setName(Constant.messages.getString("brk.optionspanel.name"));
 
-        setLayout(new FlowLayout(FlowLayout.LEADING, 0, 0));
+        this.setLayout(new CardLayout());
 
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(new EmptyBorder(2, 2, 2, 2));
 
-        GridBagConstraints gbc = new GridBagConstraints();
-
         panel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        gbc.insets = new java.awt.Insets(2, 2, 2, 2);
-        gbc.anchor = GridBagConstraints.WEST;
-        panel.add(getCheckBoxConfirmDropMessage(), gbc);
+        panel.add(getCheckBoxConfirmDropMessage(), LayoutHelper.getGBC(0, 0, 2, 1.0, new Insets(2, 2, 2, 2)));
+        
+        JLabel modeLabel = new JLabel(Constant.messages.getString("brk.optionspanel.option.breakmode.label"));
+        modeLabel.setLabelFor(getButtonMode());
+        panel.add(modeLabel, LayoutHelper.getGBC(0, 1, 1, 0.5));
+        panel.add(getButtonMode(), LayoutHelper.getGBC(1, 1, 1, 0.5));
+		panel.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 
         add(panel);
     }
@@ -78,12 +82,22 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         return checkBoxConfirmDropMessage;
     }
 
+    private JComboBox<String> getButtonMode() {
+    	if (buttonMode == null) {
+    		buttonMode = new JComboBox<String>();
+    		buttonMode.addItem(Constant.messages.getString("brk.optionspanel.option.breakmode.simple.label"));
+    		buttonMode.addItem(Constant.messages.getString("brk.optionspanel.option.breakmode.dual.label"));
+    	}
+    	return buttonMode;
+    }
+
     @Override
     public void initParam(Object obj) {
         final OptionsParam options = (OptionsParam) obj;
         final BreakpointsParam param = (BreakpointsParam) options.getParamSet(BreakpointsParam.class);
 
         checkBoxConfirmDropMessage.setSelected(param.isConfirmDropMessage());
+        getButtonMode().setSelectedIndex(param.getButtonMode()-1);
     }
 
     @Override
@@ -96,6 +110,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         final BreakpointsParam param = (BreakpointsParam) options.getParamSet(BreakpointsParam.class);
 
         param.setConfirmDropMessage(checkBoxConfirmDropMessage.isSelected());
+        param.setButtonMode(this.getButtonMode().getSelectedIndex()+1);
     }
 
     @Override

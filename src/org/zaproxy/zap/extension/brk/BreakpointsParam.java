@@ -34,14 +34,19 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public class BreakpointsParam extends AbstractParam {
 
+	public static final int BUTTON_MODE_SIMPLE = 1;
+	public static final int BUTTON_MODE_DUAL = 2;
+	
     private static final String PARAM_BASE_KEY = "breakpoints";
 
     private static final String PARAM_CONFIRM_DROP_MESSAGE_KEY = PARAM_BASE_KEY + ".confirmDropMessage";
+    private static final String PARAM_UI_BUTTON_MODE = PARAM_BASE_KEY + ".buttonMode";
 
     /**
      * Default is {@code false}.
      */
     private boolean confirmDropMessage;
+    private int buttonMode = BUTTON_MODE_SIMPLE;
 
     public BreakpointsParam() {
         super();
@@ -61,6 +66,7 @@ public class BreakpointsParam extends AbstractParam {
     @Override
     protected void parse() {
         confirmDropMessage = getConfig().getBoolean(PARAM_CONFIRM_DROP_MESSAGE_KEY, false);
+        buttonMode = getConfig().getInt(PARAM_UI_BUTTON_MODE, BUTTON_MODE_SIMPLE);
     }
 
     /**
@@ -87,4 +93,14 @@ public class BreakpointsParam extends AbstractParam {
         }
     }
 
+	public int getButtonMode() {
+		return buttonMode;
+	}
+
+	public void setButtonMode(int buttonMode) {
+		this.buttonMode = buttonMode;
+        getConfig().setProperty(PARAM_UI_BUTTON_MODE, buttonMode);
+	}
+
+    
 }

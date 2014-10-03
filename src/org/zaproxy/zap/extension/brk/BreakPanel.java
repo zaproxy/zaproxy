@@ -28,6 +28,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JPanel;
+import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
@@ -57,6 +58,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private ExtensionBreak extension;
 	private JPanel panelContent;
 	private BreakPanelToolbarFactory breakToolbarFactory;
+	
+	private JToggleButton mainReqButton = null;
+	private JToggleButton mainResButton = null;
+	private JToggleButton mainAllButton = null;
+	private JToggleButton panelReqButton = null;
+	private JToggleButton panelResButton = null;
+	private JToggleButton panelAllButton = null;
 
 	public BreakPanel(ExtensionBreak extension, BreakpointsParam breakpointsParams) {
 		super();
@@ -105,6 +113,8 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		default:
 			getPanelMainToolbarCommand();
 		}
+		
+		this.setButtonMode(breakpointsParams.getButtonMode());
 	}
 	
 	public boolean isBreakRequest() {
@@ -144,8 +154,9 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		
 		panelCommand.setName("Command");
 
-		panelCommand.add(breakToolbarFactory.getBtnBreakRequest());
-		panelCommand.add(breakToolbarFactory.getBtnBreakResponse());
+		panelCommand.add(getPanelReqButton());
+		panelCommand.add(getPanelResButton());
+		panelCommand.add(getPanelAllButton());
 		panelCommand.add(breakToolbarFactory.getBtnStep());
 		panelCommand.add(breakToolbarFactory.getBtnContinue());
 		panelCommand.add(breakToolbarFactory.getBtnDrop());
@@ -155,12 +166,55 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	}
 
 	private void getPanelMainToolbarCommand() {
-		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnBreakRequest());
-		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnBreakResponse());
+		View.getSingleton().addMainToolbarButton(getMainReqButton());
+		View.getSingleton().addMainToolbarButton(getMainResButton());
+		View.getSingleton().addMainToolbarButton(getMainAllButton());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnStep());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnContinue());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnDrop());
 		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnBreakPoint());
+	}
+	
+	private JToggleButton getMainReqButton() {
+		if (mainReqButton == null) {
+			mainReqButton = breakToolbarFactory.getBtnBreakRequest();
+		}
+		return mainReqButton;
+	}
+
+	private JToggleButton getMainResButton() {
+		if (mainResButton == null) {
+			mainResButton = breakToolbarFactory.getBtnBreakResponse();
+		}
+		return mainResButton;
+	}
+
+	private JToggleButton getMainAllButton() {
+		if (mainAllButton == null) {
+			mainAllButton = breakToolbarFactory.getBtnBreakAll();
+		}
+		return mainAllButton;
+	}
+
+	private JToggleButton getPanelReqButton() {
+		if (panelReqButton == null) {
+			panelReqButton = breakToolbarFactory.getBtnBreakRequest();
+		}
+		return panelReqButton;
+	}
+
+	private JToggleButton getPanelResButton() {
+		if (panelResButton == null) {
+			panelResButton = breakToolbarFactory.getBtnBreakResponse();
+		}
+		return panelResButton;
+	}
+
+	private JToggleButton getPanelAllButton() {
+		if (panelAllButton == null) {
+			panelAllButton = breakToolbarFactory.getBtnBreakAll();
+		}
+		return panelAllButton;
 	}
 	
 	public void setMessage(Message aMessage, boolean isRequest) {
@@ -246,4 +300,21 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		extension.addUiBreakpoint(new HttpMessage());
 	}
 
+	public void setButtonMode (int mode) {
+		this.breakToolbarFactory.setButtonMode(mode);
+		
+		switch (mode) {
+		case BreakpointsParam.BUTTON_MODE_SIMPLE:
+			getMainReqButton().setVisible(false);
+			getMainResButton().setVisible(false);
+			getMainAllButton().setVisible(true);
+			break;
+		case BreakpointsParam.BUTTON_MODE_DUAL:
+			getMainReqButton().setVisible(true);
+			getMainResButton().setVisible(true);
+			getMainAllButton().setVisible(false);
+			break;
+		}
+
+	}
 }

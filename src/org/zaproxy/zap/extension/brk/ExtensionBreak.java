@@ -44,8 +44,10 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
+import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
@@ -59,7 +61,7 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener {
+public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener, OptionsChangedListener {
 
     public enum DialogType {NONE, ADD, EDIT, REMOVE};
     
@@ -167,6 +169,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     		API.getInstance().registerApiImplementor(api);
 
             extensionHook.addSessionListener(this);
+            extensionHook.addOptionsChangedListener(this);
 
 	    	ExtensionHelp.enableHelpKey(getBreakPanel(), "ui.tabs.break");
 	    	ExtensionHelp.enableHelpKey(getBreakpointsPanel(), "ui.tabs.breakpoints");
@@ -581,6 +584,14 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 			breakpointMessageHandler.getEnabledKeyBreakpoints().add(id);
 		} else {
 			breakpointMessageHandler.getEnabledKeyBreakpoints().remove(id);
+		}
+	}
+
+	@Override
+	public void optionsChanged(OptionsParam optionsParam) {
+		if (View.isInitialised()) {
+			this.getBreakPanel().setButtonMode(
+					((BreakpointsParam) optionsParam.getParamSet(BreakpointsParam.class)).getButtonMode());
 		}
 	}
 }

@@ -35,6 +35,7 @@ public class BreakPanelToolbarFactory {
 
 	private BreakRequestsButtonAction breakRequestsButtonAction;
 	private BreakResponsesButtonAction breakResponsesButtonAction;
+	private BreakAllButtonAction breakAllButtonAction;
 
 	private boolean cont = false;
 	private boolean step = false;
@@ -42,10 +43,12 @@ public class BreakPanelToolbarFactory {
 	private boolean toBeDropped = false;
 	private boolean isBreakRequest = false;
 	private boolean isBreakResponse = false;
+	private boolean isBreakAll = false;
 	
 	private BreakPanel breakPanel = null;
 	
 	private BreakpointsParam breakpointsParams;
+	private int mode = 0;
 
 	public BreakPanelToolbarFactory(BreakpointsParam breakpointsParams, BreakPanel breakPanel) {
 		super();
@@ -57,6 +60,7 @@ public class BreakPanelToolbarFactory {
 
 		breakRequestsButtonAction = new BreakRequestsButtonAction();
 		breakResponsesButtonAction = new BreakResponsesButtonAction();
+		breakAllButtonAction = new BreakAllButtonAction();
 
 		this.breakpointsParams = breakpointsParams;
 		this.breakPanel = breakPanel;
@@ -87,11 +91,15 @@ public class BreakPanelToolbarFactory {
 	}
 
 	public boolean isBreakRequest() {
-		return isBreakRequest;
+		return isBreakRequest || isBreakAll;
 	}
 
 	public boolean isBreakResponse() {
-		return isBreakResponse;
+		return isBreakResponse || isBreakAll;
+	}
+	
+	public boolean isBreakAll() {
+		return isBreakAll;
 	}
 	
 	public JButton getBtnStep() {
@@ -148,6 +156,15 @@ public class BreakPanelToolbarFactory {
 		return btnBreakResponse;
 	}
 
+	public JToggleButton getBtnBreakAll() {
+		ZapToggleButton btnBreakAll;
+
+		btnBreakAll = new ZapToggleButton(breakAllButtonAction);
+		btnBreakAll.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/151.png")));
+		btnBreakAll.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.all.unset"));
+
+		return btnBreakAll;
+	}
 
 	public JButton getBtnBreakPoint() {
 		return new JButton(addBreakpointButtonAction);
@@ -164,7 +181,7 @@ public class BreakPanelToolbarFactory {
 			return;
 		}
 		// If forces or either break buttons are pressed force the proxy to submit requests and responses serially 
-		if (forceSerialize || isBreakRequest() || isBreakResponse()) {
+		if (forceSerialize || isBreakRequest() || isBreakResponse() || isBreakAll) {
 			Control.getSingleton().getProxy().setSerialize(true);
 		} else {
 			Control.getSingleton().getProxy().setSerialize(false);
@@ -185,12 +202,27 @@ public class BreakPanelToolbarFactory {
 		breakResponsesButtonAction.setSelected(isBreakResponse);
 	}
 
+	public void setBreakAll(boolean brk) {
+		isBreakAll = brk;
+		if (!brk) {
+			stepping = false;
+		}
+
+		resetRequestSerialization(false);
+
+		breakAllButtonAction.setSelected(isBreakAll);
+	}
+
 	private void toggleBreakRequest() {
 		setBreakRequest(!isBreakRequest);
 	}
 
 	private void toggleBreakResponse() {
 		setBreakResponse(!isBreakResponse);
+	}
+
+	private void toggleBreakAll() {
+		setBreakAll(!isBreakAll);
 	}
 
 	public boolean isHoldMessage() {
@@ -217,6 +249,7 @@ public class BreakPanelToolbarFactory {
 		if (!enabled) {
 			this.isBreakRequest = false;
 			this.isBreakResponse = false;
+			this.isBreakAll = false;
 			this.setContinue(true);
 		}
 		breakRequestsButtonAction.setSelected(false);
@@ -224,6 +257,9 @@ public class BreakPanelToolbarFactory {
 		
 		breakResponsesButtonAction.setSelected(false);
 		breakResponsesButtonAction.setEnabled(enabled);
+		
+		breakAllButtonAction.setSelected(false);
+		breakAllButtonAction.setEnabled(enabled);
 	}
 
 	
@@ -276,6 +312,7 @@ public class BreakPanelToolbarFactory {
 		toBeDropped = false;
 		isBreakRequest = false;
 		isBreakResponse = false;
+		isBreakAll = false;
 	}
 
 	public void reset() {
@@ -287,8 +324,16 @@ public class BreakPanelToolbarFactory {
 			toggleBreakResponse();
 		}
 
+		if (isBreakAll()) {
+			toggleBreakAll();
+		}
+
 		toBeDropped = true;
 		setContinue(true);
+	}
+	
+	public void setButtonMode (int mode) {
+		this.mode = mode;
 	}
 
     private class ContinueButtonAction extends AbstractAction {
@@ -305,6 +350,9 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             setContinue(true);
+            if (mode == BreakpointsParam.BUTTON_MODE_SIMPLE) {
+            	setBreakAll(false);
+            }
         }
     }
 
@@ -321,7 +369,13 @@ public class BreakPanelToolbarFactory {
 
         @Override
         public void actionPerformed(ActionEvent e) {
-            setStep(true);
+            if (mode == BreakpointsParam.BUTTON_MODE_SIMPLE && ! isBreakAll) {
+            	// In simple mode 'step' if the breakAll button is disabled then it acts like 'continue'
+            	// so that its hopefully obvious to users when break is on or not
+                setContinue(true);
+            } else {
+                setStep(true);
+            }
         }
     }
 
@@ -384,6 +438,21 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             toggleBreakResponse();
+        }
+    }
+
+    private class BreakAllButtonAction extends SelectableAbstractAction {
+
+        private static final long serialVersionUID = 1L;
+
+        public BreakAllButtonAction() {
+            super(null, new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/152.png")));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("brk.toolbar.button.all.set"));
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            toggleBreakAll();
         }
     }
 
