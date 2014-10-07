@@ -30,6 +30,7 @@ public class HttpPanelResponse extends HttpPanel  {
         super(isEditable, configurationKey + RESPONSE_KEY);
 
         HttpPanelManager.getInstance().addResponsePanel(this);
+        this.setHideable(false);
 	}
 
 	@Override

@@ -1,16 +1,11 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
-import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.Icon;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
@@ -18,7 +13,6 @@ import javax.swing.event.ChangeListener;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
@@ -31,11 +25,6 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private static final Icon CLOSE_TAB_GREY_ICON = new ImageIcon(
-			TabbedPanel2.class.getResource("/resource/icon/fugue/cross-small-grey.png"));
-	private static final Icon CLOSE_TAB_RED_ICON = new ImageIcon(
-			TabbedPanel2.class.getResource("/resource/icon/fugue/cross-small-red.png"));
-
 	private List<Component> fullTabList = new ArrayList<>();
 	private List<Component> removedTabList = new ArrayList<>();
 
@@ -67,15 +56,31 @@ public class TabbedPanel2 extends TabbedPanel {
 		// Hide all 'close' buttons except for the selected tab
         for (int i = 0; i < this.getTabCount(); i++) {
         	Component tabCom = this.getTabComponentAt(i);
-        	if (tabCom != null && tabCom instanceof JPanel) {
-        		JPanel jp = (JPanel) tabCom;
-        		if (jp.getComponentCount() > 1) {
-            		Component c = ((JPanel)tabCom).getComponent(1);
-        			if (c != null && c instanceof JButton) {
-        				((JButton)c).setEnabled(i == getSelectedIndex());
-        				((JButton)c).setVisible(i == getSelectedIndex());
-        			}
-        		}
+        	if (tabCom != null && tabCom instanceof TabbedPanelTab) {
+        		TabbedPanelTab jp = (TabbedPanelTab) tabCom;
+        		jp.setEnabled(i == getSelectedIndex());
+        	}
+        }
+	}
+	
+	public void pinVisibleTabs() {
+        for (int i = 0; i < this.getTabCount(); i++) {
+        	Component tabCom = this.getTabComponentAt(i);
+        	if (tabCom != null && tabCom instanceof TabbedPanelTab && tabCom.isVisible()) {
+        		TabbedPanelTab jp = (TabbedPanelTab) tabCom;
+        		jp.setPinned(true);
+        		this.saveTabState(jp.getAbstractPanel());
+        	}
+        }
+	}
+
+	public void unpinTabs() {
+        for (int i = 0; i < this.getTabCount(); i++) {
+        	Component tabCom = this.getTabComponentAt(i);
+        	if (tabCom != null && tabCom instanceof TabbedPanelTab && tabCom.isVisible()) {
+        		TabbedPanelTab jp = (TabbedPanelTab) tabCom;
+        		jp.setPinned(false);
+        		this.saveTabState(jp.getAbstractPanel());
         	}
         }
 	}
@@ -89,16 +94,23 @@ public class TabbedPanel2 extends TabbedPanel {
 		return str.replaceAll("[^A-Za-z0-9]", "");
 
 	}
-	
-	private boolean isTabVisible(Component c) {
+
+	private boolean isTabPinned(Component c) {
+		boolean showByDefault = false;
+		if (c instanceof AbstractPanel) {
+			showByDefault = ((AbstractPanel)c).isShowByDefault();
+		}
 		return Model.getSingleton().getOptionsParam().getConfig().getBoolean(
-				OptionsParamView.TAB_OPTION + "." + safeName(c.getName()), true);
+				OptionsParamView.TAB_PIN_OPTION + "." + safeName(c.getName()), showByDefault);
 
 	}
 	
-	private void saveTabState(Component c, boolean visible) {
+	protected void saveTabState(AbstractPanel ap) {
+		if (ap == null) {
+			return;
+		}
 		Model.getSingleton().getOptionsParam().getConfig().setProperty(
-				OptionsParamView.TAB_OPTION + "." + safeName(c.getName()), visible);
+				OptionsParamView.TAB_PIN_OPTION + "." + safeName(ap.getName()), ap.isPinned());
 		try {
 			Model.getSingleton().getOptionsParam().getConfig().save();
 		} catch (ConfigurationException e) {
@@ -106,60 +118,60 @@ public class TabbedPanel2 extends TabbedPanel {
 		}
 	}
 
-	@Override
-	public void addTab(String title, Icon icon, final Component c) {
-		boolean hideable = false;
-		if (c instanceof AbstractPanel) {
-			hideable = ((AbstractPanel)c).isHideable();
-		}
-		this.addTab(title, icon, c, hideable);
-	}
-	
 	public void setVisible(Component c, boolean visible) {
 		if (visible) {
-			this.saveTabState(c, true);
-
 			if (this.removedTabList.contains(c)) {
-				// Work out the index to add it back in
-				int index = this.fullTabList.indexOf(c);
-				while (index >= 0) {
-					if (index > 0 && ! this.removedTabList.contains(this.fullTabList.get(index -1))) {
-						// Found the first preceding tab that isnt hidden
-						break;
-					}
-					index--;
-				}
 				
 				if (c instanceof AbstractPanel) {
+					// Dont use the addTab(AbstractPanel) methos as we need to force visibility
 					AbstractPanel panel = (AbstractPanel)c;
-					this.addTab(c.getName(), panel.getIcon(), panel, true, index+1);
+					this.addTab(c.getName(), panel.getIcon(), panel, true, true, panel.getTabIndex());
 				} else {
-					this.addTab(c.getName(), null, c, true, index);
+					// Work out the index to add it back in
+					int index = this.fullTabList.indexOf(c);
+					while (index >= 0) {
+						if (index > 0 && ! this.removedTabList.contains(this.fullTabList.get(index -1))) {
+							// Found the first preceding tab that isnt hidden
+							break;
+						}
+						index--;
+					}
+					
+					this.addTab(c.getName(), null, c, true, true, index);
 				}
-				c.setVisible(true);
 				this.removedTabList.remove(c);
 			}
 			
 		} else {
 			remove(c);
 			this.removedTabList.add(c);
-			this.saveTabState(c, false);
+		}
+		c.setVisible(visible);
+	}
+
+	@Override
+	public void addTab(String title, Icon icon, final Component c) {
+		if (c instanceof AbstractPanel) {
+			this.addTab((AbstractPanel)c);
+		} else {
+			this.addTab(title, icon, c, false, true, this.getTabCount());
 		}
 	}
 
-	public void addTab(String title, Icon icon, final Component c, boolean hideable) {
-		this.addTab(title, icon, c, hideable, this.getTabCount());
+	public void addTab(AbstractPanel panel) {
+		boolean visible = ! panel.isHideable() || this.isTabPinned(panel);
+		this.addTab(panel.getName(), panel.getIcon(), panel, panel.isHideable(), visible, panel.getTabIndex());
+		
 	}
 
-	public void addTab(String title, Icon icon, final Component c, boolean hideable, int index) {
-        String origName = title;
+	public void addTab(String title, Icon icon, final Component c, boolean hideable, boolean visible, int index) {
 		if (c instanceof AbstractPanel) {
 			((AbstractPanel)c).setParent(this);
 			((AbstractPanel)c).setTabIndex(index);
 			((AbstractPanel)c).setHideable(hideable);
 		}
 
-		if (index > this.getTabCount()) {
+		if (index == -1 || index > this.getTabCount()) {
 			index = this.getTabCount();
 		}
 
@@ -170,70 +182,11 @@ public class TabbedPanel2 extends TabbedPanel {
 		}
 		
 		int pos = this.indexOfComponent(c);
-
-		// Create a FlowLayout so that the buttons are not too large
-		FlowLayout f = new FlowLayout(FlowLayout.CENTER, 0, 0);
-
-		// Make a small JPanel with the layout and make it non-opaque
-		JPanel pnlTab = new JPanel(f);
-		pnlTab.setOpaque(false);
-
-        // change the title variable if 'Options - Display - show tab names' selected
-		if (!Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames()) {
-            title = "";
-        }
-		if (c.getName() == null) {
-			c.setName(title);
-		}
-
-		// Add a JLabel with title and the left-side tab icon
-		JLabel lblTitle = new JLabel(title);
-		lblTitle.setIcon(icon);
-
-		// Create a JButton for the close tab button
-		JButton btnClose = new JButton();
-		btnClose.setOpaque(false);
-
-		// Configure icon and rollover icon for button
-		btnClose.setRolloverIcon(CLOSE_TAB_RED_ICON);
-		btnClose.setRolloverEnabled(true);
-		btnClose.setToolTipText(Constant.messages.getString("all.button.close"));
-		btnClose.setIcon(CLOSE_TAB_GREY_ICON);
-		// Set border null so the button doesn't make the tab too big
-		btnClose.setBorder(null);
-
-		// Make sure the button can't get focus, otherwise it looks funny
-		btnClose.setFocusable(false);
-		
-		// All close buttons start off hidden and disabled - they are enabled when the tab is selected
-		btnClose.setEnabled(false);
-		btnClose.setVisible(false);
-
-		// Put the panel together
-		pnlTab.add(lblTitle);
-		
-		if (hideable) {
-			// Only include the close button is the tab is hideable
-			pnlTab.add(btnClose);
-		}
-
 		// Now assign the component for the tab
-		this.setTabComponentAt(pos, pnlTab);
+		
+		this.setTabComponentAt(pos, new TabbedPanelTab(this, title, icon, c, hideable, this.isTabPinned(c)));
 
-		// Add the listener that removes the tab
-		ActionListener listener = new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// The component parameter must be declared "final" so that it
-				// can be
-				// referenced in the anonymous listener class like this.
-				setVisible(c, false);
-			}
-		};
-		btnClose.addActionListener(listener);
-
-		if (! this.isTabVisible(c)) {
-			// Only add back visible tabs
+		if (! visible) {
 			setVisible(c, false);
 		}
 
@@ -303,5 +256,15 @@ public class TabbedPanel2 extends TabbedPanel {
         if (comp instanceof AbstractPanel) {
             ((AbstractPanel) comp).tabSelected();
         }
+    }
+    
+    /**
+     * Returns true if the tab is 'active' - ie is being used for anything. 
+     * This method always returns false so must be overriden to be changed
+     * 
+     * @return
+     */
+    public boolean isActive() {
+    	return false;
     }
 }

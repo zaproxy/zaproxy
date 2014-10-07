@@ -30,6 +30,7 @@
 // cache the path
 // ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 
 package org.parosproxy.paros.view;
 
@@ -98,6 +99,7 @@ public class SiteMapPanel extends AbstractPanel {
 	 * This method initializes this
 	 */
 	private  void initialize() {
+		this.setHideable(false);
 	    this.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png")));
 	    this.setName(Constant.messages.getString("sites.panel.title"));
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK | Event.SHIFT_MASK, false));

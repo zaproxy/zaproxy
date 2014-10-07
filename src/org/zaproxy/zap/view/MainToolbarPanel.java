@@ -67,6 +67,8 @@ public class MainToolbarPanel extends JPanel {
 
 	private boolean showtabiconnames = false;
   	private ZapToggleButton btnShowTabIconNames = null;
+  	private JButton btnShowAllTabs = null;
+  	private JButton btnHideAllTabs = null;
 
 	public MainToolbarPanel () {
 		super();
@@ -112,6 +114,8 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnOptions());
 		
 		toolbar.addSeparator();
+		toolbar.add(getShowAllTabs());
+		toolbar.add(getHideAllTabs());
 		toolbar.add(getShowTabIconNames());
 		toolbar.addSeparator();
 
@@ -399,6 +403,38 @@ public class MainToolbarPanel extends JPanel {
 			});
 		}
 		return btnShowTabIconNames;
+	}
+	
+	private JButton getShowAllTabs() {
+		if (btnShowAllTabs == null) {
+			btnShowAllTabs = new JButton();
+			btnShowAllTabs.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/ui-tab-show.png")));
+			btnShowAllTabs.setToolTipText(Constant.messages.getString("menu.view.tabs.show"));
+			
+			btnShowAllTabs.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					View.getSingleton().showAllTabs();
+				}
+			});
+		}
+		return btnShowAllTabs;
+	}
+
+	private JButton getHideAllTabs() {
+		if (btnHideAllTabs == null) {
+			btnHideAllTabs = new JButton();
+			btnHideAllTabs.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/ui-tab-hide.png")));
+			btnHideAllTabs.setToolTipText(Constant.messages.getString("menu.view.tabs.hide"));
+			
+			btnHideAllTabs.addActionListener(new java.awt.event.ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					View.getSingleton().hideAllTabs();
+				}
+			});
+		}
+		return btnHideAllTabs;
 	}
 
 	public void setDisplayOption(int option) {

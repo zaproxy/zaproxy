@@ -140,6 +140,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
         this.setName(Constant.messages.getString("search.panel.title"));
 		this.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
         this.add(getPanelCommand(), getPanelCommand().getName());
+        this.setShowByDefault(true);
 	}
 	
 	/**

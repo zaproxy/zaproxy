@@ -153,7 +153,7 @@ public class AlertPanel extends AbstractPanel {
 			
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("alerts.panel.mnemonic"));
-
+		this.setShowByDefault(true);
 	}
 	
 	private javax.swing.JPanel getPanelCommand() {

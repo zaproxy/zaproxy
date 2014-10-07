@@ -28,6 +28,7 @@
 // ZAP: 2013/05/02 Removed redundant final modifiers from private methods
 // ZAP: 2013/12/13 Added support for 'Full Layout'.
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 
 package org.parosproxy.paros.view;
 
@@ -92,7 +93,7 @@ public class WorkbenchPanel extends JPanel {
 		super();
 		this.preferences = Preferences.userNodeForPackage(getClass());
 		this.displayOption = displayOption;
-    this.previousDisplayOption = displayOption;
+		this.previousDisplayOption = displayOption;
 		initialize();
 	}
 
@@ -167,20 +168,19 @@ public class WorkbenchPanel extends JPanel {
           tabbedOldWork   = tabbedWork;
         }
         // Tabs in sequence: request, response, output, sites.
-        getTabbedStatus().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel(), false);
-        getTabbedStatus().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
-        getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
-        getTabbedStatus().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
+        getTabbedStatus().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel());
+        getTabbedStatus().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel());
+        getTabbedStatus().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel());
      
         // go over all tabs that extensions added and move them to tabbedStatus
         for(Component c: getTabbedWork().getTabList()) {
             if(c instanceof AbstractPanel) {
-                getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c,((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+                getTabbedStatus().addTab((AbstractPanel)c);
             }
         }
         for(Component c: getTabbedSelect().getTabList()) {
             if(c instanceof AbstractPanel) {
-                getTabbedStatus().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c, ((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+                getTabbedStatus().addTab((AbstractPanel)c);
             }
         }
         break;
@@ -191,22 +191,21 @@ public class WorkbenchPanel extends JPanel {
         // because the previousDisplayOption can be null when starting ZAP.
         if((previousDisplayOption != View.DISPLAY_OPTION_BOTTOM_FULL) || (previousDisplayOption != View.DISPLAY_OPTION_LEFT_FULL)) {
           // Tabs in sequence: request, response, output, sites.
-          getTabbedWork().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel(), false);
-          getTabbedWork().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel(), false);
-          getTabbedStatus().addTab(View.getSingleton().getOutputPanel().getName(), View.getSingleton().getOutputPanel().getIcon(), View.getSingleton().getOutputPanel(), false);
-          getTabbedSelect().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel(), false);
+          getTabbedWork().addTab(View.getSingleton().getRequestPanel().getName(), View.getSingleton().getRequestPanel().getIcon(), View.getSingleton().getRequestPanel());
+          getTabbedWork().addTab(View.getSingleton().getResponsePanel().getName(), View.getSingleton().getResponsePanel().getIcon(), View.getSingleton().getResponsePanel());
+          getTabbedSelect().addTab(View.getSingleton().getSiteTreePanel().getName(), View.getSingleton().getSiteTreePanel().getIcon(), View.getSingleton().getSiteTreePanel());
         }
 
         // parse the tabs correctly when previous display option was 'Full Layout'
         if(previousDisplayOption == View.DISPLAY_OPTION_TOP_FULL) {
           for(Component c: getTabbedOldWork().getTabList()) {
               if(c instanceof AbstractPanel) {
-                  getTabbedWork().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c, ((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+                  getTabbedWork().addTab((AbstractPanel)c);
               }
           }
           for(Component c: getTabbedOldSelect().getTabList()) {
               if(c instanceof AbstractPanel) {
-                  getTabbedSelect().addTab(c.getName(), ((AbstractPanel)c).getIcon(), c, ((AbstractPanel)c).isHideable(), ((AbstractPanel)c).getTabIndex());
+                  getTabbedSelect().addTab((AbstractPanel)c);
               }
           }
         }

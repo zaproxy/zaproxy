@@ -26,6 +26,7 @@
 // ZAP: 2013/12/13 Added support for optional names in tabs.
 // ZAP: 2014/03/23 Issue 589: Move Reveal extension to ZAP extensions project
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 
 package org.parosproxy.paros.extension.option;
 
@@ -57,7 +58,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String ASKONEXIT_OPTION = "view.askOnExit";
 	public static final String WARN_ON_TAB_DOUBLE_CLICK_OPTION = "view.warnOnTabDoubleClick";
 	public static final String MODE_OPTION = "view.mode";
-	public static final String TAB_OPTION = "view.tab";
+	public static final String TAB_PIN_OPTION = "view.tab.pin";
 	public static final String OUTPUT_TAB_TIMESTAMPING_OPTION = "view.outputTabsTimeStampsOption"; 
 	public static final String OUTPUT_TAB_TIMESTAMP_FORMAT = "view.outputTabsTimeStampsFormat"; 
 

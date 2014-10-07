@@ -24,6 +24,7 @@
 // ZAP: 2013/11/16 Issue 890: Allow to clear "Output" tab
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 
 package org.parosproxy.paros.view;
 
@@ -86,7 +87,7 @@ public class OutputPanel extends AbstractPanel {
 		this.setMnemonic(Constant.messages.getChar("output.panel.mnemonic"));
 
         this.add(getMainPanel(), BorderLayout.CENTER);
-			
+        this.setShowByDefault(true);
 	}
 
     private JPanel getMainPanel() {

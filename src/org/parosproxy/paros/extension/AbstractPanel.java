@@ -24,6 +24,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/02/07 Issue 207: Added tabSelected method
 // ZAP: 2014/08/14 Issue 1301: AbstractPanel leak through TabbedPanel2
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 
 package org.parosproxy.paros.extension;
 
@@ -46,6 +47,8 @@ public class AbstractPanel extends JPanel {
 	private int tabIndex = -1;
 	private TabbedPanel2 parent = null;
 	private boolean hideable = true;
+	private boolean pinned = false;
+	private boolean showByDefault = false;
 
 	private KeyStroke defaultAccelerator;
 	private char mnemonic;
@@ -74,7 +77,7 @@ public class AbstractPanel extends JPanel {
 
 	public void setTabFocus() {
     	if (parent != null) {
-    		// Just incase the tab has been hidden
+    		// Just in case the tab has been hidden
     		parent.setVisible(this, true);
     	}
 		
@@ -112,6 +115,22 @@ public class AbstractPanel extends JPanel {
 		this.hideable = hideable;
 	}
 
+	public boolean isPinned() {
+		return pinned;
+	}
+	
+	public void setPinned(boolean pinned) {
+		this.pinned = pinned;
+	}
+	
+	public boolean isShowByDefault() {
+		return showByDefault;
+	}
+	
+	public void setShowByDefault(boolean showByDefault) {
+		this.showByDefault = showByDefault;
+	}
+	
 	public KeyStroke getDefaultAccelerator() {
 		return defaultAccelerator;
 	}

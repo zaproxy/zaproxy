@@ -48,6 +48,8 @@
 // ZAP: 2014/05/20 Issue 1202: Issue with loading addons that did not initialize correctly
 // ZAP: 2014/08/14 Catch Exceptions thrown by extensions when stopping them
 // ZAP: 2014/08/14 Issue 1309: NullPointerExceptions during a failed uninstallation of an add-on
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -531,15 +533,10 @@ public class ExtensionLoader {
                 panel = panelList.get(i);
                 
         		// ZAP: added icon
-                if (panel.getTabIndex() >= 0) {
-                	tab.addTab(panel.getName() + " ", panel.getIcon(), panel, panel.isHideable(), panel.getTabIndex());
-                    if (panel.getTabIndex() == 0  && tab.indexOfComponent(panel) != -1) {
-                    	// Its now the first one, give it focus
-                    	tab.setSelectedComponent(panel);	
-                    }
-
-                } else {
-                	tab.addTab(panel.getName() + " ", panel.getIcon(), panel);
+            	tab.addTab(panel);
+                if (panel.getTabIndex() == 0  && tab.indexOfComponent(panel) != -1) {
+                	// Its now the first one, give it focus
+                	tab.setSelectedComponent(panel);	
                 }
 
             } catch (Exception e) {

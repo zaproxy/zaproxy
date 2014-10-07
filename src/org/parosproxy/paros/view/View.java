@@ -51,6 +51,7 @@
 // ZAP: 2014/04/17 Issue 1155: Historical Request Tab Doesn't allow formatting changes
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
+// ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 
 package org.parosproxy.paros.view;
 
@@ -198,12 +199,47 @@ public class View implements ViewDelegate {
       // Note: addTab function calls have been moved to WorkbenchPanel.java because
       // of the Full Layout support, but this line is still needed for the 'History'
       // tab to be the currently selected tab; otherwise it's the 'Output' tab.
-	    getWorkbench().getTabbedStatus().addTab(getOutputPanel().getName(), getOutputPanel().getIcon(), getOutputPanel(), false);
+	    getWorkbench().getTabbedStatus().addTab(getOutputPanel().getName(), getOutputPanel().getIcon(), getOutputPanel());
 
       // restore the state of Request/Response layout: side by side or above each other.
 	    getMessagePanelsPositionController().restoreState();
 	    
 	    refreshTabViewMenus();
+	    
+		// Add the 'tab' menu items 
+		JMenuItem showAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.show"));
+		showAllMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				showAllTabs();
+			}});
+		
+		mainFrame.getMainMenuBar().getMenuView().add(showAllMenu);
+
+		JMenuItem hideAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.hide"));
+		hideAllMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				hideAllTabs();
+			}});
+		mainFrame.getMainMenuBar().getMenuView().add(hideAllMenu);
+
+		JMenuItem pinAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.pin"));
+		pinAllMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				pinAllTabs();
+			}});
+		mainFrame.getMainMenuBar().getMenuView().add(pinAllMenu);
+
+		JMenuItem unpinAllMenu = new JMenuItem(Constant.messages.getString("menu.view.tabs.unpin"));
+		unpinAllMenu.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				unpinAllTabs();
+			}});
+		mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
+
 	}
 
   /**
@@ -267,6 +303,51 @@ public class View implements ViewDelegate {
     			extKey.registerMenuItem(tabMenu);
     		}
 
+    	}
+	}
+	
+	public void showAllTabs() {
+	    for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
+	    	setTabVisible(getWorkbench().getTabbedSelect(), tab, true);
+	    }
+	    for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
+	    	setTabVisible(getWorkbench().getTabbedWork(), tab, true);
+	    }
+	    for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
+	    	setTabVisible(getWorkbench().getTabbedStatus(), tab, true);
+	    }
+	}
+
+	public void hideAllTabs() {
+	    for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
+	    	setTabVisible(getWorkbench().getTabbedSelect(), tab, false);
+	    }
+	    for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
+	    	setTabVisible(getWorkbench().getTabbedWork(), tab, false);
+	    }
+	    for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
+	    	setTabVisible(getWorkbench().getTabbedStatus(), tab, false);
+	    }
+	}
+
+	public void pinAllTabs() {
+		getWorkbench().getTabbedSelect().pinVisibleTabs();
+		getWorkbench().getTabbedWork().pinVisibleTabs();
+		getWorkbench().getTabbedStatus().pinVisibleTabs();
+	}
+
+	public void unpinAllTabs() {
+		getWorkbench().getTabbedSelect().unpinTabs();
+		getWorkbench().getTabbedWork().unpinTabs();
+		getWorkbench().getTabbedStatus().unpinTabs();
+	}
+
+	private void setTabVisible(final TabbedPanel2 parent, Component tab, boolean tabVisible) {
+    	if (tab instanceof AbstractPanel) {
+    		AbstractPanel ap = (AbstractPanel) tab;
+    		if (ap.isHideable() && ! ap.isPinned()) {
+    			parent.setVisible(tab, tabVisible);
+    		}
     	}
 	}
 

@@ -40,6 +40,7 @@ public class HttpPanelRequest extends HttpPanel {
         super(isEditable, configurationKey + REQUEST_KEY);
 
         HttpPanelManager.getInstance().addRequestPanel(this);
+        this.setHideable(false);
 	}
 
 	@Override
