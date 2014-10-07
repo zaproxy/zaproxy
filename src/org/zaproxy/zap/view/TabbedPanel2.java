@@ -146,7 +146,6 @@ public class TabbedPanel2 extends TabbedPanel {
 			remove(c);
 			this.removedTabList.add(c);
 		}
-		c.setVisible(visible);
 	}
 
 	@Override
