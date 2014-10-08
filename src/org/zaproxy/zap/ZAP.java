@@ -61,6 +61,7 @@ import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
+import org.zaproxy.zap.view.SplashScreen;
 
 
 public class ZAP {
@@ -180,6 +181,7 @@ public class ZAP {
 	private void run() throws Exception {
 	    
 		final boolean isGUI = cmdLine.isGUI();
+		SplashScreen splashScreen = null; 
 		
 	    boolean firstTime = false;
 	    if (isGUI) {
@@ -207,6 +209,11 @@ public class ZAP {
 		    }
 		    
 		    firstTime = showLicense();
+		    
+		 	// Show the splash screen to show the user something is happenning..
+		    splashScreen = new SplashScreen(); 		
+		    Thread splashThread = new Thread(splashScreen); 		
+		    splashThread.start();
 	    }
 
 	    try {
@@ -257,6 +264,9 @@ public class ZAP {
 
 		    runGUI();
 		    
+		    if (splashScreen != null) {
+		    	splashScreen.close();
+		    }
 
 		    if (firstTime) {
 		    	// Disabled for now - we have too many popups occuring when you first start up
