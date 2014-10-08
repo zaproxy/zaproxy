@@ -25,7 +25,12 @@ import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Image;
 import java.awt.Insets;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -50,11 +55,18 @@ public class SplashScreen extends JFrame implements Runnable {
 	
 	private JScrollPane scrollPane = null;
 	private ZapTextArea txtOutput = null;
-
+	private Stack<String> stack = new Stack<String>();
+	private static Thread thread = null;
+	private List<Image> icons;
+	
 	public void run() {
+		thread = Thread.currentThread();
+		
 		setSize(420, 460);
 		setLocationRelativeTo(null);
 		setUndecorated(true);
+		setTitle(Constant.PROGRAM_NAME);
+		setIconImages(loadIconImages());
 		
 		JPanel panel = new JPanel();
 		
@@ -92,7 +104,6 @@ public class SplashScreen extends JFrame implements Runnable {
 		panel.add(lblLogo, logoLayout);
 		
 		panel.add(getJScrollPane(), LayoutHelper.getGBC(0, 2, 2, 1.0, 1.0));
-
 		
 		this.add(panel);
 
@@ -102,16 +113,44 @@ public class SplashScreen extends JFrame implements Runnable {
         Logger.getRootLogger().addAppender(new SplashOutputWriter());
 		
 		try {
-			// Show splash for two seconds
+			// Show INFO and ERROR log messages until the UI is ready
 			while (! close) {
-				Thread.sleep(200);
+				try {
+					if (stack.isEmpty()) {
+						Thread.sleep(100);
+					} else {
+						EventQueue.invokeAndWait(new Runnable() {
+							@Override
+							public void run() {
+								while (!stack.isEmpty()) {
+									getTxtOutput().append(stack.pop());
+									JScrollBar vertical = getJScrollPane().getVerticalScrollBar();
+									vertical.setValue( vertical.getMaximum() );
+								}
+							}
+						});
+					}
+				} catch (InterruptedException e) {
+					// New message to display
+				}
 			}
-		} catch (InterruptedException e) {
-			dispose();
+		} catch (Exception e) {
+			// Ignore
 		}
 		dispose();
 	}
 	
+	private List<Image> loadIconImages() {
+		if (icons == null) {
+			icons = new ArrayList<>(4);
+			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap16x16.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap32x32.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap48x48.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap64x64.png")));
+		}
+		return icons;
+	}
+
 	private JScrollPane getJScrollPane() {
 		if (scrollPane == null) {
 			scrollPane = new JScrollPane();
@@ -128,7 +167,8 @@ public class SplashScreen extends JFrame implements Runnable {
 			txtOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			txtOutput.setName("");
 			
-			appendMsg(Constant.messages.getString("start.splash.start"));
+			// Dont use appendMsg as the interupt wont be handled at this stage
+			stack.push(Constant.messages.getString("start.splash.start"));
 		}
 		return txtOutput;
 	}
@@ -137,6 +177,14 @@ public class SplashScreen extends JFrame implements Runnable {
 		close = true;
 	}
 	
+	public void appendMsg(final String msg) {
+		stack.push(msg);
+		thread.interrupt();
+	}
+	
+	/* This can apparently cause lockups, probably due to a bug in log4j1
+	 * Log4j2 might be ok, but upgrading is really painful :/
+
 	public void appendMsg(final String msg) {
 		if (EventQueue.isDispatchThread()) {
 			getTxtOutput().append(msg);
@@ -157,7 +205,7 @@ public class SplashScreen extends JFrame implements Runnable {
 			// Ignore
 		}
 	}
-
+	*/
 	
 	private class SplashOutputWriter extends WriterAppender {
 		@Override
