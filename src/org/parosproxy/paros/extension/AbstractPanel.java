@@ -87,6 +87,14 @@ public class AbstractPanel extends JPanel {
 		    tab.setSelectedComponent(this);
 	    }    
 	}
+	
+	public boolean isTabVisible() {
+    	if (parent != null) {
+    		return parent.isTabVisible(this);
+    	}
+    	// Fall back, probably not that useful, but better than nothing?
+		return this.isVisible();
+	}
 
 	public int getTabIndex() {
 		return tabIndex;

@@ -117,6 +117,17 @@ public class TabbedPanel2 extends TabbedPanel {
 			logger.error(e.getMessage(), e);
 		}
 	}
+	
+	/*
+	 * Returns true if the specified component is a visible tab panel (typically an AbstractPanel)
+	 */
+	public boolean isTabVisible(Component c) {
+		if (! this.fullTabList.contains(c)) {
+			// Not a known tab
+			return false;
+		}
+		return ! this.removedTabList.contains(c);
+	}
 
 	public void setVisible(Component c, boolean visible) {
 		if (visible) {
