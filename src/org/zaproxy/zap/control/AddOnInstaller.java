@@ -242,10 +242,9 @@ public final class AddOnInstaller {
         }
         for (String name : fileNames) {
             File outfile = new File(Constant.getZapHome(), name);
-            logger.debug("Install file: " + name);
 
             if (!overwrite && outfile.exists()) {
-                logger.debug("Ignoring, file already exists.");
+                // logger.debug("Ignoring, file already exists.");
                 continue;
             }
             if (!outfile.getParentFile().exists() && !outfile.getParentFile().mkdirs()) {
@@ -253,6 +252,7 @@ public final class AddOnInstaller {
                 continue;
             }
 
+            logger.debug("Installing file: " + name);
             URL fileURL = addOnClassLoader.findResource(name);
             if (fileURL == null) {
                 logger.error("File not found on add-on package: " + name);

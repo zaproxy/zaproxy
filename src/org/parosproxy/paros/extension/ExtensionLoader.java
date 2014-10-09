@@ -49,6 +49,7 @@
 // ZAP: 2014/08/14 Catch Exceptions thrown by extensions when stopping them
 // ZAP: 2014/08/14 Issue 1309: NullPointerExceptions during a failed uninstallation of an add-on
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2014/10/09 Issue 1359: Added info logging for splash screen
 
 package org.parosproxy.paros.extension;
 
@@ -563,6 +564,7 @@ public class ExtensionLoader {
         for (int i=0; i<getExtensionCount(); i++) {
             try {
 				Extension ext = getExtension(i);
+				logger.info("Initializing " + ext.getDescription());
 				extHook = new ExtensionHook(model, view);
 				ext.hook(extHook);
 				extensionHooks.put(ext, extHook);

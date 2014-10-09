@@ -27,6 +27,7 @@
 // ZAP: 2014/03/23 Issue 589: Move Reveal extension to ZAP extensions project
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2014/10/09 Issue 1359: Options for splash screen
 
 package org.parosproxy.paros.extension.option;
 
@@ -61,6 +62,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String TAB_PIN_OPTION = "view.tab.pin";
 	public static final String OUTPUT_TAB_TIMESTAMPING_OPTION = "view.outputTabsTimeStampsOption"; 
 	public static final String OUTPUT_TAB_TIMESTAMP_FORMAT = "view.outputTabsTimeStampsFormat"; 
+	public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -76,6 +78,7 @@ public class OptionsParamView extends AbstractParam {
 	private String mode = Mode.standard.name();
 	private boolean outputTabTimeStampingEnabled = false; 
 	private String outputTabTimeStampFormat = DEFAULT_TIME_STAMP_FORMAT; 
+    private boolean showSplashScreen = true;
 	
     public OptionsParamView() {
     }
@@ -96,7 +99,8 @@ public class OptionsParamView extends AbstractParam {
 	    warnOnTabDoubleClick = getConfig().getBoolean(WARN_ON_TAB_DOUBLE_CLICK_OPTION, true);
 	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
 	    outputTabTimeStampingEnabled = getConfig().getBoolean(OUTPUT_TAB_TIMESTAMPING_OPTION, false); 
-	    outputTabTimeStampFormat = getConfig().getString(OUTPUT_TAB_TIMESTAMP_FORMAT, DEFAULT_TIME_STAMP_FORMAT); 
+	    outputTabTimeStampFormat = getConfig().getString(OUTPUT_TAB_TIMESTAMP_FORMAT, DEFAULT_TIME_STAMP_FORMAT);
+	    showSplashScreen = getConfig().getBoolean(SPLASHSCREEN_OPTION, true);
     }
 
 	/**
@@ -258,4 +262,14 @@ public class OptionsParamView extends AbstractParam {
 	public String getOutputTabTimeStampsFormat() {
 		return outputTabTimeStampFormat;
 	}
+
+	public boolean isShowSplashScreen() {
+		return showSplashScreen;
+	}
+
+	public void setShowSplashScreen(boolean showSplashScreen) {
+		this.showSplashScreen = showSplashScreen;
+		getConfig().setProperty(SPLASHSCREEN_OPTION, showSplashScreen);
+	}
+	
 }

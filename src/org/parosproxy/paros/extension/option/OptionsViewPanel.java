@@ -23,11 +23,11 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/12/13 Added support for a new option 'show tab names'.
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
+// ZAP: 2014/10/09 Issue 1359: Options for splash screen
 
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 
@@ -41,6 +41,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.TimeStampUtils;
+import org.zaproxy.zap.view.LayoutHelper;
 
 // ZAP: 2011: added more configuration options
 
@@ -62,6 +63,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkAskOnExit = null;
 	private JCheckBox chkWmUiHandling = null;
 	private JCheckBox chkOutputTabTimeStamping = null; 
+	private JCheckBox chkShowSplashScreen = null;
 	
 	private JComboBox<String> brkPanelViewSelect = null;
 	private JComboBox<String> displaySelect = null;
@@ -74,9 +76,10 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel displayLabel = null;
 	private JLabel showMainToolbarLabel = null;
 	private JLabel processImagesLabel = null;
-	private JLabel showTabNames = null;
+	private JLabel showTabNamesLabel = null;
 	private JLabel outputTabTimeStampLabel = null; 
 	private JLabel outputTabTimeStampExampleLabel = null; 
+	private JLabel showSplashScreenLabel = null;
 
 	
     public OptionsViewPanel() {
@@ -109,223 +112,6 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		    }
 			panelMisc.setName(Constant.messages.getString("view.options.misc.title"));
 
-			
-			GridBagConstraints gbc0_0 = new GridBagConstraints();
-			GridBagConstraints gbc0_1 = new GridBagConstraints();
-			GridBagConstraints gbc1_0 = new GridBagConstraints();
-			GridBagConstraints gbc1_1 = new GridBagConstraints();
-			GridBagConstraints gbc2_0 = new GridBagConstraints();
-			GridBagConstraints gbc2_1 = new GridBagConstraints();
-			GridBagConstraints gbc3_0 = new GridBagConstraints();
-			GridBagConstraints gbc3_1 = new GridBagConstraints();
-			GridBagConstraints gbc4_0 = new GridBagConstraints();
-			GridBagConstraints gbc4_1 = new GridBagConstraints();
-			GridBagConstraints gbc5_0 = new GridBagConstraints();
-			GridBagConstraints gbc5_1 = new GridBagConstraints();
-			GridBagConstraints gbc6_0 = new GridBagConstraints();
-			GridBagConstraints gbc6_1 = new GridBagConstraints();
-			GridBagConstraints gbc7_0 = new GridBagConstraints();
-			GridBagConstraints gbc7_1 = new GridBagConstraints();
-			GridBagConstraints gbc8_0 = new GridBagConstraints(); 
-			GridBagConstraints gbc8_1 = new GridBagConstraints(); 
-			GridBagConstraints gbc9_0 = new GridBagConstraints(); 
-			GridBagConstraints gbc9_1 = new GridBagConstraints(); 
-			
-			GridBagConstraints gbcX = new GridBagConstraints();
-
-
-			gbc0_0.gridx = 0;
-			gbc0_0.gridy = 0;
-			gbc0_0.ipadx = 0;
-			gbc0_0.ipady = 0;
-			gbc0_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc0_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc0_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc0_0.weightx = 1.0D;
-
-			gbc0_1.gridx = 1;
-			gbc0_1.gridy = 0;
-			gbc0_1.ipadx = 0;
-			gbc0_1.ipady = 0;
-			gbc0_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc0_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc0_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc0_1.weightx = 1.0D;
-
-			
-			gbc1_0.gridx = 0;
-			gbc1_0.gridy = 1;
-			gbc1_0.ipadx = 0;
-			gbc1_0.ipady = 0;
-			gbc1_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc1_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc1_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc1_0.weightx = 1.0D;
-
-			gbc1_1.gridx = 1;
-			gbc1_1.gridy = 1;
-			gbc1_1.ipadx = 0;
-			gbc1_1.ipady = 0;
-			gbc1_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc1_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc1_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc1_1.weightx = 1.0D;
-			
-			gbc2_0.gridx = 0;
-			gbc2_0.gridy = 2;
-			gbc2_0.ipadx = 0;
-			gbc2_0.ipady = 0;
-			gbc2_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc2_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc2_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc2_0.weightx = 1.0D;
-
-			gbc2_1.gridx = 1;
-			gbc2_1.gridy = 2;
-			gbc2_1.ipadx = 0;
-			gbc2_1.ipady = 0;
-			gbc2_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc2_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc2_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc2_1.weightx = 1.0D;
-		
-			gbc3_0.gridx = 0;
-			gbc3_0.gridy = 3;
-			gbc3_0.ipadx = 0;
-			gbc3_0.ipady = 0;
-			gbc3_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc3_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc3_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc3_0.weightx = 1.0D;
-
-			gbc3_1.gridx = 1;
-			gbc3_1.gridy = 3;
-			gbc3_1.ipadx = 0;
-			gbc3_1.ipady = 0;
-			gbc3_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc3_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc3_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc3_1.weightx = 1.0D;
-			
-			gbc4_0.gridx = 0;
-			gbc4_0.gridy = 4;
-			gbc4_0.ipadx = 0;
-			gbc4_0.ipady = 0;
-			gbc4_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc4_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc4_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc4_0.weightx = 1.0D;
-
-			gbc4_1.gridx = 1;
-			gbc4_1.gridy = 4;
-			gbc4_1.ipadx = 0;
-			gbc4_1.ipady = 0;
-			gbc4_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc4_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc4_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc4_1.weightx = 1.0D;
-			
-			gbc5_0.gridx = 0;
-			gbc5_0.gridy = 5;
-			gbc5_0.ipadx = 0;
-			gbc5_0.ipady = 0;
-			gbc5_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc5_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc5_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc5_0.weightx = 1.0D;
-
-			gbc5_1.gridx = 1;
-			gbc5_1.gridy = 5;
-			gbc5_1.ipadx = 0;
-			gbc5_1.ipady = 0;
-			gbc5_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc5_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc5_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc5_1.weightx = 1.0D;
-			
-			gbc6_0.gridx = 0;
-			gbc6_0.gridy = 6;
-			gbc6_0.ipadx = 0;
-			gbc6_0.ipady = 0;
-			gbc6_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc6_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc6_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc6_0.weightx = 1.0D;
-			
-			gbc6_1.gridx = 1;
-			gbc6_1.gridy = 6;
-			gbc6_1.ipadx = 0;
-			gbc6_1.ipady = 0;
-			gbc6_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc6_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc6_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc6_1.weightx = 1.0D;
-
-			gbc7_0.gridx = 0;
-			gbc7_0.gridy = 7;
-			gbc7_0.ipadx = 0;
-			gbc7_0.ipady = 0;
-			gbc7_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc7_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc7_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc7_0.weightx = 1.0D;
-
-			gbc7_1.gridx = 1;
-			gbc7_1.gridy = 7;
-			gbc7_1.ipadx = 0;
-			gbc7_1.ipady = 0;
-			gbc7_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc7_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc7_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc7_1.weightx = 1.0D;
-			
-			gbc8_0.gridx = 0;
-			gbc8_0.gridy = 8;
-			gbc8_0.ipadx = 0;
-			gbc8_0.ipady = 0;
-			gbc8_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc8_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc8_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc8_0.weightx = 1.0D;
-
-			gbc8_1.gridx = 1;
-			gbc8_1.gridy = 8;
-			gbc8_1.ipadx = 0;
-			gbc8_1.ipady = 0;
-			gbc8_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc8_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc8_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc8_1.weightx = 1.0D;
-			
-			gbc9_0.gridx = 0;
-			gbc9_0.gridy = 9;
-			gbc9_0.ipadx = 0;
-			gbc9_0.ipady = 0;
-			gbc9_0.insets = new java.awt.Insets(2,2,2,2);
-			gbc9_0.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc9_0.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc9_0.weightx = 1.0D;
-			
-			gbc9_1.gridx = 1;
-			gbc9_1.gridy = 9;
-			gbc9_1.ipadx = 0;
-			gbc9_1.ipady = 0;
-			gbc9_1.insets = new java.awt.Insets(2,2,2,2);
-			gbc9_1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbc9_1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbc9_1.weightx = 1.0D;
-			
-			gbcX.gridx = 0;
-			gbcX.gridy = 10;
-			gbcX.ipadx = 0;
-			gbcX.ipady = 0;
-			gbcX.insets = new java.awt.Insets(2,2,2,2);
-			gbcX.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gbcX.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gbcX.weightx = 1.0D;
-			gbcX.weighty = 1.0D;
-
-			
 			displayLabel = new JLabel(Constant.messages.getString("view.options.label.display"));
 			brkPanelViewLabel = new JLabel(Constant.messages.getString("view.options.label.brkPanelView"));
 			advancedViewLabel = new JLabel(Constant.messages.getString("view.options.label.advancedview"));
@@ -333,42 +119,80 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			askOnExitLabel = new JLabel(Constant.messages.getString("view.options.label.askonexit"));
 			showMainToolbarLabel = new JLabel(Constant.messages.getString("view.options.label.showMainToolbar"));
 			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
-			showTabNames = new JLabel(Constant.messages.getString("view.options.label.showTabNames"));
+			showTabNamesLabel = new JLabel(Constant.messages.getString("view.options.label.showTabNames"));
 			outputTabTimeStampLabel = new JLabel(Constant.messages.getString("options.display.timestamp.format.outputtabtimestamps.label"));
 					
 			outputTabTimeStampExampleLabel = new JLabel(TimeStampUtils.currentDefaultFormattedTimeStamp());
+			showSplashScreenLabel = new JLabel(Constant.messages.getString("view.options.label.showSplashScreen"));
 			
-			panelMisc.add(displayLabel, gbc0_0);
-			panelMisc.add(getDisplaySelect(), gbc0_1);
+			displayLabel.setLabelFor(getDisplaySelect());
+			panelMisc.add(displayLabel, 
+					LayoutHelper.getGBC(0, 0, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getDisplaySelect(), 
+					LayoutHelper.getGBC(1, 0, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
-			panelMisc.add(brkPanelViewLabel, gbc1_0);
-			panelMisc.add(getBrkPanelViewSelect(), gbc1_1);
+			brkPanelViewLabel.setLabelFor(getBrkPanelViewSelect());
+			panelMisc.add(brkPanelViewLabel, 
+					LayoutHelper.getGBC(0, 1, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getBrkPanelViewSelect(), 
+					LayoutHelper.getGBC(1, 1, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
-			panelMisc.add(advancedViewLabel, gbc2_0);
-			panelMisc.add(getChkAdvancedView(), gbc2_1);
+			advancedViewLabel.setLabelFor(getChkAdvancedView());
+			panelMisc.add(advancedViewLabel, 
+					LayoutHelper.getGBC(0, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getChkAdvancedView(), 
+					LayoutHelper.getGBC(1, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(wmUiHandlingLabel, gbc3_0);
-			panelMisc.add(getChkWmUiHandling(), gbc3_1);
+			wmUiHandlingLabel.setLabelFor(getChkWmUiHandling());
+			panelMisc.add(wmUiHandlingLabel,  
+					LayoutHelper.getGBC(0, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getChkWmUiHandling(),  
+					LayoutHelper.getGBC(1, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
-			panelMisc.add(askOnExitLabel, gbc4_0);
-			panelMisc.add(getChkAskOnExit(), gbc4_1);
+			askOnExitLabel.setLabelFor(getChkAskOnExit());
+			panelMisc.add(askOnExitLabel,  
+					LayoutHelper.getGBC(0, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getChkAskOnExit(),  
+					LayoutHelper.getGBC(1, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(showMainToolbarLabel, gbc5_0);
-			panelMisc.add(getChkShowMainToolbar(), gbc5_1);
+			showMainToolbarLabel.setLabelFor(getChkShowMainToolbar());
+			panelMisc.add(showMainToolbarLabel,  
+					LayoutHelper.getGBC(0, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getChkShowMainToolbar(),  
+					LayoutHelper.getGBC(1, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(processImagesLabel, gbc6_0);
-			panelMisc.add(getChkProcessImages(), gbc6_1);
+			processImagesLabel.setLabelFor(getChkProcessImages());
+			panelMisc.add(processImagesLabel,  
+					LayoutHelper.getGBC(0, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getChkProcessImages(),  
+					LayoutHelper.getGBC(1, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
-			panelMisc.add(showTabNames, gbc7_0);
-			panelMisc.add(getShowTabNames(), gbc7_1);
+			showTabNamesLabel.setLabelFor(getShowTabNames());
+			panelMisc.add(showTabNamesLabel,  
+					LayoutHelper.getGBC(0, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getShowTabNames(),  
+					LayoutHelper.getGBC(1, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(outputTabTimeStampLabel, gbc8_0);
-			panelMisc.add(getChkOutputTabTimeStamps(), gbc8_1);
+			showSplashScreenLabel.setLabelFor(getShowSplashScreen());
+			panelMisc.add(showSplashScreenLabel,  
+					LayoutHelper.getGBC(0, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getShowSplashScreen(),  
+					LayoutHelper.getGBC(1, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(getTimeStampsFormatSelect(), gbc9_0);
-			panelMisc.add(outputTabTimeStampExampleLabel, gbc9_1);
+			outputTabTimeStampLabel.setLabelFor(getChkOutputTabTimeStamps());
+			panelMisc.add(outputTabTimeStampLabel,   
+					LayoutHelper.getGBC(0, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getChkOutputTabTimeStamps(),   
+					LayoutHelper.getGBC(1, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(new JLabel(""), gbcX);
+			outputTabTimeStampExampleLabel.setLabelFor(getTimeStampsFormatSelect());
+			panelMisc.add(getTimeStampsFormatSelect(),   
+					LayoutHelper.getGBC(0, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(outputTabTimeStampExampleLabel,   
+					LayoutHelper.getGBC(1, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			
+			panelMisc.add(new JLabel(""),   
+					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
 
 		}
 		return panelMisc;
@@ -381,6 +205,15 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			chkShowTabNames.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
 		return chkShowTabNames;
+	}
+
+	private JCheckBox getShowSplashScreen() {
+		if (chkShowSplashScreen == null) {
+			chkShowSplashScreen = new JCheckBox();
+			chkShowSplashScreen.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkShowSplashScreen.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return chkShowSplashScreen;
 	}
 
 	private JCheckBox getChkProcessImages() {
@@ -492,6 +325,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getShowTabNames().setSelected(options.getViewParam().getShowTabNames());
+	    getShowSplashScreen().setSelected(options.getViewParam().isShowSplashScreen());
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
@@ -512,6 +346,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getViewParam().setShowTabNames(getShowTabNames().isSelected());
+	    options.getViewParam().setShowSplashScreen(getShowSplashScreen().isSelected());
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());

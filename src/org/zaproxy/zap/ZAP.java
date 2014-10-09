@@ -210,10 +210,6 @@ public class ZAP {
 		    
 		    firstTime = showLicense();
 		    
-		 	// Show the splash screen to show the user something is happenning..
-		    splashScreen = new SplashScreen(); 		
-		    Thread splashThread = new Thread(splashScreen); 		
-		    splashThread.start();
 	    }
 
 	    try {
@@ -233,6 +229,12 @@ public class ZAP {
 	    Model.getSingleton().getOptionsParam().setGUI(isGUI);
 
 		if (isGUI) {
+		    if (Model.getSingleton().getOptionsParam().getViewParam().isShowSplashScreen()) {
+			 	// Show the splash screen to show the user something is happening..
+			    splashScreen = new SplashScreen(); 		
+			    Thread splashThread = new Thread(splashScreen); 		
+			    splashThread.start();
+		    }
 
 			View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 

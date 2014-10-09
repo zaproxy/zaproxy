@@ -72,6 +72,7 @@ public class ExtensionFactory {
     }
 
     public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
+    	log.info("Loading extensions");
        	List<Extension> listExts = getAddOnLoader().getImplementors("org.zaproxy.zap.extension", Extension.class);
 		listExts.addAll(getAddOnLoader().getImplementors("org.parosproxy.paros.extension", Extension.class));
 
@@ -135,6 +136,7 @@ public class ExtensionFactory {
             	loadMessagesAndAddExtension(extensionLoader, ext);
             }
         }
+    	log.info("Extensions loaded");
     }
 
     /**
