@@ -384,9 +384,9 @@ public class MainToolbarPanel extends JPanel {
 		if (btnShowTabIconNames == null) {
 			btnShowTabIconNames = new ZapToggleButton();
 			btnShowTabIconNames.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_icon.png")));
-			btnShowTabIconNames.setToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
+			btnShowTabIconNames.setToolTipText(Constant.messages.getString("view.toolbar.showNames"));
 			btnShowTabIconNames.setSelectedIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_text.png")));
-			btnShowTabIconNames.setSelectedToolTipText(Constant.messages.getString("view.toolbar.showNames"));
+			btnShowTabIconNames.setSelectedToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
 		  	setShowTabIconNames(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames());
 			
 			btnShowTabIconNames.addActionListener(new java.awt.event.ActionListener() {
