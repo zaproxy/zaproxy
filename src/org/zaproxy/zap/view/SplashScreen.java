@@ -23,13 +23,14 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
-import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Image;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
+import java.util.Random;
+import java.util.ResourceBundle;
 import java.util.Stack;
 
 import javax.swing.BorderFactory;
@@ -49,16 +50,26 @@ import org.zaproxy.zap.utils.ZapTextArea;
 
 public class SplashScreen extends JFrame implements Runnable {
 	
+	private static final String TIPS_PREFIX = "tips";
+	private static final String TIPS_TIP_PREFIX = TIPS_PREFIX + ".tip.";
+
 	private static final long serialVersionUID = 1L;
 	private final static char NEWLINE = '\n';
 	private boolean close = false;
 	
-	private JScrollPane scrollPane = null;
-	private ZapTextArea txtOutput = null;
+	private JScrollPane logScrollPane = null;
+	private JScrollPane tipsScrollPane = null;
+	private ZapTextArea logPanel = null;
+	private ZapTextArea tipsPanel = null;
 	private Stack<String> stack = new Stack<String>();
 	private static Thread thread = null;
 	private List<Image> icons;
-	
+
+	// Tips and Tricks related variables
+    private List<String> tipsAndTricks = null;
+    private Random random = new Random();
+    private boolean tipsLoaded = false;
+
 	public void run() {
 		thread = Thread.currentThread();
 		
@@ -70,7 +81,7 @@ public class SplashScreen extends JFrame implements Runnable {
 		
 		JPanel panel = new JPanel();
 		
-		panel.setPreferredSize(new Dimension(420, 460));
+		panel.setPreferredSize(new Dimension(420, 560));
 		panel.setLayout(new GridBagLayout());
 		panel.setBackground(Color.white);
 		panel.setBorder(BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
@@ -85,25 +96,22 @@ public class SplashScreen extends JFrame implements Runnable {
 		lblProgramName.setName("lblProgramName");
 		
 		lblVersion.setText(Constant.PROGRAM_VERSION);
-		lblVersion.setFont(new Font("Default", Font.PLAIN, 18));
+		lblVersion.setFont(new Font("Default", Font.PLAIN, 24));
 		lblVersion.setName("lblVersion");
 		lblVersion.setBackground(Color.white);
 
 		lblLogo.setText("");
-		lblLogo.setIcon(new ImageIcon(AboutPanel.class.getResource("/resource/zap64x64.png")));
+		lblLogo.setIcon(new ImageIcon(AboutPanel.class.getResource("/resource/zap256x256.png")));
 		lblLogo.setName("lblLogo");
 
-		panel.add(lblProgramName, 
-				LayoutHelper.getGBC(1, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.NORTHWEST, new Insets(2, 2, 2, 2)));
-		panel.add(lblVersion, 
-				LayoutHelper.getGBC(1, 1, 1, 1, GridBagConstraints.NONE, GridBagConstraints.NORTHWEST, new Insets(0, 5, 0, 5)));
-		
-		GridBagConstraints logoLayout = 
-				LayoutHelper.getGBC(0, 0, 1, 1, GridBagConstraints.NONE, GridBagConstraints.NORTHWEST, new Insets(5, 15, 5, 15));
-		logoLayout.gridheight = 2;
-		panel.add(lblLogo, logoLayout);
-		
-		panel.add(getJScrollPane(), LayoutHelper.getGBC(0, 2, 2, 1.0, 1.0));
+		panel.add(new JLabel(""), LayoutHelper.getGBC(0, 0, 1, 1.0D));	// Spacer
+		panel.add(lblLogo, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D));
+		panel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 1.0D));	// Spacer
+
+		panel.add(lblProgramName,  LayoutHelper.getGBC(1, 1, 3, 1));
+		panel.add(lblVersion,  LayoutHelper.getGBC(1, 2, 3, 1));
+		panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 3, 1.0, 1.0));
+		panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 3, 1.0, 0.5));
 		
 		this.add(panel);
 
@@ -122,9 +130,13 @@ public class SplashScreen extends JFrame implements Runnable {
 						EventQueue.invokeAndWait(new Runnable() {
 							@Override
 							public void run() {
+								if (! tipsLoaded && getTipsAndTricks() != null) {
+									displayRandomTip();
+								}
 								while (!stack.isEmpty()) {
-									getTxtOutput().append(stack.pop());
-									JScrollBar vertical = getJScrollPane().getVerticalScrollBar();
+									
+									getLogPanel().append(stack.pop());
+									JScrollBar vertical = getLogJScrollPane().getVerticalScrollBar();
 									vertical.setValue( vertical.getMaximum() );
 								}
 							}
@@ -151,26 +163,66 @@ public class SplashScreen extends JFrame implements Runnable {
 		return icons;
 	}
 
-	private JScrollPane getJScrollPane() {
-		if (scrollPane == null) {
-			scrollPane = new JScrollPane();
-			scrollPane.setViewportView(getTxtOutput());
+	private JScrollPane getLogJScrollPane() {
+		if (logScrollPane == null) {
+			logScrollPane = new JScrollPane();
+			logScrollPane.setViewportView(getLogPanel());
 		}
-		return scrollPane;
+		return logScrollPane;
 	}
 
-	private ZapTextArea getTxtOutput() {
-		if (txtOutput == null) {
-			txtOutput = new ZapTextArea();
-			txtOutput.setEditable(false);
-			txtOutput.setLineWrap(true);
-			txtOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-			txtOutput.setName("");
+	private JScrollPane getTipsJScrollPane() {
+		if (tipsScrollPane == null) {
+			tipsScrollPane = new JScrollPane();
+			tipsScrollPane.setViewportView(getTipsPanel());
+		}
+		return tipsScrollPane;
+	}
+
+	private ZapTextArea getLogPanel() {
+		if (logPanel == null) {
+			logPanel = new ZapTextArea();
+			logPanel.setEditable(false);
+			logPanel.setLineWrap(true);
+			logPanel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
+			logPanel.setName("");
 			
 			// Dont use appendMsg as the interupt wont be handled at this stage
 			stack.push(Constant.messages.getString("start.splash.start"));
 		}
-		return txtOutput;
+		return logPanel;
+	}
+
+	private ZapTextArea getTipsPanel() {
+		if (tipsPanel == null) {
+			tipsPanel = new ZapTextArea();
+			tipsPanel.setEditable(false);
+			tipsPanel.setLineWrap(true);
+			tipsPanel.setWrapStyleWord(true);
+			tipsPanel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
+			tipsPanel.setName("");
+			
+			tipsPanel.append(Constant.messages.getString("start.splash.tips.loading"));
+			
+			displayRandomTip();
+		}
+		return tipsPanel;
+	}
+	
+	private void displayRandomTip() {
+		if (this.getTipsAndTricks() == null) {
+			// Not loaded yet
+			return;
+		}
+		if (this.getTipsAndTricks().size() == 0) {
+			// No tips :(
+			this.getTipsPanel().setText(Constant.messages.getString("start.splash.tips.none"));
+			this.tipsLoaded = true;
+			return;
+		}
+		this.getTipsPanel().setText(Constant.messages.getString("start.splash.tips.title"));
+		this.getTipsPanel().append(this.getRandomTip());
+		this.tipsLoaded = true;
 	}
 
 	public void close() {
@@ -223,4 +275,28 @@ public class SplashScreen extends JFrame implements Runnable {
 			}
 		}
 	}
+	
+	private List<String> getTipsAndTricks() {
+		if (tipsAndTricks == null) {
+			// Need to load them in
+			ResourceBundle rb = Constant.messages.getMessageBundle(TIPS_PREFIX);
+			if (rb == null) {
+				return null;
+			}
+			tipsAndTricks = new ArrayList<String>();
+			Enumeration<String> enm = rb.getKeys();
+			while (enm.hasMoreElements()) {
+				String key = enm.nextElement();
+				if (key.startsWith(TIPS_TIP_PREFIX)) {
+					tipsAndTricks.add(rb.getString(key));	
+				}
+			}
+		}
+		return this.tipsAndTricks;
+	}
+	
+	private String getRandomTip() {
+		return this.getTipsAndTricks().get(random.nextInt(this.getTipsAndTricks().size()));
+	}
+
 }
