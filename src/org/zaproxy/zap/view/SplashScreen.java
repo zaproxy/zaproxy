@@ -46,6 +46,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 public class SplashScreen extends JFrame implements Runnable {
@@ -154,11 +155,15 @@ public class SplashScreen extends JFrame implements Runnable {
 	
 	private List<Image> loadIconImages() {
 		if (icons == null) {
-			icons = new ArrayList<>(4);
-			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap16x16.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap32x32.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap48x48.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(SplashScreen.class.getResource("/resource/zap64x64.png")));
+			icons = new ArrayList<>(8);
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap16x16.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap32x32.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap48x48.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap64x64.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap128x128.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap256x256.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap512x512.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap1024x1024.png")));
 		}
 		return icons;
 	}

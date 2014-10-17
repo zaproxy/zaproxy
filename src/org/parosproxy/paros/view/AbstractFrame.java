@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2013/01/16 Minor fix to prevent NPE
+// ZAP: 2014/10/17 Issue 1308: Updated for latest icons
 
 package org.parosproxy.paros.view;
 
@@ -263,11 +264,15 @@ public abstract class AbstractFrame extends JFrame {
 
 	protected List<Image> loadIconImages() {
 		if (icons == null) {
-			icons = new ArrayList<>(4);
+			icons = new ArrayList<>(8);
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap16x16.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap32x32.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap48x48.png")));
 			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap64x64.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap128x128.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap256x256.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap512x512.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap1024x1024.png")));
 		}
 		return icons;
 	}
