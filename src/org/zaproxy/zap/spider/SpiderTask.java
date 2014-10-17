@@ -18,6 +18,7 @@
 package org.zaproxy.zap.spider;
 
 import java.io.IOException;
+import java.net.ConnectException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -143,6 +144,10 @@ public class SpiderTask implements Runnable {
 		HttpMessage msg = null;
 		try {
 			msg = fetchResource();
+		} catch (ConnectException e) {
+			// This will have been logged at debug level with the URL (which we dont have here)
+			parent.postTaskExecution();
+			return;
 		} catch (Exception e) {
 			log.error("An error occured while fetching the resource: " + e.getMessage(), e);
 			parent.postTaskExecution();
@@ -262,7 +267,11 @@ public class SpiderTask implements Runnable {
 		
 		// Fetch the page
 		if (parent.getHttpSender() != null) {
-			parent.getHttpSender().sendAndReceive(msg);
+			try {
+				parent.getHttpSender().sendAndReceive(msg);
+			} catch (ConnectException e) {
+				log.debug("Failed to connect to: " + msg.getRequestHeader().getURI(), e);
+			}
 		}
 
 		return msg;
