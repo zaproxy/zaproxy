@@ -94,6 +94,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private static final List<Class<?>> DEPENDENCIES;
     
     private AttackModeScanner attackModeScanner;
+    
+    private ActiveScanController ascanController = null;
 
     static {
         List<Class<?>> dep = new ArrayList<>(1);
@@ -136,6 +138,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private void initialize() {
         this.setName(NAME);
         this.setOrder(28);
+        ascanController = new ActiveScanController(this);
         attackModeScanner = new AttackModeScanner(this);
 
     }
@@ -175,8 +178,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             extScript.registerScriptType(new ScriptType(SCRIPT_TYPE_VARIANT, "variant.scripts.type.variant", SCRIPT_ICON_VARIANT, true));
         }
 
-        activeScanApi = new ActiveScanAPI(this, (ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
-        activeScanApi.addApiOptions(getScannerParam());
+        this.ascanController.setExtAlert((ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
+        this.activeScanApi = new ActiveScanAPI(this.ascanController);
+        this.activeScanApi.addApiOptions(getScannerParam());
         API.getInstance().registerApiImplementor(activeScanApi);
     }
 

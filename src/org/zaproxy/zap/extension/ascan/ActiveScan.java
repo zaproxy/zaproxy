@@ -21,8 +21,12 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.awt.EventQueue;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.swing.DefaultListModel;
@@ -47,7 +51,15 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ScanPanel;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner, ScannerListener {
+	
+	public static enum State {
+		NOT_STARTED,
+		RUNNING,
+		PAUSED,
+		FINISHED
+	};
 
+	private int id;
 	private String site = null;
 	private ActiveScanPanel activeScanPanel;
 	private int progress = 0;
@@ -59,7 +71,11 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private int maxResultsToList = 0;
-	
+	private State state = State.NOT_STARTED;
+
+	private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
+	private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
+
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
 	public ActiveScan(String site, ScannerParam scannerParam, 
@@ -76,7 +92,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			this.activeScanPanel = activeScanPanel;
 			this.addScannerListener(activeScanPanel);
 		}
-		// TODO doesnt this make it circular??
+		// Easiest way to get the messages and alerts ;) 
 		this.addScannerListener(this);
 	
 	}
@@ -108,7 +124,10 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public void pauseScan() {
-		super.pause();
+		if (this.isRunning()) {
+			super.pause();
+			this.state = State.PAUSED;
+		}
 	}
 
 	@Override
@@ -137,6 +156,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		this.progress = 0;
 		if (startNode != null) {
 			this.start(startNode);
+			this.state = State.RUNNING;
 		} else {
 			log.error("Failed to find site " + site);
 		}
@@ -145,17 +165,23 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void stopScan() {
 		super.stop();
-
+		this.state = State.FINISHED;
 	}
 
 	@Override
 	public void resumeScan() {
-		super.resume();
+		if (this.isPaused()) {
+			super.resume();
+			this.state = State.RUNNING;
+		}
 	}
 
-/**/
 	@Override
 	public void alertFound(Alert alert) {
+		int alertId = alert.getAlertId();
+		if (alertId != -1) {
+			alerts.add(Integer.valueOf(alert.getAlertId()));
+		}
 	}
 
 	@Override
@@ -180,6 +206,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void scannerComplete() {
 		this.timeFinished = new Date();
+		this.state = State.FINISHED;
 	}
 
 	@Override
@@ -193,24 +220,26 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	
 	@Override
 	public void notifyNewMessage(final HttpMessage msg) {
-        if (this.totalRequests.incrementAndGet() <= this.maxResultsToList) {
+		HistoryReference hRef = msg.getHistoryRef();
+		if (hRef == null) {
+			try {
+				hRef = new HistoryReference(
+						Model.getSingleton().getSession(),
+						HistoryReference.TYPE_SCANNER_TEMPORARY,
+						msg);
+				msg.setHistoryRef(null);
+				hRefs.add(Integer.valueOf(hRef.getHistoryId()));
+			} catch (HttpMalformedHeaderException | SQLException e) {
+				log.error(e.getMessage(), e);
+			}
+		} else {
+			hRefs.add(Integer.valueOf(hRef.getHistoryId()));
+		}
+		
+        if (hRef != null && this.totalRequests.incrementAndGet() <= this.maxResultsToList) {
             // Very large lists significantly impact the UI responsiveness
             // limiting them makes large scans _much_ quicker
-            HistoryReference hRef = msg.getHistoryRef();
-            if (hRef == null) {
-                try {
-                    hRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_SCANNER_TEMPORARY, msg);
-                    // If an alert is raised because of the HttpMessage msg a new HistoryReference must be created
-                    // (because hRef is temporary), and the condition to create it is when the HistoryReference of the
-                    // Alert "retrieved" through the HttpMessage is null. So it must be set to null.
-                    msg.setHistoryRef(null);
-                } catch (HttpMalformedHeaderException | SQLException e) {
-                    log.error(e.getMessage(), e);
-                }
-            }
-            if (hRef != null) {
                 addHistoryReference(hRef);
-            }
     	}
 	}
 
@@ -286,5 +315,46 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void setScanAsUser(User user) {
 		this.setUser(user);
 	}
-	
+
+
+	/**
+	 * Returns the IDs of all messages sent/created during the scan. The message must be recreated with a HistoryReference.
+	 * <p>
+	 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
+	 * {@code ConcurrentModificationException}.
+	 * </p>
+	 *
+	 * @return the IDs of all the messages sent/created during the scan
+	 * @see HistoryReference
+	 * @see ConcurrentModificationException
+	 */
+	public List<Integer> getMessagesIds() {
+		return hRefs;
+	}
+
+	/**
+	 * Returns the IDs of all alerts raised during the scan.
+	 * <p>
+	 * <strong>Note:</strong> Iterations must be {@code synchronized} on returned object. Failing to do so might result in
+	 * {@code ConcurrentModificationException}.
+	 * </p>
+	 *
+	 * @return the IDs of all the alerts raised during the scan
+	 * @see ConcurrentModificationException
+	 */
+	public List<Integer> getAlertsIds() {
+		return alerts;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public State getState() {
+		return state;
+	}
 }
