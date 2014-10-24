@@ -27,9 +27,9 @@ import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -42,7 +42,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.db.TableHistory;
@@ -53,9 +52,9 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
@@ -66,14 +65,14 @@ import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PolicyPassiveScanPanel;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
-import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.view.SiteMapListener;
-import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionActiveScan extends ExtensionAdaptor implements
-        SessionChangedListener, CommandLineListener, ProxyListener, SiteMapListener {
+        SessionChangedListener, CommandLineListener, ScanController {
 
     private static final Logger logger = Logger.getLogger(ExtensionActiveScan.class);
     private static final int ARG_SCAN_IDX = 0;
@@ -114,7 +113,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private final List<AbstractParamPanel> policyPanels = new ArrayList<>();
 	private JButton policyButton = null;
 	private CustomScanDialog customScanDialog = null;
-
+    
 	private ActiveScanAPI activeScanApi;
 
     /**
@@ -165,8 +164,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
         
         extensionHook.addSessionListener(this);
-        extensionHook.addProxyListener(this);
-        extensionHook.addSiteMapListener(this);
 
         extensionHook.addOptionsParamSet(getScannerParam());
         // TODO this isnt currently implemented
@@ -179,7 +176,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
 
         this.ascanController.setExtAlert((ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
-        this.activeScanApi = new ActiveScanAPI(this.ascanController);
+        this.activeScanApi = new ActiveScanAPI(this);
         this.activeScanApi.addApiOptions(getScannerParam());
         API.getInstance().registerApiImplementor(activeScanApi);
     }
@@ -192,43 +189,81 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
     public void startScanAllInScope() {
-        this.getActiveScanPanel().scanAllInScope();
+        SiteNode snroot = (SiteNode) Model.getSingleton().getSession().getSiteTree().getRoot();
+    	this.startScan(new Target(snroot, null, true, true));
     }
 
     /**
      * Start the scanning process beginning to a specific node 
      * @param startNode the start node where the scanning should begin to work
      */
-    public void startScan(SiteNode startNode) {
-        try {
-            // Add to sites if not already present - required for quick start tab
-            this.getActiveScanPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
-            
-        } catch (Exception e) {
-            // Ignore
-        }
-        
-        this.getActiveScanPanel().scanSite(startNode, true);
+    public int startScan(SiteNode startNode) {
+    	return this.startScan(new Target(startNode, true));
     }
 
-    public void startScanNode(SiteNode startNode) {
-        this.getActiveScanPanel().scanNode(startNode, true, null);
+    public int startScanNode(SiteNode startNode) {
+    	return this.startScan(new Target(startNode, false));
     }
 
-    public void startScanCustom(SiteNode startNode, boolean justScanInScope, boolean scanChildren, 
-    		Context scanContext, User user, Object[] contextSpecificObjects) {
+    public int startScan(Target target) {
+    	return this.startScan(target, null, null);
+    }
 
-        try {
-            // Add to sites if not already present, as this might not be via a context sensitive menu
-        	String site = ActiveScanPanel.cleanSiteName(startNode, true);
-            this.getActiveScanPanel().addSite(site, true);
-            this.getActiveScanPanel().siteSelected(site, false);
-        } catch (Exception e) {
-            // Ignore
-        }
+	public int startScan(Target target, User user, Object[] contextSpecificObjects) {
+    	return this.startScan(getTargetDisplayName(target), target, user, contextSpecificObjects);
+	}
 
-    	this.getActiveScanPanel().startScan(startNode, justScanInScope, scanChildren, scanContext, user, contextSpecificObjects);
-    	this.getActiveScanPanel().setTabFocus();
+    @Override
+	public int startScan(String name, Target target, User user, Object[] contextSpecificObjects) {
+    	if (name == null) {
+    		name = this.getTargetDisplayName(target);
+    	}
+		
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			throw new InvalidParameterException("Scans are not allowed in Safe mode");
+		case protect:
+			if (target.getStartNode() != null && ! target.getStartNode().isIncludedInScope()) {
+				throw new InvalidParameterException("Scans are not allowed on nodes not in scope Protected mode " +
+						target.getStartNode().getHierarchicNodeName());
+			}
+			// No problem
+			break;
+		case standard:
+			// No problem
+			break;
+		case attack:
+			// No problem
+			break;
+		}
+		
+		int id = this.ascanController.startScan(name, target, user, contextSpecificObjects);
+    	if (View.isInitialised()) {
+    		GenericScanner2 scanner = this.ascanController.getScan(id);
+    		((ActiveScan)scanner).addScannerListener(getActiveScanPanel());	// So the UI get updated
+			this.getActiveScanPanel().scannerStarted(scanner);
+    		this.getActiveScanPanel().switchView(scanner);
+    		this.getActiveScanPanel().setTabFocus();
+    	}
+    	return id;
+	}
+
+    private String getTargetDisplayName(Target target) {
+    	if (target.getStartNode() == null) {
+    		if (target.isInScopeOnly()) {
+    			return Constant.messages.getString("ascan.toolbar.progress.inscope");
+    		} else {
+    			return "Unexpected target:(";
+    		}
+    	} else {
+    		String name = target.getStartNode().getHierarchicNodeName(); 
+    		if (name.length() < 30) {
+    			return name;
+    		}
+    		
+    		// Just use the first and last 14 chrs to prevent huge urls messing up the display
+    		return name.substring(0, 14) + ".." + name.substring(name.length()-15, name.length());
+    	}
     }
 
     public void scannerComplete() {
@@ -352,14 +387,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             // Closedown
             return;
         }
-        
-        // Add new hosts
-        SiteNode snroot = (SiteNode) session.getSiteTree().getRoot();
-        @SuppressWarnings("unchecked")
-        Enumeration<SiteNode> en = snroot.children();
-        while (en.hasMoreElements()) {
-            this.getActiveScanPanel().addSite(en.nextElement().getNodeName(), true);
-        }
     }
 
     /**
@@ -425,44 +452,12 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         return arguments;
     }
 
-    @Override
-    public int getArrangeableListenerOrder() {
-        return PROXY_LISTENER_ORDER;
-    }
+	public void setExcludeList(List<String> urls) {
+		for (GenericScanner2 scanner : ascanController.getActiveScans()) {
+			((ActiveScan)scanner).setExcludeList(urls);
+		}
+	}
 
-    @Override
-    public boolean onHttpRequestSend(HttpMessage msg) {
-        // The panel will handle duplicates
-        String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
-
-        this.getActiveScanPanel().addSite(site, true);
-        return true;
-    }
-
-    @Override
-    public boolean onHttpResponseReceive(HttpMessage msg) {
-        // Do nothing
-        return true;
-    }
-
-    @Override
-    public void nodeSelected(SiteNode node) {
-        // Event from SiteMapListenner
-        this.getActiveScanPanel().nodeSelected(node, true);
-    }
-
-    @Override
-    public void onReturnNodeRendererComponent(
-            SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
-    }
-
-    public boolean isScanning(SiteNode node) {
-        return this.getActiveScanPanel().isScanning(node, true);
-    }
-
-    public void setExcludeList(List<String> urls) {
-        this.getActiveScanPanel().setExcludeList(urls);
-    }
 
     public void addPolicyPanel(AbstractParamPanel panel) {
         this.policyPanels.add(panel);
@@ -511,8 +506,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     @Override
     public void sessionModeChanged(Mode mode) {
+    	if (Mode.safe.equals(mode)) {
+    		this.ascanController.stopAllScans();
+    	}
+    	getMenuItemCustomScan().setEnabled( ! Mode.safe.equals(mode));
         this.getActiveScanPanel().sessionModeChanged(mode);
         this.attackModeScanner.sessionModeChanged(mode);
+        
     }
 
     @Override
@@ -525,6 +525,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
     }
 
+    /*
     public void stopScan(SiteNode startNode) {
         try {
             this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
@@ -536,6 +537,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void stopScan(String site) {
         this.getActiveScanPanel().stopScan(site);
     }
+    */
 
 	public void showCustomScanDialog(SiteNode node) {
 		if (customScanDialog == null) {
@@ -544,7 +546,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		if (customScanDialog.isVisible()) {
 			return;
 		}
-		customScanDialog.init(node);
+		customScanDialog.init(new Target(node));
 		customScanDialog.setVisible(true);
 	}
 
@@ -560,4 +562,89 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         // Cant handle any extensions
         return null;
     }
+
+
+	@Override
+	public List<GenericScanner2> getAllScans() {
+		return ascanController.getAllScans();
+	}
+
+	@Override
+	public List<GenericScanner2> getActiveScans() {
+		return ascanController.getActiveScans();
+	}
+
+	@Override
+	public GenericScanner2 getScan(int id) {
+		return ascanController.getScan(id);
+	}
+
+	@Override
+	public void stopScan(int id) {
+		ascanController.stopScan(id);
+		// Dont need to update the UI - this will happen automatically via the events
+	}
+
+	@Override
+	public void pauseScan(int id) {
+		ascanController.pauseScan(id);
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getActiveScanPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public void resumeScan(int id) {
+		ascanController.resumeScan(id);
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getActiveScanPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public void stopAllScans() {
+		ascanController.stopAllScans();		
+		// Dont need to update the UI - this will happen automatically via the events
+	}
+
+	@Override
+	public void pauseAllScans() {
+		ascanController.pauseAllScans();		
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getActiveScanPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public void resumeAllScans() {
+		ascanController.removeAllScans();		
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getActiveScanPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public GenericScanner2 removeScan(int id) {
+		return ascanController.removeScan(id);
+	}
+
+	@Override
+	public int removeAllScans() {
+		return ascanController.removeAllScans();
+	}
+
+	@Override
+	public int removeFinishedScans() {
+		return ascanController.removeFinishedScans();
+	}
+
+	@Override
+	public GenericScanner2 getLastScan() {
+		return ascanController.getLastScan();
+	}
+
 }

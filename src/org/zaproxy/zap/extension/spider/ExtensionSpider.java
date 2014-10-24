@@ -41,7 +41,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
-import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -49,6 +48,7 @@ import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.view.ScanPanel;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
@@ -361,7 +361,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScan(SiteNode startNode) {
 		try {
 			// Add to sites if not already present - required for quick start tab
-			this.getSpiderPanel().addSite(ActiveScanPanel.cleanSiteName(startNode, true), true);
+			this.getSpiderPanel().addSite(ScanPanel.cleanSiteName(startNode, true), true);
 		} catch (Exception e) {
 			// Ignore
 			log.debug(e.getMessage(), e);
@@ -372,7 +372,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 	public void stopScan(SiteNode startNode) {
 		try {
-			this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
+			this.stopScan(ScanPanel.cleanSiteName(startNode, true));
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}

@@ -31,6 +31,7 @@
 // messages in scope if multiple domains available
 // ZAP: 2014/06/23 Issue 1242: Active scanner might use outdated policy settings
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
+// ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 
 package org.parosproxy.paros.core.scanner;
 
@@ -47,6 +48,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 
@@ -64,13 +66,14 @@ public class Scanner implements Runnable {
 	//private HttpSender httpSender = null;
 	private boolean isStop = false;
 	private ThreadPool pool = null;
-	private SiteNode startNode = null;
+	private Target target = null;
 	private long startTimeMillis = 0;
     private List<Pattern> excludeUrls = null;
 	private boolean justScanInScope = false;
 	private boolean scanChildren = true;
 	private User user = null;
     private TechSet techSet = null;
+	private int id;
 
 	// ZAP: Added scanner pause option
 	private boolean pause = false;
@@ -87,15 +90,19 @@ public class Scanner implements Runnable {
     
     
     public void start(SiteNode startNode) {
+    	this.start(new Target(startNode));
+    }
+
+    public void start(Target target) {
         isStop = false;
         log.info("scanner started");
         startTimeMillis = System.currentTimeMillis();
-        this.startNode = startNode;
+        this.target = target;
         Thread thread = new Thread(this);
         thread.setPriority(Thread.NORM_PRIORITY-2);
         thread.start();
     }
-    
+
     public void stop() {
         log.info("scanner stopped");
 
@@ -113,7 +120,7 @@ public class Scanner implements Runnable {
 
 	@Override
 	public void run() {
-	    scan(startNode);
+	    scan(target);
 	    
 //	    while (pool.isAllThreadComplete()) {
 //	        Util.sleep(4000);
@@ -122,43 +129,102 @@ public class Scanner implements Runnable {
 	    notifyScannerComplete();
 	}
 	
-	public void scan(SiteNode node) {
+	public void scan(Target target) {
 
 	    HostProcess hostProcess = null;
 	    Thread thread = null;
-	    
-	    if (node.isRoot()) {
-	        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
-	            SiteNode child = (SiteNode) node.getChildAt(i);
-	            String hostAndPort = getHostAndPort(child);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
-	            hostProcess.setStartNode(child);
+
+        this.setScanChildren(target.isRecurse());
+        this.setJustScanInScope(target.isInScopeOnly());
+
+	    if (target.getStartNode() != null) {
+	    	SiteNode node = target.getStartNode();
+		    if (node.isRoot()) {
+		        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
+		            SiteNode child = (SiteNode) node.getChildAt(i);
+		            String hostAndPort = getHostAndPort(child);
+		            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
+		            hostProcess.setStartNode(child);
+		            hostProcess.setUser(this.user);
+		            hostProcess.setTechSet(this.techSet);
+		            this.hostProcesses.add(hostProcess);
+		            do { 
+		                thread = pool.getFreeThreadAndRun(hostProcess);
+		                if (thread == null) Util.sleep(500);
+		            } while (thread == null && !isStop());
+		            if (thread != null) {
+			            notifyHostNewScan(hostAndPort, hostProcess);
+		            }
+		        }
+		    } else {
+	            String hostAndPort = getHostAndPort(node);
+	
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory());
+	            hostProcess.setStartNode(node);
 	            hostProcess.setUser(this.user);
 	            hostProcess.setTechSet(this.techSet);
 	            this.hostProcesses.add(hostProcess);
-	            do { 
-	                thread = pool.getFreeThreadAndRun(hostProcess);
-	                if (thread == null) Util.sleep(500);
-	            } while (thread == null && !isStop());
-	            if (thread != null) {
-		            notifyHostNewScan(hostAndPort, hostProcess);
-	            }
-	        }
-	    } else {
-            String hostAndPort = getHostAndPort(node);
+	            thread = pool.getFreeThreadAndRun(hostProcess);
+	            notifyHostNewScan(hostAndPort, hostProcess);
+		        
+		    }
+		    /*
+	    } else if (target.getContext() != null) {
+			// TODO Work in progress
+            String hostAndPort = "Context: " + target.getContext().getName();
 
             hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory());
-            hostProcess.setStartNode(node);
+            // TODO ugh... really want a hierarchy...
+            hostProcess.setNodes(target.getContext().getNodesInContextFromSiteTree());
             hostProcess.setUser(this.user);
             hostProcess.setTechSet(this.techSet);
             this.hostProcesses.add(hostProcess);
             thread = pool.getFreeThreadAndRun(hostProcess);
             notifyHostNewScan(hostAndPort, hostProcess);
-	        
+	    
+	    } else if (target.isInScopeOnly()) {
+	    	// TODO, work in progress
+	    	
+	    	SiteNode node = (SiteNode) Model.getSingleton().getSession().getSiteTree().getRoot();
+		    if (node.isRoot()) {
+		        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
+		            SiteNode child = (SiteNode) node.getChildAt(i);
+		            if (hasNodesInScope(child)) {
+			            String hostAndPort = getHostAndPort(child);
+			            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
+			            hostProcess.setStartNode(child);
+			            hostProcess.setUser(this.user);
+			            hostProcess.setTechSet(this.techSet);
+			            this.hostProcesses.add(hostProcess);
+			            do { 
+			                thread = pool.getFreeThreadAndRun(hostProcess);
+			                if (thread == null) Util.sleep(500);
+			            } while (thread == null && !isStop());
+			            if (thread != null) {
+				            notifyHostNewScan(hostAndPort, hostProcess);
+			            }
+		            }
+		        }
+		    }
+		    */
 	    }
 	     
 	}
 	
+	private boolean hasNodesInScope(SiteNode node) {
+		if (node.isIncludedInScope()) {
+			return true;
+		}
+		if (node.getChildCount() > 0) {
+			for (int i=0; i <= node.getChildCount(); i++) {
+				if (this.hasNodesInScope((SiteNode)node.getChildAt(i))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public boolean isStop() {
 	    
 	    return isStop;
@@ -185,7 +251,7 @@ public class Scanner implements Runnable {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        // ZAP: Removed unnecessary cast.
 	        ScannerListener listener = listenerList.get(i);
-	        listener.hostComplete(hostAndPort);
+	        listener.hostComplete(this.id, hostAndPort);
 	    }
 	}
 	
@@ -193,23 +259,22 @@ public class Scanner implements Runnable {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        // ZAP: Removed unnecessary cast.
 	        ScannerListener listener = listenerList.get(i);
-	        listener.hostProgress(hostAndPort, msg, percentage);
+	        listener.hostProgress(id, hostAndPort, msg, percentage);
 	    }
 	    
 	}
 	
 	void notifyScannerComplete() {
+	    long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
+		String diffTimeString = decimalFormat.format(diffTimeMillis/1000.0) + "s";
+	    log.info("scanner completed in " + diffTimeString);
+	    isStop = true;
 
 	    for (int i=0; i<listenerList.size(); i++) {
 	        // ZAP: Removed unnecessary cast.
 	        ScannerListener listener = listenerList.get(i);
-	        listener.scannerComplete();
+	        listener.scannerComplete(this.id);
 	    }
-	    long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-		// ZAP: Removed unnecessary cast.
-		String diffTimeString = decimalFormat.format(diffTimeMillis/1000.0) + "s";
-	    log.info("scanner completed in " + diffTimeString);
-	    isStop = true;
 	}
 	
 	void notifyAlertFound(Alert alert) {
@@ -225,7 +290,7 @@ public class Scanner implements Runnable {
 	    for (int i=0; i<listenerList.size(); i++) {
 	        // ZAP: Removed unnecessary cast.
 	        ScannerListener listener = listenerList.get(i);
-	        listener.hostNewScan(hostAndPort, hostThread);
+	        listener.hostNewScan(this.id, hostAndPort, hostThread);
 	    }
 	    
 	}
@@ -283,11 +348,14 @@ public class Scanner implements Runnable {
 	}
 
 	public void setStartNode(SiteNode startNode) {
-		this.startNode = startNode;
+		this.target = new Target(startNode);
 	}
 	
 	public SiteNode getStartNode() {
-		return this.startNode;
+		if (target != null) {
+			return target.getStartNode();
+		}
+		return null;
 	}
 
 	public void setJustScanInScope(boolean scanInScope) {
@@ -339,5 +407,13 @@ public class Scanner implements Runnable {
 
 	public void setTechSet(TechSet techSet) {
 		this.techSet = techSet;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 }

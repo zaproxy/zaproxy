@@ -25,39 +25,31 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
-import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.GenericScanner;
-import org.zaproxy.zap.model.ScanListenner;
-import org.zaproxy.zap.model.TechSet;
-import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanListenner2;
+import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
-public class ActiveScanPanel extends ScanPanel implements ScanListenner, ScannerListener {
+public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, ScannerListener {
 	
 	private static final Logger LOGGER = Logger.getLogger(ActiveScanPanel.class);
 
@@ -78,22 +70,22 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
 	
+    private ExtensionActiveScan extension;
 	private JScrollPane jScrollPane;
 	private HistoryReferencesTable messagesTable;
-    private List<String> excludeUrls = null;
     
 	private JButton optionsButton = null;
+	private JButton scanButton = null;
 	private JButton progressButton;
 	private JLabel numRequests;
 
-    private static Logger logger = Logger.getLogger(ActiveScanPanel.class);
-    
     /**
      * @param extension
      */
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon
         super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension, null);
+        this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_A, Event.CTRL_MASK | Event.ALT_MASK | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("ascan.panel.mnemonic"));
@@ -102,7 +94,7 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	@Override
 	protected int addToolBarElements(JToolBar panelToolbar, Location loc, int x) {
 		// Override to add elements into the toolbar
-		if (Location.beforeButtons.equals(loc)) {
+		if (Location.start.equals(loc)) {
 			panelToolbar.add(getOptionsButton(), getGBC(x++,0));
 		}
 		if (Location.beforeProgressBar.equals(loc)) {
@@ -123,11 +115,28 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					((ExtensionActiveScan)getExtension()).showPolicyDialog();
+					extension.showPolicyDialog();
 				}
 			});
 		}
 		return optionsButton;
+	}
+
+	@Override
+	public JButton getNewScanButton() {
+		if (scanButton == null) {
+			scanButton = new JButton(Constant.messages.getString("ascan.toolbar.button.new"));
+			
+			scanButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
+			scanButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")));
+			scanButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					extension.showCustomScanDialog(null);
+				}
+			});
+		}
+		return scanButton;
 	}
 
 	private JButton getProgressButton() {
@@ -154,13 +163,30 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	}
 	
 	private void showScanProgressDialog() {
-		ActiveScan scan = (ActiveScan) getScanThread(getCurrentSite());
+		ActiveScan scan = (ActiveScan) this.getSelectedScanner();
 		if (scan != null) {
-			ScanProgressDialog spp = new ScanProgressDialog(View.getSingleton().getMainFrame(), getCurrentSite());
+			ScanProgressDialog spp = new ScanProgressDialog(View.getSingleton().getMainFrame(), scan.getDisplayName());
 			spp.setActiveScan(scan);
 			spp.setVisible(true);
 		}
 	}
+	
+	@Override
+	public void clearFinishedScans() {
+		if (extension.getScannerParam().isPromptToClearFinishedScans()) {
+			// Prompt to double check
+			int res = View.getSingleton().showConfirmDontPromptDialog(
+					View.getSingleton().getMainFrame(), Constant.messages.getString("ascan.toolbar.confirm.clear"));
+			if (View.getSingleton().isDontPromptLastDialogChosen()) {
+				extension.getScannerParam().setPromptToClearFinishedScans(false);
+			}
+			if (res != JOptionPane.YES_OPTION) {
+				return;
+			}
+		}
+		super.clearFinishedScans();
+	}
+
 
 	@Override
 	protected JScrollPane getWorkPanel() {
@@ -186,23 +212,14 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 	}
 
 	@Override
-	protected GenericScanner newScanThread(String site, AbstractParam params) {
-		ActiveScan as = new ActiveScan(site, ((ExtensionActiveScan)this.getExtension()).getScannerParam(), 
-				this.getExtension().getModel().getOptionsParam().getConnectionParam(), this);
-		as.setExcludeList(this.excludeUrls);
-		return as;
-	}
-
-
-	@Override
-	protected void switchView(final String site) {
+	public void switchView(final GenericScanner2 scanner) {
 		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
 			try {
 				EventQueue.invokeAndWait(new Runnable() {
 
 					@Override
 					public void run() {
-						switchView(site);
+						switchView(scanner);
 					}
 				});
 			} catch (InvocationTargetException | InterruptedException e) {
@@ -211,14 +228,15 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 			return;
 		}
 
-		if ("".equals(site)) {
+		ActiveScan ascan = (ActiveScan)scanner;
+		if (scanner != null) {
+		    getMessagesTable().setModel(ascan.getMessagesTableModel());
+		    this.getNumRequests().setText(Integer.toString(ascan.getTotalRequests()));
+		    this.getProgressButton().setEnabled(true);
+		} else {
 			resetMessagesTable();
-			return;
-		}
-
-		GenericScanner thread = this.getScanThread(site);
-		if (thread != null) {
-		    getMessagesTable().setModel(((ActiveScan)thread).getMessagesTableModel());
+		    this.getNumRequests().setText("");
+		    this.getProgressButton().setEnabled(false);
 		}
 	}
 
@@ -233,29 +251,30 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 
 
 	@Override
-	public void hostComplete(String hostAndPort) {
-		this.scanFinshed(cleanSiteName(hostAndPort, true));
+	public void hostComplete(int id, String hostAndPort) {
+		this.scanFinshed(id, hostAndPort);
 		
 	}
 
 
 	@Override
-	public void hostNewScan(String hostAndPort, HostProcess hostThread) {
+	public void hostNewScan(int id, String hostAndPort, HostProcess hostThread) {
 	}
 
 
 	@Override
-	public void hostProgress(String hostAndPort, String msg, int percentage) {
-		this.scanProgress(cleanSiteName(hostAndPort, true), percentage, 100);
+	public void hostProgress(int id, String hostAndPort, String msg, int percentage) {
+		this.scanProgress(id, hostAndPort, percentage, 100);
 		updateRequestCount();
 	}
 
 	@Override
-	public void scannerComplete() {
+	public void scannerComplete(int id) {
+		this.scanFinshed(id, this.getName());
 	}
 	
 	private void updateRequestCount() {
-		GenericScanner gs = this.getScanThread(this.getCurrentSite());
+		GenericScanner2 gs = this.getSelectedScanner();
 		if (gs != null && gs instanceof ActiveScan) {
 			this.getNumRequests().setText(Integer.toString(((ActiveScan) gs).getTotalRequests()));
 		}
@@ -272,56 +291,8 @@ public class ActiveScanPanel extends ScanPanel implements ScanListenner, Scanner
 		this.getProgressButton().setEnabled(false);
 	}
 
-	public void setExcludeList(List<String> urls) {
-		this.excludeUrls = urls;
-		Map<String, GenericScanner> threads = getScanThreads();
-		Iterator<GenericScanner> iter = threads.values().iterator();
-		while (iter.hasNext()) {
-			GenericScanner scanner = iter.next();
-			((ActiveScan)scanner).setExcludeList(urls);
-		}
-	}
-
 	@Override
-	protected void siteSelected(String site, boolean forceRefresh) {
-		super.siteSelected(site, forceRefresh);
-		// Clear the number of requests - will set below if applicable
-		this.getNumRequests().setText("");
-
-		GenericScanner gs = this.getScanThread(this.getCurrentSite());
-		if (gs != null && (gs.isRunning() || gs.isStopped())) {
-			this.getProgressButton().setEnabled(true);
-			if (gs instanceof ActiveScan) {
-				this.getNumRequests().setText(Integer.toString(((ActiveScan) gs).getTotalRequests()));
-			}
-		} else {
-			this.getProgressButton().setEnabled(false);
-		}
+	protected int getNumberOfScansToShow() {
+		return extension.getScannerParam().getMaxScansInUI();
 	}
-	
-	@Override
-	protected void handleContextSpecificObject(GenericScanner scanThread, Object[] contextSpecificObjects) {
-		ActiveScan ascan = (ActiveScan) scanThread;
-		for (Object obj : contextSpecificObjects) {
-			if (obj instanceof ScannerParam) {
-				logger.debug("Setting custom scanner params");
-				ascan.setScannerParam((ScannerParam)obj);
-			} else if (obj instanceof PluginFactory) {
-				ascan.setPluginFactory((PluginFactory)obj);
-			} else if (obj instanceof TechSet) {
-				ascan.setTechSet((TechSet) obj);
-			} else {
-				logger.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
-			}
-				
-		}
-	}
-
-	@Override
-	public void startScan(SiteNode startNode, boolean justScanInScope, boolean scanChildren, 
-			Context scanContext, User user, Object[] contextSpecificObjects) {
-		super.startScan(startNode, justScanInScope, scanChildren, scanContext, user, contextSpecificObjects);
-		this.getProgressButton().setEnabled(true);
-	}
-
 }

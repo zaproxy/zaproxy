@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
-import java.util.Enumeration;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -39,18 +38,15 @@ import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.GenericScanner;
-import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.Target;
 
-public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner, ScannerListener {
+public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner2, ScannerListener {
 	
 	public static enum State {
 		NOT_STARTED,
@@ -59,19 +55,14 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		FINISHED
 	};
 
-	private int id;
-	private String site = null;
-	private ActiveScanPanel activeScanPanel;
+	private String displayName = null;
 	private int progress = 0;
-	private boolean isAlive = false;
 	private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
 	private SiteNode startNode = null;
-	private Context startContext = null;
 	private AtomicInteger totalRequests = new AtomicInteger(0);
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private int maxResultsToList = 0;
-	private State state = State.NOT_STARTED;
 
 	private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
 	private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
@@ -79,19 +70,15 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
 	public ActiveScan(String site, ScannerParam scannerParam, 
-			ConnectionParam param, ActiveScanPanel activeScanPanel) {
-		this(site, scannerParam, param, activeScanPanel, null);
+			ConnectionParam param) {
+		this(site, scannerParam, param, null);
 	}
 
-	public ActiveScan(String site, ScannerParam scannerParam, 
-			ConnectionParam param, ActiveScanPanel activeScanPanel, PluginFactory pluginFactory) {
+	public ActiveScan(String displayName, ScannerParam scannerParam, 
+			ConnectionParam param, PluginFactory pluginFactory) {
 		super(scannerParam, param, pluginFactory);
-		this.site = site;
+		this.displayName = displayName;
 		this.maxResultsToList = scannerParam.getMaxResultsToList();
-		if (activeScanPanel != null) {
-			this.activeScanPanel = activeScanPanel;
-			this.addScannerListener(activeScanPanel);
-		}
 		// Easiest way to get the messages and alerts ;) 
 		this.addScannerListener(this);
 	
@@ -108,13 +95,8 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	@Override
-	public String getSite() {
-		return site;
-	}
-
-	@Override
 	public boolean isRunning() {
-		return isAlive;
+		return ! this.isStop();
 	}
 
 	@Override
@@ -126,53 +108,27 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public void pauseScan() {
 		if (this.isRunning()) {
 			super.pause();
-			this.state = State.PAUSED;
 		}
 	}
 
 	@Override
-	public void start() {
-		isAlive = true;
-		this.timeStarted = new Date();
-		if (startNode == null) {
-			SiteMap siteTree = Model.getSingleton().getSession().getSiteTree();
-			if (this.getJustScanInScope()) {
-				startNode = (SiteNode) siteTree.getRoot();
-			} else {
-				SiteNode rootNode = (SiteNode) siteTree.getRoot();
-				@SuppressWarnings("unchecked")
-				Enumeration<SiteNode> en = rootNode.children();
-				while (en.hasMoreElements()) {
-					SiteNode sn = en.nextElement();
-					String nodeName = ScanPanel.cleanSiteName(sn.getNodeName(), true);
-					if (this.site.equals(nodeName)) {
-						startNode = sn;
-						break;
-					}
-				}
-			}
-		}
+	public void start(Target target) {
 		reset();
+		this.timeStarted = new Date();
 		this.progress = 0;
-		if (startNode != null) {
-			this.start(startNode);
-			this.state = State.RUNNING;
-		} else {
-			log.error("Failed to find site " + site);
-		}
+		
+		super.start(target);
 	}
 
 	@Override
 	public void stopScan() {
 		super.stop();
-		this.state = State.FINISHED;
 	}
 
 	@Override
 	public void resumeScan() {
 		if (this.isPaused()) {
 			super.resume();
-			this.state = State.RUNNING;
 		}
 	}
 
@@ -185,31 +141,30 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 
 	@Override
-	public void hostComplete(String hostAndPort) {
-		if (activeScanPanel != null) {
-			// Probably being run from the API
-			this.activeScanPanel.scanFinshed(hostAndPort);
-			this.removeScannerListener(activeScanPanel);
+	public void hostComplete(int id, String hostAndPort) {
+	}
+
+	@Override
+	public void hostNewScan(int id, String hostAndPort, HostProcess hostThread) {
+	}
+
+	@Override
+	public void hostProgress(int id, String hostAndPort, String msg, int percentage) {
+		// Calculate the percentage based on the average of all of the host processes
+		// This is an approximation as different host process make significantly different times 
+		int tot = 0;
+		for (HostProcess process : this.getHostProcesses()) {
+			tot += process.getPercentageComplete();
 		}
-		isAlive = false;
+		this.progress = tot / this.getHostProcesses().size();
 	}
 
 	@Override
-	public void hostNewScan(String hostAndPort, HostProcess hostThread) {
-	}
-
-	@Override
-	public void hostProgress(String hostAndPort, String msg, int percentage) {
-		this.progress = percentage;
-	}
-
-	@Override
-	public void scannerComplete() {
+	public void scannerComplete(int id) {
 		this.timeFinished = new Date();
-		this.state = State.FINISHED;
 	}
 
-	@Override
+	//@Override
 	public DefaultListModel<HistoryReference> getList() {
 		return null;
 	}
@@ -239,7 +194,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
         if (hRef != null && this.totalRequests.incrementAndGet() <= this.maxResultsToList) {
             // Very large lists significantly impact the UI responsiveness
             // limiting them makes large scans _much_ quicker
-                addHistoryReference(hRef);
+        	addHistoryReference(hRef);
     	}
 	}
 
@@ -278,25 +233,17 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		super.setStartNode(startNode);
 	}
 
-	@Override
 	public void reset() {
 	    if (!View.isInitialised() || EventQueue.isDispatchThread()) {
 	        this.messagesTableModel.clear();
         } else {
             EventQueue.invokeLater(new Runnable() {
-
                 @Override
                 public void run() {
                     reset();
                 }
             });
         }
-	}
-
-	@Override
-	public void setScanContext(Context context) {
-		this.startContext=context;		
-		//TODO: Use this context to start the active scan only on Nodes in scope
 	}
 
 	public int getTotalRequests() {
@@ -310,12 +257,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public Date getTimeFinished() {
 		return timeFinished;
 	}
-
-	@Override
-	public void setScanAsUser(User user) {
-		this.setUser(user);
-	}
-
 
 	/**
 	 * Returns the IDs of all messages sent/created during the scan. The message must be recreated with a HistoryReference.
@@ -346,15 +287,25 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		return alerts;
 	}
 
-	public int getId() {
-		return id;
-	}
-
-	public void setId(int id) {
-		this.id = id;
-	}
-
 	public State getState() {
-		return state;
+		if (this.timeStarted == null) {
+			return State.NOT_STARTED;
+		} else if (this.isStop()) {
+			return State.FINISHED;
+		} else if (this.isPaused()) {
+			return State.PAUSED;
+		} else {
+			return State.RUNNING;
+		}
+	}
+
+	@Override
+	public void setDisplayName(String name) {
+		this.displayName = name;
+	}
+
+	@Override
+	public String getDisplayName() {
+		return this.displayName;
 	}
 }

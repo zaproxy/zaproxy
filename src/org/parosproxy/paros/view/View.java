@@ -52,6 +52,7 @@
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 
 package org.parosproxy.paros.view;
 
@@ -136,15 +137,16 @@ public class View implements ViewDelegate {
 	private JMenu menuShowTabs = null;
 	
 	private JCheckBox rememberCheckbox = null;
+	private JCheckBox dontPromptCheckbox = null;
 
-  private List<AbstractParamPanel> contextPanels = new ArrayList<>();
-  private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
+	private List<AbstractParamPanel> contextPanels = new ArrayList<>();
+	private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
 
 	private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 
-  private static final Logger logger = Logger.getLogger(View.class);
+	private static final Logger logger = Logger.getLogger(View.class);
 
-  private MessagePanelsPositionController messagePanelsPositionController;
+	private MessagePanelsPositionController messagePanelsPositionController;
 
 	/**
 	 * @return Returns the mainFrame.
@@ -418,17 +420,43 @@ public class View implements ViewDelegate {
 	}
 	
 	public int showYesNoRememberDialog(JFrame parent, String msg) {
-		// The checkbox is used for all dialogs, so always reset
+		// The checkbox is used for all related dialogs, so always reset
 		this.getRememberCheckbox().setSelected(false);
 		return JOptionPane.showConfirmDialog(parent, 
     		new Object[] {msg, this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
 	}
 
 	public int showYesNoRememberDialog(JPanel parent, String msg) {
-		// The checkbox is used for all dialogs, so always reset
+		// The checkbox is used for all related dialogs, so always reset
 		this.getRememberCheckbox().setSelected(false);
 		return JOptionPane.showConfirmDialog(parent, 
     		new Object[] {msg + "\n", this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
+	}
+
+	private JCheckBox getDontPromptCheckbox() {
+		if (dontPromptCheckbox == null) {
+			dontPromptCheckbox = new JCheckBox(Constant.messages.getString("view.dialog.dontPrompt"));
+		}
+		return dontPromptCheckbox;
+	}
+
+	public boolean isDontPromptLastDialogChosen() {
+		return this.getDontPromptCheckbox().isSelected();
+	}
+	
+
+	public int showConfirmDontPromptDialog(JFrame parent, String msg) {
+		// The checkbox is used for all related dialogs, so always reset
+		this.getDontPromptCheckbox().setSelected(false);
+		return JOptionPane.showConfirmDialog(parent, 
+    		new Object[] {msg, this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+	}
+
+	public int showConfirmDontPromptDialog(JPanel parent, String msg) {
+		// The checkbox is used for all related dialogs, so always reset
+		this.getDontPromptCheckbox().setSelected(false);
+		return JOptionPane.showConfirmDialog(parent, 
+    		new Object[] {msg + "\n", this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
 	}
 
 	// ZAP: FindBugs fix - make method synchronised

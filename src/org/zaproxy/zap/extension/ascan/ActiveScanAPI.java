@@ -48,6 +48,8 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
@@ -97,9 +99,9 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String PARAM_POLICY_ID = "policyId";
 	private static final String PARAM_SCAN_ID = "scanId";
 
-	private ActiveScanController controller = null;
+	private ScanController controller = null;
 	
-	public ActiveScanAPI (ActiveScanController controller) {
+	public ActiveScanAPI (ScanController controller) {
 		this.controller = controller;
         this.addApiAction(new ApiAction(ACTION_SCAN, new String[] {PARAM_URL}, new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE}));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
@@ -163,7 +165,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			getActiveScan(params).stopScan();
 			break;
 		case ACTION_REMOVE_SCAN:
-			ActiveScan activeScan = controller.removeScan(Integer.valueOf(params.getInt(PARAM_SCAN_ID)));
+			GenericScanner2 activeScan = controller.removeScan(Integer.valueOf(params.getInt(PARAM_SCAN_ID)));
 			if (activeScan == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 			}
@@ -261,7 +263,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private ActiveScan getActiveScan(JSONObject params) throws ApiException {
 		int id = getParam(params, PARAM_SCAN_ID, -1);
 
-		ActiveScan activeScan = null;
+		GenericScanner2 activeScan = null;
 		
 		if (id == -1) {
 			activeScan = controller.getLastScan();
@@ -273,7 +275,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 		}
 
-		return activeScan;
+		return (ActiveScan)activeScan;
 	}
 
 	private void setScannersEnabled(JSONObject params, boolean enabled) {
@@ -385,17 +387,18 @@ public class ActiveScanAPI extends ApiImplementor {
 		target.setRecurse(scanChildren);
 		target.setInScopeOnly(scanJustInScope);
 		
-		return controller.scan(url, startNode, scanChildren, scanJustInScope);
+		return controller.startScan(null, new Target(startNode, null, scanJustInScope, scanChildren), null, null);
 	}
 
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
 		ApiResponse result;
+		ActiveScan activeScan = null;
 
 		switch(name) {
 		case VIEW_STATUS:
-			ActiveScan activeScan = getActiveScan(params);
+			activeScan = getActiveScan(params);
 			int progress = 0;
 			if (activeScan != null) {
 				progress = activeScan.getProgress();
@@ -404,11 +407,11 @@ public class ActiveScanAPI extends ApiImplementor {
 			break;
 		case VIEW_SCANS:
 			ApiResponseList resultList = new ApiResponseList(name);
-			for (ActiveScan scan : controller.getAllScans()) {
+			for (GenericScanner2 scan : controller.getAllScans()) {
 				Map<String, String> map = new HashMap<>();
 				map.put("id", Integer.toString(scan.getId()));
 				map.put("progress", Integer.toString(scan.getProgress()));
-				map.put("state", scan.getState().name());
+				map.put("state", ((ActiveScan)scan).getState().name());
 				resultList.addItem(new ApiResponseSet("scan", map));
 			}
 			result = resultList;

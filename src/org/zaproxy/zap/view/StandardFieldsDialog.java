@@ -57,6 +57,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -773,6 +774,58 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		this.incTabOffset(tabIndex);
 	}
 	
+	/*
+	 * Add a 'node select' field which provides a button for showing a Node Select Dialog and a 
+	 * non editable field for showing the node selected
+	 */
+	public void addTargetSelectField(int tabIndex, final String fieldLabel, final Target value,
+			final boolean editable, final boolean allowRoot) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		final ZapTextField text = new ZapTextField();
+		text.setEditable(editable);
+		this.setTextTarget(text, value);
+
+		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
+		selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
+		selectButton.addActionListener(new java.awt.event.ActionListener() { 
+			// Keep a local copy so that we can always select the last node chosen
+			Target target = value;
+			@Override
+			public void actionPerformed(java.awt.event.ActionEvent e) {
+				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
+				nsd.setAllowRoot(allowRoot);
+				target = nsd.showDialog(target);
+				setTextTarget(text, target);
+				targetSelected(fieldLabel, target);
+			}
+		});
+		JPanel panel = new JPanel();
+		panel.setLayout(new GridBagLayout());
+		panel.add(text, LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		panel.add(selectButton, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+		
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, text, panel, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
+	
+	private void setTextTarget(ZapTextField text, Target target) {
+		if (target != null) {
+			if (target.getStartNode() != null && target.getStartNode().getHistoryReference() != null) {
+				text.setText(target.getStartNode().getHistoryReference().getURI().toString());
+			} else if (target.getContext() != null) {
+				text.setText(Constant.messages.getString("context.prefixName", new Object[] {target.getContext().getName()}));
+			} else if (target.isInScopeOnly()) {
+				text.setText(Constant.messages.getString("context.allInScope"));
+			}
+		}
+		
+	}
+	
 	public void addContextSelectField(String fieldLabel, Context selectedContext){
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
@@ -887,6 +940,12 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 		
 	}
 
+	/*
+	 * Override to do something useful
+	 */
+	public void targetSelected(String field, Target target) {
+		
+	}
 
 	/**
 	 * Allow the caller to get the field component in order to, for example, change its properties

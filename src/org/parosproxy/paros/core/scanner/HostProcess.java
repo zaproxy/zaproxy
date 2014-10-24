@@ -43,6 +43,7 @@
 // ZAP: 2014/06/26 Added the possibility to evaluate the current plugin/process progress
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 // ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
+// ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 
 package org.parosproxy.paros.core.scanner;
 
@@ -80,6 +81,8 @@ public class HostProcess implements Runnable {
     private Kb kb = null;
     private User user = null;
     private TechSet techSet = null;
+    // TODO Work in progress
+	// private List<SiteNode> nodes = null;
 
     // time related 
     // ZAP: changed to Integer because the pluginId is int
@@ -90,6 +93,7 @@ public class HostProcess implements Runnable {
     // ZAP: progress related
     private int nodeInScopeCount = -1;
     private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
+    private int percentage = 0;
     
     /**
      * Intantiate a new HostProcess service
@@ -434,13 +438,14 @@ public class HostProcess implements Runnable {
     public boolean isPaused() {
         return parentScanner.isPaused();
     }
+    
+    public int getPercentageComplete () {
+    	return this.percentage;
+    }
 
     private void notifyHostProgress(String msg) {
-        int percentage = 0;
-        
         if (pluginFactory.totalPluginToRun() == 0) {
             percentage = 100;
-    
         } else {
             percentage = (100 * pluginFactory.totalPluginCompleted() / pluginFactory.totalPluginToRun());
         }
@@ -582,4 +587,9 @@ public class HostProcess implements Runnable {
 		this.techSet = techSet;
 	}
 
+    /* TODO Work in progress
+	public void setNodes(List<SiteNode> nodes) {
+		this.nodes = nodes;
+	}
+	*/
 }

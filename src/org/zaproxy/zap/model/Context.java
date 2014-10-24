@@ -216,6 +216,27 @@ public class Context {
 	}
 
 	/**
+	 * Gets the nodes from the site tree which are "In Scope". Searches recursively starting from
+	 * the root node. Should be used with care, as it is time-consuming, querying the database for
+	 * every node in the Site Tree.
+	 * 
+	 * @return the nodes in scope from site tree
+	 */
+	public List<SiteNode> getTopNodesInContextFromSiteTree() {
+		List<SiteNode> nodes = new LinkedList<>();
+		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = rootNode.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isContainsNodesInContext(sn)) {
+				nodes.add(sn);
+			}
+		}
+		return nodes;
+	}
+
+	/**
 	 * Fills a given list with nodes in scope, searching recursively.
 	 * 
 	 * @param rootNode the root node
@@ -231,6 +252,27 @@ public class Context {
 			}
 			fillNodesInContext(sn, nodesList);
 		}
+	}
+
+	/**
+	 * Fills a given list with nodes in scope, searching recursively.
+	 * 
+	 * @param rootNode the root node
+	 * @param nodesList the nodes list
+	 */
+	private boolean isContainsNodesInContext(SiteNode node) {
+		if (isInContext(node)) {
+			return true;
+		}
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = node.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isInContext(sn)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public List<String> getIncludeInContextRegexs() {

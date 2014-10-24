@@ -25,15 +25,25 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.users.User;
 
-public class ActiveScanController {
+public class ActiveScanController implements ScanController {
 	
 	private ExtensionActiveScan extension;
-	
+    private static final Logger logger = Logger.getLogger(ActiveScanController.class);
+
 	private ExtensionAlert extAlert = null;
 
 	/**
@@ -89,13 +99,13 @@ public class ActiveScanController {
 		this.extAlert = extAlert;
 	}
 
-	public int scan(String name, SiteNode startNode, boolean scanChildren, boolean scanJustInScope) {
+	public int startScan(String name, Target target, User user, Object[] contextSpecificObjects) {
 		activeScansLock.lock();
 		try {
 			int id = this.scanIdCounter++;
 			ActiveScan ascan = new ActiveScan(name, extension.getScannerParam(), 
 					extension.getModel().getOptionsParam().getConnectionParam(), 
-					null, Control.getSingleton().getPluginFactory().clone()) {
+					Control.getSingleton().getPluginFactory().clone()) {
 				@Override
 				public void alertFound(Alert alert) {
 					if (extAlert!= null) {
@@ -104,21 +114,40 @@ public class ActiveScanController {
 					super.alertFound(alert);
 				}
 			};
-			ascan.setJustScanInScope(scanJustInScope);
-			ascan.setStartNode(startNode);
-			ascan.setScanChildren(scanChildren);
+			
+			// Set session level configs
+			Session session = Model.getSingleton().getSession();
+			ascan.setExcludeList(session.getExcludeFromScanRegexs());
+			
 			ascan.setId(id);
+			ascan.setUser(user);
+			
+			if (contextSpecificObjects != null) {
+				for (Object obj : contextSpecificObjects) {
+					if (obj instanceof ScannerParam) {
+						logger.debug("Setting custom scanner params");
+						ascan.setScannerParam((ScannerParam)obj);
+					} else if (obj instanceof PluginFactory) {
+						ascan.setPluginFactory((PluginFactory)obj);
+					} else if (obj instanceof TechSet) {
+						ascan.setTechSet((TechSet) obj);
+					} else {
+						logger.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
+					}
+				}
+			}
+			
 			this.activeScanMap.put(id, ascan);
 			this.activeScanList.add(ascan);
+			ascan.start(target);
 			
-			ascan.start();
 			return id;
 		} finally {
 			activeScansLock.unlock();
 		}
 	}
 	
-	public ActiveScan getScan(int id) {
+	public GenericScanner2 getScan(int id) {
 		return this.activeScanMap.get(id);
 	}
 	
@@ -134,8 +163,8 @@ public class ActiveScanController {
 		}
 	}
 	
-	public List<ActiveScan> getAllScans() {
-		List<ActiveScan> list = new ArrayList<ActiveScan>();
+	public List<GenericScanner2> getAllScans() {
+		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		activeScansLock.lock();
 		try {
 			for (ActiveScan scan : activeScanList) {
@@ -147,7 +176,22 @@ public class ActiveScanController {
 		}
 	}
 	
-	public ActiveScan removeScan(int id) {
+	public List<GenericScanner2> getActiveScans() {
+		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
+		activeScansLock.lock();
+		try {
+			for (ActiveScan scan : activeScanList) {
+				if (!scan.isStopped()) {
+					list.add(scan);
+				}
+			}
+			return list;
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+	
+	public GenericScanner2 removeScan(int id) {
 		activeScansLock.lock();
 
 		try {
@@ -202,14 +246,73 @@ public class ActiveScanController {
 		}
 	}
 	
-	public void removeAllScans() {
+	public int removeAllScans() {
 		activeScansLock.lock();
 		try {
+			int count = 0;
 			for (Iterator<ActiveScan> it = activeScanMap.values().iterator(); it.hasNext();) {
 				ActiveScan ascan = it.next();
 				ascan.stopScan();
 				it.remove();
 				activeScanList.remove(ascan);
+				count++;
+			}
+			return count;
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+
+	@Override
+	public int removeFinishedScans() {
+		activeScansLock.lock();
+		try {
+			int count = 0;
+			for (Iterator<ActiveScan> it = activeScanMap.values().iterator(); it.hasNext();) {
+				ActiveScan ascan = it.next();
+				if (ascan.isStop()) {
+					ascan.stopScan();
+					it.remove();
+					activeScanList.remove(ascan);
+					count ++;
+				}
+			}
+			return count;
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+
+	@Override
+	public void stopScan(int id) {
+		activeScansLock.lock();
+		try {
+			if (this.activeScanMap.containsKey(id)) {
+				this.activeScanMap.get(id).stop();
+			}
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+
+	@Override
+	public void pauseScan(int id) {
+		activeScansLock.lock();
+		try {
+			if (this.activeScanMap.containsKey(id)) {
+				this.activeScanMap.get(id).pause();
+			}
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+
+	@Override
+	public void resumeScan(int id) {
+		activeScansLock.lock();
+		try {
+			if (this.activeScanMap.containsKey(id)) {
+				this.activeScanMap.get(id).resume();
 			}
 		} finally {
 			activeScansLock.unlock();

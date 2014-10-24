@@ -35,6 +35,7 @@
 // ZAP: 2014/03/23 Issue 1076: Change active scanner to not delete the temporary messages generated
 // ZAP: 2014/05/13 Issue 1193: Scan URL path elements - turn off by default
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
+// ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 
 package org.parosproxy.paros.core.scanner;
 
@@ -58,9 +59,11 @@ public class ScannerParam extends AbstractParam {
     private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
     private static final String PROMPT_IN_ATTACK_MODE = "scanner.attackPrompt";
     private static final String RESCAN_IN_ATTACK_MODE = "scanner.attackRescan";
+    private static final String PROMPT_TO_CLEAR_FINISHED = "scanner.clearFinished";
     private static final String LEVEL = "scanner.level";
     private static final String STRENGTH = "scanner.strength";
     private static final String MAX_RESULTS_LIST = "scanner.maxResults";
+    private static final String MAX_SCANS_IN_UI = "scanner.maxScansInUI";
 
     // ZAP: Excluded Parameters
     private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
@@ -98,9 +101,11 @@ public class ScannerParam extends AbstractParam {
     private int threadPerHost = 1;
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
+    private int maxScansInUI = 1000;
     private boolean handleAntiCSRFTokens = false;
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;
+    private boolean promptToClearFinishedScans = true;
     private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM;
     private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
     
@@ -139,6 +144,10 @@ public class ScannerParam extends AbstractParam {
         } catch (Exception e) {}
         
         try {
+            this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
+        } catch (Exception e) {}
+        
+        try {
             this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
         } catch (Exception e) {}
 
@@ -148,6 +157,10 @@ public class ScannerParam extends AbstractParam {
 
         try {
             this.rescanInAttackMode = getConfig().getBoolean(RESCAN_IN_ATTACK_MODE, true);
+        } catch (Exception e) {}
+
+        try {
+            this.promptToClearFinishedScans = getConfig().getBoolean(PROMPT_TO_CLEAR_FINISHED, true);
         } catch (Exception e) {}
 
         try {
@@ -455,4 +468,22 @@ public class ScannerParam extends AbstractParam {
         this.targetParamsEnabledRPC = targetParamsEnabledRPC;
         getConfig().setProperty(TARGET_ENABLED_RPC, this.targetParamsEnabledRPC);
     }
+
+	public boolean isPromptToClearFinishedScans() {
+		return promptToClearFinishedScans;
+	}
+
+	public void setPromptToClearFinishedScans(boolean promptToClearFinishedScans) {
+		this.promptToClearFinishedScans = promptToClearFinishedScans;
+        getConfig().setProperty(PROMPT_TO_CLEAR_FINISHED, this.promptToClearFinishedScans);
+	}
+
+	public int getMaxScansInUI() {
+		return maxScansInUI;
+	}
+
+	public void setMaxScansInUI(int maxScansInUI) {
+		this.maxScansInUI = maxScansInUI;
+	}
+
 }

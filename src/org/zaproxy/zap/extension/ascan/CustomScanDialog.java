@@ -78,6 +78,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
@@ -121,7 +122,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private int headerLength = -1;
     // The index of the start of the URL path eg after https://www.example.com:1234/ - no point attacking this
     private int urlPathStart = -1;
-    private SiteNode node = null;
+    private Target target = null;
 
     private ScannerParam scannerParam = null;
     private OptionsParam optionsParam = null;
@@ -154,19 +155,19 @@ public class CustomScanDialog extends StandardFieldsDialog {
         reset(false);
     }
 
-    public void init(SiteNode node) {
-        if (node != null) {
+    public void init(Target target) {
+        if (target != null) {
         	// If one isnt specified then leave the previously selected one
-        	this.node = node;
+        	this.target = target;
         }
-        logger.debug("init " + this.node);
+        logger.debug("init " + this.target);
 
         this.removeAllFields();
         this.injectionPointModel.clear();
         this.headerLength = -1;
         this.urlPathStart = -1;;
 
-        this.addNodeSelectField(0, FIELD_START, this.node, false, false);
+        this.addTargetSelectField(0, FIELD_START, this.target, false, false);
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
@@ -241,10 +242,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
         policyPanel.showDialog(true);
 
         this.setCustomTabPanel(4, policyPanel);
-        if (node != null) {
+        if (target != null) {
 	        // Set up the fields if a node has been specified, otherwise leave as previously set
-	        this.populateRequestField(this.node);
-	        this.siteNodeSelected(FIELD_START, this.node);	
+	        this.populateRequestField(this.target.getStartNode());
+	        this.siteNodeSelected(FIELD_START, this.target.getStartNode());	
 	        this.setUsers();
 	        this.setTech();
         }
@@ -283,17 +284,22 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     @Override
-    public void siteNodeSelected(String field, SiteNode node) {
+    public void targetSelected(String field, Target node) {
         List<String> ctxNames = new ArrayList<String>();
         if (node != null) {
             // The user has selected a new node
-            this.node = node;
-            populateRequestField(node);
-            
-            Session session = Model.getSingleton().getSession();
-            List<Context> contexts = session.getContextsForNode(node);
-            for (Context context : contexts) {
-            	ctxNames.add(context.getName());
+            this.target = node;
+            if (node.getStartNode() != null) {
+                populateRequestField(node.getStartNode());
+                
+                Session session = Model.getSingleton().getSession();
+                List<Context> contexts = session.getContextsForNode(node.getStartNode());
+                for (Context context : contexts) {
+                	ctxNames.add(context.getName());
+                }
+            	
+            } else if (node.getContext() != null) {
+            	ctxNames.add(node.getContext().getName());
             }
             
             this.setTech();
@@ -719,7 +725,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         pluginFactory = Control.getSingleton().getPluginFactory().clone();
 
         if (refreshUi) {
-            init(node);
+            init(target);
             repaint();
         }
     }
@@ -809,11 +815,13 @@ public class CustomScanDialog extends StandardFieldsDialog {
             }
 
             try {
-                VariantUserDefined.setInjectionPoints(
-                        this.node.getHistoryReference().getURI().toString(),
-                        injPoints);
-                
-                enabledRpc |= ScannerParam.RPC_USERDEF;
+            	if (target != null && target.getStartNode() != null) {
+	                VariantUserDefined.setInjectionPoints(
+	                        this.target.getStartNode().getHistoryReference().getURI().toString(),
+	                        injPoints);
+	                
+	                enabledRpc |= ScannerParam.RPC_USERDEF;
+            	}
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -827,19 +835,18 @@ public class CustomScanDialog extends StandardFieldsDialog {
             pluginFactory.clone(),
             this.getTechSet()
         };
-
-        this.extension.startScanCustom(
-                node,
-                this.getBoolValue(FIELD_INSCOPE),
-                this.getBoolValue(FIELD_RECURSE),
-                getSelectedContext(), 
+        
+        target.setRecurse(this.getBoolValue(FIELD_RECURSE));
+        
+        this.extension.startScan(
+                target,
                 getSelectedUser(), 
                 contextSpecificObjects);
     }
 
     @Override
     public String validateFields() {
-        if (this.node == null) {
+        if (this.target == null || !this.target.isValid()) {
             return Constant.messages.getString("ascan.custom.nostart.error");
         }
         

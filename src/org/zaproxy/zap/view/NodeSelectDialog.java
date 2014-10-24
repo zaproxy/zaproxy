@@ -33,6 +33,7 @@ import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.Constant;
@@ -40,6 +41,8 @@ import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Target;
 
 /**
  * A modal dialog for selecting a node in the SitesTree. 
@@ -50,16 +53,19 @@ public class NodeSelectDialog extends AbstractDialog {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
+	private JTree treeContext = null;
 	private JTree treeSite = null;
 
 	private JButton selectButton = null;
 	private JButton cancelButton = null;
 	
+	private DefaultTreeModel contextTree = null;
 	private DefaultTreeModel siteTree = null;
 	
 	private JScrollPane jScrollPane = null;
-	private SiteNode selectedNode = null;
-	private SiteNode defaultSelected = null;
+	
+	private SiteNode selectedSiteNode = null;
+	private Target selectedTarget = null;
 	private boolean allowRoot = false;
 	
     /**
@@ -98,9 +104,9 @@ public class NodeSelectDialog extends AbstractDialog {
 	public SiteNode showDialog(SiteNode defaultNode) {
 		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
 		populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultNode);
-		if (defaultSelected != null) {
+		if (selectedSiteNode != null) {
 			// Found the default node, select it
-			TreePath path = new TreePath(this.siteTree.getPathToRoot(defaultSelected));
+			TreePath path = new TreePath(this.siteTree.getPathToRoot(selectedSiteNode));
 			this.getTreeSite().setExpandsSelectedPaths(true);
 			this.getTreeSite().setSelectionPath(path);
 			this.getTreeSite().scrollPathToVisible(path);
@@ -112,13 +118,65 @@ public class NodeSelectDialog extends AbstractDialog {
 		}
 		this.setVisible(true);
 		// The dialog is modal so this wont return until the dialog visibility is unset
-		return selectedNode;
+		return selectedSiteNode;
 	}
-	
+
+	public Target showDialog(Target defaultTarget) {
+		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
+		// TODO work in progress
+		//populateContexts((SiteNode)this.contextTree.getRoot());
+		if (defaultTarget != null) {
+			populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultTarget.getStartNode());
+		} else { 
+			populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), null);
+		}
+		if (selectedSiteNode != null) {
+			// Found the default node, select it
+			TreePath path = new TreePath(this.siteTree.getPathToRoot(selectedSiteNode));
+			this.getTreeSite().setExpandsSelectedPaths(true);
+			this.getTreeSite().setSelectionPath(path);
+			this.getTreeSite().scrollPathToVisible(path);
+			this.getTreeSite().expandPath(path);
+		} else {
+			// no default path, just expand the top level
+			TreePath path = new TreePath(this.siteTree.getPathToRoot((TreeNode)this.siteTree.getRoot()));
+			this.getTreeSite().expandPath(path);
+		}
+		this.setVisible(true);
+		// The dialog is modal so this wont return until the dialog visibility is unset
+		if (selectedSiteNode != null) {
+			return new Target(selectedSiteNode);
+		}
+		return selectedTarget;
+	}
+
+	private void populateContexts(SiteNode root) {
+		int contextsInScope = 0;
+		for (Context ctx : Model.getSingleton().getSession().getContexts()) {
+			// TODO ignore handle protected mode?
+            if (ctx.getIncludeInContextRegexs().size() > 0) {
+                SiteNode node = new SiteNode(null, HistoryReference.TYPE_PROXIED, ctx.getName());
+                node.setUserObject(new Target(ctx));
+    			root.add(node);
+    			if (ctx.isInScope()) {
+    				contextsInScope ++;
+    			}
+            }
+		}
+		if (contextsInScope > 1) {
+			// Allow user to choose everything in scope
+            SiteNode node = new SiteNode(null, HistoryReference.TYPE_PROXIED, Constant.messages.getString("context.allInScope"));
+            node.setUserObject(new Target(null, null, true, true));
+			root.add(node);
+		}
+		
+		this.getTreeContext().expandRow(0);
+	}
+
 	private void populateNode(SiteNode src, SiteNode dest, SiteNode defaultNode) {
 		if (src.equals(defaultNode)) {
 			// Flag this for use later..
-			this.defaultSelected = dest;
+			this.selectedSiteNode = dest;
 		}
         for (int i=0; i < src.getChildCount(); i++) {
             SiteNode child = (SiteNode) src.getChildAt(i);
@@ -129,6 +187,10 @@ public class NodeSelectDialog extends AbstractDialog {
 		}
 	}
 	
+	private DefaultTreeModel emptyContextTree() {
+        return new DefaultTreeModel(new SiteNode(null, -1, Constant.messages.getString("context.list")));
+	}
+
 	private DefaultTreeModel emptySiteTree() {
 		// Make a very sparse copy of the site tree
 		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
@@ -198,6 +260,7 @@ public class NodeSelectDialog extends AbstractDialog {
 			treeSite.setShowsRootHandles(true);
 			treeSite.setName("nodeSelectTree");
 			treeSite.setToggleClickCount(1);
+			treeSite.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 			treeSite.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
 				@Override
@@ -219,6 +282,10 @@ public class NodeSelectDialog extends AbstractDialog {
 				@Override
 				public void mouseClicked(java.awt.event.MouseEvent e) {
 					// right mouse button action
+				    if (treeSite.getLastSelectedPathComponent() != null) {
+				    	// They selected a site node, deselect any context
+				    	getTreeContext().clearSelection();
+				    }
 				    if (e.getClickCount() > 1) {
 				    	// Its a double click - close the dialog to select this node
 				    	nodeSelected();
@@ -235,11 +302,67 @@ public class NodeSelectDialog extends AbstractDialog {
 	private void nodeSelected() {
 	    SiteNode node = (SiteNode) treeSite.getLastSelectedPathComponent();
 	    if (node != null && (node.getParent() != null || allowRoot)) {
-	    	selectedNode = (SiteNode) node.getUserObject();
+	    	selectedSiteNode = (SiteNode) node.getUserObject();
+	    	selectedTarget = null;
 			NodeSelectDialog.this.setVisible(false);
 	    }
 	}
 	
+	private void contextSelected() {
+	    SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();
+	    if (node != null && (node.getParent() != null || allowRoot)) {
+	    	selectedTarget = (Target) node.getUserObject();
+	    	selectedSiteNode = null;
+			NodeSelectDialog.this.setVisible(false);
+	    }
+	}
+	
+	private JTree getTreeContext() {
+		if (treeContext == null) {
+			this.contextTree = this.emptyContextTree();
+			treeContext = new JTree(this.contextTree);
+			treeContext.setShowsRootHandles(true);
+			treeContext.setName("nodeContextTree");
+			treeContext.setToggleClickCount(1);
+			treeContext.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+			treeContext.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
+
+				@Override
+				public void valueChanged(javax.swing.event.TreeSelectionEvent e) {
+				    SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();
+				    getSelectButton().setEnabled(node != null && (node.getParent() != null || allowRoot));
+				}
+			});
+			treeContext.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
+				public void mousePressed(java.awt.event.MouseEvent e) {
+				}
+					
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+					// right mouse button action
+				    if (treeContext.getLastSelectedPathComponent() != null) {
+				    	// They selected a context node, deselect any site node
+				    	getTreeSite().clearSelection();
+				    }
+				    if (e.getClickCount() > 1) {
+				    	// Its a double click - close the dialog to select this node
+				    	contextSelected();
+				    }
+				}
+			});
+
+			treeContext.setCellRenderer(new ContextsTreeCellRenderer());
+		}
+		return treeContext;
+	}
+	
+
 	/**
 	 * This method initializes btnStart	
 	 * 	
@@ -256,7 +379,11 @@ public class NodeSelectDialog extends AbstractDialog {
 			selectButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-			    	nodeSelected();
+					if (treeSite.getLastSelectedPathComponent() != null) {
+						nodeSelected();
+					} else if (treeContext.getLastSelectedPathComponent() != null) {
+						contextSelected();
+					}
 				}
 			});
 
@@ -280,7 +407,8 @@ public class NodeSelectDialog extends AbstractDialog {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					selectedNode = null;
+					selectedSiteNode = null;
+					selectedTarget = null;
 					NodeSelectDialog.this.setVisible(false);
 					//NodeSelectDialog.this.dispose();
 				}
@@ -300,7 +428,12 @@ public class NodeSelectDialog extends AbstractDialog {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			jScrollPane.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			jScrollPane.setViewportView(getTreeSite());
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridBagLayout());
+			// TODO Disabled until implementation completed. ok to add it all the time? Probably not :/
+			// panel.add(this.getTreeContext(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D));
+			panel.add(this.getTreeSite(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 1.0D));
+			jScrollPane.setViewportView(panel);
 		}
 		return jScrollPane;
 	}
@@ -314,4 +447,3 @@ public class NodeSelectDialog extends AbstractDialog {
 	}
 	
 }
-

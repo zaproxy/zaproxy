@@ -198,7 +198,7 @@ public class AttackModeScanner implements EventConsumer {
 				if (nodeStack.size() == 0 || scanners.size() == scannerCount) {
 					if (scanners.size() > 0) {
 						// Check to see if any have finished
-						scannerComplete();
+						scannerComplete(-1);
 					}
 					// Still scanning a node or nothing to scan now
 					try {
@@ -233,7 +233,7 @@ public class AttackModeScanner implements EventConsumer {
 		}
 
 		@Override
-		public void scannerComplete() {
+		public void scannerComplete(int id) {
 			// Clear so we can attack the next node
 			List<Scanner> stoppedScanners = new ArrayList<Scanner>();
 			for (Scanner scanner : this.scanners) {
@@ -257,17 +257,17 @@ public class AttackModeScanner implements EventConsumer {
 		}
 
 		@Override
-		public void hostNewScan(String hostAndPort, HostProcess hostThread) {
+		public void hostNewScan(int id, String hostAndPort, HostProcess hostThread) {
 			// Ignore
 		}
 
 		@Override
-		public void hostProgress(String hostAndPort, String msg, int percentage) {
+		public void hostProgress(int id, String hostAndPort, String msg, int percentage) {
 			// Ignore
 		}
 
 		@Override
-		public void hostComplete(String hostAndPort) {
+		public void hostComplete(int id, String hostAndPort) {
 			// Ignore
 		}
 

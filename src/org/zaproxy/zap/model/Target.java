@@ -33,6 +33,7 @@ public class Target {
 	private boolean inScopeOnly = false;
 	private int maxChildren = -1;
 	private int maxDepth = -1;
+	private boolean recurse = false;
 	
 	public Target(SiteNode startNode) {
 		super();
@@ -70,6 +71,18 @@ public class Target {
 		this.maxDepth = maxDepth;
 	}
 
+	public Target(SiteNode startNode, Context context, boolean inScopeOnly, boolean recurse) {
+		super();
+		this.startNode = startNode;
+		this.context = context;
+		this.inScopeOnly = inScopeOnly;
+		this.recurse = recurse;
+	}
+	
+	public boolean isValid() {
+		return this.startNode != null || this.context != null || this.inScopeOnly;
+	}
+
 	public SiteNode getStartNode() {
 		return startNode;
 	}
@@ -100,10 +113,12 @@ public class Target {
 	public void setMaxDepth(int maxDepth) {
 		this.maxDepth = maxDepth;
 	}
+
 	public boolean isRecurse() {
-		return this.maxDepth != 0;
+		return recurse;
 	}
+
 	public void setRecurse(boolean recurse) {
-		this.maxDepth = 0;
+		this.recurse = recurse;
 	}
 }
