@@ -694,12 +694,13 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     public TreeSet<HtmlParameter> getCookieParams() {
-        TreeSet<HtmlParameter> set = new TreeSet<>();
+    	TreeSet<HtmlParameter> set = new TreeSet<>();
 
         Vector<String> cookieLines = getHeaders(HttpHeader.COOKIE);
         if (cookieLines != null) {
             for (String cookieLine : cookieLines) {
-                if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase())) {
+            	//watch out for the scenario where the first cookie name starts with "cookie" (uppercase or lowercase)
+                if (cookieLine.toUpperCase().startsWith(HttpHeader.COOKIE.toUpperCase() + ":")) {
                     // HttpCookie wont parse lines starting with "Cookie:"
                     cookieLine = cookieLine.substring(HttpHeader.COOKIE.length() + 1);
                 }
