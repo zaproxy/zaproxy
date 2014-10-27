@@ -88,7 +88,7 @@ public class OptionsParamView extends AbstractParam {
 	    // use temp variable to check.  Exception will be flagged if any error.
       	showTabNames = getConfig().getBoolean(SHOW_TEXT_ICONS, true);
 	    processImages = getConfig().getInt(PROCESS_IMAGES, 0);
-	    configLocale = getConfig().getString(LOCALE);	// No default
+	    configLocale = getConfig().getString(LOCALE, null);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
 	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
