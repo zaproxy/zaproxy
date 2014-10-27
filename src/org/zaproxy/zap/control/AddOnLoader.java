@@ -339,7 +339,7 @@ public class AddOnLoader extends URLClassLoader {
                 }
             } catch (Throwable e) {
             	// Often not an error
-            	logger.debug(e.getMessage(), e);
+            	logger.debug(e.getMessage());
             }
         }
         
