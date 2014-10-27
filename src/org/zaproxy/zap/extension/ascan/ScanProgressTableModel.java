@@ -22,7 +22,9 @@ package org.zaproxy.zap.extension.ascan;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
 import javax.swing.table.AbstractTableModel;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -39,20 +41,18 @@ public class ScanProgressTableModel extends AbstractTableModel {
     };
     
     private List<ScanProgressItem> values;
-    private List<ScanProgressActionIcon> actions = new ArrayList();
+    private List<ScanProgressActionIcon> actions = new ArrayList<ScanProgressActionIcon>();
     private ScanProgressActionIcon focusedAction;
     private String totRequests;
     private String totTime;
-    private boolean completed;
 
     /**
      *
      */
     public ScanProgressTableModel() {
         super();
-        values = new ArrayList();
+        values = new ArrayList<ScanProgressItem>();
         focusedAction = null;
-        completed = true;
     }
 
     /**
@@ -241,28 +241,20 @@ public class ScanProgressTableModel extends AbstractTableModel {
      * 
      * @param scan 
      */
-    public void updateValues(ActiveScan scan) {
-        // Remove all items
+    public void updateValues(ActiveScan scan, HostProcess hp) {
         values.clear();
-        // Set completed to true
-        completed = true;
         
-        // Iterate all Host Processes
-        for (HostProcess hp : scan.getHostProcesses()) {
-            // Iterate all Plugins
-            for (Plugin plugin : hp.getCompleted()) {
-                values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_COMPLETED));
-            }
+        // Iterate all Plugins
+        for (Plugin plugin : hp.getCompleted()) {
+            values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_COMPLETED));
+        }
 
-            for (Plugin plugin : hp.getRunning()) {
-                values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_RUNNING));
-                completed = false;
-            }
+        for (Plugin plugin : hp.getRunning()) {
+            values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_RUNNING));
+        }
 
-            for (Plugin plugin : hp.getPending()) {
-                values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_PENDING));
-                completed = false;
-            }
+        for (Plugin plugin : hp.getPending()) {
+            values.add(new ScanProgressItem(hp, plugin, ScanProgressItem.STATUS_PENDING));
         }
         
         // Update total elapsed time a and request count
@@ -283,13 +275,5 @@ public class ScanProgressTableModel extends AbstractTableModel {
         return (elapsed >= 0) ?
                 String.format("%02d:%02d.%03d", elapsed / 60000, (elapsed % 60000) / 1000, (elapsed % 1000)) :
                 null;
-    }
-    
-    /**
-     * 
-     * @return 
-     */
-    public boolean isAllPluginsCompleted() {
-        return completed;
     }
 }

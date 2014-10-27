@@ -102,6 +102,8 @@ public class NodeSelectDialog extends AbstractDialog {
 	}
 
 	public SiteNode showDialog(SiteNode defaultNode) {
+		// Assume Contexts cant be selected
+		this.getTreeContext().setVisible(false);
 		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
 		populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultNode);
 		if (selectedSiteNode != null) {
@@ -122,9 +124,10 @@ public class NodeSelectDialog extends AbstractDialog {
 	}
 
 	public Target showDialog(Target defaultTarget) {
+		// Assume Contexts can be selected
+		this.getTreeContext().setVisible(true);
 		SiteNode siteRoot = (SiteNode)Model.getSingleton().getSession().getSiteTree().getRoot();
-		// TODO work in progress
-		//populateContexts((SiteNode)this.contextTree.getRoot());
+		populateContexts((SiteNode)this.contextTree.getRoot());
 		if (defaultTarget != null) {
 			populateNode(siteRoot, (SiteNode)this.siteTree.getRoot(), defaultTarget.getStartNode());
 		} else { 
@@ -151,6 +154,9 @@ public class NodeSelectDialog extends AbstractDialog {
 	}
 
 	private void populateContexts(SiteNode root) {
+		// Uncomment to hide contexts tree if there are no valid contexts - 
+		// not sure if this is a good idea or not :/ 
+		//int contexts = 0;
 		int contextsInScope = 0;
 		for (Context ctx : Model.getSingleton().getSession().getContexts()) {
 			// TODO ignore handle protected mode?
@@ -158,6 +164,7 @@ public class NodeSelectDialog extends AbstractDialog {
                 SiteNode node = new SiteNode(null, HistoryReference.TYPE_PROXIED, ctx.getName());
                 node.setUserObject(new Target(ctx));
     			root.add(node);
+    			//contexts ++;
     			if (ctx.isInScope()) {
     				contextsInScope ++;
     			}
@@ -170,6 +177,7 @@ public class NodeSelectDialog extends AbstractDialog {
 			root.add(node);
 		}
 		
+		//this.getTreeContext().setVisible(contexts > 0);
 		this.getTreeContext().expandRow(0);
 	}
 
@@ -430,8 +438,7 @@ public class NodeSelectDialog extends AbstractDialog {
 			jScrollPane.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			JPanel panel = new JPanel();
 			panel.setLayout(new GridBagLayout());
-			// TODO Disabled until implementation completed. ok to add it all the time? Probably not :/
-			// panel.add(this.getTreeContext(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D));
+			panel.add(this.getTreeContext(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D));
 			panel.add(this.getTreeSite(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 1.0D));
 			jScrollPane.setViewportView(panel);
 		}

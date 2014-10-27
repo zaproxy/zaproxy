@@ -35,8 +35,10 @@ import java.text.MessageFormat;
 
 import javax.swing.Box;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -47,6 +49,7 @@ import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -66,6 +69,7 @@ public class ScanProgressDialog extends AbstractDialog {
     private JTable table;
     private ScanProgressTableModel model;
     private JButton closeButton = null;
+    private JComboBox<String> hostSelect = null;
     
     private String site = null;
     private ActiveScan scan = null;
@@ -94,10 +98,16 @@ public class ScanProgressDialog extends AbstractDialog {
                     Constant.messages.getString("ascan.progress.title"), site));
         }
 
-        this.add(getJScrollPane(), LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
+        JPanel hostPanel = new JPanel();
+        hostPanel.setLayout(new GridBagLayout());
+        hostPanel.add(new JLabel(Constant.messages.getString("ascan.progress.label.host")), LayoutHelper.getGBC(0, 0, 1, 0.4D));
+        hostPanel.add(getHostSelect(), LayoutHelper.getGBC(1, 0, 1, 0.6D));
+        this.add(hostPanel, LayoutHelper.getGBC(0, 0, 3, 1.0D, 0.0D));
+        
+        this.add(getJScrollPane(), LayoutHelper.getGBC(0, 1, 3, 1.0D, 1.0D));
         
         this.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 0.0D));	// spacer
-        this.add(getCloseButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D, 0.0D));
+        this.add(getCloseButton(), LayoutHelper.getGBC(1, 2, 1, 0.0D, 0.0D));
         this.add(new JLabel(), LayoutHelper.getGBC(2, 1, 1, 1.0D, 0.0D));	// spacer
 
         // Stop the updating thread when the window is closed
@@ -185,15 +195,29 @@ public class ScanProgressDialog extends AbstractDialog {
      */
     private void showProgress() {
         // Start panel data settings
-        if (scan.getHostProcesses() != null) {
+    	HostProcess hp = getSelectedHostProcess();
+        if (scan.getHostProcesses() != null || hp != null) {
 
             // Update the main table entries
-            model.updateValues(scan);
+            model.updateValues(scan, hp);
 
-            if (model.isAllPluginsCompleted()) {
+            if (scan.isStopped()) {
                 this.stopThread = true;
             }
         }
+    }
+    
+    private HostProcess getSelectedHostProcess() {
+    	String str = (String)this.getHostSelect().getSelectedItem();
+    	if (str == null) {
+    		return null;
+    	}
+        for (HostProcess hp : scan.getHostProcesses()) {
+        	if (str.equals(hp.getHostAndPort())) {
+        		return hp;
+        	}
+        }
+        return null;
     }
 
     /**
@@ -205,6 +229,10 @@ public class ScanProgressDialog extends AbstractDialog {
 
         if (scan == null) {
             return;
+        }
+        getHostSelect().removeAll();
+        for (HostProcess hp : scan.getHostProcesses()) {
+        	getHostSelect().addItem(hp.getHostAndPort());
         }
 
         Thread thread = new Thread() {
@@ -229,6 +257,20 @@ public class ScanProgressDialog extends AbstractDialog {
         
         thread.start();
     }
+    
+    private JComboBox<String> getHostSelect() {
+    	if (hostSelect == null) {
+    		hostSelect = new JComboBox<String>();
+    		hostSelect.addActionListener(new ActionListener(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Switch results, esp necessary when the scan has finished
+					showProgress();
+				}});
+    	}
+    	return hostSelect;
+    }
+
 
     /**
      * --------------------------------------------------
@@ -255,7 +297,6 @@ public class ScanProgressDialog extends AbstractDialog {
                 JProgressBar bar = new JProgressBar();
                 bar.setMaximum(100);
                 
-                int val = item.getProgressPercentage();
                 bar.setValue(item.getProgressPercentage());                
                 result = bar;
                 

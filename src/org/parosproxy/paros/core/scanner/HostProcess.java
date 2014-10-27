@@ -264,7 +264,7 @@ public class HostProcess implements Runnable {
     }
 
     protected boolean nodeInScope(SiteNode node) {
-        return parentScanner.urlInScope(node.getHierarchicNodeName());
+        return parentScanner.isInScope(node);
     }
 
     /**
@@ -586,10 +586,8 @@ public class HostProcess implements Runnable {
 	public void setTechSet(TechSet techSet) {
 		this.techSet = techSet;
 	}
-
-    /* TODO Work in progress
-	public void setNodes(List<SiteNode> nodes) {
-		this.nodes = nodes;
+	
+	public String getHostAndPort() {
+		return this.hostAndPort;
 	}
-	*/
 }

@@ -742,6 +742,43 @@ public class Session extends FileXML {
 	}
 	
 	/**
+	 * Gets the top nodes from the site tree which contain nodes that are "In Scope". 
+	 * Searches recursively starting from the root node. 
+	 * Should be used with care, as it is time-consuming, querying the database for
+	 * every node in the Site Tree.
+	 * 
+	 * @return the nodes in scope from site tree
+	 */
+	public List<SiteNode> getTopNodesInScopeFromSiteTree() {
+		List<SiteNode> nodes = new LinkedList<>();
+		SiteNode rootNode = (SiteNode) getSiteTree().getRoot();
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = rootNode.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isContainsNodesInScope(sn)) {
+				nodes.add(sn);
+			}
+		}
+		return nodes;
+	}
+
+	private boolean isContainsNodesInScope(SiteNode node) {
+		if (node.isIncludedInScope()) {
+			return true;
+		}
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = node.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isContainsNodesInScope(sn)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Fills a given list with nodes in scope, searching recursively.
 	 * 
 	 * @param rootNode the root node

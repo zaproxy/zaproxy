@@ -250,9 +250,12 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     private String getTargetDisplayName(Target target) {
     	if (target.getStartNode() == null) {
-    		if (target.isInScopeOnly()) {
+    		if (target.getContext() != null) {
+    			return Constant.messages.getString("context.prefixName", new Object[] {target.getContext().getName()});
+    		} else if (target.isInScopeOnly()) {
     			return Constant.messages.getString("ascan.toolbar.progress.inscope");
     		} else {
+    			logger.error("Unexpected target - no startNode, context or inScopeOnly");
     			return "Unexpected target:(";
     		}
     	} else {

@@ -131,13 +131,13 @@ public class Scanner implements Runnable {
 	
 	public void scan(Target target) {
 
-	    HostProcess hostProcess = null;
 	    Thread thread = null;
 
         this.setScanChildren(target.isRecurse());
         this.setJustScanInScope(target.isInScopeOnly());
 
 	    if (target.getStartNode() != null) {
+		    HostProcess hostProcess = null;
 	    	SiteNode node = target.getStartNode();
 		    if (node.isRoot()) {
 		        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
@@ -168,61 +168,46 @@ public class Scanner implements Runnable {
 	            notifyHostNewScan(hostAndPort, hostProcess);
 		        
 		    }
-		    /*
 	    } else if (target.getContext() != null) {
-			// TODO Work in progress
-            String hostAndPort = "Context: " + target.getContext().getName();
-
-            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory());
-            // TODO ugh... really want a hierarchy...
-            hostProcess.setNodes(target.getContext().getNodesInContextFromSiteTree());
-            hostProcess.setUser(this.user);
-            hostProcess.setTechSet(this.techSet);
-            this.hostProcesses.add(hostProcess);
-            thread = pool.getFreeThreadAndRun(hostProcess);
-            notifyHostNewScan(hostAndPort, hostProcess);
-	    
+	    	// Loop through all of the top nodes containing children in this context
+	    	List<SiteNode> nodes = target.getContext().getTopNodesInContextFromSiteTree();
+	    	for (SiteNode node : nodes) {
+			    HostProcess hostProcess = null;
+	            String hostAndPort = getHostAndPort(node);
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
+	            hostProcess.setStartNode(node);
+	            hostProcess.setUser(this.user);
+	            hostProcess.setTechSet(this.techSet);
+	            this.hostProcesses.add(hostProcess);
+	            do { 
+	                thread = pool.getFreeThreadAndRun(hostProcess);
+	                if (thread == null) Util.sleep(500);
+	            } while (thread == null && !isStop());
+	            if (thread != null) {
+		            notifyHostNewScan(hostAndPort, hostProcess);
+	            }
+	    	}
 	    } else if (target.isInScopeOnly()) {
-	    	// TODO, work in progress
-	    	
-	    	SiteNode node = (SiteNode) Model.getSingleton().getSession().getSiteTree().getRoot();
-		    if (node.isRoot()) {
-		        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
-		            SiteNode child = (SiteNode) node.getChildAt(i);
-		            if (hasNodesInScope(child)) {
-			            String hostAndPort = getHostAndPort(child);
-			            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
-			            hostProcess.setStartNode(child);
-			            hostProcess.setUser(this.user);
-			            hostProcess.setTechSet(this.techSet);
-			            this.hostProcesses.add(hostProcess);
-			            do { 
-			                thread = pool.getFreeThreadAndRun(hostProcess);
-			                if (thread == null) Util.sleep(500);
-			            } while (thread == null && !isStop());
-			            if (thread != null) {
-				            notifyHostNewScan(hostAndPort, hostProcess);
-			            }
-		            }
-		        }
-		    }
-		    */
+	    	this.justScanInScope = true;
+	    	List<SiteNode> nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
+	    	for (SiteNode node : nodes) {
+			    HostProcess hostProcess = null;
+	            String hostAndPort = getHostAndPort(node);
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, getPluginFactory().clone());
+	            hostProcess.setStartNode(node);
+	            hostProcess.setUser(this.user);
+	            hostProcess.setTechSet(this.techSet);
+	            this.hostProcesses.add(hostProcess);
+	            do { 
+	                thread = pool.getFreeThreadAndRun(hostProcess);
+	                if (thread == null) Util.sleep(500);
+	            } while (thread == null && !isStop());
+	            if (thread != null) {
+		            notifyHostNewScan(hostAndPort, hostProcess);
+	            }
+	    	}
 	    }
 	     
-	}
-	
-	private boolean hasNodesInScope(SiteNode node) {
-		if (node.isIncludedInScope()) {
-			return true;
-		}
-		if (node.getChildCount() > 0) {
-			for (int i=0; i <= node.getChildCount(); i++) {
-				if (this.hasNodesInScope((SiteNode)node.getChildAt(i))) {
-					return true;
-				}
-			}
-		}
-		return false;
 	}
 
 	public boolean isStop() {
@@ -327,10 +312,17 @@ public class Scanner implements Runnable {
 		}
 	}
 	
-	public boolean urlInScope(String uri) {
+	public boolean isInScope(SiteNode node) {
+		String uri = node.getHierarchicNodeName();
 		if (this.justScanInScope && ! Model.getSingleton().getSession().isInScope(uri)) {
 			// Restricted to urls in scope, and this isnt
 			return false;
+		}
+		if (this.target.getContext() != null) {
+			if ( ! target.getContext().isIncluded(node)) {
+				// Restricted to nodes in the given context, and this isnt
+				return false;
+			}
 		}
 		
 		if (excludeUrls != null) {

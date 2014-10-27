@@ -268,7 +268,7 @@ public class Context {
 		Enumeration<SiteNode> en = node.children();
 		while (en.hasMoreElements()) {
 			SiteNode sn = en.nextElement();
-			if (isInContext(sn)) {
+			if (isContainsNodesInContext(sn)) {
 				return true;
 			}
 		}
