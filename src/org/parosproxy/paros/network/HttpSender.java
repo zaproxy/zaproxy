@@ -45,9 +45,10 @@
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
-// ZAP: 2014/03/29 Issue 1132: 	HttpSender ignores the "Send single cookie request header" option
+// ZAP: 2014/03/29 Issue 1132: HttpSender ignores the "Send single cookie request header" option
 // ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
 // ZAP: 2014/10/25 Issue 1062: Added a getter for the HttpClient.
+// ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 
 package org.parosproxy.paros.network;
 
@@ -60,14 +61,18 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.apache.commons.httpclient.Header;
+import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.HttpHost;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
+import org.apache.commons.httpclient.ProxyHost;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
@@ -93,6 +98,8 @@ public class HttpSender {
 	public static final int BEAN_SHELL_INITIATOR = 8;
 	public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
 
+	public static final String ZAP_CFU_PROTOCOL_ID = "zapcfu";
+
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
 	private static ProtocolSocketFactory sslFactory = null;
@@ -112,8 +119,10 @@ public class HttpSender {
 		// avoid init again if already initialized
 		if (sslFactory == null || !(sslFactory instanceof SSLConnector)) {
 			Protocol.registerProtocol("https", new Protocol("https",
-					(ProtocolSocketFactory) new SSLConnector(), 443));
+					(ProtocolSocketFactory) new SSLConnector(true), 443));
 		}
+		Protocol.registerProtocol(ZAP_CFU_PROTOCOL_ID, new Protocol(ZAP_CFU_PROTOCOL_ID/*"https"*/,
+				(ProtocolSocketFactory) new SSLConnector(false), 11443));
 
 		AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
 	}
@@ -193,22 +202,27 @@ public class HttpSender {
 		clientProxy.getHostConfiguration().setProxy(param.getProxyChainName(), param.getProxyChainPort());
 
 		if (param.isUseProxyChainAuth()) {
-			// NTCredentials credentials = new NTCredentials(
-			// param.getProxyChainUserName(), param.getProxyChainPassword(),
-			// param.getProxyChainName(), param.getProxyChainName());
-			NTCredentials credentials = new NTCredentials(param.getProxyChainUserName(),
-					param.getProxyChainPassword(), "", param.getProxyChainRealm().equals("") ? ""
-							: param.getProxyChainRealm());
-			// Below is the original code, but user reported that above code works.
-			// UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
-			// param.getProxyChainUserName(), param.getProxyChainPassword());
-			AuthScope authScope = new AuthScope(param.getProxyChainName(), param.getProxyChainPort(), param
-					.getProxyChainRealm().equals("") ? AuthScope.ANY_REALM : param.getProxyChainRealm());
-
-			clientProxy.getState().setProxyCredentials(authScope, credentials);
+			clientProxy.getState().setProxyCredentials(getAuthScope(param), getNTCredentials(param));
 		}
 
 		return clientProxy;
+	}
+	
+	private NTCredentials getNTCredentials(ConnectionParam param) {
+		// NTCredentials credentials = new NTCredentials(
+		// param.getProxyChainUserName(), param.getProxyChainPassword(),
+		// param.getProxyChainName(), param.getProxyChainName());
+		return  new NTCredentials(param.getProxyChainUserName(),
+				param.getProxyChainPassword(), "", param.getProxyChainRealm().equals("") ? ""
+						: param.getProxyChainRealm());
+	}
+
+	private AuthScope getAuthScope(ConnectionParam param) {
+		// Below is the original code, but user reported that above code works.
+		// UsernamePasswordCredentials credentials = new UsernamePasswordCredentials(
+		// param.getProxyChainUserName(), param.getProxyChainPassword());
+		return new AuthScope(param.getProxyChainName(), param.getProxyChainPort(), param
+				.getProxyChainRealm().equals("") ? AuthScope.ANY_REALM : param.getProxyChainRealm());
 	}
 
 	public int executeMethod(HttpMethod method, HttpState state) throws IOException {
@@ -217,10 +231,12 @@ public class HttpSender {
 		String hostName;
 		hostName = method.getURI().getHost();
 		method.setDoAuthentication(true);
+        HostConfiguration hc = null;
 
 		HttpClient requestClient;
 		if (param.isUseProxy(hostName)) {
 			requestClient = clientViaProxy;
+
 		} else {
 			// ZAP: use custom client on upgrade connection and on event-source data type
 			Header connectionHeader = method.getRequestHeader("connection");
@@ -236,15 +252,42 @@ public class HttpSender {
 			}
 		}
 
+		if (this.initiator == CHECK_FOR_UPDATES_INITIATOR) {
+			// Use the 'strict' SSLConnector, ie one that performs all the usual cert checks
+			// The 'standard' one 'trusts' everything
+			// This is to ensure that all 'check-for update' calls are made to the expected https urls
+			// without this is would be possible to intercept and change the response which could result
+			// in the user downloading and installing a malicious add-on
+			hc = new HostConfiguration() {
+	            @Override
+	            public synchronized void setHost(URI uri) {
+	                try {
+	                    setHost(new HttpHost(uri.getHost(), uri.getPort(), getProtocol()));
+	                } catch (URIException e) {
+	                    throw new IllegalArgumentException(e.toString());
+	                }
+	            };
+	        };
+	        
+	        hc.setHost(hostName, method.getURI().getPort(), new Protocol(
+	                "https", (ProtocolSocketFactory) new SSLConnector(false), 443));
+			if (param.isUseProxy(hostName)) {
+				hc.setProxyHost(new ProxyHost(param.getProxyChainName(), param.getProxyChainPort()));
+				if (param.isUseProxyChainAuth()) {
+					requestClient.getState().setProxyCredentials(getAuthScope(param), getNTCredentials(param));
+				}
+			}
+		}
+
 		// ZAP: Check if a custom state is being used
 		if (state != null) {
 			// Make sure cookies are enabled and restore the cookie policy afterwards
 			String originalCookiePolicy = requestClient.getParams().getCookiePolicy();
 			requestClient.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			responseCode = requestClient.executeMethod(null, method, state);
+			responseCode = requestClient.executeMethod(hc, method, state);
 			requestClient.getParams().setCookiePolicy(originalCookiePolicy);
 		} else
-			responseCode = requestClient.executeMethod(method);
+			responseCode = requestClient.executeMethod(hc, method, null);
 
 		return responseCode;
 	}

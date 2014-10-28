@@ -30,7 +30,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.parosproxy.paros.view.View;
 
 public class DownloadManager extends Thread {
 	private static final Logger logger = Logger.getLogger(DownloadManager.class);
@@ -49,7 +51,7 @@ public class DownloadManager extends Thread {
 		Authenticator.setDefault(new ZapProxyAuthenticator());
 	}
 	
-	public Downloader downloadFile (URL url, File targetFile, long size) {
+	public Downloader downloadFile (URL url, File targetFile, long size, String hash) {
 		logger.debug("Download file " + url + " to " + targetFile.getAbsolutePath());
 		
 		Proxy proxy;
@@ -60,7 +62,7 @@ public class DownloadManager extends Thread {
 			proxy = Proxy.NO_PROXY;
 		}
 		
-		Downloader dl = new Downloader(url, proxy, targetFile, size);
+		Downloader dl = new Downloader(url, proxy, targetFile, size, hash);
 		dl.start();
 		this.currentDownloads.add(dl);
 		return dl;
@@ -73,7 +75,17 @@ public class DownloadManager extends Thread {
 			List<Downloader> finishedDownloads = new ArrayList<>();
 			for (Downloader dl : this.currentDownloads) {
 				if (!dl.isAlive()) {
-					logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
+					if (dl.isValidated()) {
+						logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
+					} else {
+						// Corrupt or corrupted file? Pretty bad anyway
+						logger.error("Validation failed " + dl.getTargetFile().getAbsolutePath());
+						dl.cancelDownload();
+						if (View.isInitialised()) {
+							View.getSingleton().showWarningDialog(
+									Constant.messages.getString("cfu.warn.badhash", new Object[] {dl.getTargetFile().getName()}));
+						}
+					}
 					finishedDownloads.add(dl);
 				} else if (this.cancelDownloads){
 					logger.debug("Cancelling download " + dl.getTargetFile().getAbsolutePath());

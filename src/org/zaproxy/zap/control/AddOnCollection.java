@@ -57,7 +57,8 @@ public class AddOnCollection {
 								new URL(config.getString("core." + platform.name() +".url")),
 								config.getString("core." + platform.name() +".file"),
 								config.getLong("core." + platform.name() +".size"),
-								config.getString("core.relnotes"));
+								config.getString("core.relnotes"),
+								config.getString("core." + platform.name() +".hash"));
 			}
         } catch (Exception e) {
         	logger.error(e.getMessage(), e);
@@ -88,7 +89,8 @@ public class AddOnCollection {
         						config.getLong("addon_" + id + ".size"),
         						config.getString("addon_" + id + ".not-before-version", ""),
         						config.getString("addon_" + id + ".not-from-version", ""),
-        						infoUrl);
+        						infoUrl,
+        						config.getString("addon_" + id + ".hash", null));
         		if (ao.canLoad()) {
         			// Ignore ones that dont apply to this version
         			this.addOns.add(ao);

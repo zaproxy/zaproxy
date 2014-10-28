@@ -28,6 +28,7 @@ public class ZapRelease {
 	private String fileName;
 	private long size;
 	private String releaseNotes;
+	private String hash;
 
 	public ZapRelease() {
 	}
@@ -36,13 +37,14 @@ public class ZapRelease {
 		this.version = version;
 	}
 	
-	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes) {
+	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes, String hash) {
 		super();
 		this.version = version;
 		this.url = url;
 		this.fileName = fileName;
 		this.size = size;
 		this.releaseNotes = releaseNotes;
+		this.hash = hash;
 	}
 
 	public String getVersion() {
@@ -94,4 +96,9 @@ public class ZapRelease {
 		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
 		return zrc.compare(this, new ZapRelease(otherVersion)) < 0;
 	}
+
+	public String getHash() {
+		return hash;
+	}
+	
 }

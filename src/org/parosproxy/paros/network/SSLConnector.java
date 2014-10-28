@@ -28,6 +28,7 @@
 // ZAP: 2014/07/17 Issue 704: ZAP Error: handshake alert: unrecognized_name
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 // ZAP: 2014/08/14 Issue 1274: ZAP Error [javax.net.ssl.SSLException]: Unsupported record version SSLv2Hello
+// ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 
 package org.parosproxy.paros.network;
 
@@ -93,8 +94,8 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	private static final String[] FAIL_SAFE_DEFAULT_ENABLED_PROTOCOLS = { SECURITY_PROTOCOL_TLS_V1 };
 
 	// client socket factories
-	private static SSLSocketFactory clientSSLSockFactory = null;
-	private static SSLSocketFactory clientSSLSockCertFactory = null;
+	private SSLSocketFactory clientSSLSockFactory = null;
+	private SSLSocketFactory clientSSLSockCertFactory = null;
 
 	private static String[] supportedProtocols;
 	private static String[] clientEnabledProtocols;
@@ -149,7 +150,19 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 	
 	private static SSLContextManager sslContextManager = null;
 
+	/*
+	 * If relaxedTrust then we ignore all of the 'usual' https checks.
+	 * This is needed in order to test sites with custom certs
+	 * However we dont want to override these checks for things like the 'check-for-updates' call
+	 */
+	private boolean relaxedTrust = true;
+
 	public SSLConnector() {
+		this(true);
+	}
+
+	public SSLConnector(boolean relaxedTrust) {
+		this.relaxedTrust = relaxedTrust;
 		if (clientSSLSockFactory == null) {
 		    serverSslSocketsDecorator = new ServerSslSocketsDecorator();
 		    clientSslSocketsDecorator = new ClientSslSocketsDecorator();
@@ -206,7 +219,11 @@ public class SSLConnector implements SecureProtocolSocketFactory {
 			SSLContext sslContext = SSLContext.getInstance(type);
 			java.security.SecureRandom x = new java.security.SecureRandom();
 			x.setSeed(System.currentTimeMillis());
-			sslContext.init(null, trustMgr, x);
+			if (relaxedTrust) {
+				sslContext.init(null, trustMgr, x);
+			} else {
+				sslContext.init(null, null, x);
+			}
 			clientSSLSockFactory = createDecoratedClientSslSocketFactory(sslContext.getSocketFactory());
 			HttpsURLConnection.setDefaultSSLSocketFactory(clientSSLSockFactory);
 

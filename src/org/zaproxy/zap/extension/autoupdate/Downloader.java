@@ -27,6 +27,9 @@ import java.net.Proxy;
 import java.net.URL;
 import java.util.Date;
 
+import org.apache.log4j.Logger;
+import org.zaproxy.zap.utils.HashUtils;
+
 public class Downloader extends Thread {
 	private URL url;
 	private Proxy proxy;
@@ -37,17 +40,22 @@ public class Downloader extends Thread {
 	private Date started = null;
 	private Date finished = null;
 	private boolean cancelDownload = false;
+	private String hash = null;
+	private boolean validated = false;
 
-	public Downloader(URL url, Proxy proxy, File targetFile) {
-		this (url, proxy, targetFile, 0);
+	private static final Logger logger = Logger.getLogger(Downloader.class);
+
+	public Downloader(URL url, Proxy proxy, File targetFile, String hash) {
+		this (url, proxy, targetFile, 0, hash);
 	}
 
-	public Downloader(URL url, Proxy proxy, File targetFile, long size) {
+	public Downloader(URL url, Proxy proxy, File targetFile, long size, String hash) {
 		super();
 		this.url = url;
 		this.proxy = proxy;
 		this.targetFile = targetFile;
 		this.size = size;
+		this.hash = hash;
 	}
 
 	@Override
@@ -75,8 +83,7 @@ public class Downloader extends Thread {
 	    	out = new FileOutputStream(this.targetFile);
 	        byte[] data = new byte[1024];
 	        int count;
-	        while(! cancelDownload && (count = in.read(data,0,1024)) != -1)
-	        {
+	        while(! cancelDownload && (count = in.read(data,0,1024)) != -1) {
 	            out.write(data, 0, count);
 	        }
 		} catch (Exception e) {
@@ -93,6 +100,29 @@ public class Downloader extends Thread {
 				// Ignore
 			}
 		}
+	    if (hash != null && (hash.indexOf(":") > 0)) {
+	    	String algorithm = hash.substring(0, hash.indexOf(":"));
+	    	String hashValue = hash.substring(hash.indexOf(":") + 1);
+	    	try {
+				String realHash = HashUtils.getHash(targetFile, algorithm);
+				if (realHash.equalsIgnoreCase(hashValue)) {
+			    	validated = true;
+				} else {
+					logger.debug("Wrong hash - expected " + hashValue + " got " + realHash);
+				}
+			} catch (Exception e) {
+				// Ignore - we default to unvalidated
+				logger.debug("Error checking hash", e);
+			}
+	    } else {
+	    	/*
+	    	 * If there is no hash then for now default to validated
+	    	 * Once all of the files have hashes then this else path should be removed
+	    	 */
+			logger.debug("No hash, passing for now");
+	    	validated = true;
+	    }
+	    
 	    this.complete = true;
 		this.finished = new Date();
 		if (cancelDownload) {
@@ -102,6 +132,9 @@ public class Downloader extends Thread {
 
 	public void cancelDownload() {
 		this.cancelDownload = true;
+		if (complete && this.targetFile.exists()) {
+			this.targetFile.delete();
+		}
 	}
 
 	public Exception getException() {
@@ -132,6 +165,14 @@ public class Downloader extends Thread {
 
 	public Date getFinished() {
 		return finished;
+	}
+
+	public String getHash() {
+		return hash;
+	}
+
+	public boolean isValidated() {
+		return validated;
 	}
 
 }

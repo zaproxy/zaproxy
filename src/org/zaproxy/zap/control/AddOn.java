@@ -51,6 +51,7 @@ public class AddOn  {
 	private boolean hasZapAddOnEntry = false;
 	private String notBeforeVersion = null;
 	private String notFromVersion = null;
+	private String hash = null;
 	
 	private List<String> extensions = null;
 	private List<String> ascanrules = null;
@@ -166,7 +167,7 @@ public class AddOn  {
 	
 	public AddOn(String id, String name, String description, String author, int version, Status status, 
 			String changes, URL url, File file, long size, String notBeforeVersion, String notFromVersion,
-			URL info) {
+			URL info, String hash) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -180,6 +181,7 @@ public class AddOn  {
 		this.notBeforeVersion = notBeforeVersion;
 		this.notFromVersion = notFromVersion;
 		this.info = info;
+		this.hash = hash;
 		
 		loadManifestFile();
 	}
@@ -344,6 +346,10 @@ public class AddOn  {
 	
 	public void setInfo(URL info) {
 		this.info = info;
+	}
+	
+	public String getHash() {
+		return hash;
 	}
 	
 }

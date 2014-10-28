@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
@@ -51,7 +52,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
-import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.utils.DesktopUtils;
@@ -72,7 +72,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JPanel uninstalledAddOnsPanel = null;
 	private JPanel retrievePanel = null;
 	private JScrollPane marketPlaceScrollPane = null;
-    private WaitMessageDialog waitDialog = null;
 
 	private JButton addOnInfoButton = null;
 	private JButton coreNotesButton = null;
@@ -617,15 +616,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	}
 	
 	protected void checkForUpdates() {
-    	waitDialog = View.getSingleton().getWaitMessageDialog(this, Constant.messages.getString("cfu.check.checking"));
-    	// Allow user to close the dialog
-    	waitDialog.setDefaultCloseOperation(javax.swing.WindowConstants.HIDE_ON_CLOSE);
-
-		if (extension.getLatestVersionInfo(this) == null) {
-			waitDialog.setVisible(true);
-		} else {
-			disposeWaitDialog();
-		}
+    	this.setCursor(new Cursor(Cursor.WAIT_CURSOR));
+		extension.getLatestVersionInfo(this);
+    	this.setCursor(Cursor.getDefaultCursor());
 	}
 
 	private JButton getDownloadZapButton() {
@@ -670,7 +663,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		for (AddOnWrapper aoi : this.installedAddOns) {
 			if (aoi.isEnabled() && aoi.getProgress() == 0) {
 				aoi.setStatus(AddOnWrapper.Status.downloading);
-				extension.downloadFile(aoi.getAddOn().getUrl(), aoi.getAddOn().getFile(), aoi.getAddOn().getSize());
+				extension.downloadFile(aoi.getAddOn().getUrl(), 
+						aoi.getAddOn().getFile(), aoi.getAddOn().getSize(), aoi.getAddOn().getHash());
 				aoi.setEnabled(false);
 				downloading = true;
 			}
@@ -745,7 +739,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							if (aoi.isEnabled()) {
 								state = State.DOWNLOADING_UPDATES;
 								aoi.setStatus(AddOnWrapper.Status.downloading);
-								extension.downloadFile(aoi.getAddOn().getUrl(), aoi.getAddOn().getFile(), aoi.getAddOn().getSize());
+								extension.downloadFile(aoi.getAddOn().getUrl(), 
+										aoi.getAddOn().getFile(), aoi.getAddOn().getSize(), aoi.getAddOn().getHash());
 							}
 						}
 					}
@@ -867,7 +862,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	public void gotLatestData(AddOnCollection aoc) {
 		// Callback
 		logger.debug("gotLatestData(AddOnCollection " + aoc);
-		disposeWaitDialog();
 		
 		if (aoc != null) {
 			setLatestVersionInfo(aoc);
@@ -876,10 +870,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		}
 	}
 	
-	private void disposeWaitDialog() {
-		if (waitDialog != null) {
-			waitDialog.dispose();
-			waitDialog = null;
-		}
+	@Override
+	public void insecureUrl(String url, Exception cause) {
+		logger.error("Failed to get check for updates on " + url, cause);
+   		View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.warn.badurl"));
 	}
 }

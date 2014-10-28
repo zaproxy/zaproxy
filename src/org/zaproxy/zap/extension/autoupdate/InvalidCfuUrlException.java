@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2012 ZAP development team
+ * Copyright 2014 ZAP development team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License"); 
  * you may not use this file except in compliance with the License. 
@@ -17,14 +17,13 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
-
 package org.zaproxy.zap.extension.autoupdate;
 
-import org.zaproxy.zap.control.AddOnCollection;
+public class InvalidCfuUrlException extends Exception {
 
-public interface CheckForUpdateCallback {
+	private static final long serialVersionUID = 1L;
 
-	void gotLatestData (AddOnCollection aoc);
-	
-	void insecureUrl(String url, Exception cause);
+	public InvalidCfuUrlException(String url) {
+		super(url);
+	}
 }

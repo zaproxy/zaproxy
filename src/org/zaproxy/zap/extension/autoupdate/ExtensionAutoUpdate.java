@@ -31,6 +31,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.SSLHandshakeException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -64,13 +65,14 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
 	
-	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/V4aWX
-    private static final String ZAP_VERSIONS_XML_SHORT = "http://goo.gl/V4aWX";
-    private static final String ZAP_VERSIONS_XML_FULL = "http://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
+	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/9aDT69
+	// Note that URLs must now use https (unless you change the code;)
+    private static final String ZAP_VERSIONS_XML_SHORT = "https://goo.gl/9aDT69";
+    private static final String ZAP_VERSIONS_XML_FULL = "https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
 
 	// URLs for use when testing locally ;)
-	//private static final String ZAP_VERSIONS_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
-    //private static final String ZAP_VERSIONS_XML_FULL = "http://localhost:8080/zapcfu/ZapVersions.xml";
+	//private static final String ZAP_VERSIONS_XML_SHORT = "https://localhost:8080/zapcfu/ZapVersions.xml";
+	//private static final String ZAP_VERSIONS_XML_FULL = "https://localhost:8080/zapcfu/ZapVersions.xml";
 
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
@@ -117,7 +119,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         // Do this before it can get overwritten by the latest one
         this.getPreviousVersionInfo();
 	}
-
+	
 	/**
 	 * This method initializes menuItemEncoder	
 	 * 	
@@ -286,7 +288,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		return addonsDialog;
 	}
 	
-	public void downloadFile (URL url, File targetFile, long size) {
+	public void downloadFile (URL url, File targetFile, long size, String hash) {
 		if (View.isInitialised()) {
 			// Report info to the Output tab
 			View.getSingleton().getOutputPanel().append(
@@ -295,7 +297,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							url.toString(),
 							targetFile.getAbsolutePath()));
 		}
-		this.downloadFiles.add(this.downloadManager.downloadFile(url, targetFile, size));
+		this.downloadFiles.add(this.downloadManager.downloadFile(url, targetFile, size, hash));
 		if (View.isInitialised()) {
 			// Means we do have a UI
 			if (this.downloadProgressThread != null && ! this.downloadProgressThread.isAlive()) {
@@ -447,7 +449,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	
     private HttpSender getHttpSender() {
         if (httpSender == null) {
-            httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true, HttpSender.CHECK_FOR_UPDATES_INITIATOR);
+            httpSender = new HttpSender(Model.getSingleton().getOptionsParam().getConnectionParam(), true, 
+            		HttpSender.CHECK_FOR_UPDATES_INITIATOR);
         }
         return httpSender;
     }
@@ -520,13 +523,15 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     }
 
     private ZapXmlConfiguration getRemoteConfigurationUrl(String url) throws 
-    		IOException, ConfigurationException {
+    		IOException, ConfigurationException, InvalidCfuUrlException {
         HttpMessage msg = new HttpMessage(new URI(url, true));
         getHttpSender().sendAndReceive(msg,true);
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
-        	logger.error("Failed to access " + url +
-        			" response " + msg.getResponseHeader().getStatusCode());
             throw new IOException();
+        }
+        if (! msg.getRequestHeader().isSecure()) {
+        	// Only access the cfu page over https
+            throw new InvalidCfuUrlException(msg.getRequestHeader().getURI().toString());
         }
         
     	ZapXmlConfiguration config = new ZapXmlConfiguration();
@@ -579,7 +584,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	ZapRelease latestRelease = this.getLatestVersionInfo().getZapRelease();
 		if (latestRelease.isNewerThan(this.getCurrentVersion())) {
 			File f = new File(Constant.FOLDER_LOCAL_PLUGIN, latestRelease.getFileName());
-			downloadFile(latestRelease.getUrl(), f, latestRelease.getSize());
+			downloadFile(latestRelease.getUrl(), f, latestRelease.getSize(), latestRelease.getHash());
 			return true;
 		}
 		return false;
@@ -622,7 +627,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	}
     	boolean response = false;
 		for (AddOn ao : getUpdatedAddOns()) {
-			this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize());
+			this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize(), ao.getHash());
 			response = true;
 		}
 		return response;
@@ -636,7 +641,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	boolean response = false;
 		for (AddOn ao : getUpdatedAddOns()) {
 			if (ao.getId().contains("scanrules")) {
-				this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize());
+				this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize(), ao.getHash());
 				response = true;
 			}
 		}
@@ -646,7 +651,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     protected boolean installAddOn(String id) {
     	for (AddOn ao : this.getLatestVersionInfo().getAddOns()) {
     		if (ao.getId().equals(id)) {
-    			this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize());
+    			this.downloadFile(ao.getUrl(), ao.getFile(), ao.getSize(), ao.getHash());
     			return true;
     		}
     	}
@@ -669,18 +674,29 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	    				// and we dont want the ui to hang in the meantime
 	    				this.setName("ZAP-cfu");
 						logger.debug("Getting latest version info from " + ZAP_VERSIONS_XML_SHORT);
+						String url = null;
 			    		try {
-							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(ZAP_VERSIONS_XML_SHORT), getPlatform());
+			    			url = ZAP_VERSIONS_XML_SHORT;
+							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(url), getPlatform());
 						} catch (Exception e1) {
 							logger.debug("Getting latest version info from " + ZAP_VERSIONS_XML_FULL);
 							logger.debug("Failed to access " + ZAP_VERSIONS_XML_SHORT, e1);
+							url = ZAP_VERSIONS_XML_FULL;
 				    		try {
-				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(ZAP_VERSIONS_XML_FULL), getPlatform());
+				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(url), getPlatform());
+				    		} catch (SSLHandshakeException e2) {
+					    		if (callback != null) {
+					    			callback.insecureUrl(url, e2);
+					    		}
+							} catch (InvalidCfuUrlException e2) {
+					    		if (callback != null) {
+					    			callback.insecureUrl(url, e2);
+					    		}
 							} catch (Exception e2) {
 								logger.debug("Failed to access " + ZAP_VERSIONS_XML_FULL, e2);
 							}
 						}
-			    		if (callback != null) {
+			    		if (callback != null && latestVersionInfo != null) {
 							logger.debug("Calling callback with  " + latestVersionInfo);
 			    			callback.gotLatestData(latestVersionInfo);
 			    		}
@@ -690,10 +706,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     			this.remoteCallThread.start();
     		}
     		if (callback == null) {
-    			// Synchronous
-				while (latestVersionInfo == null && this.remoteCallThread.isAlive()) {
+    			// Synchronous, but include a 30 sec max anyway
+    			int i=0;
+				while (latestVersionInfo == null && this.remoteCallThread.isAlive() && i < 30) {
 					try {
 						Thread.sleep(1000);
+						i++;
 					} catch (InterruptedException e) {
 						// Ignore
 					}
@@ -795,6 +813,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			}
 		}
 		return removedDynamically;
+	}
+	
+	@Override
+	public void insecureUrl(String url, Exception cause) {
+		logger.error("Failed to get check for updates on " + url, cause);
+    	if (View.isInitialised()) {
+    		View.getSingleton().showWarningDialog(Constant.messages.getString("cfu.warn.badurl"));
+    	}
 	}
 
 	@Override
