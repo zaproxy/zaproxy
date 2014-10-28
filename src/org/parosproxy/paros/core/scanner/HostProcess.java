@@ -44,12 +44,14 @@
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 // ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
+// ZAP: 2014/10/25 Issue 1062: Made it possible to hook into the active scanner from extensions
 
 package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.List;
 import java.util.Map;
@@ -586,6 +588,44 @@ public class HostProcess implements Runnable {
 	public void setTechSet(TechSet techSet) {
 		this.techSet = techSet;
 	}
+	
+	/** 
+     * ZAP: abstract plugin will call this method in order to invoke any extensions that have hooked into the active scanner
+     * @param msg
+     * @param plugin
+     */
+    protected synchronized void performScannerHookBeforeScan(HttpMessage msg, AbstractPlugin plugin) {
+		Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
+		while(iter.hasNext()){
+			ScannerHook hook = iter.next();
+			if(hook != null) {
+				try {
+					hook.beforeScan(msg, plugin);
+				} catch (Exception e) {
+					log.info("An exception occurred while trying to call beforeScan(msg, plugin) for one of the ScannerHooks: " + e.getMessage(), e); 
+				} 
+			}
+		}
+    }
+    
+    /** 
+     * ZAP: abstract plugin will call this method in order to invoke any extensions that have hooked into the active scanner 
+     * @param msg
+     * @param plugin
+     */
+    protected synchronized void performScannerHookAfterScan(HttpMessage msg, AbstractPlugin plugin) {
+		Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
+		while(iter.hasNext()){
+			ScannerHook hook = iter.next();
+			if(hook != null) {
+				try {
+					hook.afterScan(msg, plugin);
+				} catch (Exception e) {
+					log.info("An exception occurred while trying to call afterScan(msg, plugin) for one of the ScannerHooks: " + e.getMessage(), e);
+				}
+			}
+		}
+    }
 	
 	public String getHostAndPort() {
 		return this.hostAndPort;

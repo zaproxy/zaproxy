@@ -50,11 +50,13 @@
 // ZAP: 2014/08/14 Issue 1309: NullPointerExceptions during a failed uninstallation of an add-on
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/10/09 Issue 1359: Added info logging for splash screen
+// ZAP: 2014/10/25 Issue 1062: Added scannerhook to be loaded by an active scanner.
 
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Vector;
@@ -71,6 +73,8 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.control.Proxy;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
+import org.parosproxy.paros.core.scanner.Scanner;
+import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
@@ -310,6 +314,31 @@ public class ExtensionLoader {
 	        }
 		}
     }
+    
+	// ZAP: method called by the scanner to load all scanner hooks. 
+	public void hookScannerHook(Scanner scan) {
+		Iterator<ExtensionHook> iter = extensionHooks.values().iterator();
+		while(iter.hasNext()){
+			ExtensionHook hook = iter.next();
+			List<ScannerHook> scannerHookList = hook.getScannerHookList();
+			
+			for(int j = 0; j < scannerHookList.size(); j++){
+				try {
+					ScannerHook scannerHook = scannerHookList.get(j);
+					if(hook != null) {
+						scan.addScannerHook(scannerHook);
+					}
+				} catch(Exception e) {
+					logger.error(e.getMessage(), e);
+				}
+			}
+		}
+	}
+
+// ZAP: remove a scanner hook listener 
+//	private void removeScannerHook(ExtensionHook hook) {
+//		//TODO: Implement?
+//	}
     
     public void optionsChangedAllPlugin(OptionsParam options) {
     	for (ExtensionHook hook : extensionHooks.values()) {

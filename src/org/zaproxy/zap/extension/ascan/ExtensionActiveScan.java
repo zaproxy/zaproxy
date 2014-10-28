@@ -65,6 +65,7 @@ import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PolicyPassiveScanPanel;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
+import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
@@ -113,6 +114,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private final List<AbstractParamPanel> policyPanels = new ArrayList<>();
 	private JButton policyButton = null;
 	private CustomScanDialog customScanDialog = null;
+	private List<ScriptWrapper> includedSequenceScripts = null;
     
 	private ActiveScanAPI activeScanApi;
 
@@ -552,7 +554,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		customScanDialog.init(new Target(node));
 		customScanDialog.setVisible(true);
 	}
-
     
     @Override
     public boolean handleFile(File file) {
@@ -650,4 +651,11 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return ascanController.getLastScan();
 	}
 
+	public void setIncludedSequenceScripts(List<ScriptWrapper> selectedIncludeScripts) {
+		this.includedSequenceScripts = selectedIncludeScripts;
+	}
+	
+	public List<ScriptWrapper> getIncludedSequenceScripts() {
+		return this.includedSequenceScripts;
+	}
 }

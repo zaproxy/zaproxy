@@ -47,6 +47,7 @@
 // and enhance the usability of some options
 // ZAP: 2014/03/29 Issue 1132: 	HttpSender ignores the "Send single cookie request header" option
 // ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
+// ZAP: 2014/10/25 Issue 1062: Added a getter for the HttpClient.
 
 package org.parosproxy.paros.network;
 
@@ -662,6 +663,11 @@ public class HttpSender {
 	 */
 	public void setUser(User user) {
 		this.user = user;
+	}
+	
+	// ZAP: Added a getter for the client.
+	public HttpClient getClient() {
+		return this.client;
 	}
 
     /**

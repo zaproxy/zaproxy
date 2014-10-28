@@ -32,6 +32,7 @@
 // ZAP: 2014/06/23 Issue 1242: Active scanner might use outdated policy settings
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
+// ZAP: 2014/10/25 Issue 1062: Made the scanner load all scannerhooks from the extensionloader
 
 package org.parosproxy.paros.core.scanner;
 
@@ -60,6 +61,9 @@ public class Scanner implements Runnable {
 	private static DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
 
 	private Vector<ScannerListener> listenerList = new Vector<>();
+	
+	//ZAP: Added a list of scannerhooks
+	private Vector<ScannerHook> hookList = new Vector<>();
 	private ScannerParam scannerParam = null;
 	private ConnectionParam connectionParam = null;
 	private PluginFactory pluginFactory = null;
@@ -86,6 +90,9 @@ public class Scanner implements Runnable {
 	    this.pluginFactory = pluginFactory;
 	    //httpSender = new HttpSender(param);
 	    pool = new ThreadPool(scannerParam.getHostPerScan());
+	    
+	  //ZAP: Load all scanner hooks from extensionloader. 
+	    Control.getSingleton().getExtensionLoader().hookScannerHook(this);
     }
     
     
@@ -116,6 +123,19 @@ public class Scanner implements Runnable {
 
 	public void removeScannerListener(ScannerListener listener) {
 		listenerList.remove(listener);
+	}
+	
+	// ZAP: Added functionality to add remove and get the attached scannerhooks to the Scanner. 
+	public void addScannerHook(ScannerHook scannerHook) {
+		hookList.add(scannerHook);
+	}
+
+	public void removerScannerHook(ScannerHook scannerHook) {
+		hookList.remove(scannerHook);
+	}
+
+	protected Vector<ScannerHook> getScannerHooks(){
+		return hookList;
 	}
 
 	@Override
@@ -259,6 +279,16 @@ public class Scanner implements Runnable {
 	        // ZAP: Removed unnecessary cast.
 	        ScannerListener listener = listenerList.get(i);
 	        listener.scannerComplete(this.id);
+	    }
+	    
+	    // ZAP: Invokes scannerhooks with the scannercomplete method.
+	    for (int i=0; i<hookList.size(); i++) {
+	        try {
+				ScannerHook hook = hookList.get(i);
+				hook.scannerComplete();
+			} catch (Exception e) {
+				log.info("An exception occurred while notifying a ScannerHook about scanner completion: " + e.getMessage(), e);
+			}
 	    }
 	}
 	

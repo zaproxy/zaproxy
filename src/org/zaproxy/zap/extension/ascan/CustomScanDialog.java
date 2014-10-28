@@ -76,6 +76,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
+import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
@@ -140,12 +141,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	private CheckboxTree techTree = null;
 	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
 	private TreeModel techModel = null;
+	private SequencePanel sequencePanel = null;
 
     public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
         super(owner, "ascan.custom.title", dim, new String[]{
             "ascan.custom.tab.scope",
             "ascan.custom.tab.input",
             "ascan.custom.tab.custom",
+            "ascan.custom.tab.sequence",
             "ascan.custom.tab.tech",
             "ascan.custom.tab.policy"
         });
@@ -218,8 +221,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
 
+        //Sequence panel
+  		this.setCustomTabPanel(3, this.getSequencePanel(true));
+        
         // Technology panel
-        this.setCustomTabPanel(3, getTechPanel());
+        this.setCustomTabPanel(4, getTechPanel());
         
         // Policy panel
         AbstractParamContainerPanel policyPanel
@@ -241,7 +247,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         
         policyPanel.showDialog(true);
 
-        this.setCustomTabPanel(4, policyPanel);
+        this.setCustomTabPanel(5, policyPanel);
+        
         if (target != null) {
 	        // Set up the fields if a node has been specified, otherwise leave as previously set
 	        this.populateRequestField(this.target.getStartNode());
@@ -251,6 +258,27 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
         this.pack();
     }
+    
+    /**
+	 * Gets the Sequence panel.
+	 * @return The sequence panel
+	 */
+	private SequencePanel getSequencePanel() {
+		return this.getSequencePanel(false);
+	}
+	
+	
+	/**
+	 * Gets the sequence panel, with a boolean that specifies if it should be be a new instance or the extisting one.
+	 * @param reset if set to true, returns a new instance, else the existing instance is returned.
+	 * @return
+	 */
+	private SequencePanel getSequencePanel(boolean reset) {
+		if(this.sequencePanel == null || reset) {
+			this.sequencePanel = new SequencePanel();
+		}
+		return this.sequencePanel;
+	}
 
     private void populateRequestField(SiteNode node) {
         try {
@@ -805,6 +833,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	        }
     	}        
         
+        //The following List and Hashmap represent the selections made on the Sequence Panel.
+  		List<ScriptWrapper> selectedIncludeScripts = getSequencePanel().getSelectedIncludeScripts();
+        
         if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
             int[][] injPoints = new int[injectionPointModel.getSize()][];
             for (int i = 0; i < injectionPointModel.getSize(); i++) {
@@ -837,6 +868,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         };
         
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
+        
+        this.extension.setIncludedSequenceScripts(selectedIncludeScripts);
         
         this.extension.startScan(
                 target,

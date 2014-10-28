@@ -41,6 +41,8 @@
 // ZAP: 2014/05/15 Issue 1196: AbstractPlugin.bingo incorrectly sets evidence to attack
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
+// ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandrecieve also invoke scanner 
+// hook before and after message update
 
 package org.parosproxy.paros.core.scanner;
 
@@ -59,6 +61,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
@@ -219,10 +222,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
                 // Ignore
             }
         }
+        
+        //ZAP: Runs the "beforeScan" methods of any ScannerHooks
+        parent.performScannerHookBeforeScan(msg, this);
 
         parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
+        
         // ZAP: Notify parent
         parent.notifyNewMessage(msg);
+        
+        //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
+        parent.performScannerHookAfterScan(msg, this);
     }
 
     private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
@@ -663,7 +673,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      *
      * @return
      */
-    protected HostProcess getParent() {
+    //ZAP: Changed from protected to public access modifier.
+    public HostProcess getParent() {
         return parent;
     }
 

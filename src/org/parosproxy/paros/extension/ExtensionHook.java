@@ -24,6 +24,7 @@
 // ZAP: 2013/04/14 Issue 608: Rename the method ExtensionHook.addSiteMapListner to addSiteMapListener
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
+// ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions. 
 
 package org.parosproxy.paros.extension;
 
@@ -34,6 +35,7 @@ import java.util.Vector;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
+import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
@@ -53,6 +55,8 @@ public class ExtensionHook {
     private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
     private Vector<SiteMapListener> siteMapListenerList = new Vector<>();
+    // ZAP: Added support for Scanner Hooks
+    private Vector<ScannerHook> scannerHookList = new Vector<>();
     private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
     private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<>(); 
     
@@ -91,6 +95,11 @@ public class ExtensionHook {
 
     public void addSiteMapListener(SiteMapListener listener) {
         siteMapListenerList.add(listener);
+    }
+    
+    // ZAP: add a scanner hook
+    public void addScannerHook(ScannerHook hook) {
+    	scannerHookList.add(hook);
     }
 
     public void addPersistentConnectionListener(PersistentConnectionListener listener) {
@@ -151,6 +160,11 @@ public class ExtensionHook {
 
     public Vector<SiteMapListener> getSiteMapListenerList() {
         return siteMapListenerList;
+    }
+    
+    // ZAP: get all scannerhooks (used by extensionloader and the scanner)
+    public Vector<ScannerHook> getScannerHookList() {
+    	return scannerHookList;
     }
 
     public Vector<PersistentConnectionListener> getPersistentConnectionListener() {
