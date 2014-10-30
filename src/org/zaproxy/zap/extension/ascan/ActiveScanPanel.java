@@ -126,8 +126,6 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	public JButton getNewScanButton() {
 		if (scanButton == null) {
 			scanButton = new JButton(Constant.messages.getString("ascan.toolbar.button.new"));
-			
-			scanButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
 			scanButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")));
 			scanButton.addActionListener(new ActionListener () {
 				@Override
