@@ -64,6 +64,7 @@ public class ScannerParam extends AbstractParam {
     private static final String STRENGTH = "scanner.strength";
     private static final String MAX_RESULTS_LIST = "scanner.maxResults";
     private static final String MAX_SCANS_IN_UI = "scanner.maxScansInUI";
+    private static final String SHOW_ADV_DIALOG = "scanner.advDialog";
 
     // ZAP: Excluded Parameters
     private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
@@ -106,6 +107,7 @@ public class ScannerParam extends AbstractParam {
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;
     private boolean promptToClearFinishedScans = true;
+    private boolean showAdvancedDialog = false;
     private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM;
     private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
     
@@ -163,6 +165,10 @@ public class ScannerParam extends AbstractParam {
             this.promptToClearFinishedScans = getConfig().getBoolean(PROMPT_TO_CLEAR_FINISHED, true);
         } catch (Exception e) {}
 
+        try {
+            this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
+        } catch (Exception e) {}
+        
         try {
             this.alertThreshold = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
         } catch (Exception e) {}
@@ -484,6 +490,16 @@ public class ScannerParam extends AbstractParam {
 
 	public void setMaxScansInUI(int maxScansInUI) {
 		this.maxScansInUI = maxScansInUI;
+        getConfig().setProperty(MAX_SCANS_IN_UI, this.maxScansInUI);
+	}
+
+	public boolean isShowAdvancedDialog() {
+		return showAdvancedDialog;
+	}
+
+	public void setShowAdvancedDialog(boolean showAdvancedDialog) {
+		this.showAdvancedDialog = showAdvancedDialog;
+        getConfig().setProperty(SHOW_ADV_DIALOG, this.showAdvancedDialog);
 	}
 
 }

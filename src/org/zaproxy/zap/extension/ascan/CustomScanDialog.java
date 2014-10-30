@@ -93,7 +93,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_CONTEXT = "ascan.custom.label.context";
     private static final String FIELD_USER = "ascan.custom.label.user";
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
-    private static final String FIELD_INSCOPE = "ascan.custom.label.inscope";
+    private static final String FIELD_ADVANCED = "ascan.custom.label.adv"; 
 
     private static final String FIELD_VARIANT_URL_QUERY = "variant.options.injectable.querystring.label";
     private static final String FIELD_VARIANT_URL_PATH = "variant.options.injectable.urlpath.label";
@@ -152,6 +152,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             "ascan.custom.tab.tech",
             "ascan.custom.tab.policy"
         });
+        this.setAlwaysOnTop(true);
         this.extension = ext;
 
         // The first time init to the default options set, after that keep own copies
@@ -168,13 +169,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.removeAllFields();
         this.injectionPointModel.clear();
         this.headerLength = -1;
-        this.urlPathStart = -1;;
+        this.urlPathStart = -1;
 
         this.addTargetSelectField(0, FIELD_START, this.target, false, false);
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
-        this.addCheckBoxField(0, FIELD_INSCOPE, false);
+        // This option is always read from the 'global' options
+        this.addCheckBoxField(0, FIELD_ADVANCED, extension.getScannerParam().isShowAdvancedDialog());
         this.addPadding(0);
 
         // Default to Recurse, so always set the warning
@@ -191,6 +193,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setFieldStates();
+            }
+        });
+        this.addFieldListener(FIELD_ADVANCED, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                setAdvancedTabs(getBoolValue(FIELD_ADVANCED));
             }
         });
 
@@ -256,10 +264,28 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	        this.setUsers();
 	        this.setTech();
         }
+        
+        if ( ! this.scannerParam.isShowAdvancedDialog()) {
+        	// Remove all but the first tab
+        	this.setAdvancedTabs(false);
+        }
+        
         this.pack();
     }
     
-    /**
+
+	private void setAdvancedTabs(boolean visible) {
+		// Show/hide all except from the first tab
+		this.setTabsVisible (new String[] {
+	            "ascan.custom.tab.input",
+	            "ascan.custom.tab.custom",
+	            "ascan.custom.tab.sequence",
+	            "ascan.custom.tab.tech",
+	            "ascan.custom.tab.policy"
+	        }, visible);
+	}
+
+	/**
 	 * Gets the Sequence panel.
 	 * @return The sequence panel
 	 */
@@ -781,96 +807,102 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     @Override
     public void save() {
-        // Set Injectable Targets
-        int targets = 0;
-        int enabledRpc = 0;
-
-        if (! getDisableNonCustomVectors().isSelected()) {
-        	// Only set these if the user hasnt disabled them
-	        if (this.getBoolValue(FIELD_VARIANT_URL_QUERY)) {
-	            targets |= ScannerParam.TARGET_QUERYSTRING;
-	        }
+        Object[] contextSpecificObjects = null;
+        if (this.getBoolValue(FIELD_ADVANCED)) {
+	        // Set Injectable Targets
+	        int targets = 0;
+	        int enabledRpc = 0;
+	
+	        if (! getDisableNonCustomVectors().isSelected()) {
+	        	// Only set these if the user hasnt disabled them
+		        if (this.getBoolValue(FIELD_VARIANT_URL_QUERY)) {
+		            targets |= ScannerParam.TARGET_QUERYSTRING;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_URL_PATH)) {
+		            targets |= ScannerParam.TARGET_URLPATH;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_POST_DATA)) {
+		            targets |= ScannerParam.TARGET_POSTDATA;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_HEADERS)) {
+		            targets |= ScannerParam.TARGET_HTTPHEADERS;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_COOKIE)) {
+		            targets |= ScannerParam.TARGET_COOKIE;
+		        }
+	
+		        // Set Enabled RPC schemas
+		        if (this.getBoolValue(FIELD_VARIANT_MULTIPART)) {
+		            enabledRpc |= ScannerParam.RPC_MULTIPART;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_XML)) {
+		            enabledRpc |= ScannerParam.RPC_XML;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_JSON)) {
+		            enabledRpc |= ScannerParam.RPC_JSON;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_GWT)) {
+		            enabledRpc |= ScannerParam.RPC_GWT;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_ODATA)) {
+		            enabledRpc |= ScannerParam.RPC_ODATA;
+		        }
+		        
+		        if (this.getBoolValue(FIELD_VARIANT_CUSTOM)) {
+		            enabledRpc |= ScannerParam.RPC_CUSTOM;
+		        }
+	    	}        
 	        
-	        if (this.getBoolValue(FIELD_VARIANT_URL_PATH)) {
-	            targets |= ScannerParam.TARGET_URLPATH;
-	        }
+	        //The following List and Hashmap represent the selections made on the Sequence Panel.
+	  		List<ScriptWrapper> selectedIncludeScripts = getSequencePanel().getSelectedIncludeScripts();
 	        
-	        if (this.getBoolValue(FIELD_VARIANT_POST_DATA)) {
-	            targets |= ScannerParam.TARGET_POSTDATA;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_HEADERS)) {
-	            targets |= ScannerParam.TARGET_HTTPHEADERS;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_COOKIE)) {
-	            targets |= ScannerParam.TARGET_COOKIE;
-	        }
-
-	        // Set Enabled RPC schemas
-	        if (this.getBoolValue(FIELD_VARIANT_MULTIPART)) {
-	            enabledRpc |= ScannerParam.RPC_MULTIPART;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_XML)) {
-	            enabledRpc |= ScannerParam.RPC_XML;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_JSON)) {
-	            enabledRpc |= ScannerParam.RPC_JSON;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_GWT)) {
-	            enabledRpc |= ScannerParam.RPC_GWT;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_ODATA)) {
-	            enabledRpc |= ScannerParam.RPC_ODATA;
-	        }
-	        
-	        if (this.getBoolValue(FIELD_VARIANT_CUSTOM)) {
-	            enabledRpc |= ScannerParam.RPC_CUSTOM;
-	        }
-    	}        
-        
-        //The following List and Hashmap represent the selections made on the Sequence Panel.
-  		List<ScriptWrapper> selectedIncludeScripts = getSequencePanel().getSelectedIncludeScripts();
-        
-        if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
-            int[][] injPoints = new int[injectionPointModel.getSize()][];
-            for (int i = 0; i < injectionPointModel.getSize(); i++) {
-                Highlight hl = injectionPointModel.elementAt(i);
-                injPoints[i] = new int[2];
-                injPoints[i][0] = hl.getStartOffset();
-                injPoints[i][1] = hl.getEndOffset();
-            }
-
-            try {
-            	if (target != null && target.getStartNode() != null) {
-	                VariantUserDefined.setInjectionPoints(
-	                        this.target.getStartNode().getHistoryReference().getURI().toString(),
-	                        injPoints);
+	        if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
+	            int[][] injPoints = new int[injectionPointModel.getSize()][];
+	            for (int i = 0; i < injectionPointModel.getSize(); i++) {
+	                Highlight hl = injectionPointModel.elementAt(i);
+	                injPoints[i] = new int[2];
+	                injPoints[i][0] = hl.getStartOffset();
+	                injPoints[i][1] = hl.getEndOffset();
+	            }
+	
+	            try {
+	            	if (target != null && target.getStartNode() != null) {
+		                VariantUserDefined.setInjectionPoints(
+		                        this.target.getStartNode().getHistoryReference().getURI().toString(),
+		                        injPoints);
+		                
+		                enabledRpc |= ScannerParam.RPC_USERDEF;
+	            	}
 	                
-	                enabledRpc |= ScannerParam.RPC_USERDEF;
-            	}
-                
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-        scannerParam.setTargetParamsInjectable(targets);
-        scannerParam.setTargetParamsEnabledRPC(enabledRpc);
+	            } catch (Exception e) {
+	                logger.error(e.getMessage(), e);
+	            }
+	        }
+	        scannerParam.setTargetParamsInjectable(targets);
+	        scannerParam.setTargetParamsEnabledRPC(enabledRpc);
+	
+	        contextSpecificObjects = new Object[]{
+	            scannerParam,
+	            pluginFactory.clone(),
+	            this.getTechSet()
+	        };
+	        
+	        this.extension.setIncludedSequenceScripts(selectedIncludeScripts);
+    	}
 
-        Object[] contextSpecificObjects = new Object[]{
-            scannerParam,
-            pluginFactory.clone(),
-            this.getTechSet()
-        };
-        
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
         
-        this.extension.setIncludedSequenceScripts(selectedIncludeScripts);
-        
+        // Save the adv option permanently for next time
+        extension.getScannerParam().setShowAdvancedDialog(this.getBoolValue(FIELD_ADVANCED));
+
         this.extension.startScan(
                 target,
                 getSelectedUser(), 

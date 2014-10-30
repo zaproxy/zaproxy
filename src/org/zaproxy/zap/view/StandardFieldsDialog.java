@@ -95,6 +95,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 
 	private List<Component> fieldList = new ArrayList<>();
 	private Map<String, Component> fieldMap = new HashMap<> ();
+	private Map<String, JPanel> tabNameMap = new HashMap<String, JPanel>(); 
 
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim) {
 		this(owner, titleLabel, dim, null);
@@ -180,6 +181,7 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 			tabPanel.setLayout(new GridBagLayout());
 			tabPanel.setBorder(FULL_BORDER);
 			tabbedPane.addTab(Constant.messages.getString(label), tabPanel);
+			this.tabNameMap.put(label, tabPanel);
 			this.tabPanels.add(tabPanel);
 			this.tabOffsets.add(0);
 		}
@@ -1163,6 +1165,28 @@ public abstract class StandardFieldsDialog extends AbstractFrame {
 			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
 		}
 		tabbedPane.setSelectedComponent(this.tabPanels.get(tabIndex));
+	}
+
+	/**
+	 * Set the visibility of the specified tabs.
+	 * The labels must have been used to create the tabs in the constructor
+	 * @param tabLabels
+	 * @param visible
+	 */
+    public void setTabsVisible(String[] tabLabels, boolean visible) {
+    	if (visible) {
+			for (String label : tabLabels) {
+				String name = Constant.messages.getString(label);
+				JPanel tabPanel = this.tabNameMap.get(label);
+				tabbedPane.addTab(name, tabPanel);
+				this.tabPanels.add(tabPanel);
+			}
+    	} else {
+			for (String label : tabLabels) {
+				JPanel tabPanel = this.tabNameMap.get(label);
+				this.tabbedPane.remove(tabPanel);
+			}
+    	}
 	}
 
 	public abstract void save();

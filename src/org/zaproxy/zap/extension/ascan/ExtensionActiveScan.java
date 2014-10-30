@@ -530,28 +530,21 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
     }
 
-    /*
-    public void stopScan(SiteNode startNode) {
-        try {
-            this.stopScan(ActiveScanPanel.cleanSiteName(startNode, true));
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
-
-    public void stopScan(String site) {
-        this.getActiveScanPanel().stopScan(site);
-    }
-    */
-
 	public void showCustomScanDialog(SiteNode node) {
 		if (customScanDialog == null) {
 			customScanDialog = new CustomScanDialog(this, View.getSingleton().getMainFrame(), new Dimension(700, 500));
 		}
 		if (customScanDialog.isVisible()) {
+			// Its behind you! Actually not needed no the window is alwaysOnTop, but keeping in case we change that ;)
+			customScanDialog.toFront();
 			return;
 		}
-		customScanDialog.init(new Target(node));
+		if (node != null) {
+			customScanDialog.init(new Target(node));
+		} else {
+			// Keep the previous target
+			customScanDialog.init(null);
+		}
 		customScanDialog.setVisible(true);
 	}
     

@@ -111,10 +111,12 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
 
 			if (isExtensionActiveScanEnabled) {
+				/* TODO seeing if we can get away with just one right click option
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(3));
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(3));
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(3));
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(3));
+				*/
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
 			}
 
@@ -253,6 +255,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderSubtree;
 	}
 
+	// TODO Dont remove these until we're sure its the right approach
+	@SuppressWarnings("unused")
 	private PopupMenuActiveScanScope getPopupMenuActiveScanScope(int menuIndex) {
 		if (popupMenuActiveScanScope == null) {
 			popupMenuActiveScanScope = new PopupMenuActiveScanScope(Constant.messages.getString("ascan.scope.popup"));
@@ -260,6 +264,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuActiveScanScope;
 	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuActiveScanSite getPopupMenuActiveScanSite(int menuIndex) {
 		if (popupMenuActiveScanSite == null) {
 			popupMenuActiveScanSite = new PopupMenuActiveScanSite(Constant.messages.getString("ascan.site.popup"));
@@ -267,6 +272,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuActiveScanSite;
 	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuActiveScanNode getPopupMenuActiveScanSubtree(int menuIndex) {
 		if (popupMenuActiveScanSubtree == null) {
 			popupMenuActiveScanSubtree = new PopupMenuActiveScanNode(Constant.messages.getString("ascan.subtree.popup"));
@@ -281,6 +287,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuActiveScanCustom;
 	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuActiveScanURL getPopupMenuActiveScanURL(int menuIndex) {
 		if (popupMenuActiveScanURL == null) {
 			popupMenuActiveScanURL = new PopupMenuActiveScanURL(Constant.messages.getString("ascan.url.popup"));
