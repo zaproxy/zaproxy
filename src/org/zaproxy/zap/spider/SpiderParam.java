@@ -83,6 +83,8 @@ public class SpiderParam extends AbstractParam {
     
     private static final String MAX_SCANS_IN_UI = "spider.maxScansInUI";
 
+    private static final String SHOW_ADV_DIALOG = "spider.advDialog";
+
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -147,6 +149,7 @@ public class SpiderParam extends AbstractParam {
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScopeEnabled = new ArrayList<>(0);
     private boolean confirmRemoveDomainAlwaysInScope;
     private int maxScansInUI = 5;
+    private boolean showAdvancedDialog = false; // TODO load/save
 
 	/** The log. */
 	private static final Logger log = Logger.getLogger(SpiderParam.class);
@@ -178,6 +181,10 @@ public class SpiderParam extends AbstractParam {
 
 		try {
             this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
+        } catch (Exception e) {}
+
+		try {
+            this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
         } catch (Exception e) {}
 
 		try {
@@ -813,6 +820,15 @@ public class SpiderParam extends AbstractParam {
 	public void setMaxScansInUI(int maxScansInUI) {
 		this.maxScansInUI = maxScansInUI;
         getConfig().setProperty(MAX_SCANS_IN_UI, this.maxScansInUI);
+	}
+
+	public boolean isShowAdvancedDialog() {
+		return showAdvancedDialog;
+	}
+
+	public void setShowAdvancedDialog(boolean showAdvancedDialog) {
+		this.showAdvancedDialog = showAdvancedDialog;
+        getConfig().setProperty(SHOW_ADV_DIALOG, this.showAdvancedDialog);
 	}
 
 }

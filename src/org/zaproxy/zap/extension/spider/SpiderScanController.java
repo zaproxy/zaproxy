@@ -25,13 +25,17 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.log4j.Logger;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.users.User;
 
 public class SpiderScanController implements ScanController {
-	
+
+	private static final Logger log = Logger.getLogger(SpiderScanController.class);
+
 	private ExtensionSpider extension;
 
 	/**
@@ -87,7 +91,20 @@ public class SpiderScanController implements ScanController {
 		spiderScansLock.lock();
 		try {
 			int id = this.scanIdCounter++;
-			SpiderScan scan = new SpiderScan(extension, target, user, id);
+			
+			SpiderParam spiderParams = extension.getSpiderParam();
+			if (contextSpecificObjects != null) {
+				for (Object obj : contextSpecificObjects) {
+					if (obj instanceof SpiderParam) {
+						log.debug("Setting custom spider params");
+						spiderParams = (SpiderParam) obj;
+					} else {
+						log.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
+					}
+				}
+			}
+			
+			SpiderScan scan = new SpiderScan(extension, spiderParams, target, user, id);
 			scan.setDisplayName(name);
 			
 			this.spiderScanMap.put(id, scan);

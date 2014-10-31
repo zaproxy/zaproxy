@@ -1003,6 +1003,17 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 	}
 	
+	public void setFieldValue(String fieldLabel, boolean value) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c != null) {
+			if (c instanceof JCheckBox) {
+				((JCheckBox)c).setSelected(value);
+			} else {
+				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			}
+		}
+	}
+	
 	public boolean isEmptyField(String fieldLabel) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {

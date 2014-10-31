@@ -39,6 +39,7 @@ import org.zaproxy.zap.model.ScanThread;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.users.User;
 
@@ -93,6 +94,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	/** The start uri. */
 	private URI startURI = null;
+	
+	private SpiderParam spiderParams;
 
 	/**
 	 * Instantiates a new spider thread.
@@ -101,14 +104,14 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 * @param site the site
 	 * @param listenner the scan listener
 	 */
-	public SpiderThread(ExtensionSpider extension, String site, ScanListenner listenner) {
+	public SpiderThread(ExtensionSpider extension, SpiderParam spiderParams, String site, ScanListenner listenner) {
 		super(site, listenner);
 		log.debug("Initializing spider thread for site: " + site);
 		this.extension = extension;
 		this.site = site;
 		this.pendingSpiderListeners = new LinkedList<>();
 		this.resultsModel = new SpiderPanelTableModel();
-
+		this.spiderParams = spiderParams;
 	}
 
 	@Override
@@ -185,7 +188,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 */
 	private void startSpider() {
 
-		spider = new Spider(extension, extension.getSpiderParam(), extension.getModel().getOptionsParam()
+		spider = new Spider(extension, spiderParams, extension.getModel().getOptionsParam()
 				.getConnectionParam(), extension.getModel(), this.scanContext);
 
 		// Register this thread as a Spider Listener, so it gets notified of events and is able

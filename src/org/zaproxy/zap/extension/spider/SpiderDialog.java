@@ -36,6 +36,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
@@ -46,6 +47,14 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_USER = "spider.custom.label.user";
     private static final String FIELD_RECURSE = "spider.custom.label.recurse";
     private static final String FIELD_ADVANCED = "spider.custom.label.adv"; 
+    private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
+    private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
+    private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
+    private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments"; 
+    private static final String FIELD_PARSE_ROBOTS = "spider.custom.label.parseRobots"; 
+    private static final String FIELD_PARSE_SVN = "spider.custom.label.parseSvn"; 
+    private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit"; 
+    private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata"; 
 
     private static Logger logger = Logger.getLogger(SpiderDialog.class);
 
@@ -54,6 +63,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private JButton[] extraButtons = null;
 
     private ExtensionSpider extension = null;
+	private SpiderParam spiderParam = null;
     
     private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
 			.getExtension(ExtensionUserManagement.NAME);
@@ -62,7 +72,8 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     public SpiderDialog(ExtensionSpider ext, Frame owner, Dimension dim) {
         super(owner, "spider.custom.title", dim, new String[]{
-            "spider.custom.tab.scope"
+            "spider.custom.tab.scope",
+            "spider.custom.tab.adv"
         });
         this.setModal(true);
         this.extension = ext;
@@ -85,14 +96,40 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         // This option is always read from the 'global' options
-        // TODO Implement advanced options
-        //this.addCheckBoxField(0, FIELD_ADVANCED, extension.getSpiderParam().isShowAdvancedDialog());
+        this.addCheckBoxField(0, FIELD_ADVANCED, getSpiderParam().isShowAdvancedDialog());
         this.addPadding(0);
+
+        // Advanced options
+        this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
+        this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
+        this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
+        this.addCheckBoxField(1, FIELD_PARSE_COMMENTS, getSpiderParam().isParseComments());
+        this.addCheckBoxField(1, FIELD_PARSE_ROBOTS, getSpiderParam().isParseRobotsTxt());
+        this.addCheckBoxField(1, FIELD_PARSE_SVN, getSpiderParam().isParseSVNEntries());
+        this.addCheckBoxField(1, FIELD_PARSE_GIT, getSpiderParam().isParseGit());
+        this.addCheckBoxField(1, FIELD_HANDLE_ODATA, getSpiderParam().isHandleODataParametersVisited());
+        this.addPadding(1);
+
+    	if (! getBoolValue(FIELD_PROCESS_FORMS)) {
+        	setFieldValue(FIELD_POST_FORMS, false);
+        	getField(FIELD_POST_FORMS).setEnabled(false);
+    	}
 
         this.addFieldListener(FIELD_CONTEXT, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setUsers();
+            }
+        });
+        this.addFieldListener(FIELD_PROCESS_FORMS, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+            	if (getBoolValue(FIELD_PROCESS_FORMS)) {
+                	getField(FIELD_POST_FORMS).setEnabled(true);
+            	} else {
+                	setFieldValue(FIELD_POST_FORMS, false);
+                	getField(FIELD_POST_FORMS).setEnabled(false);
+            	}
             }
         });
         this.addFieldListener(FIELD_ADVANCED, new ActionListener() {
@@ -108,28 +145,28 @@ public class SpiderDialog extends StandardFieldsDialog {
 	        this.setUsers();
         }
         
-        /* TODO Implement advanced options
-        if ( ! this.scannerParam.isShowAdvancedDialog()) {
+        if ( ! extension.getSpiderParam().isShowAdvancedDialog()) {
         	// Remove all but the first tab
         	this.setAdvancedTabs(false);
         }
-        */
         
         this.pack();
     }
     
+	private SpiderParam getSpiderParam() {
+		if (spiderParam == null) {
+			// First time in clone the global options, after that keep the last ones the user set
+			spiderParam = (SpiderParam) extension.getSpiderParam().clone();
+		}
+		return spiderParam;
+	}
+
 
 	private void setAdvancedTabs(boolean visible) {
 		// Show/hide all except from the first tab
-        /* TODO Implement advanced options
 		this.setTabsVisible (new String[] {
-	            "spider.custom.tab.input",
-	            "spider.custom.tab.custom",
-	            "spider.custom.tab.sequence",
-	            "spider.custom.tab.tech",
-	            "spider.custom.tab.policy"
+	            "spider.custom.tab.adv"
 	        }, visible);
-	        */
 	}
 
     @Override
@@ -191,18 +228,9 @@ public class SpiderDialog extends StandardFieldsDialog {
     }
 
     private void reset(boolean refreshUi) {
-        /* TODO Implement advanced options
-        FileConfiguration fileConfig = new XMLConfiguration();
-        ConfigurationUtils.copy(extension.getScannerParam().getConfig(), fileConfig);
-
-        scannerParam = new ScannerParam();
-        scannerParam.load(fileConfig);
-
-        optionsParam = new OptionsParam();
-        optionsParam.load(fileConfig);
-
-        */
-
+    	// Reset to the global options
+		spiderParam = null;
+    	
         if (refreshUi) {
             init(target);
             repaint();
@@ -233,14 +261,24 @@ public class SpiderDialog extends StandardFieldsDialog {
     @Override
     public void save() {
         Object[] contextSpecificObjects = null;
-        /* TODO Implement advanced options
-        //if (this.getBoolValue(FIELD_ADVANCED)) {
-        	// 
-    	//}
+        if (this.getBoolValue(FIELD_ADVANCED)) {
+        	// Set the advanced options
+        	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
+        	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
+        	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
+        	spiderParam.setParseComments(this.getBoolValue(FIELD_PARSE_COMMENTS));
+        	spiderParam.setParseRobotsTxt(this.getBoolValue(FIELD_PARSE_ROBOTS));
+        	spiderParam.setParseSVNEntries(this.getBoolValue(FIELD_PARSE_SVN));
+        	spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
+        	spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
+        	
+	        contextSpecificObjects = new Object[]{
+		            spiderParam
+		        };
+    	}
         
         // Save the adv option permanently for next time
-        //extension.getScannerParam().setShowAdvancedDialog(this.getBoolValue(FIELD_ADVANCED));
-         */
+        extension.getSpiderParam().setShowAdvancedDialog(this.getBoolValue(FIELD_ADVANCED));
         
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
 

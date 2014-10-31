@@ -40,6 +40,7 @@ import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderListener;
+import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.users.User;
 
@@ -79,7 +80,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private ScanListenner2 listener = null;
 
-	public SpiderScan(ExtensionSpider extension, Target target, User scanUser, int scanId) {
+	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, User scanUser, int scanId) {
 		lock = new ReentrantLock();
 		this.scanId = scanId;
 
@@ -89,7 +90,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 		state = State.NOT_STARTED;
 
-		spiderThread = new SpiderThread(extension, "SpiderApi-" + scanId, this);
+		spiderThread = new SpiderThread(extension, spiderParams, "SpiderApi-" + scanId, this);
 
 		spiderThread.setStartNode(target.getStartNode());
 		spiderThread.setScanContext(target.getContext());
