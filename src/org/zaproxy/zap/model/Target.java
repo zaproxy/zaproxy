@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.SiteNode;
 
 /**
@@ -35,6 +36,11 @@ public class Target {
 	private int maxDepth = -1;
 	private boolean recurse = false;
 	
+	public Target(boolean inScopeOnly) {
+		super();
+		this.inScopeOnly = inScopeOnly;
+	}
+
 	public Target(SiteNode startNode) {
 		super();
 		this.startNode = startNode;
@@ -121,4 +127,25 @@ public class Target {
 	public void setRecurse(boolean recurse) {
 		this.recurse = recurse;
 	}
+	
+    public String getDisplayName() {
+    	if (startNode == null) {
+    		if (context != null) {
+    			return Constant.messages.getString("context.prefixName", new Object[] {context.getName()});
+    		} else if (this.inScopeOnly) {
+    			return Constant.messages.getString("target.allInScope");
+    		} else {
+    			return Constant.messages.getString("target.empty");
+    		}
+    	} else {
+    		String name = startNode.getHierarchicNodeName(); 
+    		if (name.length() < 30) {
+    			return name;
+    		}
+    		
+    		// Just use the first and last 14 chrs to prevent huge urls messing up the display
+    		return name.substring(0, 14) + ".." + name.substring(name.length()-15, name.length());
+    	}
+    }
+
 }

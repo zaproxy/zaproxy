@@ -21,41 +21,39 @@
 
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
-import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
-import org.zaproxy.zap.view.ScanPanel;
-import org.zaproxy.zap.view.SiteMapListener;
-import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
 
 /**
  * The ExtensionSpider is the Extension that controls the Spider.
  */
-public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ProxyListener, SiteMapListener {
+public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ScanController {
 
 	public static final int EXTENSION_ORDER = 30;
 	
@@ -65,14 +63,10 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	/** The Constant defining the NAME of the extension. */
 	public static final String NAME = "ExtensionSpider";
 
-	/**
-	 * The Constant PROXY_LISTENER_ORDER. Could be after the last one that saves the HttpMessage, as
-	 * this ProxyListener doesn't change the HttpMessage.
-	 */
-	private static final int PROXY_LISTENER_ORDER = ProxyListenerLog.PROXY_LISTENER_ORDER + 1;
-
 	/** The spider panel. */
 	private SpiderPanel spiderPanel = null;
+
+	SpiderDialog spiderDialog = null;
 
 	/** The options spider panel. */
 	private OptionsSpiderPanel optionsSpiderPanel = null;
@@ -85,6 +79,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	private List<ParseFilter> customParseFilters;
 
 	private SpiderAPI spiderApi;
+	
+	private SpiderScanController scanController = null;
 
 	/**
 	 * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
@@ -117,6 +113,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.customParsers = new LinkedList<>();
 		this.customFetchFilters = new LinkedList<>();
 		this.customParseFilters = new LinkedList<>();
+		this.scanController = new SpiderScanController(this);
 	}
 
 	@Override
@@ -124,8 +121,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		super.hook(extensionHook);
 		// Register for listeners
 		extensionHook.addSessionListener(this);
-		extensionHook.addProxyListener(this);
-		extensionHook.addSiteMapListener(this);
 
 		// Initialize views
 		if (getView() != null) {
@@ -170,12 +165,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
-		if (spiderApi != null) {
-			spiderApi.reset();
-		}
-
 		// Shut all of the scans down
-		this.getSpiderPanel().reset();
+		this.stopAllScans();
 	}
 
 	@Override
@@ -203,48 +194,13 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 */
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
-		this.getSpiderPanel().reset();
+		if (View.isInitialised()) {
+			this.getSpiderPanel().reset();
+		}
 		if (session == null) {
 			// Closedown
 			return;
 		}
-		// Add new hosts
-		SiteNode root = (SiteNode) session.getSiteTree().getRoot();
-		@SuppressWarnings("unchecked")
-		Enumeration<SiteNode> en = root.children();
-		while (en.hasMoreElements()) {
-			this.getSpiderPanel().addSite(en.nextElement().getNodeName(), true);
-		}
-	}
-
-	@Override
-	public int getArrangeableListenerOrder() {
-		return PROXY_LISTENER_ORDER;
-	}
-
-	@Override
-	public boolean onHttpRequestSend(HttpMessage msg) {
-		// The panel will handle duplicates
-		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
-
-		this.getSpiderPanel().addSite(site, true);
-		return true;
-	}
-
-	@Override
-	public boolean onHttpResponseReceive(HttpMessage msg) {
-		// Do nothing
-		return true;
-	}
-
-	@Override
-	public void nodeSelected(SiteNode node) {
-		this.getSpiderPanel().nodeSelected(node, true);
-	}
-
-	@Override
-	public void onReturnNodeRendererComponent(
-			SiteMapTreeCellRenderer component, boolean leaf, SiteNode value) {
 	}
 
 	/**
@@ -257,27 +213,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 			optionsSpiderPanel = new OptionsSpiderPanel();
 		}
 		return optionsSpiderPanel;
-	}
-
-	/**
-	 * Spider site.
-	 * 
-	 * @param node the node
-	 * @param incPort the inc port
-	 */
-	public void spiderSite(SiteNode node, boolean incPort) {
-		this.getSpiderPanel().scanSite(node, incPort);
-	}
-
-	/**
-	 * Checks if there is a scan in progress.
-	 * 
-	 * @param node the node
-	 * @param incPort the inc port
-	 * @return true, if is scanning
-	 */
-	public boolean isScanning(SiteNode node, boolean incPort) {
-		return this.getSpiderPanel().isScanning(node, incPort);
 	}
 
 	/**
@@ -320,12 +255,16 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 	@Override
 	public void sessionScopeChanged(Session session) {
-		this.getSpiderPanel().sessionScopeChanged(session);
+		if (View.isInitialised()) {
+			this.getSpiderPanel().sessionScopeChanged(session);
+		}
 	}
 
 	@Override
 	public void sessionModeChanged(Mode mode) {
-		this.getSpiderPanel().sessionModeChanged(mode);
+		if (View.isInitialised()) {
+			this.getSpiderPanel().sessionModeChanged(mode);
+		}
 	}
 
 	/**
@@ -334,7 +273,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param node the node
 	 */
 	public void startScanNode(SiteNode node) {
-		this.getSpiderPanel().scanNode(node, true, null);
+		Target target = new Target(node);
+		target.setRecurse(true);
+		this.startScan(target.getDisplayName(), target, null, null);
 	}
 	
 	/**
@@ -343,14 +284,18 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param node the node
 	 */
 	public void startScanNode(SiteNode node, User user) {
-		this.getSpiderPanel().scanNode(node, true, user);
+		Target target = new Target(node);
+		target.setRecurse(true);
+		this.startScan(target.getDisplayName(), target, user, null);
 	}
 
 	/**
 	 * Start scan all in scope.
 	 */
 	public void startScanAllInScope() {
-		this.getSpiderPanel().scanAllInScope();
+		Target target = new Target(true);
+		target.setRecurse(true);
+		this.startScan(target.getDisplayName(), target, null, null);
 	}
 
 	/**
@@ -359,45 +304,27 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param startNode the start node
 	 */
 	public void startScan(SiteNode startNode) {
-		try {
-			// Add to sites if not already present - required for quick start tab
-			this.getSpiderPanel().addSite(ScanPanel.cleanSiteName(startNode, true), true);
-		} catch (Exception e) {
-			// Ignore
-			log.debug(e.getMessage(), e);
-		}
-
-		this.getSpiderPanel().scanSite(startNode, true);
+		Target target = new Target(startNode);
+		target.setRecurse(true);
+		this.startScan(target.getDisplayName(), target, null, null);
 	}
 
-	public void stopScan(SiteNode startNode) {
-		try {
-			this.stopScan(ScanPanel.cleanSiteName(startNode, true));
-		} catch (Exception e) {
-			log.error(e.getMessage(), e);
-		}
-		
-	}
-
-	public void stopScan (String site) {
-		this.getSpiderPanel().stopScan(site);
-	}
-	
 	/**
 	 * Start scan all in context, from the POV of an User.
 	 */
 	public void startScanAllInContext(Context context, User user) {
-		this.getSpiderPanel().scanAllInContext(context, user);
+		Target target = new Target(context);
+		target.setRecurse(true);
+		this.startScan(target.getDisplayName(), target, user, null);
 	}
 	
 	
 	@Override
     public void destroy() {
 		// Shut all of the scans down
-		this.getSpiderPanel().reset();
-
-		if (spiderApi != null) {
-			spiderApi.reset();
+		this.stopAllScans();
+		if (View.isInitialised()) {
+			this.getSpiderPanel().reset();
 		}
 	}
 
@@ -463,5 +390,118 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 */
 	public void addCustomParseFilter(ParseFilter filter) {
 		this.customParseFilters.add(filter);
+	}
+
+	@Override
+	public int startScan(String displayName, Target target, User user,
+			Object[] contextSpecificObjects) {
+		int id = this.scanController.startScan(displayName, target, user, contextSpecificObjects);
+    	if (View.isInitialised()) {
+    		GenericScanner2 scanner = this.scanController.getScan(id);
+			this.getSpiderPanel().scannerStarted(scanner);
+    		((SpiderScan)scanner).setListener(getSpiderPanel());	// So the UI gets updated
+    		this.getSpiderPanel().switchView(scanner);
+    		this.getSpiderPanel().setTabFocus();
+    	}
+    	return id;
+	}
+
+	@Override
+	public List<GenericScanner2> getAllScans() {
+		return this.scanController.getAllScans();
+	}
+
+	@Override
+	public List<GenericScanner2> getActiveScans() {
+		return this.scanController.getActiveScans();
+	}
+
+	@Override
+	public GenericScanner2 getScan(int id) {
+		return this.scanController.getScan(id);
+	}
+
+	@Override
+	public void stopScan(int id) {
+		this.scanController.stopScan(id);
+	}
+
+	@Override
+	public void stopAllScans() {
+		this.scanController.stopAllScans();		
+	}
+
+	@Override
+	public void pauseScan(int id) {
+		this.scanController.pauseScan(id);		
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getSpiderPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public void pauseAllScans() {
+		this.scanController.pauseAllScans();		
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getSpiderPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public void resumeScan(int id) {
+		this.scanController.resumeScan(id);		
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getSpiderPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public void resumeAllScans() {
+		this.scanController.resumeAllScans();
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+			this.getSpiderPanel().updateScannerUI();
+		}
+	}
+
+	@Override
+	public GenericScanner2 removeScan(int id) {
+		return this.scanController.removeScan(id);
+	}
+
+	@Override
+	public int removeAllScans() {
+		return this.scanController.removeAllScans();
+	}
+
+	@Override
+	public int removeFinishedScans() {
+		return this.scanController.removeFinishedScans();
+	}
+
+	@Override
+	public GenericScanner2 getLastScan() {
+		return this.scanController.getLastScan();
+	}
+
+	public void showSpiderDialog(SiteNode node) {
+		if (spiderDialog == null) {
+			spiderDialog = new SpiderDialog(this, View.getSingleton().getMainFrame(), new Dimension(700, 400));
+		}
+		if (spiderDialog.isVisible()) {
+			// Its behind you! Actually not needed no the window is alwaysOnTop, but keeping in case we change that ;)
+			spiderDialog.toFront();
+			return;
+		}
+		if (node != null) {
+			spiderDialog.init(new Target(node));
+		} else {
+			// Keep the previous target
+			spiderDialog.init(null);
+		}
+		spiderDialog.setVisible(true);
 	}
 }

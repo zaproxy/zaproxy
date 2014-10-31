@@ -212,13 +212,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	public int startScan(Target target, User user, Object[] contextSpecificObjects) {
-    	return this.startScan(getTargetDisplayName(target), target, user, contextSpecificObjects);
+    	return this.startScan(target.getDisplayName(), target, user, contextSpecificObjects);
 	}
 
     @Override
 	public int startScan(String name, Target target, User user, Object[] contextSpecificObjects) {
     	if (name == null) {
-    		name = this.getTargetDisplayName(target);
+    		name = target.getDisplayName();
     	}
 		
 		switch (Control.getSingleton().getMode()) {
@@ -249,27 +249,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     	}
     	return id;
 	}
-
-    private String getTargetDisplayName(Target target) {
-    	if (target.getStartNode() == null) {
-    		if (target.getContext() != null) {
-    			return Constant.messages.getString("context.prefixName", new Object[] {target.getContext().getName()});
-    		} else if (target.isInScopeOnly()) {
-    			return Constant.messages.getString("ascan.toolbar.progress.inscope");
-    		} else {
-    			logger.error("Unexpected target - no startNode, context or inScopeOnly");
-    			return "Unexpected target:(";
-    		}
-    	} else {
-    		String name = target.getStartNode().getHierarchicNodeName(); 
-    		if (name.length() < 30) {
-    			return name;
-    		}
-    		
-    		// Just use the first and last 14 chrs to prevent huge urls messing up the display
-    		return name.substring(0, 14) + ".." + name.substring(name.length()-15, name.length());
-    	}
-    }
 
     public void scannerComplete() {
     }

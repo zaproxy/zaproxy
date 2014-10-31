@@ -53,8 +53,8 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
@@ -69,7 +69,7 @@ import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
  * @author psiinon
  *
  */
-public abstract class StandardFieldsDialog extends AbstractFrame {
+public abstract class StandardFieldsDialog extends AbstractDialog {
 	/**
 	 * TODO
 	 * 		File selector field

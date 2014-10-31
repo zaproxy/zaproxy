@@ -185,51 +185,32 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 */
 	private void startSpider() {
 
-		// If the start node was not selected, try to find it in the Site Tree
-		if (startNode == null && !getJustScanInScope()) {
-			startNode = extension.getSpiderPanel().getSiteNode(site);
-			// If the site was not found and no start uri is set, don't start
-			if (startNode == null) {
-				if (startURI == null) {
-					log.error("Spider cannot start - No start node set for site " + site);
-					return;
-				}
-				log.info("Using start URI: " + startURI);
-			} else {
-				log.debug("Start node automatically found for site: " + site);
+		spider = new Spider(extension, extension.getSpiderParam(), extension.getModel().getOptionsParam()
+				.getConnectionParam(), extension.getModel(), this.scanContext);
+
+		// Register this thread as a Spider Listener, so it gets notified of events and is able
+		// to manipulate the UI accordingly
+		spider.addSpiderListener(this);
+
+		// Add the pending listeners
+		for (SpiderListener l : pendingSpiderListeners) {
+			spider.addSpiderListener(l);
+		}
+
+		// Add the list of excluded uris (added through the Exclude from Spider Popup Menu)
+		spider.setExcludeList(extension.getExcludeList());
+
+		// Add seeds accordingly
+		if (startNode != null || justScanInScope) {
+			addSeeds(spider, startNode);
+		} else if (this.scanContext != null) {
+			for (SiteNode node : this.scanContext.getNodesInContextFromSiteTree()) {
+				addSeeds(spider, node);
 			}
+		} else if (startURI != null) {
+			spider.addSeed(startURI);
 		}
-
-		// If the spider hasn't been initialized, do it now
-		if (spider == null) {
-			spider = new Spider(extension, extension.getSpiderParam(), extension.getModel().getOptionsParam()
-					.getConnectionParam(), extension.getModel(), this.scanContext);
-
-			// Register this thread as a Spider Listener, so it gets notified of events and is able
-			// to manipulate the UI accordingly
-			spider.addSpiderListener(this);
-
-			// Add the pending listeners
-			for (SpiderListener l : pendingSpiderListeners) {
-				spider.addSpiderListener(l);
-			}
-
-			// Add the list of excluded uris (added through the Exclude from Spider Popup Menu)
-			spider.setExcludeList(extension.getExcludeList());
-
-			// Add seeds accordingly
-			if (startNode != null || justScanInScope)
-				addSeeds(spider, startNode);
-			else
-				spider.addSeed(startURI);
-		}
-		if(scanUser!=null)
-			spider.setScanAsUser(scanUser);
-
-		// Set the Spider Panel as the focused one
-		if (extension.getView() != null) {
-			extension.getSpiderPanel().setTabFocus();
-		}
+		spider.setScanAsUser(scanUser);
 
 		// Start the spider
 		spider.start();

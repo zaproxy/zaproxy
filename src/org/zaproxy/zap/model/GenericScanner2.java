@@ -22,9 +22,9 @@ package org.zaproxy.zap.model;
 
 public interface GenericScanner2 extends Runnable {
 
-	void setId(int id);
+	void setScanId(int id);
 	
-	int getId();
+	int getScanId();
 	
 	void setDisplayName(String name);
 	

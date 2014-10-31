@@ -19,10 +19,15 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.Event;
+import java.awt.EventQueue;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.lang.reflect.InvocationTargetException;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
@@ -31,24 +36,22 @@ import javax.swing.KeyStroke;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.model.ScanListenner;
-import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
+import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
-import org.zaproxy.zap.view.ScanPanel;
+import org.zaproxy.zap.view.ScanPanel2;
 
 /**
  * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider Scan Tab.
  */
-public class SpiderPanel extends ScanPanel implements ScanListenner {
+public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
 
 	/** The Constant log. */
-	@SuppressWarnings("unused")
 	private static final Logger log = Logger.getLogger(SpiderPanel.class);
 
 	private static final SpiderPanelTableModel EMPTY_RESULTS_MODEL = new SpiderPanelTableModel();
@@ -56,20 +59,21 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	/** The Constant defining the PANEL's NAME. */
 	public static final String PANEL_NAME = "SpiderPanel";
 
+	private JButton scanButton = null;
+
 	/** The results table. */
 	private JXTable resultsTable;
 
 	/** The results pane. */
 	private JScrollPane workPane;
 
-	/** The results model. */
-	private SpiderPanelTableModel currentResultsModel = EMPTY_RESULTS_MODEL;
-
 	/** The found count name label. */
 	private JLabel foundCountNameLabel;
 
 	/** The found count value label. */
 	private JLabel foundCountValueLabel;
+	
+	private ExtensionSpider extension = null;
 
 	/**
 	 * Instantiates a new spider panel.
@@ -80,29 +84,11 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
 		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension,
 				spiderScanParam);
+		this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_D, Event.CTRL_MASK | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("spider.panel.mnemonic"));
 
-	}
-
-	@Override
-	protected ScanThread newScanThread(String site, AbstractParam params) {
-		SpiderThread st = new SpiderThread((ExtensionSpider) this.getExtension(), site, this);
-		return st;
-	}
-
-	@Override
-	protected SiteNode getSiteNode(String site) {
-		return super.getSiteNode(site);
-	}
-
-	@Override
-	protected void switchView(String site) {
-		this.updateCurrentScanResultsModel(site);
-		this.getScanResultsTable().setModel(this.currentResultsModel);
-		this.setScanResultsTableColumnSizes();
-		this.updateFoundCount();
 	}
 
 	/**
@@ -135,21 +121,6 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 		resultsTable.getColumnModel().getColumn(3).setMinWidth(50);
 		resultsTable.getColumnModel().getColumn(3).setPreferredWidth(250); // flags
-	}
-
-	/**
-	 * Updates the current scan results model to the proper one.
-	 * 
-	 * @param site the site
-	 */
-	private void updateCurrentScanResultsModel(String site) {
-		if ("".equals(site)) {
-			this.currentResultsModel = EMPTY_RESULTS_MODEL;
-			return;
-		}
-
-		SpiderThread st = (SpiderThread) this.getScanThread(site);
-		this.currentResultsModel = st.getResultsTableModel();
 	}
 
 	/**
@@ -229,7 +200,7 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 
 	@Override
 	protected int addToolBarElements(JToolBar toolBar, Location location, int gridX) {
-		if (ScanPanel.Location.afterProgressBar == location) {
+		if (ScanPanel2.Location.afterProgressBar == location) {
 			toolBar.add(getFoundCountNameLabel(), getGBC(gridX++, 0, 0, new Insets(0, 5, 0, 0)));
 			toolBar.add(getFoundCountValueLabel(), getGBC(gridX++, 0));
 		}
@@ -240,6 +211,57 @@ public class SpiderPanel extends ScanPanel implements ScanListenner {
 	 * Update the count of found URIs.
 	 */
 	protected void updateFoundCount() {
-		this.getFoundCountValueLabel().setText(Integer.toString(this.currentResultsModel.getRowCount()));
+		GenericScanner2 gs = this.getSelectedScanner();
+		if (gs != null && gs instanceof SpiderScan) {
+			this.getFoundCountValueLabel().setText(Integer.toString(((SpiderScan) gs).getResourcesFound().size()));
+		} else {
+			this.getFoundCountValueLabel().setText("");
+		}
+	}
+
+	@Override
+	protected void switchView(final GenericScanner2 scanner) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						switchView(scanner);
+					}
+				});
+			} catch (InvocationTargetException | InterruptedException e) {
+				log.error("Failed to switch view: " + e.getMessage(), e);
+			}
+			return;
+		}
+		if (scanner != null) {
+			SpiderScan spscan = (SpiderScan)scanner;
+			this.getScanResultsTable().setModel(spscan.getResultsTableModel());
+			this.setScanResultsTableColumnSizes();
+		} else {
+			this.getScanResultsTable().setModel(EMPTY_RESULTS_MODEL);
+		}
+		this.updateFoundCount();
+	}
+
+	@Override
+	public JButton getNewScanButton() {
+		if (scanButton == null) {
+			scanButton = new JButton(Constant.messages.getString("spider.toolbar.button.new"));
+			scanButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/spider.png")));
+			scanButton.addActionListener(new ActionListener () {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					extension.showSpiderDialog(null);
+				}
+			});
+		}
+		return scanButton;
+	}
+
+	@Override
+	protected int getNumberOfScansToShow() {
+		return extension.getSpiderParam().getMaxScansInUI();
 	}
 }

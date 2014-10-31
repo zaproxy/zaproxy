@@ -21,15 +21,16 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/22 Issue 996: Ensure all dialogs close when the escape key is pressed
+// ZAP: 2014/10/31 Issue 1176: Changed owner to Window as part of spider advanced dialog changes
 
 package org.parosproxy.paros.extension;
 
 
 import java.awt.Dimension;
-import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
@@ -66,8 +67,9 @@ public abstract class AbstractDialog extends JDialog {
 	 * @param modal
 	 * @throws java.awt.HeadlessException
 	 */
-	public AbstractDialog(Frame owner, boolean modal) throws HeadlessException {
-		super(owner, modal);
+	public AbstractDialog(Window owner, boolean modal) throws HeadlessException {
+		super(owner);
+		this.setModal(modal);
 		initialize();
 	}
 

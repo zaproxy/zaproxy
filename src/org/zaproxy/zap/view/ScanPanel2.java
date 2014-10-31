@@ -263,23 +263,6 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		return foundCountNameLabel;
 	}
 	
-	private void setActiveScanLabels() {
-	    if (EventQueue.isDispatchThread()) {
-	    	setActiveScanLabelsEventHandler();
-	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	        	    	setActiveScanLabelsEventHandler();
-	                }
-	            });
-	        } catch (Exception e) {
-	            log.error(e.getMessage(), e);
-	        }
-	    }
-	}
-	
 	private void setActiveScanLabelsEventHandler() {
 		List<GenericScanner2> ascans = controller.getActiveScans();
 		getActiveScansValueLabel().setText(String.valueOf(ascans.size()));
@@ -322,7 +305,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 				public void actionPerformed(ActionEvent e) {
 					GenericScanner2 scanner = getSelectedScanner();
 					if (scanner != null) {
-						controller.stopScan(scanner.getId());
+						controller.stopScan(scanner.getScanId());
 					}
 				}
 			});
@@ -343,9 +326,9 @@ public abstract class ScanPanel2 extends AbstractPanel {
 					GenericScanner2 scanner = getSelectedScanner();
 					if (scanner != null) {
 						if (pauseScanButton.isSelected()) {
-							controller.pauseScan(scanner.getId());
+							controller.pauseScan(scanner.getScanId());
 						} else {
-							controller.resumeScan(scanner.getId());
+							controller.resumeScan(scanner.getScanId());
 						}
 					}
 				}
@@ -473,11 +456,10 @@ public abstract class ScanPanel2 extends AbstractPanel {
 
 	private void scanFinshedEventHandler(int id, String host) {
 		log.debug("scanFinished " + prefix + " on " + host);
-		if (this.getSelectedScanner() != null && this.getSelectedScanner().getId() == id) {
+		if (this.getSelectedScanner() != null && this.getSelectedScanner().getScanId() == id) {
 			updateScannerUI();
 		}
-		
-		setActiveScanLabels();
+    	setActiveScanLabelsEventHandler();
 	}
 
 	public void scanProgress(final int id, final String host, final int progress, final int maximum) {
@@ -498,18 +480,18 @@ public abstract class ScanPanel2 extends AbstractPanel {
 	            log.error(e.getMessage(), e);
 	        }
 	    }
-		setActiveScanLabels();
 	}
 
 	private void scanProgressEventHandler(int id, String host, int progress, int maximum) {
 		//log.debug("scanProgress " + prefix + " on " + currentSite + " " + progress);
-		if (this.getSelectedScanner() != null && id == this.getSelectedScanner().getId()) {
+		if (this.getSelectedScanner() != null && id == this.getSelectedScanner().getScanId()) {
 			updateScannerUI();
 		}		
+    	setActiveScanLabelsEventHandler();
 	}
 	
 	private String nameForScanner(GenericScanner2 scan) {
-		return scan.getId() + ": " + scan.getDisplayName(); 
+		return scan.getScanId() + ": " + scan.getDisplayName(); 
 	}
 	
 	private int idForScannerName(String name) {

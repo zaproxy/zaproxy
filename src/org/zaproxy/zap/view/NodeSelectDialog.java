@@ -19,10 +19,10 @@
  */
 package org.zaproxy.zap.view;
 
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Window;
 import java.util.ArrayList;
 
 import javax.swing.JButton;
@@ -73,8 +73,8 @@ public class NodeSelectDialog extends AbstractDialog {
      * @param arg1
      * @throws HeadlessException
      */
-    public NodeSelectDialog(Frame arg0) throws HeadlessException {
-        super(arg0, true);	// Modal, ie always on top
+    public NodeSelectDialog(Window parent) throws HeadlessException {
+        super(parent, true);	// Modal, ie always on top
         initialize();
     }
 

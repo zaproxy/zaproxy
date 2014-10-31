@@ -22,27 +22,27 @@ import javax.swing.ImageIcon;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.SiteNode;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
+import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
-public class PopupMenuActiveScanCustom extends PopupMenuItemSiteNodeContainer {
+public class PopupMenuSpiderDialog extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 1L;
-    private ExtensionActiveScan extension = null;
+    private ExtensionSpider extension = null;
 
     /**
      * @param label
      */
-    public PopupMenuActiveScanCustom(String label) {
+    public PopupMenuSpiderDialog(String label) {
         super(label);
-        this.setIcon(new ImageIcon(PopupMenuActiveScanCustom.class.getResource("/resource/icon/16/093.png")));
+        this.setIcon(new ImageIcon(PopupMenuSpiderDialog.class.getResource("/resource/icon/16/spider.png")));
     }
     
-    private ExtensionActiveScan getExtensionActiveScan() {
+    private ExtensionSpider getExtensionActiveScan() {
     	if (extension == null) {
-    		extension = (ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
+    		extension = (ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
     	}
     	return extension;
     }
@@ -65,7 +65,7 @@ public class PopupMenuActiveScanCustom extends PopupMenuItemSiteNodeContainer {
 	@Override
 	public void performAction(SiteNode node) {
 	    if (node != null) {
-	    	extension.showCustomScanDialog(node);
+	    	extension.showSpiderDialog(node);
 	    }
 	}
 

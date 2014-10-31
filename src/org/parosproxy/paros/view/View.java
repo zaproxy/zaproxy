@@ -53,12 +53,14 @@
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
+// ZAP: 2014/10/31 Issue 1176: Changed parents to Window as part of spider advanced dialog changes
 
 package org.parosproxy.paros.view;
 
 
 import java.awt.Component;
 import java.awt.Event;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -74,7 +76,6 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
-import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -358,53 +359,34 @@ public class View implements ViewDelegate {
 		return showConfirmDialog(getMainFrame(), msg);
 	}
 	
-	public int showConfirmDialog(JFrame parent, String msg) {
+	public int showConfirmDialog(Window parent, String msg) {
 		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
 	}
-	
-	public int showConfirmDialog(JPanel parent, String msg) {
-		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
-	}
-
 	
 	@Override
 	public int showYesNoCancelDialog(String msg) {
 		return showConfirmDialog(getMainFrame(), msg);
 	}
 	
-	public int showYesNoCancelDialog(JFrame parent, String msg) {
+	public int showYesNoCancelDialog(Window parent, String msg) {
 		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
 	}
-
-	public int showYesNoCancelDialog(JPanel parent, String msg) {
-		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
-	}
-
 	
 	@Override
 	public void showWarningDialog(String msg) {
 		showWarningDialog(getMainFrame(), msg);
 	}
 
-	public void showWarningDialog(JFrame parent, String msg) {
+	public void showWarningDialog(Window parent, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
 	}
-
-	public void showWarningDialog(JPanel parent, String msg) {
-		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
-	}
-
 	
 	@Override
 	public void showMessageDialog(String msg) {
 		showMessageDialog(getMainFrame(), msg);
 	}
 	
-	public void showMessageDialog(JFrame parent, String msg) {
-		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
-	}
-	
-	public void showMessageDialog(JPanel parent, String msg) {
+	public void showMessageDialog(Window parent, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
 	
@@ -419,14 +401,7 @@ public class View implements ViewDelegate {
 		return this.getRememberCheckbox().isSelected();
 	}
 	
-	public int showYesNoRememberDialog(JFrame parent, String msg) {
-		// The checkbox is used for all related dialogs, so always reset
-		this.getRememberCheckbox().setSelected(false);
-		return JOptionPane.showConfirmDialog(parent, 
-    		new Object[] {msg, this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
-	}
-
-	public int showYesNoRememberDialog(JPanel parent, String msg) {
+	public int showYesNoRememberDialog(Window parent, String msg) {
 		// The checkbox is used for all related dialogs, so always reset
 		this.getRememberCheckbox().setSelected(false);
 		return JOptionPane.showConfirmDialog(parent, 
@@ -444,15 +419,7 @@ public class View implements ViewDelegate {
 		return this.getDontPromptCheckbox().isSelected();
 	}
 	
-
-	public int showConfirmDontPromptDialog(JFrame parent, String msg) {
-		// The checkbox is used for all related dialogs, so always reset
-		this.getDontPromptCheckbox().setSelected(false);
-		return JOptionPane.showConfirmDialog(parent, 
-    		new Object[] {msg, this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
-	}
-
-	public int showConfirmDontPromptDialog(JPanel parent, String msg) {
+	public int showConfirmDontPromptDialog(Window parent, String msg) {
 		// The checkbox is used for all related dialogs, so always reset
 		this.getDontPromptCheckbox().setSelected(false);
 		return JOptionPane.showConfirmDialog(parent, 

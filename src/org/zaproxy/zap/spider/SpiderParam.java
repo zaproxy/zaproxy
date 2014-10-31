@@ -80,6 +80,9 @@ public class SpiderParam extends AbstractParam {
     private static final String DOMAIN_ALWAYS_IN_SCOPE_REGEX_KEY = "regex";
     private static final String DOMAIN_ALWAYS_IN_SCOPE_ENABLED_KEY = "enabled";
     private static final String CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE = "spider.confirmRemoveDomainAlwaysInScope";
+    
+    private static final String MAX_SCANS_IN_UI = "spider.maxScansInUI";
+
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -143,6 +146,7 @@ public class SpiderParam extends AbstractParam {
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(0);
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScopeEnabled = new ArrayList<>(0);
     private boolean confirmRemoveDomainAlwaysInScope;
+    private int maxScansInUI = 5;
 
 	/** The log. */
 	private static final Logger log = Logger.getLogger(SpiderParam.class);
@@ -171,6 +175,10 @@ public class SpiderParam extends AbstractParam {
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
+
+		try {
+            this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
+        } catch (Exception e) {}
 
 		try {
 			this.processForm = getConfig().getBoolean(SPIDER_PROCESS_FORM, false);
@@ -797,4 +805,14 @@ public class SpiderParam extends AbstractParam {
         this.confirmRemoveDomainAlwaysInScope = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, Boolean.valueOf(confirmRemoveDomainAlwaysInScope));
     }
+
+	public int getMaxScansInUI() {
+		return maxScansInUI;
+	}
+
+	public void setMaxScansInUI(int maxScansInUI) {
+		this.maxScansInUI = maxScansInUI;
+        getConfig().setProperty(MAX_SCANS_IN_UI, this.maxScansInUI);
+	}
+
 }

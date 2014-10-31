@@ -462,6 +462,12 @@ public class Spider {
 		}
 		this.stopped = true;
 		log.info("Stopping spidering process by request.");
+		
+		if (this.paused) {
+			// Have to resume first or we get a deadlock
+			this.resume();
+		}
+		
 		// Issue the shutdown command
 		this.threadPool.shutdownNow();
 		try {
@@ -576,7 +582,7 @@ public class Spider {
 	protected void checkPauseAndWait() {
 		pauseLock.lock();
 		try {
-			while (paused) {
+			while (paused && ! stopped) {
 				pausedCondition.await();
 			}
 		} catch (InterruptedException e) {

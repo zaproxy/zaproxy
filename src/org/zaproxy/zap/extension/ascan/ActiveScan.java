@@ -308,4 +308,14 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	public String getDisplayName() {
 		return this.displayName;
 	}
+
+	@Override
+	public void setScanId(int id) {
+		this.setId(id);
+	}
+
+	@Override
+	public int getScanId() {
+		return this.getScanId();
+	}
 }

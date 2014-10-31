@@ -34,12 +34,11 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
-import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 
 public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwner {
 
@@ -58,6 +57,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuSpiderContextAsUser popupMenuSpiderContextAsUser =null;
 	private PopupMenuSpiderSubtree popupMenuSpiderSubtree = null;
 	private PopupMenuSpiderURLAsUser popupMenuSpiderURLAsUser = null;
+	private PopupMenuSpiderDialog popupMenuSpiderDialog = null;
 	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
@@ -121,6 +121,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			}
 
 			if (isExtensionSpiderEnabled) {
+				/* TODO seeing if we can get away with just one right click option
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContext(3));
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(3));
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
@@ -131,6 +132,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 					extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
 					extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContextAsUser(3));
 				}
+				*/
+				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderDialog(3));
 			}
 
 			if (isExtensionHistoryEnabled) {
@@ -205,6 +208,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		// Ignore
 	}
 
+	// TODO Dont remove these until we're sure its the right approach
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderURL getPopupMenuSpiderURL(int menuIndex) {
 		if (popupMenuSpiderURL == null) {
 			popupMenuSpiderURL = new PopupMenuSpiderURL(Constant.messages.getString("spider.url.popup"));
@@ -212,7 +217,15 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		}
 		return popupMenuSpiderURL;
 	}
+	
+	private PopupMenuSpiderDialog getPopupMenuSpiderDialog(int menuIndex) {
+		if (popupMenuSpiderDialog == null) {
+			popupMenuSpiderDialog = new PopupMenuSpiderDialog(Constant.messages.getString("spider.custom.popup"));
+		}
+		return popupMenuSpiderDialog;
+	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderContext getPopupMenuSpiderContext(int menuIndex) {
 		if (popupMenuSpiderContext == null) {
 			popupMenuSpiderContext = new PopupMenuSpiderContext(Constant.messages.getString("spider.context.popup"));
@@ -220,6 +233,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderContext;
 	}
 	
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderURLAsUser getPopupMenuSpiderURLAsUser(int menuIndex) {
 		if (popupMenuSpiderURLAsUser == null) {
 			popupMenuSpiderURLAsUser = new PopupMenuSpiderURLAsUser(Constant.messages.getString("spider.url.user.popup"));
@@ -227,6 +241,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderURLAsUser;
 	}
 	
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderContextAsUser getPopupMenuSpiderContextAsUser(int menuIndex) {
 		if (popupMenuSpiderContextAsUser == null) {
 			popupMenuSpiderContextAsUser = new PopupMenuSpiderContextAsUser(Constant.messages.getString("spider.context.user.popup"));
@@ -234,6 +249,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderContextAsUser;
 	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderSite getPopupMenuSpiderSite(int menuIndex) {
 		if (popupMenuSpiderSite == null) {
 			popupMenuSpiderSite = new PopupMenuSpiderSite(Constant.messages.getString("spider.site.popup"));
@@ -241,6 +257,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderSite;
 	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderScope getPopupMenuSpiderScope(int menuIndex) {
 		if (popupMenuSpiderScope == null) {
 			popupMenuSpiderScope = new PopupMenuSpiderScope(Constant.messages.getString("spider.scope.popup"));
@@ -248,6 +265,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderScope;
 	}
 
+	@SuppressWarnings("unused")
 	private PopupMenuSpiderSubtree getPopupMenuSpiderSubtree(int menuIndex) {
 		if (popupMenuSpiderSubtree == null) {
 			popupMenuSpiderSubtree = new PopupMenuSpiderSubtree(Constant.messages.getString("spider.subtree.popup"));
@@ -255,7 +273,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderSubtree;
 	}
 
-	// TODO Dont remove these until we're sure its the right approach
 	@SuppressWarnings("unused")
 	private PopupMenuActiveScanScope getPopupMenuActiveScanScope(int menuIndex) {
 		if (popupMenuActiveScanScope == null) {

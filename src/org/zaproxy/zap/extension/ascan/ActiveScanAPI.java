@@ -409,7 +409,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			ApiResponseList resultList = new ApiResponseList(name);
 			for (GenericScanner2 scan : controller.getAllScans()) {
 				Map<String, String> map = new HashMap<>();
-				map.put("id", Integer.toString(scan.getId()));
+				map.put("id", Integer.toString(scan.getScanId()));
 				map.put("progress", Integer.toString(scan.getProgress()));
 				map.put("state", ((ActiveScan)scan).getState().name());
 				resultList.addItem(new ApiResponseSet("scan", map));

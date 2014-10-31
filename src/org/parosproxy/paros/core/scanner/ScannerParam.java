@@ -102,7 +102,7 @@ public class ScannerParam extends AbstractParam {
     private int threadPerHost = 1;
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
-    private int maxScansInUI = 1000;
+    private int maxScansInUI = 5;
     private boolean handleAntiCSRFTokens = false;
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;

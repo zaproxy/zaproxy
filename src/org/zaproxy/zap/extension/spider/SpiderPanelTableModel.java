@@ -125,7 +125,11 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		SpiderScanResult result = new SpiderScanResult(uri, method, flags, inScope);
 		synchronized (scanResults) {
 			scanResults.add(result);
-			fireTableRowsInserted(scanResults.size() - 1, scanResults.size() - 1);
+			try {
+				fireTableRowsInserted(scanResults.size() - 1, scanResults.size() - 1);
+			} catch (IndexOutOfBoundsException e) {
+				// Happens occasionally but seems benign
+			}
 		}
 	}
 

@@ -152,7 +152,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             "ascan.custom.tab.tech",
             "ascan.custom.tab.policy"
         });
-        this.setAlwaysOnTop(true);
+        this.setModal(true);
         this.extension = ext;
 
         // The first time init to the default options set, after that keep own copies
