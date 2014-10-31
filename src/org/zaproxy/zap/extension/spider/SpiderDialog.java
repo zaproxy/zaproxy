@@ -52,6 +52,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
     private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments"; 
     private static final String FIELD_PARSE_ROBOTS = "spider.custom.label.parseRobots"; 
+    private static final String FIELD_PARSE_SITEMAP = "spider.custom.label.sitemap"; 
     private static final String FIELD_PARSE_SVN = "spider.custom.label.parseSvn"; 
     private static final String FIELD_PARSE_GIT = "spider.custom.label.parseGit"; 
     private static final String FIELD_HANDLE_ODATA = "spider.custom.label.handleOdata"; 
@@ -105,6 +106,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
         this.addCheckBoxField(1, FIELD_PARSE_COMMENTS, getSpiderParam().isParseComments());
         this.addCheckBoxField(1, FIELD_PARSE_ROBOTS, getSpiderParam().isParseRobotsTxt());
+        this.addCheckBoxField(1, FIELD_PARSE_SITEMAP, getSpiderParam().isParseSitemapXml());
         this.addCheckBoxField(1, FIELD_PARSE_SVN, getSpiderParam().isParseSVNEntries());
         this.addCheckBoxField(1, FIELD_PARSE_GIT, getSpiderParam().isParseGit());
         this.addCheckBoxField(1, FIELD_HANDLE_ODATA, getSpiderParam().isHandleODataParametersVisited());
@@ -268,6 +270,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
         	spiderParam.setParseComments(this.getBoolValue(FIELD_PARSE_COMMENTS));
         	spiderParam.setParseRobotsTxt(this.getBoolValue(FIELD_PARSE_ROBOTS));
+        	spiderParam.setParseSitemapXml(this.getBoolValue(FIELD_PARSE_SITEMAP));
         	spiderParam.setParseSVNEntries(this.getBoolValue(FIELD_PARSE_SVN));
         	spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
         	spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
