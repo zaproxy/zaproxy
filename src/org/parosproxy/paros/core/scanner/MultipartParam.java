@@ -30,7 +30,7 @@ import java.util.List;
  */
 public class MultipartParam {
 
-    private List<String> headers = new ArrayList<>();
+    private final List<String> headers = new ArrayList<>();
     private String name;
     private String fileName;
     private String content;
@@ -38,6 +38,7 @@ public class MultipartParam {
     /**
      * 
      * @param headerline 
+     * @throws java.io.IOException 
      */
     public void addHeader(String headerline) throws IOException {
         headers.add(headerline);

@@ -121,14 +121,14 @@ public class VariantMultipartFormQuery implements Variant {
     private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {
     	StringBuilder sb = new StringBuilder();
         NameValuePair pair;
-
-        // Set the first boundary -----
-        sb.append(boundary);
-        sb.append(HttpHeader.CRLF);
         
         // First set parameters
         for (int i = 0; i < stringParam.size(); i++) {
             pair = stringParam.get(i);
+
+            // First write the boundary --boundary
+            sb.append(boundary);
+            sb.append(HttpHeader.CRLF);
             sb.append("Content-Disposition: form-data; name=\"");
             
             if (i == originalPair.getPosition()) {
@@ -142,17 +142,25 @@ public class VariantMultipartFormQuery implements Variant {
                 sb.append(pair.getValue());
             }
 
-            sb.append(HttpHeader.CRLF);
-            sb.append(boundary);
+            // Write a newline for the next boundary
             sb.append(HttpHeader.CRLF);
         }
         
         for (MultipartParam part: fileParam) {
-            sb.append(part.toString());
+            // First write the boundary --boundary
             sb.append(boundary);
             sb.append(HttpHeader.CRLF);
-        }
 
+            // Then write the content
+            sb.append(part.toString());
+        }
+        
+        // Set the last boundary --boundary--
+        sb.append(boundary);
+        // RFC821 (an extra -- should be added at last)
+        sb.append("--");
+        sb.append(HttpHeader.CRLF);
+        
         String query = sb.toString();
         msg.getRequestBody().setBody(query);
         return query;

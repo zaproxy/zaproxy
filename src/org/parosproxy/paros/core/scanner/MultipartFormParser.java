@@ -149,8 +149,17 @@ public class MultipartFormParser {
         // Now, finally, we read the content (end after reading the token)
         line = br.readLine();
         StringBuilder value = new StringBuilder();
+        boolean isNotFirst = false;
+        
         while (!line.startsWith(boundary)) {
-            value.append(line);
+            if (isNotFirst) {
+                value.append(HttpHeader.CRLF);
+                
+            } else {
+                isNotFirst = true;            
+            }
+            
+            value.append(line);            
             line = br.readLine();
         }
 
