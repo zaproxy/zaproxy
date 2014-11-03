@@ -7,10 +7,11 @@
 	<desc>Nedostatak Autentikacije nastaje kada web sajt dopušta napadaču pristup povjerljivom sadržaju ili funkcionalnostima bez provjere valjadne autentikacije. Web-bazirani administracijski alati su dobar primjer omogućavanja pristupa povjerljivim funkcionalnostima. Ovisno o specifičnim online resursima, te web aplikacije ne bi trebale biti direktno dostupne bez zahtjevanja da korisnik valjano potvrdi njegov identitet.
 
 Da biste dobili postavljanje autentikacije, neki resursi su zaštićeni "skrivanjem" određenih lokacija i ne povezivanjem lokacije s glavnim web sajtom ili drugim javnim mjestima. Međutim, ovaj pristup nije ništa više od "Sigurnost Kroz Nepoznato". Važno je razumjeti da iako je resurs nepoznat napadaču, on i dalje ostaje dostupan direktno kroz određeni URL. Specifični URL može biti otkriven kroz Brute Force ispitivanje za zajedničke datoteke i lokacije direktorija (/admin na primjer), poruke o greškama, logovi ili dokumentaciju kao što su datoteke pomoći. Ovi resursi, bilo da su sadržaj- ili funkcionalnost- vođeni, trebaju biti adekvatno zaštićeni.</desc>
-	<solution>Faza: Arhitektura i Dizajn
-Koristite autentikacijski frejmvork ili biblioteke kao što je OWASP ESAPI Autentikacijska funkcija.</solution>
+	<solution>Phase: Architecture and Design
+Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 </vuln_item_wasc_1>
 
 <vuln_items>wasc_2</vuln_items>
@@ -18,28 +19,29 @@ Koristite autentikacijski frejmvork ili biblioteke kao što je OWASP ESAPI Auten
 	<alert>Nedostatak Autorizacije</alert>
 	<desc>Nedostatak Autorizacije nastaje kada aplikacija ne obavlja odgovarajuće provjere ovlaštenja kako bi se osiguralo da korisnik obavlja funkciju ili pristupa podacima na način u skladu sa sigurnosnom politikom. Autorizacijske procedure trebaju provjeravati šta korisnik, servis ili aplikacija smiju uraditi. Kada je korisnik autenticaran na web stranici, to ne znači nužno da korisnik treba imati puni pristup svim sadržajima i funkcionalnostima.
 
-Nedovoljna Funkcija Autorizacije
+Insufficient Function Authorization
 
-Mnoge aplikacije dodjeljuju drugačiju funkcionalnost aplikaciji za različite korisnike. Sajta sa vijestima će omogućiti korisnicima viditi vijesti, ali ne da ih objave. Računovodstveni sistem će imati različite dozvole za račun plaćanja službenika i račun primanja službenika. Nedovoljna funkcija autorizacije događa kada aplikacija ne sprečava korisnike da pristupaju aplikativnoj funkcionalnosti u kršenju sigurnosne politike.
+Many applications grant different application functionality to different users. Sajta sa vijestima će omogućiti korisnicima viditi vijesti, ali ne da ih objave. Računovodstveni sistem će imati različite dozvole za račun plaćanja službenika i račun primanja službenika. Nedovoljna funkcija autorizacije događa kada aplikacija ne sprečava korisnike da pristupaju aplikativnoj funkcionalnosti u kršenju sigurnosne politike.
 
 Vrlo vidljiv primjer je 2005 hack Harvard Business Školskog aplikacijskog procesa. Neuspjeh autorizacije dopušta korisnicima da vide svoje podatake kada oni ne bi trebali imati dopušten pristup u taj dio web stranice.
  
-Nedovoljno Podataka Autorizacije
+Insufficient Data Authorization
 
-Mnoge aplikacije izlažu temeljne podatkovne identifikatore u URL-u. Na primjer, kada se pristupa zdravstvenoj dokumentaciji na sistemu bi mogli imati URL kao što su:
+Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
 
 http://example.com/RecordView?id=12345
 
-Ako aplikacije ne provjerava da li autenticirani korisnikov ID ima prava, onda bi to moglo prikazati podatke korisniku koji to ne bi trebao vidjeti.
+If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
 
 Nedovoljna autorizacija podataka je češća nego Nedovoljna Autorizacija Funkcija jer programeri generalno imaju potpuno znanje o funkcionalnost aplikacije, ali nemaju uvijek kompletno mapiranje svih podataka kojima će aplikacija pristupiti. Programeri često imaju čvrstu kontrolu nad mehanizmima autorizacije funkcije, ali se oslanjaju na druge sisteme, kao što su baze podataka za izvršavanje autorizacije podataka.</desc>
-	<solution>Faze: Arhitektura i dizajn, Operacija
-Vrlo pažljivo upravljati postavkom, upravljanjem i rukovanjem privilegijama. Eksplicitno upravljati povjerenim zonama u softveru.
+	<solution>Phases: Architecture and Design; Operation
+Very carefully manage the setting, management, and handling of privileges. Eksplicitno upravljati povjerenim zonama u softveru.
 
-Faza: Arhitektura i Dizajn
-Uvjerite se da je prikladna kompartmentalizacija ugrađena u dizajn sistema i da kompartmentalizacija služi kako bi se omogućilo i dodatno pojačanje funkcionalnosti razdvajanja privilegija. Arhitekti i dizajneri trebaju se oslanjati na principu najmanje privilegija za odlučivanja kada je to prikladno za korištenje i uklanje sistemskih privilegija.</solution>
+Phase: Architecture and Design	
+Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Arhitekti i dizajneri trebaju se oslanjati na principu najmanje privilegija za odlučivanja kada je to prikladno za korištenje i uklanje sistemskih privilegija.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
 </vuln_item_wasc_2>
 
 <vuln_items>wasc_3</vuln_items>
@@ -48,28 +50,28 @@ Uvjerite se da je prikladna kompartmentalizacija ugrađena u dizajn sistema i da
 	<desc>Integer Preliv je stanje koje nastaje kada rezultat aritmetičke operacije, kao što su množenje ili sabiranje premašuje maksimalnu veličinu cijelobrojnog tipa koji će se sačuvati. Kad dođe do cijelobrojnog preljeva, interpretirana vrijednost će izgledati kao da ima "omotač oko" maksimalne vrijednosti i počet će opet na minimalnoj vrijednosti, slično kao sat koji predstavlja 13:00 pokazujući na 01:00.
 
 Na primjer, 8-bitni cjelobroj s predznakom na većini računarskih arhitektura ima maksimalnu  vrijednost 127 i minimalnu vrijednost -128. Ako programer pohranjuje vrijednost 127 u takvu varijablu i dodaje joj 1, rezultat bi trebao biti 128. Međutim, ova vrijednost premašuje maksimum za ovu cjelobrojnu vrstu, tako interpretirana vrijednost će se "zaokrenuti" i postati -128.</desc>
-	<solution>Faza: Zahtjevi
-Uvjerite se da su svi protokoli strogo definirani, kao da su sva out-of-bounds ponašanja mogu biti jednostavno identificirana i zahtijevaju strogu usklađenost sa protokolom.
+	<solution>Phase: Requirements
+Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
 
-Faza: Zahtjevi
-Koristite jezik koji ne dopušta da se dogodi ova slabost ili omogućava konstrukcije koje tu slabost lakše izbjegavaju.
+Phase: Requirements
+Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 Ako je moguće, odabrate jezik ili kompajler koji obavlja automatsku provjeru granica.
 
-Faza: Arhitektura i dizajn
-Koristite provjerenu knjižnicu ili framework koji ne dopušta da se dogodi slabost ili daje konstrukcije koje tu slabost lakše izbjegavaju.
+Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 Koristite knjižnice ili frameworke koji bi se lakše podnose brojeve bez neočekivanih posljedica.
 Primjeri uključuju sigurno cjelobrojno rukovanje paketima kao što SafeInt (C + +) ili IntegerLib (C ili C + +).
 
-Faza: Implementacija
-Izvođenje validacije unosa na bilo koji numerički unos osiguravajući da je unutar očekivanog raspona. Primorajte da ulaz zadovoljava i minimalne i maksimalne uvjete za očekivani raspon.
+Phase: Implementation
+Perform input validation on any numeric input by ensuring that it is within the expected range. Primorajte da ulaz zadovoljava i minimalne i maksimalne uvjete za očekivani raspon.
 Koristite cijelobrojne vrijednosti bez predznaka, gdje je to moguće. To ga čini lakšim za obavljanjem provjera cijelobrojnih prelijeva. Ako morate koristiti cijelobrojne s predznakom, pobrinite se da provjera opsega obuhvata minimalne vrijednosti, kao i maksimalne vrijednosti.
 
-Faza: Implementacija
-Razumjevanje vašeg programskog jezika je temeljno predstavljanje i kakvu interakciju ima s numeričkim izračunavanjima (CWE-681). Obratite pažnju na veličinu odstupanja bajta, preciznošću, razlike sa/bez predznaka, skraćivanje, koverzacije i pretvaranja između tipova, "ne-broj" izračunavanja, i kako jezik obrađuje brojeve koji su preveliki ili premali za njegovo osnovno predstavljanje.
+Phase: Implementation
+Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Obratite pažnju na veličinu odstupanja bajta, preciznošću, razlike sa/bez predznaka, skraćivanje, koverzacije i pretvaranja između tipova, "ne-broj" izračunavanja, i kako jezik obrađuje brojeve koji su preveliki ili premali za njegovo osnovno predstavljanje.
 Također budite oprezni kod izračunavanja za 32-bitni, 64-bitni, i druge potencijalne razlike koje mogu uticati na brojčano predstavljanje.
 
-Faza : Implementacija
-Provjerite detaljno kompajlerska upozorenja i eliminišite potencijalne kritične sigurnosne probleme, kao što je s predznakom / bez predznaka neslaganja. Čak i ako je slabost rijetko iskoristiva, jedan neuspjeh može dovesti do kompromitovanja cijelog sistema.</solution>
+Phase: Implementation
+Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Čak i ako je slabost rijetko iskoristiva, jedan neuspjeh može dovesti do kompromitovanja cijelog sistema.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
@@ -77,11 +79,11 @@ Provjerite detaljno kompajlerska upozorenja i eliminišite potencijalne kritičn
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
 	<alert>Nedovoljna Zaštita Transportnog Sloja</alert>
-	<desc>Nedovoljna Zaštita Transportnog Sloja
-Nedovoljna zaštita transportnog sloja omogućuje komunikaciju koja će biti izložena nepouzdanim trećim stranama, omogućava vektor napada na kopromitovanje web aplikacije i / ili krađe osjetljivih podataka. Websajtovi tipično koriste Secure Sockets Layer / Transport Layer Security (SSL/TLS) kako bi obezbjediti enkripciju na transportnom sloju. Međutim, osim ako je website konfigurisan za korištenje SSL/TLS i konfiguriran za korištenje SSL / TLS ispravno, web sajt može biti ranjiv na presretanje prometa i modifikaciju.
+	<desc>Insufficient Transport Layer Protection
+Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websajtovi tipično koriste Secure Sockets Layer / Transport Layer Security (SSL/TLS) kako bi obezbjediti enkripciju na transportnom sloju. Međutim, osim ako je website konfigurisan za korištenje SSL/TLS i konfiguriran za korištenje SSL / TLS ispravno, web sajt može biti ranjiv na presretanje prometa i modifikaciju.
  
-Nedostatak Kriptiranja Transportnog Sloja
-Kada transportni sloj nije kriptiran, sva komunikacija između vebsajta i klijenta se šalje u čistom tekstu što ga ostavlja otvorenim za presretanje, ubacivanje i preusmjeravanje (također poznat kao man-in-the-middle/MITM napadu). Napadač može pasivno presresti komunikaciju, dajući im pristup osjetljivim podacima koji se prenose kao što su korisnička imena i lozinke. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
+Lack of Transport Layer Encryption
+When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). Napadač može pasivno presresti komunikaciju, dajući im pristup osjetljivim podacima koji se prenose kao što su korisnička imena i lozinke. An attacker may also actively inject/remove content from the communication, allowing the attacker to forge and omit information, inject malicious scripting, or cause the client to access remote untrusted content. An attacker may also redirect the communication in such a way that the website and client are no longer communicating with each other, but instead are unknowingly communicating with the attacker in the context of the other trusted party.
 
 Weak Cipher Support
 Historically, high grade cryptography was restricted from export to outside the United States. Because of this, websites were configured to support weak cryptographic options for those clients that were restricted to only using weak ciphers. Weak ciphers are vulnerable to attack because of the relative ease of breaking them; less than two weeks on a typical home computer and a few seconds using dedicated hardware.
@@ -196,13 +198,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Faza: Zahtjevi
-Koristite jezik koji ne dopušta da se dogodi ova slabost ili omogućava konstrukcije koje tu slabost lakše izbjegavaju.
+	<solution>Phase: Requirements
+Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Faza: Arhitektura i dizajn
-Koristite provjerenu knjižnicu ili framework koji ne dopušta da se dogodi slabost ili daje konstrukcije koje tu slabost lakše izbjegavaju.
+Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -240,8 +242,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Faza: Arhitektura i dizajn
-Koristite provjerenu knjižnicu ili framework koji ne dopušta da se dogodi slabost ili daje konstrukcije koje tu slabost lakše izbjegavaju.
+	<solution>Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -280,8 +282,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Faza: Arhitektura i dizajn
-Koristite provjerenu knjižnicu ili framework koji ne dopušta da se dogodi slabost ili daje konstrukcije koje tu slabost lakše izbjegavaju.
+	<solution>Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -481,8 +483,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Faza: Arhitektura i dizajn
-Koristite provjerenu knjižnicu ili framework koji ne dopušta da se dogodi slabost ili daje konstrukcije koje tu slabost lakše izbjegavaju.
+	<solution>Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.
