@@ -19,9 +19,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import it.cnr.imaa.essi.lablib.gui.checkboxtree.CheckboxTree;
-import it.cnr.imaa.essi.lablib.gui.checkboxtree.TreeCheckingModel;
-
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
@@ -84,6 +81,7 @@ import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ZapTextArea;
+import org.zaproxy.zap.view.JCheckBoxTree;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
@@ -138,7 +136,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<Highlight>();
     private JLabel customPanelStatus = new JLabel();
     private JCheckBox disableNonCustomVectors = null;
-	private CheckboxTree techTree = null;
+	private JCheckBoxTree techTree = null;
 	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
 	private TreeModel techModel = null;
 	private SequencePanel sequencePanel = null;
@@ -402,17 +400,45 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private void setTech() {
     	Context context = this.getSelectedContext();
 
-    	TreeCheckingModel chModel = techTree.getCheckingModel();
-		chModel.clearChecking();
+		TechSet ts = new TechSet(Tech.builtInTech);
+		Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-		// start by walking the local tree
-		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+		Tech tech;
+		DefaultMutableTreeNode parent;
+		DefaultMutableTreeNode node;
 		while (iter.hasNext()) {
-			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-			TreePath tp = this.getTechPath(node.getValue());
-			if (context == null || context.getTechSet() == null || context.getTechSet().includes(node.getKey())) {
-				// Check the tech if theres no context set or if its in scope for the context
-				chModel.addCheckingPath(tp);
+			tech = iter.next();
+			if (tech.getParent() != null) {
+				parent = techToNodeMap.get(tech.getParent());
+			} else {
+				parent = null;
+			}
+			if (parent == null) {
+				parent = root;
+			}
+			node = new DefaultMutableTreeNode(tech.getName());
+			parent.add(node);
+			techToNodeMap.put(tech, node);
+		}
+
+		techModel = new DefaultTreeModel(root);
+		techTree.setModel(techModel);
+		techTree.expandAll();
+		// Default to everything set
+		TreePath rootTp = new TreePath(root);
+		techTree.checkSubTree(rootTp, true);
+		techTree.setCheckBoxEnabled(rootTp, false);
+
+		if (context != null) {
+			TechSet techSet = context.getTechSet();
+			Iterator<Entry<Tech, DefaultMutableTreeNode>> iter2 = techToNodeMap.entrySet().iterator();
+			while (iter.hasNext()) {
+				Entry<Tech, DefaultMutableTreeNode> nodeEntry = iter2.next();
+				TreePath tp = this.getTechPath(nodeEntry.getValue());
+				if (techSet.includes(nodeEntry.getKey())) {
+					this.getTechTree().check(tp, true);
+				}
 			}
 		}
 
@@ -608,9 +634,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
-	private CheckboxTree getTechTree() {
+	private JCheckBoxTree getTechTree() {
 		if (techTree == null) {
-			techTree = new CheckboxTree() {
+			techTree = new JCheckBoxTree() {
 				private static final long serialVersionUID = 1L;
 
 				@Override
@@ -621,7 +647,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
 					}
 				}
 			};
-			techTree.getCheckingModel().setCheckingMode(TreeCheckingModel.CheckingMode.PROPAGATE_UP_UNCHECK);
 			// Initialise the structure based on all the tech we know about
 			TechSet ts = new TechSet(Tech.builtInTech);
 			Iterator<Tech> iter = ts.getIncludeTech().iterator();
@@ -648,9 +673,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 			techModel = new DefaultTreeModel(root);
 			techTree.setModel(techModel);
 			techTree.expandAll();
-			TreeCheckingModel chModel = techTree.getCheckingModel();
-			chModel.setPathEnabled(new TreePath(root), false);
-			// Enable everything on init - will be overriden when a node is selected
+			techTree.setCheckBoxEnabled(new TreePath(root), false);
             this.setTech();
 
 		}
@@ -702,7 +725,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
     
 	private TechSet getTechSet(){
-		TreeCheckingModel chModel = techTree.getCheckingModel();
 		TechSet techSet = new TechSet();
 
 		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
@@ -710,7 +732,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
 			TreePath tp = this.getTechPath(node.getValue());
 			Tech tech = node.getKey();
-			if (chModel.isPathChecked(tp)) {
+			if (this.getTechTree().isSelectedFully(tp)) {
 				techSet.include(tech);
 			} else {
 				techSet.exclude(tech);
