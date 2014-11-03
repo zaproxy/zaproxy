@@ -169,33 +169,34 @@ public class SpiderAPI extends ApiImplementor {
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
 		case ACTION_PAUSE_SCAN:
-			scan = extension.getScan(params.getInt(PARAM_SCAN_ID));
+			scan = getSpiderScan(params);
 			if (scan == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 			}
-			extension.pauseScan(params.getInt(PARAM_SCAN_ID));
+			extension.pauseScan(scan.getScanId());
 			break;
 		case ACTION_RESUME_SCAN:
-			scan = extension.getScan(params.getInt(PARAM_SCAN_ID));
+			scan = getSpiderScan(params);
 			if (scan == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 			}
-			extension.resumeScan(params.getInt(PARAM_SCAN_ID));
+			extension.resumeScan(scan.getScanId());
 			break;
 		case ACTION_STOP_SCAN:
 			// The action is to stop a pending scan
-			scan = extension.getScan(params.getInt(PARAM_SCAN_ID));
+			scan = getSpiderScan(params);
 			if (scan == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 			}
-			extension.stopScan(params.getInt(PARAM_SCAN_ID));
+			extension.stopScan(scan.getScanId());
 			break;
 		case ACTION_REMOVE_SCAN:
 			// Note that we're removing the scan with this call, not just getting it ;)
-			scan = extension.removeScan(params.getInt(PARAM_SCAN_ID));
+			scan = getSpiderScan(params);
 			if (scan == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
 			}
+			extension.removeScan(scan.getScanId());
 			break;
 		case ACTION_PAUSE_ALL_SCANS:
 			extension.pauseAllScans();
@@ -232,6 +233,29 @@ public class SpiderAPI extends ApiImplementor {
 		return ApiResponseElement.OK;
 	}
 
+	/**
+	 * Returns the specified GenericScanner2 or the last scan available.
+	 *
+	 * @param params the parameters of the API call
+	 * @return the GenericScanner2 with the given scan ID or, if not present, the last scan available
+	 * @throws ApiException if there's no scan with the given scan ID
+	 * @see #PARAM_SCAN_ID
+	 */
+	private GenericScanner2 getSpiderScan(JSONObject params) throws ApiException {
+		GenericScanner2 spiderScan;
+		int id = getParam(params, PARAM_SCAN_ID, -1);
+		if (id == -1) {
+			spiderScan = extension.getLastScan();
+		} else {
+			spiderScan = extension.getScan(id);
+		}
+
+		if (spiderScan == null) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_ID);
+		}
+
+		return spiderScan;
+	}
 
 	/**
 	 * Starts a spider scan at the given {@code url} and, optionally, with the perspective of the given {@code user}.
@@ -272,7 +296,7 @@ public class SpiderAPI extends ApiImplementor {
 	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
 		ApiResponse result;
 		if (VIEW_STATUS.equals(name)) {
-			SpiderScan scan = (SpiderScan) extension.getScan(params.getInt(PARAM_SCAN_ID));
+			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
 			int progress = 0;
 			if (scan != null) {
 				progress = scan.getProgress();
@@ -280,7 +304,7 @@ public class SpiderAPI extends ApiImplementor {
 			result = new ApiResponseElement(name, Integer.toString(progress));
 		} else if (VIEW_RESULTS.equals(name)) {
 			result = new ApiResponseList(name);
-			SpiderScan scan = (SpiderScan) extension.getScan(params.getInt(PARAM_SCAN_ID));
+			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
 			if (scan != null) {
 				synchronized (scan.getResults()) {
 					for (String s : scan.getResults()) {
@@ -290,7 +314,7 @@ public class SpiderAPI extends ApiImplementor {
 			}
 		} else if (VIEW_FULL_RESULTS.equals(name)) {
 			ApiResponseList resultUrls = new ApiResponseList(name);
-			SpiderScan scan = (SpiderScan) extension.getScan(params.getInt(PARAM_SCAN_ID));
+			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
 			synchronized (scan.getResults()) {
 				for (SpiderResource sr : scan.getResourcesFound()) {
