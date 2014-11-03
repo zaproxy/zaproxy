@@ -25,6 +25,7 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -97,11 +98,32 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private Map<String, Component> fieldMap = new HashMap<> ();
 	private Map<String, JPanel> tabNameMap = new HashMap<String, JPanel>(); 
 
+	/**
+	 * For backwards binary compatibility
+	 * @param owner
+	 * @param titleLabel
+	 * @param dim
+	 */
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim) {
+		this((Window)owner, titleLabel, dim);
+	}
+
+	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim) {
 		this(owner, titleLabel, dim, null);
 	}
 
+	/**
+	 * For backwards binary compatibility
+	 * @param owner
+	 * @param titleLabel
+	 * @param dim
+	 * @param tabLabels
+	 */
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim, String[] tabLabels) {
+		this((Window)owner, titleLabel, dim, tabLabels);
+	}
+
+	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels) {
 		super();
 		this.setTitle(Constant.messages.getString(titleLabel));
 		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
