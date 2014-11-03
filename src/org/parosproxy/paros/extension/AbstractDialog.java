@@ -27,6 +27,7 @@ package org.parosproxy.paros.extension;
 
 
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
@@ -60,6 +61,16 @@ public abstract class AbstractDialog extends JDialog {
 	public AbstractDialog() throws HeadlessException {
 		super();
 		initialize();
+	}
+
+	/**
+	 * Constructor for backwards compatibility
+	 * @param owner
+	 * @param modal
+	 * @throws HeadlessException
+	 */
+	public AbstractDialog(Frame owner, boolean modal) throws HeadlessException {
+		this((Window)owner, modal);
 	}
 
 	/**

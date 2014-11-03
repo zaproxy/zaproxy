@@ -76,6 +76,7 @@ import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -358,7 +359,11 @@ public class View implements ViewDelegate {
 	public int showConfirmDialog(String msg) {
 		return showConfirmDialog(getMainFrame(), msg);
 	}
-	
+
+	public int showConfirmDialog(JPanel parent, String msg) {
+		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+	}
+
 	public int showConfirmDialog(Window parent, String msg) {
 		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
 	}
@@ -366,6 +371,10 @@ public class View implements ViewDelegate {
 	@Override
 	public int showYesNoCancelDialog(String msg) {
 		return showConfirmDialog(getMainFrame(), msg);
+	}
+	
+	public int showYesNoCancelDialog(JPanel parent, String msg) {
+		return JOptionPane.showConfirmDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.YES_NO_CANCEL_OPTION);
 	}
 	
 	public int showYesNoCancelDialog(Window parent, String msg) {
@@ -377,6 +386,10 @@ public class View implements ViewDelegate {
 		showWarningDialog(getMainFrame(), msg);
 	}
 
+	public void showWarningDialog(JPanel parent, String msg) {
+		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+	}
+	
 	public void showWarningDialog(Window parent, String msg) {
 		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
 	}
@@ -384,6 +397,10 @@ public class View implements ViewDelegate {
 	@Override
 	public void showMessageDialog(String msg) {
 		showMessageDialog(getMainFrame(), msg);
+	}
+	
+	public void showMessageDialog(JPanel parent, String msg) {
+		JOptionPane.showMessageDialog(parent, msg, Constant.PROGRAM_NAME, JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	public void showMessageDialog(Window parent, String msg) {
