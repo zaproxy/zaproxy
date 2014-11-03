@@ -316,6 +316,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	@Override
 	public int getScanId() {
-		return this.getScanId();
+		return this.getId();
 	}
 }
