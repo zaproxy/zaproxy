@@ -127,6 +127,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		return breakPanel;
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -352,8 +353,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
             menuBreakOnRequests.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                	// Toggle break on requests
-                	getBreakPanel().setBreakAllRequests(! getBreakPanel().isBreakRequest());
+                	if (getOptionsParam().getButtonMode() == BreakpointsParam.BUTTON_MODE_SIMPLE) {
+                    	// Single button mode - toggle break on all
+                		getBreakPanel().setBreakAll(! getBreakPanel().isBreakAll());
+                	} else {
+                    	// Toggle break on requests
+                		getBreakPanel().setBreakAllRequests(! getBreakPanel().isBreakRequest());
+                	}
                 }
             });
         }
@@ -367,8 +373,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
             menuBreakOnResponses.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                	// Toggle break on Responses
-                	getBreakPanel().setBreakAllResponses(! getBreakPanel().isBreakResponse());
+                	if (getOptionsParam().getButtonMode() == BreakpointsParam.BUTTON_MODE_SIMPLE) {
+                    	// Single button mode - toggle break on all
+                		getBreakPanel().setBreakAll(! getBreakPanel().isBreakAll());
+                	} else {
+                    	// Toggle break on Responses
+                    	getBreakPanel().setBreakAllResponses(! getBreakPanel().isBreakResponse());
+                	}
                 }
             });
         }
@@ -592,6 +603,13 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		if (View.isInitialised()) {
 			this.getBreakPanel().setButtonMode(
 					((BreakpointsParam) optionsParam.getParamSet(BreakpointsParam.class)).getButtonMode());
+		}
+	}
+
+	@Override
+	public void optionsLoaded() {
+		if (View.isInitialised()) {
+			this.getBreakPanel().setButtonMode(this.getOptionsParam().getButtonMode());
 		}
 	}
 }
