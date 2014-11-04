@@ -74,6 +74,8 @@ public class TabbedPanelTab extends JPanel {
 				}
 				// Set border null so the button doesn't make the tab too big
 				btnPin.setBorder(null);
+				// This is needed to Macs for some reason
+				btnPin.setBorderPainted(false);
 	
 				// Make sure the button can't get focus, otherwise it looks funny
 				btnPin.setFocusable(false);
@@ -106,6 +108,8 @@ public class TabbedPanelTab extends JPanel {
 			btnClose.setIcon(CLOSE_TAB_GREY_ICON);
 			// Set border null so the button doesn't make the tab too big
 			btnClose.setBorder(null);
+			// This is needed to Macs for some reason
+			btnClose.setBorderPainted(false);
 	
 			// Make sure the button can't get focus, otherwise it looks funny
 			btnClose.setFocusable(false);
