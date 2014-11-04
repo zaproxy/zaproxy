@@ -27,6 +27,7 @@ import java.net.URL;
 import javax.help.CSH;
 import javax.help.HelpBroker;
 import javax.help.HelpSet;
+import javax.help.SwingHelpUtilities;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.KeyStroke;
@@ -73,6 +74,13 @@ public class ExtensionHelp extends ExtensionAdaptor {
         this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	
+ 	@Override
+	public void init() {
+		super.init();
+
+		SwingHelpUtilities.setContentViewerUI(BasicOnlineContentViewerUI.class.getCanonicalName());
+	}
+
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
