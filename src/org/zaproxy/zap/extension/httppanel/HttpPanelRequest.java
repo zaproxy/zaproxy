@@ -69,6 +69,7 @@ public class HttpPanelRequest extends HttpPanel {
 		if (comboChangeMethod == null) {
 			comboChangeMethod = new JComboBox<>();
 			comboChangeMethod.setEditable(false);
+			comboChangeMethod.setMaximumRowCount(9);	// Prevents scrollbar
 			comboChangeMethod.addItem(Constant.messages.getString("manReq.pullDown.method"));
 			comboChangeMethod.addItem(HttpRequestHeader.CONNECT);
 			comboChangeMethod.addItem(HttpRequestHeader.DELETE);
