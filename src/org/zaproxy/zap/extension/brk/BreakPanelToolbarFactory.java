@@ -359,9 +359,9 @@ public class BreakPanelToolbarFactory {
         @Override
         public void actionPerformed(ActionEvent e) {
             setContinue(true);
-            if (mode == BreakpointsParam.BUTTON_MODE_SIMPLE) {
-            	setBreakAll(false);
-            }
+           	setBreakAll(false);
+           	setBreakRequest(false);
+           	setBreakResponse(false);
         }
     }
 

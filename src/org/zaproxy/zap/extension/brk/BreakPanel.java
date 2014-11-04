@@ -125,6 +125,10 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		return breakToolbarFactory.isBreakResponse();
 	}
 	
+	public boolean isBreakAll() {
+		return breakToolbarFactory.isBreakAll();
+	}
+	
 	public void breakpointHit () {
 		breakToolbarFactory.breakpointHit();
 	}
@@ -282,6 +286,10 @@ public class BreakPanel extends AbstractPanel implements Tab {
 
 	public void setBreakAllResponses(boolean brk) {
 		breakToolbarFactory.setBreakResponse(brk);
+	}
+
+	public void setBreakAll(boolean brk) {
+		breakToolbarFactory.setBreakAll(brk);
 	}
 
 	public void step() {
