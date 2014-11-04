@@ -148,8 +148,27 @@ public class TabbedPanelTab extends JPanel {
 		btnClose.setEnabled(!ap.isPinned());
 		btnClose.setVisible(!ap.isPinned());
 	}
+	
+	/*
+	 * Temporarily lock/unlock the tab, eg if its active and mustnt be closed.
+	 * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed 
+	 */
+	public void setLocked(boolean locked) {
+		if (ap == null) {
+			return;
+		}
+		ap.setLocked(locked);
+		btnPin.setVisible(! locked);
+		if (!ap.isPinned()) {
+			// Wont be visible if its pinned
+			btnClose.setVisible(! locked);
+		}
+	}
 
 	public void setEnabled (boolean enabled) {
+		if (ap != null && ap.isLocked()) {
+			return;
+		}
 		btnPin.setEnabled(enabled);
 		btnPin.setVisible(enabled);
 		if (ap == null || ! ap.isPinned()) {
