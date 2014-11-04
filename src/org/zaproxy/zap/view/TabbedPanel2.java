@@ -202,6 +202,24 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	}
 	
+	/**
+	 * Temporarily lock/unlock the specified tab, eg if its active and mustnt be closed.
+	 * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed 
+	 * @param panel
+	 * @param hideable
+	 */
+	public void setTabLocked(AbstractPanel panel, boolean lock) {
+        for (int i = 0; i < this.getTabCount(); i++) {
+        	Component tabCom = this.getTabComponentAt(i);
+        	if (tabCom != null && tabCom instanceof TabbedPanelTab && tabCom.isVisible()) {
+        		TabbedPanelTab jp = (TabbedPanelTab) tabCom;
+        		if (panel.equals(jp.getAbstractPanel())) {
+            		jp.setLocked(!lock);
+        		}
+        	}
+        }
+	}
+	
     @Override
     public void setIconAt(int index, Icon icon) {
     	Component tabCom = this.getTabComponentAt(index);

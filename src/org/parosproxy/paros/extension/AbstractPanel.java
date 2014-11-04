@@ -48,6 +48,7 @@ public class AbstractPanel extends JPanel {
 	private TabbedPanel2 parent = null;
 	private boolean hideable = true;
 	private boolean pinned = false;
+	private boolean locked = false;
 	private boolean showByDefault = false;
 
 	private KeyStroke defaultAccelerator;
@@ -131,6 +132,13 @@ public class AbstractPanel extends JPanel {
 		this.pinned = pinned;
 	}
 	
+	public boolean isLocked() {
+		return locked;
+	}
+	
+	public void setLocked(boolean locked) {
+		this.locked = locked;
+	}
 	public boolean isShowByDefault() {
 		return showByDefault;
 	}

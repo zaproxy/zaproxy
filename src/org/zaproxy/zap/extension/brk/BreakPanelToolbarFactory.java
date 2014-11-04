@@ -15,6 +15,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapToggleButton;
 
 // Button notes
@@ -67,6 +68,10 @@ public class BreakPanelToolbarFactory {
 	}
 
 	private void setActiveIcon(boolean active) {
+		if (active) {
+			// Have to do this before the getParent() call
+			breakPanel.setTabFocus();
+		}
 		if (breakPanel.getParent() instanceof TabbedPanel) {
 			TabbedPanel parent = (TabbedPanel) breakPanel.getParent();
 			if (active) {
@@ -77,6 +82,10 @@ public class BreakPanelToolbarFactory {
 				parent.setIconAt(
 						parent.indexOfComponent(breakPanel), 
 						new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/101grey.png")));	// Grey X
+			}
+			if (parent instanceof TabbedPanel2) {
+				// If possible lock the tab while it is active so it cant be closed
+				((TabbedPanel2)parent).setTabLocked(breakPanel, !active);
 			}
 		}
 	}
