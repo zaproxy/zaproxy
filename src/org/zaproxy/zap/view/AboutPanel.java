@@ -26,6 +26,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.LayoutManager;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -41,7 +42,8 @@ public class AboutPanel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private static final String PRODUCT = Constant.PROGRAM_NAME;
 	private static final String VERSION = "Version " + Constant.PROGRAM_VERSION;
-	private static final String COPYRIGHT = "Copyright (C) 2010-2013 OWASP ZAP Attack Proxy Project";
+	private static final String YEAR_TOKEN = "<<YEAR>>";
+	private static final String COPYRIGHT = "Copyright (C) 2010-" + YEAR_TOKEN + " OWASP ZAP Project";
 	private static final String LICENSE_DETAIL = "<html><body><p>This program is free software; "
 		+ "you can redistribute it and/or modify it under the terms of the Apache License, "
 		+ "Version 2.0.  This program is distributed in the hope that it will be useful, but "
@@ -159,7 +161,8 @@ public class AboutPanel extends JPanel {
 		lblOtherCopyright.setFont(new Font("Dialog", Font.PLAIN, 11));
 		lblOtherCopyright.setBackground(Color.white);
 		
-		lblCopyright.setText(COPYRIGHT);
+		String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+		lblCopyright.setText(COPYRIGHT.replace(YEAR_TOKEN, year));
 		lblCopyright.setFont(new Font("Default", Font.PLAIN, 11));
 		lblCopyright.setName("lblCopyright");
 		lblCopyright.setBackground(Color.white);
