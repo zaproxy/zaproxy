@@ -23,6 +23,7 @@
 // ZAP: 2012/12/19 Code Cleanup: Moved array brackets from variable name to type
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2014/11/06 Added warning that filters will be removed
 
 package org.parosproxy.paros.extension.filter;
 
@@ -31,6 +32,7 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
 import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.TableColumn;
@@ -38,6 +40,7 @@ import javax.swing.table.TableColumn;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class AllFilterPanel extends AbstractParamPanel {
 
@@ -71,18 +74,20 @@ public class AllFilterPanel extends AbstractParamPanel {
         gridBagConstraints11.weighty = 1.0;
         gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
         gridBagConstraints11.gridx = 0;
-        gridBagConstraints11.gridy = 1;
+        gridBagConstraints11.gridy = 2;
         gridBagConstraints11.insets = new java.awt.Insets(0,0,0,0);
         gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints11.gridwidth = 2;
         gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
         gridBagConstraints1.gridx = 0;
-        gridBagConstraints1.gridy = 0;
+        gridBagConstraints1.gridy = 1;
         gridBagConstraints1.insets = new java.awt.Insets(2,2,2,2);
         gridBagConstraints2.gridx = 1;
         gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
-        gridBagConstraints2.gridy = 0;
+        gridBagConstraints2.gridy = 1;
         gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
+        
+        this.add(new JLabel(Constant.messages.getString("filter.warning")), LayoutHelper.getGBC(0, 0, 2, 1.0));
         this.add(getBtnEnableAll(), gridBagConstraints1);
         this.add(getBtnDisableAll(), gridBagConstraints2);
         this.add(getJScrollPane(), gridBagConstraints11);
