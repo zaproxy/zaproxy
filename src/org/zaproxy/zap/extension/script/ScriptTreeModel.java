@@ -55,11 +55,22 @@ public class ScriptTreeModel extends DefaultTreeModel {
     protected void addType(ScriptType type) {
         ScriptNode sNode = new ScriptNode(type, false);
         scriptsNodeMap.put(type.getName(), sNode);
-        this.scriptsNode.add(sNode);
+        this.addToParentSorted(this.scriptsNode, sNode);
     	
         ScriptNode tNode = new ScriptNode(type, true);
         templatesNodeMap.put(type.getName(), tNode);
-        this.templatesNode.add(tNode);
+        this.addToParentSorted(this.templatesNode, tNode);
+    }
+    
+    private void addToParentSorted(ScriptNode parent, ScriptNode child) {
+    	for (int i=0; i < parent.getChildCount(); i++) {
+    		ScriptNode sn = (ScriptNode) parent.getChildAt(i);
+    		if (child.getNodeName().compareToIgnoreCase(sn.getNodeName()) < 0) {
+    			parent.insert(child, i);
+    			return;
+    		}
+    	}
+    	parent.add(child);
     }
     
     public ScriptNode getTypeNode(String type) {
@@ -102,7 +113,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		ScriptNode parent = scriptsNodeMap.get(script.getType().getName());
 		
 		if (parent != null) {
-			parent.add(node);
+			this.addToParentSorted(parent, node);
 			this.nodeStructureChanged(parent);
 			return node;
 		} else {
@@ -176,7 +187,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		ScriptNode parent = templatesNodeMap.get(template.getType().getName());
 		
 		if (parent != null) {
-			parent.add(node);
+			this.addToParentSorted(parent, node);
 			this.nodeStructureChanged(parent);
 			return node;
 		} else {
