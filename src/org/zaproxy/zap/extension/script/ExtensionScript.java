@@ -56,6 +56,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.extension.api.API;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
@@ -141,6 +142,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         	// No GUI so add stdout as a writer
         	this.addWriter(new PrintWriter(System.out));
 		}
+
+        API.getInstance().registerApiImplementor(new ScriptAPI(this));
 
 	}
 	
