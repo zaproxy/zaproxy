@@ -22,6 +22,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/22 Issue 996: Ensure all dialogs close when the escape key is pressed
 // ZAP: 2014/10/31 Issue 1176: Changed owner to Window as part of spider advanced dialog changes
+// ZAP: 2014/11/06 Set ZAP icons
 
 package org.parosproxy.paros.extension;
 
@@ -29,12 +30,15 @@ package org.parosproxy.paros.extension;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
+import java.awt.Image;
 import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.JComponent;
@@ -54,6 +58,7 @@ public abstract class AbstractDialog extends JDialog {
 	private static final long serialVersionUID = -3951504408180103696L;
 
 	protected AbstractDialog thisDialog = null;
+	private List<Image> icons = null;
     
     /**
 	 * @throws java.awt.HeadlessException
@@ -91,6 +96,7 @@ public abstract class AbstractDialog extends JDialog {
 	private void initialize() {
 		this.setVisible(false);
 		this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
+		this.setIconImages(this.loadIconImages());
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(300,200);
@@ -108,6 +114,21 @@ public abstract class AbstractDialog extends JDialog {
         };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
         getRootPane().getActionMap().put("ESCAPE",escapeAction);
+	}
+	
+	private List<Image> loadIconImages() {
+		if (icons == null) {
+			icons = new ArrayList<>(8);
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap16x16.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap32x32.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap48x48.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap64x64.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap128x128.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap256x256.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap512x512.png")));
+			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractDialog.class.getResource("/resource/zap1024x1024.png")));
+		}
+		return icons;
 	}
 
 	/**
