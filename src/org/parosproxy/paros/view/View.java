@@ -272,15 +272,15 @@ public class View implements ViewDelegate {
 		ExtensionKeyboard extKey = (ExtensionKeyboard) 
 				Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.NAME);
 		
-	    for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
+	    for (Component tab : getWorkbench().getTabbedSelect().getSortedTabList()) {
     		registerMenu(extKey, getWorkbench().getTabbedSelect(), tab);
 	    }
     	menuShowTabs.addSeparator();
-	    for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
+	    for (Component tab : getWorkbench().getTabbedWork().getSortedTabList()) {
     		registerMenu(extKey, getWorkbench().getTabbedWork(), tab);
 	    }
     	menuShowTabs.addSeparator();
-	    for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
+	    for (Component tab : getWorkbench().getTabbedStatus().getSortedTabList()) {
     		registerMenu(extKey, getWorkbench().getTabbedStatus(), tab);
 	    }
 	}
