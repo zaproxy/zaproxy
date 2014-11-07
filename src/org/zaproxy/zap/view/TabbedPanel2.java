@@ -1,13 +1,19 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 
@@ -28,7 +34,15 @@ public class TabbedPanel2 extends TabbedPanel {
 	private List<Component> fullTabList = new ArrayList<>();
 	private List<Component> removedTabList = new ArrayList<>();
 
+	private static final Icon PLUS_ICON = new ImageIcon(
+			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png"));
+
+	// A fake componenet that never actually get displayed - used for the 'hidden tab list tab'
+	private Component hiddenComponent = new JLabel();
+
 	private final Logger logger = Logger.getLogger(TabbedPanel2.class);
+	
+	private int prevTabIndex = -1;
 
 	public TabbedPanel2() {
 		super();
@@ -37,20 +51,65 @@ public class TabbedPanel2 extends TabbedPanel {
 		    @Override
 		    public void stateChanged(ChangeEvent e) {
 		    	setCloseButtonStates();
+		    	if (getSelectedComponent() != null && getSelectedComponent().equals(hiddenComponent)) {
+		    		// The 'hidden tab list tab' has been selected - this is a special case
+		    		if (prevTabIndex == indexOfComponent(hiddenComponent)) {
+		    			// Happens when we delete the tab to the left of the hidden one
+		    			setSelectedIndex(prevTabIndex-1);
+		    		} else {
+		    			// Hidden tab list tab selected - show popup and select previous tab
+		    			setSelectedIndex(prevTabIndex);
+		    			showHiddenTabPopup();
+		    		}
+		    	} else {
+		    		prevTabIndex = getSelectedIndex();
+		    	}
 		    }
 		});
 	}
 
-  /**
-   * Returns a clone of the TabbedPanel2 object.
-   * @param tabbedPabel
-   */
-  public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
-    TabbedPanel2 t = new TabbedPanel2();
-    t.fullTabList = tabbedPanel.fullTabList;
-    t.removedTabList = tabbedPanel.removedTabList;
-    return t;
-  }
+	/**
+	 * Show a popup containing a list of all of the hidden tabs - selecting one will reveal that tab
+	 */
+	private void showHiddenTabPopup() {
+		JPopupMenu menu = new JPopupMenu();
+		if (getMousePosition() == null) {
+			// Startup
+			return;
+		}
+		// Sort the list so the tabs are always in alphabetic order
+		Collections.sort(this.removedTabList, new Comparator<Component>(){
+			@Override
+			public int compare(Component o1, Component o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
+		
+		for (Component c : this.removedTabList) {
+			if (c instanceof AbstractPanel) {
+				final AbstractPanel ap = (AbstractPanel)c;
+				JMenuItem mi = new JMenuItem(ap.getName());
+				mi.setIcon(ap.getIcon());
+				mi.addActionListener(new ActionListener(){
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						setVisible(ap, true);
+					}});
+				menu.add(mi);
+			}
+		}
+		menu.show(this, this.getMousePosition().x, this.getMousePosition().y);
+	}
+	
+	/**
+     * Returns a clone of the TabbedPanel2 object.
+     * @param tabbedPabel
+   	 */
+	public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
+		TabbedPanel2 t = new TabbedPanel2();
+		t.fullTabList = tabbedPanel.fullTabList;
+		t.removedTabList = tabbedPanel.removedTabList;
+		return t;
+	}
 	
 	private void setCloseButtonStates() {
 		// Hide all 'close' buttons except for the selected tab
@@ -157,6 +216,7 @@ public class TabbedPanel2 extends TabbedPanel {
 			remove(c);
 			this.removedTabList.add(c);
 		}
+		handleHiddenTabListTab();
 	}
 
 	@Override
@@ -200,6 +260,18 @@ public class TabbedPanel2 extends TabbedPanel {
 			setVisible(c, false);
 		}
 
+		handleHiddenTabListTab();
+	}
+
+	private void handleHiddenTabListTab() {
+		if (indexOfComponent(hiddenComponent) >= 0) {
+			// Tab is showing, remove it - it might not be needed or may no longer be at the end
+			super.remove(hiddenComponent);
+		}
+		if (this.removedTabList.size() > 0) {
+			// Only re-add tab if there are hidden ones
+			super.addTab("", PLUS_ICON, hiddenComponent);
+		}
 	}
 	
 	/**
