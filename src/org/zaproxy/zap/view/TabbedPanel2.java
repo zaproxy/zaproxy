@@ -37,7 +37,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	private static final Icon PLUS_ICON = new ImageIcon(
 			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png"));
 
-	// A fake componenet that never actually get displayed - used for the 'hidden tab list tab'
+	// A fake component that never actually get displayed - used for the 'hidden tab list tab'
 	private Component hiddenComponent = new JLabel();
 
 	private final Logger logger = Logger.getLogger(TabbedPanel2.class);
@@ -193,7 +193,7 @@ public class TabbedPanel2 extends TabbedPanel {
 			if (this.removedTabList.contains(c)) {
 				
 				if (c instanceof AbstractPanel) {
-					// Dont use the addTab(AbstractPanel) methos as we need to force visibility
+					// Dont use the addTab(AbstractPanel) methods as we need to force visibility
 					AbstractPanel panel = (AbstractPanel)c;
 					this.addTab(c.getName(), panel.getIcon(), panel, true, true, panel.getTabIndex());
 				} else {
@@ -213,8 +213,10 @@ public class TabbedPanel2 extends TabbedPanel {
 			}
 			
 		} else {
-			remove(c);
-			this.removedTabList.add(c);
+			if (! this.removedTabList.contains(c)) {
+				remove(c);
+				this.removedTabList.add(c);
+			}
 		}
 		handleHiddenTabListTab();
 	}
@@ -321,6 +323,16 @@ public class TabbedPanel2 extends TabbedPanel {
 
 	public List<Component> getTabList() {
 		return Collections.unmodifiableList(this.fullTabList);
+	}
+
+	public List<Component> getSortedTabList() {
+		List<Component> copy = new ArrayList<Component>(this.fullTabList); 
+		Collections.sort(copy, new Comparator<Component>(){
+			@Override
+			public int compare(Component o1, Component o2) {
+				return o1.getName().compareTo(o2.getName());
+			}});
+		return copy;
 	}
 
 	public void removeTab(AbstractPanel panel) {
