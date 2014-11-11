@@ -283,7 +283,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 
 	}
 	
-	private JProgressBar getProgressBar() {
+	protected JProgressBar getProgressBar() {
 		if (progressBar == null) {
 			progressBar = new JProgressBar(0, 100);
 			progressBar.setValue(0);
@@ -294,7 +294,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		return progressBar;
 	}
 	
-	private JButton getStopScanButton() {
+	protected JButton getStopScanButton() {
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
 			stopScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.stop"));
@@ -313,7 +313,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		return stopScanButton;
 	}
 
-	private JToggleButton getPauseScanButton() {
+	protected JToggleButton getPauseScanButton() {
 		if (pauseScanButton == null) {
 			pauseScanButton = new ZapToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
@@ -509,6 +509,10 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		String name = nameForScanner(scanner);
 		this.progressModel.addElement(name);
 		this.getProgressSelect().setEnabled(true);
+		if (this.progressModel.getIndexOf(name) < 0) {
+			// Been added 'externally' (eg the Active Scan attack mode scanner)
+			this.progressModel.addElement(name);
+		}
 		this.getProgressSelect().setSelectedItem(name);
 		this.trimProgressList();
 		this.scannerSelected(scanner);
@@ -538,7 +542,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 			}
 		}
 	}
-
+	
 	public void reset() {
 		log.debug("reset " + prefix);
 

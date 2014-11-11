@@ -25,7 +25,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
-import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -226,11 +225,19 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 			return;
 		}
 
-		ActiveScan ascan = (ActiveScan)scanner;
 		if (scanner != null) {
-		    getMessagesTable().setModel(ascan.getMessagesTableModel());
-		    this.getNumRequests().setText(Integer.toString(ascan.getTotalRequests()));
-		    this.getProgressButton().setEnabled(true);
+			ActiveScan ascan = (ActiveScan)scanner;
+			getMessagesTable().setModel(ascan.getMessagesTableModel());
+			this.getNumRequests().setText(Integer.toString(ascan.getTotalRequests()));
+			this.getProgressButton().setEnabled(true);
+			
+			if (scanner instanceof AttackScan) {
+				// Its the custom scanner - none of these controls make sense
+				this.getProgressBar().setEnabled(false);
+				this.getProgressButton().setEnabled(false);
+				this.getPauseScanButton().setEnabled(false);
+				this.getStopScanButton().setEnabled(false);
+			}
 		} else {
 			resetMessagesTable();
 		    this.getNumRequests().setText("");

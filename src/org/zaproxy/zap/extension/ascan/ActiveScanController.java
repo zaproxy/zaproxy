@@ -80,19 +80,19 @@ public class ActiveScanController implements ScanController {
 	 * @see #scanURL(String, boolean, boolean)
 	 * @see #scanIdCounter
 	 */
-	private Map<Integer, ActiveScan> activeScanMap;
+	private Map<Integer, GenericScanner2> activeScanMap;
 	
 	/**
 	 * An ordered list of all of the {@code ActiveScan}s created (and not yet removed). Used to get provide the 'last'
 	 * scan for client using the 'old' API that didnt support concurrent scans. 
 	 */
-	private List<ActiveScan> activeScanList;
+	private List<GenericScanner2> activeScanList;
 
 	public ActiveScanController (ExtensionActiveScan extension) {
 		this.activeScansLock = new ReentrantLock();
 		this.extension = extension;
 		this.activeScanMap = new HashMap<>();
-		this.activeScanList = new ArrayList<ActiveScan>();
+		this.activeScanList = new ArrayList<GenericScanner2>();
 	}
 
 	public void setExtAlert(ExtensionAlert extAlert) {
@@ -147,11 +147,24 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	public int registerScan(GenericScanner2 ascan) {
+		activeScansLock.lock();
+		try {
+			int id = this.scanIdCounter++;
+			ascan.setScanId(id);
+			this.activeScanMap.put(id, ascan);
+			this.activeScanList.add(ascan);
+			return id;
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+	
 	public GenericScanner2 getScan(int id) {
 		return this.activeScanMap.get(id);
 	}
 	
-	public ActiveScan getLastScan() {
+	public GenericScanner2 getLastScan() {
 		activeScansLock.lock();
 		try {
 			if (activeScanList.size() == 0) {
@@ -167,7 +180,7 @@ public class ActiveScanController implements ScanController {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		activeScansLock.lock();
 		try {
-			for (ActiveScan scan : activeScanList) {
+			for (GenericScanner2 scan : activeScanList) {
 				list.add(scan);
 			}
 			return list;
@@ -180,7 +193,7 @@ public class ActiveScanController implements ScanController {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		activeScansLock.lock();
 		try {
-			for (ActiveScan scan : activeScanList) {
+			for (GenericScanner2 scan : activeScanList) {
 				if (!scan.isStopped()) {
 					list.add(scan);
 				}
@@ -195,7 +208,7 @@ public class ActiveScanController implements ScanController {
 		activeScansLock.lock();
 
 		try {
-			ActiveScan ascan = this.activeScanMap.get(id);
+			GenericScanner2 ascan = this.activeScanMap.get(id);
 			if (! activeScanMap.containsKey(id)) {
 				//throw new IllegalArgumentException("Unknown id " + id);
 				return null;
@@ -216,7 +229,7 @@ public class ActiveScanController implements ScanController {
 	public void stopAllScans() {
 		activeScansLock.lock();
 		try {
-			for (ActiveScan scan : activeScanMap.values()) {
+			for (GenericScanner2 scan : activeScanMap.values()) {
 				scan.stopScan();
 			}
 		} finally {
@@ -227,7 +240,7 @@ public class ActiveScanController implements ScanController {
 	public void pauseAllScans() {
 		activeScansLock.lock();
 		try {
-			for (ActiveScan scan : activeScanMap.values()) {
+			for (GenericScanner2 scan : activeScanMap.values()) {
 				scan.pauseScan();
 			}
 		} finally {
@@ -238,7 +251,7 @@ public class ActiveScanController implements ScanController {
 	public void resumeAllScans() {
 		activeScansLock.lock();
 		try {
-			for (ActiveScan scan : activeScanMap.values()) {
+			for (GenericScanner2 scan : activeScanMap.values()) {
 				scan.resumeScan();
 			}
 		} finally {
@@ -250,8 +263,8 @@ public class ActiveScanController implements ScanController {
 		activeScansLock.lock();
 		try {
 			int count = 0;
-			for (Iterator<ActiveScan> it = activeScanMap.values().iterator(); it.hasNext();) {
-				ActiveScan ascan = it.next();
+			for (Iterator<GenericScanner2> it = activeScanMap.values().iterator(); it.hasNext();) {
+				GenericScanner2 ascan = it.next();
 				ascan.stopScan();
 				it.remove();
 				activeScanList.remove(ascan);
@@ -268,9 +281,9 @@ public class ActiveScanController implements ScanController {
 		activeScansLock.lock();
 		try {
 			int count = 0;
-			for (Iterator<ActiveScan> it = activeScanMap.values().iterator(); it.hasNext();) {
-				ActiveScan ascan = it.next();
-				if (ascan.isStop()) {
+			for (Iterator<GenericScanner2> it = activeScanMap.values().iterator(); it.hasNext();) {
+				GenericScanner2 ascan = it.next();
+				if (ascan.isStopped()) {
 					ascan.stopScan();
 					it.remove();
 					activeScanList.remove(ascan);
@@ -288,7 +301,7 @@ public class ActiveScanController implements ScanController {
 		activeScansLock.lock();
 		try {
 			if (this.activeScanMap.containsKey(id)) {
-				this.activeScanMap.get(id).stop();
+				this.activeScanMap.get(id).stopScan();
 			}
 		} finally {
 			activeScansLock.unlock();
@@ -300,7 +313,7 @@ public class ActiveScanController implements ScanController {
 		activeScansLock.lock();
 		try {
 			if (this.activeScanMap.containsKey(id)) {
-				this.activeScanMap.get(id).pause();
+				this.activeScanMap.get(id).pauseScan();
 			}
 		} finally {
 			activeScansLock.unlock();
@@ -312,8 +325,18 @@ public class ActiveScanController implements ScanController {
 		activeScansLock.lock();
 		try {
 			if (this.activeScanMap.containsKey(id)) {
-				this.activeScanMap.get(id).resume();
+				this.activeScanMap.get(id).resumeScan();
 			}
+		} finally {
+			activeScansLock.unlock();
+		}
+	}
+	
+	public void reset() {
+		this.stopAllScans();
+		activeScansLock.lock();
+		try {
+			this.scanIdCounter = 0;
 		} finally {
 			activeScansLock.unlock();
 		}
