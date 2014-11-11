@@ -93,12 +93,15 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
     private static final String FIELD_ADVANCED = "ascan.custom.label.adv"; 
 
+    private static final String FIELD_VARIANT_INJECTABLE = "variant.options.injectable.label";
     private static final String FIELD_VARIANT_URL_QUERY = "variant.options.injectable.querystring.label";
     private static final String FIELD_VARIANT_URL_PATH = "variant.options.injectable.urlpath.label";
     private static final String FIELD_VARIANT_POST_DATA = "variant.options.injectable.postdata.label";
     private static final String FIELD_VARIANT_HEADERS = "variant.options.injectable.headers.label";
     private static final String FIELD_VARIANT_COOKIE = "variant.options.injectable.cookie.label";
     private static final String FIELD_VARIANT_MULTIPART = "variant.options.rpc.multipart.label";
+    
+    private static final String FIELD_VARIANT_RPC = "variant.options.rpc.label";
     private static final String FIELD_VARIANT_XML = "variant.options.rpc.xml.label";
     private static final String FIELD_VARIANT_JSON = "variant.options.rpc.json.label";
     private static final String FIELD_VARIANT_GWT = "variant.options.rpc.gwt.label";
@@ -201,20 +204,17 @@ public class CustomScanDialog extends StandardFieldsDialog {
         });
 
         int targets = scannerParam.getTargetParamsInjectable();
-        this.addReadOnlyField(1, "variant.options.injectable.label",
-                Constant.messages.getString("variant.options.injectable.label"), true);
-        
+        this.addCheckBoxField(1, FIELD_VARIANT_INJECTABLE, false);
         this.addCheckBoxField(1, FIELD_VARIANT_URL_QUERY, (targets & ScannerParam.TARGET_QUERYSTRING) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_URL_PATH, (targets & ScannerParam.TARGET_URLPATH) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_POST_DATA, (targets & ScannerParam.TARGET_POSTDATA) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_HEADERS, (targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_COOKIE, (targets & ScannerParam.TARGET_COOKIE) != 0);
+        setInjectableCheckbox();
 
         int rpcEnabled = scannerParam.getTargetParamsEnabledRPC();
         this.addPadding(1);
-        this.addReadOnlyField(1, "variant.options.rpc.label",
-                Constant.messages.getString("variant.options.rpc.label"), true);
-        
+        this.addCheckBoxField(1, FIELD_VARIANT_RPC, false);
         this.addCheckBoxField(1, FIELD_VARIANT_MULTIPART, (rpcEnabled & ScannerParam.RPC_MULTIPART) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_XML, (rpcEnabled & ScannerParam.RPC_XML) != 0);
         this.addCheckBoxField(1, FIELD_VARIANT_JSON, (rpcEnabled & ScannerParam.RPC_JSON) != 0);
@@ -223,6 +223,89 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.addCheckBoxField(1, FIELD_VARIANT_CUSTOM, (rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
         this.addPadding(1);
         this.addReadOnlyField(1, FIELD_DISABLE_VARIANTS_MSG, "", true);
+        setRpcCheckbox();
+
+        this.addFieldListener(FIELD_VARIANT_INJECTABLE, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Change all of the 'sub' checkboxes as appropriate
+				boolean set = getBoolValue(FIELD_VARIANT_INJECTABLE);
+		        setFieldValue(FIELD_VARIANT_URL_QUERY, set);
+		        setFieldValue(FIELD_VARIANT_URL_PATH, set);
+		        setFieldValue(FIELD_VARIANT_POST_DATA, set);
+		        setFieldValue(FIELD_VARIANT_HEADERS, set);
+		        setFieldValue(FIELD_VARIANT_COOKIE, set);
+			}});
+        // And if any of the 'sub' checkboxes are changed flow the change up
+        this.addFieldListener(FIELD_VARIANT_URL_QUERY, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setInjectableCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_URL_PATH, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setInjectableCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_POST_DATA, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setInjectableCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_HEADERS, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setInjectableCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_COOKIE, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setInjectableCheckbox();
+			}});
+        
+        this.addFieldListener(FIELD_VARIANT_RPC, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// Change all of the 'sub' checkboxes as appropriate
+				boolean set = getBoolValue(FIELD_VARIANT_RPC);
+		        setFieldValue(FIELD_VARIANT_MULTIPART, set);
+		        setFieldValue(FIELD_VARIANT_XML, set);
+		        setFieldValue(FIELD_VARIANT_JSON, set);
+		        setFieldValue(FIELD_VARIANT_GWT, set);
+		        setFieldValue(FIELD_VARIANT_ODATA, set);
+		        setFieldValue(FIELD_VARIANT_CUSTOM, set);
+			}});
+        // And if any of the 'sub' checkboxes are changed flow the change up
+        this.addFieldListener(FIELD_VARIANT_MULTIPART, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setRpcCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_XML, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setRpcCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_JSON, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setRpcCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_GWT, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setRpcCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_ODATA, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setRpcCheckbox();
+			}});
+        this.addFieldListener(FIELD_VARIANT_CUSTOM, new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+		        setRpcCheckbox();
+			}});
 
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
@@ -271,6 +354,26 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.pack();
     }
     
+    private void setInjectableCheckbox() {
+        boolean set = 
+        		getBoolValue(FIELD_VARIANT_URL_QUERY) &&
+        		getBoolValue(FIELD_VARIANT_URL_PATH) &&
+        		getBoolValue(FIELD_VARIANT_POST_DATA) &&
+        		getBoolValue(FIELD_VARIANT_HEADERS) &&
+        		getBoolValue(FIELD_VARIANT_COOKIE);
+       	setFieldValue(FIELD_VARIANT_INJECTABLE, set);
+    }
+
+    private void setRpcCheckbox() {
+        boolean set = 
+        		getBoolValue(FIELD_VARIANT_MULTIPART) &&
+        		getBoolValue(FIELD_VARIANT_XML) &&
+        		getBoolValue(FIELD_VARIANT_JSON) &&
+        		getBoolValue(FIELD_VARIANT_GWT) &&
+        		getBoolValue(FIELD_VARIANT_ODATA) &&
+        		getBoolValue(FIELD_VARIANT_CUSTOM);
+       	setFieldValue(FIELD_VARIANT_RPC, set);
+    }
 
 	private void setAdvancedTabs(boolean visible) {
 		// Show/hide all except from the first tab
