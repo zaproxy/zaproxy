@@ -51,6 +51,7 @@
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/10/09 Issue 1359: Added info logging for splash screen
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be loaded by an active scanner.
+// ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 
 package org.parosproxy.paros.extension;
 
@@ -335,11 +336,6 @@ public class ExtensionLoader {
 		}
 	}
 
-// ZAP: remove a scanner hook listener 
-//	private void removeScannerHook(ExtensionHook hook) {
-//		//TODO: Implement?
-//	}
-    
     public void optionsChangedAllPlugin(OptionsParam options) {
     	for (ExtensionHook hook : extensionHooks.values()) {
             List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
@@ -669,6 +665,7 @@ public class ExtensionLoader {
         addMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
         addMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         addMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
+        addMenuHelper(menuBar.getMenuOnline(), hookMenu.getOnlineMenus());
         
         addMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
     }

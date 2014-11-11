@@ -26,6 +26,7 @@
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
 // ZAP: 2013/09/11 Issue 786: Snapshot session menu item not working
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 
 package org.parosproxy.paros.view;
 
@@ -48,7 +49,6 @@ import org.parosproxy.paros.control.MenuFileControl;
 import org.parosproxy.paros.control.MenuToolsControl;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.AboutDialog;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -454,81 +454,11 @@ public class MainMenuBar extends JMenuBar {
 		return menuHelp;
 	}
 	
-	private JMenu getMenuOnline() {
+	public JMenu getMenuOnline() {
 		if (menuOnline == null) {
 			menuOnline = new JMenu();
 			menuOnline.setText(Constant.messages.getString("menu.online"));
 			menuOnline.setMnemonic(Constant.messages.getChar("menu.online.mnemonic"));
-
-			// All of these are builtin
-			
-			// Homepage
-			ZapMenuItem menuHomepage = new ZapMenuItem("menu.help.home",
-					KeyStroke.getKeyStroke(KeyEvent.VK_Z, Event.CTRL_MASK, false));
-			menuHomepage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			menuHomepage.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_HOMEPAGE);
-				}
-			});
-			menuOnline.add(menuHomepage);
-
-			// Extensions
-			ZapMenuItem menuExtPage = new ZapMenuItem("menu.online.ext");
-			menuExtPage.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			menuExtPage.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_EXTENSIONS_PAGE);
-				}
-			});
-			menuOnline.add(menuExtPage);
-
-			// Wiki
-			ZapMenuItem menuWiki = new ZapMenuItem("menu.online.wiki");
-			menuWiki.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			menuWiki.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_WIKI_PAGE);
-				}
-			});
-			menuOnline.add(menuWiki);
-
-			// UserGroup
-			ZapMenuItem menuUserGroup = new ZapMenuItem("menu.online.usergroup");
-			menuUserGroup.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			menuUserGroup.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_USER_GROUP_PAGE);
-				}
-			});
-			menuOnline.add(menuUserGroup);
-
-			// DevGroup
-			ZapMenuItem menuDevGroup = new ZapMenuItem("menu.online.devgroup");
-			menuDevGroup.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			menuDevGroup.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_DEV_GROUP_PAGE);
-				}
-			});
-			menuOnline.add(menuDevGroup);
-
-			// Issues
-			ZapMenuItem menuIssues = new ZapMenuItem("menu.online.issues");
-			menuIssues.setEnabled(DesktopUtils.canOpenUrlInBrowser());
-			menuIssues.addActionListener(new java.awt.event.ActionListener() { 
-				@Override
-				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					DesktopUtils.openUrlInBrowser(Constant.ZAP_ISSUES_PAGE);
-				}
-			});
-			menuOnline.add(menuIssues);
-
 		}
 		return menuOnline;
 	}

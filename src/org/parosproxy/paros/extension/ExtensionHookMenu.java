@@ -25,6 +25,7 @@
 // and POPUP_MENU_SEPARATOR if there is a view.
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts
 // ZAP: 2014/05/02 Fixed method links in Javadocs
+// ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 
 package org.parosproxy.paros.extension;
 
@@ -54,6 +55,7 @@ public class ExtensionHookMenu {
     // ZAP: Added help and reports menu extension hook
     private Vector<JMenuItem> helpMenuList = new Vector<>();
     private Vector<JMenuItem> reportMenuList = new Vector<>();
+    private Vector<JMenuItem> onlineMenuList = new Vector<>();
     
     // ZAP: Added static block.
     static {
@@ -109,6 +111,10 @@ public class ExtensionHookMenu {
 
     List<JMenuItem> getReportMenus() {
         return reportMenuList;
+    }
+
+    List<JMenuItem> getOnlineMenus() {
+        return onlineMenuList;
     }
 
     /**
@@ -226,6 +232,10 @@ public class ExtensionHookMenu {
     
     public void addReportMenuItem(ZapMenuItem menuItem) {
         getReportMenus().add(menuItem);        
+    }
+    
+    public void addOnlineMenuItem(ZapMenuItem menuItem) {
+        getOnlineMenus().add(menuItem);        
     }
     
     public JMenuItem getMenuSeparator() {

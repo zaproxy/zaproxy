@@ -50,6 +50,7 @@
 // ZAP: 2014/04/11 Issue 1148: ZAP 2.3.0 does not launch after upgrading in some situations
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/08/14 Issue 1300: Add-ons show incorrect language when English is selected on non English locale
+// ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 
 package org.parosproxy.paros;
 
@@ -86,11 +87,6 @@ public final class Constant {
     public static final String PROGRAM_NAME_SHORT 		= "ZAP";
     public static final String ZAP_HOMEPAGE				= "http://www.owasp.org/index.php/ZAP";
     public static final String ZAP_EXTENSIONS_PAGE		= "https://code.google.com/p/zap-extensions/";
-    public static final String ZAP_DOWNLOADS_PAGE		= "https://code.google.com/p/zaproxy/downloads/list";
-    public static final String ZAP_WIKI_PAGE			= "https://code.google.com/p/zaproxy/wiki/Introduction";
-    public static final String ZAP_USER_GROUP_PAGE		= "http://groups.google.com/group/zaproxy-users";
-    public static final String ZAP_DEV_GROUP_PAGE		= "http://groups.google.com/group/zaproxy-develop";
-    public static final String ZAP_ISSUES_PAGE			= "https://code.google.com/p/zaproxy/issues/list";
     public static final String ZAP_TEAM					= "ZAP Dev Team";
     public static final String PAROS_TEAM				= "Chinotec Technologies";
     
