@@ -143,7 +143,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         attackModeScanner = new AttackModeScanner(this);
 
     }
-
+    
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
@@ -365,12 +365,23 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
     private void sessionChangedEventHandler(Session session) {
-        // Clear all scans
-        this.getActiveScanPanel().reset();
+        // The scans are stopped in sessionAboutToChange(..)
+        if (View.isInitialised()) {
+        	this.getActiveScanPanel().reset();
+        }
+        
+		this.attackModeScanner.stop();
+		
         if (session == null) {
             // Closedown
             return;
         }
+    	if (Control.getSingleton().getMode().equals(Mode.attack)) {
+    		// Start the attack mode scanner up again, have to rescan on change or it wont do anything
+    		this.attackModeScanner.start();
+    		this.attackModeScanner.setRescanOnChange(true);
+    	}
+
     }
 
     /**
@@ -458,8 +469,13 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             activeScanApi.reset();
         }
 
-        // Shut all of the scans down
-        this.getActiveScanPanel().reset();
+        // Stop all scans and reset the scan id counter
+        this.ascanController.reset();
+		this.attackModeScanner.stop();
+        
+        if (View.isInitialised()) {
+        	this.getActiveScanPanel().reset();
+        }
     }
 
     @Override
@@ -484,7 +500,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     @Override
     public void sessionScopeChanged(Session session) {
-        this.getActiveScanPanel().sessionScopeChanged(session);
+        if (View.isInitialised()) {
+        	this.getActiveScanPanel().sessionScopeChanged(session);
+        }
         this.attackModeScanner.sessionScopeChanged(session);
     }
 
@@ -493,16 +511,21 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     	if (Mode.safe.equals(mode)) {
     		this.ascanController.stopAllScans();
     	}
-    	getMenuItemCustomScan().setEnabled( ! Mode.safe.equals(mode));
-        this.getActiveScanPanel().sessionModeChanged(mode);
+        if (View.isInitialised()) {
+        	getMenuItemCustomScan().setEnabled( ! Mode.safe.equals(mode));
+        	this.getActiveScanPanel().sessionModeChanged(mode);
+        }
         this.attackModeScanner.sessionModeChanged(mode);
         
     }
 
     @Override
     public void destroy() {
-        // Shut all of the scans down
+    	this.ascanController.stopAllScans();
+    	
+        if (View.isInitialised()) {
         this.getActiveScanPanel().reset();
+        }
 
         if (activeScanApi != null) {
             activeScanApi.reset();
@@ -621,6 +644,19 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	@Override
 	public GenericScanner2 getLastScan() {
 		return ascanController.getLastScan();
+	}
+
+	public int registerScan(GenericScanner2 scanner) {
+		int id = ascanController.registerScan(scanner);
+		if (View.isInitialised()) {
+			// Update the UI in case this was initiated from the API
+    		((ActiveScan)scanner).addScannerListener(getActiveScanPanel());	// So the UI get updated
+			this.getActiveScanPanel().scannerStarted(scanner);
+    		this.getActiveScanPanel().switchView(scanner);
+    		this.getActiveScanPanel().setTabFocus();
+		}
+		
+		return id;
 	}
 
 	public void setIncludedSequenceScripts(List<ScriptWrapper> selectedIncludeScripts) {

@@ -52,11 +52,11 @@ public class AttackModeScanner implements EventConsumer {
 
 	private static final String ATTACK_ICON_RESOURCE = "/resource/icon/16/093.png";
 
-	private boolean running = false;
 	private ExtensionActiveScan extension;
 	private Date lastUpdated = new Date(); 
 	private ScanStatus scanStatus;
 	private ExtensionAlert extAlert = null;
+	private AttackModeThread attackModeThread = null;
 	private boolean rescanOnChange = false;
 	
     private Logger log = Logger.getLogger(AttackModeScanner.class);
@@ -77,11 +77,14 @@ public class AttackModeScanner implements EventConsumer {
 	public void start() {
 		log.debug("Starting");
 		nodeStack.clear();
-		this.running = true;
 		
 		this.addAllInScope();
 		
-		Thread t = new Thread(new AttackModeThread());
+		if (attackModeThread != null) {
+			attackModeThread.shutdown();
+		}
+		attackModeThread = new AttackModeThread();
+		Thread t = new Thread(attackModeThread);
 		t.setName("ZAP-AttackMode");
 		t.start();
 		
@@ -97,14 +100,16 @@ public class AttackModeScanner implements EventConsumer {
 	
 	public void stop() {
 		log.debug("Stopping");
-		this.running = false;
+		if (this.attackModeThread != null) {
+			this.attackModeThread.shutdown();
+		}
 		nodeStack.clear();
 		updateCount();
 	}
 	
 	@Override
 	public void eventReceived(Event event) {
-		if (running) {
+		if (this.attackModeThread != null && this.attackModeThread.isRunning()) {
 			if (event.getEventType().equals(SiteMapEventPublisher.SITE_NODE_ADDED_EVENT) &&
 					event.getTarget().getStartNode().isIncludedInScope()) {
 				// Add to the stack awaiting attack
@@ -187,10 +192,16 @@ public class AttackModeScanner implements EventConsumer {
 
 		private int scannerCount = 4; 
 		private List<Scanner> scanners = new ArrayList<Scanner>();
+		private AttackScan ascanWrapper;
+		private boolean running = false;
 		
 		@Override
 		public void run() {
 			log.debug("Starting attack thread");
+			this.running = true;
+			ascanWrapper = new AttackScan(Constant.messages.getString("ascan.attack.scan"), extension.getScannerParam(), 
+					extension.getModel().getOptionsParam().getConnectionParam());
+			extension.registerScan(ascanWrapper);
 			while (running) {
 				if (scanStatus.getScanCount() != nodeStack.size()) {
 					updateCount();
@@ -217,7 +228,9 @@ public class AttackModeScanner implements EventConsumer {
 					scanner.setStartNode(node);
 					scanner.setScanChildren(false);
 					scanner.addScannerListener(this);
-					this.scanners.add(scanner);
+					synchronized (this.scanners) {
+						this.scanners.add(scanner);
+					}
 					
 					if (View.isInitialised()) {
 						// set icon to show its being scanned
@@ -226,8 +239,10 @@ public class AttackModeScanner implements EventConsumer {
 					scanner.start(node);
 				}
 			}
-			for (Scanner scanner : this.scanners) {
-				scanner.stop();
+			synchronized (this.scanners) {
+				for (Scanner scanner : this.scanners) {
+					scanner.stop();
+				}
 			}
 			log.debug("Attack thread finished");
 		}
@@ -236,22 +251,24 @@ public class AttackModeScanner implements EventConsumer {
 		public void scannerComplete(int id) {
 			// Clear so we can attack the next node
 			List<Scanner> stoppedScanners = new ArrayList<Scanner>();
-			for (Scanner scanner : this.scanners) {
-				if (scanner.isStop()) {
-					SiteNode node = scanner.getStartNode();
-					if (node != null) {
-						log.debug("Finished attacking node " + node.getNodeName());
-						if (View.isInitialised()) {
-							// Remove the icon
-							node.removeCustomIcon(ATTACK_ICON_RESOURCE);
+			synchronized (this.scanners) {
+				for (Scanner scanner : this.scanners) {
+					if (scanner.isStop()) {
+						SiteNode node = scanner.getStartNode();
+						if (node != null) {
+							log.debug("Finished attacking node " + node.getNodeName());
+							if (View.isInitialised()) {
+								// Remove the icon
+								node.removeCustomIcon(ATTACK_ICON_RESOURCE);
+							}
 						}
+						stoppedScanners.add(scanner);
 					}
-					stoppedScanners.add(scanner);
 				}
-			}
-			for (Scanner scanner : stoppedScanners) {
-				// Cant remove them in the above loop
-				scanners.remove(scanner);
+				for (Scanner scanner : stoppedScanners) {
+					// Cant remove them in the above loop
+					scanners.remove(scanner);
+				}
 			}
 			updateCount();
 		}
@@ -278,9 +295,15 @@ public class AttackModeScanner implements EventConsumer {
 
 		@Override
 		public void notifyNewMessage(HttpMessage msg) {
-			// Ignore
+			ascanWrapper.notifyNewMessage(msg);
 		}
 		
+		public void shutdown() {
+			this.running = false;
+		}
+		
+		public boolean isRunning() {
+			return this.running;
+		}
 	}
-	
 }

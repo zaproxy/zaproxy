@@ -196,7 +196,7 @@ public class ScanProgressDialog extends AbstractDialog {
     private void showProgress() {
         // Start panel data settings
     	HostProcess hp = getSelectedHostProcess();
-        if (scan.getHostProcesses() != null || hp != null) {
+        if (scan.getHostProcesses() != null && hp != null) {
 
             // Update the main table entries
             model.updateValues(scan, hp);
