@@ -147,4 +147,13 @@ public class BreakAddEditDialog extends StandardFieldsDialog {
 		return null;
 	}
 	
+	@Override
+	public void cancelPressed() {
+		if ( add ) {
+			breakPointsManager.hideAddDialog(); 
+		} else {
+			breakPointsManager.hideEditDialog(); 
+		}
+	}
+	
 }
