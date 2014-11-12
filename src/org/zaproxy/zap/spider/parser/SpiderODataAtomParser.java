@@ -60,16 +60,18 @@ public class SpiderODataAtomParser extends SpiderParser {
 			baseURL = StringEscapeUtils.unescapeXml(baseURL);
 		}
 		
+		boolean foundAtLeastOneResult = false;
 		matcher = patternURL.matcher(bodyAsStr);
 		while (matcher.find()) {
 			String s = matcher.group(1);
 			s = StringEscapeUtils.unescapeXml(s);
 				
 			processURL(message, depth, s,baseURL);
+			foundAtLeastOneResult=true;
 		}
 		
-		// resource consumed is consumed
-		return true;
+		// resource is consumed only if at least one link is found
+		return foundAtLeastOneResult;
 	}
 
 
