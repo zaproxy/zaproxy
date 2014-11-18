@@ -44,6 +44,7 @@ import java.util.zip.ZipEntry;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
@@ -164,8 +165,6 @@ public class AddOnLoader extends URLClassLoader {
         throw new ClassNotFoundException(name);
     }
 
-
-    
     public AddOnCollection getAddOnCollection() {
     	return this.aoc;
     }
@@ -296,20 +295,39 @@ public class AddOnLoader extends URLClassLoader {
 		}
 	}
 
-
-    private <T> List<String> getClassNames (String packageName, Class<T> classType) {
-    	List<String> listClassName = new ArrayList<>();
+    private <T> List<ClassNameWrapper> getClassNames (String packageName, Class<T> classType) {
+    	List<ClassNameWrapper> listClassName = new ArrayList<>();
     	
     	listClassName.addAll(this.getLocalClassNames(packageName));
     	for (AddOn addOn : this.aoc.getAddOns()) {
-        	listClassName.addAll(this.getJarClassNames(addOn.getFile(), packageName));
+        	listClassName.addAll(this.getJarClassNames(addOn, packageName));
     	}
     	for (File jar : jars) {
-    		listClassName.addAll(this.getJarClassNames(jar, packageName));
+    		listClassName.addAll(this.getJarClassNames(this.getClass().getClassLoader(), jar, packageName));
     	}
     	return listClassName;
     }
-    
+
+	@SuppressWarnings("unchecked")
+	public List<Extension> getExtensions () {
+		List<Extension> list = new ArrayList<Extension>();
+		for (AddOn addOn : getAddOnCollection().getAddOns()) {
+			if (addOn.getExtensions() != null) {
+				for (String extName : addOn.getExtensions()) {
+					try {
+						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
+	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
+	                    list.add(((Constructor<Extension>)c).newInstance());
+					} catch (Exception e) {
+		            	logger.debug(e.getMessage());
+					}
+				}
+			}
+        }
+		
+		return list;
+	}
+
 	public <T> List<T> getImplementors (String packageName, Class<T> classType) {
 		return this.getImplementors(null, packageName, classType);
     }
@@ -318,15 +336,15 @@ public class AddOnLoader extends URLClassLoader {
         Class<?> cls = null;
         List<T> listClass = new ArrayList<>();
         
-        List<String> classNames;
+        List<ClassNameWrapper> classNames;
         if (ao != null) {
-        	classNames = this.getJarClassNames(ao.getFile(), packageName);
+        	classNames = this.getJarClassNames(ao, packageName);
         } else {
         	classNames = this.getClassNames(packageName, classType);
         }
-        for (String className : classNames) {
+        for (ClassNameWrapper classWrapper : classNames) {
             try {
-                cls = loadClass(className);
+                cls = classWrapper.getCl().loadClass(classWrapper.getClassName());
                 // abstract class or interface cannot be constructed.
                 if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
                     continue;
@@ -342,7 +360,6 @@ public class AddOnLoader extends URLClassLoader {
             	logger.debug(e.getMessage());
             }
         }
-        
         return listClass;
 	}
 
@@ -350,7 +367,7 @@ public class AddOnLoader extends URLClassLoader {
      * Check local jar (paros.jar) or related package if any target file is found.
      *
      */
-    private List<String> getLocalClassNames (String packageName) {
+    private List<ClassNameWrapper> getLocalClassNames (String packageName) {
     
         if (packageName == null || packageName.equals("")) {
             return Collections.emptyList();
@@ -369,7 +386,7 @@ public class AddOnLoader extends URLClassLoader {
             
             try {
                 // ZAP: Changed to take into account the package name
-                return getJarClassNames(new File(new URI(jarFile)), packageName);
+                return getJarClassNames(null, new File(new URI(jarFile)), packageName);
             } catch (URISyntaxException e) {
             	logger.error(e.getMessage(), e);
             }
@@ -377,7 +394,7 @@ public class AddOnLoader extends URLClassLoader {
             try {
                 // ZAP: Changed to pass a FileFilter (ClassRecurseDirFileFilter)
                 // and to pass the "packageName" with the dots already replaced.
-                return parseClassDir(new File(new URI(local.toString())),
+                return parseClassDir(this.getClass().getClassLoader(), new File(new URI(local.toString())),
                               packageName.replace('.', File.separatorChar),
                               new ClassRecurseDirFileFilter(true));
             } catch (URISyntaxException e) {
@@ -389,29 +406,29 @@ public class AddOnLoader extends URLClassLoader {
 
     // ZAP: Changed to use only one FileFilter and the packageName is already
     // passed with the dots replaced.
-    private List<String> parseClassDir(File file, String packageName, FileFilter fileFilter) {
-    	List<String> classNames = new ArrayList<> ();
+    private List<ClassNameWrapper> parseClassDir(ClassLoader cl, File file, String packageName, FileFilter fileFilter) {
+    	List<ClassNameWrapper> classNames = new ArrayList<> ();
         File[] listFile = file.listFiles(fileFilter);
         
         for (int i=0; i<listFile.length; i++) {
             File entry = listFile[i];
             if (entry.isDirectory()) {
-            	classNames.addAll(parseClassDir (entry, packageName, fileFilter));
+            	classNames.addAll(parseClassDir (cl, entry, packageName, fileFilter));
             	continue;
             }
             String fileName = entry.toString();
             int pos = fileName.indexOf(packageName);
             if (pos > 0) {
                 String className = fileName.substring(pos).replaceAll("\\.class$","").replace(File.separatorChar, '.');
-                classNames.add(className);
+                classNames.add(new ClassNameWrapper(cl, className));
             }
         }
         return classNames;
     }
     
     // ZAP: Added to take into account the package name
-    private List<String> getJarClassNames(File file, String packageName) {
-    	List<String> classNames = new ArrayList<> ();
+    private List<ClassNameWrapper> getJarClassNames(ClassLoader cl, File file, String packageName) {
+    	List<ClassNameWrapper> classNames = new ArrayList<> ();
         ZipEntry entry = null;
         String className = "";
         try (JarFile jarFile = new JarFile(file)) {
@@ -423,7 +440,7 @@ public class AddOnLoader extends URLClassLoader {
                 }
                 className = entry.toString().replaceAll("\\.class$","").replaceAll("/",".");
                 if (className.indexOf(packageName) >= 0) {
-                    classNames.add(className);
+                    classNames.add(new ClassNameWrapper(cl, className));
                 }
             }
         } catch (Exception e) {
@@ -431,7 +448,29 @@ public class AddOnLoader extends URLClassLoader {
         }
         return classNames;
     }
-    
+
+    private List<ClassNameWrapper> getJarClassNames(AddOn ao, String packageName) {
+    	List<ClassNameWrapper> classNames = new ArrayList<> ();
+        ZipEntry entry = null;
+        String className = "";
+        try (JarFile jarFile = new JarFile(ao.getFile())) {
+            Enumeration<JarEntry> entries = jarFile.entries();
+            while (entries.hasMoreElements()) {
+                entry = entries.nextElement();
+                if (entry.isDirectory() || !entry.getName().endsWith(".class")) {
+                    continue;
+                }
+                className = entry.toString().replaceAll("\\.class$","").replaceAll("/",".");
+                if (className.indexOf(packageName) >= 0) {
+                    classNames.add(new ClassNameWrapper(this.addOnLoaders.get(ao.getId()), className));
+                }
+            }
+        } catch (Exception e) {
+        	logger.error("Failed to open file: " + ao.getFile().getAbsolutePath(), e);
+        }
+        return classNames;
+    }
+
     private static final class JarFilenameFilter implements FilenameFilter {
         @Override
         public boolean accept(File dir, String fileName) {
@@ -461,5 +500,22 @@ public class AddOnLoader extends URLClassLoader {
             
             return false;
         }
+    }
+    
+    private class ClassNameWrapper {
+    	private ClassLoader cl;
+    	private String className;
+		public ClassNameWrapper(ClassLoader cl, String className) {
+			super();
+			this.cl = cl;
+			this.className = className;
+		}
+		public ClassLoader getCl() {
+			return cl;
+		}
+		public String getClassName() {
+			return className;
+		}
+    	
     }
 }

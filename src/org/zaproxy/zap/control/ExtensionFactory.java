@@ -73,11 +73,10 @@ public class ExtensionFactory {
 
     public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
     	log.info("Loading extensions");
-       	List<Extension> listExts = getAddOnLoader().getImplementors("org.zaproxy.zap.extension", Extension.class);
-		listExts.addAll(getAddOnLoader().getImplementors("org.parosproxy.paros.extension", Extension.class));
-
+       	List<Extension> listExts = CoreFunctionality.getBuiltInExtensions();
+		listExts.addAll(getAddOnLoader().getExtensions());
+		
         synchronized (mapAllExtension) {
-            
             mapAllExtension.clear();
             for (int i=0; i<listExts.size(); i++) {
                 Extension extension = listExts.get(i);
