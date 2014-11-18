@@ -1313,6 +1313,11 @@ public class Session extends FileXML {
 		return this.getUrlParamParser(uri.toString()).getTreePath(uri);
 	}
 
+	// ZAP: Added support of structural form parameters (Issue 1408)
+	public List<String> getTreePath(HttpMessage msg) throws URIException {
+		URI uri = msg.getRequestHeader().getURI();
+		return this.getUrlParamParser(uri.toString()).getTreePath(msg);
+	}
 	
 	// ZAP: Added listeners for contexts changed events.
 	// TODO: Might be better structured elsewhere, so maybe just a temporary solution.

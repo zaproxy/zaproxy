@@ -34,6 +34,9 @@ public interface ParameterParser {
 	Map<String, String> parse(String paramStr);
 
 	List<String> getTreePath(URI uri) throws URIException;
+	
+	List<String> getTreePath(HttpMessage msg) throws URIException;
+
 
 	/**
 	 * Gets the path of the URI's ancestor found at the given depth, taking into account any context

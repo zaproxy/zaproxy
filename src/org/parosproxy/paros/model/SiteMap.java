@@ -171,7 +171,8 @@ public class SiteMap extends DefaultTreeModel {
                 return null;
         	}
             
-            List<String> path = model.getSession().getTreePath(uri);
+            // ZAP: Added support of structural form parameters (Issue 1408)
+            List<String> path = model.getSession().getTreePath(msg);
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
@@ -290,8 +291,9 @@ public class SiteMap extends DefaultTreeModel {
             
             // add host
             parent = findAndAddChild(parent, host, ref, msg);
-                        
-            List<String> path = model.getSession().getTreePath(uri);
+                     
+            // ZAP: Added support of structural form parameters (Issue 1408)
+            List<String> path = model.getSession().getTreePath(msg);
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
