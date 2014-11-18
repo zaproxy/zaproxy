@@ -422,7 +422,8 @@ public class HttpSender {
 		}
 	}
 	
-	private User getUser (HttpMessage msg) {
+	// ZAP: Changed visibility to public. Needed for authentication when running Zest script in scanner (Issue 1411)
+	public User getUser (HttpMessage msg) {
 		if (this.user != null) {
 			// If its set for the sender it overrides the message
 			return user;
