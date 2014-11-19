@@ -28,6 +28,13 @@ function Context(clientApi) {
 }
 
 /**
+ * List the information about the named context
+ **/
+Context.prototype.context = function (contextname, callback) {
+	this.api.request('/context/view/context/', {'contextName' : contextname}, callback);
+}
+
+/**
  * List context names of current session
  **/
 Context.prototype.contextList = function (callback) {

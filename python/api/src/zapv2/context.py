@@ -31,6 +31,12 @@ class context(object):
         """
         return self.zap._request(self.zap.base + 'context/view/contextList/').get('contextList')
 
+    def context(self, contextname):
+        """
+        List the information about the named context
+        """
+        return self.zap._request(self.zap.base + 'context/view/context/', {'contextName' : contextname})
+    
     def exclude_regexs(self, contextname):
         """
         List excluded regexs for context
