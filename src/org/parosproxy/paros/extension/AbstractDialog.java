@@ -27,6 +27,7 @@
 package org.parosproxy.paros.extension;
 
 
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.HeadlessException;
@@ -75,7 +76,8 @@ public abstract class AbstractDialog extends JDialog {
 	 * @throws HeadlessException
 	 */
 	public AbstractDialog(Frame owner, boolean modal) throws HeadlessException {
-		this((Window)owner, modal);
+		super(owner, modal);
+		initialize();
 	}
 
 	/**
@@ -84,7 +86,7 @@ public abstract class AbstractDialog extends JDialog {
 	 * @throws java.awt.HeadlessException
 	 */
 	public AbstractDialog(Window owner, boolean modal) throws HeadlessException {
-		super(owner);
+		super(owner, Dialog.ModalityType.APPLICATION_MODAL);
 		this.setModal(modal);
 		initialize();
 	}
