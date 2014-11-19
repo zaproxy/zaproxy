@@ -171,7 +171,7 @@ public class UsersAPI extends ApiImplementor {
 			user.setAuthenticationCredentials(context.getAuthenticationMethod()
 					.createAuthenticationCredentials());
 			extension.getContextUserAuthManager(context.getIndex()).addUser(user);
-			return ApiResponseElement.OK;
+			return new ApiResponseElement(PARAM_USER_ID, String.valueOf(user.getId()));
 		case ACTION_REMOVE_USER:
 			int contextId = ApiUtils.getIntParam(params, PARAM_CONTEXT_ID);
 			int userId = ApiUtils.getIntParam(params, PARAM_USER_ID);

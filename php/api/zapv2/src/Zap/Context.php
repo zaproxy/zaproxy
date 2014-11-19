@@ -31,6 +31,14 @@ class Context {
 	public function __construct ($zap) {
 		$this->zap = $zap;
 	}
+	
+	/**
+	 * List the information about the named context
+	 */
+	public function context() {
+		return $this->zap->request($this->zap->base . 'context/view/context/', array('contextName' => $contextname))->{'context'};
+	}
+	
 
 	/**
 	 * List context names of current session

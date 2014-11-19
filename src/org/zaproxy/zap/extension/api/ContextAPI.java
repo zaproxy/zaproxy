@@ -19,13 +19,20 @@ package org.zaproxy.zap.extension.api;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
 
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.authentication.AuthenticationMethod;
+import org.zaproxy.zap.authentication.AuthenticationMethodType;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
 
 public class ContextAPI extends ApiImplementor {
@@ -42,10 +49,12 @@ public class ContextAPI extends ApiImplementor {
     private static final String VIEW_EXCLUDE_REGEXS = "excludeRegexs";
     private static final String VIEW_INCLUDE_REGEXS = "includeRegexs";
     private static final String VIEW_CONTEXT_LIST = "contextList";
+    private static final String VIEW_CONTEXT = "context";
     private static final String REGEX_PARAM = "regex";
     private static final String CONTEXT_NAME = "contextName";
     private static final String IN_SCOPE = "booleanInScope";
     private static final String CONTEXT_FILE_PARAM = "contextFile";
+    private static final String CONTEXT_ID = "contextId";
 
     public ContextAPI() {
         List<String> contextNameAndRegexParam = new ArrayList<>(2);
@@ -68,6 +77,7 @@ public class ContextAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_CONTEXT_LIST));
         this.addApiView(new ApiView(VIEW_EXCLUDE_REGEXS, contextNameOnlyParam));
         this.addApiView(new ApiView(VIEW_INCLUDE_REGEXS, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_CONTEXT, contextNameOnlyParam));
     }
 
     @Override
@@ -88,6 +98,7 @@ public class ContextAPI extends ApiImplementor {
             if (contextName != null && contextName.length() > 0){
                 context.setName(contextName);
                 Model.getSingleton().getSession().saveContext(context);
+                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
             }
         } else if (ACTION_SET_CONTEXT_IN_SCOPE.equals(name)){
             if (params.getString(IN_SCOPE) == null || params.getString(IN_SCOPE).length()==0){
@@ -175,6 +186,8 @@ public class ContextAPI extends ApiImplementor {
                 contextNames.add(context.getName());
             }
             result = new ApiResponseElement(name, contextNames.toString());
+        } else if (VIEW_CONTEXT.equals(name)){
+			return buildResponseFromContext(getContext(params));
         }
         return result;
     }
@@ -201,4 +214,34 @@ public class ContextAPI extends ApiImplementor {
         throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
     }
 
+/**
+	 * Builds the response describing an Context.
+	 * 
+	 * @param c the context
+	 * @return the api response
+	 */
+	private ApiResponse buildResponseFromContext(Context c) {
+		Map<String, String> fields = new HashMap<>();
+		fields.put("name", c.getName());
+		fields.put("id", Integer.toString(c.getIndex()));
+		fields.put("description", c.getDescription());
+		fields.put("excludeRegexs", c.getExcludeFromContextRegexs().toString());
+		fields.put("includeRegexs", c.getIncludeInContextRegexs().toString());
+		
+		AuthenticationMethod authenticationMethod = c.getAuthenticationMethod();
+		if(authenticationMethod != null){
+			Pattern pattern = authenticationMethod.getLoggedInIndicatorPattern();
+			fields.put("loggedInPattern",  pattern == null ? "" : pattern.toString());
+			pattern = authenticationMethod.getLoggedOutIndicatorPattern();
+			fields.put("loggedOutPattern", pattern == null ? "" : pattern.toString());
+			AuthenticationMethodType type = authenticationMethod.getType();
+			fields.put("authType", type == null ? "" : type.getName());
+		}
+		
+		AuthorizationDetectionMethod authorizationDetectionMethod = c.getAuthorizationDetectionMethod();
+		if(authorizationDetectionMethod != null){
+			fields.put("authenticationDetectionMethodId",String.valueOf(authorizationDetectionMethod.getMethodUniqueIdentifier()));
+		}
+		return new ApiResponseSet(c.getName(), fields);
+	}
 }

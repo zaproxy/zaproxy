@@ -37,6 +37,16 @@ public class Context {
 	public Context(ClientApi api) {
 		this.api = api;
 	}
+	
+	/**
+	 * Returns the information about the named context
+	 */
+	public ApiResponse context(String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextName", contextname);
+		return api.callApi("context", "view", "context", map);	
+	}
 
 	/**
 	 * List context names of current session

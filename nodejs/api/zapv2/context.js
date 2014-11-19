@@ -28,6 +28,13 @@ function Context(clientApi) {
 }
 
 /**
+ * List the information about the named context
+ **/
+Context.prototype.context = function (contextname, callback) {
+	this.api.request('/context/view/context/', {'contextName' : contextname}, callback);
+}
+
+/**
  * List context names of current session
  **/
 Context.prototype.contextList = function (callback) {
@@ -80,6 +87,7 @@ Context.prototype.newContext = function (contextname, apikey, callback) {
   }
   this.api.request('/context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}, callback);
 };
+
 
 /**
  * Sets a context to in scope (contexts are in scope by default)
