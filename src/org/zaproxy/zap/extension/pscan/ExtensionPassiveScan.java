@@ -96,10 +96,9 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
 
         extensionHook.addProxyListener(getPassiveScanThread());
         extensionHook.addSessionListener(this);
-        //extensionHook.addSessionListener(getPassiveScanThread());
         if (getView() != null) {
-            extensionHook.getHookView().addOptionPanel(
-                    getOptionsPassiveScan(getPassiveScanThread()));
+            extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
+            extensionHook.getHookView().addOptionPanel(getPolicyPanel());
         }
 
         ExtensionScript extScript = (ExtensionScript) Control.getSingleton().getExtensionLoader().getExtension(ExtensionScript.NAME);
@@ -133,9 +132,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         PassiveScanner scanner = getPassiveScannerList().removeScanner(className);
 
         if (scanner != null && View.isInitialised() && scanner instanceof PluginPassiveScanner) {
-            // The method getPolicyPanel() creates view elements
-            // (subsequently initialising the java.awt.Toolkit) that are not
-            // needed when ZAP is running in non GUI mode.
             getPolicyPanel().getPassiveScanTableModel().removeScanner((PluginPassiveScanner) scanner);
         }
 
@@ -241,9 +237,6 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             added = addPassiveScannerImpl(scanner);
 
             if (View.isInitialised()) {
-                // The method getPolicyPanel() creates view elements
-                // (subsequently initialising the java.awt.Toolkit) that are not
-                // needed when ZAP is running in non GUI mode.
                 getPolicyPanel().getPassiveScanTableModel().addScanner(scanner);
             }
             
@@ -274,7 +267,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return scannerList;
     }
 
-    List<PluginPassiveScanner> getPluginPassiveScanners() {
+    protected List<PluginPassiveScanner> getPluginPassiveScanners() {
         List<PluginPassiveScanner> pluginPassiveScanners = new ArrayList<>();
         for (PassiveScanner scanner : getPassiveScannerList().list()) {
             if ((scanner instanceof PluginPassiveScanner) && !(scanner instanceof RegexAutoTagScanner)) {
@@ -331,7 +324,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return at;
     }
     
-    public PolicyPassiveScanPanel getPolicyPanel() {
+    protected PolicyPassiveScanPanel getPolicyPanel() {
         if (policyPanel == null) {
             policyPanel = new PolicyPassiveScanPanel();
         }

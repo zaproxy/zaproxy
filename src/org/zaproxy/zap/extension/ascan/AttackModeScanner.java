@@ -200,7 +200,7 @@ public class AttackModeScanner implements EventConsumer {
 			log.debug("Starting attack thread");
 			this.running = true;
 			ascanWrapper = new AttackScan(Constant.messages.getString("ascan.attack.scan"), extension.getScannerParam(), 
-					extension.getModel().getOptionsParam().getConnectionParam());
+					extension.getModel().getOptionsParam().getConnectionParam(), extension.getPolicyManager().getAttackScanPolicy());
 			extension.registerScan(ascanWrapper);
 			while (running) {
 				if (scanStatus.getScanCount() != nodeStack.size()) {
@@ -224,7 +224,7 @@ public class AttackModeScanner implements EventConsumer {
 					log.debug("Attacking node " + node.getNodeName());
 					Scanner scanner = new Scanner(extension.getScannerParam(), 
 							extension.getModel().getOptionsParam().getConnectionParam(), 
-							Control.getSingleton().getPluginFactory().clone());
+							extension.getPolicyManager().getAttackScanPolicy());
 					scanner.setStartNode(node);
 					scanner.setScanChildren(false);
 					scanner.addScannerListener(this);

@@ -33,6 +33,7 @@ public class SingleColumnTableModel extends AbstractTableModel {
 	private  String[] columnNames = null;
     
     private List<String> lines = new ArrayList<>();
+    private boolean editable = true;
     
     /**
      * 
@@ -59,14 +60,16 @@ public class SingleColumnTableModel extends AbstractTableModel {
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-        return true;
+        return this.editable;
     }
     
     @Override
     public void setValueAt(Object value, int row, int col) {
-    	lines.set(row, (String)value);
-        checkAndAppendNewRow();
-        fireTableCellUpdated(row, col);
+    	if (editable) {
+	    	lines.set(row, (String)value);
+	        checkAndAppendNewRow();
+	        fireTableCellUpdated(row, col);
+    	}
     }
 
     /**
@@ -89,7 +92,9 @@ public class SingleColumnTableModel extends AbstractTableModel {
     	} else {
     		this.lines = new ArrayList<>(lines);
     	}
-        checkAndAppendNewRow();
+    	if (this.editable) {
+    		checkAndAppendNewRow();
+    	}
   	  	fireTableDataChanged();
     }
     
@@ -117,5 +122,13 @@ public class SingleColumnTableModel extends AbstractTableModel {
         return String.class;
         
     }
+
+	public boolean isEditable() {
+		return editable;
+	}
+
+	public void setEditable(boolean editable) {
+		this.editable = editable;
+	}
     
 }

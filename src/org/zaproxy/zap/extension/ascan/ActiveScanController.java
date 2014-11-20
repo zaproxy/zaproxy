@@ -26,9 +26,7 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -105,7 +103,7 @@ public class ActiveScanController implements ScanController {
 			int id = this.scanIdCounter++;
 			ActiveScan ascan = new ActiveScan(name, extension.getScannerParam(), 
 					extension.getModel().getOptionsParam().getConnectionParam(), 
-					Control.getSingleton().getPluginFactory().clone()) {
+					null) {
 				@Override
 				public void alertFound(Alert alert) {
 					if (extAlert!= null) {
@@ -118,6 +116,7 @@ public class ActiveScanController implements ScanController {
 			// Set session level configs
 			Session session = Model.getSingleton().getSession();
 			ascan.setExcludeList(session.getExcludeFromScanRegexs());
+			ScanPolicy policy = null;
 			
 			ascan.setId(id);
 			ascan.setUser(user);
@@ -127,14 +126,22 @@ public class ActiveScanController implements ScanController {
 					if (obj instanceof ScannerParam) {
 						logger.debug("Setting custom scanner params");
 						ascan.setScannerParam((ScannerParam)obj);
-					} else if (obj instanceof PluginFactory) {
-						ascan.setPluginFactory((PluginFactory)obj);
+					} else if (obj instanceof ScanPolicy) {
+						policy = (ScanPolicy)obj;
+						logger.debug("Setting custom policy " + policy.getName());
+						ascan.setScanPolicy(policy);
 					} else if (obj instanceof TechSet) {
 						ascan.setTechSet((TechSet) obj);
 					} else {
 						logger.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
 					}
 				}
+			}
+			if (policy == null) {
+				// use the default
+				policy = extension.getPolicyManager().getDefaultScanPolicy();
+				logger.debug("Setting default policy " + policy.getName());
+				ascan.setScanPolicy(policy);
 			}
 			
 			this.activeScanMap.put(id, ascan);

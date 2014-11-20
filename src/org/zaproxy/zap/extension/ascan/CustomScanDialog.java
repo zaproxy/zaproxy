@@ -38,6 +38,7 @@ import java.util.Map.Entry;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -57,6 +58,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
@@ -64,7 +66,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
 import org.parosproxy.paros.model.Model;
@@ -88,6 +89,7 @@ import org.zaproxy.zap.view.StandardFieldsDialog;
 public class CustomScanDialog extends StandardFieldsDialog {
 
     private static final String FIELD_START = "ascan.custom.label.start";
+    private static final String FIELD_POLICY = "ascan.custom.label.policy";
     private static final String FIELD_CONTEXT = "ascan.custom.label.context";
     private static final String FIELD_USER = "ascan.custom.label.user";
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
@@ -128,7 +130,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     private ScannerParam scannerParam = null;
     private OptionsParam optionsParam = null;
-    private PluginFactory pluginFactory = null;
 
     private JPanel customPanel = null;
     private JPanel techPanel = null;
@@ -143,6 +144,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
 	private TreeModel techModel = null;
 	private SequencePanel sequencePanel = null;
+	private ScanPolicy scanPolicy = null;
+    private PolicyAllCategoryPanel policyAllCategoryPanel = null;
+    private List<PolicyCategoryPanel> categoryPanels = new ArrayList<PolicyCategoryPanel>();
+    private boolean showingAdvTabs = true;
 
     public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
         super(owner, "ascan.custom.title", dim, new String[]{
@@ -172,12 +177,26 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.headerLength = -1;
         this.urlPathStart = -1;
 
+        if (scanPolicy == null) {
+        	scanPolicy = extension.getPolicyManager().getDefaultScanPolicy();
+        }
+
         this.addTargetSelectField(0, FIELD_START, this.target, false, false);
+        this.addComboField(0, FIELD_POLICY, extension.getPolicyManager().getAllPolicyNames(), scanPolicy.getName());
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         // This option is always read from the 'global' options
         this.addCheckBoxField(0, FIELD_ADVANCED, extension.getScannerParam().isShowAdvancedDialog());
+        // Force the policy to be reloaded, even the name hasnt changed the definition could have
+		policySelected();
+        
+        this.addFieldListener(FIELD_POLICY, new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				policySelected();
+			}});
+        
         this.addPadding(0);
 
         // Default to Recurse, so always set the warning
@@ -199,7 +218,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.addFieldListener(FIELD_ADVANCED, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                setAdvancedTabs(getBoolValue(FIELD_ADVANCED));
+                // Save the adv option permanently for next time
+
+                setAdvancedOptions(getBoolValue(FIELD_ADVANCED));
             }
         });
 
@@ -322,16 +343,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
         
         String[] ROOT = {};
 
-        PolicyAllCategoryPanel policyAllCategoryPanel
-                = new PolicyAllCategoryPanel(optionsParam, scannerParam, this.pluginFactory, null);
-        
-        policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
-
-        policyPanel.addParamPanel(null, policyAllCategoryPanel, false);
+        policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(), false);
 
         for (int i = 0; i < Category.getAllNames().length; i++) {
-            policyPanel.addParamPanel(ROOT, Category.getName(i),
-                    new PolicyCategoryPanel(i, this.pluginFactory.getAllPlugin()), true);
+        	PolicyCategoryPanel panel = 
+        			new PolicyCategoryPanel(i, this.scanPolicy.getPluginFactory(), 
+        					scanPolicy.getDefaultThreshold()); 
+            policyPanel.addParamPanel(ROOT, Category.getName(i),panel, true);
+            this.categoryPanels.add(panel);
         }
         
         policyPanel.showDialog(true);
@@ -346,12 +365,32 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	        this.setTech();
         }
         
-        if ( ! this.scannerParam.isShowAdvancedDialog()) {
-        	// Remove all but the first tab
-        	this.setAdvancedTabs(false);
-        }
+       	this.setAdvancedOptions(extension.getScannerParam().isShowAdvancedDialog());
         
         this.pack();
+    }
+    
+    private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
+    	if (policyAllCategoryPanel== null) {
+            policyAllCategoryPanel = new PolicyAllCategoryPanel(this, extension, scanPolicy, true);
+            policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
+    	}
+    	return policyAllCategoryPanel;
+    }
+
+    
+    private void policySelected() {
+		String policyName = getStringValue(FIELD_POLICY);
+        try {
+			scanPolicy = extension.getPolicyManager().getPolicy(policyName);
+			getPolicyAllCategoryPanel().setScanPolicy(scanPolicy);
+			for (PolicyCategoryPanel panel : this.categoryPanels) {
+				panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
+			}
+			
+		} catch (ConfigurationException e) {
+			logger.error(e.getMessage(), e);
+		}
     }
     
     private void setInjectableCheckbox() {
@@ -375,7 +414,19 @@ public class CustomScanDialog extends StandardFieldsDialog {
        	setFieldValue(FIELD_VARIANT_RPC, set);
     }
 
-	private void setAdvancedTabs(boolean visible) {
+	private void setAdvancedOptions(boolean adv) {
+		this.getField(FIELD_POLICY).setEnabled(!adv);
+		if (adv) {
+			((JComboBox<?>)this.getField(FIELD_POLICY)).setToolTipText(
+					Constant.messages.getString("ascan.custom.tooltip.policy"));
+		} else {
+			((JComboBox<?>)this.getField(FIELD_POLICY)).setToolTipText("");
+		}
+
+		if (showingAdvTabs == adv) {
+			// Nothing else to do
+			return;
+		}
 		// Show/hide all except from the first tab
 		this.setTabsVisible (new String[] {
 	            "ascan.custom.tab.input",
@@ -383,7 +434,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	            "ascan.custom.tab.sequence",
 	            "ascan.custom.tab.tech",
 	            "ascan.custom.tab.policy"
-	        }, visible);
+	        }, adv);
+        showingAdvTabs = adv;
+    	// Always save in the 'global' options
+        extension.getScannerParam().setShowAdvancedDialog(adv);
 	}
 
 	/**
@@ -901,8 +955,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         optionsParam = new OptionsParam();
         optionsParam.load(fileConfig);
 
-        pluginFactory = Control.getSingleton().getPluginFactory().clone();
-
         if (refreshUi) {
             init(target);
             repaint();
@@ -932,8 +984,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     @Override
     public void save() {
-        Object[] contextSpecificObjects = null;
-        if (this.getBoolValue(FIELD_ADVANCED)) {
+        Object[] contextSpecificObjects = new Object[]{scanPolicy};
+
+		if (this.getBoolValue(FIELD_ADVANCED)) {
 	        // Set Injectable Targets
 	        int targets = 0;
 	        int enabledRpc = 0;
@@ -1016,7 +1069,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 	
 	        contextSpecificObjects = new Object[]{
 	            scannerParam,
-	            pluginFactory.clone(),
+	            scanPolicy,
 	            this.getTechSet()
 	        };
 	        
@@ -1025,9 +1078,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
         
-        // Save the adv option permanently for next time
-        extension.getScannerParam().setShowAdvancedDialog(this.getBoolValue(FIELD_ADVANCED));
-
         this.extension.startScan(
                 target,
                 getSelectedUser(), 

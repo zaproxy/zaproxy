@@ -124,7 +124,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels) {
-		super();
+		super(owner, false);
 		this.setTitle(Constant.messages.getString(titleLabel));
 		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);
@@ -182,12 +182,16 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		if (extraButtons == null) {
 			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
 			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			}
 			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
 		} else {
 			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3 + extraButtons.length, 1.0D, 1.0D));
 			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			}
 			int x=2;
 			if (extraButtons != null) {
 				for (JButton button : extraButtons) {
@@ -208,6 +212,14 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			this.tabOffsets.add(0);
 		}
 	}
+	
+	/*
+	 * Always returns true, meaning that by default the dialog will have Cancel and Save buttons.
+	 * Override to return false for one Close button instead - the save() method will still be called
+	 */
+	public boolean hasCancelSaveButtons() {
+		return true;
+	}
 
 	private void initializeSinglePane(Dimension dim) {
 		
@@ -222,12 +234,16 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		if (extraButtons == null) {
 			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
 			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			}
 			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
 		} else {
 			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3 + extraButtons.length, 1.0D, 1.0D));
 			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			}
 			int x=2;
 			if (extraButtons != null) {
 				for (JButton button : this.getExtraButtons()) {
@@ -240,7 +256,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 	
 	public String getSaveButtonText() {
-		return Constant.messages.getString("all.button.save");
+		if (hasCancelSaveButtons()) {
+			return Constant.messages.getString("all.button.save");
+		}
+		return Constant.messages.getString("all.button.close");
 	}
 	
 	/**
@@ -485,7 +504,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 	
 	public void addComboField(int tabIndex, String fieldLabel, List<String> choices, String value) {
-		this.addComboField(fieldLabel, choices, value, false);
+		this.addComboField(tabIndex, fieldLabel, choices, value, false);
 	}
 	
 	public void addComboField(int tabIndex, String fieldLabel, List<String> choices, String value, boolean editable) {
@@ -525,6 +544,16 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.addTableField(fieldLabel, field, null);
 	}
 
+	public void addTableField(JTable field, List<JButton> buttons) {
+		this.addTableField(null, field, buttons);
+	}
+
+	/**
+	 * Add a table field.
+	 * @param fieldLabel If null then the table will be full width
+	 * @param field
+	 * @param buttons if not null then the buttons will be added to the right of the table
+	 */
 	public void addTableField(String fieldLabel, JTable field, List<JButton> buttons) {
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
@@ -540,7 +569,13 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		
 		if (buttons == null || buttons.size() == 0) {
-			this.addField(fieldLabel, field, scrollPane, 1.0D);
+			if (fieldLabel == null) {
+				this.getMainPanel().add(scrollPane,
+						LayoutHelper.getGBC(1, this.fieldList.size(), 1, fieldWeight, 1.0D, 
+								GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+			} else {
+				this.addField(fieldLabel, field, scrollPane, 1.0D);
+			}
 		} else {
 			JPanel tablePanel = new JPanel();
 			tablePanel.setLayout(new GridBagLayout());
@@ -561,7 +596,13 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			tablePanel.add(buttonPanel,
 					LayoutHelper.getGBC(1, 0, 1, 0D, 0D, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
 
-			this.addField(fieldLabel, field, tablePanel, 1.0D);
+			if (fieldLabel == null) {
+				this.getMainPanel().add(tablePanel,
+						LayoutHelper.getGBC(1, this.fieldList.size(), 1, fieldWeight, 1.0D, 
+								GridBagConstraints.BOTH, new Insets(4,4,4,4)));
+			} else {
+				this.addField(fieldLabel, field, tablePanel, 1.0D);
+			}
 		}
 		this.fieldList.add(field);
 	}

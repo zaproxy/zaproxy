@@ -28,8 +28,6 @@ import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
-import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
-import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel;
 import org.zaproxy.zap.utils.ScannerUtils;
 
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
@@ -41,8 +39,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.threshold"),
         Constant.messages.getString("ascan.policy.table.quality")};
 
-    private PolicyAllCategoryPanel allPanel = null;
-    private List<PluginPassiveScanner> listScanners = new ArrayList<>();
+    private List<ScannerWrapper> listScanners = new ArrayList<>();
     private Map<Integer, String> scannersQuality = new HashMap<>();
     private Map<String, String> i18nToStr = null;
 
@@ -53,23 +50,45 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     }
     
     /**
-     * Set the all category panel thta should be updated when config changed
-     * @param allPanel 
-     */
-    public void setAllCategoryPanel(PolicyAllCategoryPanel allPanel) {
-        this.allPanel = allPanel;
-    }
-
-    /**
      * 
      * @param scanner 
      */
     public void addScanner(PluginPassiveScanner scanner) {
-                
-        listScanners.add(scanner);   
+        listScanners.add(new ScannerWrapper(scanner));   
         scannersQuality.put(scanner.getPluginId(),ScannerUtils.getPluginQuality(scanner));
         fireTableDataChanged();
         
+    }
+    /*
+    protected List<PluginPassiveScanner> getScanners() {
+    	return null; // this.listScanners;
+    }
+    */
+    
+    public void persistChanges() {
+    	for (ScannerWrapper ss : this.listScanners) {
+    		ss.persistChanges();
+    	}
+    }
+    
+    public void reset() {
+    	for (ScannerWrapper ss : this.listScanners) {
+    		ss.reset();
+    	}
+    }
+    
+    public void applyThreshold(AlertThreshold threshold, String quality) {
+    	for (ScannerWrapper ss : this.listScanners) {
+    		if (quality.equals(ss.getQuality())) {
+    			ss.setThreshold(threshold);
+    		}
+    	}
+    }
+
+    public void applyThresholdToAll(AlertThreshold threshold) {
+    	for (ScannerWrapper ss : this.listScanners) {
+   			ss.setThreshold(threshold);
+    	}
     }
 
     /**
@@ -124,7 +143,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      */
     @Override
     public void setValueAt(Object value, int row, int col) {
-        PluginPassiveScanner test = listScanners.get(row);
+    	ScannerWrapper test = listScanners.get(row);
         
         switch (col) {
             case 0:
@@ -132,10 +151,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
          
             case 1:
                 AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
-                test.setLevel(af);
-                test.setEnabled(!AlertThreshold.OFF.equals(af));
-                test.save();
-                allPanel.updatePassiveThreshold();
+                test.setThreshold(af);
                 fireTableCellUpdated(row, col);
                 break;
         }
@@ -152,10 +168,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
             i18nToStr = new HashMap<>();
             for (AlertThreshold at : AlertThreshold.values()) {
                 i18nToStr.put(this.strToI18n(at.name()), at.name());
-            }
-            
-            for (AttackStrength as : AttackStrength.values()) {
-                i18nToStr.put(this.strToI18n(as.name()), as.name());
             }
         }
         
@@ -177,7 +189,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        PluginPassiveScanner test = listScanners.get(row);
+    	ScannerWrapper test = listScanners.get(row);
         Object result = null;
         switch (col) {
             case 0: // Plugin/Rule Name Column
@@ -185,16 +197,61 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 break;
                 
             case 1: // Threshold Column
-                result = strToI18n(test.getLevel().name());
+                result = strToI18n(test.getThreshold().name());
                 break;
                 
             case 2: // Quality Column
-                result = scannersQuality.get(test.getPluginId());
+                result = scannersQuality.get(test.getId());
                 break;  
             
             default:
                 result = "";
         }
         return result;
+    }
+    
+    /**
+     * Inner class which maintains any changes made so they can be undone if cancelled
+     * @author simon
+     *
+     */
+    private class ScannerWrapper {
+    	private PluginPassiveScanner scanner;
+    	private AlertThreshold threshold;
+
+    	ScannerWrapper(PluginPassiveScanner scanner) {
+    		this.scanner = scanner;
+    		reset();
+    	}
+    	
+    	public void reset() {
+    		this.threshold = scanner.getLevel();
+    	}
+    	
+    	public void persistChanges() {
+    		this.scanner.setLevel(threshold);
+    		this.scanner.setEnabled(!AlertThreshold.OFF.equals(threshold));
+    		this.scanner.save();
+    	}
+
+		public String getName() {
+			return scanner.getName();
+		}
+
+		public AlertThreshold getThreshold() {
+			return threshold;
+		}
+
+		public int getId() {
+			return scanner.getPluginId();
+		}
+
+		public void setThreshold(AlertThreshold threshold) {
+			this.threshold = threshold;
+		}
+
+		public String getQuality() {
+			return ScannerUtils.getPluginQuality(scanner);
+		}
     }
 }

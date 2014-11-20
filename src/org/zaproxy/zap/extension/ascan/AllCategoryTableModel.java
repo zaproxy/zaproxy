@@ -25,19 +25,17 @@
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 package org.zaproxy.zap.extension.ascan;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 
 public class AllCategoryTableModel extends DefaultTableModel {
 
@@ -48,23 +46,18 @@ public class AllCategoryTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.threshold"),
         Constant.messages.getString("ascan.policy.table.strength")};
     
-    private List<Plugin> allPlugins = Collections.EMPTY_LIST;
+    private PluginFactory pluginFactory;
 
     /**
-     * @param allPlugins The allPlugins to set.
-     */
-    public void setAllPlugins(List<Plugin> allPlugins) {
-        this.allPlugins = allPlugins;
-    }
-
-    /**
+     * @param policyAllCategoryPanel 
      *
      */
-    public AllCategoryTableModel() {
+    public AllCategoryTableModel(PolicyAllCategoryPanel policyAllCategoryPanel) {
     }
 
-    public void setTable(List<Plugin> allPlugins) {
-        setAllPlugins(allPlugins);
+    
+    public void setPluginFactory(PluginFactory pluginFactory) {
+        this.pluginFactory = pluginFactory;
         fireTableDataChanged();
     }
 
@@ -170,8 +163,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
 
     private String getPluginCategoryThreshold(int category) {
         AlertThreshold at = null;
-        for (int i = 0; i < allPlugins.size(); i++) {
-            Plugin plugin = allPlugins.get(i);
+        for (int i = 0; i < pluginFactory.getAllPlugin().size(); i++) {
+            Plugin plugin = pluginFactory.getAllPlugin().get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
@@ -194,8 +187,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
 
     private String getPluginCategoryStrength(int category) {
         AttackStrength at = null;
-        for (int i = 0; i < allPlugins.size(); i++) {
-            Plugin plugin = allPlugins.get(i);
+        for (int i = 0; i < pluginFactory.getAllPlugin().size(); i++) {
+            Plugin plugin = pluginFactory.getAllPlugin().get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
@@ -218,8 +211,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
 
     private void setPluginCategoryThreshold(int category, AlertThreshold at) {
         boolean enable = !AlertThreshold.OFF.equals(at);
-        for (int i = 0; i < allPlugins.size(); i++) {
-            Plugin plugin = allPlugins.get(i);
+        for (int i = 0; i < pluginFactory.getAllPlugin().size(); i++) {
+            Plugin plugin = pluginFactory.getAllPlugin().get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
@@ -227,7 +220,7 @@ public class AllCategoryTableModel extends DefaultTableModel {
             if (enable) {
                 String[] dependencies = plugin.getDependency();
                 if (dependencies != null && dependencies.length != 0) {
-                    if (!Control.getSingleton().getPluginFactory().hasAllDependenciesAvailable(plugin)) {
+                    if (!pluginFactory.hasAllDependenciesAvailable(plugin)) {
                         continue;
                     }
                 }
@@ -239,8 +232,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
     }
 
     private void setPluginCategoryStrength(int category, AttackStrength at) {
-        for (int i = 0; i < allPlugins.size(); i++) {
-            Plugin plugin = allPlugins.get(i);
+        for (int i = 0; i < pluginFactory.getAllPlugin().size(); i++) {
+            Plugin plugin = pluginFactory.getAllPlugin().get(i);
             if (plugin.getCategory() != category) {
                 continue;
             }
@@ -251,8 +244,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
     }
 
     void setAllCategoryEnabled(boolean enabled) {
-        for (int i = 0; i < allPlugins.size(); i++) {
-            Plugin plugin = allPlugins.get(i);
+        for (int i = 0; i < pluginFactory.getAllPlugin().size(); i++) {
+            Plugin plugin = pluginFactory.getAllPlugin().get(i);
             plugin.setEnabled(enabled);
         }
         
@@ -260,8 +253,8 @@ public class AllCategoryTableModel extends DefaultTableModel {
     }
 
     boolean isAllCategoryEnabled() {
-        for (int i = 0; i < allPlugins.size(); i++) {
-            Plugin plugin = allPlugins.get(i);
+        for (int i = 0; i < pluginFactory.getAllPlugin().size(); i++) {
+            Plugin plugin = pluginFactory.getAllPlugin().get(i);
             if (!plugin.isEnabled()) {
                 return false;
             }

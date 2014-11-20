@@ -33,7 +33,6 @@ import javax.swing.DefaultListModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.HistoryReference;
@@ -69,19 +68,13 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
-	public ActiveScan(String site, ScannerParam scannerParam, 
-			ConnectionParam param) {
-		this(site, scannerParam, param, null);
-	}
-
 	public ActiveScan(String displayName, ScannerParam scannerParam, 
-			ConnectionParam param, PluginFactory pluginFactory) {
-		super(scannerParam, param, pluginFactory);
+			ConnectionParam param, ScanPolicy scanPolicy) {
+		super(scannerParam, param, scanPolicy);
 		this.displayName = displayName;
 		this.maxResultsToList = scannerParam.getMaxResultsToList();
 		// Easiest way to get the messages and alerts ;) 
 		this.addScannerListener(this);
-	
 	}
 
 	@Override

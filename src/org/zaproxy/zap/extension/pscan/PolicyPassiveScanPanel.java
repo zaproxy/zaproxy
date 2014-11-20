@@ -21,11 +21,17 @@ package org.zaproxy.zap.extension.pscan;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.RowSorter;
@@ -37,6 +43,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
@@ -44,6 +51,8 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
     private JTable tableTest = null;
     private JScrollPane jScrollPane = null;
     private PolicyPassiveScanTableModel passiveScanTableModel = null;
+    private JComboBox<String> applyToThreshold = null;
+    private JComboBox<String> applyToThresholdTarget = null;
 
     /**
      *
@@ -54,35 +63,92 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
     }
 
     /**
-     * Set the all category panel thta should be updated when config changed
-     * @param allPanel 
-     */
-    public void setAllCategoryPanel(PolicyAllCategoryPanel allPanel) {
-        this.getPassiveScanTableModel().setAllCategoryPanel(allPanel);
-    }
-
-    /**
      * This method initializes this
      */
     private void initialize() {
-        java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-
         this.setLayout(new GridBagLayout());
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
             this.setSize(375, 204);
         }
+        this.setName(Constant.messages.getString("pscan.options.policy.title"));
         
-        this.setName(Constant.messages.getString("pscan.policy.title"));
-        gridBagConstraints11.weightx = 1.0;
-        gridBagConstraints11.weighty = 1.0;
-        gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
-        gridBagConstraints11.gridx = 0;
-        gridBagConstraints11.gridy = 1;
-        gridBagConstraints11.insets = new java.awt.Insets(0, 0, 0, 0);
-        gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
-        this.add(getJScrollPane(), gridBagConstraints11);
+        // 'Apply to' controls
+        JPanel applyToPanel = new JPanel();
+        applyToPanel.setLayout(new GridBagLayout());
+        applyToPanel.add(new JLabel(Constant.messages.getString("pscan.options.policy.apply.label")), 
+        		LayoutHelper.getGBC(0, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
+        applyToPanel.add(getApplyToThreshold(), LayoutHelper.getGBC(1, 0, 1, 0.0));
+        applyToPanel.add(new JLabel(Constant.messages.getString("pscan.options.policy.thresholdTo.label")), 
+        		LayoutHelper.getGBC(2, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
+        applyToPanel.add(getApplyToThresholdTarget(), LayoutHelper.getGBC(3, 0, 1, 0.0));
+        applyToPanel.add(new JLabel(Constant.messages.getString("pscan.options.policy.rules.label")), LayoutHelper.getGBC(4, 0, 1, 0.0, new Insets(2, 2, 2, 2)));
+        JButton applyThresholdButton = new JButton(Constant.messages.getString("pscan.options.policy.go.button"));
+        applyThresholdButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				applyThreshold (strToThreshold((String)getApplyToThreshold().getSelectedItem()),
+						(String)getApplyToThresholdTarget().getSelectedItem());
+				getPassiveScanTableModel().fireTableDataChanged();
+				
+			}});
+        applyToPanel.add(applyThresholdButton, LayoutHelper.getGBC(5, 0, 1, 0.0));
+        applyToPanel.add(new JLabel(""), LayoutHelper.getGBC(6, 0, 1, 1.0));	// Spacer
+        
+        
+        this.add(applyToPanel,
+                LayoutHelper.getGBC(0, 0, 3, 0.0D, 0.0D, GridBagConstraints.BOTH, new Insets(0, 0, 0, 0)));
+
+        
+        this.add(getJScrollPane(), 
+        		LayoutHelper.getGBC(0, 1, 1, 1.0, 1.0,
+        				GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(0, 0, 0, 0)));
+    }
+
+    private JComboBox<String> getApplyToThreshold() {
+        if (applyToThreshold == null) {
+            applyToThreshold = new JComboBox<>();
+            applyToThreshold.addItem(Constant.messages.getString("ascan.options.level.off"));
+            applyToThreshold.addItem(Constant.messages.getString("ascan.options.level.low"));
+            applyToThreshold.addItem(Constant.messages.getString("ascan.options.level.medium"));
+            applyToThreshold.addItem(Constant.messages.getString("ascan.options.level.high"));
+            // Might as well default to medium, cant think of anything better :/
+            applyToThreshold.setSelectedItem(Constant.messages.getString("ascan.options.level.medium"));
+        }
+        return applyToThreshold;
+    }
+
+    private JComboBox<String> getApplyToThresholdTarget() {
+        if (applyToThresholdTarget == null) {
+            applyToThresholdTarget = new JComboBox<>();
+            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.all"));
+            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.release"));
+            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.beta"));
+            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.alpha"));
+        }
+        return applyToThresholdTarget;
     }
     
+    private AlertThreshold strToThreshold(String str) {
+    	if (str.equals(Constant.messages.getString("ascan.options.level.low"))) {
+    		return AlertThreshold.LOW;
+    	}
+    	if (str.equals(Constant.messages.getString("ascan.options.level.medium"))) {
+    		return AlertThreshold.MEDIUM;
+    	}
+    	if (str.equals(Constant.messages.getString("ascan.options.level.high"))) {
+    		return AlertThreshold.HIGH;
+    	}
+		return AlertThreshold.OFF;
+    }
+
+    private void applyThreshold(AlertThreshold threshold, String target) {
+		if (target.equals(Constant.messages.getString("ascan.policy.table.quality.all"))) {
+			this.getPassiveScanTableModel().applyThresholdToAll(threshold);
+		} else {
+			this.getPassiveScanTableModel().applyThreshold(threshold, target);
+		}
+    }
+
     private static final int[] width = {300, 60, 100};
 
     /**
@@ -121,6 +187,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     @Override
     public void initParam(Object obj) {
+    	this.getPassiveScanTableModel().reset();
     }
 
     @Override
@@ -129,6 +196,7 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
 
     @Override
     public void saveParam(Object obj) throws Exception {
+    	this.getPassiveScanTableModel().persistChanges();
     }
 
     /**

@@ -45,6 +45,7 @@
 // ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/10/25 Issue 1062: Made it possible to hook into the active scanner from extensions
+// ZAP: 2014/11/19 Issue 1412: Manage scan policies
 
 package org.parosproxy.paros.core.scanner;
 
@@ -52,9 +53,9 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.Set;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
@@ -63,6 +64,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 
@@ -73,7 +75,8 @@ public class HostProcess implements Runnable {
     
     private SiteNode startNode = null;
     private boolean isStop = false;
-    private PluginFactory pluginFactory = null;
+    private ScanPolicy scanPolicy = null;
+    private PluginFactory pluginFactory;
     private ScannerParam scannerParam = null;
     private HttpSender httpSender = null;
     private ThreadPool threadPool = null;
@@ -83,8 +86,6 @@ public class HostProcess implements Runnable {
     private Kb kb = null;
     private User user = null;
     private TechSet techSet = null;
-    // TODO Work in progress
-	// private List<SiteNode> nodes = null;
 
     // time related 
     // ZAP: changed to Integer because the pluginId is int
@@ -108,14 +109,15 @@ public class HostProcess implements Runnable {
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
-                PluginFactory pluginFactory) {
+    		ScanPolicy scanPolicy) {
         
         super();
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
-        
-        this.pluginFactory = pluginFactory;
+        this.scanPolicy = scanPolicy;
+		this.pluginFactory = scanPolicy.getPluginFactory().clone();
+		
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
         httpSender.setRemoveUserDefinedAuthHeaders(true);
@@ -170,8 +172,8 @@ public class HostProcess implements Runnable {
             
             if (plugin != null) {
                 plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-                plugin.setDefaultAlertThreshold(this.scannerParam.getAlertThreshold());
-                plugin.setDefaultAttackStrength(this.scannerParam.getAttackStrength());
+                plugin.setDefaultAlertThreshold(scanPolicy.getDefaultThreshold());
+                plugin.setDefaultAttackStrength(scanPolicy.getDefaultStrength());
                 plugin.setTechSet(this.techSet);
                 processPlugin(plugin);
             

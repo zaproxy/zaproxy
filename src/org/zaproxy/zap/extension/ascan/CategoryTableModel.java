@@ -24,6 +24,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
+// ZAP: 2014/11/19 Issue 1412: Manage scan policies
 
 package org.zaproxy.zap.extension.ascan;
 
@@ -36,12 +37,10 @@ import java.util.Vector;
 import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
-import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.ScannerUtils;
 
@@ -59,9 +58,11 @@ public class CategoryTableModel extends DefaultTableModel {
 		Constant.messages.getString("ascan.policy.table.strength"),
 		Constant.messages.getString("ascan.policy.table.quality")};
 	
-    private Vector<Plugin> listTestCategory = new Vector<>();
+    private Vector<Plugin> listTestCategory = new Vector<Plugin>();
 
+    private PluginFactory pluginFactory;
     private int category;
+    private AlertThreshold defaultThreshold;
     
     /**
      * 
@@ -69,12 +70,13 @@ public class CategoryTableModel extends DefaultTableModel {
     public CategoryTableModel() {
     }
     
-    public void setTable(int category, List<Plugin> allTest) {
+    public void setTable(int category, PluginFactory pluginFactory, AlertThreshold defaultThreshold) {
         
         listTestCategory.clear();
+        this.pluginFactory = pluginFactory;
         this.category = category ;
-        for (int i=0; i<allTest.size(); i++) {
-            Plugin test = allTest.get(i);
+        this.defaultThreshold = defaultThreshold;
+        for (Plugin test : pluginFactory.getAllPlugin()) {
             if (test.getCategory() == category) {
                 listTestCategory.add(test);
                 scannersQuality.put(test.getId(),ScannerUtils.getPluginQuality(test));
@@ -123,7 +125,7 @@ public class CategoryTableModel extends DefaultTableModel {
                             String[] dependencies = test.getDependency();
                             if (dependencies != null && dependencies.length != 0) {
                                 List<Plugin> allDeps = new ArrayList<>(dependencies.length);
-                                if (!Control.getSingleton().getPluginFactory().addAllDependencies(test, allDeps)) {
+                                if (!pluginFactory.addAllDependencies(test, allDeps)) {
                                     View.getSingleton().showWarningDialog(
                                             Constant.messages.getString("ascan.policy.unfulfilled.dependencies"));
                                     return;
@@ -142,7 +144,7 @@ public class CategoryTableModel extends DefaultTableModel {
                             }
                         } else {
                             List<Plugin> enabledDependents = new ArrayList<>();
-                            for (Plugin plugin : Control.getSingleton().getPluginFactory().getDependentPlugins(test)) {
+                            for (Plugin plugin : pluginFactory.getDependentPlugins(test)) {
                                 if (plugin.isEnabled()) {
                                     enabledDependents.add(plugin);
                                 }
@@ -166,10 +168,7 @@ public class CategoryTableModel extends DefaultTableModel {
     }
     
     private void setPluginsEnabled(List<Plugin> plugins, boolean enabled) {
-        AlertThreshold defaultAlertThreshold = ((ScannerParam) Model.getSingleton()
-                .getOptionsParam()
-                .getParamSet(ScannerParam.class)).getAlertThreshold();
-        AlertThreshold alertThreshold = enabled ? defaultAlertThreshold : AlertThreshold.OFF;
+        AlertThreshold alertThreshold = enabled ? defaultThreshold : AlertThreshold.OFF;
         for (Plugin plugin : plugins) {
             plugin.setEnabled(enabled);
             plugin.setAlertThreshold(alertThreshold);

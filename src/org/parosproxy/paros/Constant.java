@@ -167,6 +167,7 @@ public final class Constant {
     private static boolean staticSP = false;
     
     private static final String USER_CONTEXTS_DIR = "contexts";
+    private static final String USER_POLICIES_DIR = "policies";
 
     // 
     // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set to default loc
@@ -791,6 +792,17 @@ public final class Constant {
 
 	public static File getContextsDir () {
 		File f = new File(Constant.getZapHome(), USER_CONTEXTS_DIR);
+		if (! f.exists()) {
+			f.mkdirs();
+		}
+		if (f.isDirectory() && f.canWrite()) {
+			return f;
+		}
+		return Model.getSingleton().getOptionsParam().getUserDirectory();
+	}
+
+	public static File getPoliciesDir () {
+		File f = new File(Constant.getZapHome(), USER_POLICIES_DIR);
 		if (! f.exists()) {
 			f.mkdirs();
 		}
