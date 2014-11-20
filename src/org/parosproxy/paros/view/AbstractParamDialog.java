@@ -31,10 +31,10 @@
 
 package org.parosproxy.paros.view;
 
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Window;
 import java.util.Collection;
 
 import javax.swing.JButton;
@@ -42,7 +42,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
@@ -61,9 +60,6 @@ public class AbstractParamDialog extends AbstractDialog {
     private JLabel footer = null;
     private String rootName = null;
     
-    // ZAP: Added logger
-    private static Logger log = Logger.getLogger(AbstractParamDialog.class);
-
     public AbstractParamDialog() {
         super();
         initialize();
@@ -76,7 +72,7 @@ public class AbstractParamDialog extends AbstractDialog {
      * @param rootName
      * @throws HeadlessException
      */
-    public AbstractParamDialog(Frame parent, boolean modal, String title, String rootName) throws HeadlessException {
+    public AbstractParamDialog(Window parent, boolean modal, String title, String rootName) throws HeadlessException {
         super(parent, modal);
         this.rootName = rootName;
         initialize();
@@ -189,7 +185,7 @@ public class AbstractParamDialog extends AbstractDialog {
                         AbstractParamDialog.this.setVisible(false);
 
                     } catch (Exception ex) {
-                        log.warn(ex.getMessage(), ex);
+                    	// The exception messages should be internationalized!
                         View.getSingleton().showWarningDialog(ex.getMessage());
                     }
 

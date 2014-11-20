@@ -49,6 +49,7 @@
 // ZAP: 2014/05/20 Issue 1114: core.newSession doesn't clear Sites
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
+// ZAP: 2014/11/19 Issue 1412: Manage scan policies
 
 package org.parosproxy.paros.control;
 
@@ -64,7 +65,6 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
@@ -89,7 +89,6 @@ public class Control extends AbstractControl implements SessionListener {
     private MenuToolsControl menuToolsControl = null;
     private SessionListener lastCallback = null;
 	private Mode mode = null;
-	private PluginFactory pluginFactory = new PluginFactory();
     
     private Control(Model model, View view) {
         super(model, view);
@@ -105,8 +104,6 @@ public class Control extends AbstractControl implements SessionListener {
 
 		// Load extensions first as message bundles are loaded as a side effect
 		loadExtension();
-
-        pluginFactory.loadAllPlugin(model.getOptionsParam().getConfig());
 
 		// ZAP: Start proxy even if no view
 	    Proxy proxy = getProxy(overrides);
@@ -131,10 +128,6 @@ public class Control extends AbstractControl implements SessionListener {
         }
         
         return proxy;
-    }
-    
-    public PluginFactory getPluginFactory() {
-    	return this.pluginFactory;
     }
     
     @Override

@@ -23,40 +23,33 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 package org.zaproxy.zap.extension.ascan;
 
-import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
-import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamDialog;
 import org.parosproxy.paros.view.AbstractParamPanel;
-import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 public class PolicyDialog extends AbstractParamDialog {
 
     private static final long serialVersionUID = 1L;
     private static final String POLICY = Constant.messages.getString("ascan.policy.dialog.title"); // ZAP: i18n
     private static final String[] ROOT = {};
+    private ExtensionActiveScan extension;
     private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     private List<AbstractParamPanel> additionalPanels = new ArrayList<>();
+    private PolicyManagerDialog pmd;
+    private ScanPolicy policy;
+    private String currentName;
 
-    /**
-     * 
-     */
-    public PolicyDialog() {
-        super();
-        initialize();
-
-    }
-
-    public PolicyDialog(Frame parent) throws HeadlessException {
-        super(parent, true, POLICY, Constant.messages.getString("ascan.policy.title"));
+    public PolicyDialog(ExtensionActiveScan extension, PolicyManagerDialog pmd, ScanPolicy policy) throws HeadlessException {
+        super(pmd, true, POLICY, Constant.messages.getString("ascan.policy.title"));
+        this.extension = extension;
+        this.pmd = pmd;
+        this.policy = policy;
+        this.currentName = policy.getName();
         initialize();
     }
 
@@ -65,15 +58,14 @@ public class PolicyDialog extends AbstractParamDialog {
      */
     private void initialize() {
         this.setTitle(POLICY);
-        this.setSize(750, 420); // TODO: This shouldn't be statically defined.
+        this.setSize(750, 420);
         addParamPanel(null, getPolicyAllCategoryPanel(), false);
         
         for (int i = 0; i < Category.getAllNames().length; i++) {
             addParamPanel(ROOT, Category.getName(i), 
-            		new PolicyCategoryPanel(i, Control.getSingleton().getPluginFactory().getAllPlugin()), true);
+            		new PolicyCategoryPanel(i, policy.getPluginFactory(), policy.getDefaultThreshold()), true);
         }
         
-        getBtnCancel().setEnabled(false);
         this.setFooter(Constant.messages.getString("ascan.policy.dialog.footer"));
     }
 
@@ -93,18 +85,19 @@ public class PolicyDialog extends AbstractParamDialog {
      */
     public PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
         if (policyAllCategoryPanel == null) {
-            OptionsParam options = Model.getSingleton().getOptionsParam();
-            ScannerParam param = (ScannerParam)options.getParamSet(ScannerParam.class);
-            ExtensionPassiveScan pscan = 
-            		(ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(
-            				ExtensionPassiveScan.NAME);
-        	
-            policyAllCategoryPanel = 
-            		new PolicyAllCategoryPanel(
-            				options, param, Control.getSingleton().getPluginFactory(), pscan);
+            policyAllCategoryPanel = new PolicyAllCategoryPanel(this.pmd, extension, policy);
             policyAllCategoryPanel.setName(Constant.messages.getString("ascan.policy.title"));
         }
         
         return policyAllCategoryPanel;
     }
+
+    @Override
+    public void saveParam() throws Exception {
+    	super.saveParam();
+    	
+    	extension.getPolicyManager().savePolicy(policy, currentName);
+		pmd.policyNamesChanged();
+    }
+
 }

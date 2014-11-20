@@ -73,7 +73,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	private JScrollPane jScrollPane;
 	private HistoryReferencesTable messagesTable;
     
-	private JButton optionsButton = null;
+	private JButton policyButton = null;
 	private JButton scanButton = null;
 	private JButton progressButton;
 	private JLabel numRequests;
@@ -94,7 +94,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	protected int addToolBarElements(JToolBar panelToolbar, Location loc, int x) {
 		// Override to add elements into the toolbar
 		if (Location.start.equals(loc)) {
-			panelToolbar.add(getOptionsButton(), getGBC(x++,0));
+			panelToolbar.add(getPolicyManagerButton(), getGBC(x++,0));
 		}
 		if (Location.beforeProgressBar.equals(loc)) {
 			panelToolbar.add(getProgressButton(), getGBC(x++,0));
@@ -106,19 +106,19 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 		return x;
 	}
 	
-	private JButton getOptionsButton() {
-		if (optionsButton == null) {
-			optionsButton = new JButton();
-			optionsButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
-			optionsButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/equalizer.png")));
-			optionsButton.addActionListener(new ActionListener () {
+	private JButton getPolicyManagerButton() {
+		if (policyButton == null) {
+			policyButton = new JButton();
+			policyButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
+			policyButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/equalizer.png")));
+			policyButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					extension.showPolicyDialog();
+					extension.showPolicyManagerDialog();
 				}
 			});
 		}
-		return optionsButton;
+		return policyButton;
 	}
 
 	@Override

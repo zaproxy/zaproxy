@@ -41,7 +41,7 @@
 // ZAP: 2014/06/16 Fixed an issue in SiteNode#setHistoryReference(HistoryReference) that led
 // to multiple occurrences of same HistoryReference(s) in the pastHistoryList.
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
-
+// ZAP: 2014/11/19 Issue 1412: Prevent ConcurrentModificationException when icons updated frequently
 
 package org.parosproxy.paros.model;
 
@@ -89,24 +89,30 @@ public class SiteNode extends DefaultMutableTreeNode {
 	}
     
     public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
-    	this.icons = i;
-    	this.clearIfManual = c;
+    	synchronized (this.icons) {  
+    		this.icons = i;
+    		this.clearIfManual = c;
+    	}
     }
     
     public void addCustomIcon(String resourceName, boolean clearIfManual) {
-    	if (! this.icons.contains(resourceName)) {
-	    	this.icons.add(resourceName);
-	    	this.clearIfManual.add(clearIfManual);
-	    	this.nodeChanged();
+    	synchronized (this.icons) {  
+	    	if (! this.icons.contains(resourceName)) {
+		    	this.icons.add(resourceName);
+		    	this.clearIfManual.add(clearIfManual);
+		    	this.nodeChanged();
+	    	}
     	}
     }
     
     public void removeCustomIcon(String resourceName) {
-    	if (this.icons.contains(resourceName)) {
-    		int i = this.icons.indexOf(resourceName);
-    		this.icons.remove(i);
-    		this.clearIfManual.remove(i);
-    		this.nodeChanged();
+    	synchronized (this.icons) {  
+	    	if (this.icons.contains(resourceName)) {
+	    		int i = this.icons.indexOf(resourceName);
+	    		this.icons.remove(i);
+	    		this.clearIfManual.remove(i);
+	    		this.nodeChanged();
+	    	}
     	}
     }
     
@@ -129,12 +135,14 @@ public class SiteNode extends DefaultMutableTreeNode {
         	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
         	sb.append("\">&nbsp;");
     	}
-    	if (!this.icons.isEmpty()) {
-    		for(String icon : this.icons) {
-    			sb.append("&nbsp;<img src=\"");
-    			sb.append(Constant.class.getResource(icon));
-    			sb.append("\">&nbsp;");
-    		}
+    	synchronized (this.icons) {  
+	    	if (!this.icons.isEmpty()) {
+	    		for(String icon : this.icons) {
+	    			sb.append("&nbsp;<img src=\"");
+	    			sb.append(Constant.class.getResource(icon));
+	    			sb.append("\">&nbsp;");
+	    		}
+	    	}
     	}
     }
     
@@ -217,12 +225,14 @@ public class SiteNode extends DefaultMutableTreeNode {
 			// we remove the icons of the node that has to be cleaned when manually visiting them
 			if (!this.icons.isEmpty() && (historyReference.getHistoryType() == HistoryReference.TYPE_PROXIED ||
 			        historyReference.getHistoryType() == HistoryReference.TYPE_ZAP_USER)) {
-				for (int i = 0; i < this.clearIfManual.size(); ++i) {
-					if (this.clearIfManual.get(i) && this.icons.size() > i) {
-						this.icons.remove(i);
-						this.clearIfManual.remove(i);
+		    	synchronized (this.icons) {  
+					for (int i = 0; i < this.clearIfManual.size(); ++i) {
+						if (this.clearIfManual.get(i) && this.icons.size() > i) {
+							this.icons.remove(i);
+							this.clearIfManual.remove(i);
+						}
 					}
-				}
+		    	}
         		this.nodeChanged();
     		}
             if (HistoryReference.TYPE_SCANNER == historyReference.getHistoryType()) {

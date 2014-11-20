@@ -61,7 +61,6 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
-import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
@@ -794,6 +793,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);
     		ap.setTechSet(this.getTechSet());
+    		ap.saveTo(plugin.getConfig());
     	} else {
     		throw new InvalidParameterException("Not an AbstractPlugin");
     	}

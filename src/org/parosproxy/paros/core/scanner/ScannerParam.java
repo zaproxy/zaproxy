@@ -36,6 +36,7 @@
 // ZAP: 2014/05/13 Issue 1193: Scan URL path elements - turn off by default
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
+// ZAP: 2014/11/19 Issue 1412: Manage scan policies
 
 package org.parosproxy.paros.core.scanner;
 
@@ -43,12 +44,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
-import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
-import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 
 public class ScannerParam extends AbstractParam {
 
@@ -60,11 +60,11 @@ public class ScannerParam extends AbstractParam {
     private static final String PROMPT_IN_ATTACK_MODE = "scanner.attackPrompt";
     private static final String RESCAN_IN_ATTACK_MODE = "scanner.attackRescan";
     private static final String PROMPT_TO_CLEAR_FINISHED = "scanner.clearFinished";
-    private static final String LEVEL = "scanner.level";
-    private static final String STRENGTH = "scanner.strength";
     private static final String MAX_RESULTS_LIST = "scanner.maxResults";
     private static final String MAX_SCANS_IN_UI = "scanner.maxScansInUI";
     private static final String SHOW_ADV_DIALOG = "scanner.advDialog";
+    private static final String DEFAULT_POLICY = "scanner.defaultPolicy";
+    private static final String ATTACK_POLICY = "scanner.attackPolicy";
 
     // ZAP: Excluded Parameters
     private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
@@ -108,8 +108,8 @@ public class ScannerParam extends AbstractParam {
     private boolean rescanInAttackMode = true;
     private boolean promptToClearFinishedScans = true;
     private boolean showAdvancedDialog = false;
-    private Plugin.AlertThreshold alertThreshold = AlertThreshold.MEDIUM;
-    private Plugin.AttackStrength attackStrength = AttackStrength.MEDIUM;
+    private String defaultPolicy;
+    private String attackPolicy;
     
     // ZAP: Variants Configuration
     private int targetParamsInjectable = TARGET_INJECTABLE_DEFAULT;
@@ -168,15 +168,15 @@ public class ScannerParam extends AbstractParam {
         try {
             this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
         } catch (Exception e) {}
-        
+      
         try {
-            this.alertThreshold = AlertThreshold.valueOf(getConfig().getString(LEVEL, AlertThreshold.MEDIUM.name()));
+            this.defaultPolicy = getConfig().getString(DEFAULT_POLICY, null);
         } catch (Exception e) {}
-        
+
         try {
-            this.attackStrength = AttackStrength.valueOf(getConfig().getString(STRENGTH, AttackStrength.MEDIUM.name()));
+            this.attackPolicy = getConfig().getString(ATTACK_POLICY, null);
         } catch (Exception e) {}
-        
+
         try {
             this.targetParamsInjectable = getConfig().getInt(TARGET_INJECTABLE, TARGET_INJECTABLE_DEFAULT);
         } catch (Exception e) {}
@@ -391,56 +391,6 @@ public class ScannerParam extends AbstractParam {
         getConfig().setProperty(PROMPT_IN_ATTACK_MODE, promptInAttackMode);
 	}
 
-	/**
-     * 
-     * @return 
-     */
-    public Plugin.AlertThreshold getAlertThreshold() {
-        return alertThreshold;
-    }
-
-    /**
-     * 
-     * @param level 
-     */
-    public void setAlertThreshold(Plugin.AlertThreshold level) {
-        this.alertThreshold = level;
-        getConfig().setProperty(LEVEL, level.name());
-    }
-
-    /**
-     * 
-     * @param level 
-     */
-    public void setAlertThreshold(String level) {
-        this.setAlertThreshold(AlertThreshold.valueOf(level));
-    }
-
-    /**
-     * 
-     * @return 
-     */
-    public Plugin.AttackStrength getAttackStrength() {
-        return attackStrength;
-    }
-
-    /**
-     * 
-     * @param strength 
-     */
-    public void setAttackStrength(Plugin.AttackStrength strength) {
-        this.attackStrength = strength;
-        getConfig().setProperty(STRENGTH, strength.name());
-    }
-
-    /**
-     * 
-     * @param strength 
-     */
-    public void setAttackStrength(String strength) {
-        this.setAttackStrength(AttackStrength.valueOf(strength));
-    }
-
     /**
      * 
      * @return 
@@ -500,6 +450,24 @@ public class ScannerParam extends AbstractParam {
 	public void setShowAdvancedDialog(boolean showAdvancedDialog) {
 		this.showAdvancedDialog = showAdvancedDialog;
         getConfig().setProperty(SHOW_ADV_DIALOG, this.showAdvancedDialog);
+	}
+
+	public String getDefaultPolicy() {
+		return defaultPolicy;
+	}
+
+	public String getAttackPolicy() {
+		return attackPolicy;
+	}
+
+	public void setDefaultPolicy(String defaultPolicy) {
+		this.defaultPolicy = defaultPolicy;
+        getConfig().setProperty(DEFAULT_POLICY, this.defaultPolicy);
+	}
+
+	public void setAttackPolicy(String attackPolicy) {
+		this.attackPolicy = attackPolicy;
+        getConfig().setProperty(ATTACK_POLICY, this.attackPolicy);
 	}
 
 }

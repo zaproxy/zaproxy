@@ -33,6 +33,7 @@
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
+// ZAP: 2014/11/19 Issue 1412: Manage scan policies
 
 package org.parosproxy.paros.core.scanner;
 
@@ -40,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,6 +56,8 @@ import org.zaproxy.zap.control.ExtensionFactory;
 public class PluginFactory {
 
     private static Logger log = Logger.getLogger(PluginFactory.class);
+    private static List<AbstractPlugin> loadedPlugins = null;
+    
     private List<Plugin> listAllPlugin = new ArrayList<Plugin>();
     private LinkedHashMap<Integer, Plugin> mapAllPlugin = new LinkedHashMap<>();  				//insertion-ordered
     private LinkedHashMap<String, Plugin> mapAllPluginOrderCodeName = new LinkedHashMap<>(); 	//insertion-ordered
@@ -71,6 +75,78 @@ public class PluginFactory {
         super();
     }
     
+    private static List<AbstractPlugin> getLoadedPlugins() {
+    	if (loadedPlugins == null) {
+	    	Date start = new Date();
+	    	loadedPlugins = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
+	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
+	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.parosproxy.paros.core.scanner.plugin", AbstractPlugin.class));
+	    	Date end = new Date();
+	    	System.out.println("SBSB found classes in " + (end.getTime() - start.getTime()));
+
+	        //sort by the criteria above.
+	        Collections.sort(loadedPlugins, riskComparator);
+    	}
+    	return loadedPlugins;
+    }
+    
+    public static void loadedPlugin(AbstractPlugin plugin) {
+    	getLoadedPlugins().add(plugin);
+        Collections.sort(loadedPlugins, riskComparator);
+    }
+    
+    public static boolean loadedPlugin(String className) {
+        try {
+        	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
+        	loadedPlugin((AbstractPlugin) c.newInstance());
+        	return true;
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            return false;
+        }
+    }
+    
+    public static void unloadedPlugin(AbstractPlugin plugin) {
+    	getLoadedPlugins().remove(plugin);
+    }
+    
+    public static boolean unloadedPlugin(String className) {
+    	for (AbstractPlugin plugin : loadedPlugins) {
+            if (plugin.getClass().getName().equals(className)) {
+            	loadedPlugins.remove(plugin);
+            	return true;
+            }
+    	}
+    	return false;
+    }
+    
+    //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
+    private static final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
+        @Override
+        public int compare(AbstractPlugin e1, AbstractPlugin e2) {
+            if (e1.getRisk() > e2.getRisk()) //High Risk alerts are checked before low risk alerts
+            {
+                return -1;
+                
+            } else if (e1.getRisk() < e2.getRisk()) {
+                return 1;
+                
+            } else {
+                //need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
+                if (e1.getId() < e2.getId()) //log numbered (older) plugins are run before newer plugins
+                {
+                    return -1;
+                    
+                } else if (e1.getId() > e2.getId()) {
+                    return 1;
+                    
+                } else {
+                    return 0;
+                }
+            }
+        }
+    };
+
     public void reset () {
         Iterator<Plugin> iterator;
         Plugin plugin;
@@ -185,7 +261,7 @@ public class PluginFactory {
         }
         return depsPlugins;
     }
-    
+
     /**
      * 
      * @param config 
@@ -194,52 +270,19 @@ public class PluginFactory {
     	log.debug("loadAllPlugin");
     	this.config = config;
 
-        List<AbstractPlugin> listTest = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
-        listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
-        listTest.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.parosproxy.paros.core.scanner.plugin", AbstractPlugin.class));
-
-        //now order the list by the highest risk thrown, in descending order (to execute the more critical checks first)
-        final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
-            @Override
-            public int compare(AbstractPlugin e1, AbstractPlugin e2) {
-                if (e1.getRisk() > e2.getRisk()) //High Risk alerts are checked before low risk alerts
-                {
-                    return -1;
-                    
-                } else if (e1.getRisk() < e2.getRisk()) {
-                    return 1;
-                    
-                } else {
-                    //need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
-                    if (e1.getId() < e2.getId()) //log numbered (older) plugins are run before newer plugins
-                    {
-                        return -1;
-                        
-                    } else if (e1.getId() > e2.getId()) {
-                        return 1;
-                        
-                    } else {
-                        return 0;
-                    }
-                }
-            }
-        };
-        
-        //sort by the criteria above.
-        Collections.sort(listTest, riskComparator);
-
         //mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is used 
         //when mapAllPlugin is iterated
+    	// TODO do we really want to this everythime?
         synchronized (mapAllPlugin) {
 
             mapAllPlugin.clear();
             listAllPlugin.clear();
             mapAllPluginOrderCodeName.clear();
 
-            for (int i = 0; i < listTest.size(); i++) {
+            for (int i = 0; i < getLoadedPlugins().size(); i++) {
                 // ZAP: Removed unnecessary cast.
                 try {
-                    Plugin plugin = listTest.get(i);
+                    Plugin plugin = getLoadedPlugins().get(i);
                     plugin.setConfig(config);
                     plugin.createParamIfNotExist();
                     if (!plugin.isVisible()) {
@@ -254,9 +297,12 @@ public class PluginFactory {
                     }
                     
                     log.info("loaded plugin " + plugin.getName());
+                    if (log.isDebugEnabled()) {
+                    	log.debug("Theshold=" + plugin.getAlertThreshold().name() + " Strength=" + plugin.getAttackStrength().toString());
+                    }
                     if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-                        log.error("Duplicate id " + plugin.getName() + " "
-                                + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getName());
+                        log.error("Duplicate id " + plugin.getId() + " " + plugin.getClass().getCanonicalName() + " "
+                                + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getClass().getCanonicalName());
                     }
                     
                     // ZAP: Changed to use the method Integer.valueOf.
@@ -274,8 +320,17 @@ public class PluginFactory {
         }
     }
 
+    public synchronized void loadFrom(PluginFactory pf) {
+    	log.debug("loadFrom " + pf.listAllPlugin.size());
+    	for (Plugin plugin : pf.listAllPlugin) {
+    		Plugin p = this.mapAllPlugin.get(plugin.getId());
+    		if (p != null) {
+    			plugin.cloneInto(p);
+    		}
+    	}
+    }
+
     public List<Plugin> getAllPlugin() {
-    	log.debug("getAllPlugin: " + listAllPlugin.size());
         return listAllPlugin;
     }
     
@@ -351,8 +406,7 @@ public class PluginFactory {
     public Plugin getPlugin(int id) {
         // ZAP: Removed unnecessary cast and changed to use the method
         // Integer.valueOf.
-        Plugin test = mapAllPlugin.get(Integer.valueOf(id));
-        return test;
+        return mapAllPlugin.get(Integer.valueOf(id));
     }
 
     public void setAllPluginEnabled(boolean enabled) {
@@ -503,4 +557,5 @@ public class PluginFactory {
     	return count;
     }
 
+    
 }

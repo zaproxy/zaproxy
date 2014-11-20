@@ -30,8 +30,8 @@ import org.zaproxy.zap.model.Target;
  */
 public class AttackScan extends ActiveScan {
 
-	public AttackScan(String displayName, ScannerParam scannerParam, ConnectionParam param) {
-		super(displayName, scannerParam, param);
+	public AttackScan(String displayName, ScannerParam scannerParam, ConnectionParam param, ScanPolicy scanPolicy) {
+		super(displayName, scannerParam, param, scanPolicy);
 	}
 	
 	@Override

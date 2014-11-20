@@ -61,8 +61,6 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
-import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
-import org.zaproxy.zap.extension.pscan.PolicyPassiveScanPanel;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -114,6 +112,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private final List<AbstractParamPanel> policyPanels = new ArrayList<>();
 	private JButton policyButton = null;
 	private CustomScanDialog customScanDialog = null;
+	private PolicyManagerDialog policyManagerDialog = null;
+	private PolicyManager policyManager = null;
 	private List<ScriptWrapper> includedSequenceScripts = null;
     
 	private ActiveScanAPI activeScanApi;
@@ -139,11 +139,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private void initialize() {
         this.setName(NAME);
         this.setOrder(28);
+        policyManager = new PolicyManager(this);
         ascanController = new ActiveScanController(this);
         attackModeScanner = new AttackModeScanner(this);
 
     }
     
+    @Override
+    public void optionsLoaded() {
+    	policyManager.init();
+    }
+
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
@@ -262,7 +268,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			policyButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showPolicyDialog();
+                    showPolicyManagerDialog();
 				}
 			});
 		}
@@ -282,7 +288,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
             menuItemPolicy.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    showPolicyDialog();
+                    showPolicyManagerDialog();
                 }
             });
 
@@ -291,19 +297,21 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         return menuItemPolicy;
     }
 
-    protected void showPolicyDialog() {
-        PolicyDialog dialog = new PolicyDialog(getView().getMainFrame());
+    protected void showPolicyDialog(PolicyManagerDialog parent) throws ConfigurationException {
+    	this.showPolicyDialog(parent, null);
+    }
+
+    protected void showPolicyDialog(PolicyManagerDialog parent, String name) throws ConfigurationException {
+    	ScanPolicy policy;
+    	if (name != null) {
+        	policy = this.getPolicyManager().getPolicy(name);
+    	} else {
+        	policy = this.getPolicyManager().getTemplatePolicy();
+    	}
+        PolicyDialog dialog = new PolicyDialog(this, parent, policy);
         dialog.initParam(getModel().getOptionsParam());
         for (AbstractParamPanel panel : policyPanels) {
             dialog.addPolicyPanel(panel);
-        }
-
-        // TODO This could be done in a cleaner way...
-        ExtensionPassiveScan pscan = (ExtensionPassiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionPassiveScan.NAME);
-        if (pscan != null) {
-            PolicyPassiveScanPanel ppanel = pscan.getPolicyPanel();
-            ppanel.setAllCategoryPanel(dialog.getPolicyAllCategoryPanel());
-            dialog.addPolicyPanel(ppanel);
         }
 
         int result = dialog.showDialog(true);
@@ -391,7 +399,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
      */
     private OptionsScannerPanel getOptionsScannerPanel() {
         if (optionsScannerPanel == null) {
-            optionsScannerPanel = new OptionsScannerPanel();
+            optionsScannerPanel = new OptionsScannerPanel(this);
         }
         return optionsScannerPanel;
     }
@@ -537,6 +545,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 			customScanDialog = new CustomScanDialog(this, View.getSingleton().getMainFrame(), new Dimension(700, 500));
 		}
 		if (customScanDialog.isVisible()) {
+			customScanDialog.requestFocus();
 			// Its behind you! Actually not needed no the window is alwaysOnTop, but keeping in case we change that ;)
 			customScanDialog.toFront();
 			return;
@@ -544,12 +553,22 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		if (node != null) {
 			customScanDialog.init(new Target(node));
 		} else {
-			// Keep the previous target
+			// Keep the previously selected target
 			customScanDialog.init(null);
 		}
 		customScanDialog.setVisible(true);
 	}
-    
+
+	public void showPolicyManagerDialog() {
+		if (policyManagerDialog == null) {
+			policyManagerDialog = new PolicyManagerDialog(View.getSingleton().getMainFrame());
+			policyManagerDialog.init(this);
+		}
+		// The policy names _may_ have changed, eg via the api
+		policyManagerDialog.policyNamesChanged();
+		policyManagerDialog.setVisible(true);
+	}
+	
     @Override
     public boolean handleFile(File file) {
         // Cant handle any files
@@ -659,6 +678,10 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		return id;
 	}
 
+	public PolicyManager getPolicyManager() {
+		return policyManager;
+	}
+
 	public void setIncludedSequenceScripts(List<ScriptWrapper> selectedIncludeScripts) {
 		this.includedSequenceScripts = selectedIncludeScripts;
 	}
@@ -666,4 +689,5 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public List<ScriptWrapper> getIncludedSequenceScripts() {
 		return this.includedSequenceScripts;
 	}
+
 }

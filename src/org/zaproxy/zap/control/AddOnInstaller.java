@@ -158,10 +158,9 @@ public final class AddOnInstaller {
     private static void installAddOnActiveScanRules(AddOn addOn) {
         List<String> ascanNames = addOn.getAscanrules();
         if (ascanNames != null) {
-            PluginFactory pluginFactory = Control.getSingleton().getPluginFactory();
             for (String name : ascanNames) {
                 logger.debug("Install ascanrule: " + name);
-                if (!pluginFactory.addPlugin(name)) {
+                if (!PluginFactory.loadedPlugin(name)) {
                     logger.error("Failed to install ascanrule: " + name);
                 }
             }
@@ -174,10 +173,9 @@ public final class AddOnInstaller {
         List<String> ascanNames = addOn.getAscanrules();
         logger.debug("Uninstall ascanrules: " + ascanNames);
         if (ascanNames != null) {
-            PluginFactory pluginFactory = Control.getSingleton().getPluginFactory();
             for (String name : ascanNames) {
                 logger.debug("Uninstall ascanrule: " + name);
-                if (!pluginFactory.removePlugin(name)) {
+                if (!PluginFactory.unloadedPlugin(name)) {
                     logger.error("Failed to uninstall ascanrule: " + name);
                     uninstalledWithoutErrors = false;
                 }
