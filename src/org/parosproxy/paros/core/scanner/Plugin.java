@@ -28,6 +28,7 @@
 // ZAP: 2013/09/08 Issue 691: Handle old plugins
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 
 package org.parosproxy.paros.core.scanner;
 
@@ -35,6 +36,7 @@ import java.util.Date;
 
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
@@ -302,4 +304,6 @@ public interface Plugin extends Runnable {
      * @since 2.2.0
      */
     int getWascId();
+    
+    AddOn.Status getStatus();
 }

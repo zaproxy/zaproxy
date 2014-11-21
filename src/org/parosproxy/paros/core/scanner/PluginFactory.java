@@ -34,6 +34,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 
 package org.parosproxy.paros.core.scanner;
 
@@ -41,7 +42,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -51,6 +51,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 
 public class PluginFactory {
@@ -77,14 +78,9 @@ public class PluginFactory {
     
     private static List<AbstractPlugin> getLoadedPlugins() {
     	if (loadedPlugins == null) {
-	    	Date start = new Date();
-	    	loadedPlugins = ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.scanner.plugin", AbstractPlugin.class);
-	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.zaproxy.zap.extension", AbstractPlugin.class));
-	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getImplementors("org.parosproxy.paros.core.scanner.plugin", AbstractPlugin.class));
-	    	Date end = new Date();
-	    	System.out.println("SBSB found classes in " + (end.getTime() - start.getTime()));
-
-	        //sort by the criteria above.
+	    	loadedPlugins = CoreFunctionality.getBuiltInActiveScanRules();
+	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
+	        //sort by the criteria below.
 	        Collections.sort(loadedPlugins, riskComparator);
     	}
     	return loadedPlugins;
@@ -124,8 +120,18 @@ public class PluginFactory {
     private static final Comparator<AbstractPlugin> riskComparator = new Comparator<AbstractPlugin>() {
         @Override
         public int compare(AbstractPlugin e1, AbstractPlugin e2) {
-            if (e1.getRisk() > e2.getRisk()) //High Risk alerts are checked before low risk alerts
-            {
+        	if (e1.getStatus().ordinal() > e2.getStatus().ordinal()) {
+            	//High Risk alerts are checked before low risk alerts
+                return -1;
+        		
+        	}
+        	if (e1.getStatus().ordinal() < e2.getStatus().ordinal()) {
+            	//High Risk alerts are checked before low risk alerts
+                return 1;
+        		
+        	}
+            if (e1.getRisk() > e2.getRisk()) {
+            	//High Risk alerts are checked before low risk alerts
                 return -1;
                 
             } else if (e1.getRisk() < e2.getRisk()) {
@@ -133,8 +139,8 @@ public class PluginFactory {
                 
             } else {
                 //need to look at a secondary factor (the Id of the plugin) to decide. Run older plugins first, followed by newer plugins
-                if (e1.getId() < e2.getId()) //log numbered (older) plugins are run before newer plugins
-                {
+                if (e1.getId() < e2.getId()) {
+                	//log numbered (older) plugins are run before newer plugins
                     return -1;
                     
                 } else if (e1.getId() > e2.getId()) {
@@ -272,7 +278,6 @@ public class PluginFactory {
 
         //mapAllPlugin is ordered by insertion order, so the ordering of plugins in listTest is used 
         //when mapAllPlugin is iterated
-    	// TODO do we really want to this everythime?
         synchronized (mapAllPlugin) {
 
             mapAllPlugin.clear();

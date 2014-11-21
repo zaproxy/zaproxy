@@ -50,7 +50,6 @@ import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.view.AbstractParamPanel;
-import org.zaproxy.zap.utils.ScannerUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -267,7 +266,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     	for (Plugin plugin : policy.getPluginFactory().getAllPlugin()) {
     		if (target.equals(Constant.messages.getString("ascan.policy.table.quality.all"))) {
     			plugin.setAlertThreshold(threshold);
-    		} else if (target.equals(ScannerUtils.getPluginQuality(plugin))) {
+    		} else if (target.equals(Constant.messages.getString("ascan.policy.table.quality." + plugin.getStatus().name()))) {
     			plugin.setAlertThreshold(threshold);
     		}
     	}
@@ -316,7 +315,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     	for (Plugin plugin : policy.getPluginFactory().getAllPlugin()) {
     		if (target.equals(Constant.messages.getString("ascan.policy.table.quality.all"))) {
     			plugin.setAttackStrength(strength);
-    		} else if (target.equals(ScannerUtils.getPluginQuality(plugin))) {
+    		} else if (target.equals(Constant.messages.getString("ascan.policy.table.quality." + plugin.getStatus().name()))) {
     			plugin.setAttackStrength(strength);
     		}
     	}

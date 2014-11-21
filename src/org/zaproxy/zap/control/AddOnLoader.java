@@ -44,9 +44,11 @@ import java.util.zip.ZipEntry;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 /**
  * This class is heavily based on the original Paros class org.parosproxy.paros.common.DynamicLoader
@@ -318,6 +320,51 @@ public class AddOnLoader extends URLClassLoader {
 						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
 	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
 	                    list.add(((Constructor<Extension>)c).newInstance());
+					} catch (Exception e) {
+		            	logger.debug(e.getMessage());
+					}
+				}
+			}
+        }
+		
+		return list;
+	}
+
+	@SuppressWarnings("unchecked")
+	public List<AbstractPlugin> getActiveScanRules () {
+		List<AbstractPlugin> list = new ArrayList<AbstractPlugin>();
+		for (AddOn addOn : getAddOnCollection().getAddOns()) {
+			if (addOn.getAscanrules() != null) {
+				for (String extName : addOn.getAscanrules()) {
+					try {
+						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
+	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
+	                    AbstractPlugin plugin = ((Constructor<AbstractPlugin>)c).newInstance();
+	                    plugin.setStatus(addOn.getStatus());
+	                    list.add(plugin);
+					} catch (Exception e) {
+		            	logger.debug(e.getMessage());
+					}
+				}
+			}
+        }
+		
+		return list;
+	}
+
+
+	@SuppressWarnings("unchecked")
+	public List<PluginPassiveScanner> getPassiveScanRules() {
+		List<PluginPassiveScanner> list = new ArrayList<PluginPassiveScanner>();
+		for (AddOn addOn : getAddOnCollection().getAddOns()) {
+			if (addOn.getPscanrules() != null) {
+				for (String extName : addOn.getPscanrules()) {
+					try {
+						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
+	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
+						PluginPassiveScanner plugin = ((Constructor<PluginPassiveScanner>)c).newInstance();
+	                    plugin.setStatus(addOn.getStatus());
+	                    list.add(plugin);
 					} catch (Exception e) {
 		            	logger.debug(e.getMessage());
 					}
