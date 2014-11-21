@@ -46,12 +46,17 @@ public abstract class AbstractControl {
     }
     
     protected void loadExtension() {
+        // Step 1: Loading Common Extensions
         addCommonExtension();
+        
+        // Step 2: Loading Extensions (slow)
         addExtension();
         
+        // Initializing all Extensions together
+        // Why hasn't been initialized in sequence?
         getExtensionLoader().startLifeCycle();
-
     }
+    
     /**
      * Implemented by subclass to add specific plugin for the control.
      *

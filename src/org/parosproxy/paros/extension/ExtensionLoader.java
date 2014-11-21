@@ -52,7 +52,7 @@
 // ZAP: 2014/10/09 Issue 1359: Added info logging for splash screen
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be loaded by an active scanner.
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
-
+// ZAP: 2014/11/21 Reviewed foreach loops and commented startup process for splash screen progress bar
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -91,16 +91,15 @@ import org.zaproxy.zap.view.TabbedPanel2;
 
 public class ExtensionLoader {
 
-    private Vector<Extension> extensionList = new Vector<>();
-    private Map<Extension, ExtensionHook> extensionHooks = new HashMap<>();
+    private final Vector<Extension> extensionList = new Vector<>();
+    private final Map<Extension, ExtensionHook> extensionHooks = new HashMap<>();
     private Model model = null;
 
     private View view = null;
     // ZAP: Added logger
-    private Logger logger = Logger.getLogger(ExtensionLoader.class);
+    private final Logger logger = Logger.getLogger(ExtensionLoader.class);
 
     public ExtensionLoader(Model model, View view) {
-        
         this.model = model;
         this.view = view;
     }
@@ -108,65 +107,72 @@ public class ExtensionLoader {
     public void addExtension(Extension extension) {
         extensionList.add(extension);
     }
-    
+
     public void destroyAllExtension() {
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             // ZAP: Added try catch block.
             try {
                 getExtension(i).destroy();
+                
             } catch (Exception e) {
-               logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
-        
+
     }
-    
+
     public Extension getExtension(int i) {
         return extensionList.get(i);
     }
-    
+
     public Extension getExtension(String name) {
         if (name != null) {
-	        for (int i=0; i<extensionList.size(); i++) {
-	            Extension p = getExtension(i);
-	            if (p.getName().equalsIgnoreCase(name)) {
-	                return p;
-	            }
-	        }
+            for (int i = 0; i < extensionList.size(); i++) {
+                Extension p = getExtension(i);
+                if (p.getName().equalsIgnoreCase(name)) {
+                    return p;
+                }
+            }
         }
+        
         return null;
     }
-    
+
     public Extension getExtensionByClassName(String name) {
         if (name != null) {
-        	for (int i=0; i<extensionList.size(); i++) {
-	            Extension p = getExtension(i);
-	            if (p.getClass().getName().equals(name)) {
-	                return p;
-	            }
-	        }
+            for (int i = 0; i < extensionList.size(); i++) {
+                Extension p = getExtension(i);
+                if (p.getClass().getName().equals(name)) {
+                    return p;
+                }
+            }
         }
+        
         return null;
     }
-    
+
     public Extension getExtension(Class<?> c) {
         if (c != null) {
-	        for (int i=0; i<extensionList.size(); i++) {
-	            Extension p = getExtension(i);
-	            if (p.getClass().equals(c)) {
-	                return p;
-	            }
-	        }
+            for (int i = 0; i < extensionList.size(); i++) {
+                Extension p = getExtension(i);
+                if (p.getClass().equals(c)) {
+                    return p;
+                }
+            }
         }
+        
         return null;
     }
-    
+
     /**
-     * Tells whether or not an {@code Extension} with the given {@code extensionName} is enabled.
-     * 
+     * Tells whether or not an {@code Extension} with the given
+     * {@code extensionName} is enabled.
+     *
      * @param extensionName the name of the extension
-     * @return {@code true} if the extension is enabled, {@code false} otherwise.
-     * @throws IllegalArgumentException if the {@code extensionName} is {@code null}.
+     * @return {@code true} if the extension is enabled, {@code false}
+     * otherwise.
+     * @throws IllegalArgumentException if the {@code extensionName} is
+     * {@code null}.
      * @see #getExtension(String)
      * @see Extension
      */
@@ -179,54 +185,24 @@ public class ExtensionLoader {
         if (extension == null) {
             return false;
         }
+        
         return extension.isEnabled();
     }
 
     public int getExtensionCount() {
         return extensionList.size();
     }
-    
+
     public void hookProxyListener(Proxy proxy) {
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<ProxyListener> listenerList = hook.getProxyListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (ProxyListener listener : listenerList) {
                 try {
-                    ProxyListener listener = listenerList.get(j);
                     if (listener != null) {
                         proxy.addProxyListener(listener);
                     }
-                } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
-                }
-            }
-    	}
-    }
-    
-    private void removeProxyListener(ExtensionHook hook) {
-		Proxy proxy = Control.getSingleton().getProxy();
-        List<ProxyListener> listenerList = hook.getProxyListenerList();
-        for (int j=0; j<listenerList.size(); j++) {
-            try {
-                ProxyListener listener = listenerList.get(j);
-                if (listener != null) {
-                    proxy.removeProxyListener(listener);
-                }
-            } catch (Exception e) {
-            	logger.error(e.getMessage(), e);
-            }
-        }
-    }
-    
-    public void hookOverrideMessageProxyListener(Proxy proxy) {
-        for (ExtensionHook hook : extensionHooks.values()) {
-            List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
-                try {
-                    OverrideMessageProxyListener listener = listenerList.get(j);
-                    if (listener != null) {
-                        proxy.addOverrideMessageProxyListener(listener);
-                    }
+                    
                 } catch (Exception e) {
                     // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
@@ -234,129 +210,170 @@ public class ExtensionLoader {
             }
         }
     }
-    
-    private void removeOverrideMessageProxyListener(ExtensionHook hook) {
+
+    private void removeProxyListener(ExtensionHook hook) {
         Proxy proxy = Control.getSingleton().getProxy();
-        List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
-        for (int j=0; j<listenerList.size(); j++) {
+        List<ProxyListener> listenerList = hook.getProxyListenerList();
+        // ZAP: converted to foreach loop
+        for (ProxyListener listener : listenerList) {
             try {
-                OverrideMessageProxyListener listener = listenerList.get(j);
                 if (listener != null) {
-                    proxy.removeOverrideMessageProxyListener(listener);
+                    proxy.removeProxyListener(listener);
                 }
+                
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
     }
-    
-    public void hookPersistentConnectionListener(Proxy proxy) {
-    	for (ExtensionHook hook : extensionHooks.values()) {
-            List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
-            for (int j=0; j<listenerList.size(); j++) {
+
+    public void hookOverrideMessageProxyListener(Proxy proxy) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
+            // ZAP: converted to foreach loop
+            for (OverrideMessageProxyListener listener : listenerList) {
                 try {
-                    PersistentConnectionListener listener = listenerList.get(j);
+                    if (listener != null) {
+                        proxy.addOverrideMessageProxyListener(listener);
+                    }
+                    
+                } catch (Exception e) {
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+
+    private void removeOverrideMessageProxyListener(ExtensionHook hook) {
+        Proxy proxy = Control.getSingleton().getProxy();
+        List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
+        // ZAP: converted to foreach loop
+        for (OverrideMessageProxyListener listener : listenerList) {
+            try {
+                if (listener != null) {
+                    proxy.removeOverrideMessageProxyListener(listener);
+                }
+                
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    public void hookPersistentConnectionListener(Proxy proxy) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
+            // ZAP: converted to foreach loop
+            for (PersistentConnectionListener listener : listenerList) {
+                try {
                     if (listener != null) {
                         proxy.addPersistentConnectionListener(listener);
                     }
+                    
                 } catch (Exception e) {
-                	logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                 }
             }
-    	}
+        }
     }
 
-	private void removePersistentConnectionListener(ExtensionHook hook) {
-		Proxy proxy = Control.getSingleton().getProxy();
+    private void removePersistentConnectionListener(ExtensionHook hook) {
+        Proxy proxy = Control.getSingleton().getProxy();
         List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
-        for (int j=0; j<listenerList.size(); j++) {
+        // ZAP: converted to foreach loop
+        for (PersistentConnectionListener listener : listenerList) {
             try {
-                PersistentConnectionListener listener = listenerList.get(j);
                 if (listener != null) {
                     proxy.removePersistentConnectionListener(listener);
                 }
+                
             } catch (Exception e) {
-            	logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
-    	}
-	}
-    
+        }
+    }
+
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (SiteMapListener listener : listenerList) {
                 try {
-                	SiteMapListener listener = listenerList.get(j);
                     if (listener != null) {
-                    	siteMapPanel.addSiteMapListener(listener);
+                        siteMapPanel.addSiteMapListener(listener);
                     }
+                    
                 } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
     }
-    
+
     private void removeSiteMapListener(ExtensionHook hook) {
-		if (view != null) {
-			SiteMapPanel siteMapPanel = view.getSiteTreePanel();
-	        List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
-	        for (int j=0; j<listenerList.size(); j++) {
-	            try {
-	            	SiteMapListener listener = listenerList.get(j);
-	                if (listener != null) {
-	                	siteMapPanel.removeSiteMapListener(listener);
-	                }
-	            } catch (Exception e) {
-	            	logger.error(e.getMessage(), e);
-	            }
-	        }
-		}
+        if (view != null) {
+            SiteMapPanel siteMapPanel = view.getSiteTreePanel();
+            List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
+            // ZAP: converted to foreach loop
+            for (SiteMapListener listener : listenerList) {
+                try {
+                    if (listener != null) {
+                        siteMapPanel.removeSiteMapListener(listener);
+                    }
+                    
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
     }
-    
-	// ZAP: method called by the scanner to load all scanner hooks. 
-	public void hookScannerHook(Scanner scan) {
-		Iterator<ExtensionHook> iter = extensionHooks.values().iterator();
-		while(iter.hasNext()){
-			ExtensionHook hook = iter.next();
-			List<ScannerHook> scannerHookList = hook.getScannerHookList();
-			
-			for(int j = 0; j < scannerHookList.size(); j++){
-				try {
-					ScannerHook scannerHook = scannerHookList.get(j);
-					if(hook != null) {
-						scan.addScannerHook(scannerHook);
-					}
-				} catch(Exception e) {
-					logger.error(e.getMessage(), e);
-				}
-			}
-		}
-	}
+
+    // ZAP: method called by the scanner to load all scanner hooks. 
+    public void hookScannerHook(Scanner scan) {
+        Iterator<ExtensionHook> iter = extensionHooks.values().iterator();
+        while (iter.hasNext()) {
+            ExtensionHook hook = iter.next();
+            List<ScannerHook> scannerHookList = hook.getScannerHookList();
+
+            // ZAP: converted to foreach loop
+            for (ScannerHook scannerHook : scannerHookList) {
+                try {
+                    if (hook != null) {
+                        scan.addScannerHook(scannerHook);
+                    }
+                    
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
 
     public void optionsChangedAllPlugin(OptionsParam options) {
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (OptionsChangedListener listener : listenerList) {
                 try {
-                    OptionsChangedListener listener = listenerList.get(j);
                     if (listener != null) {
-                    	// ZAP: reflected the change in the name of the method optionsChanged.
+                        // ZAP: reflected the change in the name of the method optionsChanged.
                         listener.optionsChanged(options);
                     }
+                    
                 } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
     }
-    
+
     public void runCommandLine() {
         Extension ext = null;
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             ext = getExtension(i);
             if (ext instanceof CommandLineListener) {
                 CommandLineListener listener = (CommandLineListener) ext;
@@ -364,285 +381,314 @@ public class ExtensionLoader {
             }
         }
     }
-    
+
     public void sessionChangedAllPlugin(Session session) {
-    	logger.debug("sessionChangedAllPlugin");
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        logger.debug("sessionChangedAllPlugin");
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (SessionChangedListener listener : listenerList) {
                 try {
-                    SessionChangedListener listener = listenerList.get(j);
                     if (listener != null) {
                         listener.sessionChanged(session);
                     }
+
                 } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
                 }
             }
-            
+
         }
     }
-    
+
     public void sessionAboutToChangeAllPlugin(Session session) {
-    	logger.debug("sessionAboutToChangeAllPlugin");
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        logger.debug("sessionAboutToChangeAllPlugin");
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (SessionChangedListener listener : listenerList) {
                 try {
-                    SessionChangedListener listener = listenerList.get(j);
                     if (listener != null) {
                         listener.sessionAboutToChange(session);
                     }
+
                 } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
     }
-    
+
     public void sessionScopeChangedAllPlugin(Session session) {
-    	logger.debug("sessionScopeChangedAllPlugin");
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        logger.debug("sessionScopeChangedAllPlugin");
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (SessionChangedListener listener : listenerList) {
                 try {
-                    SessionChangedListener listener = listenerList.get(j);
                     if (listener != null) {
                         listener.sessionScopeChanged(session);
                     }
+
                 } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
     }
-    
+
     public void sessionModeChangedAllPlugin(Mode mode) {
-    	logger.debug("sessionModeChangedAllPlugin");
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        logger.debug("sessionModeChangedAllPlugin");
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (SessionChangedListener listener : listenerList) {
                 try {
-                    SessionChangedListener listener = listenerList.get(j);
                     if (listener != null) {
                         listener.sessionModeChanged(mode);
                     }
+                    
                 } catch (Exception e) {
-                	// ZAP: Log the exception
-                	logger.error(e.getMessage(), e);
+                    // ZAP: Log the exception
+                    logger.error(e.getMessage(), e);
                 }
             }
         }
     }
 
     public void addonFilesAdded() {
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (AddonFilesChangedListener listener : listenerList) {
                 try {
-                    listenerList.get(j).filesAdded();
+                    listener.filesAdded();
+                    
                 } catch (Exception e) {
-                	logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                 }
             }
-    	}
+        }
     }
 
     public void addonFilesRemoved() {
-    	for (ExtensionHook hook : extensionHooks.values()) {
+        for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
-            for (int j=0; j<listenerList.size(); j++) {
+            // ZAP: converted to foreach loop
+            for (AddonFilesChangedListener listener : listenerList) {
                 try {
-                    listenerList.get(j).filesRemoved();
+                    listener.filesRemoved();
+                    
                 } catch (Exception e) {
-                	logger.error(e.getMessage(), e);
+                    logger.error(e.getMessage(), e);
                 }
             }
-    	}
+        }
     }
 
     public void startAllExtension() {
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).start();
+
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
     }
-    
+
+    /**
+     * Initialize and start all Extensions
+     * This function loops for all getExtensionCount() exts
+     * launching each specific initialization element (model, xml, view, hook, etc.)
+     */
     public void startLifeCycle() {
+        // Step 3: initialize all (slow)
         initAllExtension();
+        // Step 4: initialize models (quick)
         initModelAllExtension(model);
+        // Step 5: initialize xmls (quick)
         initXMLAllExtension(model.getSession(), model.getOptionsParam());
+        // Step 6: initialize viewes (slow)
         initViewAllExtension(view);
-        
+        // Step 7: initialize hooks (slowest)
         hookAllExtension();
+        // Step 8: start all extensions(quick)
         startAllExtension();
-        
     }
-    
+
+    /**
+     * Initialize a specific Extension
+     * @param ext the Extension that need to be initialized
+     */
     public void startLifeCycle(Extension ext) {
-    	ext.init();
-    	ext.initModel(model);
+        ext.init();
+        ext.initModel(model);
         ext.initXML(model.getSession(), model.getOptionsParam());
         ext.initView(view);
+        
         try {
-        	ExtensionHook extHook = new ExtensionHook(model, view);
-			ext.hook(extHook);
-			extensionHooks.put(ext, extHook);
-			
-			if (view != null) {
-			    // no need to hook view if no GUI
-			    hookView(view, extHook);
-			    hookMenu(view, extHook);
-			}
-			hookOptions(extHook);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
-		}
+            ExtensionHook extHook = new ExtensionHook(model, view);
+            ext.hook(extHook);
+            extensionHooks.put(ext, extHook);
+
+            if (view != null) {
+                // no need to hook view if no GUI
+                hookView(view, extHook);
+                hookMenu(view, extHook);
+            }
+            
+            hookOptions(extHook);
+            
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        
         ext.start();
     }
-    
+
     public void stopAllExtension() {
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).stop();
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
-        
+
     }
-    
+
     // ZAP: Added the type argument.
     private void addParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
-        AbstractParamPanel panel = null;
         String[] ROOT = {};
-        for (int i=0; i<panelList.size(); i++) {
+        // ZAP: converted to foreach loop
+        for (AbstractParamPanel panel : panelList) {
             try {
                 // ZAP: Removed unnecessary cast.
-                panel = panelList.get(i);
                 dialog.addParamPanel(ROOT, panel, true);
-            } catch (Exception e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
+                
+            }catch (Exception e) {
+                // ZAP: Log the exception
+                logger.error(e.getMessage(), e);
             }
         }
-        
+
     }
-    
+
     private void removeParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
-        AbstractParamPanel panel = null;
-        for (int i=0; i<panelList.size(); i++) {
+        // ZAP: converted to foreach loop
+        for (AbstractParamPanel panel : panelList) {
             try {
-                panel = panelList.get(i);
                 dialog.removeParamPanel(panel);
+                
             } catch (Exception e) {
-            	logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
     }
-    
+
     /**
      * Add every panel from panelList to the TabbedPanel2 tab.
+     *
      * @param panelList
      * @param tab
      */
     private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        AbstractPanel panel = null;
-        for (int i=0; i<panelList.size(); i++) {
+        // ZAP: converted to foreach loop
+        for (AbstractPanel panel : panelList) {
             try {
-                panel = panelList.get(i);
-                
-        		// ZAP: added icon
-            	tab.addTab(panel);
-                if (panel.getTabIndex() == 0  && tab.indexOfComponent(panel) != -1) {
-                	// Its now the first one, give it focus
-                	tab.setSelectedComponent(panel);	
+                // ZAP: added icon
+                tab.addTab(panel);
+                if (panel.getTabIndex() == 0 && tab.indexOfComponent(panel) != -1) {
+                    // Its now the first one, give it focus
+                    tab.setSelectedComponent(panel);
                 }
-
+                
             } catch (Exception e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
+                // ZAP: Log the exception
+                logger.error(e.getMessage(), e);
             }
         }
     }
-    
+
     private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        AbstractPanel panel = null;
-        for (int i=0; i<panelList.size(); i++) {
+        // ZAP: converted to foreach loop
+        for (AbstractPanel panel : panelList) {
             try {
-                panel = panelList.get(i);
                 tab.removeTab(panel);
+                
             } catch (Exception e) {
-            	logger.error(e.getMessage(), e);
+                logger.error(e.getMessage(), e);
             }
         }
-    }    
-    
+    }
+
     private void hookAllExtension() {
         ExtensionHook extHook = null;
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
-				Extension ext = getExtension(i);
-				logger.info("Initializing " + ext.getDescription());
-				extHook = new ExtensionHook(model, view);
-				ext.hook(extHook);
-				extensionHooks.put(ext, extHook);
-				
-				if (view != null) {
-				    // no need to hook view if no GUI
-				    hookView(view, extHook);
-				    hookMenu(view, extHook);
+                Extension ext = getExtension(i);
+                logger.info("Initializing " + ext.getDescription());
+                extHook = new ExtensionHook(model, view);
+                ext.hook(extHook);
+                extensionHooks.put(ext, extHook);
 
-				}
-				hookOptions(extHook);
-				ext.optionsLoaded();
-			} catch (Throwable e) {
-				// Catch Errors thrown by out of date extensions as well as Exceptions
-				logger.error(e.getMessage(), e);
-			}
+                if (view != null) {
+                    // no need to hook view if no GUI
+                    hookView(view, extHook);
+                    hookMenu(view, extHook);
+
+                }
+                
+                hookOptions(extHook);
+                ext.optionsLoaded();
+                
+            } catch (Throwable e) {
+                // Catch Errors thrown by out of date extensions as well as Exceptions
+                logger.error(e.getMessage(), e);
+            }
         }
-        
+
         if (view != null) {
             view.getMainFrame().getMainMenuBar().validate();
             view.getMainFrame().validate();
         }
-
     }
-    
+
     /**
      * Hook command line listener with the command line processor
+     *
      * @param cmdLine
+     * @throws java.lang.Exception
      */
-    public void hookCommandLineListener (CommandLine cmdLine) throws Exception {
+    public void hookCommandLineListener(CommandLine cmdLine) throws Exception {
         Vector<CommandLineArgument[]> allCommandLineList = new Vector<>();
-        Map<String, CommandLineListener> extMap = new HashMap<String, CommandLineListener>();
+        Map<String, CommandLineListener> extMap = new HashMap<>();
         for (Map.Entry<Extension, ExtensionHook> entry : extensionHooks.entrySet()) {
             ExtensionHook hook = entry.getValue();
             CommandLineArgument[] arg = hook.getCommandLineArgument();
             if (arg.length > 0) {
                 allCommandLineList.add(arg);
             }
+            
             Extension extension = entry.getKey();
             if (extension instanceof CommandLineListener) {
-            	CommandLineListener cli = (CommandLineListener) extension;
-            	List<String> exts = cli.getHandledExtensions();
-            	if (exts != null) {
-            		for (String ext : exts) {
-            			extMap.put(ext, cli);
-            		}
-            	}
+                CommandLineListener cli = (CommandLineListener) extension;
+                List<String> exts = cli.getHandledExtensions();
+                if (exts != null) {
+                    for (String ext : exts) {
+                        extMap.put(ext, cli);
+                    }
+                }
             }
         }
-        
+
         cmdLine.parse(allCommandLineList, extMap);
     }
-    
+
     private void hookMenu(View view, ExtensionHook hook) {
         if (view == null) {
             return;
@@ -652,9 +698,9 @@ public class ExtensionLoader {
         if (hookMenu == null) {
             return;
         }
-        
+
         MainMenuBar menuBar = view.getMainFrame().getMainMenuBar();
-        
+
         // 2 menus at the back (Tools/Help)
         addMenuHelper(menuBar, hookMenu.getNewMenus(), 2);
 
@@ -666,128 +712,129 @@ public class ExtensionLoader {
         addMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         addMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
         addMenuHelper(menuBar.getMenuOnline(), hookMenu.getOnlineMenus());
-        
+
         addMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
     }
-    
+
     private void addMenuHelper(JMenu menu, List<JMenuItem> items) {
-    	addMenuHelper(menu, items, 0);
+        addMenuHelper(menu, items, 0);
     }
 
-	private void addMenuHelper(JMenuBar menuBar, List<JMenuItem> items, int existingCount) {
-		for (JMenuItem item : items) {
+    private void addMenuHelper(JMenuBar menuBar, List<JMenuItem> items, int existingCount) {
+        for (JMenuItem item : items) {
             if (item != null) {
-            	menuBar.add(item, menuBar.getMenuCount() - existingCount);
+                menuBar.add(item, menuBar.getMenuCount() - existingCount);
             }
         }
-	}
-    
+    }
+
     private void addMenuHelper(JMenu menu, List<JMenuItem> items, int existingCount) {
         for (JMenuItem item : items) {
             if (item != null) {
-	            if (item == ExtensionHookMenu.MENU_SEPARATOR) {
-	                menu.addSeparator();
-	                continue;
-	            }
-	
-	            menu.add(item, menu.getItemCount() - existingCount);
-            }
-        }
-	}
-    
-    private void addMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
-    	for (JMenuItem item : items) {
-            if (item != null) {
-            	menuList.add(item);
-            }
-        }
-	}
+                if (item == ExtensionHookMenu.MENU_SEPARATOR) {
+                    menu.addSeparator();
+                    continue;
+                }
 
-	private void removeMenu(View view, ExtensionHook hook) {
+                menu.add(item, menu.getItemCount() - existingCount);
+            }
+        }
+    }
+
+    private void addMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
+        for (JMenuItem item : items) {
+            if (item != null) {
+                menuList.add(item);
+            }
+        }
+    }
+
+    private void removeMenu(View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
-        
+
         ExtensionHookMenu hookMenu = hook.getHookMenu();
         if (hookMenu == null) {
             return;
         }
-        
+
         MainMenuBar menuBar = view.getMainFrame().getMainMenuBar();
-        
+
         // clear up various menus
         removeMenuHelper(menuBar, hookMenu.getNewMenus());
-        
-        removeMenuHelper(menuBar.getMenuFile(),hookMenu.getFile());
+
+        removeMenuHelper(menuBar.getMenuFile(), hookMenu.getFile());
         removeMenuHelper(menuBar.getMenuTools(), hookMenu.getTools());
         removeMenuHelper(menuBar.getMenuEdit(), hookMenu.getEdit());
         removeMenuHelper(menuBar.getMenuView(), hookMenu.getView());
         removeMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
         removeMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         removeMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
-        
+
         removeMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
-        
+
         view.refreshTabViewMenus();
     }
 
-	private void removeMenuHelper(JMenuBar menuBar, List<JMenuItem> items) {
-		for (JMenuItem item : items) {
+    private void removeMenuHelper(JMenuBar menuBar, List<JMenuItem> items) {
+        for (JMenuItem item : items) {
             if (item != null) {
-            	menuBar.remove(item);
-            }
-        }
-	}
-
-	private void removeMenuHelper(JMenu menu, List<JMenuItem> items) {
-    	for (JMenuItem item : items) {
-            if (item != null) {
-	            menu.remove(item);
-            }
-        }
-	}
-    
-    private void removeMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
-    	for (JMenuItem item : items) {
-            if (item != null) {
-            	menuList.remove(item);
-            }
-        }
-	}
-
-	private void hookOptions(ExtensionHook hook) {
-        Vector<AbstractParam> list = hook.getOptionsParamSetList();
-        for (int i=0; i<list.size(); i++) {
-            try {
-                AbstractParam paramSet = list.get(i);
-                model.getOptionsParam().addParamSet(paramSet);
-            } catch (Exception e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
+                menuBar.remove(item);
             }
         }
     }
 
-	private void unloadOptions(ExtensionHook hook) {
-		Vector<AbstractParam> list = hook.getOptionsParamSetList();
-        for (int i=0; i<list.size(); i++) {
-            try {
-                AbstractParam paramSet = list.get(i);
-                model.getOptionsParam().removeParamSet(paramSet);
-            } catch (Exception e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
+    private void removeMenuHelper(JMenu menu, List<JMenuItem> items) {
+        for (JMenuItem item : items) {
+            if (item != null) {
+                menu.remove(item);
             }
         }
-	}
+    }
 
+    private void removeMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
+        for (JMenuItem item : items) {
+            if (item != null) {
+                menuList.remove(item);
+            }
+        }
+    }
 
-    
+    private void hookOptions(ExtensionHook hook) {
+        Vector<AbstractParam> list = hook.getOptionsParamSetList();
+        
+        // ZAP: converted to foreach loop
+        for (AbstractParam paramSet : list) {
+            try {
+                model.getOptionsParam().addParamSet(paramSet);
+                
+            } catch (Exception e) {
+                // ZAP: Log the exception
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private void unloadOptions(ExtensionHook hook) {
+        Vector<AbstractParam> list = hook.getOptionsParamSetList();
+
+        for (AbstractParam paramSet : list) {
+            try {
+                model.getOptionsParam().removeParamSet(paramSet);
+                
+            } catch (Exception e) {
+                // ZAP: Log the exception
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
     private void hookView(View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
-        
+
         ExtensionHookView pv = hook.getHookView();
         if (pv == null) {
             return;
@@ -795,141 +842,149 @@ public class ExtensionLoader {
 
         // Add the three panels to the current window/workbench: add extension tabs to the Full layout
         // when chosen, otherwise they are as before.
-	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
+        int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
         addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
         addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
         addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
- 
-        // remember the position of tabs in status position
-        if(displayOption == View.DISPLAY_OPTION_TOP_FULL) {
-          // save the current normal instances to old instance variables, so they are both
-          // referencing the same TabbedPanel2 instances. Used when going into 'Full Layout'
-          // so the state is preserved.
-          view.getWorkbench().setTabbedOldWork(view.getWorkbench().getTabbedWork());
-          view.getWorkbench().setTabbedOldSelect(view.getWorkbench().getTabbedSelect());
-          view.getWorkbench().setTabbedOldStatus(view.getWorkbench().getTabbedStatus());
 
-          // switch the layout to Full Layout
-          addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
-          addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
-          addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        // remember the position of tabs in status position
+        if (displayOption == View.DISPLAY_OPTION_TOP_FULL) {
+            // save the current normal instances to old instance variables, so they are both
+            // referencing the same TabbedPanel2 instances. Used when going into 'Full Layout'
+            // so the state is preserved.
+            view.getWorkbench().setTabbedOldWork(view.getWorkbench().getTabbedWork());
+            view.getWorkbench().setTabbedOldSelect(view.getWorkbench().getTabbedSelect());
+            view.getWorkbench().setTabbedOldStatus(view.getWorkbench().getTabbedStatus());
+
+            // switch the layout to Full Layout
+            addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
+            addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
+            addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
         }
 
         // ZAP: removed session dialog parameter
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
-    
+
     private void removeView(View view, ExtensionHook hook) {
-    	if (view == null) {
+        if (view == null) {
             return;
         }
-        
+
         ExtensionHookView pv = hook.getHookView();
         if (pv == null) {
             return;
         }
-        
+
         // Remote the three panels to the current window/workbench: remove extension tabs
         // from the Full layout when chosen.
-	      int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
-        switch(displayOption) {
-          case View.DISPLAY_OPTION_TOP_FULL:
-            removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
-            removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
-            removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-            break;
-          case View.DISPLAY_OPTION_LEFT_FULL:
-          case View.DISPLAY_OPTION_BOTTOM_FULL:
-          default:
-            removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-            removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-            removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+        int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
+        switch (displayOption) {
+            case View.DISPLAY_OPTION_TOP_FULL:
+                removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
+                removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
+                removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
+                break;
+                
+            case View.DISPLAY_OPTION_LEFT_FULL:
+            case View.DISPLAY_OPTION_BOTTOM_FULL:
+            default:
+                removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
+                removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
+                removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
         }
- 
+
         // ZAP: removed session dialog parameter
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
 
-    public void removeStatusPanel (AbstractPanel panel) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getWorkbench().getTabbedStatus().remove(panel);
-    }
-    
-    public void removeOptionsPanel (AbstractParamPanel panel) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getOptionsDialog("").removeParamPanel(panel);
-    }
-    
-	public void removeOptionsParamSet(AbstractParam params) {
-		model.getOptionsParam().removeParamSet(params);
-	}
-
-    public void removeWorkPanel (AbstractPanel panel) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getWorkbench().getTabbedWork().remove(panel);
+    public void removeStatusPanel(AbstractPanel panel) {
+        if (!View.isInitialised()) {
+            return;
+        }
+        View.getSingleton().getWorkbench().getTabbedStatus().remove(panel);
     }
 
-	public void removePopupMenuItem(ExtensionPopupMenuItem popupMenuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getPopupList().remove(popupMenuItem);
-	}
-	
+    public void removeOptionsPanel(AbstractParamPanel panel) {
+        if (!View.isInitialised()) {
+            return;
+        }
+        View.getSingleton().getOptionsDialog("").removeParamPanel(panel);
+    }
+
+    public void removeOptionsParamSet(AbstractParam params) {
+        model.getOptionsParam().removeParamSet(params);
+    }
+
+    public void removeWorkPanel(AbstractPanel panel) {
+        if (!View.isInitialised()) {
+            return;
+        }
+        View.getSingleton().getWorkbench().getTabbedWork().remove(panel);
+    }
+
+    public void removePopupMenuItem(ExtensionPopupMenuItem popupMenuItem) {
+        if (!View.isInitialised()) {
+            return;
+        }
+        View.getSingleton().getPopupList().remove(popupMenuItem);
+    }
+
     public void removeFileMenuItem(JMenuItem menuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile().remove(menuItem);
-	}
+        if (!View.isInitialised()) {
+            return;
+        }
+        
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuFile().remove(menuItem);
+    }
 
     public void removeEditMenuItem(JMenuItem menuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuEdit().remove(menuItem);
-	}
+        if (!View.isInitialised()) {
+            return;
+        }
+        
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuEdit().remove(menuItem);
+    }
 
     public void removeViewMenuItem(JMenuItem menuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuView().remove(menuItem);
-	}
+        if (!View.isInitialised()) {
+            return;
+        }
+        
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuView().remove(menuItem);
+    }
 
     public void removeToolsMenuItem(JMenuItem menuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools().remove(menuItem);
-	}
+        if (!View.isInitialised()) {
+            return;
+        }
+        
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuTools().remove(menuItem);
+    }
 
     public void removeHelpMenuItem(JMenuItem menuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuHelp().remove(menuItem);
-	}
+        if (!View.isInitialised()) {
+            return;
+        }
+        
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuHelp().remove(menuItem);
+    }
 
     public void removeReportMenuItem(JMenuItem menuItem) {
-    	if (!View.isInitialised()) {
-    		return;
-    	}
-    	View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport().remove(menuItem);
-	}
+        if (!View.isInitialised()) {
+            return;
+        }
+        
+        View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport().remove(menuItem);
+    }
 
     private void initAllExtension() {
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).init();
+                
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -937,9 +992,10 @@ public class ExtensionLoader {
     }
 
     private void initModelAllExtension(Model model) {
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initModel(model);
+                
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -950,10 +1006,11 @@ public class ExtensionLoader {
         if (view == null) {
             return;
         }
-        
-        for (int i=0; i<getExtensionCount(); i++) {
+
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initView(view);
+                
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -961,63 +1018,65 @@ public class ExtensionLoader {
     }
 
     private void initXMLAllExtension(Session session, OptionsParam options) {
-        for (int i=0; i<getExtensionCount(); i++) {
+        for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initXML(session, options);
+                
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
-        }        
+        }
     }
 
     /**
-	 * Removes an extension from internal list. As a result listeners added via
-	 * the {@link ExtensionHook} object are unregistered.
-	 * 
-	 * @param extension
-	 * @param hook
-	 */
-	public void removeExtension(Extension extension, ExtensionHook hook) {
-		extensionList.remove(extension);
-		
-		if (hook == null) {
-			logger.info("ExtensionHook is null for \"" + extension.getClass().getCanonicalName()
-					+ "\" the hooked objects will not be automatically removed.");
-			return;
-		}
+     * Removes an extension from internal list. As a result listeners added via
+     * the {@link ExtensionHook} object are unregistered.
+     *
+     * @param extension
+     * @param hook
+     */
+    public void removeExtension(Extension extension, ExtensionHook hook) {
+        extensionList.remove(extension);
 
-		// by removing the ExtensionHook object,
-		// the following listeners are no longer informed:
-		// 		* SessionListeners
-		// 		* OptionsChangedListeners
-		extensionHooks.values().remove(hook);
-		
-		unloadOptions(hook);
-		
-		removePersistentConnectionListener(hook);
-		
-		removeProxyListener(hook);
+        if (hook == null) {
+            logger.info("ExtensionHook is null for \"" + extension.getClass().getCanonicalName()
+                    + "\" the hooked objects will not be automatically removed.");
+            return;
+        }
 
-		removeOverrideMessageProxyListener(hook);
-		
-		removeSiteMapListener(hook);
-		
-		removeView(view, hook);
-		
-		removeMenu(view, hook);
-	}
+        // by removing the ExtensionHook object,
+        // the following listeners are no longer informed:
+        // 		* SessionListeners
+        // 		* OptionsChangedListeners
+        extensionHooks.values().remove(hook);
 
-	public List<String> getUnsavedResources() {
-		List<String> list = new ArrayList<>();
-		List<String> l;
-		
-        for (int i=0; i<getExtensionCount(); i++) {
+        unloadOptions(hook);
+
+        removePersistentConnectionListener(hook);
+
+        removeProxyListener(hook);
+
+        removeOverrideMessageProxyListener(hook);
+
+        removeSiteMapListener(hook);
+
+        removeView(view, hook);
+
+        removeMenu(view, hook);
+    }
+
+    public List<String> getUnsavedResources() {
+        List<String> list = new ArrayList<>();
+        List<String> l;
+
+        for (int i = 0; i < getExtensionCount(); i++) {
             l = getExtension(i).getUnsavedResources();
             if (l != null) {
-            	list.addAll(l);
+                list.addAll(l);
             }
         }
-		return list;
-	}
+        
+        return list;
+    }
 
 }
