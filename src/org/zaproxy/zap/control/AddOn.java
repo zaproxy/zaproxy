@@ -36,7 +36,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 
 public class AddOn  {
-	public enum Status {example, alpha, beta, weekly, release}
+	public enum Status {unknown, example, alpha, beta, weekly, release}
 	private String id;
 	private String name;
 	private String description = "";

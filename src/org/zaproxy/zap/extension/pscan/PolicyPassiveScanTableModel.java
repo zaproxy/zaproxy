@@ -28,7 +28,6 @@ import javax.swing.table.DefaultTableModel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
-import org.zaproxy.zap.utils.ScannerUtils;
 
 public class PolicyPassiveScanTableModel extends DefaultTableModel {
 
@@ -40,7 +39,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
         Constant.messages.getString("ascan.policy.table.quality")};
 
     private List<ScannerWrapper> listScanners = new ArrayList<>();
-    private Map<Integer, String> scannersQuality = new HashMap<>();
     private Map<String, String> i18nToStr = null;
 
     /**
@@ -55,7 +53,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      */
     public void addScanner(PluginPassiveScanner scanner) {
         listScanners.add(new ScannerWrapper(scanner));   
-        scannersQuality.put(scanner.getPluginId(),ScannerUtils.getPluginQuality(scanner));
         fireTableDataChanged();
         
     }
@@ -201,7 +198,7 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
                 break;
                 
             case 2: // Quality Column
-                result = scannersQuality.get(test.getId());
+                result = test.getQuality();
                 break;  
             
             default:
@@ -242,16 +239,12 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
 			return threshold;
 		}
 
-		public int getId() {
-			return scanner.getPluginId();
-		}
-
 		public void setThreshold(AlertThreshold threshold) {
 			this.threshold = threshold;
 		}
 
 		public String getQuality() {
-			return ScannerUtils.getPluginQuality(scanner);
+			return Constant.messages.getString("ascan.policy.table.quality."+ scanner.getStatus().name());
 		}
     }
 }

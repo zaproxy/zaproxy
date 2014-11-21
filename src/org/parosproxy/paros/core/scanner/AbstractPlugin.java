@@ -43,6 +43,7 @@
 // ZAP: 2014/07/07 Issue 389: Enable technology scope for scanners
 // ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandrecieve also invoke scanner 
 // hook before and after message update
+// ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 
 package org.parosproxy.paros.core.scanner;
 
@@ -63,6 +64,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
 import org.zaproxy.zap.model.Tech;
@@ -94,6 +96,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private TechSet techSet = null;
     private Date started = null;
     private Date finished = null;
+    private AddOn.Status status = AddOn.Status.unknown;
 
     /**
      * Default Constructor
@@ -793,6 +796,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);
     		ap.setTechSet(this.getTechSet());
+    		ap.setStatus(this.getStatus());
     		ap.saveTo(plugin.getConfig());
     	} else {
     		throw new InvalidParameterException("Not an AbstractPlugin");
@@ -881,4 +885,13 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         // Default 'unknown' value
         return 0;
     }
+
+	public AddOn.Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(AddOn.Status status) {
+		this.status = status;
+	}
+    
 }

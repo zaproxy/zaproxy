@@ -22,11 +22,15 @@ package org.zaproxy.zap.control;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 public class CoreFunctionality {
 	
 	private static List<Extension> builtInExtensions = null;
+	private static List<AbstractPlugin> builtInActiveScanRules = null;
+	private static List<PluginPassiveScanner> builtInPassiveScanRules = null;
 
 	/**
 	 * This static method returns all of the 'build in' extensions, ie those not defined in add-ons.
@@ -95,6 +99,31 @@ public class CoreFunctionality {
 
 		}
 		return builtInExtensions;
+	}
+
+	public static List<AbstractPlugin> getBuiltInActiveScanRules() {
+		if (builtInActiveScanRules == null) {
+			builtInActiveScanRules = new ArrayList<AbstractPlugin>();
+			builtInActiveScanRules.add(new org.zaproxy.zap.extension.ascan.ScriptsActiveScanner());
+			
+			for (AbstractPlugin ap : builtInActiveScanRules) {
+				ap.setStatus(AddOn.Status.release);
+			}
+		}
+		return builtInActiveScanRules;
+	}
+
+	public static List<PluginPassiveScanner> getBuiltInPassiveScanRules() {
+		if (builtInPassiveScanRules == null) {
+			builtInPassiveScanRules = new ArrayList<PluginPassiveScanner>();
+			builtInPassiveScanRules.add(new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner());
+			builtInPassiveScanRules.add(new org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner());
+			
+			for (PluginPassiveScanner ap : builtInPassiveScanRules) {
+				ap.setStatus(AddOn.Status.release);
+			}
+		}
+		return builtInPassiveScanRules;
 	}
 
 }

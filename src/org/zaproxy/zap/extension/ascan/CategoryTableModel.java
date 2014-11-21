@@ -42,7 +42,6 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.utils.ScannerUtils;
 
 
 public class CategoryTableModel extends DefaultTableModel {
@@ -79,7 +78,8 @@ public class CategoryTableModel extends DefaultTableModel {
         for (Plugin test : pluginFactory.getAllPlugin()) {
             if (test.getCategory() == category) {
                 listTestCategory.add(test);
-                scannersQuality.put(test.getId(),ScannerUtils.getPluginQuality(test));
+                scannersQuality.put(test.getId(),
+                		Constant.messages.getString("ascan.policy.table.quality."+ test.getStatus().name()));
             }
         }
         fireTableDataChanged();

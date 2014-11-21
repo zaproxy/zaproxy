@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.pscan;
 
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.Enableable;
 
 
@@ -29,6 +30,7 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	private AlertThreshold level = AlertThreshold.DEFAULT;
 	private AlertThreshold defaultLevel = AlertThreshold.MEDIUM;
 	private Configuration config = null;
+	private AddOn.Status status = AddOn.Status.unknown;
 
 	public void setConfig(Configuration config) {
 	    this.config = config;
@@ -84,5 +86,13 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	 */
 	public int getPluginId() {
 		return -1;
+	}
+
+	public AddOn.Status getStatus() {
+		return status;
+	}
+
+	public void setStatus(AddOn.Status status) {
+		this.status = status;
 	}
 }
