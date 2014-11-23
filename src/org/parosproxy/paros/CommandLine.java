@@ -35,9 +35,9 @@ package org.parosproxy.paros;
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.network.HttpSender;
@@ -70,7 +70,7 @@ public class CommandLine {
     private String[] args = null;
     private Hashtable<String, String> configs = new Hashtable<String, String>();
     private Hashtable<String, String> keywords = new Hashtable<String, String>();
-    private Vector<CommandLineArgument[]> commandList = null;
+    private List<CommandLineArgument[]> commandList = null;
     
     public CommandLine(String[] args) throws Exception {
         this.args = args;
@@ -123,7 +123,7 @@ public class CommandLine {
 	        
     }
 
-	public void parse(Vector<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap) throws Exception {
+	public void parse(List<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap) throws Exception {
 		this.commandList = commandList;
 	    CommandLineArgument lastArg = null;
 	    boolean found = false;

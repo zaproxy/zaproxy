@@ -60,7 +60,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
@@ -91,12 +90,11 @@ import org.zaproxy.zap.view.TabbedPanel2;
 
 public class ExtensionLoader {
 
-    private final Vector<Extension> extensionList = new Vector<>();
+    private final List<Extension> extensionList = new ArrayList<>();
     private final Map<Extension, ExtensionHook> extensionHooks = new HashMap<>();
     private Model model = null;
 
     private View view = null;
-    // ZAP: Added logger
     private final Logger logger = Logger.getLogger(ExtensionLoader.class);
 
     public ExtensionLoader(Model model, View view) {
@@ -110,7 +108,6 @@ public class ExtensionLoader {
 
     public void destroyAllExtension() {
         for (int i = 0; i < getExtensionCount(); i++) {
-            // ZAP: Added try catch block.
             try {
                 getExtension(i).destroy();
                 
@@ -196,7 +193,6 @@ public class ExtensionLoader {
     public void hookProxyListener(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<ProxyListener> listenerList = hook.getProxyListenerList();
-            // ZAP: converted to foreach loop
             for (ProxyListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -204,7 +200,6 @@ public class ExtensionLoader {
                     }
                     
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -214,7 +209,6 @@ public class ExtensionLoader {
     private void removeProxyListener(ExtensionHook hook) {
         Proxy proxy = Control.getSingleton().getProxy();
         List<ProxyListener> listenerList = hook.getProxyListenerList();
-        // ZAP: converted to foreach loop
         for (ProxyListener listener : listenerList) {
             try {
                 if (listener != null) {
@@ -230,7 +224,6 @@ public class ExtensionLoader {
     public void hookOverrideMessageProxyListener(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
-            // ZAP: converted to foreach loop
             for (OverrideMessageProxyListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -238,7 +231,6 @@ public class ExtensionLoader {
                     }
                     
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -248,7 +240,6 @@ public class ExtensionLoader {
     private void removeOverrideMessageProxyListener(ExtensionHook hook) {
         Proxy proxy = Control.getSingleton().getProxy();
         List<OverrideMessageProxyListener> listenerList = hook.getOverrideMessageProxyListenerList();
-        // ZAP: converted to foreach loop
         for (OverrideMessageProxyListener listener : listenerList) {
             try {
                 if (listener != null) {
@@ -264,7 +255,6 @@ public class ExtensionLoader {
     public void hookPersistentConnectionListener(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
-            // ZAP: converted to foreach loop
             for (PersistentConnectionListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -281,7 +271,6 @@ public class ExtensionLoader {
     private void removePersistentConnectionListener(ExtensionHook hook) {
         Proxy proxy = Control.getSingleton().getProxy();
         List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
-        // ZAP: converted to foreach loop
         for (PersistentConnectionListener listener : listenerList) {
             try {
                 if (listener != null) {
@@ -298,7 +287,6 @@ public class ExtensionLoader {
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
-            // ZAP: converted to foreach loop
             for (SiteMapListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -306,7 +294,6 @@ public class ExtensionLoader {
                     }
                     
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -317,7 +304,6 @@ public class ExtensionLoader {
         if (view != null) {
             SiteMapPanel siteMapPanel = view.getSiteTreePanel();
             List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
-            // ZAP: converted to foreach loop
             for (SiteMapListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -338,7 +324,6 @@ public class ExtensionLoader {
             ExtensionHook hook = iter.next();
             List<ScannerHook> scannerHookList = hook.getScannerHookList();
 
-            // ZAP: converted to foreach loop
             for (ScannerHook scannerHook : scannerHookList) {
                 try {
                     if (hook != null) {
@@ -355,16 +340,13 @@ public class ExtensionLoader {
     public void optionsChangedAllPlugin(OptionsParam options) {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<OptionsChangedListener> listenerList = hook.getOptionsChangedListenerList();
-            // ZAP: converted to foreach loop
             for (OptionsChangedListener listener : listenerList) {
                 try {
                     if (listener != null) {
-                        // ZAP: reflected the change in the name of the method optionsChanged.
                         listener.optionsChanged(options);
                     }
                     
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -372,7 +354,7 @@ public class ExtensionLoader {
     }
 
     public void runCommandLine() {
-        Extension ext = null;
+        Extension ext;
         for (int i = 0; i < getExtensionCount(); i++) {
             ext = getExtension(i);
             if (ext instanceof CommandLineListener) {
@@ -386,7 +368,6 @@ public class ExtensionLoader {
         logger.debug("sessionChangedAllPlugin");
         for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            // ZAP: converted to foreach loop
             for (SessionChangedListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -394,7 +375,6 @@ public class ExtensionLoader {
                     }
 
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -406,7 +386,6 @@ public class ExtensionLoader {
         logger.debug("sessionAboutToChangeAllPlugin");
         for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            // ZAP: converted to foreach loop
             for (SessionChangedListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -414,7 +393,6 @@ public class ExtensionLoader {
                     }
 
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -425,7 +403,6 @@ public class ExtensionLoader {
         logger.debug("sessionScopeChangedAllPlugin");
         for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            // ZAP: converted to foreach loop
             for (SessionChangedListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -433,7 +410,6 @@ public class ExtensionLoader {
                     }
 
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -444,7 +420,6 @@ public class ExtensionLoader {
         logger.debug("sessionModeChangedAllPlugin");
         for (ExtensionHook hook : extensionHooks.values()) {
             List<SessionChangedListener> listenerList = hook.getSessionListenerList();
-            // ZAP: converted to foreach loop
             for (SessionChangedListener listener : listenerList) {
                 try {
                     if (listener != null) {
@@ -452,7 +427,6 @@ public class ExtensionLoader {
                     }
                     
                 } catch (Exception e) {
-                    // ZAP: Log the exception
                     logger.error(e.getMessage(), e);
                 }
             }
@@ -462,7 +436,6 @@ public class ExtensionLoader {
     public void addonFilesAdded() {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
-            // ZAP: converted to foreach loop
             for (AddonFilesChangedListener listener : listenerList) {
                 try {
                     listener.filesAdded();
@@ -477,7 +450,6 @@ public class ExtensionLoader {
     public void addonFilesRemoved() {
         for (ExtensionHook hook : extensionHooks.values()) {
             List<AddonFilesChangedListener> listenerList = hook.getAddonFilesChangedListener();
-            // ZAP: converted to foreach loop
             for (AddonFilesChangedListener listener : listenerList) {
                 try {
                     listener.filesRemoved();
@@ -564,14 +536,11 @@ public class ExtensionLoader {
     // ZAP: Added the type argument.
     private void addParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
         String[] ROOT = {};
-        // ZAP: converted to foreach loop
         for (AbstractParamPanel panel : panelList) {
             try {
-                // ZAP: Removed unnecessary cast.
                 dialog.addParamPanel(ROOT, panel, true);
                 
-            }catch (Exception e) {
-                // ZAP: Log the exception
+            } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
         }
@@ -579,7 +548,6 @@ public class ExtensionLoader {
     }
 
     private void removeParamPanel(List<AbstractParamPanel> panelList, AbstractParamDialog dialog) {
-        // ZAP: converted to foreach loop
         for (AbstractParamPanel panel : panelList) {
             try {
                 dialog.removeParamPanel(panel);
@@ -597,10 +565,8 @@ public class ExtensionLoader {
      * @param tab
      */
     private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        // ZAP: converted to foreach loop
         for (AbstractPanel panel : panelList) {
             try {
-                // ZAP: added icon
                 tab.addTab(panel);
                 if (panel.getTabIndex() == 0 && tab.indexOfComponent(panel) != -1) {
                     // Its now the first one, give it focus
@@ -608,14 +574,12 @@ public class ExtensionLoader {
                 }
                 
             } catch (Exception e) {
-                // ZAP: Log the exception
                 logger.error(e.getMessage(), e);
             }
         }
     }
 
     private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        // ZAP: converted to foreach loop
         for (AbstractPanel panel : panelList) {
             try {
                 tab.removeTab(panel);
@@ -627,7 +591,7 @@ public class ExtensionLoader {
     }
 
     private void hookAllExtension() {
-        ExtensionHook extHook = null;
+        ExtensionHook extHook;
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 Extension ext = getExtension(i);
@@ -665,7 +629,7 @@ public class ExtensionLoader {
      * @throws java.lang.Exception
      */
     public void hookCommandLineListener(CommandLine cmdLine) throws Exception {
-        Vector<CommandLineArgument[]> allCommandLineList = new Vector<>();
+        List<CommandLineArgument[]> allCommandLineList = new ArrayList<>();
         Map<String, CommandLineListener> extMap = new HashMap<>();
         for (Map.Entry<Extension, ExtensionHook> entry : extensionHooks.entrySet()) {
             ExtensionHook hook = entry.getValue();
@@ -741,7 +705,7 @@ public class ExtensionLoader {
         }
     }
 
-    private void addMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
+    private void addMenuHelper(List<JMenuItem> menuList, List<JMenuItem> items) {
         for (JMenuItem item : items) {
             if (item != null) {
                 menuList.add(item);
@@ -793,7 +757,7 @@ public class ExtensionLoader {
         }
     }
 
-    private void removeMenuHelper(Vector<JMenuItem> menuList, List<JMenuItem> items) {
+    private void removeMenuHelper(List<JMenuItem> menuList, List<JMenuItem> items) {
         for (JMenuItem item : items) {
             if (item != null) {
                 menuList.remove(item);
@@ -802,29 +766,26 @@ public class ExtensionLoader {
     }
 
     private void hookOptions(ExtensionHook hook) {
-        Vector<AbstractParam> list = hook.getOptionsParamSetList();
+        List<AbstractParam> list = hook.getOptionsParamSetList();
         
-        // ZAP: converted to foreach loop
         for (AbstractParam paramSet : list) {
             try {
                 model.getOptionsParam().addParamSet(paramSet);
                 
             } catch (Exception e) {
-                // ZAP: Log the exception
                 logger.error(e.getMessage(), e);
             }
         }
     }
 
     private void unloadOptions(ExtensionHook hook) {
-        Vector<AbstractParam> list = hook.getOptionsParamSetList();
+        List<AbstractParam> list = hook.getOptionsParamSetList();
 
         for (AbstractParam paramSet : list) {
             try {
                 model.getOptionsParam().removeParamSet(paramSet);
                 
             } catch (Exception e) {
-                // ZAP: Log the exception
                 logger.error(e.getMessage(), e);
             }
         }
@@ -862,7 +823,6 @@ public class ExtensionLoader {
             addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
         }
 
-        // ZAP: removed session dialog parameter
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
@@ -895,7 +855,6 @@ public class ExtensionLoader {
                 removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
         }
 
-        // ZAP: removed session dialog parameter
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
