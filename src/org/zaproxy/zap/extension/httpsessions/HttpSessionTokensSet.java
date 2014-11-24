@@ -29,10 +29,9 @@ import java.util.Set;
 public class HttpSessionTokensSet {
 
 	/** The session tokens. */
-	private LinkedHashSet<String> sessionTokens;
+	private LinkedHashSet<String> sessionTokens = new LinkedHashSet<>();
 
 	public HttpSessionTokensSet() {
-		sessionTokens = new LinkedHashSet<>();
 	}
 
 	/**
@@ -41,11 +40,15 @@ public class HttpSessionTokensSet {
 	 * @param token the token
 	 */
 	protected void addToken(String token) {
-		sessionTokens.add(token);
+		synchronized (sessionTokens) {
+			sessionTokens.add(token);
+		}
 	}
 
 	public boolean isEmpty() {
-		return sessionTokens.isEmpty();
+		synchronized (sessionTokens) {
+			return sessionTokens.isEmpty();
+		}
 	}
 
 	/**
@@ -54,7 +57,9 @@ public class HttpSessionTokensSet {
 	 * @param token the token
 	 */
 	protected void removeToken(String token) {
-		sessionTokens.remove(token);
+		synchronized (sessionTokens) {
+			sessionTokens.remove(token);
+		}
 	}
 
 	/**
@@ -64,7 +69,9 @@ public class HttpSessionTokensSet {
 	 * @return true, if successful
 	 */
 	public boolean isSessionToken(String token) {
-		return sessionTokens.contains(token);
+		synchronized (sessionTokens) {
+			return sessionTokens.contains(token);
+		}
 	}
 
 	/**
@@ -76,7 +83,9 @@ public class HttpSessionTokensSet {
 	 * @return the tokens set
 	 */
 	public Set<String> getTokensSet() {
-		return Collections.unmodifiableSet(sessionTokens);
+		synchronized (sessionTokens) {
+			return Collections.unmodifiableSet(sessionTokens);
+		}
 	}
 
 }
