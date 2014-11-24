@@ -19,12 +19,12 @@
  */
 package org.zaproxy.zap.view;
 
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Image;
+import java.awt.Insets;
 import java.awt.Toolkit;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
@@ -33,15 +33,14 @@ import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Stack;
-
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import javax.swing.Box;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-
+import javax.swing.border.Border;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
@@ -61,6 +60,7 @@ public class SplashScreen extends JFrame implements Runnable {
 
     private JScrollPane logScrollPane = null;
     private JScrollPane tipsScrollPane = null;
+    private JProgressBar loadProgressBar = null;
     private ZapTextArea logPanel = null;
     private ZapTextArea tipsPanel = null;
     private final Stack<String> stack = new Stack<>();
@@ -71,49 +71,54 @@ public class SplashScreen extends JFrame implements Runnable {
     private List<String> tipsAndTricks = null;
     private final Random random = new Random();
     private boolean tipsLoaded = false;
+    private double currentPerc;
 
+    /**
+     * Main thread for a correct visualization of the panel
+     * regarding component updates
+     */
     @Override
     public void run() {
         thread = Thread.currentThread();
 
-        setSize(420, 460);
+        setSize(420, 420);  //420x460
         setLocationRelativeTo(null);
         setUndecorated(true);
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(loadIconImages());
 
-        JPanel panel = new JPanel();
-        panel.setPreferredSize(new Dimension(420, 560));
+        BackgroundImagePanel panel = new BackgroundImagePanel();
+        panel.setPreferredSize(new Dimension(420, 420));    //420x560
         panel.setLayout(new GridBagLayout());
-        panel.setBackground(Color.white);
-        panel.setBorder(BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+        panel.setBackgroundImage(SplashScreen.class.getResource("/resource/zap-splash-background.png"));
+        
+        Border margin = BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED);
+        Border padding = BorderFactory.createEmptyBorder(4, 4, 4, 4);
+        panel.setBorder(BorderFactory.createCompoundBorder(margin, padding));
 
         JLabel lblVersion = new JLabel();
         JLabel lblProgramName = new JLabel();
-        JLabel lblLogo = new JLabel();
 
         lblProgramName.setText(Constant.PROGRAM_NAME);
-        lblProgramName.setFont(new Font("Default", Font.BOLD, 36));
+        lblProgramName.setFont(new Font("Default", Font.BOLD, 44));
         lblProgramName.setVisible(true);
         lblProgramName.setName("lblProgramName");
 
         lblVersion.setText(Constant.PROGRAM_VERSION);
         lblVersion.setFont(new Font("Default", Font.PLAIN, 24));
         lblVersion.setName("lblVersion");
-        lblVersion.setBackground(Color.white);
 
-        lblLogo.setText("");
-        lblLogo.setIcon(new ImageIcon(AboutPanel.class.getResource("/resource/zap256x256.png")));
-        lblLogo.setName("lblLogo");
-
-        panel.add(new JLabel(""), LayoutHelper.getGBC(0, 0, 1, 1.0D));	// Spacer
-        panel.add(lblLogo, LayoutHelper.getGBC(1, 0, 1, 0.0D, 0.0D));
-        panel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 1.0D));	// Spacer
-
-        panel.add(lblProgramName, LayoutHelper.getGBC(1, 1, 3, 1));
-        panel.add(lblVersion, LayoutHelper.getGBC(1, 2, 3, 1));
-        panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 3, 1.0, 1.0));
-        panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 3, 1.0, 0.5));
+        // ProgramName is at the beginning of the panel (0,0)
+        panel.add(lblProgramName, LayoutHelper.getGBC(0, 0, 2, 1));
+        // Version is +8 horizontally respect to the other components
+        panel.add(lblVersion, LayoutHelper.getGBC(0, 1, 2, 1, new Insets(0, 8, 0, 8)));
+        // Progress bar (height 12) is +16 and then +64 
+        // vertically respect the other elements (tot + 92)
+        panel.add(getLoadingJProgressBar(), LayoutHelper.getGBC(0, 2, 1, 1.0, new Insets(16, 0, 64, 0))); 
+        panel.add(Box.createHorizontalGlue(), LayoutHelper.getGBC(1, 2, 1, 1.0));
+        // Panels should be with different heights for a good view
+        panel.add(getTipsJScrollPane(), LayoutHelper.getGBC(0, 3, 2, 1.0, 1.0));
+        panel.add(getLogJScrollPane(), LayoutHelper.getGBC(0, 4, 2, 1.0, 0.5));
 
         this.add(panel);
         this.pack();
@@ -174,6 +179,44 @@ public class SplashScreen extends JFrame implements Runnable {
         return icons;
     }
 
+    /**
+     * Set the completion percentage value
+     * @param percentage the percentage of completion
+     */
+    public void setLoadingCompletion(double percentage) {
+        currentPerc = percentage;
+        updateLoadingJProgressBar();        
+    }
+
+    public void addLoadingCompletion(double value) {
+        currentPerc += value;
+        updateLoadingJProgressBar();     
+    }
+
+    private void updateLoadingJProgressBar() {
+        if (currentPerc > 100) {
+            currentPerc = 100;
+
+        } else if (currentPerc < 0) {
+            currentPerc = 0;
+        }
+
+        getLoadingJProgressBar().setValue((int)currentPerc);        
+    }
+    
+    private JProgressBar getLoadingJProgressBar() {
+        if (loadProgressBar == null) {
+            loadProgressBar = new JProgressBar();
+            loadProgressBar.setPreferredSize(new Dimension(100, 12));
+            loadProgressBar.setMinimum(0);
+            loadProgressBar.setMaximum(100);
+            loadProgressBar.setValue(50);
+            setLoadingCompletion(0.0D);
+        }
+        
+        return loadProgressBar;
+    }
+    
     private JScrollPane getLogJScrollPane() {
         if (logScrollPane == null) {
             logScrollPane = new JScrollPane();
@@ -241,10 +284,17 @@ public class SplashScreen extends JFrame implements Runnable {
         this.tipsLoaded = true;
     }
 
+    /**
+     * Close current splash screen
+     */
     public void close() {
         close = true;
     }
 
+    /**
+     * Append a message to the output window of this splash screen
+     * @param msg the message that should be appended
+     */
     public void appendMsg(final String msg) {
         stack.push(msg);
         thread.interrupt();

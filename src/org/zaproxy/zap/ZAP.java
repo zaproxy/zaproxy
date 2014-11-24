@@ -193,7 +193,6 @@ public class ZAP {
         } catch (final IOException e) {
             System.out.println("Failed loading jars: " + e);
         }
-
     }
 
     private void run() throws Exception {
@@ -250,13 +249,10 @@ public class ZAP {
         Model.getSingleton().getOptionsParam().setGUI(isGUI);
 
         if (isGUI) {
-            if (Model.getSingleton().getOptionsParam().getViewParam().isShowSplashScreen()) {
-                // Show the splash screen to show the user something is happening..
-                splashScreen = new SplashScreen();
-                Thread splashThread = new Thread(splashScreen);
-                splashThread.start();
-            }
-
+            // Show the splash screen
+            View.getSingleton().showSplashScreen();
+            
+            // Set the View options
             View.setDisplayOption(Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption());
 
             // Prompt for language if not set
@@ -288,11 +284,10 @@ public class ZAP {
                 dialog.setVisible(true);
             }
 
+            // Times to run the GUI
             runGUI();
-
-            if (splashScreen != null) {
-                splashScreen.close();
-            }
+        
+            View.getSingleton().hideSplashScreen();
 
             if (firstTime) {
 		// Disabled for now - we have too many popups occuring when you first start up
@@ -325,6 +320,7 @@ public class ZAP {
                     }).start();
                 }
             }
+            
         } else if (cmdLine.isDaemon()) {
             runDaemon();
         
@@ -460,9 +456,15 @@ public class ZAP {
         System.exit(rc);
     }
 
+    /**
+     * Run the GUI
+     * @throws ClassNotFoundException 
+     * @throws Exception 
+     */
     private void runGUI() throws ClassNotFoundException, Exception {
 
         Control.initSingletonWithView(this.getOverrides());
+        
         final Control control = Control.getSingleton();
         final View view = View.getSingleton();
         view.postInit();
@@ -470,7 +472,7 @@ public class ZAP {
 
         boolean createNewSession = true;
         if (cmdLine.isEnabled(CommandLine.SESSION) && cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
-            View.getSingleton().showWarningDialog(
+            view.showWarningDialog(
                     Constant.messages.getString(
                             "start.gui.cmdline.invalid.session.options",
                             CommandLine.SESSION,
@@ -480,13 +482,13 @@ public class ZAP {
         } else if (cmdLine.isEnabled(CommandLine.SESSION)) {
             Path sessionPath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.SESSION));
             if (!sessionPath.isAbsolute()) {
-                View.getSingleton().showWarningDialog(
+                view.showWarningDialog(
                         Constant.messages.getString("start.gui.cmdline.session.absolute.path.required",
                         Constant.getZapHome()));
                 
             } else {
                 if (!Files.exists(sessionPath)) {
-                    View.getSingleton().showWarningDialog(
+                    view.showWarningDialog(
                             Constant.messages.getString("start.gui.cmdline.session.does.not.exist",
                             Constant.getZapHome()));
                     
@@ -498,13 +500,13 @@ public class ZAP {
         } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
             Path sessionPath = SessionUtils.getSessionPath(cmdLine.getArgument(CommandLine.NEW_SESSION));
             if (!sessionPath.isAbsolute()) {
-                View.getSingleton().showWarningDialog(
+                view.showWarningDialog(
                         Constant.messages.getString("start.gui.cmdline.session.absolute.path.required",
                         Constant.getZapHome()));
                 
             } else {
                 if (Files.exists(sessionPath)) {
-                    View.getSingleton().showWarningDialog(
+                    view.showWarningDialog(
                             Constant.messages.getString("start.gui.cmdline.newsession.already.exist",
                             Constant.getZapHome()));
                     
@@ -524,7 +526,7 @@ public class ZAP {
             control.runCommandLine();
             
         } catch (Exception e) {
-            View.getSingleton().showWarningDialog(e.getMessage());
+            view.showWarningDialog(e.getMessage());
             log.error(e.getMessage(), e);
         }
     }

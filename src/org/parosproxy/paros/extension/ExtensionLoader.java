@@ -462,9 +462,13 @@ public class ExtensionLoader {
     }
 
     public void startAllExtension() {
+        double factorPerc = 10.0 / getExtensionCount();
+        
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).start();
+                if (view != null)
+                    view.addSplashScreenLoadingCompletion(factorPerc);
 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -478,6 +482,17 @@ public class ExtensionLoader {
      * launching each specific initialization element (model, xml, view, hook, etc.)
      */
     public void startLifeCycle() {
+        
+        // Percentage is divided in this way:
+        // 10% initial boot
+        // 15% initAll
+        // 15% initModel
+        // 15% initXML
+        // 15% initViewes
+        // 20% initHooks
+        // 10% startAll
+        view.setSplashScreenLoadingCompletion(10.0);
+        
         // Step 3: initialize all (slow)
         initAllExtension();
         // Step 4: initialize models (quick)
@@ -526,6 +541,7 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).stop();
+                
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
@@ -592,6 +608,8 @@ public class ExtensionLoader {
 
     private void hookAllExtension() {
         ExtensionHook extHook;
+        double factorPerc = 20.0 / getExtensionCount();
+        
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 Extension ext = getExtension(i);
@@ -604,7 +622,7 @@ public class ExtensionLoader {
                     // no need to hook view if no GUI
                     hookView(view, extHook);
                     hookMenu(view, extHook);
-
+                    view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
                 hookOptions(extHook);
@@ -863,6 +881,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
+        
         View.getSingleton().getWorkbench().getTabbedStatus().remove(panel);
     }
 
@@ -870,6 +889,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
+        
         View.getSingleton().getOptionsDialog("").removeParamPanel(panel);
     }
 
@@ -881,6 +901,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
+        
         View.getSingleton().getWorkbench().getTabbedWork().remove(panel);
     }
 
@@ -888,6 +909,7 @@ public class ExtensionLoader {
         if (!View.isInitialised()) {
             return;
         }
+        
         View.getSingleton().getPopupList().remove(popupMenuItem);
     }
 
@@ -939,10 +961,16 @@ public class ExtensionLoader {
         View.getSingleton().getMainFrame().getMainMenuBar().getMenuReport().remove(menuItem);
     }
 
-    private void initAllExtension() {
+    /**
+     * Init all extensions
+     */
+    private void initAllExtension() {        
+        double factorPerc = 15.0 / getExtensionCount();
+        
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).init();
+                view.addSplashScreenLoadingCompletion(factorPerc);
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -950,10 +978,18 @@ public class ExtensionLoader {
         }
     }
 
+    /**
+     * Init all extensions with the same Model
+     * @param model the model to apply to all extensions
+     */
     private void initModelAllExtension(Model model) {
+        double factorPerc = 15.0 / getExtensionCount();
+        
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initModel(model);
+                if (view != null)
+                    view.addSplashScreenLoadingCompletion(factorPerc);
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -961,14 +997,21 @@ public class ExtensionLoader {
         }
     }
 
+    /**
+     * Init all extensions with the same View
+     * @param view the View that need to be applied
+     */
     private void initViewAllExtension(View view) {
         if (view == null) {
             return;
         }
 
+        double factorPerc = 15.0 / getExtensionCount();
+        
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
-                getExtension(i).initView(view);
+                getExtension(i).initView(view);                
+                view.addSplashScreenLoadingCompletion(factorPerc);
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -977,9 +1020,13 @@ public class ExtensionLoader {
     }
 
     private void initXMLAllExtension(Session session, OptionsParam options) {
+        double factorPerc = 15.0 / getExtensionCount();
+        
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initXML(session, options);
+                if (view != null)
+                    view.addSplashScreenLoadingCompletion(factorPerc);
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
