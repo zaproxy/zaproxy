@@ -93,6 +93,7 @@ public class TabbedPanel2 extends TabbedPanel {
 					@Override
 					public void actionPerformed(ActionEvent e) {
 						setVisible(ap, true);
+						ap.setTabFocus();
 					}});
 				menu.add(mi);
 			}
