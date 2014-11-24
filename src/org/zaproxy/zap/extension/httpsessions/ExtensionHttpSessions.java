@@ -28,8 +28,6 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.SwingUtilities;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -82,6 +80,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	/** The map of sessions corresponding to each site. */
 	private Map<String, HttpSessionsSite> sessions;
+	/** Object used to synchronize access to sessions */
+	private Object sessionLock = new Object();
 
 	/** The map of session tokens corresponding to each site. */
 	private Map<String, HttpSessionTokensSet> sessionTokens;
@@ -459,23 +459,26 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 * 
 	 */
 	protected HttpSessionsSite getHttpSessionsSite(String site, boolean createIfNeeded) {
-		if (sessions == null) {
-			if (!createIfNeeded)
-				return null;
-			sessions = new HashMap<>();
-		}
 		// Add a default port
 		if (!site.contains(":")) {
 			site = site + (":80");
 		}
-		HttpSessionsSite hss = sessions.get(site);
-		if (hss == null) {
-			if (!createIfNeeded)
-				return null;
-			hss = new HttpSessionsSite(this, site);
-			sessions.put(site, hss);
+		synchronized (sessionLock) {
+			if (sessions == null) {
+				if (!createIfNeeded) {
+					return null;
+				}
+				sessions = new HashMap<>();
+			}
+			HttpSessionsSite hss = sessions.get(site);
+			if (hss == null) {
+				if (!createIfNeeded)
+					return null;
+				hss = new HttpSessionsSite(this, site);
+				sessions.put(site, hss);
+			}
+			return hss;
 		}
-		return hss;
 	}
 
 	@Override
@@ -495,7 +498,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	@Override
 	public void sessionAboutToChange(Session session) {
 		sessionTokens = new HashMap<>();
-		sessions = null;
+		synchronized (sessionLock) {
+			sessions = null;
+		}
 		removedDefaultTokens = null;
 		if (getView() != null) {
 			getHttpSessionsPanel().reset();
@@ -519,14 +524,17 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 */
 	public List<HttpSession> getHttpSessionsForContext(Context context) {
 		List<HttpSession> sessions = new LinkedList<>();
-		if (this.sessions == null)
+		if (this.sessions == null) {
 			return sessions;
+		}
 
-		for (Entry<String, HttpSessionsSite> e : this.sessions.entrySet()) {
-			String siteName = e.getKey();
-			siteName = "http://" + siteName;
-			if (context.isInContext(siteName))
-				sessions.addAll(e.getValue().getHttpSessions());
+		synchronized (sessionLock) {
+			for (Entry<String, HttpSessionsSite> e : this.sessions.entrySet()) {
+				String siteName = e.getKey();
+				siteName = "http://" + siteName;
+				if (context.isInContext(siteName))
+					sessions.addAll(e.getValue().getHttpSessions());
+			}
 		}
 
 		return sessions;
@@ -555,7 +563,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	}
 
 	@Override
-	public void onHttpRequestSend(final HttpMessage msg, int initiator) {
+	public void onHttpRequestSend(HttpMessage msg, int initiator) {
 		// Check if we know the site and add it otherwise
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
@@ -568,26 +576,22 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		// Check for default tokens in request messages
 		List<HttpCookie> requestCookies = msg.getRequestHeader().getHttpCookies();
-		for (HttpCookie cookie : requestCookies)
+		for (HttpCookie cookie : requestCookies) {
 			// If it's a default session token and it is not already marked as session token and was
 			// not previously removed by the user
 			if (this.isDefaultSessionToken(cookie.getName()) && !this.isSessionToken(site, cookie.getName())
-					&& !this.isRemovedDefaultSessionToken(site, cookie.getName()))
+					&& !this.isRemovedDefaultSessionToken(site, cookie.getName())) {
 				this.addHttpSessionToken(site, cookie.getName());
+			}
+		}
 
-		final String siteFinal = site;
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				// Forward the request for proper processing
-				HttpSessionsSite session = getHttpSessionsSite(siteFinal);
-				session.processHttpRequestMessage(msg);
-				
-			}});
+		// Forward the request for proper processing
+		HttpSessionsSite session = getHttpSessionsSite(site);
+		session.processHttpRequestMessage(msg);
 	}
 
 	@Override
-	public void onHttpResponseReceive(final HttpMessage msg, int initiator) {
+	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
 		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR) {
 			// Not a session we care about
 			return;
@@ -606,21 +610,18 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 		// Check for default tokens set in response messages
 		List<HttpCookie> responseCookies = msg.getResponseHeader().getHttpCookies(msg.getRequestHeader().getHostName());
-		for (HttpCookie cookie : responseCookies)
+		for (HttpCookie cookie : responseCookies) {
 			// If it's a default session token and it is not already marked as session token and was
 			// not previously removed by the user
 			if (this.isDefaultSessionToken(cookie.getName()) && !this.isSessionToken(site, cookie.getName())
-					&& !this.isRemovedDefaultSessionToken(site, cookie.getName()))
+					&& !this.isRemovedDefaultSessionToken(site, cookie.getName())) {
 				this.addHttpSessionToken(site, cookie.getName());
+			}
+		}
 
-		final String siteFinal = site;
-		SwingUtilities.invokeLater(new Runnable() {
-			@Override
-			public void run() {
-				// Forward the request for proper processing
-				HttpSessionsSite sessionsSite = getHttpSessionsSite(siteFinal);
-				sessionsSite.processHttpResponseMessage(msg);
-			}});
+		// Forward the request for proper processing
+		HttpSessionsSite sessionsSite = getHttpSessionsSite(site);
+		sessionsSite.processHttpResponseMessage(msg);
 	}
 
 }
