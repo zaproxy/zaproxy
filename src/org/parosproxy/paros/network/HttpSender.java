@@ -49,6 +49,7 @@
 // ZAP: 2014/08/14 Issue 1291: 407 Proxy Authentication Required while active scanning
 // ZAP: 2014/10/25 Issue 1062: Added a getter for the HttpClient.
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
+// ZAP: 2014/11/25 Issue 1411: Changed getUser() visibility
 
 package org.parosproxy.paros.network;
 
@@ -422,7 +423,6 @@ public class HttpSender {
 		}
 	}
 	
-	// ZAP: Changed visibility to public. Needed for authentication when running Zest script in scanner (Issue 1411)
 	public User getUser (HttpMessage msg) {
 		if (this.user != null) {
 			// If its set for the sender it overrides the message
