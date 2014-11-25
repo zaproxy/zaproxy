@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.anticsrf;
 
 import net.sf.json.JSONObject;
 
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiException;
@@ -66,12 +68,22 @@ public class AntiCsrfAPI extends ApiImplementor {
 		    	if (response == null) {
 					throw new ApiException(ApiException.Type.HREF_NOT_FOUND, hrefIdStr);
 		    	}
+
+				// Get the charset from the original message
+				ExtensionHistory extHist = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+				String charset = extHist.getHistoryReference(hrefId).getHttpMessage().getResponseHeader().getCharset();
+				if (charset == null || charset.length() == 0) {
+				    charset = "";
+				} else {
+				    charset = " charset=" + charset;
+				}
+
 		    	msg.setResponseHeader(
 		    			"HTTP/1.1 200 OK\r\n" +
 		    			"Pragma: no-cache\r\n" +
 		  				"Cache-Control: no-cache\r\n" + 
 		    			"Content-Length: " + response.length() + 
-		    			"\r\nContent-Type: text/html;");
+						"\r\nContent-Type: text/html;" + charset);
 		    	msg.setResponseBody(response);
 				
 			} catch (NumberFormatException e) {
