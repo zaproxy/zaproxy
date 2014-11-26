@@ -34,6 +34,7 @@
 // ZAP: 2013/11/16 Issue 902 - Change all ExtensionAdaptor#hook(ExtensionHook) overriding methods
 // to call the base implementation
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/11/26 Fixed an issue in the implementation of searchFilterIndex.
 
 package org.parosproxy.paros.extension.filter;
 
@@ -295,7 +296,7 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 		// http://en.wikipedia.org/wiki/Binary_search_algorithm#Recursive
 		if (max <= min) {
 			// set is empty, so return value showing not found
-			return max + 1;
+			return -1;
 		} 
 		
 		// calculate midpoint to cut set in half
