@@ -20,6 +20,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2012/03/15 Changed to use byte[] instead of StringBuffer.
+// ZAP: 2014/11/26 Issue: 1415 Fixed file uploads > 128k
 
 package org.parosproxy.paros.network;
 
@@ -114,15 +115,12 @@ public abstract class HttpBody {
 		}
 		
 		if (pos + len > body.length) {
-			byte[] newBody = new byte[body.length+len];
-			System.arraycopy(body, 0, newBody, 0, body.length);
-			System.arraycopy(buf, 0, newBody, body.length, len);
+			byte[] newBody = new byte[pos + len];
+			System.arraycopy(body, 0, newBody, 0, pos);
 			body = newBody;
-			pos = body.length;
-		} else {
-			System.arraycopy(buf, 0, body, pos, len);
-			pos += len;
 		}
+		System.arraycopy(buf, 0, body, pos, len);
+		pos += len;
 		
         cachedString = null;
 	}
