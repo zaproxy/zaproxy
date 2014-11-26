@@ -433,7 +433,7 @@ public class AddOnLoader extends URLClassLoader {
             
             try {
                 // ZAP: Changed to take into account the package name
-                return getJarClassNames(null, new File(new URI(jarFile)), packageName);
+                return getJarClassNames(this.getClass().getClassLoader(), new File(new URI(jarFile)), packageName);
             } catch (URISyntaxException e) {
             	logger.error(e.getMessage(), e);
             }
