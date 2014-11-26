@@ -186,7 +186,14 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
         ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
-        
+        initParam(param);
+    }    
+    
+    /**
+     * 
+     * @param param 
+     */
+    public void initParam(ScannerParam param) {        
         // Set targets and RPC selections
         int targets = param.getTargetParamsInjectable();
         this.getChkInjectableQueryString().setSelected((targets & ScannerParam.TARGET_QUERYSTRING) != 0);
@@ -228,7 +235,15 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
         ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
-        
+        saveParam(param);
+    }
+
+    /**
+     * Save the current parameters to the param object
+     * 
+     * @param param
+     */
+    public void saveParam(ScannerParam param) {        
         // Set Injectable Targets
         int targets = 0;        
         if (this.getChkInjectableQueryString().isSelected()) {
@@ -288,6 +303,27 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         param.setExcludedParamList(getExcludedParameterModel().getElements());
     }
 
+    /**
+     * Set all checkbox to a specific value
+     * @param enabled true if all the checkbox should be enabled, false otherwise
+     */
+    public void setAllInjectableAndRPC(boolean enabled) {
+        
+        this.getChkInjectableQueryString().setEnabled(enabled);
+        this.getChkInjectableUrlPath().setEnabled(enabled);
+        this.getChkInjectablePostData().setEnabled(enabled);
+        this.getChkInjectableHeaders().setEnabled(enabled);
+        this.getChkInjectableCookie().setEnabled(enabled);
+         
+        this.getChkRPCMultipart().setEnabled(enabled);
+        this.getChkRPCXML().setEnabled(enabled);
+        this.getChkRPCJSON().setEnabled(enabled);
+        this.getChkRPCGWT().setEnabled(enabled);
+        this.getChkRPCoData().setEnabled(enabled);
+        this.getChkRPCDWR().setEnabled(enabled);
+        this.getChkRPCCustom().setEnabled(enabled);
+    }
+    
     /**
      * This method initializes the table Model
      *
