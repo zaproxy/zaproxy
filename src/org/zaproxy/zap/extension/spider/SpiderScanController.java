@@ -30,6 +30,9 @@ import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.filters.FetchFilter;
+import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
 public class SpiderScanController implements ScanController {
@@ -93,11 +96,21 @@ public class SpiderScanController implements ScanController {
 			int id = this.scanIdCounter++;
 			
 			SpiderParam spiderParams = extension.getSpiderParam();
+			List<SpiderParser> customSpiderParsers = new ArrayList<SpiderParser>();
+			List<FetchFilter> customFetchFilters = new ArrayList<FetchFilter>();
+			List<ParseFilter> customParseFilters = new ArrayList<ParseFilter>();
+			
 			if (contextSpecificObjects != null) {
 				for (Object obj : contextSpecificObjects) {
 					if (obj instanceof SpiderParam) {
 						log.debug("Setting custom spider params");
 						spiderParams = (SpiderParam) obj;
+					} else if (obj instanceof SpiderParser) {
+						customSpiderParsers.add((SpiderParser)obj);
+					} else if (obj instanceof FetchFilter) {
+						customFetchFilters.add((FetchFilter)obj);
+					} else if (obj instanceof ParseFilter) {
+						customParseFilters.add((ParseFilter)obj);
 					} else {
 						log.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
 					}
@@ -106,7 +119,10 @@ public class SpiderScanController implements ScanController {
 			
 			SpiderScan scan = new SpiderScan(extension, spiderParams, target, user, id);
 			scan.setDisplayName(name);
-			
+			scan.setCustomSpiderParsers(customSpiderParsers);
+			scan.setCustomFetchFilters(customFetchFilters);
+			scan.setCustomParseFilters(customParseFilters);
+
 			this.spiderScanMap.put(id, scan);
 			this.spiderScanList.add(scan);
 			scan.start();

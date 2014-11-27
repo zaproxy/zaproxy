@@ -37,6 +37,8 @@ import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
+import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
@@ -48,6 +50,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_RECURSE = "spider.custom.label.recurse";
     private static final String FIELD_ADVANCED = "spider.custom.label.adv"; 
     private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
+    private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
     private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
     private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
     private static final String FIELD_PARSE_COMMENTS = "spider.custom.label.parseComments"; 
@@ -70,6 +73,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 			.getExtension(ExtensionUserManagement.NAME);
     
     private Target target = null;
+    private int maxChildrenToCrawl = 0;	// This is not persisted anywhere
 
     public SpiderDialog(ExtensionSpider ext, Frame owner, Dimension dim) {
         super(owner, "spider.custom.title", dim, new String[]{
@@ -102,6 +106,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
         // Advanced options
         this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
+        this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, maxChildrenToCrawl);
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
         this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
         this.addCheckBoxField(1, FIELD_PARSE_COMMENTS, getSpiderParam().isParseComments());
@@ -275,9 +280,28 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
         	spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
         	
-	        contextSpecificObjects = new Object[]{
-		            spiderParam
-		        };
+        	maxChildrenToCrawl = this.getIntValue(FIELD_MAX_CHILDREN);
+        	
+        	if (maxChildrenToCrawl > 0) {
+        		// Add the filters to filter on maximum number of children
+        		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
+        		maxChildrenFetchFilter.setMaxChildren(maxChildrenToCrawl);
+        		maxChildrenFetchFilter.setModel(extension.getModel());
+        		
+        		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
+        		maxChildrenParseFilter.setMaxChildren(maxChildrenToCrawl);
+        		maxChildrenParseFilter.setModel(extension.getModel());
+        		
+		        contextSpecificObjects = new Object[]{
+			            spiderParam,
+			            maxChildrenFetchFilter,
+			            maxChildrenParseFilter
+			        };
+        	} else {
+		        contextSpecificObjects = new Object[]{
+			            spiderParam
+			        };
+        	}
     	}
         
         // Save the adv option permanently for next time

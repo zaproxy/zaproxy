@@ -45,6 +45,8 @@ import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
+import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
@@ -90,6 +92,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String PARAM_CONTEXT_ID = "contextId";
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_SCAN_ID = "scanId";
+	private static final String PARAM_MAX_CHILDREN = "maxChildren";
 
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
@@ -107,9 +110,10 @@ public class SpiderAPI extends ApiImplementor {
 	public SpiderAPI(ExtensionSpider extension) {
 		this.extension = extension;
 		// Register the actions
-		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] { PARAM_URL }));
-		this.addApiAction(new ApiAction(ACTION_START_SCAN_AS_USER, new String[] { PARAM_URL,
-				PARAM_CONTEXT_ID, PARAM_USER_ID }));
+		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] { PARAM_URL },
+				new String[] { PARAM_MAX_CHILDREN }));
+		this.addApiAction(new ApiAction(ACTION_START_SCAN_AS_USER, 
+				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID, PARAM_MAX_CHILDREN }));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, null, new String[] { PARAM_SCAN_ID }));
@@ -139,12 +143,23 @@ public class SpiderAPI extends ApiImplementor {
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("Request for handleApiAction: " + name + " (params: " + params.toString() + ")");
 		GenericScanner2 scan;
+		int maxChildren = -1;
 
 		switch (name) {
 		case ACTION_START_SCAN:
 			// The action is to start a new Scan
 			String url = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
-			int scanId = scanURL(url, null);
+			if (params.containsKey(PARAM_MAX_CHILDREN)) {
+				String maxChildrenStr = params.getString(PARAM_MAX_CHILDREN);
+				if (maxChildrenStr != null && maxChildrenStr.length() > 0) {
+					try {
+						maxChildren = Integer.parseInt(maxChildrenStr);
+					} catch (NumberFormatException e) {
+						throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_MAX_CHILDREN);
+					}
+				}
+			}
+			int scanId = scanURL(url, null, maxChildren);
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
 		case ACTION_START_SCAN_AS_USER:
@@ -164,7 +179,17 @@ public class SpiderAPI extends ApiImplementor {
 			if (user == null) {
 				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
 			}
-			scanId = scanURL(urlUserScan, user);
+			if (params.containsKey(PARAM_MAX_CHILDREN)) {
+				String maxChildrenStr = params.getString(PARAM_MAX_CHILDREN);
+				if (maxChildrenStr != null && maxChildrenStr.length() > 0) {
+					try {
+						maxChildren = Integer.parseInt(maxChildrenStr);
+					} catch (NumberFormatException e) {
+						throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_MAX_CHILDREN);
+					}
+				}
+			}
+			scanId = scanURL(urlUserScan, user, maxChildren);
 
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
@@ -271,7 +296,7 @@ public class SpiderAPI extends ApiImplementor {
 	 * @see #scanIdCounter
 	 * @see #spiderScans
 	 */
-	private int scanURL(String url, User user) throws ApiException {
+	private int scanURL(String url, User user, int maxChildren) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
 
 		URI startURI;
@@ -289,7 +314,24 @@ public class SpiderAPI extends ApiImplementor {
 		}
 		Target target = new Target(startNode);
 		target.setRecurse(true);
-		return extension.startScan(target.getDisplayName(), target, user, null);
+		
+		Object[] objs = null;
+		if (maxChildren > 0) {
+    		// Add the filters to filter on maximum number of children
+    		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
+    		maxChildrenFetchFilter.setMaxChildren(maxChildren);
+    		maxChildrenFetchFilter.setModel(extension.getModel());
+    		
+    		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
+    		maxChildrenParseFilter.setMaxChildren(maxChildren);
+    		maxChildrenParseFilter.setModel(extension.getModel());
+			objs = new Object[] {
+					maxChildrenFetchFilter,
+					maxChildrenParseFilter
+			};
+		}
+		
+		return extension.startScan(target.getDisplayName(), target, user, objs);
 	}
 
 	@Override

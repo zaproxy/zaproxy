@@ -46,6 +46,7 @@ import org.zaproxy.zap.spider.filters.DefaultParseFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
 /**
@@ -88,7 +89,7 @@ public class Spider {
 
 	/** The default fetch filter. */
 	private DefaultFetchFilter defaultFetchFilter;
-
+	
 	/** The seed list. */
 	private List<URI> seedList;
 	
@@ -168,8 +169,10 @@ public class Spider {
 		// Add a default fetch filter and any custom ones
 		defaultFetchFilter = new DefaultFetchFilter();
 		this.addFetchFilter(defaultFetchFilter);
-		for (FetchFilter filter : extension.getCustomFetchFilters())
+		
+		for (FetchFilter filter : extension.getCustomFetchFilters()) {
 			this.addFetchFilter(filter);
+		}
 
 		// Add a default parse filter and any custom ones
 		this.addParseFilter(new DefaultParseFilter());
@@ -702,6 +705,10 @@ public class Spider {
 		for (SpiderListener l : listeners) {
 			l.spiderComplete(successful);
 		}
+	}
+
+	public void addCustomParser(SpiderParser sp) {
+		this.controller.addSpiderParser(sp);
 	}
 
 }
