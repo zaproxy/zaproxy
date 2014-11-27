@@ -29,23 +29,21 @@
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
-
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.text.MessageFormat;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Map;
 import java.util.Vector;
-
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.network.HttpSender;
 
-
 public class CommandLine {
 
-	// ZAP: Made public
+    // ZAP: Made public
     public static final String SESSION = "-session";
     public static final String NEW_SESSION = "-newsession";
     public static final String DAEMON = "-daemon";
@@ -61,43 +59,48 @@ public class CommandLine {
 
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
-    
+
     private boolean GUI = true;
     private boolean daemon = false;
     private boolean reportVersion = false;
     private int port = -1;
     private String host = null;
     private String[] args = null;
-    private Hashtable<String, String> configs = new Hashtable<String, String>();
-    private Hashtable<String, String> keywords = new Hashtable<String, String>();
-    private Vector<CommandLineArgument[]> commandList = null;
-    
+    private final Hashtable<String, String> configs = new Hashtable<>();
+    private final Hashtable<String, String> keywords = new Hashtable<>();
+    private List<CommandLineArgument[]> commandList = null;
+
     public CommandLine(String[] args) throws Exception {
         this.args = args;
         parseFirst(this.args);
     }
-    
+
     private boolean checkPair(String[] args, String paramName, int i) throws Exception {
         String key = args[i];
         String value = null;
         if (key == null) {
-        	return false;
+            return false;
         }
+        
         if (key.equalsIgnoreCase(paramName)) {
-            value = args[i+1];
-            if (value == null) throw new Exception();
+            value = args[i + 1];
+            if (value == null) {
+                throw new Exception();
+            }
+            
             keywords.put(paramName, value);
             args[i] = null;
-            args[i+1] = null;
+            args[i + 1] = null;
             return true;
         }
+        
         return false;
     }
 
     private boolean checkSwitch(String[] args, String paramName, int i) throws Exception {
         String key = args[i];
         if (key == null) {
-        	return false;
+            return false;
         }
         if (key.equalsIgnoreCase(paramName)) {
             keywords.put(paramName, "");
@@ -107,142 +110,142 @@ public class CommandLine {
         return false;
     }
 
-    
-	private void parseFirst(String[] args) throws Exception {
+    private void parseFirst(String[] args) throws Exception {
 
-	    for (int i=0; i<args.length; i++) {
-	        
-	        if (parseSwitchs(args, i)) {
-	        	continue;
-	        }
-	        if (parseKeywords(args, i)) {
-	        	continue;
-	        }
-	        
+        for (int i = 0; i < args.length; i++) {
+
+            if (parseSwitchs(args, i)) {
+                continue;
+            }
+            if (parseKeywords(args, i)) {
+                continue;
+            }
+
         }
-	        
+
     }
 
-	public void parse(Vector<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap) throws Exception {
-		this.commandList = commandList;
-	    CommandLineArgument lastArg = null;
-	    boolean found = false;
-	    int remainingValueCount = 0;
-	    
-	    for (int i=0; i<args.length; i++) {
-	        if (args[i] == null) {
-	        	continue;
-	        }
-	        found = false;
-	        
-		    for (int j=0; j<commandList.size() && !found; j++) {
-		        CommandLineArgument[] extArg = commandList.get(j);
-		        for (int k=0; k<extArg.length && !found; k++) {
-			        if (args[i].compareToIgnoreCase(extArg[k].getName()) == 0) {
-			            
-			            // check if previous keyword satisfied its required no. of parameters
-			            if (remainingValueCount > 0) {
-				            throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
-			            }
-			            
-			            // process this keyword
-			            lastArg = extArg[k];
-			            lastArg.setEnabled(true);
-			            found = true;
-			            args[i] = null;
-			            remainingValueCount = lastArg.getNumOfArguments();
-			        }
-		        }
-		    }
+    public void parse(List<CommandLineArgument[]> commandList, Map<String, CommandLineListener> extMap) throws Exception {
+        this.commandList = commandList;
+        CommandLineArgument lastArg = null;
+        boolean found = false;
+        int remainingValueCount = 0;
 
-		    // check if current string is a keyword preceded by '-'
-		    if (args[i] != null && args[i].startsWith("-")) {
-		        continue;
-		    }
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) {
+                continue;
+            }
+            
+            found = false;
 
-		    // check if there is no more expected param value
-		    if (lastArg != null && remainingValueCount == 0) {
-		        continue;
-		    }
-		    
-		    // check if consume remaining for last matched keywords
-		    if (!found && lastArg != null) {		            
-		        if (lastArg.getPattern() == null || lastArg.getPattern().matcher(args[i]).find()) {
-		            lastArg.getArguments().add(args[i]);
-		            if (remainingValueCount > 0) {
-		                remainingValueCount--;
-		            }
-		            args[i] = null;
-		        } else {
-		            throw new Exception(lastArg.getErrorMessage());
-		        }
-		    }
-		    
-	    }
+            for (int j = 0; j < commandList.size() && !found; j++) {
+                CommandLineArgument[] extArg = commandList.get(j);
+                for (int k = 0; k < extArg.length && !found; k++) {
+                    if (args[i].compareToIgnoreCase(extArg[k].getName()) == 0) {
 
-	    // check if the last keyword satified its no. of parameters.
-	    if (lastArg != null && remainingValueCount > 0) {
+                        // check if previous keyword satisfied its required no. of parameters
+                        if (remainingValueCount > 0) {
+                            throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
+                        }
+
+                        // process this keyword
+                        lastArg = extArg[k];
+                        lastArg.setEnabled(true);
+                        found = true;
+                        args[i] = null;
+                        remainingValueCount = lastArg.getNumOfArguments();
+                    }
+                }
+            }
+
+            // check if current string is a keyword preceded by '-'
+            if (args[i] != null && args[i].startsWith("-")) {
+                continue;
+            }
+
+            // check if there is no more expected param value
+            if (lastArg != null && remainingValueCount == 0) {
+                continue;
+            }
+
+            // check if consume remaining for last matched keywords
+            if (!found && lastArg != null) {
+                if (lastArg.getPattern() == null || lastArg.getPattern().matcher(args[i]).find()) {
+                    lastArg.getArguments().add(args[i]);
+                    if (remainingValueCount > 0) {
+                        remainingValueCount--;
+                    }
+                    args[i] = null;
+                } else {
+                    throw new Exception(lastArg.getErrorMessage());
+                }
+            }
+
+        }
+
+        // check if the last keyword satified its no. of parameters.
+        if (lastArg != null && remainingValueCount > 0) {
             throw new Exception("Missing parameters for keyword '" + lastArg.getName() + "'.");
         }
-	    
-	    // check for supported extensions
-	    for (int i=0; i<args.length; i++) {
-	        if (args[i] == null) {
-	        	continue;
-	        }
-	        int dotIndex = args[i].lastIndexOf(".");
-	        if (dotIndex < 0) {
-	        	// Only support files with extensions
-	        	continue;
-	        }
-	        File file = new File(args[i]);
-	        if (! file.exists() || ! file.canRead() ) {
-	        	// Not there or cant read .. move on
-	        	continue;
-	        }
-	        
-	        String ext = args[i].substring(dotIndex + 1);
-			CommandLineListener cll = extMap.get(ext);
-			if (cll != null) {
-				if (cll.handleFile(file)) {
-					found = true;
-		            args[i] = null;
-				}
-			}
-	    }
-	    
-	    // check if there is some unknown keywords or parameters
-	    for (int i=0; i<args.length; i++) {
-	        if (args[i] != null) {
-	        	if (args[i].startsWith("-")) {
-	                throw new Exception(
-		            		MessageFormat.format(Constant.messages.getString("start.cmdline.badparam"), args[i]));
-	        	} else {
-	        		// Assume they were trying to specify a file
-	        		File f = new File(args[i]);
-	        		if (! f.exists()) {
-	        			throw new Exception(
-			            		MessageFormat.format(Constant.messages.getString("start.cmdline.nofile"), args[i]));
-	        			
-	        		} else if (! f.canRead()) {
-	        			throw new Exception(
-			            		MessageFormat.format(Constant.messages.getString("start.cmdline.noread"), args[i]));
 
-	        		} else {
-	        			// We probably dont handle this sort of file
-	        			throw new Exception(
-		            		MessageFormat.format(Constant.messages.getString("start.cmdline.badfile"), args[i]));
-	        		}
-	        	}
-	        }
-	    }
-	}
-	
-	
-	private boolean parseSwitchs(String[] args, int i) throws Exception {
+        // check for supported extensions
+        for (int i = 0; i < args.length; i++) {
+            if (args[i] == null) {
+                continue;
+            }
+            int dotIndex = args[i].lastIndexOf(".");
+            if (dotIndex < 0) {
+                // Only support files with extensions
+                continue;
+            }
+            File file = new File(args[i]);
+            if (!file.exists() || !file.canRead()) {
+                // Not there or cant read .. move on
+                continue;
+            }
 
-	    boolean result = false;
-	    
+            String ext = args[i].substring(dotIndex + 1);
+            CommandLineListener cll = extMap.get(ext);
+            if (cll != null) {
+                if (cll.handleFile(file)) {
+                    found = true;
+                    args[i] = null;
+                }
+            }
+        }
+
+        // check if there is some unknown keywords or parameters
+        for (String arg : args) {
+            if (arg != null) {
+                if (arg.startsWith("-")) {
+                    throw new Exception(
+                            MessageFormat.format(Constant.messages.getString("start.cmdline.badparam"), arg));
+                    
+                } else {
+                    // Assume they were trying to specify a file
+                    File f = new File(arg);
+                    if (!f.exists()) {
+                        throw new Exception(
+                                MessageFormat.format(Constant.messages.getString("start.cmdline.nofile"), arg));
+                    
+                    } else if (!f.canRead()) {
+                        throw new Exception(
+                                MessageFormat.format(Constant.messages.getString("start.cmdline.noread"), arg));
+                    
+                    } else {
+                        // We probably dont handle this sort of file
+                        throw new Exception(
+                                MessageFormat.format(Constant.messages.getString("start.cmdline.badfile"), arg));
+                    }
+                }
+            }
+        }
+    }
+
+    private boolean parseSwitchs(String[] args, int i) throws Exception {
+
+        boolean result = false;
+
         if (checkSwitch(args, NO_USER_AGENT, i)) {
             HttpSender.setUserAgent("");
             Constant.setEyeCatcher("");
@@ -251,55 +254,67 @@ public class CommandLine {
         } else if (checkSwitch(args, SP, i)) {
             Constant.setSP(true);
             result = true;
+            
         } else if (checkSwitch(args, CMD, i)) {
-        	setDaemon(false);
+            setDaemon(false);
             setGUI(false);
+            
         } else if (checkSwitch(args, DAEMON, i)) {
-        	setDaemon(true);
+            setDaemon(true);
             setGUI(false);
+            
         } else if (checkSwitch(args, HELP, i)) {
             result = true;
             setGUI(false);
+            
         } else if (checkSwitch(args, HELP2, i)) {
             result = true;
             setGUI(false);
+            
         } else if (checkSwitch(args, VERSION, i)) {
             reportVersion = true;
-        	setDaemon(false);
+            setDaemon(false);
             setGUI(false);
         }
 
         return result;
-	}
-	
-	private boolean parseKeywords(String[] args, int i) throws Exception {
-	    boolean result = false;
-	    if (checkPair(args, NEW_SESSION, i)) {
+    }
+
+    private boolean parseKeywords(String[] args, int i) throws Exception {
+        boolean result = false;
+        if (checkPair(args, NEW_SESSION, i)) {
             result = true;
-	    } else if (checkPair(args, SESSION, i)) {
-	        result = true;
-	    } else if (checkPair(args, DIR, i)) {
-	    	Constant.setZapHome(keywords.get(DIR));
-	        result = true;
-	    } else if (checkPair(args, INSTALL_DIR, i)) {
-	    	Constant.setZapInstall(keywords.get(INSTALL_DIR));
-	        result = true;
-	    } else if (checkPair(args, HOST, i)) {
-	    	this.host = keywords.get(HOST);
-	        result = true;
-	    } else if (checkPair(args, PORT, i)) {
-	    	this.port = Integer.parseInt(keywords.get(PORT));
-	        result = true;
-	    } else if (checkPair(args, CONFIG, i)) {
-	    	String pair = keywords.get(CONFIG);
-	    	if (pair != null && pair.indexOf("=") > 0) {
-	    		int eqIndex = pair.indexOf("=");
-	    		this.configs.put(pair.substring(0, eqIndex), pair.substring(eqIndex+1));
-		        result = true;
-	    	}
-	    }
-	    return result;
-	}
+            
+        } else if (checkPair(args, SESSION, i)) {
+            result = true;
+            
+        } else if (checkPair(args, DIR, i)) {
+            Constant.setZapHome(keywords.get(DIR));
+            result = true;
+            
+        } else if (checkPair(args, INSTALL_DIR, i)) {
+            Constant.setZapInstall(keywords.get(INSTALL_DIR));
+            result = true;
+            
+        } else if (checkPair(args, HOST, i)) {
+            this.host = keywords.get(HOST);
+            result = true;
+            
+        } else if (checkPair(args, PORT, i)) {
+            this.port = Integer.parseInt(keywords.get(PORT));
+            result = true;
+            
+        } else if (checkPair(args, CONFIG, i)) {
+            String pair = keywords.get(CONFIG);
+            if (pair != null && pair.indexOf("=") > 0) {
+                int eqIndex = pair.indexOf("=");
+                this.configs.put(pair.substring(0, eqIndex), pair.substring(eqIndex + 1));
+                result = true;
+            }
+        }
+        
+        return result;
+    }
 
     /**
      * @return Returns the noGUI.
@@ -307,86 +322,85 @@ public class CommandLine {
     public boolean isGUI() {
         return GUI;
     }
+
     /**
      * @param GUI The noGUI to set.
      */
     public void setGUI(boolean GUI) {
         this.GUI = GUI;
     }
-    
+
     public boolean isDaemon() {
-		return daemon;
-	}
+        return daemon;
+    }
 
-	public void setDaemon(boolean daemon) {
-		this.daemon = daemon;
-	}
-	
-	public boolean isReportVersion() {
-		return this.reportVersion;
-	}
-	
-	public int getPort () {
-		return this.port;
-	}
+    public void setDaemon(boolean daemon) {
+        this.daemon = daemon;
+    }
 
-	public String getHost() {
-		return host;
-	}
+    public boolean isReportVersion() {
+        return this.reportVersion;
+    }
 
-	public Hashtable<String, String> getConfigs() {
-		return configs;
-	}
+    public int getPort() {
+        return this.port;
+    }
 
-	public String getArgument(String keyword) {
+    public String getHost() {
+        return host;
+    }
+
+    public Hashtable<String, String> getConfigs() {
+        return configs;
+    }
+
+    public String getArgument(String keyword) {
         return keywords.get(keyword);
     }
 
     // ZAP: Made public and rebranded
-	public static String getHelpGeneral() {
-    	StringBuilder sb = new StringBuilder();        
-		sb.append("GUI usage:\n");
-    	if (Constant.isWindows()) {
-            sb.append("\tzap.bat ");
-        } else {
-            sb.append("\tzap.sh ");
-        }
-		sb.append("[-dir directory]\n\n");
-		return sb.toString();
-	}
-	
-	// ZAP: Rebranded
-    public String getHelp() {
-    	StringBuilder sb = new StringBuilder(getHelpGeneral());        
-        sb.append("Command line usage:\n");
+    public static String getHelpGeneral() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("GUI usage:\n");
+        
         if (Constant.isWindows()) {
             sb.append("\tzap.bat ");
         } else {
             sb.append("\tzap.sh ");
         }
-        sb.append("[-h |-help] [-newsession session_file_path | -session existing_session_file_path]\n" +
-        		"\t\t [options] [-dir directory] [-installdir directory] [-host host] [-port port]\n" + 
-        		"\t\t [-daemon] [-cmd] [-version]");
-        sb.append("options:\n");
-
-        for (int i=0; i<commandList.size(); i++) {
-	        CommandLineArgument[] extArg = commandList.get(i);
-	        for (int j=0; j<extArg.length; j++) {
-	            sb.append("\t");
-	            sb.append(extArg[j].getHelpMessage()).append("\n");
-	        }
-        }
         
+        sb.append("[-dir directory]\n\n");
         return sb.toString();
     }
-    
-    public boolean isEnabled(String keyword) {
-        
-        Object obj = keywords.get(keyword);
-        if (obj != null && obj instanceof String) {
-            return true;
+
+    // ZAP: Rebranded
+    public String getHelp() {
+        StringBuilder sb = new StringBuilder(getHelpGeneral());
+        sb.append("Command line usage:\n");
+        if (Constant.isWindows()) {
+            sb.append("\tzap.bat ");
+            
+        } else {
+            sb.append("\tzap.sh ");
         }
-        return false;
+        
+        sb.append("[-h |-help] [-newsession session_file_path | -session existing_session_file_path]\n"
+                + "\t\t [options] [-dir directory] [-installdir directory] [-host host] [-port port]\n"
+                + "\t\t [-daemon] [-cmd] [-version]");
+        sb.append("options:\n");
+
+        for (CommandLineArgument[] extArgs : commandList) {
+            for (CommandLineArgument extArg : extArgs) {
+                sb.append("\t");
+                sb.append(extArg.getHelpMessage()).append("\n");
+            }
+        }
+
+        return sb.toString();
     }
-    
+
+    public boolean isEnabled(String keyword) {
+        Object obj = keywords.get(keyword);
+        return (obj != null) && (obj instanceof String);
+    }
 }
