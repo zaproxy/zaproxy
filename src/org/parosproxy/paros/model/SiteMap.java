@@ -37,6 +37,7 @@
 // ZAP: 2014/04/10 Allow to delete history ID to SiteNode map entries
 // ZAP: 2014/06/16 Issue 1227: Active scanner sends GET requests with content in request body
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
+// ZAP: 2014/11/27 Issue 1416: Allow spider to be restricted by the number of children
 
 package org.parosproxy.paros.model;
 
@@ -240,6 +241,59 @@ public class SiteMap extends DefaultTreeModel {
         }
         
         return resultNode;
+    }
+
+    /*
+     * Find the closest parent for the message - no new nodes will be created
+     */
+    public synchronized SiteNode findClosestParent(HttpMessage msg) {
+    	if (msg == null || msg.getRequestHeader() == null) {
+    		return null;
+    	}
+    	return this.findClosestParent(msg.getRequestHeader().getURI());
+    }
+    
+    /*
+     * Find the closest parent for the uri - no new nodes will be created
+     */
+    public synchronized SiteNode findClosestParent(URI uri) {
+    	if (uri == null) {
+    		return null;
+    	}
+        SiteNode lastParent = null;
+        SiteNode parent = (SiteNode) getRoot();
+        String folder = "";
+        
+        try {
+        	String host = getHostName(uri);
+        	
+            // no host yet
+            parent = findChild(parent, host);
+            if (parent == null) {
+                return null;
+        	}
+            lastParent = parent;
+            
+            List<String> path = model.getSession().getTreePath(uri);
+            for (int i=0; i < path.size(); i++) {
+            	folder = path.get(i);
+                if (folder != null && !folder.equals("")) {
+                    if (i == path.size()-1) {
+                        lastParent = parent;
+                    } else {
+                        parent = findChild(parent, folder);
+                        if (parent == null) {
+                            break;
+                        }
+                        lastParent = parent;
+                    }
+                }
+            }
+        } catch (URIException e) {
+            log.error(e.getMessage(), e);
+        }
+        
+        return lastParent;
     }
 
     /**

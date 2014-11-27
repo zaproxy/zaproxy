@@ -41,7 +41,10 @@ import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
+import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
 public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner2 {
@@ -344,6 +347,18 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 	public void setListener(ScanListenner2 listener) {
 		this.listener = listener;
+	}
+
+	public void setCustomSpiderParsers(List<SpiderParser> customSpiderParsers) {
+		spiderThread.setCustomSpiderParsers(customSpiderParsers);
+	}
+
+	public void setCustomFetchFilters(List<FetchFilter> customFetchFilters) {
+		spiderThread.setCustomFetchFilters(customFetchFilters);
+	}
+
+	public void setCustomParseFilters(List<ParseFilter> customParseFilters) {
+		spiderThread.setCustomParseFilters(customParseFilters);
 	}
 
 	

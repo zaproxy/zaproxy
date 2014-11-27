@@ -19,6 +19,7 @@ package org.zaproxy.zap.spider;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketTimeoutException;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -148,6 +149,10 @@ public class SpiderTask implements Runnable {
 			// This will have been logged at debug level with the URL (which we dont have here)
 			parent.postTaskExecution();
 			return;
+		} catch (SocketTimeoutException e) {
+			// This will have been logged at debug level with the URL (which we dont have here)
+			parent.postTaskExecution();
+			return;
 		} catch (Exception e) {
 			log.error("An error occured while fetching the resource: " + e.getMessage(), e);
 			parent.postTaskExecution();
@@ -163,9 +168,6 @@ public class SpiderTask implements Runnable {
 		// Check if the crawling process is paused
 		parent.checkPauseAndWait();
 
-		// Notify the SpiderListeners that a resource was read
-		parent.notifyListenersReadURI(msg);
-		
 		// Check the parse filters to see if the resource should be skipped from parsing
 		boolean isFiltered = false;
 		for (ParseFilter filter : parent.getController().getParseFilters()) {
@@ -178,6 +180,10 @@ public class SpiderTask implements Runnable {
 				break;
 			}
 		}
+		if (! isFiltered) {
+			// Notify the SpiderListeners that a resource was read
+			parent.notifyListenersReadURI(msg);
+		}
 
 		// Check if the should stop
 		if (parent.isStopped()) {
@@ -187,7 +193,7 @@ public class SpiderTask implements Runnable {
 		}
 		// Check if the crawling process is paused
 		parent.checkPauseAndWait();
-
+		
 		// Process resource, if this is not the maximum depth
 		if (!isFiltered && depth < parent.getSpiderParam().getMaxDepth()) {
 			processResource(msg);
@@ -271,6 +277,10 @@ public class SpiderTask implements Runnable {
 				parent.getHttpSender().sendAndReceive(msg);
 			} catch (ConnectException e) {
 				log.debug("Failed to connect to: " + msg.getRequestHeader().getURI(), e);
+				throw e;
+			} catch (SocketTimeoutException e) {
+				log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
+				throw e;
 			}
 		}
 

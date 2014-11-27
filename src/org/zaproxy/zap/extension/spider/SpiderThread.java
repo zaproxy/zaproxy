@@ -40,7 +40,10 @@ import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.FetchFilter.FetchStatus;
+import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
 /**
@@ -96,6 +99,12 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	private URI startURI = null;
 	
 	private SpiderParam spiderParams;
+	
+	private List<SpiderParser> customSpiderParsers = null;
+
+	private List<FetchFilter> customFetchFilters = null;;
+
+	private List<ParseFilter> customParseFilters = null;;
 
 	/**
 	 * Instantiates a new spider thread.
@@ -214,6 +223,23 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			spider.addSeed(startURI);
 		}
 		spider.setScanAsUser(scanUser);
+		
+		// Add any custom parsers and filters specified
+		if (this.customSpiderParsers != null) {
+			for (SpiderParser sp : this.customSpiderParsers) {
+				spider.addCustomParser(sp);
+			}
+		}
+		if (this.customFetchFilters != null) {
+			for (FetchFilter ff : this.customFetchFilters) {
+				spider.addFetchFilter(ff);
+			}
+		}
+		if (this.customParseFilters != null) {
+			for (ParseFilter pf : this.customParseFilters) {
+				spider.addParseFilter(pf);
+			}
+		}
 
 		// Start the spider
 		spider.start();
@@ -414,6 +440,18 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	@Override
 	public void setTechSet(TechSet techSet) {
 		// Ignore
+	}
+
+	public void setCustomSpiderParsers(List<SpiderParser> customSpiderParsers) {
+		this.customSpiderParsers = customSpiderParsers;
+	}
+
+	public void setCustomFetchFilters(List<FetchFilter> customFetchFilters) {
+		this.customFetchFilters  = customFetchFilters;
+	}
+
+	public void setCustomParseFilters(List<ParseFilter> customParseFilters) {
+		this.customParseFilters  = customParseFilters;
 	}
 
 }

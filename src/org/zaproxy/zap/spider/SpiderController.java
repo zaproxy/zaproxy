@@ -94,9 +94,7 @@ public class SpiderController implements SpiderParserListener {
 
 		prepareDefaultParsers();
 		for (SpiderParser parser : customParsers) {
-			log.info("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
-			parser.addSpiderParserListener(this);
-			this.parsers.addFirst(parser);
+			this.addSpiderParser(parser);
 		}
 	}
 
@@ -287,7 +285,7 @@ public class SpiderController implements SpiderParserListener {
 			spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
 			return;
 		}
-
+		
 		spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
 
 		// Submit the task
@@ -402,5 +400,11 @@ public class SpiderController implements SpiderParserListener {
 	 */
 	public List<SpiderParser> getParsers() {
 		return parsersUnmodifiableView;
+	}
+
+	public void addSpiderParser(SpiderParser parser) {
+		log.info("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
+		parser.addSpiderParserListener(this);
+		this.parsers.addFirst(parser);
 	}
 }
