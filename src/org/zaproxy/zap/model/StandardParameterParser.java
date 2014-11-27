@@ -209,7 +209,7 @@ public class StandardParameterParser implements ParameterParser {
 				list.add(pathList[i]);
 			}
 		}
-		// Add any structural params
+		// Add any structural params (url param)
 		Map<String, String> urlParams = this.parse(uri.getQuery());
 		for (Entry<String, String> param : urlParams.entrySet()) {
 			if (this.structuralParameters.contains(param.getKey())) {
@@ -219,6 +219,26 @@ public class StandardParameterParser implements ParameterParser {
 
 		return list;
 	}
+	
+	
+	@Override
+	public List<String> getTreePath(HttpMessage msg) throws URIException {
+		URI uri = msg.getRequestHeader().getURI();
+
+		List<String> list = getTreePath(uri);
+		
+		// Add any structural params (form params)
+		Map<String, String> formParams = this.parse(msg.getRequestBody().toString());
+		for (Entry<String, String> param : formParams.entrySet()) {
+			if (this.structuralParameters.contains(param.getKey())) {
+				list.add(param.getValue());
+			}
+		}
+
+		return list;
+	}
+	
+	
 
 	@Override
 	public String getAncestorPath(URI uri, int depth) throws URIException {

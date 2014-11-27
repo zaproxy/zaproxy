@@ -45,6 +45,7 @@
 // ZAP: 2014/05/26 Added listeners for contexts changed events.
 // ZAP: 2014/06/10 Added helper method for removing data for context and type
 // ZAP: 2014/07/15 Issue 1265: Context import and export
+// ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
 
 package org.parosproxy.paros.model;
 
@@ -1313,6 +1314,11 @@ public class Session extends FileXML {
 		return this.getUrlParamParser(uri.toString()).getTreePath(uri);
 	}
 
+	// ZAP: Added support of structural form parameters (Issue 1408)
+	public List<String> getTreePath(HttpMessage msg) throws URIException {
+		URI uri = msg.getRequestHeader().getURI();
+		return this.getUrlParamParser(uri.toString()).getTreePath(msg);
+	}
 	
 	// ZAP: Added listeners for contexts changed events.
 	// TODO: Might be better structured elsewhere, so maybe just a temporary solution.
