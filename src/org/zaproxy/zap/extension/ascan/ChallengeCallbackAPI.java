@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
@@ -162,8 +163,8 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
             
             msg.setResponseBody(response);
             
-        } catch (Exception e) {
-            logger.error(e.getMessage(), e);
+        } catch (URIException | HttpMalformedHeaderException e) {
+            logger.warn(e.getMessage(), e);
         }
         
         return msg;
@@ -187,7 +188,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
      * 
      */
     private static class RegisteredCallback {
-        private ChallengeCallbackPlugin plugin;
+        private final ChallengeCallbackPlugin plugin;
         private HistoryReference hRef;
         private long timeStamp;
         

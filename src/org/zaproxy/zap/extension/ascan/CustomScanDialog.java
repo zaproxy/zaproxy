@@ -28,13 +28,13 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
-
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -57,10 +57,8 @@ import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.FileConfiguration;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -72,6 +70,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -93,36 +92,20 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private static final String FIELD_CONTEXT = "ascan.custom.label.context";
     private static final String FIELD_USER = "ascan.custom.label.user";
     private static final String FIELD_RECURSE = "ascan.custom.label.recurse";
-    private static final String FIELD_ADVANCED = "ascan.custom.label.adv"; 
-
-    private static final String FIELD_VARIANT_INJECTABLE = "variant.options.injectable.label";
-    private static final String FIELD_VARIANT_URL_QUERY = "variant.options.injectable.querystring.label";
-    private static final String FIELD_VARIANT_URL_PATH = "variant.options.injectable.urlpath.label";
-    private static final String FIELD_VARIANT_POST_DATA = "variant.options.injectable.postdata.label";
-    private static final String FIELD_VARIANT_HEADERS = "variant.options.injectable.headers.label";
-    private static final String FIELD_VARIANT_COOKIE = "variant.options.injectable.cookie.label";
-    private static final String FIELD_VARIANT_MULTIPART = "variant.options.rpc.multipart.label";
+    private static final String FIELD_ADVANCED = "ascan.custom.label.adv";
     
-    private static final String FIELD_VARIANT_RPC = "variant.options.rpc.label";
-    private static final String FIELD_VARIANT_XML = "variant.options.rpc.xml.label";
-    private static final String FIELD_VARIANT_JSON = "variant.options.rpc.json.label";
-    private static final String FIELD_VARIANT_GWT = "variant.options.rpc.gwt.label";
-    private static final String FIELD_VARIANT_ODATA = "variant.options.rpc.odata.label";
-    private static final String FIELD_VARIANT_CUSTOM = "variant.options.rpc.custom.label";
-
     private static final String FIELD_DISABLE_VARIANTS_MSG = "variant.options.disable";
 
-    private static Logger logger = Logger.getLogger(CustomScanDialog.class);
-
+    private static final Logger logger = Logger.getLogger(CustomScanDialog.class);
     private static final long serialVersionUID = 1L;
 
     private JButton[] extraButtons = null;
-
     private ExtensionActiveScan extension = null;
-    
-    private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
-			.getExtension(ExtensionUserManagement.NAME);
-    
+
+    private final ExtensionUserManagement extUserMgmt = 
+            (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
+            .getExtension(ExtensionUserManagement.NAME);
+
     private int headerLength = -1;
     // The index of the start of the URL path eg after https://www.example.com:1234/ - no point attacking this
     private int urlPathStart = -1;
@@ -137,16 +120,17 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JButton addCustomButton = null;
     private JButton removeCustomButton = null;
     private JList<Highlight> injectionPointList = null;
-    private DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<Highlight>();
-    private JLabel customPanelStatus = new JLabel();
+    private final DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<>();
+    private final JLabel customPanelStatus = new JLabel();
     private JCheckBox disableNonCustomVectors = null;
-	private JCheckBoxTree techTree = null;
-	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
-	private TreeModel techModel = null;
-	private SequencePanel sequencePanel = null;
-	private ScanPolicy scanPolicy = null;
+    private JCheckBoxTree techTree = null;
+    private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
+    private TreeModel techModel = null;
+    private SequencePanel sequencePanel = null;
+    private ScanPolicy scanPolicy = null;
     private PolicyAllCategoryPanel policyAllCategoryPanel = null;
-    private List<PolicyCategoryPanel> categoryPanels = new ArrayList<PolicyCategoryPanel>();
+    private OptionsVariantPanel variantPanel = null;
+    private final List<PolicyCategoryPanel> categoryPanels = new ArrayList<>();
     private boolean showingAdvTabs = true;
 
     public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
@@ -158,6 +142,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             "ascan.custom.tab.tech",
             "ascan.custom.tab.policy"
         });
+        
         this.setModal(true);
         this.extension = ext;
 
@@ -167,9 +152,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     public void init(Target target) {
         if (target != null) {
-        	// If one isnt specified then leave the previously selected one
-        	this.target = target;
+            // If one isnt specified then leave the previously selected one
+            this.target = target;
         }
+        
         logger.debug("init " + this.target);
 
         this.removeAllFields();
@@ -178,25 +164,26 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.urlPathStart = -1;
 
         if (scanPolicy == null) {
-        	scanPolicy = extension.getPolicyManager().getDefaultScanPolicy();
+            scanPolicy = extension.getPolicyManager().getDefaultScanPolicy();
         }
 
         this.addTargetSelectField(0, FIELD_START, this.target, false, false);
         this.addComboField(0, FIELD_POLICY, extension.getPolicyManager().getAllPolicyNames(), scanPolicy.getName());
-        this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
-        this.addComboField(0, FIELD_USER, new String[] {}, "");
+        this.addComboField(0, FIELD_CONTEXT, new String[]{}, "");
+        this.addComboField(0, FIELD_USER, new String[]{}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         // This option is always read from the 'global' options
         this.addCheckBoxField(0, FIELD_ADVANCED, extension.getScannerParam().isShowAdvancedDialog());
         // Force the policy to be reloaded, even the name hasnt changed the definition could have
-		policySelected();
-        
-        this.addFieldListener(FIELD_POLICY, new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				policySelected();
-			}});
-        
+        policySelected();
+
+        this.addFieldListener(FIELD_POLICY, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                policySelected();
+            }
+        });
+
         this.addPadding(0);
 
         // Default to Recurse, so always set the warning
@@ -209,12 +196,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 setTech();
             }
         });
+        
         this.addFieldListener(FIELD_RECURSE, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 setFieldStates();
             }
         });
+        
         this.addFieldListener(FIELD_ADVANCED, new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -224,248 +213,130 @@ public class CustomScanDialog extends StandardFieldsDialog {
             }
         });
 
-        int targets = scannerParam.getTargetParamsInjectable();
-        this.addCheckBoxField(1, FIELD_VARIANT_INJECTABLE, false);
-        this.addCheckBoxField(1, FIELD_VARIANT_URL_QUERY, (targets & ScannerParam.TARGET_QUERYSTRING) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_URL_PATH, (targets & ScannerParam.TARGET_URLPATH) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_POST_DATA, (targets & ScannerParam.TARGET_POSTDATA) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_HEADERS, (targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_COOKIE, (targets & ScannerParam.TARGET_COOKIE) != 0);
-        setInjectableCheckbox();
-
-        int rpcEnabled = scannerParam.getTargetParamsEnabledRPC();
-        this.addPadding(1);
-        this.addCheckBoxField(1, FIELD_VARIANT_RPC, false);
-        this.addCheckBoxField(1, FIELD_VARIANT_MULTIPART, (rpcEnabled & ScannerParam.RPC_MULTIPART) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_XML, (rpcEnabled & ScannerParam.RPC_XML) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_JSON, (rpcEnabled & ScannerParam.RPC_JSON) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_GWT, (rpcEnabled & ScannerParam.RPC_GWT) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_ODATA, (rpcEnabled & ScannerParam.RPC_ODATA) != 0);
-        this.addCheckBoxField(1, FIELD_VARIANT_CUSTOM, (rpcEnabled & ScannerParam.RPC_CUSTOM) != 0);
-        this.addPadding(1);
-        this.addReadOnlyField(1, FIELD_DISABLE_VARIANTS_MSG, "", true);
-        setRpcCheckbox();
-
-        this.addFieldListener(FIELD_VARIANT_INJECTABLE, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Change all of the 'sub' checkboxes as appropriate
-				boolean set = getBoolValue(FIELD_VARIANT_INJECTABLE);
-		        setFieldValue(FIELD_VARIANT_URL_QUERY, set);
-		        setFieldValue(FIELD_VARIANT_URL_PATH, set);
-		        setFieldValue(FIELD_VARIANT_POST_DATA, set);
-		        setFieldValue(FIELD_VARIANT_HEADERS, set);
-		        setFieldValue(FIELD_VARIANT_COOKIE, set);
-			}});
-        // And if any of the 'sub' checkboxes are changed flow the change up
-        this.addFieldListener(FIELD_VARIANT_URL_QUERY, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setInjectableCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_URL_PATH, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setInjectableCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_POST_DATA, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setInjectableCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_HEADERS, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setInjectableCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_COOKIE, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setInjectableCheckbox();
-			}});
-        
-        this.addFieldListener(FIELD_VARIANT_RPC, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Change all of the 'sub' checkboxes as appropriate
-				boolean set = getBoolValue(FIELD_VARIANT_RPC);
-		        setFieldValue(FIELD_VARIANT_MULTIPART, set);
-		        setFieldValue(FIELD_VARIANT_XML, set);
-		        setFieldValue(FIELD_VARIANT_JSON, set);
-		        setFieldValue(FIELD_VARIANT_GWT, set);
-		        setFieldValue(FIELD_VARIANT_ODATA, set);
-		        setFieldValue(FIELD_VARIANT_CUSTOM, set);
-			}});
-        // And if any of the 'sub' checkboxes are changed flow the change up
-        this.addFieldListener(FIELD_VARIANT_MULTIPART, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setRpcCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_XML, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setRpcCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_JSON, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setRpcCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_GWT, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setRpcCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_ODATA, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setRpcCheckbox();
-			}});
-        this.addFieldListener(FIELD_VARIANT_CUSTOM, new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-		        setRpcCheckbox();
-			}});
-
+        this.getVariantPanel().initParam(scannerParam);
+        this.setCustomTabPanel(1, getVariantPanel());
+         
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
 
         //Sequence panel
-  		this.setCustomTabPanel(3, this.getSequencePanel(true));
-        
+        this.setCustomTabPanel(3, this.getSequencePanel(true));
+
         // Technology panel
         this.setCustomTabPanel(4, getTechPanel());
-        
+
         // Policy panel
         AbstractParamContainerPanel policyPanel
                 = new AbstractParamContainerPanel(Constant.messages.getString("ascan.custom.tab.policy"));
-        
+
         String[] ROOT = {};
 
         policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(), false);
 
         for (int i = 0; i < Category.getAllNames().length; i++) {
-        	PolicyCategoryPanel panel = 
-        			new PolicyCategoryPanel(i, this.scanPolicy.getPluginFactory(), 
-        					scanPolicy.getDefaultThreshold()); 
-            policyPanel.addParamPanel(ROOT, Category.getName(i),panel, true);
+            PolicyCategoryPanel panel
+                    = new PolicyCategoryPanel(i, this.scanPolicy.getPluginFactory(),
+                            scanPolicy.getDefaultThreshold());
+            policyPanel.addParamPanel(ROOT, Category.getName(i), panel, true);
             this.categoryPanels.add(panel);
         }
-        
+
         policyPanel.showDialog(true);
 
         this.setCustomTabPanel(5, policyPanel);
-        
+
         if (target != null) {
-	        // Set up the fields if a node has been specified, otherwise leave as previously set
-	        this.populateRequestField(this.target.getStartNode());
-	        this.siteNodeSelected(FIELD_START, this.target.getStartNode());	
-	        this.setUsers();
-	        this.setTech();
+            // Set up the fields if a node has been specified, otherwise leave as previously set
+            this.populateRequestField(this.target.getStartNode());
+            this.siteNodeSelected(FIELD_START, this.target.getStartNode());
+            this.setUsers();
+            this.setTech();
         }
-        
-       	this.setAdvancedOptions(extension.getScannerParam().isShowAdvancedDialog());
-        
+
+        this.setAdvancedOptions(extension.getScannerParam().isShowAdvancedDialog());
+
         this.pack();
     }
-    
+
     private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
-    	if (policyAllCategoryPanel== null) {
+        if (policyAllCategoryPanel == null) {
             policyAllCategoryPanel = new PolicyAllCategoryPanel(this, extension, scanPolicy, true);
             policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
-    	}
-    	return policyAllCategoryPanel;
+        }
+        return policyAllCategoryPanel;
     }
 
-    
     private void policySelected() {
-		String policyName = getStringValue(FIELD_POLICY);
+        String policyName = getStringValue(FIELD_POLICY);
         try {
-			scanPolicy = extension.getPolicyManager().getPolicy(policyName);
-			getPolicyAllCategoryPanel().setScanPolicy(scanPolicy);
-			for (PolicyCategoryPanel panel : this.categoryPanels) {
-				panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
-			}
-			
-		} catch (ConfigurationException e) {
-			logger.error(e.getMessage(), e);
-		}
+            scanPolicy = extension.getPolicyManager().getPolicy(policyName);
+            getPolicyAllCategoryPanel().setScanPolicy(scanPolicy);
+            for (PolicyCategoryPanel panel : this.categoryPanels) {
+                panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
+            }
+
+        } catch (ConfigurationException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
     
-    private void setInjectableCheckbox() {
-        boolean set = 
-        		getBoolValue(FIELD_VARIANT_URL_QUERY) &&
-        		getBoolValue(FIELD_VARIANT_URL_PATH) &&
-        		getBoolValue(FIELD_VARIANT_POST_DATA) &&
-        		getBoolValue(FIELD_VARIANT_HEADERS) &&
-        		getBoolValue(FIELD_VARIANT_COOKIE);
-       	setFieldValue(FIELD_VARIANT_INJECTABLE, set);
-    }
+    private void setAdvancedOptions(boolean adv) {
+        this.getField(FIELD_POLICY).setEnabled(!adv);
+        if (adv) {
+            ((JComboBox<?>) this.getField(FIELD_POLICY)).setToolTipText(
+                    Constant.messages.getString("ascan.custom.tooltip.policy"));
+        } else {
+            ((JComboBox<?>) this.getField(FIELD_POLICY)).setToolTipText("");
+        }
 
-    private void setRpcCheckbox() {
-        boolean set = 
-        		getBoolValue(FIELD_VARIANT_MULTIPART) &&
-        		getBoolValue(FIELD_VARIANT_XML) &&
-        		getBoolValue(FIELD_VARIANT_JSON) &&
-        		getBoolValue(FIELD_VARIANT_GWT) &&
-        		getBoolValue(FIELD_VARIANT_ODATA) &&
-        		getBoolValue(FIELD_VARIANT_CUSTOM);
-       	setFieldValue(FIELD_VARIANT_RPC, set);
-    }
-
-	private void setAdvancedOptions(boolean adv) {
-		this.getField(FIELD_POLICY).setEnabled(!adv);
-		if (adv) {
-			((JComboBox<?>)this.getField(FIELD_POLICY)).setToolTipText(
-					Constant.messages.getString("ascan.custom.tooltip.policy"));
-		} else {
-			((JComboBox<?>)this.getField(FIELD_POLICY)).setToolTipText("");
-		}
-
-		if (showingAdvTabs == adv) {
-			// Nothing else to do
-			return;
-		}
-		// Show/hide all except from the first tab
-		this.setTabsVisible (new String[] {
-	            "ascan.custom.tab.input",
-	            "ascan.custom.tab.custom",
-	            "ascan.custom.tab.sequence",
-	            "ascan.custom.tab.tech",
-	            "ascan.custom.tab.policy"
-	        }, adv);
+        if (showingAdvTabs == adv) {
+            // Nothing else to do
+            return;
+        }
+        // Show/hide all except from the first tab
+        this.setTabsVisible(new String[]{
+            "ascan.custom.tab.input",
+            "ascan.custom.tab.custom",
+            "ascan.custom.tab.sequence",
+            "ascan.custom.tab.tech",
+            "ascan.custom.tab.policy"
+        }, adv);
+        
         showingAdvTabs = adv;
-    	// Always save in the 'global' options
+        // Always save in the 'global' options
         extension.getScannerParam().setShowAdvancedDialog(adv);
-	}
+    }
 
-	/**
-	 * Gets the Sequence panel.
-	 * @return The sequence panel
-	 */
-	private SequencePanel getSequencePanel() {
-		return this.getSequencePanel(false);
-	}
-	
-	
-	/**
-	 * Gets the sequence panel, with a boolean that specifies if it should be be a new instance or the extisting one.
-	 * @param reset if set to true, returns a new instance, else the existing instance is returned.
-	 * @return
-	 */
-	private SequencePanel getSequencePanel(boolean reset) {
-		if(this.sequencePanel == null || reset) {
-			this.sequencePanel = new SequencePanel();
-		}
-		return this.sequencePanel;
-	}
+    /**
+     * Gets the Sequence panel.
+     *
+     * @return The sequence panel
+     */
+    private SequencePanel getSequencePanel() {
+        return this.getSequencePanel(false);
+    }
+
+    /**
+     * Gets the sequence panel, with a boolean that specifies if it should be be
+     * a new instance or the extisting one.
+     *
+     * @param reset if set to true, returns a new instance, else the existing
+     * instance is returned.
+     * @return
+     */
+    private SequencePanel getSequencePanel(boolean reset) {
+        if (this.sequencePanel == null || reset) {
+            this.sequencePanel = new SequencePanel();
+        }
+        
+        return this.sequencePanel;
+    }
 
     private void populateRequestField(SiteNode node) {
         try {
             if (node == null || node.getHistoryReference() == null || node.getHistoryReference().getHttpMessage() == null) {
                 this.getRequestField().setText("");
-                
+
             } else {
                 // Populate the custom vectors http pane
                 HttpMessage msg = node.getHistoryReference().getHttpMessage();
@@ -482,10 +353,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 recurseChk.setEnabled(node.getChildCount() > 0);
                 recurseChk.setSelected(node.getChildCount() > 0);
             }
-            
+
             this.setFieldStates();
-            
-        } catch (Exception e) {
+
+        } catch (HttpMalformedHeaderException | SQLException e) {
             // 
             this.getRequestField().setText("");
         }
@@ -494,126 +365,126 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     @Override
     public void targetSelected(String field, Target node) {
-        List<String> ctxNames = new ArrayList<String>();
+        List<String> ctxNames = new ArrayList<>();
         if (node != null) {
             // The user has selected a new node
             this.target = node;
             if (node.getStartNode() != null) {
                 populateRequestField(node.getStartNode());
-                
+
                 Session session = Model.getSingleton().getSession();
                 List<Context> contexts = session.getContextsForNode(node.getStartNode());
                 for (Context context : contexts) {
-                	ctxNames.add(context.getName());
+                    ctxNames.add(context.getName());
                 }
-            	
+
             } else if (node.getContext() != null) {
-            	ctxNames.add(node.getContext().getName());
+                ctxNames.add(node.getContext().getName());
             }
-            
+
             this.setTech();
         }
+        
         this.setComboFields(FIELD_CONTEXT, ctxNames, "");
-       	this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
+        this.getField(FIELD_CONTEXT).setEnabled(ctxNames.size() > 0);
     }
-    
+
     private Context getSelectedContext() {
-    	String ctxName = this.getStringValue(FIELD_CONTEXT);
-    	if (this.extUserMgmt != null && ! this.isEmptyField(FIELD_CONTEXT)) {
+        String ctxName = this.getStringValue(FIELD_CONTEXT);
+        if (this.extUserMgmt != null && !this.isEmptyField(FIELD_CONTEXT)) {
             Session session = Model.getSingleton().getSession();
             return session.getContext(ctxName);
-    	}
-    	return null;
+        }
+        return null;
     }
 
     private User getSelectedUser() {
-    	Context context = this.getSelectedContext();
-    	if (context != null) {
-        	String userName = this.getStringValue(FIELD_USER);
-        	List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
-        	for (User user : users) {
-        		if (userName.equals(user.getName())) {
-        			return user;
-        		}
+        Context context = this.getSelectedContext();
+        if (context != null) {
+            String userName = this.getStringValue(FIELD_USER);
+            List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+            for (User user : users) {
+                if (userName.equals(user.getName())) {
+                    return user;
+                }
             }
-    	}
-    	return null;
+        }
+        return null;
     }
 
     private void setUsers() {
-    	Context context = this.getSelectedContext();
-        List<String> userNames = new ArrayList<String>();
-    	if (context != null) {
-        	List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
-        	userNames.add("");	// The default should always be 'not specified'
-        	for (User user : users) {
-        		userNames.add(user.getName());
+        Context context = this.getSelectedContext();
+        List<String> userNames = new ArrayList<>();
+        if (context != null) {
+            List<User> users = this.extUserMgmt.getContextUserAuthManager(context.getIndex()).getUsers();
+            userNames.add("");	// The default should always be 'not specified'
+            for (User user : users) {
+                userNames.add(user.getName());
             }
-    	}
+        }
         this.setComboFields(FIELD_USER, userNames, "");
-       	this.getField(FIELD_USER).setEnabled(userNames.size() > 1);	// Theres always 1..
+        this.getField(FIELD_USER).setEnabled(userNames.size() > 1);	// Theres always 1..
     }
 
     private void setTech() {
-    	Context context = this.getSelectedContext();
+        Context context = this.getSelectedContext();
 
-		TechSet ts = new TechSet(Tech.builtInTech);
-		Iterator<Tech> iter = ts.getIncludeTech().iterator();
+        TechSet ts = new TechSet(Tech.builtInTech);
+        Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-		DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
-		Tech tech;
-		DefaultMutableTreeNode parent;
-		DefaultMutableTreeNode node;
-		while (iter.hasNext()) {
-			tech = iter.next();
-			if (tech.getParent() != null) {
-				parent = techToNodeMap.get(tech.getParent());
-			} else {
-				parent = null;
-			}
-			if (parent == null) {
-				parent = root;
-			}
-			node = new DefaultMutableTreeNode(tech.getName());
-			parent.add(node);
-			techToNodeMap.put(tech, node);
-		}
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+        Tech tech;
+        DefaultMutableTreeNode parent;
+        DefaultMutableTreeNode node;
+        while (iter.hasNext()) {
+            tech = iter.next();
+            if (tech.getParent() != null) {
+                parent = techToNodeMap.get(tech.getParent());
+            } else {
+                parent = null;
+            }
+            if (parent == null) {
+                parent = root;
+            }
+            node = new DefaultMutableTreeNode(tech.getName());
+            parent.add(node);
+            techToNodeMap.put(tech, node);
+        }
 
-		techModel = new DefaultTreeModel(root);
-		techTree.setModel(techModel);
-		techTree.expandAll();
-		// Default to everything set
-		TreePath rootTp = new TreePath(root);
-		techTree.checkSubTree(rootTp, true);
-		techTree.setCheckBoxEnabled(rootTp, false);
+        techModel = new DefaultTreeModel(root);
+        techTree.setModel(techModel);
+        techTree.expandAll();
+        // Default to everything set
+        TreePath rootTp = new TreePath(root);
+        techTree.checkSubTree(rootTp, true);
+        techTree.setCheckBoxEnabled(rootTp, false);
 
-		if (context != null) {
-			TechSet techSet = context.getTechSet();
-			Iterator<Entry<Tech, DefaultMutableTreeNode>> iter2 = techToNodeMap.entrySet().iterator();
-			while (iter.hasNext()) {
-				Entry<Tech, DefaultMutableTreeNode> nodeEntry = iter2.next();
-				TreePath tp = this.getTechPath(nodeEntry.getValue());
-				if (techSet.includes(nodeEntry.getKey())) {
-					this.getTechTree().check(tp, true);
-				}
-			}
-		}
-
+        if (context != null) {
+            TechSet techSet = context.getTechSet();
+            Iterator<Entry<Tech, DefaultMutableTreeNode>> iter2 = techToNodeMap.entrySet().iterator();
+            while (iter.hasNext()) {
+                Entry<Tech, DefaultMutableTreeNode> nodeEntry = iter2.next();
+                TreePath tp = this.getTechPath(nodeEntry.getValue());
+                if (techSet.includes(nodeEntry.getKey())) {
+                    this.getTechTree().check(tp, true);
+                }
+            }
+        }
     }
 
-	private TreePath getTechPath(TreeNode node) {
-		List<TreeNode> list = new ArrayList<>();
+    private TreePath getTechPath(TreeNode node) {
+        List<TreeNode> list = new ArrayList<>();
 
-		// Add all nodes to list
-		while (node != null) {
-			list.add(node);
-			node = node.getParent();
-		}
-		Collections.reverse(list);
+        // Add all nodes to list
+        while (node != null) {
+            list.add(node);
+            node = node.getParent();
+        }
+        Collections.reverse(list);
 
-		// Convert array of nodes to TreePath
-		return new TreePath(list.toArray());
-	}
+        // Convert array of nodes to TreePath
+        return new TreePath(list.toArray());
+    }
 
     private ZapTextArea getRequestField() {
         if (requestField == null) {
@@ -623,6 +494,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
             requestField.getCaret().setVisible(true);
         }
         return requestField;
+    }
+
+    private OptionsVariantPanel getVariantPanel() {
+        if (variantPanel == null) {
+            variantPanel = new OptionsVariantPanel();            
+        }
+        
+        return variantPanel;
     }
 
     private JPanel getCustomPanel() {
@@ -645,13 +524,13 @@ public class CustomScanDialog extends StandardFieldsDialog {
             buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(0, 0, 1, 0.5));	// Spacer
             buttonPanel.add(getAddCustomButton(), LayoutHelper.getGBC(1, 0, 1, 1, 0.0D, 0.0D,
                     GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(5, 5, 5, 5)));
-            
+
             buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(2, 0, 1, 0.5));	// Spacer
 
             buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(0, 1, 1, 0.5));	// Spacer
             buttonPanel.add(getRemoveCustomButton(), LayoutHelper.getGBC(1, 1, 1, 1, 0.0D, 0.0D,
                     GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, new Insets(5, 5, 5, 5)));
-            
+
             buttonPanel.add(new JLabel(""), LayoutHelper.getGBC(2, 1, 1, 0.5));	// Spacer
 
             JScrollPane scrollPane2 = new JScrollPane(getInjectionPointList());
@@ -659,7 +538,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             buttonPanel.add(new JLabel(Constant.messages.getString("ascan.custom.label.vectors")),
                     LayoutHelper.getGBC(0, 2, 3, 0.0D, 0.0D));
-            
+
             buttonPanel.add(scrollPane2, LayoutHelper.getGBC(0, 3, 3, 1.0D, 1.0D));
 
             JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPane, buttonPanel);
@@ -668,7 +547,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             customPanel.add(customPanelStatus, LayoutHelper.getGBC(0, 1, 1, 1, 1.0D, 0.0D));
             customPanel.add(getDisableNonCustomVectors(), LayoutHelper.getGBC(0, 2, 1, 1, 1.0D, 0.0D));
         }
-        
+
         return customPanel;
     }
 
@@ -693,7 +572,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                             getRequestField().setSelectionStart(userDefEnd);
                             getRequestField().setSelectionEnd(userDefEnd);
                             getRequestField().getCaret().setVisible(true);
-                            
+
                         } catch (BadLocationException e1) {
                             logger.error(e1.getMessage(), e1);
                         }
@@ -729,7 +608,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                                 }
                             }
                         }
-                        
+
                         // Unselect the text
                         getRequestField().setSelectionStart(userDefEnd);
                         getRequestField().setSelectionEnd(userDefEnd);
@@ -738,104 +617,96 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 }
             });
         }
-        
+
         return removeCustomButton;
     }
-    
+        
     private JCheckBox getDisableNonCustomVectors() {
-    	if (disableNonCustomVectors == null) {
-    		disableNonCustomVectors = new JCheckBox(Constant.messages.getString("ascan.custom.label.disableiv"));
-    		disableNonCustomVectors.addActionListener(new ActionListener() {
+        if (disableNonCustomVectors == null) {
+            disableNonCustomVectors = new JCheckBox(Constant.messages.getString("ascan.custom.label.disableiv"));
+            disableNonCustomVectors.addActionListener(new ActionListener() {
+                
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Enable/disable all of the input vector options as appropriate
+                    getVariantPanel().setAllInjectableAndRPC(!disableNonCustomVectors.isSelected());
 
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					// Enable/disable all of the input vector options as appropriate
-		    		getField(FIELD_VARIANT_URL_QUERY).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_URL_PATH).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_POST_DATA).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_HEADERS).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_COOKIE).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_MULTIPART).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_XML).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_JSON).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_GWT).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_ODATA).setEnabled(!disableNonCustomVectors.isSelected());
-		    		getField(FIELD_VARIANT_CUSTOM).setEnabled(!disableNonCustomVectors.isSelected());
-		    		
-		    		if (disableNonCustomVectors.isSelected()) {
-		    			setFieldValue(FIELD_DISABLE_VARIANTS_MSG, 
-		    					Constant.messages.getString("ascan.custom.warn.disabled"));
-		    		} else {
-		    			setFieldValue(FIELD_DISABLE_VARIANTS_MSG, "");
-		    		}
+                    if (disableNonCustomVectors.isSelected()) {
+                        setFieldValue(FIELD_DISABLE_VARIANTS_MSG,
+                                Constant.messages.getString("ascan.custom.warn.disabled"));
+                    
+                    } else {
+                        setFieldValue(FIELD_DISABLE_VARIANTS_MSG, "");
+                    }
 
-				}});
-    		
-    	}
-    	return disableNonCustomVectors;
+                }
+            });
+
+        }
+        return disableNonCustomVectors;
     }
-
+    
     private JPanel getTechPanel() {
         if (techPanel == null) {
             techPanel = new JPanel(new GridBagLayout());
 
             JScrollPane scrollPane = new JScrollPane();
             scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-			scrollPane.setViewportView(getTechTree());
-			scrollPane.setBorder(javax.swing.BorderFactory
-					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
+            scrollPane.setViewportView(getTechTree());
+            scrollPane.setBorder(javax.swing.BorderFactory
+                    .createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
 
             techPanel.add(scrollPane, LayoutHelper.getGBC(0, 0, 1, 1, 1.0D, 1.0D));
         }
-        
+
         return techPanel;
     }
 
-	private JCheckBoxTree getTechTree() {
-		if (techTree == null) {
-			techTree = new JCheckBoxTree() {
-				private static final long serialVersionUID = 1L;
+    private JCheckBoxTree getTechTree() {
+        if (techTree == null) {
+            techTree = new JCheckBoxTree() {
+                private static final long serialVersionUID = 1L;
 
-				@Override
-				protected void setExpandedState(TreePath path, boolean state) {
-					// Ignore all collapse requests; collapse events will not be fired
-					if (state) {
-						super.setExpandedState(path, state);
-					}
-				}
-			};
-			// Initialise the structure based on all the tech we know about
-			TechSet ts = new TechSet(Tech.builtInTech);
-			Iterator<Tech> iter = ts.getIncludeTech().iterator();
+                @Override
+                protected void setExpandedState(TreePath path, boolean state) {
+                    // Ignore all collapse requests; collapse events will not be fired
+                    if (state) {
+                        super.setExpandedState(path, state);
+                    }
+                }
+            };
+            // Initialise the structure based on all the tech we know about
+            TechSet ts = new TechSet(Tech.builtInTech);
+            Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
-			Tech tech;
-			DefaultMutableTreeNode parent;
-			DefaultMutableTreeNode node;
-			while (iter.hasNext()) {
-				tech = iter.next();
-				if (tech.getParent() != null) {
-					parent = techToNodeMap.get(tech.getParent());
-				} else {
-					parent = null;
-				}
-				if (parent == null) {
-					parent = root;
-				}
-				node = new DefaultMutableTreeNode(tech.getName());
-				parent.add(node);
-				techToNodeMap.put(tech, node);
-			}
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+            Tech tech;
+            DefaultMutableTreeNode parent;
+            DefaultMutableTreeNode node;
+            while (iter.hasNext()) {
+                tech = iter.next();
+                if (tech.getParent() != null) {
+                    parent = techToNodeMap.get(tech.getParent());
+                } else {
+                    parent = null;
+                }
+                if (parent == null) {
+                    parent = root;
+                }
+                node = new DefaultMutableTreeNode(tech.getName());
+                parent.add(node);
+                techToNodeMap.put(tech, node);
+            }
 
-			techModel = new DefaultTreeModel(root);
-			techTree.setModel(techModel);
-			techTree.expandAll();
-			techTree.setCheckBoxEnabled(new TreePath(root), false);
+            techModel = new DefaultTreeModel(root);
+            techTree.setModel(techModel);
+            techTree.expandAll();
+            techTree.setCheckBoxEnabled(new TreePath(root), false);
             this.setTech();
 
-		}
-		return techTree;
-	}
+        }
+        return techTree;
+    }
 
     private void setFieldStates() {
         int userDefStart = getRequestField().getSelectionStart();
@@ -846,7 +717,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             getAddCustomButton().setEnabled(false);
             getRemoveCustomButton().setEnabled(false);
             getDisableNonCustomVectors().setEnabled(false);
-        
+
         } else {
             customPanelStatus.setText(Constant.messages.getString("ascan.custom.status.highlight"));
             if (userDefStart >= 0) {
@@ -855,58 +726,60 @@ public class CustomScanDialog extends StandardFieldsDialog {
                         getRequestField().getHighlighter().getHighlights())) {
                     getAddCustomButton().setEnabled(false);
                     getRemoveCustomButton().setEnabled(true);
-                
+
                 } else if (userDefStart < urlPathStart) {
                     // No point attacking the method, hostname or port 
                     getAddCustomButton().setEnabled(false);
-                
+
                 } else if (userDefStart < headerLength && userDefEnd > headerLength) {
                     // The users selection cross the header / body boundry - thats never going to work well
                     getAddCustomButton().setEnabled(false);
                     getRemoveCustomButton().setEnabled(false);
-                
+
                 } else {
                     getAddCustomButton().setEnabled(true);
                     getRemoveCustomButton().setEnabled(false);
                 }
-                
+
             } else {
                 // Nothing selected
                 getAddCustomButton().setEnabled(false);
                 getRemoveCustomButton().setEnabled(false);
             }
+            
             getDisableNonCustomVectors().setEnabled(true);
         }
-        
+
         getRequestField().getCaret().setVisible(true);
     }
-    
-	private TechSet getTechSet(){
-		TechSet techSet = new TechSet();
 
-		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-			TreePath tp = this.getTechPath(node.getValue());
-			Tech tech = node.getKey();
-			if (this.getTechTree().isSelectedFully(tp)) {
-				techSet.include(tech);
-			} else {
-				techSet.exclude(tech);
-			}
-		}
-		return techSet;
-	}
+    private TechSet getTechSet() {
+        TechSet techSet = new TechSet();
 
+        Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
+        while (iter.hasNext()) {
+            Entry<Tech, DefaultMutableTreeNode> node = iter.next();
+            TreePath tp = this.getTechPath(node.getValue());
+            Tech tech = node.getKey();
+            if (this.getTechTree().isSelectedFully(tp)) {
+                techSet.include(tech);
+                
+            } else {
+                techSet.exclude(tech);
+            }
+        }
+        return techSet;
+    }
 
     private JList<Highlight> getInjectionPointList() {
         if (injectionPointList == null) {
-            injectionPointList = new JList<Highlight>(injectionPointModel);
+            injectionPointList = new JList<>(injectionPointModel);
             injectionPointList.setCellRenderer(new ListCellRenderer<Highlight>() {
                 @Override
                 public Component getListCellRendererComponent(
                         JList<? extends Highlight> list, Highlight hlt,
                         int index, boolean isSelected, boolean cellHasFocus) {
+                    
                     String str = "";
                     try {
                         str = getRequestField().getText(hlt.getStartOffset(), hlt.getEndOffset() - hlt.getStartOffset());
@@ -917,11 +790,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
                     } catch (BadLocationException e) {
                         // Ignore
                     }
-                    
+
                     return new JLabel("[" + hlt.getStartOffset() + "," + hlt.getEndOffset() + "]: " + str);
                 }
             });
         }
+        
         return injectionPointList;
     }
 
@@ -946,8 +820,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     private void reset(boolean refreshUi) {
-        FileConfiguration fileConfig = new XMLConfiguration();
-        ConfigurationUtils.copy(extension.getScannerParam().getConfig(), fileConfig);
+        
+        // From Apache Commons source code:
+        // Note: This method won't work well on hierarchical configurations because it is not able to 
+        // copy information about the properties' structure. 
+        // So when dealing with hierarchical configuration objects their clone() methods should be used.        
+        //FileConfiguration fileConfig = new XMLConfiguration();
+        //ConfigurationUtils.copy(extension.getScannerParam().getConfig(), fileConfig);
+        XMLConfiguration fileConfig = (XMLConfiguration)ConfigurationUtils.cloneConfiguration(extension.getScannerParam().getConfig());
 
         scannerParam = new ScannerParam();
         scannerParam.load(fileConfig);
@@ -979,108 +859,69 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
             extraButtons = new JButton[]{resetButton};
         }
+        
         return extraButtons;
     }
 
+    /**
+     * Use the save method to launch a scan
+     */
     @Override
     public void save() {
         Object[] contextSpecificObjects = new Object[]{scanPolicy};
 
-		if (this.getBoolValue(FIELD_ADVANCED)) {
-	        // Set Injectable Targets
-	        int targets = 0;
-	        int enabledRpc = 0;
-	
-	        if (! getDisableNonCustomVectors().isSelected()) {
-	        	// Only set these if the user hasnt disabled them
-		        if (this.getBoolValue(FIELD_VARIANT_URL_QUERY)) {
-		            targets |= ScannerParam.TARGET_QUERYSTRING;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_URL_PATH)) {
-		            targets |= ScannerParam.TARGET_URLPATH;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_POST_DATA)) {
-		            targets |= ScannerParam.TARGET_POSTDATA;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_HEADERS)) {
-		            targets |= ScannerParam.TARGET_HTTPHEADERS;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_COOKIE)) {
-		            targets |= ScannerParam.TARGET_COOKIE;
-		        }
-	
-		        // Set Enabled RPC schemas
-		        if (this.getBoolValue(FIELD_VARIANT_MULTIPART)) {
-		            enabledRpc |= ScannerParam.RPC_MULTIPART;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_XML)) {
-		            enabledRpc |= ScannerParam.RPC_XML;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_JSON)) {
-		            enabledRpc |= ScannerParam.RPC_JSON;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_GWT)) {
-		            enabledRpc |= ScannerParam.RPC_GWT;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_ODATA)) {
-		            enabledRpc |= ScannerParam.RPC_ODATA;
-		        }
-		        
-		        if (this.getBoolValue(FIELD_VARIANT_CUSTOM)) {
-		            enabledRpc |= ScannerParam.RPC_CUSTOM;
-		        }
-	    	}        
-	        
-	        //The following List and Hashmap represent the selections made on the Sequence Panel.
-	  		List<ScriptWrapper> selectedIncludeScripts = getSequencePanel().getSelectedIncludeScripts();
-	        
-	        if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
-	            int[][] injPoints = new int[injectionPointModel.getSize()][];
-	            for (int i = 0; i < injectionPointModel.getSize(); i++) {
-	                Highlight hl = injectionPointModel.elementAt(i);
-	                injPoints[i] = new int[2];
-	                injPoints[i][0] = hl.getStartOffset();
-	                injPoints[i][1] = hl.getEndOffset();
-	            }
-	
-	            try {
-	            	if (target != null && target.getStartNode() != null) {
-		                VariantUserDefined.setInjectionPoints(
-		                        this.target.getStartNode().getHistoryReference().getURI().toString(),
-		                        injPoints);
-		                
-		                enabledRpc |= ScannerParam.RPC_USERDEF;
-	            	}
-	                
-	            } catch (Exception e) {
-	                logger.error(e.getMessage(), e);
-	            }
-	        }
-	        scannerParam.setTargetParamsInjectable(targets);
-	        scannerParam.setTargetParamsEnabledRPC(enabledRpc);
-	
-	        contextSpecificObjects = new Object[]{
-	            scannerParam,
-	            scanPolicy,
-	            this.getTechSet()
-	        };
-	        
-	        this.extension.setIncludedSequenceScripts(selectedIncludeScripts);
-    	}
+        if (this.getBoolValue(FIELD_ADVANCED)) {
+
+            // Save all Variant configurations
+            getVariantPanel().saveParam(scannerParam);
+            
+            // If all other vectors has been disabled
+            // force all injectable params and rpc model to NULL
+            if (getDisableNonCustomVectors().isSelected()) {
+                scannerParam.setTargetParamsInjectable(0);
+                scannerParam.setTargetParamsEnabledRPC(0);                
+            }
+            
+            //The following List and Hashmap represent the selections made on the Sequence Panel.
+            List<ScriptWrapper> selectedIncludeScripts = getSequencePanel().getSelectedIncludeScripts();
+
+            if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
+                int[][] injPoints = new int[injectionPointModel.getSize()][];
+                for (int i = 0; i < injectionPointModel.getSize(); i++) {
+                    Highlight hl = injectionPointModel.elementAt(i);
+                    injPoints[i] = new int[2];
+                    injPoints[i][0] = hl.getStartOffset();
+                    injPoints[i][1] = hl.getEndOffset();
+                }
+
+                try {
+                    if (target != null && target.getStartNode() != null) {
+                        VariantUserDefined.setInjectionPoints(
+                                this.target.getStartNode().getHistoryReference().getURI().toString(),
+                                injPoints);
+
+                        enableUserDefinedRPC();
+                    }
+
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+
+            contextSpecificObjects = new Object[]{
+                scannerParam,
+                scanPolicy,
+                this.getTechSet()
+            };
+
+            this.extension.setIncludedSequenceScripts(selectedIncludeScripts);
+        }
 
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
-        
+
         this.extension.startScan(
                 target,
-                getSelectedUser(), 
+                getSelectedUser(),
                 contextSpecificObjects);
     }
 
@@ -1089,7 +930,17 @@ public class CustomScanDialog extends StandardFieldsDialog {
         if (this.target == null || !this.target.isValid()) {
             return Constant.messages.getString("ascan.custom.nostart.error");
         }
-        
+
         return null;
+    }
+
+
+    /**
+     * Force UserDefinedRPC setting
+     */
+    public void enableUserDefinedRPC() {
+        int enabledRpc = scannerParam.getTargetParamsEnabledRPC();
+        enabledRpc |= ScannerParam.RPC_USERDEF;
+        scannerParam.setTargetParamsEnabledRPC(enabledRpc);
     }
 }

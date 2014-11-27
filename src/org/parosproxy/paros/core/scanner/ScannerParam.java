@@ -37,7 +37,6 @@
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
-
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -52,51 +51,53 @@ import org.parosproxy.paros.common.AbstractParam;
 
 public class ScannerParam extends AbstractParam {
 
-    private static final String HOST_PER_SCAN = "scanner.hostPerScan";
-    private static final String THREAD_PER_HOST = "scanner.threadPerHost";
+    // Base path for the Scanner Param tree
+    private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
+    
+    private static final String HOST_PER_SCAN = ACTIVE_SCAN_BASE_KEY + ".hostPerScan";
+    private static final String THREAD_PER_HOST = ACTIVE_SCAN_BASE_KEY + ".threadPerHost";
     // ZAP: Added support for delayInMs
-    private static final String DELAY_IN_MS = "scanner.delayInMs";
-    private static final String HANDLE_ANTI_CSRF_TOKENS = "scanner.antiCSFR";
-    private static final String PROMPT_IN_ATTACK_MODE = "scanner.attackPrompt";
-    private static final String RESCAN_IN_ATTACK_MODE = "scanner.attackRescan";
-    private static final String PROMPT_TO_CLEAR_FINISHED = "scanner.clearFinished";
-    private static final String MAX_RESULTS_LIST = "scanner.maxResults";
-    private static final String MAX_SCANS_IN_UI = "scanner.maxScansInUI";
-    private static final String SHOW_ADV_DIALOG = "scanner.advDialog";
-    private static final String DEFAULT_POLICY = "scanner.defaultPolicy";
-    private static final String ATTACK_POLICY = "scanner.attackPolicy";
+    private static final String DELAY_IN_MS = ACTIVE_SCAN_BASE_KEY + ".delayInMs";
+    private static final String HANDLE_ANTI_CSRF_TOKENS = ACTIVE_SCAN_BASE_KEY + ".antiCSFR";
+    private static final String PROMPT_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackPrompt";
+    private static final String RESCAN_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackRescan";
+    private static final String PROMPT_TO_CLEAR_FINISHED = ACTIVE_SCAN_BASE_KEY + ".clearFinished";
+    private static final String MAX_RESULTS_LIST = ACTIVE_SCAN_BASE_KEY + ".maxResults";
+    private static final String MAX_SCANS_IN_UI = ACTIVE_SCAN_BASE_KEY + ".maxScansInUI";
+    private static final String SHOW_ADV_DIALOG = ACTIVE_SCAN_BASE_KEY + ".advDialog";
+    private static final String DEFAULT_POLICY = ACTIVE_SCAN_BASE_KEY + ".defaultPolicy";
+    private static final String ATTACK_POLICY = ACTIVE_SCAN_BASE_KEY + ".attackPolicy";
 
     // ZAP: Excluded Parameters
-    private static final String ACTIVE_SCAN_BASE_KEY = "scanner";
     private static final String EXCLUDED_PARAMS_KEY = ACTIVE_SCAN_BASE_KEY + ".excludedParameters";
     private static final String EXCLUDED_PARAM_NAME = "name";
     private static final String EXCLUDED_PARAM_TYPE = "type";
     private static final String EXCLUDED_PARAM_URL = "url";
-    
+
     // ZAP: TARGET CONFIGURATION
-    private static final String TARGET_INJECTABLE = "scanner.injectable";
-    private static final String TARGET_ENABLED_RPC = "scanner.enabledRPC";    
-    
+    private static final String TARGET_INJECTABLE = ACTIVE_SCAN_BASE_KEY + ".injectable";
+    private static final String TARGET_ENABLED_RPC = ACTIVE_SCAN_BASE_KEY + ".enabledRPC";
+
     // ZAP: Configuration constants
-    public static final int TARGET_QUERYSTRING  = 1;
-    public static final int TARGET_POSTDATA     = 1<<1;
-    public static final int TARGET_COOKIE       = 1<<2;
-    public static final int TARGET_HTTPHEADERS  = 1<<3;
-    public static final int TARGET_URLPATH   	= 1<<4;
-    
-    public static final int RPC_MULTIPART   = 1;
-    public static final int RPC_XML         = 1<<1;
-    public static final int RPC_JSON        = 1<<2;
-    public static final int RPC_GWT         = 1<<3;
-    public static final int RPC_ODATA       = 1<<4;
-    public static final int RPC_DWR         = 1<<5;
-    public static final int RPC_CUSTOM      = 1<<7;
-    public static final int RPC_USERDEF     = 1<<8;
-    
+    public static final int TARGET_QUERYSTRING = 1;
+    public static final int TARGET_POSTDATA = 1 << 1;
+    public static final int TARGET_COOKIE = 1 << 2;
+    public static final int TARGET_HTTPHEADERS = 1 << 3;
+    public static final int TARGET_URLPATH = 1 << 4;
+
+    public static final int RPC_MULTIPART = 1;
+    public static final int RPC_XML = 1 << 1;
+    public static final int RPC_JSON = 1 << 2;
+    public static final int RPC_GWT = 1 << 3;
+    public static final int RPC_ODATA = 1 << 4;
+    public static final int RPC_DWR = 1 << 5;
+    public static final int RPC_CUSTOM = 1 << 7;
+    public static final int RPC_USERDEF = 1 << 8;
+
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA | TARGET_COOKIE | TARGET_HTTPHEADERS | TARGET_URLPATH;
     public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR;
-        
+
     // Internal variables
     private int hostPerScan = 2;
     private int threadPerHost = 1;
@@ -110,18 +111,18 @@ public class ScannerParam extends AbstractParam {
     private boolean showAdvancedDialog = false;
     private String defaultPolicy;
     private String attackPolicy;
-    
+
     // ZAP: Variants Configuration
     private int targetParamsInjectable = TARGET_INJECTABLE_DEFAULT;
     private int targetParamsEnabledRPC = TARGET_ENABLED_RPC_DEFAULT;
-            
+
     // ZAP: Excluded Parameters
     private final List<ScannerParamFilter> excludedParams = new ArrayList<>();
     private final Map<Integer, List<ScannerParamFilter>> excludedParamsMap = new HashMap<>();
 
     // ZAP: internal Logger
-    private static final Logger logger = Logger.getLogger(ScannerParam.class);    
-    
+    private static final Logger logger = Logger.getLogger(ScannerParam.class);
+
     public ScannerParam() {
     }
 
@@ -131,87 +132,101 @@ public class ScannerParam extends AbstractParam {
 
         try {
             this.threadPerHost = getConfig().getInt(THREAD_PER_HOST, 1);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         try {
             this.hostPerScan = getConfig().getInt(HOST_PER_SCAN, 2);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         try {
             this.delayInMs = getConfig().getInt(DELAY_IN_MS, 0);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         try {
             this.maxResultsToList = getConfig().getInt(MAX_RESULTS_LIST, 1000);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         try {
             this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         try {
             this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             this.promptInAttackMode = getConfig().getBoolean(PROMPT_IN_ATTACK_MODE, true);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             this.rescanInAttackMode = getConfig().getBoolean(RESCAN_IN_ATTACK_MODE, true);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             this.promptToClearFinishedScans = getConfig().getBoolean(PROMPT_TO_CLEAR_FINISHED, true);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             this.showAdvancedDialog = getConfig().getBoolean(SHOW_ADV_DIALOG, false);
-        } catch (Exception e) {}
-      
+        } catch (Exception e) {
+        }
+
         try {
             this.defaultPolicy = getConfig().getString(DEFAULT_POLICY, null);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             this.attackPolicy = getConfig().getString(ATTACK_POLICY, null);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+        }
 
         try {
             this.targetParamsInjectable = getConfig().getInt(TARGET_INJECTABLE, TARGET_INJECTABLE_DEFAULT);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         try {
             this.targetParamsEnabledRPC = getConfig().getInt(TARGET_ENABLED_RPC, TARGET_ENABLED_RPC_DEFAULT);
-        } catch (Exception e) {}
-        
+        } catch (Exception e) {
+        }
+
         // Parse the parameters that need to be excluded
         // ------------------------------------------------
         try {
-            List<HierarchicalConfiguration> fields = 
-                    ((HierarchicalConfiguration)getConfig()).configurationsAt(EXCLUDED_PARAMS_KEY);
-            
+            List<HierarchicalConfiguration> fields
+                    = ((HierarchicalConfiguration) getConfig()).configurationsAt(EXCLUDED_PARAMS_KEY);
+
             this.excludedParams.clear();
             this.excludedParamsMap.clear();
             List<String> tempParamNames = new ArrayList<>(fields.size());
-            
+
             for (HierarchicalConfiguration sub : fields) {
                 String name = sub.getString(EXCLUDED_PARAM_NAME, "");
                 if (!name.isEmpty() && !tempParamNames.contains(name)) {
                     tempParamNames.add(name);
-                    
+
                     addScannerParamFilter(
-                            name, 
-                            sub.getInt(EXCLUDED_PARAM_TYPE, NameValuePair.TYPE_UNDEFINED), 
+                            name,
+                            sub.getInt(EXCLUDED_PARAM_TYPE, NameValuePair.TYPE_UNDEFINED),
                             sub.getString(EXCLUDED_PARAM_URL)
-                    );                                        
+                    );
                 }
             }
-            
+
         } catch (ConversionException e) {
             logger.error("Error while loading the exluded parameter list: " + e.getMessage(), e);
         }
-        
+
         // If the list is null probably we've to use defaults!!!
         if (this.excludedParams.isEmpty()) {
             // OK let's set the Default parameter exclusion list
@@ -251,20 +266,20 @@ public class ScannerParam extends AbstractParam {
         }
 
         excludedParams.add(filter);
-        subList.add(filter);        
+        subList.add(filter);
     }
-    
+
     public List<ScannerParamFilter> getExcludedParamList() {
         return excludedParams;
     }
-    
+
     public List<ScannerParamFilter> getExcludedParamList(int paramType) {
         return excludedParamsMap.get(paramType);
     }
 
     /**
-     * 
-     * @param filters 
+     *
+     * @param filters
      */
     public void setExcludedParamList(List<ScannerParamFilter> filters) {
 
@@ -277,9 +292,9 @@ public class ScannerParam extends AbstractParam {
             ScannerParamFilter filter = filters.get(i);
 
             getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_NAME, filter.getParamName());
-            getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_TYPE, Integer.valueOf(filter.getType()));
+            getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_TYPE, filter.getType());
             getConfig().setProperty(elementBaseKey + EXCLUDED_PARAM_URL, filter.getWildcardedUrl());
-            
+
             // And now populate again all parameter list
             addScannerParamFilter(
                     filter.getParamName(),
@@ -288,18 +303,18 @@ public class ScannerParam extends AbstractParam {
             );
         }
     }
-    
+
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getThreadPerHost() {
         return threadPerHost;
     }
 
     /**
-     * 
-     * @param threadPerHost 
+     *
+     * @param threadPerHost
      */
     public void setThreadPerHost(int threadPerHost) {
         this.threadPerHost = threadPerHost;
@@ -323,16 +338,16 @@ public class ScannerParam extends AbstractParam {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getMaxResultsToList() {
         return maxResultsToList;
     }
 
     /**
-     * 
-     * @param maxResultsToList 
+     *
+     * @param maxResultsToList
      */
     public void setMaxResultsToList(int maxResultsToList) {
         this.maxResultsToList = maxResultsToList;
@@ -340,8 +355,8 @@ public class ScannerParam extends AbstractParam {
     }
 
     /**
-     * 
-     * @param delayInMs 
+     *
+     * @param delayInMs
      */
     public void setDelayInMs(int delayInMs) {
         this.delayInMs = delayInMs;
@@ -349,24 +364,24 @@ public class ScannerParam extends AbstractParam {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getDelayInMs() {
         return delayInMs;
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean getHandleAntiCSRFTokens() {
         return handleAntiCSRFTokens;
     }
 
     /**
-     * 
-     * @param handleAntiCSRFTokens 
+     *
+     * @param handleAntiCSRFTokens
      */
     public void setHandleAntiCSRFTokens(boolean handleAntiCSRFTokens) {
         this.handleAntiCSRFTokens = handleAntiCSRFTokens;
@@ -374,34 +389,34 @@ public class ScannerParam extends AbstractParam {
     }
 
     public boolean isRescanInAttackMode() {
-		return rescanInAttackMode;
-	}
+        return rescanInAttackMode;
+    }
 
-	public void setRescanInAttackMode(boolean rescanInAttackMode) {
-		this.rescanInAttackMode = rescanInAttackMode;
+    public void setRescanInAttackMode(boolean rescanInAttackMode) {
+        this.rescanInAttackMode = rescanInAttackMode;
         getConfig().setProperty(RESCAN_IN_ATTACK_MODE, rescanInAttackMode);
-	}
+    }
 
-	public boolean isPromptInAttackMode() {
-		return promptInAttackMode;
-	}
+    public boolean isPromptInAttackMode() {
+        return promptInAttackMode;
+    }
 
-	public void setPromptInAttackMode(boolean promptInAttackMode) {
-		this.promptInAttackMode = promptInAttackMode;
+    public void setPromptInAttackMode(boolean promptInAttackMode) {
+        this.promptInAttackMode = promptInAttackMode;
         getConfig().setProperty(PROMPT_IN_ATTACK_MODE, promptInAttackMode);
-	}
+    }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getTargetParamsInjectable() {
         return targetParamsInjectable;
     }
 
     /**
-     * 
-     * @param targetParamsInjectable 
+     *
+     * @param targetParamsInjectable
      */
     public void setTargetParamsInjectable(int targetParamsInjectable) {
         this.targetParamsInjectable = targetParamsInjectable;
@@ -409,65 +424,65 @@ public class ScannerParam extends AbstractParam {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public int getTargetParamsEnabledRPC() {
         return targetParamsEnabledRPC;
     }
 
     /**
-     * 
-     * @param targetParamsEnabledRPC 
+     *
+     * @param targetParamsEnabledRPC
      */
     public void setTargetParamsEnabledRPC(int targetParamsEnabledRPC) {
         this.targetParamsEnabledRPC = targetParamsEnabledRPC;
         getConfig().setProperty(TARGET_ENABLED_RPC, this.targetParamsEnabledRPC);
     }
+    
+    public boolean isPromptToClearFinishedScans() {
+        return promptToClearFinishedScans;
+    }
 
-	public boolean isPromptToClearFinishedScans() {
-		return promptToClearFinishedScans;
-	}
-
-	public void setPromptToClearFinishedScans(boolean promptToClearFinishedScans) {
-		this.promptToClearFinishedScans = promptToClearFinishedScans;
+    public void setPromptToClearFinishedScans(boolean promptToClearFinishedScans) {
+        this.promptToClearFinishedScans = promptToClearFinishedScans;
         getConfig().setProperty(PROMPT_TO_CLEAR_FINISHED, this.promptToClearFinishedScans);
-	}
+    }
 
-	public int getMaxScansInUI() {
-		return maxScansInUI;
-	}
+    public int getMaxScansInUI() {
+        return maxScansInUI;
+    }
 
-	public void setMaxScansInUI(int maxScansInUI) {
-		this.maxScansInUI = maxScansInUI;
+    public void setMaxScansInUI(int maxScansInUI) {
+        this.maxScansInUI = maxScansInUI;
         getConfig().setProperty(MAX_SCANS_IN_UI, this.maxScansInUI);
-	}
+    }
 
-	public boolean isShowAdvancedDialog() {
-		return showAdvancedDialog;
-	}
+    public boolean isShowAdvancedDialog() {
+        return showAdvancedDialog;
+    }
 
-	public void setShowAdvancedDialog(boolean showAdvancedDialog) {
-		this.showAdvancedDialog = showAdvancedDialog;
+    public void setShowAdvancedDialog(boolean showAdvancedDialog) {
+        this.showAdvancedDialog = showAdvancedDialog;
         getConfig().setProperty(SHOW_ADV_DIALOG, this.showAdvancedDialog);
-	}
+    }
 
-	public String getDefaultPolicy() {
-		return defaultPolicy;
-	}
+    public String getDefaultPolicy() {
+        return defaultPolicy;
+    }
 
-	public String getAttackPolicy() {
-		return attackPolicy;
-	}
+    public String getAttackPolicy() {
+        return attackPolicy;
+    }
 
-	public void setDefaultPolicy(String defaultPolicy) {
-		this.defaultPolicy = defaultPolicy;
+    public void setDefaultPolicy(String defaultPolicy) {
+        this.defaultPolicy = defaultPolicy;
         getConfig().setProperty(DEFAULT_POLICY, this.defaultPolicy);
-	}
+    }
 
-	public void setAttackPolicy(String attackPolicy) {
-		this.attackPolicy = attackPolicy;
+    public void setAttackPolicy(String attackPolicy) {
+        this.attackPolicy = attackPolicy;
         getConfig().setProperty(ATTACK_POLICY, this.attackPolicy);
-	}
+    }
 
 }
