@@ -27,6 +27,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
@@ -58,6 +59,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private ExtensionBreak extension;
 	private JPanel panelContent;
 	private BreakPanelToolbarFactory breakToolbarFactory;
+	private BreakpointsParam breakpointsParams;
 	
 	private JToggleButton mainReqButton = null;
 	private JToggleButton mainResButton = null;
@@ -65,10 +67,13 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private JToggleButton panelReqButton = null;
 	private JToggleButton panelResButton = null;
 	private JToggleButton panelAllButton = null;
+	
+	private boolean isAlwaysOnTop = false;
 
 	public BreakPanel(ExtensionBreak extension, BreakpointsParam breakpointsParams) {
 		super();
 		this.extension = extension;
+		this.breakpointsParams = breakpointsParams;
 		
 		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 
@@ -146,8 +151,33 @@ public class BreakPanel extends AbstractPanel implements Tab {
     }
 	
 	protected void breakpointDisplayed () {
-		// Grab the focus
-		this.setTabFocus();
+		final Boolean alwaysOnTopOption = breakpointsParams.getAlwaysOnTop();
+		if (alwaysOnTopOption == null || alwaysOnTopOption.booleanValue()) {
+		
+			java.awt.EventQueue.invokeLater(new Runnable() {
+			    @Override
+			    public void run() {
+			    	
+					View.getSingleton().getMainFrame().setAlwaysOnTop(true);
+					View.getSingleton().getMainFrame().toFront();
+					setTabFocus();
+					isAlwaysOnTop = true;
+					
+					if (alwaysOnTopOption == null) {
+						// Prompt the user the first time
+						boolean keepOn = View.getSingleton().showConfirmDialog(
+								Constant.messages.getString("brk.alwaysOnTop.message")) ==
+									JOptionPane.OK_OPTION;
+						breakpointsParams.setAlwaysOnTop(Boolean.valueOf(keepOn));
+						if (! keepOn) {
+							// Turn it off
+							View.getSingleton().getMainFrame().setAlwaysOnTop(false);
+							isAlwaysOnTop = false;
+						}
+					}
+			    }
+			});
+		}
 	}
 	
 	private JToolBar getPanelCommand() {
@@ -256,11 +286,20 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	public void clearAndDisableRequest() {
 		requestPanel.clearView(false);
 		requestPanel.setEditable(false);
+		breakpointLeft();
 	}
 	
 	public void clearAndDisableResponse() {
 		responsePanel.clearView(false);
 		responsePanel.setEditable(false);
+		breakpointLeft();
+	}
+	
+	private void breakpointLeft() {
+		if (this.isAlwaysOnTop) {
+			View.getSingleton().getMainFrame().setAlwaysOnTop(false);
+			this.isAlwaysOnTop = false;
+		}
 	}
 	
 	public void init() {
