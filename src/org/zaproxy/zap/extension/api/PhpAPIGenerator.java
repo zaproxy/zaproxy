@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -30,7 +31,8 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class PhpAPIGenerator {
-	private File dir = new File("php/api/zapv2/src/Zap");
+	private File dir;
+	private boolean optional = false;
 
 	private final String HEADER =
 			"<?php\n" +
@@ -55,6 +57,8 @@ public class PhpAPIGenerator {
 			" */\n" +
 			"\n\n";
 
+	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed"; 
+
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
 		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
@@ -69,8 +73,17 @@ public class PhpAPIGenerator {
         nameMap = Collections.unmodifiableMap(initMap);
     }
 
-	public void generatePhpFiles() throws IOException {
-		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
+    public PhpAPIGenerator() {
+    	dir = new File("php/api/zapv2/src/Zap"); 
+    }
+
+    public PhpAPIGenerator(String path, boolean optional) {
+    	dir = new File(path); 
+    	this.optional = optional;
+    }
+
+	public void generatePhpFiles(List<ApiImplementor> implementors) throws IOException {
+		for (ApiImplementor imp : implementors) {
 			this.generatePhpComponent(imp);
 		}
 	}
@@ -94,10 +107,18 @@ public class PhpAPIGenerator {
 			String desc = msgs.getString(descTag);
 			out.write("\t/**\n");
 			out.write("\t * " + desc + "\n");
+			if (optional) {
+				out.write("\t * " + OPTIONAL_MASSAGE + "\n");
+			}
 			out.write("\t */\n");
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
+			if (optional) {
+				out.write("\t/**\n");
+				out.write("\t * " + OPTIONAL_MASSAGE + "\n");
+				out.write("\t */\n");
+			}
 		}
 
 		out.write("\tpublic function " + createMethodName(element.getName()) + "(");
@@ -247,7 +268,7 @@ public class PhpAPIGenerator {
 
 	public static void main(String[] args) throws Exception {
 		PhpAPIGenerator wapi = new PhpAPIGenerator();
-		wapi.generatePhpFiles();
+		wapi.generatePhpFiles(ApiGeneratorUtils.getAllImplementors());
 	}
 
 }

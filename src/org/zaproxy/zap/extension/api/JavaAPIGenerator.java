@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -30,7 +31,8 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class JavaAPIGenerator {
-	private File dir = new File("src/org/zaproxy/clientapi/gen"); 
+	private File dir; 
+	private boolean optional = false;
 	
 	private final String HEADER = 
 			"/* Zed Attack Proxy (ZAP) and its related class files.\n" +
@@ -53,6 +55,8 @@ public class JavaAPIGenerator {
 			" */\n" +
 			"\n\n";
 
+	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed"; 
+
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
 		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
@@ -65,9 +69,18 @@ public class JavaAPIGenerator {
         initMap.put("break", "brk");
         nameMap = Collections.unmodifiableMap(initMap);
     }
+    
+    public JavaAPIGenerator() {
+    	dir = new File("src/org/zaproxy/clientapi/gen"); 
+    }
 
-	public void generateJavaFiles() throws IOException {
-		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
+    public JavaAPIGenerator(String path, boolean optional) {
+    	dir = new File(path); 
+    	this.optional = optional;
+    }
+
+	public void generateJavaFiles(List<ApiImplementor> implementors) throws IOException {
+		for (ApiImplementor imp : implementors) {
 			this.generateJavaComponent(imp);
 		}
 	}
@@ -86,10 +99,18 @@ public class JavaAPIGenerator {
 			String desc = msgs.getString(descTag);
 			out.write("\t/**\n");
 			out.write("\t * " + desc + "\n");
+			if (optional) {
+				out.write("\t * " + OPTIONAL_MASSAGE + "\n");
+			}
 			out.write("\t */\n");
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
+			if (optional) {
+				out.write("\t/**\n");
+				out.write("\t * " + OPTIONAL_MASSAGE + "\n");
+				out.write("\t */\n");
+			}
 		}
 
 		if (type.equals("other")) {
@@ -244,10 +265,10 @@ public class JavaAPIGenerator {
 	}
 
 	public static void main(String[] args) throws Exception {
-		// Command for generating a python version of the ZAP API
+		// Command for generating a java version of the ZAP API
 		
 		JavaAPIGenerator wapi = new JavaAPIGenerator();
-		wapi.generateJavaFiles();
+		wapi.generateJavaFiles(ApiGeneratorUtils.getAllImplementors());
 		
 	}
 

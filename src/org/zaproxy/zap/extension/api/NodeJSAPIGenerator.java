@@ -23,6 +23,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ResourceBundle;
@@ -30,7 +31,8 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class NodeJSAPIGenerator {
-    private File dir = new File("nodejs/api/zapv2"); 
+	private File dir;
+	private boolean optional = false;
     
     private final String HEADER = 
             "/* Zed Attack Proxy (ZAP) and its related class files.\n" +
@@ -53,7 +55,9 @@ public class NodeJSAPIGenerator {
             " */\n" +
             "\n\n";
 
-    private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
+	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed"; 
+
+	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
         ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
     /**
@@ -67,7 +71,16 @@ public class NodeJSAPIGenerator {
         nameMap = Collections.unmodifiableMap(initMap);
     }
 
-    public void generateNodeJSFiles() throws IOException {
+    public NodeJSAPIGenerator() {
+    	dir = new File("nodejs/api/zapv2"); 
+    }
+
+    public NodeJSAPIGenerator(String path, boolean optional) {
+    	dir = new File(path); 
+    	this.optional = optional;
+    }
+
+	public void generateNodeJSFiles(List<ApiImplementor> implementors) throws IOException {
         for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
             this.generateNodeJSComponent(imp);
         }
@@ -88,10 +101,18 @@ public class NodeJSAPIGenerator {
             String desc = msgs.getString(descTag);
             out.write("/**\n");
             out.write(" * " + desc + "\n");
+			if (optional) {
+	            out.write(" * " + OPTIONAL_MASSAGE + "\n");
+			}
             out.write(" **/\n");
         } catch (Exception e) {
             // Might not be set, so just print out the ones that are missing
             System.out.println("No i18n for: " + descTag);
+			if (optional) {
+	            out.write("/**\n");
+	            out.write(" * " + OPTIONAL_MASSAGE + "\n");
+	            out.write(" **/\n");
+			}
         }
 
         out.write(className + ".prototype." + createMethodName(element.getName()) + " = function (");
@@ -238,7 +259,7 @@ public class NodeJSAPIGenerator {
         // Command for generating a python version of the ZAP API
         
         NodeJSAPIGenerator wapi = new NodeJSAPIGenerator();
-        wapi.generateNodeJSFiles();
+        wapi.generateNodeJSFiles(ApiGeneratorUtils.getAllImplementors());
         
     }
 
