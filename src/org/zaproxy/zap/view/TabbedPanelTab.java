@@ -10,6 +10,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -64,6 +65,7 @@ public class TabbedPanelTab extends JPanel {
 				// Configure icon and rollover icon for button
 				btnPin.setRolloverEnabled(true);
 				btnPin.setToolTipText(Constant.messages.getString("all.button.pin"));
+				btnPin.setContentAreaFilled(false);
 				
 				if (ap.isPinned()) {
 					btnPin.setIcon(PIN_TAB_GREY_ICON);
@@ -72,8 +74,8 @@ public class TabbedPanelTab extends JPanel {
 					btnPin.setIcon(PIN_TAB_LIGHT_GREY_ICON);
 					btnPin.setRolloverIcon(PIN_TAB_RED_ICON);
 				}
-				// Set border null so the button doesn't make the tab too big
-				btnPin.setBorder(null);
+				// Set a border only on the left side so the button doesn't make the tab too big
+				btnPin.setBorder(new EmptyBorder(0, 6, 0, 0));
 				// This is needed to Macs for some reason
 				btnPin.setBorderPainted(false);
 
@@ -104,10 +106,11 @@ public class TabbedPanelTab extends JPanel {
 			// Configure icon and rollover icon for button
 			btnClose.setRolloverIcon(CLOSE_TAB_RED_ICON);
 			btnClose.setRolloverEnabled(true);
+			btnClose.setContentAreaFilled(false);
 			btnClose.setToolTipText(Constant.messages.getString("all.button.close"));
 			btnClose.setIcon(CLOSE_TAB_GREY_ICON);
-			// Set border null so the button doesn't make the tab too big
-			btnClose.setBorder(null);
+			// Set a border only on the left side so the button doesn't make the tab too big
+			btnClose.setBorder(new EmptyBorder(0, 6, 0, 0));
 			// This is needed to Macs for some reason
 			btnClose.setBorderPainted(false);
 	
