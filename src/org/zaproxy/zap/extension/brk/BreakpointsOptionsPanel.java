@@ -50,6 +50,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
     private static final long serialVersionUID = 7483614036849207715L;
 
     private JCheckBox checkBoxConfirmDropMessage = null;
+    private JCheckBox checkBoxAlwaysOnTop = null;
     private JComboBox<String> buttonMode = null;
 
     public BreakpointsOptionsPanel() {
@@ -64,11 +65,12 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         panel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 
         panel.add(getCheckBoxConfirmDropMessage(), LayoutHelper.getGBC(0, 0, 2, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(getCheckBoxAlwaysOnTop(), LayoutHelper.getGBC(0, 1, 2, 1.0, new Insets(2, 2, 2, 2)));
         
         JLabel modeLabel = new JLabel(Constant.messages.getString("brk.optionspanel.option.breakmode.label"));
         modeLabel.setLabelFor(getButtonMode());
-        panel.add(modeLabel, LayoutHelper.getGBC(0, 1, 1, 0.5));
-        panel.add(getButtonMode(), LayoutHelper.getGBC(1, 1, 1, 0.5));
+        panel.add(modeLabel, LayoutHelper.getGBC(0, 2, 1, 0.5));
+        panel.add(getButtonMode(), LayoutHelper.getGBC(1, 2, 1, 0.5));
 		panel.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 
         add(panel);
@@ -81,6 +83,15 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         }
         return checkBoxConfirmDropMessage;
     }
+    
+    private JCheckBox getCheckBoxAlwaysOnTop() {
+    	if (checkBoxAlwaysOnTop == null) {
+    		checkBoxAlwaysOnTop = new JCheckBox(
+    				Constant.messages.getString("brk.optionspanel.option.alwaysOnTop.label"));
+    	}
+    	return checkBoxAlwaysOnTop;
+    }
+
 
     private JComboBox<String> getButtonMode() {
     	if (buttonMode == null) {
@@ -96,7 +107,9 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         final OptionsParam options = (OptionsParam) obj;
         final BreakpointsParam param = (BreakpointsParam) options.getParamSet(BreakpointsParam.class);
 
-        checkBoxConfirmDropMessage.setSelected(param.isConfirmDropMessage());
+        getCheckBoxConfirmDropMessage().setSelected(param.isConfirmDropMessage());
+        // Note param.alwaysOnTop will be null if the user hasnt specified a preference yet
+        getCheckBoxAlwaysOnTop().setSelected(param.getAlwaysOnTop() != Boolean.FALSE);
         getButtonMode().setSelectedIndex(param.getButtonMode()-1);
     }
 
@@ -109,7 +122,12 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         final OptionsParam options = (OptionsParam) obj;
         final BreakpointsParam param = (BreakpointsParam) options.getParamSet(BreakpointsParam.class);
 
-        param.setConfirmDropMessage(checkBoxConfirmDropMessage.isSelected());
+        param.setConfirmDropMessage(getCheckBoxConfirmDropMessage().isSelected());
+        if (param.getAlwaysOnTop() != null || ! getCheckBoxAlwaysOnTop().isSelected()) {
+        	// Dont set the option if its not already set, unless the user has changed it
+        	// This is so that the warning message will still be shown the first time a breakpoint is hit
+        	param.setAlwaysOnTop(getCheckBoxAlwaysOnTop().isSelected());
+        }
         param.setButtonMode(this.getButtonMode().getSelectedIndex()+1);
     }
 

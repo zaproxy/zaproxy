@@ -41,12 +41,14 @@ public class BreakpointsParam extends AbstractParam {
 
     private static final String PARAM_CONFIRM_DROP_MESSAGE_KEY = PARAM_BASE_KEY + ".confirmDropMessage";
     private static final String PARAM_UI_BUTTON_MODE = PARAM_BASE_KEY + ".buttonMode";
+    private static final String PARAM_BRK_ALWAYS_ON_TOP = PARAM_BASE_KEY + ".alwaysOnTop";
 
     /**
      * Default is {@code false}.
      */
     private boolean confirmDropMessage;
     private int buttonMode = BUTTON_MODE_SIMPLE;
+    private Boolean alwaysOnTop = null;
 
     public BreakpointsParam() {
         super();
@@ -67,6 +69,7 @@ public class BreakpointsParam extends AbstractParam {
     protected void parse() {
         confirmDropMessage = getConfig().getBoolean(PARAM_CONFIRM_DROP_MESSAGE_KEY, false);
         buttonMode = getConfig().getInt(PARAM_UI_BUTTON_MODE, BUTTON_MODE_SIMPLE);
+        alwaysOnTop = getConfig().getBoolean(PARAM_BRK_ALWAYS_ON_TOP, null);
     }
 
     /**
@@ -100,6 +103,15 @@ public class BreakpointsParam extends AbstractParam {
 	public void setButtonMode(int buttonMode) {
 		this.buttonMode = buttonMode;
         getConfig().setProperty(PARAM_UI_BUTTON_MODE, buttonMode);
+	}
+
+	public Boolean getAlwaysOnTop() {
+		return alwaysOnTop;
+	}
+
+	public void setAlwaysOnTop(Boolean alwaysOnTop) {
+		this.alwaysOnTop = alwaysOnTop;
+        getConfig().setProperty(PARAM_BRK_ALWAYS_ON_TOP, Boolean.valueOf(alwaysOnTop));
 	}
 
     
