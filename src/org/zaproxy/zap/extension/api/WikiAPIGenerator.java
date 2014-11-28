@@ -21,6 +21,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
 
@@ -32,11 +33,21 @@ public class WikiAPIGenerator {
 	 */
 	private String base = "ApiGen_";
 	private String title = "= ZAP 2.0.0 API =\n";
-	private File dir = new File("../zaproxy-wiki"); 
+	private File dir; 
 	private int methods = 0;
+	private boolean optional = false;
 
 	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
 		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
+
+    public WikiAPIGenerator() {
+    	dir = new File("../zaproxy-wiki"); 
+    }
+
+    public WikiAPIGenerator(String path, boolean optional) {
+    	dir = new File(path); 
+    	this.optional = optional;
+    }
 
 	private void generateWikiIndex() throws IOException {
 		File f = new File(this.dir, base + "Index.wiki");
@@ -71,16 +82,19 @@ public class WikiAPIGenerator {
 			}
 		}
 		out.write("\n");
-		out.write("Starred parameters are mandatory\n\n");
+		out.write("Starred parameters are mandatory.\n\n");
+		if (optional) {
+			out.write("This component is optional and therefore the API will only work if it is installed.\n\n");
+		}
 		out.write("Back to [" + base + "Index index]\n\n");
 		//out.write("\nGenerated on " + new Date() + "\n");
 		out.close();
 	}
 
-	public void generateWikiFiles() throws IOException {
+	public void generateWikiFiles(List<ApiImplementor> implementors) throws IOException {
 		// Generate index first
 		this.generateWikiIndex();
-		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
+		for (ApiImplementor imp : implementors) {
 			this.generateWikiComponent(imp);
 		}
 		this.methods = 0;
@@ -153,7 +167,7 @@ public class WikiAPIGenerator {
 		// Command for generating a wiki version of the ZAP API
 		
 		WikiAPIGenerator wapi = new WikiAPIGenerator();
-		wapi.generateWikiFiles();
+		wapi.generateWikiFiles(ApiGeneratorUtils.getAllImplementors());
 		
 	}
 
