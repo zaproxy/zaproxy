@@ -24,8 +24,8 @@ public class Alert {
 
     public enum Risk {Informational, Low, Medium, High};
 	/**
-	 * @deprecated
-	 * Use of reliability has been deprecated in favour of using confidence
+	 * @deprecated (2.4.0) Replaced by {@link #Confidence}.
+	 * Use of reliability has been deprecated in favour of using confidence.
 	 */
 	@Deprecated
 	public enum Reliability {Suspicious, Warning};
@@ -34,7 +34,7 @@ public class Alert {
 	private String alert;
 	private Risk risk;
 	/**
-	 * @deprecated
+	 * @deprecated (2.4.0) Replaced by {@link #confidence}.
 	 * Use of reliability has been deprecated in favour of using confidence
 	 */
 	@Deprecated

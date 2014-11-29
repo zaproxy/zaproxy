@@ -169,15 +169,15 @@ public class RecordAlert {
         this.reference = reference;
     }
     /**
-     * @deprecated
-     * @return Returns the reliability.
+     * @deprecated (2.4.0) Replaced by {@link #getConfidence()}.
+     * @return the reliability.
      */
 	@Deprecated
     public int getReliability() {
         return confidence;
     }
     /**
-     * @deprecated
+     * @deprecated (2.4.0) Replaced by {@link #setConfidence(int)}.
      * @param reliability The reliability to set.
      */
 	@Deprecated
@@ -185,7 +185,7 @@ public class RecordAlert {
         this.confidence = confidence;
     }
     /**
-     * @return Returns the confidence.
+     * @return the confidence.
      */
     public int getConfidence() {
         return confidence;

@@ -61,15 +61,15 @@ public class Alert implements Comparable<Object>  {
 	// ZAP: Added FALSE_POSITIVE
 	public static final int FALSE_POSITIVE = 0;
 	/**
-	 * @deprecated
-	 * SUSPICIOUS reliability has been deprecated in favour of using LOW confidence
+	 * @deprecated (2.4.0) Replaced by {@link LOW} confidence.
+	 * SUSPICIOUS reliability has been deprecated in favour of using LOW confidence.
 	 */
 	@Deprecated
 	public static final int SUSPICIOUS = 1;
 	public static final int LOW = 1;
 	/**
-	 * @deprecated
-	 * WARNING reliability has been deprecated in favour of using MEDIUM confidence
+	 * @deprecated (2.4.0) Replaced by {@link #MEDIUM} confidence.
+	 * WARNING reliability has been deprecated in favour of using MEDIUM confidence.
 	 */
 	@Deprecated
 	public static final int WARNING = 2;
@@ -80,8 +80,8 @@ public class Alert implements Comparable<Object>  {
 	public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
 	// ZAP: Added "false positive"
 	/**
-	 * @deprecated
-	 * Use of reliability has been deprecated in favour of using confidence
+	 * @deprecated (2.4.0) Replaced by {@link #MSG_CONFIDENCE}.
+	 * Use of reliability has been deprecated in favour of using confidence.
 	 */
 	@Deprecated
 	public static final String[] MSG_RELIABILITY = {"False Positive", "Low", "Medium", "High", "Confirmed"};
@@ -167,7 +167,7 @@ public class Alert implements Comparable<Object>  {
         setHistoryRef(ref);
 	}
 	/**
-	 * @deprecated
+	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(risk, confidence)}.
 	 * Use of reliability has been deprecated in favour of using confidence
 	 */
 	@Deprecated
@@ -455,8 +455,8 @@ public class Alert implements Comparable<Object>  {
         return reference;
     }
     /**
-     * @deprecated
-     * @return Returns the reliability.
+     * @deprecated (2.4.0) Replaced by {@link #getConfidence()}.
+     * @return the reliability.
      */
     @Deprecated
     public int getReliability() {
