@@ -23,7 +23,7 @@ function scan(as, msg, param, value) {
 		//		String param, String attack, String otherInfo, String solution, String evidence, 
 		//		int cweId, int wascId, HttpMessage msg)
 		// risk: 0: info, 1: low, 2: medium, 3: high
-		// confidence: 0: falsePassitive, 1: low, 2: medium, 3: high, 4: confirmed
+		// confidence: 0: falsePositive, 1: low, 2: medium, 3: high, 4: confirmed
 		as.raiseAlert(1, 1, 'Active Vulnerability title', 'Full description', 
 		msg.getRequestHeader().getURI().toString(), 
 			param, 'Your attack', 'Any other info', 'The solution ', '', 0, 0, msg);

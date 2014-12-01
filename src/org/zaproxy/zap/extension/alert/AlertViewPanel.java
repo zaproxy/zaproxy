@@ -306,7 +306,7 @@ public class AlertViewPanel extends AbstractPanel {
 						LayoutHelper.getGBC(0, 2, 1, 0.25D, new Insets(1,1,1,1)));
 				alertDisplay.add(alertEditRisk, 
 						LayoutHelper.getGBC(1, 2, 1, 0.75D, new Insets(1,1,1,1)));
-				// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence
+
 				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.confidence")),
 						LayoutHelper.getGBC(0, 3, 1, 0.25D, new Insets(1,1,1,1)));
 				alertDisplay.add(alertEditConfidence, 
@@ -351,7 +351,7 @@ public class AlertViewPanel extends AbstractPanel {
 						LayoutHelper.getGBC(0, 2, 1, 0.25D, new Insets(1,1,1,1)));
 				alertDisplay.add(alertRisk, 
 						LayoutHelper.getGBC(1, 2, 1, 0.75D, new Insets(1,1,1,1)));
-				// ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence
+
 				alertDisplay.add(new JLabel(Constant.messages.getString("alert.label.confidence")), 
 						LayoutHelper.getGBC(0, 3, 1, 0.25D, new Insets(1,1,1,1)));
 				alertDisplay.add(alertConfidence,
@@ -418,8 +418,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertName.setText(alert.getAlert());
 	
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
-			// TODO: Shouldn't really need to check both, but lets be overly cautious
-	    	if (alert.getConfidence() == Alert.FALSE_POSITIVE || alert.getReliability() == Alert.FALSE_POSITIVE) {
+	    	if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
 	    		// Special case - theres no risk - use the green flag
 				alertRisk.setIcon(new ImageIcon(Constant.OK_FLAG_IMAGE_URL));
 	    	} else {

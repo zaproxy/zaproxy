@@ -20,7 +20,6 @@
 package org.zaproxy.clientapi.ant;
 
 import org.apache.tools.ant.Task;
-import org.parosproxy.paros.network.HttpMessage;
 
 public class AlertTask extends Task {
 	private String alert;
@@ -49,17 +48,15 @@ public class AlertTask extends Task {
 		this.risk = risk;
 	}
 	/**
-	 * @deprecated
-	 * {@link #getConfidence(String)}
-	 * Use of reliability has been deprecated in favour of using confidence
+	 * @deprecated (2.4.0) {@link #getConfidence()}.
+	 * Use of reliability has been deprecated in favour of using confidence.
 	 */
 	@Deprecated
 	public String getReliability() {
 		return reliability;
 	}
 	/**
-	 * @deprecated
-	 * {@link #setConfidence(String)}
+	 * @deprecated (2.4.0) Replaced by {@link #setConfidence(String)}
 	 * Use of reliability has been deprecated in favour of using confidence
 	 */
 	@Deprecated
