@@ -71,7 +71,6 @@ public class CoreFunctionality {
 			builtInExtensions.add(new org.zaproxy.zap.extension.globalexcludeurl.ExtensionGlobalExcludeURL());
 			builtInExtensions.add(new org.zaproxy.zap.extension.help.ExtensionHelp());
 			builtInExtensions.add(new org.zaproxy.zap.extension.httppanel.component.all.ExtensionHttpPanelComponentAll());
-			builtInExtensions.add(new org.zaproxy.zap.extension.httppanel.view.amf.ExtensionHttpPanelAMFView());
 			builtInExtensions.add(new org.zaproxy.zap.extension.httppanel.view.hex.ExtensionHttpPanelHexView());
 			builtInExtensions.add(new org.zaproxy.zap.extension.httppanel.view.image.ExtensionHttpPanelImageView());
 			builtInExtensions.add(new org.zaproxy.zap.extension.httppanel.view.largerequest.ExtensionHttpPanelLargeRequestView());

@@ -86,11 +86,6 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 	private static TextAreaMenuItem redoAction = null;
 	private static TextAreaMenuItem selectAllAction = null;
 	
-	static {
-		//Hack to set the language that is used by ZAP.
-		RTextArea.setLocaleI18n(Constant.getLocale());
-	}
-	
 	public HttpPanelSyntaxHighlightTextArea() {
 		((RSyntaxDocument)getDocument()).setTokenMakerFactory(getTokenMakerFactory());
 		setSyntaxEditingStyle(SyntaxConstants.SYNTAX_STYLE_NONE);
