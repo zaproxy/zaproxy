@@ -467,8 +467,9 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).start();
-                if (view != null)
+                if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
+                }
 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -491,7 +492,9 @@ public class ExtensionLoader {
         // 15% initViewes
         // 20% initHooks
         // 10% startAll
-        view.setSplashScreenLoadingCompletion(10.0);
+    	if (view != null) {
+    		view.setSplashScreenLoadingCompletion(10.0);
+    	}
         
         // Step 3: initialize all (slow)
         initAllExtension();
@@ -970,7 +973,9 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).init();
-                view.addSplashScreenLoadingCompletion(factorPerc);
+                if (view != null) {
+                	view.addSplashScreenLoadingCompletion(factorPerc);
+                }
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -988,8 +993,9 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initModel(model);
-                if (view != null)
+                if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
+                }
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
@@ -1025,8 +1031,9 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).initXML(session, options);
-                if (view != null)
+                if (view != null) {
                     view.addSplashScreenLoadingCompletion(factorPerc);
+                }
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
