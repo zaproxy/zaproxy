@@ -31,14 +31,6 @@ class Context {
 	public function __construct ($zap) {
 		$this->zap = $zap;
 	}
-	
-	/**
-	 * List the information about the named context
-	 */
-	public function context() {
-		return $this->zap->request($this->zap->base . 'context/view/context/', array('contextName' => $contextname))->{'context'};
-	}
-	
 
 	/**
 	 * List context names of current session
@@ -62,6 +54,13 @@ class Context {
 	}
 
 	/**
+	 * List the information about the named context
+	 */
+	public function context($contextname) {
+		return $this->zap->request($this->zap->base . 'context/view/context/', array('contextName' => $contextname))->{'context'};
+	}
+
+	/**
 	 * Add exclude regex to context
 	 */
 	public function excludeFromContext($contextname, $regex, $apikey='') {
@@ -80,6 +79,14 @@ class Context {
 	 */
 	public function newContext($contextname='', $apikey='') {
 		return $this->zap->request($this->zap->base . 'context/action/newContext/', array('contextName' => $contextname, 'apikey' => $apikey));
+	}
+
+	public function exportContext($contextname, $contextfile, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/exportContext/', array('contextName' => $contextname, 'contextFile' => $contextfile, 'apikey' => $apikey));
+	}
+
+	public function importContext($contextfile, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/importContext/', array('contextFile' => $contextfile, 'apikey' => $apikey));
 	}
 
 	/**

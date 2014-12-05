@@ -31,12 +31,6 @@ class context(object):
         """
         return self.zap._request(self.zap.base + 'context/view/contextList/').get('contextList')
 
-    def context(self, contextname):
-        """
-        List the information about the named context
-        """
-        return self.zap._request(self.zap.base + 'context/view/context/', {'contextName' : contextname})
-    
     def exclude_regexs(self, contextname):
         """
         List excluded regexs for context
@@ -48,6 +42,12 @@ class context(object):
         List included regexs for context
         """
         return self.zap._request(self.zap.base + 'context/view/includeRegexs/', {'contextName' : contextname}).get('includeRegexs')
+
+    def context(self, contextname):
+        """
+        List the information about the named context
+        """
+        return self.zap._request(self.zap.base + 'context/view/context/', {'contextName' : contextname}).get('context')
 
     def exclude_from_context(self, contextname, regex, apikey=''):
         """
@@ -66,6 +66,12 @@ class context(object):
         Creates a new context in the current session
         """
         return self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey})
+
+    def export_context(self, contextname, contextfile, apikey=''):
+        return self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey})
+
+    def import_context(self, contextfile, apikey=''):
+        return self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey})
 
     def set_context_in_scope(self, contextname, booleaninscope, apikey=''):
         """

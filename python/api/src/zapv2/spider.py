@@ -86,6 +86,10 @@ class spider(object):
         return self.zap._request(self.zap.base + 'spider/view/optionParseRobotsTxt/').get('ParseRobotsTxt')
 
     @property
+    def option_parse_sitemap_xml(self):
+        return self.zap._request(self.zap.base + 'spider/view/optionParseSitemapXml/').get('ParseSitemapXml')
+
+    @property
     def option_parse_svn_entries(self):
         return self.zap._request(self.zap.base + 'spider/view/optionParseSVNEntries/').get('ParseSVNEntries')
 
@@ -109,11 +113,19 @@ class spider(object):
     def option_domains_always_in_scope_enabled(self):
         return self.zap._request(self.zap.base + 'spider/view/optionDomainsAlwaysInScopeEnabled/').get('DomainsAlwaysInScopeEnabled')
 
-    def scan(self, url, apikey=''):
-        return self.zap._request(self.zap.base + 'spider/action/scan/', {'url' : url, 'apikey' : apikey})
+    @property
+    def option_max_scans_in_ui(self):
+        return self.zap._request(self.zap.base + 'spider/view/optionMaxScansInUI/').get('MaxScansInUI')
 
-    def scan_as_user(self, url, contextid, userid, apikey=''):
-        return self.zap._request(self.zap.base + 'spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'apikey' : apikey})
+    @property
+    def option_show_advanced_dialog(self):
+        return self.zap._request(self.zap.base + 'spider/view/optionShowAdvancedDialog/').get('ShowAdvancedDialog')
+
+    def scan(self, url, maxchildren='', apikey=''):
+        return self.zap._request(self.zap.base + 'spider/action/scan/', {'url' : url, 'maxChildren' : maxchildren, 'apikey' : apikey})
+
+    def scan_as_user(self, url, contextid, userid, maxchildren, apikey=''):
+        return self.zap._request(self.zap.base + 'spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'maxChildren' : maxchildren, 'apikey' : apikey})
 
     def pause(self, scanid, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/pause/', {'scanId' : scanid, 'apikey' : apikey})
@@ -178,6 +190,9 @@ class spider(object):
     def set_option_parse_robots_txt(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseRobotsTxt/', {'Boolean' : boolean, 'apikey' : apikey})
 
+    def set_option_parse_sitemap_xml(self, boolean, apikey=''):
+        return self.zap._request(self.zap.base + 'spider/action/setOptionParseSitemapXml/', {'Boolean' : boolean, 'apikey' : apikey})
+
     def set_option_parse_svn_entries(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionParseSVNEntries/', {'Boolean' : boolean, 'apikey' : apikey})
 
@@ -186,5 +201,11 @@ class spider(object):
 
     def set_option_handle_o_data_parameters_visited(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionHandleODataParametersVisited/', {'Boolean' : boolean, 'apikey' : apikey})
+
+    def set_option_max_scans_in_ui(self, integer, apikey=''):
+        return self.zap._request(self.zap.base + 'spider/action/setOptionMaxScansInUI/', {'Integer' : integer, 'apikey' : apikey})
+
+    def set_option_show_advanced_dialog(self, boolean, apikey=''):
+        return self.zap._request(self.zap.base + 'spider/action/setOptionShowAdvancedDialog/', {'Boolean' : boolean, 'apikey' : apikey})
 
 

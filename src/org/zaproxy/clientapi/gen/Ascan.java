@@ -38,9 +38,35 @@ public class Ascan {
 		this.api = api;
 	}
 
-	public ApiResponse status() throws ClientApiException {
+	public ApiResponse status(String scanid) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("scanId", scanid);
 		return api.callApi("ascan", "view", "status", map);
+	}
+
+	public ApiResponse messagesIds(String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "view", "messagesIds", map);
+	}
+
+	public ApiResponse alertsIds(String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "view", "alertsIds", map);
+	}
+
+	public ApiResponse scans() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "scans", map);
+	}
+
+	public ApiResponse scanPolicyNames() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "scanPolicyNames", map);
 	}
 
 	public ApiResponse excludedFromScan() throws ClientApiException {
@@ -48,16 +74,30 @@ public class Ascan {
 		return api.callApi("ascan", "view", "excludedFromScan", map);
 	}
 
-	public ApiResponse scanners(String policyid) throws ClientApiException {
+	public ApiResponse scanners(String scanpolicyname, String policyid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
+		map.put("scanPolicyName", scanpolicyname);
 		map.put("policyId", policyid);
 		return api.callApi("ascan", "view", "scanners", map);
 	}
 
-	public ApiResponse policies() throws ClientApiException {
+	public ApiResponse policies(String scanpolicyname, String policyid) throws ClientApiException {
 		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("scanPolicyName", scanpolicyname);
+		map.put("policyId", policyid);
 		return api.callApi("ascan", "view", "policies", map);
+	}
+
+	public ApiResponse optionMaxScansInUI() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionMaxScansInUI", map);
+	}
+
+	public ApiResponse optionShowAdvancedDialog() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionShowAdvancedDialog", map);
 	}
 
 	public ApiResponse optionExcludedParamList() throws ClientApiException {
@@ -90,14 +130,14 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionHandleAntiCSRFTokens", map);
 	}
 
-	public ApiResponse optionAlertThreshold() throws ClientApiException {
+	public ApiResponse optionRescanInAttackMode() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionAlertThreshold", map);
+		return api.callApi("ascan", "view", "optionRescanInAttackMode", map);
 	}
 
-	public ApiResponse optionAttackStrength() throws ClientApiException {
+	public ApiResponse optionPromptInAttackMode() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionAttackStrength", map);
+		return api.callApi("ascan", "view", "optionPromptInAttackMode", map);
 	}
 
 	public ApiResponse optionTargetParamsInjectable() throws ClientApiException {
@@ -110,7 +150,22 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionTargetParamsEnabledRPC", map);
 	}
 
-	public ApiResponse scan(String apikey, String url, String recurse, String inscopeonly) throws ClientApiException {
+	public ApiResponse optionPromptToClearFinishedScans() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionPromptToClearFinishedScans", map);
+	}
+
+	public ApiResponse optionDefaultPolicy() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionDefaultPolicy", map);
+	}
+
+	public ApiResponse optionAttackPolicy() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionAttackPolicy", map);
+	}
+
+	public ApiResponse scan(String apikey, String url, String recurse, String inscopeonly, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -119,7 +174,84 @@ public class Ascan {
 		map.put("url", url);
 		map.put("recurse", recurse);
 		map.put("inScopeOnly", inscopeonly);
+		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "scan", map);
+	}
+
+	public ApiResponse pause(String apikey, String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "action", "pause", map);
+	}
+
+	public ApiResponse resume(String apikey, String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "action", "resume", map);
+	}
+
+	public ApiResponse stop(String apikey, String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "action", "stop", map);
+	}
+
+	public ApiResponse removeScan(String apikey, String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "action", "removeScan", map);
+	}
+
+	public ApiResponse pauseAllScans(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		return api.callApi("ascan", "action", "pauseAllScans", map);
+	}
+
+	public ApiResponse resumeAllScans(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		return api.callApi("ascan", "action", "resumeAllScans", map);
+	}
+
+	public ApiResponse stopAllScans(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		return api.callApi("ascan", "action", "stopAllScans", map);
+	}
+
+	public ApiResponse removeAllScans(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		return api.callApi("ascan", "action", "removeAllScans", map);
 	}
 
 	public ApiResponse clearExcludedFromScan(String apikey) throws ClientApiException {
@@ -141,21 +273,23 @@ public class Ascan {
 		return api.callApi("ascan", "action", "excludeFromScan", map);
 	}
 
-	public ApiResponse enableAllScanners(String apikey) throws ClientApiException {
+	public ApiResponse enableAllScanners(String apikey, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
+		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "enableAllScanners", map);
 	}
 
-	public ApiResponse disableAllScanners(String apikey) throws ClientApiException {
+	public ApiResponse disableAllScanners(String apikey, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
+		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "disableAllScanners", map);
 	}
 
@@ -189,7 +323,7 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setEnabledPolicies", map);
 	}
 
-	public ApiResponse setPolicyAttackStrength(String apikey, String id, String attackstrength) throws ClientApiException {
+	public ApiResponse setPolicyAttackStrength(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -197,21 +331,11 @@ public class Ascan {
 		}
 		map.put("id", id);
 		map.put("attackStrength", attackstrength);
+		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "setPolicyAttackStrength", map);
 	}
 
-	public ApiResponse setPolicyAlertThreshold(String apikey, String id, String alertthreshold) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("id", id);
-		map.put("alertThreshold", alertthreshold);
-		return api.callApi("ascan", "action", "setPolicyAlertThreshold", map);
-	}
-
-	public ApiResponse setScannerAttackStrength(String apikey, String id, String attackstrength) throws ClientApiException {
+	public ApiResponse setPolicyAlertThreshold(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -219,38 +343,92 @@ public class Ascan {
 		}
 		map.put("id", id);
 		map.put("attackStrength", attackstrength);
-		return api.callApi("ascan", "action", "setScannerAttackStrength", map);
+		map.put("scanPolicyName", scanpolicyname);
+		return api.callApi("ascan", "action", "setPolicyAlertThreshold", map);
 	}
 
-	public ApiResponse setScannerAlertThreshold(String apikey, String id, String alertthreshold) throws ClientApiException {
+	public ApiResponse setScannerAttackStrength(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("id", id);
-		map.put("alertThreshold", alertthreshold);
+		map.put("attackStrength", attackstrength);
+		map.put("scanPolicyName", scanpolicyname);
+		return api.callApi("ascan", "action", "setScannerAttackStrength", map);
+	}
+
+	public ApiResponse setScannerAlertThreshold(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("id", id);
+		map.put("attackStrength", attackstrength);
+		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "setScannerAlertThreshold", map);
 	}
 
-	public ApiResponse setOptionAlertThreshold(String apikey, String string) throws ClientApiException {
+	public ApiResponse addScanPolicy(String apikey, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("String", string);
-		return api.callApi("ascan", "action", "setOptionAlertThreshold", map);
+		map.put("scanPolicyName", scanpolicyname);
+		return api.callApi("ascan", "action", "addScanPolicy", map);
 	}
 
-	public ApiResponse setOptionAttackStrength(String apikey, String string) throws ClientApiException {
+	public ApiResponse removeScanPolicy(String apikey, String scanpolicyname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("scanPolicyName", scanpolicyname);
+		return api.callApi("ascan", "action", "removeScanPolicy", map);
+	}
+
+	public ApiResponse setOptionDefaultPolicy(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("String", string);
-		return api.callApi("ascan", "action", "setOptionAttackStrength", map);
+		return api.callApi("ascan", "action", "setOptionDefaultPolicy", map);
+	}
+
+	public ApiResponse setOptionAttackPolicy(String apikey, String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("String", string);
+		return api.callApi("ascan", "action", "setOptionAttackPolicy", map);
+	}
+
+	public ApiResponse setOptionMaxScansInUI(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionMaxScansInUI", map);
+	}
+
+	public ApiResponse setOptionShowAdvancedDialog(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionShowAdvancedDialog", map);
 	}
 
 	public ApiResponse setOptionThreadPerHost(String apikey, int i) throws ClientApiException {
@@ -303,6 +481,26 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionHandleAntiCSRFTokens", map);
 	}
 
+	public ApiResponse setOptionRescanInAttackMode(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionRescanInAttackMode", map);
+	}
+
+	public ApiResponse setOptionPromptInAttackMode(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionPromptInAttackMode", map);
+	}
+
 	public ApiResponse setOptionTargetParamsInjectable(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -321,6 +519,16 @@ public class Ascan {
 		}
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("ascan", "action", "setOptionTargetParamsEnabledRPC", map);
+	}
+
+	public ApiResponse setOptionPromptToClearFinishedScans(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionPromptToClearFinishedScans", map);
 	}
 
 }

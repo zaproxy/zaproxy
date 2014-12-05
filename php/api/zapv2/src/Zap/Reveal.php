@@ -1,9 +1,10 @@
-/*
+<?php
+/**
  * Zed Attack Proxy (ZAP) and its related class files.
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2011 The Zed Attack Proxy Team
+ * Copyright the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,38 +18,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.clientapi.ant;
 
-import org.apache.tools.ant.BuildException;
 
-public class ActiveScanSubtreeTask extends ZapTask {
-	
-	private String url;
-	private String apikey;
-	
-	@Override
-	public void execute() throws BuildException {
-		try {
-			this.getClientApi().ascan.scan(apikey, url, "true", "false", "");
-			
-		} catch (Exception e) {
-			throw new BuildException(e);
-		}
+namespace Zap;
+
+
+/**
+ * This file was automatically generated.
+ */
+class Reveal {
+
+	public function __construct ($zap) {
+		$this->zap = $zap;
 	}
 
-	public String getUrl() {
-		return url;
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function reveal() {
+		return $this->zap->request($this->zap->base . 'reveal/view/reveal/')->{'reveal'};
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setReveal($reveal, $apikey='') {
+		return $this->zap->request($this->zap->base . 'reveal/action/setReveal/', array('reveal' => $reveal, 'apikey' => $apikey));
 	}
 
-	public String getApikey() {
-		return apikey;
-	}
-
-	public void setApikey(String apikey) {
-		this.apikey = apikey;
-	}
 }

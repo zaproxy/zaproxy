@@ -124,6 +124,11 @@ public class Spider {
 		return api.callApi("spider", "view", "optionParseRobotsTxt", map);
 	}
 
+	public ApiResponse optionParseSitemapXml() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionParseSitemapXml", map);
+	}
+
 	public ApiResponse optionParseSVNEntries() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("spider", "view", "optionParseSVNEntries", map);
@@ -154,17 +159,28 @@ public class Spider {
 		return api.callApi("spider", "view", "optionDomainsAlwaysInScopeEnabled", map);
 	}
 
-	public ApiResponse scan(String apikey, String url) throws ClientApiException {
+	public ApiResponse optionMaxScansInUI() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionMaxScansInUI", map);
+	}
+
+	public ApiResponse optionShowAdvancedDialog() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionShowAdvancedDialog", map);
+	}
+
+	public ApiResponse scan(String apikey, String url, String maxchildren) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("url", url);
+		map.put("maxChildren", maxchildren);
 		return api.callApi("spider", "action", "scan", map);
 	}
 
-	public ApiResponse scanAsUser(String apikey, String url, String contextid, String userid) throws ClientApiException {
+	public ApiResponse scanAsUser(String apikey, String url, String contextid, String userid, String maxchildren) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -173,6 +189,7 @@ public class Spider {
 		map.put("url", url);
 		map.put("contextId", contextid);
 		map.put("userId", userid);
+		map.put("maxChildren", maxchildren);
 		return api.callApi("spider", "action", "scanAsUser", map);
 	}
 
@@ -381,6 +398,16 @@ public class Spider {
 		return api.callApi("spider", "action", "setOptionParseRobotsTxt", map);
 	}
 
+	public ApiResponse setOptionParseSitemapXml(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("spider", "action", "setOptionParseSitemapXml", map);
+	}
+
 	public ApiResponse setOptionParseSVNEntries(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -409,6 +436,26 @@ public class Spider {
 		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("spider", "action", "setOptionHandleODataParametersVisited", map);
+	}
+
+	public ApiResponse setOptionMaxScansInUI(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("spider", "action", "setOptionMaxScansInUI", map);
+	}
+
+	public ApiResponse setOptionShowAdvancedDialog(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("spider", "action", "setOptionShowAdvancedDialog", map);
 	}
 
 }

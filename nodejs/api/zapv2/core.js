@@ -99,12 +99,12 @@ Core.prototype.optionUseProxyChainAuth = function (callback) {
   this.api.request('/core/view/optionUseProxyChainAuth/', callback);
 };
 
-Core.prototype.optionProxyChainRealm = function (callback) {
-  this.api.request('/core/view/optionProxyChainRealm/', callback);
-};
-
 Core.prototype.optionProxyChainUserName = function (callback) {
   this.api.request('/core/view/optionProxyChainUserName/', callback);
+};
+
+Core.prototype.optionProxyChainRealm = function (callback) {
+  this.api.request('/core/view/optionProxyChainRealm/', callback);
 };
 
 Core.prototype.optionProxyChainPassword = function (callback) {
@@ -242,14 +242,6 @@ Core.prototype.setOptionProxyChainName = function (string, apikey, callback) {
   this.api.request('/core/action/setOptionProxyChainName/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
-Core.prototype.setOptionProxyChainSkipName = function (string, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/core/action/setOptionProxyChainSkipName/', {'String' : string, 'apikey' : apikey}, callback);
-};
-
 Core.prototype.setOptionProxyChainRealm = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -274,6 +266,14 @@ Core.prototype.setOptionProxyChainPassword = function (string, apikey, callback)
   this.api.request('/core/action/setOptionProxyChainPassword/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
+Core.prototype.setOptionProxyChainSkipName = function (string, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/core/action/setOptionProxyChainSkipName/', {'String' : string, 'apikey' : apikey}, callback);
+};
+
 Core.prototype.setOptionHttpStateEnabled = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -282,28 +282,12 @@ Core.prototype.setOptionHttpStateEnabled = function (bool, apikey, callback) {
   this.api.request('/core/action/setOptionHttpStateEnabled/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
-Core.prototype.setOptionUseProxyChain = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/core/action/setOptionUseProxyChain/', {'Boolean' : bool, 'apikey' : apikey}, callback);
-};
-
 Core.prototype.setOptionProxyChainPort = function (integer, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
   this.api.request('/core/action/setOptionProxyChainPort/', {'Integer' : integer, 'apikey' : apikey}, callback);
-};
-
-Core.prototype.setOptionUseProxyChainAuth = function (bool, apikey, callback) {
-  if (!callback && typeof(apikey) === 'function') {
-    callback = apikey;
-    apikey = null;
-  }
-  this.api.request('/core/action/setOptionUseProxyChainAuth/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Core.prototype.setOptionProxyChainPrompt = function (bool, apikey, callback) {
@@ -320,6 +304,22 @@ Core.prototype.setOptionTimeoutInSecs = function (integer, apikey, callback) {
     apikey = null;
   }
   this.api.request('/core/action/setOptionTimeoutInSecs/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Core.prototype.setOptionUseProxyChain = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/core/action/setOptionUseProxyChain/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Core.prototype.setOptionUseProxyChainAuth = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/core/action/setOptionUseProxyChainAuth/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Core.prototype.setOptionSingleCookieRequestHeader = function (bool, apikey, callback) {
