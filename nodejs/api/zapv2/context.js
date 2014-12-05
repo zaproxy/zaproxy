@@ -28,13 +28,6 @@ function Context(clientApi) {
 }
 
 /**
- * List the information about the named context
- **/
-Context.prototype.context = function (contextname, callback) {
-	this.api.request('/context/view/context/', {'contextName' : contextname}, callback);
-}
-
-/**
  * List context names of current session
  **/
 Context.prototype.contextList = function (callback) {
@@ -53,6 +46,13 @@ Context.prototype.excludeRegexs = function (contextname, callback) {
  **/
 Context.prototype.includeRegexs = function (contextname, callback) {
   this.api.request('/context/view/includeRegexs/', {'contextName' : contextname}, callback);
+};
+
+/**
+ * List the information about the named context
+ **/
+Context.prototype.context = function (contextname, callback) {
+  this.api.request('/context/view/context/', {'contextName' : contextname}, callback);
 };
 
 /**
@@ -86,6 +86,22 @@ Context.prototype.newContext = function (contextname, apikey, callback) {
     apikey = null;
   }
   this.api.request('/context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}, callback);
+};
+
+Context.prototype.exportContext = function (contextname, contextfile, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey}, callback);
+};
+
+Context.prototype.importContext = function (contextfile, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey}, callback);
 };
 
 /**

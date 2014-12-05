@@ -25,6 +25,7 @@ import json
 import urllib
 from acsrf import acsrf
 from ascan import ascan
+from ajaxSpider import ajaxSpider
 from authentication import authentication
 from autoupdate import autoupdate
 from brk import brk
@@ -32,8 +33,11 @@ from context import context
 from core import core
 from forcedUser import forcedUser
 from httpSessions import httpSessions
+from importLogFiles import importLogFiles
 from params import params
+from pnh import pnh
 from pscan import pscan
+from script import script
 from search import search
 from sessionManagement import sessionManagement
 from spider import spider
@@ -70,6 +74,7 @@ class ZAPv2(object):
         self.__proxies = proxies
         
         self.acsrf = acsrf(self)
+        self.ajaxSpider = ajaxSpider(self)
         self.ascan = ascan(self)
         self.authentication = authentication(self)
         self.autoupdate = autoupdate(self)
@@ -78,8 +83,11 @@ class ZAPv2(object):
         self.core = core(self)
         self.forcedUser = forcedUser(self)
         self.httpsessions = httpSessions(self)
+        self.importLogFiles = importLogFiles(self)
         self.params = params(self)
+        self.php = php(self)
         self.pscan = pscan(self)
+        self.script = script(self)
         self.search = search(self)
         self.sessionManagement = sessionManagement(self)
         self.spider = spider(self)

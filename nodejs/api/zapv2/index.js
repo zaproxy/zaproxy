@@ -23,6 +23,7 @@ var request = require('request'),
     _ = require('lodash');
 
 var Acsrf = require('./acsrf');
+var AjaxSpider = require('./ajaxSpider');
 var Ascan = require('./ascan');
 var Authentication = require('./authentication');
 var Autoupdate = require('./autoupdate');
@@ -31,8 +32,11 @@ var Context = require('./context');
 var Core = require('./core');
 var ForcedUser = require('./forcedUser');
 var HttpSessions = require('./httpSessions');
+var ImportLogFiles = require('./importLogFiles');
 var Params = require('./params');
+var Pnh = require('./pnh');
 var Pscan = require('./pscan');
+var Script = require('./script');
 var Search = require('./search');
 var SessionManagement = require('./sessionManagement');
 var Spider = require('./spider');
@@ -57,6 +61,7 @@ function ClientApi(options) {
 
   this.req = request.defaults(requestOptions);
   this.acsrf = new Acsrf(this);
+  this.ajaxSpider = new AjaxSpider(this);
   this.ascan = new Ascan(this);
   this.authentication = new Authentication(this);
   this.autoupdate = new Autoupdate(this);
@@ -65,8 +70,11 @@ function ClientApi(options) {
   this.core = new Core(this);
   this.forcedUser = new ForcedUser(this);
   this.httpSessions = new HttpSessions(this);
+  this.importLogFiles = new ImportLogFiles(this);
   this.params = new Params(this);
+  this.pnh = new Pnh(this);
   this.pscan = new Pscan(this);
+  this.script = new Script(this);
   this.search = new Search(this);
   this.sessionManagement = new SessionManagement(this);
   this.spider = new Spider(this);

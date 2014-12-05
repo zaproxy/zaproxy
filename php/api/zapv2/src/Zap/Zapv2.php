@@ -24,6 +24,7 @@
 namespace Zap;
 
 use Zap\Acsrf;
+use Zap\AjaxSpider;
 use Zap\Ascan;
 use Zap\Authentication;
 use Zap\Autoupdate;
@@ -32,8 +33,11 @@ use Zap\Context;
 use Zap\Core;
 use Zap\ForcedUser;
 use Zap\HttpSessions;
+use Zap\ImportLogFiles;
 use Zap\Params;
+use Zap\Pnh;
 use Zap\Pscan;
+use Zap\Script;
 use Zap\Search;
 use Zap\SessionManagement;
 use Zap\Spider;
@@ -66,6 +70,7 @@ class Zapv2 {
 		$this->proxy = $proxy;
 
 		$this->acsrf = new Acsrf($this);
+		$this->ajaxSpider = new AjaxSpider($this);
 		$this->ascan = new Ascan($this);
 		$this->authentication = new Authentication($this);
 		$this->autoupdate = new Autoupdate($this);
@@ -74,8 +79,11 @@ class Zapv2 {
 		$this->core = new Core($this);
 		$this->forcedUser = new ForcedUser($this);
 		$this->httpsessions = new HttpSessions($this);
+		$this->importLogFiles = new ImportLogFiles($this);
 		$this->params = new Params($this);
+		$this->pnh = new Pnh($this);
 		$this->pscan = new Pscan($this);
+		$this->script = new Script($this);
 		$this->search = new Search($this);
 		$this->sessionManagement = new SessionManagement($this);
 		$this->spider = new Spider($this);

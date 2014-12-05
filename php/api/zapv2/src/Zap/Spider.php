@@ -96,6 +96,10 @@ class Spider {
 		return $this->zap->request($this->zap->base . 'spider/view/optionParseRobotsTxt/')->{'ParseRobotsTxt'};
 	}
 
+	public function optionParseSitemapXml() {
+		return $this->zap->request($this->zap->base . 'spider/view/optionParseSitemapXml/')->{'ParseSitemapXml'};
+	}
+
 	public function optionParseSVNEntries() {
 		return $this->zap->request($this->zap->base . 'spider/view/optionParseSVNEntries/')->{'ParseSVNEntries'};
 	}
@@ -120,12 +124,20 @@ class Spider {
 		return $this->zap->request($this->zap->base . 'spider/view/optionDomainsAlwaysInScopeEnabled/')->{'DomainsAlwaysInScopeEnabled'};
 	}
 
-	public function scan($url, $apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/scan/', array('url' => $url, 'apikey' => $apikey));
+	public function optionMaxScansInUI() {
+		return $this->zap->request($this->zap->base . 'spider/view/optionMaxScansInUI/')->{'MaxScansInUI'};
 	}
 
-	public function scanAsUser($url, $contextid, $userid, $apikey='') {
-		return $this->zap->request($this->zap->base . 'spider/action/scanAsUser/', array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey));
+	public function optionShowAdvancedDialog() {
+		return $this->zap->request($this->zap->base . 'spider/view/optionShowAdvancedDialog/')->{'ShowAdvancedDialog'};
+	}
+
+	public function scan($url, $maxchildren='', $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/scan/', array('url' => $url, 'maxChildren' => $maxchildren, 'apikey' => $apikey));
+	}
+
+	public function scanAsUser($url, $contextid, $userid, $maxchildren, $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/scanAsUser/', array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'maxChildren' => $maxchildren, 'apikey' => $apikey));
 	}
 
 	public function pause($scanid, $apikey='') {
@@ -212,6 +224,10 @@ class Spider {
 		return $this->zap->request($this->zap->base . 'spider/action/setOptionParseRobotsTxt/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
+	public function setOptionParseSitemapXml($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/setOptionParseSitemapXml/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
 	public function setOptionParseSVNEntries($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'spider/action/setOptionParseSVNEntries/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
@@ -222,6 +238,14 @@ class Spider {
 
 	public function setOptionHandleODataParametersVisited($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'spider/action/setOptionHandleODataParametersVisited/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionMaxScansInUI($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/setOptionMaxScansInUI/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	public function setOptionShowAdvancedDialog($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/setOptionShowAdvancedDialog/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 }

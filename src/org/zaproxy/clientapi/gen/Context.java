@@ -37,16 +37,6 @@ public class Context {
 	public Context(ClientApi api) {
 		this.api = api;
 	}
-	
-	/**
-	 * Returns the information about the named context
-	 */
-	public ApiResponse context(String contextname) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		map.put("contextName", contextname);
-		return api.callApi("context", "view", "context", map);	
-	}
 
 	/**
 	 * List context names of current session
@@ -74,6 +64,16 @@ public class Context {
 		map = new HashMap<String, String>();
 		map.put("contextName", contextname);
 		return api.callApi("context", "view", "includeRegexs", map);
+	}
+
+	/**
+	 * List the information about the named context
+	 */
+	public ApiResponse context(String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextName", contextname);
+		return api.callApi("context", "view", "context", map);
 	}
 
 	/**
@@ -115,6 +115,27 @@ public class Context {
 		}
 		map.put("contextName", contextname);
 		return api.callApi("context", "action", "newContext", map);
+	}
+
+	public ApiResponse exportContext(String apikey, String contextname, String contextfile) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextName", contextname);
+		map.put("contextFile", contextfile);
+		return api.callApi("context", "action", "exportContext", map);
+	}
+
+	public ApiResponse importContext(String apikey, String contextfile) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextFile", contextfile);
+		return api.callApi("context", "action", "importContext", map);
 	}
 
 	/**

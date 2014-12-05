@@ -47,6 +47,7 @@ import org.w3c.dom.Document;
 import org.zaproxy.clientapi.core.Alert.Confidence;
 import org.zaproxy.clientapi.core.Alert.Risk;
 import org.zaproxy.clientapi.gen.Acsrf;
+import org.zaproxy.clientapi.gen.AjaxSpider;
 import org.zaproxy.clientapi.gen.Ascan;
 import org.zaproxy.clientapi.gen.Authentication;
 import org.zaproxy.clientapi.gen.Autoupdate;
@@ -55,8 +56,11 @@ import org.zaproxy.clientapi.gen.Context;
 import org.zaproxy.clientapi.gen.Core;
 import org.zaproxy.clientapi.gen.ForcedUser;
 import org.zaproxy.clientapi.gen.HttpSessions;
+import org.zaproxy.clientapi.gen.ImportLogFiles;
 import org.zaproxy.clientapi.gen.Params;
+import org.zaproxy.clientapi.gen.Pnh;
 import org.zaproxy.clientapi.gen.Pscan;
+import org.zaproxy.clientapi.gen.Script;
 import org.zaproxy.clientapi.gen.Search;
 import org.zaproxy.clientapi.gen.SessionManagement;
 import org.zaproxy.clientapi.gen.Spider;
@@ -69,6 +73,7 @@ public class ClientApi {
 
 	// Note that any new API implementations added have to be added here manually
 	public Acsrf acsrf = new Acsrf(this);
+	public AjaxSpider ajaxSpider = new AjaxSpider(this);
 	public Ascan ascan = new Ascan(this);
 	public Authentication authentication = new Authentication(this);
 	public Autoupdate autoupdate = new Autoupdate(this);
@@ -77,9 +82,12 @@ public class ClientApi {
 	public Core core = new Core(this);
 	public ForcedUser forcedUser = new ForcedUser(this);
 	public HttpSessions httpSessions = new HttpSessions(this);
+	public ImportLogFiles logImportFiles = new ImportLogFiles(this);
 	public Params params = new Params(this);
+	public Pnh pnh = new Pnh(this);
 	public Pscan pscan = new Pscan(this);
 	public Search search = new Search(this);
+	public Script script = new Script(this);
 	public SessionManagement sessionManagement = new SessionManagement(this);
 	public Spider spider = new Spider(this);
 	public Users users = new Users(this);
@@ -399,11 +407,11 @@ public class ClientApi {
     }
 
     public void activeScanSiteInScope(String apikey, String url) throws Exception {
-        ascan.scan(apikey, url, "true", "true");
+        ascan.scan(apikey, url, "true", "true", "");
         // Poll until spider finished
         int status = 0;
         while ( status < 100) {
-            status = statusToInt(ascan.status());
+            status = statusToInt(ascan.status(""));
             if(debug){
                 String format = "Scanning %s Progress: %d%%";
                 System.out.println(String.format(format, url, status));
