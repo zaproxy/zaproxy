@@ -461,8 +461,8 @@ public class ExtensionLoader {
         }
     }
 
-    public void startAllExtension() {
-        double factorPerc = 10.0 / getExtensionCount();
+    public void startAllExtension(double progressFactor) {
+        double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
@@ -484,30 +484,23 @@ public class ExtensionLoader {
      */
     public void startLifeCycle() {
         
-        // Percentage is divided in this way:
-        // 10% initial boot
-        // 15% initAll
-        // 15% initModel
-        // 15% initXML
-        // 15% initViewes
-        // 20% initHooks
-        // 10% startAll
+        // Percentages are passed into the calls as doubles
     	if (view != null) {
-    		view.setSplashScreenLoadingCompletion(10.0);
+    		view.setSplashScreenLoadingCompletion(0.0);
     	}
-        
+
         // Step 3: initialize all (slow)
-        initAllExtension();
+        initAllExtension(5.0);
         // Step 4: initialize models (quick)
-        initModelAllExtension(model);
+        initModelAllExtension(model, 0.0);
         // Step 5: initialize xmls (quick)
-        initXMLAllExtension(model.getSession(), model.getOptionsParam());
+        initXMLAllExtension(model.getSession(), model.getOptionsParam(), 0.0);
         // Step 6: initialize viewes (slow)
-        initViewAllExtension(view);
+        initViewAllExtension(view, 10.0);
         // Step 7: initialize hooks (slowest)
-        hookAllExtension();
+        hookAllExtension(75.0);
         // Step 8: start all extensions(quick)
-        startAllExtension();
+        startAllExtension(10.0);
     }
 
     /**
@@ -609,9 +602,9 @@ public class ExtensionLoader {
         }
     }
 
-    private void hookAllExtension() {
+    private void hookAllExtension(double progressFactor) {
         ExtensionHook extHook;
-        double factorPerc = 20.0 / getExtensionCount();
+        double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
@@ -967,8 +960,8 @@ public class ExtensionLoader {
     /**
      * Init all extensions
      */
-    private void initAllExtension() {        
-        double factorPerc = 15.0 / getExtensionCount();
+    private void initAllExtension(double progressFactor) {        
+        double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
@@ -987,8 +980,8 @@ public class ExtensionLoader {
      * Init all extensions with the same Model
      * @param model the model to apply to all extensions
      */
-    private void initModelAllExtension(Model model) {
-        double factorPerc = 15.0 / getExtensionCount();
+    private void initModelAllExtension(Model model, double progressFactor) {
+        double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
@@ -1007,12 +1000,12 @@ public class ExtensionLoader {
      * Init all extensions with the same View
      * @param view the View that need to be applied
      */
-    private void initViewAllExtension(View view) {
+    private void initViewAllExtension(View view, double progressFactor) {
         if (view == null) {
             return;
         }
 
-        double factorPerc = 15.0 / getExtensionCount();
+        double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
@@ -1025,8 +1018,8 @@ public class ExtensionLoader {
         }
     }
 
-    private void initXMLAllExtension(Session session, OptionsParam options) {
-        double factorPerc = 15.0 / getExtensionCount();
+    private void initXMLAllExtension(Session session, OptionsParam options, double progressFactor) {
+        double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
