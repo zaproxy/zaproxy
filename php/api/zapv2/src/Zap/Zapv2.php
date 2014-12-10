@@ -43,8 +43,13 @@ use Zap\SessionManagement;
 use Zap\Spider;
 use Zap\Users;
 
-class ZapError {
-	public function __construct(Exception $e) {
+class ZapError extends \Exception{
+	public function __construct($message, $code = 0, \Exception $previous = null) {
+		parent::__construct($message, $code, $previous);
+	}
+
+	public function __toString() {
+		return __CLASS__ . ": [{$this->code}]: {$this->message}\n";
 	}
 }
 
@@ -91,6 +96,18 @@ class Zapv2 {
 	}
 
 	/**
+	 * Overwrite a field
+	 *
+	 * mainly used for unit test
+	 *
+	 * @param $name the name of overwritten field
+	 * @param $obj  the value of overwritten field
+	 */
+	public function setFieldByName($name, $obj) {
+		$this->{$name} = $obj;
+	}
+
+	/**
 	 * Checks that we have an OK response, else raises an exception.
 	 *
 	 * checks the result json data after doing action request
@@ -102,7 +119,7 @@ class Zapv2 {
 			return $json_data;
 		}
 		//throw new ZapError($json_data->values());
-		throw new ZapError($json_data);
+		throw new ZapError(var_export($json_data, true));
 	}
 
 	/**
