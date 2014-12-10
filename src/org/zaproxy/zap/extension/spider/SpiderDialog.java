@@ -80,7 +80,6 @@ public class SpiderDialog extends StandardFieldsDialog {
             "spider.custom.tab.scope",
             "spider.custom.tab.adv"
         });
-        this.setModal(true);
         this.extension = ext;
 
         // The first time init to the default options set, after that keep own copies
@@ -174,6 +173,11 @@ public class SpiderDialog extends StandardFieldsDialog {
 		this.setTabsVisible (new String[] {
 	            "spider.custom.tab.adv"
 	        }, visible);
+	}
+	
+    @Override
+	public String getHelpIndex() {
+		return "ui.dialogs.spider";
 	}
 
     @Override

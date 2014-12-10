@@ -28,6 +28,7 @@
 // ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
 // ZAP: 2013/11/28 Issue 923: Allow a footer to be set.
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
+// ZAP: 2014/12/10 Issue 1427: Standardize on [Cancel] [OK] button order
 
 package org.parosproxy.paros.view;
 
@@ -148,8 +149,8 @@ public class AbstractParamDialog extends AbstractDialog {
             gridBagConstraints1.gridy = 0;
             jContentPane.add(getJSplitPane(), gridBagConstraints1);
             jContentPane.add(footer, gridBagConstraints12);
-            jContentPane.add(getBtnOK(), gridBagConstraints13);
-            jContentPane.add(getBtnCancel(), gridBagConstraints14);
+            jContentPane.add(getBtnCancel(), gridBagConstraints13);
+            jContentPane.add(getBtnOK(), gridBagConstraints14);
         }
         
         return jContentPane;

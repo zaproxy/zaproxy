@@ -143,7 +143,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
             "ascan.custom.tab.policy"
         });
         
-        this.setModal(true);
         this.extension = ext;
 
         // The first time init to the default options set, after that keep own copies
@@ -256,6 +255,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setAdvancedOptions(extension.getScannerParam().isShowAdvancedDialog());
 
         this.pack();
+    }
+    
+    @Override
+    public String getHelpIndex() {
+    	return "ui.dialogs.advascan";
     }
 
     private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {

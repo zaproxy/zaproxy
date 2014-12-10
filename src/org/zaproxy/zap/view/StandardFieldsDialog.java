@@ -57,6 +57,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
@@ -71,11 +72,6 @@ import org.zaproxy.zap.view.widgets.ContextSelectComboBox;
  *
  */
 public abstract class StandardFieldsDialog extends AbstractDialog {
-	/**
-	 * TODO
-	 * 		File selector field
-	 * 		Help links
-	 */
 
 	private static final Logger logger = Logger.getLogger(StandardFieldsDialog.class);
 
@@ -91,6 +87,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private double labelWeight = 0;
 	private double fieldWeight = 1.0D;
 
+	private JButton helpButton = null;
 	private JButton cancelButton = null;
 	private JButton saveButton = null;
 
@@ -178,21 +175,28 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		tabbedPane = new JTabbedPane();
 
 		JButton[] extraButtons = this.getExtraButtons();
+		String helpIndex = this.getHelpIndex();
 
 		if (extraButtons == null) {
-			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
-			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			if (hasCancelSaveButtons()) {
-				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 4, 1.0D, 1.0D));
+			if (helpIndex != null) {
+				contentPanel.add(getHelpButton(helpIndex), LayoutHelper.getGBC(0, 1, 1, 0.0D));
 			}
-			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(1, 1, 1, 1.0D));	// spacer
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+			}
+			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(3, 1, 1, 0.0D));
 		} else {
-			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 3 + extraButtons.length, 1.0D, 1.0D));
-			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			if (hasCancelSaveButtons()) {
-				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			contentPanel.add(tabbedPane, LayoutHelper.getGBC(0, 0, 4 + extraButtons.length, 1.0D, 1.0D));
+			if (helpIndex != null) {
+				contentPanel.add(getHelpButton(helpIndex), LayoutHelper.getGBC(0, 1, 1, 0.0D));
 			}
-			int x=2;
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(1, 1, 1, 1.0D));	// spacer
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+			}
+			int x=3;
 			if (extraButtons != null) {
 				for (JButton button : extraButtons) {
 					contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
@@ -220,6 +224,14 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public boolean hasCancelSaveButtons() {
 		return true;
 	}
+	
+	/*
+	 * Always returns null, meaning there is no associated help page.
+	 * Change to return the help index for a help button to be added to the dialog.
+	 */
+	public String getHelpIndex() {
+		return null;
+	}
 
 	private void initializeSinglePane(Dimension dim) {
 		
@@ -230,21 +242,28 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.setContentPane(contentPanel);
 		
 		JButton[] extraButtons = this.getExtraButtons();
+		String helpIndex = this.getHelpIndex();
 
 		if (extraButtons == null) {
-			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3, 1.0D, 1.0D));
-			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			if (hasCancelSaveButtons()) {
-				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 4, 1.0D, 1.0D));
+			if (helpIndex != null) {
+				contentPanel.add(getHelpButton(helpIndex), LayoutHelper.getGBC(0, 1, 1, 0.0D));
 			}
-			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(1, 1, 1, 1.0D));	// spacer
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+			}
+			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(3, 1, 1, 0.0D));
 		} else {
-			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 3 + extraButtons.length, 1.0D, 1.0D));
-			contentPanel.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D));	// spacer
-			if (hasCancelSaveButtons()) {
-				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(1, 1, 1, 0.0D));
+			contentPanel.add(this.getMainPanel(), LayoutHelper.getGBC(0, 0, 4 + extraButtons.length, 1.0D, 1.0D));
+			if (helpIndex != null) {
+				contentPanel.add(getHelpButton(helpIndex), LayoutHelper.getGBC(0, 1, 1, 0.0D));
 			}
-			int x=2;
+			contentPanel.add(new JLabel(), LayoutHelper.getGBC(1, 1, 1, 1.0D));	// spacer
+			if (hasCancelSaveButtons()) {
+				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
+			}
+			int x=3;
 			if (extraButtons != null) {
 				for (JButton button : this.getExtraButtons()) {
 					contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
@@ -315,6 +334,23 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			});
 		}
 		return cancelButton;
+	}
+
+	private JButton getHelpButton(final String helpIndex) {
+		if (helpButton == null) {
+			helpButton = new JButton();
+			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+			helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
+
+			helpButton.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					ExtensionHelp.showHelp(helpIndex);
+				}
+			});
+		}
+		return helpButton;
 	}
 
 	private JPanel getMainPanel() {
