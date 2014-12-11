@@ -419,7 +419,7 @@ public class View implements ViewDelegate {
 
     @Override
     public int showYesNoCancelDialog(String msg) {
-        return showConfirmDialog(getMainFrame(), msg);
+        return showYesNoCancelDialog(getMainFrame(), msg);
     }
 
     public int showYesNoCancelDialog(JPanel parent, String msg) {
