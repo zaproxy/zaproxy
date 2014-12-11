@@ -564,6 +564,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	@Override
 	public void onHttpRequestSend(HttpMessage msg, int initiator) {
+		if (initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR) {
+			return;
+		}
+
 		// Check if we know the site and add it otherwise
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
@@ -592,7 +596,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
-		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR) {
+		if (initiator == HttpSender.ACTIVE_SCANNER_INITIATOR || initiator == HttpSender.SPIDER_INITIATOR
+				|| initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR) {
 			// Not a session we care about
 			return;
 		}
