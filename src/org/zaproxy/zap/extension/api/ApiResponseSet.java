@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -27,9 +26,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.Text;
-import org.zaproxy.clientapi.core.ClientApiException;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
 public class ApiResponseSet extends ApiResponse {
@@ -39,18 +36,6 @@ public class ApiResponseSet extends ApiResponse {
 	public ApiResponseSet(String name, Map values) {
 		super(name);
 		this.values = values;
-	}
-
-	public ApiResponseSet(Node node) throws ClientApiException {
-		super(node.getNodeName());
-		Node child = node.getFirstChild();
-		this.values = new HashMap<>();
-		while (child != null) {
-			ApiResponseElement elem = (ApiResponseElement) ApiResponseFactory
-					.getResponse(child);
-			values.put(elem.getName(), elem.getValue());
-			child = child.getNextSibling();
-		}
 	}
 
 	@Override
