@@ -20,6 +20,8 @@
 
 package org.zaproxy.zap.extension.script;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -142,12 +144,24 @@ public class ScriptAPI extends ApiImplementor {
 			if (engine == null) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ACTION_PARAM_SCRIPT_ENGINE);
 			}
+			File file = new File(params.getString(ACTION_PARAM_FILE_NAME));
+			if (!file.exists()) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, file.getAbsolutePath());
+			}
+			
 			ScriptWrapper script = new ScriptWrapper(
 					params.getString(ACTION_PARAM_SCRIPT_NAME),
 					params.getString(ACTION_PARAM_SCRIPT_DESC),
 					engine,
-					type);
+					type,
+					true,
+					file);
 
+			try {
+				extension.loadScript(script);
+			} catch (IOException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+			}
 			extension.addScript(script, false);
 			return ApiResponseElement.OK;
 
