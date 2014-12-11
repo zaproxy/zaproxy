@@ -301,13 +301,10 @@ public class HttpSender {
 
 		// ZAP: Check if a custom state is being used
 		if (state != null) {
-			// Make sure cookies are enabled and restore the cookie policy afterwards
-			String originalCookiePolicy = requestClient.getParams().getCookiePolicy();
-			requestClient.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			responseCode = requestClient.executeMethod(hc, method, state);
-			requestClient.getParams().setCookiePolicy(originalCookiePolicy);
-		} else
-			responseCode = requestClient.executeMethod(hc, method, null);
+			// Make sure cookies are enabled
+			method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		}
+		responseCode = requestClient.executeMethod(hc, method, state);
 
 		return responseCode;
 	}
