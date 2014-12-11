@@ -89,5 +89,9 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
         return Constant.ZAP_TEAM;
     }
 
+    @Override
+    public String getDescription() {
+        return Constant.messages.getString("globalexcludeurl.desc");
+    }
 	
 }
