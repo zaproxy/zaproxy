@@ -37,6 +37,7 @@
 // ZAP: 2014/06/10 Added TYPE_ACCESS_CONTROL
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 // ZAP: 2014/08/14 Issue 1311: Differentiate temporary internal messages from temporary scanner messages
+// ZAP: 2014/12/11 Update the flag webSocketUpgrade sooner to avoid re-reading the message from database
 
 package org.parosproxy.paros.model;
 
@@ -130,7 +131,7 @@ public class HistoryReference {
 	private List<Alert> alerts;
 	
 	private List<String> tags = new ArrayList<>();
-	private Boolean webSocketUpgrade = null;	// Deliberately a Boolean so we can initialise it from the msg
+	private boolean webSocketUpgrade;
 
     private static Logger log = Logger.getLogger(HistoryReference.class);
 
@@ -217,6 +218,7 @@ public class HistoryReference {
 	    this.sessionId = sessionId;
 	    this.historyId = historyId;
 		this.historyType = historyType;
+		this.webSocketUpgrade = msg.isWebSocketUpgrade();
 		if (historyType == TYPE_PROXIED || historyType == TYPE_ZAP_USER) {
 		    this.display = getDisplay(msg);
 		}
@@ -502,14 +504,6 @@ public class HistoryReference {
 	}
 
 	public boolean isWebSocketUpgrade() {
-		if (webSocketUpgrade == null) {
-			try {
-				webSocketUpgrade = this.getHttpMessage().isWebSocketUpgrade();
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
-				webSocketUpgrade = false;
-			}
-		}
 		return webSocketUpgrade;
 	}
 
