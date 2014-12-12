@@ -21,6 +21,7 @@
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 // ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2014/12/12 Issue 1449: Added help button
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -56,6 +57,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
@@ -82,10 +84,15 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	private JLabel labelTimeElapse = null;
 	private JLabel labelContentLength = null;
 	private JLabel labelTotalLength = null;
+	private String helpKey = null;
 
 	public ManualHttpRequestEditorDialog(boolean isSendEnabled, String configurationKey) throws HeadlessException {
+		this(isSendEnabled, configurationKey, null);
+	}
+
+	public ManualHttpRequestEditorDialog(boolean isSendEnabled, String configurationKey, String helpKey) throws HeadlessException {
 		super(isSendEnabled, configurationKey);
-		
+		this.helpKey = helpKey;
 		sender = new HttpPanelSender(getRequestPanel(), getResponsePanel());
 		
 		initialize();
@@ -163,6 +170,19 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	protected Component getManualSendPanel() {
 		if (requestResponsePanel == null) {
 			requestResponsePanel = new RequestResponsePanel(configurationKey, getRequestPanel(), getResponsePanel());
+			
+			if (helpKey != null) {
+				JButton helpButton = new JButton();
+				helpButton.setIcon(ExtensionHelp.HELP_ICON);
+				helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
+				helpButton.addActionListener(new java.awt.event.ActionListener() { 
+					@Override
+					public void actionPerformed(java.awt.event.ActionEvent e) {
+						ExtensionHelp.showHelp(helpKey);
+					}
+				});
+				requestResponsePanel.addToolbarButton(helpButton);
+			}
 			
 			requestResponsePanel.addEndButton(getBtnSend());
 			requestResponsePanel.addSeparator();
@@ -424,6 +444,10 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 		}
 	
 		public void addToolbarButton(JToggleButton button) {
+			requestPanel.addOptions(button, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+		}
+		
+		public void addToolbarButton(JButton button) {
 			requestPanel.addOptions(button, HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 		}
 		

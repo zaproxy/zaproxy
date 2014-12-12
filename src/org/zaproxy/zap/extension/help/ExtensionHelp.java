@@ -45,6 +45,7 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionHelp extends ExtensionAdaptor {
 
 	private static final String HELP_SET_FILE_NAME = "helpset";
+	public static final ImageIcon HELP_ICON = new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png"));
 
 	private ZapMenuItem menuHelpZap = null;
 	private JButton helpButton = null;

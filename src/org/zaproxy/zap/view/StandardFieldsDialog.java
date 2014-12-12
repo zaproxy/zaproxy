@@ -339,7 +339,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private JButton getHelpButton(final String helpIndex) {
 		if (helpButton == null) {
 			helpButton = new JButton();
-			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
+			helpButton.setIcon(ExtensionHelp.HELP_ICON);
 			helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
 
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
