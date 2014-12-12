@@ -36,6 +36,7 @@
 // with a manual request editor
 // ZAP: 2014/03/23 Issue 1094: Change ExtensionManualRequestEditor to only add view components if in GUI mode
 // ZAP: 2014/08/14 Issue 1292: NullPointerException while attempting to remove an unregistered ManualRequestEditorDialog
+// ZAP: 2014/12/12 Issue 1449: Added help button
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -87,7 +88,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
         super.initView(view);
 
         // add default manual request editor
-        ManualRequestEditorDialog httpSendEditorDialog = new ManualHttpRequestEditorDialog(true, "manual");
+        ManualRequestEditorDialog httpSendEditorDialog = new ManualHttpRequestEditorDialog(true, "manual", "ui.dialogs.manreq");
         httpSendEditorDialog.setTitle(Constant.messages.getString("manReq.dialog.title"));
         
         addManualSendEditor(httpSendEditorDialog);
@@ -172,6 +173,7 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 			break;
 		case protect:
 		case standard:
+		case attack:
 			isEnabled = true;
 			break;
 		}

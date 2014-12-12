@@ -55,6 +55,7 @@
 // ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 // ZAP: 2014/05/20 Issue 1206: "History" tab is not cleared when a new session is created 
 // through the API with ZAP in GUI mode
+// ZAP: 2014/12/12 Issue 1449: Added help button
 
 package org.parosproxy.paros.extension.history;
 
@@ -455,7 +456,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	public ManualRequestEditorDialog getResendDialog() {
 		if (resendDialog == null) {
-			resendDialog = new ManualHttpRequestEditorDialog(true, "resend");
+			resendDialog = new ManualHttpRequestEditorDialog(true, "resend", "ui.dialogs.resend");
 			resendDialog.setTitle(Constant.messages.getString("manReq.resend.popup"));	// ZAP: i18n
 		}
 		return resendDialog;
