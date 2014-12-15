@@ -18,20 +18,31 @@
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.all.response;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.swing.text.BadLocationException;
 
 import org.apache.log4j.Logger;
+import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
+import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseStringHttpPanelViewModel;
+import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
-	
+
+	private static final String CSS = Constant.messages.getString("http.panel.view.syntaxtext.syntax.css");
+	private static final String HTML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.html");
+	private static final String JAVASCRIPT = Constant.messages.getString("http.panel.view.syntaxtext.syntax.javascript");
+	private static final String JSON = Constant.messages.getString("http.panel.view.syntaxtext.syntax.json");
+	private static final String XML = Constant.messages.getString("http.panel.view.syntaxtext.syntax.xml");
+
 	public HttpResponseAllPanelSyntaxHighlightTextView(ResponseStringHttpPanelViewModel model) {
 		super(model);
 	}
@@ -41,7 +52,7 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		return new HttpResponseAllPanelSyntaxHighlightTextArea();
 	}
 	
-	private static class HttpResponseAllPanelSyntaxHighlightTextArea extends HttpPanelSyntaxHighlightTextArea {
+	private static class HttpResponseAllPanelSyntaxHighlightTextArea extends AutoDetectSyntaxHttpPanelTextArea {
 
 		private static final long serialVersionUID = 3665478428546560762L;
 		
@@ -55,6 +66,11 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 
 		public HttpResponseAllPanelSyntaxHighlightTextArea() {
 			//addSyntaxStyle(HTTP_RESPONSE_HEADER_AND_BODY, SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY);
+			addSyntaxStyle(CSS, SyntaxConstants.SYNTAX_STYLE_CSS);
+			addSyntaxStyle(HTML, SyntaxConstants.SYNTAX_STYLE_HTML);
+			addSyntaxStyle(JAVASCRIPT, SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT);
+			addSyntaxStyle(JSON, SyntaxConstants.SYNTAX_STYLE_JSON);
+			addSyntaxStyle(XML, SyntaxConstants.SYNTAX_STYLE_XML);
 		}
 		
 		@Override
@@ -147,7 +163,34 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 			
 			highlight(start, end);
 		}
-		
+
+		@Override
+		protected String detectSyntax(HttpMessage httpMessage) {
+			String syntax = null;
+			if (httpMessage != null && httpMessage.getResponseHeader() != null) {
+				String contentType = httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
+				if(contentType != null && !contentType.isEmpty()) {
+					contentType = contentType.toLowerCase(Locale.ENGLISH);
+					final int pos = contentType.indexOf(';');
+					if (pos != -1) {
+						contentType = contentType.substring(0, pos).trim();
+					}
+					if (contentType.contains("javascript")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_JAVASCRIPT;
+					} else if(contentType.contains("json")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_JSON;
+					} else if (contentType.contains("xhtml")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_HTML;
+					} else if (contentType.contains("xml")) {
+						syntax = SyntaxConstants.SYNTAX_STYLE_XML;
+					} else {
+						syntax = contentType;
+					}
+				}
+			}
+			return syntax;
+		}
+
 		@Override
 		protected synchronized CustomTokenMakerFactory getTokenMakerFactory() {
 			if (tokenMakerFactory == null) {
@@ -159,9 +202,13 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		private static class ResponseAllTokenMakerFactory extends CustomTokenMakerFactory {
 			
 			public ResponseAllTokenMakerFactory() {
-				//String pkg = "";
-
-				//putMapping(SYNTAX_STYLE_HTTP_RESPONSE_HEADER_AND_BODY, pkg + "HttpResponseHeaderAndBodyTokenMaker");
+				String pkg = "org.fife.ui.rsyntaxtextarea.modes.";
+				
+				putMapping(SYNTAX_STYLE_CSS, pkg + "CSSTokenMaker");
+				putMapping(SYNTAX_STYLE_HTML, pkg + "HTMLTokenMaker");
+				putMapping(SYNTAX_STYLE_JAVASCRIPT, pkg + "JavaScriptTokenMaker");
+				putMapping(SYNTAX_STYLE_JSON, pkg + "JsonTokenMaker");
+				putMapping(SYNTAX_STYLE_XML, pkg + "XMLTokenMaker");
 			}
 		}
 	}
