@@ -63,7 +63,7 @@
 		<skipurl></skipurl>
 		<requestwait>200</requestwait>
 		<parseComments>true</parseComments>
-		<parseRobotsTxt>false</parseRobotsTxt>
+		<parseRobotsTxt>true</parseRobotsTxt>
 	</spider>
 
 	<scanner>
