@@ -247,7 +247,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         if (target != null) {
             // Set up the fields if a node has been specified, otherwise leave as previously set
             this.populateRequestField(this.target.getStartNode());
-            this.siteNodeSelected(FIELD_START, this.target.getStartNode());
+	        this.targetSelected(FIELD_START, this.target);
             this.setUsers();
             this.setTech();
         }
