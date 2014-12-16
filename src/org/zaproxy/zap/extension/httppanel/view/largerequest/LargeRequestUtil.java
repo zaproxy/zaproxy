@@ -24,7 +24,7 @@ import org.zaproxy.zap.extension.httppanel.Message;
 
 public class LargeRequestUtil {
 
-    private static final int DEFAULT_MIN_CONTENT_LENGTH = 100000;
+    public static final int DEFAULT_MIN_CONTENT_LENGTH = 100000;
 
     protected static int minContentLength = DEFAULT_MIN_CONTENT_LENGTH;
 
@@ -41,7 +41,7 @@ public class LargeRequestUtil {
     }
 
     public static boolean isLargeRequest(Message aMessage) {
-        if (aMessage instanceof HttpMessage) {
+        if (aMessage instanceof HttpMessage && minContentLength > 0) {
             HttpMessage httpMessage = (HttpMessage) aMessage;
             return httpMessage.getRequestBody().length() > minContentLength;
         }

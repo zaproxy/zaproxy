@@ -24,6 +24,7 @@
 // ZAP: 2013/12/13 Added support for a new option 'show tab names'.
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 // ZAP: 2014/10/09 Issue 1359: Options for splash screen
+// ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
 
 package org.parosproxy.paros.extension.option;
 
@@ -40,7 +41,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
+import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 import org.zaproxy.zap.utils.TimeStampUtils;
+import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
 
 // ZAP: 2011: added more configuration options
@@ -69,6 +73,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JComboBox<String> displaySelect = null;
 	private JComboBox<String> timeStampsFormatSelect = null; 
 	
+	private ZapNumberSpinner largeRequestSize = null;
+	private ZapNumberSpinner largeResponseSize = null;
+	
 	private JLabel brkPanelViewLabel = null;
 	private JLabel advancedViewLabel = null;
 	private JLabel wmUiHandlingLabel = null;
@@ -80,7 +87,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel outputTabTimeStampLabel = null; 
 	private JLabel outputTabTimeStampExampleLabel = null; 
 	private JLabel showSplashScreenLabel = null;
-
+	private JLabel largeRequestLabel = null;
+	private JLabel largeResponseLabel = null;
 	
     public OptionsViewPanel() {
         super();
@@ -121,6 +129,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			processImagesLabel = new JLabel(Constant.messages.getString("view.options.label.processImages"));
 			showTabNamesLabel = new JLabel(Constant.messages.getString("view.options.label.showTabNames"));
 			outputTabTimeStampLabel = new JLabel(Constant.messages.getString("options.display.timestamp.format.outputtabtimestamps.label"));
+			largeRequestLabel = new JLabel(Constant.messages.getString("view.options.label.largeRequestSize"));
+			largeResponseLabel = new JLabel(Constant.messages.getString("view.options.label.largeResponseSize"));
 					
 			outputTabTimeStampExampleLabel = new JLabel(TimeStampUtils.currentDefaultFormattedTimeStamp());
 			showSplashScreenLabel = new JLabel(Constant.messages.getString("view.options.label.showSplashScreen"));
@@ -137,59 +147,74 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			panelMisc.add(getBrkPanelViewSelect(), 
 					LayoutHelper.getGBC(1, 1, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			
+			largeRequestLabel.setLabelFor(getLargeRequestSize());
+			panelMisc.add(largeRequestLabel, 
+					LayoutHelper.getGBC(0, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getLargeRequestSize(), 
+					LayoutHelper.getGBC(1, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+
+			largeResponseLabel.setLabelFor(getLargeResponseSize());
+			panelMisc.add(largeResponseLabel, 
+					LayoutHelper.getGBC(0, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getLargeResponseSize(), 
+					LayoutHelper.getGBC(1, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+
+			
+			
 			advancedViewLabel.setLabelFor(getChkAdvancedView());
 			panelMisc.add(advancedViewLabel, 
-					LayoutHelper.getGBC(0, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkAdvancedView(), 
-					LayoutHelper.getGBC(1, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			wmUiHandlingLabel.setLabelFor(getChkWmUiHandling());
 			panelMisc.add(wmUiHandlingLabel,  
-					LayoutHelper.getGBC(0, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkWmUiHandling(),  
-					LayoutHelper.getGBC(1, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
 			askOnExitLabel.setLabelFor(getChkAskOnExit());
 			panelMisc.add(askOnExitLabel,  
-					LayoutHelper.getGBC(0, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkAskOnExit(),  
-					LayoutHelper.getGBC(1, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			showMainToolbarLabel.setLabelFor(getChkShowMainToolbar());
 			panelMisc.add(showMainToolbarLabel,  
-					LayoutHelper.getGBC(0, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkShowMainToolbar(),  
-					LayoutHelper.getGBC(1, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			processImagesLabel.setLabelFor(getChkProcessImages());
 			panelMisc.add(processImagesLabel,  
-					LayoutHelper.getGBC(0, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkProcessImages(),  
-					LayoutHelper.getGBC(1, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
 			showTabNamesLabel.setLabelFor(getShowTabNames());
 			panelMisc.add(showTabNamesLabel,  
-					LayoutHelper.getGBC(0, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getShowTabNames(),  
-					LayoutHelper.getGBC(1, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			showSplashScreenLabel.setLabelFor(getShowSplashScreen());
 			panelMisc.add(showSplashScreenLabel,  
-					LayoutHelper.getGBC(0, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getShowSplashScreen(),  
-					LayoutHelper.getGBC(1, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			outputTabTimeStampLabel.setLabelFor(getChkOutputTabTimeStamps());
 			panelMisc.add(outputTabTimeStampLabel,   
-					LayoutHelper.getGBC(0, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 11, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkOutputTabTimeStamps(),   
-					LayoutHelper.getGBC(1, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 11, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			outputTabTimeStampExampleLabel.setLabelFor(getTimeStampsFormatSelect());
 			panelMisc.add(getTimeStampsFormatSelect(),   
-					LayoutHelper.getGBC(0, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(outputTabTimeStampExampleLabel,   
-					LayoutHelper.getGBC(1, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			panelMisc.add(new JLabel(""),   
 					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
@@ -321,6 +346,20 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return timeStampsFormatSelect; 
 	}
 	
+	private ZapNumberSpinner getLargeRequestSize() {
+		if (largeRequestSize == null) {
+			largeRequestSize = new ZapNumberSpinner(-1, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH, Integer.MAX_VALUE);
+		}
+		return largeRequestSize;
+	}
+
+	private ZapNumberSpinner getLargeResponseSize() {
+		if (largeResponseSize == null) {
+			largeResponseSize = new ZapNumberSpinner(-1, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH, Integer.MAX_VALUE);
+		}
+		return largeResponseSize;
+	}
+	
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
@@ -335,6 +374,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    chkWmUiHandling.setSelected(options.getViewParam().getWmUiHandlingOption() > 0);
 	    getChkOutputTabTimeStamps().setSelected(options.getViewParam().isOutputTabTimeStampingEnabled()); 
 	    timeStampsFormatSelect.setSelectedItem(options.getViewParam().getOutputTabTimeStampsFormat());
+	    largeRequestSize.setValue(options.getViewParam().getLargeRequestSize());
+	    largeResponseSize.setValue(options.getViewParam().getLargeResponseSize());
 	}
 	
 	@Override
@@ -356,6 +397,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);
 	    options.getViewParam().setOutputTabTimeStampingEnabled(getChkOutputTabTimeStamps().isSelected()); 
 	    options.getViewParam().setOutputTabTimeStampsFormat((String) getTimeStampsFormatSelect().getSelectedItem()); 
+	    options.getViewParam().setLargeRequestSize(getLargeRequestSize().getValue());
+	    options.getViewParam().setLargeResponseSize(getLargeResponseSize().getValue());
 	}
 
 	@Override
