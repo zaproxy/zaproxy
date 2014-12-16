@@ -598,16 +598,19 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 					HtmlParameter passwdParam = (HtmlParameter) passwordParameterCombo.getSelectedItem();
 					
 					ExtensionUserManagement userExt = getUserExt();
-					if (userExt != null) {
-						// Add the user based on the details provided
-						// Note that right now application/x-www-form-urlencoded forms are supported 
-						String userStr = URLDecoder.decode(userParam.getValue(), "UTF8");
-						String passwdStr = URLDecoder.decode(passwdParam.getValue(), "UTF8");
-						User user = new User(context.getIndex(), userStr);
-						UsernamePasswordAuthenticationCredentials upac = 
-								new UsernamePasswordAuthenticationCredentials(userStr, passwdStr);
-						user.setAuthenticationCredentials(upac);
-						getUserExt().getContextUserAuthManager(context.getIndex()).addUser(user);
+					if (userExt != null && userExt.getUIConfiguredUsers(context.getIndex()).size() == 0) {
+						if (! userParam.getValue().contains(FormBasedAuthenticationMethod.MSG_USER_PATTERN) &&
+								! passwdParam.getValue().contains(FormBasedAuthenticationMethod.MSG_PASS_PATTERN)) {
+							// Add the user based on the details provided
+							// Note that right now application/x-www-form-urlencoded forms are supported 
+							String userStr = URLDecoder.decode(userParam.getValue(), "UTF8");
+							String passwdStr = URLDecoder.decode(passwdParam.getValue(), "UTF8");
+							User user = new User(context.getIndex(), userStr);
+							UsernamePasswordAuthenticationCredentials upac = 
+									new UsernamePasswordAuthenticationCredentials(userStr, passwdStr);
+							user.setAuthenticationCredentials(upac);
+							getUserExt().getContextUserAuthManager(context.getIndex()).addUser(user);
+						}
 					}
 					
 					postData = this.replaceParameterValue(postData, userParam,
