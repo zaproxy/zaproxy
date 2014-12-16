@@ -26,6 +26,7 @@ import java.awt.event.FocusListener;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.text.MessageFormat;
@@ -456,6 +457,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		private FormBasedAuthenticationMethod authenticationMethod;
 
 		private Context context;
+		private ExtensionUserManagement userExt = null;
 
 		public FormBasedAuthenticationMethodOptionsPanel(Context context) {
 			super();
@@ -516,7 +518,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 									.getRequestBody().toString());
 							updateParameters();
 						} catch (Exception e1) {
-							e1.printStackTrace();
+							log.error(e1.getMessage(), e1);
 						}
 					}
 				}
@@ -578,22 +580,44 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			else
 				return originalString.replace(parameter.getName(), nameAndSeparator + replaceString);
 		}
+		
+		private ExtensionUserManagement getUserExt() {
+			if (userExt == null) {
+				userExt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
+				
+			}
+			return userExt;
+		}
 
 		@Override
 		public void saveMethod() {
 			try {
 				String postData = postDataField.getText();
 				if (!postData.isEmpty()) {
-					postData = this.replaceParameterValue(postData,
-							(HtmlParameter) usernameParameterCombo.getSelectedItem(),
+					HtmlParameter userParam = (HtmlParameter) usernameParameterCombo.getSelectedItem();
+					HtmlParameter passwdParam = (HtmlParameter) passwordParameterCombo.getSelectedItem();
+					
+					ExtensionUserManagement userExt = getUserExt();
+					if (userExt != null) {
+						// Add the user based on the details provided
+						// Note that right now application/x-www-form-urlencoded forms are supported 
+						String userStr = URLDecoder.decode(userParam.getValue(), "UTF8");
+						String passwdStr = URLDecoder.decode(passwdParam.getValue(), "UTF8");
+						User user = new User(context.getIndex(), userStr);
+						UsernamePasswordAuthenticationCredentials upac = 
+								new UsernamePasswordAuthenticationCredentials(userStr, passwdStr);
+						user.setAuthenticationCredentials(upac);
+						getUserExt().getContextUserAuthManager(context.getIndex()).addUser(user);
+					}
+					
+					postData = this.replaceParameterValue(postData, userParam,
 							FormBasedAuthenticationMethod.MSG_USER_PATTERN);
-					postData = this.replaceParameterValue(postData,
-							(HtmlParameter) passwordParameterCombo.getSelectedItem(),
+					postData = this.replaceParameterValue(postData, passwdParam,
 							FormBasedAuthenticationMethod.MSG_PASS_PATTERN);
 				}
 				getMethod().setLoginRequest(loginUrlField.getText(), postData);
 			} catch (Exception e) {
-				e.printStackTrace();
+				log.error(e.getMessage(), e);
 			}
 		}
 
@@ -917,7 +941,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				try {
 					method.setLoginRequest(loginUrl, postData);
 				} catch (Exception e) {
-					e.printStackTrace();
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 
