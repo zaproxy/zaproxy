@@ -28,6 +28,7 @@
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/10/09 Issue 1359: Options for splash screen
+// ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
 
 package org.parosproxy.paros.extension.option;
 
@@ -37,6 +38,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
+import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 
 // ZAP: Added support for selecting the locale
 
@@ -63,6 +66,8 @@ public class OptionsParamView extends AbstractParam {
 	public static final String OUTPUT_TAB_TIMESTAMPING_OPTION = "view.outputTabsTimeStampsOption"; 
 	public static final String OUTPUT_TAB_TIMESTAMP_FORMAT = "view.outputTabsTimeStampsFormat"; 
 	public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
+	public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
+	public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -79,6 +84,8 @@ public class OptionsParamView extends AbstractParam {
 	private boolean outputTabTimeStampingEnabled = false; 
 	private String outputTabTimeStampFormat = DEFAULT_TIME_STAMP_FORMAT; 
     private boolean showSplashScreen = true;
+    private int largeRequestSize = LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH;
+    private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
 	
     public OptionsParamView() {
     }
@@ -101,6 +108,12 @@ public class OptionsParamView extends AbstractParam {
 	    outputTabTimeStampingEnabled = getConfig().getBoolean(OUTPUT_TAB_TIMESTAMPING_OPTION, false); 
 	    outputTabTimeStampFormat = getConfig().getString(OUTPUT_TAB_TIMESTAMP_FORMAT, DEFAULT_TIME_STAMP_FORMAT);
 	    showSplashScreen = getConfig().getBoolean(SPLASHSCREEN_OPTION, true);
+	    largeRequestSize = getConfig().getInteger(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
+	    largeResponseSize = getConfig().getInteger(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
+	    
+	    // Special cases - set via static methods
+	    LargeRequestUtil.setMinContentLength(largeRequestSize);
+	    LargeResponseUtil.setMinContentLength(largeResponseSize);
     }
 
 	/**
@@ -270,6 +283,26 @@ public class OptionsParamView extends AbstractParam {
 	public void setShowSplashScreen(boolean showSplashScreen) {
 		this.showSplashScreen = showSplashScreen;
 		getConfig().setProperty(SPLASHSCREEN_OPTION, showSplashScreen);
+	}
+
+	public int getLargeRequestSize() {
+		return largeRequestSize;
+	}
+
+	public void setLargeRequestSize(int largeRequestSize) {
+		this.largeRequestSize = largeRequestSize;
+	    LargeRequestUtil.setMinContentLength(largeRequestSize);
+		getConfig().setProperty(LARGE_REQUEST_SIZE, largeRequestSize);
+	}
+	
+	public int getLargeResponseSize() {
+		return largeResponseSize;
+	}
+
+	public void setLargeResponseSize(int largeResponseSize) {
+		this.largeResponseSize = largeResponseSize;
+	    LargeResponseUtil.setMinContentLength(largeResponseSize);
+		getConfig().setProperty(LARGE_RESPONSE_SIZE, largeResponseSize);
 	}
 	
 }
