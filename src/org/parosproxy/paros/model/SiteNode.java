@@ -42,6 +42,7 @@
 // to multiple occurrences of same HistoryReference(s) in the pastHistoryList.
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 // ZAP: 2014/11/19 Issue 1412: Prevent ConcurrentModificationException when icons updated frequently
+// ZAP: 2014/12/17 Issue 1174: Support a Site filter
 
 package org.parosproxy.paros.model;
 
@@ -76,6 +77,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     private static Logger log = Logger.getLogger(SiteNode.class);
     private boolean isIncludedInScope = false;
     private boolean isExcludedFromScope = false;
+    private boolean filtered = false;
 	
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
@@ -296,6 +298,10 @@ public class SiteNode extends DefaultMutableTreeNode {
     	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
  			((SiteNode)this.getParent()).addAlert(alert);
     	}
+    	if (this.siteMap != null) {
+    		// Adding alert might affect the nodes visibility in a filtered tree
+    		siteMap.applyFilter(this);
+    	}
 		this.nodeChanged();
     }
     
@@ -314,7 +320,11 @@ public class SiteNode extends DefaultMutableTreeNode {
 		 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
 		 		((SiteNode)this.getParent()).updateAlert(alert);
 		 	}
-			
+	    	if (this.siteMap != null) {
+	    		// Updating an alert might affect the nodes visibility in a filtered tree
+	    		siteMap.applyFilter(this);
+	    	}
+		
 		}
     }
     
@@ -354,6 +364,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 	 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
 	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
 	 	}
+    	if (this.siteMap != null) {
+    		// Deleting alert might affect the nodes visibility in a filtered tree
+    		siteMap.applyFilter(this);
+    	}
 		this.nodeChanged();
 	}
 	
@@ -364,6 +378,10 @@ public class SiteNode extends DefaultMutableTreeNode {
             if (this.getParent() != null && this.getParent() instanceof SiteNode) {
                 ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
             }
+        	if (this.siteMap != null) {
+        		// Deleting alerts might affect the nodes visibility in a filtered tree
+        		siteMap.applyFilter(this);
+        	}
             this.nodeChanged();
         }
     }
@@ -378,6 +396,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 
         if (!alerts.isEmpty()) {
             alerts.clear();
+        	if (this.siteMap != null) {
+        		// Deleting alert might affect the nodes visibility in a filtered tree
+        		siteMap.applyFilter(this);
+        	}
             nodeChanged();
         }
     }
@@ -436,6 +458,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 
 	public void setIncludedInScope(boolean isIncludedInScope, boolean applyToChildNodes) {
 		this.isIncludedInScope = isIncludedInScope;
+		if (siteMap != null) {
+			// This could have affected its visibility
+			siteMap.applyFilter(this);
+		}
 		this.nodeChanged();
 		// Recurse down
 		if (this.getChildCount() > 0 && applyToChildNodes) {
@@ -456,6 +482,10 @@ public class SiteNode extends DefaultMutableTreeNode {
 		if (isExcludedFromScope) {
 			this.isIncludedInScope = false;
 		}
+		if (siteMap != null) {
+			// This could have affected its visibility
+			siteMap.applyFilter(this);
+		}
 		this.nodeChanged();
 		// Recurse down
 		if (this.getChildCount() > 0 && applyToChildNodes) {
@@ -474,4 +504,13 @@ public class SiteNode extends DefaultMutableTreeNode {
 		}
 		super.setParent(newParent);
 	}
+
+	public boolean isFiltered() {
+		return filtered;
+	}
+
+	protected void setFiltered(boolean filtered) {
+		this.filtered = filtered;
+	}
+	
 }

@@ -383,7 +383,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            		historyRef = sn.getHistoryReference();
 	            	} else {
 	                    historyRef = getHistoryReference(historyId);
-	                    historyRef.setSiteNode(sn);
+	                    sn.setHistoryReference(historyRef);
 	            	}
 	            	final String uri = historyRef.getURI().toString();
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
