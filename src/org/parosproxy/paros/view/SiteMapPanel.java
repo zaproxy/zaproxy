@@ -31,19 +31,28 @@
 // ZAP: 2014/03/23 Issue 609: Provide a common interface to query the state and 
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2014/12/17 Issue 1174: Support a Site filter
 
 package org.parosproxy.paros.view;
 
-import java.awt.CardLayout;
+import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.KeyEvent;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
+import javax.swing.JToggleButton;
 import javax.swing.JTree;
 import javax.swing.KeyStroke;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -55,15 +64,21 @@ import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.SiteTreeFilter;
+import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
 
 public class SiteMapPanel extends AbstractPanel {
@@ -76,7 +91,13 @@ public class SiteMapPanel extends AbstractPanel {
 	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
 	private View view = null;
-	
+
+	private javax.swing.JToolBar panelToolbar = null;
+	private ZapToggleButton scopeButton = null;
+	private JButton filterButton = null;
+	private JLabel filterStatus = null;
+	private HistoryFilterPlusDialog filterPlusDialog = null;
+
 	// ZAP: Added SiteMapListenners
 	private List<SiteMapListener> listeners = new ArrayList<>();
 	
@@ -105,13 +126,118 @@ public class SiteMapPanel extends AbstractPanel {
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("sites.panel.mnemonic"));
 
-		this.setLayout(new CardLayout());
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 	    	this.setSize(300,200);
 	    }
-		this.add(getJScrollPane(), getJScrollPane().getName());
+		
+		this.setLayout(new GridBagLayout());
+		this.add(this.getPanelToolbar(), LayoutHelper.getGBC(0, 0, 1, 0, new Insets(2,2,2,2)));
+		this.add(getJScrollPane(), 
+				LayoutHelper.getGBC(0, 1, 1, 1.0, 1.0, GridBagConstraints.BOTH, new Insets(2,2,2,2)));
+
         expandRoot();
 	}
+	
+	private javax.swing.JToolBar getPanelToolbar() {
+		if (panelToolbar == null) {
+			
+			panelToolbar = new javax.swing.JToolBar();
+			panelToolbar.setLayout(new GridBagLayout());
+			panelToolbar.setEnabled(true);
+			panelToolbar.setFloatable(false);
+			panelToolbar.setRollover(true);
+			panelToolbar.setPreferredSize(new Dimension(800,30));
+			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
+			panelToolbar.setName("ScriptsListToolbar");
+			
+			int i = 1;
+			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			// TODO Disabled for now due to problems with scrolling with sparcely populated filtered trees
+			//panelToolbar.add(getFilterButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			//panelToolbar.add(getFilterStatus(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			panelToolbar.add(new JLabel(), LayoutHelper.getGBC(20, 0, 1, 1.0D));	// spacer
+		}
+		return panelToolbar;
+	}
+
+	private HistoryFilterPlusDialog getFilterPlusDialog() {
+		if (filterPlusDialog == null) {
+			filterPlusDialog = new HistoryFilterPlusDialog(getView().getMainFrame(), true);
+			// Override the title as we're reusing the history filter dialog
+			filterPlusDialog.setTitle(Constant.messages.getString("sites.filter.title"));
+		}
+		return filterPlusDialog;
+	}
+	
+	private JLabel getFilterStatus() {
+		filterStatus = new JLabel(Constant.messages.getString("history.filter.label.filter") + 
+				Constant.messages.getString("history.filter.label.off"));
+		return filterStatus;
+	}
+
+	private JButton getFilterButton() {
+		if (filterButton == null) {
+			filterButton = new JButton();
+			filterButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png")));	// 'filter' icon
+			filterButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
+
+			filterButton.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					showFilterPlusDialog();
+				}
+			});
+		}
+		return filterButton;
+	}
+
+	private void showFilterPlusDialog() {
+		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
+		dialog.setModal(true);
+    	try {
+			dialog.setAllTags(Model.getSingleton().getDb().getTableTag().getAllTags());
+		} catch (SQLException e) {
+			log.error(e.getMessage(), e);
+		}
+
+		int exit = dialog.showDialog();
+		SiteTreeFilter filter = new SiteTreeFilter(dialog.getFilter());
+		filter.setInScope(this.getScopeButton().isSelected());
+		if (exit != JOptionPane.CANCEL_OPTION) {
+			setFilter();
+		}
+	}
+	
+	private void setFilter() {
+		SiteTreeFilter filter = new SiteTreeFilter(getFilterPlusDialog().getFilter());
+		filter.setInScope(scopeButton.isSelected());
+		((SiteMap)treeSite.getModel()).setFilter(filter);
+		((DefaultTreeModel)treeSite.getModel()).nodeStructureChanged((SiteNode)treeSite.getModel().getRoot());
+    	getFilterStatus().setText(filter.toShortString());
+    	getFilterStatus().setToolTipText(filter.toLongString());
+		expandRoot();
+	}
+
+	private JToggleButton getScopeButton() {
+		if (scopeButton == null) {
+			scopeButton = new ZapToggleButton();
+			scopeButton.setIcon(new ImageIcon(SiteMapPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
+			scopeButton.setSelectedIcon(new ImageIcon(SiteMapPanel.class.getResource("/resource/icon/fugue/target.png")));
+			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
+
+			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					setFilter();
+				}
+			});
+		}
+		return scopeButton;
+	}
+
+	
 	/**
 	 * This method initializes jScrollPane	
 	 * 	

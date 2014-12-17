@@ -38,6 +38,7 @@
 // ZAP: 2014/06/16 Issue 1227: Active scanner sends GET requests with content in request body
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
+// ZAP: 2014/12/17 Issue 1174: Support a Site filter
 
 package org.parosproxy.paros.model;
 
@@ -68,6 +69,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.view.SiteTreeFilter;
 
 public class SiteMap extends DefaultTreeModel {
 
@@ -76,6 +78,8 @@ public class SiteMap extends DefaultTreeModel {
 	private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
 
 	private Model model = null;
+	
+	private SiteTreeFilter filter = null;
 
     // ZAP: Added log
     private static Logger log = Logger.getLogger(SiteMap.class);
@@ -406,6 +410,8 @@ public class SiteMap extends DefaultTreeModel {
             newNode.setExcludedFromScope(model.getSession().isExcludedFromScope(newNode), true);
             hrefMap.put(result.getHistoryReference().getHistoryId(), result);
 
+            applyFilter(newNode);
+
             ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
             		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(result)));
 
@@ -464,6 +470,8 @@ public class SiteMap extends DefaultTreeModel {
             // Check if its in or out of scope - has to be done after the node is entered into the tree
             node.setIncludedInScope(model.getSession().isIncludedInScope(node), true);
             node.setExcludedFromScope(model.getSession().isExcludedFromScope(node), true);
+
+            this.applyFilter(node);
 
             ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
             		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(node)));
@@ -630,4 +638,73 @@ public class SiteMap extends DefaultTreeModel {
 		
 		return host.toString();
 	}
+	
+	/**
+	 * Set the filter for the sites tree
+	 * @param filter
+	 */
+	public void setFilter (SiteTreeFilter filter) {
+		this.filter = filter;
+		SiteNode root = (SiteNode) getRoot();
+		setFilter(filter, root);
+		// Never filter the root node
+		root.setFiltered(false);
+	}
+	
+	private boolean setFilter (SiteTreeFilter filter, SiteNode node) {
+		boolean filtered = ! filter.matches(node); 
+		for (int i=0; i < node.getChildCount(); i++) {
+			if (!setFilter(filter, (SiteNode)node.getChildAt(i))) {
+				// Always shoe a node if at least one of its children as not filtered
+				filtered = false;
+			}
+		}
+		node.setFiltered(filtered);
+		return filtered;
+	}
+
+	/**
+	 * Clear the sites tree filter - all nodes will become visible
+	 */
+	public void clearFilter () {
+		this.filter = null;
+		clearFilter((SiteNode) getRoot());
+	}
+	
+	private void clearFilter (SiteNode node) {
+		node.setFiltered(false);
+		for (int i=0; i < node.getChildCount(); i++) {
+			clearFilter((SiteNode)node.getChildAt(i));
+		}
+	}
+
+	/**
+	 * Applies the current filter (if there is one) to the node.
+	 * This should be called anytime a change is made to a node that could affect its visibility in the filtered tree
+	 * @param node
+	 */
+	protected void applyFilter (SiteNode node) {
+    	if (filter != null) {
+    		boolean filtered = this.setFilter(filter, node);
+    		SiteNode parent = ((SiteNode)node.getParent());
+    		if (parent != null && ! filtered && parent.isFiltered()) {
+    			// This node is no longer filtered but its parent is, unfilter the parent so it becomes visible
+    			this.clearParentFilter(parent);
+    		}
+    	} else {
+    		node.setFiltered(false);
+    	}
+	}
+
+	/**
+	 * Recurse up the tree setting all of the parent nodes to unfiltered
+	 * @param parent
+	 */
+	private void clearParentFilter (SiteNode parent) {
+		if (parent != null) {
+			parent.setFiltered(false);
+			clearParentFilter((SiteNode)parent.getParent());
+		}
+	}
+
 }

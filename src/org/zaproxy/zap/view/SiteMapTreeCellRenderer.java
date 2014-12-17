@@ -20,6 +20,7 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Component;
+import java.awt.Dimension;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -65,14 +66,20 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
 
-		super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-		
 		SiteNode node = null;
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
 		}
 		
 		if (node != null) {
+	        if( node.isFiltered()) {
+	        	// Hide the node
+	            setPreferredSize( new Dimension(0, 0) );
+	        } else {
+	            setPreferredSize(null);	// clears the prefered size, making the node visible
+	            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+	        }
+
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
 				setIcon(ROOT_ICON);	// 'World' icon
