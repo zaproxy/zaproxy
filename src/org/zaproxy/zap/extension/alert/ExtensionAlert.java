@@ -52,8 +52,11 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.MainFooterPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.model.Target;
 
 public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
 
@@ -130,6 +133,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
             // Clear the message so that it can be GC'ed
             alert.setMessage(null);
+
+            ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
+            		new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALERT_ADDED_EVENT, new Target(ref.getSiteNode())));
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
@@ -423,6 +429,14 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         deleteAlertFromDisplay(alert);
 
+        if (alert.getHistoryRef() != null) {
+        	ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
+        			new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALERT_ADDED_EVENT, new Target(alert.getHistoryRef().getSiteNode())));
+        } else {
+            ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
+            		new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALERT_ADDED_EVENT, null));
+        }
+
     }
 
     public void deleteAllAlerts() {
@@ -438,6 +452,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         for (HistoryReference href : hrefs.values()) {
             href.deleteAllAlerts();
         }
+
+        ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
+        		new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT, null));
 
         hrefs = new HashMap<>();
 
