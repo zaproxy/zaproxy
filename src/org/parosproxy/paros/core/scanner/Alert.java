@@ -61,7 +61,7 @@ public class Alert implements Comparable<Object>  {
 	// ZAP: Added FALSE_POSITIVE
 	public static final int FALSE_POSITIVE = 0;
 	/**
-	 * @deprecated (2.4.0) Replaced by {@link LOW} confidence.
+	 * @deprecated (2.4.0) Replaced by {@link #LOW} confidence.
 	 * SUSPICIOUS reliability has been deprecated in favour of using LOW confidence.
 	 */
 	@Deprecated
@@ -167,7 +167,7 @@ public class Alert implements Comparable<Object>  {
         setHistoryRef(ref);
 	}
 	/**
-	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(risk, confidence)}.
+	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}.
 	 * Use of reliability has been deprecated in favour of using confidence
 	 */
 	@Deprecated

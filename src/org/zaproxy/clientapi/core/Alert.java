@@ -24,7 +24,7 @@ public class Alert {
 
     public enum Risk {Informational, Low, Medium, High};
 	/**
-	 * @deprecated (2.4.0) Replaced by {@link #Confidence}.
+	 * @deprecated (2.4.0) Replaced by {@link Confidence}.
 	 * Use of reliability has been deprecated in favour of using confidence.
 	 */
 	@Deprecated
