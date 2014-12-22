@@ -28,6 +28,8 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.swing.JOptionPane;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -35,8 +37,11 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
 
@@ -46,19 +51,8 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 
     private PopupCopyMenu popupCopyMenu = null;
     private PopupPasteMenu popupPaste = null;
-	private PopupMenuActiveScanScope popupMenuActiveScanScope = null;
-	private PopupMenuActiveScanNode popupMenuActiveScanSubtree = null;
-	private PopupMenuActiveScanSite popupMenuActiveScanSite = null;
 	private PopupMenuActiveScanCustom popupMenuActiveScanCustom = null;
-	private PopupMenuSpiderURL popupMenuSpiderURL = null;
-	private PopupMenuSpiderScope popupMenuSpiderScope = null;
-	private PopupMenuSpiderSite popupMenuSpiderSite = null;
-	private PopupMenuSpiderContext popupMenuSpiderContext = null;
-	private PopupMenuSpiderContextAsUser popupMenuSpiderContextAsUser =null;
-	private PopupMenuSpiderSubtree popupMenuSpiderSubtree = null;
-	private PopupMenuSpiderURLAsUser popupMenuSpiderURLAsUser = null;
 	private PopupMenuSpiderDialog popupMenuSpiderDialog = null;
-	private PopupMenuActiveScanURL popupMenuActiveScanURL = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
 	private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
@@ -69,6 +63,9 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuItemContextInclude popupContextIncludeMenu = null;
 	private PopupMenuItemContextExclude popupContextExcludeMenu = null;
 	private PopupMenuCopyUrls popupMenuCopyUrls = null;
+	private PopupContextTreeMenu popupContextTreeMenuInScope = null;
+	private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
+	private PopupContextTreeMenu popupContextTreeMenuDelete = null;
 
 	// Still being developed
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
@@ -111,28 +108,10 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
 
 			if (isExtensionActiveScanEnabled) {
-				/* TODO seeing if we can get away with just one right click option
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanScope(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSite(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanSubtree(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanURL(3));
-				*/
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
 			}
 
 			if (isExtensionSpiderEnabled) {
-				/* TODO seeing if we can get away with just one right click option
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContext(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderScope(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSite(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderSubtree(3));
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURL(3));
-				//Enable some popup menus only if some extensions are enabled 
-				if(extensionLoader.isExtensionEnabled(ExtensionUserManagement.NAME)){
-					extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderURLAsUser(3));
-					extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderContextAsUser(3));
-				}
-				*/
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderDialog(3));
 			}
 
@@ -150,7 +129,72 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuCopyUrls(8));
 			// extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuShowResponseInBrowser(7));
 
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuInScope());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
 		}
+	}
+	
+	private PopupContextTreeMenu getPopupContextTreeMenuInScope() {
+		if (popupContextTreeMenuInScope == null) {
+			popupContextTreeMenuInScope = new PopupContextTreeMenu() {
+				private static final long serialVersionUID = 1L;
+				public boolean isEnabledForContext(int contextId) {
+                	Context ctx = Model.getSingleton().getSession().getContext(contextId);
+					return ctx != null && ! ctx.isInScope();
+				}
+			}; 
+			popupContextTreeMenuInScope.setText(Constant.messages.getString("context.inscope.popup"));
+            popupContextTreeMenuInScope.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	Context ctx = Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
+                	ctx.setInScope(true);
+                	Model.getSingleton().getSession().saveContext(ctx);
+                }
+            });
+		}
+		return popupContextTreeMenuInScope;
+	}
+
+	private PopupContextTreeMenu getPopupContextTreeMenuOutScope() {
+		if (popupContextTreeMenuOutScope == null) {
+			popupContextTreeMenuOutScope = new PopupContextTreeMenu() {
+				private static final long serialVersionUID = 1L;
+				public boolean isEnabledForContext(int contextId) {
+                	Context ctx = Model.getSingleton().getSession().getContext(contextId);
+					return ctx != null && ctx.isInScope();
+				}
+			}; 
+			popupContextTreeMenuOutScope.setText(Constant.messages.getString("context.outscope.popup"));
+            popupContextTreeMenuOutScope.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	Context ctx = Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
+                	ctx.setInScope(false);
+                	Model.getSingleton().getSession().saveContext(ctx);
+                }
+            });
+		}
+		return popupContextTreeMenuOutScope;
+	}
+
+	private PopupContextTreeMenu getPopupContextTreeMenuDelete() {
+		if (popupContextTreeMenuDelete == null) {
+			popupContextTreeMenuDelete = new PopupContextTreeMenu(); 
+			popupContextTreeMenuDelete.setText(Constant.messages.getString("context.delete.popup"));
+            popupContextTreeMenuDelete.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	Context ctx = Model.getSingleton().getSession().getContext(popupContextTreeMenuOutScope.getContextId());
+                	if (View.getSingleton().showConfirmDialog(Constant.messages.getString("context.delete.warning"))
+                			== JOptionPane.OK_OPTION) {
+                		Model.getSingleton().getSession().deleteContext(ctx);
+                	}
+                }
+            });
+		}
+		return popupContextTreeMenuDelete;
 	}
 
     private PopupCopyMenu getPopupMenuCopy() {
@@ -208,16 +252,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		// Ignore
 	}
 
-	// TODO Dont remove these until we're sure its the right approach
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderURL getPopupMenuSpiderURL(int menuIndex) {
-		if (popupMenuSpiderURL == null) {
-			popupMenuSpiderURL = new PopupMenuSpiderURL(Constant.messages.getString("spider.url.popup"));
-			popupMenuSpiderURL.setMenuIndex(menuIndex);
-		}
-		return popupMenuSpiderURL;
-	}
-	
 	private PopupMenuSpiderDialog getPopupMenuSpiderDialog(int menuIndex) {
 		if (popupMenuSpiderDialog == null) {
 			popupMenuSpiderDialog = new PopupMenuSpiderDialog(Constant.messages.getString("spider.custom.popup"));
@@ -225,91 +259,11 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		return popupMenuSpiderDialog;
 	}
 
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderContext getPopupMenuSpiderContext(int menuIndex) {
-		if (popupMenuSpiderContext == null) {
-			popupMenuSpiderContext = new PopupMenuSpiderContext(Constant.messages.getString("spider.context.popup"));
-		}
-		return popupMenuSpiderContext;
-	}
-	
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderURLAsUser getPopupMenuSpiderURLAsUser(int menuIndex) {
-		if (popupMenuSpiderURLAsUser == null) {
-			popupMenuSpiderURLAsUser = new PopupMenuSpiderURLAsUser(Constant.messages.getString("spider.url.user.popup"));
-		}
-		return popupMenuSpiderURLAsUser;
-	}
-	
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderContextAsUser getPopupMenuSpiderContextAsUser(int menuIndex) {
-		if (popupMenuSpiderContextAsUser == null) {
-			popupMenuSpiderContextAsUser = new PopupMenuSpiderContextAsUser(Constant.messages.getString("spider.context.user.popup"));
-		}
-		return popupMenuSpiderContextAsUser;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderSite getPopupMenuSpiderSite(int menuIndex) {
-		if (popupMenuSpiderSite == null) {
-			popupMenuSpiderSite = new PopupMenuSpiderSite(Constant.messages.getString("spider.site.popup"));
-		}
-		return popupMenuSpiderSite;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderScope getPopupMenuSpiderScope(int menuIndex) {
-		if (popupMenuSpiderScope == null) {
-			popupMenuSpiderScope = new PopupMenuSpiderScope(Constant.messages.getString("spider.scope.popup"));
-		}
-		return popupMenuSpiderScope;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuSpiderSubtree getPopupMenuSpiderSubtree(int menuIndex) {
-		if (popupMenuSpiderSubtree == null) {
-			popupMenuSpiderSubtree = new PopupMenuSpiderSubtree(Constant.messages.getString("spider.subtree.popup"));
-		}
-		return popupMenuSpiderSubtree;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuActiveScanScope getPopupMenuActiveScanScope(int menuIndex) {
-		if (popupMenuActiveScanScope == null) {
-			popupMenuActiveScanScope = new PopupMenuActiveScanScope(Constant.messages.getString("ascan.scope.popup"));
-		}
-		return popupMenuActiveScanScope;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuActiveScanSite getPopupMenuActiveScanSite(int menuIndex) {
-		if (popupMenuActiveScanSite == null) {
-			popupMenuActiveScanSite = new PopupMenuActiveScanSite(Constant.messages.getString("ascan.site.popup"));
-		}
-		return popupMenuActiveScanSite;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuActiveScanNode getPopupMenuActiveScanSubtree(int menuIndex) {
-		if (popupMenuActiveScanSubtree == null) {
-			popupMenuActiveScanSubtree = new PopupMenuActiveScanNode(Constant.messages.getString("ascan.subtree.popup"));
-		}
-		return popupMenuActiveScanSubtree;
-	}
-
 	private PopupMenuActiveScanCustom getPopupMenuActiveScanCustom(int menuIndex) {
 		if (popupMenuActiveScanCustom == null) {
 			popupMenuActiveScanCustom = new PopupMenuActiveScanCustom(Constant.messages.getString("ascan.custom.popup"));
 		}
 		return popupMenuActiveScanCustom;
-	}
-
-	@SuppressWarnings("unused")
-	private PopupMenuActiveScanURL getPopupMenuActiveScanURL(int menuIndex) {
-		if (popupMenuActiveScanURL == null) {
-			popupMenuActiveScanURL = new PopupMenuActiveScanURL(Constant.messages.getString("ascan.url.popup"));
-		}
-		return popupMenuActiveScanURL;
 	}
 
 	private PopupMenuOpenUrlInBrowser getPopupMenuOpenUrlInBrowser(int menuIndex) {

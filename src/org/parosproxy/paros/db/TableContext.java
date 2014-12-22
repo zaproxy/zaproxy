@@ -44,6 +44,7 @@ public class TableContext extends AbstractTable {
     private PreparedStatement psGetAllDataForContext = null;
     private PreparedStatement psGetAllDataForContextAndType = null;
     private PreparedStatement psDeleteData = null;
+    private PreparedStatement psDeleteAllDataForContext = null;
     private PreparedStatement psDeleteAllDataForContextAndType = null;
 
     public TableContext() {
@@ -64,6 +65,7 @@ public class TableContext extends AbstractTable {
         psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
 
         psDeleteData = conn.prepareStatement("DELETE FROM CONTEXT_DATA WHERE " + CONTEXTID + " = ? AND " + TYPE + " = ? AND " + DATA + " = ?");
+        psDeleteAllDataForContext = conn.prepareStatement("DELETE FROM CONTEXT_DATA WHERE " + CONTEXTID + " = ?");
         psDeleteAllDataForContextAndType = conn.prepareStatement("DELETE FROM CONTEXT_DATA WHERE " + CONTEXTID + " = ? AND " + TYPE + " = ?");
 
         psGetAllData = conn.prepareStatement("SELECT * FROM CONTEXT_DATA");
@@ -108,6 +110,10 @@ public class TableContext extends AbstractTable {
     	psDeleteAllDataForContextAndType.executeUpdate();
     }
     
+    public synchronized void deleteAllDataForContext(int contextId) throws SQLException {
+    	psDeleteAllDataForContext.setInt(1, contextId);
+    	psDeleteAllDataForContext.executeUpdate();
+    }
 
     public List<RecordContext> getAllData () throws SQLException {
     	List<RecordContext> result = new ArrayList<>();

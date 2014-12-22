@@ -46,6 +46,7 @@
 // ZAP: 2014/06/10 Added helper method for removing data for context and type
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
+// ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 
 package org.parosproxy.paros.model;
 
@@ -629,6 +630,7 @@ public class Session extends FileXML {
 	}
 
 	private void refreshScope() {
+		// log.debug("refreshScope");
         if (EventQueue.isDispatchThread()) {
         	refreshScope((SiteNode) siteTree.getRoot());
         	Control.getSingleton().sessionScopeChanged();
@@ -957,15 +959,15 @@ public class Session extends FileXML {
 		List<String> temp;
 		
 		temp = getExcludeFromProxyRegexs();
-	    log.info(">>> forceGlobalExcludeURLRefresh: " + temp.toString());
+	    log.debug("forceGlobalExcludeURLRefresh proxy: " + temp.toString());
 		setExcludeFromProxyRegexs(temp);
 		
 		temp = getExcludeFromScanRegexs();
-	    log.info(">>> forceGlobalExcludeURLRefresh: " + temp.toString());
+	    log.debug("forceGlobalExcludeURLRefresh ascan: " + temp.toString());
 		setExcludeFromScanRegexs(temp);
 		
 		temp = getExcludeFromSpiderRegexs();
-	    log.info(">>> forceGlobalExcludeURLRefresh: " + temp.toString());
+	    log.debug("forceGlobalExcludeURLRefresh spider: " + temp.toString());
 		setExcludeFromSpiderRegexs(temp);
 	}
 
@@ -994,13 +996,11 @@ public class Session extends FileXML {
 	    for (String url : ignoredRegexs) {
 			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
 	    }
-	    log.info(">>> setGlobalExcludeURLRegexs" );
-
 		this.globalExcludeURLRegexs = stripEmptyLines(ignoredRegexs);
 
 		// XXX This probably isn't needed in the active session, need advice here. 
 		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
-	    log.info("<<< setGlobalExcludeURLRegexs" );
+	    log.debug("setGlobalExcludeURLRegexs" );
 	}
 	
 	public void setSessionUrls(int type, List<String> urls) throws SQLException {
@@ -1045,6 +1045,10 @@ public class Session extends FileXML {
 		model.getDb().getTableContext().deleteAllDataForContextAndType(contextId, type);
 	}
 	
+	public void clearContextData(int contextId) throws SQLException{
+		model.getDb().getTableContext().deleteAllDataForContext(contextId);
+	}
+	
 	private List<String> techListToStringList (TreeSet<Tech> techList) {
 		List<String> strList = new ArrayList<>();
 		Iterator<Tech> iter = techList.iterator();
@@ -1075,13 +1079,15 @@ public class Session extends FileXML {
 		}
 		
 		if (View.isInitialised()) {
+			View.getSingleton().changeContext(c);
 			refreshScope();
 		}
 	}
 	
 	public void saveAllContexts(){
-		for(Context c: contexts)
+		for(Context c: contexts) {
 			this.saveContext(c);
+		}
 	}
 	
 	public Context getNewContext() {
@@ -1094,11 +1100,30 @@ public class Session extends FileXML {
 		this.contexts.add(c);
 		this.model.loadContext(c);
 
-		for (OnContextsChangedListener l : contextsChangedListeners)
+		for (OnContextsChangedListener l : contextsChangedListeners) {
 			l.contextAdded(c);
+		}
 		
 		if (View.isInitialised()) {
 			View.getSingleton().addContext(c);
+		}
+	}
+
+	public void deleteContext(Context c) {
+		this.contexts.remove(c);
+		try {
+			this.clearContextData(c.getIndex());
+		} catch (SQLException e) {
+            log.error(e.getMessage(), e);
+		}
+
+		for (OnContextsChangedListener l : contextsChangedListeners) {
+			l.contextDeleted(c);
+		}
+
+		if (View.isInitialised()) {
+			View.getSingleton().deleteContext(c);
+			refreshScope();
 		}
 	}
 
@@ -1340,6 +1365,11 @@ public class Session extends FileXML {
 		 * Called whenever a new context is created and added.
 		 */
 		public void contextAdded(Context context);
+
+		/**
+		 * Called whenever a new context is deleted.
+		 */
+		public void contextDeleted(Context context);
 
 		/**
 		 * Called whenever the whole contexts list was changed.

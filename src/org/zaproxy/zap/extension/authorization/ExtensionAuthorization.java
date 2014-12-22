@@ -107,6 +107,11 @@ public class ExtensionAuthorization extends ExtensionAdaptor implements ContextP
 	}
 
 	@Override
+	public void discardContext(Context ctx) {
+		this.contextPanelsMap.remove(ctx.getIndex());
+	}
+
+	@Override
 	public void loadContextData(Session session, Context context) {
 		try {
 			List<String> loadedData = session.getContextDataStrings(context.getIndex(),

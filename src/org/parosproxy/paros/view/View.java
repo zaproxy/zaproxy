@@ -55,6 +55,8 @@
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/10/31 Issue 1176: Changed parents to Window as part of spider advanced dialog changes
 // ZAP: 2014/11/23 Added Splash Screen management
+// ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
+
 package org.parosproxy.paros.view;
 
 import java.awt.Component;
@@ -668,6 +670,7 @@ public class View implements ViewDelegate {
             getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, panel, false);
             this.contextPanels.add(panel);
         }
+        this.getSiteTreePanel().reloadContextTree();
     }
 
     public void renameContext(Context c) {
@@ -680,11 +683,29 @@ public class View implements ViewDelegate {
                 }
             }
         }
+        this.getSiteTreePanel().reloadContextTree();
+    }
+
+    public void changeContext(Context c) {
+        this.getSiteTreePanel().contextChanged(c);
     }
 
     @Override
     public void addContextPanelFactory(ContextPanelFactory cpf) {
         this.contextPanelFactories.add(cpf);
+    }
+
+    public void deleteContext(Context c) {
+        for (AbstractParamPanel panel : contextPanels) {
+        	if (((AbstractContextPropertiesPanel)panel).getContextIndex() == c.getIndex()) {
+                getSessionDialog().removeParamPanel(panel);
+        	}
+        }
+        for (ContextPanelFactory cpf : this.contextPanelFactories) {
+            cpf.discardContext(c);
+        }
+        contextPanels.remove(c);
+        this.getSiteTreePanel().reloadContextTree();
     }
 
     public void discardContexts() {
@@ -694,8 +715,8 @@ public class View implements ViewDelegate {
         for (ContextPanelFactory cpf : this.contextPanelFactories) {
             cpf.discardContexts();
         }
-
         contextPanels.clear();
+        this.getSiteTreePanel().reloadContextTree();
     }
 
     public OptionsDialog getOptionsDialog(String title) {

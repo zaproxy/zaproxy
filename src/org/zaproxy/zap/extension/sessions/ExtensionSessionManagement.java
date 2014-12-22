@@ -150,6 +150,11 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 		this.contextPanelsMap.clear();
 	}
 
+	@Override
+	public void discardContext(Context c) {
+		this.contextPanelsMap.remove(c.getIndex());
+	}
+
 	/**
 	 * Gets the session management method type for a given identifier.
 	 * 
