@@ -777,7 +777,12 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 	public void discardContexts() {
 		authPanelMap.clear();
 		contextAuthMap.clear();
-		
+	}
+
+	@Override
+	public void discardContext(Context ctx) {
+		authPanelMap.remove(ctx.getIndex());
+		contextAuthMap.remove(ctx.getIndex());
 	}
 
 	@Override

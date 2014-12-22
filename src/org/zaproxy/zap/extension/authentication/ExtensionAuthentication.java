@@ -294,6 +294,11 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public void discardContext(Context ctx) {
+		contextPanelsMap.remove(ctx.getIndex());
+	}
+
+	@Override
 	public void exportContextData(Context ctx, Configuration config) {
 		config.setProperty(AuthenticationMethod.CONTEXT_CONFIG_AUTH_TYPE, ctx.getAuthenticationMethod().getType().getUniqueIdentifier());
 		if (ctx.getAuthenticationMethod().getLoggedInIndicatorPattern() != null) {

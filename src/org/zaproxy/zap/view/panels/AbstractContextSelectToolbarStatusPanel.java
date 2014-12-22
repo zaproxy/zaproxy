@@ -232,6 +232,13 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	}
 
 	@Override
+	public void contextDeleted(Context context) {
+		log.debug("Context deleted...");
+		contextSelectBox.reloadContexts(false);
+		contextSelectBox.setSelectedIndex(-1);
+	}
+
+	@Override
 	public void contextsChanged() {
 		log.debug("Contexts changed...");
 		contextSelectBox.reloadContexts(false);

@@ -285,6 +285,14 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	}
 
 	@Override
+	public void discardContext(Context ctx) {
+		this.contextForcedUsersMap.remove(ctx.getIndex());
+		this.contextPanelsMap.remove(ctx.getIndex());
+		// Make sure the status of the toggle button is properly updated when changing the session
+		updateForcedUserModeToggleButtonState();
+	}
+
+	@Override
 	public int getListenerOrder() {
 		// Later so any modifications or requested users are visible
 		return 9998;

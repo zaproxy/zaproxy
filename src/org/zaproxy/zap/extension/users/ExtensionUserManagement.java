@@ -237,6 +237,12 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	}
 
 	@Override
+	public void discardContext(Context ctx) {
+		this.contextManagers.remove(ctx.getIndex());
+		this.userPanelsMap.remove(ctx.getIndex());
+	}
+
+	@Override
 	public void loadContextData(Session session, Context context) {
 		try {
 			List<String> encodedUsers = session.getContextDataStrings(context.getIndex(),

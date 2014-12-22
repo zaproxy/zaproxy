@@ -32,6 +32,7 @@
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
+// ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 
 package org.parosproxy.paros.view;
 
@@ -51,6 +52,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
@@ -60,9 +62,11 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
+import javax.swing.tree.TreeSelectionModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.HistoryReference;
@@ -72,6 +76,9 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.view.ContextsTreeCellRenderer;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.SiteMapTreeCellRenderer;
@@ -83,6 +90,8 @@ import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesCon
 
 public class SiteMapPanel extends AbstractPanel {
 
+	public static final String CONTEXT_TREE_COMPONENT_NAME	= "ContextTree";
+	
 	private static final long serialVersionUID = -3161729504065679088L;
 
 	// ZAP: Added logger
@@ -90,6 +99,8 @@ public class SiteMapPanel extends AbstractPanel {
 
 	private JScrollPane jScrollPane = null;
 	private JTree treeSite = null;
+	private JTree treeContext = null;
+	private DefaultTreeModel contextTree = null;
 	private View view = null;
 
 	private javax.swing.JToolBar panelToolbar = null;
@@ -97,6 +108,8 @@ public class SiteMapPanel extends AbstractPanel {
 	private JButton filterButton = null;
 	private JLabel filterStatus = null;
 	private HistoryFilterPlusDialog filterPlusDialog = null;
+	private JButton importContextButton = null;
+	private JButton exportContextButton = null;
 
 	// ZAP: Added SiteMapListenners
 	private List<SiteMapListener> listeners = new ArrayList<>();
@@ -152,6 +165,9 @@ public class SiteMapPanel extends AbstractPanel {
 			
 			int i = 1;
 			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			panelToolbar.add(getImportContextButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			panelToolbar.add(getExportContextButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			
 			// TODO Disabled for now due to problems with scrolling with sparcely populated filtered trees
 			//panelToolbar.add(getFilterButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
 			//panelToolbar.add(getFilterStatus(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
@@ -191,6 +207,38 @@ public class SiteMapPanel extends AbstractPanel {
 		}
 		return filterButton;
 	}
+	
+	private JButton getImportContextButton() {
+		if (importContextButton == null) {
+			importContextButton = new JButton();
+			importContextButton.setIcon(new ImageIcon(
+					LogPanel.class.getResource("/resource/icon/fugue/application-blue-import.png")));
+			importContextButton.setToolTipText(Constant.messages.getString("menu.file.context.import"));
+			importContextButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					Control.getSingleton().getMenuFileControl().importContext();
+				}
+			});
+		}
+		return importContextButton;
+	}
+
+	private JButton getExportContextButton() {
+		if (exportContextButton == null) {
+			exportContextButton = new JButton();
+			exportContextButton.setIcon(new ImageIcon(
+					LogPanel.class.getResource("/resource/icon/fugue/application-blue-export.png")));
+			exportContextButton.setToolTipText(Constant.messages.getString("menu.file.context.export"));
+			exportContextButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					Control.getSingleton().getMenuFileControl().exportContext();
+				}
+			});
+		}
+		return exportContextButton;
+	}
 
 	private void showFilterPlusDialog() {
 		HistoryFilterPlusDialog dialog = getFilterPlusDialog();
@@ -217,6 +265,9 @@ public class SiteMapPanel extends AbstractPanel {
     	getFilterStatus().setText(filter.toShortString());
     	getFilterStatus().setToolTipText(filter.toLongString());
 		expandRoot();
+		
+		// Remove any out of scope contexts too
+		this.reloadContextTree();
 	}
 
 	private JToggleButton getScopeButton() {
@@ -246,9 +297,15 @@ public class SiteMapPanel extends AbstractPanel {
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTreeSite());
 			jScrollPane.setPreferredSize(new java.awt.Dimension(200,400));
-			jScrollPane.setName("jScrollPane");
+			jScrollPane.setName("sitesPanelScrollPane");
+			
+			JPanel panel = new JPanel();
+			panel.setLayout(new GridBagLayout());
+			panel.add(this.getTreeContext(), LayoutHelper.getGBC(0, 0, 1, 1.0D, 0.0D));
+			panel.add(this.getTreeSite(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 1.0D));
+			jScrollPane.setViewportView(panel);
+
 		}
 		return jScrollPane;
 	}
@@ -277,6 +334,10 @@ public class SiteMapPanel extends AbstractPanel {
 				}
 				
 				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+				    if (treeSite.getLastSelectedPathComponent() != null) {
+				    	// They selected a site node, deselect any context
+				    	getTreeContext().clearSelection();
+				    }
 					// right mouse button action
 					if (e.isPopupTrigger()) {
 
@@ -376,6 +437,111 @@ public class SiteMapPanel extends AbstractPanel {
 		return treeSite;
 	}
 	
+	protected void reloadContextTree() {
+		SiteNode root;
+		if (this.contextTree == null) {
+			root = new SiteNode(null, -1, Constant.messages.getString("context.list"));
+			this.contextTree = new DefaultTreeModel(root);
+		} else {
+			root = (SiteNode)this.contextTree.getRoot();
+			root.removeAllChildren();
+		}
+		for (Context ctx : Model.getSingleton().getSession().getContexts()) {
+			if (ctx.isInScope() || ! this.getScopeButton().isSelected()) {
+				// Add all in scope contexts, and out of scope ones if scope button not pressed
+	            SiteNode node = new SiteNode(null, HistoryReference.TYPE_PROXIED, ctx.getName());
+	            node.setUserObject(new Target(ctx));
+				root.add(node);
+			}
+		}
+		this.contextTree.nodeStructureChanged(root);
+	}
+
+	private JTree getTreeContext() {
+		if (treeContext == null) {
+			reloadContextTree();
+			treeContext = new JTree(this.contextTree);
+			treeContext.setShowsRootHandles(true);
+			treeContext.setName(CONTEXT_TREE_COMPONENT_NAME);
+			treeContext.setToggleClickCount(1);
+			treeContext.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+			treeContext.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
+				public void mousePressed(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
+					
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					showPopupMenuIfTriggered(e);
+				}
+				
+				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
+				    if (treeSite.getLastSelectedPathComponent() != null) {
+				    	// They selected a context node, deselect any context
+				    	getTreeSite().clearSelection();
+				    }
+					// right mouse button action
+					if (e.isPopupTrigger()) {
+
+						// Select context list item on right click
+				    	TreePath tp = treeContext.getPathForLocation( e.getPoint().x, e.getPoint().y );
+				    	if ( tp != null ) {
+				    		boolean select = true;
+				    		// Only select a new item if the current item is not
+				    		// already selected - this is to allow multiple items
+				    		// to be selected
+					    	if (treeContext.getSelectionPaths() != null) {
+					    		for (TreePath t : treeContext.getSelectionPaths()) {
+					    			if (t.equals(tp)) {
+					    				select = false;
+					    				break;
+					    			}
+					    		}
+					    	}
+					    	if (select) {
+					    		treeContext.getSelectionModel().setSelectionPath(tp);
+					    	}
+				    	}
+	          			View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
+	            	}
+				} 
+			});
+
+			
+			treeContext.addMouseListener(new java.awt.event.MouseAdapter() { 
+				@Override
+				public void mousePressed(java.awt.event.MouseEvent e) {
+				}
+					
+				@Override
+				public void mouseReleased(java.awt.event.MouseEvent e) {
+					mouseClicked(e);
+				}
+				
+				@Override
+				public void mouseClicked(java.awt.event.MouseEvent e) {
+				    if (treeSite.getLastSelectedPathComponent() != null) {
+				    	// They selected a context node, deselect any context
+				    	getTreeSite().clearSelection();
+				    }
+				    if (e.getClickCount() > 1) {
+				    	// Its a double click - show the relevant context dialog
+					    SiteNode node = (SiteNode) treeContext.getLastSelectedPathComponent();
+					    if (node != null && node.getUserObject() != null) {
+					    	Target target = (Target)node.getUserObject();
+					    	getView().showSessionDialog(Model.getSingleton().getSession(), 
+					    			target.getContext().getName());
+					    }
+				    }
+				}
+			});
+
+			treeContext.setCellRenderer(new ContextsTreeCellRenderer());
+		}
+		return treeContext;
+	}
+
 	public void expandRoot() {
         TreeNode root = (TreeNode) treeSite.getModel().getRoot();
         if (root == null) {
@@ -415,5 +581,19 @@ public class SiteMapPanel extends AbstractPanel {
 		treeSite.setExpandsSelectedPaths(true);
 		treeSite.setSelectionPath(tp);
 		treeSite.scrollPathToVisible(tp);
+	}
+
+	public void contextChanged(Context c) {
+		getTreeContext();
+		SiteNode root = (SiteNode)this.contextTree.getRoot();
+		for (int i=0; i < root.getChildCount(); i++) {
+			SiteNode node = (SiteNode)root.getChildAt(i);
+	    	Target target = (Target)node.getUserObject();
+	    	if (c.getIndex() == target.getContext().getIndex()) {
+	    		target.setContext(c);
+	    		this.contextTree.nodeChanged(node);
+	    		break;
+	    	}
+		}
 	}
 }

@@ -27,20 +27,17 @@
 // ZAP: 2013/09/11 Issue 786: Snapshot session menu item not working
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
+// ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 
 package org.parosproxy.paros.view;
 
 import java.awt.Event;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.text.MessageFormat;
 
-import javax.swing.JFileChooser;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.KeyStroke;
-import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -50,7 +47,6 @@ import org.parosproxy.paros.control.MenuToolsControl;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.view.AboutDialog;
-import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class MainMenuBar extends JMenuBar {
@@ -379,46 +375,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileContextImport.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-				    
-					JFileChooser chooser = new JFileChooser(Constant.getContextsDir());
-					File file = null;
-				    chooser.setFileFilter(new FileFilter() {
-				           @Override
-				           public boolean accept(File file) {
-				                if (file.isDirectory()) {
-				                    return true;
-				                } else if (file.isFile() && file.getName().endsWith(".context")) {
-				                    return true;
-				                }
-				                return false;
-				            }
-				           @Override
-				           public String getDescription() {
-				               return Constant.messages.getString("file.format.zap.context");
-				           }
-				    });
-				    
-				    int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
-				    if(rc == JFileChooser.APPROVE_OPTION) {
-						try {
-				    		file = chooser.getSelectedFile();
-				    		if (file == null || ! file.exists()) {
-				    			return;
-				    		}
-				    		// Import the context
-							Model.getSingleton().getSession().importContext(file);
-							
-							// Show the dialog
-						    View.getSingleton().showSessionDialog(
-						    		Model.getSingleton().getSession(), 
-						    		Constant.messages.getString("context.list"), true);
-							
-						} catch (Exception e1) {
-							logger.debug(e1.getMessage(), e1);
-							View.getSingleton().showWarningDialog(MessageFormat.format(
-									Constant.messages.getString("context.import.error"), e1.getMessage()));
-						}
-				    }
+					getMenuFileControl().importContext();
 				}
 			});
 
@@ -432,8 +389,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFileContextExport.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					ContextExportDialog exportDialog = new ContextExportDialog(View.getSingleton().getMainFrame());
-					exportDialog.setVisible(true);
+					getMenuFileControl().exportContext();
 			}});
 		}
 		return menuFileContextExport;

@@ -37,11 +37,13 @@
 // ZAP: 2013/08/05 Proper call for starting Session Properties dialog
 // ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
+// ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 
 package org.parosproxy.paros.control;
  
 import java.awt.EventQueue;
 import java.io.File;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -56,6 +58,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.view.ContextExportDialog;
 
 
 public class MenuFileControl implements SessionListener {
@@ -448,6 +451,59 @@ public class MenuFileControl implements SessionListener {
             waitMessageDialog.setVisible(false);
             waitMessageDialog = null;
         }
+	}
+
+	/**
+	 * Prompt the user to export a context
+	 */
+	public void importContext() {
+		JFileChooser chooser = new JFileChooser(Constant.getContextsDir());
+		File file = null;
+	    chooser.setFileFilter(new FileFilter() {
+	           @Override
+	           public boolean accept(File file) {
+	                if (file.isDirectory()) {
+	                    return true;
+	                } else if (file.isFile() && file.getName().endsWith(".context")) {
+	                    return true;
+	                }
+	                return false;
+	            }
+	           @Override
+	           public String getDescription() {
+	               return Constant.messages.getString("file.format.zap.context");
+	           }
+	    });
+	    
+	    int rc = chooser.showOpenDialog(View.getSingleton().getMainFrame());
+	    if(rc == JFileChooser.APPROVE_OPTION) {
+			try {
+	    		file = chooser.getSelectedFile();
+	    		if (file == null || ! file.exists()) {
+	    			return;
+	    		}
+	    		// Import the context
+				Model.getSingleton().getSession().importContext(file);
+				
+				// Show the dialog
+			    View.getSingleton().showSessionDialog(
+			    		Model.getSingleton().getSession(), 
+			    		Constant.messages.getString("context.list"), true);
+				
+			} catch (Exception e1) {
+				log.debug(e1.getMessage(), e1);
+				View.getSingleton().showWarningDialog(MessageFormat.format(
+						Constant.messages.getString("context.import.error"), e1.getMessage()));
+			}
+	    }
+	}
+
+	/**
+	 * Prompt the user to export a context
+	 */
+	public void exportContext() {
+		ContextExportDialog exportDialog = new ContextExportDialog(View.getSingleton().getMainFrame());
+		exportDialog.setVisible(true);
 	}
 
 }
