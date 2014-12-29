@@ -50,6 +50,7 @@
 // ZAP: 2014/10/25 Issue 1062: Added a getter for the HttpClient.
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 // ZAP: 2014/11/25 Issue 1411: Changed getUser() visibility
+// ZAP: 2014/12/11 Added JavaDoc to constructor and removed the instance variable allowState.
 
 package org.parosproxy.paros.network;
 
@@ -137,7 +138,6 @@ public class HttpSender {
 	private MultiThreadedHttpConnectionManager httpConnManager = null;
 	private MultiThreadedHttpConnectionManager httpConnManagerProxy = null;
 	private boolean followRedirect = false;
-	private boolean allowState = false;
 	private int initiator = -1;
 
 	/*
@@ -145,9 +145,28 @@ public class HttpSender {
 	 * (connectionParam, allowState, -1); }
 	 */
 
-	public HttpSender(ConnectionParam connectionParam, boolean allowState, int initiator) {
+	/**
+	 * Constructs an {@code HttpSender}.
+	 * <p>
+	 * If {@code useGlobalState} is {@code true} the HttpSender will use the HTTP state given by
+	 * {@code ConnectionParam#getHttpState()} iff {@code ConnectionParam#isHttpStateEnabled()} returns {@code true} otherwise it
+	 * doesn't have any state (i.e. cookies are disabled). If {@code useGlobalState} is {@code false} it uses a non shared HTTP
+	 * state. The actual state used is overridden, per message, when {@code HttpMessage#getRequestingUser()} returns non
+	 * {@code null}.
+	 * <p>
+	 * The {@code initiator} is used to indicate the component that is sending the messages when the {@code HttpSenderListener}s
+	 * are notified of messages sent and received.
+	 *
+	 * @param connectionParam the parameters used to setup the connections to target hosts
+	 * @param useGlobalState {@code true} if the messages sent/received should use the global HTTP state, {@code false} if
+	 *			should use a non shared HTTP state
+	 * @param initiator the ID of the initiator of the HTTP messages sent
+	 * @see ConnectionParam#getHttpState()
+	 * @see HttpSenderListener
+	 * @see HttpMessage#getRequestingUser()
+	 */
+	public HttpSender(ConnectionParam connectionParam, boolean useGlobalState, int initiator) {
 		this.param = connectionParam;
-		this.allowState = allowState;
 		this.initiator = initiator;
 
 		client = createHttpClient();
@@ -161,7 +180,7 @@ public class HttpSender {
 		clientViaProxy.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER,
 				singleCookieRequestHeader);
 
-		if (this.allowState) {
+		if (useGlobalState) {
 			checkState();
 		}
 		addAuth(client);
@@ -282,13 +301,10 @@ public class HttpSender {
 
 		// ZAP: Check if a custom state is being used
 		if (state != null) {
-			// Make sure cookies are enabled and restore the cookie policy afterwards
-			String originalCookiePolicy = requestClient.getParams().getCookiePolicy();
-			requestClient.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
-			responseCode = requestClient.executeMethod(hc, method, state);
-			requestClient.getParams().setCookiePolicy(originalCookiePolicy);
-		} else
-			responseCode = requestClient.executeMethod(hc, method, null);
+			// Make sure cookies are enabled
+			method.getParams().setCookiePolicy(CookiePolicy.BROWSER_COMPATIBILITY);
+		}
+		responseCode = requestClient.executeMethod(hc, method, state);
 
 		return responseCode;
 	}

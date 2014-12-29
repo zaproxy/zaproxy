@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,8 +26,6 @@ import net.sf.json.JSONObject;
 
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.zaproxy.clientapi.core.ClientApiException;
 
 public class ApiResponseList extends ApiResponse {
 	
@@ -37,36 +34,6 @@ public class ApiResponseList extends ApiResponse {
 	public ApiResponseList(String name) {
 		super(name);
 		this.list = new ArrayList<>();
-	}
-
-	public ApiResponseList(Node node) 
-			throws ClientApiException {
-		this(node.getNodeName());
-		Node child = node.getFirstChild();
-		while (child != null) {
-			this.addItem(ApiResponseFactory.getResponse(child));
-			child = child.getNextSibling();
-		}
-	}
-
-	public ApiResponseList(Node node, ApiResponseList template) 
-			throws ClientApiException {
-		super(node.getNodeName());
-		try {
-			this.list = new ArrayList<>();
-			Class<? extends ApiResponse> clazz = template.getItemsClass();
-			if (clazz != null) {
-
-				Node child = node.getFirstChild();
-				while (child != null) {
-					Constructor<? extends ApiResponse> cons = clazz.getConstructor(Node.class, ApiResponse.class);
-					this.addItem(cons.newInstance(child, template.list.get(0)));
-					child = child.getNextSibling();
-				}
-			}
-		} catch (Exception e) {
-			throw new ClientApiException(e);
-		}
 	}
 
 	public ApiResponseList(String name, ApiResponse[] array) {

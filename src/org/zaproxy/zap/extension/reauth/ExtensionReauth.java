@@ -538,6 +538,10 @@ public class ExtensionReauth extends ExtensionAdaptor implements HttpSenderListe
 
 	@Override
 	public void onHttpResponseReceive(HttpMessage msg, int initiator) {
+		if (initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR) {
+			return;
+		}
+
 		if (! reauthenticate || msg.getResponseBody() == null || msg.getRequestHeader().isImage() || 
 				(initiator == HttpSender.AUTHENTICATION_INITIATOR)) {
 			// Not relevant

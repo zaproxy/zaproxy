@@ -32,10 +32,11 @@
 // ZAP: 2014/03/23 Issue 1091: CoreAPI - Do not get the IDs of temporary history records
 // ZAP: 2014/03/27 Issue 1072: Allow the request and response body sizes to be user-specifiable as far as possible
 // ZAP: 2014/08/14 Issue 1310: Allow to set history types as temporary
+// ZAP: 2014/12/11 Replaced calls to Charset.forName(String) with StandardCharsets
 
 package org.parosproxy.paros.db;
 
-import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.CallableStatement;
 import java.sql.Connection;
@@ -314,13 +315,13 @@ public class TableHistory extends AbstractTable {
         if (bodiesAsBytes) {
             psInsert.setBytes(8, reqBody);
         } else {
-            psInsert.setString(8, new String(reqBody, Charset.forName("US-ASCII")));
+            psInsert.setString(8, new String(reqBody, StandardCharsets.US_ASCII));
         }
         psInsert.setString(9, resHeader);
         if (bodiesAsBytes) {
             psInsert.setBytes(10, resBody);
         } else {
-            psInsert.setString(10, new String(resBody, Charset.forName("US-ASCII")));
+            psInsert.setString(10, new String(resBody, StandardCharsets.US_ASCII));
         }
 	    psInsert.setString(11, tag);
 

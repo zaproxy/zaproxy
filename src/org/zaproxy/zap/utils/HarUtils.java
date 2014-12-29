@@ -60,7 +60,15 @@ import edu.umass.cs.benchlab.har.HarRequest;
 import edu.umass.cs.benchlab.har.HarResponse;
 import edu.umass.cs.benchlab.har.tools.HarFileWriter;
 
-public class HarUtils {
+/**
+ * Utility class to parse/create HTTP Archives (HAR) and do conversions between HAR Java classes and {@code HttpMessage}s
+ * (request and response).
+ *
+ * @see <a href="http://www.softwareishard.com/blog/har-12-spec/">HTTP Archive 1.2</a>
+ * @since 2.3.0
+ * @see HttpMessage
+ */
+public final class HarUtils {
 
     private static final Logger LOGGER = Logger.getLogger(HarUtils.class);
 

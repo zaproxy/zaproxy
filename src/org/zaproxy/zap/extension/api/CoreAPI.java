@@ -119,7 +119,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_DIR = "dir";
 	private static final String PARAM_SESSION = "name";
 	private static final String PARAM_OVERWRITE_SESSION = "overwrite";
-	//private static final String PARAM_CONTEXT = "context";	// TODO need to support context methods for this!
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_START = "start";
 	private static final String PARAM_PROXY_DETAILS = "proxy";

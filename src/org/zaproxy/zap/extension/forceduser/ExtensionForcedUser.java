@@ -301,7 +301,7 @@ public class ExtensionForcedUser extends ExtensionAdaptor implements ContextPane
 	@Override
 	public void onHttpRequestSend(HttpMessage msg, int initiator) {
 		if (!forcedUserModeEnabled || msg.getResponseBody() == null || msg.getRequestHeader().isImage()
-				|| (initiator == HttpSender.AUTHENTICATION_INITIATOR)) {
+				|| (initiator == HttpSender.AUTHENTICATION_INITIATOR || initiator == HttpSender.CHECK_FOR_UPDATES_INITIATOR)) {
 			// Not relevant
 			return;
 		}

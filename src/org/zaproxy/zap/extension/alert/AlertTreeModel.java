@@ -73,7 +73,7 @@ class AlertTreeModel extends DefaultTreeModel {
         if (alert.getMethod() != null) {
         	method = alert.getMethod() + ": ";
         }
-        findAndAddLeaf(parent, method + alert.getUri(), alert);
+        addLeaf(parent, method + alert.getUri(), alert);
     	
     }
 
@@ -149,12 +149,13 @@ class AlertTreeModel extends DefaultTreeModel {
             node.setUserObject(alert);
             parent.insert(node, idx);
             nodesWereInserted(parent, new int[] { idx });
+            nodeChanged(parent);
             return node;
         }
         return parent.getChildAt(idx);
     }
 
-    private AlertNode findAndAddLeaf(AlertNode parent, String nodeName, Alert alert) {
+    private void addLeaf(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
         if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
             // Special case!
@@ -168,56 +169,30 @@ class AlertTreeModel extends DefaultTreeModel {
             idx = -(idx+1);
             parent.insert(needle, idx);
             nodesWereInserted(parent, new int[] { idx });
+            nodeChanged(parent);
         }
-        AlertNode node = parent.getChildAt(idx);
-        nodesChanged(node);
-        return node;
-    }
-    
-    private void nodesChanged(final AlertNode node) {
-        if (EventQueue.isDispatchThread()) {
-        	nodesChangedEventHandler(node);
-        } else {
-            try {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                    	nodesChangedEventHandler(node);
-                    }
-                });
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-    }
-    
-    private void nodesChangedEventHandler(AlertNode node) {
-    	// Loop up as parent node names include counts which might have changed
-    	this.nodeChanged(node);
-    	AlertNode parent = node.getParent();
-    	if (parent != null) {
-    		nodesChangedEventHandler(parent);
-    	}
     }
 
     public synchronized void deletePath(Alert alert) {
 
         AlertNode node = findLeafNodeForAlert((AlertNode) getRoot(), alert);
         if (node != null) {
-        	
-        	// Remove it
         	AlertNode parent = node.getParent();
-
-        	this.removeNodeFromParent(node);
-            nodeStructureChanged(parent);
-        	
-        	if (parent.getChildCount() == 0) {
+        	if (parent.getChildCount() == 1) {
         		// Parent has no other children, remove it also
-        		this.removeNodeFromParent(parent);
-                nodeStructureChanged((AlertNode) this.getRoot());
-            } else if (parent.getUserObject() == node.getUserObject()) {
+                parent.remove(0);
+                AlertNode grandParent = parent.getParent();
+                this.removeNodeFromParent(parent);
+                this.nodeChanged(grandParent);
+                return;
+            }
+
+            // Remove it
+            this.removeNodeFromParent(node);
+            if (parent.getUserObject() == node.getUserObject()) {
                 parent.setUserObject(parent.getChildAt(0).getUserObject());
             }
+            this.nodeChanged(parent);
         }
     }
     

@@ -160,8 +160,7 @@ public class ExtensionFactory {
     }
 
     public static synchronized List<Extension> loadAddOnExtensions(ExtensionLoader extensionLoader, Configuration config, AddOn addOn) {
-        List<Extension> listExts = getAddOnLoader().getImplementors(addOn, "org.zaproxy.zap.extension", Extension.class);
-        listExts.addAll(getAddOnLoader().getImplementors(addOn, "org.parosproxy.paros.extension", Extension.class));
+        List<Extension> listExts = getAddOnLoader().getExtensions(addOn);
 
         synchronized (mapAllExtension) {
 

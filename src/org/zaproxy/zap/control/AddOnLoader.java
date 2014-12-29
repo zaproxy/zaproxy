@@ -310,25 +310,79 @@ public class AddOnLoader extends URLClassLoader {
     	return listClassName;
     }
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Returns all the {@code Extension}s of all the installed add-ons.
+	 * <p>
+	 * The discovery of {@code Extension}s is done by resorting to the {@code ZapAddOn.xml} file bundled in the add-ons.
+	 *
+	 * @return a list containing all {@code Extension}s of all installed add-ons
+	 * @since 2.4.0
+	 * @see Extension
+	 * @see #getExtensions(AddOn)
+	 */
 	public List<Extension> getExtensions () {
 		List<Extension> list = new ArrayList<Extension>();
 		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			if (addOn.getExtensions() != null) {
-				for (String extName : addOn.getExtensions()) {
-					try {
-						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
-	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
-	                    list.add(((Constructor<Extension>)c).newInstance());
-					} catch (Exception e) {
-		            	logger.debug(e.getMessage());
-					}
-				}
-			}
+			list.addAll(getExtensions(addOn));
         }
 		
 		return list;
 	}
+
+    /**
+     * Returns all {@code Extension}s of the given {@code addOn}.
+     * <p>
+     * The discovery of {@code Extension}s is done by resorting to {@code ZapAddOn.xml} file bundled in the add-on.
+     * <p>
+     * <strong>Note:</strong> If the add-on is not installed the method returns an empty list.
+     *
+     * @param addOn the add-on whose extensions will be returned
+     * @return a list containing the {@code Extension}s of the given {@code addOn}
+     * @since 2.4.0
+     * @see Extension
+     * @see #getExtensions()
+     */
+    public List<Extension> getExtensions(AddOn addOn) {
+        List<String> extensions = addOn.getExtensions();
+        if (extensions == null || extensions.isEmpty()) {
+            return Collections.emptyList();
+        }
+        AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
+        if (addOnClassLoader == null) {
+            return Collections.emptyList();
+        }
+
+        List<Extension> list = new ArrayList<>(extensions.size());
+        for (String extName : extensions) {
+            Class<?> cls;
+            try {
+                cls = addOnClassLoader.loadClass(extName);
+            } catch (ClassNotFoundException e) {
+                logger.error("Declared extension was not found: " + extName, e);
+                continue;
+            }
+
+            if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
+                logger.error("Declared \"extension\" is abstract or an interface: " + extName);
+                continue;
+            }
+
+            if (!Extension.class.isAssignableFrom(cls)) {
+                logger.error("Declared \"extension\" is not of type Extension: " + extName);
+                continue;
+            }
+
+            try {
+                @SuppressWarnings("unchecked")
+                Constructor<Extension> c = (Constructor<Extension>) cls.getConstructor();
+                list.add(c.newInstance());
+            } catch (Exception e) {
+                logger.debug(e.getMessage());
+            }
+        }
+
+        return list;
+    }
 
 	@SuppressWarnings("unchecked")
 	public List<AbstractPlugin> getActiveScanRules () {

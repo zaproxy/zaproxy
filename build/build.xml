@@ -430,12 +430,15 @@
     </target>
 
     <target name="generate-wiki" description="Generates the core wiki help pages">
+        <local name="version" />
+        <loadfile property="version" srcfile="version.txt" />
         <generatewiki basesrcdir="${help.dir}" basedestdir="${wiki.dir}"
             helpcontentsdir="contents/" helpcontentsinclude=".*\.html"
             srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://zaproxy.googlecode.com/svn/wiki/images/"
             outputfilenameprefix="Help" includeoutputfiles="Help.*\.wiki" excludeoutputfiles="HelpAddons.*\.wiki"
             helpfileextension=".html" wikifileextension=".wiki"
-            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="TableOfContents-CoreUserGuide" wikitocentryinitpadding="2">
+            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="TableOfContents-CoreUserGuide" wikitocentryinitpadding="2"
+            labels="UserGuide-ZAP-v${version}">
 
             <!-- Default language is at root of dest dir -->
             <helpdir src="zaphelp" dest="" />

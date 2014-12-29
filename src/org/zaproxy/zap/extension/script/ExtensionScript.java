@@ -547,13 +547,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    try {
 	    	se.eval(script.getContents());
 	    } catch (Exception e) {
-	    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
-	    		// Dereference one level
-	    		e = (Exception)e.getCause();
-	    	}
-	    	writer.append(e.toString());
-	    	this.setError(script, e);
-	    	this.setEnabled(script, false);
+	        handleScriptException(script, writer, e);
 	    }
 
 	    if (se instanceof Invocable) {
@@ -562,76 +556,111 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    	return null;
 	    }
 	}
+
+	/**
+	 * Handles exceptions thrown by scripts.
+	 * <p>
+	 * The given {@code exception} (if of type {@code ScriptException} the cause will be used instead) will be written to the
+	 * given {@code writer} and the given {@code script} will be disabled and flagged that has an error.
+	 *
+	 * @param script the script that resulted in an exception, must not be {@code null}
+	 * @param writer the writer associated with the script, must not be {@code null}
+	 * @param exception the exception thrown , must not be {@code null}
+	 * @see #setError(ScriptWrapper, Exception)
+	 * @see #setEnabled(ScriptWrapper, boolean)
+	 * @see ScriptException
+	 */
+	private void handleScriptException(ScriptWrapper script, Writer writer, Exception exception) {
+		Exception cause = exception;
+		if (cause instanceof ScriptException && cause.getCause() instanceof Exception) {
+			// Dereference one level
+			cause = (Exception) cause.getCause();
+		}
+		try {
+			writer.append(cause.toString());
+		} catch (IOException ignore) {
+			logger.error(cause.getMessage(), cause);
+		}
+		this.setError(script, cause);
+		this.setEnabled(script, false);
+	}
 	
     public void invokeTargetedScript(ScriptWrapper script, HttpMessage msg) {
-    	if (TYPE_TARGETED.equals(script.getTypeName())) {
-    	    Writer writer = getWriters(script);
-			try {
-				// Dont need to check if enabled as it can only be invoked manually
-				TargetedScript s = this.getInterface(script, TargetedScript.class);
-				
-				if (s != null) {
-					s.invokeWith(msg);
-					
-				} else {
-					writer.append(Constant.messages.getString("script.interface.targeted.error"));
-					this.setError(script, writer.toString());
-					this.setEnabled(script, false);
-				}
+		validateScriptType(script, TYPE_TARGETED);
+
+		Writer writer = getWriters(script);
+		try {
+			// Dont need to check if enabled as it can only be invoked manually
+			TargetedScript s = this.getInterface(script, TargetedScript.class);
 			
-			} catch (Exception e) {
-		    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
-		    		// Dereference one level
-		    		e = (Exception)e.getCause();
-		    	}
-				try {
-					writer.append(e.toString());
-				} catch (IOException e1) {
-					logger.error(e.getMessage(), e);
-				}
-				this.setError(script, e);
-				this.setEnabled(script, false);
+			if (s != null) {
+				s.invokeWith(msg);
+				
+			} else {
+				handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.targeted.error"));
 			}
-		} else {
-			throw new InvalidParameterException("Script " + script.getName() + " is not a targeted script: " + script.getTypeName());
+		
+		} catch (Exception e) {
+			handleScriptException(script, writer, e);
 		}
 	}
 
+	/**
+	 * Validates that the given {@code script} is of the given {@code scriptType}, throwing an {@code IllegalArgumentException}
+	 * if not.
+	 *
+	 * @param script the script that will be checked, must not be {@code null}
+	 * @param scriptType the expected type of the script, must not be {@code null}
+	 * @throws IllegalArgumentException if the given {@code script} is not the given {@code scriptType}.
+	 * @see ScriptWrapper#getTypeName()
+	 */
+	private static void validateScriptType(ScriptWrapper script, String scriptType) throws IllegalArgumentException {
+		if (!scriptType.equals(script.getTypeName())) {
+			throw new IllegalArgumentException("Script " + script.getName() + " is not a '" + scriptType + "' script: "
+					+ script.getTypeName());
+		}
+	}
+
+	/**
+	 * Handles a failed attempt to convert a script into an interface.
+	 * <p>
+	 * The given {@code errorMessage} will be written to the given {@code writer} and the given {@code script} will be disabled
+	 * and flagged that has an error.
+	 *
+	 * @param script the script that failed to be converted to an interface, must not be {@code null}
+	 * @param writer the writer associated with the script, must not be {@code null}
+	 * @param errorMessage the message that will be written to the given {@code writer}
+	 * @throws IOException if an error occurred while writing the {@code errorMessage}
+	 * @see #setError(ScriptWrapper, String)
+	 * @see #setEnabled(ScriptWrapper, boolean)
+	 */
+	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) throws IOException {
+		writer.append(errorMessage);
+		this.setError(script, writer.toString());
+		this.setEnabled(script, false);
+	}
+
     public boolean invokeProxyScript(ScriptWrapper script, HttpMessage msg, boolean request) {
-    	if (TYPE_PROXY.equals(script.getTypeName())) {
-    	    Writer writer = getWriters(script);
-			try {
-				// Dont need to check if enabled as it can only be invoked manually
-				ProxyScript s = this.getInterface(script, ProxyScript.class);
-				
-				if (s != null) {
-					if (request) {
-						return s.proxyRequest(msg);
-					} else {
-						return s.proxyResponse(msg);
-					}
-					
-				} else {
-					writer.append(Constant.messages.getString("script.interface.proxy.error"));
-					this.setError(script, writer.toString());
-					this.setEnabled(script, false);
-				}
+		validateScriptType(script, TYPE_PROXY);
+
+		Writer writer = getWriters(script);
+		try {
+			// Dont need to check if enabled as it can only be invoked manually
+			ProxyScript s = this.getInterface(script, ProxyScript.class);
 			
-			} catch (Exception e) {
-		    	if (e instanceof ScriptException && e.getCause() instanceof Exception) {
-		    		// Dereference one level
-		    		e = (Exception)e.getCause();
-		    	}
-				try {
-					writer.append(e.toString());
-				} catch (IOException e1) {
-					logger.error(e.getMessage(), e);
+			if (s != null) {
+				if (request) {
+					return s.proxyRequest(msg);
+				} else {
+					return s.proxyResponse(msg);
 				}
-				this.setError(script, e);
-				this.setEnabled(script, false);
+				
+			} else {
+				handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.proxy.error"));
 			}
-		} else {
-			throw new InvalidParameterException("Script " + script.getName() + " is not a proxy script: " + script.getTypeName());
+		
+		} catch (Exception e) {
+			handleScriptException(script, writer, e);
 		}
     	// Return true so that the request is submitted - if we returned false all proxying would fail on script errors
     	return true;

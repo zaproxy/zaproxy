@@ -23,7 +23,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * The listener interface for receiving spiderParser events. The class that is interested in
  * processing a spiderParser event implements this interface, and the object created with that class
  * is registered with a component using the component's
- * <code>addSpiderParserListener<code> method. When the spiderParser event occurs, that object's appropriate
+ * {@code addSpiderParserListener} method. When the spiderParser event occurs, that object's appropriate
  * method is invoked.
  * 
  */
@@ -56,7 +56,7 @@ public interface SpiderParserListener {
 	/**
 	 * Event triggered when a new resource URI is found. However, if the URI needs to be fetched, it
 	 * should be accessed with the HTTP POST method and the content of the request body message
-	 * should be the one specified in {@code messageContent}.
+	 * should be the one specified in {@code requestBody}.
 	 * <p>
 	 * For example, this method can be triggered if a parser finds the {@code uri} inside a form
 	 * with the method set as {@code POST}. In this case, the messageContent should contain the form

@@ -22,18 +22,12 @@ package org.zaproxy.zap.control;
 import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.w3c.dom.Document;
-import org.w3c.dom.NodeList;
 
 public class AddOn  {
 	public enum Status {unknown, example, alpha, beta, weekly, release}
@@ -112,25 +106,23 @@ public class AddOn  {
 			try (ZipFile zip = new ZipFile(file)) {
 				ZipEntry zapAddOnEntry = zip.getEntry("ZapAddOn.xml");
 				if (zapAddOnEntry != null) {
-					
-					InputStream zis = zip.getInputStream(zapAddOnEntry);
-					DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-					DocumentBuilder db = dbf.newDocumentBuilder();
-					
-					Document dom = db.parse(zis);
-					this.name = this.getTextElementFromDom(dom, "name");
-					this.description = this.getTextElementFromDom(dom, "description");
-					this.changes = this.getTextElementFromDom(dom, "changes");
-					this.author = this.getTextElementFromDom(dom, "author");
-					this.notBeforeVersion = this.getTextElementFromDom(dom, "not-before-version");
-					this.notFromVersion = this.getTextElementFromDom(dom, "not-from-version");
-					
-					this.ascanrules = this.getListFromDom(dom, "ascanrule");
-					this.extensions = this.getListFromDom(dom, "extension");
-					this.files = this.getListFromDom(dom, "file");
-					this.pscanrules = this.getListFromDom(dom, "pscanrule");
-					
-					hasZapAddOnEntry = true;
+					try (InputStream zis = zip.getInputStream(zapAddOnEntry)) {
+						ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
+
+						this.name = zapAddOnXml.getName();
+						this.description = zapAddOnXml.getDescription();
+						this.changes = zapAddOnXml.getChanges();
+						this.author = zapAddOnXml.getAuthor();
+						this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
+						this.notFromVersion = zapAddOnXml.getNotFromVersion();
+
+						this.ascanrules = zapAddOnXml.getAscanrules();
+						this.extensions = zapAddOnXml.getExtensions();
+						this.files = zapAddOnXml.getFiles();
+						this.pscanrules = zapAddOnXml.getPscanrules();
+
+						hasZapAddOnEntry = true;
+					}
 
 				}
 			} catch (Exception e) {
@@ -138,31 +130,6 @@ public class AddOn  {
 			}
 		}
 		
-	}
-	
-	private String getTextElementFromDom (Document dom, String element) {
-		NodeList nl = dom.getElementsByTagName(element);
-		if (nl.getLength() == 1) {
-			return nl.item(0).getTextContent();
-		}
-		return "";
-	}
-	
-	private List<String> getListFromDom (Document dom, String element) {
-		List<String> list = null;
-		NodeList nl = dom.getElementsByTagName(element);
-		if (nl.getLength() > 0) {
-			list = new ArrayList<>();
-			for (int i=0; i < nl.getLength(); i++) {
-				String entry = nl.item(i).getTextContent();
-				if (!entry.isEmpty()) {
-					list.add(entry);
-				} else {
-					logger.warn("Ignoring empty \"" + element + "\" entry in add-on \"" + name + "\".");
-				}
-			}
-		}
-		return list;
 	}
 	
 	public AddOn(String id, String name, String description, String author, int version, Status status, 
