@@ -830,7 +830,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		rls.generate(report, Model.getSingleton());
 
 		String type = ScanReportType.XML == reportType ? "xml" : "html";
-		String response = ReportGenerator.stringToHtml(report.toString(), "xml/report." + type + ".xsl");
+		String response = ReportGenerator.stringToHtml(
+				report.toString(),
+				Paths.get(Constant.getZapInstall(), "xml/report." + type + ".xsl").toAbsolutePath().toString());
 
 		msg.setResponseHeader(API.getDefaultResponseHeader("text/" + type + "; charset=UTF-8"));
 
