@@ -70,7 +70,7 @@
   <xsl:template match="alertitem">
 <p></p>
 <table width="100%" border="0">
-<xsl:apply-templates select="text()|alert|desc|uri|param|attack|otherinfo|solution|reference|cweid|wascid|p|br|wbr|ul|li"/>
+<xsl:apply-templates select="text()|alert|desc|uri|param|attack|evidence|otherinfo|solution|reference|cweid|wascid|p|br|wbr|ul|li"/>
 </table>
   </xsl:template>
 
@@ -181,6 +181,18 @@
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
 	<xsl:apply-templates select="text()|*"/>
+    </font></td>
+  </tr>
+  </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="evidence">
+  <xsl:if test="text() !=''">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif">Evidence</font></blockquote></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+    <xsl:apply-templates select="text()|*"/>
     </font></td>
   </tr>
   </xsl:if>

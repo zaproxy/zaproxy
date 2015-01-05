@@ -35,6 +35,7 @@
 // ZAP: 2013/11/16 Issue 866: Alert keeps HttpMessage longer than needed when HistoryReference is set/available
 // ZAP: 2014/04/10 Issue 1042: Having significant issues opening a previous session
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
+// ZAP: 2015/01/04 Issue 1419: Include alert's evidence in HTML report
 
 package org.parosproxy.paros.core.scanner;
 
@@ -526,10 +527,10 @@ public class Alert implements Comparable<Object>  {
         sb.append("  <uri>").append(breakNoSpaceString(replaceEntity(uri))).append("</uri>\r\n");
         sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
         sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
+        if (evidence != null && evidence.length() > 0) {
+            sb.append("  <evidence>").append(breakNoSpaceString(replaceEntity(evidence))).append("</evidence>\r\n");
+        }
         sb.append("  <otherinfo>").append(breakNoSpaceString(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
-		if (evidence != null && evidence.length() > 0) {
-			sb.append("  <evidence>").append(breakNoSpaceString(replaceEntity(evidence))).append("</evidence>\r\n");
-		}
         return sb.toString();
     }
 
