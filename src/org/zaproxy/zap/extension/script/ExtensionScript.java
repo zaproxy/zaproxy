@@ -261,12 +261,39 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		return this.treeModel;
 	}
 	
+	/**
+	 * Registers a new type of script.
+	 * <p>
+	 * The script is added to the tree of scripts and its templates loaded, if any.
+	 *
+	 * @param type the new type of script
+	 * @throws InvalidParameterException if a script type with same name is already registered
+	 * @see #removeScripType(ScriptType)
+	 */
 	public void registerScriptType(ScriptType type) {
 		if (typeMap.containsKey(type.getName())) {
 			throw new InvalidParameterException("ScriptType already registered: " + type.getName());
 		}
 		this.typeMap.put(type.getName(), type);
 		this.getTreeModel().addType(type);
+	}
+	
+	/**
+	 * Removes the given script type.
+	 * <p>
+	 * The templates and scripts associated with the given type are also removed, if any.
+	 * <p>
+	 * The call to this method has no effect if the given type is not registered.
+	 * 
+	 * @param type the script type that will be removed
+	 * @since 2.4.0
+	 * @see #registerScriptType(ScriptType)
+	 */
+	public void removeScripType(ScriptType type) {
+		ScriptType scriptType = typeMap.remove(type.getName());
+		if (scriptType != null) {
+			getTreeModel().removeType(scriptType);
+		}
 	}
 
 	public ScriptType getScriptType (String name) {

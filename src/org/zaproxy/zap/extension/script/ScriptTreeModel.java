@@ -62,6 +62,19 @@ public class ScriptTreeModel extends DefaultTreeModel {
         this.addToParentSorted(this.templatesNode, tNode);
     }
     
+    protected void removeType(ScriptType type) {
+        String typeName = type.getName();
+        ScriptNode scriptNode = scriptsNodeMap.remove(typeName);
+        if (scriptNode != null) {
+            removeNodeFromParent(scriptNode);
+        }
+
+        ScriptNode templateNode = templatesNodeMap.remove(typeName);
+        if (templateNode != null) {
+            removeNodeFromParent(templateNode);
+        }
+    }
+
     private void addToParentSorted(ScriptNode parent, ScriptNode child) {
     	int childCount = parent.getChildCount();
     	int idx = childCount;
