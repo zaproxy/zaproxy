@@ -52,6 +52,7 @@
 // ZAP: 2014/08/14 Issue 1300: Add-ons show incorrect language when English is selected on non English locale
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2015/01/04 Issue 1388: Not all translated files are updated when "zaplang" package is imported
+// ZAP: 2014/01/04 Issue 1394: Import vulnerabilities.xml files when updating the translated resources
 
 package org.parosproxy.paros;
 
@@ -205,11 +206,34 @@ public final class Constant {
     private static final Locale SYSTEMS_LOCALE = Locale.getDefault();
 
     /**
-     * Pointer and filename part for the vulnerabilities file.
+     * Name of directory that contains the (source and translated) resource files.
+     * 
+     * @see #MESSAGES_PREFIX
+     * @see #VULNERABILITIES_PREFIX
      */
-    // ZAP: Added vulnerabilities file
-    public static String LANG_DIR="/lang/";
-    public static String VULNS_BASE = "vulnerabilities";
+    public static final String LANG_DIR = "lang";
+
+    /**
+     * Prefix (file name) of vulnerabilities.xml files.
+     * 
+     * @see #VULNERABILITIES_EXTENSION
+     * @since 2.4.0
+     */
+    public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
+
+    /**
+     * @deprecated (2.4.0) Use {@link #VULNERABILITIES_PREFIX} instead. It will be removed in a following release.
+     */
+    @Deprecated
+    public static String VULNS_BASE = VULNERABILITIES_PREFIX;
+
+    /**
+     * Extension (with dot) of vulnerabilities.xml files.
+     * 
+     * @see #VULNERABILITIES_PREFIX
+     * @since 2.4.0
+     */
+    public static final String VULNERABILITIES_EXTENSION = ".xml";
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";

@@ -38,7 +38,7 @@ import org.zaproxy.zap.utils.LocaleUtils;
 
 public final class LangImporter {
 	
-	private static Logger logger = Logger.getLogger(LangImporter.class);
+	private static final Logger logger = Logger.getLogger(LangImporter.class);
 	
 	private static final String MSG_SUCCESS = "options.lang.importer.dialog.message.success";
 	private static final String MSG_ERROR = "options.lang.importer.dialog.message.error";
@@ -48,7 +48,7 @@ public final class LangImporter {
 	}
 	
 	public static String importLanguagePack(String languagePack) {
-		Pattern messagesFilesPattern = LocaleUtils.createMessagesPropertiesFilePattern();
+		Pattern includedFilesPattern = createIncludedFilesPattern();
 		
 		int langFileCount = 0;
 		String message = "";
@@ -67,7 +67,7 @@ public final class LangImporter {
 						byte[] buffer = new byte[2048];
 						String name = zipEntry.getName();
 						
-						if (messagesFilesPattern.matcher(name).find()) {
+						if (includedFilesPattern.matcher(name).find()) {
 							langFileCount++;
 							
 							try (BufferedOutputStream bos = new BufferedOutputStream(
@@ -100,5 +100,23 @@ public final class LangImporter {
 		}
 		
 		return message;
+	}
+
+	/**
+	 * Creates a {@code Pattern} to match filenames of, source and translated, resource files Messages.properties and
+	 * vulnerabilities.xml.
+	 *
+	 * @return the {@code Pattern} to match the resource files
+	 * @since 2.4.0
+	 */
+	// Relaxed visibility to allow unit test
+	static Pattern createIncludedFilesPattern() {
+		String messagesFilesRegex = LocaleUtils.createResourceFilesRegex(Constant.MESSAGES_PREFIX, Constant.MESSAGES_EXTENSION);
+		String vulnerabilitiesFilesRegex = LocaleUtils.createResourceFilesRegex(
+				Constant.VULNERABILITIES_PREFIX,
+				Constant.VULNERABILITIES_EXTENSION);
+		StringBuilder strBuilder = new StringBuilder(messagesFilesRegex.length() + vulnerabilitiesFilesRegex.length() + 1);
+		strBuilder.append(messagesFilesRegex).append('|').append(vulnerabilitiesFilesRegex);
+		return Pattern.compile(strBuilder.toString());
 	}
 }

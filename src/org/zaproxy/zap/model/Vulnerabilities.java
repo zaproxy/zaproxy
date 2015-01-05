@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.model;
 
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.List;
 
@@ -33,7 +34,9 @@ public final class Vulnerabilities {
 
 	private static synchronized void init() {
 		if (vulnerabilitiesI18NMap == null) {
-			VulnerabilitiesLoader loader = new VulnerabilitiesLoader(Constant.getZapInstall() + Constant.LANG_DIR, Constant.VULNS_BASE);
+			VulnerabilitiesLoader loader = new VulnerabilitiesLoader(Paths.get(Constant.getZapInstall(), Constant.LANG_DIR)
+					.toAbsolutePath()
+					.toString(), Constant.VULNERABILITIES_PREFIX);
 			vulnerabilitiesI18NMap = loader.load();
 		}
 	}

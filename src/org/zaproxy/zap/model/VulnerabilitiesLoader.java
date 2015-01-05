@@ -11,6 +11,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 
 public class VulnerabilitiesLoader {
 
@@ -114,7 +115,7 @@ public class VulnerabilitiesLoader {
 		String[] files = file.list(new FilenameFilter() {
 		  @Override
 		  public boolean accept(File dir, String name) {
-			if (name.indexOf(".xml") == -1) {
+			if (name.indexOf(Constant.VULNERABILITIES_EXTENSION) == -1) {
 				return false;
 			}
 			
