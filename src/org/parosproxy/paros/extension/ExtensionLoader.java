@@ -53,6 +53,7 @@
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be loaded by an active scanner.
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2014/11/21 Reviewed foreach loops and commented startup process for splash screen progress bar
+// ZAP: 2015/01/04 Issue 1379: Not all extension's listeners are hooked during add-on installation
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -95,7 +96,7 @@ public class ExtensionLoader {
     private Model model = null;
 
     private View view = null;
-    private final Logger logger = Logger.getLogger(ExtensionLoader.class);
+    private static final Logger logger = Logger.getLogger(ExtensionLoader.class);
 
     public ExtensionLoader(Model model, View view) {
         this.model = model;
@@ -192,16 +193,18 @@ public class ExtensionLoader {
 
     public void hookProxyListener(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            List<ProxyListener> listenerList = hook.getProxyListenerList();
-            for (ProxyListener listener : listenerList) {
-                try {
-                    if (listener != null) {
-                        proxy.addProxyListener(listener);
-                    }
-                    
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+            hookProxyListeners(proxy, hook.getProxyListenerList());
+        }
+    }
+
+    private static void hookProxyListeners(Proxy proxy, List<ProxyListener> listeners) {
+        for (ProxyListener listener : listeners) {
+            try {
+                if (listener != null) {
+                    proxy.addProxyListener(listener);
                 }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -254,16 +257,18 @@ public class ExtensionLoader {
 
     public void hookPersistentConnectionListener(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            List<PersistentConnectionListener> listenerList = hook.getPersistentConnectionListener();
-            for (PersistentConnectionListener listener : listenerList) {
-                try {
-                    if (listener != null) {
-                        proxy.addPersistentConnectionListener(listener);
-                    }
-                    
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+            hookPersistentConnectionListeners(proxy, hook.getPersistentConnectionListener());
+        }
+    }
+
+    private static void hookPersistentConnectionListeners(Proxy proxy, List<PersistentConnectionListener> listeners) {
+        for (PersistentConnectionListener listener : listeners) {
+            try {
+                if (listener != null) {
+                    proxy.addPersistentConnectionListener(listener);
                 }
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -286,16 +291,19 @@ public class ExtensionLoader {
     // ZAP: Added support for site map listeners
     public void hookSiteMapListener(SiteMapPanel siteMapPanel) {
         for (ExtensionHook hook : extensionHooks.values()) {
-            List<SiteMapListener> listenerList = hook.getSiteMapListenerList();
-            for (SiteMapListener listener : listenerList) {
-                try {
-                    if (listener != null) {
-                        siteMapPanel.addSiteMapListener(listener);
-                    }
-                    
-                } catch (Exception e) {
-                    logger.error(e.getMessage(), e);
+            hookSiteMapListeners(siteMapPanel, hook.getSiteMapListenerList());
+        }
+    }
+
+    private static void hookSiteMapListeners(SiteMapPanel siteMapPanel, List<SiteMapListener> listeners) {
+        for (SiteMapListener listener : listeners) {
+            try {
+                if (listener != null) {
+                    siteMapPanel.addSiteMapListener(listener);
                 }
+            } catch (Exception e) {
+                // ZAP: Log the exception
+                logger.error(e.getMessage(), e);
             }
         }
     }
@@ -513,8 +521,8 @@ public class ExtensionLoader {
         ext.initXML(model.getSession(), model.getOptionsParam());
         ext.initView(view);
         
+        ExtensionHook extHook = new ExtensionHook(model, view);
         try {
-            ExtensionHook extHook = new ExtensionHook(model, view);
             ext.hook(extHook);
             extensionHooks.put(ext, extHook);
 
@@ -525,12 +533,21 @@ public class ExtensionLoader {
             }
             
             hookOptions(extHook);
-            
+            ext.optionsLoaded();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
         
         ext.start();
+
+        Proxy proxy = Control.getSingleton().getProxy();
+        hookProxyListeners(proxy, extHook.getProxyListenerList());
+
+        hookPersistentConnectionListeners(proxy, extHook.getPersistentConnectionListener());
+
+        if (view != null) {
+            hookSiteMapListeners(view.getSiteTreePanel(), extHook.getSiteMapListenerList());
+        }
     }
 
     public void stopAllExtension() {

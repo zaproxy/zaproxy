@@ -27,6 +27,30 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
+    public void shouldCanonicalizeURIsWithAuthority() {
+        // Given
+        String[] uris = { "http://example.com/", "https://example.com/", "ftp://example.com/" };
+        for (String uri : uris) {
+            // When
+            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+            // Then
+            assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(uri)));
+        }
+    }
+
+    @Test
+    public void shouldIgnoreURIsWithNoAuthority() {
+        // Given
+        String[] uris = { "javascript:ignore()", "mailto:ignore@example.com" };
+        for (String uri : uris) {
+            // When
+            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+            // Then
+            assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(null)));
+        }
+    }
+
+    @Test
     public void shouldReturnCanonicalUriWithPercentEncodedPath() throws URIException {
         // Given
         String uri = new URI("http://example.com/path/%C3%A1/", true).toString();

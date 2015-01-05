@@ -56,6 +56,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.api.API;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
@@ -97,6 +98,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	private static final Logger logger = Logger.getLogger(ExtensionScript.class);
 
+	/**
+	 * Flag that indicates if the script templates should be loaded when a new script type is registered.
+	 * <p>
+	 * This is to prevent loading templates of already installed scripts (ones that are registered during ZAP initialisation)
+	 * twice, while allowing to load the templates of scripts registered after initialisation (e.g. from installed add-ons).
+	 * 
+	 * @since 2.4.0
+	 * @see #registerScriptType(ScriptType)
+	 * @see #optionsLoaded()
+	 */
+	private boolean shouldLoadTemplatesOnScriptTypeRegistration;
+	
     public ExtensionScript() {
         super();
  		initialize();
@@ -261,12 +274,43 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		return this.treeModel;
 	}
 	
+	/**
+	 * Registers a new type of script.
+	 * <p>
+	 * The script is added to the tree of scripts and its templates loaded, if any.
+	 *
+	 * @param type the new type of script
+	 * @throws InvalidParameterException if a script type with same name is already registered
+	 * @see #removeScripType(ScriptType)
+	 */
 	public void registerScriptType(ScriptType type) {
 		if (typeMap.containsKey(type.getName())) {
 			throw new InvalidParameterException("ScriptType already registered: " + type.getName());
 		}
 		this.typeMap.put(type.getName(), type);
 		this.getTreeModel().addType(type);
+
+		if (shouldLoadTemplatesOnScriptTypeRegistration) {
+			loadScriptTemplates(type);
+		}
+	}
+	
+	/**
+	 * Removes the given script type.
+	 * <p>
+	 * The templates and scripts associated with the given type are also removed, if any.
+	 * <p>
+	 * The call to this method has no effect if the given type is not registered.
+	 * 
+	 * @param type the script type that will be removed
+	 * @since 2.4.0
+	 * @see #registerScriptType(ScriptType)
+	 */
+	public void removeScripType(ScriptType type) {
+		ScriptType scriptType = typeMap.remove(type.getName());
+		if (scriptType != null) {
+			getTreeModel().removeType(scriptType);
+		}
 	}
 
 	public ScriptType getScriptType (String name) {
@@ -409,6 +453,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			}
 		}
 		this.loadTemplates();
+		shouldLoadTemplatesOnScriptTypeRegistration = true;
 	}
 
 	private void loadTemplates() {
@@ -417,20 +462,43 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	private void loadTemplates(ScriptEngineWrapper engine) {
 		for (ScriptType type : this.getScriptTypes()) {
-			File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
-			File stdDir = new File(Constant.getZapInstall() + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
-			
-			// Load local files first, as these override any one included in the release
-			if (locDir.exists()) {
-				for (File f : locDir.listFiles()) {
-					loadTemplate(f, type, engine, false);
-				}
+			loadScriptTemplates(type, engine);
+		}
+	}
+
+	/**
+	 * Loads script templates of the given {@code type}, for all script engines.
+	 *
+	 * @param type the script type whose templates will be loaded
+	 * @since 2.4.0
+	 * @see #loadScriptTemplates(ScriptType, ScriptEngineWrapper)
+	 */
+	private void loadScriptTemplates(ScriptType type) {
+		loadScriptTemplates(type, null);
+	}
+
+	/**
+	 * Loads script templates of the given {@code type} for the given {@code engine}.
+	 *
+	 * @param type the script type whose templates will be loaded
+	 * @param engine the script engine whose templates will be loaded for the given {@code script}
+	 * @since 2.4.0
+	 * @see #loadScriptTemplates(ScriptType)
+	 */
+	private void loadScriptTemplates(ScriptType type, ScriptEngineWrapper engine) {
+		File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
+		File stdDir = new File(Constant.getZapInstall() + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
+		
+		// Load local files first, as these override any one included in the release
+		if (locDir.exists()) {
+			for (File f : locDir.listFiles()) {
+				loadTemplate(f, type, engine, false);
 			}
-			if (stdDir.exists()) {
-				for (File f : stdDir.listFiles()) {
-					// Dont log errors on duplicates - 'local' templates should take presidence
-					loadTemplate(f, type, engine, true);
-				}
+		}
+		if (stdDir.exists()) {
+			for (File f : stdDir.listFiles()) {
+				// Dont log errors on duplicates - 'local' templates should take presidence
+				loadTemplate(f, type, engine, true);
 			}
 		}
 	}
@@ -516,8 +584,44 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 	}
 
-	public Invocable invokeScript(ScriptWrapper script) throws ScriptException, IOException {
+	/**
+	 * Invokes the given {@code script}, handling any {@code Exception} thrown during the invocation.
+	 * <p>
+	 * The context class loader of caller thread is replaced with the class loader {@code AddOnLoader} to allow the script to
+	 * access classes of add-ons. If this behaviour is not desired call the method {@code invokeScriptWithOutAddOnLoader}
+	 * instead.
+	 *
+	 * @param script the script that will be invoked
+	 * @return an {@code Invocable} for the {@code script}, or {@code null} if none.
+	 * @throws ScriptException if the engine of the given {@code script} was not found.
+	 * @see #invokeScriptWithOutAddOnLoader(ScriptWrapper)
+	 * @see Invocable
+	 */
+	public Invocable invokeScript(ScriptWrapper script) throws ScriptException {
 		logger.debug("invokeScript " + script.getName());
+		preInvokeScript(script);
+
+		ClassLoader previousContextClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(ExtensionFactory.getAddOnLoader());
+		try {
+			return invokeScriptImpl(script);
+		} finally {
+			Thread.currentThread().setContextClassLoader(previousContextClassLoader);
+		}
+	}
+
+	/**
+	 * Notifies the {@code ScriptEventListener}s that the given {@code script} should be refreshed, resets the error and
+	 * output states of the given {@code script} and notifies {@code ScriptEventListener}s of the pre-invocation.
+	 * <p>
+	 * If the script does not have an engine it will be set one (if found).
+	 * 
+	 * @param script the script that will be invoked after the call to this method
+	 * @throws ScriptException if the engine of the given {@code script} was not found.
+	 * @see ScriptEventListener#refreshScript(ScriptWrapper)
+	 * @see ScriptEventListener#preInvoke(ScriptWrapper)
+	 */
+	private void preInvokeScript(ScriptWrapper script) throws ScriptException {
 		if (script.getEngine() == null) {
 			// Scripts loaded from the configs my have loaded before all of the engines
 			script.setEngine(this.getEngineWrapper(script.getEngineName()));
@@ -539,7 +643,20 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				logger.error(e.getMessage(), e);
 			}
 		}
+	}
 
+	/**
+	 * Invokes the given {@code script}, handling any {@code Exception} thrown during the invocation.
+	 * <p>
+	 * Script's (or default) {@code Writer} is set to the {@code ScriptContext} of the {@code ScriptEngine} before the
+	 * invocation.
+	 *
+	 * @param script the script that will be invoked
+	 * @return an {@code Invocable} for the {@code script}, or {@code null} if none.
+	 * @see #getWriters(ScriptWrapper)
+	 * @see Invocable
+	 */
+	private Invocable invokeScriptImpl(ScriptWrapper script) {
 		ScriptEngine se = script.getEngine().getEngine();
 	    Writer writer = getWriters(script);
 	    se.getContext().setWriter(writer);
@@ -552,9 +669,24 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	    if (se instanceof Invocable) {
 	    	return (Invocable) se;
-	    } else {
-	    	return null;
-	    }
+		}
+		return null;
+	}
+
+	/**
+	 * Invokes the given {@code script}, handling any {@code Exception} thrown during the invocation.
+	 *
+	 * @param script the script that will be invoked/evaluated
+	 * @return an {@code Invocable} for the {@code script}, or {@code null} if none.
+	 * @throws ScriptException if the engine of the given {@code script} was not found.
+	 * @see #invokeScript(ScriptWrapper)
+	 * @see Invocable
+	 */
+	public Invocable invokeScriptWithOutAddOnLoader(ScriptWrapper script) throws ScriptException {
+		logger.debug("invokeScriptWithOutAddOnLoader " + script.getName());
+		preInvokeScript(script);
+
+		return invokeScriptImpl(script);
 	}
 
 	/**
@@ -754,17 +886,72 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.scriptUI = null;
 	}
 
+	/**
+	 * Gets the interface {@code class1} from the given {@code script}. Might return {@code null} if the {@code script} does not
+	 * implement the interface.
+	 * <p>
+	 * First tries to get the interface directly from the {@code script} by calling the method
+	 * {@code ScriptWrapper.getInterface(Class)}, if it returns {@code null} the interface will be extracted from the script
+	 * after invoking it, using the method {@code Invocable.getInterface(Class)}.
+	 * <p>
+	 * The context class loader of caller thread is replaced with the class loader {@code AddOnLoader} to allow the script to
+	 * access classes of add-ons. If this behaviour is not desired call the method {@code getInterfaceWithOutAddOnLoader(}
+	 * instead.
+	 *
+	 * @param script the script that will be invoked
+	 * @param class1 the interface that will be obtained from the script
+	 * @return the interface implemented by the script, or {@code null} if the {@code script} does not implement the interface.
+	 * @throws ScriptException if the engine of the given {@code script} was not found.
+	 * @throws IOException if an error occurred while obtaining the interface directly from the script (
+	 *			 {@code ScriptWrapper.getInterface(Class)})
+	 * @see #getInterfaceWithOutAddOnLoader(ScriptWrapper, Class)
+	 * @see ScriptWrapper#getInterface(Class)
+	 * @see Invocable#getInterface(Class)
+	 */
 	public <T> T getInterface(ScriptWrapper script, Class<T> class1) throws ScriptException, IOException {
 	
-		T iface = script.getInterface(class1);
-		
-		if (iface != null) {
-			// the script wrapper has overriden the usual scripting mechanism
-			return iface;
+		ClassLoader previousContextClassLoader = Thread.currentThread().getContextClassLoader();
+		Thread.currentThread().setContextClassLoader(ExtensionFactory.getAddOnLoader());
+		try {
+			T iface = script.getInterface(class1);
+			
+			if (iface != null) {
+				// the script wrapper has overriden the usual scripting mechanism
+				return iface;
+			}
+		} finally {
+			Thread.currentThread().setContextClassLoader(previousContextClassLoader);
 		}
 		
 		return invokeScript(script).getInterface(class1);
 
+	}
+
+	/**
+	 * Gets the interface {@code clasz} from the given {@code script}. Might return {@code null} if the {@code script} does not
+	 * implement the interface.
+	 * <p>
+	 * First tries to get the interface directly from the {@code script} by calling the method
+	 * {@code ScriptWrapper.getInterface(Class)}, if it returns {@code null} the interface will be extracted from the script
+	 * after invoking it, using the method {@code Invocable.getInterface(Class)}.
+	 *
+	 * @param script the script that will be invoked
+	 * @param clasz the interface that will be obtained from the script
+	 * @return the interface implemented by the script, or {@code null} if the {@code script} does not implement the interface.
+	 * @throws ScriptException if the engine of the given {@code script} was not found.
+	 * @throws IOException if an error occurred while obtaining the interface directly from the script (
+	 *			 {@code ScriptWrapper.getInterface(Class)})
+	 * @see #getInterface(ScriptWrapper, Class)
+	 * @see ScriptWrapper#getInterface(Class)
+	 * @see Invocable#getInterface(Class)
+	 */
+	public <T> T getInterfaceWithOutAddOnLoader(ScriptWrapper script, Class<T> clasz) throws ScriptException, IOException {
+		T iface = script.getInterface(clasz);
+		if (iface != null) {
+			// the script wrapper has overriden the usual scripting mechanism
+			return iface;
+		}
+		return invokeScriptWithOutAddOnLoader(script).getInterface(clasz);
 	}
 
 	@Override

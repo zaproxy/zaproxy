@@ -148,6 +148,10 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * @param helpindex
 	 */
 	public static void showHelp(String helpindex) {
+		if (getHelpBroker() == null) {
+			return;
+		}
+
 		try {
 			getHelpBroker().showID(helpindex, "javax.help.SecondaryWindow", null);
 		} catch (Exception e) {

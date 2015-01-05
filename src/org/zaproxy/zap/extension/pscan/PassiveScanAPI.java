@@ -24,6 +24,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -47,9 +48,12 @@ public class PassiveScanAPI extends ApiImplementor {
 	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
 	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
 	private static final String ACTION_DISABLE_SCANNERS = "disableScanners";
+	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
 
 	private static final String PARAM_ENABLED = "enabled";
 	private static final String PARAM_IDS = "ids";
+	private static final String PARAM_ID = "id";
+	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
 
 	private ExtensionPassiveScan extension;
 	
@@ -61,6 +65,7 @@ public class PassiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
+		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD, new String[] {PARAM_ID, PARAM_ALERT_THRESHOLD}));
 
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS));
@@ -92,6 +97,21 @@ public class PassiveScanAPI extends ApiImplementor {
 		case ACTION_DISABLE_SCANNERS:
 			setPluginPassiveScannersEnabled(params, false);
 			break;
+		case ACTION_SET_SCANNER_ALERT_THRESHOLD:
+			String paramId = params.getString(PARAM_ID);
+			int pluginId;
+			try {
+				pluginId = Integer.valueOf(paramId.trim()).intValue();
+			} catch (NumberFormatException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_ID);
+			}
+			if (!extension.hasPluginPassiveScanner(pluginId)) {
+				throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ID);
+			}
+
+			Plugin.AlertThreshold alertThreshold = getAlertThresholdFromParamAlertThreshold(params);
+			extension.setPluginPassiveScannerAlertThreshold(pluginId, alertThreshold);
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -115,6 +135,15 @@ public class PassiveScanAPI extends ApiImplementor {
 		}
 	}
 
+	private static Plugin.AlertThreshold getAlertThresholdFromParamAlertThreshold(JSONObject params) throws ApiException {
+		final String paramAlertThreshold = params.getString(PARAM_ALERT_THRESHOLD).trim().toUpperCase();
+		try {
+			return Plugin.AlertThreshold.valueOf(paramAlertThreshold);
+		} catch (IllegalArgumentException e) {
+			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ALERT_THRESHOLD);
+		}
+	}
+
 	@Override
 	public ApiResponse handleApiView(String name, JSONObject params)
 			throws ApiException {
@@ -133,6 +162,7 @@ public class PassiveScanAPI extends ApiImplementor {
 				map.put("id", String.valueOf(scanner.getPluginId()));
 				map.put("name", scanner.getName());
 				map.put("enabled", String.valueOf(scanner.isEnabled()));
+				map.put("alertThreshold", scanner.getLevel(true).name());
 				resultList.addItem(new ApiResponseSet("scanner", map));
 			}
 			

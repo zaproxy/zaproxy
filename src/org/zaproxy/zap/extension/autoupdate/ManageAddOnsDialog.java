@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
 import java.awt.GridBagLayout;
@@ -40,7 +41,6 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
-import javax.swing.JTable;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -48,6 +48,10 @@ import javax.swing.event.TableModelEvent;
 import javax.swing.event.TableModelListener;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.decorator.AbstractHighlighter;
+import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
@@ -86,8 +90,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JLabel downloadProgress = null;
 	private JLabel updatesMessage = null;
 	
-	private JTable installedAddOnsTable = null;
-	private JTable uninstalledAddOnsTable = null;
+	private JXTable installedAddOnsTable = null;
+	private JXTable uninstalledAddOnsTable = null;
 
 	//private ZapRelease latestRelease = null;
 	private String currentVersion = null;
@@ -385,9 +389,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
 	}
 	
-	private JTable getInstalledAddOnsTable () {
+	private JXTable getInstalledAddOnsTable () {
 		if (installedAddOnsTable == null) {
-			installedAddOnsTable = new JTable() {
+			installedAddOnsTable = new JXTable() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public String getToolTipText(MouseEvent e) {
@@ -397,6 +401,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			        return addOnToHtml(ao);
 				}
 			};
+			installedAddOnsTable.setSortable(false);
 			installedAddOnsModel = new InstalledAddOnsTableModel(this.installedAddOns);
 			installedAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
@@ -412,15 +417,17 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(60);
 			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(40);
 			
+			installedAddOnsTable.getColumnExt(3).addHighlighter(
+					new FailedUninstallationHighlighter(InstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
 		}
 		
 		
 		return installedAddOnsTable;
 	}
 
-	private JTable getUninstalledAddOnsTable () {
+	private JXTable getUninstalledAddOnsTable () {
 		if (uninstalledAddOnsTable == null) {
-			uninstalledAddOnsTable = new JTable() {
+			uninstalledAddOnsTable = new JXTable() {
 				private static final long serialVersionUID = 1L;
 				@Override
 				public String getToolTipText(MouseEvent e) {
@@ -430,7 +437,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			        return addOnToHtml(ao);
 				}
 			};
-			
+			uninstalledAddOnsTable.setSortable(false);
+
 			uninstalledAddOnsModel = new UninstalledAddOnsTableModel(this.sortAddOns(this.uninstalledAddOns, true));
 			uninstalledAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
@@ -703,21 +711,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			    	if (View.getSingleton().showConfirmDialog(dialog, 
 			    			Constant.messages.getString("cfu.uninstall.confirm")) == JOptionPane.OK_OPTION) {
 						
-						boolean addOnUninstalled = false;
 						for (AddOnWrapper aoi : installedAddOns) {
 							if (aoi.isEnabled()) {
 								logger.debug("Uninstalling " + aoi.getAddOn().getName());
 								if (extension.uninstall(aoi.getAddOn(), false)) {
 									logger.debug("Uninstalling " + aoi.getAddOn().getName() + " worked");
-									addOnUninstalled = true;
 								} else {
+									extension.addFailedUninstallation(aoi);
 									logger.debug("Uninstalling " + aoi.getAddOn().getName() + " failed");
 								}
 							}
 						}
-						if (addOnUninstalled) {
-							extension.reloadAddOnData();
-						}
+						extension.reloadAddOnData();
 			    	}
 				}
 			});
@@ -875,4 +880,24 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		logger.error("Failed to get check for updates on " + url, cause);
    		View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.warn.badurl"));
 	}
+
+    private static class FailedUninstallationHighlighter extends AbstractHighlighter {
+
+        public FailedUninstallationHighlighter(final int columnIndex) {
+            setHighlightPredicate(new HighlightPredicate() {
+
+                @Override
+                public boolean isHighlighted(final Component renderer, final ComponentAdapter adapter) {
+                    AddOnWrapper.Status status = ((AddOnWrapper) adapter.getValue(columnIndex)).getStatus();
+                    return AddOnWrapper.Status.failed_uninstallation.equals(status);
+                }
+            });
+        }
+
+        @Override
+        protected Component doHighlight(Component renderer, ComponentAdapter adapter) {
+            renderer.setEnabled(false);
+            return renderer;
+        }
+    }
 }

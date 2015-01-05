@@ -58,7 +58,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 				if (ext0 == null || ext1 == null) {
 					return 0;
 				}
-				return ext0.getName().compareTo(ext1.getName());
+				return ext0.getUIName().compareTo(ext1.getUIName());
 			}});
     }
 
@@ -85,7 +85,7 @@ public class OptionsExtensionTableModel extends AbstractTableModel {
 					}
 					return "";
 				case 2: return ext.getAuthor();
-				case 3: return ext.getName();
+				case 3: return ext.getUIName();
 				}
 			} catch (Exception e) {
 				log.error("Failed on extension " + ext.getName(), e);

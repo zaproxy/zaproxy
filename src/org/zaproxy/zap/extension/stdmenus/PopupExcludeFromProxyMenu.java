@@ -26,14 +26,13 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
@@ -51,48 +50,6 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
 		super(Constant.messages.getString("sites.exclude.proxy.popup"), true);
 	}
 	    
-    private static void purge(SiteMap map, SiteNode node) {
-       SiteNode child = null;
-       synchronized(map) {
-           while (node.getChildCount() > 0) {
-               try {
-                   child = (SiteNode) node.getChildAt(0);
-                   purge(map, child);
-               } catch (Exception e) {
-                   logger.error(e.getMessage(), e);
-               }
-           }
-           
-           if (node.isRoot()) {
-               return;
-           }
-
-           // delete reference in node
-           ExtensionHistory ext = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
-           if (ext != null) {
-        	   ext.removeFromHistoryList(node.getHistoryReference());
-           }
-
-           if (node.getHistoryReference()!= null) {
-               node.getHistoryReference().delete();
-               map.removeHistoryReference(node.getHistoryReference().getHistoryId());
-           }
-
-           // delete past reference in node
-           while (node.getPastHistoryReference().size() > 0) {
-               HistoryReference ref = node.getPastHistoryReference().get(0);
-               if (ext != null) {
-            	   ext.removeFromHistoryList(ref);
-               }
-               ref.delete();
-               node.getPastHistoryReference().remove(0);
-               map.removeHistoryReference(ref.getHistoryId());
-           }
-           
-           map.removeNodeFromParent(node);
-       }
-   }
-   
    @Override
    public boolean isSubMenu() {
    	return true;
@@ -126,7 +83,7 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
         session.getExcludeFromProxyRegexs().add(url);
         SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
 
-        purge(map, sn);
+        PopupMenuPurgeSites.purge(map, sn);
 	}
 
 	@Override

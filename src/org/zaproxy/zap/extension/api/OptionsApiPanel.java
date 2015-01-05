@@ -69,7 +69,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			panelMisc = new JPanel();
 			panelMisc.setLayout(new GridBagLayout());
 			panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, 0, 1, 0.5));
-			panelMisc.add(new JLabel("API KEY"), LayoutHelper.getGBC(0, 1, 1, 0.5));	// TODO
+			panelMisc.add(new JLabel(Constant.messages.getString("api.options.label.apiKey")), LayoutHelper.getGBC(0, 1, 1, 0.5));
 			panelMisc.add(getKeyField(), LayoutHelper.getGBC(1, 1, 1, 0.5));
 			panelMisc.add(getGenerateKeyButton(), LayoutHelper.getGBC(1, 2, 1, 0.5));
 			panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
@@ -100,7 +100,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	
 	private JButton getGenerateKeyButton () {
 		if (generateKeyButton == null) {
-			generateKeyButton = new JButton("Generate Random Key");	// TODO
+			generateKeyButton = new JButton(Constant.messages.getString("api.options.button.generateKey"));
 			generateKeyButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

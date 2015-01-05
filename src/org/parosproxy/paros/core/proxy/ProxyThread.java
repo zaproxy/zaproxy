@@ -52,6 +52,7 @@
 // ZAP: 2014/04/17 Issue 1156: Proxy gzip decoder doesn't update content length in response headers
 // ZAP: 2014/05/01 Issue 1156: Proxy gzip decoder removes newlines in decoded response
 // ZAP: 2014/05/01 Issue 1168: Add support for deflate encoded responses
+// ZAP: 2015/01/04 Issue 1334: ZAP does not handle API requests on reused connections
 
 package org.parosproxy.paros.core.proxy;
 
@@ -296,11 +297,6 @@ class ProxyThread implements Runnable {
 		boolean isFirstRequest = true;
 		HttpMessage msg = null;
         
-        if (API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader))) {
-        	// It was an API request
-        	return;
-        }
-        
         // reduce socket timeout after first read
         inSocket.setSoTimeout(2500);
         
@@ -319,6 +315,11 @@ class ProxyThread implements Runnable {
 			        }
 		        	return;
 			    }
+			}
+
+			if (API.getInstance().handleApiRequest(requestHeader, httpIn, httpOut, isRecursive(requestHeader))) {
+				// It was an API request
+				return;
 			}
 
 			msg = new HttpMessage();

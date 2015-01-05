@@ -24,7 +24,14 @@ import org.zaproxy.zap.utils.Enableable;
 
 public class AddOnWrapper extends Enableable {
 	
-	public enum Status {uninstalled, newAddon, newVersion, downloading, installed, latest}; 
+	public enum Status {uninstalled, newAddon, newVersion, downloading, installed, latest,
+
+		/**
+		 * Indicates that an add-on was not successfully uninstalled. Happens when the add-on is not dynamically installable or
+		 * when an {@code Exception} is thrown during the uninstallation.
+		 */
+		failed_uninstallation
+	};
 
 	private AddOn addOn = null;
 	private Status status = null;

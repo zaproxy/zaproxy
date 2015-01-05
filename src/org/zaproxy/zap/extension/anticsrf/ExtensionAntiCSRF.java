@@ -271,12 +271,17 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 					// Loop through all of the INPUT elements
 					log.debug("Found " + inputElements.size() + " inputs");
 					for (Element inputElement : inputElements) {
+						String value = inputElement.getAttributeValue("VALUE");
+						if (value == null) {
+							continue;
+						}
+
 						String attId = inputElement.getAttributeValue("ID");
 						boolean found = false;
 						if (attId != null) {
 							for (String tokenName : this.getAntiCsrfTokenNames()) {
 								if (tokenName.equalsIgnoreCase(attId)) {
-									list.add(new AntiCsrfToken(msg, attId, inputElement.getAttributeValue("VALUE"), formIndex));
+									list.add(new AntiCsrfToken(msg, attId, value, formIndex));
 									found = true;
 									break;
 								}
@@ -287,7 +292,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 							if (name != null) {
 								for (String tokenName : this.getAntiCsrfTokenNames()) {
 									if (tokenName.equalsIgnoreCase(name)) {
-										list.add(new AntiCsrfToken(msg, name, inputElement.getAttributeValue("VALUE"), formIndex));
+										list.add(new AntiCsrfToken(msg, name, value, formIndex));
 										break;
 									}
 								}

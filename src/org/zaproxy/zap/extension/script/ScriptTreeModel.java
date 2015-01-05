@@ -62,15 +62,30 @@ public class ScriptTreeModel extends DefaultTreeModel {
         this.addToParentSorted(this.templatesNode, tNode);
     }
     
+    protected void removeType(ScriptType type) {
+        String typeName = type.getName();
+        ScriptNode scriptNode = scriptsNodeMap.remove(typeName);
+        if (scriptNode != null) {
+            removeNodeFromParent(scriptNode);
+        }
+
+        ScriptNode templateNode = templatesNodeMap.remove(typeName);
+        if (templateNode != null) {
+            removeNodeFromParent(templateNode);
+        }
+    }
+
     private void addToParentSorted(ScriptNode parent, ScriptNode child) {
-    	for (int i=0; i < parent.getChildCount(); i++) {
+    	int childCount = parent.getChildCount();
+    	int idx = childCount;
+    	for (int i=0; i < childCount; i++) {
     		ScriptNode sn = (ScriptNode) parent.getChildAt(i);
     		if (child.getNodeName().compareToIgnoreCase(sn.getNodeName()) < 0) {
-    			parent.insert(child, i);
-    			return;
+    			idx = i;
+    			break;
     		}
     	}
-    	parent.add(child);
+    	insertNodeInto(child, parent, idx);
     }
     
     public ScriptNode getTypeNode(String type) {
@@ -114,7 +129,6 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		
 		if (parent != null) {
 			this.addToParentSorted(parent, node);
-			this.nodeStructureChanged(parent);
 			return node;
 		} else {
 			throw new InvalidParameterException("Unrecognised type: " + script.getType());
@@ -129,8 +143,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		ScriptNode node = this.getNodeForScript(script);
 		ScriptNode parent = node.getParent();
 		if (parent != null) {
-			parent.remove(node);
-			this.nodeStructureChanged(parent);
+			removeNodeFromParent(node);
 		}
 	}
 	
@@ -188,7 +201,6 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		
 		if (parent != null) {
 			this.addToParentSorted(parent, node);
-			this.nodeStructureChanged(parent);
 			return node;
 		} else {
 			throw new InvalidParameterException("Unrecognised type: " + template.getType());
@@ -203,8 +215,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		ScriptNode node = this.getNodeForTemplate(template);
 		ScriptNode parent = node.getParent();
 		if (parent != null) {
-			parent.remove(node);
-			this.nodeStructureChanged(parent);
+			removeNodeFromParent(node);
 		}
 	}
 	

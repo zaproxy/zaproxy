@@ -73,7 +73,7 @@ public class ExtensionFactory {
 
     public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
         log.info("Loading extensions");
-        List<Extension> listExts = CoreFunctionality.getBuiltInExtensions();
+        List<Extension> listExts = new ArrayList<>(CoreFunctionality.getBuiltInExtensions());
         listExts.addAll(getAddOnLoader().getExtensions());
 
         synchronized (mapAllExtension) {
@@ -251,15 +251,19 @@ public class ExtensionFactory {
 
     /**
      * If there are help files within the extension, they are loaded and merged
-     * with existing help files.
+     * with existing help files if the core help was correctly loaded.
      */
     private static void intitializeHelpSet(Extension ext) {
+        HelpBroker hb = ExtensionHelp.getHelpBroker();
+        if (hb == null) {
+            return;
+        }
+
         URL helpSetUrl = getExtensionHelpSetUrl(ext);
         if (helpSetUrl != null) {
             try {
                 log.debug("Load help files for extension '" + ext.getName() + "' and merge with core help.");
                 HelpSet extHs = new HelpSet(ext.getClass().getClassLoader(), helpSetUrl);
-                HelpBroker hb = ExtensionHelp.getHelpBroker();
                 hb.getHelpSet().add(extHs);
             } catch (HelpSetException e) {
                 log.error("An error occured while adding help file of extension '" + ext.getName() + "': " + e.getMessage(), e);
@@ -325,9 +329,14 @@ public class ExtensionFactory {
     }
 
     private static void unloadHelpSet(Extension ext) {
+        HelpBroker hb = ExtensionHelp.getHelpBroker();
+        if (hb == null) {
+            return;
+        }
+
         URL helpSetUrl = getExtensionHelpSetUrl(ext);
         if (helpSetUrl != null) {
-            HelpSet baseHelpSet = ExtensionHelp.getHelpBroker().getHelpSet();
+            HelpSet baseHelpSet = hb.getHelpSet();
             Enumeration<?> helpSets = baseHelpSet.getHelpSets();
             while (helpSets.hasMoreElements()) {
                 HelpSet extensionHelpSet = (HelpSet) helpSets.nextElement();

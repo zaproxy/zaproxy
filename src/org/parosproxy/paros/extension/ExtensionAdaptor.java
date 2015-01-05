@@ -29,6 +29,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 // ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
+// ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
 
 package org.parosproxy.paros.extension;
 
@@ -57,25 +58,51 @@ public abstract class ExtensionAdaptor implements Extension {
     public ExtensionAdaptor() {
     }
 
+    /**
+     * Constructs an {@code ExtensionAdaptor} with the given {@code name}.
+     *
+     * @param name the name of the extension
+     * @throws IllegalArgumentException if the given {@code name} is {@code null}.
+     */
     public ExtensionAdaptor(String name) {
+        validateNotNull(name, "name");
+
         this.name = name;
     }
-    
-    /**
-     * @return Returns the name.
-     */
+
+    private static void validateNotNull(Object parameter, String parameterName) {
+        if (parameter == null) {
+            throw new IllegalArgumentException("Parameter \"" + parameterName + "\" must not be null.");
+        }
+    }
+
     @Override
     public String getName() {
         return name;
     }
     
     /**
-     * @param name The name to set.
+     * Sets the name of the extension.
+     * 
+     * @param name the new name of the extension
+     * @throws IllegalArgumentException if the given {@code name} is {@code null}.
      */
     public void setName(String name) {
+        validateNotNull(name, "name");
+
         this.name = name;
     }
     
+    /**
+     * By default returns the name returned by {@code getName()}.
+     * 
+     * @see #getName()
+     */
+    @Override
+    public String getUIName() {
+        return getName();
+    }
+
     @Override
     public void init() {
       
@@ -160,7 +187,7 @@ public abstract class ExtensionAdaptor implements Extension {
 	@Override
 	public String getDescription() {
 		if (this.description == null || this.description.length() == 0) {
-			return this.getName();
+			return this.getUIName();
 		}
 		return this.description;
 	}

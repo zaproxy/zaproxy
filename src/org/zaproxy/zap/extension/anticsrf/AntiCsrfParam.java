@@ -20,6 +20,7 @@
 package org.zaproxy.zap.extension.anticsrf;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.configuration.ConversionException;
@@ -90,10 +91,12 @@ public class AntiCsrfParam extends AbstractParam {
         }
     }
 
+    @ZapApiIgnore
     public List<AntiCsrfParamToken> getTokens() {
         return tokens;
     }
 
+    @ZapApiIgnore
     public void setTokens(List<AntiCsrfParamToken> tokens) {
         this.tokens = new ArrayList<>(tokens);
         
@@ -116,16 +119,53 @@ public class AntiCsrfParam extends AbstractParam {
         this.enabledTokensNames = enabledTokens;
     }
 
+    /**
+     * Adds a new token with the given {@code name}, enabled by default.
+     * <p>
+     * The call to this method has no effect if the given {@code name} is null or empty, or a token with the given name already
+     * exist.
+     *
+     * @param name the name of the token that will be added
+     */
     public void addToken(String name) {
+        if (name == null || name.isEmpty()) {
+            return;
+        }
+
+        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext();) {
+            if (name.equals(it.next().getName())) {
+                return;
+            }
+        }
+
         this.tokens.add(new AntiCsrfParamToken(name));
         
         this.enabledTokensNames.add(name);
     }
 
+    /**
+     * Removes the token with the given {@code name}.
+     * <p>
+     * The call to this method has no effect if the given {@code name} is null or empty, or a token with the given {@code name}
+     * does not exist.
+     *
+     * @param name the name of the token that will be removed
+     */
     public void removeToken(String name) {
-        this.tokens.remove(new AntiCsrfParamToken(name));
-        
-        this.enabledTokensNames.remove(name);
+        if (name == null || name.isEmpty()) {
+            return;
+        }
+
+        for (Iterator<AntiCsrfParamToken> it = tokens.iterator(); it.hasNext();) {
+            AntiCsrfParamToken token = it.next();
+            if (name.equals(token.getName())) {
+                it.remove();
+                if (token.isEnabled()) {
+                    this.enabledTokensNames.remove(name);
+                }
+                break;
+            }
+        }
     }
 
     public List<String> getTokensNames() {

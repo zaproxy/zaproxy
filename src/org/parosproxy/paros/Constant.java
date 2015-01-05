@@ -51,12 +51,19 @@
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/08/14 Issue 1300: Add-ons show incorrect language when English is selected on non English locale
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
+// ZAP: 2015/01/04 Issue 1388: Not all translated files are updated when "zaplang" package is imported
+// ZAP: 2014/01/04 Issue 1394: Import vulnerabilities.xml files when updating the translated resources
+// ZAP: 2014/01/04 Issue 1458: Change home/installation dir paths to be always absolute
 
 package org.parosproxy.paros;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -138,7 +145,21 @@ public final class Constant {
     public static final String FOLDER_FILTER = "filter";
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
+
+    /**
+     * Prefix (file name) of Messages.properties files.
+     * 
+     * @see #MESSAGES_EXTENSION
+     */
     public static final String MESSAGES_PREFIX = "Messages";
+
+    /**
+     * Extension (with dot) of Messages.properties files.
+     * 
+     * @see #MESSAGES_PREFIX
+     * @since 2.4.0
+     */
+    public static final String MESSAGES_EXTENSION = ".properties";
 
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 
@@ -190,11 +211,34 @@ public final class Constant {
     private static final Locale SYSTEMS_LOCALE = Locale.getDefault();
 
     /**
-     * Pointer and filename part for the vulnerabilities file.
+     * Name of directory that contains the (source and translated) resource files.
+     * 
+     * @see #MESSAGES_PREFIX
+     * @see #VULNERABILITIES_PREFIX
      */
-    // ZAP: Added vulnerabilities file
-    public static String LANG_DIR="/lang/";
-    public static String VULNS_BASE = "vulnerabilities";
+    public static final String LANG_DIR = "lang";
+
+    /**
+     * Prefix (file name) of vulnerabilities.xml files.
+     * 
+     * @see #VULNERABILITIES_EXTENSION
+     * @since 2.4.0
+     */
+    public static final String VULNERABILITIES_PREFIX = "vulnerabilities";
+
+    /**
+     * @deprecated (2.4.0) Use {@link #VULNERABILITIES_PREFIX} instead. It will be removed in a following release.
+     */
+    @Deprecated
+    public static String VULNS_BASE = VULNERABILITIES_PREFIX;
+
+    /**
+     * Extension (with dot) of vulnerabilities.xml files.
+     * 
+     * @see #VULNERABILITIES_PREFIX
+     * @since 2.4.0
+     */
+    public static final String VULNERABILITIES_EXTENSION = ".xml";
     
     // ZAP: Added dirbuster dir
     public String DIRBUSTER_DIR = "dirbuster";
@@ -274,9 +318,9 @@ public final class Constant {
             }
         }
 
+		zapHome = getAbsolutePath(zapHome);
 		f = new File(zapHome);
 		
-		zapHome += FILE_SEPARATOR;
 		FILE_CONFIG = zapHome + FILE_CONFIG;
 		FOLDER_SESSION = zapHome + FOLDER_SESSION;
 		DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
@@ -783,7 +827,25 @@ public final class Constant {
     }
     
     public static void setZapHome (String dir) {
-    	zapHome = dir;
+    	zapHome = getAbsolutePath(dir);
+    }
+
+    /**
+     * Returns the absolute path for the given {@code directory}.
+     * <p>
+     * The path is terminated with a separator.
+     * 
+     * @param directory the directory whose path will be made absolute
+     * @return the absolute path for the given {@code directory}, terminated with a separator
+     * @since 2.4.0
+     */
+    private static String getAbsolutePath(String directory) {
+        String realPath = Paths.get(directory).toAbsolutePath().toString();
+        String separator = FileSystems.getDefault().getSeparator();
+        if (!realPath.endsWith(separator)) {
+            realPath += separator;
+        }
+        return realPath;
     }
     
     public static String getZapHome () {
@@ -813,17 +875,20 @@ public final class Constant {
 	}
 
     public static void setZapInstall (String dir) {
-    	zapInstall = dir;
+    	zapInstall = getAbsolutePath(dir);
     }
     
     public static String getZapInstall () {
     	if (zapInstall == null) {
-    		zapInstall = ".";
-    		if ( ! new File(zapInstall, "db").isDirectory() || ! new File(zapInstall, "lang").isDirectory()) {
-    			zapInstall = ZAP.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+    		String path = ".";
+    		Path localDir = Paths.get(path);
+    		if ( ! Files.isDirectory(localDir.resolve("db")) || ! Files.isDirectory(localDir.resolve("lang"))) {
+    			path = ZAP.class.getProtectionDomain().getCodeSource().getLocation().getPath();
     			// Loggers wont have been set up yet
-    			System.out.println("Defaulting ZAP install dir to " + zapInstall);
-    		}
+    			System.out.println("Defaulting ZAP install dir to " + path);
+            }
+
+    		zapInstall = getAbsolutePath(path);
     	}
     	return zapInstall;
     }

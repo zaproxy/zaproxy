@@ -25,6 +25,7 @@
 // ZAP: 2013/01/25 Added method removeProxyListener()
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
+// ZAP: 2015/01/04 Issue 1387: Unable to change the proxy's port/address if the port/address was specified through the command line
 package org.parosproxy.paros.control;
  
 import java.util.List;
@@ -85,6 +86,8 @@ public class Proxy {
 		    if (this.overrides != null) {
 		    	proxyHost = this.overrides.getProxyHost();
 		    	proxyPort = this.overrides.getProxyPort();
+		    	// Use overrides once.
+		    	overrides = null;
 		    }
 		    if (proxyHost != null) {
 		    	// Save the override in the configs

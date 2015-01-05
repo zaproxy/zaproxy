@@ -21,11 +21,12 @@ package org.zaproxy.zap.extension.lang;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Enumeration;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -35,21 +36,21 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.LocaleUtils;
 
-public class LangImporter {
+public final class LangImporter {
 	
-	private static Logger logger = Logger.getLogger(LangImporter.class);
-	
-	private static final String FILENAME_PATTERN = "Messages_([a-z]{2}_[A-Z]{2})\\.properties$";
+	private static final Logger logger = Logger.getLogger(LangImporter.class);
 	
 	private static final String MSG_SUCCESS = "options.lang.importer.dialog.message.success";
 	private static final String MSG_ERROR = "options.lang.importer.dialog.message.error";
 	private static final String MSG_FILE_NOT_FOUND = "options.lang.importer.dialog.message.filenotfound";
 	
+	private LangImporter() {
+	}
 	
 	public static String importLanguagePack(String languagePack) {
-		Matcher matcher = null;
-		Pattern pattern = Pattern.compile(FILENAME_PATTERN);
+		Pattern includedFilesPattern = createIncludedFilesPattern();
 		
 		int langFileCount = 0;
 		String message = "";
@@ -68,12 +69,12 @@ public class LangImporter {
 						byte[] buffer = new byte[2048];
 						String name = zipEntry.getName();
 						
-						matcher = pattern.matcher(name);
-						if (matcher.find()) {
+						if (includedFilesPattern.matcher(name).find()) {
 							langFileCount++;
 							
+							Path outputFile = Paths.get(Constant.getZapInstall(), name);
 							try (BufferedOutputStream bos = new BufferedOutputStream(
-										new FileOutputStream(name),
+										Files.newOutputStream(outputFile),
 										buffer.length)) {
 			
 								while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
@@ -102,5 +103,23 @@ public class LangImporter {
 		}
 		
 		return message;
+	}
+
+	/**
+	 * Creates a {@code Pattern} to match filenames of, source and translated, resource files Messages.properties and
+	 * vulnerabilities.xml.
+	 *
+	 * @return the {@code Pattern} to match the resource files
+	 * @since 2.4.0
+	 */
+	// Relaxed visibility to allow unit test
+	static Pattern createIncludedFilesPattern() {
+		String messagesFilesRegex = LocaleUtils.createResourceFilesRegex(Constant.MESSAGES_PREFIX, Constant.MESSAGES_EXTENSION);
+		String vulnerabilitiesFilesRegex = LocaleUtils.createResourceFilesRegex(
+				Constant.VULNERABILITIES_PREFIX,
+				Constant.VULNERABILITIES_EXTENSION);
+		StringBuilder strBuilder = new StringBuilder(messagesFilesRegex.length() + vulnerabilitiesFilesRegex.length() + 1);
+		strBuilder.append(messagesFilesRegex).append('|').append(vulnerabilitiesFilesRegex);
+		return Pattern.compile(strBuilder.toString());
 	}
 }

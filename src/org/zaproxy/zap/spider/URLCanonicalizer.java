@@ -121,6 +121,12 @@ public final class URLCanonicalizer {
 				throw new MalformedURLException("Protocol could not be reliably evaluated from uri: " + canonicalURI
 						+ " and base url: " + baseURL);
 			}
+
+			if (canonicalURI.getRawAuthority() == null) {
+				log.debug("Ignoring URI with no authority (host[\":\"port]): " + canonicalURI);
+				return null;
+			}
+
 			if (canonicalURI.getHost() == null) {
 				throw new MalformedURLException("Host could not be reliably evaluated from: " + canonicalURI);
 			}
