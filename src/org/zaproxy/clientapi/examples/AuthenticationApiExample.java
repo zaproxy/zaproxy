@@ -54,8 +54,8 @@ import org.zaproxy.clientapi.gen.Users;
  * <code>paramA + "=" + urlEncode(paramAValue) + "&" + paramB + "=" + urlEncode(paramBValue) + ...</code>
  * </li>
  * <li>
- * for formBasedAuthentication, the places filled in with the credentials are marked via %username%
- * and %password%, in either the requestUrl or the requestBody</li>
+ * for formBasedAuthentication, the places filled in with the credentials are marked via {%username%}
+ * and {%password%}, in either the requestUrl or the requestBody</li>
  * </ul>
  */
 public class AuthenticationApiExample {
@@ -130,7 +130,7 @@ public class AuthenticationApiExample {
 		// Setup the authentication method
 		String contextId = "1";
 		String loginUrl = "http://localhost:8080/bodgeit/login.jsp";
-		String loginRequestData = "username=%username%&password=%password%";
+		String loginRequestData = "username={%username%}&password={%password%}";
 
 		// Prepare the configuration in a format similar to how URL parameters are formed. This
 		// means that any value we add for the configuration values has to be URL encoded.
