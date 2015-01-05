@@ -98,6 +98,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	private static final Logger logger = Logger.getLogger(ExtensionScript.class);
 
+	/**
+	 * Flag that indicates if the script templates should be loaded when a new script type is registered.
+	 * <p>
+	 * This is to prevent loading templates of already installed scripts (ones that are registered during ZAP initialisation)
+	 * twice, while allowing to load the templates of scripts registered after initialisation (e.g. from installed add-ons).
+	 * 
+	 * @since 2.4.0
+	 * @see #registerScriptType(ScriptType)
+	 * @see #optionsLoaded()
+	 */
+	private boolean shouldLoadTemplatesOnScriptTypeRegistration;
+	
     public ExtensionScript() {
         super();
  		initialize();
@@ -277,6 +289,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 		this.typeMap.put(type.getName(), type);
 		this.getTreeModel().addType(type);
+
+		if (shouldLoadTemplatesOnScriptTypeRegistration) {
+			loadScriptTemplates(type);
+		}
 	}
 	
 	/**
@@ -437,6 +453,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			}
 		}
 		this.loadTemplates();
+		shouldLoadTemplatesOnScriptTypeRegistration = true;
 	}
 
 	private void loadTemplates() {
@@ -445,20 +462,43 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	private void loadTemplates(ScriptEngineWrapper engine) {
 		for (ScriptType type : this.getScriptTypes()) {
-			File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
-			File stdDir = new File(Constant.getZapInstall() + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
-			
-			// Load local files first, as these override any one included in the release
-			if (locDir.exists()) {
-				for (File f : locDir.listFiles()) {
-					loadTemplate(f, type, engine, false);
-				}
+			loadScriptTemplates(type, engine);
+		}
+	}
+
+	/**
+	 * Loads script templates of the given {@code type}, for all script engines.
+	 *
+	 * @param type the script type whose templates will be loaded
+	 * @since 2.4.0
+	 * @see #loadScriptTemplates(ScriptType, ScriptEngineWrapper)
+	 */
+	private void loadScriptTemplates(ScriptType type) {
+		loadScriptTemplates(type, null);
+	}
+
+	/**
+	 * Loads script templates of the given {@code type} for the given {@code engine}.
+	 *
+	 * @param type the script type whose templates will be loaded
+	 * @param engine the script engine whose templates will be loaded for the given {@code script}
+	 * @since 2.4.0
+	 * @see #loadScriptTemplates(ScriptType)
+	 */
+	private void loadScriptTemplates(ScriptType type, ScriptEngineWrapper engine) {
+		File locDir = new File(Constant.getZapHome() + File.separator + TEMPLATES_DIR + File.separator + type.getName());
+		File stdDir = new File(Constant.getZapInstall() + File.separator  + TEMPLATES_DIR + File.separator + type.getName());
+		
+		// Load local files first, as these override any one included in the release
+		if (locDir.exists()) {
+			for (File f : locDir.listFiles()) {
+				loadTemplate(f, type, engine, false);
 			}
-			if (stdDir.exists()) {
-				for (File f : stdDir.listFiles()) {
-					// Dont log errors on duplicates - 'local' templates should take presidence
-					loadTemplate(f, type, engine, true);
-				}
+		}
+		if (stdDir.exists()) {
+			for (File f : stdDir.listFiles()) {
+				// Dont log errors on duplicates - 'local' templates should take presidence
+				loadTemplate(f, type, engine, true);
 			}
 		}
 	}
