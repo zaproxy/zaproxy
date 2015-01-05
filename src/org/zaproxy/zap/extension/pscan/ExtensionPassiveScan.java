@@ -33,6 +33,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -280,16 +281,64 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         return pluginPassiveScanners;
     }
 
+    /**
+     * Sets whether or not all plug-in passive scanners are {@code enabled}.
+     *
+     * @param enabled {@code true} if the scanners should be enabled, {@code false} otherwise
+     */
     void setAllPluginPassiveScannersEnabled(boolean enabled) {
         for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
             scanner.setEnabled(enabled);
+            scanner.save();
         }
     }
 
+    /**
+     * Sets whether or not the plug-in passive scanner with the given {@code pluginId} is {@code enabled}.
+     *
+     * @param pluginId the ID of the plug-in passive scanner
+     * @param enabled {@code true} if the scanner should be enabled, {@code false} otherwise
+     */
     void setPluginPassiveScannerEnabled(int pluginId, boolean enabled) {
         for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
             if (pluginId == scanner.getPluginId()) {
                 scanner.setEnabled(enabled);
+                scanner.save();
+            }
+        }
+    }
+
+    /**
+     * Tells whether or not a plug-in passive scanner with the given {@code pluginId} exist.
+     *
+     * @param pluginId the ID of the plug-in passive scanner
+     * @return {@code true} if the scanner exist, {@code false} otherwise.
+     */
+    boolean hasPluginPassiveScanner(int pluginId) {
+        for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
+            if (pluginId == scanner.getPluginId()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Sets the value of {@code alertThreshold} of the plug-in passive scanner with the given {@code pluginId}.
+     * <p>
+     * If the {@code alertThreshold} is {@code OFF} the scanner is also disabled. The call to this method has no effect if no
+     * scanner with the given {@code pluginId} exist.
+     *
+     * @param pluginId the ID of the plug-in passive scanner
+     * @param alertThreshold the alert threshold that will be set
+     * @see org.parosproxy.paros.core.scanner.Plugin.AlertThreshold
+     */
+    void setPluginPassiveScannerAlertThreshold(int pluginId, Plugin.AlertThreshold alertThreshold) {
+        for (PluginPassiveScanner scanner : getPluginPassiveScanners()) {
+            if (pluginId == scanner.getPluginId()) {
+                scanner.setLevel(alertThreshold);
+                scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
+                scanner.save();
             }
         }
     }
