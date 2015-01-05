@@ -80,6 +80,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private static Logger log = Logger.getLogger(CoreAPI.class);
 
+	private enum ScanReportType {
+		HTML,
+		XML
+	}
+
 	private static final String PREFIX = "core";
 	private static final String ACTION_LOAD_SESSION = "loadSession";
 	private static final String ACTION_NEW_SESSION = "newSession";
@@ -111,6 +116,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_SET_PROXY = "setproxy";
 	private static final String OTHER_ROOT_CERT = "rootcert";
 	private static final String OTHER_XML_REPORT = "xmlreport";
+	private static final String OTHER_HTML_REPORT = "htmlreport";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
 	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
 
@@ -165,6 +171,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
+		this.addApiOthers(new ApiOther(OTHER_HTML_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiOthers(new ApiOther(
 				OTHER_SEND_HAR_REQUEST,
@@ -717,16 +724,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			return msg;
 		} else if (OTHER_XML_REPORT.equals(name)) {
 			try {
-				ReportLastScan rls = new ReportLastScan();
-		        StringBuilder report = new StringBuilder();
-				rls.generate(report, Model.getSingleton());
-		        String response =  ReportGenerator.stringToHtml(report.toString(), "xml/report.xml.xsl");
-				
-				msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
-				
-				msg.setResponseBody(response);
-				msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
-		        
+				writeReportLastScanTo(msg, ScanReportType.XML);
+
+				return msg;
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
+		} else if (OTHER_HTML_REPORT.equals(name)) {
+			try {
+				writeReportLastScanTo(msg, ScanReportType.HTML);
+
 				return msg;
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
@@ -814,6 +822,20 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
+	}
+
+	private static void writeReportLastScanTo(HttpMessage msg, ScanReportType reportType) throws Exception {
+		ReportLastScan rls = new ReportLastScan();
+		StringBuilder report = new StringBuilder();
+		rls.generate(report, Model.getSingleton());
+
+		String type = ScanReportType.XML == reportType ? "xml" : "html";
+		String response = ReportGenerator.stringToHtml(report.toString(), "xml/report." + type + ".xsl");
+
+		msg.setResponseHeader(API.getDefaultResponseHeader("text/" + type + "; charset=UTF-8"));
+
+		msg.setResponseBody(response);
+		msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 	}
 
 	@Override
