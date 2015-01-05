@@ -259,7 +259,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             scannerList.setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
 
             // Load the  'switchable' plugins
-	    	List<PluginPassiveScanner> listTest = CoreFunctionality.getBuiltInPassiveScanRules();
+	    	List<PluginPassiveScanner> listTest = new ArrayList<>(CoreFunctionality.getBuiltInPassiveScanRules());
 	    	listTest.addAll(ExtensionFactory.getAddOnLoader().getPassiveScanRules());
 
 

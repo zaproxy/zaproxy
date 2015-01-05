@@ -73,7 +73,7 @@ public class ExtensionFactory {
 
     public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
         log.info("Loading extensions");
-        List<Extension> listExts = CoreFunctionality.getBuiltInExtensions();
+        List<Extension> listExts = new ArrayList<>(CoreFunctionality.getBuiltInExtensions());
         listExts.addAll(getAddOnLoader().getExtensions());
 
         synchronized (mapAllExtension) {

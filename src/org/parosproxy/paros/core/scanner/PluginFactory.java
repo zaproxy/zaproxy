@@ -36,6 +36,7 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/01/04 Issue 1484: NullPointerException during uninstallation of an add-on with active scanners
+// ZAP: 2015/01/04 Issue 1486: Add-on components leak
 
 package org.parosproxy.paros.core.scanner;
 
@@ -79,7 +80,7 @@ public class PluginFactory {
     
     private static List<AbstractPlugin> getLoadedPlugins() {
     	if (loadedPlugins == null) {
-	    	loadedPlugins = CoreFunctionality.getBuiltInActiveScanRules();
+	    	loadedPlugins = new ArrayList<>(CoreFunctionality.getBuiltInActiveScanRules());
 	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
 	        //sort by the criteria below.
 	        Collections.sort(loadedPlugins, riskComparator);
