@@ -160,7 +160,7 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	        					tableExt.getSelectedRow());
 	        			if (ext != null) {
 	        				try {
-								extName.setText(ext.getName());
+								extName.setText(ext.getUIName());
 								extDescription.setText(ext.getDescription());
 								if (ext.getAuthor() != null) {
 									extAuthor.setText(ext.getAuthor());

@@ -25,6 +25,7 @@
 // ZAP: 2013/01/16 Issue 453: Dynamic loading and unloading of add-ons
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 // ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
+// ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
 
 package org.parosproxy.paros.extension;
 
@@ -49,8 +50,30 @@ import org.parosproxy.paros.model.Session;
  */
 public interface Extension {
     
+    /**
+     * Returns the name of the extension, for configurations and access from other components (e.g. extensions).
+     *
+     * @return the name of the extension, never {@code null}
+     * @see #getUIName()
+     */
     String getName();
     
+    /**
+     * Returns a short descriptive name of the extension, to be shown in UI components. The name must be
+     * internationalised.
+     * 
+     * @return the UI name of the extension, never {@code null}
+     * @see #getName()
+     * @see #getDescription()
+     */
+    String getUIName();
+
+    /**
+     * Returns the description of the extension, to be shown in UI components. The description must be
+     * internationalised.
+     *
+     * @return the description of the extension, never {@code null}
+     */
     String getDescription();
     
     /**
