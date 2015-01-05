@@ -89,12 +89,18 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     }
 
     /**
+     * Removes the given {@code scanner} from this table model.
      * 
-     * @param scanner 
+     * @param scanner the scanner that will be removed from the model
      */
     public void removeScanner(PluginPassiveScanner scanner) {
-        listScanners.remove(scanner);
-        fireTableDataChanged();
+        for (int i = 0; i < listScanners.size(); i++) {
+            if (scanner.equals(listScanners.get(i).getScanner())) {
+                listScanners.remove(i);
+                fireTableRowsDeleted(i, i);
+                break;
+            }
+        }
     }
 
     /**
@@ -212,15 +218,19 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
      * @author simon
      *
      */
-    private class ScannerWrapper {
-    	private PluginPassiveScanner scanner;
+    private static class ScannerWrapper {
+    	private final PluginPassiveScanner scanner;
     	private AlertThreshold threshold;
 
-    	ScannerWrapper(PluginPassiveScanner scanner) {
+    	public ScannerWrapper(PluginPassiveScanner scanner) {
     		this.scanner = scanner;
     		reset();
     	}
     	
+        public PluginPassiveScanner getScanner() {
+            return scanner;
+        }
+
     	public void reset() {
     		this.threshold = scanner.getLevel();
     	}
