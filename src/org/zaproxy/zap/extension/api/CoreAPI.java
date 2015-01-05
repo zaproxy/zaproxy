@@ -117,6 +117,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_ROOT_CERT = "rootcert";
 	private static final String OTHER_XML_REPORT = "xmlreport";
 	private static final String OTHER_HTML_REPORT = "htmlreport";
+	private static final String OTHER_MESSAGE_HAR = "messageHar";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
 	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
 
@@ -172,6 +173,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_HTML_REPORT));
+		this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiOthers(new ApiOther(
 				OTHER_SEND_HAR_REQUEST,
@@ -740,6 +742,41 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
+		} else if (OTHER_MESSAGE_HAR.equals(name)) {
+			byte[] responseBody;
+			try {
+				final HarEntries entries = new HarEntries();
+				TableHistory tableHistory = Model.getSingleton().getDb().getTableHistory();
+				RecordHistory recordHistory;
+				try {
+					recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
+				} catch (HttpMalformedHeaderException | SQLException e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+				}
+				if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
+					throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
+				}
+				entries.addEntry(HarUtils.createHarEntry(recordHistory.getHttpMessage()));
+
+				HarLog harLog = HarUtils.createZapHarLog();
+				harLog.setEntries(entries);
+
+				responseBody = HarUtils.harLogToByteArray(harLog);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+
+				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+			}
+
+			try {
+				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
+			} catch (HttpMalformedHeaderException e) {
+				log.error("Failed to create response header: " + e.getMessage(), e);
+			}
+			msg.setResponseBody(responseBody);
+
+			return msg;
 		} else if (OTHER_MESSAGES_HAR.equals(name)) {
 			byte[] responseBody;
 			try {
