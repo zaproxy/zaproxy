@@ -21,57 +21,71 @@ package org.zaproxy.zap.model;
 
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.parosproxy.paros.Constant;
 
 public final class Vulnerabilities {
 	
-	private static VulnerabilitiesI18NMap vulnerabilitiesI18NMap = null;
+	private static List<Vulnerability> vulnerabilities;
+	private static Map<String, Vulnerability> vulnerabilitiesMap;
 	
 	private Vulnerabilities() {
 	}
 
 	private static synchronized void init() {
-		if (vulnerabilitiesI18NMap == null) {
-			VulnerabilitiesLoader loader = new VulnerabilitiesLoader(Paths.get(Constant.getZapInstall(), Constant.LANG_DIR)
-					.toAbsolutePath()
-					.toString(), Constant.VULNERABILITIES_PREFIX);
-			vulnerabilitiesI18NMap = loader.load();
+		if (vulnerabilities == null) {
+			VulnerabilitiesLoader loader = new VulnerabilitiesLoader(
+					Paths.get(Constant.getZapInstall(), Constant.LANG_DIR),
+					Constant.VULNERABILITIES_PREFIX,
+					Constant.VULNERABILITIES_EXTENSION);
+			List<Vulnerability> vulns = loader.load(Constant.getLocale());
+
+			Map<String, Vulnerability> map = new HashMap<>();
+			for (Vulnerability vulnerability : vulns) {
+				map.put(vulnerability.getId(), vulnerability);
+			}
+
+			vulnerabilitiesMap = Collections.unmodifiableMap(map);
+			vulnerabilities = vulns;
 		}
 	}
 
 	/**
-	 * Gets an unmodifiable {@code List} containing all the
-	 * {@code Vulnerability} for the current active Locale.
-	 * They are loaded from the xml files as specified by the {@code Constant}.
+	 * Gets an unmodifiable {@code List} containing all the {@code Vulnerability} for the current active Locale. They are loaded
+	 * from a XML file.
 	 * <p>
-	 * An empty {@code List} is returned if any error occurred while opening the
-	 * file. The returned {@code List} is guaranteed to be <i>non</i>
-	 * {@code null}.
-	 * </p>
+	 * An empty {@code List} is returned if any error occurred while opening/parsing the XML file. The returned {@code List} is
+	 * guaranteed to be <i>non</i> {@code null}.
 	 * <p>
-	 * <b>Note:</b> Trying to modify the list will result in an
-	 * {@code UnsupportedOperationException}.
-	 * </p>
+	 * <b>Note:</b> Trying to modify the list will result in an {@code UnsupportedOperationException}.
 	 * 
-	 * @return An unmodifiable {@code List} containing all the
-	 *         {@code Vulnerability} loaded, never {@code null}.
-	 * 
-	 * @see Constant#VULNS_CONFIG
+	 * @return an unmodifiable {@code List} containing all the {@code Vulnerability} loaded, never {@code null}.
 	 */
 	public static List<Vulnerability> getAllVulnerabilities() {
 		initializeIfEmpty();
-		return Collections.unmodifiableList(vulnerabilitiesI18NMap.getVulnerabilityList(Constant.getLocale().toString()));
+		return vulnerabilities;
 	}
 	
-	public static Vulnerability getVulnerability (String name) {
+	/**
+	 * Returns the {@code Vulnerability} for the given WASC ID, or {@code null} if not available.
+	 * <p>
+	 * The WASC ID is in the form: <blockquote>"wasc_" + #ID</blockquote>
+	 * <p>
+	 * For example, "wasc_1", "wasc_2" or "wasc_48".
+	 *
+	 * @param id the WASC ID of the vulnerability, e.g. wasc_1
+	 * @return the {@code Vulnerability} for the given WASC ID, or {@code null} if not available
+	 */
+	public static Vulnerability getVulnerability (String id) {
 		initializeIfEmpty();
-		return vulnerabilitiesI18NMap.getVulnerabilityByName(name, Constant.getLocale().toString());
+		return vulnerabilitiesMap.get(id);
 	}
 
 	private static void initializeIfEmpty() {
-		if (vulnerabilitiesI18NMap == null) {
+		if (vulnerabilities == null) {
 			init();
 		}
 	}
