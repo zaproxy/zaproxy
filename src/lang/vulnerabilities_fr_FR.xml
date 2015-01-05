@@ -7,8 +7,8 @@
 	<desc>L'authentification insuffisante (Insufficient Authentication) apparaît lorsqu'un site web permet à un attaquant d'accéder aux contenus sensibles ou aux fonctionnalités sans avoir à s'authentifier correctement. Les outils d'administration par d'internet sont un bon exemple des sites web donnant accès à des fonctionnalités sensibles. Selon la ressource en ligne spécifique, ces applications web ne devraient pas être directement accessibles sans vérifier correctement l'identité de  l'utilisateur.
 
 Pour éviter la mise en place d'une authentification, certaines ressources sont protégées en "cachant" l'emplacement précis et ne reliant pas cet emplacement depuis le site web principal ou autres sites publics. Toutefois, cette approche n'est rien d'autre que de la "sécurité par obscurité". Il est important de comprendre que, même si une ressource est inconnue d'un attaquant, elle reste encore accessible directement via une URL spécifique. Cette URL spécifique pourrait être découverte par  force brute en testant un fichier commun et des emplacements de répertoires (/admin par exemple), des messages d'erreur, des journaux ou de la documentation, comme les fichiers d'aide. Ces ressources, qu'elles soient contenu ou fonctionnalité, doivent être adéquatement protégées.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+	<solution>Phase: Architecture et Design
+Utiliser un framework ou une bibliothèque d'authentification, comme par exemple la bibliothèque d'authentification ESAPI d'OWASP.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -19,19 +19,19 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 	<alert>Autorisation insuffisante</alert>
 	<desc>Une autorisation insuffisante (Insufficient Authorization) résulte d'une application n'effectuant pas les vérifications d'autorisation adéquates pour s'assurer que l'utilisateur appelle une fonction donnée, ou qu'il accède aux données conformément à la politique de sécurité. Des procédures d'autorisation devraient veiller à ce qu'un utilisateur, un service ou une application, ne fait que ce qu'il est autorisé à faire. Lorsqu'un utilisateur est authentifié sur un site web, cela ne signifie pas nécessairement que l'utilisateur doit avoir un accès complet à tout le contenu et à toute la fonctionnalité.
 
-Insufficient Function Authorization
+Autorisation insuffisante à une fonction
 
-Many applications grant different application functionality to different users. Un site d'informations permettra aux utilisateurs d'afficher des nouvelles, mais pas de les publier. Un système de comptabilité aura des autorisations différentes pour un employé chargé des comptes créditeurs, ou pour un employé s'occupant des comptes débiteurs. Une autorisation insuffisante à une fonction se produit lorsqu'une application n'empêche pas les utilisateurs d'accéder à une fonctionnalité en violation de la politique de sécurité.
+De nombreuses applications permettent différentes fonctionnalités à des utilisateurs différents. Un site d'informations permettra aux utilisateurs d'afficher des nouvelles, mais pas de les publier. Un système de comptabilité aura des autorisations différentes pour un employé chargé des comptes créditeurs, ou pour un employé s'occupant des comptes débiteurs. Une autorisation insuffisante à une fonction se produit lorsqu'une application n'empêche pas les utilisateurs d'accéder à une fonctionnalité en violation de la politique de sécurité.
 
 Un exemple très parlant était le piratage du processus de candidature de la Harvard Business School en 2005. Une erreur d'autorisation permettait aux utilisateurs de consulter leurs propres données, alors qu'ils n'auraient pas dû être autorisés à accéder à cette partie du site web.
  
-Insufficient Data Authorization
+Autorisation insuffisante pour l'accès aux données
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+De nombreuses applications exposent dans une URL les identificateurs aux bases de données sous-jacentes. Par exemple, lors de l'accès à des données médicales sur un système, on pourrait avoir une URL telle que:
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Si l'application ne contrôle pas que l'utilisateur connecté a le droit d'accès, alors elle pourrait afficher des données que l'utilisateur n'est pas censé voir.
 
 L'autorisation insuffisante pour l'accès aux données est plus fréquente que l'autorisation insuffisante d'accès aux fonctions, car les programmeurs ont généralement une parfaite connaissance des fonctionnalités de l'application, mais n'ont pas toujours une vue complète de toutes les données auxquelles l'application accède. Les programmeurs ont souvent un contrôle strict des mécanismes d'autorisation d'accès aux fonctions, mais s'appuient sur d'autres systèmes, tels que les bases de données, pour exécuter l'autorisation d'accès aux données.</desc>
 	<solution>Phases: Architecture and Design; Operation
