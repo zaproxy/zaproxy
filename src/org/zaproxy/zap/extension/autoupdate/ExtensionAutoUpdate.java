@@ -101,6 +101,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private List<Downloader> downloadFiles = new ArrayList<>();
 
     /**
+     * List of add-ons that were uninstalled by the user but not successfully, either an error occurred or are not dynamically
+     * installable.
+     */
+    private List<AddOnWrapper> failedUninstalledAddons = new ArrayList<>(0);
+
+    /**
      * 
      */
     public ExtensionAutoUpdate() {
@@ -264,8 +270,24 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		View.getSingleton().showWarningDialog(message);
 	}
 
+	/**
+	 * Adds the given {@code addOnWrapper} to the list of add-ons that were not successfully uninstalled. Add-ons that were not
+	 * successfully uninstalled are not re-selectable.
+	 * <p>
+	 * The wrapper is disabled and the status set to {@code Status.failed_uninstallation}.
+	 *
+	 * @param addOnWrapper the wrapper of the add-on that was not successfully uninstalled
+	 * @see AddOnWrapper.Status#failed_uninstallation
+	 */
+	protected void addFailedUninstallation(AddOnWrapper addOnWrapper) {
+		addOnWrapper.setEnabled(false);
+		addOnWrapper.setStatus(AddOnWrapper.Status.failed_uninstallation);
+		failedUninstalledAddons.add(addOnWrapper);
+	}
+	
 	private List <AddOnWrapper> getInstalledAddOns() {
 		List <AddOnWrapper> list = new ArrayList <>();
+		list.addAll(failedUninstalledAddons);
 		
 		for (AddOn ao : this.getLocalVersionInfo().getAddOns()) {
 			list.add(new AddOnWrapper(ao, AddOnWrapper.Status.installed));

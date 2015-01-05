@@ -38,6 +38,11 @@ public class InstalledAddOnsTableModel extends AbstractMultipleOptionsTableModel
 		""};
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
+
+    /**
+     * The column in the table model that allows to get the {@code AddOnWrapper} of a given row.
+     */
+    public static final int COLUMN_ADD_ON_WRAPPER = -1;
     
 	private List <AddOnWrapper> addOns = new ArrayList<>();
     
@@ -92,6 +97,8 @@ public class InstalledAddOnsTableModel extends AbstractMultipleOptionsTableModel
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
+        case COLUMN_ADD_ON_WRAPPER:
+             return getElement(rowIndex);
         case 0:
             return getElement(rowIndex).getAddOn().getName();
         case 1:
@@ -117,17 +124,34 @@ public class InstalledAddOnsTableModel extends AbstractMultipleOptionsTableModel
     
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 3) {
-            if (aValue instanceof Boolean) {
-                getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
-                this.fireTableCellUpdated(rowIndex, columnIndex);
-            }
+        if (columnIndex != 3) {
+            return;
+        }
+
+        AddOnWrapper addOnWrapper = getElement(rowIndex);
+        if (Status.failed_uninstallation == addOnWrapper.getStatus()) {
+            return;
+        }
+
+        if (aValue instanceof Boolean) {
+            addOnWrapper.setEnabled(((Boolean) aValue).booleanValue());
+            this.fireTableCellUpdated(rowIndex, columnIndex);
         }
     }
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-    	if (columnIndex == 3 && getElement(rowIndex).getProgress() == 0) {
+        if (columnIndex != 3) {
+            return false;
+        }
+
+        AddOnWrapper addOnWrapper = getElement(rowIndex);
+        if (Status.failed_uninstallation == addOnWrapper.getStatus()) {
+            // Do not allow to reselect failed uninstallations...
+            return false;
+        }
+
+        if (addOnWrapper.getProgress() == 0) {
     		// Its the 'enabled' checkbox, and no download is in progress
     		return true;
     	}
