@@ -21,8 +21,10 @@ package org.zaproxy.zap.extension.lang;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Enumeration;
 import java.util.regex.Pattern;
@@ -70,8 +72,9 @@ public final class LangImporter {
 						if (includedFilesPattern.matcher(name).find()) {
 							langFileCount++;
 							
+							Path outputFile = Paths.get(Constant.getZapInstall(), name);
 							try (BufferedOutputStream bos = new BufferedOutputStream(
-										new FileOutputStream(name),
+										Files.newOutputStream(outputFile),
 										buffer.length)) {
 			
 								while ((size = bis.read(buffer, 0, buffer.length)) != -1) {
