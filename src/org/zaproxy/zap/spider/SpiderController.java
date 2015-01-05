@@ -186,7 +186,7 @@ public class SpiderController implements SpiderParserListener {
 			}
 		}
 		// Create and submit the new task
-		SpiderTask task = new SpiderTask(spider, uri, 0, method);
+		SpiderTask task = new SpiderTask(spider, null, uri, 0, method);
 		spider.submitTask(task);
 		// Add the uri to the found list
 		spider.notifyListenersFoundURI(uri.toString(), method, FetchStatus.SEED);
@@ -289,7 +289,7 @@ public class SpiderController implements SpiderParserListener {
 		spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
 
 		// Submit the task
-		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.GET);
+		SpiderTask task = new SpiderTask(spider, responseMessage.getRequestHeader().getURI(), uriV, depth, HttpRequestHeader.GET);
 		spider.submitTask(task);
 	}
 
@@ -338,7 +338,7 @@ public class SpiderController implements SpiderParserListener {
 		spider.notifyListenersFoundURI(uri, HttpRequestHeader.POST, FetchStatus.VALID);
 
 		// Submit the task
-		SpiderTask task = new SpiderTask(spider, uriV, depth, HttpRequestHeader.POST, requestBody);
+		SpiderTask task = new SpiderTask(spider, responseMessage.getRequestHeader().getURI(), uriV, depth, HttpRequestHeader.POST, requestBody);
 		spider.submitTask(task);
 
 	}

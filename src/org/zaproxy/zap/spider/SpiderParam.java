@@ -85,6 +85,14 @@ public class SpiderParam extends AbstractParam {
 
     private static final String SHOW_ADV_DIALOG = "spider.advDialog";
 
+	/**
+	 * Configuration key to write/read the {@code sendRefererHeader} flag.
+	 * 
+	 * @since 2.4.0
+	 * @see #sendRefererHeader
+	 */
+	private static final String SPIDER_SENDER_REFERER_HEADER = "spider.sendRefererHeader";
+
 
 	/**
 	 * This option is used to define how the parameters are used when checking if an URI was already visited.
@@ -153,6 +161,18 @@ public class SpiderParam extends AbstractParam {
 
 	/** The log. */
 	private static final Logger log = Logger.getLogger(SpiderParam.class);
+
+	/**
+	 * Flag that indicates if the 'Referer' header should be sent while spidering.
+	 * <p>
+	 * Default value is {@code true}.
+	 * 
+	 * @since 2.4.0
+	 * @see #SPIDER_SENDER_REFERER_HEADER
+	 * @see #isSendRefererHeader()
+	 * @see #setSendRefererHeader(boolean)
+	 */
+	private boolean sendRefererHeader = true;
 
 	/**
 	 * Instantiates a new spider param.
@@ -268,6 +288,13 @@ public class SpiderParam extends AbstractParam {
 		    this.confirmRemoveDomainAlwaysInScope = getConfig().getBoolean(CONFIRM_REMOVE_DOMAIN_ALWAYS_IN_SCOPE, true);
 		} catch (ConversionException e) {
 		    log.error("Error while loading the confirm \"domain always in scope\" remove option: " + e.getMessage(), e);
+		}
+
+		try {
+			this.sendRefererHeader = getConfig().getBoolean(SPIDER_SENDER_REFERER_HEADER, true);
+		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+			sendRefererHeader = true;
 		}
 	}
 
@@ -829,6 +856,31 @@ public class SpiderParam extends AbstractParam {
 	public void setShowAdvancedDialog(boolean showAdvancedDialog) {
 		this.showAdvancedDialog = showAdvancedDialog;
         getConfig().setProperty(SHOW_ADV_DIALOG, this.showAdvancedDialog);
+	}
+
+	/**
+	 * Tells whether or not the "Referer" header should be sent in spider requests.
+	 *
+	 * @return {@code true} if the "Referer" header should be sent in spider requests, {@code false} otherwise
+	 * @since 2.4.0
+	 */
+	public boolean isSendRefererHeader() {
+		return sendRefererHeader;
+	}
+
+	/**
+	 * Sets whether or not the "Referer" header should be sent in spider requests.
+	 *
+	 * @param send {@code true} if the "Referer" header should be sent in spider requests, {@code false} otherwise
+	 * @since 2.4.0
+	 */
+	public void setSendRefererHeader(boolean send) {
+		if (send == sendRefererHeader) {
+			return;
+		}
+
+		this.sendRefererHeader = send;
+		getConfig().setProperty(SPIDER_SENDER_REFERER_HEADER, Boolean.valueOf(this.sendRefererHeader));
 	}
 
 }

@@ -80,6 +80,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JCheckBox parseSVNEntries = null;
 	private JCheckBox parseGit = null;
 	private JCheckBox handleODataSpecificParameters = null;
+	private JCheckBox chkSendRefererHeader;
 	private DomainsAlwaysInScopeMultipleOptionsPanel domainsAlwaysInScopePanel;
 	private DomainsAlwaysInScopeTableModel domainsAlwaysInScopeTableModel;
 
@@ -120,150 +121,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			}
 			panelSpider.setName("");
 
-			// Prepare the GridBagConstraints, defining the position/layout of elements
-			GridBagConstraints maxDepthSliderGridBag = new GridBagConstraints();
-			GridBagConstraints maxDepthLabelGridBag = new GridBagConstraints();
-			GridBagConstraints noThreadsSliderGridBag = new GridBagConstraints();
-			GridBagConstraints noThreadsLabelGridBag = new GridBagConstraints();
-			GridBagConstraints domainsLabelGridBag = new GridBagConstraints();
-            GridBagConstraints domainsPanelGridBag = new GridBagConstraints();
-			GridBagConstraints processFormGridBag = new GridBagConstraints();
-			GridBagConstraints postFormGridBag = new GridBagConstraints();
-			GridBagConstraints useCookiesGridBag = new GridBagConstraints();
-			GridBagConstraints parseCommentsGridBag = new GridBagConstraints();
-			GridBagConstraints parseRobotsTxtGridBag = new GridBagConstraints();
-			GridBagConstraints parseSitemapXmlGridBag = new GridBagConstraints();
-			GridBagConstraints parseSVNEntriesGridBag = new GridBagConstraints();
-			GridBagConstraints parseGitGridBag = new GridBagConstraints();
-			GridBagConstraints handleODataSpecificParametersGridBag = new GridBagConstraints();
-			
-			GridBagConstraints handleParametersGridBag = new GridBagConstraints();
-			GridBagConstraints handleParametersLabelGridBag = new GridBagConstraints();
-
-			maxDepthLabelGridBag.gridx = 0;
-			maxDepthLabelGridBag.gridy = 0;
-			maxDepthLabelGridBag.weightx = 1.0D;
-			maxDepthLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
-			maxDepthLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
-			maxDepthLabelGridBag.insets = new Insets(2, 2, 2, 2);
-
-			maxDepthSliderGridBag.gridx = 0;
-			maxDepthSliderGridBag.gridy = 1;
-			maxDepthSliderGridBag.weightx = 1.0;
-			maxDepthSliderGridBag.fill = GridBagConstraints.HORIZONTAL;
-			maxDepthSliderGridBag.anchor = GridBagConstraints.NORTHWEST;
-			maxDepthSliderGridBag.insets = new Insets(2, 2, 2, 2);
-
-			noThreadsLabelGridBag.gridx = 0;
-			noThreadsLabelGridBag.gridy = 2;
-			noThreadsLabelGridBag.weightx = 1.0D;
-			noThreadsLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
-			noThreadsLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
-			noThreadsLabelGridBag.insets = new Insets(2, 2, 2, 2);
-
-			noThreadsSliderGridBag.gridx = 0;
-			noThreadsSliderGridBag.gridy = 3;
-			noThreadsSliderGridBag.weightx = 1.0;
-			noThreadsSliderGridBag.fill = GridBagConstraints.HORIZONTAL;
-			noThreadsSliderGridBag.anchor = GridBagConstraints.NORTHWEST;
-			noThreadsSliderGridBag.insets = new Insets(2, 2, 2, 2);
-
-			domainsLabelGridBag.gridx = 0;
-			domainsLabelGridBag.gridy = 4;
-			domainsLabelGridBag.weightx = 1.0D;
-			domainsLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
-			domainsLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
-			domainsLabelGridBag.insets = new Insets(2, 2, 2, 2);
-
-			domainsPanelGridBag.gridx = 0;
-			domainsPanelGridBag.gridy = 5;
-			domainsPanelGridBag.weightx = 1.0;
-			domainsPanelGridBag.weighty = 1.0;
-			domainsPanelGridBag.fill = GridBagConstraints.BOTH;
-			domainsPanelGridBag.anchor = GridBagConstraints.NORTHWEST;
-			domainsPanelGridBag.insets = new Insets(2, 2, 2, 2);
-
-			handleParametersLabelGridBag.gridx = 0;
-			handleParametersLabelGridBag.gridy = 6;
-			handleParametersLabelGridBag.weightx = 1.0D;
-			handleParametersLabelGridBag.fill = GridBagConstraints.HORIZONTAL;
-			handleParametersLabelGridBag.anchor = GridBagConstraints.NORTHWEST;
-			handleParametersLabelGridBag.insets = new Insets(2, 2, 2, 2);
-
-
-			handleParametersGridBag.gridx = 0;
-			handleParametersGridBag.gridy = 7;
-			handleParametersGridBag.weightx = 1.0;
-			handleParametersGridBag.fill = GridBagConstraints.HORIZONTAL;
-			handleParametersGridBag.anchor = GridBagConstraints.NORTHWEST;
-			handleParametersGridBag.insets = new Insets(2, 2, 2, 2);
-
-			
-			processFormGridBag.gridx = 0;
-			processFormGridBag.gridy = 8;
-			processFormGridBag.weightx = 1.0;
-			processFormGridBag.fill = GridBagConstraints.HORIZONTAL;
-			processFormGridBag.anchor = GridBagConstraints.WEST;
-			processFormGridBag.insets = new Insets(2, 2, 2, 2);
-
-			postFormGridBag.gridx = 0;
-			postFormGridBag.gridy = 9;
-			postFormGridBag.weightx = 1.0;
-			postFormGridBag.fill = GridBagConstraints.HORIZONTAL;
-			postFormGridBag.anchor = GridBagConstraints.WEST;
-			postFormGridBag.insets = new Insets(2, 15, 2, 2);
-
-			useCookiesGridBag.gridx = 0;
-			useCookiesGridBag.gridy = 10;
-			useCookiesGridBag.weightx = 1.0;
-			useCookiesGridBag.fill = GridBagConstraints.HORIZONTAL;
-			useCookiesGridBag.anchor = GridBagConstraints.NORTHWEST;
-			useCookiesGridBag.insets = new Insets(2, 2, 2, 2);
-
-			parseCommentsGridBag.gridx = 0;
-			parseCommentsGridBag.gridy =11;
-			parseCommentsGridBag.weightx = 1.0;
-			parseCommentsGridBag.fill = GridBagConstraints.HORIZONTAL;
-			parseCommentsGridBag.anchor = GridBagConstraints.NORTHWEST;
-			parseCommentsGridBag.insets = new Insets(2, 2, 2, 2);
-
-			parseRobotsTxtGridBag.gridx = 0;
-			parseRobotsTxtGridBag.gridy = 12;
-			parseRobotsTxtGridBag.weightx = 1.0;
-			parseRobotsTxtGridBag.fill = GridBagConstraints.HORIZONTAL;
-			parseRobotsTxtGridBag.anchor = GridBagConstraints.NORTHWEST;
-			parseRobotsTxtGridBag.insets = new Insets(2, 2, 2, 2);
-
-			parseSitemapXmlGridBag.gridx = 0;
-			parseSitemapXmlGridBag.gridy = 13;
-			parseSitemapXmlGridBag.weightx = 1.0;
-			parseSitemapXmlGridBag.fill = GridBagConstraints.HORIZONTAL;
-			parseSitemapXmlGridBag.anchor = GridBagConstraints.NORTHWEST;
-			parseSitemapXmlGridBag.insets = new Insets(2, 2, 2, 2);
-			
-			parseSVNEntriesGridBag.gridx = 0;
-			parseSVNEntriesGridBag.gridy = 14;
-			parseSVNEntriesGridBag.weightx = 1.0;
-			parseSVNEntriesGridBag.fill = GridBagConstraints.HORIZONTAL;
-			parseSVNEntriesGridBag.anchor = GridBagConstraints.NORTHWEST;
-			parseSVNEntriesGridBag.insets = new Insets(2, 2, 2, 2);
-
-			parseGitGridBag.gridx = 0;
-			parseGitGridBag.gridy = 15;
-			parseGitGridBag.weightx = 1.0;
-			parseGitGridBag.fill = GridBagConstraints.HORIZONTAL;
-			parseGitGridBag.anchor = GridBagConstraints.NORTHWEST;
-			parseGitGridBag.insets = new Insets(2, 2, 2, 2);
-
-			handleODataSpecificParametersGridBag.gridx = 0;
-			handleODataSpecificParametersGridBag.gridy = 16;
-			handleODataSpecificParametersGridBag.weightx = 1.0;
-			handleODataSpecificParametersGridBag.fill = GridBagConstraints.HORIZONTAL;
-			handleODataSpecificParametersGridBag.anchor = GridBagConstraints.NORTHWEST;
-			handleODataSpecificParametersGridBag.insets = new Insets(2, 2, 2, 2);
-
-			
-
 			// Prepare the necessary labels
 			JLabel domainsLabel = new JLabel();
 			JLabel noThreadsLabel = new JLabel();
@@ -277,23 +134,38 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 
 			JPanel innerPanel = new JPanel(new GridBagLayout());
 
+			GridBagConstraints gbc = new GridBagConstraints();
+			gbc.gridx = 0;
+			gbc.weightx = 1.0D;
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.anchor = GridBagConstraints.NORTHWEST;
+			Insets insets = new Insets(2, 2, 2, 2);
+			gbc.insets = insets;
+
 			// Add the components on the panel
-			innerPanel.add(maxDepthLabel, maxDepthLabelGridBag);
-			innerPanel.add(getSliderMaxDepth(), maxDepthSliderGridBag);
-			innerPanel.add(noThreadsLabel, noThreadsLabelGridBag);
-			innerPanel.add(getSliderThreads(), noThreadsSliderGridBag);
-			innerPanel.add(domainsLabel, domainsLabelGridBag);
-			innerPanel.add(getDomainsAlwaysInScopePanel(), domainsPanelGridBag);
-			innerPanel.add(getChkProcessForm(), processFormGridBag);
-			innerPanel.add(getChkPostForm(), postFormGridBag);
-			innerPanel.add(getChkParseComments(), parseCommentsGridBag);
-			innerPanel.add(getChkParseRobotsTxt(), parseRobotsTxtGridBag);
-			innerPanel.add(getChkParseSitemapXml(), parseSitemapXmlGridBag);
-			innerPanel.add(getChkParseSVNEntries(), parseSVNEntriesGridBag);
-			innerPanel.add(getChkParseGit(), parseGitGridBag);
-			innerPanel.add(handleParametersLabel, handleParametersLabelGridBag);
-			innerPanel.add(getComboHandleParameters(), handleParametersGridBag);
-			innerPanel.add(getHandleODataSpecificParameters(), handleODataSpecificParametersGridBag);
+			innerPanel.add(maxDepthLabel, gbc);
+			innerPanel.add(getSliderMaxDepth(), gbc);
+			innerPanel.add(noThreadsLabel, gbc);
+			innerPanel.add(getSliderThreads(), gbc);
+			innerPanel.add(domainsLabel, gbc);
+			gbc.fill = GridBagConstraints.BOTH;
+			gbc.weighty = 1.0D;
+			innerPanel.add(getDomainsAlwaysInScopePanel(), gbc);
+			gbc.fill = GridBagConstraints.HORIZONTAL;
+			gbc.weighty = 0;
+			innerPanel.add(getChkSendRefererHeader(), gbc);
+			innerPanel.add(handleParametersLabel, gbc);
+			innerPanel.add(getComboHandleParameters(), gbc);
+			innerPanel.add(getChkProcessForm(), gbc);
+			insets.left = 15;
+			innerPanel.add(getChkPostForm(), gbc);
+			insets.left = 2;
+			innerPanel.add(getChkParseComments(), gbc);
+			innerPanel.add(getChkParseRobotsTxt(), gbc);
+			innerPanel.add(getChkParseSitemapXml(), gbc);
+			innerPanel.add(getChkParseSVNEntries(), gbc);
+			innerPanel.add(getChkParseGit(), gbc);
+			innerPanel.add(getHandleODataSpecificParameters(), gbc);
 
 			JScrollPane scrollPane = new JScrollPane(innerPanel);
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -313,6 +185,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getDomainsAlwaysInScopeTableModel().setDomainsAlwaysInScope(param.getDomainsAlwaysInScope());
 		getDomainsAlwaysInScopePanel().setRemoveWithoutConfirmation(param.isConfirmRemoveDomainAlwaysInScope());
 		getChkProcessForm().setSelected(param.isProcessForm());
+		getChkSendRefererHeader().setSelected(param.isSendRefererHeader());
 		getChkPostForm().setSelected(param.isPostForm());
 		getChkParseComments().setSelected(param.isParseComments());
 		getChkParseRobotsTxt().setSelected(param.isParseRobotsTxt());
@@ -337,6 +210,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setThreadCount(getSliderThreads().getValue());
 		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());
 		param.setConfirmRemoveDomainAlwaysInScope(getDomainsAlwaysInScopePanel().isRemoveWithoutConfirmation());
+		param.setSendRefererHeader(getChkSendRefererHeader().isSelected());
 		param.setProcessForm(getChkProcessForm().isSelected());
 		param.setPostForm(getChkPostForm().isSelected());
 		param.setParseComments(getChkParseComments().isSelected());
@@ -379,6 +253,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			sliderThreads = new PositiveValuesSlider(Constant.MAX_THREADS_PER_SCAN);
 		}
 		return sliderThreads;
+	}
+
+	private JCheckBox getChkSendRefererHeader() {
+		if (chkSendRefererHeader == null) {
+			chkSendRefererHeader = new JCheckBox(Constant.messages.getString("spider.options.label.sendRefererHeader"));
+		}
+		return chkSendRefererHeader;
 	}
 
 	/**
