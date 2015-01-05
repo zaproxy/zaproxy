@@ -62,7 +62,6 @@ public final class CoreFunctionality {
 		return builtInExtensions;
 	}
 
-	@SuppressWarnings("deprecation")
 	private static synchronized void createExtensions() {
 		if (builtInExtensions == null) {
 			ArrayList<Extension> extensions = new ArrayList<>();
@@ -78,7 +77,6 @@ public final class CoreFunctionality {
 			extensions.add(new org.zaproxy.zap.extension.api.ExtensionAPI());
 			extensions.add(new org.zaproxy.zap.extension.ascan.ExtensionActiveScan());
 			extensions.add(new org.zaproxy.zap.extension.authentication.ExtensionAuthentication());
-			extensions.add(new org.zaproxy.zap.extension.auth.ExtensionAuth());
 			extensions.add(new org.zaproxy.zap.extension.authorization.ExtensionAuthorization());
 			extensions.add(new org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate());
 			extensions.add(new org.zaproxy.zap.extension.brk.ExtensionBreak());
@@ -106,7 +104,6 @@ public final class CoreFunctionality {
 			extensions.add(new org.zaproxy.zap.extension.multiFuzz.impl.http.ExtensionRegister());
 			extensions.add(new org.zaproxy.zap.extension.params.ExtensionParams());
 			extensions.add(new org.zaproxy.zap.extension.pscan.ExtensionPassiveScan());
-			extensions.add(new org.zaproxy.zap.extension.reauth.ExtensionReauth());
 			extensions.add(new org.zaproxy.zap.extension.script.ExtensionScript());
 			extensions.add(new org.zaproxy.zap.extension.search.ExtensionSearch());
 			extensions.add(new org.zaproxy.zap.extension.sessions.ExtensionSessionManagement());
