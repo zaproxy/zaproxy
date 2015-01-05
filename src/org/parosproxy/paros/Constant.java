@@ -51,6 +51,7 @@
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/08/14 Issue 1300: Add-ons show incorrect language when English is selected on non English locale
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
+// ZAP: 2015/01/04 Issue 1388: Not all translated files are updated when "zaplang" package is imported
 
 package org.parosproxy.paros;
 
@@ -138,7 +139,21 @@ public final class Constant {
     public static final String FOLDER_FILTER = "filter";
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
+
+    /**
+     * Prefix (file name) of Messages.properties files.
+     * 
+     * @see #MESSAGES_EXTENSION
+     */
     public static final String MESSAGES_PREFIX = "Messages";
+
+    /**
+     * Extension (with dot) of Messages.properties files.
+     * 
+     * @see #MESSAGES_PREFIX
+     * @since 2.4.0
+     */
+    public static final String MESSAGES_EXTENSION = ".properties";
 
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 

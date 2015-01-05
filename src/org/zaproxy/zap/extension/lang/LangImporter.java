@@ -25,7 +25,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.text.MessageFormat;
 import java.util.Enumeration;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -35,21 +34,21 @@ import javax.swing.JOptionPane;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.LocaleUtils;
 
-public class LangImporter {
+public final class LangImporter {
 	
 	private static Logger logger = Logger.getLogger(LangImporter.class);
-	
-	private static final String FILENAME_PATTERN = "Messages_([a-z]{2}_[A-Z]{2})\\.properties$";
 	
 	private static final String MSG_SUCCESS = "options.lang.importer.dialog.message.success";
 	private static final String MSG_ERROR = "options.lang.importer.dialog.message.error";
 	private static final String MSG_FILE_NOT_FOUND = "options.lang.importer.dialog.message.filenotfound";
 	
+	private LangImporter() {
+	}
 	
 	public static String importLanguagePack(String languagePack) {
-		Matcher matcher = null;
-		Pattern pattern = Pattern.compile(FILENAME_PATTERN);
+		Pattern messagesFilesPattern = LocaleUtils.createMessagesPropertiesFilePattern();
 		
 		int langFileCount = 0;
 		String message = "";
@@ -68,8 +67,7 @@ public class LangImporter {
 						byte[] buffer = new byte[2048];
 						String name = zipEntry.getName();
 						
-						matcher = pattern.matcher(name);
-						if (matcher.find()) {
+						if (messagesFilesPattern.matcher(name).find()) {
 							langFileCount++;
 							
 							try (BufferedOutputStream bos = new BufferedOutputStream(
