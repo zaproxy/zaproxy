@@ -577,6 +577,10 @@ public class AlertPanel extends AbstractPanel {
     }
 
 	private void setMessage(HttpMessage msg, String highlight) {
+        if (msg == null) {
+            return;
+        }
+
 	    HttpPanel requestPanel = getView().getRequestPanel();
 	    HttpPanel responsePanel = getView().getResponsePanel();
 	    
