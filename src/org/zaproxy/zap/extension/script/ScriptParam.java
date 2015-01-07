@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
@@ -45,12 +44,17 @@ public class ScriptParam extends AbstractParam {
     private static final String SCRIPT_TYPE_KEY = "type";
     private static final String SCRIPT_FILE_KEY = "file";
     private static final String SCRIPT_ENABLED_KEY = "enabled";
+    private static final String SCRIPT_DIRS = "dirs";
+    private static final String SCRIPT_CONFIRM_REMOVE_DIR = "confRemdir";
+    
 
     private static final Logger logger = Logger.getLogger(ScriptParam.class);
 
 	private String defaultScript = null;
 	private String defaultDir = null;
 	private Set<ScriptWrapper> scripts;
+	private List<File> scriptDirs;
+	private boolean confirmRemoveDir = true;
 
 	public ScriptParam() {
 	}
@@ -65,32 +69,52 @@ public class ScriptParam extends AbstractParam {
             this.scripts = new HashSet<>(fields.size());
             List<String> tempListNames = new ArrayList<>(fields.size());
             for (HierarchicalConfiguration sub : fields) {
-                String name = sub.getString(SCRIPT_NAME_KEY, "");
-                if (!"".equals(name) && !tempListNames.contains(name)) {
-                    tempListNames.add(name);
-                    
-                    File file = new File(sub.getString(SCRIPT_FILE_KEY));
-                    if ( ! file.exists()) {
-                        logger.error("Script '" + file.getAbsolutePath() + "' does not exist");
-                    	continue;
-                    }
-                    
-                    ScriptWrapper script = new ScriptWrapper(
-                        sub.getString(SCRIPT_NAME_KEY),
-                        sub.getString(SCRIPT_DESC_KEY),
-                        sub.getString(SCRIPT_ENGINE_KEY),
-                        sub.getString(SCRIPT_TYPE_KEY),
-                        sub.getBoolean(SCRIPT_ENABLED_KEY),
-                        file);
-                    
-                    script.setLoadOnStart(true);	// Because it was saved ;)
-                    
-                    scripts.add(script);
-                }
+				String name = sub.getString(SCRIPT_NAME_KEY, "");
+                try {
+					if (!"".equals(name) && !tempListNames.contains(name)) {
+					    tempListNames.add(name);
+					    
+					    File file = new File(sub.getString(SCRIPT_FILE_KEY));
+					    if ( ! file.exists()) {
+					        logger.error("Script '" + file.getAbsolutePath() + "' does not exist");
+					    	continue;
+					    }
+					    
+					    ScriptWrapper script = new ScriptWrapper(
+					        sub.getString(SCRIPT_NAME_KEY),
+					        sub.getString(SCRIPT_DESC_KEY),
+					        sub.getString(SCRIPT_ENGINE_KEY),
+					        sub.getString(SCRIPT_TYPE_KEY),
+					        sub.getBoolean(SCRIPT_ENABLED_KEY),
+					        file);
+					    
+					    script.setLoadOnStart(true);	// Because it was saved ;)
+					    
+					    scripts.add(script);
+					}
+				} catch (Exception e) {
+		            logger.error("Error while loading the script: " + name, e);
+				}
             }
-        } catch (ConversionException e) {
-            logger.error("Error while loading the auto tag scanners: " + e.getMessage(), e);
+        } catch (Exception e) {
+            logger.error("Error while loading the scripts: " + e.getMessage(), e);
         }
+        
+        try {
+        	this.scriptDirs = new ArrayList<File>();
+        	for (Object dirName : getConfig().getList(SCRIPT_DIRS)) {
+        		File f = new File((String)dirName);
+        		if (! f.exists() || ! f.isDirectory()) {
+        			logger.error("Not a valid script directory: " + dirName);
+        		} else {
+        			scriptDirs.add(f);
+        		}
+        	}
+        	
+        } catch (Exception e) {
+            logger.error("Error while loading the script dirs: " + e.getMessage(), e);
+        }
+        confirmRemoveDir = getConfig().getBoolean(SCRIPT_CONFIRM_REMOVE_DIR, true);
 
 	}
 	
@@ -123,6 +147,29 @@ public class ScriptParam extends AbstractParam {
 	public Set<ScriptWrapper> getScripts() {
 		return scripts;
 	}
+	
+	public void addScriptDir(File dir) {
+		this.scriptDirs.add(dir);
+		saveScriptDirs();
+	}
+
+	public void removeScriptDir(File dir) {
+		this.scriptDirs.remove(dir);
+		saveScriptDirs();
+	}
+	
+	private void saveScriptDirs() {
+		getConfig().setProperty(SCRIPT_DIRS, this.scriptDirs);
+	}
+
+	public List<File> getScriptDirs() {
+		return scriptDirs;
+	}
+
+	public void setScriptDirs(List<File> scriptDirs) {
+		this.scriptDirs = scriptDirs;
+		saveScriptDirs();
+	}
 
 	public String getDefaultScript() {
 		return defaultScript;
@@ -142,5 +189,13 @@ public class ScriptParam extends AbstractParam {
 		getConfig().setProperty(PARAM_DEFAULT_DIR, this.defaultDir);
 	}
 
+	public void setConfirmRemoveDir(boolean confirmRemoveDir) {
+		this.confirmRemoveDir = confirmRemoveDir;
+		getConfig().setProperty(SCRIPT_CONFIRM_REMOVE_DIR, this.confirmRemoveDir);
+	}
+
+	public boolean isConfirmRemoveDir() {
+		return confirmRemoveDir;
+	}
 	
 }
