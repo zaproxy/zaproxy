@@ -83,6 +83,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private ScriptEngineManager mgr = new ScriptEngineManager();
 	private ScriptParam scriptParam = null;
+	private OptionsScriptPanel optionsScriptPanel = null;
 
 	private ScriptTreeModel treeModel = null;
 	private List <ScriptEngineWrapper> engineWrappers = new ArrayList<>();
@@ -151,7 +152,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	    extensionHook.addCommandLine(getCommandLineArguments());
 	    
-		if (! View.isInitialised()) {
+		if (View.isInitialised()) {
+	        extensionHook.getHookView().addOptionPanel(getOptionsScriptPanel());
+		} else {
         	// No GUI so add stdout as a writer
         	this.addWriter(new PrintWriter(System.out));
 		}
@@ -160,6 +163,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	}
 	
+	private OptionsScriptPanel getOptionsScriptPanel() {
+		if (optionsScriptPanel == null) {
+			optionsScriptPanel = new OptionsScriptPanel(this);
+		}
+		return optionsScriptPanel;
+	}
+
 	private ProxyListenerScript getProxyListener() {
 		if (this.proxyListener == null) {
 			this.proxyListener = new ProxyListenerScript(this);
@@ -453,7 +463,142 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			}
 		}
 		this.loadTemplates();
+		
+		for (File dir : this.getScriptParam().getScriptDirs()) {
+			// Load the scripts from subdirectories of each directory configured
+			int numAdded = addScriptsFromDir(dir);
+			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
+		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
+	}
+	
+	public int addScriptsFromDir (File dir) {
+		logger.debug("Adding scripts from dir: " + dir.getAbsolutePath());
+		int addedScripts = 0;
+		for (ScriptType type : this.getScriptTypes()) {
+			File locDir = new File(dir, type.getName());
+			if (locDir.exists()) {
+				for (File f : locDir.listFiles()) {
+					String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
+					String engineName = this.getEngineNameForExtension(ext);
+					
+					if (engineName != null) {
+						try {
+							if (f.canWrite()) {
+								String scriptName = this.getUniqueScriptName(f.getName(), ext);
+								logger.debug("Loading script " + scriptName);
+								ScriptWrapper sw = new ScriptWrapper(scriptName, "", 
+										this.getEngineWrapper(engineName), type, false, f);
+								this.loadScript(sw);
+								this.addScript(sw, false);
+							} else {
+								// Cant write so add as a template
+								String scriptName = this.getUniqueTemplateName(f.getName(), ext);
+								logger.debug("Loading script " + scriptName);
+								ScriptWrapper sw = new ScriptWrapper(scriptName, "", 
+										this.getEngineWrapper(engineName), type, false, f);
+								this.loadScript(sw);
+								this.addTemplate(sw, false);
+							}
+							addedScripts++;
+						} catch (Exception e) {
+							logger.error(e.getMessage(), e);
+						}
+					} else {
+						logger.debug("Ignoring " + f.getName());
+					}
+				}
+			}
+		}
+		return addedScripts;
+	}
+
+	public int removeScriptsFromDir (File dir) {
+		logger.debug("Removing scripts from dir: " + dir.getAbsolutePath());
+		int removedScripts = 0;
+		
+		for (ScriptType type : this.getScriptTypes()) {
+			
+			
+			File locDir = new File(dir, type.getName());
+			if (locDir.exists()) {
+				// Loop through all of the known scripts and templates 
+				// removing any from this directory
+				for (ScriptWrapper sw : this.getScripts(type)) {
+					if (sw.getFile().getParentFile().equals(locDir)) {
+						this.removeScript(sw);
+						removedScripts++;
+					}
+				}
+				for (ScriptWrapper sw : this.getTemplates(type)) {
+					if (sw.getFile().getParentFile().equals(locDir)) {
+						this.removeTemplate(sw);
+						removedScripts++;
+					}
+				}
+			}
+		}
+		return removedScripts;
+	}
+	
+
+	public int getScriptCount(File dir) {
+		int scripts = 0;
+		
+		for (ScriptType type : this.getScriptTypes()) {
+			File locDir = new File(dir, type.getName());
+			if (locDir.exists()) {
+				for (File f : locDir.listFiles()) {
+					String ext = f.getName().substring(f.getName().lastIndexOf(".") + 1);
+					String engineName = this.getEngineNameForExtension(ext);
+					if (engineName != null) {
+						scripts++;
+					}
+				}
+			}
+		}
+		return scripts;
+	}
+
+
+	/*
+	 * Returns a unique name for the given script name
+	 */
+	private String getUniqueScriptName(String name, String ext) {
+		if (this.getScript(name) == null) {
+			// Its unique
+			return name;
+		}
+		// Its not unique, add a suitable index...
+		String stub = name.substring(0, name.length() - ext.length() - 1);
+		int index = 1;
+		do {
+			index++;
+			name = stub + "(" + index + ")." + ext;
+		}
+		while (this.getScript(name) != null);
+		
+		return name;
+	}
+
+	/*
+	 * Returns a unique name for the given template name
+	 */
+	private String getUniqueTemplateName(String name, String ext) {
+		if (this.getTreeModel().getTemplate(name) == null) {
+			// Its unique
+			return name;
+		}
+		// Its not unique, add a suitable index...
+		String stub = name.substring(0, name.length() - ext.length() - 1);
+		int index = 1;
+		do {
+			index++;
+			name = stub + "(" + index + ")." + ext;
+		}
+		while (this.getTreeModel().getTemplate(name) != null);
+		
+		return name;
 	}
 
 	private void loadTemplates() {
@@ -562,6 +707,17 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			ScriptWrapper script = (ScriptWrapper) node.getUserObject();
 			refreshScript(script);
 			scripts.add((ScriptWrapper) node.getUserObject());
+		}
+		return scripts;
+	}
+	
+	public List<ScriptWrapper> getTemplates(ScriptType type) {
+		List<ScriptWrapper> scripts = new ArrayList<>();
+		if (type == null) {
+			return scripts;
+		}
+		for (ScriptWrapper script : this.getTreeModel().getTemplates(type)) {
+			scripts.add(script);
 		}
 		return scripts;
 	}
