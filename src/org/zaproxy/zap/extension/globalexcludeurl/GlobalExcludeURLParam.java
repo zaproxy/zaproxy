@@ -64,76 +64,76 @@ public class GlobalExcludeURLParam extends AbstractParam {
 			{
 	    		"^.*\\.(gif|jpe?g|png|ico|icns|bmp)$",
 	    	    "Extension - Image (ends with .extension)",
-	            "true"
+	            "false"
 	  	    }, {
 				"^.*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
 				"Extension - Audio/Video (ends with .extension)",
-				"true"
+				"false"
 			}, {
 				"^.*\\.(pdf|docx?|xlsx?|pptx?)$",
 				"Extension - PDF & Office (ends with .extension)",
-				"true"
+				"false"
 			}, {
 				"^.*\\.(css|js)$",
 				"Extension - Stylesheet, JavaScript (ends with .extension)",
-				"true"
+				"false"
 			}, {
 				"^.*\\.(sw[fa]|flv)$",
 				"Extension - Flash & related (ends with .extension)",
-				"true"
+				"false"
 			}, {
 				"^[^\\?]*\\.(gif|jpe?g|png|ico|icns|bmp)\\?.*$",
 				"ExtParam - Image (extension plus ?params=values)",
-				"true"
+				"false"
 			}, {
 				"^[^\\?]*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
 				"ExtParam - Audio/Video (extension plus ?params=values)",
-				"true"
+				"false"
 			}, {
 				"^[^\\?]*\\.(pdf|docx?|xlsx?|pptx?)\\?.*$",
 				"ExtParam - PDF & Office (extension plus ?params=values)",
-				"true"
+				"false"
 			}, {
 				"^[^\\?]*\\.(css|js)\\?.*$",
 				"ExtParam - Stylesheet, JavaScript (extension plus ?params=values)",
-				"true"
+				"false"
 			}, {
 				"^[^\\?]*\\.(sw[fa]|flv)\\?.*$",
 				"ExtParam - Flash & related (extension plus ?params=values)",
-				"true"
+				"false"
 			}, {
 				"^[^\\?]*/(WebResource|ScriptResource)\\.axd\\?d=.*$",
 				"ExtParam - .NET adx resources (SR/WR.adx?d=)",
-				"true"
+				"false"
 			}, {
 				"^https?://api\\.bing\\.com/qsml\\.aspx?query=.*$",
 				"Site - Bing API queries",
-				"true"
+				"false"
 			}, {
 				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
 				"Site - Google malware detector updates",
-				"true"
+				"false"
 			}, {
 				"^https?://([^/])*\\.?lastpass\\.com",
 				"Site - Lastpass manager",
-				"true"
+				"false"
 			}, {
 				"^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
 				"Site - Mozilla Firefox browser updates",
-				"true"
+				"false"
 			}, {
 				"^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
 				"Site - Mozilla Firefox extensions phoning home",
-				"true"
+				"false"
 			}, {
 				// some of this from http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
 				"^https?://(.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
 				"Site - Microsoft Windows updates",
-				"true"
+				"false"
 			}, {
 				"^https?://clients2\\.google\\.com/service/update2/crx.*$",
 				"Site - Google Chrome extension updates",
-				"true"
+				"false"
 			}
     	};
     	
