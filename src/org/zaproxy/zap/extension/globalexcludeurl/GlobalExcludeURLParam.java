@@ -38,67 +38,119 @@ public class GlobalExcludeURLParam extends AbstractParam {
     
     private static final String ALL_TOKENS_KEY = GLOBAL_EXCLUDE_URL_BASE_KEY + ".url_list.url";
     
-    private static final String TOKEN_NAME_KEY = "regex";
-    private static final String TOKEN_ENABLED_KEY = "enabled";
+    private static final String TOKEN_REGEX_KEY = "regex";
     private static final String TOKEN_DESCRIPTION_KEY = "description";
+    private static final String TOKEN_ENABLED_KEY = "enabled";
 
     private static final String CONFIRM_REMOVE_TOKEN_KEY = GLOBAL_EXCLUDE_URL_BASE_KEY + ".confirmRemoveToken";
     
-    // Remember, these are regexs, so escape properly \\ vs \
-    // Also, http://regexpal.com/ for quick testing.
-    // The file formats are common types, not inclusive of all types. Remember, more == slower;
-    // complex == slower. Don't overload with every obscure image/audio/video format in existence.
-    private static final String[] DEFAULT_TOKENS_NAMES = { 
-        "^.*\\.(gif|jpe?g|png|ico|icns|bmp)$",
-        "^.*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
-        "^.*\\.(pdf|docx?|xlsx?|pptx?)$",
-        "^.*\\.(css|js)$",
-        "^.*\\.(sw[fa]|flv)$",
-        "^[^\\?]*\\.(gif|jpe?g|png|ico|icns|bmp)\\?.*$",
-        "^[^\\?]*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
-        "^[^\\?]*\\.(pdf|docx?|xlsx?|pptx?)\\?.*$",
-        "^[^\\?]*\\.(css|js)\\?.*$",
-        "^[^\\?]*\\.(sw[fa]|flv)\\?.*$",
-        "^[^\\?]*/(WebResource|ScriptResource)\\.axd\\?d=.*$",
-        "^https?://api\\.bing\\.com/qsml\\.aspx?query=.*$",
-        "^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
-        "^https?://([^/])*\\.?lastpass\\.com",
-        "^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
-        "^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
-        // some from http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
-        "^https?://(.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
-        "^https?://clients2\\.google\\.com/service/update2/crx.*$"
-    };
-
-    // XXX these must be in the same order as above - there are better ways to implement this.  
-    // XXX This will crash if array lengths not equal.
-    private static final String[] DEFAULT_TOKENS_DESCRIPTIONS = { 
-        "Ext - Image (ends with .ext)",
-        "Ext - Audio/Video (ends with .ext)",
-        "Ext - PDF & Office (ends with .ext)",
-        "Ext - Stylesheet, JavaScript (ends with .ext)",
-        "Ext - Flash & related (ends with .ext)",
-        "Ext/Param - Image (ext plus ?params=values)",
-        "Ext/Param - Audio/Video (ext plus ?params=values)",
-        "Ext/Param - PDF & Office (ext plus ?params=values)",
-        "Ext/Param - Stylesheet, JavaScript (ext plus ?params=values)",
-        "Ext/Param - Flash & related (ext plus ?params=values)",
-        "Ext/Param - .NET adx resources (SR/WR.adx?d=)",
-        "Site - Bing API queries",
-        "Site - Google malware detector updates",
-        "Site - Lastpass manager",
-        "Site - Mozilla Firefox browser updates",
-        "Site - Mozilla Firefox extensions phoning home",
-        "Site - Microsoft Windows updates",
-        "Site - Google Chrome extension updates"
-    };
-
+    private static ArrayList<GlobalExcludeURLParamToken> defaultList = new ArrayList<GlobalExcludeURLParamToken>();
+    
+    /** Fills in the list of default regexs to ignore.  In a future version, this could be read from a
+     * system-wide default HierarchicalConfiguration xml config file
+     * instead or even a HierarchicalConfiguration string directly embedded in this file. */
+    
+    private void setDefaultList() {
+        // Remember, these are regexs, so escape properly \\ vs \
+        // Also, http://regexpal.com/ for quick testing.
+        // The file formats are common types, not inclusive of all types. Remember, more == slower;
+        // complex == slower. Don't overload with every obscure image/audio/video format in existence.
+    	
+    	/* At some point in the future, this could be read from some a config file and
+    	 * parsed.  Thus, we just make it as arrays of strings and assume there
+    	 * is some level of parsing at some point.  Since it is rarely accessed (like
+    	 * once per boot, it need not be optimized).  */
+    	final String defaultListArray[][] = {
+			{
+	    		"^.*\\.(gif|jpe?g|png|ico|icns|bmp)$",
+	    	    "Extension - Image (ends with .extension)",
+	            "true"
+	  	    }, {
+				"^.*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])$",
+				"Extension - Audio/Video (ends with .extension)",
+				"true"
+			}, {
+				"^.*\\.(pdf|docx?|xlsx?|pptx?)$",
+				"Extension - PDF & Office (ends with .extension)",
+				"true"
+			}, {
+				"^.*\\.(css|js)$",
+				"Extension - Stylesheet, JavaScript (ends with .extension)",
+				"true"
+			}, {
+				"^.*\\.(sw[fa]|flv)$",
+				"Extension - Flash & related (ends with .extension)",
+				"true"
+			}, {
+				"^[^\\?]*\\.(gif|jpe?g|png|ico|icns|bmp)\\?.*$",
+				"ExtParam - Image (extension plus ?params=values)",
+				"true"
+			}, {
+				"^[^\\?]*\\.(mp[34]|mpe?g|m4[ap]|aac|avi|mov|wmv|og[gav])\\?.*$",
+				"ExtParam - Audio/Video (extension plus ?params=values)",
+				"true"
+			}, {
+				"^[^\\?]*\\.(pdf|docx?|xlsx?|pptx?)\\?.*$",
+				"ExtParam - PDF & Office (extension plus ?params=values)",
+				"true"
+			}, {
+				"^[^\\?]*\\.(css|js)\\?.*$",
+				"ExtParam - Stylesheet, JavaScript (extension plus ?params=values)",
+				"true"
+			}, {
+				"^[^\\?]*\\.(sw[fa]|flv)\\?.*$",
+				"ExtParam - Flash & related (extension plus ?params=values)",
+				"true"
+			}, {
+				"^[^\\?]*/(WebResource|ScriptResource)\\.axd\\?d=.*$",
+				"ExtParam - .NET adx resources (SR/WR.adx?d=)",
+				"true"
+			}, {
+				"^https?://api\\.bing\\.com/qsml\\.aspx?query=.*$",
+				"Site - Bing API queries",
+				"true"
+			}, {
+				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
+				"Site - Google malware detector updates",
+				"true"
+			}, {
+				"^https?://([^/])*\\.?lastpass\\.com",
+				"Site - Lastpass manager",
+				"true"
+			}, {
+				"^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
+				"Site - Mozilla Firefox browser updates",
+				"true"
+			}, {
+				"^https?://([^/])*\\.?(getfoxyproxy\\.org|getfirebug\\.com|noscript\\.net)",
+				"Site - Mozilla Firefox extensions phoning home",
+				"true"
+			}, {
+				// some of this from http://serverfault.com/questions/332003/what-urls-must-be-in-ies-trusted-sites-list-to-allow-windows-update
+				"^https?://(.*update\\.microsoft|.*\\.windowsupdate)\\.com/.*$",
+				"Site - Microsoft Windows updates",
+				"true"
+			}, {
+				"^https?://clients2\\.google\\.com/service/update2/crx.*$",
+				"Site - Google Chrome extension updates",
+				"true"
+			}
+    	};
+    	
+    	for (String row[] : defaultListArray) {
+    		boolean b = row[2].equalsIgnoreCase("true") ? true : false;
+        	defaultList.add( new GlobalExcludeURLParamToken( row[0], row[1], b));
+    	}
+    }
+ 
     private List<GlobalExcludeURLParamToken> tokens = null;
     private List<String> enabledTokensNames = null;
     
     private boolean confirmRemoveToken = true;
 
     public GlobalExcludeURLParam() {
+    	super();
+    	setDefaultList();
     }
 
     @Override
@@ -109,30 +161,26 @@ public class GlobalExcludeURLParam extends AbstractParam {
             enabledTokensNames = new ArrayList<>(fields.size());
             List<String> tempTokensNames = new ArrayList<>(fields.size());
             for (HierarchicalConfiguration sub : fields) {
-                String name = sub.getString(TOKEN_NAME_KEY, "");
-                if (!"".equals(name) && !tempTokensNames.contains(name)) {
+                String regex = sub.getString(TOKEN_REGEX_KEY, "");
+                if (!"".equals(regex) && !tempTokensNames.contains(regex)) {
                     boolean enabled = sub.getBoolean(TOKEN_ENABLED_KEY, true);
                     String desc = sub.getString(TOKEN_DESCRIPTION_KEY, "");
-                    this.tokens.add(new GlobalExcludeURLParamToken(name, desc, enabled));
-                    tempTokensNames.add(name);
+                    this.tokens.add(new GlobalExcludeURLParamToken(regex, desc, enabled));
+                    tempTokensNames.add(regex);
                     if (enabled) {
-                        enabledTokensNames.add(name);
+                        enabledTokensNames.add(regex);
                     }
                 }
             }
         } catch (ConversionException e) {
             logger.error("Error while loading Global Exclude URL tokens: " + e.getMessage(), e);
-            this.tokens = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
-            this.enabledTokensNames = new ArrayList<>(DEFAULT_TOKENS_NAMES.length);
+            this.tokens = new ArrayList<>(defaultList.size());
+            this.enabledTokensNames = new ArrayList<>(defaultList.size());
         }
         
         if (this.tokens.size() == 0) {
-            int i = 0;
-            for (String tokenName : DEFAULT_TOKENS_NAMES) {
-                String description = DEFAULT_TOKENS_DESCRIPTIONS[i];
-                // By default, don't enable all of the DEFAULT_TOKENS_NAMES, let the user choose.
-                this.tokens.add(new GlobalExcludeURLParamToken(tokenName, description, false));
-                i++;
+            for (GlobalExcludeURLParamToken geu : defaultList) {
+                this.tokens.add(new GlobalExcludeURLParamToken(geu));
             }
         }
 
@@ -157,12 +205,12 @@ public class GlobalExcludeURLParam extends AbstractParam {
             String elementBaseKey = ALL_TOKENS_KEY + "(" + i + ").";
             GlobalExcludeURLParamToken token = tokens.get(i);
             
-            getConfig().setProperty(elementBaseKey + TOKEN_NAME_KEY, token.getName());
+            getConfig().setProperty(elementBaseKey + TOKEN_REGEX_KEY, token.getRegex());
             getConfig().setProperty(elementBaseKey + TOKEN_DESCRIPTION_KEY, token.getDescription());
             getConfig().setProperty(elementBaseKey + TOKEN_ENABLED_KEY, Boolean.valueOf(token.isEnabled()));
             
             if (token.isEnabled()) {
-                enabledTokens.add(token.getName());
+                enabledTokens.add(token.getRegex());
             }
         }
         
@@ -170,16 +218,16 @@ public class GlobalExcludeURLParam extends AbstractParam {
         this.enabledTokensNames = enabledTokens;
     }
 
-    public void addToken(String name) {
-        this.tokens.add(new GlobalExcludeURLParamToken(name));
+    public void addToken(String regex) {
+        this.tokens.add(new GlobalExcludeURLParamToken(regex));
         
-        this.enabledTokensNames.add(name);
+        this.enabledTokensNames.add(regex);
     }
 
-    public void removeToken(String name) {
-        this.tokens.remove(new GlobalExcludeURLParamToken(name));
+    public void removeToken(String regex) {
+        this.tokens.remove(new GlobalExcludeURLParamToken(regex));
         
-        this.enabledTokensNames.remove(name);
+        this.enabledTokensNames.remove(regex);
     }
 
     public List<String> getTokensNames() {
