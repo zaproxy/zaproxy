@@ -48,7 +48,7 @@ class DialogModifyToken extends DialogAddToken {
     
     @Override
     protected boolean validateFields() {
-        if (token.getName().equals(getNameTextField().getText())) {
+        if (token.getRegex().equals(getRegexTextField().getText())) {
             return true;
         }
         return super.validateFields();
@@ -56,8 +56,8 @@ class DialogModifyToken extends DialogAddToken {
 
     @Override
     protected void init() {
-        getNameTextField().setText(token.getName());
-        getNameTextField().discardAllEdits();
+        getRegexTextField().setText(token.getRegex());
+        getRegexTextField().discardAllEdits();
 
         getEnabledCheckBox().setSelected(token.isEnabled());
         getDescTextField().setText(token.getDescription());

@@ -25,38 +25,38 @@ import org.zaproxy.zap.utils.Enableable;
 /** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 class GlobalExcludeURLParamToken extends Enableable {
 
-    private String name;
+    private String regex;
     private String description;
 
     public GlobalExcludeURLParamToken() {
         this("", "", false);
     }
 
-    public GlobalExcludeURLParamToken(String name) {
-        this(name, "", false);
+    public GlobalExcludeURLParamToken(String regex) {
+        this(regex, "", false);
     }
 
-    public GlobalExcludeURLParamToken(String name, boolean enabled) {
-        this(name, "", false);
+    public GlobalExcludeURLParamToken(String regex, boolean enabled) {
+        this(regex, "", false);
     }
 
-    public GlobalExcludeURLParamToken(String name, String description, boolean enabled) {
+    public GlobalExcludeURLParamToken(String regex, String description, boolean enabled) {
         super(enabled);
 
-        this.name = name;
+        this.regex = regex;
         this.description = description;
     }
     
     public GlobalExcludeURLParamToken(GlobalExcludeURLParamToken token) {
-        this(token.name, token.description, token.isEnabled());
+        this(token.regex, token.description, token.isEnabled());
     }
 
-    public String getName() {
-        return name;
+    public String getRegex() {
+        return regex;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setRegex(String regex) {
+        this.regex = regex;
     }
 
     public String getDescription() {
@@ -69,11 +69,11 @@ class GlobalExcludeURLParamToken extends Enableable {
 
     @Override
     public int hashCode() {
-        return 31 * super.hashCode() + ((name == null) ? 0 : name.hashCode());
+        return 31 * super.hashCode() + ((regex == null) ? 0 : regex.hashCode());
     }
 
     @Override
-    /** If the names (aka regexs) are equal, then the objects are equal; description is not compared. */
+    /** If the regexs are equal, then the objects are equal; description is not compared. */
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -85,11 +85,11 @@ class GlobalExcludeURLParamToken extends Enableable {
             return false;
         }
         GlobalExcludeURLParamToken other = (GlobalExcludeURLParamToken) obj;
-        if (name == null) {
-            if (other.name != null) {
+        if (regex == null) {
+            if (other.regex != null) {
                 return false;
             }
-        } else if (!name.equals(other.name)) {
+        } else if (!regex.equals(other.regex)) {
             return false;
         }
         return true;

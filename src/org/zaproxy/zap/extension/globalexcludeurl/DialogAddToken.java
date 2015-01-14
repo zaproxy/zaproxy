@@ -51,7 +51,7 @@ class DialogAddToken extends AbstractFormDialog {
     private static final String TITLE_NAME_REPEATED_DIALOG = Constant.messages.getString("options.globalexcludeurl.dialog.token.warning.name.repeated.title");
     private static final String TEXT_NAME_REPEATED_DIALOG = Constant.messages.getString("options.globalexcludeurl.dialog.token.warning.name.repeated.text");
     
-    private ZapTextField nameTextField;
+    private ZapTextField regexTextField;
     private JCheckBox enabledCheckBox;
     private ZapTextField descTextField;
 
@@ -87,7 +87,7 @@ class DialogAddToken extends AbstractFormDialog {
                 .addComponent(enabledLabel)
                 .addComponent(descLabel))
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                .addComponent(getNameTextField())
+                .addComponent(getRegexTextField())
                 .addComponent(getEnabledCheckBox())
                 .addComponent(getDescTextField()))
         );
@@ -95,7 +95,7 @@ class DialogAddToken extends AbstractFormDialog {
         layout.setVerticalGroup(layout.createSequentialGroup()
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(nameLabel)
-                .addComponent(getNameTextField()))
+                .addComponent(getRegexTextField()))
             .addGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
                 .addComponent(enabledLabel)
                 .addComponent(getEnabledCheckBox()))
@@ -114,7 +114,7 @@ class DialogAddToken extends AbstractFormDialog {
     
     @Override
     protected void init() {
-        getNameTextField().setText("");
+        getRegexTextField().setText("");
         getEnabledCheckBox().setSelected(true);
         getDescTextField().setText("");
         token = null;
@@ -122,13 +122,13 @@ class DialogAddToken extends AbstractFormDialog {
 
     @Override
     protected boolean validateFields() {
-        String tokenName = getNameTextField().getText();
+        String tokenName = getRegexTextField().getText();
         for (GlobalExcludeURLParamToken t : tokens) {
-            if (tokenName.equalsIgnoreCase(t.getName())) {
+            if (tokenName.equalsIgnoreCase(t.getRegex())) {
                 JOptionPane.showMessageDialog(this, TEXT_NAME_REPEATED_DIALOG,
                         TITLE_NAME_REPEATED_DIALOG,
                         JOptionPane.INFORMATION_MESSAGE);
-                getNameTextField().requestFocusInWindow();
+                getRegexTextField().requestFocusInWindow();
                 return false;
             }
         }
@@ -138,13 +138,13 @@ class DialogAddToken extends AbstractFormDialog {
     
     @Override
     protected void performAction() {
-        token = new GlobalExcludeURLParamToken(getNameTextField().getText(), getDescTextField().getText(), getEnabledCheckBox().isSelected());
+        token = new GlobalExcludeURLParamToken(getRegexTextField().getText(), getDescTextField().getText(), getEnabledCheckBox().isSelected());
     }
     
     @Override
     protected void clearFields() {
-        getNameTextField().setText("");
-        getNameTextField().discardAllEdits();
+        getRegexTextField().setText("");
+        getRegexTextField().discardAllEdits();
         getDescTextField().setText("");
     }
 
@@ -152,10 +152,10 @@ class DialogAddToken extends AbstractFormDialog {
         return token;
     }
     
-    protected ZapTextField getNameTextField() {
-        if (nameTextField == null) {
-            nameTextField = new ZapTextField(25);
-            nameTextField.getDocument().addDocumentListener(new DocumentListener() {
+    protected ZapTextField getRegexTextField() {
+        if (regexTextField == null) {
+            regexTextField = new ZapTextField(25);
+            regexTextField.getDocument().addDocumentListener(new DocumentListener() {
                 
                 @Override
                 public void removeUpdate(DocumentEvent e) {
@@ -173,12 +173,12 @@ class DialogAddToken extends AbstractFormDialog {
                 }
                 
                 private void checkAndEnableConfirmButton() {
-                    setConfirmButtonEnabled(getNameTextField().getDocument().getLength() > 0);
+                    setConfirmButtonEnabled(getRegexTextField().getDocument().getLength() > 0);
                 }
             });
         }
         
-        return nameTextField;
+        return regexTextField;
     }
     
     protected JCheckBox getEnabledCheckBox() {
