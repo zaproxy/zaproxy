@@ -152,10 +152,20 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
             
             this.model = model;
             
-            getTable().getColumnExt(0).setMaxWidth(45);       // checkbox column should be tiny
-            getTable().setSortOrder(2, SortOrder.ASCENDING);  // first, sort by description
-            getTable().setSortOrder(0, SortOrder.DESCENDING); // then, sort by enabled
-            getTable().setHorizontalScrollEnabled(true);      // descriptions / regexs are very wide
+            getTable().getColumnExt(0).setPreferredWidth(25);	// checkbox column should be tiny
+            getTable().getColumnExt(1).setPreferredWidth(350);	// wide Desc Col
+            getTable().getColumnExt(2).setPreferredWidth(300);	// less wide Regex Column
+            getTable().setHorizontalScrollEnabled(true);  	    // descriptions / regexs are very wide, so turn on horiz scroll
+
+            getTable().setAutoCreateRowSorter(true);			
+            getTable().setSortOrder(1, SortOrder.ASCENDING);	// sort by description by default
+            
+            /* XXX For some reason, sorting isn't accurate in the table.  The
+            getColumnClass correctly returns String for the Description, but
+            sort order might be: "Ext - MS Word, ExtParam - Bla bla, Ext - PDF."
+            It is like string.compare for the column sort ignores the space and
+            dash.  Really unsure as to why.  As a work-around, start some
+            descriptions with "Extension" instead of the shorter "Ext"   */
         }
 
         @Override

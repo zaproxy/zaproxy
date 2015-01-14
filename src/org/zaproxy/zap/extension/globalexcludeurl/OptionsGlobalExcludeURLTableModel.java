@@ -22,6 +22,7 @@
 package org.zaproxy.zap.extension.globalexcludeurl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
@@ -34,8 +35,8 @@ public class OptionsGlobalExcludeURLTableModel extends AbstractMultipleOptionsTa
 
     private static final String[] COLUMN_NAMES = {
             Constant.messages.getString("options.globalexcludeurl.table.header.enabled"),
-            Constant.messages.getString("options.globalexcludeurl.table.header.token"),
-            Constant.messages.getString("options.globalexcludeurl.table.header.description")
+            Constant.messages.getString("options.globalexcludeurl.table.header.description"),
+            Constant.messages.getString("options.globalexcludeurl.table.header.token")
     };
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
@@ -98,9 +99,9 @@ public class OptionsGlobalExcludeURLTableModel extends AbstractMultipleOptionsTa
         case 0:
             return Boolean.valueOf(getElement(rowIndex).isEnabled());
         case 1:
-            return getElement(rowIndex).getName();
-        case 2:
             return getElement(rowIndex).getDescription();
+        case 2:
+            return getElement(rowIndex).getRegex();
         }
         return null;
     }
