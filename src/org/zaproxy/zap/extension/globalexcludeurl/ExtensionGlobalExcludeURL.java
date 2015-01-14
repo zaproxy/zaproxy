@@ -60,10 +60,11 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
 	        // extensionHook.getHookMenu().addPopupMenuItem(this.getPopupMenuGenerateForm());
 	    }
 
+		/* In the future, add API hook here.
 	    GlobalExcludeURLAPI api = new GlobalExcludeURLAPI(this);
         api.addApiOptions(getParam());
         API.getInstance().registerApiImplementor(api);
-
+		*/
 	}
 	
     /** TODO Implement the "right click, add to GEURL list" function. */
