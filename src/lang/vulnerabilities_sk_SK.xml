@@ -11,6 +11,7 @@ To get around setting up authentication, some resources are protected by "hiding
 Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 </vuln_item_wasc_1>
 
 <vuln_items>wasc_2</vuln_items>
@@ -40,6 +41,7 @@ Phase: Architecture and Design
 Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
 </vuln_item_wasc_2>
 
 <vuln_items>wasc_3</vuln_items>

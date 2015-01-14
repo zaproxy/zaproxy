@@ -3,36 +3,33 @@
 
 <vuln_items>wasc_1</vuln_items>
 <vuln_item_wasc_1>
-	<alert>Insufficient Authentication</alert>
-	<desc>Insufficient Authentication occurs when a web site permits an attacker to access sensitive content or functionality without having to properly authenticate. Web-based administration tools are a good example of web sites providing access to sensitive functionality. Depending on the specific online resource, these web applications should not be directly accessible without requiring the user to properly verify their identity.
+	<alert>Nedostatak Autentifikacije</alert>
+	<desc>Nedostatak Autentifkacije nastaje kada web sajt dopušta napadaču pristup poverljivom sadržaju ili funkcionalnostima bez provere validnosti autentifikacije. Web-bazirani administratorski alati su dobar primer omogućavanja pristupa poverljivim funkcionalnostima. U zavisnosti od ospecifičnog online resursa, te web aplikacije ne bi trebale biti direktno dostupne bez zahtevanja da korisnik ispravno potvrdi svoj identitet.
 
-To get around setting up authentication, some resources are protected by "hiding" the specific location and not linking the location into the main web site or other public places. However, this approach is nothing more than "Security Through Obscurity". It's important to understand that even though a resource is unknown to an attacker, it still remains accessible directly through a specific URL. The specific URL could be discovered through a Brute Force probing for common file and directory locations (/admin for example), error messages, referrer logs, or documentation such as help files. These resources, whether they are content- or functionality-driven, should be adequately protected.</desc>
+Da biste dobili postavljanje autentifikacije, neki resursi su zaštićeni "skrivanjem" određenih lokacija i ne povezivanjem lokacije s glavnim web sajtom ili drugim javnim mestima. Međutim, ovaj pristup nije ništa više od "Sigurnost Kroz Nepoznato". Važno je razumeti da iako je resurs nepoznat napadaču, on i dalje ostaje dostupan direktno kroz određeni URL. Specifični URL može biti otkriven kroz Brute Force ispitivanje za zajedničke datoteke i lokacije direktorijuma (/admin na primjr), poruke o greškama, logovi ili dokumentaciju kao što su datoteke pomoći. Ovi resursi, bilo da su sadržaj- ili funkcionalnost- vođeni, trebaju biti adekvatno zaštićeni.</desc>
 	<solution>Phase: Architecture and Design
 Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 </vuln_item_wasc_1>
 
 <vuln_items>wasc_2</vuln_items>
 <vuln_item_wasc_2>
-	<alert>Insufficient Authorization</alert>
-	<desc>Insufficient Authorization results when an application does not perform adequate authorization checks to ensure that the user is performing a function or accessing data in a manner consistent with the security policy. Authorization procedures should enforce what a user, service or application is permitted to do. When a user is authenticated to a web site, it does not necessarily mean that the user should have full access to all content and functionality.
+	<alert>Nedostatak Autorizacije</alert>
+	<desc>Nedostatak Autorizacije nastaje kada aplikacija ne obavlja odgovarajuće provere ovlašćenja kako bi se osiguralo da korisnik obavlja funkciju ili pristupa podacima na način koji je u skladu sa sigurnosnom politikom. Autorizacijske procedure trebaju proveravati šta korisnik, servis ili aplikacija smeju uraditi. Kada je korisnik autentifikovan na web stranici, to ne znači nužno da korisnik treba imati puni pristup svim sadržajima i funkcionalnostima.
 
-Insufficient Function Authorization
+Mnoge aplikacije obezbeđuju različite funskcionalnosti različitim koirnsicima. Sajta sa vestima će omogućiti korisnicima da vesti, ali ne da ih objave. Računovodstveni sistem će imati različite dozvole za račun plaćanja službenika i račun primanja službenika. Nedovoljna funkcija autorizacije događa kada aplikacija ne sprečava korisnike da pristupaju aplikativnoj funkcionalnosti u kršenju sigurnosne politike.
 
-Many applications grant different application functionality to different users. A news site will allows users to view news stories, but not publish them. An accounting system will have different permissions for an Accounts Payable clerk and an Accounts Receivable clerk. Insufficient Function Authorization happens when an application does not prevent users from accessing application functionality in violation of security policy.
-
-A very visible example was the 2005 hack of the Harvard Business School's application process. An authorization failure allowed users to view their own data when they should not have been allowed to access that part of the web site.
+Vrlo vidljiv primer je 2005 hack Harvard Business Školskog aplikacijskog procesa. Neuspeh autorizacije dopušta korisnicima da vide svoje podatake kada oni ne bi trebali imati dopušten pristup u taj deo web stranice.
  
-Insufficient Data Authorization
-
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+Mnoge aplikacije izlažu prikrivene  identifikatore podataka u URL-u. Na primer, pri pristupu medicinskim zapisima u sistemu, korisnik može dobiti URL koji izlgeda ovako:
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+Ako aplikacija ne proverava da li autentifikovani korisnik ima prava za čitanje podataka, može se desiti da korisniku budu prikazani podaci koje on ne bi smeo da vidi.
 
-Insufficient Data Authorization is more common than Insufficient Function Authorization because programmers generally have complete knowledge of application functionality, but do not always have a complete mapping of all data that the application will access. Programmers often have tight control over function authorization mechanisms, but rely on other systems such as databases to perform data authorization.</desc>
+Nedovoljna autorizacija podataka je češća nego Nedovoljna Autorizacija Funkcija jer programeri generalno imaju potpuno znanje o funkcionalnost aplikacije, ali nemaju uvek kompletno mapiranje svih podataka kojima će aplikacija pristupiti. Programeri često imaju čvrstu kontrolu nad mehanizmima autorizacije funkcije, ali se oslanjaju na druge sisteme, kao što su baze podataka za izvršavanje autorizacije podataka.</desc>
 	<solution>Phases: Architecture and Design; Operation
 Very carefully manage the setting, management, and handling of privileges. Explicitly manage trust zones in the software.
 
@@ -40,14 +37,15 @@ Phase: Architecture and Design
 Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
 </vuln_item_wasc_2>
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<alert>Integer Prelivanja</alert>
+	<desc>Integer Preliv je stanje koje nastaje kada rezultat aritmetičke operacije, kao što su množenje ili sabiranje premašuje maksimalnu veličinu celobrojnog tipa koji će se sačuvati. Kad dođe do celobrojnog prelivanja, interpretirana vrednost će izgledati kao da ima "omotač oko" maksimalne vrednosti i počeće opet na minimalnoj vrednosti, slično kao sat koji predstavlja 13:00 pokazujući na 01:00.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
+Na primer, 8-bitni celi broj s predznakom na većini računarskih arhitektura ima maksimalnu  vrednost 127 i minimalnu vrednost -128. Ako programer čuva vrednost 127 u takvu varijablu i dodaje joj 1, rezultat bi trebao biti 128. Međutim, ova vrednost premašuje maksimum za ovu celobrojnu vrstu, tako interpretirana vrednost će se "zaokrenuti" i postati -128.</desc>
 	<solution>Phase: Requirements
 Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
 
@@ -76,7 +74,7 @@ Examine compiler warnings closely and eliminate potentially security critical pr
 
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
-	<alert>Insufficient Transport Layer Protection</alert>
+	<alert>Nedovoljna Zaštita Transportnog Sloja</alert>
 	<desc>Insufficient Transport Layer Protection
 Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Websites typically use Secure Sockets Layer / Transport Layer Security (SSL/TLS) to provide encryption at the transport layer. However, unless the website is configured to use SSL/TLS and configured to use SSL/TLS properly, the website may be vulnerable to traffic interception and modification.
  
@@ -1026,7 +1024,7 @@ A Web application should invalidate a session after a predefined idle time has p
 
 <vuln_items>wasc_48</vuln_items>
 <vuln_item_wasc_48>
-	<alert>Insecure Indexing</alert>
+	<alert>Nesigurno Indeksiranje</alert>
 	<desc>Insecure Indexing is a threat to the data confidentiality of the web-site. Indexing web-site contents via a process that has access to files which are not supposed to be publicly accessible has the potential of leaking information about the existence of such files, and about their content. In the process of indexing, such information is collected and stored by the indexing process, which can later be retrieved (albeit not trivially) by a determined attacker, typically through a series of queries to the search engine. The attacker does not thwart the security model of the search engine. As such, this attack is subtle and very hard to detect and to foil - it’s not easy to distinguish the attacker’s queries from a legitimate user’s queries.</desc>
 	<solution>TBA</solution>
 	<reference>http://projects.webappsec.org/Insecure-Indexing</reference>
