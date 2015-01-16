@@ -78,7 +78,7 @@ public class ExtensionHttpPanelRequestFormTableView extends ExtensionAdaptor {
 
 		@Override
 		public String getTargetViewName() {
-			return RequestPostTableView.NAME;
+			return "";
 		}
 
 		@Override

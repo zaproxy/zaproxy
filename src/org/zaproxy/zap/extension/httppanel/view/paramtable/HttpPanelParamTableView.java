@@ -50,7 +50,7 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
 
 	public static final String NAME = "HttpPanelParamTableView";
 	
-	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.table.name");
+	private static final String CAPTION_NAME = Constant.messages.getString("http.panel.view.tablev2.name");
 	private static final String ADD_INS = Constant.messages.getString("http.panel.view.tableparam.addins");
 	
 	private JTable table;
