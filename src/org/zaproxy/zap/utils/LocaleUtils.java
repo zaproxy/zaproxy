@@ -23,18 +23,22 @@ import java.io.FilenameFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.view.ViewLocale;
 
 public final class LocaleUtils {
 
 	private static final Logger logger = Logger.getLogger(LocaleUtils.class);
 	
-	private static final String MESSAGES_BASE_FILENAME = Constant.MESSAGES_PREFIX.toLowerCase(Locale.ENGLISH) + "_";
+	private static final String MESSAGES_BASE_FILENAME = Constant.MESSAGES_PREFIX + "_";
+
+	private static final String DEFAULT_LOCALE = "en_GB";
 
 	private LocaleUtils() {
 	}
@@ -136,42 +140,86 @@ public final class LocaleUtils {
 	}
 	
 	/**
+	 * Returns a list of languages and countries of the {@code Locale}s (as {@code String}, for example "en_GB"), of default
+	 * language and available translations.
+	 * <p>
+	 * The list is sorted by language/country codes with default locale, always, at first position.
+	 * 
 	 * @return The list of available translations, ZAP provides
 	 */
 	public static List<String> getAvailableLocales() {
+		List<String> locales = readAvailableLocales();
+		Collections.sort(locales);
+
+		// Always put English at the top
+		locales.add(0, DEFAULT_LOCALE);
+
+		return locales;
+	}
+
+	private static List<String> readAvailableLocales() {
 		File dir = new File(Constant.getZapInstall(), Constant.LANG_DIR);
 		FilenameFilter filter = new MessagesPropertiesFilenameFilter();
 		String[] files = dir.list(filter);
 
-		List<String> locales;
 		if (files == null || files.length == 0) {
 			logger.error("Failed to find any locale files in directory " + dir.getAbsolutePath());
-			locales = new ArrayList<>(1);
-		} else {
-			List<String> filesList = new ArrayList<>(Arrays.asList(files));
-			// Remove source/default file (Messages.properties), it's added later
-			filesList.remove(Constant.MESSAGES_PREFIX + Constant.MESSAGES_EXTENSION);
-			locales = new ArrayList<>(filesList.size());
+			return new ArrayList<>(0);
+		}
 
-			// XXX: Doing the sort here doesn't add much to the end user.
-			// This sort the locales (es_ES, in_ID). The sort should be made on
-			// the names ("español", "Bahasa Indonesia") returned by the method
-			// getLocalDisplayName() (note that the order would be different).
-			// In the end what is shown to the user, in the combo box, is not
-			// sorted, knowing that the name "English" would have to be the 
-			// first.
-			Collections.sort(filesList);
-			
-			final int baseFilenameLength = MESSAGES_BASE_FILENAME.length();
-			for (String file : filesList) {
+		List<String> locales = new ArrayList<>(files.length);
+
+		final int baseFilenameLength = MESSAGES_BASE_FILENAME.length();
+		for (String file : Arrays.asList(files)) {
+			if (file.startsWith(MESSAGES_BASE_FILENAME)) {
 				locales.add(file.substring(baseFilenameLength, file.indexOf(".")));
 			}
 		}
-		
-		// Always put English at the top
-		locales.add(0, "en_GB");
-
 		return locales;
+	}
+
+	/**
+	 * Convenience method that creates a {@code ViewLocale} with the given {@code locale} and a display name created by calling
+	 * {@code getLocalDisplayName(String)}, with the {@code locale} as argument.
+	 *
+	 * @param locale the locale that will used to create the {@code ViewLocale}
+	 * @return the {@code ViewLocale} for the given locale
+	 * @since 2.4.0
+	 * @see #getLocalDisplayName(String)
+	 */
+	public static ViewLocale getViewLocale(String locale) {
+		return new ViewLocale(locale, getLocalDisplayName(locale));
+	}
+
+	/**
+	 * Returns a list of {@code ViewLocale}s, sorted by display name, of the default language and available translations.
+	 *
+	 * @return the {@code ViewLocale}s of the default language and available translations.
+	 * @see ViewLocale
+	 * @since 2.4.0
+	 */
+	public static List<ViewLocale> getAvailableViewLocales() {
+		List<String> locales = readAvailableLocales();
+
+		List<ViewLocale> localesUI = new ArrayList<>();
+		if (!locales.isEmpty()) {
+			for (String locale : locales) {
+				localesUI.add(new ViewLocale(locale, getLocalDisplayName(locale)));
+			}
+
+			Collections.sort(localesUI, new Comparator<ViewLocale>() {
+
+				@Override
+				public int compare(ViewLocale o1, ViewLocale o2) {
+					return o1.toString().compareTo(o2.toString());
+				}
+			});
+		}
+
+		// Always put English at the top
+		localesUI.add(0, new ViewLocale(DEFAULT_LOCALE, getLocalDisplayName(DEFAULT_LOCALE)));
+
+		return localesUI;
 	}
 	
 	/**

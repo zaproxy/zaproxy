@@ -24,7 +24,6 @@ import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.swing.Box;
@@ -46,6 +45,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.ViewLocale;
 
 public class OptionsLangPanel extends AbstractParamPanel {
 
@@ -57,7 +57,7 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private JLabel restartLabel = null;
 	private JButton selectionButton = null;
 	private JButton importButton = null;
-	private JComboBox<String> localeSelect = null;
+	private JComboBox<ViewLocale> localeSelect = null;
 	private ZapTextField fileTextField = null; 
 	private Document fileTextFieldDoc = null;
 	
@@ -193,9 +193,10 @@ public class OptionsLangPanel extends AbstractParamPanel {
 		return importButton;
 	}
 	
-	private JComboBox<String> getLocaleSelect() {
+	private JComboBox<ViewLocale> getLocaleSelect() {
 		if (localeSelect == null) {
 			localeSelect = new JComboBox<>();
+			loadLocales();
 		}
 		return localeSelect;
 	}
@@ -224,19 +225,15 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	
 	private void loadLocales() {
 		localeSelect.removeAllItems();
-		List <String> locales = LocaleUtils.getAvailableLocales();
-		for (String locale : locales) {
-			String desc = LocaleUtils.getLocalDisplayName(locale);
-			localeSelect.addItem(desc);
-			localeMap.put(desc, locale);
+		for (ViewLocale locale : LocaleUtils.getAvailableViewLocales()) {
+			localeSelect.addItem(locale);
 		}
 	}
 	
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
-		loadLocales();
-	    String locale = LocaleUtils.getLocalDisplayName(options.getViewParam().getLocale());
+	    ViewLocale locale = LocaleUtils.getViewLocale(options.getViewParam().getLocale());
 	    localeSelect.setSelectedItem(locale);
 	    
 	}
@@ -249,10 +246,9 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
-	    String selectedLocale = (String) localeSelect.getSelectedItem();
-	    String locale = localeMap.get(selectedLocale);
-	    if (locale != null) {
-		    options.getViewParam().setLocale(locale);
+	    ViewLocale selectedLocale = (ViewLocale) localeSelect.getSelectedItem();
+	    if (selectedLocale != null) {
+		    options.getViewParam().setLocale(selectedLocale.getLocale());
 	    }
 	}
 	
