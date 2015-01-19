@@ -54,11 +54,20 @@ public final class AddOnInstaller {
     }
 
     /**
-     * Installs all the (dynamically installable) components of the given {@code addOn}. {@code Extension}s, {@code Plugin}s,
-     * {@code PassiveScanner}s and files.
+     * Installs all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and
+     * files) of the given {@code addOn}.
      * <p>
      * It's also responsible to notify the installed extensions when the installation has finished by calling the method
      * {@code Extension#postInstall()}.
+     * <p>
+     * The components are installed in the following order:
+     * <ol>
+     * <li>Files;</li>
+     * <li>Extensions;</li>
+     * <li>Active scanners;</li>
+     * <li>Passive scanners.</li>
+     * </ol>
+     * The files are installed first as they might be required by extensions and scanners.
      * 
      * @param addOnClassLoader the class loader of the given {@code addOn}
      * @param addOn the add-on that will be installed
@@ -68,10 +77,10 @@ public final class AddOnInstaller {
      * @see Extension#postInstall()
      */
     public static void install(AddOnClassLoader addOnClassLoader, AddOn addOn) {
+        installAddOnFiles(addOnClassLoader, addOn, true);
         List<Extension> listExts = installAddOnExtensions(addOn);
         installAddOnActiveScanRules(addOn);
         installAddOnPassiveScanRules(addOn);
-        installAddOnFiles(addOnClassLoader, addOn, true);
 
         // postInstall actions
         for (Extension ext : listExts) {
@@ -84,8 +93,16 @@ public final class AddOnInstaller {
     }
 
     /**
-     * Uninstalls all the (dynamically installable) components of the given {@code addOn}. {@code Extension}s, {@code Plugin}s,
-     * {@code PassiveScanner}s and files.
+     * Uninstalls all the (dynamically installable) components ({@code Extension}s, {@code Plugin}s, {@code PassiveScanner}s and
+     * files) of the given {@code addOn}.
+     * <p>
+     * The components are uninstalled in the following order (inverse to installation):
+     * <ol>
+     * <li>Passive scanners;</li>
+     * <li>Active scanners;</li>
+     * <li>Extensions;</li>
+     * <li>Files;</li>
+     * </ol>
      * 
      * @param addOn the add-on that will be uninstalled
      * @return {@code true} if the add-on was uninstalled without errors, {@code false} otherwise.
@@ -96,11 +113,10 @@ public final class AddOnInstaller {
     public static boolean uninstall(AddOn addOn) {
         try {
             boolean uninstalledWithoutErrors = true;
-            uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn);
             uninstalledWithoutErrors &= uninstallAddOnPassiveScanRules(addOn);
-            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn);
-            // This will remove the message bundle, so do it last in case the rules use it
+            uninstalledWithoutErrors &= uninstallAddOnActiveScanRules(addOn);
             uninstalledWithoutErrors &= uninstallAddOnExtensions(addOn);
+            uninstalledWithoutErrors &= uninstallAddOnFiles(addOn);
     
             return uninstalledWithoutErrors;
         } catch (Exception e) {
