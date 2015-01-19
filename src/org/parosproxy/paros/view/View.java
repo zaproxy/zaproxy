@@ -56,6 +56,7 @@
 // ZAP: 2014/10/31 Issue 1176: Changed parents to Window as part of spider advanced dialog changes
 // ZAP: 2014/11/23 Added Splash Screen management
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
+// ZAP: 2015/01/19 Expose splash screen as Component
 
 package org.parosproxy.paros.view;
 
@@ -828,5 +829,16 @@ public class View implements ViewDelegate {
 
     public void removeMainToolbarSeparator(JToolBar.Separator separator) {
         this.getMainFrame().getMainToolbarPanel().remove(separator);
+    }
+
+    /**
+     * Gets the splash screen as {@code Component}. It should be used only as a parent for error/warning dialogues shown during
+     * initialisation.
+     *
+     * @return the splash screen, {@code null} when the splash screen is/was not displayed.
+     * @since 2.4.0
+     */
+    public Component getSplashScreen() {
+        return splashScreen;
     }
 }

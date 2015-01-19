@@ -43,6 +43,8 @@ import org.apache.log4j.Level;
 import org.apache.log4j.LogManager;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
+import org.jdesktop.swingx.JXErrorPane;
+import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -284,10 +286,27 @@ public class ZAP {
                 dialog.setVisible(true);
             }
 
-            // Times to run the GUI
-            runGUI();
-        
-            View.getSingleton().hideSplashScreen();
+            try {
+                // Times to run the GUI
+                runGUI();
+            } catch (Throwable e) {
+                if (!Constant.isDevBuild()) {
+                    ErrorInfo errorInfo = new ErrorInfo(
+                            Constant.messages.getString("start.gui.dialog.fatal.error.title"),
+                            Constant.messages.getString("start.gui.dialog.fatal.error.message"),
+                            null,
+                            null,
+                            e,
+                            null,
+                            null);
+                    JXErrorPane errorPane = new JXErrorPane();
+                    errorPane.setErrorInfo(errorInfo);
+                    JXErrorPane.showDialog(View.getSingleton().getSplashScreen(), errorPane);
+                }
+                throw e;
+            } finally {
+                View.getSingleton().hideSplashScreen();
+            }
 
             if (firstTime) {
 		// Disabled for now - we have too many popups occuring when you first start up
