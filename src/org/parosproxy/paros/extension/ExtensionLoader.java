@@ -54,6 +54,7 @@
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2014/11/21 Reviewed foreach loops and commented startup process for splash screen progress bar
 // ZAP: 2015/01/04 Issue 1379: Not all extension's listeners are hooked during add-on installation
+// ZAP: 2015/01/19 Remove online menus when removeMenu(View, ExtensionHook) is called.
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -766,6 +767,7 @@ public class ExtensionLoader {
         removeMenuHelper(menuBar.getMenuAnalyse(), hookMenu.getAnalyse());
         removeMenuHelper(menuBar.getMenuHelp(), hookMenu.getHelpMenus());
         removeMenuHelper(menuBar.getMenuReport(), hookMenu.getReportMenus());
+        removeMenuHelper(menuBar.getMenuOnline(), hookMenu.getOnlineMenus());
 
         removeMenuHelper(view.getPopupList(), hookMenu.getPopupMenus());
 
