@@ -23,8 +23,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -60,9 +58,6 @@ public class OptionsLangPanel extends AbstractParamPanel {
 	private JComboBox<ViewLocale> localeSelect = null;
 	private ZapTextField fileTextField = null; 
 	private Document fileTextFieldDoc = null;
-	
-	private Map<String, String> localeMap = new HashMap<>();
-	
 	
     public OptionsLangPanel() {
         super();
