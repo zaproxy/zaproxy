@@ -25,41 +25,74 @@ class core(object):
         self.zap = zap
 
     def alert(self, id):
+        """
+        Gets the alert with the given ID, the corresponding HTTP message can be obtained with the 'messageId' field and 'message' API method
+        """
         return self.zap._request(self.zap.base + 'core/view/alert/', {'id' : id}).get('alert')
 
     def alerts(self, baseurl='', start='', count=''):
+        """
+        Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
+        """
         return self.zap._request(self.zap.base + 'core/view/alerts/', {'baseurl' : baseurl, 'start' : start, 'count' : count}).get('alerts')
 
     def number_of_alerts(self, baseurl=''):
+        """
+        Gets the number of alerts, optionally filtering by URL
+        """
         return self.zap._request(self.zap.base + 'core/view/numberOfAlerts/', {'baseurl' : baseurl}).get('numberOfAlerts')
 
     @property
     def hosts(self):
+        """
+        Gets the name of the hosts accessed through/by ZAP
+        """
         return self.zap._request(self.zap.base + 'core/view/hosts/').get('hosts')
 
     @property
     def sites(self):
+        """
+        Gets the sites accessed through/by ZAP (scheme and domain)
+        """
         return self.zap._request(self.zap.base + 'core/view/sites/').get('sites')
 
     @property
     def urls(self):
+        """
+        Gets the URLs accessed through/by ZAP
+        """
         return self.zap._request(self.zap.base + 'core/view/urls/').get('urls')
 
     def message(self, id):
+        """
+        Gets the HTTP message with the given ID. Returns the ID, request/response headers and bodies, cookies and note.
+        """
         return self.zap._request(self.zap.base + 'core/view/message/', {'id' : id}).get('message')
 
     def messages(self, baseurl='', start='', count=''):
+        """
+        Gets the HTTP messages sent by ZAP, request and response in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
+        """
         return self.zap._request(self.zap.base + 'core/view/messages/', {'baseurl' : baseurl, 'start' : start, 'count' : count}).get('messages')
 
     def number_of_messages(self, baseurl=''):
+        """
+        Gets the number of messages, optionally filtering by URL
+        """
         return self.zap._request(self.zap.base + 'core/view/numberOfMessages/', {'baseurl' : baseurl}).get('numberOfMessages')
 
     @property
     def version(self):
+        """
+        Gets ZAP version
+        """
         return self.zap._request(self.zap.base + 'core/view/version/').get('version')
 
     @property
     def excluded_from_proxy(self):
+        """
+        Gets the regular expressions, applied to URLs, to exclude from the Proxy
+        """
         return self.zap._request(self.zap.base + 'core/view/excludedFromProxy/').get('excludedFromProxy')
 
     @property
@@ -141,12 +174,21 @@ class core(object):
         return self.zap._request(self.zap.base + 'core/action/shutdown/', {'apikey' : apikey})
 
     def new_session(self, name='', overwrite='', apikey=''):
+        """
+        Creates a new session, optionally overwriting existing files
+        """
         return self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey})
 
     def load_session(self, name, apikey=''):
+        """
+        Loads the session with the given name
+        """
         return self.zap._request(self.zap.base + 'core/action/loadSession/', {'name' : name, 'apikey' : apikey})
 
     def save_session(self, name, overwrite='', apikey=''):
+        """
+        Saves the session with the name supplied, optionally overwriting existing files
+        """
         return self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey})
 
     def snapshot_session(self, apikey=''):
@@ -165,6 +207,9 @@ class core(object):
         return self.zap._request(self.zap.base + 'core/action/generateRootCA/', {'apikey' : apikey})
 
     def send_request(self, request, followredirects='', apikey=''):
+        """
+        Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
+        """
         return self.zap._request(self.zap.base + 'core/action/sendRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey})
 
     def delete_all_alerts(self, apikey=''):
@@ -219,12 +264,34 @@ class core(object):
 
     @property
     def xmlreport(self, apikey=''):
+        """
+        Generates a report in XML format
+        """
         return self.zap._request_other(self.zap.base_other + 'core/other/xmlreport/', {'apikey' : apikey})
 
+    @property
+    def htmlreport(self, apikey=''):
+        """
+        Generates a report in HTML format
+        """
+        return self.zap._request_other(self.zap.base_other + 'core/other/htmlreport/', {'apikey' : apikey})
+
+    def message_har(self, id, apikey=''):
+        """
+        Gets the message with the given ID in HAR format
+        """
+        return self.zap._request_other(self.zap.base_other + 'core/other/messageHar/', {'id' : id, 'apikey' : apikey})
+
     def messages_har(self, baseurl='', start='', count='', apikey=''):
+        """
+        Gets the HTTP messages sent through/by ZAP, in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
+        """
         return self.zap._request_other(self.zap.base_other + 'core/other/messagesHar/', {'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey})
 
     def send_har_request(self, request, followredirects='', apikey=''):
+        """
+        Sends the first HAR request entry, optionally following redirections. Returns, in HAR format, the request sent and response received and followed redirections, if any.
+        """
         return self.zap._request_other(self.zap.base_other + 'core/other/sendHarRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey})
 
 

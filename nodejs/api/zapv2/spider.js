@@ -127,6 +127,13 @@ Spider.prototype.optionShowAdvancedDialog = function (callback) {
   this.api.request('/spider/view/optionShowAdvancedDialog/', callback);
 };
 
+/**
+ * Sets whether or not the 'Referer' header should be sent while spidering
+ **/
+Spider.prototype.optionSendRefererHeader = function (callback) {
+  this.api.request('/spider/view/optionSendRefererHeader/', callback);
+};
+
 Spider.prototype.scan = function (url, maxchildren, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -357,6 +364,14 @@ Spider.prototype.setOptionShowAdvancedDialog = function (bool, apikey, callback)
     apikey = null;
   }
   this.api.request('/spider/action/setOptionShowAdvancedDialog/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionSendRefererHeader = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionSendRefererHeader/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 module.exports = Spider;

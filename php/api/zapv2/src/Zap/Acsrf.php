@@ -32,18 +32,23 @@ class Acsrf {
 		$this->zap = $zap;
 	}
 
-	public function optionTokens() {
-		return $this->zap->request($this->zap->base . 'acsrf/view/optionTokens/')->{'Tokens'};
-	}
-
+	/**
+	 * Lists the names of all anti CSRF tokens
+	 */
 	public function optionTokensNames() {
 		return $this->zap->request($this->zap->base . 'acsrf/view/optionTokensNames/')->{'TokensNames'};
 	}
 
+	/**
+	 * Adds an anti CSRF token with the given name, enabled by default
+	 */
 	public function addOptionToken($string, $apikey='') {
 		return $this->zap->request($this->zap->base . 'acsrf/action/addOptionToken/', array('String' => $string, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Removes the anti CSRF token with the given name
+	 */
 	public function removeOptionToken($string, $apikey='') {
 		return $this->zap->request($this->zap->base . 'acsrf/action/removeOptionToken/', array('String' => $string, 'apikey' => $apikey));
 	}

@@ -121,6 +121,13 @@ class spider(object):
     def option_show_advanced_dialog(self):
         return self.zap._request(self.zap.base + 'spider/view/optionShowAdvancedDialog/').get('ShowAdvancedDialog')
 
+    @property
+    def option_send_referer_header(self):
+        """
+        Sets whether or not the 'Referer' header should be sent while spidering
+        """
+        return self.zap._request(self.zap.base + 'spider/view/optionSendRefererHeader/').get('SendRefererHeader')
+
     def scan(self, url, maxchildren='', apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/scan/', {'url' : url, 'maxChildren' : maxchildren, 'apikey' : apikey})
 
@@ -207,5 +214,8 @@ class spider(object):
 
     def set_option_show_advanced_dialog(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'spider/action/setOptionShowAdvancedDialog/', {'Boolean' : boolean, 'apikey' : apikey})
+
+    def set_option_send_referer_header(self, boolean, apikey=''):
+        return self.zap._request(self.zap.base + 'spider/action/setOptionSendRefererHeader/', {'Boolean' : boolean, 'apikey' : apikey})
 
 

@@ -25,17 +25,22 @@ class acsrf(object):
         self.zap = zap
 
     @property
-    def option_tokens(self):
-        return self.zap._request(self.zap.base + 'acsrf/view/optionTokens/').get('Tokens')
-
-    @property
     def option_tokens_names(self):
+        """
+        Lists the names of all anti CSRF tokens
+        """
         return self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/').get('TokensNames')
 
     def add_option_token(self, string, apikey=''):
+        """
+        Adds an anti CSRF token with the given name, enabled by default
+        """
         return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string, 'apikey' : apikey})
 
     def remove_option_token(self, string, apikey=''):
+        """
+        Removes the anti CSRF token with the given name
+        """
         return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string, 'apikey' : apikey})
 
     def gen_form(self, hrefid, apikey=''):

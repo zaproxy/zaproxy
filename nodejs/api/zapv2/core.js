@@ -27,46 +27,79 @@ function Core(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * Gets the alert with the given ID, the corresponding HTTP message can be obtained with the 'messageId' field and 'message' API method
+ **/
 Core.prototype.alert = function (id, callback) {
   this.api.request('/core/view/alert/', {'id' : id}, callback);
 };
 
+/**
+ * Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
+ **/
 Core.prototype.alerts = function (baseurl, start, count, callback) {
   this.api.request('/core/view/alerts/', {'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * Gets the number of alerts, optionally filtering by URL
+ **/
 Core.prototype.numberOfAlerts = function (baseurl, callback) {
   this.api.request('/core/view/numberOfAlerts/', {'baseurl' : baseurl}, callback);
 };
 
+/**
+ * Gets the name of the hosts accessed through/by ZAP
+ **/
 Core.prototype.hosts = function (callback) {
   this.api.request('/core/view/hosts/', callback);
 };
 
+/**
+ * Gets the sites accessed through/by ZAP (scheme and domain)
+ **/
 Core.prototype.sites = function (callback) {
   this.api.request('/core/view/sites/', callback);
 };
 
+/**
+ * Gets the URLs accessed through/by ZAP
+ **/
 Core.prototype.urls = function (callback) {
   this.api.request('/core/view/urls/', callback);
 };
 
+/**
+ * Gets the HTTP message with the given ID. Returns the ID, request/response headers and bodies, cookies and note.
+ **/
 Core.prototype.message = function (id, callback) {
   this.api.request('/core/view/message/', {'id' : id}, callback);
 };
 
+/**
+ * Gets the HTTP messages sent by ZAP, request and response in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
+ **/
 Core.prototype.messages = function (baseurl, start, count, callback) {
   this.api.request('/core/view/messages/', {'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * Gets the number of messages, optionally filtering by URL
+ **/
 Core.prototype.numberOfMessages = function (baseurl, callback) {
   this.api.request('/core/view/numberOfMessages/', {'baseurl' : baseurl}, callback);
 };
 
+/**
+ * Gets ZAP version
+ **/
 Core.prototype.version = function (callback) {
   this.api.request('/core/view/version/', callback);
 };
 
+/**
+ * Gets the regular expressions, applied to URLs, to exclude from the Proxy
+ **/
 Core.prototype.excludedFromProxy = function (callback) {
   this.api.request('/core/view/excludedFromProxy/', callback);
 };
@@ -154,6 +187,9 @@ Core.prototype.shutdown = function (apikey, callback) {
   this.api.request('/core/action/shutdown/', {'apikey' : apikey}, callback);
 };
 
+/**
+ * Creates a new session, optionally overwriting existing files
+ **/
 Core.prototype.newSession = function (name, overwrite, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -162,6 +198,9 @@ Core.prototype.newSession = function (name, overwrite, apikey, callback) {
   this.api.request('/core/action/newSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Loads the session with the given name
+ **/
 Core.prototype.loadSession = function (name, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -170,6 +209,9 @@ Core.prototype.loadSession = function (name, apikey, callback) {
   this.api.request('/core/action/loadSession/', {'name' : name, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Saves the session with the name supplied, optionally overwriting existing files
+ **/
 Core.prototype.saveSession = function (name, overwrite, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -218,6 +260,9 @@ Core.prototype.generateRootCA = function (apikey, callback) {
   this.api.request('/core/action/generateRootCA/', {'apikey' : apikey}, callback);
 };
 
+/**
+ * Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
+ **/
 Core.prototype.sendRequest = function (request, followredirects, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -354,6 +399,9 @@ Core.prototype.setproxy = function (proxy, apikey, callback) {
   this.api.requestOther('/core/other/setproxy/', {'proxy' : proxy, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Generates a report in XML format
+ **/
 Core.prototype.xmlreport = function (apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -362,6 +410,31 @@ Core.prototype.xmlreport = function (apikey, callback) {
   this.api.requestOther('/core/other/xmlreport/', {'apikey' : apikey}, callback);
 };
 
+/**
+ * Generates a report in HTML format
+ **/
+Core.prototype.htmlreport = function (apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.requestOther('/core/other/htmlreport/', {'apikey' : apikey}, callback);
+};
+
+/**
+ * Gets the message with the given ID in HAR format
+ **/
+Core.prototype.messageHar = function (id, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.requestOther('/core/other/messageHar/', {'id' : id, 'apikey' : apikey}, callback);
+};
+
+/**
+ * Gets the HTTP messages sent through/by ZAP, in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
+ **/
 Core.prototype.messagesHar = function (baseurl, start, count, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -370,6 +443,9 @@ Core.prototype.messagesHar = function (baseurl, start, count, apikey, callback) 
   this.api.requestOther('/core/other/messagesHar/', {'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Sends the first HAR request entry, optionally following redirections. Returns, in HAR format, the request sent and response received and followed redirections, if any.
+ **/
 Core.prototype.sendHarRequest = function (request, followredirects, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

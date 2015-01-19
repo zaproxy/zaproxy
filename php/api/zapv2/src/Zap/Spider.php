@@ -132,6 +132,13 @@ class Spider {
 		return $this->zap->request($this->zap->base . 'spider/view/optionShowAdvancedDialog/')->{'ShowAdvancedDialog'};
 	}
 
+	/**
+	 * Sets whether or not the 'Referer' header should be sent while spidering
+	 */
+	public function optionSendRefererHeader() {
+		return $this->zap->request($this->zap->base . 'spider/view/optionSendRefererHeader/')->{'SendRefererHeader'};
+	}
+
 	public function scan($url, $maxchildren='', $apikey='') {
 		return $this->zap->request($this->zap->base . 'spider/action/scan/', array('url' => $url, 'maxChildren' => $maxchildren, 'apikey' => $apikey));
 	}
@@ -246,6 +253,10 @@ class Spider {
 
 	public function setOptionShowAdvancedDialog($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'spider/action/setOptionShowAdvancedDialog/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionSendRefererHeader($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/setOptionSendRefererHeader/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 }
