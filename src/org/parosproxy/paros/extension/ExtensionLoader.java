@@ -55,6 +55,8 @@
 // ZAP: 2014/11/21 Reviewed foreach loops and commented startup process for splash screen progress bar
 // ZAP: 2015/01/04 Issue 1379: Not all extension's listeners are hooked during add-on installation
 // ZAP: 2015/01/19 Remove online menus when removeMenu(View, ExtensionHook) is called.
+// ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
+
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
@@ -642,6 +644,15 @@ public class ExtensionLoader {
                 hookOptions(extHook);
                 ext.optionsLoaded();
                 
+            } catch (Throwable e) {
+                // Catch Errors thrown by out of date extensions as well as Exceptions
+                logger.error(e.getMessage(), e);
+            }
+        }
+        // Call postInit for all extensions after they have all been initialized
+        for (int i = 0; i < getExtensionCount(); i++) {
+            try {
+                getExtension(i).postInit();
             } catch (Throwable e) {
                 // Catch Errors thrown by out of date extensions as well as Exceptions
                 logger.error(e.getMessage(), e);

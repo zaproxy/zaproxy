@@ -26,6 +26,7 @@
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 // ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
 // ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
+// ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 
 package org.parosproxy.paros.extension;
 
@@ -147,6 +148,7 @@ public interface Extension {
 
 	/**
 	 * Called after the options for this extension have been loaded, so that the extension can make use of them.
+	 * Note that other add-ons may not have been loaded at this point - if you need them to be then implement postInit()
 	 */
 	void optionsLoaded();
 	
@@ -167,5 +169,10 @@ public interface Extension {
 	 * If the add-on is installed by copying the file to the plugins directory then it will not be called.
 	 */
     void postInstall();
+
+	/**
+	 * Implement this method to perform tasks after all add-ons have been installed.
+	 */
+    void postInit();
 
 }
