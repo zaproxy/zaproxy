@@ -30,6 +30,7 @@
 // ZAP: 2013/08/29 Issue 776: Allow add-ons to warn user if they're closing ZAP with unsaved resources open
 // ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
 // ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
+// ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 
 package org.parosproxy.paros.extension;
 
@@ -264,5 +265,9 @@ public abstract class ExtensionAdaptor implements Extension {
     
     @Override
     public void postInstall() {
+    }
+
+    @Override
+    public void postInit() {
     }
 }

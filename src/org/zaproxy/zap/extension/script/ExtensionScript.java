@@ -451,8 +451,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		return node;
 	}
 
-	@Override
-	public void optionsLoaded() {
+    @Override
+    public void postInit() {
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
 			try {
 				this.loadScript(script);
@@ -470,7 +470,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
 		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
-	}
+    }
+
 	
 	public int addScriptsFromDir (File dir) {
 		logger.debug("Adding scripts from dir: " + dir.getAbsolutePath());
