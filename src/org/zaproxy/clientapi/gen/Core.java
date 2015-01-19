@@ -38,6 +38,9 @@ public class Core {
 		this.api = api;
 	}
 
+	/**
+	 * Gets the alert with the given ID, the corresponding HTTP message can be obtained with the 'messageId' field and 'message' API method
+	 */
 	public ApiResponse alert(String id) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -45,6 +48,9 @@ public class Core {
 		return api.callApi("core", "view", "alert", map);
 	}
 
+	/**
+	 * Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
+	 */
 	public ApiResponse alerts(String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -54,6 +60,9 @@ public class Core {
 		return api.callApi("core", "view", "alerts", map);
 	}
 
+	/**
+	 * Gets the number of alerts, optionally filtering by URL
+	 */
 	public ApiResponse numberOfAlerts(String baseurl) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -61,21 +70,33 @@ public class Core {
 		return api.callApi("core", "view", "numberOfAlerts", map);
 	}
 
+	/**
+	 * Gets the name of the hosts accessed through/by ZAP
+	 */
 	public ApiResponse hosts() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "hosts", map);
 	}
 
+	/**
+	 * Gets the sites accessed through/by ZAP (scheme and domain)
+	 */
 	public ApiResponse sites() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "sites", map);
 	}
 
+	/**
+	 * Gets the URLs accessed through/by ZAP
+	 */
 	public ApiResponse urls() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "urls", map);
 	}
 
+	/**
+	 * Gets the HTTP message with the given ID. Returns the ID, request/response headers and bodies, cookies and note.
+	 */
 	public ApiResponse message(String id) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -83,6 +104,9 @@ public class Core {
 		return api.callApi("core", "view", "message", map);
 	}
 
+	/**
+	 * Gets the HTTP messages sent by ZAP, request and response in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
+	 */
 	public ApiResponse messages(String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -92,6 +116,9 @@ public class Core {
 		return api.callApi("core", "view", "messages", map);
 	}
 
+	/**
+	 * Gets the number of messages, optionally filtering by URL
+	 */
 	public ApiResponse numberOfMessages(String baseurl) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -99,11 +126,17 @@ public class Core {
 		return api.callApi("core", "view", "numberOfMessages", map);
 	}
 
+	/**
+	 * Gets ZAP version
+	 */
 	public ApiResponse version() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "version", map);
 	}
 
+	/**
+	 * Gets the regular expressions, applied to URLs, to exclude from the Proxy
+	 */
 	public ApiResponse excludedFromProxy() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "excludedFromProxy", map);
@@ -211,6 +244,9 @@ public class Core {
 		return api.callApi("core", "action", "shutdown", map);
 	}
 
+	/**
+	 * Creates a new session, optionally overwriting existing files
+	 */
 	public ApiResponse newSession(String apikey, String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -222,6 +258,9 @@ public class Core {
 		return api.callApi("core", "action", "newSession", map);
 	}
 
+	/**
+	 * Loads the session with the given name
+	 */
 	public ApiResponse loadSession(String apikey, String name) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -232,6 +271,9 @@ public class Core {
 		return api.callApi("core", "action", "loadSession", map);
 	}
 
+	/**
+	 * Saves the session with the name supplied, optionally overwriting existing files
+	 */
 	public ApiResponse saveSession(String apikey, String name, String overwrite) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -290,6 +332,9 @@ public class Core {
 		return api.callApi("core", "action", "generateRootCA", map);
 	}
 
+	/**
+	 * Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
+	 */
 	public ApiResponse sendRequest(String apikey, String request, String followredirects) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -458,6 +503,9 @@ public class Core {
 		return api.callApiOther("core", "other", "setproxy", map);
 	}
 
+	/**
+	 * Generates a report in XML format
+	 */
 	public byte[] xmlreport(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -467,6 +515,34 @@ public class Core {
 		return api.callApiOther("core", "other", "xmlreport", map);
 	}
 
+	/**
+	 * Generates a report in HTML format
+	 */
+	public byte[] htmlreport(String apikey) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		return api.callApiOther("core", "other", "htmlreport", map);
+	}
+
+	/**
+	 * Gets the message with the given ID in HAR format
+	 */
+	public byte[] messageHar(String apikey, String id) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("id", id);
+		return api.callApiOther("core", "other", "messageHar", map);
+	}
+
+	/**
+	 * Gets the HTTP messages sent through/by ZAP, in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
+	 */
 	public byte[] messagesHar(String apikey, String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -479,6 +555,9 @@ public class Core {
 		return api.callApiOther("core", "other", "messagesHar", map);
 	}
 
+	/**
+	 * Sends the first HAR request entry, optionally following redirections. Returns, in HAR format, the request sent and response received and followed redirections, if any.
+	 */
 	public byte[] sendHarRequest(String apikey, String request, String followredirects) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
