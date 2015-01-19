@@ -102,7 +102,9 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 		x = this.addToolBarElements(toolbar, TOOLBAR_LOCATION_AFTER_PROGRESS_BAR, x);
 
 		toolbar.add(new JLabel(), LayoutHelper.getGBC(x++, 0, 1, 1.0)); // Spacer
-		toolbar.add(getOptionsButton(), LayoutHelper.getGBC(x++, 0, 1, 0, insets));
+		if(hasOptions()) {
+			toolbar.add(getOptionsButton(), LayoutHelper.getGBC(x++, 0, 1, 0, insets));
+		}
 
 		this.addToolBarElements(toolbar, TOOLBAR_LOCATION_END, x);
 	}
@@ -247,6 +249,7 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 	public void sessionModeChanged(Mode mode) {
 		this.mode = mode;
 		switch (mode) {
+		case attack:
 		case standard:
 		case protect:
 			// If the mode is standard or protect, make sure everything is set accordingly and

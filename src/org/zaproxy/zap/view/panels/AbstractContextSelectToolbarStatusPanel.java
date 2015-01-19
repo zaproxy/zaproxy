@@ -128,7 +128,9 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 		x = this.addToolBarElements(toolbar, TOOLBAR_LOCATION_AFTER_CONTEXTS_SELECT, x);
 
 		toolbar.add(new JLabel(), LayoutHelper.getGBC(x++, 0, 1, 1.0)); // Spacer
-		toolbar.add(getOptionsButton(), LayoutHelper.getGBC(x++, 0, 1, 0, insets));
+		if (hasOptions()) {
+			toolbar.add(getOptionsButton(), LayoutHelper.getGBC(x++, 0, 1, 0, insets));
+		}
 
 		this.addToolBarElements(toolbar, TOOLBAR_LOCATION_END, x);
 	}
@@ -241,6 +243,15 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 		log.debug("Contexts changed...");
 		contextSelectBox.reloadContexts(false);
 		contextSelectBox.setSelectedIndex(-1);
+	}
+
+	/**
+	 * Called during initialization to check whether an Options button should be added to the
+	 * toolbar or not. Implementations can override this method to remove the default Options
+	 * button.
+	 */
+	protected boolean hasOptions() {
+		return true;
 	}
 
 	/**
