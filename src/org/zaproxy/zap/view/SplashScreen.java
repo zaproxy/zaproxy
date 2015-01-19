@@ -153,13 +153,14 @@ public class SplashScreen extends JFrame implements Runnable {
                     
                 } catch (InterruptedException e) {
                     // New message to display
+                    thread.interrupted();
                 }
             }
         
         } catch (InvocationTargetException e) {
             // Ignore
         }
-        
+
         dispose();
     }
 
