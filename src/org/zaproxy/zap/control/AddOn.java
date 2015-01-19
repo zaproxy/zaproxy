@@ -20,6 +20,7 @@
 package org.zaproxy.zap.control;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
@@ -43,6 +44,13 @@ public class AddOn  {
 	private URL info = null;
 	private long size = 0;
 	private boolean hasZapAddOnEntry = false;
+
+	/**
+	 * Flag that indicates if the manifest was read (or attempted to). Allows to prevent reading the manifest a second time when
+	 * the add-on file is corrupt.
+	 */
+	private boolean manifestRead;
+
 	private String notBeforeVersion = null;
 	private String notFromVersion = null;
 	private String hash = null;
@@ -100,7 +108,8 @@ public class AddOn  {
 		loadManifestFile();
 	}
 	
-	private void loadManifestFile() {
+	private void loadManifestFile() throws IOException {
+		manifestRead = true;
 		if (file.exists()) {
 			// Might not exist in the tests
 			try (ZipFile zip = new ZipFile(file)) {
@@ -125,8 +134,6 @@ public class AddOn  {
 					}
 
 				}
-			} catch (Exception e) {
-				logger.error(e.getMessage(), e);
 			}
 		}
 		
@@ -134,7 +141,7 @@ public class AddOn  {
 	
 	public AddOn(String id, String name, String description, String author, int version, Status status, 
 			String changes, URL url, File file, long size, String notBeforeVersion, String notFromVersion,
-			URL info, String hash) {
+			URL info, String hash) throws IOException {
 		this.id = id;
 		this.name = name;
 		this.description = description;
@@ -235,8 +242,16 @@ public class AddOn  {
 	
 	public boolean hasZapAddOnEntry() {
 		if (! hasZapAddOnEntry) {
-			// Worth trying, as it depends which constructor has been used
-			this.loadManifestFile();
+			if (!manifestRead) {
+				// Worth trying, as it depends which constructor has been used
+				try {
+					this.loadManifestFile();
+				} catch (IOException e) {
+					if (logger.isDebugEnabled()) {
+						logger.debug("Failed to read the ZapAddOn.xml file of " + id + ":", e);
+					}
+				}
+			}
 		}
 		return hasZapAddOnEntry;
 	}
