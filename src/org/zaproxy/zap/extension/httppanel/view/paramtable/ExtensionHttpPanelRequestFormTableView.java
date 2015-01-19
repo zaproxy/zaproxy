@@ -13,7 +13,6 @@ import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitC
 import org.zaproxy.zap.extension.httppanel.view.DefaultHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.posttable.RequestPostTableView;
 import org.zaproxy.zap.view.HttpPanelManager;
 import org.zaproxy.zap.view.HttpPanelManager.HttpPanelViewFactory;
 

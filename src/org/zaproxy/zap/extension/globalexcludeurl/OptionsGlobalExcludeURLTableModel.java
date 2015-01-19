@@ -22,7 +22,6 @@
 package org.zaproxy.zap.extension.globalexcludeurl;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;

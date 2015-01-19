@@ -20,15 +20,11 @@
  */
 package org.zaproxy.zap.extension.globalexcludeurl;
 
-import java.util.List;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.OptionsParam;
-import org.zaproxy.zap.extension.api.API;
 
 /** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
