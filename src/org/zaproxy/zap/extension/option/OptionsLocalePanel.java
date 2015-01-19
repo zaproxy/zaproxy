@@ -24,9 +24,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -36,15 +33,15 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.LocaleUtils;
+import org.zaproxy.zap.view.ViewLocale;
 
 public class OptionsLocalePanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;
 	private JPanel panelMisc = null;
-	private JComboBox<String> localeSelect = null;
+	private JComboBox<ViewLocale> localeSelect = null;
 	private JLabel localeLabel = null;
 	private JLabel localeChangeLabel = null;
-	private Map<String, String> localeMap = new HashMap<>();
 	
     public OptionsLocalePanel() {
         super();
@@ -139,17 +136,19 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 		return panelMisc;
 	}
 	
-	private JComboBox<String> getLocaleSelect() {
+	private JComboBox<ViewLocale> getLocaleSelect() {
 		if (localeSelect == null) {
 			localeSelect = new JComboBox<>();
+			for (ViewLocale locale : LocaleUtils.getAvailableViewLocales()) {
+				localeSelect.addItem(locale);
+			}
 			localeSelect.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
 					// Change to use the selected language in the dialog
-				    String selectedLocale = (String) localeSelect.getSelectedItem();
-				    String locale = localeMap.get(selectedLocale);
-				    if (locale != null) {
-						Constant.setLocale(locale);
+				    ViewLocale selectedLocale = (ViewLocale) localeSelect.getSelectedItem();
+				    if (selectedLocale != null) {
+						Constant.setLocale(selectedLocale.getLocale());
 						localeLabel.setText(Constant.messages.getString("locale.options.label.language"));
 						localeChangeLabel.setText(Constant.messages.getString("locale.options.label.change"));
 				    }
@@ -160,13 +159,6 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 	
 	@Override
 	public void initParam(Object obj) {
-	    // Pick locales up from filenames
-		List <String> locales = LocaleUtils.getAvailableLocales();
-		for (String locale : locales) {
-			String desc = LocaleUtils.getLocalDisplayName(locale);
-			localeSelect.addItem(desc);
-			localeMap.put(desc, locale);
-		}
 	}
 	
 	@Override
@@ -177,10 +169,9 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
-	    String selectedLocale = (String) localeSelect.getSelectedItem();
-	    String locale = localeMap.get(selectedLocale);
-	    if (locale != null) {
-		    options.getViewParam().setLocale(locale);
+	    ViewLocale selectedLocale = (ViewLocale) localeSelect.getSelectedItem();
+	    if (selectedLocale != null) {
+		    options.getViewParam().setLocale(selectedLocale.getLocale());
 	    }
 	    
 	}

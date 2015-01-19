@@ -56,6 +56,6 @@
 	<key>LSMinimumSystemVersion</key>
 	<string></string>
 	<key>NSHumanReadableCopyright</key>
-	<string>Copyright 2013 OWASP ZAP Project. All Rights Reserved.</string>
+	<string>Copyright © 2010-2015 OWASP ZAP Project. All Rights Reserved.</string>
 </dict>
 </plist>

@@ -168,7 +168,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void addAlertToTree(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
-        if (EventQueue.isDispatchThread()) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             addAlertToTreeEventHandler(alert, ref, msg);
 
         } else {

@@ -76,7 +76,9 @@ public class AddOnCollection {
 					// Ignore
 				}
             	
-        		AddOn ao = new AddOn(
+        		AddOn ao;
+        		try {
+        			ao = new AddOn(
         						id, 
         						config.getString("addon_" + id + ".name"), 
         						config.getString("addon_" + id + ".description"), 
@@ -91,6 +93,11 @@ public class AddOnCollection {
         						config.getString("addon_" + id + ".not-from-version", ""),
         						infoUrl,
         						config.getString("addon_" + id + ".hash", null));
+				} catch (Exception e) {
+					logger.warn("Failed to create add-on for " + id, e);
+					continue;
+				}
+
         		if (ao.canLoad()) {
         			// Ignore ones that dont apply to this version
         			this.addOns.add(ao);
@@ -135,7 +142,11 @@ public class AddOnCollection {
         if (listFile != null) {
         	for (File addOnFile : listFile) {
         		if (AddOn.isAddOn(addOnFile)) {
-	            	AddOn ao = new AddOn(addOnFile);
+	            	AddOn ao = createAddOn(addOnFile);
+                    if (ao == null) {
+                        continue;
+                    }
+
 	            	boolean add = true;
 	            	for (AddOn addOn : addOns) {
 	            		if (ao.isSameAddOn(addOn)) {
@@ -170,6 +181,15 @@ public class AddOnCollection {
         		}
 	        }
         }
+    }
+
+    private static AddOn createAddOn(File addOnFile) {
+        try {
+            return new AddOn(addOnFile);
+        } catch (Exception e) {
+            logger.warn("Failed to create add-on for: " + addOnFile.toString(), e);
+        }
+        return null;
     }
     
     public List <AddOn> getAddOns() {

@@ -339,7 +339,9 @@ public class TabbedPanel2 extends TabbedPanel {
 	public void removeTab(AbstractPanel panel) {
 		this.remove(panel);
 		this.fullTabList.remove(panel);
-		this.removedTabList.remove(panel);
+		if (this.removedTabList.remove(panel)) {
+			handleHiddenTabListTab();
+		}
 	}
 
   /**

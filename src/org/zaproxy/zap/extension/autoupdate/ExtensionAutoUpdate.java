@@ -196,7 +196,14 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			return;
 		}
 
-		AddOn ao = new AddOn(file);
+		AddOn ao;
+		try {
+			ao = new AddOn(file);
+		} catch (Exception e) {
+			showWarningMessageInvalidAddOnFile();
+			return;
+		}
+
 		if (!ao.canLoad()) {
 			showWarningMessageCantLoadAddOn(ao);
 			return;
