@@ -39,6 +39,7 @@ import javax.xml.transform.stream.StreamResult;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMessage;
@@ -55,6 +56,7 @@ public class API {
 	
 	public static String API_DOMAIN = "zap";
 	public static String API_URL = "http://" + API_DOMAIN + "/";
+	public static String API_URL_S = "https://" + API_DOMAIN + "/";
 	public static String API_KEY_PARAM = "apikey";
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
@@ -121,6 +123,10 @@ public class API {
 		}
 		return true;
 	}
+	
+	private boolean isSecureOnly() {
+		return Model.getSingleton().getOptionsParam().getApiParam().isSecureOnly();
+	}
 
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
@@ -155,9 +161,15 @@ public class API {
 			}
 		}
 		
-		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! force) {
+		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
+		if (this.isSecureOnly() && ! requestHeader.isSecure()) {
+			// Insecure request with secure only set, always ignore
+			logger.debug("handleApiRequest rejecting insecure request");
+			return false;
+		}
+			
 		logger.debug("handleApiRequest " + url);
 
 		HttpMessage msg = new HttpMessage();
@@ -378,9 +390,16 @@ public class API {
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String key = this.getApiKey();
 		String base = API_URL;
+		if (this.isSecureOnly()) {
+			base = API_URL_S;
+		}
 		if (!proxy) {
-			base = "http://" + Model.getSingleton().getOptionsParam().getProxyParam().getProxyIp() + ":" + 
-				Model.getSingleton().getOptionsParam().getProxyParam().getProxyPort() + "/";
+			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
+			if (this.isSecureOnly()) {
+				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
+			} else {
+				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
+			}
 		}
 		
 		if (!RequestType.view.equals(type) && key.length() > 0) {

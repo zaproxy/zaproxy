@@ -22,10 +22,12 @@ import org.parosproxy.paros.common.AbstractParam;
 public class OptionsParamApi extends AbstractParam {
 
 	public static final String ENABLED = "api.enabled";
+	public static final String SECURE_ONLY = "api.secure";
 	public static final String POST_ACTIONS = "api.postactions";
 	public static final String API_KEY = "api.key";
 	
 	private boolean enabled = false;
+	private boolean secureOnly = false;
 	private String key = "";
 	//private boolean postActions = false;
 	
@@ -37,6 +39,7 @@ public class OptionsParamApi extends AbstractParam {
     protected void parse() {
         
 	    enabled = getConfig().getBoolean(ENABLED, true);
+	    secureOnly = getConfig().getBoolean(SECURE_ONLY, false);
 	    key = getConfig().getString(API_KEY, "");
 	    //postActions = getConfig().getBoolean(POST_ACTIONS, false);
     }
@@ -48,6 +51,15 @@ public class OptionsParamApi extends AbstractParam {
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
 		getConfig().setProperty(ENABLED, enabled);
+	}
+
+	public boolean isSecureOnly() {
+		return secureOnly;
+	}
+
+	public void setSecureOnly(boolean secureOnly) {
+		this.secureOnly = secureOnly;
+		getConfig().setProperty(SECURE_ONLY, secureOnly);
 	}
 
 	public String getKey() {
