@@ -40,6 +40,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JPanel panelMisc = null;
 	private JCheckBox chkEnabled = null;
+	private JCheckBox chkSecureOnly = null;
 	private ZapTextField keyField = null; 
 	private JButton generateKeyButton = null;
 
@@ -69,9 +70,10 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			panelMisc = new JPanel();
 			panelMisc.setLayout(new GridBagLayout());
 			panelMisc.add(getChkEnabled(), LayoutHelper.getGBC(0, 0, 1, 0.5));
-			panelMisc.add(new JLabel(Constant.messages.getString("api.options.label.apiKey")), LayoutHelper.getGBC(0, 1, 1, 0.5));
-			panelMisc.add(getKeyField(), LayoutHelper.getGBC(1, 1, 1, 0.5));
-			panelMisc.add(getGenerateKeyButton(), LayoutHelper.getGBC(1, 2, 1, 0.5));
+			panelMisc.add(getChkSecureOnly(), LayoutHelper.getGBC(0, 1, 1, 0.5));
+			panelMisc.add(new JLabel(Constant.messages.getString("api.options.label.apiKey")), LayoutHelper.getGBC(0, 2, 1, 0.5));
+			panelMisc.add(getKeyField(), LayoutHelper.getGBC(1, 2, 1, 0.5));
+			panelMisc.add(getGenerateKeyButton(), LayoutHelper.getGBC(1, 3, 1, 0.5));
 			panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 		}
 		return panelMisc;
@@ -89,6 +91,16 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			chkEnabled.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
 		}
 		return chkEnabled;
+	}
+	
+	private JCheckBox getChkSecureOnly() {
+		if (chkSecureOnly == null) {
+			chkSecureOnly = new JCheckBox();
+			chkSecureOnly.setText(Constant.messages.getString("api.options.secure"));
+			chkSecureOnly.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			chkSecureOnly.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return chkSecureOnly;
 	}
 	
 	private ZapTextField getKeyField() {
@@ -127,6 +139,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
 	    getChkEnabled().setSelected(options.getApiParam().isEnabled());
+	    getChkSecureOnly().setSelected(options.getApiParam().isSecureOnly());
 	    getKeyField().setText(options.getApiParam().getKey());
 	    //getChkPostActions().setSelected(options.getApiParam().isPostActions());
 	}
@@ -140,6 +153,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    options.getApiParam().setEnabled(getChkEnabled().isSelected());
+	    options.getApiParam().setSecureOnly(getChkSecureOnly().isSelected());
     	options.getApiParam().setKey(getKeyField().getText());
 	    //options.getApiParam().setPostActions(getChkPostActions().isEnabled());
 	    
