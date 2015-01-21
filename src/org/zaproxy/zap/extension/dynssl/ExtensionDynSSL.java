@@ -62,6 +62,23 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	    }
         extensionHook.addOptionsParamSet(getParams());
 	}
+	
+	@Override
+	public void postInit() {
+		if (this.getParams().getRootca() == null) {
+            // Create a new root cert in a background thread
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        createNewRootCa();
+                    } catch (Exception e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
+            }).start();
+		}
+	}
 
 	@Override
 	public void start() {
