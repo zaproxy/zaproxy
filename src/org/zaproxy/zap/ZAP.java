@@ -55,15 +55,12 @@ import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
-import org.zaproxy.zap.extension.dynssl.DynSSLParam;
-import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
-import org.zaproxy.zap.view.SplashScreen;
 
 /**
  * 
@@ -200,7 +197,6 @@ public class ZAP {
     private void run() throws Exception {
 
         final boolean isGUI = cmdLine.isGUI();
-        SplashScreen splashScreen = null;
 
         boolean firstTime = false;
         if (isGUI) {
@@ -309,7 +305,7 @@ public class ZAP {
             }
 
             if (firstTime) {
-		// Disabled for now - we have too many popups occuring when you first start up
+            	// Disabled for now - we have too many popups occuring when you first start up
                 // be nice to have a clean start up wizard...
                 // ExtensionHelp.showHelp();
             
@@ -318,25 +314,6 @@ public class ZAP {
                 final ExtensionAutoUpdate eau = (ExtensionAutoUpdate) Control.getSingleton().getExtensionLoader().getExtension("ExtensionAutoUpdate");
                 if (eau != null) {
                     eau.alertIfNewVersions();
-                }
-            }
-
-            // check root certificate
-            final ExtensionDynSSL extension = (ExtensionDynSSL) Control.getSingleton().getExtensionLoader().getExtension("ExtensionDynSSL");
-            if (extension != null) {
-                DynSSLParam dynsslparam = extension.getParams();
-                if (dynsslparam.getRootca() == null) {
-                    // Create a new root cert in a background thread
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                extension.createNewRootCa();
-                            } catch (Exception e) {
-                                log.error(e.getMessage(), e);
-                            }
-                        }
-                    }).start();
                 }
             }
             
