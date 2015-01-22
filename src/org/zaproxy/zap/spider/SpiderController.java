@@ -105,7 +105,6 @@ public class SpiderController implements SpiderParserListener {
 		// If parsing of robots.txt is enabled
 		if (spider.getSpiderParam().isParseRobotsTxt()) {
 			parser = new SpiderRobotstxtParser(spider.getSpiderParam());
-			parser.addSpiderParserListener(this);
 			parsers.add(parser);
 		}
 		
@@ -113,7 +112,6 @@ public class SpiderController implements SpiderParserListener {
 		if (spider.getSpiderParam().isParseSitemapXml()) {
 			if (log.isDebugEnabled()) log.debug("Adding SpiderSitemapXMLParser");
 			parser = new SpiderSitemapXMLParser(spider.getSpiderParam());
-			parser.addSpiderParserListener(this);
 			parsers.add(parser);
 		} else {
 			if (log.isDebugEnabled()) log.debug("NOT Adding SpiderSitemapXMLParser");
@@ -122,41 +120,34 @@ public class SpiderController implements SpiderParserListener {
 		// If parsing of SVN entries is enabled
 		if (spider.getSpiderParam().isParseSVNEntries()) {
 			parser = new SpiderSVNEntriesParser(spider.getSpiderParam());
-			parser.addSpiderParserListener(this);
 			parsers.add(parser);
 		}
 
 		// If parsing of GIT entries is enabled
 		if (spider.getSpiderParam().isParseGit()) {
 			parser = new SpiderGitParser(spider.getSpiderParam());
-			parser.addSpiderParserListener(this);
 			parsers.add(parser);
 		}
 		
 		// Redirect requests parser
 		parser = new SpiderRedirectParser();
-		parser.addSpiderParserListener(this);
 		parsers.add(parser);
 
 		// Simple HTML parser
 		parser = new SpiderHtmlParser(spider.getSpiderParam());
-		parser.addSpiderParserListener(this);
 		this.parsers.add(parser);
 
 		// HTML Form parser
 		parser = new SpiderHtmlFormParser(spider.getSpiderParam());
-		parser.addSpiderParserListener(this);
 		this.parsers.add(parser);
 		Config.CurrentCompatibilityMode.setFormFieldNameCaseInsensitive(false);
 		
 		// Prepare the parsers for OData ATOM files
 		parser = new SpiderODataAtomParser();
-		parser.addSpiderParserListener(this);
 		this.parsers.add(parser);
 
 		// Prepare the parsers for simple non-HTML files
 		parser = new SpiderTextParser();
-		parser.addSpiderParserListener(this);
 		this.parsers.add(parser);
 		
 		this.parsersUnmodifiableView = Collections.unmodifiableList(parsers);
@@ -230,12 +221,25 @@ public class SpiderController implements SpiderParserListener {
 		parseFilters.add(filter);
 	}
 
+	public void init() {
+		visitedGet.clear();
+		visitedPost.clear();
+
+		for (SpiderParser parser : parsers) {
+			parser.addSpiderParserListener(this);
+		}
+	}
+
 	/**
 	 * Clears the previous process.
 	 */
 	public void reset() {
 		visitedGet.clear();
 		visitedPost.clear();
+
+		for (SpiderParser parser : parsers) {
+			parser.removeSpiderParserListener(this);
+		}
 	}
 
 	@Override
@@ -404,7 +408,6 @@ public class SpiderController implements SpiderParserListener {
 
 	public void addSpiderParser(SpiderParser parser) {
 		log.info("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
-		parser.addSpiderParserListener(this);
 		this.parsers.addFirst(parser);
 	}
 }

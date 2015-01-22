@@ -431,7 +431,7 @@ public class Spider {
 		if (scanUser != null)
 			log.info("Scan will be performed from the point of view of User: " + scanUser.getName());
 
-		this.controller.reset();
+		this.controller.init();
 		this.stopped = false;
 		this.paused = false;
 		this.initialized = false;
