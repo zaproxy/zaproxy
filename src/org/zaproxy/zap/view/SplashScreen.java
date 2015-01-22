@@ -20,19 +20,18 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Image;
 import java.awt.Insets;
 import java.awt.Toolkit;
-import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
 import java.util.Stack;
+
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.JFrame;
@@ -40,7 +39,9 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
@@ -134,30 +135,33 @@ public class SplashScreen extends JFrame implements Runnable {
                         Thread.sleep(100);
                         
                     } else {
-                        EventQueue.invokeAndWait(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (!tipsLoaded && getTipsAndTricks() != null) {
+                        if (!tipsLoaded && getTipsAndTricks() != null) {
+                        	SwingUtilities.invokeLater(new Runnable() {
+								@Override
+								public void run() {
                                     displayRandomTip();
-                                }
-                                
-                                while (!stack.isEmpty()) {
-
+								}});
+                        }
+                        
+                    	SwingUtilities.invokeLater(new Runnable() {
+							@Override
+							public void run() {
+								while (!stack.isEmpty()) {
+									// Need to double check as another thread could have grabved the message
                                     getLogPanel().append(stack.pop());
                                     JScrollBar vertical = getLogJScrollPane().getVerticalScrollBar();
                                     vertical.setValue(vertical.getMaximum());
-                                }
-                            }
-                        });
+								}
+							}});
                     }
                     
                 } catch (InterruptedException e) {
                     // New message to display
-                    thread.interrupted();
+                    Thread.interrupted();
                 }
             }
         
-        } catch (InvocationTargetException e) {
+        } catch (Exception e) {
             // Ignore
         }
 
