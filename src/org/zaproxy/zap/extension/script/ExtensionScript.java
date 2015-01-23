@@ -383,6 +383,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				logger.error(e.getMessage(), e);
 			}
 		}
+		if (script.isLoadOnStart()) {
+			this.getScriptParam().addScript(script);
+			this.getScriptParam().saveScripts();
+		}
 		return node;
 	}
 
