@@ -136,7 +136,7 @@ public class ScriptParam extends AbstractParam {
 	            getConfig().setProperty(elementBaseKey + SCRIPT_NAME_KEY, script.getName());
 	            getConfig().setProperty(elementBaseKey + SCRIPT_DESC_KEY, script.getDescription());
 	            getConfig().setProperty(elementBaseKey + SCRIPT_ENGINE_KEY, script.getEngineName());
-	            getConfig().setProperty(elementBaseKey + SCRIPT_TYPE_KEY, script.getType().getName());
+	            getConfig().setProperty(elementBaseKey + SCRIPT_TYPE_KEY, script.getTypeName());
 	            getConfig().setProperty(elementBaseKey + SCRIPT_ENABLED_KEY, Boolean.valueOf(script.isEnabled()));
 	            getConfig().setProperty(elementBaseKey + SCRIPT_FILE_KEY, script.getFile().getAbsolutePath());
 	            i++;
