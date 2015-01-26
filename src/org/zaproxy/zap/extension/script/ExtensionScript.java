@@ -210,6 +210,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.engineWrappers.add(wrapper);
 
 		setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, wrapper);
+		setScriptEngineWrapper(getTreeModel().getTemplatesNode(), wrapper, wrapper);
 		
 		// Templates for this engine might not have been loaded
 		this.loadTemplates(wrapper);

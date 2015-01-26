@@ -64,6 +64,9 @@ public class ScriptWrapper {
 		this.name = name;
 		this.description = description;
 		this.engine = engine;
+		if (engine != null) {
+			this.engineName = engine.getEngineName();
+		}
 		this.type = type;
 	}
 	
@@ -124,6 +127,9 @@ public class ScriptWrapper {
 	}
 
 	public void setEngine(ScriptEngineWrapper engine) {
+		if (engine != null) {
+			engineName = engine.getEngineName();
+		}
 		this.engine = engine;
 	}
 	public void setEngineName(String engineName) {
