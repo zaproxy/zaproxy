@@ -209,8 +209,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		logger.debug("registerEngineWrapper " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		this.engineWrappers.add(wrapper);
 
-		setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper);
-		setScriptEngineWrapper(getTreeModel().getTemplatesNode(), wrapper);
+		setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, wrapper);
 		
 		// Templates for this engine might not have been loaded
 		this.loadTemplates(wrapper);
@@ -218,26 +217,55 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 	
 	/**
-	 * Sets the given {@code engineWrapper} to all children of {@code baseNode} that targets the given engine wrapper.
+	 * Sets the given {@code newEngineWrapper} to all children of {@code baseNode} that targets the given {@code engineWrapper}.
 	 *
 	 * @param baseNode the node whose child nodes will have the engine set, must not be {@code null}
-	 * @param engineWrapper the script engine that will be set to the targeting scripts, must not be {@code null}
+	 * @param engineWrapper the script engine of the targeting scripts, must not be {@code null}
+	 * @param newEngineWrapper the script engine that will be set to the targeting scripts
 	 * @see ScriptWrapper#setEngine(ScriptEngineWrapper)
 	 */
-	private static void setScriptEngineWrapper(ScriptNode baseNode, ScriptEngineWrapper engineWrapper) {
+	private void setScriptEngineWrapper(
+			ScriptNode baseNode,
+			ScriptEngineWrapper engineWrapper,
+			ScriptEngineWrapper newEngineWrapper) {
 		for (@SuppressWarnings("unchecked")
 		Enumeration<ScriptNode> e = baseNode.depthFirstEnumeration(); e.hasMoreElements();) {
 			ScriptNode node = e.nextElement();
-			if (node.getUserObject() != null) {
+			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
 				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
-				if (isSameScriptEngine(
-						scriptWrapper.getEngineName(),
-						engineWrapper.getEngineName(),
-						engineWrapper.getLanguageName())) {
-					scriptWrapper.setEngine(engineWrapper);
+				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
+					scriptWrapper.setEngine(newEngineWrapper);
+					if (newEngineWrapper == null) {
+						if (scriptWrapper.isEnabled()) {
+							setEnabled(scriptWrapper, false);
+							scriptWrapper.setPreviouslyEnabled(true);
+						}
+					} else if (scriptWrapper.isPreviouslyEnabled()) {
+						setEnabled(scriptWrapper, true);
+						scriptWrapper.setPreviouslyEnabled(false);
+					}
 				}
 			}
 		}
+	}
+
+	/**
+	 * Tells whether or not the given {@code scriptWrapper} has the given {@code engineWrapper}.
+	 * <p>
+	 * If the given {@code scriptWrapper} has an engine set it's checked by reference (operator {@code ==}), otherwise it's
+	 * used the engine names.
+	 *
+	 * @param scriptWrapper the script wrapper that will be checked
+	 * @param engineWrapper the engine that will be checked against the engine of the script
+	 * @return {@code true} if the given script has the given engine, {@code false} otherwise.
+	 * @see #isSameScriptEngine(String, String, String)
+	 */
+	private static boolean hasSameScriptEngine(ScriptWrapper scriptWrapper, ScriptEngineWrapper engineWrapper) {
+		if (scriptWrapper.getEngine() != null) {
+			return scriptWrapper.getEngine() == engineWrapper;
+		}
+
+		return isSameScriptEngine(scriptWrapper.getEngineName(), engineWrapper.getEngineName(), engineWrapper.getLanguageName());
 	}
 
 	/**
@@ -274,7 +302,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	/**
 	 * Removes the given script engine wrapper.
 	 * <p>
-	 * The templates and scripts associated with the given engine are not removed but its engine is set to {@code null}.
+	 * The user's templates and scripts associated with the given engine are not removed but its engine is set to {@code null}.
+	 * Default templates are removed.
 	 * <p>
 	 * The call to this method has no effect if the given type is not registered.
 	 * 
@@ -286,8 +315,26 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public void removeScriptEngineWrapper(ScriptEngineWrapper wrapper) {
 		logger.debug("Removing script engine: " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		if (this.engineWrappers.remove(wrapper)) {
-			setScriptEngineWrapper(getTreeModel().getScriptsNode(), null);
-			setScriptEngineWrapper(getTreeModel().getTemplatesNode(), null);
+			setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, null);
+			processTemplatesOfRemovedEngine(getTreeModel().getTemplatesNode(), wrapper);
+		}
+	}
+
+	private void processTemplatesOfRemovedEngine(ScriptNode baseNode, ScriptEngineWrapper engineWrapper) {
+		@SuppressWarnings("unchecked")
+		List<ScriptNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
+		for (ScriptNode node : templateNodes) {
+			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
+				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
+				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
+					if (engineWrapper.isDefaultTemplate(scriptWrapper)) {
+						removeTemplate(scriptWrapper);
+					} else {
+						scriptWrapper.setEngine(null);
+						this.getTreeModel().nodeStructureChanged(scriptWrapper);
+					}
+				}
+			}
 		}
 	}
 
@@ -1046,6 +1093,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	public void setEnabled(ScriptWrapper script, boolean enabled) {
+		if (enabled && script.getEngine() == null) {
+			return;
+		}
+
 		script.setEnabled(enabled);
 		this.getTreeModel().nodeStructureChanged(script);
 	}

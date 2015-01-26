@@ -38,6 +38,17 @@ public class ScriptWrapper {
 	private String lastOutput = "";
 	private boolean changed = false;
 	private boolean enabled = false;
+
+	/**
+	 * Flag that indicates if the script was enabled before setting the script engine to {@code null}.
+	 * <p>
+	 * Since the scripts are disabled when the engine is set to {@code null} it allows to restore the enabled state of the
+	 * script after restoring the engine.
+	 * 
+	 * @see #isPreviouslyEnabled()
+	 */
+	private boolean previouslyEnabled;
+
 	private boolean error = false;
 	private boolean loadOnStart = false;
 	private File file;
@@ -72,6 +83,9 @@ public class ScriptWrapper {
 		this.name = name;
 		this.description = description;
 		this.engine = engine;
+		if (engine != null) {
+			this.engineName = engine.getEngineName();
+		}
 		this.type = type;
 		this.enabled = enabled;
 		this.file = file;
@@ -99,9 +113,16 @@ public class ScriptWrapper {
 	public void setDescription(String description) {
 		this.description = description;
 	}
+
+	/**
+	 * Gets the script engine wrapper. Might be {@code null} if the engine is not installed or was not yet set.
+	 *
+	 * @return the engine of the script, or {@code null} if not installed or was not yet set
+	 */
 	public ScriptEngineWrapper getEngine() {
 		return engine;
 	}
+
 	public void setEngine(ScriptEngineWrapper engine) {
 		this.engine = engine;
 	}
@@ -158,7 +179,19 @@ public class ScriptWrapper {
 		return enabled;
 	}
 
+	/**
+	 * Sets if this script is enabled.
+	 * <p>
+	 * It's not possible to enable scripts without engine.
+	 *
+	 * @param enabled {@code true} if the script should be enabled, {@code false} otherwise
+	 * @see #getEngine()
+	 */
 	public void setEnabled(boolean enabled) {
+		if (enabled && engine == null) {
+			return;
+		}
+
 		if (this.enabled != enabled) {
 			this.enabled = enabled;
 			this.changed = true;
@@ -227,5 +260,30 @@ public class ScriptWrapper {
 	 */
 	public void setWriter(Writer writer) {
 		this.writer = writer;
+	}
+
+	/**
+	 * Sets whether or not this script was enabled before setting the engine to {@code null}.
+	 *
+	 * @param enabled {@code true} if the engine was enabled, {@code false} otherwise.
+	 * @since 2.4.0
+	 * @see #isPreviouslyEnabled()
+	 */
+	void setPreviouslyEnabled(boolean enabled) {
+		previouslyEnabled = enabled;
+	}
+
+	/**
+	 * Tells whether or not the wrapper script was enabled before setting its script engine to {@code null}.
+	 * <p>
+	 * Allows to restore the enabled state of the script after restoring the engine.
+	 * 
+	 * @return {@code true} if the script was enabled before setting the engine to {@code null}, {@code false} otherwise.
+	 * @since 2.4.0
+	 * @see #setPreviouslyEnabled(boolean)
+	 * @see #setEngine(ScriptEngineWrapper)
+	 */
+	boolean isPreviouslyEnabled() {
+		return previouslyEnabled;
 	}
 }

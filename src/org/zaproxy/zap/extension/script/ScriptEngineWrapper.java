@@ -70,4 +70,13 @@ public abstract class ScriptEngineWrapper {
 	 */
 	public abstract boolean isSupportsMissingTemplates();
 	
+	/**
+	 * Tells whether or not the given {@code script} is a default template of this engine.
+	 * <p>
+	 * Default templates are automatically removed when the script engine is removed. 
+	 *
+	 * @param script the script template that should be checked
+	 * @return {@code true} if the template script is default of this engine, {@code false} otherwise
+	 */
+	public abstract boolean isDefaultTemplate(ScriptWrapper script);
 }

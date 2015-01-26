@@ -114,4 +114,9 @@ public class DefaultEngineWrapper extends ScriptEngineWrapper {
 		return true;
 	}
 
+    @Override
+    public boolean isDefaultTemplate(ScriptWrapper script) {
+        return false;
+    }
+
 }
