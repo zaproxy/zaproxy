@@ -214,6 +214,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		// Templates for this engine might not have been loaded
 		this.loadTemplates(wrapper);
 
+		if (scriptUI != null) {
+			// TODO uncomment once the "Script Console" implements the new method
+			// scriptUI.engineAdded(wrapper);
+		}
 	}
 	
 	/**
@@ -258,9 +262,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @param scriptWrapper the script wrapper that will be checked
 	 * @param engineWrapper the engine that will be checked against the engine of the script
 	 * @return {@code true} if the given script has the given engine, {@code false} otherwise.
+	 * @since 2.4.0
 	 * @see #isSameScriptEngine(String, String, String)
 	 */
-	private static boolean hasSameScriptEngine(ScriptWrapper scriptWrapper, ScriptEngineWrapper engineWrapper) {
+	public static boolean hasSameScriptEngine(ScriptWrapper scriptWrapper, ScriptEngineWrapper engineWrapper) {
 		if (scriptWrapper.getEngine() != null) {
 			return scriptWrapper.getEngine() == engineWrapper;
 		}
@@ -275,8 +280,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * @param engineName the name of the script engine.
 	 * @param engineLanguage the language of the script engine.
 	 * @return {@code true} if the {@code name} matches the given engine's name and language, {@code false} otherwise.
+	 * @since 2.4.0
+	 * @see #hasSameScriptEngine(ScriptWrapper, ScriptEngineWrapper)
 	 */
-	private static boolean isSameScriptEngine(String name, String engineName, String engineLanguage) {
+	public static boolean isSameScriptEngine(String name, String engineName, String engineLanguage) {
 		// In the configs we just use the engine name, in the UI we use the language name as well
 		if (name.indexOf(LANG_ENGINE_SEP) > 0) {
 			if (name.equals(engineLanguage + LANG_ENGINE_SEP + engineName)) {
@@ -315,6 +322,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public void removeScriptEngineWrapper(ScriptEngineWrapper wrapper) {
 		logger.debug("Removing script engine: " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		if (this.engineWrappers.remove(wrapper)) {
+			if (scriptUI != null) {
+				// TODO uncomment once the "Script Console" implements the new method
+				// scriptUI.engineRemoved(wrapper);
+			}
+
 			setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, null);
 			processTemplatesOfRemovedEngine(getTreeModel().getTemplatesNode(), wrapper);
 		}
