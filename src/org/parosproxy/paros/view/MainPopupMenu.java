@@ -41,6 +41,7 @@
 // ZAP: 2014/03/23 Issue 1079: Remove misplaced main pop up menu separators
 // ZAP: 2014/03/23 Issue 1088: Deprecate the method ExtensionPopupMenu#prepareShow
 // ZAP: 2014/08/14 Issue 1302: Context menu item action might not get executed
+// ZAP: 2015/01/22 Use ExtensionPopupMenu for super menus
 
 package org.parosproxy.paros.view;
 
@@ -309,7 +310,16 @@ public class MainPopupMenu extends JPopupMenu {
 	private JMenu getSuperMenu (String name, int index) {
 		JMenu superMenu = superMenus.get(name);
 		if (superMenu == null) {
-			superMenu = new JMenu(name);
+			// Use an ExtensionPopupMenu so child menus are dismissed
+			superMenu = new ExtensionPopupMenu(name) {
+
+				private static final long serialVersionUID = 6825880451078204378L;
+
+				@Override
+				public boolean isEnableForComponent(Component invoker) {
+					return true;
+				}
+			};
 			superMenus.put(name, superMenu);
 			addMenuItem(superMenu, index);
 		}

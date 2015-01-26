@@ -34,6 +34,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -193,37 +194,167 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		return engineNames;
 	}
 	
+	/**
+	 * Registers a new script engine wrapper.
+	 * <p>
+	 * The templates of the wrapped script engine are loaded, if any.
+	 * <p>
+	 * The engine is set to existing scripts targeting the given engine.
+	 *
+	 * @param wrapper the script engine wrapper that will be added, must not be {@code null}
+	 * @see #removeScriptEngineWrapper(ScriptEngineWrapper)
+	 * @see ScriptWrapper#setEngine(ScriptEngineWrapper)
+	 */
 	public void registerScriptEngineWrapper(ScriptEngineWrapper wrapper) {
 		logger.debug("registerEngineWrapper " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		this.engineWrappers.add(wrapper);
+
+		setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, wrapper);
+		setScriptEngineWrapper(getTreeModel().getTemplatesNode(), wrapper, wrapper);
+		
 		// Templates for this engine might not have been loaded
 		this.loadTemplates(wrapper);
 
+		if (scriptUI != null) {
+			// TODO uncomment once the "Script Console" implements the new method
+			// scriptUI.engineAdded(wrapper);
+		}
 	}
 	
-	public ScriptEngineWrapper getEngineWrapper(String name) {
-		for (ScriptEngineWrapper sew : this.engineWrappers) {
-			// In the configs we just use the engine name, in the UI we use the language name as well
-			if (name.indexOf(LANG_ENGINE_SEP) > 0) {
-				if (name.equals(sew.getLanguageName() + LANG_ENGINE_SEP + sew.getEngineName())) {
-					return sew;
-				}
-			} else {
-				if (name.equals(sew.getEngineName())) {
-					return sew;
+	/**
+	 * Sets the given {@code newEngineWrapper} to all children of {@code baseNode} that targets the given {@code engineWrapper}.
+	 *
+	 * @param baseNode the node whose child nodes will have the engine set, must not be {@code null}
+	 * @param engineWrapper the script engine of the targeting scripts, must not be {@code null}
+	 * @param newEngineWrapper the script engine that will be set to the targeting scripts
+	 * @see ScriptWrapper#setEngine(ScriptEngineWrapper)
+	 */
+	private void setScriptEngineWrapper(
+			ScriptNode baseNode,
+			ScriptEngineWrapper engineWrapper,
+			ScriptEngineWrapper newEngineWrapper) {
+		for (@SuppressWarnings("unchecked")
+		Enumeration<ScriptNode> e = baseNode.depthFirstEnumeration(); e.hasMoreElements();) {
+			ScriptNode node = e.nextElement();
+			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
+				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
+				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
+					scriptWrapper.setEngine(newEngineWrapper);
+					if (newEngineWrapper == null) {
+						if (scriptWrapper.isEnabled()) {
+							setEnabled(scriptWrapper, false);
+							scriptWrapper.setPreviouslyEnabled(true);
+						}
+					} else if (scriptWrapper.isPreviouslyEnabled()) {
+						setEnabled(scriptWrapper, true);
+						scriptWrapper.setPreviouslyEnabled(false);
+					}
 				}
 			}
 		}
+	}
 
+	/**
+	 * Tells whether or not the given {@code scriptWrapper} has the given {@code engineWrapper}.
+	 * <p>
+	 * If the given {@code scriptWrapper} has an engine set it's checked by reference (operator {@code ==}), otherwise it's
+	 * used the engine names.
+	 *
+	 * @param scriptWrapper the script wrapper that will be checked
+	 * @param engineWrapper the engine that will be checked against the engine of the script
+	 * @return {@code true} if the given script has the given engine, {@code false} otherwise.
+	 * @since 2.4.0
+	 * @see #isSameScriptEngine(String, String, String)
+	 */
+	public static boolean hasSameScriptEngine(ScriptWrapper scriptWrapper, ScriptEngineWrapper engineWrapper) {
+		if (scriptWrapper.getEngine() != null) {
+			return scriptWrapper.getEngine() == engineWrapper;
+		}
+
+		return isSameScriptEngine(scriptWrapper.getEngineName(), engineWrapper.getEngineName(), engineWrapper.getLanguageName());
+	}
+
+	/**
+	 * Tells whether or not the given {@code name} matches the given {@code engineName} and {@code engineLanguage}.
+	 *
+	 * @param name the name that will be checked against the given {@code engineName} and {@code engineLanguage}.
+	 * @param engineName the name of the script engine.
+	 * @param engineLanguage the language of the script engine.
+	 * @return {@code true} if the {@code name} matches the given engine's name and language, {@code false} otherwise.
+	 * @since 2.4.0
+	 * @see #hasSameScriptEngine(ScriptWrapper, ScriptEngineWrapper)
+	 */
+	public static boolean isSameScriptEngine(String name, String engineName, String engineLanguage) {
+		// In the configs we just use the engine name, in the UI we use the language name as well
+		if (name.indexOf(LANG_ENGINE_SEP) > 0) {
+			if (name.equals(engineLanguage + LANG_ENGINE_SEP + engineName)) {
+				return true;
+			}
+			return false;
+		}
+
+		if (name.equals(engineName)) {
+			return true;
+		}
+
+		// Nasty, but sometime the engine names are reported differently, eg 'Mozilla Rhino' vs 'Rhino'
+		if (name.endsWith(engineName)) {
+			return true;
+		}
+		if (engineName.endsWith(name)) {
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Removes the given script engine wrapper.
+	 * <p>
+	 * The user's templates and scripts associated with the given engine are not removed but its engine is set to {@code null}.
+	 * Default templates are removed.
+	 * <p>
+	 * The call to this method has no effect if the given type is not registered.
+	 * 
+	 * @param wrapper the script engine wrapper that will be removed, must not be {@code null}
+	 * @since 2.4.0
+	 * @see #registerScriptEngineWrapper(ScriptEngineWrapper)
+	 * @see ScriptWrapper#setEngine(ScriptEngineWrapper)
+	 */
+	public void removeScriptEngineWrapper(ScriptEngineWrapper wrapper) {
+		logger.debug("Removing script engine: " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
+		if (this.engineWrappers.remove(wrapper)) {
+			if (scriptUI != null) {
+				// TODO uncomment once the "Script Console" implements the new method
+				// scriptUI.engineRemoved(wrapper);
+			}
+
+			setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, null);
+			processTemplatesOfRemovedEngine(getTreeModel().getTemplatesNode(), wrapper);
+		}
+	}
+
+	private void processTemplatesOfRemovedEngine(ScriptNode baseNode, ScriptEngineWrapper engineWrapper) {
+		@SuppressWarnings("unchecked")
+		List<ScriptNode> templateNodes = Collections.list(baseNode.depthFirstEnumeration());
+		for (ScriptNode node : templateNodes) {
+			if (node.getUserObject() != null && (node.getUserObject() instanceof ScriptWrapper)) {
+				ScriptWrapper scriptWrapper = (ScriptWrapper) node.getUserObject();
+				if (hasSameScriptEngine(scriptWrapper, engineWrapper)) {
+					if (engineWrapper.isDefaultTemplate(scriptWrapper)) {
+						removeTemplate(scriptWrapper);
+					} else {
+						scriptWrapper.setEngine(null);
+						this.getTreeModel().nodeStructureChanged(scriptWrapper);
+					}
+				}
+			}
+		}
+	}
+
+	public ScriptEngineWrapper getEngineWrapper(String name) {
 		for (ScriptEngineWrapper sew : this.engineWrappers) {
-			// Nasty, but sometime the engine names are reported differently, eg 'Mozilla Rhino' vs 'Rhino'
-			if (name.indexOf(LANG_ENGINE_SEP) < 0) {
-				if (name.endsWith(sew.getEngineName())) {
-					return sew;
-				}
-				if (sew.getEngineName().endsWith(name)) {
-					return sew;
-				}
+			if (isSameScriptEngine(name, sew.getEngineName(), sew.getLanguageName())) {
+				return sew;
 			}
 		}
 
@@ -231,16 +362,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		List<ScriptEngineFactory> engines = mgr.getEngineFactories();
 		ScriptEngine engine = null;
 		for (ScriptEngineFactory e : engines) {
-			if (name.indexOf(LANG_ENGINE_SEP) > 0) {
-				if (name.equals(e.getLanguageName() + LANG_ENGINE_SEP + e.getEngineName())) {
-					engine = e.getScriptEngine();
-					break;
-				}
-			} else {
-				if (name.equals(e.getEngineName())) {
-					engine = e.getScriptEngine();
-					break;
-				}
+			if (isSameScriptEngine(name, e.getEngineName(), e.getLanguageName())) {
+				engine = e.getScriptEngine();
+				break;
 			}
 		}
 		if (engine != null) {
@@ -982,6 +1106,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	public void setEnabled(ScriptWrapper script, boolean enabled) {
+		if (enabled && script.getEngine() == null) {
+			return;
+		}
+
 		script.setEnabled(enabled);
 		this.getTreeModel().nodeStructureChanged(script);
 	}
