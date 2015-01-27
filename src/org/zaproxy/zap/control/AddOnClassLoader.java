@@ -72,6 +72,20 @@ public class AddOnClassLoader extends URLClassLoader {
     }
 
     /**
+     * Find the specified resource
+     * @param name
+     * @param checkParent only checks the parent if this is true - set to false if parent already checked 
+     * @return
+     */
+    public URL findResource(String name, boolean checkParent) {
+        URL url = super.findResource(name);
+        if (url == null && checkParent) {
+            url = parent.getResource(name);
+        }
+        return url;
+    }
+
+    /**
      * Helper class that exposes the protected method {@code ClassLoader#loadClass(String, boolean)} to the class
      * {@code AddOnClassLoader} (called in the method {@code AddOnClassLoader#findClass(String)}).
      * <p>

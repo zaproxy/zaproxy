@@ -37,6 +37,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
@@ -106,7 +107,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static synchronized void createHelpBroker() {
 		if (hb == null) {
 			try {
-				ClassLoader cl = HelpBroker.class.getClassLoader();  
+				ClassLoader cl = ExtensionFactory.getAddOnLoader();  
 				URL hsUrl = HelpSet.findHelpSet( cl, HELP_SET_FILE_NAME, Constant.getLocale());
 				if (hsUrl != null) {
 					hs = new HelpSet(cl, hsUrl);
