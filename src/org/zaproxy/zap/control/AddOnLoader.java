@@ -166,6 +166,21 @@ public class AddOnLoader extends URLClassLoader {
         }
         throw new ClassNotFoundException(name);
     }
+    
+    @Override
+    public URL getResource(String name) {
+		URL url = super.getResource(name);
+		if (url != null) {
+			return url;
+		}
+		for (AddOnClassLoader loader : addOnLoaders.values()) {
+			url = loader.findResource(name, false);
+			if (url != null) {
+				return url;
+			}
+		}
+		return url;
+    }
 
     public AddOnCollection getAddOnCollection() {
     	return this.aoc;
