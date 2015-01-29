@@ -38,6 +38,7 @@
 // ZAP: 2013/08/28 Issue 695: Sites tree doesnt clear on new session created by API
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
+// ZAP: 2015/01/29 Issue 1489: Version number in window title
 
 package org.parosproxy.paros.control;
  
@@ -375,16 +376,12 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	private void setTitle() {
-        if (model.getSession().isNewState()) {
-			// No file name
-			view.getMainFrame().setTitle(model.getSession().getSessionName() + " - " + Constant.PROGRAM_NAME);
-		} else {
+		StringBuilder strBuilder = new StringBuilder(model.getSession().getSessionName());
+		if (!model.getSession().isNewState()) {
 	        File file = new File(model.getSession().getFileName());
-			view.getMainFrame().setTitle(
-					model.getSession().getSessionName() + " - " +
-					file.getName().replaceAll(".session\\z","") + " - " + 
-					Constant.PROGRAM_NAME);
+			strBuilder.append(" - ").append(file.getName().replaceAll(".session\\z", ""));
 		}
+		view.getMainFrame().setTitle(strBuilder.toString());
 	}
 	
 	public void properties() {

@@ -24,6 +24,7 @@
 // ZAP: 2012/04/26 Removed the method setStatus(String) and instance variable
 // "txtStatus".
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
+// ZAP: 2015/01/29 Issue 1489: Version number in window title
 
 package org.parosproxy.paros.view;
 
@@ -36,6 +37,7 @@ import javax.swing.BoxLayout;
 import javax.swing.JPanel;
 import javax.swing.WindowConstants;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.view.MainToolbarPanel;
 
@@ -177,5 +179,24 @@ public class MainFrame extends AbstractFrame {
 			this.getMainToolbarPanel().setDisplayOption(displayOption);
 			Model.getSingleton().getOptionsParam().getViewParam().setDisplayOption(displayOption);
 		}
+	}
+
+	/**
+	 * Sets the title of the main window.
+	 * <p>
+	 * The actual title set is the given {@code title} followed by the program name and version.
+	 * 
+	 * @see Constant#PROGRAM_NAME
+	 * @see Constant#PROGRAM_VERSION
+	 */
+	@Override
+	public void setTitle(String title) {
+		StringBuilder strBuilder = new StringBuilder();
+		if (title != null && !title.isEmpty()) {
+			strBuilder.append(title);
+			strBuilder.append(" - ");
+		}
+		strBuilder.append(Constant.PROGRAM_NAME).append(' ').append(Constant.PROGRAM_VERSION);
+		super.setTitle(strBuilder.toString());
 	}
 }
