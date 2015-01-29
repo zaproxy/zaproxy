@@ -50,6 +50,7 @@
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2015/01/29 Issue 1489: Version number in window title
 
 package org.parosproxy.paros.control;
 
@@ -274,7 +275,7 @@ public class Control extends AbstractControl implements SessionListener {
 					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
 
 					// refresh display
-					view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
+					view.getMainFrame().setTitle(session.getSessionName());
 					view.getOutputPanel().clear();
 				}
 			});
@@ -321,7 +322,7 @@ public class Control extends AbstractControl implements SessionListener {
 			});
 			
 			// refresh display
-			view.getMainFrame().setTitle(session.getSessionName() + " - " + Constant.PROGRAM_NAME);
+			view.getMainFrame().setTitle(session.getSessionName());
 			view.getOutputPanel().clear();
 		}
 
