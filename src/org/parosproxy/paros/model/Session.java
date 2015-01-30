@@ -47,6 +47,7 @@
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
+// ZAP: 2015/01/30 Set default context name
 
 package org.parosproxy.paros.model;
 
@@ -143,7 +144,8 @@ public class Session extends FileXML {
 		
 		discardContexts();
 		// Always start with one context
-	    getNewContext();
+	    Context ctx = getNewContext();
+	    ctx.setName(Constant.messages.getString("context.default.name"));
 
 	}
 	

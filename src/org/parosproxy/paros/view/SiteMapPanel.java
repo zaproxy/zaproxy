@@ -531,7 +531,7 @@ public class SiteMapPanel extends AbstractPanel {
 					    if (node != null && node.getUserObject() != null) {
 					    	Target target = (Target)node.getUserObject();
 					    	getView().showSessionDialog(Model.getSingleton().getSession(), 
-					    			target.getContext().getName());
+					    			Integer.toString(target.getContext().getIndex()));
 					    }
 				    }
 				}
