@@ -48,6 +48,8 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
 	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
 
+	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
+
 	private static final long serialVersionUID = -4278691012245035225L;
 
 	private static Logger log = Logger.getLogger(SiteMapPanel.class);
@@ -83,25 +85,36 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
 				setIcon(ROOT_ICON);	// 'World' icon
-			} else if (leaf) {
-				if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-					setIcon(LEAF_IN_SCOPE_ICON);
-				} else {
-					setIcon(LEAF_ICON);
-				}
 			} else {
-				if  (expanded) {
+		        ImageIcon icon;
+				if (leaf) {
 					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						setIcon(FOLDER_OPEN_IN_SCOPE_ICON);
+						icon = LEAF_IN_SCOPE_ICON;
 					} else {
-						setIcon(FOLDER_OPEN_ICON);
+						icon = LEAF_ICON;
 					}
 				} else {
-					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						setIcon(FOLDER_CLOSED_IN_SCOPE_ICON);
+					if  (expanded) {
+						if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
+							icon = FOLDER_OPEN_IN_SCOPE_ICON;
+						} else {
+							icon = FOLDER_OPEN_ICON;
+						}
 					} else {
-						setIcon(FOLDER_CLOSED_ICON);
+						if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
+							icon = FOLDER_CLOSED_IN_SCOPE_ICON;
+						} else {
+							icon = FOLDER_CLOSED_ICON;
+						}
 					}
+				}
+				if (((SiteNode)node.getParent()).isRoot() && node.getNodeName().startsWith("https://")) {
+					// Add lock icon to site nodes with https
+					OverlayIcon oi = new OverlayIcon(icon);
+					oi.add(LOCK_OVERLAY_ICON);
+					setIcon(oi);
+				} else {
+					setIcon(icon);
 				}
 			}
 
