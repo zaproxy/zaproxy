@@ -114,6 +114,26 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		getTxtDescription().setText(uiSharedContext.getDescription());
 		getTxtDescription().discardAllEdits();
 		getChkInScope().setSelected(uiSharedContext.isInScope());
+		
+		if (uiSharedContext.getName().equals(Integer.toString(uiSharedContext.getIndex())) && 
+				uiSharedContext.getIncludeInContextRegexs().size() == 1) {
+			// Default to the host name in the first and only regex
+			String firstRegex = uiSharedContext.getIncludeInContextRegexs().get(0);
+			int startIndex = firstRegex.indexOf("://");
+			if (startIndex > 0) {
+				String hostPlus = firstRegex.substring(startIndex + 3);
+				int endIndex = hostPlus.indexOf("\\");
+				if (endIndex > 0) {
+					// By default regexes end in \E
+					hostPlus = hostPlus.substring(0, endIndex);
+				}
+				endIndex = hostPlus.indexOf("/");
+				if (endIndex > 0) {
+					hostPlus = hostPlus.substring(0, endIndex);
+				}
+				getTxtName().setText(hostPlus);
+			}
+		}
 	}
 
 	@Override
@@ -128,6 +148,7 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		saveDataInContext(context);
 		String name = getTxtName().getText();
 		if (!this.getName().equals(name) && View.isInitialised()) {
+			// Note that we _do_ want to set the name of 'this' - its the name of the panel
 			this.setName(name);
 			View.getSingleton().renameContext(context);
 		}
