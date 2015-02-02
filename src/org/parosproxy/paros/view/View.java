@@ -57,6 +57,7 @@
 // ZAP: 2014/11/23 Added Splash Screen management
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/19 Expose splash screen as Component
+// ZAP: 2015/02/02 Move output panel help key registration to prevent NPE
 
 package org.parosproxy.paros.view;
 
@@ -193,7 +194,6 @@ public class View implements ViewDelegate {
 //  ZAP: Removed method changeDisplayOption(int)
     public void init() {
         mainFrame = new MainFrame(displayOption);
-        ExtensionHelp.enableHelpKey(getOutputPanel(), "ui.tabs.output");
 
         getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
         getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
@@ -542,6 +542,7 @@ public class View implements ViewDelegate {
     public OutputPanel getOutputPanel() {
         if (outputPanel == null) {
             outputPanel = new OutputPanel();
+            ExtensionHelp.enableHelpKey(outputPanel, "ui.tabs.output");
         }
         return outputPanel;
     }
