@@ -65,10 +65,10 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
 	
-	// The short URL means that the number of checkForUpdates can be tracked - see http://goo.gl/info/9aDT69
+	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
-    private static final String ZAP_VERSIONS_XML_SHORT = "https://goo.gl/9aDT69";
-    private static final String ZAP_VERSIONS_XML_FULL = "https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml";
+    private static final String ZAP_VERSIONS_XML_SHORT = "https://bit.ly/owaspzap-dev";
+    private static final String ZAP_VERSIONS_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml";
 
 	// URLs for use when testing locally ;)
 	//private static final String ZAP_VERSIONS_XML_SHORT = "https://localhost:8080/zapcfu/ZapVersions.xml";
