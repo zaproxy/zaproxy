@@ -67,8 +67,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
-    private static final String ZAP_VERSIONS_XML_SHORT = "https://bit.ly/owaspzap-dev";
-    private static final String ZAP_VERSIONS_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml";
+    private static final String ZAP_VERSIONS_DEV_XML_SHORT = "https://bit.ly/owaspzap-dev";
+    private static final String ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT = "https://bit.ly/owaspzap-devw";
+    private static final String ZAP_VERSIONS_DEV_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml";
 
 	// URLs for use when testing locally ;)
 	//private static final String ZAP_VERSIONS_XML_SHORT = "https://localhost:8080/zapcfu/ZapVersions.xml";
@@ -702,15 +703,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	    				// Using a thread as the first call could timeout
 	    				// and we dont want the ui to hang in the meantime
 	    				this.setName("ZAP-cfu");
-						logger.debug("Getting latest version info from " + ZAP_VERSIONS_XML_SHORT);
-						String url = null;
+						String url = ZAP_VERSIONS_DEV_XML_SHORT;
+						if (Constant.isDailyBuild()) {
+							url = ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT;
+						}
+						logger.debug("Getting latest version info from " + url);
 			    		try {
-			    			url = ZAP_VERSIONS_XML_SHORT;
 							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(url), getPlatform());
 						} catch (Exception e1) {
-							logger.debug("Getting latest version info from " + ZAP_VERSIONS_XML_FULL);
-							logger.debug("Failed to access " + ZAP_VERSIONS_XML_SHORT, e1);
-							url = ZAP_VERSIONS_XML_FULL;
+							logger.debug("Failed to access " + url, e1);
+							logger.debug("Getting latest version info from " + ZAP_VERSIONS_DEV_XML_FULL);
+							url = ZAP_VERSIONS_DEV_XML_FULL;
 				    		try {
 				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(url), getPlatform());
 				    		} catch (SSLHandshakeException e2) {
@@ -722,7 +725,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 					    			callback.insecureUrl(url, e2);
 					    		}
 							} catch (Exception e2) {
-								logger.debug("Failed to access " + ZAP_VERSIONS_XML_FULL, e2);
+								logger.debug("Failed to access " + ZAP_VERSIONS_DEV_XML_FULL, e2);
 							}
 						}
 			    		if (callback != null && latestVersionInfo != null) {
