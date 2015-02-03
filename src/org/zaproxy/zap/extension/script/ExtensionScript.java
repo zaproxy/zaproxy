@@ -216,8 +216,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.loadTemplates(wrapper);
 
 		if (scriptUI != null) {
-			// TODO uncomment once the "Script Console" implements the new method
-			// scriptUI.engineAdded(wrapper);
+			scriptUI.engineAdded(wrapper);
 		}
 	}
 	
@@ -324,8 +323,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		logger.debug("Removing script engine: " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		if (this.engineWrappers.remove(wrapper)) {
 			if (scriptUI != null) {
-				// TODO uncomment once the "Script Console" implements the new method
-				// scriptUI.engineRemoved(wrapper);
+				scriptUI.engineRemoved(wrapper);
 			}
 
 			setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, null);

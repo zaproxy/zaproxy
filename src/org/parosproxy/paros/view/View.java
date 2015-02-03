@@ -829,7 +829,7 @@ public class View implements ViewDelegate {
     }
 
     public void removeMainToolbarSeparator(JToolBar.Separator separator) {
-        this.getMainFrame().getMainToolbarPanel().remove(separator);
+        this.getMainFrame().getMainToolbarPanel().removeSeparator(separator);
     }
 
     /**
