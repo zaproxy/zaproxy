@@ -186,7 +186,9 @@ public class ExtensionHelp extends ExtensionAdaptor {
 						"ui.tabs.response", hs);
 
 			} else {
-				logger.error("Failed to get helpset url");
+				logger.debug("Failed to get helpset url");
+				menuHelpZap.setEnabled(false);
+				menuHelpZap.setToolTipText(Constant.messages.getString("help.error.nohelp"));
 			}
 		}
 		return menuHelpZap;
@@ -197,6 +199,12 @@ public class ExtensionHelp extends ExtensionAdaptor {
 			helpButton = new JButton();
 			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
 			helpButton.setToolTipText(Constant.messages.getString("help.button.tooltip"));
+			
+			if (getHelpBroker() == null) {
+				helpButton.setEnabled(false);
+				helpButton.setToolTipText(Constant.messages.getString("help.error.nohelp"));
+			}
+			
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
