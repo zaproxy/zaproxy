@@ -286,6 +286,7 @@ public class ZAP {
                 // Times to run the GUI
                 runGUI();
             } catch (Throwable e) {
+                View.getSingleton().hideSplashScreen();
                 if (!Constant.isDevBuild()) {
                     ErrorInfo errorInfo = new ErrorInfo(
                             Constant.messages.getString("start.gui.dialog.fatal.error.title"),
@@ -300,8 +301,6 @@ public class ZAP {
                     JXErrorPane.showDialog(View.getSingleton().getSplashScreen(), errorPane);
                 }
                 throw e;
-            } finally {
-                View.getSingleton().hideSplashScreen();
             }
 
             if (firstTime) {
@@ -511,6 +510,7 @@ public class ZAP {
                 }
             }
         }
+        View.getSingleton().hideSplashScreen();
 
         if (createNewSession) {
             control.getMenuFileControl().newSession(false);

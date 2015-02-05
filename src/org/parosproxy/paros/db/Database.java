@@ -31,9 +31,11 @@
 // ZAP: 2012/07/16 Removed unused setters.
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 
 package org.parosproxy.paros.db;
 
+import java.io.File;
 import java.sql.SQLException;
 import java.util.Vector;
 
@@ -184,6 +186,40 @@ public class Database {
         // ZAP: Moved the content of this method to the method close(boolean,
         // boolean) and changed to call that method instead.
         close(compact, true);
+    }
+
+    /**
+     * Permanently delete the specified session
+     * @param sessionName
+     */
+    public void deleteSession(String sessionName) {
+		log.debug("deleteSession " + sessionName);
+	    if (databaseServer == null) {
+	    	return;
+	    }
+        try {
+			databaseServer.shutdown(false);
+		} catch (SQLException e) {
+            log.error(e.getMessage(), e);
+		}
+		
+        deleteDbFile(new File(sessionName));
+        deleteDbFile(new File(sessionName + ".data"));
+        deleteDbFile(new File(sessionName + ".script"));
+        deleteDbFile(new File(sessionName + ".properties"));
+        deleteDbFile(new File(sessionName + ".backup"));
+        deleteDbFile(new File(sessionName + ".lobs"));
+        
+        databaseServer = null;
+    }
+    
+    private void deleteDbFile (File file) {
+    	log.debug("Deleting " + file.getAbsolutePath());
+		if (file.exists()) {
+			if (! file.delete()) {
+	            log.error("Failed to delete " + file.getAbsolutePath());
+			}
+		}
     }
 
     /**
