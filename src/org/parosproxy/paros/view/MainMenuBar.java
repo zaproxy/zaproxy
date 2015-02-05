@@ -28,6 +28,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
+// ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 
 package org.parosproxy.paros.view;
 
@@ -37,6 +38,7 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
+import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
 
 import org.apache.log4j.Logger;
@@ -67,6 +69,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem menuFileContextExport = null;
 	private ZapMenuItem menuFileContextImport = null;
 	private ZapMenuItem menuFileExit = null;
+	private ZapMenuItem menuFileExitAndDelete = null;
 	private ZapMenuItem menuFileProperties = null;
 	private JMenu menuHelp = null;
 	private ZapMenuItem menuHelpAbout = null;
@@ -205,6 +208,7 @@ public class MainMenuBar extends JMenuBar {
 			menuFile.add(getMenuContextExport());
 			
 			menuFile.addSeparator();
+			menuFile.add(getMenuFileExitAndDelete());
 			menuFile.add(getMenuFileExit());
 		}
 		return menuFile;
@@ -329,6 +333,22 @@ public class MainMenuBar extends JMenuBar {
 
 		}
 		return menuFileExit;
+	}
+
+	private javax.swing.JMenuItem getMenuFileExitAndDelete() {
+		if (menuFileExitAndDelete == null) {
+			menuFileExitAndDelete = new ZapMenuItem("menu.file.exit.delete");
+			menuFileExitAndDelete.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					int ans = View.getSingleton().showConfirmDialog(Constant.messages.getString("menu.file.exit.delete.warning"));
+					if (ans == JOptionPane.OK_OPTION) {
+						Control.getSingleton().exitAndDeleteSession(Model.getSingleton().getSession().getFileName());
+					}
+				}
+			});
+		}
+		return menuFileExitAndDelete;
 	}
 
 	/**

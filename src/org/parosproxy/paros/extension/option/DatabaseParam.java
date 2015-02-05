@@ -34,6 +34,12 @@ import org.parosproxy.paros.common.AbstractParam;
  */
 public class DatabaseParam extends AbstractParam {
 
+	public static final int NEW_SESSION_NOT_SPECIFIED	= 0;
+	public static final int NEW_SESSION_TIMESTAMPED		= 1;
+	public static final int NEW_SESSION_USER_SPECIFIED	= 2;
+	public static final int NEW_SESSION_TEMPORARY		= 3;
+	
+	
     /**
      * The base configuration key for all database configurations.
      */
@@ -53,7 +59,17 @@ public class DatabaseParam extends AbstractParam {
      * The configuration key for the response body size.
      */
     private static final String PARAM_RESPONSE_BODY_SIZE = PARAM_BASE_KEY + ".response.bodysize";
-    
+
+    /**
+     * The configuration key for the new session option.
+     */
+    private static final String PARAM_NEW_SESSION_OPTION = PARAM_BASE_KEY + ".newsession";
+
+    /**
+     * The configuration key for whether to prompt the user about the new session option.
+     */
+    private static final String PARAM_NEW_SESSION_PROMPT = PARAM_BASE_KEY + ".newsessionprompt";
+
     /**
      * The compact option, whether the database should be compacted on exit.
      * Default is {@code false}.
@@ -76,12 +92,25 @@ public class DatabaseParam extends AbstractParam {
      */    
     private int responsebodysize;
 
+    /**
+     * The session option:
+     * 0: not specified
+     * 1: use timestamped session name
+     * 2: prompt user for session name
+     * 3: temporary session name (not persisted)
+     */
+    private int newSessionOption;
+    
+    private boolean newSessionPrompt;
+    
     public DatabaseParam() {
         super();
         
         compactDatabase = false;
         requestbodysize = 16777216;
 		responsebodysize = 16777216;
+		newSessionOption = NEW_SESSION_NOT_SPECIFIED;
+		newSessionPrompt = true;
     }
 
     /**
@@ -100,6 +129,8 @@ public class DatabaseParam extends AbstractParam {
         compactDatabase = getConfig().getBoolean(PARAM_COMPACT_DATABASE, compactDatabase);
         requestbodysize = getConfig().getInt(PARAM_REQUEST_BODY_SIZE, requestbodysize);
         responsebodysize = getConfig().getInt(PARAM_RESPONSE_BODY_SIZE, responsebodysize);
+		newSessionOption = getConfig().getInt(PARAM_NEW_SESSION_OPTION, newSessionOption);
+		newSessionPrompt = getConfig().getBoolean(PARAM_NEW_SESSION_PROMPT, newSessionPrompt);
     }
 
     /**
@@ -164,5 +195,31 @@ public class DatabaseParam extends AbstractParam {
         this.responsebodysize = responsebodysize;
         getConfig().setProperty(PARAM_RESPONSE_BODY_SIZE, Integer.valueOf(responsebodysize));
     }
+
+    /**
+     * Gets the new session option
+     * @return
+     */
+	public int getNewSessionOption() {
+		return newSessionOption;
+	}
+
+	/**
+	 * Sets the new session option
+	 * @param newSessionOption
+	 */
+	public void setNewSessionOption(int newSessionOption) {
+		this.newSessionOption = newSessionOption;
+		getConfig().setProperty(PARAM_NEW_SESSION_OPTION, newSessionOption);
+	}
+
+	public boolean isNewSessionPrompt() {
+		return newSessionPrompt;
+	}
+
+	public void setNewSessionPrompt(boolean newSessionPrompt) {
+		this.newSessionPrompt = newSessionPrompt;
+		getConfig().setProperty(PARAM_NEW_SESSION_PROMPT, newSessionPrompt);
+	}
 
 }

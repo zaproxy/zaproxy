@@ -22,8 +22,10 @@ package org.parosproxy.paros.extension.option;
 import java.awt.FlowLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.EmptyBorder;
@@ -32,6 +34,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapSizeNumberSpinner;
+import org.zaproxy.zap.view.LayoutHelper;
 
 /**
  * The GUI database options panel.
@@ -85,7 +88,11 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
 	 * The spinner to select the size of the response body in the History table
 	 */
 	private ZapSizeNumberSpinner spinnerResponseBodySize = null;
+
+	private JCheckBox checkBoxNewSessionPrompt = null;
 	
+	private JComboBox<String> comboNewSessionOption = null;
+
     public OptionsDatabasePanel() {
         super();
         setName(NAME);
@@ -148,6 +155,10 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         panel.add(getRequestBodySize(), gridBagConstraintsRequestBodySize);
         panel.add(jLabelResponseBodySize, gridBagConstraintsLabelResponseBodySize);
         panel.add(getResponseBodySize(), gridBagConstraintsResponseBodySize);
+        panel.add(getCheckBoxNewSessionPrompt(), LayoutHelper.getGBC(0, 3, 2, 1.0D, new Insets(2,2,2,2)));
+        panel.add(new JLabel(Constant.messages.getString("database.optionspanel.option.newsessionopt.label")), 
+        		LayoutHelper.getGBC(0, 4, 1, 0.5D, new Insets(2,2,2,2)));
+        panel.add(comboNewSessionOption(), LayoutHelper.getGBC(1, 4, 1, 1.0D, new Insets(2,2,2,2)));
         add(panel);
     }
     
@@ -165,6 +176,26 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         return spinnerRequestBodySize;
     }
     
+	private JCheckBox getCheckBoxNewSessionPrompt() {
+		if (checkBoxNewSessionPrompt == null) {
+			checkBoxNewSessionPrompt = new JCheckBox(Constant.messages.getString("database.optionspanel.option.newsessionprompt.label"));
+		}
+		return checkBoxNewSessionPrompt;
+	}
+	
+	private JComboBox<String> comboNewSessionOption() {
+		if (comboNewSessionOption == null) {
+			comboNewSessionOption = new JComboBox<String>();
+			// Note that these need to be in the order specified in org.parosproxy.paros.common.AbstractParam.DatabaseParam
+			comboNewSessionOption.addItem(Constant.messages.getString("database.optionspanel.option.newsessionopt.unspecified"));
+			comboNewSessionOption.addItem(Constant.messages.getString("database.optionspanel.option.newsessionopt.timestamped"));
+			comboNewSessionOption.addItem(Constant.messages.getString("database.optionspanel.option.newsessionopt.userspec"));
+			comboNewSessionOption.addItem(Constant.messages.getString("database.optionspanel.option.newsessionopt.temporary"));
+		}
+		return comboNewSessionOption;
+	}
+
+
     private ZapSizeNumberSpinner getResponseBodySize() {
         if (spinnerResponseBodySize == null) {
         	spinnerResponseBodySize = new ZapSizeNumberSpinner(16777216);

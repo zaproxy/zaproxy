@@ -51,6 +51,7 @@
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
+// ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 
 package org.parosproxy.paros.control;
 
@@ -233,6 +234,14 @@ public class Control extends AbstractControl implements SessionListener {
 	    }
     }
     
+    public void exitAndDeleteSession (String sessionName) {
+    	shutdown(false);
+    	Model.getSingleton().getDb().deleteSession(sessionName);
+    	
+	    log.info(Constant.PROGRAM_TITLE + " terminated.");
+		System.exit(0);   
+    }
+
     public static Control getSingleton() {
 
         return control;

@@ -23,12 +23,14 @@
 // ZAP: 2012/04/14 Changed the method initParam to discard all edits.
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
+// ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 
 package org.parosproxy.paros.view;
 
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -39,6 +41,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class SessionGeneralPanel extends AbstractParamPanel {
 
@@ -47,6 +50,7 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	private JPanel panelSession = null;  //  @jve:decl-index=0:visual-constraint="10,320"
 	private ZapTextField txtSessionName = null;
 	private ZapTextArea txtDescription = null;
+	private ZapTextArea location = null;
 	
     public SessionGeneralPanel() {
         super();
@@ -69,49 +73,24 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelSession() {
 		if (panelSession == null) {
-			GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-
 			panelSession = new JPanel();
-			javax.swing.JLabel jLabel = new JLabel();
-
-			javax.swing.JLabel jLabel1 = new JLabel();
-
-			java.awt.GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
-
-			java.awt.GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
-
 			panelSession.setLayout(new GridBagLayout());
-			jLabel.setText(Constant.messages.getString("session.label.name"));
-			jLabel1.setText(Constant.messages.getString("session.label.desc"));
-			gridBagConstraints9.gridx = 0;
-			gridBagConstraints9.gridy = 1;
-			gridBagConstraints9.weightx = 1.0;
-			gridBagConstraints9.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints9.insets = new java.awt.Insets(2,0,2,0);
-			gridBagConstraints9.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints10.gridx = 0;
-			gridBagConstraints10.gridy = 2;
-			gridBagConstraints10.insets = new java.awt.Insets(2,0,2,0);
-			gridBagConstraints10.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints10.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints11.gridx = 0;
-			gridBagConstraints11.gridy = 3;
-			gridBagConstraints11.weightx = 1.0;
-			gridBagConstraints11.weighty = 1.0;
-			gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints11.insets = new java.awt.Insets(2,0,2,0);
-			gridBagConstraints11.anchor = java.awt.GridBagConstraints.NORTHWEST;
 			panelSession.setName(Constant.messages.getString("session.general"));
 		    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
 		    	panelSession.setSize(180, 101);
 		    }
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			panelSession.add(jLabel, gridBagConstraints2);
-			panelSession.add(getTxtSessionName(), gridBagConstraints9);
-			panelSession.add(jLabel1, gridBagConstraints10);
-			panelSession.add(getTxtDescription(), gridBagConstraints11);
+			panelSession.add(new JLabel(Constant.messages.getString("session.label.name")), 
+					LayoutHelper.getGBC(0, 0, 1, 1.0D));
+			panelSession.add(getTxtSessionName(), 
+					LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(2,0,2,0)));
+			panelSession.add(new JLabel(Constant.messages.getString("session.label.loc")), 
+					LayoutHelper.getGBC(0, 2, 1, 1.0D));
+			panelSession.add(getSessionLocation(), 
+					LayoutHelper.getGBC(0, 3, 1, 1.0D));
+			panelSession.add(new JLabel(Constant.messages.getString("session.label.desc")), 
+					LayoutHelper.getGBC(0, 4, 1, 1.0D, new Insets(2,0,2,0)));
+			panelSession.add(getTxtDescription(), 
+					LayoutHelper.getGBC(0, 5, 1, 1.0D, 1.0D, GridBagConstraints.BOTH, new Insets(2,0,2,0)));
 		}
 		return panelSession;
 	}
@@ -140,7 +119,15 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 		}
 		return txtDescription;
 	}
-	
+
+	private ZapTextArea getSessionLocation() {
+		if (location == null) {
+			location = new ZapTextArea();
+			location.setEditable(false);
+		}
+		return location;
+	}
+
 	@Override
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
@@ -148,6 +135,10 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    getTxtSessionName().discardAllEdits();
 	    getTxtDescription().setText(session.getSessionDesc());
 	    getTxtDescription().discardAllEdits();
+	    if (session.getFileName() != null) {
+	    	getSessionLocation().setText(session.getFileName());
+	    	getSessionLocation().setToolTipText(session.getFileName());	// In case its really long
+	    }
 	}
 	
 	@Override

@@ -39,6 +39,7 @@
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
+// ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 
 package org.parosproxy.paros.control;
  
@@ -54,12 +55,14 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.view.ContextExportDialog;
+import org.zaproxy.zap.view.PersistSessionDialog;
 
 
 public class MenuFileControl implements SessionListener {
@@ -84,6 +87,7 @@ public class MenuFileControl implements SessionListener {
 	}
 	
 	public void newSession(boolean isPromptNewSession) throws ClassNotFoundException, Exception {
+		
 		if (isPromptNewSession) {
 			// ZAP: i18n
 		    if (model.getSession().isNewState()) {
@@ -97,8 +101,68 @@ public class MenuFileControl implements SessionListener {
 			control.createAndOpenUntitledDb();
 		}
 		
-		control.newSession();
+		int newSessionOption = model.getOptionsParam().getDatabaseParam().getNewSessionOption();
 
+		if (model.getOptionsParam().getDatabaseParam().isNewSessionPrompt()) {
+			PersistSessionDialog psd = new PersistSessionDialog(View.getSingleton().getMainFrame());
+			// Set up the default option - ie the same one the user chose last time
+			switch (newSessionOption) {
+				case DatabaseParam.NEW_SESSION_TIMESTAMPED: 
+					psd.setTimestampChosen();
+					break;
+				case DatabaseParam.NEW_SESSION_USER_SPECIFIED:
+					psd.setPersistChosen();
+					break;
+				case DatabaseParam.NEW_SESSION_TEMPORARY:
+					psd.setTemporaryChosen();
+					break;
+				default:
+					break;
+			}
+	
+			psd.setVisible(true);
+			
+			if (psd.isTimestampChosen()) {
+				newSessionOption = DatabaseParam.NEW_SESSION_TIMESTAMPED;
+			} else if (psd.isPersistChosen()) {
+				newSessionOption = DatabaseParam.NEW_SESSION_USER_SPECIFIED;
+			} else {
+				newSessionOption = DatabaseParam.NEW_SESSION_TEMPORARY;
+			}
+			// Save for next time
+			model.getOptionsParam().getDatabaseParam().setNewSessionOption(newSessionOption);
+			model.getOptionsParam().getDatabaseParam().setNewSessionPrompt(!psd.isDontAskAgain());
+		}
+		
+		switch (newSessionOption) {
+			case DatabaseParam.NEW_SESSION_TIMESTAMPED: 
+				String filename = getTimestampFilename();
+				if (filename != null) {
+					this.newSession(filename);
+				} else {
+					control.newSession();
+				}
+				break;
+			case DatabaseParam.NEW_SESSION_USER_SPECIFIED:
+				control.newSession();
+				this.saveAsSession();
+				break;
+			default:
+				control.newSession();
+				break;
+		}
+	}
+	
+	private String getTimestampFilename() {
+		File dir = new File(Constant.getZapHome(), "sessions");
+		if (! dir.exists()) {
+			if (! dir.mkdirs()) {
+				return null;
+			}
+		}
+		String timestamp = dateFormat.format(new Date());
+		File tmpFile = new File(dir, timestamp + ".session");
+		return tmpFile.getAbsolutePath();
 	}
 	
     public boolean newSession(String fileName) {
@@ -195,6 +259,7 @@ public class MenuFileControl implements SessionListener {
 
 	public void openSession() {
 		JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
+		chooser.setFileHidingEnabled(false);	// By default ZAP on linux puts timestamped sessions under a 'dot' directory 
 		File file = null;
 	    chooser.setFileFilter(new FileFilter() {
 	           @Override
