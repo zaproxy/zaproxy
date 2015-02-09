@@ -100,8 +100,6 @@ public class HttpSender {
 	public static final int BEAN_SHELL_INITIATOR = 8;
 	public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
 
-	public static final String ZAP_CFU_PROTOCOL_ID = "zapcfu";
-
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
 	private static ProtocolSocketFactory sslFactory = null;
@@ -123,8 +121,6 @@ public class HttpSender {
 			Protocol.registerProtocol("https", new Protocol("https",
 					(ProtocolSocketFactory) new SSLConnector(true), 443));
 		}
-		Protocol.registerProtocol(ZAP_CFU_PROTOCOL_ID, new Protocol(ZAP_CFU_PROTOCOL_ID/*"https"*/,
-				(ProtocolSocketFactory) new SSLConnector(false), 11443));
 
 		AuthPolicy.registerAuthScheme(AuthPolicy.NTLM, ZapNTLMScheme.class);
 	}
