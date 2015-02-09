@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.authorization;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -126,7 +126,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor implements ContextP
 					break;
 				}
 			}
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Unable to load Authorization Detection method.", e);
 		}
 	}
@@ -139,7 +139,7 @@ public class ExtensionAuthorization extends ExtensionAdaptor implements ContextP
 			session.setContextData(context.getIndex(), RecordContext.TYPE_AUTHORIZATION_METHOD_TYPE,
 					Integer.toString(type));
 			context.getAuthorizationDetectionMethod().persistMethodToSession(session, context.getIndex());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Unable to persist Authorization Detection method.", e);
 		}
 	}

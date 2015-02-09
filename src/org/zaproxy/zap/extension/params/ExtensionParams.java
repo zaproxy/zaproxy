@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.params;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordParam;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -257,7 +257,7 @@ public class ExtensionParams extends ExtensionAdaptor
 				sps.addParam(param.getSite(), param);
 				
 			}
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
 		}
 
@@ -343,7 +343,7 @@ public class ExtensionParams extends ExtensionAdaptor
 				Model.getSingleton().getDb().getTableParam().update(
 						param.getId(), param.getTimesUsed(), setToString(param.getFlags()), setToString(param.getValues()));
 			}
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}

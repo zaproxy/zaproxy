@@ -19,10 +19,9 @@
  */
 package org.zaproxy.zap.extension.brk.impl.http;
 
-import java.sql.SQLException;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
@@ -57,7 +56,7 @@ public class PopupMenuAddBreakHistory extends PopupMenuItemHistoryReferenceConta
     public void performAction(HistoryReference href) {
         try {
             extension.addUiBreakpoint(href.getHttpMessage());
-        } catch (HttpMalformedHeaderException | SQLException e) {
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
             logger.error(e.getMessage(), e);
             extension.getView().showWarningDialog(Constant.messages.getString("brk.add.error.history"));
         }

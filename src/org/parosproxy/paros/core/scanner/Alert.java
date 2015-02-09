@@ -37,15 +37,16 @@
 // ZAP: 2014/05/23 Issue 1209: Reliability becomes Confidence and add levels
 // ZAP: 2015/01/04 Issue 1419: Include alert's evidence in HTML report
 // ZAP: 2014/01/04 Issue 1475: Alerts with different name from same scanner might not be shown in report
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
-import java.sql.SQLException;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
@@ -432,7 +433,7 @@ public class Alert implements Comparable<Object>  {
     	if (this.historyRef != null) {
     		try {
 				return this.historyRef.getHttpMessage();
-			} catch (HttpMalformedHeaderException | SQLException e) {
+			} catch (HttpMalformedHeaderException | DatabaseException e) {
 	        	logger.error(e.getMessage(), e);
 			}
     	}

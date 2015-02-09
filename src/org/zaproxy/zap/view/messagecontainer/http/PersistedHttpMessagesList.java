@@ -19,13 +19,13 @@
  */
 package org.zaproxy.zap.view.messagecontainer.http;
 
-import java.sql.SQLException;
 import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -69,7 +69,7 @@ public class PersistedHttpMessagesList extends AbstractList<HttpMessage> {
     public HttpMessage get(int index) {
         try {
             return historyReferences.get(index).getHttpMessage();
-        } catch (HttpMalformedHeaderException | SQLException e) {
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
             LOGGER.error("Failed to get the message from DB: " + e.getMessage(), e);
         }
         return null;

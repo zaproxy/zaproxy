@@ -33,6 +33,7 @@
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.view;
 
@@ -43,7 +44,6 @@ import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.KeyEvent;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,6 +67,7 @@ import javax.swing.tree.TreeSelectionModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.history.LogPanel;
 import org.parosproxy.paros.model.HistoryReference;
@@ -245,7 +246,7 @@ public class SiteMapPanel extends AbstractPanel {
 		dialog.setModal(true);
     	try {
 			dialog.setAllTags(Model.getSingleton().getDb().getTableTag().getAllTags());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error(e.getMessage(), e);
 		}
 

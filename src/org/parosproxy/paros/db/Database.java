@@ -1,319 +1,126 @@
 /*
-*
-* Paros and its related class files.
-* 
-* Paros is an HTTP/HTTPS proxy for assessing web application security.
-* Copyright (C) 2003-2004 Chinotec Technologies Company
-* 
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the Clarified Artistic License
-* as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* Clarified Artistic License for more details.
-* 
-* You should have received a copy of the Clarified Artistic License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
-// ZAP: 2011/05/15 Support for exclusions
-// ZAP: 2011/10/29 Support for parameters
-// ZAP: 2012/03/15 Changed the parameter's type of the method 
-// removeDatabaseListener to DatabaseListener instead of SpiderListener. Removed
-// unnecessary cast in the method notifyListenerDatabaseOpen.
-// ZAP: 2012/05/02 Added the method createSingleton and changed the method
-// getSingleton to use it.
-// ZAP: 2012/06/11 Added JavaDoc to the method close(boolean), changed the 
-// method close(boolean) to call the method close(boolean, boolean), added 
-// method close(boolean, boolean).
-// ZAP: 2012/07/16 Removed unused setters.
-// ZAP: 2012/10/02 Issue 385: Added support for Contexts
-// ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
-// ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
-
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.parosproxy.paros.db;
 
-import java.io.File;
-import java.sql.SQLException;
-import java.util.Vector;
+/**
+ * This interface was extracted from the previous Paros class of the same name.
+ * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * @author psiinon
+ */
+public interface Database {
 
-import org.apache.log4j.Logger;
+	DatabaseServer getDatabaseServer();
 
+	TableHistory getTableHistory();
 
-
-public class Database {
-	
-
-	
-	private static Database database = null;
-	
-	private DatabaseServer databaseServer = null;
-	private TableHistory tableHistory = null;
-	private TableSession tableSession = null;
-	private TableAlert tableAlert = null;
-	private TableScan tableScan = null;
-	// ZAP: Added TableTag
-	private TableTag tableTag = null;
-	// ZAP: Added TableSessionUrl.
-	private TableSessionUrl tableSessionUrl = null;
-	// ZAP: Added TableParam.
-	private TableParam tableParam = null;
-	private TableContext tableContext = null;
-	// ZAP: Added Logger.
-    private static final Logger log = Logger.getLogger(Database.class);
-
-	// ZAP: Added type arguments.
-	private Vector<DatabaseListener> listenerList = new Vector<>();
-
-	public Database() {
-	    tableHistory = new TableHistory();
-	    tableSession = new TableSession();
-	    tableAlert = new TableAlert();
-	    tableScan = new TableScan();
-	    // ZAP: Added statement.
-	    tableTag = new TableTag();
-	    // ZAP: Added statement.
-	    tableSessionUrl = new TableSessionUrl();
-	    // ZAP: Added statement.
-	    tableParam = new TableParam();
-	    tableContext = new TableContext();
-	    
-	    addDatabaseListener(tableHistory);
-	    addDatabaseListener(tableSession);
-	    addDatabaseListener(tableAlert);
-	    addDatabaseListener(tableScan);
-	    // ZAP: Added statement.
-	    addDatabaseListener(tableTag);
-	    // ZAP: Added statement.
-	    addDatabaseListener(tableSessionUrl);
-	    // ZAP: Added statement.
-	    addDatabaseListener(tableParam);
-	    addDatabaseListener(tableContext);
-
-	}
-	
 	/**
-	 * @return Returns the databaseServer.
+	 * @return Returns the tableSession.
 	 */
-	public DatabaseServer getDatabaseServer() {
-		return databaseServer;
-	}
-	
-	/**
-	 * @param databaseServer The databaseServer to set.
-	 */
-	private void setDatabaseServer(DatabaseServer databaseServer) {
-		this.databaseServer = databaseServer;
-	}
-		
-	public TableHistory getTableHistory() {
-		return tableHistory;		
-	}
+	TableSession getTableSession();
 
-	
-    /**
-     * @return Returns the tableSession.
-     */
-    public TableSession getTableSession() {
-        return tableSession;
-    }
-    
-    public static Database getSingleton() {
-        if (database == null) {
-            // ZAP: Changed to use the method createSingleton().
-            createSingleton();
-        }
-        
-        return database;
-    }
-    
-    // ZAP: Added method.
-    private static synchronized void createSingleton() {
-        if (database == null) {
-            database = new Database();
-        }
-    }
-    
-	public void addDatabaseListener(DatabaseListener listener) {
-		listenerList.add(listener);
-		
-	}
-	
+	void addDatabaseListener(DatabaseListener listener);
+
 	// ZAP: Changed parameter's type from SpiderListener to DatabaseListener.
-	public void removeDatabaseListener(DatabaseListener listener) {
-		listenerList.remove(listener);
-	}
-	
-	private void notifyListenerDatabaseOpen() throws SQLException {
-	    DatabaseListener listener = null;
-	    
-	    for (int i=0;i<listenerList.size();i++) {
-	        // ZAP: Removed unnecessary cast.
-	        listener = listenerList.get(i);
-	        listener.databaseOpen(getDatabaseServer());
-	    }
-	}
+	void removeDatabaseListener(DatabaseListener listener);
 
-	public void open(String path) throws ClassNotFoundException, Exception {
-	    // ZAP: Added log statement.
-		log.debug("open " + path);
-	    setDatabaseServer(new DatabaseServer(path));
-	    notifyListenerDatabaseOpen();
-	}
-	
-    /**
-     * Closes the database. If the parameter {@code compact} is {@code true},
-     * the database will be compacted, compacting the database ensures a minimal
-     * space disk usage but it will also take longer to close. Any necessary
-     * cleanups are performed prior to closing the database (the cleanup removes
-     * the temporary {@code HistoryRefernece}s).
-     * 
-     * <p>
-     * <b>Note:</b> Calling this method has the same effects as calling the
-     * method {@link #close(boolean, boolean)} with the parameter
-     * {@code cleanup} as {@code true}.
-     * </p>
-     * 
-     * @param compact
-     *            {@code true} if the database should be compacted,
-     *            {@code false} otherwise.
-     * @see org.parosproxy.paros.model.HistoryReference
-     */
-    // ZAP: Added JavaDoc.
-    public void close(boolean compact) {
-        // ZAP: Moved the content of this method to the method close(boolean,
-        // boolean) and changed to call that method instead.
-        close(compact, true);
-    }
+	void open(String path) throws ClassNotFoundException,
+			Exception;
 
-    /**
-     * Permanently delete the specified session
-     * @param sessionName
-     */
-    public void deleteSession(String sessionName) {
-		log.debug("deleteSession " + sessionName);
-	    if (databaseServer == null) {
-	    	return;
-	    }
-        try {
-			databaseServer.shutdown(false);
-		} catch (SQLException e) {
-            log.error(e.getMessage(), e);
-		}
-		
-        deleteDbFile(new File(sessionName));
-        deleteDbFile(new File(sessionName + ".data"));
-        deleteDbFile(new File(sessionName + ".script"));
-        deleteDbFile(new File(sessionName + ".properties"));
-        deleteDbFile(new File(sessionName + ".backup"));
-        deleteDbFile(new File(sessionName + ".lobs"));
-        
-        databaseServer = null;
-    }
-    
-    private void deleteDbFile (File file) {
-    	log.debug("Deleting " + file.getAbsolutePath());
-		if (file.exists()) {
-			if (! file.delete()) {
-	            log.error("Failed to delete " + file.getAbsolutePath());
-			}
-		}
-    }
+	/**
+	 * Closes the database. If the parameter {@code compact} is {@code true},
+	 * the database will be compacted, compacting the database ensures a minimal
+	 * space disk usage but it will also take longer to close. Any necessary
+	 * cleanups are performed prior to closing the database (the cleanup removes
+	 * the temporary {@code HistoryRefernece}s).
+	 * 
+	 * <p>
+	 * <b>Note:</b> Calling this method has the same effects as calling the
+	 * method {@link #close(boolean, boolean)} with the parameter
+	 * {@code cleanup} as {@code true}.
+	 * </p>
+	 * 
+	 * @param compact
+	 *            {@code true} if the database should be compacted,
+	 *            {@code false} otherwise.
+	 * @see org.parosproxy.paros.model.HistoryReference
+	 */
+	// ZAP: Added JavaDoc.
+	void close(boolean compact);
 
-    /**
-     * Closes the database. If the parameter {@code compact} is {@code true},
-     * the database will be compacted, compacting the database ensures a minimal
-     * space disk usage but it will also take longer to close. If the parameter
-     * {@code cleanup} is {@code true} any necessary cleanups are performed
-     * prior to closing the database (the cleanup removes the temporary
-     * {@code HistoryRefernece}s.)
-     * 
-     * @param compact
-     *            {@code true} if the database should be compacted,
-     *            {@code false} otherwise.
-     * @param cleanup
-     *            {@code true} if any necessary cleanups should be performed,
-     *            {@code false} otherwise.
-     * @see org.parosproxy.paros.model.HistoryReference
-     */
-    // ZAP: Added method. Note: any change made to this method must have the
-    // ZAP comment as the content was moved from the paros method close(boolean).
-	public void close(boolean compact, boolean cleanup) {
-		// ZAP: Added statement.
-		log.debug("close");
-	    if (databaseServer == null) return;
-	    
-	    try {
-	        // ZAP: Added if block.
-	        if (cleanup) {
-    		    // perform clean up
-    	        getTableHistory().deleteTemporary();
-	        }
+	/**
+	 * Permanently delete the specified session
+	 * @param sessionName
+	 */
+	void deleteSession(String sessionName);
 
-	        // shutdown
-	        getDatabaseServer().shutdown(compact);
-	        // ZAP: Changed to catch SQLException instead of Exception.
-        } catch (SQLException e) {
-	        // ZAP: Changed to log the exception.
-            log.error(e.getMessage(), e);
-        }
-	}
-	
-    
-    /**
-     * @return Returns the tableAlert.
-     */
-    public TableAlert getTableAlert() {
-        return tableAlert;
-    }
-    /**
-     * @param tableAlert The tableAlert to set.
-     */
-    public void setTableAlert(TableAlert tableAlert) {
-        this.tableAlert = tableAlert;
-    }
-    /**
-     * @return Returns the tableScan.
-     */
-    public TableScan getTableScan() {
-        return tableScan;
-    }
-    /**
-     * @param tableScan The tableScan to set.
-     */
-    public void setTableScan(TableScan tableScan) {
-        this.tableScan = tableScan;
-    }
+	/**
+	 * Closes the database. If the parameter {@code compact} is {@code true},
+	 * the database will be compacted, compacting the database ensures a minimal
+	 * space disk usage but it will also take longer to close. If the parameter
+	 * {@code cleanup} is {@code true} any necessary cleanups are performed
+	 * prior to closing the database (the cleanup removes the temporary
+	 * {@code HistoryRefernece}s.)
+	 * 
+	 * @param compact
+	 *            {@code true} if the database should be compacted,
+	 *            {@code false} otherwise.
+	 * @param cleanup
+	 *            {@code true} if any necessary cleanups should be performed,
+	 *            {@code false} otherwise.
+	 * @see org.parosproxy.paros.model.HistoryReference
+	 */
+	// ZAP: Added method. Note: any change made to this method must have the
+	// ZAP comment as the content was moved from the paros method close(boolean).
+	void close(boolean compact, boolean cleanup);
 
-	public TableTag getTableTag() {
-		return tableTag;
-	}
+	/**
+	 * @return Returns the tableAlert.
+	 */
+	TableAlert getTableAlert();
 
-	public void setTableTag(TableTag tableTag) {
-		this.tableTag = tableTag;
-	}
+	/**
+	 * @param tableAlert The tableAlert to set.
+	 */
+	void setTableAlert(TableAlert tableAlert);
+
+	/**
+	 * @return Returns the tableScan.
+	 */
+	TableScan getTableScan();
+
+	/**
+	 * @param tableScan The tableScan to set.
+	 */
+	void setTableScan(TableScan tableScan);
+
+	TableTag getTableTag();
+
+	void setTableTag(TableTag tableTag);
 
 	// ZAP: Added method.
-	public TableSessionUrl getTableSessionUrl() {
-		return tableSessionUrl;
-	}
+	TableSessionUrl getTableSessionUrl();
 
 	// ZAP: Added method.
-	public void setTableSessionUrl(TableSessionUrl tableSessionUrl) {
-		this.tableSessionUrl = tableSessionUrl;
-	}
+	void setTableSessionUrl(TableSessionUrl tableSessionUrl);
 
 	// ZAP: Added method.
-	public TableParam getTableParam() {
-		return tableParam;
-	}
+	TableParam getTableParam();
 
-	public TableContext getTableContext() {
-		return tableContext;
-	}
-	
-	
-	
+	TableContext getTableContext();
+
 }

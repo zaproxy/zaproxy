@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.authentication;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,6 +31,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -260,7 +260,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 				}
 			}
 
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Unable to load Authentication method.", e);
 		}
 
@@ -283,7 +283,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 								.getLoggedOutIndicatorPattern().toString());
 
 			t.persistMethodToSession(session, context.getIndex(), context.getAuthenticationMethod());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Unable to persist Authentication method.", e);
 		}
 	}

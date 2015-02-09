@@ -154,8 +154,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
 
-		TableHistory.setHistoryTypeAsTemporary(HistoryReference.TYPE_SCANNER_TEMPORARY);
-
         if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
             extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());

@@ -19,13 +19,13 @@
  */
 package org.zaproxy.zap.extension.search;
 
-import java.sql.SQLException;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -253,7 +253,7 @@ public class SearchThread extends Thread {
 			    	break;
 			    }
 			}	            
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 	        log.error(e.getMessage(), e);
 		}
 	}

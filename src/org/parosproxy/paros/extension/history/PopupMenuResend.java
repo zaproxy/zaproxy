@@ -25,16 +25,17 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/03/03 Issue 547: Deprecate unused classes and methods
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
-import java.sql.SQLException;
 
 import javax.swing.JList;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
@@ -81,7 +82,7 @@ public class PopupMenuResend extends ExtensionPopupMenuItem {
                     msg = ref.getHttpMessage().cloneRequest();
                     dialog.setMessage(msg);
                     dialog.setVisible(true);
-                } catch (HttpMalformedHeaderException | SQLException e) {
+                } catch (HttpMalformedHeaderException | DatabaseException e) {
                     logger.error(e.getMessage(), e);
                 }
         	}

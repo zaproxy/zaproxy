@@ -52,6 +52,7 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.control;
 
@@ -292,6 +293,7 @@ public class Control extends AbstractControl implements SessionListener {
 
 	    log.info("New session file created");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
+		control.getExtensionLoader().databaseOpen(model.getDb().getDatabaseServer());
 	}
     
     public void runCommandLineOpenSession(String fileName) throws Exception {
@@ -302,6 +304,7 @@ public class Control extends AbstractControl implements SessionListener {
     	Model.getSingleton().openSession(fileName);
 	    log.info("Session file opened");
 		control.getExtensionLoader().sessionChangedAllPlugin(session);
+		control.getExtensionLoader().databaseOpen(model.getDb().getDatabaseServer());
     }
 
     public void setExcludeFromProxyUrls(List<String> urls) {
@@ -321,6 +324,7 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		final Session session = model.newSession();
 		getExtensionLoader().sessionChangedAllPlugin(session);
+		getExtensionLoader().databaseOpen(model.getDb().getDatabaseServer());
 
 		if (View.isInitialised()) {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -378,11 +382,13 @@ public class Control extends AbstractControl implements SessionListener {
 		model.closeSession();
 		model.createAndOpenUntitledDb();
 		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		getExtensionLoader().databaseOpen(model.getDb().getDatabaseServer());
 	}
 
 	@Override
 	public void sessionOpened(File file, Exception e) {
 		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		getExtensionLoader().databaseOpen(model.getDb().getDatabaseServer());
 		if (lastCallback != null) {
 			lastCallback.sessionOpened(file, e);
 			lastCallback = null;
@@ -393,6 +399,7 @@ public class Control extends AbstractControl implements SessionListener {
 	@Override
 	public void sessionSaved(Exception e) {
 		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
+		getExtensionLoader().databaseOpen(model.getDb().getDatabaseServer());
 		if (lastCallback != null) {
 			lastCallback.sessionSaved(e);
 			lastCallback = null;

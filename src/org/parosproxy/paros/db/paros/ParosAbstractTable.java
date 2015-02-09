@@ -21,37 +21,50 @@
 // ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
-package org.parosproxy.paros.db;
+package org.parosproxy.paros.db.paros;
 
 import java.sql.Connection;
 import java.sql.SQLException;
 
- public abstract class AbstractTable implements DatabaseListener {
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.DatabaseListener;
+import org.parosproxy.paros.db.DatabaseServer;
+import org.parosproxy.paros.db.DatabaseUnsupportedException;
+
+ public abstract class ParosAbstractTable implements DatabaseListener {
 
     private Connection connection = null;
-    private DatabaseServer server = null;
+    private ParosDatabaseServer server = null;
     
     /**
      * 
      */
-    public AbstractTable() {
+    public ParosAbstractTable() {
     }
     
     @Override
-    public void databaseOpen(DatabaseServer server) throws SQLException {
-        this.server = server;
+    public void databaseOpen(DatabaseServer server) throws DatabaseException, DatabaseUnsupportedException {
+    	if (! (server instanceof ParosDatabaseServer)) {
+    		throw new DatabaseUnsupportedException();
+    	}
+        this.server = (ParosDatabaseServer) server;
         connection = null;
-        reconnect(getConnection());
+		reconnect(getConnection());
     }
     
-    protected Connection getConnection() throws SQLException {
-        if (connection == null) {
-            connection = server.getNewConnection();            
-        }
-        return connection;
+    protected Connection getConnection() throws DatabaseException {
+        try {
+			if (connection == null) {
+			    connection = server.getNewConnection();            
+			}
+			return connection;
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
     }
     
-    protected abstract void reconnect(Connection connection) throws SQLException;
+    protected abstract void reconnect(Connection connection) throws DatabaseException;
 
 }

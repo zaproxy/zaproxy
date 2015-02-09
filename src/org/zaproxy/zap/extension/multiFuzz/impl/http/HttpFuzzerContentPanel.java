@@ -29,7 +29,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -53,14 +52,15 @@ import org.apache.commons.csv.CSVRecord;
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTreeTable;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.multiFuzz.FuzzResult;
 import org.zaproxy.zap.extension.multiFuzz.FuzzerContentPanel;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchResult;
@@ -224,7 +224,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 										displayMessage(historyReference
 												.getHttpMessage());
 									} catch (HttpMalformedHeaderException
-											| SQLException ex) {
+											| DatabaseException ex) {
 										logger.error(ex.getMessage(), ex);
 									}
 								}
@@ -347,7 +347,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 					state, pay, historyReference));
 			fuzzResultTable.updateUI();
 			fuzzResultTable.repaint();
-		} catch (HttpMalformedHeaderException | SQLException e) {
+		} catch (HttpMalformedHeaderException | DatabaseException e) {
 			logger.error(e.getMessage(), e);
 		}
 	}
@@ -449,7 +449,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 				}
 			} catch (HttpMalformedHeaderException e) {
 				logger.error(e.getMessage(), e);
-			} catch (SQLException e) {
+			} catch (DatabaseException e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -591,7 +591,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 				}
 			}
 			printer.flush();
-		} catch (IOException | SQLException e) {
+		} catch (IOException | DatabaseException e) {
 			logger.debug(e.getMessage());
 			JOptionPane.showMessageDialog(View.getSingleton().getMainFrame(), Constant.messages
 					.getString("fuzz.http.csv.writeError"));

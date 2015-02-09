@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.fuzz.impl.http;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -26,6 +25,7 @@ import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -180,7 +180,7 @@ public class HttpFuzzTableModel extends AbstractTableModel {
             msg = historyReference.getHttpMessage();
         } catch (HttpMalformedHeaderException e) {
             logger.error(e.getMessage(), e);
-        } catch (SQLException e) {
+        } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
         

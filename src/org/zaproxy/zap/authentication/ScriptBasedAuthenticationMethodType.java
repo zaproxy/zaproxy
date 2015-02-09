@@ -34,6 +34,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
@@ -491,7 +492,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	@Override
 	public ScriptBasedAuthenticationMethod loadMethodFromSession(Session session, int contextId)
-			throws SQLException {
+			throws DatabaseException {
 		ScriptBasedAuthenticationMethod method = createAuthenticationMethod(contextId);
 
 		// Load the script and make sure it still exists and still follows the required interface
@@ -550,7 +551,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod)
-			throws UnsupportedAuthenticationMethodException, SQLException {
+			throws UnsupportedAuthenticationMethodException, DatabaseException {
 		if (!(authMethod instanceof ScriptBasedAuthenticationMethod))
 			throw new UnsupportedAuthenticationMethodException(
 					"Script based authentication type only supports: "

@@ -1,6 +1,5 @@
 package org.zaproxy.zap.extension.authorization;
 
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,6 +7,7 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
@@ -123,7 +123,7 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 	}
 
 	@Override
-	public void persistMethodToSession(Session session, int contextId) throws SQLException {
+	public void persistMethodToSession(Session session, int contextId) throws DatabaseException {
 		session.setContextData(contextId, RecordContext.TYPE_AUTHORIZATION_METHOD_FIELD_1,
 				Integer.toString(statusCode));
 		// Add the patterns, making sure we delete existing data if there's are no patterns,
@@ -149,10 +149,10 @@ public class BasicAuthorizationDetectionMethod implements AuthorizationDetection
 	 * session database for a given context. For proper results, data should have been saved to the
 	 * session using the {@link #persistMethodToSession(Session, int)} method.
 	 * 
-	 * @throws SQLException if an error occurred while reading from the database
+	 * @throws DatabaseException if an error occurred while reading from the database
 	 */
 	public static BasicAuthorizationDetectionMethod loadMethodFromSession(Session session, int contextId)
-			throws SQLException {
+			throws DatabaseException {
 
 		int statusCode = NO_STATUS_CODE;
 		try {

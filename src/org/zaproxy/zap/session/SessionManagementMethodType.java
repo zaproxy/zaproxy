@@ -19,12 +19,11 @@
  */
 package org.zaproxy.zap.session;
 
-import java.sql.SQLException;
-
 import net.sf.json.JSONObject;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -120,7 +119,7 @@ public abstract class SessionManagementMethodType {
 	 * @return the session management method
 	 */
 	public abstract SessionManagementMethod loadMethodFromSession(Session session, int contextId)
-			throws SQLException;
+			throws DatabaseException;
 
 	/**
 	 * Persists the session management method to the session.
@@ -130,10 +129,10 @@ public abstract class SessionManagementMethodType {
 	 * @param method the session management method to persist
 	 * @throws UnsupportedSessionManagementMethodException the unsupported session management method
 	 *             exception
-	 * @throws SQLException the sQL exception
+	 * @throws DatabaseException the sQL exception
 	 */
 	public abstract void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
-			throws UnsupportedSessionManagementMethodException, SQLException;
+			throws UnsupportedSessionManagementMethodException, DatabaseException;
 
 	/**
 	 * Export the method to the configuration

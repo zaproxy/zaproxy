@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.view;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -29,13 +28,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.HistoryReferenceTableModel.COLUMN;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
 /**
  * @deprecated (2.3.0) Superseded by {@link org.zaproxy.zap.view.table.HistoryReferencesTable}. It will be removed in a future
@@ -126,7 +126,7 @@ public class HistoryReferenceTable extends JTable {
 				        displayMessage(hRef.getHttpMessage());
 				    } catch (HttpMalformedHeaderException ex) {
 				        logger.error(ex.getMessage(), ex);
-                    } catch (SQLException ex) {
+                    } catch (DatabaseException ex) {
                         logger.error(ex.getMessage(), ex);
                     }
 			    }

@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.EventQueue;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -35,6 +34,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
@@ -177,7 +177,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 						msg);
 				msg.setHistoryRef(null);
 				hRefs.add(Integer.valueOf(hRef.getHistoryId()));
-			} catch (HttpMalformedHeaderException | SQLException e) {
+			} catch (HttpMalformedHeaderException | DatabaseException e) {
 				log.error(e.getMessage(), e);
 			}
 		} else {

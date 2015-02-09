@@ -20,12 +20,12 @@
 package org.parosproxy.paros.extension.history;
 
 import java.awt.Component;
-import java.sql.SQLException;
 
 import javax.swing.JTree;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.manualrequest.ManualRequestEditorDialog;
 import org.parosproxy.paros.model.HistoryReference;
@@ -88,7 +88,7 @@ public class PopupMenuResendSites extends ExtensionPopupMenuItem {
                         msg = ref.getHttpMessage().cloneRequest();
                         dialog.setMessage(msg);
                         dialog.setVisible(true);
-                    } catch (HttpMalformedHeaderException | SQLException e) {
+                    } catch (HttpMalformedHeaderException | DatabaseException e) {
                         logger.error(e.getMessage(), e);
                     }
                 }

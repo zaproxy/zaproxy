@@ -38,6 +38,7 @@
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 // ZAP: 2014/08/14 Issue 1311: Differentiate temporary internal messages from temporary scanner messages
 // ZAP: 2014/12/11 Update the flag webSocketUpgrade sooner to avoid re-reading the message from database
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.model;
 
@@ -50,6 +51,7 @@ import java.util.Vector;
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.RecordTag;
@@ -144,7 +146,7 @@ public class HistoryReference {
         return sessionId;
     }
 
-    public HistoryReference(int historyId) throws HttpMalformedHeaderException, SQLException {
+    public HistoryReference(int historyId) throws HttpMalformedHeaderException, DatabaseException {
 		RecordHistory history = null;
 		this.icons =  new ArrayList<>();
 		this.clearIfManual = new ArrayList<>();
@@ -163,7 +165,7 @@ public class HistoryReference {
 		build(history.getSessionId(), history.getHistoryId(), history.getHistoryType(), msg);
 	}
 	
-	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, SQLException {
+	public HistoryReference(Session session, int historyType, HttpMessage msg) throws HttpMalformedHeaderException, DatabaseException {
 		
 		RecordHistory history = null;	
 		this.icons =  new ArrayList<>();
@@ -253,7 +255,7 @@ public class HistoryReference {
 	 * @throws HttpMalformedHeaderException the http malformed header exception
 	 * @throws SQLException the sQL exception
 	 */
-	public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, SQLException {
+	public HttpMessage getHttpMessage() throws HttpMalformedHeaderException, DatabaseException {
 		// fetch complete message
 		RecordHistory history = staticTableHistory.read(historyId);
 		if (history == null) {
@@ -281,7 +283,7 @@ public class HistoryReference {
             display = getDisplay(msg);	        
 	    } catch (HttpMalformedHeaderException e1) {
 	        display = "";
-	    } catch (SQLException e) {
+	    } catch (DatabaseException e) {
 	        display = "";
 	    }
         return display;
@@ -304,7 +306,7 @@ public class HistoryReference {
         	   // ZAP: Support for multiple tags
                staticTableTag.deleteTagsForHistoryID(historyId);
                staticTableHistory.delete(historyId);
-           } catch (SQLException e) {
+           } catch (DatabaseException e) {
         	   log.error(e.getMessage(), e);
            }
        }
@@ -342,7 +344,7 @@ public class HistoryReference {
    		try {
    			staticTableTag.insert(historyId, tag);
    			this.tags.add(tag);
-   		} catch (SQLException e) {
+   		} catch (DatabaseException e) {
    			log.error(e.getMessage(), e);
    		}
    	}
@@ -351,7 +353,7 @@ public class HistoryReference {
    		try {
    			staticTableTag.delete(historyId, tag);
    			this.tags.remove(tag);
-   		} catch (SQLException e) {
+   		} catch (DatabaseException e) {
    			log.error(e.getMessage(), e);
    		}
    	}
@@ -365,7 +367,7 @@ public class HistoryReference {
        try {
            staticTableHistory.updateNote(historyId, note);
            httpMessageCachedData.setNote(note != null && note.length() > 0);
-       } catch (SQLException e) {
+       } catch (DatabaseException e) {
            log.error(e.getMessage(), e);
        }
        
@@ -379,7 +381,7 @@ public class HistoryReference {
 			for (RecordAlert alert: alerts) {
 				this.addAlert(new Alert(alert, this));
 			}
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error(e.getMessage(), e);
 		}
    }
@@ -529,7 +531,7 @@ public class HistoryReference {
 			try {
 				requestBody = getHttpMessage().getRequestBody().toString();
 				httpMessageCachedData.setRequestBody(requestBody);
-			} catch (HttpMalformedHeaderException | SQLException e) {
+			} catch (HttpMalformedHeaderException | DatabaseException e) {
 				log.error("Failed to reload request body from database with history ID: " + historyId, e);
 				requestBody = "";
 			}

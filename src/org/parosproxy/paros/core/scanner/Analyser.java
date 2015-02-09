@@ -29,10 +29,10 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Issue 1021: OutOutOfMemoryError while running the active scanner
 // ZAP: 2014/06/26 Added the possibility to count the available nodes that can be scanned
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -42,6 +42,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
@@ -100,7 +101,7 @@ public class Analyser {
         try {
             mapVisited.put(uri.toString(), new SampleResponse(msg, errorIndicator));
             
-        } catch (HttpMalformedHeaderException | SQLException e) {
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
             logger.error("Failed to persist the message: " + e.getMessage(), e);
         }
     }
@@ -426,7 +427,7 @@ public class Analyser {
                     return false;
                 }
                 
-            } catch (HttpMalformedHeaderException | SQLException e) {
+            } catch (HttpMalformedHeaderException | DatabaseException e) {
                 logger.error("Failed to read the message: " + e.getMessage(), e);
             }
             return true;

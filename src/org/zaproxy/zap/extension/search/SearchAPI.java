@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.search;
 
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -27,6 +26,7 @@ import java.util.Map;
 import net.sf.json.JSONObject;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.model.Model;
@@ -269,7 +269,7 @@ public class SearchAPI extends ApiImplementor {
 		for (Integer hRefId : searchListener.getHistoryReferencesIds()) {
 			try {
 				processor.processRecordHistory(tableHistory.read(hRefId.intValue()));
-			} catch (SQLException | HttpMalformedHeaderException e) {
+			} catch (DatabaseException | HttpMalformedHeaderException e) {
 				log.error(e.getMessage(), e);
 			}
 		}

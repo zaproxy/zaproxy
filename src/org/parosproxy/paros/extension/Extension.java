@@ -27,6 +27,7 @@
 // ZAP: 2014/02/28 Issue 1057: Add a Extension.postInstall() method for post install actions
 // ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.extension;
 
@@ -34,6 +35,9 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.DatabaseServer;
+import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
@@ -174,5 +178,13 @@ public interface Extension {
 	 * Implement this method to perform tasks after all add-ons have been installed.
 	 */
     void postInit();
+
+    /**
+     * Implement this method to register database tables to be used by the add-on 
+     * @param dbServer
+     * @throws DatabaseException
+     * @throws DatabaseUnsupportedException
+     */
+    void databaseOpen(DatabaseServer dbServer) throws DatabaseException, DatabaseUnsupportedException;
 
 }

@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.anticsrf;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLDecoder;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -42,6 +41,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -110,7 +110,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			historyReferenceFactory = new HistoryReferenceFactory() {
 
 				@Override
-				public HistoryReference createHistoryReference(int id) throws HttpMalformedHeaderException, SQLException {
+				public HistoryReference createHistoryReference(int id) throws HttpMalformedHeaderException, DatabaseException {
 					return new HistoryReference(id);
 				}
 			};
@@ -338,7 +338,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 					}
 				}
 			}
-		} catch (SQLException | HttpMalformedHeaderException e) {
+		} catch (DatabaseException | HttpMalformedHeaderException e) {
 			log.error(e.getMessage(), e);
 		}
 
@@ -433,7 +433,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	private static interface HistoryReferenceFactory {
 
-		HistoryReference createHistoryReference(int id) throws SQLException, HttpMalformedHeaderException;
+		HistoryReference createHistoryReference(int id) throws DatabaseException, HttpMalformedHeaderException;
 
 	}
 }

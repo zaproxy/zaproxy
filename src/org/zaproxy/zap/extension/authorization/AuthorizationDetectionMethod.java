@@ -19,9 +19,8 @@
  */
 package org.zaproxy.zap.extension.authorization;
 
-import java.sql.SQLException;
-
 import org.apache.commons.configuration.Configuration;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.ApiResponse;
@@ -59,9 +58,9 @@ public interface AuthorizationDetectionMethod {
 	 *
 	 * @param session the session
 	 * @param contextId the context id
-	 * @throws SQLException if an error occurred while reading from the database
+	 * @throws DatabaseException if an error occurred while reading from the database
 	 */
-	public void persistMethodToSession(Session session, int contextId) throws SQLException;
+	public void persistMethodToSession(Session session, int contextId) throws DatabaseException;
 
 	/**
 	 * Export the method data to the configuration

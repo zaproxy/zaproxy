@@ -1,7 +1,5 @@
 package org.zaproxy.zap.extension.pscan;
 
-import java.sql.SQLException;
-
 import net.htmlparser.jericho.MasonTagTypes;
 import net.htmlparser.jericho.MicrosoftTagTypes;
 import net.htmlparser.jericho.PHPTagTypes;
@@ -11,12 +9,13 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Alert;
-import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -65,7 +64,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	
 	@Override
 	public void run() {
-		historyTable = Database.getSingleton().getTableHistory();
+		historyTable = Model.getSingleton().getDb().getTableHistory();
 		// Get the last id - in case we've just opened an existing session
 		currentId = this.getLastHistoryId();
 		lastId = currentId;
@@ -155,7 +154,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
         try {
             return new HistoryReference(historyReferenceId);
-        } catch (HttpMalformedHeaderException | SQLException e) {
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
             return null;
         }
     }
@@ -238,7 +237,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	@Override
 	public void sessionChanged(Session session) {
 		// Reset the currentId
-		historyTable = Database.getSingleton().getTableHistory();
+		historyTable = Model.getSingleton().getDb().getTableHistory();
 		href = null;
 		// Get the last id - in case we've just opened an existing session
 		currentId = historyTable.lastIndex();
