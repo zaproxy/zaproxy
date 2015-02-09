@@ -172,6 +172,7 @@ public class TabbedPanelTab extends JPanel {
 		}
 	}
 
+	@Override
 	public void setEnabled (boolean enabled) {
 		if (ap != null && ap.isLocked()) {
 			return;

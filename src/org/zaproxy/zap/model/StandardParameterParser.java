@@ -191,6 +191,7 @@ public class StandardParameterParser implements ParameterParser {
 		return map;
 	}
 	
+	@Override
 	public StandardParameterParser clone() {
 		StandardParameterParser spp = new StandardParameterParser(this.getKeyValuePairSeparators(), this.getKeyValueSeparators());
 		spp.setStructuralParameters(this.getStructuralParameters());

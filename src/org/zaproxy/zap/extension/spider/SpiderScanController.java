@@ -90,6 +90,7 @@ public class SpiderScanController implements ScanController {
 		this.spiderScanList = new ArrayList<SpiderScan>();
 	}
 
+	@Override
 	public int startScan(String name, Target target, User user, Object[] contextSpecificObjects) {
 		spiderScansLock.lock();
 		try {
@@ -133,10 +134,12 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public GenericScanner2 getScan(int id) {
 		return this.spiderScanMap.get(id);
 	}
 	
+	@Override
 	public SpiderScan getLastScan() {
 		spiderScansLock.lock();
 		try {
@@ -149,6 +152,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public List<GenericScanner2> getAllScans() {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		spiderScansLock.lock();
@@ -162,6 +166,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public List<GenericScanner2> getActiveScans() {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		spiderScansLock.lock();
@@ -177,6 +182,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public GenericScanner2 removeScan(int id) {
 		spiderScansLock.lock();
 
@@ -199,6 +205,7 @@ public class SpiderScanController implements ScanController {
 		return spiderScanMap.size();
 	}
 	
+	@Override
 	public void stopAllScans() {
 		spiderScansLock.lock();
 		try {
@@ -210,6 +217,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public void pauseAllScans() {
 		spiderScansLock.lock();
 		try {
@@ -221,6 +229,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public void resumeAllScans() {
 		spiderScansLock.lock();
 		try {
@@ -232,6 +241,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public int removeAllScans() {
 		spiderScansLock.lock();
 		try {

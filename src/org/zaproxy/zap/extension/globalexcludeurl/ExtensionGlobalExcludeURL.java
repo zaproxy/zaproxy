@@ -84,6 +84,7 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
         return Model.getSingleton().getOptionsParam().getGlobalExcludeURLParam();
 	}
 
+	@Override
 	public void optionsLoaded() {
 		GlobalExcludeURLParam geup = getParam();
 		log.warn("GlobalExcludeURL.optionsLoaded()");

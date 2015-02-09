@@ -139,6 +139,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupContextTreeMenuInScope == null) {
 			popupContextTreeMenuInScope = new PopupContextTreeMenu() {
 				private static final long serialVersionUID = 1L;
+				@Override
 				public boolean isEnabledForContext(int contextId) {
                 	Context ctx = Model.getSingleton().getSession().getContext(contextId);
 					return ctx != null && ! ctx.isInScope();
@@ -161,6 +162,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		if (popupContextTreeMenuOutScope == null) {
 			popupContextTreeMenuOutScope = new PopupContextTreeMenu() {
 				private static final long serialVersionUID = 1L;
+				@Override
 				public boolean isEnabledForContext(int contextId) {
                 	Context ctx = Model.getSingleton().getSession().getContext(contextId);
 					return ctx != null && ctx.isInScope();

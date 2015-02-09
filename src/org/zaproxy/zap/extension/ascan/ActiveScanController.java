@@ -97,6 +97,7 @@ public class ActiveScanController implements ScanController {
 		this.extAlert = extAlert;
 	}
 
+	@Override
 	public int startScan(String name, Target target, User user, Object[] contextSpecificObjects) {
 		activeScansLock.lock();
 		try {
@@ -167,10 +168,12 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public GenericScanner2 getScan(int id) {
 		return this.activeScanMap.get(id);
 	}
 	
+	@Override
 	public GenericScanner2 getLastScan() {
 		activeScansLock.lock();
 		try {
@@ -183,6 +186,7 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public List<GenericScanner2> getAllScans() {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		activeScansLock.lock();
@@ -196,6 +200,7 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public List<GenericScanner2> getActiveScans() {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		activeScansLock.lock();
@@ -211,6 +216,7 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public GenericScanner2 removeScan(int id) {
 		activeScansLock.lock();
 
@@ -233,6 +239,7 @@ public class ActiveScanController implements ScanController {
 		return activeScanMap.size();
 	}
 	
+	@Override
 	public void stopAllScans() {
 		activeScansLock.lock();
 		try {
@@ -244,6 +251,7 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public void pauseAllScans() {
 		activeScansLock.lock();
 		try {
@@ -255,6 +263,7 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public void resumeAllScans() {
 		activeScansLock.lock();
 		try {
@@ -266,6 +275,7 @@ public class ActiveScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public int removeAllScans() {
 		activeScansLock.lock();
 		try {
