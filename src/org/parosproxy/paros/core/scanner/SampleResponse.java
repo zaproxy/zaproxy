@@ -20,10 +20,10 @@
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Issue 1021: OutOutOfMemoryError while running the active scanner
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 package org.parosproxy.paros.core.scanner;
 
-import java.sql.SQLException;
-
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -41,7 +41,7 @@ class SampleResponse {
 	private HistoryReference historyReference = null;
 	private int	errorPageType = ERROR_PAGE_RFC;
 	
-	SampleResponse(HttpMessage message, int errorPageType) throws HttpMalformedHeaderException, SQLException {
+	SampleResponse(HttpMessage message, int errorPageType) throws HttpMalformedHeaderException, DatabaseException {
 	    this.historyReference = createHistoryReference(message);
 	    this.errorPageType = errorPageType;
 	    
@@ -49,13 +49,13 @@ class SampleResponse {
     /**
      * @return Returns the message.
      */
-    public HttpMessage getMessage() throws HttpMalformedHeaderException, SQLException {
+    public HttpMessage getMessage() throws HttpMalformedHeaderException, DatabaseException {
         return historyReference.getHttpMessage();
     }
     /**
      * @param message The message to set.
      */
-    public void setMessage(HttpMessage message) throws HttpMalformedHeaderException, SQLException {
+    public void setMessage(HttpMessage message) throws HttpMalformedHeaderException, DatabaseException {
         this.historyReference = createHistoryReference(message);
     }
     /**
@@ -72,7 +72,7 @@ class SampleResponse {
     }
 
     private static HistoryReference createHistoryReference(HttpMessage message) throws HttpMalformedHeaderException,
-            SQLException {
+            DatabaseException {
         return new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, message);
     }
 }

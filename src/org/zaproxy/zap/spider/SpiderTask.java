@@ -20,7 +20,6 @@ package org.zaproxy.zap.spider;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
-import java.sql.SQLException;
 import java.util.List;
 
 import net.htmlparser.jericho.Source;
@@ -29,6 +28,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -147,7 +147,7 @@ public class SpiderTask implements Runnable {
 					msg);
 		} catch (HttpMalformedHeaderException e) {
 			log.error("Error while building HttpMessage for uri: " + uri, e);
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Error while persisting HttpMessage for uri: " + uri, e);
 		}
 	}
@@ -283,9 +283,9 @@ public class SpiderTask implements Runnable {
 	 * @return the response http message
 	 * @throws HttpException the http exception
 	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws SQLException
+	 * @throws DatabaseException
 	 */
-	private HttpMessage fetchResource() throws HttpException, IOException, SQLException {
+	private HttpMessage fetchResource() throws HttpException, IOException, DatabaseException {
 
 		// Build fetch the request message from the database
 		HttpMessage msg;

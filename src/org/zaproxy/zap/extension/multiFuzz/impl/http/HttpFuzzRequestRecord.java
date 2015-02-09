@@ -19,13 +19,13 @@
  */ 
 package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -185,7 +185,7 @@ public class HttpFuzzRequestRecord implements HttpFuzzRecord {
 
 		try {
 			msg = historyReference.getHttpMessage();
-		} catch (HttpMalformedHeaderException | SQLException e) {
+		} catch (HttpMalformedHeaderException | DatabaseException e) {
 			logger.error(e.getMessage(), e);
 		}
 

@@ -56,6 +56,7 @@
 // ZAP: 2015/01/04 Issue 1379: Not all extension's listeners are hooked during add-on installation
 // ZAP: 2015/01/19 Remove online menus when removeMenu(View, ExtensionHook) is called.
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.extension;
 
@@ -79,6 +80,9 @@ import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Scanner;
 import org.parosproxy.paros.core.scanner.ScannerHook;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.DatabaseServer;
+import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
@@ -389,7 +393,18 @@ public class ExtensionLoader {
                     logger.error(e.getMessage(), e);
                 }
             }
+        }
+    }
 
+    public void databaseOpen(DatabaseServer dbServer) {
+        Extension ext;
+        for (int i = 0; i < getExtensionCount(); i++) {
+            ext = getExtension(i);
+            try {
+				ext.databaseOpen(dbServer);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+			}
         }
     }
 
@@ -517,9 +532,12 @@ public class ExtensionLoader {
     /**
      * Initialize a specific Extension
      * @param ext the Extension that need to be initialized
+     * @throws DatabaseUnsupportedException 
+     * @throws DatabaseException 
      */
-    public void startLifeCycle(Extension ext) {
+    public void startLifeCycle(Extension ext) throws DatabaseException, DatabaseUnsupportedException {
         ext.init();
+        ext.databaseOpen(model.getDb().getDatabaseServer());
         ext.initModel(model);
         ext.initXML(model.getSession(), model.getOptionsParam());
         ext.initView(view);
@@ -996,11 +1014,12 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).init();
+                getExtension(i).databaseOpen(Model.getSingleton().getDb().getDatabaseServer());
                 if (view != null) {
                 	view.addSplashScreenLoadingCompletion(factorPerc);
                 }
                 
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 logger.error(e.getMessage(), e);
             }
         }

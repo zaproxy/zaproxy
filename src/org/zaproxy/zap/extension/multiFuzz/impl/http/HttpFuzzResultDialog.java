@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.multiFuzz.impl.http;
 
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -43,6 +42,7 @@ import org.jfree.data.category.DefaultCategoryDataset;
 import org.jfree.data.general.DefaultPieDataset;
 import org.jfree.ui.Align;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.view.View;
@@ -146,7 +146,7 @@ public class HttpFuzzResultDialog extends FuzzResultDialog {
 												historyReference
 														.getHttpMessage());
 									} catch (HttpMalformedHeaderException
-											| SQLException ex) {
+											| DatabaseException ex) {
 										logger.error(ex.getMessage(), ex);
 									}
 								}
@@ -235,7 +235,7 @@ public class HttpFuzzResultDialog extends FuzzResultDialog {
 					comp = new HttpFuzzComponent(
 							((HttpFuzzRequestRecord) getEntry(row))
 									.getHistory().getHttpMessage());
-				} catch (HttpMalformedHeaderException | SQLException e) {
+				} catch (HttpMalformedHeaderException | DatabaseException e) {
 					logger.error(e.getMessage());
 				}
 			}

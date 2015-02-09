@@ -23,7 +23,6 @@ import java.awt.Component;
 import java.awt.Container;
 import java.awt.Point;
 import java.awt.event.MouseEvent;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -48,6 +47,7 @@ import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -377,7 +377,7 @@ public class HistoryReferencesTable extends JXTable {
 
                 try {
                     displayMessage(hRef.getHttpMessage());
-                } catch (HttpMalformedHeaderException | SQLException e) {
+                } catch (HttpMalformedHeaderException | DatabaseException e) {
                     LOGGER.error(e.getMessage(), e);
                 }
             }

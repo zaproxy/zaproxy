@@ -17,13 +17,14 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.sql.SQLException;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -202,7 +203,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
                         HistoryReference.TYPE_TEMPORARY, 
                         msg);
                 
-            } catch (SQLException | HttpMalformedHeaderException ex) { }
+            } catch (DatabaseException | HttpMalformedHeaderException ex) { }
         }
         
         public ChallengeCallbackPlugin getPlugin() {
@@ -215,7 +216,7 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
                     return hRef.getHttpMessage();
                 }
                 
-            } catch (SQLException | HttpMalformedHeaderException ex) { }
+            } catch (DatabaseException | HttpMalformedHeaderException ex) { }
             
             return null;
         }

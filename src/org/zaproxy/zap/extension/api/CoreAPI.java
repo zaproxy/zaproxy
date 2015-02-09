@@ -27,7 +27,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.cert.Certificate;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -50,6 +49,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableAlert;
@@ -344,7 +344,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (ACTION_CLEAR_EXCLUDED_FROM_PROXY.equals(name)) {
 			try {
 				session.setExcludeFromProxyRegexs(new ArrayList<String>());
-			} catch (SQLException e) {
+			} catch (DatabaseException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 			}
 		} else if (ACTION_EXCLUDE_FROM_PROXY.equals(name)) {
@@ -403,7 +403,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
             } else {
                 try {
                     Model.getSingleton().getDb().getTableAlert().deleteAllAlerts();
-                } catch (SQLException e) {
+                } catch (DatabaseException e) {
                     logger.error(e.getMessage(), e);
                 }
 
@@ -548,7 +548,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			RecordAlert recordAlert;
 			try {
 				recordAlert = tableAlert.read(this.getParam(params, PARAM_ID, -1));
-			} catch (SQLException e) {
+			} catch (DatabaseException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
 			if (recordAlert == null) {
@@ -581,7 +581,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			RecordHistory recordHistory;
 			try {
 				recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
-			} catch (HttpMalformedHeaderException | SQLException e) {
+			} catch (HttpMalformedHeaderException | DatabaseException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
 			if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
@@ -750,7 +750,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				RecordHistory recordHistory;
 				try {
 					recordHistory = tableHistory.read(this.getParam(params, PARAM_ID, -1));
-				} catch (HttpMalformedHeaderException | SQLException e) {
+				} catch (HttpMalformedHeaderException | DatabaseException e) {
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 				}
 				if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
@@ -977,7 +977,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					}
 				}
 			}
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			logger.error(e.getMessage(), e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 		}
@@ -1015,7 +1015,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					break;
 				}
 			}
-		} catch (HttpMalformedHeaderException | SQLException e) {
+		} catch (HttpMalformedHeaderException | DatabaseException e) {
 			logger.error(e.getMessage(), e);
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 		}

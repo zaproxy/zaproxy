@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.spider;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -29,6 +28,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -239,7 +239,7 @@ public class SpiderAPI extends ApiImplementor {
 			try {
 				Session session = Model.getSingleton().getSession();
 				session.setExcludeFromSpiderRegexs(new ArrayList<String>());
-			} catch (SQLException e) {
+			} catch (DatabaseException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 			}
 			break;

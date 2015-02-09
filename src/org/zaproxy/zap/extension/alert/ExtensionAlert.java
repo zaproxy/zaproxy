@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.alert;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -36,6 +35,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.db.RecordScan;
 import org.parosproxy.paros.db.TableAlert;
@@ -258,7 +258,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         return filteredTreeModel;
     }
 
-    private void writeAlertToDB(Alert alert, HistoryReference ref) throws HttpMalformedHeaderException, SQLException {
+    private void writeAlertToDB(Alert alert, HistoryReference ref) throws HttpMalformedHeaderException, DatabaseException {
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         int scanId = 0;
@@ -276,7 +276,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     }
 
-    public void updateAlert(Alert alert) throws HttpMalformedHeaderException, SQLException {
+    public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
         logger.debug("updateAlert " + alert.getAlert() + " " + alert.getUri());
         updateAlertInDB(alert);
         if (alert.getHistoryRef() != null) {
@@ -284,7 +284,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
     }
 
-    private void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, SQLException {
+    private void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(),
@@ -339,13 +339,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         try {
             refreshAlert(session);
-        } catch (SQLException e) {
+        } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
         setTreeModel(getTreeModel());
     }
 
-    private void refreshAlert(Session session) throws SQLException {
+    private void refreshAlert(Session session) throws DatabaseException {
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
@@ -423,7 +423,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         try {
             getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
-        } catch (SQLException e) {
+        } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
 
@@ -442,7 +442,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     public void deleteAllAlerts() {
         try {
             getModel().getDb().getTableAlert().deleteAllAlerts();
-        } catch (SQLException e) {
+        } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
 
@@ -534,7 +534,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
                 try {
                     getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());
-                } catch (SQLException e) {
+                } catch (DatabaseException e) {
                     logger.error("Failed to delete alert with ID: " + alert.getAlertId(), e);
                 }
             }
@@ -613,7 +613,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                     allAlerts.add(alert);
                 }
             }
-        } catch (SQLException e) {
+        } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
         return allAlerts;

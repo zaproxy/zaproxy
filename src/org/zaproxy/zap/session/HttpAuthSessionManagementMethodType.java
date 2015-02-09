@@ -1,7 +1,5 @@
 package org.zaproxy.zap.session;
 
-import java.sql.SQLException;
-
 import net.sf.json.JSONObject;
 
 import org.apache.commons.configuration.Configuration;
@@ -9,6 +7,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
@@ -145,13 +144,13 @@ public class HttpAuthSessionManagementMethodType extends SessionManagementMethod
 	}
 
 	@Override
-	public SessionManagementMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+	public SessionManagementMethod loadMethodFromSession(Session session, int contextId) throws DatabaseException {
 		return new HttpAuthSessionManagementMethod();
 	}
 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
-			throws UnsupportedSessionManagementMethodException, SQLException {
+			throws UnsupportedSessionManagementMethodException, DatabaseException {
 		// Nothing to persist
 
 	}

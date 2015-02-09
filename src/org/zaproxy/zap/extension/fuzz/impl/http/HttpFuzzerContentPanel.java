@@ -18,7 +18,6 @@
 package org.zaproxy.zap.extension.fuzz.impl.http;
 
 import java.awt.EventQueue;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
@@ -32,6 +31,7 @@ import javax.swing.table.TableColumn;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -44,8 +44,8 @@ import org.zaproxy.zap.extension.search.ExtensionSearch;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchResult;
 import org.zaproxy.zap.utils.Pair;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
 public class HttpFuzzerContentPanel implements FuzzerContentPanel {
 
@@ -152,7 +152,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                             displayMessage(historyReference.getHttpMessage());
                         } catch (HttpMalformedHeaderException ex) {
                             logger.error(ex.getMessage(), ex);
-                        } catch (SQLException ex) {
+                        } catch (DatabaseException ex) {
                             logger.error(ex.getMessage(), ex);
                         }
                     }
@@ -209,7 +209,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             HistoryReference historyReference = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_TEMPORARY, msg);
 
             resultsModel.addHistoryReference(state, historyReference);
-        } catch (HttpMalformedHeaderException | SQLException e) {
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
     }
@@ -293,7 +293,7 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
                 }
             } catch (HttpMalformedHeaderException e) {
                 logger.error(e.getMessage(), e);
-            } catch (SQLException e) {
+            } catch (DatabaseException e) {
                 logger.error(e.getMessage(), e);
             }
         }

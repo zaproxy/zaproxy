@@ -17,7 +17,6 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -36,6 +35,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -222,7 +222,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				try {
 					Session session = Model.getSingleton().getSession();
 					session.setExcludeFromScanRegexs(new ArrayList<String>());
-				} catch (SQLException e) {
+				} catch (DatabaseException e) {
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			    break;

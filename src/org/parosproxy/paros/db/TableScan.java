@@ -1,103 +1,37 @@
 /*
-*
-* Paros and its related class files.
-* 
-* Paros is an HTTP/HTTPS proxy for assessing web application security.
-* Copyright (C) 2003-2004 Chinotec Technologies Company
-* 
-* This program is free software; you can redistribute it and/or
-* modify it under the terms of the Clarified Artistic License
-* as published by the Free Software Foundation.
-* 
-* This program is distributed in the hope that it will be useful,
-* but WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-* Clarified Artistic License for more details.
-* 
-* You should have received a copy of the Clarified Artistic License
-* along with this program; if not, write to the Free Software
-* Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
-*/
-// ZAP: 2011/05/27 Ensure all PreparedStatements and ResultSets closed to prevent leaks 
-// ZAP: 2012/04/23 Added @Override annotation to the appropriate method.
-// ZAP: 2012/08/08 Upgrade to HSQLDB 2.x (introduced TABLE_NAME constant + DbUtils)
-// ZAP: 2014/03/23 Changed to use try-with-resource statements.
-
+ * Zed Attack Proxy (ZAP) and its related class files.
+ * 
+ * ZAP is an HTTP/HTTPS proxy for assessing web application security.
+ * 
+ * Licensed under the Apache License, Version 2.0 (the "License"); 
+ * you may not use this file except in compliance with the License. 
+ * You may obtain a copy of the License at 
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0 
+ *   
+ * Unless required by applicable law or agreed to in writing, software 
+ * distributed under the License is distributed on an "AS IS" BASIS, 
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+ * See the License for the specific language governing permissions and 
+ * limitations under the License. 
+ */
 package org.parosproxy.paros.db;
 
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+/**
+ * This interface was extracted from the previous Paros class of the same name.
+ * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
+ * @author psiinon
+ */
 
-public class TableScan extends AbstractTable {
-    
-    private static final String TABLE_NAME = "SCAN";
-    
-    private static final String SCANID	= "SCANID";
-    private static final String SESSIONID	= "SESSIONID";
-    private static final String SCANNAME	= "SCANNAME";
-    private static final String SCANTIME = "SCANTIME";
-    
-    private PreparedStatement psRead = null;
-    private PreparedStatement psInsert = null;
-    private CallableStatement psGetIdLastInsert = null;
 
-    //private PreparedStatement psUpdate = null;
-    
-    public TableScan() {
-        
-    }
-        
-    @Override
-    protected void reconnect(Connection conn) throws SQLException {
-        psRead  = conn.prepareStatement("SELECT * FROM " + TABLE_NAME +" WHERE " + SCANID + " = ?");
-        psInsert = conn.prepareStatement("INSERT INTO SCAN (" + SESSIONID + ","+ SCANNAME + ") VALUES (?, ?)");
-        psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
-       
-    }
-    
-    public synchronized RecordScan getLatestScan() throws SQLException {
-        try (PreparedStatement psLatest = getConnection().prepareStatement("SELECT * FROM SCAN WHERE SCANID = (SELECT MAX(B.SCANID) FROM SCAN AS B)")) {
-			try (ResultSet rs = psLatest.executeQuery()) {
-			RecordScan result = build(rs);
-			return result;
-			}
-        }
-    }
-    
-	public synchronized RecordScan read(int scanId) throws SQLException {
-		psRead.setInt(1, scanId);
-		
-		try (ResultSet rs = psRead.executeQuery()) {
-			RecordScan result = build(rs);
-			return result;
-		}
-	}
-	
-    public synchronized RecordScan insert(long sessionId, String scanName) throws SQLException {
-        psInsert.setLong(1, sessionId);
-        psInsert.setString(2, scanName);
-        psInsert.executeUpdate();
-        
-		int id;
-		try (ResultSet rs = psGetIdLastInsert.executeQuery()) {
-			rs.next();
-			id = rs.getInt(1);
-		}
-		return read(id);
-		
-    }
-        
-    private RecordScan build(ResultSet rs) throws SQLException {
-        RecordScan scan = null;
-        if (rs.next()) {
-            scan = new RecordScan(rs.getInt(SCANID), rs.getString(SCANNAME), rs.getDate(SCANTIME));            
-        }
-        rs.close();
-        return scan;
-        
-    }    
-    
+
+public interface TableScan extends DatabaseListener {
+
+	RecordScan getLatestScan() throws DatabaseException;
+
+	RecordScan read(int scanId) throws DatabaseException;
+
+	RecordScan insert(long sessionId, String scanName)
+			throws DatabaseException;
+
 }

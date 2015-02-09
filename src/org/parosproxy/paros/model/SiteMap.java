@@ -40,11 +40,11 @@
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
 // ZAP: 2014/11/27 Issue 1416: Allow spider to be restricted by the number of children
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -60,6 +60,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -381,7 +382,7 @@ public class SiteMap extends DefaultTreeModel {
         return leaf;
     }
     
-    private SiteNode findAndAddChild(SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg) throws URIException, HttpMalformedHeaderException, NullPointerException, SQLException {
+    private SiteNode findAndAddChild(SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg) throws URIException, HttpMalformedHeaderException, NullPointerException, DatabaseException {
     	// ZAP: Added debug
     	log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);    	
         SiteNode result = findChild(parent, nodeName);
@@ -586,7 +587,7 @@ public class SiteMap extends DefaultTreeModel {
         return result;
     }
     
-    private HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, SQLException, URIException, NullPointerException {
+    private HistoryReference createReference(SiteNode node, HistoryReference baseRef, HttpMessage base) throws HttpMalformedHeaderException, DatabaseException, URIException, NullPointerException {
         TreeNode[] path = node.getPath();
         StringBuilder sb = new StringBuilder();
         String nodeName;

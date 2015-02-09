@@ -23,7 +23,6 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.sql.SQLException;
 import java.util.Enumeration;
 
 import javax.swing.JFileChooser;
@@ -33,6 +32,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
@@ -152,7 +152,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
         	log.warn(e.getStackTrace(), e);
 		} catch (IOException e) {
         	log.warn(e.getStackTrace(), e);
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
         	log.warn(e.getStackTrace(), e);
 		}
 

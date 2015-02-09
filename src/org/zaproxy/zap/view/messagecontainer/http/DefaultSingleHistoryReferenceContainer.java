@@ -20,9 +20,9 @@
 package org.zaproxy.zap.view.messagecontainer.http;
 
 import java.awt.Component;
-import java.sql.SQLException;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -79,7 +79,7 @@ public class DefaultSingleHistoryReferenceContainer extends DefaultSingleHttpMes
         if (historyReference != null) {
             try {
                 return historyReference.getHttpMessage();
-            } catch (HttpMalformedHeaderException | SQLException e) {
+            } catch (HttpMalformedHeaderException | DatabaseException e) {
                 LOGGER.error(e.getMessage(), e);
             }
         }

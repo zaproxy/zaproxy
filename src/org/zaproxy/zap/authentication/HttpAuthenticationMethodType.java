@@ -20,6 +20,7 @@ import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
@@ -266,7 +267,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 	}
 
 	@Override
-	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws DatabaseException {
 		HttpAuthenticationMethod method = createAuthenticationMethod(contextId);
 
 		List<String> hostnames = session.getContextDataStrings(contextId,
@@ -294,7 +295,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod)
-			throws UnsupportedAuthenticationMethodException, SQLException {
+			throws UnsupportedAuthenticationMethodException, DatabaseException {
 		if (!(authMethod instanceof HttpAuthenticationMethod))
 			throw new UnsupportedAuthenticationMethodException("Http Authentication type only supports: "
 					+ HttpAuthenticationMethod.class);

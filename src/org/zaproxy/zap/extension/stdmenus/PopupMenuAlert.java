@@ -19,10 +19,9 @@
  */
 package org.zaproxy.zap.extension.stdmenus;
 
-import java.sql.SQLException;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -51,13 +50,13 @@ public class PopupMenuAlert extends PopupMenuItemHistoryReferenceContainer {
 	    if (invoker == Invoker.ACTIVE_SCANNER_PANEL) {
 	        try {
 	            getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_SCANNER);
-	        } catch (HttpMalformedHeaderException | SQLException e) {
+	        } catch (HttpMalformedHeaderException | DatabaseException e) {
 	            logger.error(e.getMessage(), e);
 	        }
 	    } else if (invoker == Invoker.FUZZER_PANEL) {
 	        try {
 	            getExtensionHistory().showAlertAddDialog(href.getHttpMessage(), HistoryReference.TYPE_FUZZER);
-    	    } catch (HttpMalformedHeaderException | SQLException e) {
+    	    } catch (HttpMalformedHeaderException | DatabaseException e) {
                 logger.error(e.getMessage(), e);
             }
 	    } else {

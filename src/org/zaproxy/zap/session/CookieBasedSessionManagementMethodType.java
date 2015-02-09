@@ -2,7 +2,6 @@ package org.zaproxy.zap.session;
 
 import java.lang.ref.WeakReference;
 import java.net.HttpCookie;
-import java.sql.SQLException;
 import java.util.Iterator;
 import java.util.List;
 
@@ -15,6 +14,7 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -247,13 +247,13 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 	}
 
 	@Override
-	public SessionManagementMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+	public SessionManagementMethod loadMethodFromSession(Session session, int contextId) throws DatabaseException {
 		return new CookieBasedSessionManagementMethod(contextId);
 	}
 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
-			throws UnsupportedSessionManagementMethodException, SQLException {
+			throws UnsupportedSessionManagementMethodException, DatabaseException {
 		// Nothing to persist
 
 	}

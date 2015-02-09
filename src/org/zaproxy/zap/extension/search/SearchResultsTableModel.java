@@ -19,11 +19,11 @@
  */
 package org.zaproxy.zap.extension.search;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -225,7 +225,7 @@ public class SearchResultsTableModel extends
             public HttpMessage getMessage() {
                 try {
                     return getHistoryReference().getHttpMessage();
-                } catch (SQLException | HttpMalformedHeaderException e) {
+                } catch (DatabaseException | HttpMalformedHeaderException e) {
 
                     return null;
                 }
@@ -284,7 +284,7 @@ public class SearchResultsTableModel extends
             public HttpMessage getMessage() {
                 try {
                     return getHistoryReference().getHttpMessage();
-                } catch (SQLException | HttpMalformedHeaderException e) {
+                } catch (DatabaseException | HttpMalformedHeaderException e) {
 
                     return null;
                 }

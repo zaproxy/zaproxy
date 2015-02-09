@@ -19,13 +19,12 @@
  */
 package org.zaproxy.zap.authentication;
 
-import java.sql.SQLException;
-
 import net.sf.json.JSONObject;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.api.ApiAction;
@@ -140,7 +139,7 @@ public abstract class AuthenticationMethodType {
 	 * @return the authentication method
 	 */
 	public abstract AuthenticationMethod loadMethodFromSession(Session session, int contextId)
-			throws SQLException;
+			throws DatabaseException;
 
 	/**
 	 * Persists the authentication method to the session.
@@ -152,7 +151,7 @@ public abstract class AuthenticationMethodType {
 	 *             exception
 	 */
 	public abstract void persistMethodToSession(Session session, int contextId,
-			AuthenticationMethod authMethod) throws UnsupportedAuthenticationMethodException, SQLException;
+			AuthenticationMethod authMethod) throws UnsupportedAuthenticationMethodException, DatabaseException;
 
 	/**
 	 * Export the specified method to the configuration

@@ -23,7 +23,6 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -40,8 +39,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.db.paros.ParosDatabase;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
@@ -137,7 +138,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
     }
     
 	private void buildHistoryMap (TableHistory th, Map<String, String> map) 
-    		throws SQLException, HttpMalformedHeaderException {
+    		throws DatabaseException, HttpMalformedHeaderException {
 
 		// Get the first session id
     	RecordHistory rh = null;
@@ -206,14 +207,15 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 	    	    //WaitMessageDialog waitMessageDialog = View.getSingleton().getWaitMessageDialog("Loading session file.  Please wait ...");
 	    		cmpModel.openSession(file, this);
 
-				Database db = new Database();
+	    		// TODO support other implementations in the future
+				Database db = new ParosDatabase();
 				db.open(file.getAbsolutePath());
 				
 				Map <String, String> curMap = new HashMap<>();
 				Map <String, String> cmpMap = new HashMap<>();
 				
 				// Load the 2 sessions into 2 maps
-				this.buildHistoryMap(Database.getSingleton().getTableHistory(), curMap);
+				this.buildHistoryMap(Model.getSingleton().getDb().getTableHistory(), curMap);
 				this.buildHistoryMap(db.getTableHistory(), cmpMap);
 
 		    	File outputFile = this.getOutputFile();

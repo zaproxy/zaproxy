@@ -56,6 +56,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
@@ -159,7 +160,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * @throws UnsupportedEncodingException
 		 */
 		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
-				throws URIException, NullPointerException, HttpMalformedHeaderException, SQLException,
+				throws URIException, NullPointerException, HttpMalformedHeaderException, DatabaseException,
 				UnsupportedEncodingException {
 
 			// Replace the username and password in the uri
@@ -278,7 +279,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * 
 		 */
 		@Deprecated
-		public HttpMessage getLoginRequestMessage() throws HttpMalformedHeaderException, SQLException,
+		public HttpMessage getLoginRequestMessage() throws HttpMalformedHeaderException, DatabaseException,
 				URIException, NullPointerException {
 			HttpMessage requestMessage = null;
 			if (this.loginSiteNode != null)
@@ -870,7 +871,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 	}
 
 	@Override
-	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws SQLException {
+	public AuthenticationMethod loadMethodFromSession(Session session, int contextId) throws DatabaseException {
 		FormBasedAuthenticationMethod method = new FormBasedAuthenticationMethod();
 		List<String> urls = session.getContextDataStrings(contextId, RecordContext.TYPE_AUTH_METHOD_FIELD_1);
 		String url = "";
@@ -895,7 +896,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 	@Override
 	public void persistMethodToSession(Session session, int contextId, AuthenticationMethod authMethod)
-			throws SQLException {
+			throws DatabaseException {
 		if (!(authMethod instanceof FormBasedAuthenticationMethod)) {
 			throw new UnsupportedAuthenticationMethodException(
 					"Form based authentication type only supports: " + FormBasedAuthenticationMethod.class);

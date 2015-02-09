@@ -31,6 +31,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.PluginFactory;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
@@ -134,7 +136,11 @@ public final class AddOnInstaller {
         for (Extension ext : listExts) {
             if (ext.isEnabled()) {
                 logger.debug("Starting extension " + ext.getName());
-                extensionLoader.startLifeCycle(ext);
+                try {
+					extensionLoader.startLifeCycle(ext);
+				} catch (Exception e) {
+		            logger.error("An error occurred while installing the add-on: " + addOn.getId(), e);
+				}
             }
         }
 

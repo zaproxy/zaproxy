@@ -56,11 +56,11 @@
 // ZAP: 2014/05/20 Issue 1206: "History" tab is not cleared when a new session is created 
 // through the API with ZAP in GUI mode
 // ZAP: 2014/12/12 Issue 1449: Added help button
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.EventQueue;
-import java.sql.SQLException;
 import java.util.Hashtable;
 import java.util.List;
 
@@ -71,6 +71,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.ExtensionHookView;
@@ -361,7 +362,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 						session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
 	            
 	            buildHistory(list, historyFilter);
-	        } catch (SQLException e) {
+	        } catch (DatabaseException e) {
 				logger.error(e.getMessage(), e);
 	        }
 	    }
@@ -422,7 +423,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		dialog.setModal(true);
     	try {
 			dialog.setAllTags(getModel().getDb().getTableTag().getAllTags());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			logger.error(e.getMessage(), e);
 		}
 
@@ -579,7 +580,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private void populateManageTagsDialogAndSetVisible(HistoryReference ref, List<String> tags) {
 		try {
 			manageTags.setAllTags(getModel().getDb().getTableTag().getAllTags());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			logger.error(e.getMessage(), e);
 		}
     	manageTags.setTags(tags);

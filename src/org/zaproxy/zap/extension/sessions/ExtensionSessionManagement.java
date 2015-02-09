@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.sessions;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +29,7 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -180,7 +180,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 					context.setSessionManagementMethod(t.loadMethodFromSession(session, context.getIndex()));
 				}
 			}
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Unable to load Session Management method.", e);
 		}
 
@@ -193,7 +193,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 			session.setContextData(context.getIndex(), RecordContext.TYPE_SESSION_MANAGEMENT_TYPE,
 					Integer.toString(t.getUniqueIdentifier()));
 			t.persistMethodToSession(session, context.getIndex(), context.getSessionManagementMethod());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
 			log.error("Unable to persist Session Management method.", e);
 		}
 	}

@@ -19,10 +19,9 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.sql.SQLException;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -53,7 +52,7 @@ public class PopupMenuNote extends PopupMenuItemHistoryReferenceContainer {
         try {
             extension.showNotesAddDialog(href, href.getHttpMessage().getNote());
 
-        } catch (HttpMalformedHeaderException | SQLException e) {
+        } catch (HttpMalformedHeaderException | DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
     }

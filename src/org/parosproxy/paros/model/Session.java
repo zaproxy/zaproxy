@@ -48,6 +48,7 @@
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/30 Set default context name
+// ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 
 package org.parosproxy.paros.model;
 
@@ -56,7 +57,6 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.Iterator;
@@ -73,6 +73,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.db.RecordSessionUrl;
 import org.parosproxy.paros.network.HtmlParameter;
@@ -162,7 +163,7 @@ public class Session extends FileXML {
 	protected void discard() {
 	    try {
 	        model.getDb().getTableHistory().deleteHistorySession(getSessionId());
-        } catch (SQLException e) {
+        } catch (DatabaseException e) {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);
         }
@@ -232,7 +233,7 @@ public class Session extends FileXML {
         t.start();
     }
 
-	protected void open(String fileName) throws SQLException, SAXException, IOException, Exception {
+	protected void open(String fileName) throws DatabaseException, SAXException, IOException, Exception {
 
 		readAndParseFile(new File(fileName).toURI().toASCIIString());
 		model.getDb().close(false);
@@ -833,7 +834,7 @@ public class Session extends FileXML {
 		}
 	}
 
-	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws SQLException {
+	public void setExcludeFromProxyRegexs(List<String> ignoredRegexs) throws DatabaseException {
 		// Validate its a valid regex first
 	    for (String url : ignoredRegexs) {
 			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
@@ -861,7 +862,7 @@ public class Session extends FileXML {
 		// Thought for GlobalExcludeURL; we can create addUrls() and call that too - but I don't think it is needed.
 	}
 
-	public void addExcludeFromProxyRegex(String ignoredRegex) throws SQLException {
+	public void addExcludeFromProxyRegex(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 		
@@ -874,7 +875,7 @@ public class Session extends FileXML {
 		return excludeFromScanRegexs;
 	}
 
-	public void addExcludeFromScanRegexs(String ignoredRegex) throws SQLException {
+	public void addExcludeFromScanRegexs(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 		
@@ -892,7 +893,7 @@ public class Session extends FileXML {
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
 
-	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws SQLException {
+	public void setExcludeFromScanRegexs(List<String> ignoredRegexs) throws DatabaseException {
 		// Validate its a valid regex first
 	    for (String url : ignoredRegexs) {
 			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
@@ -916,7 +917,7 @@ public class Session extends FileXML {
 		return excludeFromSpiderRegexs;
 	}
 
-	public void addExcludeFromSpiderRegex(String ignoredRegex) throws SQLException {
+	public void addExcludeFromSpiderRegex(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 
@@ -935,7 +936,7 @@ public class Session extends FileXML {
 	}
 
 
-	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws SQLException {
+	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws DatabaseException {
 		// Validate its a valid regex first
 	    for (String url : ignoredRegexs) {
 			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
@@ -957,7 +958,7 @@ public class Session extends FileXML {
 
 	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
-	public void forceGlobalExcludeURLRefresh() throws SQLException {
+	public void forceGlobalExcludeURLRefresh() throws DatabaseException {
 		List<String> temp;
 		
 		temp = getExcludeFromProxyRegexs();
@@ -981,7 +982,7 @@ public class Session extends FileXML {
 
 	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
-	public void addGlobalExcludeURLRegexs(String ignoredRegex) throws SQLException {
+	public void addGlobalExcludeURLRegexs(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
     
@@ -993,7 +994,7 @@ public class Session extends FileXML {
 
 	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
-	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) throws SQLException {
+	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) throws DatabaseException {
 		// Validate its a valid regex first
 	    for (String url : ignoredRegexs) {
 			Pattern.compile(url, Pattern.CASE_INSENSITIVE);
@@ -1005,17 +1006,17 @@ public class Session extends FileXML {
 	    log.debug("setGlobalExcludeURLRegexs" );
 	}
 	
-	public void setSessionUrls(int type, List<String> urls) throws SQLException {
+	public void setSessionUrls(int type, List<String> urls) throws DatabaseException {
 		model.getDb().getTableSessionUrl().setUrls(type, urls);
 	}
 	
-	public void setSessionUrl(int type, String url) throws SQLException {
+	public void setSessionUrl(int type, String url) throws DatabaseException {
 		List<String> list = new ArrayList<>(1);
 		list.add(url);
 		this.setSessionUrls(type, list);
 	}
 
-	public List<String> getSessionUrls(int type) throws SQLException {
+	public List<String> getSessionUrls(int type) throws DatabaseException {
 		List<RecordSessionUrl> urls = model.getDb().getTableSessionUrl().getUrlsForType(type);
 		List<String> list = new ArrayList<>(urls.size());
 		for (RecordSessionUrl url : urls) {
@@ -1024,7 +1025,7 @@ public class Session extends FileXML {
 		return list;
 	}
 	
-	public List<String> getContextDataStrings(int contextId, int type) throws SQLException {
+	public List<String> getContextDataStrings(int contextId, int type) throws DatabaseException {
 	    List<RecordContext> dataList = model.getDb().getTableContext().getDataForContextAndType(contextId, type);
 		List<String> list = new ArrayList<>();
 		for (RecordContext data : dataList) {
@@ -1033,21 +1034,21 @@ public class Session extends FileXML {
 		return list;
 	}
 
-	public void setContextData(int contextId, int type, String data) throws SQLException {
+	public void setContextData(int contextId, int type, String data) throws DatabaseException {
 		List<String> list = new ArrayList<>();
 		list.add(data);
 		this.setContextData(contextId, type, list);
 	}
 
-	public void setContextData(int contextId, int type, List<String> dataList) throws SQLException {
+	public void setContextData(int contextId, int type, List<String> dataList) throws DatabaseException {
 		model.getDb().getTableContext().setData(contextId, type, dataList);
 	}
 	
-	public void clearContextDataForType(int contextId, int type) throws SQLException{
+	public void clearContextDataForType(int contextId, int type) throws DatabaseException{
 		model.getDb().getTableContext().deleteAllDataForContextAndType(contextId, type);
 	}
 	
-	public void clearContextData(int contextId) throws SQLException{
+	public void clearContextData(int contextId) throws DatabaseException{
 		model.getDb().getTableContext().deleteAllDataForContext(contextId);
 	}
 	
@@ -1076,7 +1077,7 @@ public class Session extends FileXML {
 					c.getPostParamParser().getClass().getCanonicalName());
 			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG, c.getPostParamParser().getConfig());
 			model.saveContext(c);
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
             log.error(e.getMessage(), e);
 		}
 		
@@ -1115,7 +1116,7 @@ public class Session extends FileXML {
 		this.contexts.remove(c);
 		try {
 			this.clearContextData(c.getIndex());
-		} catch (SQLException e) {
+		} catch (DatabaseException e) {
             log.error(e.getMessage(), e);
 		}
 
