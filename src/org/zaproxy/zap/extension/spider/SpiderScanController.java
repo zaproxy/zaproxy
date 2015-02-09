@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
@@ -100,6 +101,7 @@ public class SpiderScanController implements ScanController {
 			List<SpiderParser> customSpiderParsers = new ArrayList<SpiderParser>();
 			List<FetchFilter> customFetchFilters = new ArrayList<FetchFilter>();
 			List<ParseFilter> customParseFilters = new ArrayList<ParseFilter>();
+			URI startUri = null;
 			
 			if (contextSpecificObjects != null) {
 				for (Object obj : contextSpecificObjects) {
@@ -112,13 +114,15 @@ public class SpiderScanController implements ScanController {
 						customFetchFilters.add((FetchFilter)obj);
 					} else if (obj instanceof ParseFilter) {
 						customParseFilters.add((ParseFilter)obj);
+					} else if (obj instanceof URI) {
+						startUri = (URI) obj;
 					} else {
 						log.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
 					}
 				}
 			}
 			
-			SpiderScan scan = new SpiderScan(extension, spiderParams, target, user, id);
+			SpiderScan scan = new SpiderScan(extension, spiderParams, target, startUri, user, id);
 			scan.setDisplayName(name);
 			scan.setCustomSpiderParsers(customSpiderParsers);
 			scan.setCustomFetchFilters(customFetchFilters);

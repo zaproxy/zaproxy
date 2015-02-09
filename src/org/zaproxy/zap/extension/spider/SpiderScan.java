@@ -32,6 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.table.TableModel;
 
+import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
@@ -83,7 +84,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private ScanListenner2 listener = null;
 
-	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, User scanUser, int scanId) {
+	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId) {
 		lock = new ReentrantLock();
 		this.scanId = scanId;
 
@@ -95,6 +96,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 		spiderThread = new SpiderThread(extension, spiderParams, "SpiderApi-" + scanId, this);
 
+		spiderThread.setStartURI(spiderURI);
 		spiderThread.setStartNode(target.getStartNode());
 		spiderThread.setScanContext(target.getContext());
 		spiderThread.setScanAsUser(scanUser);

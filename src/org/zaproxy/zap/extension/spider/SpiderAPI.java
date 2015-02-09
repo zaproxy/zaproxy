@@ -315,7 +315,8 @@ public class SpiderAPI extends ApiImplementor {
 		Target target = new Target(startNode);
 		target.setRecurse(true);
 		
-		Object[] objs = null;
+		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
+		objs.add(startURI);
 		if (maxChildren > 0) {
     		// Add the filters to filter on maximum number of children
     		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
@@ -325,13 +326,11 @@ public class SpiderAPI extends ApiImplementor {
     		MaxChildrenParseFilter maxChildrenParseFilter = new MaxChildrenParseFilter();
     		maxChildrenParseFilter.setMaxChildren(maxChildren);
     		maxChildrenParseFilter.setModel(extension.getModel());
-			objs = new Object[] {
-					maxChildrenFetchFilter,
-					maxChildrenParseFilter
-			};
+			objs.add(maxChildrenFetchFilter);
+			objs.add(maxChildrenParseFilter);
 		}
 		
-		return extension.startScan(target.getDisplayName(), target, user, objs);
+		return extension.startScan(target.getDisplayName(), target, user, objs.toArray(new Object[objs.size()]));
 	}
 
 	@Override
