@@ -432,6 +432,8 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		if (scanner != null) {
 			getProgressBar().setValue(scanner.getProgress());
 			getProgressBar().setMaximum(scanner.getMaximum());
+		} else {
+			getProgressBar().setValue(0);
 		}
 		switchView(scanner);
 		
