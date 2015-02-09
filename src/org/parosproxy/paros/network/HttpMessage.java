@@ -41,6 +41,7 @@
 // ZAP: 2014/03/28 Issue 1127: 	Allow scripts to generate breaks
 // ZAP: 2014/06/16 Issue 1217: Table format does not display information when charset is
 // present in Content-Type header
+// ZAP: 2015/02/09 Fix NullPointerException in equals(Object) when comparing with empty messages
 
 package org.parosproxy.paros.network;
 
@@ -339,8 +340,16 @@ public class HttpMessage implements Message {
 	    // compare host, port and URI
 	    URI uri1 = this.getRequestHeader().getURI();
 	    URI uri2 = msg.getRequestHeader().getURI();
-
 	    
+        if (uri1 == null) {
+            if (uri2 != null) {
+                return false;
+            }
+            return true;
+        } else if (uri2 == null) {
+            return false;
+        }
+
 	    try {
             if (uri1.getHost() == null || uri2.getHost() == null || !uri1.getHost().equalsIgnoreCase(uri2.getHost())) {
                 return false;
