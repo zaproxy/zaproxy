@@ -19,21 +19,30 @@
  */
 package org.zaproxy.zap.extension.encoder2;
 
-import java.awt.*;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.HeadlessException;
 import java.io.IOException;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
+import javax.swing.ScrollPaneConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
 
+import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
-import org.apache.commons.lang.StringEscapeUtils;
 
 public class EncodeDecodeDialog extends AbstractFrame {
 
@@ -101,7 +110,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 				BorderFactory.createTitledBorder(
 						null, title, TitledBorder.DEFAULT_JUSTIFICATION,
 						javax.swing.border.TitledBorder.DEFAULT_POSITION,
-						new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+						FontUtils.getFont(FontUtils.Size.standard),
 						java.awt.Color.black));
 
 		parent.add(jsp, gbc);
@@ -199,7 +208,7 @@ public class EncodeDecodeDialog extends AbstractFrame {
 							null, Constant.messages.getString("enc2.label.text"),
 							TitledBorder.DEFAULT_JUSTIFICATION,
 							javax.swing.border.TitledBorder.DEFAULT_POSITION,
-							new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
 			//addField(jPanel, 1, getInputField(), "Text to be encoded/decoded/hashed");
@@ -217,7 +226,6 @@ public class EncodeDecodeDialog extends AbstractFrame {
 	private ZapTextArea newField(boolean editable) {
 		final ZapTextArea field = new ZapTextArea();
 		field.setLineWrap(true);
-		field.setFont(new java.awt.Font("Courier New", java.awt.Font.PLAIN, 12));
 		field.setBorder(BorderFactory.createEtchedBorder());
 		field.setEditable(editable);
         field.setName(ENCODE_DECODE_RESULTFIELD);

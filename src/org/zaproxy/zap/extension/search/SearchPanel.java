@@ -200,7 +200,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("Search Toolbar");
 			
 			GridBagConstraints gridBagConstraintsX = new GridBagConstraints();
@@ -404,7 +403,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private JScrollPane getJScrollPane() {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			jScrollPane.setViewportView(resultsTable);
 		}

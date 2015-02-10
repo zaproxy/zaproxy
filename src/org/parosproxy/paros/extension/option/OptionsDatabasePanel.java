@@ -144,8 +144,6 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         
         GridBagConstraints gbc = new GridBagConstraints();
         
-        panel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-
         gbc.gridx = 0;
         gbc.gridy = 0;
         gbc.insets = new java.awt.Insets(2,2,2,2);

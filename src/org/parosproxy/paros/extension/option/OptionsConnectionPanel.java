@@ -28,6 +28,7 @@
 // ZAP: 2014/03/23 Issue 416: Normalise how multiple related options are managed throughout ZAP
 // and enhance the usability of some options
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.extension.option;
 
@@ -52,6 +53,7 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
@@ -194,7 +196,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 					Constant.messages.getString("conn.options.proxy.useProxyChain"), 
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
-					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 			jPanel.add(getChkUseProxyChain(), gridBagConstraints15);
 			jPanel.add(jLabel5, gridBagConstraints2);
 			jPanel.add(getTxtProxyChainName(), gridBagConstraints3);
@@ -243,8 +245,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 					Constant.messages.getString("conn.options.proxy.auth.auth"), 
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
-					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
-			panelProxyAuth.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 			gridBagConstraints16.gridx = 0;
 			gridBagConstraints16.gridy = 0;
 			gridBagConstraints16.insets = new java.awt.Insets(2,2,2,2);
@@ -642,8 +643,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 					Constant.messages.getString("conn.options.general"), 
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
-					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
-			panelGeneral.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 
 			gridBagConstraints00.gridx = 0;
 			gridBagConstraints00.gridy = 0;

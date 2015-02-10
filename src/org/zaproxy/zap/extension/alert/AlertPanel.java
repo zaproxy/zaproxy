@@ -60,11 +60,12 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapToggleButton;
-import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 
 public class AlertPanel extends AbstractPanel {
 	
@@ -196,7 +197,6 @@ public class AlertPanel extends AbstractPanel {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("AlertToolbar");
 			
 			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(0, 0, 1, 0.0D));

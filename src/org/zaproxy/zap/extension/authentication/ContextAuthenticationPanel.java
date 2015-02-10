@@ -44,6 +44,7 @@ import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -261,8 +262,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			configContainerPanel = new JPanel(new BorderLayout());
 			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
 					PANEL_TITLE_CONFIG, javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
-							java.awt.Font.BOLD, 12), java.awt.Color.black));
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 		}
 		return configContainerPanel;
 	}

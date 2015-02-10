@@ -132,7 +132,6 @@ public class MainToolbarPanel extends JPanel {
 			toolbar.setEnabled(true);
 			toolbar.setFloatable(false);
 			toolbar.setRollover(true);
-			toolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			toolbar.setName("Main Toolbar");
 			toolbar.setBorder(BorderFactory.createEmptyBorder());
 		}

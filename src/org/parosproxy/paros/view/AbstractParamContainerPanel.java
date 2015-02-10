@@ -24,6 +24,7 @@ package org.parosproxy.paros.view;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
@@ -48,6 +49,7 @@ import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public class AbstractParamContainerPanel extends JSplitPane {
@@ -97,8 +99,6 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * This method initializes this
      */
     private void initialize() {
-        this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
-
         this.setContinuousLayout(true);
         this.setRightComponent(getJPanel1());
         // ZAP: added more space for readability (was 175)
@@ -256,7 +256,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
             txtHeadline.setEditable(false);
             txtHeadline.setEnabled(false);
             txtHeadline.setBackground(java.awt.Color.white);
-            txtHeadline.setFont(new java.awt.Font("Default", java.awt.Font.BOLD, 12));
+            txtHeadline.setFont(FontUtils.getFont(Font.BOLD));
         }
         
         return txtHeadline;

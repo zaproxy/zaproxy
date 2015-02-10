@@ -90,7 +90,6 @@ public class HttpFuzzResultDialog extends FuzzResultDialog {
 			table.setDoubleBuffered(true);
 			table.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_INTERVAL_SELECTION);
 			table.setName("HttpFuzzResultTable");
-			table.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			table.setDefaultRenderer(Pair.class, new IconTableCellRenderer());
 
 			int[] widths = { 10, 25, 550, 30, 85, 55, 40, 70 };

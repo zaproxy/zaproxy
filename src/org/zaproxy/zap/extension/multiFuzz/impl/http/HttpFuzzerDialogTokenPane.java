@@ -32,6 +32,7 @@ import javax.swing.ScrollPaneConstants;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
+import org.zaproxy.zap.utils.FontUtils;
 
 public class HttpFuzzerDialogTokenPane {
 	private JScrollPane pane;
@@ -71,9 +72,8 @@ public class HttpFuzzerDialogTokenPane {
 							// Constant.messages.getString("invoke.options.edit"),
 				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
 				javax.swing.border.TitledBorder.DEFAULT_POSITION,
-				new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+				FontUtils.getFont(FontUtils.Size.standard),
 				java.awt.Color.black));
-		pane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		pane.setMinimumSize(new Dimension(50, 120));
 
 		pane2 = new JPanel();

@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.dynssl;
 
 import java.awt.BorderLayout;
 import java.awt.Desktop;
-import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -54,6 +53,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.security.SslCertificateService;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
@@ -94,7 +94,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		final JLabel lbl_Cert = new JLabel(Constant.messages.getString("dynssl.label.rootca"));
 
 		txt_PubCert = new ZapTextArea();
-		txt_PubCert.setFont(new Font("Monospaced", Font.PLAIN, 11));
+		txt_PubCert.setFont(FontUtils.getFont("Monospaced"));
 		txt_PubCert.setEditable(false);
 		txt_PubCert.getDocument().addDocumentListener(new DocumentListener() {
 			@Override

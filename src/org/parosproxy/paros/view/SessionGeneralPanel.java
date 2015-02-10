@@ -24,6 +24,7 @@
 // ZAP: 2012/04/23 Added @Override annotation to all appropriate methods.
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.view;
 
@@ -115,7 +116,6 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 			txtDescription = new ZapTextArea();
 			txtDescription.setBorder(javax.swing.BorderFactory.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 			txtDescription.setLineWrap(true);
-			txtDescription.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return txtDescription;
 	}

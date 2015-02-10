@@ -26,6 +26,7 @@
 // modified/removed or not.
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.extension.option;
 
@@ -43,6 +44,7 @@ import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -99,7 +101,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             panelLocalProxy.setLayout(new GridBagLayout());
             panelLocalProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(
                     null, Constant.messages.getString("options.proxy.local.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-                    javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));	// ZAP: i18n
+                    javax.swing.border.TitledBorder.DEFAULT_POSITION, FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));	// ZAP: i18n
 
             jLabel.setText("Address (eg localhost, 127.0.0.1)");
             
@@ -205,9 +207,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             panelReverseProxy.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
                     Constant.messages.getString("options.proxy.local.label.reverse"),
                     javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-                    javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
-            
-            panelReverseProxy.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+                    javax.swing.border.TitledBorder.DEFAULT_POSITION, FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
             
             gridBagConstraints101.gridx = 0;
             gridBagConstraints101.gridy = 0;
@@ -334,7 +334,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
                 panelProxy.setSize(303, 177);
             }
             
-            panelProxy.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+            panelProxy.setFont(FontUtils.getFont(FontUtils.Size.standard));
             
             gridBagConstraints81.gridx = 0;
             gridBagConstraints81.gridy = 0;

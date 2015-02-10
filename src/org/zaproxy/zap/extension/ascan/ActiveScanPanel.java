@@ -190,7 +190,6 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getMessagesTable());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return jScrollPane;
 	}

@@ -29,13 +29,18 @@
 package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 
+import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -43,6 +48,7 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.TimeStampUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.view.LayoutHelper;
@@ -75,6 +81,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	
 	private ZapNumberSpinner largeRequestSize = null;
 	private ZapNumberSpinner largeResponseSize = null;
+	private ZapNumberSpinner fontSize = null;
 	
 	private JLabel brkPanelViewLabel = null;
 	private JLabel advancedViewLabel = null;
@@ -89,6 +96,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JLabel showSplashScreenLabel = null;
 	private JLabel largeRequestLabel = null;
 	private JLabel largeResponseLabel = null;
+	private JLabel fontExampleLabel = null;
 	
     public OptionsViewPanel() {
         super();
@@ -215,6 +223,20 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(outputTabTimeStampExampleLabel,   
 					LayoutHelper.getGBC(1, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			
+			JLabel fontSizeLabel = new JLabel(Constant.messages.getString("view.options.label.fontSize")); 
+			fontSizeLabel.setLabelFor(getFontSize());
+			panelMisc.add(fontSizeLabel,   
+					LayoutHelper.getGBC(0, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getFontSize(),   
+					LayoutHelper.getGBC(1, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			
+			JLabel fontExampleLabel = new JLabel(Constant.messages.getString("view.options.label.fontExample")); 
+			fontExampleLabel.setLabelFor(getFontExampleLabel());
+			panelMisc.add(fontExampleLabel,   
+					LayoutHelper.getGBC(0, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getFontExampleLabel(),   
+					LayoutHelper.getGBC(1, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			panelMisc.add(new JLabel(""),   
 					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
@@ -360,6 +382,32 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return largeResponseSize;
 	}
 	
+	private ZapNumberSpinner getFontSize() {
+		if (fontSize == null) {
+			fontSize = new ZapNumberSpinner(-1, 8, 100);
+			fontSize.addChangeListener(new ChangeListener() {
+				@Override
+				public void stateChanged(ChangeEvent e) {
+					// Show what the default font will look like
+					int size = getFontSize().getValue();
+					if (size != -1) {
+						getFontExampleLabel().setFont(new Font("Default", Font.PLAIN, size));
+					} else {
+						getFontExampleLabel().setFont(FontUtils.systemDefaultFont);
+					}
+				}});
+		}
+		return fontSize;
+	}
+	
+	private JLabel getFontExampleLabel() {
+		if (fontExampleLabel == null) {
+			fontExampleLabel = new JLabel(Constant.messages.getString("view.options.label.exampleText"));
+			fontExampleLabel.setBorder(BorderFactory.createLineBorder(Color.BLACK));
+		}
+		return fontExampleLabel;
+	}
+	
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
@@ -376,6 +424,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    timeStampsFormatSelect.setSelectedItem(options.getViewParam().getOutputTabTimeStampsFormat());
 	    largeRequestSize.setValue(options.getViewParam().getLargeRequestSize());
 	    largeResponseSize.setValue(options.getViewParam().getLargeResponseSize());
+	    getFontSize().setValue(options.getViewParam().getFontSize());
 	}
 	
 	@Override
@@ -399,6 +448,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setOutputTabTimeStampsFormat((String) getTimeStampsFormatSelect().getSelectedItem()); 
 	    options.getViewParam().setLargeRequestSize(getLargeRequestSize().getValue());
 	    options.getViewParam().setLargeResponseSize(getLargeResponseSize().getValue());
+	    options.getViewParam().setFontSize(getFontSize().getValue());
 	}
 
 	@Override

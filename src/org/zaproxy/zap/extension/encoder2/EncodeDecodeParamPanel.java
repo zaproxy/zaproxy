@@ -33,6 +33,7 @@ import javax.swing.border.TitledBorder;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.FontUtils;
 
 public class EncodeDecodeParamPanel extends AbstractParamPanel {
 
@@ -75,8 +76,7 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
 			
 			base64Panel.setBorder(BorderFactory.createTitledBorder(null, NAME_BASE64, 
 					TitledBorder.DEFAULT_JUSTIFICATION, TitledBorder.DEFAULT_POSITION, 
-					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
-			base64Panel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 
 			gbc.gridx = 0;
 			gbc.gridy = 0;

@@ -18,6 +18,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.zaproxy.zap.extension.authorization.BasicAuthorizationDetectionMethod.LogicalOperator;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -97,8 +98,8 @@ public class ContextAuthorizationPanel extends AbstractContextPropertiesPanel {
 		JPanel configContainerPanel = new JPanel(new GridBagLayout());
 		configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "",
 				javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-				javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
-						java.awt.Font.BOLD, 12), java.awt.Color.black));
+				javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+				FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 		this.add(configContainerPanel, LayoutHelper.getGBC(0, 2, 2, 0.0D));
 
 		configContainerPanel.add(new JLabel(FIELD_LABEL_STATUS_CODE), LayoutHelper.getGBC(0, 2, 1, 0.0D));

@@ -46,6 +46,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.FontUtils;
 
 public class DynamicSSLWelcomeDialog extends AbstractDialog {
 
@@ -102,7 +103,7 @@ public class DynamicSSLWelcomeDialog extends AbstractDialog {
 		{
 			JLabel lblTitle = new JLabel("SSL " + Constant.messages.getString("dynssl.label.rootca"));
 			panelTitle.add(lblTitle);
-			lblTitle.setFont(new Font("Tahoma", Font.BOLD, 11));
+			lblTitle.setFont(FontUtils.getFont(Font.BOLD));
 		}
 		
 		contentTextPane.add(txtSslWontWork);

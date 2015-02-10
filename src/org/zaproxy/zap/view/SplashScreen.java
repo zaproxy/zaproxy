@@ -48,6 +48,7 @@ import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
 public class SplashScreen extends JFrame implements Runnable {
@@ -101,12 +102,12 @@ public class SplashScreen extends JFrame implements Runnable {
         JLabel lblProgramName = new JLabel();
 
         lblProgramName.setText(Constant.PROGRAM_NAME);
-        lblProgramName.setFont(new Font("Default", Font.BOLD, 44));
+        lblProgramName.setFont(FontUtils.getFont(Font.BOLD, FontUtils.Size.huge));
         lblProgramName.setVisible(true);
         lblProgramName.setName("lblProgramName");
 
         lblVersion.setText(Constant.PROGRAM_VERSION);
-        lblVersion.setFont(new Font("Default", Font.PLAIN, 24));
+        lblVersion.setFont(FontUtils.getFont(FontUtils.Size.much_larger));
         lblVersion.setName("lblVersion");
 
         // ProgramName is at the beginning of the panel (0,0)
@@ -245,7 +246,6 @@ public class SplashScreen extends JFrame implements Runnable {
             logPanel = new ZapTextArea();
             logPanel.setEditable(false);
             logPanel.setLineWrap(true);
-            logPanel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
             logPanel.setName("");
 
             // Dont use appendMsg as the interupt wont be handled at this stage
@@ -261,7 +261,6 @@ public class SplashScreen extends JFrame implements Runnable {
             tipsPanel.setEditable(false);
             tipsPanel.setLineWrap(true);
             tipsPanel.setWrapStyleWord(true);
-            tipsPanel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
             tipsPanel.setName("");
 
             tipsPanel.append(Constant.messages.getString("start.splash.tips.loading"));

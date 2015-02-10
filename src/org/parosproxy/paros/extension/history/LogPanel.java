@@ -37,6 +37,7 @@
 // access the data (HttpMessage and HistoryReference) displayed in the tabs
 // ZAP: 2014/03/23 Issue 503: Change the footer tabs to display the data
 // with tables instead of lists
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.extension.history;
 
@@ -191,7 +192,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("History Toolbar");
 			
 			GridBagConstraints gbc = new GridBagConstraints();
