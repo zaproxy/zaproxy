@@ -31,8 +31,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.PluginFactory;
-import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
