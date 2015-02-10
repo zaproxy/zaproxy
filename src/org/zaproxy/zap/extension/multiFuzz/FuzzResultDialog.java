@@ -101,8 +101,6 @@ public abstract class FuzzResultDialog extends AbstractDialog {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getTable());
-			jScrollPane.setFont(new java.awt.Font("Dialog",
-					java.awt.Font.PLAIN, 11));
 			jScrollPane
 					.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jScrollPane.getVerticalScrollBar().addAdjustmentListener(

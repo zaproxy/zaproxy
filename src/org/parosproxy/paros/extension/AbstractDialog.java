@@ -23,6 +23,7 @@
 // ZAP: 2014/01/22 Issue 996: Ensure all dialogs close when the escape key is pressed
 // ZAP: 2014/10/31 Issue 1176: Changed owner to Window as part of spider advanced dialog changes
 // ZAP: 2014/11/06 Set ZAP icons
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.extension;
 
@@ -95,7 +96,6 @@ public abstract class AbstractDialog extends JDialog {
 	 */
 	private void initialize() {
 		this.setVisible(false);
-		this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 		this.setIconImages(this.loadIconImages());
 		this.setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

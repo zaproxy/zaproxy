@@ -62,8 +62,6 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         JPanel panel = new JPanel(new GridBagLayout());
         panel.setBorder(new EmptyBorder(2, 2, 2, 2));
 
-        panel.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-
         panel.add(getCheckBoxConfirmDropMessage(), LayoutHelper.getGBC(0, 0, 2, 1.0, new Insets(2, 2, 2, 2)));
         panel.add(getCheckBoxAlwaysOnTop(), LayoutHelper.getGBC(0, 1, 2, 1.0, new Insets(2, 2, 2, 2)));
         

@@ -130,7 +130,6 @@ public class ScanProgressDialog extends AbstractDialog {
             jScrollPane.setName("ScanProgressScrollPane");
             jScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
             jScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
-            jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
         }
         
         return jScrollPane;

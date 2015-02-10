@@ -59,6 +59,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.utils.DesktopUtils;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateCallback {
@@ -183,7 +184,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 					BorderFactory.createTitledBorder(
 							null, Constant.messages.getString("cfu.label.zap.border"), TitledBorder.DEFAULT_JUSTIFICATION,
 							javax.swing.border.TitledBorder.DEFAULT_POSITION,
-							new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
 			if (latestInfo == null || this.latestInfo.getZapRelease() == null) {
@@ -248,13 +249,12 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 					BorderFactory.createTitledBorder(
 							null, Constant.messages.getString("cfu.label.addons.border"), TitledBorder.DEFAULT_JUSTIFICATION,
 							javax.swing.border.TitledBorder.DEFAULT_POSITION,
-							new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
 			getInstalledAddOnsTable();
 			
 			JScrollPane scrollPane = new JScrollPane();
-			scrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scrollPane.setViewportView(getInstalledAddOnsTable());
 
@@ -303,7 +303,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JScrollPane getMarketPlaceScrollPane () {
 		if (marketPlaceScrollPane == null) {
 			marketPlaceScrollPane = new JScrollPane();
-			marketPlaceScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			marketPlaceScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		}
 		return marketPlaceScrollPane;

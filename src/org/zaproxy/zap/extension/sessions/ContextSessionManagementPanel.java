@@ -39,6 +39,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.session.AbstractSessionManagementMethodOptionsPanel;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.SessionManagementMethodType;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -206,8 +207,8 @@ public class ContextSessionManagementPanel extends AbstractContextPropertiesPane
 			configContainerPanel.setBorder(javax.swing.BorderFactory.createTitledBorder(null,
 					Constant.messages.getString("sessionmanagement.panel.config.title"),
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
-					javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Dialog",
-							java.awt.Font.BOLD, 12), java.awt.Color.black));
+					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 		}
 		return configContainerPanel;
 	}

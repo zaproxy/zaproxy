@@ -25,6 +25,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.view;
 
@@ -46,8 +47,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.TimeStampUtils;
+import org.zaproxy.zap.utils.ZapTextArea;
 
 public class OutputPanel extends AbstractPanel {
 
@@ -133,7 +134,6 @@ public class OutputPanel extends AbstractPanel {
 			jScrollPane.setViewportView(getTxtOutput());
 			jScrollPane.setName("jScrollPane");
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return jScrollPane;
 	}
@@ -147,7 +147,6 @@ public class OutputPanel extends AbstractPanel {
 			txtOutput = new ZapTextArea();
 			txtOutput.setEditable(false);
 			txtOutput.setLineWrap(true);
-			txtOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			txtOutput.setName("");
 			txtOutput.addMouseListener(new java.awt.event.MouseAdapter() { 
 

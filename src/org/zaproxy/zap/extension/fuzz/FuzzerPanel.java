@@ -43,6 +43,7 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.fuzz.impl.http.HttpFuzzerContentPanel;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapToggleButton;
@@ -150,7 +151,6 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("FuzzToolbar");
 			
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
@@ -302,7 +302,6 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getInitialMessage());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			jScrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jScrollPane.getVerticalScrollBar().addAdjustmentListener(new StickyScrollbarAdjustmentListener());
 		}
@@ -313,7 +312,6 @@ public class FuzzerPanel extends AbstractPanel implements FuzzerListener {
 		if (initialMessage == null) {
 			initialMessage = new JTextPane();
 			initialMessage.setEditable(false);
-			initialMessage.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			initialMessage.setContentType("text/html");
 			initialMessage.setText(Constant.messages.getString("fuzz.label.initialMessage"));
 		}

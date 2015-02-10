@@ -74,7 +74,6 @@ public class HistoryReferenceTable extends JTable {
 		this.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
 
 		
-		this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		this.setDoubleBuffered(true);
 		this.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		// Add hack to force row selection on right click

@@ -21,7 +21,6 @@ package org.zaproxy.zap.view;
 
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -34,6 +33,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.FontUtils;
 
 
 
@@ -128,9 +128,8 @@ public class AboutPanel extends JPanel {
 			+ "the security of your own web application or those you are authorized to do so.  "
 			+ "The authors of this product take no responsibility for any problems in relation to "
 			+ "running " + PRODUCT + " against any applications or machines.<p></body></html>");
-		//lblDisclaimer.setPreferredSize(new Dimension(400, 80));
+		//lblDisclaimer.setFont(FontUtils.getFont(FontUtils.Size.smaller));
 		lblDisclaimer.setName("lblDisclaimer");
-		lblDisclaimer.setFont(new Font("Dialog", Font.PLAIN, 11));
 		lblDisclaimer.setBackground(Color.white);
 			
 		lblLogo.setText("");
@@ -138,37 +137,32 @@ public class AboutPanel extends JPanel {
 		lblLogo.setName("lblLogo");
 		
 		lblCopyrightDetail.setText(LICENSE_DETAIL);
-		lblCopyrightDetail.setFont(new Font("Default", Font.PLAIN, 11));
+		//lblCopyrightDetail.setFont(FontUtils.getFont(FontUtils.Size.smaller));
 		lblCopyrightDetail.setName("lblCopyrightDetail");
 		lblCopyrightDetail.setBackground(Color.white);
 		
 		lblProgramName.setText(PRODUCT);
-		lblProgramName.setFont(new Font("Default", Font.BOLD, 36));
+		lblProgramName.setFont(FontUtils.getFont(FontUtils.Size.huge));
 		lblProgramName.setVisible(true);
 		lblProgramName.setName("lblProgramName");
 		
 		lblVersion.setText(VERSION);
-		lblVersion.setFont(new Font("Default", Font.PLAIN, 18));
+		lblVersion.setFont(FontUtils.getFont(FontUtils.Size.larger));
 		lblVersion.setName("lblVersion");
 		lblVersion.setBackground(Color.white);
 
 		lblHomepage.setText(HOMEPAGE);
-		lblHomepage.setFont(new Font("Default", Font.PLAIN,12));
 
 		lblOtherCopyright.setText(OTHER_LICENSE);
-		//lblOtherCopyright.setPreferredSize(new Dimension(350, 140));
+		lblOtherCopyright.setFont(FontUtils.getFont(FontUtils.Size.smaller));
 		lblOtherCopyright.setName("lblOtherCopyright");
-		lblOtherCopyright.setFont(new Font("Dialog", Font.PLAIN, 11));
 		lblOtherCopyright.setBackground(Color.white);
 		
 		String year = Integer.toString(Calendar.getInstance().get(Calendar.YEAR));
+		//lblCopyright.setFont(FontUtils.getFont(FontUtils.Size.smaller));
 		lblCopyright.setText(COPYRIGHT.replace(YEAR_TOKEN, year));
-		lblCopyright.setFont(new Font("Default", Font.PLAIN, 11));
 		lblCopyright.setName("lblCopyright");
 		lblCopyright.setBackground(Color.white);
-
-		this.setFont(new Font("Default", Font.PLAIN, 11));
-		
 		
 		gbcLogo.gridx = 0;
 		gbcLogo.gridy = 0;

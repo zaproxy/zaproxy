@@ -31,6 +31,7 @@ import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.SSLConnector;
+import org.zaproxy.zap.utils.FontUtils;
 
 /**
  * A {@code JPanel} for selecting security protocols provided by {@code SSLConnector}.
@@ -52,9 +53,8 @@ public class SecurityProtocolsPanel extends JPanel {
                 Constant.messages.getString("generic.options.panel.security.protocols.title"),
                 javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                 javax.swing.border.TitledBorder.DEFAULT_POSITION,
-                new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+                FontUtils.getFont(FontUtils.Size.standard),
                 java.awt.Color.black));
-        setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridy = 0;

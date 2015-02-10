@@ -103,7 +103,6 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800, 30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName(panelPrefix + ".toolbar");
 
 			setupToolbarElements(panelToolbar);

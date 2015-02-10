@@ -51,6 +51,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Vulnerabilities;
 import org.zaproxy.zap.model.Vulnerability;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextArea;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -137,7 +138,6 @@ public class AlertViewPanel extends AbstractPanel {
 			alertPane = new JScrollPane();
 			alertPane.setViewportView(getAlertDisplay());
 			alertPane.setName("alertPane");
-			alertPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return alertPane;
 	}
@@ -160,7 +160,7 @@ public class AlertViewPanel extends AbstractPanel {
 						null, name, 
 						TitledBorder.DEFAULT_JUSTIFICATION, 
 						javax.swing.border.TitledBorder.DEFAULT_POSITION, 
-						new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), 
+						FontUtils.getFont(FontUtils.Size.standard), 
 						java.awt.Color.black));
 		return jScrollPane;
 		
@@ -228,8 +228,7 @@ public class AlertViewPanel extends AbstractPanel {
 
 			// Read only ones
 			alertName = new JLabel();
-			Font f = alertName.getFont();
-			alertName.setFont(f.deriveFont(f.getStyle() | Font.BOLD));
+			alertName.setFont(FontUtils.getFont(Font.BOLD));
 
 			alertRisk = new JLabel();
 			alertConfidence = new JLabel();
@@ -481,7 +480,6 @@ public class AlertViewPanel extends AbstractPanel {
 			defaultPane.setViewportView(getDefaultOutput());
 			defaultPane.setName("defaultPane");
 			defaultPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-			defaultPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return defaultPane;
 	}
@@ -491,7 +489,6 @@ public class AlertViewPanel extends AbstractPanel {
 			defaultOutput = new ZapTextArea();
 			defaultOutput.setEditable(false);
 			defaultOutput.setLineWrap(true);
-			defaultOutput.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			defaultOutput.setName("");
 			defaultOutput.append(Constant.messages.getString("alerts.label.defaultMessage"));
 		}

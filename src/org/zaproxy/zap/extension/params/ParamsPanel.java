@@ -134,7 +134,6 @@ public class ParamsPanel extends AbstractPanel{
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("ParamsToolbar");
 			
 			GridBagConstraints gridBagConstraints0 = new GridBagConstraints();
@@ -203,7 +202,6 @@ public class ParamsPanel extends AbstractPanel{
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getParamsTable());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return jScrollPane;
 	}
@@ -243,7 +241,6 @@ public class ParamsPanel extends AbstractPanel{
 			this.setParamsTableColumnSizes();
 
 			paramsTable.setName(PANEL_NAME);
-			paramsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			paramsTable.setDoubleBuffered(true);
 			paramsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			paramsTable.addMouseListener(new java.awt.event.MouseAdapter() { 

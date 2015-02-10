@@ -152,8 +152,6 @@ public class FuzzerPanel extends AbstractPanel {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800, 30));
-			panelToolbar.setFont(new java.awt.Font("Dialog",
-					java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("FuzzToolbar");
 
 			GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
@@ -367,8 +365,6 @@ public class FuzzerPanel extends AbstractPanel {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getInitialMessage());
-			jScrollPane.setFont(new java.awt.Font("Dialog",
-					java.awt.Font.PLAIN, 11));
 			jScrollPane
 					.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			jScrollPane.getVerticalScrollBar().addAdjustmentListener(
@@ -381,8 +377,6 @@ public class FuzzerPanel extends AbstractPanel {
 		if (initialMessage == null) {
 			initialMessage = new JTextPane();
 			initialMessage.setEditable(false);
-			initialMessage.setFont(new java.awt.Font("Dialog",
-					java.awt.Font.PLAIN, 12));
 			initialMessage.setContentType("text/html");
 			initialMessage.setText(Constant.messages
 					.getString("fuzz.label.initialMessage.multi"));

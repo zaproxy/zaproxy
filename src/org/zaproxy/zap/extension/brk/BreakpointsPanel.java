@@ -40,6 +40,7 @@ import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.FontUtils;
 
 public class BreakpointsPanel extends AbstractPanel {
 	
@@ -128,7 +129,6 @@ public class BreakpointsPanel extends AbstractPanel {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getBreakpoints());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return jScrollPane;
 	}
@@ -149,7 +149,6 @@ public class BreakpointsPanel extends AbstractPanel {
 			breakpointsTable.getTableHeader().setReorderingAllowed(false);
 			
 			breakpointsTable.setName(PANEL_NAME);
-			breakpointsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			breakpointsTable.setDoubleBuffered(true);
 			breakpointsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			breakpointsTable.addMouseListener(new java.awt.event.MouseAdapter() { 

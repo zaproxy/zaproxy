@@ -190,7 +190,6 @@ public class ManageTagsDialog extends AbstractDialog {
 			tagList = new JList<>();
 			tagList.setLayoutOrientation(JList.VERTICAL);
 			tagList.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			tagList.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
 			
 			tagListModel = new DefaultListModel<>();
 			tagList.setModel(tagListModel);

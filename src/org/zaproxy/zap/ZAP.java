@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap;
 
+import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -57,6 +58,7 @@ import org.zaproxy.zap.eventBus.SimpleEventBus;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
@@ -242,6 +244,12 @@ public class ZAP {
             System.out.println(e.getLocalizedMessage());
 
             throw e;
+        }
+
+        if (Model.getSingleton().getOptionsParam().getViewParam().getFontSize() > 0) {
+        	// Set user defined font size
+        	FontUtils.setDefaultFont(  
+        			new Font("Arial", Font.PLAIN, Model.getSingleton().getOptionsParam().getViewParam().getFontSize()));
         }
         
         Model.getSingleton().getOptionsParam().setGUI(isGUI);

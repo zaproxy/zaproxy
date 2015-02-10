@@ -34,6 +34,7 @@
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.view;
 
@@ -161,7 +162,6 @@ public class SiteMapPanel extends AbstractPanel {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new Dimension(800,30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("ScriptsListToolbar");
 			
 			int i = 1;

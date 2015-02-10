@@ -202,7 +202,6 @@ public class HttpSessionsPanel extends AbstractPanel {
 			panelToolbar.setFloatable(false);
 			panelToolbar.setRollover(true);
 			panelToolbar.setPreferredSize(new java.awt.Dimension(800, 30));
-			panelToolbar.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
 			panelToolbar.setName("HttpSessionToolbar");
 
 			// Add elements
@@ -262,7 +261,6 @@ public class HttpSessionsPanel extends AbstractPanel {
 		if (jScrollPane == null) {
 			jScrollPane = new JScrollPane();
 			jScrollPane.setViewportView(getHttpSessionsTable());
-			jScrollPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return jScrollPane;
 	}
@@ -300,7 +298,6 @@ public class HttpSessionsPanel extends AbstractPanel {
 			this.setSessionsTableColumnSizes();
 
 			sessionsTable.setName(PANEL_NAME);
-			sessionsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			sessionsTable.setDoubleBuffered(true);
 			sessionsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			sessionsTable.addMouseListener(new java.awt.event.MouseAdapter() {

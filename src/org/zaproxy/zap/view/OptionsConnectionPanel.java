@@ -31,6 +31,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public class OptionsConnectionPanel extends AbstractParamPanel {
@@ -99,8 +100,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 					Constant.messages.getString("conn.options.proxy.auth.auth"), 
 					javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, 
 					javax.swing.border.TitledBorder.DEFAULT_POSITION, 
-					new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11), java.awt.Color.black));
-			panelProxyAuth.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
+					FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));
 			gridBagConstraints16.gridx = 0;
 			gridBagConstraints16.gridy = 0;
 			gridBagConstraints16.insets = new java.awt.Insets(2,2,2,2);

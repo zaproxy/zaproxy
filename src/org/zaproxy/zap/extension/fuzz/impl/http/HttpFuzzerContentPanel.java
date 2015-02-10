@@ -87,7 +87,6 @@ public class HttpFuzzerContentPanel implements FuzzerContentPanel {
             fuzzResultTable.setDoubleBuffered(true);
             fuzzResultTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             fuzzResultTable.setName(PANEL_NAME);
-            fuzzResultTable.setFont(new java.awt.Font("Default", java.awt.Font.PLAIN, 12));
             fuzzResultTable.setDefaultRenderer(Pair.class, new IconTableCellRenderer());
             fuzzResultTable.setColumnControlVisible(true);
             fuzzResultTable.setRowSorter(new HttpFuzzTableRowSorter(resultsModel));

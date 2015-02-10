@@ -21,6 +21,7 @@
  */
 // ZAP: 2013/01/16 Minor fix to prevent NPE
 // ZAP: 2014/10/17 Issue 1308: Updated for latest icons
+// ZAP: 2015/02/10 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.view;
 
@@ -97,7 +98,6 @@ public abstract class AbstractFrame extends JFrame {
 
 		this.setVisible(false);
 		this.setTitle(Constant.PROGRAM_NAME);
-	    this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 
     	final Dimension dim = restoreWindowSize();
     	if (dim == null) {

@@ -96,7 +96,6 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 			txtDescription.setBorder(javax.swing.BorderFactory
 					.createBevelBorder(javax.swing.border.BevelBorder.LOWERED));
 			txtDescription.setLineWrap(true);
-			txtDescription.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return txtDescription;
 	}

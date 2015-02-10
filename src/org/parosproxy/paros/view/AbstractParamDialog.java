@@ -89,7 +89,6 @@ public class AbstractParamDialog extends AbstractDialog {
         // Examples of childs: help window and client certificate viewer
         this.setModalityType(ModalityType.DOCUMENT_MODAL);
 
-        this.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 12));
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {            
             this.setSize(500, 375);
         }

@@ -102,7 +102,6 @@ public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 			workPane = new JScrollPane();
 			workPane.setName("SpiderResultsPane");
 			workPane.setViewportView(getScanResultsTable());
-			workPane.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 		}
 		return workPane;
 	}
@@ -141,7 +140,6 @@ public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 			this.setScanResultsTableColumnSizes();
 
 			resultsTable.setName(PANEL_NAME);
-			resultsTable.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
 			resultsTable.setDoubleBuffered(true);
 			resultsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			// Add hack to force row selection on right click
