@@ -75,7 +75,9 @@ public class DownloadManager extends Thread {
 			List<Downloader> finishedDownloads = new ArrayList<>();
 			for (Downloader dl : this.currentDownloads) {
 				if (!dl.isAlive()) {
-					if (dl.isValidated()) {
+				    if (dl.getException() != null) {
+				        logger.debug("Download failed " + dl.getTargetFile().getAbsolutePath());
+				    } else if (dl.isValidated()) {
 						logger.debug("Download finished " + dl.getTargetFile().getAbsolutePath());
 					} else {
 						// Corrupt or corrupted file? Pretty bad anyway

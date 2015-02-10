@@ -21,25 +21,44 @@ package org.zaproxy.zap.control;
 
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 /**
  * A {@code URLClassLoader} that search for classes and resources (first) in a given add-on file ({@code URL}). If a class or
- * resource is not found, in the add-on file, the loading is delegated to the parent class loader.
+ * resource is not found, in the add-on file, the loading is delegated to the parent class loader. If not found in the parent
+ * class loader it will be searched in the dependencies (add-ons), if any.
  * 
  * @see URLClassLoader
  */
 public class AddOnClassLoader extends URLClassLoader {
 
     private final ParentClassLoader parent;
+    private List<AddOnClassLoader> dependencies;
 
     /**
-     * Constructs a new {@code AddOnClassLoader}.
+     * Constructs a new {@code AddOnClassLoader} without dependencies on other add-ons.
      * 
      * @param addOnFileUrl the URL to the add-on file that will be (first) used to load classes and resources
      * @param parent the parent class loader for delegation
      * @throws IllegalArgumentException if the {@code addOnFileUrl} or {@code parent} is {@code null}.
      */
     public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent) {
+        this(addOnFileUrl, parent, Collections.<AddOnClassLoader> emptyList());
+    }
+
+    /**
+     * Constructs a new {@code AddOnClassLoader} with the given {@code dependencies} which are used to find classes and
+     * resources when not found in the add-on or in {@code parent} ClassLoader.
+     * 
+     * @param addOnFileUrl the URL to the add-on file that will be (first) used to load classes and resources
+     * @param parent the parent class loader for delegation
+     * @param dependencies the {@code AddOnClassLoader}s of the dependencies of the add-on
+     * @throws IllegalArgumentException if the {@code addOnFileUrl}, {@code parent} or {@code dependencies} is {@code null}.
+     * @since 2.4.0
+     */
+    public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent, List<AddOnClassLoader> dependencies) {
         super(new URL[] { addOnFileUrl }, null);
 
         if (addOnFileUrl == null) {
@@ -50,39 +69,96 @@ public class AddOnClassLoader extends URLClassLoader {
             throw new IllegalArgumentException("Parameter parent must not be null.");
         }
 
+        if (dependencies == null) {
+            throw new IllegalArgumentException("Parameter dependencies must not be null.");
+        }
+
         this.parent = new ParentClassLoader(parent);
+        this.dependencies = dependencies.isEmpty() ? Collections.<AddOnClassLoader> emptyList() : new ArrayList<>(dependencies);
+    }
+
+    /**
+     * Clears the dependencies. Should be called when this class loader is no longer needed.
+     *
+     * @since 2.4.0
+     */
+    public void clearDependencies() {
+        this.dependencies = Collections.emptyList();
     }
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
         try {
-            return super.findClass(name);
+            return findClassInAddOn(name);
         } catch (ClassNotFoundException ignore) {
         }
-        return parent.loadClass(name, false);
+
+        try {
+            return parent.loadClass(name, false);
+        } catch (ClassNotFoundException ignore) {
+        }
+
+        Class<?> clazz = findClassInDependencies(name);
+        if (clazz == null) {
+            throw new ClassNotFoundException();
+        }
+        return clazz;
+    }
+
+    private Class<?> findClassInAddOn(String name) throws ClassNotFoundException {
+        return super.findClass(name);
+    }
+
+    private Class<?> findClassInDependencies(String name) {
+        if (dependencies.isEmpty()) {
+            return null;
+        }
+
+        for (AddOnClassLoader addOnClassLoader : dependencies) {
+            try {
+                return addOnClassLoader.loadClass(name, false);
+            } catch (ClassNotFoundException ignore) {
+            }
+        }
+        return null;
     }
 
     @Override
     public URL findResource(String name) {
-        URL url = super.findResource(name);
+        URL url = findResourceInAddOn(name);
         if (url == null) {
             url = parent.getResource(name);
+        }
+        if (url == null) {
+            url = findResourceInDependencies(name);
         }
         return url;
     }
 
     /**
-     * Find the specified resource
-     * @param name
-     * @param checkParent only checks the parent if this is true - set to false if parent already checked 
-     * @return
+     * Finds the resource with the specified name (only) in the add-on file.
+     *
+     * @param name the name of the resource
+     * @return a {@code URL} for the resource, or {@code null} if the resource could not be found, or if the loader is closed.
+     * @since 2.4.0
+     * @see #findResource(String)
      */
-    public URL findResource(String name, boolean checkParent) {
-        URL url = super.findResource(name);
-        if (url == null && checkParent) {
-            url = parent.getResource(name);
+    public URL findResourceInAddOn(String name) {
+        return super.findResource(name);
+    }
+
+    private URL findResourceInDependencies(String name) {
+        if (dependencies.isEmpty()) {
+            return null;
         }
-        return url;
+
+        for (AddOnClassLoader addOnClassLoader : dependencies) {
+            URL url = addOnClassLoader.findResourceInAddOn(name);
+            if (url != null) {
+                return url;
+            }
+        }
+        return null;
     }
 
     /**

@@ -1,0 +1,223 @@
+<ZAP>
+	<addon>AddOn1</addon>
+	<addon_AddOn1>
+		<name>AddOn1</name>
+		<description>AddOn1</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn1-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn1-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn2</id>
+				</addon>
+				<addon>
+					<id>AddOn14</id>
+				</addon>
+				<addon>
+					<id>AddOn4</id>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn1>
+
+	<addon>AddOn2</addon>
+	<addon_AddOn2>
+		<name>AddOn2</name>
+		<description>AddOn2</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn2-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn2-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn3</id>
+					<semver>2.*</semver>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn2>
+
+	<addon>AddOn3</addon>
+	<addon_AddOn3>
+		<name>AddOn3</name>
+		<description>AddOn3</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>3.5.0</semver>
+		<file>AddOn3-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn3-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn8</id>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn3>
+
+	<addon>AddOn4</addon>
+	<addon_AddOn4>
+		<name>AddOn4</name>
+		<description>AddOn4</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn4-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn4-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn5</id>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn4>
+
+	<addon>AddOn5</addon>
+	<addon_AddOn5>
+		<name>AddOn5</name>
+		<description>AddOn5</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn5-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn5-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn6</id>
+				</addon>
+				<addon>
+					<id>AddOn7</id>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn5>
+
+	<addon>AddOn6</addon>
+	<addon_AddOn6>
+		<name>AddOn6</name>
+		<description>AddOn6</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn6-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn6-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn7</id>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn6>
+
+	<addon>AddOn7</addon>
+	<addon_AddOn7>
+		<name>AddOn7</name>
+		<description>AddOn7</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn7-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn7-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+		<dependencies>
+			<addons>
+				<addon>
+					<id>AddOn2</id>
+				</addon>
+			</addons>
+		</dependencies>
+	</addon_AddOn7>
+
+	<addon>AddOn8</addon>
+	<addon_AddOn8>
+		<name>AddOn8</name>
+		<description>AddOn8</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn8-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn8-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+	</addon_AddOn8>
+
+	<addon>AddOn9</addon>
+	<addon_AddOn9>
+		<name>AddOn9</name>
+		<description>AddOn9</description>
+		<author>ZAP Dev Team</author>
+		<version>1</version>
+		<semver>2.3.4</semver>
+		<file>AddOn9-beta-1.zap</file>
+		<status>beta</status>
+		<changes />
+		<url>http://localhost/add-ons/AddOn9-beta-1.zap</url>
+		<info />
+		<size>1024</size>
+		<date>2015-01-01</date>
+		<not-before-version>2.4.0</not-before-version>
+		<not-from-version></not-from-version>
+	</addon_AddOn9>
+
+</ZAP>

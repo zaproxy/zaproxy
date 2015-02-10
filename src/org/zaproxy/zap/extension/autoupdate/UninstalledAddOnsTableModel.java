@@ -19,18 +19,22 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
+import javax.swing.Icon;
+
 import org.parosproxy.paros.Constant;
-import org.zaproxy.zap.view.AbstractMultipleOptionsTableModel;
+import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOnCollection;
 
 
-public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableModel<AddOnWrapper> {
+public class UninstalledAddOnsTableModel extends AddOnsTableModel {
 
 	private static final long serialVersionUID = 1L;
 
 	private static final String[] COLUMN_NAMES = {
+		"", // Column for warning of running issues (e.g. incorrect Java version, missing dependency...)
 		Constant.messages.getString("cfu.table.header.status"),
 		Constant.messages.getString("cfu.table.header.name"),
 		Constant.messages.getString("cfu.table.header.desc"),
@@ -38,32 +42,24 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
 		""};
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
-    
-	private List <AddOnWrapper> addOns = new ArrayList<>();
+
+    private static final Comparator<AddOnWrapper> COMPARATOR = new Comparator<AddOnWrapper>() {
+
+        @Override
+        public int compare(AddOnWrapper ao1, AddOnWrapper ao2) {
+            if (!ao1.getAddOn().getStatus().equals(ao2.getAddOn().getStatus())) {
+                // Reverse order - we want the most stable ones first
+                return ao2.getAddOn().getStatus().compareTo(ao1.getAddOn().getStatus());
+            }
+            return ao1.getAddOn().getName().toLowerCase().compareTo(ao2.getAddOn().getName().toLowerCase());
+        };
+    };
     
     /**
      * 
      */
-    public UninstalledAddOnsTableModel() {
-        super();
-    }
-
-    public UninstalledAddOnsTableModel(List <AddOnWrapper> addOns) {
-        super();
-        this.setAddOns(addOns);
-    }
-
-    /**
-     * @param defns
-     */
-    public void setAddOns(List <AddOnWrapper> addOns) {
-    	this.addOns = addOns;
-        fireTableDataChanged();
-    }
-
-    @Override
-    public List<AddOnWrapper> getElements() {
-        return addOns;
+    public UninstalledAddOnsTableModel(AddOnCollection installedAddOns) {
+        super(COMPARATOR, installedAddOns, 4);
     }
 
     @Override
@@ -78,15 +74,14 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
 
     @Override
     public int getRowCount() {
-    	if (addOns == null) {
-    		return 0;
-    	}
-        return addOns.size();
+        return getAddOnWrappers().size();
     }
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 4) {
+        if (columnIndex == 0) {
+            return Icon.class;
+        } else if (columnIndex == 5) {
             return Boolean.class;
         }
         return String.class;
@@ -95,35 +90,40 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
     @Override
     public Object getValueAt(int rowIndex, int columnIndex) {
         switch (columnIndex) {
+        case COLUMN_ADD_ON_WRAPPER:
+            return getAddOnWrapper(rowIndex);
         case 0:
-            return Constant.messages.getString("cfu.status." + getElement(rowIndex).getAddOn().getStatus().toString());
+            return Boolean.valueOf(getAddOnWrapper(rowIndex).hasRunningIssues());
         case 1:
-            return getElement(rowIndex).getAddOn().getName();
+            return Constant.messages.getString("cfu.status." + getAddOnWrapper(rowIndex).getAddOn().getStatus().toString());
         case 2:
-            return getElement(rowIndex).getAddOn().getDescription();
+            return getAddOnWrapper(rowIndex).getAddOn().getName();
         case 3:
-        	int progress = getElement(rowIndex).getProgress();
-        	if (getElement(rowIndex).isFailed()) {
+            return getAddOnWrapper(rowIndex).getAddOn().getDescription();
+        case 4:
+        	int progress = getAddOnWrapper(rowIndex).getProgress();
+        	if (getAddOnWrapper(rowIndex).isFailed()) {
         		return Constant.messages.getString("cfu.download.failed");
         	} else if (progress > 0) {
         		return progress + "%";
-        	} else if (getElement(rowIndex).getStatus().equals(AddOnWrapper.Status.newAddon)) {
+        	} else if (AddOnWrapper.Status.newAddon == getAddOnWrapper(rowIndex).getStatus()) {
         		return Constant.messages.getString("cfu.table.label.new");
         	} else {
         		// TODO change to date ??
-        		return getElement(rowIndex).getAddOn().getVersion();
+        		return getAddOnWrapper(rowIndex).getAddOn().getFileVersion();
         	}
-        case 4:
-            return getElement(rowIndex).isEnabled();
+        case 5:
+            return getAddOnWrapper(rowIndex).isEnabled();
         }
         return null;
     }
     
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-        if (columnIndex == 4) {
+        if (columnIndex == 5
+                && getAddOnWrapper(rowIndex).getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
             if (aValue instanceof Boolean) {
-                getElement(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
+                getAddOnWrapper(rowIndex).setEnabled(((Boolean) aValue).booleanValue());
                 this.fireTableCellUpdated(rowIndex, columnIndex);
             }
         }
@@ -131,7 +131,8 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
     
     @Override
     public boolean isCellEditable(int rowIndex, int columnIndex) {
-    	if (columnIndex == 4 && getElement(rowIndex).getProgress() == 0) {
+        if (columnIndex == 5
+                && getAddOnWrapper(rowIndex).getInstallationStatus() != AddOn.InstallationStatus.DOWNLOADING) {
     		// Its the 'enabled' checkbox, and no download is in progress
     		return true;
     	}
@@ -140,7 +141,7 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
 
 	public boolean canIinstallSelected() {
     	boolean enable = false;
-    	for (AddOnWrapper addon : this.addOns) {
+    	for (AddOnWrapper addon : getAddOnWrappers()) {
     		if (addon.isEnabled()) {
    				return true;
     		}
@@ -148,4 +149,23 @@ public class UninstalledAddOnsTableModel extends AbstractMultipleOptionsTableMod
     	return enable;
 	}
     
+    public void addAddOn(AddOn addOn) {
+        addAddOnWrapper(addOn, null);
+    }
+
+    public void setAddOns(List<AddOn> addOnsNotInstalled, AddOnCollection olderAddOns) {
+        for (AddOn addOn : addOnsNotInstalled) {
+            AddOnWrapper.Status status = null;
+            if (olderAddOns != null && olderAddOns.getAddOn(addOn.getId()) == null) {
+                // Not in the previous set
+                status = AddOnWrapper.Status.newAddon;
+            }
+            addAddOnWrapper(addOn, status);
+        }
+    }
+
+    @Override
+    protected void restoreInstallationStatusFailedDownload(AddOnWrapper aow) {
+        aow.setInstallationStatus(AddOn.InstallationStatus.AVAILABLE);
+    }
 }

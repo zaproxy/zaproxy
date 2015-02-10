@@ -19,11 +19,14 @@
  */
 package org.zaproxy.zap;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.List;
 import java.util.Locale;
 
 import javax.swing.JComponent;
@@ -51,7 +54,12 @@ import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOnCollection;
+import org.zaproxy.zap.control.AddOnLoader;
+import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 import org.zaproxy.zap.control.ControlOverrides;
+import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
 import org.zaproxy.zap.extension.autoupdate.ExtensionAutoUpdate;
@@ -303,6 +311,8 @@ public class ZAP {
                 throw e;
             }
 
+            warnAddOnsNoLongerLoadable();
+
             if (firstTime) {
             	// Disabled for now - we have too many popups occuring when you first start up
                 // be nice to have a clean start up wizard...
@@ -409,6 +419,8 @@ public class ZAP {
         Control.initSingletonWithoutView(this.getOverrides());
         final Control control = Control.getSingleton();
 
+        warnAddOnsNoLongerLoadable();
+
 	// no view initialization
         try {
             control.getExtensionLoader().hookCommandLineListener(cmdLine);
@@ -449,6 +461,49 @@ public class ZAP {
         }
         
         System.exit(rc);
+    }
+
+    private static void warnAddOnsNoLongerLoadable() {
+        final AddOnLoader addOnLoader = ExtensionFactory.getAddOnLoader();
+        List<String> idsAddOnsNoLongerRunning = addOnLoader.getIdsAddOnsNoLongerRunnableSinceLastRun();
+        if (idsAddOnsNoLongerRunning.isEmpty()) {
+            return;
+        }
+
+        List<AddOn> addOnsNoLongerRunning = new ArrayList<>(idsAddOnsNoLongerRunning.size());
+        for (String id : idsAddOnsNoLongerRunning) {
+            addOnsNoLongerRunning.add(addOnLoader.getAddOnCollection().getAddOn(id));
+        }
+
+        if (View.isInitialised()) {
+            showWarningMessageAddOnsNoLongerRunning(addOnLoader.getAddOnCollection(), addOnsNoLongerRunning);
+        } else {
+            for (AddOn addOn : addOnsNoLongerRunning) {
+                AddOn.RunRequirements requirements = addOn.calculateRunRequirements(addOnLoader.getAddOnCollection()
+                        .getAddOns());
+                List<String> issues = AddOnRunIssuesUtils.getRunningIssues(requirements);
+                log.warn("Add-on \"" + addOn.getId() + "\" will no longer be run until requirements are restored: " + issues);
+            }
+        }
+    }
+
+    private static void showWarningMessageAddOnsNoLongerRunning(
+            final AddOnCollection installedAddOns,
+            final List<AddOn> addOnsNoLongerRunning) {
+        if (EventQueue.isDispatchThread()) {
+            AddOnRunIssuesUtils.showWarningMessageAddOnsNotRunnable(
+                    Constant.messages.getString("start.gui.warn.addOnsNoLongerRunning"),
+                    installedAddOns,
+                    addOnsNoLongerRunning);
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    showWarningMessageAddOnsNoLongerRunning(installedAddOns, addOnsNoLongerRunning);
+                }
+            });
+        }
     }
 
     /**
@@ -535,6 +590,8 @@ public class ZAP {
                 View.setDaemon(true);	// Prevents the View ever being initialised
                 Control.initSingletonWithoutView(getOverrides());
                 Control control = Control.getSingleton();
+
+                warnAddOnsNoLongerLoadable();
 
                 if (!handleCmdLineSessionOptionsSynchronously(control)) {
                     return;

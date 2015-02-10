@@ -22,22 +22,21 @@ package org.zaproxy.zap.extension.autoupdate;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
+import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
-import java.awt.event.MouseEvent;
 import java.io.File;
-import java.io.IOException;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.swing.BorderFactory;
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
@@ -51,7 +50,13 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.jdesktop.swingx.decorator.AbstractHighlighter;
 import org.jdesktop.swingx.decorator.ComponentAdapter;
+import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
+import org.jdesktop.swingx.decorator.IconHighlighter;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.IconValues;
+import org.jdesktop.swingx.renderer.MappedValue;
+import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
@@ -64,8 +69,11 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateCallback {
 
 	protected enum State {IDLE, DOWNLOADING_ZAP, DOWNLOADED_ZAP, DOWNLOADING_UPDATES, DOWNLOADED_UPDATES}
+
+	static final Icon ICON_ADD_ON_ISSUES = new ImageIcon(
+			InstalledAddOnsTableModel.class.getResource("/resource/icon/16/050.png"));
 	
-	private Logger logger = Logger.getLogger(ManageAddOnsDialog.class);
+	private static final Logger logger = Logger.getLogger(ManageAddOnsDialog.class);
 	private static final long serialVersionUID = 1L;
 	private JTabbedPane jTabbed = null;
 	private JPanel topPanel = null;
@@ -97,22 +105,24 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private String currentVersion = null;
 	private AddOnCollection latestInfo = null;
 	private AddOnCollection prevInfo = null;
-	private List<AddOnWrapper> installedAddOns = null;
-	private List<AddOnWrapper> uninstalledAddOns = null;
 	private ExtensionAutoUpdate extension = null;
-	private InstalledAddOnsTableModel installedAddOnsModel = null;
-	private UninstalledAddOnsTableModel uninstalledAddOnsModel = null;
-	
+	private AddOnCollection installedAddOns;
+	private final InstalledAddOnsTableModel installedAddOnsModel;
+	private final UninstalledAddOnsTableModel uninstalledAddOnsModel;
+
 	private State state = null;
 	
     /**
      * @throws HeadlessException
      */
-    public ManageAddOnsDialog(ExtensionAutoUpdate ext, String currentVersion, List<AddOnWrapper> installedAddOns) throws HeadlessException {
+    public ManageAddOnsDialog(ExtensionAutoUpdate ext, String currentVersion, AddOnCollection installedAddOns) throws HeadlessException {
         super();
         this.extension = ext;
         this.currentVersion = currentVersion;
-        this.installedAddOns = this.sortAddOns(installedAddOns, false);
+        this.installedAddOns = installedAddOns;
+
+        installedAddOnsModel = new InstalledAddOnsTableModel(installedAddOns);
+        uninstalledAddOnsModel = new UninstalledAddOnsTableModel(installedAddOns);
 
  		initialize();
     }
@@ -217,26 +227,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			} else {
 				corePanel.add(new JLabel(this.currentVersion + " : " + Constant.messages.getString("cfu.check.zap.latest")), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			}
+			installedPanel.validate();
 		}
 		
 		
 		return corePanel;
-	}
-	
-	private List<AddOnWrapper> sortAddOns(List<AddOnWrapper> addons, final boolean statusFirst) {
-		if (addons != null) {
-	        Collections.sort(addons, new Comparator<AddOnWrapper>() {
-				@Override
-				public int compare(AddOnWrapper ao1, AddOnWrapper ao2) {
-					if (statusFirst && ! ao1.getAddOn().getStatus().equals(ao2.getAddOn().getStatus())) {
-						// Reverse order - we want the most stable ones first
-						return ao2.getAddOn().getStatus().compareTo(ao1.getAddOn().getStatus());
-					}
-					return ao1.getAddOn().getName().toLowerCase().compareTo(ao2.getAddOn().getName().toLowerCase());
-				};
-	        });
-		}
-        return addons;
 	}
 
 	private JPanel getInstalledAddOnsPanel() {
@@ -281,7 +276,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
 							java.awt.Color.black));
 
-			if (this.uninstalledAddOns == null) {
+			if (latestInfo == null) {
 				// Not checked yet
 				getUninstalledAddOnsTable();	// To initialise the table and model
 				getMarketPlaceScrollPane().setViewportView(getRetrievePanel());
@@ -331,17 +326,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		}
 		return retrievePanel;
 	}
-	
-
-	public void setInstalledAddOns(List<AddOnWrapper> installedAddOns) {
-		this.installedAddOns = installedAddOns;
-		installedAddOnsModel.setAddOns(this.sortAddOns(this.installedAddOns, false));
-		installedAddOnsModel.fireTableDataChanged();
-		if (this.latestInfo != null) {
-			// Flag updates
-			setLatestVersionInfo(latestInfo);
-		}
-	}
 
 	protected void setPreviousVersionInfo(AddOnCollection prevInfo) {
 		this.prevInfo = prevInfo;
@@ -352,38 +336,11 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		getCorePanel(true);
 		
 		if (latestInfo != null) {
-			this.uninstalledAddOns = new ArrayList<>();
+			installedAddOnsModel.setAvailableAddOns(latestInfo);
+			uninstalledAddOnsModel.setAddOnCollection(latestInfo);
 
-			for (AddOn addOn : latestInfo.getAddOns()) {
-				boolean found = false;
-				for (AddOnWrapper aow : this.installedAddOns) {
-					if (addOn.isSameAddOn(aow.getAddOn())) {
-						// Found it
-						try {
-							if (addOn.isUpdateTo(aow.getAddOn())) {
-								aow.setStatus(AddOnWrapper.Status.newVersion);
-								aow.setAddOn(addOn);
-							} else {
-								aow.setStatus(AddOnWrapper.Status.latest);
-							}
-							found = true;
-							break;
-						} catch (Exception e) {
-							logger.error(e.getMessage(), e);
-						}
-					}
-				}
-				if (! found) {
-					if (this.prevInfo != null && this.prevInfo.getAddOn(addOn.getId()) == null) {
-						// Not in the previous set
-						this.uninstalledAddOns.add(new AddOnWrapper(addOn, AddOnWrapper.Status.newAddon));
-					} else {
-						this.uninstalledAddOns.add(new AddOnWrapper(addOn, AddOnWrapper.Status.uninstalled));
-					}
-				}
-			}
-			installedAddOnsModel.setAddOns(this.sortAddOns(this.installedAddOns, false));
-			uninstalledAddOnsModel.setAddOns(this.sortAddOns(this.uninstalledAddOns, true));
+			List<AddOn> addOnsNotInstalled = installedAddOnsModel.updateEntries();
+			uninstalledAddOnsModel.setAddOns(addOnsNotInstalled, prevInfo);
 		}
 		getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
 
@@ -391,18 +348,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	
 	private JXTable getInstalledAddOnsTable () {
 		if (installedAddOnsTable == null) {
-			installedAddOnsTable = new JXTable() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public String getToolTipText(MouseEvent e) {
-			        java.awt.Point p = e.getPoint();
-			        int rowIndex = rowAtPoint(p);
-			        AddOn ao = ((InstalledAddOnsTableModel)getModel()).getElement(rowIndex).getAddOn();
-			        return addOnToHtml(ao);
-				}
-			};
+			installedAddOnsTable = new JXTable();
 			installedAddOnsTable.setSortable(false);
-			installedAddOnsModel = new InstalledAddOnsTableModel(this.installedAddOns);
 			installedAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
 				public void tableChanged(TableModelEvent e) {
@@ -417,8 +364,29 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(60);
 			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(40);
 			
-			installedAddOnsTable.getColumnExt(3).addHighlighter(
-					new FailedUninstallationHighlighter(InstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
+			installedAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);
+			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(200);
+			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(400);
+			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+			installedAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(40);
+
+			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
+					AddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
+			for (int i = 1; i < installedAddOnsTable.getColumnCount(); i++) {
+				installedAddOnsTable.getColumnExt(i).addHighlighter(toolTipHighlighter);
+			}
+
+			installedAddOnsTable.getColumnExt(0).setCellRenderer(
+					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+			installedAddOnsTable.getColumnExt(0).setHighlighters(
+					new CompoundHighlighter(new WarningRunningIssuesHighlighter(), new WarningRunningIssuesToolTipHighlighter(
+							AddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
+			installedAddOnsTable.getColumnExt(3).setHighlighters(
+					new CompoundHighlighter(
+							new WarningUpdateIssuesHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER),
+							new WarningUpdateIssuesToolTipHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
+			installedAddOnsTable.getColumnExt(4).addHighlighter(
+					new DisableSelectionHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
 		}
 		
 		
@@ -427,19 +395,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
 	private JXTable getUninstalledAddOnsTable () {
 		if (uninstalledAddOnsTable == null) {
-			uninstalledAddOnsTable = new JXTable() {
-				private static final long serialVersionUID = 1L;
-				@Override
-				public String getToolTipText(MouseEvent e) {
-			        java.awt.Point p = e.getPoint();
-			        int rowIndex = rowAtPoint(p);
-			        AddOn ao = ((UninstalledAddOnsTableModel)getModel()).getElement(rowIndex).getAddOn();
-			        return addOnToHtml(ao);
-				}
-			};
+			uninstalledAddOnsTable = new JXTable();
 			uninstalledAddOnsTable.setSortable(false);
 
-			uninstalledAddOnsModel = new UninstalledAddOnsTableModel(this.sortAddOns(this.uninstalledAddOns, true));
 			uninstalledAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
 				public void tableChanged(TableModelEvent e) {
@@ -451,7 +409,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				public void valueChanged(ListSelectionEvent e) {
 					getAddOnInfoButton().setEnabled(false);
 					if (DesktopUtils.canOpenUrlInBrowser() && getUninstalledAddOnsTable ().getSelectedRowCount() == 1) {
-						AddOnWrapper ao = uninstalledAddOnsModel.getElement(getUninstalledAddOnsTable ().getSelectedRow());
+						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable ().getSelectedRow());
 						if (ao != null && ao.getAddOn().getInfo() != null) {
 							getAddOnInfoButton().setEnabled(true);
 						}
@@ -459,11 +417,26 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				}});
 			
 			uninstalledAddOnsTable.setModel(uninstalledAddOnsModel);
-			uninstalledAddOnsTable.getColumnModel().getColumn(0).setPreferredWidth(50);
-			uninstalledAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(150);
-			uninstalledAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(300);
-			uninstalledAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);
-			uninstalledAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(40);
+			uninstalledAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);
+			uninstalledAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
+			uninstalledAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(150);
+			uninstalledAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(300);
+			uninstalledAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(60);
+			uninstalledAddOnsTable.getColumnModel().getColumn(5).setPreferredWidth(40);
+
+			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
+					UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
+			for (int i = 1; i < uninstalledAddOnsTable.getColumnCount(); i++) {
+				uninstalledAddOnsTable.getColumnExt(i).addHighlighter(toolTipHighlighter);
+			}
+
+			uninstalledAddOnsTable.getColumnExt(0).setCellRenderer(
+					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+			uninstalledAddOnsTable.getColumnExt(0).setHighlighters(
+					new CompoundHighlighter(new WarningRunningIssuesHighlighter(), new WarningRunningIssuesToolTipHighlighter(
+							UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
+			uninstalledAddOnsTable.getColumnExt(5).addHighlighter(
+					new DisableSelectionHighlighter(UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
 		}
 		return uninstalledAddOnsTable;
 	}
@@ -512,7 +485,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		sb.append("<tr><td><i>");
 		sb.append(Constant.messages.getString("cfu.table.header.version"));
 		sb.append("</i></td><td>");
-		sb.append(ao.getVersion());
+		sb.append(ao.getFileVersion());
 		sb.append("</td></tr>");
 
 		sb.append("<tr><td><i>");
@@ -526,6 +499,26 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		sb.append("</i></td><td>");
 		sb.append(ao.getNotFromVersion());
 		sb.append("</td></tr>");
+
+		if (!ao.getIdsAddOnDependencies().isEmpty()) {
+			sb.append("<tr><td><i>");
+			sb.append(Constant.messages.getString("cfu.table.header.dependencies"));
+			sb.append("</i></td><td>");
+			for (String addOnId : ao.getIdsAddOnDependencies()) {
+				AddOn dep = installedAddOns.getAddOn(addOnId);
+				if (dep == null && latestInfo != null) {
+					dep = latestInfo.getAddOn(addOnId);
+				}
+
+				if (dep != null) {
+					sb.append(dep.getName());
+				} else {
+					sb.append(addOnId);
+				}
+				sb.append("<br>");
+			}
+			sb.append("</td></tr>");
+		}
 
 		sb.append("</table>");
 		sb.append("</html>");
@@ -652,33 +645,124 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		getUpdatesMessage().setText(Constant.messages.getString("cfu.check.zap.downloading"));
 	}
 
-	protected void setDownloadingAllUpdates() {
-		for (AddOnWrapper aoi : this.installedAddOns) {
-			aoi.setEnabled(false);
+	protected void setDownloadingUpdates() {
+		if (EventQueue.isDispatchThread()) {
+			this.getDownloadZapButton().setEnabled(false); // Makes things less complicated
+			this.getUpdateButton().setEnabled(false);
+			this.state = State.DOWNLOADING_UPDATES;
+			this.getUpdatesMessage().setText(Constant.messages.getString("cfu.check.upd.downloading"));
+		} else {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					setDownloadingUpdates();
+				}
+			});
 		}
-		setDownloadingUpdates();
-	}
-	
-	private void setDownloadingUpdates() {
-		this.getDownloadZapButton().setEnabled(false);		// Makes things less complicated
-		this.getUpdateButton().setEnabled(false);	
-		this.state = State.DOWNLOADING_UPDATES;
-		this.getUpdatesMessage().setText(Constant.messages.getString("cfu.check.upd.downloading"));
 	}
 
-	private void downloadUpdates() {
-		boolean downloading = false;
-		for (AddOnWrapper aoi : this.installedAddOns) {
-			if (aoi.isEnabled() && aoi.getProgress() == 0) {
-				aoi.setStatus(AddOnWrapper.Status.downloading);
-				extension.downloadFile(aoi.getAddOn().getUrl(), 
-						aoi.getAddOn().getFile(), aoi.getAddOn().getSize(), aoi.getAddOn().getHash());
-				aoi.setEnabled(false);
-				downloading = true;
-			}
+	/**
+	 * Notifies that the given {@code addOn} is being downloaded.
+	 *
+	 * @param addOn the add-on that is being downloaded
+	 * @since 2.4.0
+	 */
+	public void notifyAddOnDownloading(AddOn addOn) {
+		if (installedAddOnsModel.notifyAddOnDownloading(addOn)) {
+			// It's an update...
+			return;
 		}
-		if (downloading) {
-			setDownloadingUpdates();
+
+		uninstalledAddOnsModel.notifyAddOnDownloading(addOn);
+	}
+
+	/**
+	 * Notifies that the download of the add-on with the given {@code url} as failed.
+	 * <p>
+	 * The entry of the add-on is updated to report that the download failed.
+	 *
+	 * @param url the URL of the add-on that was being downloaded
+	 * @since 2.4.0
+	 */
+	public void notifyAddOnDownloadFailed(String url) {
+		if (installedAddOnsModel.notifyAddOnDownloadFailed(url)) {
+			// It's an update...
+			return;
+		}
+
+		uninstalledAddOnsModel.notifyAddOnDownloadFailed(url);
+	}
+
+    /**
+     * Notifies that the given {@code addOn} was installed. The add-on is added to the table of installed add-ons, or if an
+     * update, set it as updated, and, if available in marketplace, removed from the table of available add-ons.
+     *
+     * @param addOn the add-on that was installed
+     * @since 2.4.0
+     */
+    public void notifyAddOnInstalled(final AddOn addOn) {
+        if (EventQueue.isDispatchThread()) {
+            if (latestInfo != null && latestInfo.getAddOn(addOn.getId()) != null) {
+                uninstalledAddOnsModel.removeAddOn(addOn);
+            }
+            installedAddOnsModel.addOrRefreshAddOn(addOn);
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    notifyAddOnInstalled(addOn);
+                }
+            });
+        }
+    }
+
+    /**
+     * Notifies that the given {@code addOn} as not successfully uninstalled. Add-ons that were not successfully uninstalled are
+     * not re-selectable.
+     *
+     * @param addOn the add-on that was not successfully uninstalled
+     * @since 2.4.0
+     */
+	public void notifyAddOnFailedUninstallation(final AddOn addOn) {
+		if (EventQueue.isDispatchThread()) {
+			installedAddOnsModel.notifyAddOnFailedUninstallation(addOn);
+		} else {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					notifyAddOnFailedUninstallation(addOn);
+				}
+			});
+		}
+	}
+
+    /**
+     * Notifies that the given {@code addOn} as uninstalled. The add-on is removed from the table of installed add-ons and, if
+     * available in marketplace, added to the table of available add-ons.
+     *
+     * @param addOn the add-on that was uninstalled
+     * @since 2.4.0
+     */
+	public void notifyAddOnUninstalled(final AddOn addOn) {
+		if (EventQueue.isDispatchThread()) {
+			installedAddOnsModel.removeAddOn(addOn);
+			if (latestInfo != null) {
+				AddOn availableAddOn = latestInfo.getAddOn(addOn.getId());
+				if (availableAddOn != null) {
+					uninstalledAddOnsModel.addAddOn(latestInfo.getAddOn(addOn.getId()));
+				}
+			}
+		} else {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					notifyAddOnUninstalled(addOn);
+				}
+			});
 		}
 	}
 
@@ -690,7 +774,20 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			updateButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					downloadUpdates();
+					Set<AddOn> selectedAddOns = installedAddOnsModel.getSelectedUpdates();
+
+					if (selectedAddOns.isEmpty()) {
+						return;
+					}
+
+					AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
+
+					AddOnDependencyChecker.AddOnChangesResult result = calc.calculateUpdateChanges(selectedAddOns);
+					if (!calc.confirmUpdateChanges(ManageAddOnsDialog.this, result)) {
+						return;
+					}
+
+					extension.processAddOnChanges(ManageAddOnsDialog.this, result);
 				}
 			});
 
@@ -703,27 +800,30 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			uninstallButton = new JButton();
 			uninstallButton.setText(Constant.messages.getString("cfu.button.addons.uninstall"));
 			uninstallButton.setEnabled(false);	// Nothing will be selected initially
-
-			final ManageAddOnsDialog dialog = this;
 			uninstallButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-			    	if (View.getSingleton().showConfirmDialog(dialog, 
-			    			Constant.messages.getString("cfu.uninstall.confirm")) == JOptionPane.OK_OPTION) {
-						
-						for (AddOnWrapper aoi : installedAddOns) {
-							if (aoi.isEnabled()) {
-								logger.debug("Uninstalling " + aoi.getAddOn().getName());
-								if (extension.uninstall(aoi.getAddOn(), false)) {
-									logger.debug("Uninstalling " + aoi.getAddOn().getName() + " worked");
-								} else {
-									extension.addFailedUninstallation(aoi);
-									logger.debug("Uninstalling " + aoi.getAddOn().getName() + " failed");
-								}
-							}
-						}
-						extension.reloadAddOnData();
-			    	}
+					Set<AddOn> selectedAddOns = installedAddOnsModel.getSelectedAddOns();
+					if (selectedAddOns.isEmpty()) {
+						return;
+					}
+
+					Set<AddOn> addOnsBeingDownloaded = installedAddOnsModel.getDownloadingAddOns();
+					addOnsBeingDownloaded.addAll(uninstalledAddOnsModel.getDownloadingAddOns());
+
+					AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
+					AddOnDependencyChecker.UninstallationResult changes = calc.calculateUninstallChanges(selectedAddOns);
+
+					if (!calc.confirmUninstallChanges(ManageAddOnsDialog.this, changes, addOnsBeingDownloaded)) {
+						return;
+					}
+
+					Set<AddOn> addOns = changes.getUninstallations();
+					if (!extension.warnUnsavedResourcesOrActiveActions(ManageAddOnsDialog.this, addOns, false)) {
+						return;
+					}
+
+					extension.uninstallAddOnsWithView(ManageAddOnsDialog.this, addOns, false, new HashSet<AddOn>());
 				}
 			});
 
@@ -739,16 +839,19 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			installButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					if (uninstalledAddOns != null && uninstalledAddOns.size() > 0) {
-						for (AddOnWrapper aoi : uninstalledAddOns) {
-							if (aoi.isEnabled()) {
-								state = State.DOWNLOADING_UPDATES;
-								aoi.setStatus(AddOnWrapper.Status.downloading);
-								extension.downloadFile(aoi.getAddOn().getUrl(), 
-										aoi.getAddOn().getFile(), aoi.getAddOn().getSize(), aoi.getAddOn().getHash());
-							}
-						}
+					Set<AddOn> selectedAddOns = uninstalledAddOnsModel.getSelectedAddOns();
+					if (selectedAddOns.isEmpty()) {
+						return;
 					}
+
+					AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
+
+					AddOnDependencyChecker.AddOnChangesResult changes = calc.calculateInstallChanges(selectedAddOns);
+					if (!calc.confirmInstallChanges(ManageAddOnsDialog.this,changes)) {
+						return;
+					}
+
+					extension.processAddOnChanges(ManageAddOnsDialog.this, changes);
 				}
 			});
 
@@ -765,7 +868,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 					if (getUninstalledAddOnsTable ().getSelectedRow() >= 0) {
-						AddOnWrapper ao = uninstalledAddOnsModel.getElement(getUninstalledAddOnsTable ().getSelectedRow());
+						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable ().getSelectedRow());
 						if (ao != null && ao.getAddOn().getInfo() != null) {
 							DesktopUtils.openUrlInBrowser(ao.getAddOn().getInfo().toString());
 						}
@@ -780,48 +883,14 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	public void showProgress() {
 		if (this.state.equals(State.DOWNLOADING_UPDATES)) {
 			// Updates
-			boolean updatesProgressed = false;
-			for (AddOnWrapper ao : this.installedAddOns) {
-				if (ao.getStatus().equals(AddOnWrapper.Status.downloading)) {
-					try {
-						int progress = extension.getDownloadProgressPercent(ao.getAddOn().getUrl());
-						if (progress > 0) {
-							ao.setProgress(progress);
-							updatesProgressed = true;
-						}
-					} catch (Exception e) {
-						logger.debug("Error on " + ao.getAddOn().getUrl(), e);
-						ao.setFailed(true);
-					}
-				}
-			}
-			if (this.installedAddOnsModel != null && updatesProgressed) {
-				this.installedAddOnsModel.fireTableDataChanged();
-			}
+			installedAddOnsModel.updateDownloadsProgresses(extension);
+
 			// New addons
-			boolean installsProgressed = false;
-			for (AddOnWrapper ao : this.uninstalledAddOns) {
-				if (ao.getStatus().equals(AddOnWrapper.Status.downloading)) {
-					try {
-						int progress = extension.getDownloadProgressPercent(ao.getAddOn().getUrl());
-						if (progress > 0) {
-							ao.setProgress(progress);
-							installsProgressed = true;
-						}
-					} catch (Exception e) {
-						logger.debug("Error on " + ao.getAddOn().getUrl(), e);
-						ao.setFailed(true);
-					}
-				}
-			}
-			if (this.uninstalledAddOnsModel != null && installsProgressed) {
-				this.uninstalledAddOnsModel.fireTableDataChanged();
-			}
+			uninstalledAddOnsModel.updateDownloadsProgresses(extension);
 			
 			if (extension.getCurrentDownloadCount() == 0) {
 				this.state = State.DOWNLOADED_UPDATES;
 				this.getDownloadZapButton().setEnabled(true);
-				this.getUpdateButton().setEnabled(true);	
 				this.getUpdatesMessage().setText(Constant.messages.getString("cfu.check.upd.downloaded"));
 			}
 		} else if (this.state.equals(State.DOWNLOADING_ZAP)) {
@@ -840,7 +909,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		}
 	}
 	
-	private void zapDownloadComplete () throws IOException {
+	private void zapDownloadComplete () {
 		if (this.state.equals(State.DOWNLOADED_ZAP)) {
 			// Prevent re-entry
 			return;
@@ -881,15 +950,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
    		View.getSingleton().showWarningDialog(this, Constant.messages.getString("cfu.warn.badurl"));
 	}
 
-    private static class FailedUninstallationHighlighter extends AbstractHighlighter {
+    private static class DisableSelectionHighlighter extends AbstractHighlighter {
 
-        public FailedUninstallationHighlighter(final int columnIndex) {
+        public DisableSelectionHighlighter(final int columnIndex) {
             setHighlightPredicate(new HighlightPredicate() {
 
                 @Override
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter adapter) {
-                    AddOnWrapper.Status status = ((AddOnWrapper) adapter.getValue(columnIndex)).getStatus();
-                    return AddOnWrapper.Status.failed_uninstallation.equals(status);
+                    AddOn.InstallationStatus status = ((AddOnWrapper) adapter.getValue(columnIndex)).getInstallationStatus();
+
+                    return AddOn.InstallationStatus.UNINSTALLATION_FAILED == status
+                            || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == status
+                            || AddOn.InstallationStatus.DOWNLOADING == status;
                 }
             });
         }
@@ -898,6 +970,89 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         protected Component doHighlight(Component renderer, ComponentAdapter adapter) {
             renderer.setEnabled(false);
             return renderer;
+        }
+    }
+
+    private static class WarningRunningIssuesHighlighter extends IconHighlighter {
+
+        public WarningRunningIssuesHighlighter() {
+            super(ICON_ADD_ON_ISSUES);
+
+            setHighlightPredicate(new HighlightPredicate.EqualsHighlightPredicate(Boolean.TRUE));
+        }
+    }
+
+    private static class WarningUpdateIssuesHighlighter extends IconHighlighter {
+
+        public WarningUpdateIssuesHighlighter(final int columnIndex) {
+            super(ICON_ADD_ON_ISSUES);
+
+            setHighlightPredicate(new HighlightPredicate() {
+
+                @Override
+                public boolean isHighlighted(final Component renderer, final ComponentAdapter adapter) {
+                    AddOnWrapper aow = (AddOnWrapper) adapter.getValue(columnIndex);
+                    if (AddOnWrapper.Status.newVersion == aow.getStatus()) {
+                        return aow.hasUpdateIssues();
+                    }
+                    return false;
+                }
+            });
+        }
+    }
+
+    private class DefaultAddOnToolTipHighlighter extends AbstractHighlighter {
+
+        private final int column;
+
+        public DefaultAddOnToolTipHighlighter(int column) {
+            this.column = column;
+        }
+
+        @Override
+        protected Component doHighlight(Component component, ComponentAdapter adapter) {
+            ((JComponent) component).setToolTipText(getToolTip((AddOnWrapper) adapter.getValue(column)));
+            return component;
+        }
+
+        protected String getToolTip(AddOnWrapper aow) {
+            if (AddOn.InstallationStatus.UNINSTALLATION_FAILED == aow.getInstallationStatus()
+                    || AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == aow.getInstallationStatus()) {
+                return addOnToHtml(aow.getAddOn());
+            }
+
+            AddOn addOn = (aow.getAddOnUpdate() != null) ? aow.getAddOnUpdate() : aow.getAddOn();
+            return addOnToHtml(addOn);
+        }
+    }
+
+    private class WarningRunningIssuesToolTipHighlighter extends DefaultAddOnToolTipHighlighter {
+
+        public WarningRunningIssuesToolTipHighlighter(int column) {
+            super(column);
+        }
+
+        @Override
+        protected String getToolTip(AddOnWrapper aow) {
+            if (aow.hasRunningIssues()) {
+                return aow.getRunningIssues();
+            }
+            return super.getToolTip(aow);
+        }
+    }
+
+    private class WarningUpdateIssuesToolTipHighlighter extends DefaultAddOnToolTipHighlighter {
+
+        public WarningUpdateIssuesToolTipHighlighter(int column) {
+            super(column);
+        }
+
+        @Override
+        protected String getToolTip(AddOnWrapper aow) {
+            if (aow.hasUpdateIssues()) {
+                return aow.getUpdateIssues();
+            }
+            return super.getToolTip(aow);
         }
     }
 }

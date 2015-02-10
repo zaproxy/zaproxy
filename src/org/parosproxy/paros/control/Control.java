@@ -53,6 +53,7 @@
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 
 package org.parosproxy.paros.control;
 
@@ -185,22 +186,33 @@ public class Control extends AbstractControl implements SessionListener {
 	    if (! noPrompt) {
 		    List<String> list = getExtensionLoader().getUnsavedResources();
 		    if (sessionUnsaved && askOnExit) {
-		    	list.add(0, Constant.messages.getString("menu.file.sessionResNotSaved"));
+		    	list.add(0, Constant.messages.getString("menu.file.exit.message.sessionResNotSaved"));
 		    }
-		    if (list.size() > 0) {
-		    	StringBuilder sb = new StringBuilder();
-		    	for (String res : list) {
-		    		sb.append("<li>");
-		    		sb.append(res);
-		    		sb.append("</li>");
-		    	}
-		    	
-				if (view.showConfirmDialog(
-						MessageFormat.format(Constant.messages.getString("menu.file.resourcesNotSaved"), sb.toString())) 
-							!= JOptionPane.OK_OPTION) {
-					return;
-				}
-		    }
+
+            String message = null;
+            String activeActions = wrapEntriesInLiTags(getExtensionLoader().getActiveActions());
+            if (list.size() > 0) {
+                String unsavedResources = wrapEntriesInLiTags(list);
+
+                if (activeActions.isEmpty()) {
+                    message = MessageFormat.format(
+                            Constant.messages.getString("menu.file.exit.message.resourcesNotSaved"),
+                            unsavedResources);
+                } else {
+                    message = MessageFormat.format(
+                            Constant.messages.getString("menu.file.exit.message.resourcesNotSavedAndActiveActions"),
+                            unsavedResources,
+                            activeActions);
+                }
+            } else if (!activeActions.isEmpty()) {
+                message = MessageFormat.format(
+                        Constant.messages.getString("menu.file.exit.message.activeActions"),
+                        activeActions);
+            }
+
+            if (message != null && view.showConfirmDialog(message) != JOptionPane.OK_OPTION) {
+                return;
+            }
 	    }
 
 	    if (sessionUnsaved) {
@@ -233,6 +245,20 @@ public class Control extends AbstractControl implements SessionListener {
 	    } else {
 		    t.start();
 	    }
+    }
+
+    private static String wrapEntriesInLiTags(List<String> entries) {
+        if (entries.isEmpty()) {
+            return "";
+        }
+
+        StringBuilder strBuilder = new StringBuilder(entries.size() * 15);
+        for (String entry : entries) {
+            strBuilder.append("<li>");
+            strBuilder.append(entry);
+            strBuilder.append("</li>");
+        }
+        return strBuilder.toString();
     }
     
     public void exitAndDeleteSession (String sessionName) {

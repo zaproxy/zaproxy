@@ -20,6 +20,12 @@
 
 package org.zaproxy.zap.control;
 
+import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.equalTo;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +41,8 @@ import static org.junit.Assert.assertThat;
 
 @RunWith(MockitoJUnitRunner.class)
 public class AddOnCollectionUnitTest {
+
+    private static final Path DIRECTORY = Paths.get("test/resources/org/zaproxy/zap/control/");
 
 	private ZapXmlConfiguration configA;
 	private ZapXmlConfiguration configB;
@@ -204,4 +212,49 @@ public class AddOnCollectionUnitTest {
 		assertThat(newAddOns.get(0).getId(), is("ddd"));
 	}
 
+	@Test
+	public void shouldAcceptAddOnsWithoutDependencyIssues() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersions = new ZapXmlConfiguration(DIRECTORY.resolve("ZapVersions-deps.xml").toFile());
+		// When
+		AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
+		// Then
+		assertThat(addOnCollection.getAddOns().size(), is(equalTo(9)));
+		assertThat(addOnCollection.getAddOn("AddOn1"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn2"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn4"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn5"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn6"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn7"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+	}
+
+	@Test
+	public void shouldRejectAddOnsWithCircularDependencies() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersions = new ZapXmlConfiguration(DIRECTORY.resolve("ZapVersions-cyclic-deps.xml").toFile());
+		// When
+		AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
+		// Then
+		assertThat(addOnCollection.getAddOns().size(), is(equalTo(4)));
+		assertThat(addOnCollection.getAddOn("AddOn2"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+	}
+
+	@Test
+	public void shouldRejectAddOnsWithMissingDependencies() throws Exception {
+		// Given
+		ZapXmlConfiguration zapVersions = new ZapXmlConfiguration(DIRECTORY.resolve("ZapVersions-missing-deps.xml").toFile());
+		// When
+		AddOnCollection addOnCollection = new AddOnCollection(zapVersions, Platform.daily, false);
+		// Then
+		assertThat(addOnCollection.getAddOns().size(), is(equalTo(3)));
+		assertThat(addOnCollection.getAddOn("AddOn3"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn8"), is(notNullValue()));
+		assertThat(addOnCollection.getAddOn("AddOn9"), is(notNullValue()));
+	}
 }
