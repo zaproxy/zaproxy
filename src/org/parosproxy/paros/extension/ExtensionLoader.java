@@ -82,8 +82,8 @@ import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Scanner;
 import org.parosproxy.paros.core.scanner.ScannerHook;
+import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -398,12 +398,12 @@ public class ExtensionLoader {
         }
     }
 
-    public void databaseOpen(DatabaseServer dbServer) {
+    public void databaseOpen(Database db) {
         Extension ext;
         for (int i = 0; i < getExtensionCount(); i++) {
             ext = getExtension(i);
             try {
-				ext.databaseOpen(dbServer);
+				ext.databaseOpen(db);
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
 			}
@@ -539,7 +539,7 @@ public class ExtensionLoader {
      */
     public void startLifeCycle(Extension ext) throws DatabaseException, DatabaseUnsupportedException {
         ext.init();
-        ext.databaseOpen(model.getDb().getDatabaseServer());
+        ext.databaseOpen(model.getDb());
         ext.initModel(model);
         ext.initXML(model.getSession(), model.getOptionsParam());
         ext.initView(view);
@@ -1023,7 +1023,7 @@ public class ExtensionLoader {
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 getExtension(i).init();
-                getExtension(i).databaseOpen(Model.getSingleton().getDb().getDatabaseServer());
+                getExtension(i).databaseOpen(Model.getSingleton().getDb());
                 if (view != null) {
                 	view.addSplashScreenLoadingCompletion(factorPerc);
                 }

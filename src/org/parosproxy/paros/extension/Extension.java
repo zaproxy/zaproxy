@@ -36,8 +36,8 @@ import java.net.URL;
 import java.util.List;
 import java.util.ResourceBundle;
 
+import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
@@ -222,7 +222,7 @@ public interface Extension {
      * @throws DatabaseException
      * @throws DatabaseUnsupportedException
      */
-    void databaseOpen(DatabaseServer dbServer) throws DatabaseException, DatabaseUnsupportedException;
+    void databaseOpen(Database db) throws DatabaseException, DatabaseUnsupportedException;
 
     /**
      * Returns the add-on where this extension is bundled. Might be {@code null} if core extension.
