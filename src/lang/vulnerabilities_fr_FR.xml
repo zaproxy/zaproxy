@@ -34,11 +34,11 @@ http://example.com/RecordView?id=12345
 Si l'application ne contrôle pas que l'utilisateur connecté a le droit d'accès, alors elle pourrait afficher des données que l'utilisateur n'est pas censé voir.
 
 L'autorisation insuffisante pour l'accès aux données est plus fréquente que l'autorisation insuffisante d'accès aux fonctions, car les programmeurs ont généralement une parfaite connaissance des fonctionnalités de l'application, mais n'ont pas toujours une vue complète de toutes les données auxquelles l'application accède. Les programmeurs ont souvent un contrôle strict des mécanismes d'autorisation d'accès aux fonctions, mais s'appuient sur d'autres systèmes, tels que les bases de données, pour exécuter l'autorisation d'accès aux données.</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. Gérez explicitement les zones de confiance dans le logiciel.
+	<solution>Phases: Architecture et Design; Exploitation
+Gérez très soigneusement les réglages, la gestion et la manipulation des privilèges. Gérez explicitement les zones de confiance dans le logiciel.
 
-Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Les architectes et designers devraient se baser sur le principe du moindre privilège au moment de décider quand il convient d'utiliser et d'abandonner les privilèges d'accès système.</solution>
+Phase: Architecture et Design
+Assurez-vous qu'un cloisonnement approprié est intégré à la conception du système et que ce cloisonnement sert à permettre et à renforcer la fonctionnalité de séparation de privilège. Les architectes et designers devraient se baser sur le principe du moindre privilège au moment de décider quand il convient d'utiliser et d'abandonner les privilèges d'accès système.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -50,28 +50,28 @@ Ensure that appropriate compartmentalization is built into the system design and
 	<desc>Un dépassement d'entier (integer overflow) est la condition qui se produit lorsque le résultat d'une opération arithmétique, par exemple multiplication ou addition, dépasse la taille maximale du type d'entier utilisé pour le stocker. En cas de dépassement d'entier, la valeur interprétée paraîtra avoir "été retournée" autour de la valeur maximale en recommençant à la valeur minimale, de la même manière qu'une horloge représenterait 13:00 en pointant à 01:00.
 
 Par exemple, un entier signé de 8 bits a une valeur maximale de 127 et une valeur minimale de -128 dans les architectures d'ordinateur les plus courantes. Si un programmeur stocke la valeur 127 dans une variable de ce type et lui ajoute 1, le résultat devrait être de 128. Toutefois, cette valeur est supérieure au maximum pour ce type de nombre entier, ainsi, la valeur interprétée sera "retournée" et deviendra -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+	<solution>Phase: Exigences
+Assurez-vous que tous les protocoles sont définis strictement, de telle sorte que tous les comportements interdits puissent être identifiés simplement, et exigez la conformité totale au protocole.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Phase: Exigences
+Utilisez un langage qui ne contient pas cette vulnérabilité, ou qui offre des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Si possible, choisissez un langage ou un compilateur qui effectue la vérification automatique de limites.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Phase: Architecture et Design
+Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Utilisez des bibliothèques ou des frameworks rendant plus facile la manipulation de nombres, sans conséquences inattendues.
 Des exemples de librairies sûres pour la manipulation d'entiers sont SafeInt (C++) ou IntegerLib (C ou C++).
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. Assurez-vous que l'entrée remplisse les deux exigences minimale et maximale pour l'intervalle attendu.
+Phase: Implémentation
+Effectuez une validation de chaque entrée numérique afin de s'assurer que la valeur numérique fournie figure dans la gamme attendue. Assurez-vous que l'entrée remplisse les deux exigences minimale et maximale pour l'intervalle attendu.
 Utilisez des entiers non signés lorsque c'est possible. Il est ainsi plus facile d'effectuer les contrôles de dépassement d'entier. Si vous devez utiliser des entiers signés, assurez-vous que votre contrôle d'intervalle inclut les valeurs minimales ainsi que les valeurs maximales.
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Portez une attention particulière aux différences de taille octets, à la précision, aux différences entre signé et non signé, à la troncation, à la conversion et typage entre les types, aux calculs de "pas-un-nombre", attention également à la manière dont votre langage gère des nombres trop grands ou trop petits pour la représentation sous-jacente.
+Phase: Implémentation
+Comprenez la représentation sous-jacente de votre langage de programmation et son interaction avec le calcul numérique (CWE-681). Portez une attention particulière aux différences de taille octets, à la précision, aux différences entre signé et non signé, à la troncation, à la conversion et typage entre les types, aux calculs de "pas-un-nombre", attention également à la manière dont votre langage gère des nombres trop grands ou trop petits pour la représentation sous-jacente.
 Veillez également à tenir compte de 32 bits, 64 bits et d'autres différences peuvant potentiellement influer sur la représentation numérique.
 
-Phase: Implementation
-Examine compiler warnings closely and eliminate potentially security critical problems, such as signed / unsigned mismatch. Même si la faille est rarement exploitable, une seule défaillance peut entraîner la compromission de l'ensemble du système.</solution>
+Phase: Implémentation
+Examinez attentivement les avertissements du compilateur et éliminez les problèmes critiques potentiels touchant la sécurité, comme la discordance signé / non-signé. Même si la faille est rarement exploitable, une seule défaillance peut entraîner la compromission de l'ensemble du système.</solution>
 	<reference>http://projects.webappsec.org/Integer-Overflows</reference>
 	<reference>http://cwe.mitre.org/data/definitions/190.html</reference>
 </vuln_item_wasc_3>
@@ -79,11 +79,11 @@ Examine compiler warnings closely and eliminate potentially security critical pr
 <vuln_items>wasc_4</vuln_items>
 <vuln_item_wasc_4>
 	<alert>Protection insuffisante de la couche Transport</alert>
-	<desc>Insufficient Transport Layer Protection
-Insufficient transport layer protection allows communication to be exposed to untrusted third-parties, providing an attack vector to compromise a web application and/or steal sensitive information. Les sites internet utilisent en général Secure Sockets Layer / Transport Layer Security (SSL/TLS) pour assurer le chiffrement au niveau de la couche de transport. Toutefois, à moins que le site ne soit configuré pour utiliser SSL/TLS, et ce correctement, le site internet peut être vulnérable à l'interception et à la modification du trafic.
+	<desc>Protection insuffisante de la couche Transport
+La protection insuffisante de la couche Transport expose la communication à l'interception par des parties tierces, offrant ainsi un vecteur d'attaque pour compromettre une application internet ou pour voler des informations sensibles. Les sites internet utilisent en général Secure Sockets Layer / Transport Layer Security (SSL/TLS) pour assurer le chiffrement au niveau de la couche de transport. Toutefois, à moins que le site ne soit configuré pour utiliser SSL/TLS, et ce correctement, le site internet peut être vulnérable à l'interception et à la modification du trafic.
  
-Lack of Transport Layer Encryption
-When the transport layer is not encrypted, all communication between the website and client is sent in clear-text which leaves it open to interception, injection and redirection (also known as a man-in-the-middle/MITM attack). Un agresseur peut intercepter passivement la communication, donnant ainsi accès à toutes les données sensibles transmises, comme les noms d'utilisateur et mots de passe. Un attaquant peut également injecter/supprimer activement du contenu de la communication, permettant à l'attaquant de contrefaire et d'omettre des informations, d'injecter un script malveillant, ou de pousser le client à accéder à du contenu distant non fiable. Un agresseur peut également rediriger la communication, de telle sorte que le site internet et le client ne communiquent plus directement entre eux, mais avec l'attaquant, en pensant communiquer avec une partie digne de confiance.
+Manque de chiffrement dela couche Transport
+Quand la couche Transport n'est pas chiffrée, toutes les communications entre le site internet et ses clients sont envoyées en texte clair, et peuvent ainsi subir des interceptions, des injections ou des redirections (aussi connu comme l'attaque de l'homme du milieu - ou Man-in-the-Middle/MITM). Un agresseur peut intercepter passivement la communication, donnant ainsi accès à toutes les données sensibles transmises, comme les noms d'utilisateur et mots de passe. Un attaquant peut également injecter/supprimer activement du contenu de la communication, permettant à l'attaquant de contrefaire et d'omettre des informations, d'injecter un script malveillant, ou de pousser le client à accéder à du contenu distant non fiable. Un agresseur peut également rediriger la communication, de telle sorte que le site internet et le client ne communiquent plus directement entre eux, mais avec l'attaquant, en pensant communiquer avec une partie digne de confiance.
 
 Weak Cipher Support
 Historically, high grade cryptography was restricted from export to outside the United States. Pour cette raison, les sites internet ont été configurés pour prendre en charge les options de chiffrement faible pour les clients limités aux seuls algorithmes de chiffrement faible. Les algorithmes de chiffrement faible sont vulnérables aux attaques en raison de la relative facilité de les casser ; moins de deux semaines sur un ordinateur domestique typique et quelques secondes à l'aide d'un matériel dédié.
@@ -198,13 +198,13 @@ Dans de nombreux cas, le pointeur de fonction est modifié de manière à pointe
 
 Les débordements de tampon sont le plus souvent associés aux logiciels écrits dans les langages de programmation C et C++, en raison de leur généralisation et de leur capacité à manipuler directement la mémoire avec des fonctions de programmation courantes. Il convient toutefois de souligner que les dépassements de tampon peuvent exister dans n'importe quel environnement de programmation où la manipulation de la mémoire directe est autorisée, soit par le biais de failles dans le compilateur ou les bibliothèques d'exécution, soit par les caractéristiques du langage lui-même.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Phase: Exigences
+Utilisez un langage qui ne contient pas cette vulnérabilité, ou qui offre des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Par exemple, plusieurs langages effectuant leur propre gestion de la mémoire, tels que Java et Perl, ne sont pas sujets à des débordements de tampon. D'autres langages, tels que Ada et c#, fournissent typiquement la protection de dépassement de capacité, mais celle-ci peut être désactivée par le programmeur.
 Soyez conscient que l'interface d'un langage vers le code natif peut être soumis à des débordements, même si le langage lui-même est théoriquement sans danger.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Phase: Architecture et Design
+Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Citons comme exemple les bibliothèques Safe C String (SafeStr) de Messier et Viega et la bibliothèque Strsafe.h de Microsoft. Ces bibliothèques offrent des versions plus sûres des fonctions de gestion de chaînes, sujettes au débordement . Celles-ci ne forment toutefois pas une solution complète, puisque de nombreux dépassements de tampon ne sont pas liés aux chaînes de caractères.
 
 Phase: Build and Compilation
@@ -242,8 +242,8 @@ Lorsqu'un pirate parvient à faire exécuter son code par le navigateur d'un uti
 Il existe trois types d'attaques par Cross-site Scripting : non persistant, persistant et basé sur les DOM.
 Les attaques non persistantes et celles basées sur les DOM nécessitent qu'un utilisateur visite un lien incorporant un code malveillant, ou visite une page web malveillante contenant un formulaire internet, qui, une fois publié sur le site vulnérable, permettra l'attaque proprement dite. Un formulaire malveillant sera souvent utilisé lorsque la ressource vulnérable n'accepte que les requêtes HTTP POST. Dans un tel cas, le formulaire peut être envoyé automatiquement, sans que la victime n'en ait conscience (p. ex. à l'aide de JavaScript). En cliquant sur le lien malveillant ou en soumettant le formulaire malveillant, le code XSS s'affichera en retour et sera interprété et exécuté par le navigateur de l'utilisateur. Une autre technique pour envoyer des requêtes presque arbitraires (GET et POST) consiste à utiliser un client intégré, tel que Adobe Flash.
 Les attaques persistantes se produisent lorsque le code malveillant est envoyé à un site internet où il est stocké pendant un certain temps. Des exemples de cibles favorites des pirates sont les publications sur les tableaux de messages, les messages de courrier électronique et les logiciels de tchat internet. Aucune interaction avec un quelconque site/lien supplémentaire (par exemple, un site de pirate ou un lien malveillant envoyé par e-mail) n'est requis de la part de l'utilisateur sans méfiance, il suffit de visualiser la page internet contenant le code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Phase: Architecture et Design
+Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Quelques exemples de bibliothèques et de frameworks facilitant l'encodage approprié des pages internet sont: la bibliothèque Microsoft Anti-XSS, le module d'encodage OWASP ESAPI, et Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -282,8 +282,8 @@ CSRF attacks are effective in a number of situations, including:
     * quand la victime est sur le même réseau local que le site cible.
 
 CSRF a d'abord été utilisée pour effectuer une action contre un site cible en utilisant les privilèges de la victime, mais des techniques récentes permettent d'avoir accès à des renseignements en accédant à la réponse. Le risque de divulgation d'informations est considérablement augmenté lorsque le site cible est vulnérable aux XSS, parce que XSS peut être utilisé comme une plateforme pour CSRF, permettant à l'attaque d'opérer dans les limites de la politique de même origine.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Phase: Architecture et Design
+Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Utilisez  par exemple des librairies anti-CSRF telles que CSRFGuard de l'OWASP.
 
 Phase: Implementation
@@ -483,8 +483,8 @@ De nombreux sites web sont conçus pour authentifier un utilisateur à l'établi
 	<desc>L'injection SQL est une technique d'attaque utilisée pour exploiter les applications qui construisent des instructions SQL à partir d'entrées fournies par l'utilisateur. En cas de succès, l'agresseur est capable de changer la logique des instructions SQL exécutées sur la base de données.
 
 Le langage SQL (Structured Query Language) est un langage de programmation spécialisé pour l'envoi de requêtes aux bases de données. Le langage de programmation SQL est un standard ANSI et ISO , mais de nombreux produits de base de données SQL supportent des extensions propriétaires au langage standard. Les applications utilisent souvent des données fournies par l'utilisateur pour créer des instructions SQL. Si une application ne construit pas correctement les instructions SQL, il est possible pour un utilisateur malveillant de modifier la structure de la déclaration et d'exécuter des commandes non prévues et potentiellement hostiles. Lorsque de telles commandes sont exécutées, elles le sont dans le contexte de l'utilisateur spécifié par l'application exécutant l'instruction. Cette aptitude permet aux pirates de prendre le contrôle de toutes les ressources de la base de données accessibles par cet utilisateur, jusques et y compris la capacité d'exécuter des commandes sur le système hôte.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Phase: Architecture et Design
+Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Par exemple, envisagez d'utiliser des couches de persistance tel que Hibernate ou Enterprise Java Beans, qui peuvent fournir une protection significative contre l'injection SQL, si elles sont utilisées correctement.
 
 Le cas échéant, utilisez des mécanismes structurés appliquant automatiquement la séparation entre le code et les données. Ces mécanismes peuvent être en mesure de fournir automatiquement la présentation, le codage et la validation adéquat, au lieu de se fier au développeur pour réaliser ces fonctionnalités pour chaque champ de sortie généré.
