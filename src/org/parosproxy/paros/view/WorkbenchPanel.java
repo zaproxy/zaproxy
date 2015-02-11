@@ -29,6 +29,7 @@
 // ZAP: 2013/12/13 Added support for 'Full Layout'.
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
+// ZAP: 2015/02/11 Ensure that a tab is always selected when the layout is switched
 
 package org.parosproxy.paros.view;
 
@@ -209,6 +210,13 @@ public class WorkbenchPanel extends JPanel {
               }
           }
         }
+    	// Ensure that a tab is selected
+    	if (getTabbedWork().getSelectedComponent() == null && getTabbedWork().getTabCount() > 0) {
+    		getTabbedWork().setSelectedIndex(0);
+    	}
+    	if (getTabbedSelect().getSelectedComponent() == null && getTabbedSelect().getTabCount() > 0) {
+    		getTabbedSelect().setSelectedIndex(0);
+    	}
     }
 
     // Restore state of the MessagePanelsPositionController after changing the layout, so
