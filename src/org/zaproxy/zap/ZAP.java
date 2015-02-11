@@ -20,7 +20,6 @@
 package org.zaproxy.zap;
 
 import java.awt.EventQueue;
-import java.awt.Font;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -254,11 +253,9 @@ public class ZAP {
             throw e;
         }
 
-        if (Model.getSingleton().getOptionsParam().getViewParam().getFontSize() > 0) {
-        	// Set user defined font size
-        	FontUtils.setDefaultFont(  
-        			new Font("Arial", Font.PLAIN, Model.getSingleton().getOptionsParam().getViewParam().getFontSize()));
-        }
+    	FontUtils.setDefaultFont(
+    			Model.getSingleton().getOptionsParam().getViewParam().getFontName(),
+    			Model.getSingleton().getOptionsParam().getViewParam().getFontSize());
         
         Model.getSingleton().getOptionsParam().setGUI(isGUI);
 

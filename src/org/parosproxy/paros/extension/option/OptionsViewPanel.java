@@ -30,17 +30,24 @@ package org.parosproxy.paros.extension.option;
 
 import java.awt.CardLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
+import java.awt.GraphicsEnvironment;
 import java.awt.GridBagLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.DefaultListCellRenderer;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
+import javax.swing.plaf.basic.BasicComboBoxRenderer;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
@@ -78,6 +85,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JComboBox<String> brkPanelViewSelect = null;
 	private JComboBox<String> displaySelect = null;
 	private JComboBox<String> timeStampsFormatSelect = null; 
+	private JComboBox<String> fontName = null;
 	
 	private ZapNumberSpinner largeRequestSize = null;
 	private ZapNumberSpinner largeResponseSize = null;
@@ -223,20 +231,27 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(outputTabTimeStampExampleLabel,   
 					LayoutHelper.getGBC(1, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
-			
+
+			JLabel fontNameLabel = new JLabel(Constant.messages.getString("view.options.label.fontName")); 
+			fontNameLabel.setLabelFor(getFontName());
+			panelMisc.add(fontNameLabel,   
+					LayoutHelper.getGBC(0, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getFontName(),   
+					LayoutHelper.getGBC(1, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+
 			JLabel fontSizeLabel = new JLabel(Constant.messages.getString("view.options.label.fontSize")); 
 			fontSizeLabel.setLabelFor(getFontSize());
 			panelMisc.add(fontSizeLabel,   
-					LayoutHelper.getGBC(0, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getFontSize(),   
-					LayoutHelper.getGBC(1, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			JLabel fontExampleLabel = new JLabel(Constant.messages.getString("view.options.label.fontExample")); 
 			fontExampleLabel.setLabelFor(getFontExampleLabel());
 			panelMisc.add(fontExampleLabel,   
-					LayoutHelper.getGBC(0, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, 15, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getFontExampleLabel(),   
-					LayoutHelper.getGBC(1, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, 15, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			panelMisc.add(new JLabel(""),   
 					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
@@ -389,17 +404,49 @@ public class OptionsViewPanel extends AbstractParamPanel {
 				@Override
 				public void stateChanged(ChangeEvent e) {
 					// Show what the default font will look like
-					int size = getFontSize().getValue();
-					if (size != -1) {
-						getFontExampleLabel().setFont(new Font("Default", Font.PLAIN, size));
-					} else {
-						getFontExampleLabel().setFont(FontUtils.systemDefaultFont);
-					}
+					setExampleFont();
 				}});
 		}
 		return fontSize;
 	}
 	
+	private void setExampleFont() {
+		String name;
+		if (getFontName().getSelectedItem() == null) {
+			name = "";
+		} else {
+			name = (String)getFontName().getSelectedItem();
+		}
+		Font font = FontUtils.getFont(name);
+		int size = getFontSize().getValue();
+		if (size == -1) {
+			size = FontUtils.systemDefaultFont.getSize();
+		}
+
+		getFontExampleLabel().setFont(font.deriveFont((float)size));
+		
+	}
+	
+	@SuppressWarnings("unchecked")
+	private JComboBox<String> getFontName() {
+		if (fontName == null) {
+			fontName = new JComboBox<String>();
+			fontName.setRenderer(new JComboBoxFontRenderer());
+			String fonts[] = GraphicsEnvironment.getLocalGraphicsEnvironment().getAvailableFontFamilyNames();
+			fontName.addItem(" ");	// Default to system font
+			for (String font : fonts) {
+				fontName.addItem(font);
+			}
+			fontName.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					// Show what the default font will look like
+					setExampleFont();
+				}});
+		}
+		return fontName;
+	}
+
 	private JLabel getFontExampleLabel() {
 		if (fontExampleLabel == null) {
 			fontExampleLabel = new JLabel(Constant.messages.getString("view.options.label.exampleText"));
@@ -425,6 +472,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    largeRequestSize.setValue(options.getViewParam().getLargeRequestSize());
 	    largeResponseSize.setValue(options.getViewParam().getLargeResponseSize());
 	    getFontSize().setValue(options.getViewParam().getFontSize());
+	    getFontName().setSelectedItem(options.getViewParam().getFontName());
 	}
 	
 	@Override
@@ -449,6 +497,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setLargeRequestSize(getLargeRequestSize().getValue());
 	    options.getViewParam().setLargeResponseSize(getLargeResponseSize().getValue());
 	    options.getViewParam().setFontSize(getFontSize().getValue());
+	    options.getViewParam().setFontName((String)getFontName().getSelectedItem());
 	}
 
 	@Override
@@ -457,4 +506,20 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return "ui.dialogs.options.view";
 	}
 	
+	@SuppressWarnings("serial")
+	private class JComboBoxFontRenderer extends BasicComboBoxRenderer {
+	    protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
+
+	    @SuppressWarnings("rawtypes")
+		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
+	        JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected,cellHasFocus);
+	        Font font = FontUtils.getFont((String)value);
+	        if (font != null) {
+	        	renderer.setFont(FontUtils.getFont((String)value));
+	        } else {
+	        	renderer.setFont(FontUtils.getFont(FontUtils.Size.standard));
+	        }
+	        return renderer;
+	    }
+	}
 }

@@ -68,6 +68,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
 	public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
 	public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
+	public static final String FONT_NAME = "view.fontName";
 	public static final String FONT_SIZE = "view.fontSize";
 
 	private int advancedViewEnabled = 0;
@@ -88,6 +89,7 @@ public class OptionsParamView extends AbstractParam {
     private int largeRequestSize = LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private int fontSize = -1;
+    private String fontName = "";
 	
     public OptionsParamView() {
     }
@@ -113,6 +115,7 @@ public class OptionsParamView extends AbstractParam {
 	    largeRequestSize = getConfig().getInteger(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
 	    largeResponseSize = getConfig().getInteger(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
 	    fontSize = getConfig().getInteger(FONT_SIZE, -1);
+	    fontName = getConfig().getString(FONT_NAME, "");
 	    
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
@@ -315,6 +318,15 @@ public class OptionsParamView extends AbstractParam {
 	public void setFontSize(int fontSize) {
 		this.fontSize = fontSize;
 		getConfig().setProperty(FONT_SIZE, fontSize);
+	}
+
+	public String getFontName() {
+		return this.fontName;
+	}
+	
+	public void setFontName(String fontName) {
+		this.fontName = fontName;
+		getConfig().setProperty(FONT_NAME, fontName);
 	}
 	
 }
