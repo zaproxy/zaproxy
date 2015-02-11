@@ -70,6 +70,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
 	public static final String FONT_NAME = "view.fontName";
 	public static final String FONT_SIZE = "view.fontSize";
+	public static final String SCALE_IMAGES = "view.scaleImages";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -90,6 +91,7 @@ public class OptionsParamView extends AbstractParam {
     private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private int fontSize = -1;
     private String fontName = "";
+    private boolean scaleImages = true;
 	
     public OptionsParamView() {
     }
@@ -116,6 +118,7 @@ public class OptionsParamView extends AbstractParam {
 	    largeResponseSize = getConfig().getInteger(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
 	    fontSize = getConfig().getInteger(FONT_SIZE, -1);
 	    fontName = getConfig().getString(FONT_NAME, "");
+	    scaleImages = getConfig().getBoolean(SCALE_IMAGES, true);
 	    
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
@@ -327,6 +330,15 @@ public class OptionsParamView extends AbstractParam {
 	public void setFontName(String fontName) {
 		this.fontName = fontName;
 		getConfig().setProperty(FONT_NAME, fontName);
+	}
+
+	public boolean isScaleImages() {
+		return scaleImages;
+	}
+
+	public void setScaleImages(boolean scaleImages) {
+		this.scaleImages = scaleImages;
+		getConfig().setProperty(SCALE_IMAGES, scaleImages);
 	}
 	
 }

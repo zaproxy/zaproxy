@@ -32,6 +32,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SiteMapPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 /**
  * Custom renderer for {@link SiteMapPanel} to set custom icons
@@ -84,7 +85,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
-				setIcon(ROOT_ICON);	// 'World' icon
+				setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));	// 'World' icon
 			} else {
 		        ImageIcon icon;
 				if (leaf) {
@@ -112,9 +113,9 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 					// Add lock icon to site nodes with https
 					OverlayIcon oi = new OverlayIcon(icon);
 					oi.add(LOCK_OVERLAY_ICON);
-					setIcon(oi);
+					setIcon(DisplayUtils.getScaledIcon(oi));
 				} else {
-					setIcon(icon);
+					setIcon(DisplayUtils.getScaledIcon(icon));
 				}
 			}
 

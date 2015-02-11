@@ -81,6 +81,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkWmUiHandling = null;
 	private JCheckBox chkOutputTabTimeStamping = null; 
 	private JCheckBox chkShowSplashScreen = null;
+	private JCheckBox scaleImages = null;
 	
 	private JComboBox<String> brkPanelViewSelect = null;
 	private JComboBox<String> displaySelect = null;
@@ -252,6 +253,16 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, 15, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getFontExampleLabel(),   
 					LayoutHelper.getGBC(1, 15, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			
+			panelMisc.add(new JLabel(""),   
+					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
+
+			JLabel scaleImagesLabel = new JLabel(Constant.messages.getString("view.options.label.scaleImages")); 
+			fontExampleLabel.setLabelFor(getScaleImages());
+			panelMisc.add(scaleImagesLabel,   
+					LayoutHelper.getGBC(0, 16, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getScaleImages(),   
+					LayoutHelper.getGBC(1, 16, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
 			panelMisc.add(new JLabel(""),   
 					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
@@ -455,6 +466,13 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return fontExampleLabel;
 	}
 	
+	private JCheckBox getScaleImages() {
+		if (scaleImages == null) {
+			scaleImages = new JCheckBox();
+		}
+		return scaleImages;
+	}
+	
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
@@ -473,6 +491,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    largeResponseSize.setValue(options.getViewParam().getLargeResponseSize());
 	    getFontSize().setValue(options.getViewParam().getFontSize());
 	    getFontName().setSelectedItem(options.getViewParam().getFontName());
+	    getScaleImages().setSelected(options.getViewParam().isScaleImages());
 	}
 	
 	@Override
@@ -498,6 +517,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setLargeResponseSize(getLargeResponseSize().getValue());
 	    options.getViewParam().setFontSize(getFontSize().getValue());
 	    options.getViewParam().setFontName((String)getFontName().getSelectedItem());
+	    options.getViewParam().setScaleImages(getScaleImages().isSelected());
 	}
 
 	@Override

@@ -44,6 +44,7 @@ import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class MainToolbarPanel extends JPanel {
 
@@ -77,8 +78,8 @@ public class MainToolbarPanel extends JPanel {
 	
 	public void initialise () {
 		setLayout(new java.awt.GridBagLayout());
-		setPreferredSize(new java.awt.Dimension(80000,25));
-		setMaximumSize(new java.awt.Dimension(80000,25));
+		setPreferredSize(DisplayUtils.getScaledDimension(getMaximumSize().width, 25));
+		setMaximumSize(DisplayUtils.getScaledDimension(getMaximumSize().width, 25));
 		this.setBorder(BorderFactory.createEtchedBorder());
 
 		expandButtons = new ButtonGroup();
@@ -139,6 +140,7 @@ public class MainToolbarPanel extends JPanel {
 	}
 	
 	public void addButton (JButton button) {
+		DisplayUtils.scaleIcon(button);
 		getToolbar().add(button);
 	}
 
@@ -147,6 +149,7 @@ public class MainToolbarPanel extends JPanel {
 	}
 
 	public void addButton(JToggleButton button) {
+		DisplayUtils.scaleIcon(button);
 		getToolbar().add(button);
 	}
 
@@ -209,7 +212,8 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnNew() {
 		if (btnNew == null) {
 			btnNew = new JButton();
-			btnNew.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/021.png")));	// 'Blank file' icon
+			btnNew.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/021.png"))));	// 'Blank file' icon
 			btnNew.setToolTipText(Constant.messages.getString("menu.file.newSession"));
 
 			btnNew.addActionListener(new java.awt.event.ActionListener() { 
@@ -231,7 +235,8 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnOpen() {
 		if (btnOpen == null) {
 			btnOpen = new JButton();
-			btnOpen.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/047.png")));	// 'open folder' icon
+			btnOpen.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/047.png"))));	// 'open folder' icon
 			btnOpen.setToolTipText(Constant.messages.getString("menu.file.openSession"));
 
 			btnOpen.addActionListener(new java.awt.event.ActionListener() { 
@@ -253,7 +258,8 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnSave() {
 		if (btnSave == null) {
 			btnSave = new JButton();
-			btnSave.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/096.png")));	// 'diskette' icon
+			btnSave.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/096.png"))));	// 'diskette' icon
 			btnSave.setToolTipText(Constant.messages.getString("menu.file.persistSession"));
 
 			btnSave.addActionListener(new java.awt.event.ActionListener() { 
@@ -279,7 +285,8 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnSnapshot() {
 		if (btnSnapshot == null) {
 			btnSnapshot = new JButton();
-			btnSnapshot.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/camera.png")));
+			btnSnapshot.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/camera.png"))));
 			btnSnapshot.setToolTipText(Constant.messages.getString("menu.file.snapshotSession"));
 
 			btnSnapshot.addActionListener(new java.awt.event.ActionListener() { 
@@ -305,7 +312,8 @@ public class MainToolbarPanel extends JPanel {
 	private JButton getBtnSession() {
 		if (btnSession == null) {
 			btnSession = new JButton();
-			btnSession.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/024.png")));	// 'spreadsheet' icon
+			btnSession.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/024.png"))));	// 'spreadsheet' icon
 			btnSession.setToolTipText(Constant.messages.getString("menu.file.sessionProperties"));
 
 			btnSession.addActionListener(new java.awt.event.ActionListener() { 
@@ -323,7 +331,8 @@ public class MainToolbarPanel extends JPanel {
 		if (btnOptions == null) {
 			btnOptions = new JButton();
 			btnOptions.setToolTipText(Constant.messages.getString("menu.tools.options"));
-			btnOptions.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/041.png")));
+			btnOptions.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/16/041.png"))));
 			btnOptions.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -340,6 +349,7 @@ public class MainToolbarPanel extends JPanel {
 					MainToolbarPanel.class.getResource("/resource/icon/expand_sites.png"),
 					View.DISPLAY_OPTION_LEFT_FULL));
 			btnExpandSites.setToolTipText(Constant.messages.getString("view.toolbar.expandSites"));
+			DisplayUtils.scaleIcon(btnExpandSites);
 			
 			expandButtons.add(btnExpandSites);
 		}
@@ -352,6 +362,7 @@ public class MainToolbarPanel extends JPanel {
 					MainToolbarPanel.class.getResource("/resource/icon/expand_info.png"),
 					View.DISPLAY_OPTION_BOTTOM_FULL));
 			btnExpandReports.setToolTipText(Constant.messages.getString("view.toolbar.expandInfo"));
+			DisplayUtils.scaleIcon(btnExpandReports);
 
 			expandButtons.add(btnExpandReports);
 		}
@@ -364,6 +375,7 @@ public class MainToolbarPanel extends JPanel {
 					MainToolbarPanel.class.getResource("/resource/icon/expand_full.png"),
 					View.DISPLAY_OPTION_TOP_FULL));
 			btnExpandFull.setToolTipText(Constant.messages.getString("view.toolbar.expandFull"));
+			DisplayUtils.scaleIcon(btnExpandFull);
 
 			expandButtons.add(btnExpandFull);
 		}
@@ -387,7 +399,8 @@ public class MainToolbarPanel extends JPanel {
 			btnShowTabIconNames.setSelectedIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_text.png")));
 			btnShowTabIconNames.setSelectedToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
 		  	setShowTabIconNames(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames());
-			
+			DisplayUtils.scaleIcon(btnShowTabIconNames);
+
 			btnShowTabIconNames.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -409,7 +422,8 @@ public class MainToolbarPanel extends JPanel {
 			btnShowAllTabs = new JButton();
 			btnShowAllTabs.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/ui-tab-show.png")));
 			btnShowAllTabs.setToolTipText(Constant.messages.getString("menu.view.tabs.show"));
-			
+			DisplayUtils.scaleIcon(btnShowAllTabs);
+
 			btnShowAllTabs.addActionListener(new java.awt.event.ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -425,6 +439,7 @@ public class MainToolbarPanel extends JPanel {
 			btnHideAllTabs = new JButton();
 			btnHideAllTabs.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/ui-tab-hide.png")));
 			btnHideAllTabs.setToolTipText(Constant.messages.getString("menu.view.tabs.hide"));
+			DisplayUtils.scaleIcon(btnHideAllTabs);
 			
 			btnHideAllTabs.addActionListener(new java.awt.event.ActionListener() {
 				@Override
@@ -460,7 +475,7 @@ public class MainToolbarPanel extends JPanel {
         private final int displayOption;
 
         public ChangeDisplayOptionAction(URL iconURL, int displayOption) {
-            super("", new ImageIcon(iconURL));
+            super("", DisplayUtils.getScaledIcon(new ImageIcon(iconURL)));
 
             this.displayOption = displayOption;
         }

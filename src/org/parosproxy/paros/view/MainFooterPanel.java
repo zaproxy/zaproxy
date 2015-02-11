@@ -28,7 +28,6 @@
 
 package org.parosproxy.paros.view;
 
-import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -42,6 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JToolBar;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 
 public class MainFooterPanel extends JPanel {
@@ -61,8 +61,8 @@ public class MainFooterPanel extends JPanel {
 	
 	public void initialise () {
 		setLayout(new GridBagLayout());
-		setPreferredSize(new Dimension(getMaximumSize().width, 20));
-		setMaximumSize(new Dimension(getMaximumSize().width, 20));
+		setPreferredSize(DisplayUtils.getScaledDimension(getMaximumSize().width, 20));
+		setMaximumSize(DisplayUtils.getScaledDimension(getMaximumSize().width, 20));
 		
 		this.setBorder(BorderFactory.createEtchedBorder());
 
@@ -218,7 +218,7 @@ public class MainFooterPanel extends JPanel {
 	 * @see JLabel#setToolTipText(String)
 	 */
 	private JLabel createAlertLabel(String toolTipText, URL imageUrl) throws NullPointerException {
-		JLabel label = new JLabel("0", new ImageIcon(imageUrl), JLabel.LEADING);
+		JLabel label = new JLabel("0", DisplayUtils.getScaledIcon(new ImageIcon(imageUrl)), JLabel.LEADING);
 		label.setToolTipText(toolTipText);
 		label.setBorder(BorderFactory.createEmptyBorder(0, 5, 0, 5));
 		
@@ -227,6 +227,7 @@ public class MainFooterPanel extends JPanel {
 	
 	// Support for dynamic scanning results in the footer
     public void addFooterToolbarRightLabel (JLabel label) {
+    	DisplayUtils.scaleIcon(label);
     	this.footerToolbarRight.add(label);
     	this.validate();
     }
