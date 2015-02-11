@@ -36,6 +36,21 @@ public class FontUtils {
     	UIManager.getLookAndFeelDefaults().put("defaultFont", font);
 	}
 	
+	public static void setDefaultFont(String name, int size) {
+		// A blank font name works fine.
+		// For some reason getting the default font name doesnt work - it doesnt seem to get applied everywhere
+		// No ideas why :/
+		if (size <= 5) {
+			size = getDefaultFont().getSize();
+		}
+		if (size <= 5) {
+			size = getDefaultFont().getSize();
+		}
+
+		UIManager.getLookAndFeelDefaults().put("defaultFont", new Font(name, Font.PLAIN, size));
+	}
+	
+
 	private static Font getDefaultFont() {
 		Font font = Font.getFont("defaultFont");
 		if (font == null) {
