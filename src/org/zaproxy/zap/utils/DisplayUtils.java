@@ -22,6 +22,7 @@ package org.zaproxy.zap.utils;
 import java.awt.Dimension;
 import java.awt.Image;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -53,6 +54,15 @@ public class DisplayUtils {
 	public static ImageIcon getScaledIcon(ImageIcon icon) {
 		if (! isScaleImages() || icon == null || getScale() == 1) {
 			// dont need to scale
+			return icon;
+		}
+		return new ImageIcon(((ImageIcon)icon).getImage().getScaledInstance(
+				(int)(icon.getIconWidth() * getScale()), (int)(icon.getIconHeight() * getScale()), Image.SCALE_SMOOTH));
+	}
+	
+	public static Icon getScaledIcon(Icon icon) {
+		if (! isScaleImages() || icon == null || getScale() == 1 || ! (icon instanceof ImageIcon)) {
+			// dont need to scale (or cant)
 			return icon;
 		}
 		return new ImageIcon(((ImageIcon)icon).getImage().getScaledInstance(

@@ -39,6 +39,7 @@ import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class MessagePanelsPositionController {
 
@@ -154,7 +155,7 @@ public class MessagePanelsPositionController {
             }
             tabbedWork.insertTab(
                     tabName,
-                    responsePanel.getIcon(),
+                    DisplayUtils.getScaledIcon(responsePanel.getIcon()),
                     responsePanel,
                     null,
                     tabbedWork.indexOfComponent(requestPanel) + 1);
@@ -170,10 +171,10 @@ public class MessagePanelsPositionController {
         splitTabbedPanel.removeAll();
         boolean showTabNames = Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames(); 
         if(showTabNames) {
-            splitTabbedPanel.addTab(responsePanel.getName(), responsePanel.getIcon(), responsePanel);
+            splitTabbedPanel.addTab(responsePanel.getName(), DisplayUtils.getScaledIcon(responsePanel.getIcon()), responsePanel);
         }
         else {
-            splitTabbedPanel.addTab("", responsePanel.getIcon(), responsePanel);
+            splitTabbedPanel.addTab("", DisplayUtils.getScaledIcon(responsePanel.getIcon()), responsePanel);
         }
 
         workbenchPanel.splitPaneWorkWithTabbedPanel(splitTabbedPanel, orientation);
