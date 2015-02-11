@@ -91,6 +91,7 @@ public class JCheckBoxTree extends JTree {
     }
 
     // Override
+    @Override
     public void setModel(TreeModel newModel) {
         super.setModel(newModel);
         resetCheckingState();
@@ -193,17 +194,22 @@ public class JCheckBoxTree extends JTree {
         DefaultTreeSelectionModel dtsm = new DefaultTreeSelectionModel() {      
             private static final long serialVersionUID = -8190634240451667286L;
             // Totally disabling the selection mechanism
+            @Override
             public void setSelectionPath(TreePath path) {
             }           
+            @Override
             public void addSelectionPath(TreePath path) {                       
             }           
+            @Override
             public void removeSelectionPath(TreePath path) {
             }
+            @Override
             public void setSelectionPaths(TreePath[] pPaths) {
             }
         };
         // Calling checking mechanism on mouse click
         this.addMouseListener(new MouseListener() {
+            @Override
             public void mouseClicked(MouseEvent arg0) {
                 TreePath tp = JCheckBoxTree.this.getPathForLocation(arg0.getX(), arg0.getY());
                 if (tp == null) {
@@ -220,12 +226,16 @@ public class JCheckBoxTree extends JTree {
                 // Repainting tree after the data structures were updated
                 JCheckBoxTree.this.repaint();                          
             }           
+            @Override
             public void mouseEntered(MouseEvent arg0) {         
             }           
+            @Override
             public void mouseExited(MouseEvent arg0) {              
             }
+            @Override
             public void mousePressed(MouseEvent arg0) {             
             }
+            @Override
             public void mouseReleased(MouseEvent arg0) {
             }           
         });

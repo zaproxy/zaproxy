@@ -19,28 +19,52 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import org.apache.commons.lang.Validate;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.Enableable;
 
 public class AddOnWrapper extends Enableable {
 	
-	public enum Status {uninstalled, newAddon, newVersion, downloading, installed, latest,
-
-		/**
-		 * Indicates that an add-on was not successfully uninstalled. Happens when the add-on is not dynamically installable or
-		 * when an {@code Exception} is thrown during the uninstallation.
-		 */
-		failed_uninstallation
-	};
+	public enum Status {newAddon, newVersion};
 
 	private AddOn addOn = null;
+	private AddOn.InstallationStatus installationStatus;
+	private AddOn addOnUpdate;
 	private Status status = null;
 	private int progress = 0;
 	private boolean failed = false;
 
-	public AddOnWrapper (AddOn addOn, Status status) {
+	/**
+	 * The issues that prevent this add-on from being run, contents in HTML format.
+	 */
+	private String runningIssues;
+
+	/**
+	 * The issues that prevent this add-on from being run after updating, contents in HTML format.
+	 */
+	private String updateIssues;
+
+	public AddOnWrapper(AddOn addOn, Status status) {
+		this(addOn, status, "");
+	}
+
+	/**
+	 * Creates an {@code AddOnWrapper} with the given {@code addOn}, {@code status} and {@code runningIssues}.
+	 *
+	 * @param addOn the add-on
+	 * @param status the status of the add-on
+	 * @param runningIssues a String containing the issues that prevents the add-on from being run, in HTML format
+	 * @throws IllegalArgumentException if {@code runningIssues} is null.
+	 * @since 2.4.0
+	 */
+	public AddOnWrapper(AddOn addOn, Status status, String runningIssues) {
+		Validate.notNull(runningIssues, "Parameter runningIssues must not be null.");
+
 		this.addOn = addOn;
+		this.installationStatus = addOn.getInstallationStatus();
 		this.status = status;
+		this.runningIssues = runningIssues;
+		this.updateIssues = "";
 	}
 
 	public AddOn getAddOn() {
@@ -57,6 +81,62 @@ public class AddOnWrapper extends Enableable {
 
 	public void setAddOn(AddOn addOn) {
 		this.addOn = addOn;
+		this.installationStatus = addOn.getInstallationStatus();
+		addOnUpdate = null;
+		progress = 0;
+		status = null;
+		failed = false;
+		setEnabled(false);
+	}
+
+	/**
+	 * Gets the installation status of the wrapper.
+	 *
+	 * @return the installation status of the wrapper.
+	 * @since 2.4.0
+	 * @see #setInstallationStatus(org.zaproxy.zap.control.AddOn.InstallationStatus)
+	 */
+	public AddOn.InstallationStatus getInstallationStatus() {
+		return installationStatus;
+	}
+
+	/**
+	 * Sets the installation status of the wrapper.
+	 * <p>
+	 * The status might not be the same as the wrapped add-on, when the add-on is being, for example, downloaded and then
+	 * installed. This allows to properly report the state of the add-on until a final status was achieved.
+	 * 
+	 * @param installationStatus the new installation status
+	 * @since 2.4.0
+	 * @see #getInstallationStatus()
+	 */
+	public void setInstallationStatus(AddOn.InstallationStatus installationStatus) {
+		this.installationStatus = installationStatus;
+	}
+
+	/**
+	 * Sets the newer version of the wrapped add-on.
+	 * <p>
+	 * The status is updated to {@code newVersion}.
+	 *
+	 * @param addOnUpdate the newer version or {@code null} if none
+	 * @since 2.4.0
+	 * @see #getAddOnUpdate()
+	 */
+	public void setAddOnUpdate(AddOn addOnUpdate) {
+		this.addOnUpdate = addOnUpdate;
+		setStatus(AddOnWrapper.Status.newVersion);
+	}
+
+	/**
+	 * Gets newer version of the wrapped add-on. Might be {@code null} if none.
+	 *
+	 * @return the newer version or {@code null} if none
+	 * @since 2.4.0
+	 * @see #setAddOnUpdate(AddOn)
+	 */
+	public AddOn getAddOnUpdate() {
+		return addOnUpdate;
 	}
 
 	public void setStatus(Status status) {
@@ -75,4 +155,110 @@ public class AddOnWrapper extends Enableable {
 		this.failed = failed;
 	}
 	
+	/**
+	 * Tells whether or not the wrapped add-on has issues that prevents it from being run.
+	 *
+	 * @return {@code true} if the add-on has issues that prevents it from being run, {@code false} otherwise
+	 * @since 2.4.0
+	 * @see #getRunningIssues()
+	 */
+	public boolean hasRunningIssues() {
+		return !runningIssues.isEmpty();
+	}
+
+	/**
+	 * Gets the issues that the wrapped add-on might have that prevents it from being run. Might be empty if there's no issues.
+	 * <p>
+	 * The contents are in HTML.
+	 *
+	 * @return the issues of the add-on that prevents it from being run, empty if there's no issues.
+	 * @since 2.4.0
+	 * @see #hasRunningIssues()
+	 */
+	public String getRunningIssues() {
+		return runningIssues;
+	}
+
+	/**
+	 * Sets the issues that the wrapped add-on might have that prevents it from being run.
+	 * <p>
+	 * The contents should be in HTML.
+	 * 
+	 * @param runningIssues the running issues of the add-on, empty if there's no issues.
+	 * @since 2.4.0
+	 * @see #getRunningIssues()
+	 */
+	public void setRunningIssues(String runningIssues) {
+		Validate.notNull(runningIssues, "Parameter runningIssues must not be null.");
+
+		this.runningIssues = runningIssues;
+	}
+
+	/**
+	 * Tells whether or not the wrapped add-on has issues that prevents it from being run after updating.
+	 *
+	 * @return {@code true} if the add-on has issues that prevents it from being run after updating, {@code false} otherwise
+	 * @since 2.4.0
+	 * @see #getUpdateIssues()
+	 */
+	public boolean hasUpdateIssues() {
+		return !updateIssues.isEmpty();
+	}
+
+	/**
+	 * Gets the issues that the wrapped add-on might have that prevents it from being run after updating. Might be empty if
+	 * there's no issues.
+	 * <p>
+	 * The contents are in HTML.
+	 *
+	 * @return the issues of the add-on that prevents it from being run after updating, empty if there's no issues.
+	 * @since 2.4.0
+	 * @see #hasUpdateIssues()
+	 */
+	public String getUpdateIssues() {
+		return updateIssues;
+	}
+
+	/**
+	 * Sets the issues that the newer version of the wrapped add-on might have that prevents it from being run.
+	 * <p>
+	 * The contents should be in HTML.
+	 * 
+	 * @param updateIssues the running issues of the add-on, empty if there's no issues.
+	 * @since 2.4.0
+	 * @see #getUpdateIssues()
+	 */
+	public void setUpdateIssues(String updateIssues) {
+		Validate.notNull(updateIssues, "Parameter updateIssues must not be null.");
+
+		this.updateIssues = updateIssues;
+	}
+
+	@Override
+	public int hashCode() {
+		return 31 * super.hashCode() + ((addOn == null) ? 0 : addOn.hashCode());
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!super.equals(obj)) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+		AddOnWrapper other = (AddOnWrapper) obj;
+		if (addOn == null) {
+			if (other.addOn != null) {
+				return false;
+			}
+		} else if (!addOn.equals(other.addOn)) {
+			return false;
+		}
+		return true;
+	}
+
 }

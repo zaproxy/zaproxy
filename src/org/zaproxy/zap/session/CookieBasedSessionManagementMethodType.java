@@ -258,10 +258,12 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 
 	}
 
+	@Override
 	public void exportData(Configuration config, SessionManagementMethod sessionMethod) {
 		// nothing to do
 	}
 
+	@Override
 	public void importData(Configuration config, SessionManagementMethod sessionMethod) throws ConfigurationException {
 		// nothing to do
 	}

@@ -914,6 +914,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 }
             }
 
+            scannerParam.setHostPerScan(extension.getScannerParam().getHostPerScan());
+            scannerParam.setThreadPerHost(extension.getScannerParam().getThreadPerHost());
+            scannerParam.setHandleAntiCSRFTokens(extension.getScannerParam().getHandleAntiCSRFTokens());
+            scannerParam.setMaxResultsToList(extension.getScannerParam().getMaxResultsToList());
+
             contextSpecificObjects = new Object[]{
                 scannerParam,
                 scanPolicy,

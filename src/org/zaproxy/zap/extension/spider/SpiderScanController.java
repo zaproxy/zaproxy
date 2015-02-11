@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
@@ -90,6 +91,7 @@ public class SpiderScanController implements ScanController {
 		this.spiderScanList = new ArrayList<SpiderScan>();
 	}
 
+	@Override
 	public int startScan(String name, Target target, User user, Object[] contextSpecificObjects) {
 		spiderScansLock.lock();
 		try {
@@ -99,6 +101,7 @@ public class SpiderScanController implements ScanController {
 			List<SpiderParser> customSpiderParsers = new ArrayList<SpiderParser>();
 			List<FetchFilter> customFetchFilters = new ArrayList<FetchFilter>();
 			List<ParseFilter> customParseFilters = new ArrayList<ParseFilter>();
+			URI startUri = null;
 			
 			if (contextSpecificObjects != null) {
 				for (Object obj : contextSpecificObjects) {
@@ -111,13 +114,15 @@ public class SpiderScanController implements ScanController {
 						customFetchFilters.add((FetchFilter)obj);
 					} else if (obj instanceof ParseFilter) {
 						customParseFilters.add((ParseFilter)obj);
+					} else if (obj instanceof URI) {
+						startUri = (URI) obj;
 					} else {
 						log.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
 					}
 				}
 			}
 			
-			SpiderScan scan = new SpiderScan(extension, spiderParams, target, user, id);
+			SpiderScan scan = new SpiderScan(extension, spiderParams, target, startUri, user, id);
 			scan.setDisplayName(name);
 			scan.setCustomSpiderParsers(customSpiderParsers);
 			scan.setCustomFetchFilters(customFetchFilters);
@@ -133,10 +138,12 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public GenericScanner2 getScan(int id) {
 		return this.spiderScanMap.get(id);
 	}
 	
+	@Override
 	public SpiderScan getLastScan() {
 		spiderScansLock.lock();
 		try {
@@ -149,6 +156,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public List<GenericScanner2> getAllScans() {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		spiderScansLock.lock();
@@ -162,6 +170,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public List<GenericScanner2> getActiveScans() {
 		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
 		spiderScansLock.lock();
@@ -177,6 +186,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public GenericScanner2 removeScan(int id) {
 		spiderScansLock.lock();
 
@@ -199,6 +209,7 @@ public class SpiderScanController implements ScanController {
 		return spiderScanMap.size();
 	}
 	
+	@Override
 	public void stopAllScans() {
 		spiderScansLock.lock();
 		try {
@@ -210,6 +221,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public void pauseAllScans() {
 		spiderScansLock.lock();
 		try {
@@ -221,6 +233,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public void resumeAllScans() {
 		spiderScansLock.lock();
 		try {
@@ -232,6 +245,7 @@ public class SpiderScanController implements ScanController {
 		}
 	}
 	
+	@Override
 	public int removeAllScans() {
 		spiderScansLock.lock();
 		try {

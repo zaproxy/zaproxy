@@ -21,13 +21,14 @@
 package org.zaproxy.zap.control;
 
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.*;
 
-@RunWith(MockitoJUnitRunner.class)
+
+/**
+ * Unit test for {@link AddOn}.
+ */
 public class AddOnUnitTest {
 
 	@Test
@@ -70,7 +71,7 @@ public class AddOnUnitTest {
 	@Test
 	public void testVersion() throws Exception {
 		AddOn addOn = new AddOn("test-alpha-1.zap");
-		assertThat(addOn.getVersion(), is(1));
+		assertThat(addOn.getFileVersion(), is(1));
 	}
 
 	@Test
@@ -94,17 +95,14 @@ public class AddOnUnitTest {
 		assertTrue(addOnA2.isUpdateTo(addOnB1));
 	}
 
-	@Test
+	@Test(expected = IllegalArgumentException.class)
 	public void testAlpha2DoesNotUpdateTestyAlpha1() throws Exception {
+		// Given 
 		AddOn addOnA1 = new AddOn("test-alpha-1.zap");
 		AddOn addOnA2 = new AddOn("testy-alpha-2.zap");
-		
-		try {
-			assertFalse(addOnA2.isUpdateTo(addOnA1));
-			fail("Should have thrown an exception");
-		} catch (Exception e) {
-			// Passed
-		}
+		// When
+		addOnA2.isUpdateTo(addOnA1);
+		// Then = Exception
 	}
 	
 	@Test

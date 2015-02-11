@@ -505,7 +505,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				logger.error(e.getMessage(), e);
 			}
 		}
-		if (script.isLoadOnStart()) {
+		if (script.isLoadOnStart() && script.getFile() != null) {
 			this.getScriptParam().addScript(script);
 			this.getScriptParam().saveScripts();
 		}

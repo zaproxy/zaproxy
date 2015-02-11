@@ -32,6 +32,7 @@
 // ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 
 package org.parosproxy.paros.extension;
 
@@ -47,6 +48,8 @@ import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.Version;
+import org.zaproxy.zap.control.AddOn;
 
 public abstract class ExtensionAdaptor implements Extension {
 
@@ -60,6 +63,16 @@ public abstract class ExtensionAdaptor implements Extension {
     private String i18nPrefix = null;
 	private ExtensionHook hook = null;
     
+    /**
+     * The add-on that this extension belongs too, might be {@code null} if core extension.
+     */
+    private AddOn addOn;
+
+    /**
+     * The version of the extension, might be {@code null} if not versioned.
+     */
+    private Version version;
+
     public ExtensionAdaptor() {
     }
 
@@ -70,9 +83,7 @@ public abstract class ExtensionAdaptor implements Extension {
      * @throws IllegalArgumentException if the given {@code name} is {@code null}.
      */
     public ExtensionAdaptor(String name) {
-        validateNotNull(name, "name");
-
-        this.name = name;
+        this(name, null);
     }
 
     private static void validateNotNull(Object parameter, String parameterName) {
@@ -81,6 +92,13 @@ public abstract class ExtensionAdaptor implements Extension {
         }
     }
 
+    protected ExtensionAdaptor(String name, Version version) {
+        validateNotNull(name, "name");
+
+        this.name = name;
+        this.version = version;
+    }
+    
     @Override
     public String getName() {
         return name;
@@ -96,6 +114,11 @@ public abstract class ExtensionAdaptor implements Extension {
         validateNotNull(name, "name");
 
         this.name = name;
+    }
+
+    @Override
+    public Version getVersion() {
+        return version; 
     }
     
     /**
@@ -266,6 +289,11 @@ public abstract class ExtensionAdaptor implements Extension {
     public List<String> getUnsavedResources() {
     	return null;
     }
+
+    @Override
+    public List<String> getActiveActions() {
+        return null;
+    }
     
     @Override
     public void postInstall() {
@@ -279,4 +307,19 @@ public abstract class ExtensionAdaptor implements Extension {
     public void databaseOpen(Database db) throws DatabaseException, DatabaseUnsupportedException {
     }
 
+    @Override
+    public AddOn getAddOn() {
+        return addOn;
+    }
+
+    @Override
+    public void setAddOn(AddOn addOn) {
+        if (this.addOn != addOn) {
+            this.addOn = addOn;
+
+            if (this.addOn != null) {
+                this.addOn.addLoadedExtension(this);
+            }
+        }
+    }
 }

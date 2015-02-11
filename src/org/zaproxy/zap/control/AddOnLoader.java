@@ -20,6 +20,7 @@
 
 package org.zaproxy.zap.control;
 
+import java.awt.EventQueue;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FilenameFilter;
@@ -31,12 +32,15 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.ResourceBundle;
+import java.util.Map.Entry;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
@@ -48,6 +52,7 @@ import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.AddOn.RunRequirements;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 /**
@@ -66,6 +71,13 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 public class AddOnLoader extends URLClassLoader {
 
 	public static final String ADDONS_BLOCK_LIST = "addons.block";
+
+    private static final String ADDONS_RUNNABLE_LIST = "addons.runnable";
+
+    /**
+     * A "null" object, for use when no callback is given during the uninstallation process.
+     */
+    private static final AddOnUninstallationProgressCallback NULL_CALLBACK = new NullUninstallationProgressCallBack();
 	
     private static final Logger logger = Logger.getLogger(AddOnLoader.class);
     private AddOnCollection aoc = null;
@@ -76,6 +88,17 @@ public class AddOnLoader extends URLClassLoader {
      * list of the addon ids that the user has uninstalled
      */
     private List<String> blockList = new ArrayList<>();
+
+    /**
+     * The list of add-ons' ID that are runnable.
+     */
+    private List<String> idsRunnableAddOns;
+
+    /**
+     * The list of add-ons that are no longer runnable since the last run.
+     */
+    private List<String> addOnsNoLongerRunnableSinceLastRun;
+
     /*
      * Using sub-classloaders means we can unload and reload addons
      */
@@ -87,15 +110,7 @@ public class AddOnLoader extends URLClassLoader {
         this.loadBlockList();
 
         this.aoc = new AddOnCollection(dirs);
-        
-        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext();) {
-            AddOn addOn = iterator.next();
-            if (canLoadAddOn(addOn)) {
-                this.addAddOnClassLoader(addOn);
-            } else {
-                iterator.remove();
-            }
-        }
+        loadAllAddOns();
 
         if (dirs != null) {
         	for (File dir : dirs) {
@@ -116,10 +131,48 @@ public class AddOnLoader extends URLClassLoader {
     	}
     	
     	// Install any files that are not already present
-		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			AddOnInstaller.installMissingAddOnFiles(addOnLoaders.get(addOn.getId()), addOn);
+		for (Entry<String, AddOnClassLoader> entry : addOnLoaders.entrySet()) {
+			AddOnInstaller.installMissingAddOnFiles(entry.getValue(), getAddOnCollection().getAddOn(entry.getKey()));
 		}
 
+    }
+
+    /**
+     * Returns a list with the IDs of add-ons that are no longer runnable since last run, either Java version was changed or
+     * dependencies of an add-on are no longer met.
+     *
+     * @return a list with the add-ons that are not longer runnable
+     * @since 2.4.0
+     */
+    public List<String> getIdsAddOnsNoLongerRunnableSinceLastRun() {
+        return Collections.unmodifiableList(addOnsNoLongerRunnableSinceLastRun);
+    }
+
+    private void loadAllAddOns() {
+        idsRunnableAddOns  = new ArrayList<>();
+        addOnsNoLongerRunnableSinceLastRun = new ArrayList<>();
+        List<String> idsOldAddOns = loadList(ADDONS_RUNNABLE_LIST);
+        List<AddOn> runnableAddons = new ArrayList<>();
+        for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext();) {
+            AddOn addOn = iterator.next();
+            if (canLoadAddOn(addOn)) {
+                if (canRunAddOn(addOn, aoc.getAddOns())) {
+                    runnableAddons.add(addOn);
+                    idsRunnableAddOns.add(addOn.getId());
+                } else if (idsOldAddOns.contains(addOn.getId())) {
+                    addOnsNoLongerRunnableSinceLastRun.add(addOn.getId());
+                }
+            } else {
+                iterator.remove();
+            }
+        }
+
+        saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+
+        for (AddOn addOn : runnableAddons) {
+            addOn.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
+            createAndAddAddOnClassLoader(addOn);
+        }
     }
 
     private boolean canLoadAddOn(AddOn ao) {
@@ -131,7 +184,7 @@ public class AddOnLoader extends URLClassLoader {
             return false;
         }
 
-        if (!ao.canLoad()) {
+        if (!ao.canLoadInCurrentVersion()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Can't load add-on " + ao.getName() + " because of ZAP version constraints; Not before="
                         + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + " Current Version="
@@ -142,13 +195,49 @@ public class AddOnLoader extends URLClassLoader {
         return true;
     }
 
-    private void addAddOnClassLoader(AddOn ao) {
-    	try {
-			this.addOnLoaders.put(ao.getId(), new AddOnClassLoader(ao.getFile().toURI().toURL(), this));
-		} catch (MalformedURLException e) {
-    		logger.error(e.getMessage(), e);
-		}
-	}
+    private static boolean canRunAddOn(AddOn ao, Collection<AddOn> availableAddOns) {
+        RunRequirements reqs = ao.calculateRunRequirements(availableAddOns);
+        if (!reqs.isRunnable()) {
+            if (logger.isDebugEnabled()) {
+                logger.debug("Can't run add-on " + ao.getName() + " because of missing requirements: "
+                        + AddOnRunIssuesUtils.getRunningIssues(reqs));
+            }
+            return false;
+        }
+        return true;
+    }
+
+    private AddOnClassLoader createAndAddAddOnClassLoader(AddOn ao) {
+        try {
+            AddOnClassLoader addOnClassLoader = addOnLoaders.get(ao.getId());
+            if (addOnClassLoader != null) {
+                return addOnClassLoader;
+            }
+
+            List<String> idsAddOnDependencies = ao.getIdsAddOnDependencies();
+            if (idsAddOnDependencies.isEmpty()) {
+                addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this);
+                this.addOnLoaders.put(ao.getId(), addOnClassLoader);
+                return addOnClassLoader;
+            }
+
+            List<AddOnClassLoader> dependencies = new ArrayList<>(idsAddOnDependencies.size());
+            for (String addOnId : idsAddOnDependencies) {
+                addOnClassLoader = addOnLoaders.get(addOnId);
+                if (addOnClassLoader == null) {
+                    addOnClassLoader = createAndAddAddOnClassLoader(aoc.getAddOn(addOnId));
+                }
+                dependencies.add(addOnClassLoader);
+            }
+
+            addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies);
+            this.addOnLoaders.put(ao.getId(), addOnClassLoader);
+            return addOnClassLoader;
+        } catch (MalformedURLException e) {
+            logger.error(e.getMessage(), e);
+            throw new RuntimeException("Failed to convert URL for AddOnClassLoader " + ao.getFile().toURI(), e);
+        }
+    }
 
     @Override
     public Class<?> loadClass(String name) throws ClassNotFoundException {
@@ -174,7 +263,7 @@ public class AddOnLoader extends URLClassLoader {
 			return url;
 		}
 		for (AddOnClassLoader loader : addOnLoaders.values()) {
-			url = loader.findResource(name, false);
+			url = loader.findResourceInAddOn(name);
 			if (url != null) {
 				return url;
 			}
@@ -209,8 +298,8 @@ public class AddOnLoader extends URLClassLoader {
         }
     }
     
-    public void addAddon(AddOn ao) {
-    	if (! ao.canLoad()) {
+    public synchronized void addAddon(AddOn ao) {
+    	if (! ao.canLoadInCurrentVersion()) {
     		throw new IllegalArgumentException("Cant load add-on " + ao.getName() + 
     				" Not before=" + ao.getNotBeforeVersion() + " Not from=" + ao.getNotFromVersion() + 
     				" Version=" + Constant.PROGRAM_VERSION);
@@ -218,6 +307,14 @@ public class AddOnLoader extends URLClassLoader {
     	if (!this.aoc.addAddOn(ao)) {
     	    return;
     	}
+
+		addAddOnImpl(ao);
+	}
+
+	private void addAddOnImpl(AddOn ao) {
+		if (AddOn.InstallationStatus.INSTALLED == ao.getInstallationStatus()) {
+			return;
+		}
 
     	if (this.blockList.contains(ao.getId())) {
     		// Explicitly being added back, so remove from the block list
@@ -229,14 +326,57 @@ public class AddOnLoader extends URLClassLoader {
 			return;
 		}
 
-		addAddOnClassLoader(ao);
+		if (!canRunAddOn(ao, aoc.getInstalledAddOns())) {
+		    ao.setInstallationStatus(AddOn.InstallationStatus.NOT_INSTALLED);
+		    return;
+		}
 
-		AddOnInstaller.install(addOnLoaders.get(ao.getId()), ao);
-        
+		AddOnInstaller.install(createAndAddAddOnClassLoader(ao), ao);
+		ao.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
+
+        if (!idsRunnableAddOns.contains(ao.getId())) {
+            idsRunnableAddOns.add(ao.getId());
+            saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+        }
+
+		checkAndInstallAddOnsNotInstalled();
+
         if (View.isInitialised()) {
-            View.getSingleton().refreshTabViewMenus();
+            EventQueue.invokeLater(new Runnable() {
+                
+                @Override
+                public void run() {
+                    View.getSingleton().refreshTabViewMenus();
+                }
+            });
         }
 	}
+
+    /**
+     * Checks and installs all the add-ons whose installation status is {@code NOT_INSTALLED} that have (now) all required
+     * dependencies fulfilled.
+     * <p>
+     * Should be called after an installation of an add-on.
+     *
+     * @see #addAddOnImpl(AddOn)
+     * @see AddOn.InstallationStatus#NOT_INSTALLED
+     * @since 2.4.0
+     */
+    private void checkAndInstallAddOnsNotInstalled() {
+        List<AddOn> runnableAddOns = new ArrayList<>();
+        for (AddOn addOn : aoc.getAddOns()) {
+            if (AddOn.InstallationStatus.NOT_INSTALLED == addOn.getInstallationStatus() && addOnLoaders.get(addOn.getId()) == null) {
+                RunRequirements reqs = addOn.calculateRunRequirements(aoc.getInstalledAddOns());
+                if (reqs.isRunnable()) {
+                    runnableAddOns.add(addOn);
+                }
+            }
+        }
+
+        for (AddOn addOn : runnableAddOns) {
+            addAddOnImpl(addOn);
+        }
+    }
 
     /**
      * Tells whether or not the given {@code addOn} is dynamically installable.
@@ -252,8 +392,29 @@ public class AddOnLoader extends URLClassLoader {
         return addOn.hasZapAddOnEntry();
     }
 
-	public boolean removeAddOn(AddOn ao, boolean upgrading) {
+	public synchronized boolean removeAddOn(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback progressCallback) {
+		AddOnUninstallationProgressCallback callback = (progressCallback == null) ? NULL_CALLBACK : progressCallback;
+
+		callback.uninstallingAddOn(ao, upgrading);
+		boolean removed = removeAddOnImpl(ao, upgrading, callback);
+		callback.addOnUninstalled(removed);
+
+		return removed;
+	}
+
+	private boolean removeAddOnImpl(AddOn ao, boolean upgrading, AddOnUninstallationProgressCallback callback) {
 		if (!isDynamicallyInstallable(ao)) {
+			return false;
+		}
+
+		if (AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == ao.getInstallationStatus()) {
+			if (idsRunnableAddOns.remove(ao.getId())) {
+				saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+			}
+			AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK);
+			removeAddOnClassLoader(ao);
+			deleteAddOnFile(ao, upgrading);
+			ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
 			return false;
 		}
 
@@ -262,62 +423,105 @@ public class AddOnLoader extends URLClassLoader {
 			return false;
 		}
 
-		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao);
+		if (AddOn.InstallationStatus.NOT_INSTALLED == ao.getInstallationStatus()) {
+			if (idsRunnableAddOns.remove(ao.getId())) {
+				saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+			}
+			
+			deleteAddOnFile(ao, upgrading);
+			
+			return this.aoc.removeAddOn(ao);
+		}
 
-		if (! this.aoc.removeAddOn(ao)) {
+		softUninstallDependentAddOns(ao, callback);
+
+		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao, callback);
+
+		if (uninstalledWithoutErrors && ! this.aoc.removeAddOn(ao)) {
 			uninstalledWithoutErrors = false;
 		}
-		try {
-			this.addOnLoaders.get(ao.getId()).close();
-		} catch (Exception e) {
-			logger.error("Failure while removing add-on " + ao.getId(), e);
+
+		if (uninstalledWithoutErrors) {
+			removeAddOnClassLoader(ao);
 		}
-		this.addOnLoaders.remove(ao.getId());
-		
-		if (ao.getFile() != null && ao.getFile().exists()) {
-			if (!ao.getFile().delete() && ! upgrading) {
-				logger.debug("Cant delete " + ao.getFile().getAbsolutePath());
-        		this.blockList.add(ao.getId());
-        		this.saveBlockList();
-			}
+
+		deleteAddOnFile(ao, upgrading);
+
+		if (idsRunnableAddOns.remove(ao.getId())) {
+			saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
 		}
 		
+		ao.setInstallationStatus(uninstalledWithoutErrors
+				? AddOn.InstallationStatus.AVAILABLE
+				: AddOn.InstallationStatus.UNINSTALLATION_FAILED);
+
 		return uninstalledWithoutErrors;
 	}
 	
-	private void loadBlockList() {
-        String blockStr = Model.getSingleton().getOptionsParam().getConfig().getString(ADDONS_BLOCK_LIST, null);
-        if (blockStr != null && blockStr.length() > 0) {
-        	for (String str : blockStr.split(",")) {
-        		this.blockList.add(str);
-        	}
+	private void deleteAddOnFile(AddOn addOn, boolean upgrading) {
+		if (addOn.getFile() != null && addOn.getFile().exists()) {
+			if (!addOn.getFile().delete() && !upgrading) {
+				logger.debug("Cant delete " + addOn.getFile().getAbsolutePath());
+				this.blockList.add(addOn.getId());
+				this.saveBlockList();
+			}
+		}
+	}
+
+    private void removeAddOnClassLoader(AddOn addOn) {
+        if (this.addOnLoaders.containsKey(addOn.getId())) {
+            try (AddOnClassLoader addOnClassLoader = this.addOnLoaders.remove(addOn.getId())) {
+                if (!addOn.getIdsAddOnDependencies().isEmpty()) {
+                    addOnClassLoader.clearDependencies();
+                }
+                ResourceBundle.clearCache(addOnClassLoader);
+            } catch (Exception e) {
+                logger.error("Failure while closing class loader of " + addOn.getId() + " add-on:", e);
+            }
         }
+    }
+
+    private void softUninstallDependentAddOns(AddOn ao, AddOnUninstallationProgressCallback callback) {
+        for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
+            AddOn runningAddOn = aoc.getAddOn(entry.getKey());
+            if (runningAddOn.dependsOn(ao)) {
+                softUninstallDependentAddOns(runningAddOn, callback);
+
+                softUninstall(runningAddOn, callback);
+            }
+        }
+    }
+
+    private void softUninstall(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+        if (AddOn.InstallationStatus.INSTALLED != addOn.getInstallationStatus()) {
+            return;
+        }
+
+        AddOn.InstallationStatus status;
+        if (isDynamicallyInstallable(addOn) && AddOnInstaller.softUninstall(addOn, NULL_CALLBACK)) {
+            removeAddOnClassLoader(addOn);
+            status = AddOn.InstallationStatus.NOT_INSTALLED;
+        } else {
+            status = AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED;
+        }
+
+        addOn.setInstallationStatus(status);
+    }
+
+	private void loadBlockList() {
+	    blockList = loadList(ADDONS_BLOCK_LIST);
 	}
 	
 	private void saveBlockList() {
-		StringBuilder sb = new StringBuilder();
-
-		for (String id: this.blockList) {
-			if (sb.length() > 0) {
-				sb.append(",");
-			}
-			sb.append(id);
-		}
-
-        Model.getSingleton().getOptionsParam().getConfig().setProperty(ADDONS_BLOCK_LIST, sb.toString());
-        try {
-			Model.getSingleton().getOptionsParam().getConfig().save();
-		} catch (ConfigurationException e) {
-			logger.error("Failed to save block list: " + sb.toString(), e);
-		}
+		saveList(ADDONS_BLOCK_LIST, this.blockList);
 	}
 
     private <T> List<ClassNameWrapper> getClassNames (String packageName, Class<T> classType) {
     	List<ClassNameWrapper> listClassName = new ArrayList<>();
     	
     	listClassName.addAll(this.getLocalClassNames(packageName));
-    	for (AddOn addOn : this.aoc.getAddOns()) {
-        	listClassName.addAll(this.getJarClassNames(addOn, packageName));
+    	for (String addOnId : this.addOnLoaders.keySet()) {
+        	listClassName.addAll(this.getJarClassNames(aoc.getAddOn(addOnId), packageName));
     	}
     	for (File jar : jars) {
     		listClassName.addAll(this.getJarClassNames(this.getClass().getClassLoader(), jar, packageName));
@@ -396,6 +600,7 @@ public class AddOnLoader extends URLClassLoader {
             }
         }
 
+        addOn.setLoadedExtensions(list);
         return list;
     }
 
@@ -633,5 +838,81 @@ public class AddOnLoader extends URLClassLoader {
 			return className;
 		}
     	
+    }
+
+    private static List<String> loadList(String key) {
+        List<String> data = new ArrayList<>();
+        String blockStr = Model.getSingleton().getOptionsParam().getConfig().getString(key, null);
+        if (blockStr != null && blockStr.length() > 0) {
+            for (String str : blockStr.split(",")) {
+                data.add(str);
+            }
+        }
+        return data;
+    }
+
+    private static void saveList(String key, List<String> list) {
+        StringBuilder sb = new StringBuilder();
+
+        for (String id: list) {
+            if (sb.length() > 0) {
+                sb.append(',');
+            }
+            sb.append(id);
+        }
+
+        Model.getSingleton().getOptionsParam().getConfig().setProperty(key, sb.toString());
+        try {
+            Model.getSingleton().getOptionsParam().getConfig().save();
+        } catch (ConfigurationException e) {
+            logger.error("Failed to save list [" + key + "]: " + sb.toString(), e);
+        }
+    }
+
+    /**
+     * An {@code UninstallationProgressCallback} that does nothing. A "{@code null}" object, for use when no callback is given
+     * during the uninstallation process.
+     */
+    private static class NullUninstallationProgressCallBack implements AddOnUninstallationProgressCallback {
+
+        @Override
+        public void uninstallingAddOn(AddOn addOn, boolean updating) {
+        }
+
+        @Override
+        public void activeScanRulesWillBeRemoved(int numberOfRules) {
+        }
+
+        @Override
+        public void activeScanRuleRemoved(String name) {
+        }
+
+        @Override
+        public void passiveScanRulesWillBeRemoved(int numberOfRules) {
+        }
+
+        @Override
+        public void passiveScanRuleRemoved(String name) {
+        }
+
+        @Override
+        public void filesWillBeRemoved(int numberOfFiles) {
+        }
+
+        @Override
+        public void fileRemoved() {
+        }
+
+        @Override
+        public void extensionsWillBeRemoved(int numberOfExtensions) {
+        }
+
+        @Override
+        public void extensionRemoved(String name) {
+        }
+
+        @Override
+        public void addOnUninstalled(boolean uninstalled) {
+        }
     }
 }

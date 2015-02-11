@@ -286,6 +286,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	spiderParam.setParseSVNEntries(this.getBoolValue(FIELD_PARSE_SVN));
         	spiderParam.setParseGit(this.getBoolValue(FIELD_PARSE_GIT));
         	spiderParam.setHandleODataParametersVisited(this.getBoolValue(FIELD_HANDLE_ODATA));
+        	spiderParam.setThreadCount(extension.getSpiderParam().getThreadCount());
         	
         	maxChildrenToCrawl = this.getIntValue(FIELD_MAX_CHILDREN);
         	

@@ -57,9 +57,11 @@
 // ZAP: 2015/01/19 Remove online menus when removeMenu(View, ExtensionHook) is called.
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 
 package org.parosproxy.paros.extension;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -606,6 +608,7 @@ public class ExtensionLoader {
                 logger.error(e.getMessage(), e);
             }
         }
+        dialog.revalidate();
     }
 
     /**
@@ -638,6 +641,7 @@ public class ExtensionLoader {
                 logger.error(e.getMessage(), e);
             }
         }
+        tab.revalidate();
     }
 
     private void hookAllExtension(double progressFactor) {
@@ -751,6 +755,7 @@ public class ExtensionLoader {
                 menuBar.add(item, menuBar.getMenuCount() - existingCount);
             }
         }
+        menuBar.revalidate();
     }
 
     private void addMenuHelper(JMenu menu, List<JMenuItem> items, int existingCount) {
@@ -764,6 +769,8 @@ public class ExtensionLoader {
                 menu.add(item, menu.getItemCount() - existingCount);
             }
         }
+
+        menu.revalidate();
     }
 
     private void addMenuHelper(List<JMenuItem> menuList, List<JMenuItem> items) {
@@ -809,6 +816,7 @@ public class ExtensionLoader {
                 menuBar.remove(item);
             }
         }
+        menuBar.revalidate();
     }
 
     private void removeMenuHelper(JMenu menu, List<JMenuItem> items) {
@@ -817,6 +825,7 @@ public class ExtensionLoader {
                 menu.remove(item);
             }
         }
+        menu.revalidate();
     }
 
     private void removeMenuHelper(List<JMenuItem> menuList, List<JMenuItem> items) {
@@ -1115,17 +1124,61 @@ public class ExtensionLoader {
 
         removeSiteMapListener(hook);
 
-        removeView(view, hook);
-
-        removeMenu(view, hook);
+        removeViewInEDT(hook);
     }
 
+    private void removeViewInEDT(final ExtensionHook hook) {
+        if (view == null) {
+            return;
+        }
+
+        if (EventQueue.isDispatchThread()) {
+            removeView(view, hook);
+            removeMenu(view, hook);
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    removeViewInEDT(hook);
+                }
+            });
+        }
+    }
+
+    /**
+     * Gets the names of all unsaved resources of all the extensions.
+     *
+     * @return a {@code List} containing all the unsaved resources of all add-ons, never {@code null}
+     * @see Extension#getActiveActions()
+     */
     public List<String> getUnsavedResources() {
         List<String> list = new ArrayList<>();
         List<String> l;
 
         for (int i = 0; i < getExtensionCount(); i++) {
             l = getExtension(i).getUnsavedResources();
+            if (l != null) {
+                list.addAll(l);
+            }
+        }
+        
+        return list;
+    }
+
+    /**
+     * Gets the names of all active actions of all the extensions.
+     *
+     * @return a {@code List} containing all the active actions of all add-ons, never {@code null}
+     * @since 2.4.0
+     * @see Extension#getActiveActions()
+     */
+    public List<String> getActiveActions() {
+        List<String> list = new ArrayList<>();
+        List<String> l;
+
+        for (int i = 0; i < getExtensionCount(); i++) {
+            l = getExtension(i).getActiveActions();
             if (l != null) {
                 list.addAll(l);
             }

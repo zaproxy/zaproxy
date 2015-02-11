@@ -309,6 +309,7 @@ public class TabbedPanel2 extends TabbedPanel {
     /**
      * Set the title of the tab when hiding/showing tab names.
      */
+    @Override
     public void setTitleAt(int index, String title) {
     	Component tabCom = this.getTabComponentAt(index);
     	if (tabCom != null && tabCom instanceof JPanel) {

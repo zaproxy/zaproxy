@@ -24,7 +24,9 @@ import java.io.File;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.configuration.tree.xpath.XPathExpressionEngine;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -40,25 +42,54 @@ public class AddOnCollection {
 	private Platform platform;
 
     public AddOnCollection(ZapXmlConfiguration config, Platform platform) {
-    	this.platform = platform;
-    	this.load(config);
+    	this(config, platform, true);
+    }
+
+    public AddOnCollection(ZapXmlConfiguration config, Platform platform, boolean allowAddOnsWithDependencyIssues) {
+        this.platform = platform;
+        this.load(config);
+
+        if (!allowAddOnsWithDependencyIssues) {
+            List<AddOn> checkedAddOns = new ArrayList<>(addOns);
+            List<AddOn> runnableAddOns = new ArrayList<>(addOns.size());
+            while (!checkedAddOns.isEmpty()) {
+                AddOn addOn = checkedAddOns.remove(0);
+                // Shouldn't happen but make sure to not show add-ons that wouldn't run because of dependency issues
+                AddOn.RunRequirements requirements = addOn.calculateRunRequirements(addOns);
+                if (requirements.hasDependencyIssue()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Ignoring add-on  " + addOn.getName() + " because of dependency issue: "
+                                + AddOnRunIssuesUtils.getDependencyIssue(requirements));
+                        if (AddOn.RunRequirements.DependencyIssue.CYCLIC == requirements.getDependencyIssue()) {
+                            @SuppressWarnings("unchecked")
+                            Set<AddOn> cyclicChain = (Set<AddOn>) requirements.getDependencyIssueDetails().get(0);
+                            checkedAddOns.removeAll(cyclicChain);
+                        }
+                    }
+                } else {
+                    runnableAddOns.add(addOn);
+                }
+            }
+            addOns = runnableAddOns;
+        }
     }
 
     private void load (ZapXmlConfiguration config) {
+        config.setExpressionEngine(new XPathExpressionEngine());
         try {
         	// See if theres a ZAP release defined
-			String version = config.getString("core.version");
+			String version = config.getString("core/version");
         	if (Platform.daily.equals(platform)) {
-				version = config.getString("core.daily-version", version);
+				version = config.getString("core/daily-version", version);
         	}
 			if (version != null && version.length() > 0) {
 				this.zapRelease = new ZapRelease(
 								version, 
-								new URL(config.getString("core." + platform.name() +".url")),
-								config.getString("core." + platform.name() +".file"),
-								config.getLong("core." + platform.name() +".size"),
-								config.getString("core.relnotes"),
-								config.getString("core." + platform.name() +".hash"));
+								new URL(config.getString("core/" + platform.name() +"/url")),
+								config.getString("core/" + platform.name() +"/file"),
+								config.getLong("core/" + platform.name() +"/size"),
+								config.getString("core/relnotes"),
+								config.getString("core/" + platform.name() +"/hash"));
 			}
         } catch (Exception e) {
         	logger.error(e.getMessage(), e);
@@ -69,36 +100,16 @@ public class AddOnCollection {
 	        String[] addOnIds = config.getStringArray("addon");
         	for (String id: addOnIds) {
             	logger.debug("Found addon " + id);
-            	URL infoUrl = null;
-            	try {
-					infoUrl = new URL(config.getString("addon_" + id + ".info"));
-				} catch (Exception e) {
-					// Ignore
-				}
             	
         		AddOn ao;
         		try {
-        			ao = new AddOn(
-        						id, 
-        						config.getString("addon_" + id + ".name"), 
-        						config.getString("addon_" + id + ".description"), 
-        						config.getString("addon_" + id + ".author", ""),
-        						config.getInt("addon_" + id + ".version"),
-        						AddOn.Status.valueOf(config.getString("addon_" + id + ".status")),
-        						config.getString("addon_" + id + ".changes"), 
-        						new URL(config.getString("addon_" + id + ".url")),
-        						new File(downloadDir, config.getString("addon_" + id + ".file")),
-        						config.getLong("addon_" + id + ".size"),
-        						config.getString("addon_" + id + ".not-before-version", ""),
-        						config.getString("addon_" + id + ".not-from-version", ""),
-        						infoUrl,
-        						config.getString("addon_" + id + ".hash", null));
-				} catch (Exception e) {
-					logger.warn("Failed to create add-on for " + id, e);
-					continue;
-				}
-
-        		if (ao.canLoad()) {
+        		    ao = new AddOn(id, downloadDir, config.configurationAt("addon_" + id));
+        		    ao.setInstallationStatus(AddOn.InstallationStatus.AVAILABLE);
+        		} catch (Exception e) {
+        		    logger.warn("Failed to create add-on for " + id, e);
+        		    continue;
+        		}
+        		if (ao.canLoadInCurrentVersion()) {
         			// Ignore ones that dont apply to this version
         			this.addOns.add(ao);
         		} else {
@@ -151,14 +162,14 @@ public class AddOnCollection {
 	            	for (AddOn addOn : addOns) {
 	            		if (ao.isSameAddOn(addOn)) {
 		            		if (ao.isUpdateTo(addOn)) {
-                                if (ao.canLoad()) {
+                                if (ao.canLoadInCurrentVersion()) {
     		            			// Replace in situ so we're not changing a list we're iterating through
-    		                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getVersion() + 
-    		                    			" superceeded by " + ao.getVersion());
+    		                    	logger.debug("Addon " + addOn.getId() + " version " + addOn.getFileVersion() + 
+    		                    			" superceeded by " + ao.getFileVersion());
     		                    	addOns.remove(addOn);
                                 } else {
                                     if (logger.isDebugEnabled()) {
-                                        logger.debug("Ignoring newer addon " + ao.getId() + " version " + ao.getVersion()
+                                        logger.debug("Ignoring newer addon " + ao.getId() + " version " + ao.getFileVersion()
                                                 + " because of ZAP version constraints; Not before=" + ao.getNotBeforeVersion()
                                                 + " Not from=" + ao.getNotFromVersion() + " Current Version="
                                                 + Constant.PROGRAM_VERSION);
@@ -167,7 +178,7 @@ public class AddOnCollection {
                                 }
 		            		} else {
 		            			// Same or older version, dont include
-		                    	logger.debug("Addon " + ao.getId() + " version " + ao.getVersion() + 
+		                    	logger.debug("Addon " + ao.getId() + " version " + ao.getFileVersion() + 
 		                    			" not latest.");
 		            			add = false;
 		            		}
@@ -175,7 +186,7 @@ public class AddOnCollection {
 	            		}
 	            	}
 	            	if (add) {
-	            		logger.debug("Found addon " + ao.getId() + " version " + ao.getVersion());
+	            		logger.debug("Found addon " + ao.getId() + " version " + ao.getFileVersion());
 	            		this.addOns.add(ao);
 	            	}
         		}
@@ -192,8 +203,31 @@ public class AddOnCollection {
         return null;
     }
     
+    /**
+     * Gets all add-ons of this add-on collection.
+     *
+     * @return a {@code List} with all add-ons of the collection
+     * @see #getInstalledAddOns()
+     */
     public List <AddOn> getAddOns() {
     	return this.addOns;
+    }
+
+    /**
+     * Gets all installed add-ons of this add-on collection, that is, the add-ons whose installation status is {@code INSTALLED}.
+     *
+     * @return a {@code List} with all installed add-ons of the collection
+     * @see #getAddOns()
+     * @see AddOn.InstallationStatus#INSTALLED
+     */
+    public List<AddOn> getInstalledAddOns() {
+        List<AddOn> installedAddOns = new ArrayList<>(addOns.size());
+        for (AddOn addOn : addOns) {
+            if (AddOn.InstallationStatus.INSTALLED == addOn.getInstallationStatus()) {
+                installedAddOns.add(addOn);
+            }
+        }
+        return installedAddOns;
     }
     
     public AddOn getAddOn(String id) {

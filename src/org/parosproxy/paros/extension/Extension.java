@@ -28,6 +28,7 @@
 // ZAP: 2015/01/04 Issue 1472: Allow extensions to specify a name for UI components
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 
 package org.parosproxy.paros.extension;
 
@@ -41,6 +42,8 @@ import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.Version;
+import org.zaproxy.zap.control.AddOn;
 
 /**
  * Life cycle for an extension
@@ -68,6 +71,7 @@ public interface Extension {
      * internationalised.
      * 
      * @return the UI name of the extension, never {@code null}
+     * @since 2.4.0
      * @see #getName()
      * @see #getDescription()
      */
@@ -80,6 +84,14 @@ public interface Extension {
      * @return the description of the extension, never {@code null}
      */
     String getDescription();
+
+    /**
+     * Returns the (semantic) version of this extension, {@code null} if not versioned
+     *
+     * @return the version of the extension, or {@code null} if not versioned
+     * @since 2.4.0
+     */
+    Version getVersion();
     
     /**
      * Initialize plugin during startup.  This phase is carried out before all others.
@@ -153,6 +165,8 @@ public interface Extension {
 	/**
 	 * Called after the options for this extension have been loaded, so that the extension can make use of them.
 	 * Note that other add-ons may not have been loaded at this point - if you need them to be then implement postInit()
+	 * 
+	 * @see #postInit()
 	 */
 	void optionsLoaded();
 	
@@ -161,21 +175,44 @@ public interface Extension {
 	void unload();
 
 	/**
-	 * Extensions should return the user friendly names of any unsaved resources - if there are any the user will be
-	 * given the option not to exit.
-	 * @return
+	 * Extensions should return the user friendly names of any unsaved resources - if there are any the user will be given the
+	 * option not to exit ZAP or, if the extension is bundled in an add-on that's being updated or uninstalled, not to continue
+	 * with the changes.
+	 * 
+	 * @return a {@code List} containing the unsaved resources or {@code null} if none
+	 * @since 2.2.0
+	 * @see #getActiveActions()
 	 */
 	List<String> getUnsavedResources();
+
+	/**
+	 * Returns the (internationalised) names of all active actions of the extension - if there are any the user will be given
+	 * the option not to exit ZAP or, if the extension is bundled in an add-on that's being updated or uninstalled, not to
+	 * continue with the changes.
+	 * <p>
+	 * An active action is something that's started by the user, for example, a scan.
+	 * 
+	 * @return a {@code List} containing the active actions or {@code null} if none
+	 * @since 2.4.0
+	 * @see #getUnsavedResources()
+	 */
+	List<String> getActiveActions();
 	
 	/**
 	 * Implement this method to perform tasks after the add-on is installed.
 	 * Note that this will only be called if the user adds the add-on via ZAP, eg file the File menu or the Marketplace.
 	 * If the add-on is installed by copying the file to the plugins directory then it will not be called.
+	 * 
+	 * @since 2.3.0
+	 * @see #postInit()
 	 */
     void postInstall();
 
 	/**
-	 * Implement this method to perform tasks after all add-ons have been installed.
+	 * Implement this method to perform tasks after all extensions/add-ons have been initialised.
+	 * 
+	 * @since 2.4.0
+	 * @see #postInstall()
 	 */
     void postInit();
 
@@ -186,5 +223,23 @@ public interface Extension {
      * @throws DatabaseUnsupportedException
      */
     void databaseOpen(Database db) throws DatabaseException, DatabaseUnsupportedException;
+
+    /**
+     * Returns the add-on where this extension is bundled. Might be {@code null} if core extension.
+     *
+     * @return the add-on where this extension is bundled, or {@code null} if core extension.
+     * @since 2.4.0
+     */
+    AddOn getAddOn();
+
+    /**
+     * Sets the add-on where this extension is bundled.
+     * <p>
+     * <strong>Note:</strong> This method should be called only by bootstrap classes.
+     *
+     * @param addOn the add-on where this extension is bundled
+     * @since 2.4.0
+     */
+    void setAddOn(AddOn addOn);
 
 }

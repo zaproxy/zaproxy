@@ -88,6 +88,7 @@ public class SequencePanel extends AbstractParamPanel {
 
 		btnInclude = new JButton(BTNINCLUDESELECT);
 		btnInclude.addActionListener(new ActionListener() {
+			@Override
 			public void actionPerformed(ActionEvent e) {
 				if(btnInclude.getText().equals(BTNINCLUDESELECT)) {
 					setBooleanColumn(1, true);
@@ -130,6 +131,7 @@ public class SequencePanel extends AbstractParamPanel {
 			Class[] columnTypes = new Class[] {
 				String.class, Boolean.class, ScriptWrapper.class
 			};
+			@Override
 			@SuppressWarnings({ "unchecked", "rawtypes" })
 			public Class getColumnClass(int columnIndex) {
 				return columnTypes[columnIndex];

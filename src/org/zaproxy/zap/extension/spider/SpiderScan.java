@@ -32,6 +32,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import javax.swing.table.TableModel;
 
+import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
@@ -83,7 +84,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private ScanListenner2 listener = null;
 
-	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, User scanUser, int scanId) {
+	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId) {
 		lock = new ReentrantLock();
 		this.scanId = scanId;
 
@@ -95,6 +96,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 		spiderThread = new SpiderThread(extension, spiderParams, "SpiderApi-" + scanId, this);
 
+		spiderThread.setStartURI(spiderURI);
 		spiderThread.setStartNode(target.getStartNode());
 		spiderThread.setScanContext(target.getContext());
 		spiderThread.setScanAsUser(scanUser);
@@ -107,6 +109,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 *
 	 * @return the ID of the scan
 	 */
+	@Override
 	public int getScanId() {
 		return scanId;
 	}
@@ -130,6 +133,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 *
 	 * @return the progress of the scan.
 	 */
+	@Override
 	public int getProgress() {
 		return progress;
 	}
@@ -159,6 +163,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * The call to this method has no effect if the scan is not running.
 	 * </p>
 	 */
+	@Override
 	public void pauseScan() {
 		lock.lock();
 		try {
@@ -177,6 +182,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * The call to this method has no effect if the scan is not paused.
 	 * </p>
 	 */
+	@Override
 	public void resumeScan() {
 		lock.lock();
 		try {
@@ -195,6 +201,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * The call to this method has no effect if the scan was not yet started or has already finished.
 	 * </p>
 	 */
+	@Override
 	public void stopScan() {
 		lock.lock();
 		try {

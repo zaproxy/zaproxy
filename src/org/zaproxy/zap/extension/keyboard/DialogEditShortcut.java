@@ -184,6 +184,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
     	return ks;
 	}
 
+	@Override
 	public void save() {
 		KeyboardShortcut ksDup = this.getDuplicate();
 		if (ksDup != null) {
