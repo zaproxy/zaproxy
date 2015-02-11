@@ -23,6 +23,7 @@ import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.TabbedPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 /**
  * A tabbed panel that adds the option to hide individual tabs via a cross button on the tab.
@@ -246,6 +247,9 @@ public class TabbedPanel2 extends TabbedPanel {
 
 		if (index == -1 || index > this.getTabCount()) {
 			index = this.getTabCount();
+		}
+		if (icon instanceof ImageIcon) {
+			icon = DisplayUtils.getScaledIcon((ImageIcon)icon);
 		}
 
 		super.insertTab(title, icon, c, c.getName(), index);

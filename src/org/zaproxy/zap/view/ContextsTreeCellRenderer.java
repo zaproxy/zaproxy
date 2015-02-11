@@ -27,6 +27,7 @@ import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 /**
  * Custom renderer for contexts tree
@@ -64,16 +65,16 @@ public class ContextsTreeCellRenderer extends DefaultTreeCellRenderer {
 		
 		if (node != null) {
 			if (node.isRoot()) {
-				setIcon(ROOT_ICON);
+				setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));
 			} else if (target != null) {
 				if (target.getContext() != null) {
 					if (target.getContext().isInScope()) {
-						setIcon(CONTEXT_IN_SCOPE_ICON);
+						setIcon(DisplayUtils.getScaledIcon(CONTEXT_IN_SCOPE_ICON));
 					} else {
-						setIcon(CONTEXT_ICON);
+						setIcon(DisplayUtils.getScaledIcon(CONTEXT_ICON));
 					}
 				} else if (target.isInScopeOnly()) {
-					setIcon(ALL_IN_SCOPE_ICON);
+					setIcon(DisplayUtils.getScaledIcon(ALL_IN_SCOPE_ICON));
 				}
 			}
 		}

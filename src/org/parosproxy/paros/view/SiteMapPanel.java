@@ -80,6 +80,7 @@ import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextsTreeCellRenderer;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -195,7 +196,8 @@ public class SiteMapPanel extends AbstractPanel {
 	private JButton getFilterButton() {
 		if (filterButton == null) {
 			filterButton = new JButton();
-			filterButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png")));	// 'filter' icon
+			filterButton.setIcon(DisplayUtils.getScaledIcon(
+					new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png"))));	// 'filter' icon
 			filterButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
 
 			filterButton.addActionListener(new java.awt.event.ActionListener() { 
@@ -212,8 +214,8 @@ public class SiteMapPanel extends AbstractPanel {
 	private JButton getImportContextButton() {
 		if (importContextButton == null) {
 			importContextButton = new JButton();
-			importContextButton.setIcon(new ImageIcon(
-					LogPanel.class.getResource("/resource/icon/fugue/application-blue-import.png")));
+			importContextButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(
+					LogPanel.class.getResource("/resource/icon/fugue/application-blue-import.png"))));
 			importContextButton.setToolTipText(Constant.messages.getString("menu.file.context.import"));
 			importContextButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -228,8 +230,8 @@ public class SiteMapPanel extends AbstractPanel {
 	private JButton getExportContextButton() {
 		if (exportContextButton == null) {
 			exportContextButton = new JButton();
-			exportContextButton.setIcon(new ImageIcon(
-					LogPanel.class.getResource("/resource/icon/fugue/application-blue-export.png")));
+			exportContextButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(
+					LogPanel.class.getResource("/resource/icon/fugue/application-blue-export.png"))));
 			exportContextButton.setToolTipText(Constant.messages.getString("menu.file.context.export"));
 			exportContextButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -274,9 +276,9 @@ public class SiteMapPanel extends AbstractPanel {
 	private JToggleButton getScopeButton() {
 		if (scopeButton == null) {
 			scopeButton = new ZapToggleButton();
-			scopeButton.setIcon(new ImageIcon(SiteMapPanel.class.getResource("/resource/icon/fugue/target-grey.png")));
+			scopeButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(SiteMapPanel.class.getResource("/resource/icon/fugue/target-grey.png"))));
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
-			scopeButton.setSelectedIcon(new ImageIcon(SiteMapPanel.class.getResource("/resource/icon/fugue/target.png")));
+			scopeButton.setSelectedIcon(DisplayUtils.getScaledIcon(new ImageIcon(SiteMapPanel.class.getResource("/resource/icon/fugue/target.png"))));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 

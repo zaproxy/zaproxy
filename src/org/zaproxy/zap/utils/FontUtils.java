@@ -28,6 +28,8 @@ public class FontUtils {
 	public static final Font systemDefaultFont;
 	public static enum Size {smallest, much_smaller, smaller, standard, larger, much_larger, huge};
 	
+	private static float scale = -1;
+	
 	static {
 		systemDefaultFont = (Font) UIManager.getLookAndFeelDefaults().get("defaultFont");
 	}
@@ -93,4 +95,10 @@ public class FontUtils {
 		return getDefaultFont().deriveFont(s);
 	}
 
+	public static float getScale() {
+		if (scale == -1) {
+			scale = getDefaultFont().getSize2D() / systemDefaultFont.getSize2D(); 
+		}
+		return scale;
+	}
 }

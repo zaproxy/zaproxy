@@ -48,6 +48,7 @@ import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
@@ -83,14 +84,14 @@ public class SplashScreen extends JFrame implements Runnable {
     public void run() {
         thread = Thread.currentThread();
 
-        setSize(420, 420);  //420x460
+        setSize(DisplayUtils.getScaledDimension(420, 420));
         setLocationRelativeTo(null);
         setUndecorated(true);
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(loadIconImages());
 
         BackgroundImagePanel panel = new BackgroundImagePanel();
-        panel.setPreferredSize(new Dimension(420, 420));    //420x560
+        panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 420));    //420x560
         panel.setLayout(new GridBagLayout());
         panel.setBackgroundImage(SplashScreen.class.getResource("/resource/zap-splash-background.png"));
         
