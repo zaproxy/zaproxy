@@ -79,8 +79,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			ZAP.class.getResource("/resource/icon/16/script-auth.png"));
 
 	/** The Authentication method's name. */
-	private static final String METHOD_NAME = Constant.messages
-			.getString("authentication.method.script.name");
+	private static final String METHOD_NAME = Constant.messages.getString("authentication.method.script.name");
 
 	private ExtensionScript extensionScript;
 
@@ -443,7 +442,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			log.debug("Registering Script...");
 			getScriptsExtension().registerScriptType(
 					new ScriptType(SCRIPT_TYPE_AUTH, "authentication.method.script.type", SCRIPT_ICON_AUTH,
-							false));
+							false, new String[] {ScriptType.CAPABILITY_APPEND}));
 		}
 	}
 
