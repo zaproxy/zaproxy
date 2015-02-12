@@ -145,7 +145,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	    super.hook(extensionHook);
 
 		this.registerScriptType(new ScriptType(TYPE_PROXY, "script.type.proxy", PROXY_ICON, true));
-		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false));
+		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false, 
+				new String[] {ScriptType.CAPABILITY_APPEND}));
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
 
 		extensionHook.addProxyListener(this.getProxyListener());
