@@ -172,8 +172,6 @@ public class HostProcess implements Runnable {
             
             if (plugin != null) {
                 plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-                plugin.setDefaultAlertThreshold(scanPolicy.getDefaultThreshold());
-                plugin.setDefaultAttackStrength(scanPolicy.getDefaultStrength());
                 plugin.setTechSet(this.techSet);
                 processPlugin(plugin);
             

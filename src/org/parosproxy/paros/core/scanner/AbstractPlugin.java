@@ -791,8 +791,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     	if (plugin instanceof AbstractPlugin) {
     		AbstractPlugin ap = (AbstractPlugin) plugin;
     		ap.setEnabled(this.isEnabled());
-    		ap.setAlertThreshold(this.getAlertThreshold());
-    		ap.setAttackStrength(this.getAttackStrength());
+    		ap.setAlertThreshold(this.getAlertThreshold(true));
+    		ap.setAttackStrength(this.getAttackStrength(true));
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);
     		ap.setTechSet(this.getTechSet());

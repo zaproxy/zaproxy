@@ -2,6 +2,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.FileConfiguration;
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
@@ -19,8 +20,8 @@ public class ScanPolicy {
     	conf = new ZapXmlConfiguration();
 		name = conf.getString("policy", "");
 		pluginFactory.loadAllPlugin(conf);
-        defaultThreshold = AlertThreshold.MEDIUM;
-        defaultStrength = AttackStrength.MEDIUM;
+		setDefaultThreshold(AlertThreshold.MEDIUM);
+		setDefaultStrength(AttackStrength.MEDIUM);
 
     }
 
@@ -28,17 +29,17 @@ public class ScanPolicy {
     	this.conf = conf;
 		name = conf.getString("policy", "");
 		pluginFactory.loadAllPlugin(conf);
-        defaultThreshold = AlertThreshold.valueOf(conf.getString("scanner.level", AlertThreshold.MEDIUM.name()));
-        defaultStrength = AttackStrength.valueOf(conf.getString("scanner.strength", AttackStrength.MEDIUM.name()));
-
+		
+		setDefaultThreshold(AlertThreshold.valueOf(conf.getString("scanner.level", AlertThreshold.MEDIUM.name())));
+		setDefaultStrength(AttackStrength.valueOf(conf.getString("scanner.strength", AttackStrength.MEDIUM.name())));
     }
 
     public ScanPolicy (FileConfiguration conf) throws ConfigurationException {
     	pluginFactory.loadAllPlugin(conf);
-    	conf = new ZapXmlConfiguration();
+    	this.conf = new ZapXmlConfiguration();
     	name = "";
-        defaultThreshold = AlertThreshold.MEDIUM;
-        defaultStrength = AttackStrength.MEDIUM;
+    	setDefaultThreshold(AlertThreshold.MEDIUM);
+    	setDefaultStrength(AttackStrength.MEDIUM);
     }
 
     public ScanPolicy clonePolicy () throws ConfigurationException {
@@ -47,8 +48,8 @@ public class ScanPolicy {
     
     public void cloneInto(ScanPolicy policy) {
     	policy.pluginFactory.loadFrom(this.pluginFactory);
-    	policy.setDefaultStrength(this.getDefaultStrength());
-    	policy.setDefaultThreshold(this.getDefaultThreshold());
+    	policy.defaultStrength = this.getDefaultStrength();
+    	policy.defaultThreshold = this.getDefaultThreshold();
     }
 
 	public String getName() {
@@ -73,10 +74,16 @@ public class ScanPolicy {
 
 	public void setDefaultThreshold(AlertThreshold defaultThreshold) {
 		this.defaultThreshold = defaultThreshold;
+		for (Plugin plugin : pluginFactory.getAllPlugin()) {
+			plugin.setDefaultAlertThreshold(defaultThreshold);
+		}
 	}
 
 	public void setDefaultStrength(AttackStrength defaultStrength) {
 		this.defaultStrength = defaultStrength;
+		for (Plugin plugin : pluginFactory.getAllPlugin()) {
+			plugin.setDefaultAttackStrength(defaultStrength);
+		}
 	}
     
 	public void save() throws ConfigurationException {
