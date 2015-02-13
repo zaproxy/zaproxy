@@ -127,7 +127,8 @@ public class SplashScreen extends JFrame implements Runnable {
         this.pack();
         this.setVisible(true);
 
-        Logger.getRootLogger().addAppender(new SplashOutputWriter());
+        SplashOutputWriter splashOutputWriter = new SplashOutputWriter();
+        Logger.getRootLogger().addAppender(splashOutputWriter);
 
         try {
             // Show INFO and ERROR log messages until the UI is ready
@@ -167,6 +168,7 @@ public class SplashScreen extends JFrame implements Runnable {
             // Ignore
         }
 
+        Logger.getRootLogger().removeAppender(splashOutputWriter);
         dispose();
     }
 
