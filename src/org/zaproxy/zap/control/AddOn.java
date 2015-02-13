@@ -35,6 +35,8 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
 import org.apache.commons.configuration.SubnodeConfiguration;
+import org.apache.commons.lang.ArrayUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.apache.log4j.Logger;
 import org.jgrapht.DirectedGraph;
@@ -560,7 +562,7 @@ public class AddOn  {
 			return false;
 		}
 
-		return javaVersion.startsWith(requiredVersion);
+		return getJavaVersion(javaVersion) >= getJavaVersion(requiredVersion);
 	}
 
 	/**
@@ -1111,4 +1113,52 @@ public class AddOn  {
 			this.runnable = runnable;
 		}
 	}
+
+	private static int getJavaVersion(String javaVersion) {
+		return toVersionInt(toJavaVersionIntArray(javaVersion, 2));
+	}
+
+    // NOTE: Following 2 methods copied from org.apache.commons.lang.SystemUtils version 2.6 because of constrained visibility
+    private static int[] toJavaVersionIntArray(String version, int limit) {
+        if (version == null) {
+            return ArrayUtils.EMPTY_INT_ARRAY;
+        }
+        String[] strings = StringUtils.split(version, "._- ");
+        int[] ints = new int[Math.min(limit, strings.length)];
+        int j = 0;
+        for (int i = 0; i < strings.length && j < limit; i++) {
+            String s = strings[i];
+            if (s.length() > 0) {
+                try {
+                    ints[j] = Integer.parseInt(s);
+                    j++;
+                } catch (Exception e) {
+                }
+            }
+        }
+        if (ints.length > j) {
+            int[] newInts = new int[j];
+            System.arraycopy(ints, 0, newInts, 0, j);
+            ints = newInts;
+        }
+        return ints;
+    }
+
+    private static int toVersionInt(int[] javaVersions) {
+        if (javaVersions == null) {
+            return 0;
+        }
+        int intVersion = 0;
+        int len = javaVersions.length;
+        if (len >= 1) {
+            intVersion = javaVersions[0] * 100;
+        }
+        if (len >= 2) {
+            intVersion += javaVersions[1] * 10;
+        }
+        if (len >= 3) {
+            intVersion += javaVersions[2];
+        }
+        return intVersion;
+    }
 }
