@@ -45,6 +45,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinInterface;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinMagic;
 import org.zaproxy.zap.extension.httppanel.view.paramtable.addins.ParamAddinUrlencode;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPanelViewModelListener {
 
@@ -79,7 +80,7 @@ public abstract class HttpPanelParamTableView implements HttpPanelView, HttpPane
         table.setModel(httpPanelTabularModel);
         table.setGridColor(java.awt.Color.gray);
         table.setIntercellSpacing(new java.awt.Dimension(1, 1));
-        table.setRowHeight(18);
+        table.setRowHeight(DisplayUtils.getScaledSize(18));
         
 		// Issue 954: Force the JTable cell to auto-save when the focus changes.
 		// Example, edit cell, click OK for a panel dialog box, the data will get saved.

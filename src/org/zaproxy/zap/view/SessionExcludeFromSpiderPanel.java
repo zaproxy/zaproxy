@@ -35,6 +35,7 @@ import javax.swing.JTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class SessionExcludeFromSpiderPanel extends AbstractParamPanel {
 
@@ -142,7 +143,7 @@ public class SessionExcludeFromSpiderPanel extends AbstractParamPanel {
 		if (tableIgnore == null) {
 			tableIgnore = new JTable();
 			tableIgnore.setModel(getModel());
-			tableIgnore.setRowHeight(18);
+			tableIgnore.setRowHeight(DisplayUtils.getScaledSize(18));
 			// Issue 954: Force the JTable cell to auto-save when the focus changes.
 			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
 			tableIgnore.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);

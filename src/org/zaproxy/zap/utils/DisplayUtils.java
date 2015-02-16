@@ -69,6 +69,10 @@ public class DisplayUtils {
 		
 	}
 	
+	public static int getScaledSize(int size) {
+		return (int)(size * FontUtils.getScale());
+	}
+	
 	public static void scaleIcon(JLabel label) {
 		if (isScaleImages() && label != null && label.getIcon() != null && label.getIcon() instanceof ImageIcon) {
 			label.setIcon(getScaledIcon((ImageIcon)label.getIcon()));

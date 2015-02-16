@@ -31,6 +31,7 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelEvent;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelViewModelListener;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class HttpPanelHexView implements HttpPanelView, HttpPanelViewModelListener {
 
@@ -90,7 +91,7 @@ public class HttpPanelHexView implements HttpPanelView, HttpPanelViewModelListen
 
 			hexTableBody.setGridColor(java.awt.Color.gray);
 			hexTableBody.setIntercellSpacing(new java.awt.Dimension(1,1));
-			hexTableBody.setRowHeight(18);
+			hexTableBody.setRowHeight(DisplayUtils.getScaledSize(18));
 			
 			hexTableBody.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 			hexTableBody.getColumnModel().getColumn(0).setPreferredWidth(100);
