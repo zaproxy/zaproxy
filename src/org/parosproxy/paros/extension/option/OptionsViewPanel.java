@@ -411,6 +411,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private ZapNumberSpinner getFontSize() {
 		if (fontSize == null) {
 			fontSize = new ZapNumberSpinner(-1, 8, 100);
+			if (! FontUtils.canChangeSize()) {
+				fontSize.setEnabled(false);
+			}
 			fontSize.addChangeListener(new ChangeListener() {
 				@Override
 				public void stateChanged(ChangeEvent e) {
@@ -431,7 +434,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		Font font = FontUtils.getFont(name);
 		int size = getFontSize().getValue();
 		if (size == -1) {
-			size = FontUtils.systemDefaultFont.getSize();
+			size = FontUtils.getSystemDefaultFont().getSize();
 		}
 
 		getFontExampleLabel().setFont(font.deriveFont((float)size));
@@ -447,6 +450,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			fontName.addItem(" ");	// Default to system font
 			for (String font : fonts) {
 				fontName.addItem(font);
+			}
+			if (! FontUtils.canChangeSize()) {
+				fontName.setEnabled(false);
 			}
 			fontName.addActionListener(new ActionListener() {
 				@Override
@@ -469,6 +475,9 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox getScaleImages() {
 		if (scaleImages == null) {
 			scaleImages = new JCheckBox();
+			if (! FontUtils.canChangeSize()) {
+				scaleImages.setEnabled(false);
+			}
 		}
 		return scaleImages;
 	}

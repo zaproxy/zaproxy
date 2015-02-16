@@ -25,17 +25,36 @@ import javax.swing.JLabel;
 import javax.swing.UIManager;
 
 public class FontUtils {
-	public static final Font systemDefaultFont;
-	public static enum Size {smallest, much_smaller, smaller, standard, larger, much_larger, huge};
-	
+
+	public static enum Size {smallest, much_smaller, smaller, standard, larger, much_larger, huge};	
 	private static float scale = -1;
+	private static Font defaultFont;
+	private static Font systemDefaultFont;
 	
-	static {
-		systemDefaultFont = (Font) UIManager.getLookAndFeelDefaults().get("defaultFont");
+	public static Font getSystemDefaultFont() {
+		if (systemDefaultFont == null) {
+			systemDefaultFont = (Font) UIManager.getLookAndFeelDefaults().get("defaultFont");
+			
+			if (systemDefaultFont == null) {
+				systemDefaultFont = new JLabel("").getFont();
+			}
+		}
+		
+		return systemDefaultFont;
+	}
+	
+	public static boolean canChangeSize() {
+		return UIManager.getLookAndFeelDefaults().get("defaultFont") != null;
 	}
 	
 	public static void setDefaultFont(Font font) {
-    	UIManager.getLookAndFeelDefaults().put("defaultFont", font);
+		if (canChangeSize()) {
+			getSystemDefaultFont();	// Make sure the system default font is saved first
+			defaultFont = font;
+			scale = -1;	// force it to be recalculated
+			
+			UIManager.getLookAndFeelDefaults().put("defaultFont", font);
+		}
 	}
 	
 	public static void setDefaultFont(String name, int size) {
@@ -45,20 +64,18 @@ public class FontUtils {
 		if (size <= 5) {
 			size = getDefaultFont().getSize();
 		}
-		if (size <= 5) {
-			size = getDefaultFont().getSize();
-		}
 
-		UIManager.getLookAndFeelDefaults().put("defaultFont", new Font(name, Font.PLAIN, size));
+		setDefaultFont(new Font(name, Font.PLAIN, size));
 	}
-	
 
 	private static Font getDefaultFont() {
-		Font font = Font.getFont("defaultFont");
-		if (font == null) {
-			font = new JLabel("").getFont();
+		if (defaultFont == null) {
+			defaultFont = Font.getFont("defaultFont");
+			if (defaultFont == null) {
+				defaultFont = new JLabel("").getFont();
+			}
 		}
-		return font;
+		return defaultFont;
 	}
 	
 	public static Font getFont (String name) {
@@ -97,7 +114,7 @@ public class FontUtils {
 
 	public static float getScale() {
 		if (scale == -1) {
-			scale = getDefaultFont().getSize2D() / systemDefaultFont.getSize2D(); 
+			scale = getDefaultFont().getSize2D() / getSystemDefaultFont().getSize2D(); 
 		}
 		return scale;
 	}
