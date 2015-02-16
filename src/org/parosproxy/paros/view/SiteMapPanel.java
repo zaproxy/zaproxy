@@ -81,6 +81,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.view.ContextCreateDialog;
 import org.zaproxy.zap.view.ContextsTreeCellRenderer;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -111,6 +112,7 @@ public class SiteMapPanel extends AbstractPanel {
 	private JButton filterButton = null;
 	private JLabel filterStatus = null;
 	private HistoryFilterPlusDialog filterPlusDialog = null;
+	private JButton createContextButton = null;
 	private JButton importContextButton = null;
 	private JButton exportContextButton = null;
 
@@ -167,6 +169,7 @@ public class SiteMapPanel extends AbstractPanel {
 			
 			int i = 1;
 			panelToolbar.add(getScopeButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
+			panelToolbar.add(getCreateContextButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
 			panelToolbar.add(getImportContextButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
 			panelToolbar.add(getExportContextButton(), LayoutHelper.getGBC(i++, 0, 1, 0.0D));
 			
@@ -211,6 +214,23 @@ public class SiteMapPanel extends AbstractPanel {
 		return filterButton;
 	}
 	
+	private JButton getCreateContextButton() {
+		if (createContextButton == null) {
+			createContextButton = new JButton();
+			createContextButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(
+					LogPanel.class.getResource("/resource/icon/fugue/application-blue-plus.png"))));
+			createContextButton.setToolTipText(Constant.messages.getString("menu.file.context.create"));
+			createContextButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					ContextCreateDialog ccd = new ContextCreateDialog(View.getSingleton().getMainFrame());
+					ccd.setVisible(true);
+				}
+			});
+		}
+		return createContextButton;
+	}
+
 	private JButton getImportContextButton() {
 		if (importContextButton == null) {
 			importContextButton = new JButton();
@@ -594,7 +614,11 @@ public class SiteMapPanel extends AbstractPanel {
 	    	Target target = (Target)node.getUserObject();
 	    	if (c.getIndex() == target.getContext().getIndex()) {
 	    		target.setContext(c);
-	    		this.contextTree.nodeChanged(node);
+	    		if (node.getNodeName().equals(c.getName())) {
+	    			this.contextTree.nodeChanged(node);
+	    		} else {
+	    			this.reloadContextTree();
+	    		}
 	    		break;
 	    	}
 		}
