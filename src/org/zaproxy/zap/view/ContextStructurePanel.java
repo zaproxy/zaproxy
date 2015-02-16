@@ -35,6 +35,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 
 public class ContextStructurePanel extends AbstractContextPropertiesPanel {
@@ -154,7 +155,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		if (tableStructuralParams == null) {
 			tableStructuralParams = new JTable();
 			tableStructuralParams.setModel(getStructuralParamsModel());
-			tableStructuralParams.setRowHeight(18);
+			tableStructuralParams.setRowHeight(DisplayUtils.getScaledSize(18));
 			// Issue 954: Force the JTable cell to auto-save when the focus changes.
 			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
 			tableStructuralParams.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);

@@ -24,6 +24,7 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/11/06 Added warning that filters will be removed
+// ZAP: 2015/02/16 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.extension.filter;
 
@@ -40,6 +41,7 @@ import javax.swing.table.TableColumn;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class AllFilterPanel extends AbstractParamPanel {
@@ -105,7 +107,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 	private JTable getTableFilter() {
 		if (tableFilter == null) {
 			tableFilter = new JTable();
-			tableFilter.setRowHeight(18);
+            tableFilter.setRowHeight(DisplayUtils.getScaledSize(18));
 			tableFilter.setIntercellSpacing(new java.awt.Dimension(1,1));
 			tableFilter.setModel(getAllFilterTableModel());
 	        for (int i = 0; i < width.length; i++) {

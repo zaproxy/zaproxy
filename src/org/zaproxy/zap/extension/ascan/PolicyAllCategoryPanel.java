@@ -50,6 +50,7 @@ import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -344,7 +345,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         if (tableTest == null) {
             tableTest = new JTable();
             tableTest.setModel(getAllCategoryTableModel());
-            tableTest.setRowHeight(18);
+            tableTest.setRowHeight(DisplayUtils.getScaledSize(18));
             tableTest.setIntercellSpacing(new java.awt.Dimension(1, 1));
             tableTest.setAutoCreateRowSorter(true);
             

@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog - moved code from AbstractParamDialog
+// ZAP: 2015/02/16 Issue 1528: Support user defined font size
 
 package org.parosproxy.paros.view;
 
@@ -49,6 +50,7 @@ import javax.swing.tree.TreePath;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 
@@ -187,7 +189,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
             renderer.setClosedIcon(null);
             treeParam.setCellRenderer(renderer);
 
-            treeParam.setRowHeight(18);
+            treeParam.setRowHeight(DisplayUtils.getScaledSize(18));
         }
         
         return treeParam;

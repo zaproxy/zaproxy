@@ -42,6 +42,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 public class PolicyCategoryPanel extends AbstractParamPanel {
 
@@ -89,7 +90,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 		if (tableTest == null) {
 			tableTest = new JTable();
 			tableTest.setModel(getCategoryTableModel());
-			tableTest.setRowHeight(18);
+			tableTest.setRowHeight(DisplayUtils.getScaledSize(18));
 			tableTest.setIntercellSpacing(new java.awt.Dimension(1,1));
             tableTest.setAutoCreateRowSorter(true);
             

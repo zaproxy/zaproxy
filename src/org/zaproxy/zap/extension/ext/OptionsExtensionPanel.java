@@ -41,6 +41,7 @@ import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.DesktopUtils;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsExtensionPanel extends AbstractParamPanel {
@@ -145,11 +146,11 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 		if (tableExt == null) {
 			tableExt = new JTable();
 			tableExt.setModel(getExtensionModel());
-			tableExt.setRowHeight(18);
-			tableExt.getColumnModel().getColumn(0).setPreferredWidth(70);
-			tableExt.getColumnModel().getColumn(1).setPreferredWidth(70);
-			tableExt.getColumnModel().getColumn(2).setPreferredWidth(120);
-			tableExt.getColumnModel().getColumn(3).setPreferredWidth(220);
+			tableExt.setRowHeight(DisplayUtils.getScaledSize(18));
+			tableExt.getColumnModel().getColumn(0).setPreferredWidth(DisplayUtils.getScaledSize(70));
+			tableExt.getColumnModel().getColumn(1).setPreferredWidth(DisplayUtils.getScaledSize(70));
+			tableExt.getColumnModel().getColumn(2).setPreferredWidth(DisplayUtils.getScaledSize(120));
+			tableExt.getColumnModel().getColumn(3).setPreferredWidth(DisplayUtils.getScaledSize(220));
 			
 			ListSelectionListener sl = new ListSelectionListener() {
 

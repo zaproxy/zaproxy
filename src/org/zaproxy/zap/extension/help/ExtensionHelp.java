@@ -38,6 +38,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
@@ -46,7 +47,8 @@ import org.zaproxy.zap.view.ZapMenuItem;
 public class ExtensionHelp extends ExtensionAdaptor {
 
 	private static final String HELP_SET_FILE_NAME = "helpset";
-	public static final ImageIcon HELP_ICON = new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png"));
+	public static final ImageIcon HELP_ICON = DisplayUtils.getScaledIcon(
+			new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
 
 	private ZapMenuItem menuHelpZap = null;
 	private JButton helpButton = null;
