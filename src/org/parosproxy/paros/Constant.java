@@ -887,6 +887,10 @@ public final class Constant {
     			// Loggers wont have been set up yet
     			System.out.println("Defaulting ZAP install dir to " + path);
             }
+    		if (path.startsWith("/") && path.indexOf(":") > 0) {
+    			// This is likely to be a Windows path, remove to initial slash or it will fail
+    			path = path.substring(1);
+    		}
 
     		zapInstall = getAbsolutePath(path);
     	}
