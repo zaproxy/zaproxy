@@ -33,8 +33,6 @@ import org.parosproxy.paros.model.Model;
 
 public class DisplayUtils {
 	
-	private static float scale = -1;
-	
 	private static Boolean scaleImages = null;
 	
 	private static boolean isScaleImages() {
@@ -44,37 +42,30 @@ public class DisplayUtils {
 		return scaleImages;
 	}
 
-	public static float getScale() {
-		if (scale == -1) {
-			scale = FontUtils.getFont(FontUtils.Size.standard).getSize2D() / FontUtils.systemDefaultFont.getSize2D(); 
-		}
-		return scale;
-	}
-	
 	public static ImageIcon getScaledIcon(ImageIcon icon) {
-		if (! isScaleImages() || icon == null || getScale() == 1) {
+		if (! isScaleImages() || icon == null || FontUtils.getScale() == 1) {
 			// dont need to scale
 			return icon;
 		}
 		return new ImageIcon(((ImageIcon)icon).getImage().getScaledInstance(
-				(int)(icon.getIconWidth() * getScale()), (int)(icon.getIconHeight() * getScale()), Image.SCALE_SMOOTH));
+				(int)(icon.getIconWidth() * FontUtils.getScale()), (int)(icon.getIconHeight() * FontUtils.getScale()), Image.SCALE_SMOOTH));
 	}
 	
 	public static Icon getScaledIcon(Icon icon) {
-		if (! isScaleImages() || icon == null || getScale() == 1 || ! (icon instanceof ImageIcon)) {
+		if (! isScaleImages() || icon == null || FontUtils.getScale() == 1 || ! (icon instanceof ImageIcon)) {
 			// dont need to scale (or cant)
 			return icon;
 		}
 		return new ImageIcon(((ImageIcon)icon).getImage().getScaledInstance(
-				(int)(icon.getIconWidth() * getScale()), (int)(icon.getIconHeight() * getScale()), Image.SCALE_SMOOTH));
+				(int)(icon.getIconWidth() * FontUtils.getScale()), (int)(icon.getIconHeight() * FontUtils.getScale()), Image.SCALE_SMOOTH));
 	}
 	
 	public static Dimension getScaledDimension(int width, int height) {
-		if (getScale() == 1) {
+		if (FontUtils.getScale() == 1) {
 			// dont need to scale
 			return new Dimension(width, height);
 		}
-		return new Dimension((int)(width * getScale()), (int)(height * getScale()));
+		return new Dimension((int)(width * FontUtils.getScale()), (int)(height * FontUtils.getScale()));
 		
 	}
 	
