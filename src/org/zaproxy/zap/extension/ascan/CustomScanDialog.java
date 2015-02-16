@@ -132,7 +132,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private ScanPolicy scanPolicy = null;
     private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     private OptionsVariantPanel variantPanel = null;
-    private final List<PolicyCategoryPanel> categoryPanels = new ArrayList<>();
+    private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
     private boolean showingAdvTabs = true;
 
     public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
@@ -234,6 +234,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(), false);
 
+        categoryPanels = new ArrayList<>(Category.getAllNames().length);
         for (int i = 0; i < Category.getAllNames().length; i++) {
             PolicyCategoryPanel panel
                     = new PolicyCategoryPanel(i, this.scanPolicy.getPluginFactory(),

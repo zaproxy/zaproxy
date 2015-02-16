@@ -40,7 +40,6 @@ import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.utils.FontUtils;
 
 public class BreakpointsPanel extends AbstractPanel {
 	
