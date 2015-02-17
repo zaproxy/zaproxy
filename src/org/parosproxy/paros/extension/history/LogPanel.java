@@ -69,6 +69,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.ZapToggleButton;
 import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
@@ -249,6 +250,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 			scopeButton.setSelectedIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/fugue/target.png")));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
+			DisplayUtils.scaleIcon(scopeButton);
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -269,6 +271,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("history.linkWithSitesSelection.unselected.button.tooltip"));
 			linkWithSitesTreeButton.setSelectedIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/094.png")));
 			linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("history.linkWithSitesSelection.selected.button.tooltip"));
+			DisplayUtils.scaleIcon(linkWithSitesTreeButton);
 
 			linkWithSitesTreeButton.addActionListener(new java.awt.event.ActionListener() {
 

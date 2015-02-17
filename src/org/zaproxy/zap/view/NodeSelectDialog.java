@@ -43,6 +43,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 /**
  * A modal dialog for selecting a node in the SitesTree. 
@@ -225,8 +226,8 @@ public class NodeSelectDialog extends AbstractDialog {
 
 			jPanel = new JPanel();
 			jPanel.setLayout(new GridBagLayout());
-			jPanel.setPreferredSize(new java.awt.Dimension(400,400));
-			jPanel.setMinimumSize(new java.awt.Dimension(400,400));
+			jPanel.setPreferredSize(DisplayUtils.getScaledDimension(400,400));
+			jPanel.setMinimumSize(DisplayUtils.getScaledDimension(400,400));
 			gridBagConstraints2.gridx = 1;
 			gridBagConstraints2.gridy = 5;
 			gridBagConstraints2.insets = new java.awt.Insets(2,2,2,2);
@@ -380,9 +381,6 @@ public class NodeSelectDialog extends AbstractDialog {
 		if (selectButton == null) {
 			selectButton = new JButton();
 			selectButton.setText(Constant.messages.getString("siteselect.button.select"));
-			selectButton.setMinimumSize(new java.awt.Dimension(75,30));
-			selectButton.setPreferredSize(new java.awt.Dimension(75,30));
-			selectButton.setMaximumSize(new java.awt.Dimension(100,40));
 			selectButton.setEnabled(false);	// Enabled when a node is selected
 			selectButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -407,9 +405,6 @@ public class NodeSelectDialog extends AbstractDialog {
 		if (cancelButton == null) {
 			cancelButton = new JButton();
 			cancelButton.setText(Constant.messages.getString("all.button.cancel"));
-			cancelButton.setMaximumSize(new java.awt.Dimension(100,40));
-			cancelButton.setMinimumSize(new java.awt.Dimension(70,30));
-			cancelButton.setPreferredSize(new java.awt.Dimension(70,30));
 			cancelButton.setEnabled(true);
 			cancelButton.addActionListener(new java.awt.event.ActionListener() { 
 

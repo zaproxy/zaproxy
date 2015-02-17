@@ -15,6 +15,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -148,7 +149,8 @@ public class BreakPanelToolbarFactory {
 		ZapToggleButton btnBreakRequest;
 
 		btnBreakRequest = new ZapToggleButton(breakRequestsButtonAction);
-		btnBreakRequest.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
+		btnBreakRequest.setSelectedIcon(
+				DisplayUtils.getScaledIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png"))));
 		btnBreakRequest.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
 
 		return btnBreakRequest;
@@ -159,7 +161,8 @@ public class BreakPanelToolbarFactory {
 		ZapToggleButton btnBreakResponse;
 
 		btnBreakResponse = new ZapToggleButton(breakResponsesButtonAction);
-		btnBreakResponse.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
+		btnBreakResponse.setSelectedIcon(
+				DisplayUtils.getScaledIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png"))));
 		btnBreakResponse.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
 
 		return btnBreakResponse;
@@ -169,7 +172,8 @@ public class BreakPanelToolbarFactory {
 		ZapToggleButton btnBreakAll;
 
 		btnBreakAll = new ZapToggleButton(breakAllButtonAction);
-		btnBreakAll.setSelectedIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/151.png")));
+		btnBreakAll.setSelectedIcon(
+				DisplayUtils.getScaledIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/151.png"))));
 		btnBreakAll.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.all.unset"));
 
 		return btnBreakAll;

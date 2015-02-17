@@ -46,6 +46,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -244,6 +245,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			scopeButton.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.unselected"));
 			scopeButton.setSelectedIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/fugue/target.png")));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("search.toolbar.tooltip.scope.selected"));
+			DisplayUtils.scaleIcon(scopeButton);
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -271,6 +273,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			btnSearch.setText(Constant.messages.getString("search.toolbar.label.search"));
 			btnSearch.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/049.png")));	// 'magnifying glass' icon
 			btnSearch.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.search"));
+			DisplayUtils.scaleIcon(btnSearch);
 
 			btnSearch.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -317,6 +320,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			btnNext.setText(Constant.messages.getString("search.toolbar.label.next"));
 			btnNext.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/107.png")));	// 'arrow down' icon
 			btnNext.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.next"));
+			DisplayUtils.scaleIcon(btnNext);
 
 			btnNext.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -335,6 +339,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			btnPrev.setText(Constant.messages.getString("search.toolbar.label.previous"));
 			btnPrev.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/108.png")));	// 'arrow up' icon
 			btnPrev.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.previous"));
+			DisplayUtils.scaleIcon(btnPrev);
 
 			btnPrev.addActionListener(new java.awt.event.ActionListener() { 
 
