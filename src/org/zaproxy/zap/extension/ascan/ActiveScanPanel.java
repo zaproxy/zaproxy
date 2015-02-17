@@ -45,6 +45,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanListenner2;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
@@ -110,7 +111,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 		if (policyButton == null) {
 			policyButton = new JButton();
 			policyButton.setToolTipText(Constant.messages.getString("menu.analyse.scanPolicy"));
-			policyButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/equalizer.png")));
+			policyButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/equalizer.png"))));
 			policyButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -125,7 +126,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	public JButton getNewScanButton() {
 		if (scanButton == null) {
 			scanButton = new JButton(Constant.messages.getString("ascan.toolbar.button.new"));
-			scanButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")));
+			scanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png"))));
 			scanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -141,7 +142,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 			progressButton = new JButton();
 			progressButton.setEnabled(false);
 			progressButton.setToolTipText(Constant.messages.getString("ascan.toolbar.button.progress"));
-			progressButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/system-monitor.png")));
+			progressButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/fugue/system-monitor.png"))));
 			progressButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {

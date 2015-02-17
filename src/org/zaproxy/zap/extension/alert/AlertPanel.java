@@ -60,6 +60,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.DeselectableButtonGroup;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ZapToggleButton;
@@ -240,6 +241,7 @@ public class AlertPanel extends AbstractPanel {
 			scopeButton.setToolTipText(Constant.messages.getString("history.scope.button.unselected"));
 			scopeButton.setSelectedIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/fugue/target.png")));
 			scopeButton.setSelectedToolTipText(Constant.messages.getString("history.scope.button.selected"));
+			DisplayUtils.scaleIcon(scopeButton);
 
 			scopeButton.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -269,6 +271,7 @@ public class AlertPanel extends AbstractPanel {
             linkWithSitesTreeButton.setToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.unselected.button.tooltip"));
             linkWithSitesTreeButton.setSelectedIcon(new ImageIcon(AlertPanel.class.getResource("/resource/icon/16/094.png")));
             linkWithSitesTreeButton.setSelectedToolTipText(Constant.messages.getString("alerts.panel.linkWithSitesSelection.selected.button.tooltip"));
+			DisplayUtils.scaleIcon(linkWithSitesTreeButton);
 
             linkWithSitesTreeButton.addActionListener(new java.awt.event.ActionListener() {
 

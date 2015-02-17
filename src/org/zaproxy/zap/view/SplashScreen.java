@@ -216,7 +216,7 @@ public class SplashScreen extends JFrame implements Runnable {
     private JProgressBar getLoadingJProgressBar() {
         if (loadProgressBar == null) {
             loadProgressBar = new JProgressBar();
-            loadProgressBar.setPreferredSize(new Dimension(100, 12));
+            loadProgressBar.setPreferredSize(DisplayUtils.getScaledDimension(100, 12));
             loadProgressBar.setMinimum(0);
             loadProgressBar.setMaximum(100);
             loadProgressBar.setValue(50);

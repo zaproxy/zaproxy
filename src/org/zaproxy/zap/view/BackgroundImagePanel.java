@@ -26,6 +26,8 @@ import java.net.URL;
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
 
+import org.zaproxy.zap.utils.DisplayUtils;
+
 /**
  *
  * @author yhawke (2014)
@@ -72,7 +74,7 @@ public class BackgroundImagePanel extends JPanel {
     protected void paintComponent(Graphics g) {
         if (img != null) {
             setOpaque(false);
-            g.drawImage(img, 0, 0, null);
+            g.drawImage(img, 0, 0, DisplayUtils.getScaledSize(img.getWidth()), DisplayUtils.getScaledSize(img.getHeight()), null);
         }
         
         super.paintComponent(g);
