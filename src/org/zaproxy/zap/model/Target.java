@@ -19,6 +19,9 @@
  */
 package org.zaproxy.zap.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.SiteNode;
 
@@ -29,7 +32,7 @@ import org.parosproxy.paros.model.SiteNode;
  */
 public class Target {
 
-	private SiteNode startNode;
+	private List<SiteNode> startNodes;
 	private Context context;
 	private boolean inScopeOnly = false;
 	private int maxChildren = -1;
@@ -41,14 +44,18 @@ public class Target {
 		this.inScopeOnly = inScopeOnly;
 	}
 
+	public Target(List<SiteNode> startNodes) {
+		super();
+		this.startNodes = startNodes; 
+	}
+
 	public Target(SiteNode startNode) {
 		super();
-		this.startNode = startNode;
+		this.setStartNode(startNode); 
 	}
 
 	public Target(SiteNode startNode, boolean recurse) {
-		super();
-		this.startNode = startNode;
+		this(startNode);
 		this.setRecurse(recurse);
 	}
 
@@ -69,8 +76,7 @@ public class Target {
 	 */
 	public Target(SiteNode startNode, Context context, boolean inScopeOnly,
 			int maxChildren, int maxDepth) {
-		super();
-		this.startNode = startNode;
+		this(startNode);
 		this.context = context;
 		this.inScopeOnly = inScopeOnly;
 		this.maxChildren = maxChildren;
@@ -78,19 +84,24 @@ public class Target {
 	}
 
 	public Target(SiteNode startNode, Context context, boolean inScopeOnly, boolean recurse) {
-		super();
-		this.startNode = startNode;
+		this(startNode);
 		this.context = context;
 		this.inScopeOnly = inScopeOnly;
 		this.recurse = recurse;
 	}
 	
 	public boolean isValid() {
-		return this.startNode != null || this.context != null || this.inScopeOnly;
+		return (this.startNodes != null && this.startNodes.size() > 0) || this.context != null || this.inScopeOnly;
 	}
 
 	public SiteNode getStartNode() {
-		return startNode;
+		if (startNodes != null && startNodes.size() > 0) {
+			return startNodes.get(0);
+		}
+		return null;
+	}
+	public List<SiteNode> getStartNodes() {
+		return this.startNodes;
 	}
 	public Context getContext() {
 		return context;
@@ -105,7 +116,11 @@ public class Target {
 		return maxDepth;
 	}
 	public void setStartNode(SiteNode startNode) {
-		this.startNode = startNode;
+		this.startNodes = new ArrayList<SiteNode>(); 
+		this.startNodes.add(startNode);
+	}
+	public void setStartNodes(List<SiteNode> startNodes) {
+		this.startNodes = startNodes; 
 	}
 	public void setContext(Context context) {
 		this.context = context;
@@ -129,7 +144,7 @@ public class Target {
 	}
 	
     public String getDisplayName() {
-    	if (startNode == null) {
+    	if (this.getStartNode() == null) {
     		if (context != null) {
     			return Constant.messages.getString("context.prefixName", new Object[] {context.getName()});
     		} else if (this.inScopeOnly) {
@@ -138,7 +153,7 @@ public class Target {
     			return Constant.messages.getString("target.empty");
     		}
     	} else {
-    		String name = startNode.getHierarchicNodeName(); 
+    		String name = this.getStartNode().getHierarchicNodeName(); 
     		if (name.length() < 30) {
     			return name;
     		}

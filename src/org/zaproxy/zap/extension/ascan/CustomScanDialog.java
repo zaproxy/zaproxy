@@ -75,7 +75,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
-import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
@@ -88,6 +87,13 @@ import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
 public class CustomScanDialog extends StandardFieldsDialog {
+	
+	protected static final String[] STD_TAB_LABELS = {
+		"ascan.custom.tab.scope",
+        "ascan.custom.tab.input",
+        "ascan.custom.tab.custom",
+        "ascan.custom.tab.tech",
+        "ascan.custom.tab.policy"};
 
     private static final String FIELD_START = "ascan.custom.label.start";
     private static final String FIELD_POLICY = "ascan.custom.label.policy";
@@ -128,24 +134,18 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JCheckBoxTree techTree = null;
     private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
     private TreeModel techModel = null;
-    private SequencePanel sequencePanel = null;
     private ScanPolicy scanPolicy = null;
     private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     private OptionsVariantPanel variantPanel = null;
     private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
+    private List<CustomScanPanel> customPanels = null;
     private boolean showingAdvTabs = true;
 
-    public CustomScanDialog(ExtensionActiveScan ext, Frame owner, Dimension dim) {
-        super(owner, "ascan.custom.title", dim, new String[]{
-            "ascan.custom.tab.scope",
-            "ascan.custom.tab.input",
-            "ascan.custom.tab.custom",
-            "ascan.custom.tab.sequence",
-            "ascan.custom.tab.tech",
-            "ascan.custom.tab.policy"
-        });
+    public CustomScanDialog(ExtensionActiveScan ext, String[] tabLabels, List<CustomScanPanel> customPanels, Frame owner, Dimension dim) {
+        super(owner, "ascan.custom.title", dim, tabLabels);
         
         this.extension = ext;
+        this.customPanels = customPanels;
 
         // The first time init to the default options set, after that keep own copies
         reset(false);
@@ -220,11 +220,8 @@ public class CustomScanDialog extends StandardFieldsDialog {
         // Custom vectors panel
         this.setCustomTabPanel(2, getCustomPanel());
 
-        //Sequence panel
-        this.setCustomTabPanel(3, this.getSequencePanel(true));
-
         // Technology panel
-        this.setCustomTabPanel(4, getTechPanel());
+        this.setCustomTabPanel(3, getTechPanel());
 
         // Policy panel
         AbstractParamContainerPanel policyPanel
@@ -245,7 +242,16 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         policyPanel.showDialog(true);
 
-        this.setCustomTabPanel(5, policyPanel);
+        this.setCustomTabPanel(4, policyPanel);
+        
+        // add custom panels
+        int cIndex = 5;
+        if (this.customPanels != null) {
+        	for (CustomScanPanel customPanel : this.customPanels) {
+                this.setCustomTabPanel(cIndex, customPanel.getPanel(true));
+        		cIndex++;
+        	}
+        }
 
         if (target != null) {
             // Set up the fields if a node has been specified, otherwise leave as previously set
@@ -304,39 +310,19 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setTabsVisible(new String[]{
             "ascan.custom.tab.input",
             "ascan.custom.tab.custom",
-            "ascan.custom.tab.sequence",
             "ascan.custom.tab.tech",
             "ascan.custom.tab.policy"
         }, adv);
         
+        if (this.customPanels != null) {
+        	for (CustomScanPanel customPanel : this.customPanels) {
+        		this.setTabsVisible(new String[]{customPanel.getLabel()}, adv);
+        	}
+        }
+        
         showingAdvTabs = adv;
         // Always save in the 'global' options
         extension.getScannerParam().setShowAdvancedDialog(adv);
-    }
-
-    /**
-     * Gets the Sequence panel.
-     *
-     * @return The sequence panel
-     */
-    private SequencePanel getSequencePanel() {
-        return this.getSequencePanel(false);
-    }
-
-    /**
-     * Gets the sequence panel, with a boolean that specifies if it should be be
-     * a new instance or the extisting one.
-     *
-     * @param reset if set to true, returns a new instance, else the existing
-     * instance is returned.
-     * @return
-     */
-    private SequencePanel getSequencePanel(boolean reset) {
-        if (this.sequencePanel == null || reset) {
-            this.sequencePanel = new SequencePanel();
-        }
-        
-        return this.sequencePanel;
     }
 
     private void populateRequestField(SiteNode node) {
@@ -875,9 +861,20 @@ public class CustomScanDialog extends StandardFieldsDialog {
      */
     @Override
     public void save() {
-        Object[] contextSpecificObjects = new Object[]{scanPolicy};
+        List<Object> contextSpecificObjects = new ArrayList<Object>();
+        contextSpecificObjects.add(scanPolicy);
 
         if (this.getBoolValue(FIELD_ADVANCED)) {
+        	
+        	if (target == null && this.customPanels != null) {
+        		// One of the custom scan panels must have specified a target 
+            	for (CustomScanPanel customPanel : this.customPanels) {
+                    target = customPanel.getTarget();
+                    if (target != null) {
+                    	break;
+                    }
+            	}
+        	}
 
             // Save all Variant configurations
             getVariantPanel().saveParam(scannerParam);
@@ -889,9 +886,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 scannerParam.setTargetParamsEnabledRPC(0);                
             }
             
-            //The following List and Hashmap represent the selections made on the Sequence Panel.
-            List<ScriptWrapper> selectedIncludeScripts = getSequencePanel().getSelectedIncludeScripts();
-
             if (!getBoolValue(FIELD_RECURSE) && injectionPointModel.getSize() > 0) {
                 int[][] injPoints = new int[injectionPointModel.getSize()][];
                 for (int i = 0; i < injectionPointModel.getSize(); i++) {
@@ -920,13 +914,20 @@ public class CustomScanDialog extends StandardFieldsDialog {
             scannerParam.setHandleAntiCSRFTokens(extension.getScannerParam().getHandleAntiCSRFTokens());
             scannerParam.setMaxResultsToList(extension.getScannerParam().getMaxResultsToList());
 
-            contextSpecificObjects = new Object[]{
-                scannerParam,
-                scanPolicy,
-                this.getTechSet()
-            };
 
-            this.extension.setIncludedSequenceScripts(selectedIncludeScripts);
+            contextSpecificObjects.add(scannerParam);
+            contextSpecificObjects.add(this.getTechSet());
+            
+            if (this.customPanels != null) {
+            	for (CustomScanPanel customPanel : this.customPanels) {
+                    Object[] objs = customPanel.getContextSpecificObjects();
+                    if (objs != null) {
+                    	for (Object obj : objs) {
+                            contextSpecificObjects.add(obj);
+                    	}
+                    }
+            	}
+            }
         }
 
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
@@ -934,11 +935,29 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.extension.startScan(
                 target,
                 getSelectedUser(),
-                contextSpecificObjects);
+                contextSpecificObjects.toArray());
     }
 
     @Override
     public String validateFields() {
+        if (this.customPanels != null) {
+        	// Check all custom panels validate ok
+        	for (CustomScanPanel customPanel : this.customPanels) {
+                String fail = customPanel.validateFields();
+                if (fail != null) {
+                	return fail;
+                }
+        	}
+        	// Check if they support a custom target
+        	for (CustomScanPanel customPanel : this.customPanels) {
+        		Target target = customPanel.getTarget();
+                if (target != null && target.isValid()) {
+                	// They do, everythings ok
+                	return null;
+                }
+        	}
+        }
+
         if (this.target == null || !this.target.isValid()) {
             return Constant.messages.getString("ascan.custom.nostart.error");
         }

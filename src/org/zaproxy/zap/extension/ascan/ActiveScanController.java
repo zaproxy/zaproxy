@@ -31,6 +31,7 @@ import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.extension.script.ScriptCollection;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
@@ -133,6 +134,8 @@ public class ActiveScanController implements ScanController {
 						ascan.setScanPolicy(policy);
 					} else if (obj instanceof TechSet) {
 						ascan.setTechSet((TechSet) obj);
+					} else if (obj instanceof ScriptCollection) {
+						ascan.addScriptCollection((ScriptCollection)obj);
 					} else {
 						logger.error("Unexpected contextSpecificObject: " + obj.getClass().getCanonicalName());
 					}

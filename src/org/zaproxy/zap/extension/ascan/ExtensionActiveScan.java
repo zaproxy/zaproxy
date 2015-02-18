@@ -61,7 +61,6 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
-import org.zaproxy.zap.extension.script.ScriptWrapper;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
@@ -112,7 +111,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private CustomScanDialog customScanDialog = null;
 	private PolicyManagerDialog policyManagerDialog = null;
 	private PolicyManager policyManager = null;
-	private List<ScriptWrapper> includedSequenceScripts = null;
+    private List<CustomScanPanel> customScanPanels = new ArrayList<CustomScanPanel>();
     
 	private ActiveScanAPI activeScanApi;
 
@@ -538,7 +537,21 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 	public void showCustomScanDialog(SiteNode node) {
 		if (customScanDialog == null) {
-			customScanDialog = new CustomScanDialog(this, View.getSingleton().getMainFrame(), new Dimension(700, 500));
+			// Work out the tabs 
+			String[] tabs = CustomScanDialog.STD_TAB_LABELS;
+			if (this.customScanPanels.size() > 0) {
+				List<String> tabList = new ArrayList<String>();
+				for (String str : CustomScanDialog.STD_TAB_LABELS) {
+					tabList.add(str);
+				}
+				for (CustomScanPanel csp : customScanPanels) {
+					tabList.add(csp.getLabel());
+				}
+				tabs = tabList.toArray(new String[tabList.size()]);
+			}
+			
+			customScanDialog = new CustomScanDialog(this, tabs, this.customScanPanels, 
+					View.getSingleton().getMainFrame(), new Dimension(700, 500));
 		}
 		if (customScanDialog.isVisible()) {
 			customScanDialog.requestFocus();
@@ -554,6 +567,16 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		}
 		customScanDialog.setVisible(true);
 	}
+	
+    public void addCustomScanPanel (CustomScanPanel panel) {
+    	this.customScanPanels.add(panel);
+    	customScanDialog = null;	// Force it to be reinitialised
+    }
+
+    public void removeCustomScanPanel (CustomScanPanel panel) {
+    	this.customScanPanels.remove(panel);
+    	customScanDialog = null;	// Force it to be reinitialised
+    }
 
 	public void showPolicyManagerDialog() {
 		if (policyManagerDialog == null) {
@@ -677,13 +700,4 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public PolicyManager getPolicyManager() {
 		return policyManager;
 	}
-
-	public void setIncludedSequenceScripts(List<ScriptWrapper> selectedIncludeScripts) {
-		this.includedSequenceScripts = selectedIncludeScripts;
-	}
-	
-	public List<ScriptWrapper> getIncludedSequenceScripts() {
-		return this.includedSequenceScripts;
-	}
-
 }
