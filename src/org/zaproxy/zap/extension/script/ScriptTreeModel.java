@@ -123,6 +123,9 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		if (this.getScript(script.getName()) != null) {
 			throw new InvalidParameterException("A script with the same name already exists: " + script.getName());
 		}
+		if (script.getType() == null) {
+			throw new InvalidParameterException("Script does not define a type: " + script.getName());
+		}
 		
 		ScriptNode node = new ScriptNode(script);
 		if (script.getType() == null) {
@@ -134,7 +137,7 @@ public class ScriptTreeModel extends DefaultTreeModel {
 			this.addToParentSorted(parent, node);
 			return node;
 		} else {
-			throw new InvalidParameterException("Unrecognised type: " + script.getType());
+			throw new InvalidParameterException("Unrecognised type: " + script.getType() + " for script " + script.getName());
 		}
 	}
 
