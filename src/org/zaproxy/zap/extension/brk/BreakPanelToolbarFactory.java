@@ -15,7 +15,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.view.TabbedPanel;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapToggleButton;
 
@@ -150,7 +149,7 @@ public class BreakPanelToolbarFactory {
 
 		btnBreakRequest = new ZapToggleButton(breakRequestsButtonAction);
 		btnBreakRequest.setSelectedIcon(
-				DisplayUtils.getScaledIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png"))));
+				new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/105r.png")));
 		btnBreakRequest.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.request.unset"));
 
 		return btnBreakRequest;
@@ -162,7 +161,7 @@ public class BreakPanelToolbarFactory {
 
 		btnBreakResponse = new ZapToggleButton(breakResponsesButtonAction);
 		btnBreakResponse.setSelectedIcon(
-				DisplayUtils.getScaledIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png"))));
+				new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/106r.png")));
 		btnBreakResponse.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.response.unset"));
 
 		return btnBreakResponse;
@@ -173,7 +172,7 @@ public class BreakPanelToolbarFactory {
 
 		btnBreakAll = new ZapToggleButton(breakAllButtonAction);
 		btnBreakAll.setSelectedIcon(
-				DisplayUtils.getScaledIcon(new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/151.png"))));
+				new ImageIcon(BreakPanelToolbarFactory.class.getResource("/resource/icon/16/151.png")));
 		btnBreakAll.setSelectedToolTipText(Constant.messages.getString("brk.toolbar.button.all.unset"));
 
 		return btnBreakAll;
