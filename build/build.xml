@@ -6,6 +6,7 @@
     <property name="build" location="build" />
     <property name="build.lib.dir" location="lib" />
     <property name="build.crowdin.dir" location="${build}/crowdin" />
+    <property name="crowdin.dir" location="crowdin" />
     <property name="dist" location="zap" />
     <property name="dist.lib.dir" location="../lib" />
     <property name="dist.lib.license.dir" location="../license" />
@@ -457,18 +458,41 @@
         </generatewiki>
     </target>
 
+	<macrodef name="copy-help-to-addon" description="deploy the help file to the equivalent addon">
+		<attribute name="src"/>
+		<attribute name="ext"/>
+		<attribute name="lang"/>
+		<sequential>
+	        <copy file="@{src}/zaphelp@{lang}.jar" 
+	        	todir="@{ext}/src/org/zaproxy/zap/extension/help@{lang}/lib"/>
+		</sequential>
+	</macrodef>
+
     <target name="generate-help-jars" description="Generates all ZAP (core) help jars (default and i18n) and copies them to the right place (lib directory)">
+    	<!-- Note that the translated languages currently supported are explicitly named - 
+    		most dont have enough content for an alpha release -->
         <local name="wkdir" />
         <property name="wkdir" location="${build}/HelpJars" />
         <delete dir="${wkdir}" includeEmptyDirs="true" />
         <mkdir dir="${wkdir}" />
-        <generatejavahelpjars jhalljar="${build.lib.dir}/jhall.jar" destdir="${dist.lib.dir}" 
+        <mkdir dir="${wkdir}/jars" />
+        <generatejavahelpjars jhalljar="${build.lib.dir}/jhall.jar" destdir="${wkdir}/jars" 
             workingdir="${wkdir}" helpcontentsdirname="contents" helpsetfilename="helpset*.hs">
             <dirset dir="${help.dir}">
                 <include name="zaphelp" />
-                <include name="zaphelp_*_*" />
+                <include name="zaphelp_bs_BA" />
+                <include name="zaphelp_es_ES" />
+	            <include name="zaphelp_fr_FR" />
+            	<include name="zaphelp_ja_JP" />
             </dirset>
         </generatejavahelpjars>
+    	<!-- copy the jars to the right add-ons -->
+    	<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.trunk.dir}" lang=""/> <!-- default en_GB -->
+    	<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_bs_BA"/>
+    	<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_es_ES"/>
+    	<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_fr_FR"/>
+    	<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_ja_JP"/>
+    	
         <delete dir="${wkdir}" includeEmptyDirs="true" />
     </target>
 
@@ -490,7 +514,7 @@
         Use updateneweronly as true whenever possible as it updates/uploads only the necessary files.
         Note: when moving add-ons between branches updateneweronly has to be false to force the update of export pattern -->
         <crowdinupdatesources configrefid="crowdin.config" dryrun="false" verbose="true" updateoption="update_as_unapproved" 
-            xmlcontentsegmentation="false" updateneweronly="true" deleteremoved="true">
+            xmlcontentsegmentation="false" updateneweronly="false" deleteremoved="false">
             <!-- For SVN repo, uses commit date (from svn info) -->
             <clastmodifieddateprovider name="svn" cmdpath="${svn.cmd}" failonerror="true" />
             <!-- For Git repo, uses "committer date" (from git log) -->
