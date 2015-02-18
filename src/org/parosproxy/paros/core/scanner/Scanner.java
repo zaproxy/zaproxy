@@ -34,12 +34,18 @@
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/10/25 Issue 1062: Made the scanner load all scannerhooks from the extensionloader
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
 
 package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -51,6 +57,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.script.ScriptCollection;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
@@ -78,6 +85,7 @@ public class Scanner implements Runnable {
 	private boolean scanChildren = true;
 	private User user = null;
     private TechSet techSet = null;
+    private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
 	private int id;
 
 	// ZAP: Added scanner pause option
@@ -156,10 +164,11 @@ public class Scanner implements Runnable {
         this.setScanChildren(target.isRecurse());
         this.setJustScanInScope(target.isInScopeOnly());
 
-	    if (target.getStartNode() != null) {
+	    if (target.getStartNodes() != null) {
 		    HostProcess hostProcess = null;
-	    	SiteNode node = target.getStartNode();
-		    if (node.isRoot()) {
+	    	List<SiteNode> nodes = target.getStartNodes();
+	    	if (nodes.size() == 1 && nodes.get(0).isRoot()) {
+	    		SiteNode node = nodes.get(0);
 		        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
 		            SiteNode child = (SiteNode) node.getChildAt(i);
 		            String hostAndPort = getHostAndPort(child);
@@ -177,16 +186,28 @@ public class Scanner implements Runnable {
 		            }
 		        }
 		    } else {
-	            String hostAndPort = getHostAndPort(node);
-	
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
-	            hostProcess.setStartNode(node);
-	            hostProcess.setUser(this.user);
-	            hostProcess.setTechSet(this.techSet);
-	            this.hostProcesses.add(hostProcess);
-	            thread = pool.getFreeThreadAndRun(hostProcess);
-	            notifyHostNewScan(hostAndPort, hostProcess);
-		        
+		    	Map<String, HostProcess> processMap = new HashMap<String, HostProcess>();
+		    	for (SiteNode node : nodes) {
+		    		// Loop through the nodes creating new HostProcesss's as required
+		            String hostAndPort = getHostAndPort(node);
+		            hostProcess = processMap.get(hostAndPort);
+		            if (hostProcess == null) {
+			            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
+			            hostProcess.setStartNode(node);
+			            hostProcess.setUser(this.user);
+			            hostProcess.setTechSet(this.techSet);
+			            processMap.put(hostAndPort, hostProcess);
+		            } else {
+			            hostProcess.addStartNode(node);
+		            }
+		    	}
+		    	
+		    	// Now start them all off
+		    	for (Entry<String, HostProcess> pmSet : processMap.entrySet()) {
+		            this.hostProcesses.add(pmSet.getValue());
+		            thread = pool.getFreeThreadAndRun(pmSet.getValue());
+		            notifyHostNewScan(pmSet.getKey(), pmSet.getValue());
+		    	}
 		    }
 	    } else if (target.getContext() != null) {
 	    	// Loop through all of the top nodes containing children in this context
@@ -422,6 +443,14 @@ public class Scanner implements Runnable {
 
 	public void setTechSet(TechSet techSet) {
 		this.techSet = techSet;
+	}
+
+	public void addScriptCollection(ScriptCollection sc) {
+		this.scriptCollections.add(sc);
+	}
+
+	public Set<ScriptCollection> getScriptCollections() {
+		return this.scriptCollections;
 	}
 
 	public int getId() {

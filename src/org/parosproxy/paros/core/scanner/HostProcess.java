@@ -46,10 +46,12 @@
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/10/25 Issue 1062: Made it possible to hook into the active scanner from extensions
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
 
 package org.parosproxy.paros.core.scanner;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -73,9 +75,8 @@ public class HostProcess implements Runnable {
     private static final Logger log = Logger.getLogger(HostProcess.class);
     private static final DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
     
-    private SiteNode startNode = null;
+    private List<SiteNode> startNodes = null;
     private boolean isStop = false;
-    private ScanPolicy scanPolicy = null;
     private PluginFactory pluginFactory;
     private ScannerParam scannerParam = null;
     private HttpSender httpSender = null;
@@ -115,7 +116,6 @@ public class HostProcess implements Runnable {
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
-        this.scanPolicy = scanPolicy;
 		this.pluginFactory = scanPolicy.getPluginFactory().clone();
 		
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
@@ -140,7 +140,15 @@ public class HostProcess implements Runnable {
      * @param startNode the start node we should start from
      */
     public void setStartNode(SiteNode startNode) {
-        this.startNode = startNode;
+        this.startNodes = new ArrayList<SiteNode>(); 
+        this.startNodes.add(startNode);
+    }
+
+    public void addStartNode(SiteNode startNode) {
+    	if (this.startNodes == null) {
+            this.startNodes = new ArrayList<SiteNode>(); 
+    	}
+        this.startNodes.add(startNode);
     }
 
     /**
@@ -159,11 +167,12 @@ public class HostProcess implements Runnable {
         log.debug("HostProcess.run");
 
         hostProcessStartTime = System.currentTimeMillis();
-        // ZAP: before all get back the size of this scan
-        nodeInScopeCount = getNodeInScopeCount(startNode, true);
-        
-        // ZAP: begin to analyze the scope
-        getAnalyser().start(startNode);
+        for (SiteNode node : startNodes) {
+	        // ZAP: before all get back the size of this scan
+	        nodeInScopeCount += getNodeInScopeCount(node, true);
+	        // ZAP: begin to analyze the scope
+	        getAnalyser().start(node);
+        }
         
         Plugin plugin;
         
@@ -194,17 +203,19 @@ public class HostProcess implements Runnable {
         mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
         mapPluginProgress.put(plugin.getId(), 0);
         
-        if (plugin instanceof AbstractHostPlugin) {
-            if (!scanSingleNode(plugin, startNode)) {
-                // Mark the plugin as as completed if it was not run so the scan process can continue as expected.
-                // The plugin might not be run if the startNode: is not in scope, is explicitly excluded, ...
-                pluginCompleted(plugin);
-            }
-            
-        } else if (plugin instanceof AbstractAppPlugin) {
-            traverse(plugin, startNode, true);
-            threadPool.waitAllThreadComplete(600000);
-            pluginCompleted(plugin);
+        for (SiteNode startNode : startNodes) {
+	        if (plugin instanceof AbstractHostPlugin) {
+	            if (!scanSingleNode(plugin, startNode)) {
+	                // Mark the plugin as as completed if it was not run so the scan process can continue as expected.
+	                // The plugin might not be run if the startNode: is not in scope, is explicitly excluded, ...
+	                pluginCompleted(plugin);
+	            }
+	            
+	        } else if (plugin instanceof AbstractAppPlugin) {
+	            traverse(plugin, startNode, true);
+	            threadPool.waitAllThreadComplete(600000);
+	            pluginCompleted(plugin);
+	        }
         }
     }
 
@@ -600,7 +611,7 @@ public class HostProcess implements Runnable {
 			ScannerHook hook = iter.next();
 			if(hook != null) {
 				try {
-					hook.beforeScan(msg, plugin);
+					hook.beforeScan(msg, plugin, this.parentScanner);
 				} catch (Exception e) {
 					log.info("An exception occurred while trying to call beforeScan(msg, plugin) for one of the ScannerHooks: " + e.getMessage(), e); 
 				} 
@@ -619,7 +630,7 @@ public class HostProcess implements Runnable {
 			ScannerHook hook = iter.next();
 			if(hook != null) {
 				try {
-					hook.afterScan(msg, plugin);
+					hook.afterScan(msg, plugin, this.parentScanner);
 				} catch (Exception e) {
 					log.info("An exception occurred while trying to call afterScan(msg, plugin) for one of the ScannerHooks: " + e.getMessage(), e);
 				}
