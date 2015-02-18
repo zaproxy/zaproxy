@@ -125,6 +125,9 @@ public class ScriptTreeModel extends DefaultTreeModel {
 		}
 		
 		ScriptNode node = new ScriptNode(script);
+		if (script.getType() == null) {
+			throw new InvalidParameterException("Unrecognised type: " + script.getTypeName());
+		}
 		ScriptNode parent = scriptsNodeMap.get(script.getType().getName());
 		
 		if (parent != null) {

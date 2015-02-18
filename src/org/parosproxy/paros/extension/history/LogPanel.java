@@ -231,6 +231,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 			// ZAP: Changed to use the class literal.
 			filterButton.setIcon(new ImageIcon(LogPanel.class.getResource("/resource/icon/16/054.png")));	// 'filter' icon
 			filterButton.setToolTipText(Constant.messages.getString("history.filter.button.filter"));
+			DisplayUtils.scaleIcon(filterButton);
 
 			filterButton.addActionListener(new java.awt.event.ActionListener() { 
 

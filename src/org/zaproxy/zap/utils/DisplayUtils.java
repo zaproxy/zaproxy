@@ -34,6 +34,7 @@ import org.parosproxy.paros.model.Model;
 public class DisplayUtils {
 	
 	private static Boolean scaleImages = null;
+	private final static int STD_HEIGHT = 16;
 	
 	private static boolean isScaleImages() {
 		if (scaleImages == null) {
@@ -43,7 +44,7 @@ public class DisplayUtils {
 	}
 
 	public static ImageIcon getScaledIcon(ImageIcon icon) {
-		if (! isScaleImages() || icon == null || FontUtils.getScale() == 1) {
+		if (! isScaleImages() || icon == null || FontUtils.getScale() == 1 || icon.getIconHeight() > STD_HEIGHT) {
 			// dont need to scale
 			return icon;
 		}
@@ -56,8 +57,7 @@ public class DisplayUtils {
 			// dont need to scale (or cant)
 			return icon;
 		}
-		return new ImageIcon(((ImageIcon)icon).getImage().getScaledInstance(
-				(int)(icon.getIconWidth() * FontUtils.getScale()), (int)(icon.getIconHeight() * FontUtils.getScale()), Image.SCALE_SMOOTH));
+		return getScaledIcon((ImageIcon)icon);
 	}
 	
 	public static Dimension getScaledDimension(int width, int height) {
@@ -80,7 +80,8 @@ public class DisplayUtils {
 	}
 	
 	public static void scaleIcon(JButton button) {
-		if (isScaleImages() && button != null && button.getIcon() != null && button.getIcon() instanceof ImageIcon) {
+		if (isScaleImages() && button != null && button.getIcon() != null && 
+				button.getIcon() instanceof ImageIcon) {
 			button.setIcon(getScaledIcon((ImageIcon)button.getIcon()));
 		}
 	}
@@ -90,8 +91,23 @@ public class DisplayUtils {
 			if (button.getIcon() != null && button.getIcon() instanceof ImageIcon) {
 				button.setIcon(getScaledIcon((ImageIcon)button.getIcon()));
 			}
+			if (button.getSelectedIcon() != null && button.getSelectedIcon() instanceof ImageIcon) {
+				button.setSelectedIcon(getScaledIcon((ImageIcon)button.getSelectedIcon()));
+			}
 			if (button.getRolloverIcon() != null && button.getRolloverIcon() instanceof ImageIcon) {
 				button.setRolloverIcon(getScaledIcon((ImageIcon)button.getRolloverIcon()));
+			}
+			if (button.getRolloverSelectedIcon() != null && button.getRolloverSelectedIcon() instanceof ImageIcon) {
+				button.setRolloverSelectedIcon(getScaledIcon((ImageIcon)button.getRolloverSelectedIcon()));
+			}
+			if (button.getDisabledIcon() != null && button.getDisabledIcon() instanceof ImageIcon) {
+				button.setDisabledIcon(getScaledIcon((ImageIcon)button.getDisabledIcon()));
+			}
+			if (button.getDisabledSelectedIcon() != null && button.getDisabledSelectedIcon() instanceof ImageIcon) {
+				button.setDisabledSelectedIcon(getScaledIcon((ImageIcon)button.getDisabledSelectedIcon()));
+			}
+			if (button.getPressedIcon() != null && button.getPressedIcon() instanceof ImageIcon) {
+				button.setPressedIcon(getScaledIcon((ImageIcon)button.getPressedIcon()));
 			}
 		}
 	}

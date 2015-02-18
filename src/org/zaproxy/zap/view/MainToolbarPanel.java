@@ -349,7 +349,6 @@ public class MainToolbarPanel extends JPanel {
 					MainToolbarPanel.class.getResource("/resource/icon/expand_sites.png"),
 					View.DISPLAY_OPTION_LEFT_FULL));
 			btnExpandSites.setToolTipText(Constant.messages.getString("view.toolbar.expandSites"));
-			DisplayUtils.scaleIcon(btnExpandSites);
 			
 			expandButtons.add(btnExpandSites);
 		}
@@ -362,7 +361,6 @@ public class MainToolbarPanel extends JPanel {
 					MainToolbarPanel.class.getResource("/resource/icon/expand_info.png"),
 					View.DISPLAY_OPTION_BOTTOM_FULL));
 			btnExpandReports.setToolTipText(Constant.messages.getString("view.toolbar.expandInfo"));
-			DisplayUtils.scaleIcon(btnExpandReports);
 
 			expandButtons.add(btnExpandReports);
 		}
@@ -375,7 +373,6 @@ public class MainToolbarPanel extends JPanel {
 					MainToolbarPanel.class.getResource("/resource/icon/expand_full.png"),
 					View.DISPLAY_OPTION_TOP_FULL));
 			btnExpandFull.setToolTipText(Constant.messages.getString("view.toolbar.expandFull"));
-			DisplayUtils.scaleIcon(btnExpandFull);
 
 			expandButtons.add(btnExpandFull);
 		}
