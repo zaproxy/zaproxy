@@ -20,7 +20,7 @@ public class ScriptType {
 	private Set<String> capabilitiesSet = new HashSet<String>();
 	
 	public ScriptType(String name, String i18nKey, ImageIcon icon, boolean isEnableable) {
-		this(i18nKey, i18nKey, icon, isEnableable, null);
+		this(name, i18nKey, icon, isEnableable, null);
 	}
 
 	public ScriptType(String name, String i18nKey, ImageIcon icon, boolean isEnableable, String[] capabilities) {
