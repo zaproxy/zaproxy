@@ -283,11 +283,13 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 		fc.setFileFilter(new FileFilter() {
 			@Override
 			public String getDescription() {
-				return CONFIGURATION_FILENAME;
+				// config.xml or *.pem files
+				return Constant.messages.getString("dynssl.filter.file");
 			}
 			@Override
 			public boolean accept(File f) {
-				return f.getName().toLowerCase().endsWith(CONFIGURATION_FILENAME) || f.isDirectory();
+				return f.getName().toLowerCase().endsWith(CONFIGURATION_FILENAME) ||
+						f.getName().toLowerCase().endsWith("pem") || f.isDirectory();
 			}
 		});
 		final int result = fc.showOpenDialog(this);
@@ -298,9 +300,13 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			}
 			KeyStore ks = null;
 			try {
-				final ZapXmlConfiguration conf = new ZapXmlConfiguration(f);
-				final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
-				ks = SslCertificateUtils.string2Keystore(rootcastr);
+				if (f.getName().toLowerCase().endsWith("pem")) {
+					ks = SslCertificateUtils.pem2Keystore(f);
+				} else {
+					final ZapXmlConfiguration conf = new ZapXmlConfiguration(f);
+					final String rootcastr = conf.getString(DynSSLParam.PARAM_ROOT_CA);
+					ks = SslCertificateUtils.string2Keystore(rootcastr);
+				}
 			} catch (final Exception e) {
 				logger.error("Error importing foreign Root CA!", e);
 				// Constant.messages.getString("dynssl.label.rootca")
