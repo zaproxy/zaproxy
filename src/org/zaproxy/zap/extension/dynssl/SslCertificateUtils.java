@@ -21,8 +21,10 @@ package org.zaproxy.zap.extension.dynssl;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.math.BigInteger;
+import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
 import java.security.KeyStore;
@@ -33,13 +35,20 @@ import java.security.PublicKey;
 import java.security.SecureRandom;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
 import java.util.Vector;
 
+import javax.xml.bind.DatatypeConverter;
+
 import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.io.FileUtils;
 import org.bouncycastle.asn1.DERObject;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
@@ -159,5 +168,51 @@ public class SslCertificateUtils {
 		bais.close();
 		return ks;
 	}
+	
+	/**
+	 * Code c/o http://stackoverflow.com/questions/12501117/programmatically-obtain-keystore-from-pem
+	 * @param pemFile
+	 * @return
+	 * @throws IOException
+	 * @throws CertificateException
+	 * @throws InvalidKeySpecException
+	 * @throws NoSuchAlgorithmException
+	 * @throws KeyStoreException
+	 */
+	public static KeyStore pem2Keystore(File pemFile) throws IOException, CertificateException, 
+			InvalidKeySpecException, NoSuchAlgorithmException, KeyStoreException {
+		byte[] certAndKey = FileUtils.readFileToByteArray(pemFile);
+	    byte[] certBytes = parseDERFromPEM(certAndKey, "-----BEGIN CERTIFICATE-----", "-----END CERTIFICATE-----");
+	    byte[] keyBytes = parseDERFromPEM(certAndKey, "-----BEGIN PRIVATE KEY-----", "-----END PRIVATE KEY-----");
 
+	    X509Certificate cert = generateCertificateFromDER(certBytes);              
+	    RSAPrivateKey key  = generatePrivateKeyFromDER(keyBytes);
+	    
+	    KeyStore keystore = KeyStore.getInstance("JKS");
+	    keystore.load(null);
+	    keystore.setCertificateEntry("cert-alias", cert);
+	    keystore.setKeyEntry(SslCertificateService.ZAPROXY_JKS_ALIAS, key, SslCertificateService.PASSPHRASE, new Certificate[] {cert});
+	    return keystore;
+	}
+
+	private static byte[] parseDERFromPEM(byte[] pem, String beginDelimiter, String endDelimiter) {
+	    String data = new String(pem);
+	    String[] tokens = data.split(beginDelimiter);
+	    tokens = tokens[1].split(endDelimiter);
+	    return DatatypeConverter.parseBase64Binary(tokens[0]);        
+	}
+
+	private static RSAPrivateKey generatePrivateKeyFromDER(byte[] keyBytes) throws InvalidKeySpecException, NoSuchAlgorithmException {
+	    PKCS8EncodedKeySpec spec = new PKCS8EncodedKeySpec(keyBytes);
+
+	    KeyFactory factory = KeyFactory.getInstance("RSA");
+
+	    return (RSAPrivateKey)factory.generatePrivate(spec);        
+	}
+
+	private static X509Certificate generateCertificateFromDER(byte[] certBytes) throws CertificateException {
+	    CertificateFactory factory = CertificateFactory.getInstance("X.509");
+
+	    return (X509Certificate)factory.generateCertificate(new ByteArrayInputStream(certBytes));      
+	}
 }
