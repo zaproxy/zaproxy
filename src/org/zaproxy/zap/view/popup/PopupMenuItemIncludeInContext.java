@@ -86,14 +86,14 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
             url = Pattern.quote(url) + ".*";
         }
 
-        performAction(url);
+        performAction(sn.getNodeName(), url);
     }
 
-    protected void performAction(String url) {
+    protected void performAction(String name, String url) {
         Session session = Model.getSingleton().getSession();
 
         if (context == null) {
-            context = session.getNewContext();
+            context = session.getNewContext(name);
         }
 
         // Manually create the UI shared contexts so any modifications are done

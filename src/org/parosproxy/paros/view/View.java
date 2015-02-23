@@ -625,19 +625,21 @@ public class View implements ViewDelegate {
      * properties dialog.
      */
     public void showSessionDialog(Session session, String panel, boolean recreateUISharedContexts, Runnable postInitRunnable) {
-        if (sessionDialog != null) {
-            if (recreateUISharedContexts) {
-                sessionDialog.recreateUISharedContexts(session);
-            }
-            
-            sessionDialog.initParam(session);
-            if (postInitRunnable != null) {
-                postInitRunnable.run();
-            }
-            
-            sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
-            sessionDialog.showDialog(false, panel);
+    	if (sessionDialog == null) {
+    		this.getSessionDialog();
+    	}
+    	
+        if (recreateUISharedContexts) {
+            sessionDialog.recreateUISharedContexts(session);
         }
+        
+        sessionDialog.initParam(session);
+        if (postInitRunnable != null) {
+            postInitRunnable.run();
+        }
+        
+        sessionDialog.setTitle(Constant.messages.getString("session.properties.title"));
+        sessionDialog.showDialog(false, panel);
     }
 
     public void addContext(Context c) {
@@ -680,7 +682,7 @@ public class View implements ViewDelegate {
             if (panel instanceof ContextGeneralPanel) {
                 ContextGeneralPanel ctxPanel = (ContextGeneralPanel) panel;
                 if (ctxPanel.getContextIndex() == c.getIndex()) {
-                    getSessionDialog().renamePanel(ctxPanel, c.getName());
+                    getSessionDialog().renamePanel(ctxPanel, c.getIndex() + ":" + c.getName());
                     break;
                 }
             }

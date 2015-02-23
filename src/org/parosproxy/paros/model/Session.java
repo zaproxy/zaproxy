@@ -145,8 +145,7 @@ public class Session extends FileXML {
 		
 		discardContexts();
 		// Always start with one context
-	    Context ctx = getNewContext();
-	    ctx.setName(Constant.messages.getString("context.default.name"));
+	    getNewContext(Constant.messages.getString("context.default.name"));
 
 	}
 	
@@ -1093,8 +1092,9 @@ public class Session extends FileXML {
 		}
 	}
 	
-	public Context getNewContext() {
+	public Context getNewContext(String name) {
 		Context c = new Context(this, this.nextContextIndex++);
+		c.setName(name);
 		this.addContext(c);
 		return c;
 	}
@@ -1223,9 +1223,8 @@ public class Session extends FileXML {
 	public Context importContext (File file) throws ConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		ZapXmlConfiguration config = new ZapXmlConfiguration(file);
 		
-		Context c = this.getNewContext();
+		Context c = this.getNewContext(config.getString(Context.CONTEXT_CONFIG_NAME));
 
-		c.setName(config.getString(Context.CONTEXT_CONFIG_NAME));
 		c.setDescription(Context.CONTEXT_CONFIG_DESC);
 		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
 		for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {

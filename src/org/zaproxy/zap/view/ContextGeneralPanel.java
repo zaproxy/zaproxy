@@ -23,6 +23,14 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 	private ZapTextField txtName = null;
 	private ZapTextArea txtDescription = null;
 	private JCheckBox chkInScope = null;
+	
+	public static String getPanelName(Context ctx) {
+		return getPanelName(ctx.getIndex(), ctx.getName());
+	}
+	
+	public static String getPanelName(int index, String name) {
+		return index + ":" + name;
+	}
 
 	public ContextGeneralPanel(String name, int index) {
 		super(index);
@@ -38,6 +46,13 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 	private void initialize() {
 		this.setLayout(new CardLayout());
 		this.add(getPanelSession(), this.getName() + "gen");
+	}
+	
+	public void setName(String name) {
+		if (name.startsWith(this.getContextIndex() + ":")) {
+			name = name.substring(name.indexOf(":")+1);
+		}
+		super.setName(getPanelName(this.getContextIndex(), name));
 	}
 
 	/**
@@ -107,7 +122,6 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void initContextData(Session session, Context uiSharedContext) {
-		this.setName(uiSharedContext.getName());
 		getTxtName().setText(uiSharedContext.getName());
 		getTxtName().discardAllEdits();
 		getTxtDescription().setText(uiSharedContext.getDescription());
@@ -146,9 +160,7 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		Context context = session.getContext(this.getContextIndex());
 		saveDataInContext(context);
 		String name = getTxtName().getText();
-		if (!this.getName().equals(name) && View.isInitialised()) {
-			// Note that we _do_ want to set the name of 'this' - its the name of the panel
-			this.setName(name);
+		if (!this.getName().equals(getPanelName(this.getContextIndex(), name)) && View.isInitialised()) {
 			View.getSingleton().renameContext(context);
 		}
 	}
