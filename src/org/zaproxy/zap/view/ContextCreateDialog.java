@@ -62,8 +62,7 @@ public class ContextCreateDialog extends StandardFieldsDialog {
 
 	@Override
 	public void save() {
-		Context ctx = Model.getSingleton().getSession().getNewContext();
-		ctx.setName(this.getStringValue(NAME_FIELD));
+		Context ctx = Model.getSingleton().getSession().getNewContext(this.getStringValue(NAME_FIELD));
 		ctx.setDescription(this.getStringValue(DESC_FIELD));
 		ctx.setInScope(this.getBoolValue(IN_SCOPE_FIELD));
 		if (topNode != null) {

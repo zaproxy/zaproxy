@@ -93,10 +93,9 @@ public class ContextAPI extends ApiImplementor {
         } else if (INCLUDE_IN_CONTEXT_REGEX.equals(name)) {
             addIncludeToContext(getContext(params), getRegex(params));
         } else if (ACTION_NEW_CONTEXT.equals(name)){
-            Context context = Model.getSingleton().getSession().getNewContext();
             String contextName = params.getString(CONTEXT_NAME);
             if (contextName != null && contextName.length() > 0){
-                context.setName(contextName);
+                Context context = Model.getSingleton().getSession().getNewContext(contextName);
                 Model.getSingleton().getSession().saveContext(context);
                 return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
             }

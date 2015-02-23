@@ -82,6 +82,7 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextCreateDialog;
+import org.zaproxy.zap.view.ContextGeneralPanel;
 import org.zaproxy.zap.view.ContextsTreeCellRenderer;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -554,7 +555,7 @@ public class SiteMapPanel extends AbstractPanel {
 					    if (node != null && node.getUserObject() != null) {
 					    	Target target = (Target)node.getUserObject();
 					    	getView().showSessionDialog(Model.getSingleton().getSession(), 
-					    			Integer.toString(target.getContext().getIndex()));
+					    			ContextGeneralPanel.getPanelName(target.getContext()));
 					    }
 				    }
 				}

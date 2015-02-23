@@ -83,7 +83,10 @@ public class SessionDialog extends AbstractParamDialog {
 		for (AbstractParamPanel panel : super.getPanels()) {
 			if (panel instanceof AbstractContextPropertiesPanel) {
 				AbstractContextPropertiesPanel contextPanel = (AbstractContextPropertiesPanel) panel;
-				contextPanel.initContextData((Session) obj, uiContexts.get(contextPanel.getContextIndex()));
+				Context ctx = uiContexts.get(contextPanel.getContextIndex());
+				if (ctx != null) {
+					contextPanel.initContextData((Session) obj, ctx);
+				}
 			} else {
 				panel.initParam(obj);
 			}
