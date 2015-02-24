@@ -700,4 +700,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public PolicyManager getPolicyManager() {
 		return policyManager;
 	}
+	
+	public int getAttackModeStackSize() {
+		return this.attackModeScanner.getStackSize();
+	}
 }

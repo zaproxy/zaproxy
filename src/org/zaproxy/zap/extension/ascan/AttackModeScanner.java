@@ -173,6 +173,19 @@ public class AttackModeScanner implements EventConsumer {
 		}
 	}
 	
+	public int getStackSize() {
+		int count = nodeStack.size();
+		if (count > 0) {
+			// There are nodes to scan
+			return count;
+		}
+		// Work out if any scanning is in progress
+		if (this.attackModeThread != null && this.attackModeThread.isActive()) {
+			return 0;
+		}
+		return -1;
+	}
+	
 	public boolean isRescanOnChange() {
 		return rescanOnChange;
 	}
@@ -304,6 +317,21 @@ public class AttackModeScanner implements EventConsumer {
 		
 		public boolean isRunning() {
 			return this.running;
+		}
+		
+		/**
+		 * Returns true if any of the scan threads are currently active
+		 * @return
+		 */
+		public boolean isActive() {
+			synchronized (this.scanners) {
+				for (Scanner scanner : this.scanners) {
+					if (! scanner.isStop()) {
+						return true;
+					}
+				}
+			}
+			return false;
 		}
 	}
 }

@@ -51,6 +51,7 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
@@ -595,6 +596,12 @@ public class ZAP {
                 View.setDaemon(true);	// Prevents the View ever being initialised
                 Control.initSingletonWithoutView(getOverrides());
                 Control control = Control.getSingleton();
+                try {
+                	// Need to set the mode directly
+					control.setMode(Mode.valueOf(Model.getSingleton().getOptionsParam().getViewParam().getMode()));
+				} catch (Exception e) {
+                    log.error(e.getMessage(), e);
+				}
 
                 warnAddOnsNoLongerLoadable();
 
