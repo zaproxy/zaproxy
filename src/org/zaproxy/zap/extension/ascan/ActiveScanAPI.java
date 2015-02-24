@@ -91,6 +91,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	// TODO rename? Note any changes like this to the existing API must be clearly documented to users
 	private static final String VIEW_POLICIES = "policies";
 	private static final String VIEW_SCAN_POLICY_NAMES = "scanPolicyNames";
+	private static final String VIEW_ATTACK_MODE_QUEUE = "attackModeQueue";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
@@ -145,6 +146,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS, null, new String[] {PARAM_SCAN_POLICY_NAME, PARAM_CATEGORY_ID}));
 		this.addApiView(new ApiView(VIEW_POLICIES, null, new String[] {PARAM_SCAN_POLICY_NAME, PARAM_CATEGORY_ID}));
+		this.addApiView(new ApiView(VIEW_ATTACK_MODE_QUEUE));
 
 	}
 	
@@ -593,6 +595,9 @@ public class ActiveScanAPI extends ApiImplementor {
 				resultList.addItem(new ApiResponseElement("policy", policyName));
 			}
 			result = resultList;
+			break;
+		case VIEW_ATTACK_MODE_QUEUE:
+			result = new ApiResponseElement(name, String.valueOf(controller.getAttackModeStackSize()));
 			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
