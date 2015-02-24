@@ -53,6 +53,7 @@
 // ZAP: 2014/05/01 Issue 1156: Proxy gzip decoder removes newlines in decoded response
 // ZAP: 2014/05/01 Issue 1168: Add support for deflate encoded responses
 // ZAP: 2015/01/04 Issue 1334: ZAP does not handle API requests on reused connections
+// ZAP: 2015/02/24 Issue 1540: Allow proxy scripts to fake responses
 
 package org.parosproxy.paros.core.proxy;
 
@@ -356,13 +357,17 @@ class ProxyThread implements Runnable {
 			    	return;
 			    }
 			    
-			    
 			    try {
 //					bug occur where response cannot be processed by various listener
 //			        first so streaming feature was disabled		        
 //					getHttpSender().sendAndReceive(msg, httpOut, buffer);
 			        if (send) {
-                        getHttpSender().sendAndReceive(msg);
+					    if (msg.getResponseHeader().isEmpty()) {
+					    	// Normally the response is empty.
+					    	// The only reason it wont be is if a script or other ext has deliberately 'hijacked' this request
+					    	// We dont jsut set send=false as this then means it wont appear in the History tab
+					    	getHttpSender().sendAndReceive(msg);
+					    }
 
 						decodeResponseIfNeeded(msg);
 
