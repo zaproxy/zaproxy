@@ -19,6 +19,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,6 +34,7 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Category;
+import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.db.DatabaseException;
@@ -92,6 +94,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String VIEW_POLICIES = "policies";
 	private static final String VIEW_SCAN_POLICY_NAMES = "scanPolicyNames";
 	private static final String VIEW_ATTACK_MODE_QUEUE = "attackModeQueue";
+	private static final String VIEW_SCAN_PROGRESS = "scanProgress";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_REGEX = "regex";
@@ -139,6 +142,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
+		this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_MESSAGES_IDS, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_ALERTS_IDS, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCANS));
@@ -517,6 +521,49 @@ public class ActiveScanAPI extends ApiImplementor {
 				map.put("progress", Integer.toString(scan.getProgress()));
 				map.put("state", ((ActiveScan)scan).getState().name());
 				resultList.addItem(new ApiResponseSet("scan", map));
+			}
+			result = resultList;
+			break;
+		case VIEW_SCAN_PROGRESS:
+			resultList = new ApiResponseList(name);
+			activeScan = getActiveScan(params);
+			if (activeScan != null) {
+				for (HostProcess hp : activeScan.getHostProcesses()) {
+					ApiResponseList hpList = new ApiResponseList("HostProcess");
+					resultList.addItem(new ApiResponseElement("id", XMLStringUtil.escapeControlChrs(hp.getHostAndPort())));
+
+					for (Plugin plugin : hp.getCompleted()) {
+						ApiResponseList pList = new ApiResponseList("Plugin");
+						pList.addItem(new ApiResponseElement("name", XMLStringUtil.escapeControlChrs(plugin.getName())));
+						pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
+						pList.addItem(new ApiResponseElement("status", "Complete"));
+						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
+						pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
+						hpList.addItem(pList);
+			        }
+
+			        for (Plugin plugin : hp.getRunning()) {
+						ApiResponseList pList = new ApiResponseList("Plugin");
+						int pc = (int)(hp.getTestCurrentCount(plugin) * 100 / hp.getTestTotalCount());
+						pList.addItem(new ApiResponseElement("name", XMLStringUtil.escapeControlChrs(plugin.getName())));
+						pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
+						pList.addItem(new ApiResponseElement("status", pc + "%"));
+						long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
+						pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
+						hpList.addItem(pList);
+			        }
+
+			        for (Plugin plugin : hp.getPending()) {
+						ApiResponseList pList = new ApiResponseList("Plugin");
+						pList.addItem(new ApiResponseElement("name", XMLStringUtil.escapeControlChrs(plugin.getName())));
+						pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
+						pList.addItem(new ApiResponseElement("status", "Pending"));
+						pList.addItem(new ApiResponseElement("timeInMs", "0"));
+						hpList.addItem(pList);
+			        }
+					resultList.addItem(hpList);
+					
+				}
 			}
 			result = resultList;
 			break;
