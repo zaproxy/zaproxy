@@ -86,6 +86,9 @@ This list the alerts
 10046	Insecure Component
 10047	HTTPS Content Available via HTTP
 10048	ShellShock
+10049	Cacheability and Retrievability Content (Non-Cacheable Content, Cacheable but Non-Retrievable Content, Cacheable and Retrievable Content)
+10050	Retrieved from Cache
+10051	Relative Path Confusion
 
 10101	Insufficient Authentication
 10102	Insufficient Authorization
@@ -131,6 +134,7 @@ This list the alerts
 40022	SQL Injection Postgresql
 40023	Username Enumeration
 40024	SQL Injection SQLite
+40025	Proxy Disclosure
 
 50000	Active Scan scripts
 50001	Passive Scan scripts
