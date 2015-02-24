@@ -23,6 +23,7 @@ import java.io.StringWriter;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractAppParamPlugin;
@@ -36,7 +37,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
 	private ExtensionScript extension = null;
 
-    // private static Logger logger = Logger.getLogger(ScriptsActiveScanner.class);
+    private static Logger logger = Logger.getLogger(ScriptsActiveScanner.class);
 	
     @Override
     public int getId() {
@@ -89,6 +90,36 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 	}
 
     @Override
+    public void scan() {
+        if (this.getExtension() == null) {
+            return;
+        }
+		List<ScriptWrapper> scripts = this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
+			
+		for (ScriptWrapper script : scripts) {
+			StringWriter writer = new StringWriter();
+			try {
+				if (script.isEnabled()) {
+					// Note that 'old' scripts may not implement the scan() method, so just ignore them
+					ActiveScript2 s = extension.getInterface(script, ActiveScript2.class);
+					
+					if (s != null) {
+						HttpMessage msg = this.getNewMsg();
+						logger.debug("Calling script " + script.getName() + " scanNode for " + msg.getRequestHeader().getURI());
+						s.scanNode(this, msg);
+					}
+				}
+				
+			} catch (Exception e) {
+				writer.append(e.toString());
+				extension.setError(script, e);
+				extension.setEnabled(script, false);
+			}
+		}
+		super.scan();
+    }
+
+    @Override
     public void scan(HttpMessage msg, String param, String value) {
         if (this.getExtension() == null) {
             return;
@@ -102,6 +133,8 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 					ActiveScript s = extension.getInterface(script, ActiveScript.class);
 					
 					if (s != null) {
+						logger.debug("Calling script " + script.getName() + " scan for " + msg.getRequestHeader().getURI() +
+								"param=" + param + " value=" + value);
 						s.scan(this, msg, param, value);
 						
 					} else {
