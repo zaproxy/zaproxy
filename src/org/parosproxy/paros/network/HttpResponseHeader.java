@@ -28,6 +28,7 @@
 // ZAP: 2013/03/08 Improved parse error reporting
 // ZAP: 2014/02/21 i1046: The getHttpCookies() method in the HttpResponseHeader does not properly set the domain
 // ZAP: 2014/04/09 i1145: Cookie parsing error if a comma is used
+// ZAP: 2015/02/26 Include json as a text content type
 
 package org.parosproxy.paros.network;
 
@@ -53,6 +54,7 @@ public class HttpResponseHeader extends HttpHeader {
 	private static final String _CONTENT_TYPE_TEXT = "text";
 	private static final String _CONTENT_TYPE_HTML = "html";
 	private static final String _CONTENT_TYPE_JAVASCRIPT = "javascript";
+	private static final String _CONTENT_TYPE_JSON = "json";
 	private static final String _CONTENT_TYPE_XML = "xml"; 
 
 	
@@ -183,6 +185,8 @@ public class HttpResponseHeader extends HttpHeader {
 			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_HTML) > -1) {
 				return true;
 			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JAVASCRIPT) > -1) {
+				return true;
+			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_JSON) > -1) {
 				return true;
 			} else if (contentType.toLowerCase().indexOf(_CONTENT_TYPE_XML) > -1) { 
 				return true; 
