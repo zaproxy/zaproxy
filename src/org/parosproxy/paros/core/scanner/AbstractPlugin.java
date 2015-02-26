@@ -298,6 +298,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param confidence
      * @param uri
      * @param param
+     * @param attack
      * @param otherInfo
      * @param msg
      */
@@ -318,6 +319,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param description
      * @param uri
      * @param param
+     * @param attack
      * @param otherInfo
      * @param solution
      * @param msg
@@ -351,7 +353,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param confidence
      * @param uri
      * @param param
+     * @param attack
      * @param otherInfo
+     * @param evidence
      * @param msg
      */
     protected void bingo(int risk, int confidence, String uri, String param, String attack, String otherInfo,
@@ -371,8 +375,10 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * @param description
      * @param uri
      * @param param
+     * @param attack
      * @param otherInfo
      * @param solution
+     * @param evidence
      * @param msg
      */
     protected void bingo(int risk, int confidence, String name, String description, String uri,
