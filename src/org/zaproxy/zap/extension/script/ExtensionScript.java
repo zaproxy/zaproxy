@@ -41,6 +41,7 @@ import java.util.Map;
 import java.util.Vector;
 
 import javax.script.Invocable;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
@@ -70,6 +71,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public static final String TEMPLATES_DIR = SCRIPTS_DIR + File.separator + "templates";
 	private static final String LANG_ENGINE_SEP = " : ";
 	protected static final String SCRIPT_CONSOLE_HOME_PAGE = "http://code.google.com/p/zaproxy/wiki/ScriptConsole";
+	protected static final String SCRIPT_NAME_ATT = "zap.script.name";
 
 	public static final String TYPE_PROXY = "proxy";
 	public static final String TYPE_STANDALONE = "standalone";
@@ -944,6 +946,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		ScriptEngine se = script.getEngine().getEngine();
 	    Writer writer = getWriters(script);
 	    se.getContext().setWriter(writer);
+
+	    // Set the script name as a context attribute - this is used for script level variables 
+	    se.getContext().setAttribute(SCRIPT_NAME_ATT, script.getName(), ScriptContext.ENGINE_SCOPE);
 
 	    try {
 	    	se.eval(script.getContents());
