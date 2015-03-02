@@ -85,34 +85,34 @@ La protection insuffisante de la couche Transport expose la communication à l'i
 Manque de chiffrement dela couche Transport
 Quand la couche Transport n'est pas chiffrée, toutes les communications entre le site internet et ses clients sont envoyées en texte clair, et peuvent ainsi subir des interceptions, des injections ou des redirections (aussi connu comme l'attaque de l'homme du milieu - ou Man-in-the-Middle/MITM). Un agresseur peut intercepter passivement la communication, donnant ainsi accès à toutes les données sensibles transmises, comme les noms d'utilisateur et mots de passe. Un attaquant peut également injecter/supprimer activement du contenu de la communication, permettant à l'attaquant de contrefaire et d'omettre des informations, d'injecter un script malveillant, ou de pousser le client à accéder à du contenu distant non fiable. Un agresseur peut également rediriger la communication, de telle sorte que le site internet et le client ne communiquent plus directement entre eux, mais avec l'attaquant, en pensant communiquer avec une partie digne de confiance.
 
-Weak Cipher Support
-Historically, high grade cryptography was restricted from export to outside the United States. Pour cette raison, les sites internet ont été configurés pour prendre en charge les options de chiffrement faible pour les clients limités aux seuls algorithmes de chiffrement faible. Les algorithmes de chiffrement faible sont vulnérables aux attaques en raison de la relative facilité de les casser ; moins de deux semaines sur un ordinateur domestique typique et quelques secondes à l'aide d'un matériel dédié.
+Support de chiffrement faible
+Historiquement, la cryptographie à chiffrement fort était limitée lors de l'exportation hors des États-Unis. Pour cette raison, les sites internet ont été configurés pour prendre en charge les options de chiffrement faible pour les clients limités aux seuls algorithmes de chiffrement faible. Les algorithmes de chiffrement faible sont vulnérables aux attaques en raison de la relative facilité de les casser ; moins de deux semaines sur un ordinateur domestique typique et quelques secondes à l'aide d'un matériel dédié.
 Aujourd'hui, tous les navigateurs modernes et les sites internet utilisent un chiffrement beaucoup plus fort, mais certains sites Web sont encore configurés pour prendre en charge les chiffrements faibles obsolètes. Pour cette raison, un agresseur pourrait forcer le client à utiliser un algorithme de chiffrement faible lors de la connexion au site Web, permettant à l'attaquant de casser le chiffrement faible. C'est pourquoi le serveur doit être configuré pour accepter uniquement des algorithmes de chiffrement fort et ne doit fournir aucun service à quiconque envoie des requêtes à l'aide d'un algorithme de chiffrement plus faible. En outre, certains sites sont mal configurés, de sorte qu'ils choisissent un algorithme de chiffrement plus faible, alors même que le client supporterait un chiffrement beaucoup plus puissant. OWASP offre un guide pour tester les problème SSL/TLS, y compris le support d'algorithmes de chiffrement faible et la mauvaise configuration. D'autres ressources et outils sont en outre disponibles.</desc>
-	<solution>Phase: Requirements
-Clearly specify which data or resources are valuable enough that they should be protected by encryption. Exigez que toute transmission ou stockage de cette donnée/ressource utilise des algorithmes de chiffrement certifiés.
+	<solution>Phase : Exigences
+Indiquez clairement les données ou les ressources sensibles nécessitant une protection par chiffrement. Exigez que toute transmission ou stockage de cette donnée/ressource utilise des algorithmes de chiffrement certifiés.
 
-Phase: Architecture and Design
-Using threat modeling or other techniques, assume that your data can be compromised through a separate vulnerability or weakness, and determine where encryption will be most effective. Veillez à ce que les données supposées privées ne soient pas exposées involontairement par des failles telles que les permissions vulnérables (CWE-732).
+Phase: Architecture et Design
+Lors de l'usage de la modélisation des menaces ou d'autres techniques, supposez que vos données peuvent être compromises par une vulnérabilité ou une faille différente, et déterminez où le chiffrement sera le plus efficace. Veillez à ce que les données supposées privées ne soient pas exposées involontairement par des failles telles que les permissions vulnérables (CWE-732).
 
-Phase: Architecture and Design
-Ensure that encryption is properly integrated into the system design, including but not necessarily limited to:
-      Encryption that is needed to store or transmit private data of the users of the system
-      Encryption that is needed to protect the system itself from unauthorized disclosure or tampering 
-Identify the separate needs and contexts for encryption:
-      One-way (i.e., only the user or recipient needs to have the key). Ceci peut être obtenu par la cryptographie à clé publique, ou par d'autres techniques dans lesquelles la partie qui chiffre (c-à-d. le logiciel) n'a pas besoin de l'accès à une clé privée.
+Phase: Architecture et Design
+Assurez-vous que le chiffrement est intégré correctement dans le design du système, notamment:
+      le chiffrement requis pour enregistrer ou transmettre des données privées des utilisateurs du système
+      le chiffrement requis pour protéger le système lui-même contre la divulgation ou la manipulation non-autorisée 
+Identifiez les besoins et le contexte du chiffrement:
+      authentification simple (c-à-d. la clé est détenue soit par le client, soit par le destinataire). Ceci peut être obtenu par la cryptographie à clé publique, ou par d'autres techniques dans lesquelles la partie qui chiffre (c-à-d. le logiciel) n'a pas besoin de l'accès à une clé privée.
       Bi-directionnel (c-à-d. le chiffrement peut être exécuté automatiquement à la demande d'un utilisateur, mais la clé doit être disponible afin que le texte puisse être récupéré en clair par cet utilisateur). Ceci requiert le stockage de la clé privée sous un format qui ne soit récupérable que par l'utilisateur (ou peut-être par le système d'exploitation), mais qui interdise à d'autres d'y accéder.
 
-Phase: Architecture and Design
-Do not develop your own cryptographic algorithms. Ils seront probablement exposés à des attaques bien connues des cryptographes. Les techniques d'ingénierie inverse sont mûres. Si votre algorithme peut être compromis et que des agresseurs découvrent comment il fonctionne, alors il est particulièrement faible.
+Phase: Architecture et Design
+Ne développez pas vos propres algorithmes cryptographiques. Ils seront probablement exposés à des attaques bien connues des cryptographes. Les techniques d'ingénierie inverse sont mûres. Si votre algorithme peut être compromis et que des agresseurs découvrent comment il fonctionne, alors il est particulièrement faible.
 
-Phase: Architecture and Design
-Select a well-vetted algorithm that is currently considered to be strong by experts in the field, and select well-tested implementations.
+Phase: Architecture et Design
+Sélectionnez un algorithme certifié et considéré actuellement comme fort par les experts du domaine, et choisissez des implémentations éprouvées.
 Par exemple, les systèmes du gouvernement américain exigent la certification FIPS 140-2.
 Comme pour tous les mécanismes cryptographiques, le code source devrait être disponible pour analyse.
 Vérifiez périodiquement que vous n'utilisez pas une cryptographie obsolète. Certains algorithmes plus anciens, qui exigeaient 1 milliard d'années de temps de calcul il y a quelque temps, peuvent maintenant être déchiffrés en jours ou en heures. En font partie notamment MD4, MD5, SHA1, DES, et d'autres algorithmes qui étaient autrefois considérés comme forts.
 
-Phase: Architecture and Design
-Compartmentalize your system to have "safe" areas where trust boundaries can be unambiguously drawn. Ne permettez pas que des données sensibles sortent de la limite de confiance et soyez toujours attentif à l'interface avec un compartiment situé hors de la zone sûre.
+Phase: Architecture et Design
+Compartimentez votre système afin d'obtenir des zones "sûres" où les limites de confiance peuvent être tracées sans équivoque. Ne permettez pas que des données sensibles sortent de la limite de confiance et soyez toujours attentif à l'interface avec un compartiment situé hors de la zone sûre.
 
 Phases: Implementation; Architecture and Design
 When you use industry-approved techniques, you need to use them correctly. N'économisez pas en sautant des étapes gourmandes en ressource (CWE-325). Ces étapes sont souvent essentielles pour prévenir les attaques courantes.
