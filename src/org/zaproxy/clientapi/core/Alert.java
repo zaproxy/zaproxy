@@ -34,7 +34,7 @@ public class Alert {
 	private String alert;
 	private Risk risk;
 	/**
-	 * @deprecated (2.4.0) Replaced by {@link #confidence}.
+	 * @deprecated (2.4.0) Replaced by {@link Confidence}.
 	 * Use of reliability has been deprecated in favour of using confidence
 	 */
 	@Deprecated
