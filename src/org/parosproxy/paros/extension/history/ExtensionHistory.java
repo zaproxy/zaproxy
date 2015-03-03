@@ -57,6 +57,7 @@
 // through the API with ZAP in GUI mode
 // ZAP: 2014/12/12 Issue 1449: Added help button
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/03/03 Added delete(href) method to ensure local map updated 
 
 package org.parosproxy.paros.extension.history;
 
@@ -267,6 +268,13 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
             });
         }
 	}
+    
+    public void delete(HistoryReference href) {
+    	if (href != null) {
+    		this.historyIdToRef.remove(href.getHistoryId());
+    		href.delete();
+    	}
+    }
 	
 	public HistoryReference getHistoryReference (int historyId) {
 	    HistoryReference href = historyTableModel.getHistoryReference(historyId);
@@ -277,13 +285,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		if (href == null) {		
 			try {
 				href = new HistoryReference(historyId);
-				hack(href);
+				addToMap(href);
 			} catch (Exception e) {
 				return null;
 			}
 		}
 		return href;
 		
+	}
+	
+	public int getLastHistoryId() {
+		return Model.getSingleton().getDb().getTableHistory().lastIndex();
 	}
 	
     public void addHistory (HttpMessage msg, int type) {
@@ -294,7 +306,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		}
     }
     
-    private void hack (HistoryReference historyRef) {
+    private void addToMap (HistoryReference historyRef) {
     	historyIdToRef.put(historyRef.getHistoryId(), historyRef);
     }
     
@@ -307,12 +319,12 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                     final String uri = historyRef.getURI().toString();
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
 	            		// Not in scope
-	            		hack(historyRef);
+	            		addToMap(historyRef);
 	            		return;
 	            	} else if (linkWithSitesTree && linkWithSitesTreeBaseUri != null
 	            	        && !uri.startsWith(linkWithSitesTreeBaseUri)) {
 	            	    // Not under the selected node
-	            	    hack(historyRef);
+	            	    addToMap(historyRef);
 	            	    return;
 	            	}
 	        	    if (getView() != null) { 
@@ -321,7 +333,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		        		HistoryFilter historyFilter = dialog.getFilter();
 	                    if (historyFilter != null && !historyFilter.matches(historyRef)) {
 		            		// Not in filter
-		            		hack(historyRef);
+		            		addToMap(historyRef);
 		            		return;
 	                    }
 	

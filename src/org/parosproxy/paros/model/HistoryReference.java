@@ -298,6 +298,7 @@ public class HistoryReference {
    
    /**
     * Delete this HistoryReference from database
+    * This should typically only be called via the ExtensionHistory.delete(href) method
     *
     */
    public void delete() {

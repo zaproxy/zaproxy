@@ -86,7 +86,7 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
             extAlert.deleteHistoryReferenceAlerts(ref);
         }
 
-        ref.delete();
+        extension.delete(ref);
 
         SiteNode node = ref.getSiteNode();
         if (node == null) {

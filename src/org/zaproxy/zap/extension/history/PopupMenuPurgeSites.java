@@ -112,7 +112,7 @@ public class PopupMenuPurgeSites extends PopupMenuItemSiteNodeContainer {
                 deleteAlertsFromExtensionAlert(extAlert, ref);
                 ext.removeFromHistoryList(ref);
                 ext.clearLogPanelDisplayQueue();
-                ref.delete();
+                ext.delete(ref);
                 node.getPastHistoryReference().remove(0);
                 map.removeHistoryReference(ref.getHistoryId());
             }

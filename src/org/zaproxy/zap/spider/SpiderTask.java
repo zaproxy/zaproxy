@@ -28,7 +28,9 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -53,6 +55,8 @@ public class SpiderTask implements Runnable {
 
 	/** The depth of crawling where the uri was found. */
 	private int depth;
+	
+	private ExtensionHistory extHistory = null;
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(SpiderTask.class);
@@ -277,6 +281,13 @@ public class SpiderTask implements Runnable {
 		}
 	}
 
+	private ExtensionHistory getExtensionHistory() {
+		if (this.extHistory == null) {
+			this.extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+		}
+		return this.extHistory;
+	}
+
 	/**
 	 * Fetches a resource.
 	 * 
@@ -293,7 +304,9 @@ public class SpiderTask implements Runnable {
 			msg = reference.getHttpMessage();
 		} finally {
 			// Remove the history reference from the database, as it's not used anymore
-			reference.delete();
+			if (getExtensionHistory() != null) {
+				getExtensionHistory().delete(reference);
+			}
 		}
 
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
