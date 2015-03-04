@@ -29,6 +29,7 @@
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2014/10/09 Issue 1359: Options for splash screen
 // ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
+// ZAP: 2015/03/04 Added dev build warning option
 
 package org.parosproxy.paros.extension.option;
 
@@ -71,6 +72,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String FONT_NAME = "view.fontName";
 	public static final String FONT_SIZE = "view.fontSize";
 	public static final String SCALE_IMAGES = "view.scaleImages";
+	public static final String SHOW_DEV_WARNING = "view.showDevWarning";
 
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
@@ -92,6 +94,7 @@ public class OptionsParamView extends AbstractParam {
     private int fontSize = -1;
     private String fontName = "";
     private boolean scaleImages = true;
+    private boolean showDevWarning = true;
 	
     public OptionsParamView() {
     }
@@ -119,6 +122,7 @@ public class OptionsParamView extends AbstractParam {
 	    fontSize = getConfig().getInteger(FONT_SIZE, -1);
 	    fontName = getConfig().getString(FONT_NAME, "");
 	    scaleImages = getConfig().getBoolean(SCALE_IMAGES, true);
+	    showDevWarning = getConfig().getBoolean(SHOW_DEV_WARNING, true);
 	    
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
@@ -339,6 +343,15 @@ public class OptionsParamView extends AbstractParam {
 	public void setScaleImages(boolean scaleImages) {
 		this.scaleImages = scaleImages;
 		getConfig().setProperty(SCALE_IMAGES, scaleImages);
+	}
+
+	public boolean isShowDevWarning() {
+		return showDevWarning;
+	}
+
+	public void setShowDevWarning(boolean showDevWarning) {
+		this.showDevWarning = showDevWarning;
+		getConfig().setProperty(SHOW_DEV_WARNING, showDevWarning);
 	}
 	
 }

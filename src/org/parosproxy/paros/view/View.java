@@ -58,6 +58,7 @@
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/19 Expose splash screen as Component
 // ZAP: 2015/02/02 Move output panel help key registration to prevent NPE
+// ZAP: 2015/03/04 Added no prompt warning methods
 
 package org.parosproxy.paros.view;
 
@@ -493,6 +494,17 @@ public class View implements ViewDelegate {
         this.getDontPromptCheckbox().setSelected(false);
         return JOptionPane.showConfirmDialog(parent,
                 new Object[]{msg + "\n", this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.OK_CANCEL_OPTION);
+    }
+
+    public void showWarningDontPromptDialog(Window parent, String msg) {
+        // The checkbox is used for all related dialogs, so always reset
+        this.getDontPromptCheckbox().setSelected(false);
+        JOptionPane.showMessageDialog(parent, 
+        		new Object[]{msg + "\n", this.getDontPromptCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.WARNING_MESSAGE);
+    }
+
+    public void showWarningDontPromptDialog(String msg) {
+    	showWarningDontPromptDialog(getMainFrame(), msg);
     }
 
     // ZAP: FindBugs fix - make method synchronised
