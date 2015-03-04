@@ -53,6 +53,8 @@ import org.zaproxy.zap.control.BaseZapAddOnXmlData.Dependencies;
 public class AddOn  {
 	public enum Status {unknown, example, alpha, beta, weekly, release}
 	
+	private static ZapRelease v2_4 = new ZapRelease("2.4.0");
+	
 	/**
 	 * The installation status of the add-on.
 	 * 
@@ -704,6 +706,11 @@ public class AddOn  {
 		if (this.notBeforeVersion != null && this.notBeforeVersion.length() > 0) {
 			ZapRelease notBeforeRelease = new ZapRelease(this.notBeforeVersion);
 			if (zrc.compare(zr, notBeforeRelease) < 0) {
+				return false;
+			}
+			
+			if (zrc.compare(notBeforeRelease, v2_4) < 0) {
+				// Dont load any add-ons that imply they are prior to 2.4.0 - they probably wont work
 				return false;
 			}
 		}
