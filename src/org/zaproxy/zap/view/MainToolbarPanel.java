@@ -208,6 +208,10 @@ public class MainToolbarPanel extends JPanel {
 		}
 		return modeSelect;
 	}
+	
+	public void setMode (Mode mode) {
+		this.getModeSelect().setSelectedItem(Constant.messages.getString("view.toolbar.mode." + mode.name() + ".select"));
+	}
 
 	private JButton getBtnNew() {
 		if (btnNew == null) {

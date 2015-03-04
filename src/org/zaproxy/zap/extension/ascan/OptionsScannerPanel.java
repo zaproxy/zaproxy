@@ -57,6 +57,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JCheckBox chkRescanInAttackMode = null;
     private JComboBox<String> defaultAscanPolicy = null;
     private JComboBox<String> defaultAttackPolicy = null;
+    private JCheckBox allowAttackModeOnStart = null;
     
     private ExtensionActiveScan extension;
     
@@ -135,6 +136,8 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(0, 11, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(getDefaultAttackPolicyPulldown(),
                     LayoutHelper.getGBC(1, 11, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelScanner.add(this.getAllowAttackModeOnStart(),
+                    LayoutHelper.getGBC(0, 12, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
 
             // Close Panel
             panelScanner.add(
@@ -192,6 +195,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 		initPolicyPulldowns();
         getDefaultAscanPolicyPulldown().setSelectedItem(param.getDefaultPolicy());
         getDefaultAttackPolicyPulldown().setSelectedItem(param.getAttackPolicy());
+        getAllowAttackModeOnStart().setSelected(param.isAllowAttackOnStart());
 
     }
 
@@ -222,6 +226,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setRescanInAttackMode(getChkRescanInAttackMode().isSelected());
         param.setDefaultPolicy((String)this.getDefaultAscanPolicyPulldown().getSelectedItem());
         param.setAttackPolicy((String)this.getDefaultAttackPolicyPulldown().getSelectedItem());
+        param.setAllowAttackOnStart(this.getAllowAttackModeOnStart().isSelected());
     }
 
     /**
@@ -392,6 +397,13 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     		chkRescanInAttackMode = new JCheckBox(Constant.messages.getString("ascan.options.attackRescan.label"));
     	}
     	return chkRescanInAttackMode;
+    }
+
+    private JCheckBox getAllowAttackModeOnStart() {
+    	if (allowAttackModeOnStart == null) {
+    		allowAttackModeOnStart = new JCheckBox(Constant.messages.getString("ascan.options.attackOnStart.label"));
+    	}
+    	return allowAttackModeOnStart;
     }
 
 }
