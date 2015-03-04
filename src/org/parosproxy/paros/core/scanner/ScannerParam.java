@@ -37,6 +37,8 @@
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2015/03/04 Issue 1345: Added 'attack on start' option
+
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -67,6 +69,7 @@ public class ScannerParam extends AbstractParam {
     private static final String SHOW_ADV_DIALOG = ACTIVE_SCAN_BASE_KEY + ".advDialog";
     private static final String DEFAULT_POLICY = ACTIVE_SCAN_BASE_KEY + ".defaultPolicy";
     private static final String ATTACK_POLICY = ACTIVE_SCAN_BASE_KEY + ".attackPolicy";
+    private static final String ALLOW_ATTACK_ON_START = ACTIVE_SCAN_BASE_KEY + ".attackOnStart";
 
     // ZAP: Excluded Parameters
     private static final String EXCLUDED_PARAMS_KEY = ACTIVE_SCAN_BASE_KEY + ".excludedParameters";
@@ -109,6 +112,7 @@ public class ScannerParam extends AbstractParam {
     private boolean rescanInAttackMode = true;
     private boolean promptToClearFinishedScans = true;
     private boolean showAdvancedDialog = false;
+    private boolean allowAttackOnStart = false;
     private String defaultPolicy;
     private String attackPolicy;
 
@@ -197,6 +201,11 @@ public class ScannerParam extends AbstractParam {
 
         try {
             this.targetParamsEnabledRPC = getConfig().getInt(TARGET_ENABLED_RPC, TARGET_ENABLED_RPC_DEFAULT);
+        } catch (Exception e) {
+        }
+
+        try {
+            this.allowAttackOnStart = getConfig().getBoolean(ALLOW_ATTACK_ON_START, false);
         } catch (Exception e) {
         }
 
@@ -484,5 +493,14 @@ public class ScannerParam extends AbstractParam {
         this.attackPolicy = attackPolicy;
         getConfig().setProperty(ATTACK_POLICY, this.attackPolicy);
     }
+
+	public boolean isAllowAttackOnStart() {
+		return allowAttackOnStart;
+	}
+
+	public void setAllowAttackOnStart(boolean allowAttackOnStart) {
+		this.allowAttackOnStart = allowAttackOnStart;
+        getConfig().setProperty(ALLOW_ATTACK_ON_START, this.allowAttackOnStart);
+	}
 
 }
