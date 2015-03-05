@@ -1,2 +1,20 @@
 #!/bin/bash
-cd /usr/share/zaproxy/ && ./zap.sh
+
+ARCH=`uname -r|cut -d "-" -f 3`
+
+if [ $ARCH == 686 ]
+then
+	JAVA_ARCH="i386"
+	cd /usr/share/zaproxy/ && export PATH=/usr/lib/jvm/java-7-openjdk-i386/jre/bin:$PATH && ./zap.sh
+elif [ $ARCH == 486 ]
+then
+	JAVA_ARCH="i386"
+	cd /usr/share/zaproxy/ && export PATH=/usr/lib/jvm/java-7-openjdk-i386/jre/bin:$PATH && ./zap.sh
+elif [ $ARCH == amd64 ]
+then
+	JAVA_ARCH="amd64"
+	cd /usr/share/zaproxy/ && export PATH=/usr/lib/jvm/java-7-openjdk-amd64/jre/bin:$PATH && ./zap.sh
+else
+	#ARM is assumed
+	cd /usr/share/zaproxy/ && export PATH=/usr/lib/jvm/java-7-openjdk-armhf/jre/bin:$PATH && ./zap.sh
+fi

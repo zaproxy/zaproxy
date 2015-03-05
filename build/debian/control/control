@@ -1,9 +1,10 @@
 Package: zaproxy
 Source: zaproxy
 Version: [[version]]
+Distribution: kali
 Architecture: all
-Maintainer: Simon Bennetts <psiinon@gmail.com>
-Section: net
+Maintainer: Simon Bennetts <psiinon@gmail.com>, Colm O'Flaherty <colm.p.oflaherty@gmail.com>
+Section: Utilities
 Priority: extra
 Depends: openjdk-7-jre
 Homepage: https://code.google.com/p/zaproxy/

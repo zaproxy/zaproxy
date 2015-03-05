@@ -23,8 +23,10 @@ import java.awt.EventQueue;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
@@ -36,6 +38,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Properties;
 import java.util.Set;
 
 import javax.net.ssl.SSLHandshakeException;
@@ -1238,4 +1241,35 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
         return failedUninstallations.isEmpty();
     }
+
+    /**
+     * disable auto-updates if Zap is running on a Debian-based Linux system, since we make packages available for Kali 
+     */
+    @Override
+	public boolean isEnabled() {
+    	boolean enabled = true;    	
+    	try {
+    		InputStream in = null;
+    		File osReleaseFile = new File ("/etc/os-release");
+    		Properties osProps = new Properties();    		
+    		in = new FileInputStream(osReleaseFile);   
+    		osProps.load(in);
+    		String osLikeValue = osProps.getProperty("ID");
+    		if (osLikeValue != null) { 
+	    		String [] oSLikes = osLikeValue.split(" ");
+	    		for (String osLike: oSLikes) {
+	    			if (osLike.toLowerCase().equals("kali")) {    				
+	    				if (logger.isDebugEnabled()) logger.debug("Disabling Auto Updates since we are running on Kali, for which packages are available");
+	    				enabled = false;
+	    				break;
+	    			}
+	    		}
+    		}
+    		in.close();
+    	}
+    	catch (Exception e) {
+    		//enable the extension
+    	}
+    	return enabled;
+	}
 }
