@@ -62,23 +62,23 @@ public class Alert implements Comparable<Object>  {
 	public static final int RISK_HIGH 	= 3;
 
 	// ZAP: Added FALSE_POSITIVE
-	public static final int FALSE_POSITIVE = 0;
+	public static final int CONFIDENCE_FALSE_POSITIVE = 0;
 	/**
-	 * @deprecated (2.4.0) Replaced by {@link #LOW} confidence.
-	 * SUSPICIOUS reliability has been deprecated in favour of using LOW confidence.
+	 * @deprecated (2.4.0) Replaced by {@link #CONFIDENCE_LOW} confidence.
+	 * SUSPICIOUS reliability has been deprecated in favour of using CONFIDENCE_LOW confidence.
 	 */
 	@Deprecated
 	public static final int SUSPICIOUS = 1;
-	public static final int LOW = 1;
+	public static final int CONFIDENCE_LOW = 1;
 	/**
-	 * @deprecated (2.4.0) Replaced by {@link #MEDIUM} confidence.
-	 * WARNING reliability has been deprecated in favour of using MEDIUM confidence.
+	 * @deprecated (2.4.0) Replaced by {@link #CONFIDENCE_MEDIUM} confidence.
+	 * WARNING reliability has been deprecated in favour of using CONFIDENCE_MEDIUM confidence.
 	 */
 	@Deprecated
 	public static final int WARNING = 2;
-	public static final int MEDIUM = 2;
-	public static final int HIGH = 3;
-	public static final int CONFIRMED = 4;
+	public static final int CONFIDENCE_MEDIUM = 2;
+	public static final int CONFIDENCE_HIGH = 3;
+	public static final int CONFIDENCE_USER_CONFIRMED = 4;
 	
 	public static final String[] MSG_RISK = {"Informational", "Low", "Medium", "High"};
 	// ZAP: Added "false positive"
@@ -100,8 +100,8 @@ public class Alert implements Comparable<Object>  {
 	 * Use of reliability has been deprecated in favour of using confidence
 	 */
 	@Deprecated
-	private int reliability = MEDIUM;
-	private int confidence = MEDIUM;
+	private int reliability = CONFIDENCE_MEDIUM;
+	private int confidence = CONFIDENCE_MEDIUM;
 	private String 	description = "";
 	private String 	uri = "";
 	private String 	param = "";
@@ -482,7 +482,7 @@ public class Alert implements Comparable<Object>  {
     
     public URL getIconUrl() {
     	//TODO: Shouldn't be necessary to check both but let's be careful
-    	if (reliability == Alert.FALSE_POSITIVE || confidence == Alert.FALSE_POSITIVE) {
+    	if (reliability == Alert.CONFIDENCE_FALSE_POSITIVE || confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
     		// Special case - theres no risk - use the green flag
 			return Constant.OK_FLAG_IMAGE_URL;
     	}

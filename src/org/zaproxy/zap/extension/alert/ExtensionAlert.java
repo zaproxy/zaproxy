@@ -625,7 +625,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
         for (Alert alert : alerts) {
-            if (alert.getConfidence() != Alert.FALSE_POSITIVE) {
+            if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
                 String urlParamXML = alert.getUrlParamXML();
                 xml.append(alert.toPluginXML(urlParamXML));
             }

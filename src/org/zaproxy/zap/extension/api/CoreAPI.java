@@ -957,7 +957,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				RecordAlert recAlert = tableAlert.read(alertId);
 				Alert alert = new Alert(recAlert);
 
-				if (alert.getConfidence() != Alert.FALSE_POSITIVE
+				if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE
 						&& !alerts.contains(alert)) {
 					if (baseUrl != null && ! alert.getUri().startsWith(baseUrl)) {
 						// Not subordinate to the specified URL
