@@ -137,7 +137,7 @@ class AlertTreeModel extends DefaultTreeModel {
     
     private AlertNode findAndAddChild(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
-        if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
+        if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }
@@ -157,7 +157,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
     private void addLeaf(AlertNode parent, String nodeName, Alert alert) {
         int risk = alert.getRisk();
-        if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
+        if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
             // Special case!
             risk = -1;
         }

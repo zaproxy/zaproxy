@@ -213,7 +213,7 @@ public class AlertViewPanel extends AbstractPanel {
 
 			alertEditRisk = new JComboBox<>(Alert.MSG_RISK);
 			alertEditConfidence = new JComboBox<>(Alert.MSG_CONFIDENCE);
-			alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[Alert.MEDIUM]);
+			alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[Alert.CONFIDENCE_MEDIUM]);
 			alertEditAttack = new ZapTextField();
 			
 			paramListModel = new DefaultComboBoxModel<>();
@@ -417,7 +417,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertName.setText(alert.getAlert());
 	
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
-	    	if (alert.getConfidence() == Alert.FALSE_POSITIVE) {
+	    	if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
 	    		// Special case - theres no risk - use the green flag
 				alertRisk.setIcon(new ImageIcon(Constant.OK_FLAG_IMAGE_URL));
 	    	} else {

@@ -451,7 +451,7 @@ public class HistoryReference {
 	   if(alerts==null)
 		   return i;
 	   for (Alert a : alerts) {
-		   if (a.getConfidence() != Alert.FALSE_POSITIVE && a.getRisk() > i) {
+		   if (a.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE && a.getRisk() > i) {
 			   i = a.getRisk();
 		   }
 	   }

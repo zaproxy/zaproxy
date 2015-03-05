@@ -122,7 +122,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     	int highestRisk = -1;
     	Alert highestAlert = null;
     	for (Alert alert : this.getAlerts()) {
-    		if (alert.getConfidence() != Alert.FALSE_POSITIVE && alert.getRisk() > highestRisk) {
+    		if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE && alert.getRisk() > highestRisk) {
     			highestRisk = alert.getRisk();
     			highestAlert = alert;
     		}

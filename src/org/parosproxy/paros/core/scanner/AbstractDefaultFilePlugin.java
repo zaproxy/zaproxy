@@ -133,7 +133,7 @@ public abstract class AbstractDefaultFilePlugin extends AbstractHostPlugin {
                 msg.getRequestBody().setLength(0);
                 sendAndReceive(msg);
                 if (isFileExist(msg)) {
-                    bingo(Alert.RISK_MEDIUM, Alert.SUSPICIOUS, uri.toString(), "", "", "", "", msg);
+                    bingo(Alert.RISK_MEDIUM, Alert.CONFIDENCE_LOW, uri.toString(), "", "", "", "", msg);
                 }
             } catch (Exception e) {
             }
