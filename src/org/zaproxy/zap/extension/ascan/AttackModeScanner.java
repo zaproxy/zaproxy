@@ -35,6 +35,7 @@ import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Scanner;
 import org.parosproxy.paros.core.scanner.ScannerListener;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMapEventPublisher;
@@ -112,10 +113,13 @@ public class AttackModeScanner implements EventConsumer {
 		if (this.attackModeThread != null && this.attackModeThread.isRunning()) {
 			if (event.getEventType().equals(SiteMapEventPublisher.SITE_NODE_ADDED_EVENT) &&
 					event.getTarget().getStartNode().isIncludedInScope()) {
-				// Add to the stack awaiting attack
-				log.debug("Adding node to attack mode stack " + event.getTarget().getStartNode());
-				nodeStack.add(event.getTarget().getStartNode());
-				updateCount();
+				if (event.getTarget().getStartNode().getHistoryReference().getHistoryType()
+						!= HistoryReference.TYPE_TEMPORARY) {
+					// Add to the stack awaiting attack
+					log.debug("Adding node to attack mode stack " + event.getTarget().getStartNode());
+					nodeStack.add(event.getTarget().getStartNode());
+					updateCount();
+				}
 			} else if (event.getEventType().equals(SiteMapEventPublisher.SITE_NODE_REMOVED_EVENT)) {
 				if (nodeStack.contains(event.getTarget().getStartNode())) {
 					nodeStack.remove(event.getTarget().getStartNode());
