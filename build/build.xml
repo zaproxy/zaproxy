@@ -638,6 +638,33 @@
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
         <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
     </target>
+	
+    <target name="deploy-release-addons">
+        <delete includeEmptyDirs="false">
+            <fileset dir="${src}/plugin" includes="*.zap" />
+        </delete>
+    	<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-release" inheritAll="false"/>
+    	<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-release" inheritAll="false"/>
+       	<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-release" inheritAll="false"/>
+    </target>
+
+    <target name="deploy-weekly-addons">
+        <delete includeEmptyDirs="false">
+            <fileset dir="${src}/plugin" includes="*.zap" />
+        </delete>
+    	<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-weekly" inheritAll="false"/>
+    	<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-weekly" inheritAll="false"/>
+       	<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-weekly" inheritAll="false"/>
+    </target>
+
+    <target name="deploy-all-addons">
+        <delete includeEmptyDirs="false">
+            <fileset dir="${src}/plugin" includes="*.zap" />
+        </delete>
+    	<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-all" inheritAll="false"/>
+    	<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-all" inheritAll="false"/>
+       	<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-all" inheritAll="false"/>
+    </target>
 
     <target name="package-lite" description="package the cross platform 'lite' release">
         <echo message="Packaging the Lite build..." />
