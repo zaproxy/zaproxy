@@ -28,6 +28,7 @@ public class ZapRelease {
 	private String fileName;
 	private long size;
 	private String releaseNotes;
+	private URL releaseNotesUrl;
 	private String hash;
 
 	public ZapRelease() {
@@ -37,13 +38,14 @@ public class ZapRelease {
 		this.version = version;
 	}
 	
-	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes, String hash) {
+	public ZapRelease(String version, URL url, String fileName, long size, String releaseNotes, URL releaseNotesUrl, String hash) {
 		super();
 		this.version = version;
 		this.url = url;
 		this.fileName = fileName;
 		this.size = size;
 		this.releaseNotes = releaseNotes;
+		this.releaseNotesUrl = releaseNotesUrl;
 		this.hash = hash;
 	}
 
@@ -61,6 +63,14 @@ public class ZapRelease {
 
 	public void setUrl(URL url) {
 		this.url = url;
+	}
+
+	public URL getReleaseNotesUrl() {
+		return releaseNotesUrl;
+	}
+
+	public void setReleaseNotesUrl(URL releaseNotesUrl) {
+		this.releaseNotesUrl = releaseNotesUrl;
 	}
 
 	public String getFileName() {

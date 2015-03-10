@@ -618,6 +618,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     }
     
     protected boolean downloadLatestRelease() {
+    	if (Constant.isKali()) {
+    		if (View.isInitialised()) {
+	    		// Just tell the user to use one of the Kali options
+	    		View.getSingleton().showMessageDialog(this.getAddOnsDialog(), Constant.messages.getString("cfu.kali.options"));
+    		}
+    		return false;
+    	}
     	if (this.getLatestVersionInfo() == null ||
     			this.getLatestVersionInfo().getZapRelease() == null) {
     		return false;
@@ -829,9 +836,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 	    	OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
 
-			if (rel.isNewerThan(getCurrentVersion())) {
+	    	if (rel.isNewerThan(getCurrentVersion())) {
 				logger.debug("There is a newer release: " + rel.getVersion());
 				// New ZAP release
+				if (Constant.isKali()) {
+		    		// Kali has its own package management system
+					if (View.isInitialised()) {
+						getAddOnsDialog().setVisible(true);
+					}
+					return;
+				}
+				
 				File f = new File(Constant.FOLDER_LOCAL_PLUGIN, rel.getFileName());
 				if (f.exists() && f.length() >= rel.getSize()) {
 					// Already downloaded, prompt to install and exit

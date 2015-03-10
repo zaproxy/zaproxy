@@ -80,15 +80,25 @@ public class AddOnCollection {
         	// See if theres a ZAP release defined
 			String version = config.getString("core/version");
         	if (Platform.daily.equals(platform)) {
+        		// Daily releases take precedence even if running on Kali as they will have been manually installed
 				version = config.getString("core/daily-version", version);
+        	} else if (Constant.isKali()) {
+				version = config.getString("core/kali-version", version);
         	}
 			if (version != null && version.length() > 0) {
+				String relUrlStr = config.getString("core/relnotes-url", null);
+				URL relUrl = null;
+				if (relUrlStr != null ) {
+					relUrl = new URL(relUrlStr);
+				}
+				
 				this.zapRelease = new ZapRelease(
 								version, 
 								new URL(config.getString("core/" + platform.name() +"/url")),
 								config.getString("core/" + platform.name() +"/file"),
 								config.getLong("core/" + platform.name() +"/size"),
 								config.getString("core/relnotes"),
+								relUrl,
 								config.getString("core/" + platform.name() +"/hash"));
 			}
         } catch (Exception e) {

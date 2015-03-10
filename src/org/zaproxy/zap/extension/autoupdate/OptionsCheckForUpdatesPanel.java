@@ -123,7 +123,7 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	
 	private void setCheckBoxStates() {
 		if (chkCheckOnStart.isSelected()) {
-			getChkDownloadNewRelease().setEnabled(true);
+			getChkDownloadNewRelease().setEnabled(!Constant.isKali());
 			getChkCheckAddonUpdates().setEnabled(true);
 			getChkInstallAddonUpdates().setEnabled(this.getChkCheckAddonUpdates().isSelected());
 			getChkInstallScannerRules().setEnabled(this.getChkCheckAddonUpdates().isSelected());
@@ -171,6 +171,9 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 			chkDownloadNewRelease.setText(Constant.messages.getString("cfu.options.downloadNewRelease"));
 			chkDownloadNewRelease.setVerticalAlignment(javax.swing.SwingConstants.TOP);
 			chkDownloadNewRelease.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+			if (Constant.isKali()) {
+				chkDownloadNewRelease.setText(Constant.messages.getString("cfu.options.downloadNewRelease.kali"));
+			}
 		}
 		return chkDownloadNewRelease;
 	}

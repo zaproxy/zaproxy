@@ -26,6 +26,7 @@ import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
 import java.io.File;
+import java.net.URL;
 import java.text.MessageFormat;
 import java.util.HashSet;
 import java.util.List;
@@ -542,6 +543,15 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			coreNotesButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
+					
+					URL url = latestInfo.getZapRelease().getReleaseNotesUrl();
+					if (url != null && DesktopUtils.canOpenUrlInBrowser()) {
+						if (DesktopUtils.openUrlInBrowser(url.toString())) {
+							// It worked :)
+							return;
+						}
+					}
+					
 					StringBuilder sb = new StringBuilder();
 					sb.append("<html>");
 					sb.append(MessageFormat.format(
@@ -624,19 +634,24 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JButton getDownloadZapButton() {
 		if (downloadZapButton == null) {
 			downloadZapButton = new JButton();
-			downloadZapButton.setText(Constant.messages.getString("cfu.button.zap.download"));
+			if (Constant.isKali()) {
+				getDownloadZapButton().setText(Constant.messages.getString("cfu.button.zap.options"));
+			} else {
+				downloadZapButton.setText(Constant.messages.getString("cfu.button.zap.download"));
+			}
 			downloadZapButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					extension.downloadLatestRelease();
-					setDownloadingZap();
+					if (extension.downloadLatestRelease()) {
+						setDownloadingZap();
+					}
 				}
 			});
 
 		}
 		return downloadZapButton;
 	}
-	
+
 	protected void setDownloadingZap() {
 		downloadZapButton.setEnabled(false);
 		getUpdateButton().setEnabled(false);	// Makes things less complicated
