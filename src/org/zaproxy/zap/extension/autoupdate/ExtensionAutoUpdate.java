@@ -91,8 +91,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     private static final String ZAP_VERSIONS_2_4_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml";
 
 	// URLs for use when testing locally ;)
-	//private static final String ZAP_VERSIONS_XML_SHORT = "https://localhost:8080/zapcfu/ZapVersions.xml";
-	//private static final String ZAP_VERSIONS_XML_FULL = "https://localhost:8080/zapcfu/ZapVersions.xml";
+	//private static final String ZAP_VERSIONS_2_4_XML_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
+    //private static final String ZAP_VERSIONS_2_4_XML_WEEKLY_SHORT = "http://localhost:8080/zapcfu/ZapVersions.xml";
+	//private static final String ZAP_VERSIONS_2_4_XML_FULL = "http://localhost:8080/zapcfu/ZapVersions.xml";
 
 	private static final String VERSION_FILE_NAME = "ZapVersions.xml";
 
@@ -621,6 +622,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     }
     
     protected boolean downloadLatestRelease() {
+    	if (Constant.isKali()) {
+    		if (View.isInitialised()) {
+	    		// Just tell the user to use one of the Kali options
+	    		View.getSingleton().showMessageDialog(this.getAddOnsDialog(), Constant.messages.getString("cfu.kali.options"));
+    		}
+    		return false;
+    	}
     	if (this.getLatestVersionInfo() == null ||
     			this.getLatestVersionInfo().getZapRelease() == null) {
     		return false;
@@ -832,9 +840,17 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 	    	OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
 
-			if (rel.isNewerThan(getCurrentVersion())) {
+	    	if (rel.isNewerThan(getCurrentVersion())) {
 				logger.debug("There is a newer release: " + rel.getVersion());
 				// New ZAP release
+				if (Constant.isKali()) {
+		    		// Kali has its own package management system
+					if (View.isInitialised()) {
+						getAddOnsDialog().setVisible(true);
+					}
+					return;
+				}
+				
 				File f = new File(Constant.FOLDER_LOCAL_PLUGIN, rel.getFileName());
 				if (f.exists() && f.length() >= rel.getSize()) {
 					// Already downloaded, prompt to install and exit
@@ -1242,34 +1258,4 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         return failedUninstallations.isEmpty();
     }
 
-    /**
-     * disable auto-updates if Zap is running on a Debian-based Linux system, since we make packages available for Kali 
-     */
-    @Override
-	public boolean isEnabled() {
-    	boolean enabled = true;    	
-    	try {
-    		InputStream in = null;
-    		File osReleaseFile = new File ("/etc/os-release");
-    		Properties osProps = new Properties();    		
-    		in = new FileInputStream(osReleaseFile);   
-    		osProps.load(in);
-    		String osLikeValue = osProps.getProperty("ID");
-    		if (osLikeValue != null) { 
-	    		String [] oSLikes = osLikeValue.split(" ");
-	    		for (String osLike: oSLikes) {
-	    			if (osLike.toLowerCase().equals("kali")) {    				
-	    				if (logger.isDebugEnabled()) logger.debug("Disabling Auto Updates since we are running on Kali, for which packages are available");
-	    				enabled = false;
-	    				break;
-	    			}
-	    		}
-    		}
-    		in.close();
-    	}
-    	catch (Exception e) {
-    		//enable the extension
-    	}
-    	return enabled;
-	}
 }

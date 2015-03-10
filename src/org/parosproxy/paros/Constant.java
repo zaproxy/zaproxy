@@ -54,11 +54,14 @@
 // ZAP: 2015/01/04 Issue 1388: Not all translated files are updated when "zaplang" package is imported
 // ZAP: 2014/01/04 Issue 1394: Import vulnerabilities.xml files when updating the translated resources
 // ZAP: 2014/01/04 Issue 1458: Change home/installation dir paths to be always absolute
+// ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
 
 package org.parosproxy.paros;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
@@ -69,6 +72,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
+import java.util.Properties;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -198,6 +202,8 @@ public final class Constant {
     // Install dir for ZAP, but default will be cwd
     private static String zapInstall = null;
     
+	private static Boolean onKali = null;
+
     // ZAP: Added i18n
     public static I18N messages = null;
 
@@ -933,4 +939,38 @@ public final class Constant {
     public static boolean isDailyBuild() {
     	return isDailyBuild(PROGRAM_VERSION);
     }
+    
+    /**
+     * Returns true if running on Kali and not a daily build 
+     */
+	public static boolean isKali() {
+		if (onKali == null) {
+	    	onKali = false;
+    		File osReleaseFile = new File ("/etc/os-release");
+	    	if (isLinux() && ! isDailyBuild() && osReleaseFile.exists()) {
+	    		// Ignore the fact we're on Kali if this is a daily build - they will only have been installed manually
+		    	try {
+		    		InputStream in = null;
+		    		Properties osProps = new Properties();    		
+		    		in = new FileInputStream(osReleaseFile);   
+		    		osProps.load(in);
+		    		String osLikeValue = osProps.getProperty("ID");
+		    		if (osLikeValue != null) { 
+			    		String [] oSLikes = osLikeValue.split(" ");
+			    		for (String osLike: oSLikes) {
+			    			if (osLike.toLowerCase().equals("kali")) {    				
+			    				onKali = true;
+			    				break;
+			    			}
+			    		}
+		    		}
+		    		in.close();
+		    	} catch (Exception e) {
+		    		// Ignore
+		    	}
+	    	}
+		}
+    	return onKali;
+	}
+    
 }
