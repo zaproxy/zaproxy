@@ -209,6 +209,8 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         checkBoxCompactDatabase.setSelected(param.isCompactDatabase());
         spinnerRequestBodySize.setValue(param.getRequestBodySize());
         spinnerResponseBodySize.setValue(param.getResponseBodySize());
+    	checkBoxNewSessionPrompt.setSelected(param.isNewSessionPrompt());
+    	comboNewSessionOption.setSelectedIndex(param.getNewSessionOption());
     }
 
     @Override
@@ -223,6 +225,8 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         param.setCompactDatabase(checkBoxCompactDatabase.isSelected());
         param.setRequestBodySize(spinnerRequestBodySize.getValue());
         param.setResponseBodySize(spinnerResponseBodySize.getValue());
+        param.setNewSessionPrompt(checkBoxNewSessionPrompt.isSelected());
+        param.setNewSessionOption(comboNewSessionOption.getSelectedIndex());
     }
     
     @Override
