@@ -1,33 +1,24 @@
 /*
  * Zed Attack Proxy (ZAP) and its related class files.
- * 
+ *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
- * 
- * Licensed under the Apache License, Version 2.0 (the "License"); 
- * you may not use this file except in compliance with the License. 
- * You may obtain a copy of the License at 
- * 
- *   http://www.apache.org/licenses/LICENSE-2.0 
- *   
- * Unless required by applicable law or agreed to in writing, software 
- * distributed under the License is distributed on an "AS IS" BASIS, 
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
- * See the License for the specific language governing permissions and 
- * limitations under the License. 
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
  */
 package org.zaproxy.zap.extension.ascan;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
-
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
@@ -43,17 +34,13 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.zaproxy.zap.extension.api.ApiAction;
-import org.zaproxy.zap.extension.api.ApiException;
-import org.zaproxy.zap.extension.api.ApiImplementor;
-import org.zaproxy.zap.extension.api.ApiResponse;
-import org.zaproxy.zap.extension.api.ApiResponseElement;
-import org.zaproxy.zap.extension.api.ApiResponseList;
-import org.zaproxy.zap.extension.api.ApiResponseSet;
-import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.extension.api.*;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.XMLStringUtil;
+
+import java.util.*;
+import java.util.Map.Entry;
 
 public class ActiveScanAPI extends ApiImplementor {
 
@@ -110,10 +97,10 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String PARAM_SCAN_ID = "scanId";
 
 	private ExtensionActiveScan controller = null;
-	
+
 	public ActiveScanAPI (ExtensionActiveScan controller) {
 		this.controller = controller;
-        this.addApiAction(new ApiAction(ACTION_SCAN, 
+        this.addApiAction(new ApiAction(ACTION_SCAN,
         		new String[] {PARAM_URL}, new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
@@ -130,14 +117,14 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED_POLICIES, new String[] {PARAM_IDS}));
-		this.addApiAction(new ApiAction(ACTION_SET_POLICY_ATTACK_STRENGTH, 
+		this.addApiAction(new ApiAction(ACTION_SET_POLICY_ATTACK_STRENGTH,
 				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
-		this.addApiAction(new ApiAction(ACTION_SET_POLICY_ALERT_THRESHOLD, 
+		this.addApiAction(new ApiAction(ACTION_SET_POLICY_ALERT_THRESHOLD,
+				new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ATTACK_STRENGTH,
 				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
-		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ATTACK_STRENGTH, 
-				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
-		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD, 
-				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD,
+				new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
 
@@ -153,7 +140,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_ATTACK_MODE_QUEUE));
 
 	}
-	
+
 	@Override
 	public String getPrefix() {
 		return PREFIX;
@@ -173,7 +160,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				String policyName = null;
 				policy = null;
-				
+
 				try {
 					policyName = params.getString(PARAM_SCAN_POLICY_NAME);
 				} catch (Exception e1) {
@@ -331,7 +318,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		}
 		return ApiResponseElement.OK;
 	}
-	
+
 	private ScanPolicy getScanPolicyFromParams(JSONObject params) throws ApiException {
 		String policyName = null;;
 		try {
@@ -366,7 +353,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		int id = getParam(params, PARAM_SCAN_ID, -1);
 
 		GenericScanner2 activeScan = null;
-		
+
 		if (id == -1) {
 			activeScan = controller.getLastScan();
 		} else {
@@ -421,7 +408,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			}
 		}
 	}
-	
+
 	private static boolean hasPolicyWithId(int policyId) {
 		return Arrays.asList(Category.getAllNames()).contains(Category.getName(policyId));
 	}
@@ -436,7 +423,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		}
 		return id;
 	}
-	
+
 	private Plugin.AttackStrength getAttackStrengthFromParamAttack(JSONObject params) throws ApiException {
 		final String paramAttackStrength = params.getString(PARAM_ATTACK_STRENGTH).trim().toUpperCase();
 		try {
@@ -454,7 +441,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ALERT_THRESHOLD);
 		}
 	}
-	
+
 	private static void setAlertThresholdToScanner(Plugin.AlertThreshold alertThreshold, Plugin scanner) {
 		scanner.setAlertThreshold(alertThreshold);
 		scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
@@ -483,16 +470,16 @@ public class ActiveScanAPI extends ApiImplementor {
 		} catch (URIException e) {
 			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 		}
-		
+
 		Target target = new Target(startNode);
 		target.setRecurse(scanChildren);
 		target.setInScopeOnly(scanJustInScope);
-		
+
 		Object [] objs = new Object[]{};
 		if (policy != null) {
 			objs = new Object[]{policy};
 		}
-		
+
 		return controller.startScan(null, new Target(startNode, null, scanJustInScope, scanChildren), null, objs);
 	}
 
@@ -562,7 +549,7 @@ public class ActiveScanAPI extends ApiImplementor {
 						hpList.addItem(pList);
 			        }
 					resultList.addItem(hpList);
-					
+
 				}
 			}
 			result = resultList;
@@ -660,7 +647,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		}
 		return true;
 	}
-	
+
 	private Plugin.AttackStrength getPolicyAttackStrength(ScanPolicy policy, int categoryd) {
 		Plugin.AttackStrength attackStrength = null;
 		for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
