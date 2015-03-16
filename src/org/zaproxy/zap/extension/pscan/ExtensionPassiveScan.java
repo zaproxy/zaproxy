@@ -506,4 +506,12 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             }
         }
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

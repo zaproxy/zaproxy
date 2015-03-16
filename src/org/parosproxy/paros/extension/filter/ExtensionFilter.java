@@ -35,6 +35,7 @@
 // to call the base implementation
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/11/26 Fixed an issue in the implementation of searchFilterIndex.
+// ZAP: 2015/03/16 Issue 1525: Further database independence changes
 
 package org.parosproxy.paros.extension.filter;
 
@@ -315,4 +316,12 @@ public class ExtensionFilter extends ExtensionAdaptor implements ProxyListener, 
 		// index has been found
 		return mid + 1;
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

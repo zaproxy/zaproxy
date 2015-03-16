@@ -153,4 +153,12 @@ public class ExtensionHttpPanelRequestQueryCookieTableView extends ExtensionAdap
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

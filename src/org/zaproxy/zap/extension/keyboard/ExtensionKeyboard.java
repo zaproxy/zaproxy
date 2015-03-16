@@ -251,4 +251,12 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 			return null;
 		}
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

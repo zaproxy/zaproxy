@@ -276,4 +276,12 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

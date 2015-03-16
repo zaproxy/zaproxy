@@ -507,4 +507,12 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		}
 		spiderDialog.setVisible(true);
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

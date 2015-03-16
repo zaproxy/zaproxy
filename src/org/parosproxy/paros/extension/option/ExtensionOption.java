@@ -25,6 +25,7 @@
 // ZAP: 2012/07/02 Added the instance variable optionsDatabasePanel and the 
 // method getOptionsDatabasePanel() and changed the method hook(ExtensionHook)
 // to add the optionsDatabasePanel to the options panel.
+// ZAP: 2015/03/16 Issue 1525: Further database independence changes
 
 package org.parosproxy.paros.extension.option;
 
@@ -173,4 +174,12 @@ public class ExtensionOption extends ExtensionAdaptor {
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

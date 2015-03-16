@@ -101,4 +101,12 @@ public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
         return Constant.messages.getString("globalexcludeurl.desc");
     }
 	
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

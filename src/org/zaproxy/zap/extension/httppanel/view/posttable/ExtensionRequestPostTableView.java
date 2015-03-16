@@ -83,5 +83,12 @@ public class ExtensionRequestPostTableView extends ExtensionAdaptor {
 		return Constant.ZAP_TEAM;
 	}
 
-}
 
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
+}

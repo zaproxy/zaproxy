@@ -124,4 +124,12 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
 		return exts;
 	}
 
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

@@ -37,6 +37,7 @@
 // ZAP: 2014/03/23 Issue 1094: Change ExtensionManualRequestEditor to only add view components if in GUI mode
 // ZAP: 2014/08/14 Issue 1292: NullPointerException while attempting to remove an unregistered ManualRequestEditorDialog
 // ZAP: 2014/12/12 Issue 1449: Added help button
+// ZAP: 2015/03/16 Issue 1525: Further database independence changes
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -184,4 +185,12 @@ public class ExtensionManualRequestEditor extends ExtensionAdaptor implements Se
 			}
 		}
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

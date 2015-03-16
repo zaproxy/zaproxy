@@ -387,4 +387,12 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			return null;
 		}
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }
