@@ -1258,4 +1258,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         return failedUninstallations.isEmpty();
     }
 
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

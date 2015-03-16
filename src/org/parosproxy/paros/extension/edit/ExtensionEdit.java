@@ -23,6 +23,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2015/03/16 Issue 1525: Further database independence changes
 
 package org.parosproxy.paros.extension.edit;
 
@@ -133,4 +134,12 @@ public class ExtensionEdit extends ExtensionAdaptor {
 	public String getAuthor() {
 		return Constant.PAROS_TEAM;
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

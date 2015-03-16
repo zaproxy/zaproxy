@@ -422,4 +422,12 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
             getOptionsFuzzerPanel().updateFuzzCategories();
         }
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

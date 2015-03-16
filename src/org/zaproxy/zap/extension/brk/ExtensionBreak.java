@@ -612,4 +612,12 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 			this.getBreakPanel().setButtonMode(this.getOptionsParam().getButtonMode());
 		}
 	}
+
+	@Override
+	/**
+	 * No database tables used, so all supported
+	 */
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

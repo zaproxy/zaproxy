@@ -141,4 +141,12 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 		}
 		return this.getParams().getRootca().getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }

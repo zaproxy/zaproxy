@@ -136,4 +136,12 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

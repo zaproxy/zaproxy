@@ -322,4 +322,12 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 			m.addUser(usersManager);
 		}
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }

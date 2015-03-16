@@ -221,5 +221,13 @@ public class ExtensionHttpPanelHexView extends ExtensionAdaptor {
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+		return true;
+	}
 }
 

@@ -184,4 +184,12 @@ public class ExtensionEncoder2 extends ExtensionAdaptor implements OptionsChange
 			encodeDecodeDialog.updateOptions(getParams());
 		}
 	}
+
+	/**
+	 * No database tables used, so all supported
+	 */
+	@Override
+	public boolean supportsDb(String type) {
+    	return true;
+    }
 }
