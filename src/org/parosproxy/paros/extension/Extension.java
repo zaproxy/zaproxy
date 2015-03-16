@@ -29,6 +29,7 @@
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
+// ZAP: 2015/03/16 Issue 1525: Further database independence changes
 
 package org.parosproxy.paros.extension;
 
@@ -241,5 +242,14 @@ public interface Extension {
      * @since 2.4.0
      */
     void setAddOn(AddOn addOn);
+    
+    /**
+     * Return true if the specified db type is supported by the extension (or if it doesnt use any db)
+     * If this method returns false (meaning the db in use is not supported) then the extension will not be loaded.
+     * @param type the db type
+     * @return true if the specified db type is supported by the extension (or if it doesnt use any db)
+     * @see org.parosproxy.paros.db.Database#getType()
+     */
+    boolean supportsDb(String type);
 
 }

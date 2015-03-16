@@ -949,7 +949,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		try {
 			TableAlert tableAlert = Model.getSingleton().getDb()
 					.getTableAlert();
-			Vector<Integer> v = tableAlert.getAlertList();
+			Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
 			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
 			for (int i = 0; i < v.size(); i++) {

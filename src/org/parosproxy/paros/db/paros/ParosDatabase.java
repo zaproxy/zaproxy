@@ -251,7 +251,6 @@ public class ParosDatabase implements Database {
         }
 	}
 	
-    
     /* (non-Javadoc)
 	 * @see org.parosproxy.paros.db.DatabaseIF#getTableAlert()
 	 */
@@ -331,7 +330,10 @@ public class ParosDatabase implements Database {
 	public TableContext getTableContext() {
 		return tableContext;
 	}
-	
-	
+
+	@Override
+	public String getType() {
+		return Database.DB_TYPE_HSQLDB;
+	}
 	
 }

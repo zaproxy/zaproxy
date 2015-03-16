@@ -37,13 +37,9 @@ public interface TableAlert extends DatabaseListener {
 			String reference, String evidence, int cweId, int wascId,
 			int historyId, int sourceHistoryId) throws DatabaseException;
 
-	Vector<Integer> getAlertListByScan(int scanId)
-			throws DatabaseException;
-
 	Vector<Integer> getAlertListBySession(long sessionId)
 			throws DatabaseException;
 
-	Vector<Integer> getAlertLists() throws DatabaseException;
 
 	void deleteAlert(int alertId) throws DatabaseException;
 
@@ -60,8 +56,5 @@ public interface TableAlert extends DatabaseListener {
 
 	List<RecordAlert> getAlertsBySourceHistoryId(int historyId)
 			throws DatabaseException;
-
-	// ZAP: Added getAlertList
-	Vector<Integer> getAlertList() throws DatabaseException;
 
 }

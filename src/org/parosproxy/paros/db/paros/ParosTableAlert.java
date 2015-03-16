@@ -260,10 +260,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
     
     }
     
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertListByScan(int)
-	 */
-    @Override
 	public Vector<Integer> getAlertListByScan(int scanId) throws DatabaseException {
         try {
 			try (PreparedStatement psReadScan = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME + " WHERE " + SCANID + " = ?")) {
@@ -283,9 +279,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 		}
     }
 
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertListBySession(long)
-	 */
     @Override
 	public Vector<Integer> getAlertListBySession(long sessionId) throws DatabaseException {
         try {
@@ -307,30 +300,6 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 		}
     }
 
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertLists()
-	 */
-    @Override
-	public Vector<Integer> getAlertLists() throws DatabaseException {
-        try {
-			try (PreparedStatement psReadSession = getConnection().prepareStatement("SELECT ALERTID FROM " + TABLE_NAME)) {
-			
-			    Vector<Integer> v = new Vector<>();
-			    try (ResultSet rs = psReadSession.executeQuery()) {
-			        while (rs.next()) {
-			            int alertId = rs.getInt(ALERTID);
-			            // ZAP: Changed to use the method Integer.valueOf.
-			            v.add(Integer.valueOf(alertId));
-			        }
-			    }
-			    return v;
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
-    }
-
-    
     /* (non-Javadoc)
 	 * @see org.parosproxy.paros.db.paros.TableAlert#deleteAlert(int)
 	 */
@@ -426,26 +395,4 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 		}
     }
 
-    // ZAP: Added getAlertList
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertList()
-	 */
-    @Override
-	public Vector<Integer> getAlertList() throws DatabaseException {
-        try {
-			try (PreparedStatement psReadScan = getConnection().prepareStatement("SELECT " + ALERTID + " FROM " + TABLE_NAME)) {
-			
-			    Vector<Integer> v = new Vector<>();
-			    try (ResultSet rs = psReadScan.executeQuery()) {
-			        while (rs.next()) {
-			            v.add(Integer.valueOf(rs.getInt(ALERTID)));
-			        }
-			    }
-			    return v;
-			}
-		} catch (SQLException e) {
-			throw new DatabaseException(e);
-		}
-    }
-	
 }

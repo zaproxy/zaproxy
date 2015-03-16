@@ -45,6 +45,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -271,7 +272,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(),
                 ref.getHistoryId(), alert.getSourceHistoryId());
-
+// TODO
+//System.out.println("SBSB ExtAlert.write.. table= " + tableAlert.getClass().getCanonicalName());
+//System.out.println("SBSB ExtAlert.write.. rec= " + recordAlert);
+        
         alert.setAlertId(recordAlert.getAlertId());
 
     }
@@ -337,19 +341,23 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     		return;
     	}
 
+    	/*
         try {
             refreshAlert(session);
         } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
         setTreeModel(getTreeModel());
+        */
     }
 
     private void refreshAlert(Session session) throws DatabaseException {
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        Vector<Integer> v = tableAlert.getAlertList();
+        // TODO
+        //Vector<Integer> v = tableAlert.getAlertList();
+        Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
         final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
                 .getExtensionLoader()
@@ -603,7 +611,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v;
         try {
-            v = tableAlert.getAlertList();
+        	// TODO
+            //v = tableAlert.getAlertList();
+            v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
             for (int i = 0; i < v.size(); i++) {
                 int alertId = v.get(i).intValue();
