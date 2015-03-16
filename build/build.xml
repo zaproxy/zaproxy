@@ -20,6 +20,7 @@
     <property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
     <property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
     <property name="zap.java.api.version" value="4" />
+    <property name="package" value="zaproxy" />
 
     <property name="crowdin.zap.project.id" value="owasp-zap" />
     <property name="crowdin.zap.help.project.id" value="owasp-zap-help" />
@@ -76,6 +77,14 @@
     <taskdef name="crowdinupdatehelpsetlangattribute" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinUpdateHelpSetLangAttribute" loaderref="lib.path.loader" />
     <taskdef name="crowdinexport" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinTriggerExportPackage" loaderref="lib.path.loader" />
     <taskdef name="crowdindownload" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinDownloadPackage" loaderref="lib.path.loader" />
+    
+    <!-- task to do conditionals -->
+    <taskdef resource="net/sf/antcontrib/antlib.xml" >
+		<classpath><pathelement location="${dist.lib.dir}/ant-contrib-1.0b3.jar"/></classpath>	
+    </taskdef>
+        
+    <!-- task to build debs -->
+    <taskdef classpathref="build.classpath" name="deb" classname="org.vafer.jdeb.ant.DebAntTask"/>
 
     <!-- Configuration for Crowdin tasks, it represents the files (and its properties) that should be upload/download to/from Crowdin. -->
     <crowdinconfiguration id="crowdin.config">
@@ -355,7 +364,7 @@
         <!-- Copy source to build directory to be included in jar, only if "dist.with.source" is set -->
         <antcall target="copy-source-to-build" />
 
-        <manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
+        <manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/${zap.jar}">
             <!--classpath refid="dist.classpath" /-->
             <classpath>
                 <fileset dir="${dist}/lib">
@@ -370,7 +379,7 @@
             </classpath>
         </manifestclasspath>
 
-        <jar jarfile="${dist}/zap.jar" update="true" compress="false">
+        <jar jarfile="${dist}/${zap.jar}" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<!-- Exclude all extensions that are build as addons - these are build next -->
             </zipfileset>
@@ -415,6 +424,10 @@
             </manifest>
         </jar>
         
+    	<!-- Correct the ZAP jar name -->
+    	<replace file="${dist}/zap.bat" token="zap-dev.jar" value="${zap.jar}"/>
+    	<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
+
         <!-- Delete the libraries files, "unjared" previously, as they are no longer needed. -->
         <delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
     </target>
@@ -514,7 +527,7 @@
         Use updateneweronly as true whenever possible as it updates/uploads only the necessary files.
         Note: when moving add-ons between branches updateneweronly has to be false to force the update of export pattern -->
         <crowdinupdatesources configrefid="crowdin.config" dryrun="false" verbose="true" updateoption="update_as_unapproved" 
-            xmlcontentsegmentation="false" updateneweronly="true" deleteremoved="true">
+            xmlcontentsegmentation="false" updateneweronly="false" deleteremoved="false">
             <!-- For SVN repo, uses commit date (from svn info) -->
             <clastmodifieddateprovider name="svn" cmdpath="${svn.cmd}" failonerror="true" />
             <!-- For Git repo, uses "committer date" (from git log) -->
@@ -606,7 +619,7 @@
     <target name="generate-apis" description="generates the client APIs">
         <path id="classpath">
             <pathelement location="../bin" />
-            <pathelement location="./zap/zap.jar" />
+            <pathelement location="./zap/${zap.jar}" />
             <pathelement location="./zap" />
             <fileset dir="../lib" includes="**/*.jar" />
         </path>
@@ -625,9 +638,9 @@
     </target>
 
     <target name="copy-jar-to-extension-projects" depends="dist">
-        <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
-        <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
-        <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
     </target>
 
 	<target name="test" depends="compile">
@@ -737,13 +750,15 @@
     </target>
 
     <target name="package-linux" description="package the Linux build">
-        <echo message="Packaging the Linux build..." />
+        <echo message="Packaging the Linux build... for Version ${version}" />
+        
+        <property name="zap.archive" location="ZAP_${version}_Linux.tar.gz" />
 
         <!-- delete previously build packages -->
-        <delete file="ZAP_${version}_Linux.tar.gz" />
+        <delete file="${zap.archive}" />
 
         <!-- Tar up the release -->
-        <tar destfile="ZAP_${version}_Linux.tar.gz" compression="gzip">
+        <tar destfile="${zap.archive}" compression="gzip">
             <tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
                 <include name="**" />
                 <exclude name="**/.svn/**" />
@@ -754,6 +769,62 @@
                 <include name="zap.sh" />
             </tarfileset>
         </tar>
+        
+        <!-- build the Debian archive -->
+        <!--
+        Note: 
+        1) we do not include the following files in the Deb, since these likely need to be generated by the maintainers of the 
+            Linux distro
+     		- /usr/share/doc/zaproxy/changelog.Debian.gz
+			- /usr/share/doc/zaproxy/copyright
+		2) We do NOT bundle the plugins as part of the deb either.  These should be deployed separately, for ease of deploy and maintenance.  
+			/usr/share/zaproxy/plugin
+		3) The zap-api-v*.jar currently needs to be manually uploaded or built separately
+		4) "Dev Build" is not a valid version from a Debian packaging point of view.  If we detect it, use a datestamp version instead 
+		-->
+		
+        <echo message="Packaging the Debian package... for Version ${version}" />
+        <if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+				<echo message="'${version}' is not a valid Debian version. Using a datestamp instead." />
+				<tstamp>
+            		<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
+        		</tstamp>
+        		<!-- DEB version number must start with a digit -->
+        		<property name="deb.package.version" value="${yyyymmdd}" />        
+			</then>
+			<else>
+				<property name="deb.package.version" value="${version}" />
+			</else>
+		</if>
+        
+        <!-- delete previously generated deb and generated control file (in the tmp directory), if any -->
+        <delete file="${package}-${deb.package.version}.deb" />
+        <delete dir="tmp" />
+        
+        <copy todir="tmp/debian/control">
+			<fileset dir="debian/control"/>
+			<filterset begintoken="[[" endtoken="]]">
+				<filter token="version" value="${deb.package.version}"/>				
+			</filterset>
+		</copy>
+		<deb destfile="${package}-${deb.package.version}.deb" control="tmp/debian/control">
+			<data src="${zap.archive}" type="archive">
+				<!-- do not deploy a BAT file to a Linux distro :) -->
+				<exclude name="**/zap.bat"/>
+				<mapper type="perm" strip="1" prefix="/usr/share/${package}"/>
+			</data>
+			<data src="debian/zap" type="file">
+				<mapper type="perm" strip="1" prefix="/usr/bin" filemode="755"/>
+			</data>			
+			<!-- soft link /usr/bin/owasp-zap to /usr/bin/zap (requires jdeb 1.4 or so..) -->
+			<link name="/usr/bin/owasp-zap" target="/usr/bin/zap"/>
+		</deb>
+		<!-- tidy up, tidy up --> 
+		<delete dir="tmp" />
+		<delete file="${package}-${deb.package.version}.changes" verbose="true" failonerror="true"/>
+        
     </target>
 
     <target name="package-macosx" description="package the Mac OS X release">
@@ -826,6 +897,15 @@
     <target name="lite-release">
         <!-- Load the version from a file -->
         <loadfile property="version" srcfile="version.txt" />
+        <if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+		        <property name="zap.jar" value="zap-dev.jar" />
+			</then>
+			<else>
+		        <property name="zap.jar" value="zap-${version}.jar" />
+			</else>
+		</if>
 
         <antcall target="dist" />
         <antcall target="package-lite" />
@@ -834,6 +914,15 @@
     <target name="full-release">
         <!-- Load the version from a file -->
         <loadfile property="version" srcfile="version.txt" />
+        <if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+		        <property name="zap.jar" value="zap-dev.jar" />
+			</then>
+			<else>
+		        <property name="zap.jar" value="zap-${version}.jar" />
+			</else>
+		</if>
 
         <antcall target="dist" />
         <antcall target="package-linux" />
@@ -846,6 +935,7 @@
         </tstamp>
         <property name="version" value="D-${yyyymmdd}" />
         <echo message="Version is ${version}" />
+    	<property name="zap.jar" value="zap-${version}.jar" />
 
         <antcall target="generate-help-jars" />
         <!-- Set to compile with debug information -->
