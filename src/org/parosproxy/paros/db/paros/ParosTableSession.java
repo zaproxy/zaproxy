@@ -27,6 +27,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.List;
 
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordSession;
@@ -104,7 +105,13 @@ public class ParosTableSession extends ParosAbstractTable implements TableSessio
 		}
     }
     
-    private RecordSession build(ResultSet rs) throws HttpMalformedHeaderException, SQLException {
+    @Override
+    public List<RecordSession> listSessions() throws DatabaseException {
+    	// Not supported
+    	return null;
+    }
+
+	private RecordSession build(ResultSet rs) throws HttpMalformedHeaderException, SQLException {
         RecordSession session = null;
         if (rs.next()) {
             session = new RecordSession(

@@ -17,12 +17,18 @@
  */
 package org.parosproxy.paros.db;
 
+
 /**
  * This interface was extracted from the previous Paros class of the same name.
  * The Paros class that implements this interface has been moved to the 'paros' sub package and prefixed with 'Paros'
  * @author psiinon
  */
 public interface Database {
+	
+	/**
+	 * The default HyperSQL Db: http://hsqldb.org/
+	 */
+	public static final String DB_TYPE_HSQLDB	= "hsqldb";
 
 	DatabaseServer getDatabaseServer();
 
@@ -38,8 +44,7 @@ public interface Database {
 	// ZAP: Changed parameter's type from SpiderListener to DatabaseListener.
 	void removeDatabaseListener(DatabaseListener listener);
 
-	void open(String path) throws ClassNotFoundException,
-			Exception;
+	void open(String path) throws ClassNotFoundException, Exception;
 
 	/**
 	 * Closes the database. If the parameter {@code compact} is {@code true},
@@ -122,5 +127,11 @@ public interface Database {
 	TableParam getTableParam();
 
 	TableContext getTableContext();
+	
+	/**
+	 * The type of the database - eg {@value #DB_TYPE_HSQLDB}
+	 * @return
+	 */
+	String getType();
 
 }
