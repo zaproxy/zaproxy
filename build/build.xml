@@ -364,7 +364,7 @@
         <!-- Copy source to build directory to be included in jar, only if "dist.with.source" is set -->
         <antcall target="copy-source-to-build" />
 
-        <manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/zap.jar">
+        <manifestclasspath property="dist.manifest.classpath" jarfile="${dist}/${zap.jar}">
             <!--classpath refid="dist.classpath" /-->
             <classpath>
                 <fileset dir="${dist}/lib">
@@ -379,7 +379,7 @@
             </classpath>
         </manifestclasspath>
 
-        <jar jarfile="${dist}/zap.jar" update="true" compress="false">
+        <jar jarfile="${dist}/${zap.jar}" update="true" compress="false">
             <zipfileset dir="${build}" prefix="">
             	<!-- Exclude all extensions that are build as addons - these are build next -->
             </zipfileset>
@@ -424,6 +424,10 @@
             </manifest>
         </jar>
         
+    	<!-- Correct the ZAP jar name -->
+    	<replace file="${dist}/zap.bat" token="zap-dev.jar" value="${zap.jar}"/>
+    	<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
+
         <!-- Delete the libraries files, "unjared" previously, as they are no longer needed. -->
         <delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
     </target>
@@ -615,7 +619,7 @@
     <target name="generate-apis" description="generates the client APIs">
         <path id="classpath">
             <pathelement location="../bin" />
-            <pathelement location="./zap/zap.jar" />
+            <pathelement location="./zap/${zap.jar}" />
             <pathelement location="./zap" />
             <fileset dir="../lib" includes="**/*.jar" />
         </path>
@@ -634,9 +638,9 @@
     </target>
 
     <target name="copy-jar-to-extension-projects" depends="dist">
-        <copy file="${dist}/zap.jar" tofile="${zap.extensions.trunk.dir}/lib/zap.jar"/>
-        <copy file="${dist}/zap.jar" tofile="${zap.extensions.beta.dir}/lib/zap.jar"/>
-        <copy file="${dist}/zap.jar" tofile="${zap.extensions.alpha.dir}/lib/zap.jar"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
     </target>
 	
     <target name="deploy-release-addons">
@@ -671,7 +675,7 @@
 
         <!-- delete previously build packages -->
         <delete file="ZAP_${version}_Lite.tar.gz" />
-
+    	
         <!-- Tar up the release -->
         <tar destfile="ZAP_${version}_Lite.tar.gz" compression="gzip">
             <tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
@@ -851,6 +855,15 @@
     <target name="lite-release">
         <!-- Load the version from a file -->
         <loadfile property="version" srcfile="version.txt" />
+        <if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+		        <property name="zap.jar" value="zap-dev.jar" />
+			</then>
+			<else>
+		        <property name="zap.jar" value="zap-${version}.jar" />
+			</else>
+		</if>
 
         <antcall target="dist" />
         <antcall target="package-lite" />
@@ -859,6 +872,15 @@
     <target name="full-release">
         <!-- Load the version from a file -->
         <loadfile property="version" srcfile="version.txt" />
+        <if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+		        <property name="zap.jar" value="zap-dev.jar" />
+			</then>
+			<else>
+		        <property name="zap.jar" value="zap-${version}.jar" />
+			</else>
+		</if>
 
         <antcall target="dist" />
         <antcall target="package-linux" />
@@ -871,6 +893,7 @@
         </tstamp>
         <property name="version" value="D-${yyyymmdd}" />
         <echo message="Version is ${version}" />
+    	<property name="zap.jar" value="zap-${version}.jar" />
 
         <antcall target="generate-help-jars" />
         <!-- Set to compile with debug information -->
