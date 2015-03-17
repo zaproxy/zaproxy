@@ -272,9 +272,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(),
                 ref.getHistoryId(), alert.getSourceHistoryId());
-// TODO
-//System.out.println("SBSB ExtAlert.write.. table= " + tableAlert.getClass().getCanonicalName());
-//System.out.println("SBSB ExtAlert.write.. rec= " + recordAlert);
         
         alert.setAlertId(recordAlert.getAlertId());
 
@@ -341,22 +338,18 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     		return;
     	}
 
-    	/*
         try {
             refreshAlert(session);
         } catch (DatabaseException e) {
             logger.error(e.getMessage(), e);
         }
         setTreeModel(getTreeModel());
-        */
     }
 
     private void refreshAlert(Session session) throws DatabaseException {
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        // TODO
-        //Vector<Integer> v = tableAlert.getAlertList();
         Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
         final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
@@ -611,8 +604,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v;
         try {
-        	// TODO
-            //v = tableAlert.getAlertList();
             v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
 
             for (int i = 0; i < v.size(); i++) {
