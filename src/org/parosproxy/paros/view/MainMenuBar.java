@@ -33,6 +33,7 @@
 package org.parosproxy.paros.view;
 
 import java.awt.Event;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyEvent;
 
@@ -167,7 +168,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuToolsOptions() {
 		if (menuToolsOptions == null) {
 			menuToolsOptions = new ZapMenuItem("menu.tools.options",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
 			menuToolsOptions.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -226,7 +227,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem getMenuFileNewSession() {
 		if (menuFileNewSession == null) {
 			menuFileNewSession = new ZapMenuItem("menu.file.newSession",
-					KeyStroke.getKeyStroke(KeyEvent.VK_N, Event.CTRL_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_N, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			menuFileNewSession.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
@@ -254,7 +255,7 @@ public class MainMenuBar extends JMenuBar {
 	private javax.swing.JMenuItem getMenuFileOpen() {
 		if (menuFileOpen == null) {
 			menuFileOpen = new ZapMenuItem("menu.file.openSession",
-					KeyStroke.getKeyStroke(KeyEvent.VK_O, java.awt.Event.CTRL_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			menuFileOpen.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -376,7 +377,7 @@ public class MainMenuBar extends JMenuBar {
 	private ZapMenuItem getMenuFileProperties() {
 		if (menuFileProperties == null) {
 			menuFileProperties = new ZapMenuItem("menu.file.properties",
-					KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK | Event.ALT_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
 			menuFileProperties.setText(Constant.messages.getString("menu.file.properties")); // ZAP: i18n
 			menuFileProperties.addActionListener(new java.awt.event.ActionListener() { 
 				@Override

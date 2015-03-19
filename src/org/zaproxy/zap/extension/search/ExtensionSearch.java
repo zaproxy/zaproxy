@@ -19,8 +19,8 @@
  */
 package org.zaproxy.zap.extension.search;
 
-import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -200,7 +200,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	private ZapMenuItem getMenuSearch() {
         if (menuSearch == null) {
         	menuSearch = new ZapMenuItem("menu.edit.search",
-        			KeyStroke.getKeyStroke(KeyEvent.VK_H, Event.CTRL_MASK, false));
+        			KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 
         	menuSearch.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -215,7 +215,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
     private ZapMenuItem getMenuNext() {
         if (menuNext == null) {
         	menuNext = new ZapMenuItem("menu.edit.next", 
-        			KeyStroke.getKeyStroke(KeyEvent.VK_G, Event.CTRL_MASK, false));
+        			KeyStroke.getKeyStroke(KeyEvent.VK_G, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 
         	menuNext.addActionListener(new java.awt.event.ActionListener() {
                 @Override

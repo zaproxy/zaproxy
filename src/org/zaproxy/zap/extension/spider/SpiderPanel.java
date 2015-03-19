@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.spider;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -86,7 +87,7 @@ public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 				spiderScanParam);
 		this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
-				KeyEvent.VK_D, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+				KeyEvent.VK_D, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("spider.panel.mnemonic"));
 
 	}

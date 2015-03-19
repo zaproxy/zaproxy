@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.ascan;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -294,7 +295,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ZapMenuItem getMenuItemPolicy() {
         if (menuItemPolicy == null) {
             menuItemPolicy = new ZapMenuItem("menu.analyse.scanPolicy",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_P, Event.CTRL_MASK, false));
+                    KeyStroke.getKeyStroke(KeyEvent.VK_P, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 
             menuItemPolicy.addActionListener(new java.awt.event.ActionListener() {
                 @Override
@@ -340,7 +341,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     private ZapMenuItem getMenuItemCustomScan() {
         if (menuItemCustomScan == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.ascanadv",
-                    KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK | Event.ALT_MASK, false));
+                    KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
 
             menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
                 @Override

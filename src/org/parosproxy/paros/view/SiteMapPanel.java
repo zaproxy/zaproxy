@@ -44,6 +44,7 @@ import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -142,7 +143,7 @@ public class SiteMapPanel extends AbstractPanel {
 		this.setHideable(false);
 	    this.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png")));
 	    this.setName(Constant.messages.getString("sites.panel.title"));
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("sites.panel.mnemonic"));
 
 	    if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {

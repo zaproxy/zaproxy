@@ -26,6 +26,7 @@ import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -152,7 +153,7 @@ public class AlertPanel extends AbstractPanel {
 
         this.add(getPanelCommand(), getPanelCommand().getName());
 			
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("alerts.panel.mnemonic"));
 		this.setShowByDefault(true);
 	}

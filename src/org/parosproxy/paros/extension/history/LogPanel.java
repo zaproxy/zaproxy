@@ -45,6 +45,7 @@ import java.awt.BorderLayout;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.List;
 import java.util.Vector;
@@ -118,7 +119,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	    }
 		this.add(getHistoryPanel(), java.awt.BorderLayout.CENTER);
 		
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_H, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("history.panel.mnemonic"));
 		
 	}

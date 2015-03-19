@@ -33,6 +33,7 @@ package org.parosproxy.paros.view;
 import java.awt.BorderLayout;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
 import javax.swing.ImageIcon;
@@ -84,7 +85,7 @@ public class OutputPanel extends AbstractPanel {
 	    }
         // ZAP: Added Output (doc) icon
 		this.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/16/172.png")));	// 'doc' icon
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("output.panel.mnemonic"));
 
         this.add(getMainPanel(), BorderLayout.CENTER);

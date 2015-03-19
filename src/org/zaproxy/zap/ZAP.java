@@ -211,7 +211,7 @@ public class ZAP {
         boolean firstTime = false;
         if (isGUI) {
             try {
-                // Get the systems Look and Feel
+            	// Get the systems Look and Feel
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
                 // Set Nimbus LaF if available and system is not OSX
@@ -222,6 +222,10 @@ public class ZAP {
                             break;
                         }
                     }
+                }
+                // Set the various and sundry OS X-specific system properties
+                else {
+                	System.setProperty("apple.laf.useScreenMenuBar", "true");
                 }
                 
             } catch (final UnsupportedLookAndFeelException e) {

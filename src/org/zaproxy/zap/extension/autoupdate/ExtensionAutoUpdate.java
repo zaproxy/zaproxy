@@ -18,8 +18,8 @@
  * limitations under the License. 
  */
 package org.zaproxy.zap.extension.autoupdate;
-import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.KeyEvent;
 import java.io.File;
@@ -145,7 +145,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private ZapMenuItem getMenuItemCheckUpdate() {
 		if (menuItemCheckUpdate == null) {
 			menuItemCheckUpdate = new ZapMenuItem("cfu.help.menu.check", 
-					KeyStroke.getKeyStroke(KeyEvent.VK_U, Event.CTRL_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_U, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			menuItemCheckUpdate.setText(Constant.messages.getString("cfu.help.menu.check"));
 			menuItemCheckUpdate.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -162,7 +162,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private ZapMenuItem getMenuItemLoadAddOn() {
 		if (menuItemLoadAddOn == null) {
 			menuItemLoadAddOn = new ZapMenuItem("cfu.file.menu.loadaddon", 
-					KeyStroke.getKeyStroke(KeyEvent.VK_L, Event.CTRL_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_L, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			menuItemLoadAddOn.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
