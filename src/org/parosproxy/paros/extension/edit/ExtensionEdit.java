@@ -27,6 +27,7 @@
 
 package org.parosproxy.paros.extension.edit;
 
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
 import javax.swing.JFrame;
@@ -98,7 +99,7 @@ public class ExtensionEdit extends ExtensionAdaptor {
     private ZapMenuItem getMenuFind() {
         if (menuFind == null) {
             menuFind = new ZapMenuItem("menu.edit.find", 
-            		KeyStroke.getKeyStroke(KeyEvent.VK_F, KeyEvent.CTRL_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_F, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 
             menuFind.addActionListener(new java.awt.event.ActionListener() {
                 @Override

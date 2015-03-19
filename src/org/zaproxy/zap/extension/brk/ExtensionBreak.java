@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.Component;
 import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -349,7 +350,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuToggleBreakOnRequests() {
         if (menuBreakOnRequests == null) {
             menuBreakOnRequests = new ZapMenuItem("menu.tools.brk.req",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
             menuBreakOnRequests.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -369,7 +370,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuToggleBreakOnResponses() {
         if (menuBreakOnResponses == null) {
             menuBreakOnResponses = new ZapMenuItem("menu.tools.brk.resp",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK | Event.ALT_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
             menuBreakOnResponses.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -389,7 +390,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuStep() {
         if (menuStep == null) {
             menuStep = new ZapMenuItem("menu.tools.brk.step",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_S, Event.CTRL_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
             menuStep.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -406,7 +407,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuContinue() {
         if (menuContinue == null) {
             menuContinue = new ZapMenuItem("menu.tools.brk.cont",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_C, Event.CTRL_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
             menuContinue.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -423,7 +424,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuDrop() {
         if (menuDrop == null) {
             menuDrop = new ZapMenuItem("menu.tools.brk.drop",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_X, Event.CTRL_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
             menuDrop.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -440,7 +441,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
     private ZapMenuItem getMenuAddHttpBreakpoint() {
         if (menuHttpBreakpoint == null) {
         	menuHttpBreakpoint = new ZapMenuItem("menu.tools.brk.custom",
-            		KeyStroke.getKeyStroke(KeyEvent.VK_A, Event.CTRL_MASK, false));
+            		KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
         	menuHttpBreakpoint.addActionListener(new java.awt.event.ActionListener() {
                 @Override
                 public void actionPerformed(java.awt.event.ActionEvent e) {

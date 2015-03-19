@@ -27,8 +27,8 @@ package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.BorderLayout;
 import java.awt.Component;
-import java.awt.Event;
 import java.awt.HeadlessException;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
@@ -256,7 +256,7 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 	public ZapMenuItem getMenuItem() {
 		if (menuItem == null) {
 			menuItem = new ZapMenuItem("menu.tools.manReq",
-					KeyStroke.getKeyStroke(KeyEvent.VK_M, Event.CTRL_MASK, false));
+					KeyStroke.getKeyStroke(KeyEvent.VK_M, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask(), false));
 			menuItem.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {

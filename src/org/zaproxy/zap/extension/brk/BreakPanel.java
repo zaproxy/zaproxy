@@ -23,6 +23,7 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Event;
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
@@ -77,7 +78,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		
 		this.setIcon(new ImageIcon(BreakPanel.class.getResource("/resource/icon/16/101grey.png")));	// 'grey X' icon
 
-		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+		this.setDefaultAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_B, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
 		this.setMnemonic(Constant.messages.getChar("brk.panel.mnemonic"));
 		
 		this.setLayout(new BorderLayout());

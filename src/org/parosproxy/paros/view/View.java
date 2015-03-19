@@ -64,6 +64,7 @@ package org.parosproxy.paros.view;
 
 import java.awt.Component;
 import java.awt.Event;
+import java.awt.Toolkit;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -570,7 +571,7 @@ public class View implements ViewDelegate {
             requestPanel.setEnableViewSelect(true);
             requestPanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             requestPanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Event.CTRL_MASK | Event.SHIFT_MASK, false));
+                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.SHIFT_MASK, false));
             requestPanel.setMnemonic(Constant.messages.getChar("http.panel.request.mnemonic"));
 
         }
@@ -588,7 +589,7 @@ public class View implements ViewDelegate {
             responsePanel.setEnableViewSelect(false);
             responsePanel.loadConfig(Model.getSingleton().getOptionsParam().getConfig());
             responsePanel.setDefaultAccelerator(KeyStroke.getKeyStroke(
-                    KeyEvent.VK_R, Event.CTRL_MASK | Event.ALT_MASK | Event.SHIFT_MASK, false));
+                    KeyEvent.VK_R, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));
             responsePanel.setMnemonic(Constant.messages.getChar("http.panel.response.mnemonic"));
         }
         return responsePanel;
