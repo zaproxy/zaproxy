@@ -42,7 +42,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
-import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 

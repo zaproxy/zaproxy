@@ -81,7 +81,7 @@ public class NodeJSAPIGenerator {
     }
 
 	public void generateNodeJSFiles(List<ApiImplementor> implementors) throws IOException {
-        for (ApiImplementor imp : implementors) {
+        for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
             this.generateNodeJSComponent(imp);
         }
     }

@@ -274,7 +274,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 					BorderFactory.createTitledBorder(
 							null, Constant.messages.getString("cfu.label.addons.border"), TitledBorder.DEFAULT_JUSTIFICATION,
 							javax.swing.border.TitledBorder.DEFAULT_POSITION,
-							new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11),
+							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
 			if (latestInfo == null) {
