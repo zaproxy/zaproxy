@@ -38,6 +38,7 @@
 // ZAP: 2014/06/16 Issue 1227: Active scanner sends GET requests with content in request body
 // ZAP: 2014/09/22 Issue 1345: Support Attack mode
 // ZAP: 2014/11/18 Issue 1408: Extend the structural parameter handling to forms param
+// ZAP: 2014/11/27 Issue 1416: Allow spider to be restricted by the number of children
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 

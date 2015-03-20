@@ -78,7 +78,7 @@ public class TabbedPanelTab extends JPanel {
 				btnPin.setBorder(new EmptyBorder(0, 6, 0, 0));
 				// This is needed to Macs for some reason
 				btnPin.setBorderPainted(false);
-
+	
 				// Make sure the button can't get focus, otherwise it looks funny
 				btnPin.setFocusable(false);
 				
