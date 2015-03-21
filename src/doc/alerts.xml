@@ -106,8 +106,7 @@ This list the alerts
 20016	Cross-Domain Requests Permitted
 20017	Source Code Disclosure - CVE-2012-1823
 20018	Remote Code Execution - CVE-2012-1823
-
-30000	External redirect 
+20019   External Redirect
 
 40000	Cross site scripting
 40001	Cross site scripting in SCRIPT section 
