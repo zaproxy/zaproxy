@@ -31,7 +31,7 @@
 		<key>MainClass</key>
 		<string>org.zaproxy.zap.ZAP</string>
 		<key>ClassPath</key>
-		<string>$JAVAROOT/zap.jar</string>	
+		<string>$JAVAROOT/_ZAPJAR_</string>	
 		<key>Arguments</key>
         <array/>
         <key>Properties</key>
