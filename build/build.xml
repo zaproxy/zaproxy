@@ -454,7 +454,6 @@
 	</target>
 
 	<target name="generate-wiki" description="Generates the core wiki help pages">
-		<local name="version" />
 		<generatewiki basesrcdir="${help.dir}" basedestdir="${wiki.dir}"
             helpcontentsdir="contents/" helpcontentsinclude=".*\.html"
             srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://zaproxy.googlecode.com/svn/wiki/images/"
@@ -892,6 +891,7 @@
 		<tstamp>
 			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
 		</tstamp>
+		<local name="version" />
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
 		<property name="zap.jar" value="zap-${version}.jar" />
