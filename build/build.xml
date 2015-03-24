@@ -894,6 +894,7 @@
 		</tstamp>
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
+		<property name="zap.jar" value="zap-${version}.jar" />
 
 		<antcall target="generate-help-jars" />
 		<!-- Set to compile with debug information -->
