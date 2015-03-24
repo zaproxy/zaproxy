@@ -827,7 +827,7 @@
         <exec dir="${app.plugins}" executable="tar" spawn="false" failonerror="true">
             <arg line=" -xzf ${app.jrearchive}" />
         </exec>
-        <delete file="${app.plugins}/{app.jrearchive}" />
+        <delete file="${app.plugins}/${app.jrearchive}" />
 
         <replace dir="${app.bundle}" summary="true" encoding="UTF-8">
             <include name="**/Info.plist" />
