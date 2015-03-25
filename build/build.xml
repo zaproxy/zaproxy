@@ -38,12 +38,6 @@
 	<property name="app.jredir" value="jre1.8.0_40.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
-	<!-- Determine the ZAP jar file version number; zap-dev.jar if "Dev Build", zap-2.4.0.jar (e.g.) if not -->
-	<loadfile property="version" srcFile="version.txt" />
-	<condition property="zap.jar" value="zap-dev.jar" else="zap-${version}.jar">
-		<resourcecontains resource="version.txt" substring="Dev Build" />
-	</condition>
-		
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
 	<condition property="isMac">
 		<os family="mac" />
@@ -454,6 +448,8 @@
 	</target>
 
 	<target name="generate-wiki" description="Generates the core wiki help pages">
+		<local name="version" />
+		<loadfile property="version" srcfile="version.txt" />
 		<generatewiki basesrcdir="${help.dir}" basedestdir="${wiki.dir}"
             helpcontentsdir="contents/" helpcontentsinclude=".*\.html"
             srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://zaproxy.googlecode.com/svn/wiki/images/"
@@ -877,11 +873,35 @@
 	</target>
 
 	<target name="lite-release">
+		<!-- Load the version from a file -->
+		<loadfile property="version" srcfile="version.txt" />
+		<if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+				<property name="zap.jar" value="zap-dev.jar" />
+			</then>
+			<else>
+				<property name="zap.jar" value="zap-${version}.jar" />
+			</else>
+		</if>
+
 		<antcall target="dist" />
 		<antcall target="package-lite" />
 	</target>
 
 	<target name="full-release">
+		<!-- Load the version from a file -->
+		<loadfile property="version" srcfile="version.txt" />
+		<if>
+			<equals arg1="${version}" arg2="Dev Build" />
+			<then>
+				<property name="zap.jar" value="zap-dev.jar" />
+			</then>
+			<else>
+				<property name="zap.jar" value="zap-${version}.jar" />
+			</else>
+		</if>
+
 		<antcall target="dist" />
 		<antcall target="package-linux" />
 		<antcall target="package-macosx" />
@@ -891,7 +911,6 @@
 		<tstamp>
 			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
 		</tstamp>
-		<local name="version" />
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
 		<property name="zap.jar" value="zap-${version}.jar" />
