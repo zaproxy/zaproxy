@@ -267,7 +267,7 @@
 		<mkdir dir="${build}" />
 	</target>
 
-	<target name="compile" depends="init" description="compile the source ">
+	<target name="compile" depends="init" description="Compile the source ">
 		<echo message="Compiling the source..." />
 
 		<!-- Compile with debug information if the property "javac.debug" is set to true -->
@@ -288,7 +288,7 @@
 
 	</target>
 
-	<target name="dist" depends="compile" description="generate the distribution">
+	<target name="dist" depends="compile" description="Generates the distribution">
 		<echo message="Creating the distribution set..." />
 
 		<!-- Create the distribution directory -->
@@ -514,7 +514,7 @@
 		<delete dir="${wkdir}" includeEmptyDirs="true" />
 	</target>
 
-	<target name="generate-language-file" description="generates the language file (note the X should be changed;)">
+	<target name="generate-language-file" description="Generates the language file (note the X should be changed;)">
 		<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
 		<!-- delete the previous one (if present) -->
 		<delete file="${langfile}" />
@@ -587,7 +587,7 @@
 		</sequential>
 	</macrodef>
 
-	<target name="generate-javadocs" description="generates the javadocs">
+	<target name="generate-javadocs" description="Generates the javadocs">
 		<!-- Delete all the previous generated files and directories from the
           "javadocs.dir" directory before generating the new ones in case of any
           class or package has been renamed, deleted or moved. -->
@@ -621,7 +621,7 @@
 		<echo message="Done." />
 	</target>
 
-	<target name="generate-apis" description="generates the client APIs">
+	<target name="generate-apis" description="Generates the client APIs">
 		<path id="classpath">
 			<pathelement location="../bin" />
 			<pathelement location="./zap/${zap.jar}" />
@@ -675,7 +675,8 @@
 		<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-all" inheritAll="false"/>
 	</target>
 
-	<target name="package-lite" description="package the cross platform 'lite' release">
+	<!-- Package the cross-platform 'lite' release -->
+	<target name="package-lite">
 		<echo message="Packaging the Lite build..." />
 
 		<!-- delete previously build packages -->
@@ -712,7 +713,8 @@
 		</tar>
 	</target>
 
-	<target name="package-linux" description="package the Linux build">
+	<!-- Package the Linux build -->
+	<target name="package-linux">
 		<echo message="Packaging the Linux build... for Version ${version}" />
 
 		<property name="zap.archive" location="ZAP_${version}_Linux.tar.gz" />
@@ -790,7 +792,8 @@
 
 	</target>
 
-	<target name="package-macosx" description="package the Mac OS X release">
+	<!-- Package the Mac OS X release -->
+	<target name="package-macosx">
 		<echo message="Packaging the Mac OS X build..." />
 
 		<!-- We can't store the JRE in SVN currently, so error out if it isn't manually put there -->
@@ -851,7 +854,8 @@
 
 	</target>
 
-	<target name="package-daily" description="package a date stamped build">
+	<!-- Package a date-stamped build -->
+	<target name="package-daily">
 		<echo message="Packaging a date stamped release..." />
 
 		<!-- delete any of packages for today -->
@@ -872,8 +876,8 @@
 		</zip>
 	</target>
 
-	<target name="lite-release">
-		<!-- Load the version from a file -->
+	<!-- Load the version from version.txt, set ${zap.jar} -->
+	<target name="set-zap-jar">
 		<loadfile property="version" srcfile="version.txt" />
 		<if>
 			<equals arg1="${version}" arg2="Dev Build" />
@@ -884,30 +888,16 @@
 				<property name="zap.jar" value="zap-${version}.jar" />
 			</else>
 		</if>
-
-		<antcall target="dist" />
-		<antcall target="package-lite" />
+		<echo message="Jar file for build is: ${zap.jar}" />
 	</target>
 
-	<target name="full-release">
-		<!-- Load the version from a file -->
-		<loadfile property="version" srcfile="version.txt" />
-		<if>
-			<equals arg1="${version}" arg2="Dev Build" />
-			<then>
-				<property name="zap.jar" value="zap-dev.jar" />
-			</then>
-			<else>
-				<property name="zap.jar" value="zap-${version}.jar" />
-			</else>
-		</if>
+	<target name="lite-release" depends="set-zap-jar, dist, package-lite"
+		description="Generates the distribution and (lite) cross-platform packages" />
 
-		<antcall target="dist" />
-		<antcall target="package-linux" />
-		<antcall target="package-macosx" />
-	</target>
+	<target name="full-release" depends="set-zap-jar, dist, package-linux, package-macosx"
+		description="Generates the distribution and Linux/MacOS X packages [default]" />
 
-	<target name="day-stamped-release">
+	<target name="day-stamped-release" description="Generates the day-stamped package, as well as the distribution and help jars">
 		<tstamp>
 			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
 		</tstamp>
@@ -934,7 +924,7 @@
 		</sequential>
 	</macrodef>
 
-	<target name="package-workspace-zap" description="package ZAP (Eclipse) workspace">
+	<target name="package-workspace-zap" description="Package ZAP (Eclipse) workspace">
 		<echo message="Packaging ZAP workspace..." />
 
 		<local name="workspace.zap" />
