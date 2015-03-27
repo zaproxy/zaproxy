@@ -620,7 +620,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
 	}
 
-	public void delete(int historyId) throws DatabaseException {
+	public synchronized void delete(int historyId) throws DatabaseException {
 		try {
 			psDelete.setInt(1, historyId);
 			psDelete.executeUpdate();
@@ -659,7 +659,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @throws DatabaseException if an error occurred while deleting the history records
      * @since 2.3.0
      */
-    public void delete(List<Integer> ids, int batchSize) throws DatabaseException {
+    public synchronized void delete(List<Integer> ids, int batchSize) throws DatabaseException {
         try {
 			if (ids == null) {
 			    throw new IllegalArgumentException("Parameter ids must not be null.");
@@ -738,7 +738,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
     }
 	
-	public boolean containsURI(long sessionId, int historyType, String method, String uri, byte[] body) throws DatabaseException {
+	public synchronized boolean containsURI(long sessionId, int historyType, String method, String uri, byte[] body) throws DatabaseException {
 	    try {
 			psContainsURI.setString(1, uri);
 			psContainsURI.setString(2, method);
@@ -871,7 +871,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
     }
     
-    public void updateNote(int historyId, String note) throws DatabaseException {
+    public synchronized void updateNote(int historyId, String note) throws DatabaseException {
         try {
 			psUpdateNote.setString(1, note);
 			psUpdateNote.setInt(2, historyId);
