@@ -736,7 +736,7 @@
                 <include name="plugin/diff-*.zap" />
                 <include name="plugin/invoke-*.zap" />
                 <include name="plugin/plugnhack-*.zap" />
-                <include name="plugin/pscan-*.zap" />
+                <include name="plugin/pscanrules-*.zap" />
                 <include name="plugin/quickstart-*.zap" />
                 <include name="plugin/reveal-*.zap" />
                 <include name="plugin/saverawmessage-*.zap" />
