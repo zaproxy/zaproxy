@@ -143,7 +143,7 @@ public class ParosTableSessionUrl extends ParosAbstractTable implements TableSes
 	 * @see org.parosproxy.paros.db.paros.TableSessionUrl#getUrlsForType(int)
 	 */
     @Override
-	public List<RecordSessionUrl> getUrlsForType (int type) throws DatabaseException {
+	public synchronized List<RecordSessionUrl> getUrlsForType (int type) throws DatabaseException {
     	try {
 			psGetAlluRLSForType.setInt(1, type);
 			try (ResultSet rs = psGetAlluRLSForType.executeQuery()) {

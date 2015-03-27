@@ -304,7 +304,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 	 * @see org.parosproxy.paros.db.paros.TableAlert#deleteAlert(int)
 	 */
     @Override
-	public void deleteAlert(int alertId) throws DatabaseException {
+	public synchronized void deleteAlert(int alertId) throws DatabaseException {
         try {
 			psDeleteAlert.setInt(1, alertId);
 			psDeleteAlert.execute();
@@ -377,7 +377,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertsBySourceHistoryId(int)
 	 */
     @Override
-	public List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws DatabaseException {
+	public synchronized List<RecordAlert> getAlertsBySourceHistoryId(int historyId) throws DatabaseException {
         try {
 			List<RecordAlert> result = new ArrayList<>();
 			psGetAlertsForHistoryId.setLong(1, historyId);

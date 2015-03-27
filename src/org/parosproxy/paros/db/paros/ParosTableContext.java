@@ -186,7 +186,7 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
 	 * @see org.parosproxy.paros.db.paros.TableContext#getDataForContext(int)
 	 */
     @Override
-	public List<RecordContext> getDataForContext (int contextId) throws DatabaseException {
+	public synchronized List<RecordContext> getDataForContext (int contextId) throws DatabaseException {
     	try {
 			List<RecordContext> result = new ArrayList<>();
 			psGetAllDataForContext.setInt(1, contextId);
@@ -206,7 +206,7 @@ public class ParosTableContext extends ParosAbstractTable implements TableContex
 	 * @see org.parosproxy.paros.db.paros.TableContext#getDataForContextAndType(int, int)
 	 */
     @Override
-	public List<RecordContext> getDataForContextAndType (int contextId, int type) throws DatabaseException {
+	public synchronized List<RecordContext> getDataForContextAndType (int contextId, int type) throws DatabaseException {
     	try {
 			List<RecordContext> result = new ArrayList<>();
 			psGetAllDataForContextAndType.setInt(1, contextId);

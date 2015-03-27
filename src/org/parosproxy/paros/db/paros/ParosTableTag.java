@@ -133,7 +133,7 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
 	 * @see org.parosproxy.paros.db.paros.TableTag#getTagsForHistoryID(long)
 	 */
     @Override
-	public List<RecordTag> getTagsForHistoryID (long historyId) throws DatabaseException {
+	public synchronized List<RecordTag> getTagsForHistoryID (long historyId) throws DatabaseException {
     	try {
 			List<RecordTag> result = new ArrayList<>();
 			psGetTagsForHistoryId.setLong(1, historyId);
@@ -172,7 +172,7 @@ public class ParosTableTag extends ParosAbstractTable implements TableTag {
 	 * @see org.parosproxy.paros.db.paros.TableTag#deleteTagsForHistoryID(long)
 	 */
     @Override
-	public void deleteTagsForHistoryID (long historyId) throws DatabaseException {
+	public synchronized void deleteTagsForHistoryID (long historyId) throws DatabaseException {
     	try {
 			psDeleteTagsForHistoryId.setLong(1, historyId);
 			psDeleteTagsForHistoryId.execute();
