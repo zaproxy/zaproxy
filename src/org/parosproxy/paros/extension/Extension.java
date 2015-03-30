@@ -30,6 +30,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
+// ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 
 package org.parosproxy.paros.extension;
 
@@ -252,4 +253,12 @@ public interface Extension {
      */
     boolean supportsDb(String type);
 
+    /**
+     * Return true it the extension can run with the 'low memory' option.
+     * If the low memory option is set (and the extension supports it) then code should minimize the data stored in memory, 
+     * using the db for all significant data.
+     * Extensions that do not support the low memory option will not be run if the option is set.
+     * @return
+     */
+    boolean supportsLowMemory();
 }

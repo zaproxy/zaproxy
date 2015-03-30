@@ -34,6 +34,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
+// ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 
 package org.parosproxy.paros.extension;
 
@@ -328,4 +329,10 @@ public abstract class ExtensionAdaptor implements Extension {
     public boolean supportsDb(String type) {
     	return Database.DB_TYPE_HSQLDB.equals(type);
     }
+
+    @Override
+    public boolean supportsLowMemory() {
+    	return false;
+    }
+
 }
