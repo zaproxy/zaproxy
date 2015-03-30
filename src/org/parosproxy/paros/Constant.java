@@ -55,6 +55,7 @@
 // ZAP: 2014/01/04 Issue 1394: Import vulnerabilities.xml files when updating the translated resources
 // ZAP: 2014/01/04 Issue 1458: Change home/installation dir paths to be always absolute
 // ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
+// ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 
 package org.parosproxy.paros;
 
@@ -938,6 +939,11 @@ public final class Constant {
     
     public static boolean isDailyBuild() {
     	return isDailyBuild(PROGRAM_VERSION);
+    }
+    
+    public static boolean isLowMemoryOptionSet() {
+    	// Not supported yet, but added so that code can check the option for forwards compatibility
+    	return false;
     }
     
     /**
