@@ -32,6 +32,7 @@ import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.HttpRequestHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.extension.api.*;
@@ -95,13 +96,16 @@ public class ActiveScanAPI extends ApiImplementor {
 	// TODO rename to categoryId? Note any changes like this to the existing API must be clearly documented to users
 	private static final String PARAM_CATEGORY_ID = "policyId";
 	private static final String PARAM_SCAN_ID = "scanId";
+	private static final String PARAM_METHOD = "method";
+	private static final String PARAM_POST_DATA = "postData";
 
 	private ExtensionActiveScan controller = null;
 
 	public ActiveScanAPI (ExtensionActiveScan controller) {
 		this.controller = controller;
         this.addApiAction(new ApiAction(ACTION_SCAN,
-        		new String[] {PARAM_URL}, new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME}));
+        		new String[] {PARAM_URL}, 
+        		new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA}));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, new String[] { PARAM_SCAN_ID }));
@@ -175,11 +179,20 @@ public class ActiveScanAPI extends ApiImplementor {
 				} catch (ConfigurationException e) {
 					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_SCAN_POLICY_NAME);
 				}
+				String method = this.getParam(params, PARAM_METHOD, HttpRequestHeader.GET);
+				if (method.trim().length() == 0) {
+					method = HttpRequestHeader.GET;
+				}
+				if (! Arrays.asList(HttpRequestHeader.METHODS).contains(method)) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_METHOD);
+				}
 
 				int scanId = scanURL(
 						params.getString(PARAM_URL),
 						this.getParam(params, PARAM_RECURSE, true),
 						this.getParam(params, PARAM_JUST_IN_SCOPE, false),
+						method,
+						this.getParam(params, PARAM_POST_DATA, ""),
 						policy);
 
 				return new ApiResponseElement(name, Integer.toString(scanId));
@@ -459,11 +472,11 @@ public class ActiveScanAPI extends ApiImplementor {
 		return scanner;
 	}
 
-	private int scanURL(String url, boolean scanChildren, boolean scanJustInScope, ScanPolicy policy) throws ApiException {
+	private int scanURL(String url, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
 		SiteNode startNode;
 		try {
-			startNode = Model.getSingleton().getSession().getSiteTree().findNode(new URI(url, true));
+			startNode = Model.getSingleton().getSession().getSiteTree().findNode(new URI(url, true), method, postData);
 			if (startNode == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}
