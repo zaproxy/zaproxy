@@ -507,6 +507,11 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
 	}
 
+    @Override
+    public boolean supportsLowMemory() {
+    	return true;
+    }
+
 	/**
 	 * No database tables used, so all supported
 	 */

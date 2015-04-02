@@ -58,6 +58,7 @@
 // ZAP: 2014/12/12 Issue 1449: Added help button
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/03/03 Added delete(href) method to ensure local map updated 
+// ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 
 package org.parosproxy.paros.extension.history;
 
@@ -311,6 +312,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     }
     
     public void addHistory (HistoryReference historyRef) {
+    	if (Constant.isLowMemoryOptionSet()) {
+    		return;
+    	}
         try {
             synchronized (historyTableModel) {
                 final int historyType = historyRef.getHistoryType();
@@ -698,4 +702,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public void sessionModeChanged(Mode mode) {
 		// Ignore
 	}
+	
+    @Override
+    public boolean supportsLowMemory() {
+    	return true;
+    }
+    
+    /**
+     * Part of the core set of features that should be supported by all db types
+     */
+    @Override
+    public boolean supportsDb(String type) {
+    	return true;
+    }
 }

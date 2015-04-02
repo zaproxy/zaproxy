@@ -44,6 +44,8 @@ import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
 import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
@@ -306,13 +308,21 @@ public class SpiderAPI extends ApiImplementor {
 		} catch (URIException e) {
 			throw new ApiException(ApiException.Type.BAD_FORMAT);
 		}
-
-		SiteNode startNode = Model.getSingleton().getSession().getSiteTree().findNode(startURI);
 		String scheme = startURI.getScheme();
 		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
 			throw new ApiException(ApiException.Type.BAD_FORMAT);
 		}
-		Target target = new Target(startNode);
+
+		StructuralNode node = null;
+		try {
+			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), "GET", "");
+			if (node == null) {
+				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+			}
+		} catch (Exception e) {
+			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+		}
+		Target target = new Target(node);
 		target.setRecurse(true);
 		
 		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);

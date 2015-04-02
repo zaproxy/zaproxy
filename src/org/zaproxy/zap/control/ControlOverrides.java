@@ -31,6 +31,7 @@ public class ControlOverrides {
 	private int proxyPort = -1;
 	private String proxyHost = null;
 	private Hashtable<String, String> configs = new Hashtable<String, String>();
+	private boolean experimentalDb = false;
 
 	public int getProxyPort() {
 		return proxyPort;
@@ -55,4 +56,13 @@ public class ControlOverrides {
 	public void setConfigs(Hashtable<String, String> configs) {
 		this.configs = configs;
 	}
+
+	public boolean isExperimentalDb() {
+		return experimentalDb;
+	}
+
+	public void setExperimentalDb(boolean experimentalDb) {
+		this.experimentalDb = experimentalDb;
+	}
+	
 }

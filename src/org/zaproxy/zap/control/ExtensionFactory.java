@@ -42,6 +42,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
+import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public class ExtensionFactory {
@@ -153,7 +155,8 @@ public class ExtensionFactory {
      */
     private static void loadMessagesAndAddExtension(ExtensionLoader extensionLoader, Extension extension) {
         loadMessages(extension);
-        if (extension.isEnabled()) {
+        if (extension.isEnabled() && extension.supportsDb(Model.getSingleton().getDb().getType()) &&  
+        		(extension.supportsLowMemory() || ! Constant.isLowMemoryOptionSet())) {
             extensionLoader.addExtension(extension);
             intitializeHelpSet(extension);
         }

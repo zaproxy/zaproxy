@@ -34,6 +34,7 @@
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/04/02 Issue 321: Support multiple databases
 
 package org.parosproxy.paros.model;
 
@@ -51,8 +52,10 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.paros.ParosDatabase;
+import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.control.ControlOverrides;
+import org.zaproxy.zap.db.sql.DbSQL;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 
@@ -127,6 +130,10 @@ public class Model {
 		getSession().open(fileName);
 	}
 
+	public void openSession(String fileName, final SessionListener callback) {
+		getSession().open(fileName, callback);
+	}
+
 	/**
 	 * This method should typically only be called from the Control class
 	 */
@@ -170,15 +177,18 @@ public class Model {
 	}
 
 	public void init(ControlOverrides overrides) throws SAXException, IOException, Exception {
-		// TODO: support alternative implementations
-		db = new ParosDatabase();
+		if (overrides.isExperimentalDb()) {
+			logger.info("Using experimental database :/");
+			db = DbSQL.getSingleton().initDatabase();
+		} else {
+			db = new ParosDatabase();
+		}
 
 		createAndOpenUntitledDb();
+		
 		HistoryReference.setTableHistory(getDb().getTableHistory());
-		// ZAP: Support for multiple tags
 		HistoryReference.setTableTag(getDb().getTableTag());
 		HistoryReference.setTableAlert(getDb().getTableAlert());
-		// getOptionsParam().load(Constant.FILE_CONFIG);
 		getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 	}
 
@@ -204,6 +214,7 @@ public class Model {
 		return db;
 	}
 
+	// TODO disable for non file based sessions
 	public void moveSessionDb(String destFile) throws Exception {
 
 		// always use copySession because moving file does not work in Debian,
@@ -240,6 +251,7 @@ public class Model {
 
 	}
 
+	// TODO disable for non file based sessions
 	protected void copySessionDb(String currentFile, String destFile) throws Exception {
 
 		// ZAP: Changed to call the method close(boolean, boolean).
@@ -284,6 +296,7 @@ public class Model {
 
 	}
 
+	// TODO disable for non file based sessions
 	protected void snapshotSessionDb(String currentFile, String destFile) throws Exception {
 		logger.debug("snapshotSessionDb " + currentFile + " -> " + destFile);
 
@@ -336,6 +349,7 @@ public class Model {
 	/**
 	 * This method should typically only be called from the Control class
 	 */
+	// TODO disable for non file based sessions
 	public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
 
 		getDb().close(false);

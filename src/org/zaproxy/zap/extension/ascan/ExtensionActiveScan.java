@@ -721,4 +721,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	public int getAttackModeStackSize() {
 		return this.attackModeScanner.getStackSize();
 	}
+    @Override
+    public boolean supportsLowMemory() {
+    	return true;
+    }
+    
+    /**
+     * Part of the core set of features that should be supported by all db types
+     */
+    @Override
+    public boolean supportsDb(String type) {
+    	return true;
+    }
+
 }

@@ -17,11 +17,19 @@
  */
 package org.zaproxy.zap.extension.ascan;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Category;
@@ -31,17 +39,22 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.zaproxy.zap.extension.api.*;
+import org.zaproxy.zap.extension.api.ApiAction;
+import org.zaproxy.zap.extension.api.ApiException;
+import org.zaproxy.zap.extension.api.ApiImplementor;
+import org.zaproxy.zap.extension.api.ApiResponse;
+import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiResponseList;
+import org.zaproxy.zap.extension.api.ApiResponseSet;
+import org.zaproxy.zap.extension.api.ApiView;
 import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.SessionStructure;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.XMLStringUtil;
-
-import java.util.*;
-import java.util.Map.Entry;
 
 public class ActiveScanAPI extends ApiImplementor {
 
@@ -474,26 +487,27 @@ public class ActiveScanAPI extends ApiImplementor {
 
 	private int scanURL(String url, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
-		SiteNode startNode;
+		StructuralNode node;
+		
 		try {
-			startNode = Model.getSingleton().getSession().getSiteTree().findNode(new URI(url, true), method, postData);
-			if (startNode == null) {
+			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), method, postData);
+			if (node == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}
-		} catch (URIException e) {
-			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+			Target target = new Target(node);
+			target.setRecurse(scanChildren);
+			target.setInScopeOnly(scanJustInScope);
+
+			Object [] objs = new Object[]{};
+			if (policy != null) {
+				objs = new Object[]{policy};
+			}
+
+			return controller.startScan(null, target, null, objs);
+		} catch (Exception e) {
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 		}
 
-		Target target = new Target(startNode);
-		target.setRecurse(scanChildren);
-		target.setInScopeOnly(scanJustInScope);
-
-		Object [] objs = new Object[]{};
-		if (policy != null) {
-			objs = new Object[]{policy};
-		}
-
-		return controller.startScan(null, new Target(startNode, null, scanJustInScope, scanChildren), null, objs);
 	}
 
 	@Override

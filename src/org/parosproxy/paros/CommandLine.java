@@ -29,6 +29,8 @@
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
+// ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+
 package org.parosproxy.paros;
 
 import java.io.File;
@@ -55,6 +57,8 @@ public class CommandLine {
     public static final String CMD = "-cmd";
     public static final String INSTALL_DIR = "-installdir";
     public static final String CONFIG = "-config";
+    public static final String LOWMEM = "-lowmem";
+    public static final String EXPERIMENTALDB = "-experimentaldb";
 
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
@@ -62,6 +66,8 @@ public class CommandLine {
     private boolean GUI = true;
     private boolean daemon = false;
     private boolean reportVersion = false;
+    private boolean lowMem = false;
+    private boolean experimentalDb = false;
     private int port = -1;
     private String host = null;
     private String[] args = null;
@@ -262,6 +268,12 @@ public class CommandLine {
             setDaemon(true);
             setGUI(false);
             
+        } else if (checkSwitch(args, LOWMEM, i)) {
+            setLowMem(true);
+            
+        } else if (checkSwitch(args, EXPERIMENTALDB, i)) {
+            setExperimentalDb(true);
+            
         } else if (checkSwitch(args, HELP, i)) {
             result = true;
             setGUI(false);
@@ -337,7 +349,23 @@ public class CommandLine {
         this.daemon = daemon;
     }
 
-    public boolean isReportVersion() {
+    public boolean isLowMem() {
+		return lowMem;
+	}
+
+	public void setLowMem(boolean lowMem) {
+		this.lowMem = lowMem;
+	}
+
+	public boolean isExperimentalDb() {
+		return experimentalDb;
+	}
+
+	public void setExperimentalDb(boolean experimentalDb) {
+		this.experimentalDb = experimentalDb;
+	}
+
+	public boolean isReportVersion() {
         return this.reportVersion;
     }
 

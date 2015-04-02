@@ -33,6 +33,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/04/02 Issue 1582: Low memory option
 
 package org.parosproxy.paros.db.paros;
 
@@ -53,6 +54,7 @@ import org.parosproxy.paros.db.TableParam;
 import org.parosproxy.paros.db.TableScan;
 import org.parosproxy.paros.db.TableSession;
 import org.parosproxy.paros.db.TableSessionUrl;
+import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
 
 
@@ -71,6 +73,7 @@ public class ParosDatabase implements Database {
 	// ZAP: Added TableParam.
 	private TableParam tableParam = null;
 	private TableContext tableContext = null;
+	private TableStructure tableStructure = null;
 	// ZAP: Added Logger.
     private static final Logger log = Logger.getLogger(ParosDatabase.class);
 
@@ -89,6 +92,7 @@ public class ParosDatabase implements Database {
 	    // ZAP: Added statement.
 	    tableParam = new ParosTableParam();
 	    tableContext = new ParosTableContext();
+	    tableStructure = new ParosTableStructure();
 	    
 	    addDatabaseListener(tableHistory);
 	    addDatabaseListener(tableSession);
@@ -101,6 +105,7 @@ public class ParosDatabase implements Database {
 	    // ZAP: Added statement.
 	    addDatabaseListener(tableParam);
 	    addDatabaseListener(tableContext);
+	    addDatabaseListener(tableStructure);
 
 	}
 	
@@ -332,8 +337,13 @@ public class ParosDatabase implements Database {
 	}
 
 	@Override
+	public TableStructure getTableStructure() {
+		return tableStructure;
+	}
+	
+	@Override
 	public String getType() {
 		return Database.DB_TYPE_HSQLDB;
 	}
-	
+
 }

@@ -47,6 +47,7 @@
 // ZAP: 2014/10/25 Issue 1062: Made it possible to hook into the active scanner from extensions
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
+// ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 
 package org.parosproxy.paros.core.scanner;
 
@@ -61,12 +62,13 @@ import java.util.Set;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.ThreadPool;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 
@@ -75,7 +77,7 @@ public class HostProcess implements Runnable {
     private static final Logger log = Logger.getLogger(HostProcess.class);
     private static final DecimalFormat decimalFormat = new java.text.DecimalFormat("###0.###");
     
-    private List<SiteNode> startNodes = null;
+    private List<StructuralNode> startNodes = null;
     private boolean isStop = false;
     private PluginFactory pluginFactory;
     private ScannerParam scannerParam = null;
@@ -139,14 +141,14 @@ public class HostProcess implements Runnable {
      * Should be set after the HostProcess initialization
      * @param startNode the start node we should start from
      */
-    public void setStartNode(SiteNode startNode) {
-        this.startNodes = new ArrayList<SiteNode>(); 
+    public void setStartNode(StructuralNode startNode) {
+        this.startNodes = new ArrayList<StructuralNode>(); 
         this.startNodes.add(startNode);
     }
 
-    public void addStartNode(SiteNode startNode) {
+    public void addStartNode(StructuralNode startNode) {
     	if (this.startNodes == null) {
-            this.startNodes = new ArrayList<SiteNode>(); 
+            this.startNodes = new ArrayList<StructuralNode>(); 
     	}
         this.startNodes.add(startNode);
     }
@@ -167,7 +169,7 @@ public class HostProcess implements Runnable {
         log.debug("HostProcess.run");
 
         hostProcessStartTime = System.currentTimeMillis();
-        for (SiteNode node : startNodes) {
+        for (StructuralNode node : startNodes) {
 	        // ZAP: before all get back the size of this scan
 	        nodeInScopeCount += getNodeInScopeCount(node, true);
 	        // ZAP: begin to analyze the scope
@@ -203,7 +205,7 @@ public class HostProcess implements Runnable {
         mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
         mapPluginProgress.put(plugin.getId(), 0);
         
-        for (SiteNode startNode : startNodes) {
+        for (StructuralNode startNode : startNodes) {
 	        if (plugin instanceof AbstractHostPlugin) {
 	            if (!scanSingleNode(plugin, startNode)) {
 	                // Mark the plugin as as completed if it was not run so the scan process can continue as expected.
@@ -219,18 +221,17 @@ public class HostProcess implements Runnable {
         }
     }
 
-    private void traverse(Plugin plugin, SiteNode node) {
+    private void traverse(Plugin plugin, StructuralNode node) {
         this.traverse(plugin, node, false);
     }
 
-    private void traverse(Plugin plugin, SiteNode node, boolean incRelatedSiblings) {
-        if (node == null || plugin == null) {
+    private void traverse(Plugin plugin, StructuralNode node, boolean incRelatedSiblings) {
+        if (node == null || plugin == null || isStop()) {
             return;
         }
-        
-        log.debug("traverse: plugin=" + plugin.getName() + " node=" + node.getNodeName() + " heir=" + node.getHierarchicNodeName());
+        log.debug("traverse: plugin=" + plugin.getName() + " url=" + node.getName());
 
-        Set<SiteNode> parentNodes = new HashSet<>();
+        Set<StructuralNode> parentNodes = new HashSet<>();
         parentNodes.add(node);
 
         scanSingleNode(plugin, node);
@@ -239,45 +240,40 @@ public class HostProcess implements Runnable {
             // Also match siblings with the same hierarchic name
             // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
             // note that this is only done for the top level.
-            SiteNode sibling = node;
-            while ((sibling = (SiteNode) sibling.getPreviousSibling()) != null) {
-                if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
-                    log.debug("traverse: adding related sibling " + sibling.getNodeName());
-                    parentNodes.add(sibling);
-                }
-            }
-            
-            sibling = node;
-            while ((sibling = (SiteNode) sibling.getNextSibling()) != null) {
-                if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
-                    log.debug("traverse: adding related sibling " + sibling.getNodeName());
-                    parentNodes.add(sibling);
-                }
-            }
+            try {
+				Iterator<StructuralNode> iter = node.getParent().getChildIterator();
+				while (iter.hasNext()) {
+				    StructuralNode sibling = iter.next();
+					if (! node.isSameAs(sibling) && ! node.getName().equals(sibling.getName())) {
+				        parentNodes.add(sibling);
+					}
+				}
+			} catch (DatabaseException e) {
+				// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
+			}
         }
 
         if (parentScanner.scanChildren()) {
-            for (SiteNode pNode : parentNodes) {
-                // ZAP: Added control for skipping
-                for (int i = 0; i < pNode.getChildCount() && !isStop() && !isSkipped(plugin); i++) {
-                    // ZAP: Implement pause and resume
-                    while (parentScanner.isPaused() && !isStop()) {
-                        Util.sleep(500);
-                    }
-
-                    try {
-                        traverse(plugin, (SiteNode) pNode.getChildAt(i));
-                        
-                    } catch (Exception e) {
-                        log.error(e.getMessage(), e);
-                    }
+        	Iterator<StructuralNode> iter = node.getChildIterator();
+        	while (iter.hasNext() && !isStop() && !isSkipped(plugin)) {
+        		StructuralNode child = iter.next();
+                // ZAP: Implement pause and resume
+                while (parentScanner.isPaused() && !isStop()) {
+                    Util.sleep(500);
                 }
-            }
+
+                try {
+                    traverse(plugin, child);
+                    
+                } catch (Exception e) {
+                    log.error(e.getMessage(), e);
+                }
+        	}
         }
     }
 
-    protected boolean nodeInScope(SiteNode node) {
-        return parentScanner.isInScope(node);
+    protected boolean nodeInScope(String nodeName) {
+        return parentScanner.isInScope(nodeName);
     }
 
     /**
@@ -287,12 +283,12 @@ public class HostProcess implements Runnable {
      * @param node. If node == null, run for server level plugin
      * @return {@code true} if the {@code plugin} was run, {@code false} otherwise.
      */
-    private boolean scanSingleNode(Plugin plugin, SiteNode node) {
+    private boolean scanSingleNode(Plugin plugin, StructuralNode node) {
         Thread thread;
         Plugin test;
         HttpMessage msg;
         
-        log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node);
+        log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
 
         // do not poll for isStop here to allow every plugin to run but terminate immediately.
         //if (isStop()) return;
@@ -308,7 +304,7 @@ public class HostProcess implements Runnable {
                 return false;
             }
 
-            if (!nodeInScope(node)) {
+            if (!nodeInScope(node.getName())) {
                 log.debug("scanSingleNode node not in scope");
                 return false;
             }
@@ -331,17 +327,14 @@ public class HostProcess implements Runnable {
             notifyHostProgress(plugin.getName() + ": " + msg.getRequestHeader().getURI().toString());
 
         } catch (Exception e) {
-            if (node != null) {
-                log.error(e.getMessage() + " " + node.getNodeName(), e);
-                
-            } else {
-                log.error(e.getMessage(), e);
-            }
-            
+            log.error(e.getMessage() + " " + node.getName(), e);
             return false;
         }
 
         do {
+			if (this.isStop()) {
+				return false;
+			}
             thread = threadPool.getFreeThreadAndRun(test);
             if (thread == null) {
                 Util.sleep(200);
@@ -384,7 +377,7 @@ public class HostProcess implements Runnable {
      * @param incRelatedSiblings true if siblings should be included
      * @return the number of nodes
      */
-    private int getNodeInScopeCount(SiteNode node, boolean incRelatedSiblings) {
+    private int getNodeInScopeCount(StructuralNode node, boolean incRelatedSiblings) {
         if (node == null) {
             return 0;
         }
@@ -392,36 +385,31 @@ public class HostProcess implements Runnable {
         int nodeCount = 1;
         if (parentScanner.scanChildren()) {
             
-            Set<SiteNode> parentNodes = new HashSet<>();
+            Set<StructuralNode> parentNodes = new HashSet<>();
             parentNodes.add(node);
                         
             if (incRelatedSiblings) {
                 // Also match siblings with the same hierarchic name
                 // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
                 // note that this is only done for the top level.
-                SiteNode sibling = node;
-                while ((sibling = (SiteNode) sibling.getPreviousSibling()) != null) {
-                    if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
-                        // count also sibling
-                        parentNodes.add(sibling);
-                        nodeCount++;
-                    }
-                }
-
-                sibling = node;
-                while ((sibling = (SiteNode) sibling.getNextSibling()) != null) {
-                    if (node.getHierarchicNodeName().equals(sibling.getHierarchicNodeName())) {
-                        // count also sibling
-                        parentNodes.add(sibling);
-                        nodeCount++;
-                    }
-                }
+                try {
+					Iterator<StructuralNode> iter = node.getParent().getChildIterator();
+					while (iter.hasNext()) {
+					    StructuralNode sibling = iter.next();
+						if (! node.isSameAs(sibling) && ! node.getName().equals(sibling.getName())) {
+					        parentNodes.add(sibling);
+					        nodeCount++;
+						}
+					}
+				} catch (DatabaseException e) {
+					// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
+				}
             }
             
-            for (SiteNode pNode : parentNodes) {
-                
-                for (int i = 0; i < pNode.getChildCount(); i++) {
-                    nodeCount += getNodeInScopeCount((SiteNode)pNode.getChildAt(i), false);
+            for (StructuralNode pNode : parentNodes) {
+                Iterator<StructuralNode> iter = pNode.getChildIterator();
+                while (iter.hasNext()) {
+                    nodeCount += getNodeInScopeCount(iter.next(), false);
                 }
             }
         }

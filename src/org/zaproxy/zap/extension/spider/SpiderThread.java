@@ -30,12 +30,12 @@ import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.spider.Spider;
 import org.zaproxy.zap.spider.SpiderListener;
@@ -332,20 +332,15 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	@Override
 	public void readURI(final HttpMessage msg) {
-		// Add the read message to the Site Tree
-		final SiteMap siteTree = extension.getModel().getSession().getSiteTree();
+		// Add the read message to the Site Map (tree or db structure)
 		try {
 			final HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(),
 					HistoryReference.TYPE_SPIDER, msg);
-			// // Use custom icon for robots.txt file
-			// if (msg.getRequestHeader().getURI().getPath().equalsIgnoreCase("/robots.txt"))
-			// historyRef.setCustomIcon("/resource/icon/10/189.png", false);
 
-            EventQueue.invokeLater(new Runnable() {
-
+			EventQueue.invokeLater(new Runnable() {
                 @Override
                 public void run() {
-        			siteTree.addPath(historyRef, msg);
+        			SessionStructure.addPath(Model.getSingleton().getSession(), historyRef, msg);
                 }
             });
 			

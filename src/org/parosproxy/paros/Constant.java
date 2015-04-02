@@ -68,6 +68,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -204,6 +205,7 @@ public final class Constant {
     private static String zapInstall = null;
     
 	private static Boolean onKali = null;
+    private static Boolean lowMemoryOption = null;
 
     // ZAP: Added i18n
     public static I18N messages = null;
@@ -940,10 +942,16 @@ public final class Constant {
     public static boolean isDailyBuild() {
     	return isDailyBuild(PROGRAM_VERSION);
     }
-    
+
+    public static void setLowMemoryOption(boolean lowMem) {
+    	if (lowMemoryOption != null) {
+    		throw new InvalidParameterException("Low memory option already set to " + lowMemoryOption);
+    	}
+    	lowMemoryOption = lowMem;
+    }
+
     public static boolean isLowMemoryOptionSet() {
-    	// Not supported yet, but added so that code can check the option for forwards compatibility
-    	return false;
+    	return lowMemoryOption != null && lowMemoryOption.booleanValue();
     }
     
     /**

@@ -41,10 +41,12 @@
 // ZAP: 2014/11/27 Issue 1416: Allow spider to be restricted by the number of children
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/04/02 Issue 1582: Low memory option
 
 package org.parosproxy.paros.model;
 
 import java.awt.EventQueue;
+import java.security.InvalidParameterException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -159,6 +161,9 @@ public class SiteMap extends DefaultTreeModel {
 
     
     public synchronized SiteNode findNode(HttpMessage msg, boolean matchStructural) {
+    	if (Constant.isLowMemoryOptionSet()) {
+    		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
+    	}
     	if (msg == null || msg.getRequestHeader() == null) {
     		return null;
     	}
@@ -214,6 +219,9 @@ public class SiteMap extends DefaultTreeModel {
     }
     
     public synchronized SiteNode findNode(URI uri, String method, String postData) {
+    	if (Constant.isLowMemoryOptionSet()) {
+    		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
+    	}
         SiteNode resultNode = null;
         String folder = "";
         
@@ -309,6 +317,9 @@ public class SiteMap extends DefaultTreeModel {
      * @param ref
      */
     public synchronized SiteNode addPath(HistoryReference ref) {
+    	if (Constant.isLowMemoryOptionSet()) {
+    		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
+    	}
 
         HttpMessage msg = null;
         try {
@@ -331,6 +342,10 @@ public class SiteMap extends DefaultTreeModel {
      * @return 
      */
     public SiteNode addPath(HistoryReference ref, HttpMessage msg) {
+    	if (Constant.isLowMemoryOptionSet()) {
+    		throw new InvalidParameterException("SiteMap should not be accessed when the low memory option is set");
+    	}
+
     	if (View.isInitialised() && Constant.isDevBuild() && ! EventQueue.isDispatchThread()) {
     		// In developer mode log an error if we're not on the EDT
     		// Adding to the site tree on GUI ('initial') threads causes problems
@@ -383,7 +398,6 @@ public class SiteMap extends DefaultTreeModel {
     }
     
     private SiteNode findAndAddChild(SiteNode parent, String nodeName, HistoryReference baseRef, HttpMessage baseMsg) throws URIException, HttpMalformedHeaderException, NullPointerException, DatabaseException {
-    	// ZAP: Added debug
     	log.debug("findAndAddChild " + parent.getNodeName() + " / " + nodeName);    	
         SiteNode result = findChild(parent, nodeName);
         if (result == null) {

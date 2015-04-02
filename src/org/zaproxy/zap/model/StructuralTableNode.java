@@ -1,0 +1,99 @@
+package org.zaproxy.zap.model;
+
+import java.security.InvalidParameterException;
+import java.util.Iterator;
+
+import org.apache.commons.httpclient.URI;
+import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.RecordStructure;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
+
+public class StructuralTableNode implements StructuralNode {
+
+	private RecordStructure rs;
+	private	StructuralNode parent = null;
+	
+	private static ExtensionHistory extHistory = null;
+	
+	public StructuralTableNode(RecordStructure rs) {
+		if (rs == null) {
+			throw new InvalidParameterException("RecordStructure must not be null");
+		}
+		this.rs = rs;
+	}
+
+	@Override
+	public StructuralNode getParent() throws DatabaseException {
+		if (parent == null && ! this.isRoot()) {
+			RecordStructure prs = Model.getSingleton().getDb().getTableStructure().read(rs.getSessionId(), rs.getStructureId());
+			if (prs == null) {
+				throw new InvalidParameterException("Failed to find parent sessionId=" + rs.getSessionId() + " parentId=" + rs.getParentId());
+			}
+			parent = new StructuralTableNode(prs);
+		}
+		return parent;
+	}
+
+	@Override
+	public Iterator<StructuralNode> getChildIterator() {
+		return new StructuralTableNodeIterator(this);
+	}
+
+	@Override
+	public long getChildNodeCount() throws DatabaseException {
+		return Model.getSingleton().getDb().getTableStructure().getChildCount(rs.getSessionId(), rs.getParentId());
+	}
+
+	@Override
+	public HistoryReference getHistoryReference() {
+		return getExtensionHistory().getHistoryReference(this.rs.getHistoryId());
+	}
+
+	@Override
+	public URI getURI() {
+		try {
+			return new URI(this.rs.getUrl(), true);
+		} catch (Exception e) {
+			return null;
+		}
+	}
+
+	@Override
+	public String getName() {
+		return this.rs.getName();
+	}
+
+	@Override
+	public boolean isRoot() {
+		return SessionStructure.ROOT.equals(this.rs.getUrl());
+	}
+
+	@Override
+	public boolean isLeaf() {
+		// TODO implement in more efficient way ;)
+		return ! this.getChildIterator().hasNext();
+	}
+	
+	protected RecordStructure getRecordStructure() {
+		return this.rs;
+	}
+
+	public boolean isSameAs (StructuralNode node) {
+		if (node instanceof StructuralTableNode) {
+			return this.rs.getStructureId() == ((StructuralTableNode)node).rs.getStructureId();
+		}
+		return false;
+	}
+
+	private static ExtensionHistory getExtensionHistory() {
+		if (extHistory == null) {
+			extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
+		}
+		return extHistory;
+	}
+
+
+}

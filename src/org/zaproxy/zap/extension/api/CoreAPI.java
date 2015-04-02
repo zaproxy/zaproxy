@@ -34,6 +34,7 @@ import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.regex.Pattern;
 
@@ -72,6 +73,7 @@ import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.HarUtils;
+import org.zaproxy.zap.utils.Stats;
 
 import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarLog;
@@ -98,6 +100,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_GENERATE_ROOT_CA = "generateRootCA";
 	private static final String ACTION_SEND_REQUEST = "sendRequest";
 	private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
+	private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
+	private static final String ACTION_CLEAR_STATS = "clearStats";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -111,6 +115,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_VERSION = "version";
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
+	private static final String VIEW_STATS = "stats";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
@@ -132,6 +137,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_ID = "id";
 	private static final String PARAM_REQUEST = "request";
 	private static final String PARAM_FOLLOW_REDIRECTS = "followRedirects";
+	private static final String PARAM_KEY_PREFIX = "keyPrefix";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private Logger logger = Logger.getLogger(this.getClass());
@@ -152,6 +158,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				new String[] { PARAM_REQUEST },
 				new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
+		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
+		this.addApiAction(new ApiAction(ACTION_CLEAR_STATS, new String[] {PARAM_KEY_PREFIX}));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
@@ -167,6 +175,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
+		this.addApiView(new ApiView(VIEW_STATS, null, new String[] { PARAM_KEY_PREFIX }));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
@@ -412,6 +421,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
                 removeHistoryReferenceAlerts(rootNode);
             }
+		} else if (ACTION_COLLECT_GARBAGE.equals(name)) {
+			System.gc();
+			return ApiResponseElement.OK;
+			
+		} else if (ACTION_CLEAR_STATS.equals(name)) {
+			Stats.clear(this.getParam(params, PARAM_KEY_PREFIX, ""));
+			return ApiResponseElement.OK;
+			
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
@@ -623,6 +640,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 		} else if (VIEW_HOME_DIRECTORY.equals(name)) {
 			result = new ApiResponseElement(name, Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());
+		} else if (VIEW_STATS.equals(name)) {
+			Map<String, String> map = new HashMap<>();
+
+			for (Entry<String, Long> stat : Stats.getStats(this.getParam(params, PARAM_KEY_PREFIX, "")).entrySet()) {
+				map.put(stat.getKey(), Long.toString(stat.getValue()));
+			}
+			result = new ApiResponseSet(name, map);
+
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

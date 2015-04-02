@@ -26,12 +26,14 @@
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
+// ZAP: 2015/04/02 Issue 1582: Low memory option
 
 package org.parosproxy.paros.extension.history;
  
 import java.awt.EventQueue;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryReference;
@@ -40,6 +42,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.SessionStructure;
 
 
 public class ProxyListenerLog implements ProxyListener {
@@ -151,7 +154,7 @@ public class ProxyListenerLog implements ProxyListener {
         final HistoryReference ref = historyRef;
         final HttpMessage finalMsg = msg;
         if (EventQueue.isDispatchThread()) {
-            model.getSession().getSiteTree().addPath(ref, msg);
+            SessionStructure.addPath(model.getSession(), ref, msg);
             if (isFirstAccess) {
                 isFirstAccess = false;
                 if (View.isInitialised()) {
@@ -164,8 +167,8 @@ public class ProxyListenerLog implements ProxyListener {
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                        model.getSession().getSiteTree().addPath(ref, finalMsg);
-                        if (isFirstAccess) {
+                        SessionStructure.addPath(model.getSession(), ref, finalMsg);
+                        if (isFirstAccess && ! Constant.isLowMemoryOptionSet()) {
                             isFirstAccess = false;
                             if (View.isInitialised()) {
                             	view.getSiteTreePanel().expandRoot();

@@ -30,9 +30,12 @@
 // ZAP: 2014/03/23 Issue 1021: OutOutOfMemoryError while running the active scanner
 // ZAP: 2014/06/26 Added the possibility to count the available nodes that can be scanned
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+
 package org.parosproxy.paros.core.scanner;
 
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.Random;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
@@ -43,13 +46,12 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.DatabaseException;
-import org.parosproxy.paros.model.HistoryReference;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.zaproxy.zap.model.StructuralNode;
 
 public class Analyser {
 
@@ -74,9 +76,6 @@ public class Analyser {
     // ZAP: Added parent
     HostProcess parent = null;
     
-    // ZAP: Added total number of nodes
-    private int size = -1;
-
     public Analyser() {
     }
 
@@ -93,8 +92,8 @@ public class Analyser {
         isStop = true;
     }
 
-    public void start(SiteNode node) {
-        size = inOrderAnalyse(node);
+    public void start(StructuralNode node) {
+        inOrderAnalyse(node);
     }
 
     private void addAnalysedHost(URI uri, HttpMessage msg, int errorIndicator) {
@@ -110,14 +109,14 @@ public class Analyser {
      * Analyse a single folder entity. Results are stored into
      * mAnalysedEntityTable.
      */
-    private void analyse(SiteNode node) throws Exception {
+    private void analyse(StructuralNode node) throws Exception {
 	// if analysed already, return;
         // move to host part
         if (node.getHistoryReference() == null) {
             return;
         }
 
-        if (!parent.nodeInScope(node)) {
+        if (!parent.nodeInScope(node.getName())) {
             return;
         }
 
@@ -203,21 +202,20 @@ public class Analyser {
      * @return	The suffix ".xxx" is returned. If there is no suffix found, an
      * empty string is returned.
      */
-    private String getChildSuffix(SiteNode node, boolean performRecursiveCheck) {
+    private String getChildSuffix(StructuralNode node, boolean performRecursiveCheck) {
 
         String resultSuffix = "";
         String suffix = null;
-        SiteNode child = null;
-        HistoryReference ref = null;
+        StructuralNode child = null;
         try {
 
             for (int i = 0; i < staticSuffixList.length; i++) {
                 suffix = staticSuffixList[i];
-                for (int j = 0; j < node.getChildCount(); j++) {
-                    child = (SiteNode) node.getChildAt(j);
-                    ref = child.getHistoryReference();
+                Iterator<StructuralNode> iter = node.getChildIterator();
+                while (iter.hasNext()) {
+                    child = iter.next();
                     try {
-                        if (ref.getURI().getPath().endsWith(suffix)) {
+                        if (child.getURI().getPath().endsWith(suffix)) {
                             return suffix;
                         }
                     } catch (Exception e) {
@@ -226,8 +224,10 @@ public class Analyser {
             }
 
             if (performRecursiveCheck) {
-                for (int j = 0; j < node.getChildCount(); j++) {
-                    resultSuffix = getChildSuffix((SiteNode) node.getChildAt(j), performRecursiveCheck);
+                Iterator<StructuralNode> iter = node.getChildIterator();
+                while (iter.hasNext()) {
+                    child = iter.next();
+                    resultSuffix = getChildSuffix(child, performRecursiveCheck);
                     if (!resultSuffix.equals("")) {
                         return resultSuffix;
                     }
@@ -277,7 +277,7 @@ public class Analyser {
      * entity.
      * @throws URIException
      */
-    private String getRandomPathSuffix(SiteNode node, URI uri) throws URIException {
+    private String getRandomPathSuffix(StructuralNode node, URI uri) throws URIException {
         String resultSuffix = getChildSuffix(node, true);
 
         String path = "";
@@ -293,9 +293,7 @@ public class Analyser {
      * Analyse node (should be a folder unless it is host level) in-order.
      * @return the number of nodes available at this layer
      */
-    private int inOrderAnalyse(SiteNode node) {
-
-        SiteNode tmp;
+    private int inOrderAnalyse(StructuralNode node) {
         int subtreeNodes = 0;
 
         if (isStop) {
@@ -306,11 +304,11 @@ public class Analyser {
             return 0;
         }
 
-	// analyse entity if not root and not leaf.
+        // analyse entity if not root and not leaf.
         // Leaf is not analysed because only folder entity is used to determine if path exist.
         try {
             if (!node.isRoot()) {
-                if (!node.isLeaf() || node.isLeaf() && ((SiteNode) node.getParent()).isRoot()) {
+                if (!node.isLeaf() || node.isLeaf() && node.getParent().isRoot()) {
                     analyse(node);
                     
                 } else {
@@ -322,14 +320,9 @@ public class Analyser {
         } catch (Exception e) {
         }
 
-        for (int i = 0; i < node.getChildCount() && !isStop(); i++) {
-            try {
-                tmp = (SiteNode) node.getChildAt(i);
-                subtreeNodes += inOrderAnalyse(tmp);
-                
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
+        Iterator<StructuralNode> iter = node.getChildIterator();
+        while (iter.hasNext()) {
+            subtreeNodes += inOrderAnalyse(iter.next());
         }
         
         return subtreeNodes + 1;

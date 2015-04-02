@@ -161,4 +161,14 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 	public CoreAPI getCoreAPI() {
 		return this.coreApi;
 	}
+
+    @Override
+    public boolean supportsDb(String type) {
+    	return true;
+    }
+
+    @Override
+    public boolean supportsLowMemory() {
+    	return true;
+    }
 }

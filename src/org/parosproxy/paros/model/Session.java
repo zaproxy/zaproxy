@@ -49,6 +49,7 @@
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/30 Set default context name
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 
 package org.parosproxy.paros.model;
 
@@ -73,6 +74,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordContext;
 import org.parosproxy.paros.db.RecordSessionUrl;
@@ -138,8 +140,10 @@ public class Session extends FileXML {
 		setSessionName(Constant.messages.getString("session.untitled"));
 		setSessionDesc("");
 
-		// create default object
-		this.siteTree = SiteMap.createTree(model);
+    	if (! Constant.isLowMemoryOptionSet()) {
+    		// create default object
+    		this.siteTree = SiteMap.createTree(model);
+    	}
 		
 		this.model = model;
 		
@@ -232,21 +236,48 @@ public class Session extends FileXML {
         t.start();
     }
 
+    protected void open(final String sessionFile, final SessionListener callback) {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Exception thrownException = null;
+                try {
+                    open(sessionFile);
+                } catch (Exception e) {
+                    thrownException = e;
+                }
+                if (callback != null) {
+                    callback.sessionOpened(null, thrownException);
+                }
+            }
+        });
+        t.setPriority(Thread.NORM_PRIORITY-2);
+        t.start();
+    }
+
 	protected void open(String fileName) throws DatabaseException, SAXException, IOException, Exception {
 
-		readAndParseFile(new File(fileName).toURI().toASCIIString());
+		// TODO extract into db specific classes??
+		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+			readAndParseFile(new File(fileName).toURI().toASCIIString());
+		} else {
+			this.setSessionId(Long.parseLong(fileName));
+		}
 		model.getDb().close(false);
 		model.getDb().open(fileName);
 		this.fileName = fileName;
 		
 		//historyList.removeAllElements();
 
-		SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
-		siteTree.setRoot(newRoot);
+    	if (! Constant.isLowMemoryOptionSet()) {
+			SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
+			siteTree.setRoot(newRoot);
+    	}
 
 		// update history reference
 		List<Integer> list = model.getDb().getTableHistory().getHistoryIdsOfHistType(
 			getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
+		
 		HistoryReference historyRef = null;
 
 		discardContexts();
@@ -435,8 +466,6 @@ public class Session extends FileXML {
 		sessionName = tempSessionName;
 		sessionDesc = tempSessionDesc;
 		
-
-
 	}
 
 	/**
@@ -482,9 +511,11 @@ public class Session extends FileXML {
 		}
 	    this.fileName = fileName;
 		
-		synchronized (siteTree) {
-		    saveSiteTree((SiteNode) siteTree.getRoot());
-		}
+    	if (! Constant.isLowMemoryOptionSet()) {
+			synchronized (siteTree) {
+			    saveSiteTree((SiteNode) siteTree.getRoot());
+			}
+    	}
 		
 		model.getDb().getTableSession().update(getSessionId(), getSessionName());
 	}
@@ -633,6 +664,11 @@ public class Session extends FileXML {
 
 	private void refreshScope() {
 		// log.debug("refreshScope");
+    	if (Constant.isLowMemoryOptionSet()) {
+    		// Nothing to do
+    		return;
+    	}
+
         if (EventQueue.isDispatchThread()) {
         	refreshScope((SiteNode) siteTree.getRoot());
         	Control.getSingleton().sessionScopeChanged();

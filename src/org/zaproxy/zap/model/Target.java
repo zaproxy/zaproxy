@@ -32,7 +32,7 @@ import org.parosproxy.paros.model.SiteNode;
  */
 public class Target {
 
-	private List<SiteNode> startNodes;
+	private List<StructuralNode> startNodes;
 	private Context context;
 	private boolean inScopeOnly = false;
 	private int maxChildren = -1;
@@ -44,9 +44,15 @@ public class Target {
 		this.inScopeOnly = inScopeOnly;
 	}
 
-	public Target(List<SiteNode> startNodes) {
+	public Target(StructuralNode startNode) {
 		super();
-		this.startNodes = startNodes; 
+		this.startNodes = new ArrayList<StructuralNode>(); 
+		this.startNodes.add(startNode);
+	}
+
+	public Target(List<StructuralNode> startNodes) {
+		super();
+		this.startNodes = startNodes;
 	}
 
 	public Target(SiteNode startNode) {
@@ -95,13 +101,10 @@ public class Target {
 	}
 
 	public SiteNode getStartNode() {
-		if (startNodes != null && startNodes.size() > 0) {
-			return startNodes.get(0);
+		if (startNodes != null && startNodes.size() > 0 && startNodes.get(0) instanceof StructuralSiteNode) {
+			return ((StructuralSiteNode)startNodes.get(0)).getSiteNode();
 		}
 		return null;
-	}
-	public List<SiteNode> getStartNodes() {
-		return this.startNodes;
 	}
 	public Context getContext() {
 		return context;
@@ -116,15 +119,18 @@ public class Target {
 		return maxDepth;
 	}
 	public void setStartNode(SiteNode startNode) {
-		this.startNodes = new ArrayList<SiteNode>(); 
-		this.startNodes.add(startNode);
+		this.startNodes = new ArrayList<StructuralNode>(); 
+		this.startNodes.add(new StructuralSiteNode(startNode));
 	}
-	public void setStartNodes(List<SiteNode> startNodes) {
-		this.startNodes = startNodes; 
-	}
+
 	public void setContext(Context context) {
 		this.context = context;
 	}
+	
+	public List<StructuralNode> getStartNodes() {
+		return startNodes;
+	}
+
 	public void setInScopeOnly(boolean inScopeOnly) {
 		this.inScopeOnly = inScopeOnly;
 	}

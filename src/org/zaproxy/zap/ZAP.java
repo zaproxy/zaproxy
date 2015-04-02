@@ -257,6 +257,7 @@ public class ZAP {
     private void run() throws Exception {
 
         final boolean isGUI = cmdLine.isGUI();
+        Constant.setLowMemoryOption(cmdLine.isLowMem());
 
         boolean firstTime = false;
         if (isGUI) {
@@ -491,6 +492,7 @@ public class ZAP {
         overrides.setProxyPort(this.cmdLine.getPort());
         overrides.setProxyHost(this.cmdLine.getHost());
         overrides.setConfigs(this.cmdLine.getConfigs());
+        overrides.setExperimentalDb(this.cmdLine.isExperimentalDb());
         return overrides;
     }
 

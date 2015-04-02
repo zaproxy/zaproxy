@@ -43,6 +43,7 @@
 // ZAP: 2014/06/16 Issue 990: Allow to delete alerts through the API
 // ZAP: 2014/11/19 Issue 1412: Prevent ConcurrentModificationException when icons updated frequently
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
+// ZAP: 2015/04/02 Issue 1582: Low memory option
 
 package org.parosproxy.paros.model;
 
@@ -64,6 +65,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 	private static final long serialVersionUID = 7987615016786179150L;
 
 	private String nodeName = null;
+	private String hierarchicNodeName = null;
     private HistoryReference historyReference = null;
     private Vector<HistoryReference> pastHistoryList = new Vector<>(10);
 	// ZAP: Support for linking Alerts to SiteNodes
@@ -171,32 +173,37 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public String getHierarchicNodeName() {
+		if (hierarchicNodeName != null) {
+			return hierarchicNodeName;
+		}
+
     	if (this.isRoot()) {
-    		return "";
+    		hierarchicNodeName = "";
+    	} else if (((SiteNode)this.getParent()).isRoot()) {
+    		hierarchicNodeName = this.getNodeName();
+    	} else {
+	    	String nodeName = this.getNodeName();
+	    	if (this.isLeaf()) {
+	    		// Need to clean up
+	    		int colonIndex = nodeName.indexOf(":");
+	    		if (colonIndex > 0) {
+	    			// Strip the GET/POST etc off
+	    			nodeName = nodeName.substring(colonIndex+1);
+	    		}
+	    		int bracketIndex = nodeName.indexOf("(");
+	    		if (bracketIndex > 0) {
+	    			// Strip the param summary off
+	    			nodeName = nodeName.substring(0, bracketIndex);
+	    		}
+	    		int quesIndex = nodeName.indexOf("?");
+	    		if (quesIndex > 0) {
+	    			// Strip the parameters off
+	    			nodeName = nodeName.substring(0, quesIndex);
+	    		}
+	    	}
+	    	hierarchicNodeName = ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
     	}
-    	if (((SiteNode)this.getParent()).isRoot()) {
-    		return this.getNodeName();
-    	}
-    	String nodeName = this.getNodeName();
-    	if (this.isLeaf()) {
-    		// Need to clean up
-    		int colonIndex = nodeName.indexOf(":");
-    		if (colonIndex > 0) {
-    			// Strip the GET/POST etc off
-    			nodeName = nodeName.substring(colonIndex+1);
-    		}
-    		int bracketIndex = nodeName.indexOf("(");
-    		if (bracketIndex > 0) {
-    			// Strip the param summary off
-    			nodeName = nodeName.substring(0, bracketIndex);
-    		}
-    		int quesIndex = nodeName.indexOf("?");
-    		if (quesIndex > 0) {
-    			// Strip the parameters off
-    			nodeName = nodeName.substring(0, quesIndex);
-    		}
-    	}
-    	return ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
+    	return hierarchicNodeName;
     }
     
     public HistoryReference getHistoryReference() {
@@ -512,5 +519,4 @@ public class SiteNode extends DefaultMutableTreeNode {
 	protected void setFiltered(boolean filtered) {
 		this.filtered = filtered;
 	}
-	
 }

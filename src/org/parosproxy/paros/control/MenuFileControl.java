@@ -40,6 +40,7 @@
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
+// ZAP: 2015/04/02 Issue 321: Support multiple databases
 
 package org.parosproxy.paros.control;
  
@@ -47,7 +48,9 @@ import java.awt.EventQueue;
 import java.io.File;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
@@ -55,6 +58,9 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.RecordSession;
 import org.parosproxy.paros.extension.option.DatabaseParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -63,6 +69,7 @@ import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
+import org.zaproxy.zap.view.SessionTableSelectDialog;
 
 
 public class MenuFileControl implements SessionListener {
@@ -258,6 +265,15 @@ public class MenuFileControl implements SessionListener {
     }
 
 	public void openSession() {
+		// TODO extract into db specific classes??
+		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+			this.openFileBasedSession();
+		} else {
+			this.openDbBasedSession();
+		}
+	}
+	
+	private void openFileBasedSession () {
 		JFileChooser chooser = new JFileChooser(model.getOptionsParam().getUserDirectory());
 		chooser.setFileHidingEnabled(false);	// By default ZAP on linux puts timestamped sessions under a 'dot' directory 
 		File file = null;
@@ -286,7 +302,7 @@ public class MenuFileControl implements SessionListener {
 	    		}
                 model.getOptionsParam().setUserDirectory(chooser.getCurrentDirectory());
 	    	    log.info("opening session file " + file.getAbsolutePath());
-	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.loadSession"));	// ZAP: i18n
+	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.loadSession"));
 	    	    control.openSession(file, this);
 	    		waitMessageDialog.setVisible(true);
 			} catch (Exception e) {
@@ -294,6 +310,27 @@ public class MenuFileControl implements SessionListener {
 			}
 	    }
 	}
+	
+	private void openDbBasedSession() {
+		try {
+			List<String> sessionList = new ArrayList<String>();
+			for (RecordSession rs : model.getDb().getTableSession().listSessions()) {
+				sessionList.add(""+rs.getSessionId());
+			}
+			SessionTableSelectDialog ssd = new SessionTableSelectDialog(View.getSingleton().getMainFrame(), sessionList);
+			ssd.setVisible(true);
+			
+			if (ssd.getSelectedSession() != null) {
+	    	    waitMessageDialog = view.getWaitMessageDialog(Constant.messages.getString("menu.file.loadSession"));
+	    	    control.openSession(ssd.getSelectedSession(), this);
+	    		waitMessageDialog.setVisible(true);
+			}
+
+		} catch (DatabaseException e) {
+            log.error(e.getMessage(), e);
+		}
+	}
+	
 	public void saveSession() {
 	    Session session = model.getSession();
 
@@ -470,8 +507,12 @@ public class MenuFileControl implements SessionListener {
             //view.getMainFrame().setTitle(file.getName().replaceAll(".session\\z","") + " - " + Constant.PROGRAM_NAME);
         } else {
             view.showWarningDialog("Error opening session file");
-            log.error("error opening session file " + file.getAbsolutePath());
-            log.error(e.getMessage(), e);
+            if (file != null) {
+                log.error("Error opening session file " + file.getAbsolutePath());
+            } else {
+            	// File is null for table based sessions (ie non HSQLDB)
+                log.error(e.getMessage(), e);
+            }
         }
 
         if (waitMessageDialog != null) {

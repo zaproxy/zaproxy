@@ -35,13 +35,16 @@
 // ZAP: 2014/10/25 Issue 1062: Made the scanner load all scannerhooks from the extensionloader
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
+// ZAP: 2015/04/02 Issue 1582: Low memory option
 
 package org.parosproxy.paros.core.scanner;
 
+import java.security.InvalidParameterException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -50,6 +53,7 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Model;
@@ -58,6 +62,8 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
 import org.zaproxy.zap.extension.script.ScriptCollection;
+import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
@@ -166,11 +172,11 @@ public class Scanner implements Runnable {
 
 	    if (target.getStartNodes() != null) {
 		    HostProcess hostProcess = null;
-	    	List<SiteNode> nodes = target.getStartNodes();
+	    	List<StructuralNode> nodes = target.getStartNodes();
 	    	if (nodes.size() == 1 && nodes.get(0).isRoot()) {
-	    		SiteNode node = nodes.get(0);
-		        for (int i=0; i<node.getChildCount() && !isStop(); i++) {
-		            SiteNode child = (SiteNode) node.getChildAt(i);
+	    		Iterator<StructuralNode> iter = nodes.get(0).getChildIterator();
+	    		while (iter.hasNext()) {
+		        	StructuralNode child = iter.next();
 		            String hostAndPort = getHostAndPort(child);
 		            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
 		            hostProcess.setStartNode(child);
@@ -187,7 +193,7 @@ public class Scanner implements Runnable {
 		        }
 		    } else {
 		    	Map<String, HostProcess> processMap = new HashMap<String, HostProcess>();
-		    	for (SiteNode node : nodes) {
+		    	for (StructuralNode node : nodes) {
 		    		// Loop through the nodes creating new HostProcesss's as required
 		            String hostAndPort = getHostAndPort(node);
 		            hostProcess = processMap.get(hostAndPort);
@@ -211,12 +217,16 @@ public class Scanner implements Runnable {
 		    }
 	    } else if (target.getContext() != null) {
 	    	// Loop through all of the top nodes containing children in this context
+	    	// TODO need to change for lowmem
+	    	if (Constant.isLowMemoryOptionSet()) {
+	    		throw new InvalidParameterException("Not yet supported for the low memory option :(");
+	    	}
 	    	List<SiteNode> nodes = target.getContext().getTopNodesInContextFromSiteTree();
 	    	for (SiteNode node : nodes) {
 			    HostProcess hostProcess = null;
 	            String hostAndPort = getHostAndPort(node);
 	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
-	            hostProcess.setStartNode(node);
+	            hostProcess.setStartNode(new StructuralSiteNode(node));
 	            hostProcess.setUser(this.user);
 	            hostProcess.setTechSet(this.techSet);
 	            this.hostProcesses.add(hostProcess);
@@ -229,13 +239,17 @@ public class Scanner implements Runnable {
 	            }
 	    	}
 	    } else if (target.isInScopeOnly()) {
+	    	// TODO need to change for lowmem
+	    	if (Constant.isLowMemoryOptionSet()) {
+	    		throw new InvalidParameterException("Not yet supported for the low memory option :(");
+	    	}
 	    	this.justScanInScope = true;
 	    	List<SiteNode> nodes = Model.getSingleton().getSession().getTopNodesInScopeFromSiteTree();
 	    	for (SiteNode node : nodes) {
 			    HostProcess hostProcess = null;
 	            String hostAndPort = getHostAndPort(node);
 	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
-	            hostProcess.setStartNode(node);
+	            hostProcess.setStartNode(new StructuralSiteNode(node));
 	            hostProcess.setUser(this.user);
 	            hostProcess.setTechSet(this.techSet);
 	            this.hostProcesses.add(hostProcess);
@@ -269,6 +283,18 @@ public class Scanner implements Runnable {
 	            parent = (SiteNode) curNode.getParent();
 	        }
 	        result = curNode.getNodeName();
+	    }
+	    return result;
+	}
+	
+	private String getHostAndPort(StructuralNode node) {
+	    String result = "";
+	    if (node == null || node.isRoot()) {
+	        result = "";
+	    } else {
+	    	String url = node.getName();
+	    	int idx = url.indexOf("/", url.indexOf("//")+2);
+	    	result = url.substring(0, idx);
 	    }
 	    return result;
 	}
@@ -363,14 +389,13 @@ public class Scanner implements Runnable {
 		}
 	}
 	
-	public boolean isInScope(SiteNode node) {
-		String uri = node.getHierarchicNodeName();
-		if (this.justScanInScope && ! Model.getSingleton().getSession().isInScope(uri)) {
+	public boolean isInScope(String nodeName) {
+		if (this.justScanInScope && ! Model.getSingleton().getSession().isInScope(nodeName)) {
 			// Restricted to urls in scope, and this isnt
 			return false;
 		}
 		if (this.target.getContext() != null) {
-			if ( ! target.getContext().isIncluded(node)) {
+			if ( ! target.getContext().isIncluded(nodeName)) {
 				// Restricted to nodes in the given context, and this isnt
 				return false;
 			}
@@ -378,9 +403,9 @@ public class Scanner implements Runnable {
 		
 		if (excludeUrls != null) {
 			for (Pattern p : excludeUrls) {
-				if (p.matcher(uri).matches()) {
+				if (p.matcher(nodeName).matches()) {
 					if (log.isDebugEnabled()) {
-						log.debug("URL excluded: " + uri + " Regex: " + p.pattern());
+						log.debug("URL excluded: " + nodeName + " Regex: " + p.pattern());
 					}
 					// Explicitly excluded
 					return false;

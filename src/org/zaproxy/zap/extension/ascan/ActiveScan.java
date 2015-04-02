@@ -194,10 +194,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
     private void addHistoryReference(HistoryReference hRef) {
         if (View.isInitialised()) {
             addHistoryReferenceInEdt(hRef);
-        } else {
-            synchronized (messagesTableModel) {
-                messagesTableModel.addHistoryReference(hRef);
-            }
         }
 	}
 

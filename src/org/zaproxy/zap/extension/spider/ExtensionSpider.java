@@ -507,6 +507,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		}
 		spiderDialog.setVisible(true);
 	}
+	
+    @Override
+    public boolean supportsLowMemory() {
+    	return true;
+    }
 
 	/**
 	 * No database tables used, so all supported

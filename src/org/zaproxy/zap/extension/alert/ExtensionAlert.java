@@ -169,7 +169,12 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void addAlertToTree(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
-        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+    	
+        if (!View.isInitialised() || Constant.isLowMemoryOptionSet()) {
+        	return;
+        }
+    	
+        if (EventQueue.isDispatchThread()) {
             addAlertToTreeEventHandler(alert, ref, msg);
 
         } else {
@@ -347,6 +352,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void refreshAlert(Session session) throws DatabaseException {
+    	if (Constant.isLowMemoryOptionSet()) {
+    		return;
+    	}
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
@@ -467,7 +475,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void deleteAlertFromDisplay(final Alert alert) {
-        if (getView() == null) {
+        if (getView() == null || Constant.isLowMemoryOptionSet()) {
             // Running as a daemon
             return;
         }
@@ -759,5 +767,18 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
      */
     public void setLinkWithSitesTreeSelection(boolean enabled) {
         getAlertPanel().setLinkWithSitesTreeSelection(enabled);
+    }
+
+    /**
+     * Part of the core set of features that should be supported by all db types
+     */
+    @Override
+    public boolean supportsDb(String type) {
+    	return true;
+    }
+
+    @Override
+    public boolean supportsLowMemory() {
+    	return true;
     }
 }

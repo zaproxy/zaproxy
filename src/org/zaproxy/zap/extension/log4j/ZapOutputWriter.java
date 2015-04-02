@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.log4j;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.log4j.Level;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
@@ -38,7 +40,7 @@ public class ZapOutputWriter extends WriterAppender {
 	}
 
 	@Override
-	public void append(LoggingEvent event) {
+	public void append(final LoggingEvent event) {
 		if (! View.isInitialised()) {
 			// Running in daemon mode
 			return;
@@ -47,6 +49,15 @@ public class ZapOutputWriter extends WriterAppender {
 		if (event.getLevel().equals(Level.ERROR)) {
 			if (scanStatus != null) {
 				scanStatus.incScanCount();
+			}
+			
+			if (! SwingUtilities.isEventDispatchThread()) {
+				SwingUtilities.invokeLater(new Runnable(){
+					@Override
+					public void run() {
+						append(event);
+					}});
+				return;
 			}
 			
 			String renderedmessage=event.getRenderedMessage();

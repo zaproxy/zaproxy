@@ -54,6 +54,7 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
+// ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 
 package org.parosproxy.paros.control;
 
@@ -69,6 +70,7 @@ import javax.swing.SwingUtilities;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
@@ -179,7 +181,10 @@ public class Control extends AbstractControl implements SessionListener {
     
     public void exit (boolean noPrompt, final File openOnExit) {
 	    boolean isNewState = model.getSession().isNewState();
-	    int rootCount = model.getSession().getSiteTree().getChildCount(model.getSession().getSiteTree().getRoot());
+	    int rootCount = 0;
+	    if (! Constant.isLowMemoryOptionSet()) {
+	    	rootCount = model.getSession().getSiteTree().getChildCount(model.getSession().getSiteTree().getRoot());
+	    }
 	    boolean askOnExit = view != null && Model.getSingleton().getOptionsParam().getViewParam().getAskOnExitOption() > 0;
 	    boolean sessionUnsaved = isNewState && rootCount > 0;
 	    		
@@ -345,6 +350,14 @@ public class Control extends AbstractControl implements SessionListener {
 		// The session is opened in a thread, so notify the listeners via the callback
     }
 
+    public void openSession(final String fileName, final SessionListener callback) {
+	    log.info("Open Session");
+		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		lastCallback = callback;
+    	model.openSession(fileName, this);
+		// The session is opened in a thread, so notify the listeners via the callback
+    }
+
 	public Session newSession() {
 	    log.info("New Session");
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
@@ -363,6 +376,12 @@ public class Control extends AbstractControl implements SessionListener {
 			// refresh display
 			view.getMainFrame().setTitle(session.getSessionName());
 			view.getOutputPanel().clear();
+		}
+		
+		try {
+			model.getDb().getTableSession().insert(session.getSessionId(), session.getSessionName());
+		} catch (DatabaseException e) {
+			log.error(e.getMessage(), e);
 		}
 
 		return session;

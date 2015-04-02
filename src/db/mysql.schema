@@ -1,0 +1,275 @@
+-- MySQL dump 10.14  Distrib 5.5.41-MariaDB, for Linux (x86_64)
+--
+-- Host: localhost    Database: zaproxy
+-- ------------------------------------------------------
+-- Server version	5.5.41-MariaDB
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `ALERT`
+--
+
+DROP TABLE IF EXISTS `ALERT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `ALERT` (
+  `ALERTID` int(11) NOT NULL AUTO_INCREMENT,
+  `SCANID` int(11) NOT NULL,
+  `PLUGINID` int(11) DEFAULT '0',
+  `ALERT` longtext,
+  `RISK` int(11) DEFAULT '0',
+  `RELIABILITY` int(11) DEFAULT '1',
+  `DESCRIPTION` longtext,
+  `URI` longtext,
+  `PARAM` longtext,
+  `OTHERINFO` longtext,
+  `SOLUTION` longtext,
+  `REFERENCE` longtext,
+  `HISTORYID` int(11) DEFAULT NULL,
+  `SOURCEHISTORYID` int(11) DEFAULT '0',
+  `ATTACK` longtext,
+  `EVIDENCE` longtext,
+  `CWEID` int(11) DEFAULT '-1',
+  `WASCID` int(11) DEFAULT '-1',
+  PRIMARY KEY (`ALERTID`),
+  KEY `ALERT_INDEX` (`SOURCEHISTORYID`)
+) ENGINE=InnoDB AUTO_INCREMENT=9436 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `CONTEXT_DATA`
+--
+
+DROP TABLE IF EXISTS `CONTEXT_DATA`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `CONTEXT_DATA` (
+  `DATAID` bigint(20) NOT NULL,
+  `CONTEXTID` int(11) NOT NULL,
+  `TYPE` int(11) NOT NULL,
+  `DATA` varchar(8192) DEFAULT ''''
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `HISTORY`
+--
+
+DROP TABLE IF EXISTS `HISTORY`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `HISTORY` (
+  `HISTORYID` int(11) NOT NULL AUTO_INCREMENT,
+  `SESSIONID` bigint(20) NOT NULL,
+  `HISTTYPE` int(11) DEFAULT '1',
+  `STATUSCODE` int(11) DEFAULT '0',
+  `TIMESENTMILLIS` bigint(20) DEFAULT '0',
+  `TIMEELAPSEDMILLIS` int(11) DEFAULT '0',
+  `METHOD` varchar(1024) DEFAULT '''',
+  `URI` varchar(60000) DEFAULT NULL,
+  `REQHEADER` longtext,
+  `REQBODY` longblob,
+  `RESHEADER` longtext,
+  `RESBODY` longblob,
+  `TAG` longtext,
+  `NOTE` longtext,
+  `RESPONSEFROMTARGETHOST` tinyint(1) DEFAULT '0',
+  PRIMARY KEY (`HISTORYID`),
+  KEY `HISTORY_INDEX` (`URI`(767),`METHOD`(767),`SESSIONID`,`HISTTYPE`,`HISTORYID`,`STATUSCODE`)
+) ENGINE=InnoDB AUTO_INCREMENT=21158 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PARAM`
+--
+
+DROP TABLE IF EXISTS `PARAM`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PARAM` (
+  `PARAMID` int(11) NOT NULL AUTO_INCREMENT,
+  `SITE` longtext NOT NULL,
+  `TYPE` longtext NOT NULL,
+  `NAME` longtext NOT NULL,
+  `USED` int(11) NOT NULL,
+  `FLAGS` longtext NOT NULL,
+  `VALS` longtext NOT NULL,
+  PRIMARY KEY (`PARAMID`)
+) ENGINE=InnoDB AUTO_INCREMENT=53 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PLUGNHACK_CLIENT`
+--
+
+DROP TABLE IF EXISTS `PLUGNHACK_CLIENT`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PLUGNHACK_CLIENT` (
+  `ID` bigint(20) NOT NULL,
+  `CLIENT_ID` varchar(255) NOT NULL,
+  `HISTORY_ID` int(11) DEFAULT NULL,
+  KEY `SYS_FK_10125` (`HISTORY_ID`),
+  CONSTRAINT `SYS_FK_10125` FOREIGN KEY (`HISTORY_ID`) REFERENCES `HISTORY` (`HISTORYID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `PLUGNHACK_MESSAGE`
+--
+
+DROP TABLE IF EXISTS `PLUGNHACK_MESSAGE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `PLUGNHACK_MESSAGE` (
+  `ID` bigint(20) NOT NULL,
+  `TIMESTAMP` datetime NOT NULL,
+  `CLIENT_ID` varchar(255) NOT NULL,
+  `STATE` smallint(6) NOT NULL,
+  `MESSAGE` longtext NOT NULL,
+  `CHANGED` tinyint(1) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SCAN`
+--
+
+DROP TABLE IF EXISTS `SCAN`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SCAN` (
+  `SCANID` int(11) NOT NULL AUTO_INCREMENT,
+  `SESSIONID` bigint(20) NOT NULL,
+  `SCANNAME` longtext,
+  `SCANTIME` datetime NOT NULL,
+  PRIMARY KEY (`SCANID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SESSION`
+--
+
+DROP TABLE IF EXISTS `SESSION`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SESSION` (
+  `SESSIONID` bigint(20) NOT NULL,
+  `SESSIONNAME` longtext,
+  `LASTACCESS` datetime NOT NULL,
+  PRIMARY KEY (`SESSIONID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `SESSION_URL`
+--
+
+DROP TABLE IF EXISTS `SESSION_URL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `SESSION_URL` (
+  `URLID` bigint(20) NOT NULL,
+  `TYPE` int(11) NOT NULL,
+  `URL` varchar(8192) DEFAULT ''''
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `TAG`
+--
+
+DROP TABLE IF EXISTS `TAG`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `TAG` (
+  `TAGID` int(11) NOT NULL AUTO_INCREMENT,
+  `HISTORYID` bigint(20) NOT NULL,
+  `TAG` varchar(1024) DEFAULT '''',
+  PRIMARY KEY (`TAGID`)
+) ENGINE=InnoDB AUTO_INCREMENT=443 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `WEBSOCKET_CHANNEL`
+--
+
+DROP TABLE IF EXISTS `WEBSOCKET_CHANNEL`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `WEBSOCKET_CHANNEL` (
+  `CHANNEL_ID` bigint(20) NOT NULL DEFAULT '0',
+  `HOST` varchar(255) NOT NULL,
+  `PORT` int(11) NOT NULL,
+  `URL` varchar(255) NOT NULL,
+  `START_TIMESTAMP` datetime NOT NULL,
+  `END_TIMESTAMP` datetime DEFAULT NULL,
+  `HISTORY_ID` int(11) DEFAULT NULL,
+  PRIMARY KEY (`CHANNEL_ID`),
+  KEY `SYS_FK_10149` (`HISTORY_ID`),
+  CONSTRAINT `SYS_FK_10149` FOREIGN KEY (`HISTORY_ID`) REFERENCES `HISTORY` (`HISTORYID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `WEBSOCKET_MESSAGE`
+--
+
+DROP TABLE IF EXISTS `WEBSOCKET_MESSAGE`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `WEBSOCKET_MESSAGE` (
+  `MESSAGE_ID` bigint(20) NOT NULL,
+  `CHANNEL_ID` bigint(20) NOT NULL,
+  `TIMESTAMP` datetime NOT NULL,
+  `OPCODE` smallint(6) NOT NULL,
+  `PAYLOAD_UTF8` longtext,
+  `PAYLOAD_BYTES` longblob,
+  `PAYLOAD_LENGTH` bigint(20) NOT NULL,
+  `IS_OUTGOING` tinyint(1) NOT NULL,
+  PRIMARY KEY (`MESSAGE_ID`,`CHANNEL_ID`),
+  KEY `SYS_FK_10164` (`CHANNEL_ID`),
+  CONSTRAINT `SYS_FK_10164` FOREIGN KEY (`CHANNEL_ID`) REFERENCES `WEBSOCKET_CHANNEL` (`CHANNEL_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `WEBSOCKET_MESSAGE_FUZZ`
+--
+
+DROP TABLE IF EXISTS `WEBSOCKET_MESSAGE_FUZZ`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `WEBSOCKET_MESSAGE_FUZZ` (
+  `FUZZ_ID` bigint(20) NOT NULL,
+  `MESSAGE_ID` bigint(20) NOT NULL,
+  `CHANNEL_ID` bigint(20) NOT NULL,
+  `STATE` varchar(50) NOT NULL,
+  `FUZZ` longtext NOT NULL,
+  PRIMARY KEY (`FUZZ_ID`,`MESSAGE_ID`,`CHANNEL_ID`),
+  KEY `SYS_FK_10181` (`MESSAGE_ID`,`CHANNEL_ID`),
+  CONSTRAINT `SYS_FK_10181` FOREIGN KEY (`MESSAGE_ID`, `CHANNEL_ID`) REFERENCES `WEBSOCKET_MESSAGE` (`MESSAGE_ID`, `CHANNEL_ID`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2015-03-06 16:19:00

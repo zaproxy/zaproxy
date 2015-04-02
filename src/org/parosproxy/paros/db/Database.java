@@ -15,6 +15,8 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2015/04/02 Issue 1582: Low memory option
+
 package org.parosproxy.paros.db;
 
 
@@ -127,7 +129,9 @@ public interface Database {
 	TableParam getTableParam();
 
 	TableContext getTableContext();
-	
+
+	TableStructure getTableStructure();
+
 	/**
 	 * The type of the database - eg {@value #DB_TYPE_HSQLDB}
 	 * @return
