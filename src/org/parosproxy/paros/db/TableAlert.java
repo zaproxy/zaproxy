@@ -57,4 +57,5 @@ public interface TableAlert extends DatabaseListener {
 	List<RecordAlert> getAlertsBySourceHistoryId(int historyId)
 			throws DatabaseException;
 
+	Vector<Integer> getAlertList() throws DatabaseException;
 }

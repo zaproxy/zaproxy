@@ -947,9 +947,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private void processAlerts(String baseUrl, int start, int count, Processor<Alert> processor) throws ApiException {
 		List<Alert> alerts = new ArrayList<>();
 		try {
-			TableAlert tableAlert = Model.getSingleton().getDb()
-					.getTableAlert();
-			Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+			TableAlert tableAlert = Model.getSingleton().getDb().getTableAlert();
+        	// TODO this doesnt work, but should be used when its fixed :/
+			//Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+			Vector<Integer> v = tableAlert.getAlertList();
 
 			PaginationConstraintsChecker pcc = new PaginationConstraintsChecker(start, count);
 			for (int i = 0; i < v.size(); i++) {
