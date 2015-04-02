@@ -350,7 +350,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         SiteMap siteTree = this.getModel().getSession().getSiteTree();
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+    	// TODO this doesnt work, but should be used when its fixed :/
+        //Vector<Integer> v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+        Vector<Integer> v = tableAlert.getAlertList();
 
         final ExtensionHistory extensionHistory = (ExtensionHistory) Control.getSingleton()
                 .getExtensionLoader()
@@ -604,7 +606,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         TableAlert tableAlert = getModel().getDb().getTableAlert();
         Vector<Integer> v;
         try {
-            v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+        	// TODO this doesnt work, but should be used when its fixed :/
+            //v = tableAlert.getAlertListBySession(Model.getSingleton().getSession().getSessionId());
+            v = tableAlert.getAlertList();
 
             for (int i = 0; i < v.size(); i++) {
                 int alertId = v.get(i).intValue();

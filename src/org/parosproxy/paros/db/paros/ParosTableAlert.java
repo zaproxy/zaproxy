@@ -395,4 +395,24 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 		}
     }
 
+    /* (non-Javadoc)
+	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertList()
+	 */
+    @Override
+	public Vector<Integer> getAlertList() throws DatabaseException {
+        try {
+			try (PreparedStatement psReadScan = getConnection().prepareStatement("SELECT " + ALERTID + " FROM " + TABLE_NAME)) {
+			
+			    Vector<Integer> v = new Vector<>();
+			    try (ResultSet rs = psReadScan.executeQuery()) {
+			        while (rs.next()) {
+			            v.add(Integer.valueOf(rs.getInt(ALERTID)));
+			        }
+			    }
+			    return v;
+			}
+		} catch (SQLException e) {
+			throw new DatabaseException(e);
+		}
+    }
 }
