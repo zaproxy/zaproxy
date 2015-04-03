@@ -31,6 +31,7 @@
 	<property name="dist-mac" location="zap-mac" />
 	<property name="mac-skeleton" location="mac_os_x" />
 	<property name="app.name" value="OWASP ZAP.app" />
+	<property name="app.volname" value="OWASP ZAP" />
 	<property name="app.bundle" value="${dist-mac}/${app.name}" />
 	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaAppLauncher" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
@@ -269,9 +270,10 @@
 
 	<target name="clean" depends="setup" description="Cleans up previous distributions">
 		<delete verbose="true">
-			<fileset dir="." includes="ZAP*.zip" />
-			<fileset dir="." includes="ZAP*.tar.gz" />
 			<fileset dir="." includes="zaproxy*.deb" />
+			<fileset dir="." includes="ZAP*.dmg" />
+			<fileset dir="." includes="ZAP*.tar.gz" />
+			<fileset dir="." includes="ZAP*.zip" />
 		</delete>
 		<delete dir="${app.name}" />      <!-- if you've unzipped the Mac version, for testing -->
 		<delete dir="ZAP_${version}" />   <!-- if you've untarred the Linux version, for testing -->
@@ -817,8 +819,8 @@
 			</condition>
 		</fail>
 
-
-		<delete dir="${dist-mac}" includeEmptyDirs="true" />
+		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
+		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
 		<mkdir dir="${dist-mac}" />
 
 		<copy todir="${dist-mac}">
@@ -854,15 +856,37 @@
 			<replacefilter token="_ZAPJAR_" value="${zap.jar}" />
 		</replace>
 
-		<echo message="Creating ZIP archive for the Mac OS X release..." />
-		<delete file="ZAP_${version}_Mac_OS_X.zip" />
-		<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
-			<arg line="-y -q -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
-		</exec>
+		<if>
+			<istrue value="${isMac}" />
+			<then>
+				<delete file="ZAP_${version}.dmg" />
+				<echo message="Creating compressed disk image for the Mac OS X release" />
+				<symlink link="${dist-mac}/Applications" resource="/Applications" />
+				<exec dir="${dist-mac}" executable="hdiutil" spawn="false" failonerror="true">
+					<arg value="create" />
+					<arg value="-format" />
+					<arg value="UDBZ" />
+					<arg value="-srcfolder" />
+					<arg file="${dist-mac}" />
+					<arg value="-volname" />
+					<arg value="${app.volname}" />
+					<arg file="ZAP_${version}.dmg" />
+				</exec>
+				<exec executable="rm" spawn="false" failonerror="false">   <!-- ANT seems to NPE if done the proper way, with delete or symlink -->
+					<arg value="${dist-mac}/Applications" />
+				</exec>
+			</then>
+			<else>
+				<delete file="ZAP_${version}_Mac_OS_X.zip" />
+				<echo message="Creating ZIP archive for the Mac OS X release; build on a Mac for compressed .dmg" />
+				<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
+					<arg line="-y -q -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
+				</exec>
+			</else>
+		</if>
 
-		<!-- Housekeeping: Delete the mac distribution directory -->
-		<delete dir="${dist-mac}" includeEmptyDirs="true" />
-
+		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
+		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
 	</target>
 
 	<!-- Package a date-stamped build -->
