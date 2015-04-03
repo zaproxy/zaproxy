@@ -267,6 +267,16 @@
 		<mkdir dir="${build}" />
 	</target>
 
+	<target name="clean" depends="setup" description="Cleans up previous distributions">
+		<delete verbose="true">
+			<fileset dir="." includes="ZAP*.zip" />
+			<fileset dir="." includes="ZAP*.tar.gz" />
+			<fileset dir="." includes="zaproxy*.deb" />
+		</delete>
+		<delete dir="${app.name}" />      <!-- if you've unzipped the Mac version, for testing -->
+		<delete dir="ZAP_${version}" />   <!-- if you've untarred the Linux version, for testing -->
+	</target>
+
 	<target name="compile" depends="init" description="Compile the source ">
 		<echo message="Compiling the source..." />
 
@@ -833,6 +843,7 @@
 		<exec dir="${app.plugins}" executable="tar" spawn="false" failonerror="true">
 			<arg line=" -xzf ${app.jrearchive}" />
 		</exec>
+
 		<delete file="${app.plugins}/${app.jrearchive}" />
 
 		<replace dir="${app.bundle}" summary="true" encoding="UTF-8">
@@ -846,7 +857,7 @@
 		<echo message="Creating ZIP archive for the Mac OS X release..." />
 		<delete file="ZAP_${version}_Mac_OS_X.zip" />
 		<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
-			<arg line="-y -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
+			<arg line="-y -q -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
 		</exec>
 
 		<!-- Housekeeping: Delete the mac distribution directory -->
@@ -877,7 +888,7 @@
 	</target>
 
 	<!-- Load the version from version.txt, set ${zap.jar} -->
-	<target name="set-zap-jar">
+	<target name="setup">
 		<loadfile property="version" srcfile="version.txt" />
 		<if>
 			<equals arg1="${version}" arg2="Dev Build" />
@@ -888,13 +899,15 @@
 				<property name="zap.jar" value="zap-${version}.jar" />
 			</else>
 		</if>
+
+		<echo message="Build version is: ${version}" />
 		<echo message="Jar file for build is: ${zap.jar}" />
 	</target>
 
-	<target name="lite-release" depends="set-zap-jar, dist, package-lite"
+	<target name="lite-release" depends="setup, dist, package-lite"
 		description="Generates the distribution and (lite) cross-platform packages" />
 
-	<target name="full-release" depends="set-zap-jar, dist, package-linux, package-macosx"
+	<target name="full-release" depends="setup, dist, package-linux, package-macosx"
 		description="Generates the distribution and Linux/MacOS X packages [default]" />
 
 	<target name="day-stamped-release" description="Generates the day-stamped package, as well as the distribution and help jars">
