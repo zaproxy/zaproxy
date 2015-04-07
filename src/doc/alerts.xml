@@ -1,4 +1,5 @@
-String buffer overflow</alert>
+By sending a long (over 8192) random string the server appeared to close the connection and causes a 500 error.  Manual check this again.</desc>
+<solution>Check if format string was correctly handled.  Restrict maximum field length.</solution>String buffer overflow</alert>
 <desc>By sending a long (over 8192) random string the server appeared to close the connection and causes a 500 error.  Manual check this again.</desc>
 <solution>Check if format string was correctly handled.  Restrict maximum field length.</solution><?xml version="1.0" encoding="utf-8" ?>
 <alerts xmlns="http://tempuri.org/XMLSchemaOptions.xsd">
@@ -456,7 +457,7 @@ AddType text/x-server-parsed-html .html
 <alertitem>
 <id>30001</id>
 <alert>Format string buffer overflow</alert>
-<desc>By sending a long (over 8192) format string '%x%n' the server appeared to close the connection.  Manual check this again.</desc>
+<desc>By sending a long (over 8192) random string the server appeared to close the connection and causes a 500 error.  Manual check this again.</desc>
 <solution>Check if format string was correctly handled.  Restrict maximum field length.</solution>
 </alertitem>
 
