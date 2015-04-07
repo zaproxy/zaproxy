@@ -198,7 +198,7 @@ public class SpiderController implements SpiderParserListener {
 	 * @param filter the filter
 	 */
 	public void addFetchFilter(FetchFilter filter) {
-		log.info("Loading fetch filter: " + filter.getClass().getSimpleName());
+		log.debug("Loading fetch filter: " + filter.getClass().getSimpleName());
 		fetchFilters.add(filter);
 	}
 
@@ -217,7 +217,7 @@ public class SpiderController implements SpiderParserListener {
 	 * @param filter the filter
 	 */
 	public void addParseFilter(ParseFilter filter) {
-		log.info("Loading parse filter: " + filter.getClass().getSimpleName());
+		log.debug("Loading parse filter: " + filter.getClass().getSimpleName());
 		parseFilters.add(filter);
 	}
 
@@ -277,7 +277,7 @@ public class SpiderController implements SpiderParserListener {
 		for (FetchFilter f : fetchFilters) {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
-				log.info("URI: " + uriV + " was filtered by a filter with reason: " + s);
+				log.debug("URI: " + uriV + " was filtered by a filter with reason: " + s);
 				spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, s);
 				return;
 			}
@@ -285,7 +285,7 @@ public class SpiderController implements SpiderParserListener {
 
 		// Check if should be ignored and not fetched
 		if (shouldIgnore) {
-			log.info("URI: " + uriV + " is valid, but will not be fetched, by parser reccommendation.");
+			log.debug("URI: " + uriV + " is valid, but will not be fetched, by parser reccommendation.");
 			spider.notifyListenersFoundURI(uri, HttpRequestHeader.GET, FetchStatus.VALID);
 			return;
 		}
@@ -304,7 +304,7 @@ public class SpiderController implements SpiderParserListener {
 
 	@Override
 	public void resourcePostURIFound(HttpMessage responseMessage, int depth, String uri, String requestBody) {
-		log.info("New POST resource found: " + uri);
+		log.debug("New POST resource found: " + uri);
 
 		// Check if the uri was processed already
 		synchronized (visitedPost) {
@@ -333,7 +333,7 @@ public class SpiderController implements SpiderParserListener {
 		for (FetchFilter f : fetchFilters) {
 			FetchStatus s = f.checkFilter(uriV);
 			if (s != FetchStatus.VALID) {
-				log.info("URI: " + uriV + " was filtered by a filter with reason: " + s);
+				log.debug("URI: " + uriV + " was filtered by a filter with reason: " + s);
 				spider.notifyListenersFoundURI(uri, HttpRequestHeader.POST, s);
 				return;
 			}
@@ -407,7 +407,7 @@ public class SpiderController implements SpiderParserListener {
 	}
 
 	public void addSpiderParser(SpiderParser parser) {
-		log.info("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
+		log.debug("Loading custom Spider Parser: " + parser.getClass().getSimpleName());
 		this.parsers.addFirst(parser);
 	}
 }
