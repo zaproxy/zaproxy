@@ -38,6 +38,7 @@
 // ZAP: 2014/10/24 Issue 1378: Revamp active scan panel
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/03/04 Issue 1345: Added 'attack on start' option
+// ZAP: 2015/03/25 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 
 package org.parosproxy.paros.core.scanner;
 
@@ -60,6 +61,7 @@ public class ScannerParam extends AbstractParam {
     private static final String THREAD_PER_HOST = ACTIVE_SCAN_BASE_KEY + ".threadPerHost";
     // ZAP: Added support for delayInMs
     private static final String DELAY_IN_MS = ACTIVE_SCAN_BASE_KEY + ".delayInMs";
+    private static final String INJECT_PLUGIN_ID_IN_HEADER = ACTIVE_SCAN_BASE_KEY + ".pluginHeader";
     private static final String HANDLE_ANTI_CSRF_TOKENS = ACTIVE_SCAN_BASE_KEY + ".antiCSFR";
     private static final String PROMPT_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackPrompt";
     private static final String RESCAN_IN_ATTACK_MODE = ACTIVE_SCAN_BASE_KEY + ".attackRescan";
@@ -107,6 +109,7 @@ public class ScannerParam extends AbstractParam {
     private int delayInMs = 0;
     private int maxResultsToList = 1000;
     private int maxScansInUI = 5;
+    private boolean injectPluginIdInHeader = false;
     private boolean handleAntiCSRFTokens = false;
     private boolean promptInAttackMode = true;
     private boolean rescanInAttackMode = true;
@@ -158,7 +161,12 @@ public class ScannerParam extends AbstractParam {
             this.maxScansInUI = getConfig().getInt(MAX_SCANS_IN_UI, 5);
         } catch (Exception e) {
         }
-
+        
+        try {
+        	this.injectPluginIdInHeader = getConfig().getBoolean(INJECT_PLUGIN_ID_IN_HEADER, false);
+        } catch (Exception e) {	
+        }
+        
         try {
             this.handleAntiCSRFTokens = getConfig().getBoolean(HANDLE_ANTI_CSRF_TOKENS, false);
         } catch (Exception e) {
@@ -379,7 +387,24 @@ public class ScannerParam extends AbstractParam {
     public int getDelayInMs() {
         return delayInMs;
     }
-
+    
+    /**
+     * 
+     * @return Returns if the option to inject plugin ID in header for ascan requests is turned on
+     */
+    public boolean isInjectPluginIdInHeader() {
+    	return injectPluginIdInHeader;
+    }
+    
+    /**
+     * 
+     * @param injectPluginIdInHeader
+     */
+    public void setInjectPluginIdInHeader(boolean injectPluginIdInHeader) {
+    	this.injectPluginIdInHeader = injectPluginIdInHeader;
+    	getConfig().setProperty(INJECT_PLUGIN_ID_IN_HEADER, injectPluginIdInHeader);
+    }
+    
     /**
      *
      * @return

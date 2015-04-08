@@ -44,6 +44,7 @@
 // ZAP: 2014/10/25 Issue 1062: Made plugins that calls sendandrecieve also invoke scanner 
 // hook before and after message update
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
+// ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 
 package org.parosproxy.paros.core.scanner;
 
@@ -139,6 +140,9 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public void init(HttpMessage msg, HostProcess parent) {
         this.msg = msg.cloneAll();
         this.parent = parent;
+        if (this.parent.getScannerParam().isInjectPluginIdInHeader()) {
+    		this.msg.getRequestHeader().setHeader(HttpHeader.X_ZAP_SCAN_ID, Integer.toString(getId()));
+    	}
         init();
     }
 

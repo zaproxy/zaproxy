@@ -31,6 +31,8 @@
 // ZAP: 2013/09/02 Resolved header value setting on setHeader() which manage wrongly the "-" char
 // ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
 // the request body is not "x-www-form-urlencoded"
+// ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
+
 package org.parosproxy.paros.network;
 
 import java.util.ArrayList;
@@ -117,6 +119,7 @@ public abstract class HttpHeader implements java.io.Serializable {
 	//ZAP: added "Allow" and "Public" Headers, for response to "OPTIONS" method
 	public static final String METHODS_ALLOW = "Allow";
 	public static final String METHODS_PUBLIC = "Public";  //IIS specific?
+	public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
 
     public HttpHeader() {
         init();
