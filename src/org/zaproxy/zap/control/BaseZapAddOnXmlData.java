@@ -49,15 +49,40 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  * <li>dependencies:
  * <ul>
  * <li>javaversion;</li>
- * <li>addon:</li>
+ * <li>addon:
+ * <ul>
+ * <li>id;</li>
+ * <li>not-before-version;</li>
+ * <li>not-from-version;</li>
+ * <li>semver;</li>
+ * </ul>
+ * </li>
+ * </ul>
+ * </li>
+ * <li>extensions
+ * <ul>
+ * <li>extension</li>
+ * <li>extension v=1:
+ * <ul>
+ * <li>classname;</li>
+ * <li>dependencies:
+ * <ul>
+ * <li>javaversion;</li>
+ * <li>addon:
  * <ul>
  * <li>id;</li>
  * <li>not-before-version;</li>
  * <li>not-from-version;</li>
  * <li>semver.</li>
  * </ul>
+ * </li>
  * </ul>
- * </li> </ul>
+ * </li>
+ * </ul>
+ * </li>
+ * </ul>
+ * </li>
+ * </ul>
  * 
  * @since 2.4.0
  */
@@ -83,6 +108,12 @@ public abstract class BaseZapAddOnXmlData {
     private static final String ZAPADDON_NOT_FROM_VERSION_ELEMENT = "not-from-version";
     private static final String ZAPADDON_SEMVER_ELEMENT = "semver";
 
+    private static final String EXTENSION_ELEMENT = "extension";
+    private static final String EXTENSIONS_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT;
+    private static final String EXTENSIONS_V1_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT + "[@v='1']";
+    private static final String EXTENSION_CLASS_NAME = "classname";
+    private static final String EXTENSION_DEPENDENCIES = DEPENDENCIES_ELEMENT + "/" + DEPENDENCIES_ADDONS_ALL_ELEMENTS;
+
     private String name;
     private int packageVersion;
     private Version version;
@@ -95,6 +126,9 @@ public abstract class BaseZapAddOnXmlData {
 
     private String notBeforeVersion;
     private String notFromVersion;
+
+    private List<String> extensions;
+    private List<ExtensionWithDeps> extensionsWithDeps;
 
     /**
      * Constructs a {@code BaseZapAddOnXmlData} with the given {@code inputStream} as the source of the {@code ZapAddOn} XML
@@ -141,6 +175,9 @@ public abstract class BaseZapAddOnXmlData {
 
         notBeforeVersion = zapAddOnXml.getString(NOT_BEFORE_VERSION_ELEMENT, "");
         notFromVersion = zapAddOnXml.getString(NOT_FROM_VERSION_ELEMENT, "");
+
+        extensions = getStrings(zapAddOnXml, EXTENSIONS_ALL_ELEMENTS, EXTENSION_ELEMENT);
+        extensionsWithDeps = readExtensionsWithDeps(zapAddOnXml);
 
         readAdditionalData(zapAddOnXml);
     }
@@ -202,6 +239,14 @@ public abstract class BaseZapAddOnXmlData {
         return notFromVersion;
     }
 
+    public List<String> getExtensions() {
+        return extensions;
+    }
+
+    public List<ExtensionWithDeps> getExtensionsWithDeps() {
+        return extensionsWithDeps;
+    }
+
     protected List<String> getStrings(HierarchicalConfiguration zapAddOnXml, String element, String elementName) {
         String[] fields = zapAddOnXml.getStringArray(element);
         if (fields.length == 0) {
@@ -242,7 +287,12 @@ public abstract class BaseZapAddOnXmlData {
         if (fields.isEmpty()) {
             return new Dependencies(javaVersion, Collections.<AddOnDep> emptyList());
         }
+     
+        List<AddOnDep> addOns = readAddOnDependencies(fields);
+        return new Dependencies(javaVersion, addOns);
+    }
 
+    private List<AddOnDep> readAddOnDependencies(List<HierarchicalConfiguration> fields) {
         List<AddOnDep> addOns = new ArrayList<>(fields.size());
         for (HierarchicalConfiguration sub : fields) {
             String id = sub.getString(ZAPADDON_ID_ELEMENT, "");
@@ -257,7 +307,38 @@ public abstract class BaseZapAddOnXmlData {
             addOns.add(addOnDep);
         }
 
-        return new Dependencies(javaVersion, addOns);
+        return addOns;
+    }
+
+    private List<ExtensionWithDeps> readExtensionsWithDeps(HierarchicalConfiguration currentNode) {
+        List<HierarchicalConfiguration> extensions = currentNode.configurationsAt(EXTENSIONS_V1_ALL_ELEMENTS);
+        if (extensions.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<ExtensionWithDeps> extensionsWithDeps = new ArrayList<>(extensions.size());
+        for (HierarchicalConfiguration extensionNode : extensions) {
+            String classname = extensionNode.getString(EXTENSION_CLASS_NAME, "");
+            if (classname.isEmpty()) {
+                malformedFile("a v1 extension has empty \"" + EXTENSION_CLASS_NAME + "\".");
+            }
+
+            List<HierarchicalConfiguration> fields = extensionNode.configurationsAt(EXTENSION_DEPENDENCIES);
+            if (fields.isEmpty()) {
+                // Extension v1 without dependencies, handle as normal extension.
+                if (this.extensions.isEmpty()) {
+                    // Empty thus Collections.emptyList(), create and use a mutable list.
+                    this.extensions = new ArrayList<>(5);
+                }
+                this.extensions.add(classname);
+                continue;
+            }
+
+            List<AddOnDep> addOnDeps = readAddOnDependencies(fields);
+            extensionsWithDeps.add(new ExtensionWithDeps(classname, addOnDeps));
+        }
+
+        return extensionsWithDeps;
     }
 
     private void malformedFile(String reason) {
@@ -324,6 +405,25 @@ public abstract class BaseZapAddOnXmlData {
 
         public String getSemVer() {
             return semVer;
+        }
+    }
+
+    public static class ExtensionWithDeps {
+
+        private final String classname;
+        private final List<AddOnDep> addOnDependencies;
+
+        public ExtensionWithDeps(String classname, List<AddOnDep> addOnDependencies) {
+            this.classname = classname;
+            this.addOnDependencies = addOnDependencies;
+        }
+
+        public String getClassname() {
+            return classname;
+        }
+
+        public List<AddOnDep> getDependencies() {
+            return addOnDependencies;
         }
     }
 }

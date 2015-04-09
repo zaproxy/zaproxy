@@ -49,13 +49,13 @@ public final class AddOnRunIssuesUtils {
     }
 
     /**
-     * Shows a warning dialogue with the add-ons and its corresponding running issues.
+     * Shows a warning dialogue with the add-ons and its corresponding running issues or the issues if is extensions.
      * <p>
      * The dialogue is composed with the given {@code message} and a tree in which are shown the add-ons and its issues as child
      * nodes of the add-ons.
      *
      * @param message the main message shown in the dialogue
-     * @param availableAddOns the add-ons that are available, used to create check the running issues
+     * @param availableAddOns the add-ons that are available, used to create and check the running issues
      * @param addOnsNotRunnable the add-ons with running issues that will be shown in the tree
      */
     public static void showWarningMessageAddOnsNotRunnable(
@@ -86,17 +86,24 @@ public final class AddOnRunIssuesUtils {
     private static JScrollPane createScrollableTreeAddOnsNotRunnable(
             final AddOnCollection availableAddOns,
             AddOn... addOnsNotRunnable) {
+        AddOnSearcher addOnSearcher = new AddOnSearcher() {
+
+            @Override
+            public AddOn searchAddOn(String id) {
+                return availableAddOns.getAddOn(id);
+            }
+        };
+
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("");
         for (AddOn addOn : addOnsNotRunnable) {
             DefaultMutableTreeNode addOnNode = new DefaultMutableTreeNode(addOn.getName());
-            AddOn.RunRequirements requirements = addOn.calculateRunRequirements(availableAddOns.getAddOns());
-            List<String> issues = AddOnRunIssuesUtils.getUiRunningIssues(requirements, new AddOnRunIssuesUtils.AddOnSearcher() {
+            AddOn.AddOnRunRequirements requirements = addOn.calculateRunRequirements(availableAddOns.getAddOns());
+            List<String> issues = getUiRunningIssues(requirements, addOnSearcher);
 
-                @Override
-                public AddOn searchAddOn(String id) {
-                    return availableAddOns.getAddOn(id);
-                }
-            });
+            if (issues.isEmpty()) {
+                issues.addAll(getUiExtensionsRunningIssues(requirements, addOnSearcher));
+            }
+
             for (String issue : issues) {
                 addOnNode.add(new DefaultMutableTreeNode(issue));
             }
@@ -146,9 +153,10 @@ public final class AddOnRunIssuesUtils {
      * @param addOnSearcher the class responsible for searching add-ons with a given id, used to search for add-ons that are
      *            missing for the add-on
      * @return a {@code List} containing all the running issues of the add-on, empty if none
-     * @see #getRunningIssues(org.zaproxy.zap.control.AddOn.RunRequirements)
+     * @see #getRunningIssues(AddOn.BaseRunRequirements)
+     * @see #getUiExtensionsRunningIssues(AddOn.AddOnRunRequirements, AddOnSearcher)
      */
-    public static List<String> getUiRunningIssues(AddOn.RunRequirements requirements, AddOnSearcher addOnSearcher) {
+    public static List<String> getUiRunningIssues(AddOn.BaseRunRequirements requirements, AddOnSearcher addOnSearcher) {
         List<String> issues = new ArrayList<>(2);
         if (requirements.isNewerJavaVersionRequired()) {
             if (requirements.getAddOn() != requirements.getAddOnMinimumJavaVersion()) {
@@ -244,15 +252,41 @@ public final class AddOnRunIssuesUtils {
     }
 
     /**
+     * Returns the textual representations of the running issues (Java version and dependency) of the extensions of hte add-on,
+     * if any.
+     * <p>
+     * The messages are internationalised thus suitable for UI components.
+     *
+     * @param requirements the run requirements of the add-on, whose extensions' run requirements will be used
+     * @param addOnSearcher the class responsible for searching add-ons with a given id, used to search for add-ons that are
+     *            missing for the add-on
+     * @return a {@code List} containing all the running issues of the add-on, empty if none
+     * @see #getRunningIssues(AddOn.BaseRunRequirements)
+     * @see #getUiExtensionsRunningIssues(AddOn.AddOnRunRequirements, AddOnSearcher)
+     */
+    public static List<String> getUiExtensionsRunningIssues(AddOn.AddOnRunRequirements requirements, AddOnSearcher addOnSearcher) {
+        if (!requirements.hasExtensionsWithRunningIssues()) {
+            return new ArrayList<>(0);
+        }
+
+        List<String> issues = new ArrayList<>(10);
+        for (AddOn.ExtensionRunRequirements extReqs : requirements.getExtensionRequirements()) {
+            issues.addAll(getUiRunningIssues(extReqs, addOnSearcher));
+        }
+        return issues;
+    }
+
+    /**
      * Returns the textual representations of the running issues (Java version and dependency), if any.
      * <p>
      * The messages are not internationalised, should be used only for logging and non UI uses.
      *
-     * @param requirements the run requirements of the add-on
-     * @return a {@code List} containing all the running issues of the add-on, empty if none
-     * @see #getUiRunningIssues(org.zaproxy.zap.control.AddOn.RunRequirements, AddOnSearcher)
+     * @param requirements the run requirements of the add-on or extension
+     * @return a {@code List} containing all the running issues of the add-on or extension, empty if none
+     * @see #getUiRunningIssues(AddOn.BaseRunRequirements, AddOnSearcher)
+     * @see #getUiExtensionsRunningIssues(AddOn.AddOnRunRequirements, AddOnSearcher)
      */
-    public static List<String> getRunningIssues(AddOn.RunRequirements requirements) {
+    public static List<String> getRunningIssues(AddOn.BaseRunRequirements requirements) {
         List<String> issues = new ArrayList<>(2);
         String issue = getJavaVersionIssue(requirements);
         if (issue != null) {
@@ -266,14 +300,36 @@ public final class AddOnRunIssuesUtils {
     }
 
     /**
-     * Returns the textual representation of the Java version issue that prevents the add-on from being run, if any.
+     * Returns the textual representation of the issues that prevent the extensions of the add-on from being run, if any.
+     * <p>
+     * The messages are not internationalised, should be used only for logging and non UI uses.
+     *
+     * @param requirements the run requirements of the add-on whose extensions' run requirements will be used
+     * @return a {@code String} representing the running issue, {@code null} if none.
+     * @see AddOn.AddOnRunRequirements#getExtensionRequirements()
+     */
+    public static List<String> getExtensionsRunningIssues(AddOn.AddOnRunRequirements requirements) {
+        if (!requirements.hasExtensionsWithRunningIssues()) {
+            return new ArrayList<>(0);
+        }
+
+        List<String> issues = new ArrayList<>(10);
+        for (AddOn.ExtensionRunRequirements extReqs : requirements.getExtensionRequirements()) {
+            issues.addAll(getRunningIssues(extReqs));
+        }
+        return issues;
+    }
+
+    /**
+     * Returns the textual representation of the Java version issue that prevents the add-on or extension from being run, if
+     * any.
      * <p>
      * The message is not internationalised, should be used only for logging and non UI uses.
      *
-     * @param requirements the run requirements of the add-on
+     * @param requirements the run requirements of the add-on or extension
      * @return a {@code String} representing the running issue, {@code null} if none.
      */
-    public static String getJavaVersionIssue(AddOn.RunRequirements requirements) {
+    public static String getJavaVersionIssue(AddOn.BaseRunRequirements requirements) {
         if (!requirements.isNewerJavaVersionRequired()) {
             return null;
         }
@@ -288,14 +344,14 @@ public final class AddOnRunIssuesUtils {
     }
 
     /**
-     * Returns the textual representation of the issue that prevents the add-on from being run, if any.
+     * Returns the textual representation of the issue that prevents the add-on or extension from being run, if any.
      * <p>
      * The messages are not internationalised, should be used only for logging and non UI uses.
      *
-     * @param requirements the run requirements of the add-on
+     * @param requirements the run requirements of the add-on or extension
      * @return a {@code String} representing the running issue, {@code null} if none.
      */
-    public static String getDependencyIssue(AddOn.RunRequirements requirements) {
+    public static String getDependencyIssue(AddOn.BaseRunRequirements requirements) {
         if (!requirements.hasDependencyIssue()) {
             return null;
         }
@@ -348,7 +404,7 @@ public final class AddOnRunIssuesUtils {
      * <p>
      * Used to search for missing add-ons as reported by run requirements of an add-on.
      * 
-     * @see AddOn.RunRequirements.DependencyIssue#MISSING
+     * @see AddOn.BaseRunRequirements.DependencyIssue#MISSING
      */
     public static interface AddOnSearcher {
 

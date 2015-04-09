@@ -49,6 +49,7 @@ import org.parosproxy.paros.extension.Extension;
 import org.zaproxy.zap.Version;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.AddOnDep;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.Dependencies;
+import org.zaproxy.zap.control.BaseZapAddOnXmlData.ExtensionWithDeps;
 
 public class AddOn  {
 	public enum Status {unknown, example, alpha, beta, weekly, release}
@@ -132,14 +133,15 @@ public class AddOn  {
 	private InstallationStatus installationStatus = InstallationStatus.NOT_INSTALLED;
 	
 	private List<String> extensions = Collections.emptyList();
+	private List<ExtensionWithDeps> extensionsWithDeps = Collections.emptyList();
 
 	/**
 	 * The extensions of the add-on that were loaded.
 	 * <p>
 	 * This instance variable is lazy initialised.
 	 * 
-	 * @see #setLoadedExtensions(List)
 	 * @see #addLoadedExtension(Extension)
+	 * @see #removeLoadedExtension(Extension)
 	 */
 	private List<Extension> loadedExtensions;
 	private List<String> ascanrules = Collections.emptyList();
@@ -228,6 +230,7 @@ public class AddOn  {
 
 						this.ascanrules = zapAddOnXml.getAscanrules();
 						this.extensions = zapAddOnXml.getExtensions();
+						this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
 						this.files = zapAddOnXml.getFiles();
 						this.pscanrules = zapAddOnXml.getPscanrules();
 
@@ -263,6 +266,7 @@ public class AddOn  {
 		this.author = addOnData.getAuthor();
 		this.fileVersion = addOnData.getPackageVersion();
 		this.dependencies = addOnData.getDependencies();
+		this.extensionsWithDeps = addOnData.getExtensionsWithDeps();
 		this.version = addOnData.getVersion();
 		this.status = AddOn.Status.valueOf(addOnData.getStatus());
 		this.changes = addOnData.getChanges();
@@ -417,6 +421,52 @@ public class AddOn  {
 	}
 
 	/**
+	 * Returns the classnames of {@code Extension}sthat have dependencies on add-ons.
+	 *
+	 * @return the classnames of the extensions with dependencies on add-ons.
+	 * @see #hasExtensionsWithDeps()
+	 */
+	public List<String> getExtensionsWithDeps() {
+		if (extensionsWithDeps.isEmpty()) {
+			return Collections.emptyList();
+		}
+
+		List<String> extensionClassnames = new ArrayList<>(extensionsWithDeps.size());
+		for (ExtensionWithDeps extension : extensionsWithDeps) {
+			extensionClassnames.add(extension.getClassname());
+		}
+		return extensionClassnames;
+	}
+
+	/**
+	 * Tells whether or not this add-on has at least one extension with dependencies.
+	 *
+	 * @return {@code true} if the add-on has at leas one extension with dependencies, {@code false} otherwise
+	 * @see #getExtensionsWithDeps()
+	 */
+	public boolean hasExtensionsWithDeps() {
+		return !extensionsWithDeps.isEmpty();
+	}
+
+	/**
+	 * Gets the extensions of this add-on that have dependencies and were loaded.
+	 *
+	 * @return an unmodifiable {@code List} with the extensions of this add-on that have dependencies and were loaded
+	 * @since 2.4.0
+	 */
+	public List<Extension> getLoadedExtensionsWithDeps() {
+		List<String> classnames = getExtensionsWithDeps();
+		ArrayList<Extension> loadedExtensions = new ArrayList<>(extensionsWithDeps.size());
+		for (Extension extension : getLoadedExtensions()) {
+			if (classnames.contains(extension.getClass().getCanonicalName())) {
+				loadedExtensions.add(extension);
+			}
+		}
+		loadedExtensions.trimToSize();
+		return loadedExtensions;
+	}
+
+	/**
 	 * Gets the extensions of this add-on that were loaded.
 	 *
 	 * @return an unmodifiable {@code List} with the extensions of this add-on that were loaded
@@ -430,44 +480,21 @@ public class AddOn  {
 	}
 
 	/**
-	 * Sets the loaded extensions of this add-on to the given list of extensions.
-	 * <p>
-	 * It's made a copy of the given list.
-	 * <p>
-	 * This add-on is set to the given {@code extensions}.
-	 *
-	 * @param extensions the extensions of this add-on that were loaded
-	 * @throws IllegalArgumentException if extensions is {@code null}
-	 * @since 2.4.0
-	 * @see Extension#setAddOn(AddOn)
-	 */
-	public void setLoadedExtensions(List<Extension> extensions) {
-		if (extensions == null) {
-			throw new IllegalArgumentException("Parameter extensions must not be null.");
-		}
-
-		if (loadedExtensions != null) {
-			for (Extension extension : loadedExtensions) {
-				extension.setAddOn(null);
-			}
-		}
-
-		loadedExtensions = new ArrayList<>(extensions);
-		for (Extension extension : loadedExtensions) {
-			extension.setAddOn(this);
-		}
-	}
-
-	/**
 	 * Adds the given {@code extension} to the list of loaded extensions of this add-on.
 	 * <p>
 	 * This add-on is set to the given {@code extension}.
 	 *
 	 * @param extension the extension of this add-on that was loaded
+	 * @throws IllegalArgumentException if extension is {@code null}
 	 * @since 2.4.0
+	 * @see #removeLoadedExtension(Extension)
 	 * @see Extension#setAddOn(AddOn)
 	 */
 	public void addLoadedExtension(Extension extension) {
+		if (extension == null) {
+			throw new IllegalArgumentException("Parameter extension must not be null.");
+		}
+
 		if (loadedExtensions == null) {
 			loadedExtensions = new ArrayList<>(1);
 		}
@@ -475,6 +502,30 @@ public class AddOn  {
 		if (!loadedExtensions.contains(extension)) {
 			loadedExtensions.add(extension);
 			extension.setAddOn(this);
+		}
+	}
+
+	/**
+	 * Removes the given {@code extension} from the list of loaded extensions of this add-on.
+	 * <p>
+	 * The add-on of the given {@code extension} is set to {@code null}.
+	 * <p>
+	 * The call to this method has no effect if the given {@code extension} does not belong to this add-on.
+	 *
+	 * @param extension the loaded extension of this add-on that should be removed
+	 * @throws IllegalArgumentException if extension is {@code null}
+	 * @since 2.4.0
+	 * @see #addLoadedExtension(Extension)
+	 * @see Extension#setAddOn(AddOn)
+	 */
+	public void removeLoadedExtension(Extension extension) {
+		if (extension == null) {
+			throw new IllegalArgumentException("Parameter extension must not be null.");
+		}
+
+		if (loadedExtensions != null && loadedExtensions.contains(extension)) {
+			loadedExtensions.remove(extension);
+			extension.setAddOn(null);
 		}
 	}
 	
@@ -581,41 +632,42 @@ public class AddOn  {
 	 * @since 2.4.0
 	 * @see #canLoadInCurrentVersion()
 	 * @see #canRunInCurrentJavaVersion()
-	 * @see RunRequirements
+	 * @see AddOnRunRequirements
 	 */
-	public RunRequirements calculateRunRequirements(Collection<AddOn> availableAddOns) {
-		return calculateRunRequirementsImpl(availableAddOns, new RunRequirements(), null, this);
+	public AddOnRunRequirements calculateRunRequirements(Collection<AddOn> availableAddOns) {
+		AddOnRunRequirements requirements = new AddOnRunRequirements(this);
+		calculateRunRequirementsImpl(availableAddOns, requirements, null, this);
+		if (requirements.isRunnable()) {
+			checkExtensionsWithDeps(availableAddOns, requirements, this);
+		}
+		return requirements;
 	}
 
-	private static RunRequirements calculateRunRequirementsImpl(
+	private static void calculateRunRequirementsImpl(
 			Collection<AddOn> availableAddOns,
-			RunRequirements requirements,
+			BaseRunRequirements requirements,
 			AddOn parent,
 			AddOn addOn) {
-
 		AddOn installedVersion = getAddOn(availableAddOns, addOn.getId());
 		if (installedVersion != null && !addOn.equals(installedVersion)) {
-			requirements.setRunnable(false);
-			requirements.setIssue(RunRequirements.DependencyIssue.OLDER_VERSION, installedVersion);
+			requirements.setIssue(BaseRunRequirements.DependencyIssue.OLDER_VERSION, installedVersion);
 			if (logger.isDebugEnabled()) {
 				logger.debug("Add-on " + addOn + " not runnable, old version still installed: " + installedVersion);
 			}
-			return requirements;
+			return;
 		}
 
 		if (!requirements.addDependency(parent, addOn)) {
-			requirements.setRunnable(false);
 			logger.warn("Cyclic dependency detected with: " + requirements.getDependencies());
-			requirements.setIssue(RunRequirements.DependencyIssue.CYCLIC, requirements.getDependencies());
-			return requirements;
+			requirements.setIssue(BaseRunRequirements.DependencyIssue.CYCLIC, requirements.getDependencies());
+			return;
 		}
 
 		if (addOn.dependencies == null) {
-			return requirements;
+			return;
 		}
 
 		if (!addOn.canRunInCurrentJavaVersion()) {
-			requirements.setRunnable(false);
 			requirements.setMinimumJavaVersionIssue(addOn, addOn.dependencies.getJavaVersion());
 		}
 
@@ -624,46 +676,236 @@ public class AddOn  {
 			if (addOnId != null) {
 				AddOn addOnDep = getAddOn(availableAddOns, addOnId);
 				if (addOnDep == null) {
-					requirements.setRunnable(false);
-					requirements.setIssue(RunRequirements.DependencyIssue.MISSING, addOnId);
-					return requirements;
+					requirements.setIssue(BaseRunRequirements.DependencyIssue.MISSING, addOnId);
+					return;
 				}
 
 				if (dependency.getNotBeforeVersion() > -1 && addOnDep.fileVersion < dependency.getNotBeforeVersion()) {
-					requirements.setRunnable(false);
 					requirements.setIssue(
-							RunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
+					        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
 							addOnDep,
 							Integer.valueOf(dependency.getNotBeforeVersion()));
-					return requirements;
+					return;
 				}
 
 				if (dependency.getNotFromVersion() > -1 && addOnDep.fileVersion > dependency.getNotFromVersion()) {
-					requirements.setRunnable(false);
 					requirements.setIssue(
-							RunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
+					        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
 							addOnDep,
 							Integer.valueOf(dependency.getNotFromVersion()));
-					return requirements;
+					return;
 				}
 
 				if (!dependency.getSemVer().isEmpty()) {
 					if (addOnDep.version == null || !addOnDep.version.matches(dependency.getSemVer())) {
-						requirements.setRunnable(false);
-						requirements.setIssue(RunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
-						return requirements;
+						requirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
+						return;
 					}
 				}
 
-				RunRequirements reqs = calculateRunRequirementsImpl(availableAddOns, requirements, addOn, addOnDep);
-				if (reqs.hasDependencyIssue()) {
-					return reqs;
+				calculateRunRequirementsImpl(availableAddOns, requirements, addOn, addOnDep);
+				if (requirements.hasDependencyIssue()) {
+					return;
 				}
 			}
 		}
-
-		return requirements;
 	}
+
+	private static void checkExtensionsWithDeps(Collection<AddOn> availableAddOns, AddOnRunRequirements requirements, AddOn addOn) {
+		if (addOn.extensionsWithDeps.isEmpty()) {
+			return;
+		}
+
+		for (ExtensionWithDeps extension : addOn.extensionsWithDeps) {
+			calculateExtensionRunRequirements(extension, availableAddOns, requirements, addOn);
+		}
+	}
+
+    private static void calculateExtensionRunRequirements(
+            ExtensionWithDeps extension,
+            Collection<AddOn> availableAddOns,
+            AddOnRunRequirements requirements,
+            AddOn addOn) {
+        ExtensionRunRequirements extensionRequirements = new ExtensionRunRequirements(addOn, extension.getClassname());
+        requirements.addExtensionRequirements(extensionRequirements);
+        for (AddOnDep dependency : extension.getDependencies()) {
+            String addOnId = dependency.getId();
+            if (addOnId == null) {
+                continue;
+            }
+
+            AddOn addOnDep = getAddOn(availableAddOns, addOnId);
+            if (addOnDep == null) {
+                if (addOn.hasOnlyOneExtensionWithDependencies()) {
+                    requirements.setIssue(BaseRunRequirements.DependencyIssue.MISSING, addOnId);
+                    return;
+                }
+                extensionRequirements.setIssue(BaseRunRequirements.DependencyIssue.MISSING, addOnId);
+                continue;
+            }
+
+            if (dependency.getNotBeforeVersion() > -1 && addOnDep.fileVersion < dependency.getNotBeforeVersion()) {
+                if (addOn.hasOnlyOneExtensionWithDependencies()) {
+                    requirements.setIssue(
+                            BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
+                            addOnDep,
+                            Integer.valueOf(dependency.getNotBeforeVersion()));
+                    return;
+                }
+                extensionRequirements.setIssue(
+                        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_BEFORE,
+                        addOnDep,
+                        Integer.valueOf(dependency.getNotBeforeVersion()));
+                continue;
+            }
+
+            if (dependency.getNotFromVersion() > -1 && addOnDep.fileVersion > dependency.getNotFromVersion()) {
+                if (addOn.hasOnlyOneExtensionWithDependencies()) {
+                    requirements.setIssue(
+                            BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
+                            addOnDep,
+                            Integer.valueOf(dependency.getNotFromVersion()));
+                    return;
+                }
+                extensionRequirements.setIssue(
+                        BaseRunRequirements.DependencyIssue.PACKAGE_VERSION_NOT_FROM,
+                        addOnDep,
+                        Integer.valueOf(dependency.getNotFromVersion()));
+                continue;
+            }
+
+            if (!dependency.getSemVer().isEmpty()) {
+                if (addOnDep.version == null || !addOnDep.version.matches(dependency.getSemVer())) {
+                    if (addOn.hasOnlyOneExtensionWithDependencies()) {
+                        requirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
+                        return;
+                    }
+                    extensionRequirements.setIssue(BaseRunRequirements.DependencyIssue.VERSION, addOnDep, dependency.getSemVer());
+                    continue;
+                }
+            }
+
+            calculateRunRequirementsImpl(availableAddOns, extensionRequirements, addOn, addOnDep);
+        }
+    }
+
+    private boolean hasOnlyOneExtensionWithDependencies() {
+        if (extensionsWithDeps.size() != 1) {
+            return false;
+        }
+        if (extensions.isEmpty() && files.isEmpty() && pscanrules.isEmpty() && ascanrules.isEmpty()) {
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Calculates the requirements to run the given {@code extension}, in the current ZAP and Java versions and with the given
+     * {@code availableAddOns}.
+     * <p>
+     * If the extension depends on other add-ons, those add-ons are checked if are also runnable.
+     * <p>
+     * <strong>Note:</strong> All the given {@code availableAddOns} are expected to be loadable in the currently running ZAP
+     * version, that is, the method {@code AddOn.canLoadInCurrentVersion()}, returns {@code true}.
+     * 
+     * @param extension the extension that will be checked
+     * @param availableAddOns the add-ons available
+     * @return the requirements to run the extension, and if not runnable the reason why it's not.
+     * @since 2.4.0
+     * @see AddOnRunRequirements#getExtensionRequirements()
+     */
+    public AddOnRunRequirements calculateExtensionRunRequirements(Extension extension, Collection<AddOn> availableAddOns) {
+        return calculateExtensionRunRequirements(extension.getClass().getCanonicalName(), availableAddOns);
+    }
+
+    /**
+     * Calculates the requirements to run the extension with the given {@code classname}, in the current ZAP and Java versions
+     * and with the given {@code availableAddOns}.
+     * <p>
+     * If the extension depends on other add-ons, those add-ons are checked if are also runnable.
+     * <p>
+     * <strong>Note:</strong> All the given {@code availableAddOns} are expected to be loadable in the currently running ZAP
+     * version, that is, the method {@code AddOn.canLoadInCurrentVersion()}, returns {@code true}.
+     * 
+     * @param classname the classname of extension that will be checked
+     * @param availableAddOns the add-ons available
+     * @return the requirements to run the extension, and if not runnable the reason why it's not.
+     * @since 2.4.0
+     * @see AddOnRunRequirements#getExtensionRequirements()
+     */
+    public AddOnRunRequirements calculateExtensionRunRequirements(String classname, Collection<AddOn> availableAddOns) {
+        AddOnRunRequirements requirements = new AddOnRunRequirements(this);
+        for (ExtensionWithDeps extensionWithDeps : extensionsWithDeps) {
+            if (extensionWithDeps.getClassname().equals(classname)) {
+                calculateExtensionRunRequirements(extensionWithDeps, availableAddOns, requirements, this);
+                break;
+            }
+        }
+        return requirements;
+    }
+
+    /**
+     * Tells whether or not the given {@code extension} has a (direct) dependency on the given {@code addOn} (including
+     * version).
+     *
+     * @param extension the extension that will be checked
+     * @param addOn the add-on that will be checked in the dependencies on the extension
+     * @return {@code true} if the extension depends on the given add-on, {@code false} otherwise.
+     * @since 2.4.0
+     */
+    public boolean dependsOn(Extension extension, AddOn addOn) {
+        String classname = extension.getClass().getCanonicalName();
+
+        for (ExtensionWithDeps extensionWithDeps : extensionsWithDeps) {
+            if (extensionWithDeps.getClassname().equals(classname)) {
+                return dependsOn(extensionWithDeps.getDependencies(), addOn);
+            }
+        }
+        return false;
+    }
+
+    private static boolean dependsOn(List<AddOnDep> dependencies, AddOn addOn) {
+        for (AddOnDep dependency : dependencies) {
+            if (dependency.getId().equals(addOn.id)) {
+                if (dependency.getNotBeforeVersion() > -1 && addOn.fileVersion < dependency.getNotBeforeVersion()) {
+                    return false;
+                }
+
+                if (dependency.getNotFromVersion() > -1 && addOn.fileVersion > dependency.getNotFromVersion()) {
+                    return false;
+                }
+
+                if (!dependency.getSemVer().isEmpty()) {
+                    if (addOn.version == null) {
+                        return false;
+                    } else if (!addOn.version.matches(dependency.getSemVer())) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Tells whether or not the extension with the given {@code classname} is loaded.
+     *
+     * @param classname the classname of the extension
+     * @return {@code true} if the extension is loaded, {@code false} otherwise
+     * @since 2.4.0
+     */
+    public boolean isExtensionLoaded(String classname) {
+        List<Extension> allExtensions = new ArrayList<>(getLoadedExtensions().size() + getLoadedExtensionsWithDeps().size());
+        allExtensions.addAll(getLoadedExtensions());
+        allExtensions.addAll(getLoadedExtensionsWithDeps());
+        for (Extension extension : getLoadedExtensions()) {
+            if (classname.equals(extension.getClass().getCanonicalName())) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 	/**
 	 * Returns the minimum Java version required to run this add-on or an empty {@code String} if there's no minimum version.
@@ -779,26 +1021,7 @@ public class AddOn  {
 			return false;
 		}
 
-		for (AddOnDep dependency : dependencies.getAddOns()) {
-			if (dependency.getId().equals(addOn.id)) {
-				if (dependency.getNotBeforeVersion() > -1 && addOn.fileVersion < dependency.getNotBeforeVersion()) {
-					return false;
-				}
-
-				if (dependency.getNotFromVersion() > -1 && addOn.fileVersion > dependency.getNotFromVersion()) {
-					return false;
-				}
-
-				if (!dependency.getSemVer().isEmpty()) {
-					if (addOn.version == null) {
-						return false;
-					} else if (!addOn.version.matches(dependency.getSemVer())) {
-						return false;
-					}
-				}
-				return true;
-			}
-		}
+		dependsOn(dependencies.getAddOns(), addOn);
 
 		return false;
 	}
@@ -881,15 +1104,7 @@ public class AddOn  {
 		return true;
 	}
 
-	/**
-	 * The requirements to run an {@code AddOn}.
-	 * <p>
-	 * It can be used to check if an add-on can or not be run, which requirements it has (for example, minimum Java version or
-	 * dependency add-ons) and which issues prevent it from being run, if any.
-	 * 
-	 * @since 2.4.0
-	 */
-	public static class RunRequirements {
+	public static abstract class BaseRunRequirements {
 
 		/**
 		 * The reason why an add-on can not be run because of a dependency.
@@ -897,7 +1112,7 @@ public class AddOn  {
 		 * More details of the issue can be obtained with the method {@code RunRequirements.getDependencyIssueDetails()}. The
 		 * exact contents are mentioned in each {@code DependencyIssue} constant.
 		 * 
-		 * @see RunRequirements#getDependencyIssueDetails()
+		 * @see AddOnRunRequirements#getDependencyIssueDetails()
 		 */
 		public enum DependencyIssue {
 
@@ -944,10 +1159,10 @@ public class AddOn  {
 			VERSION
 		}
 
+		private final AddOn addOn;
 		private final DirectedGraph<AddOn, DefaultEdge> dependencyTree;
-		private AddOn addOn;
 		private Set<AddOn> dependencies;
-		
+
 		private DependencyIssue depIssue;
 		private List<Object> issueDetails;
 
@@ -956,8 +1171,10 @@ public class AddOn  {
 
 		private boolean runnable;
 
-		protected RunRequirements() {
+		private BaseRunRequirements(AddOn addOn) {
+			this.addOn = addOn;
 			dependencyTree = new DefaultDirectedGraph<>(DefaultEdge.class);
+			dependencyTree.addVertex(addOn);
 			runnable = true;
 			issueDetails = Collections.emptyList();
 		}
@@ -1008,6 +1225,66 @@ public class AddOn  {
 		}
 
 		/**
+		 * Tells whether or not this add-on can be run.
+		 *
+		 * @return {@code true} if the add-on can be run, {@code false} otherwise
+		 */
+		public boolean isRunnable() {
+			return runnable;
+		}
+
+		protected void setRunnable(boolean runnable) {
+			this.runnable = runnable;
+		}
+
+		/**
+		 * Gets the (found) dependencies of the add-on, including transitive dependencies.
+		 * 
+		 * @return a set containing the dependencies of the add-on
+		 * @see AddOn#getIdsAddOnDependencies()
+		 */
+		public Set<AddOn> getDependencies() {
+			if (dependencies == null) {
+				dependencies = new HashSet<>();
+				for (TopologicalOrderIterator<AddOn, DefaultEdge> it = new TopologicalOrderIterator<>(dependencyTree); it.hasNext();) {
+					dependencies.add(it.next());
+				}
+				dependencies.remove(addOn);
+			}
+			return Collections.unmodifiableSet(dependencies);
+		}
+
+		protected void setIssue(DependencyIssue issue, Object... details) {
+			runnable = false;
+			this.depIssue = issue;
+			if (details != null) {
+				issueDetails = Arrays.asList(details);
+			} else {
+				issueDetails = Collections.emptyList();
+			}
+		}
+
+		protected boolean addDependency(AddOn parent, AddOn addOn) {
+			if (parent == null) {
+				return true;
+			}
+
+			dependencyTree.addVertex(parent);
+			dependencyTree.addVertex(addOn);
+
+			dependencyTree.addEdge(parent, addOn);
+
+			CycleDetector<AddOn, DefaultEdge> cycleDetector = new CycleDetector<>(dependencyTree);
+			boolean cycle = cycleDetector.detectCycles();
+			if (cycle) {
+				dependencies = cycleDetector.findCycles();
+
+				return false;
+			}
+			return true;
+		}
+
+		/**
 		 * Tells whether or not this add-on requires a newer Java version to run.
 		 * <p>
 		 * The requirement might be imposed by a dependency or the add-on itself. To check which one use the methods
@@ -1046,45 +1323,12 @@ public class AddOn  {
 			return addOnMinimumJavaVersion;
 		}
 
-		/**DirectedAcyclicGraph
-		 * Tells whether or not this add-on can be run.
-		 *
-		 * @return {@code true} if the add-on can be run, {@code false} otherwise
-		 */
-		public boolean isRunnable() {
-			return runnable;
-		}
-
-		/**
-		 * Gets the (found) dependencies of the add-on, including transitive dependencies.
-		 * 
-		 * @return a set containing the dependencies of the add-on
-		 * @see AddOn#getIdsAddOnDependencies()
-		 */
-		public Set<AddOn> getDependencies() {
-			if (dependencies == null) {
-				dependencies = new HashSet<>();
-				for (TopologicalOrderIterator<AddOn, DefaultEdge> it = new TopologicalOrderIterator<>(dependencyTree); it.hasNext();) {
-					dependencies.add(it.next());
-				}
-				dependencies.remove(addOn);
-			}
-			return Collections.unmodifiableSet(dependencies);
-		}
-
-		protected void setIssue(DependencyIssue issue, Object... details) {
-			this.depIssue = issue;
-			if (details != null) {
-				issueDetails = Arrays.asList(details);
-			} else {
-				issueDetails = Collections.emptyList();
-			}
-		}
-
 		protected void setMinimumJavaVersionIssue(AddOn srcAddOn, String requiredVersion) {
+			setRunnable(false);
+
 			if (minimumJavaVersion == null) {
 				setMinimumJavaVersion(srcAddOn, requiredVersion);
-			} else if (requiredVersion.compareTo(minimumJavaVersion) > 0) {
+			} else if (getJavaVersion(requiredVersion) > getJavaVersion(minimumJavaVersion)) {
 				setMinimumJavaVersion(srcAddOn, requiredVersion);
 			}
 		}
@@ -1094,30 +1338,84 @@ public class AddOn  {
 			minimumJavaVersion = requiredVersion;
 		}
 
-		protected boolean addDependency(AddOn parent, AddOn addOn) {
-			if (parent == null) {
-				this.addOn = addOn;
-				dependencyTree.addVertex(addOn);
-				return true;
-			}
+	}
 
-			dependencyTree.addVertex(parent);
-			dependencyTree.addVertex(addOn);
+	/**
+	 * The requirements to run an {@code AddOn}.
+	 * <p>
+	 * It can be used to check if an add-on can or not be run, which requirements it has (for example, minimum Java version or
+	 * dependency add-ons) and which issues prevent it from being run, if any.
+	 * 
+	 * @since 2.4.0
+	 */
+	public static class AddOnRunRequirements extends BaseRunRequirements {
 
-			dependencyTree.addEdge(parent, addOn);
+		private List<ExtensionRunRequirements> addExtensionsRequirements;
 
-			CycleDetector<AddOn, DefaultEdge> cycleDetector = new CycleDetector<>(dependencyTree);
-			boolean cycle = cycleDetector.detectCycles();
-			if (cycle) {
-				dependencies = cycleDetector.findCycles();
-
-				return false;
-			}
-			return true;
+		private AddOnRunRequirements(AddOn addOn) {
+			super(addOn);
 		}
 
-		protected void setRunnable(boolean runnable) {
-			this.runnable = runnable;
+		/**
+		 * Gets the run requirements of the extensions that have dependencies.
+		 *
+		 * @return a {@code List} containing the requirements of each extension that have dependencies
+		 * @see #hasExtensionsWithRunningIssues()
+		 */
+		public List<ExtensionRunRequirements> getExtensionRequirements() {
+			if (addExtensionsRequirements == null) {
+				addExtensionsRequirements = Collections.emptyList();
+			}
+			return addExtensionsRequirements;
+		}
+
+		/**
+		 * Tells whether or not there's at least one extension with running issues.
+		 * 
+		 * @return {@code true} if at least one extension has running issues, {@code false} otherwise.
+		 * @see #getExtensionRequirements()
+		 */
+		public boolean hasExtensionsWithRunningIssues() {
+			for (ExtensionRunRequirements reqs : getExtensionRequirements()) {
+				if (!reqs.isRunnable()) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		protected void addExtensionRequirements(ExtensionRunRequirements extension) {
+			if (addExtensionsRequirements == null) {
+				addExtensionsRequirements = new ArrayList<>(5);
+			}
+			addExtensionsRequirements.add(extension);
+		}
+	}
+
+	/**
+	 * The requirements to run an {@code extension} (with add-on dependencies).
+	 * <p>
+	 * It can be used to check if an extension can or not be run, which requirements it has (for example, dependency add-ons)
+	 * and which issues prevent it from being run, if any.
+	 * 
+	 * @since 2.4.0
+	 */
+	public static class ExtensionRunRequirements extends BaseRunRequirements {
+
+		private final String classname;
+
+		private ExtensionRunRequirements(AddOn addOn, String classname) {
+			super(addOn);
+			this.classname = classname;
+		}
+
+		/**
+		 * Gets the classname of the extension.
+		 *
+		 * @return the classname of the extension
+		 */
+		public String getClassname() {
+			return classname;
 		}
 	}
 

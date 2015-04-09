@@ -25,7 +25,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -176,43 +176,76 @@ public final class AddOnInstaller {
                 .getConfig(), addOn);
 
         for (Extension ext : listExts) {
-            if (ext.isEnabled()) {
-                logger.debug("Starting extension " + ext.getName());
-                try {
-					extensionLoader.startLifeCycle(ext);
-				} catch (Exception e) {
-		            logger.error("An error occurred while installing the add-on: " + addOn.getId(), e);
-				}
-            }
+            installAddOnExtensionImpl(addOn, ext, extensionLoader);
         }
 
         return listExts;
+    }
+    
+    public static void installAddOnExtension(AddOn addOn, Extension ext) {
+        ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
+        ExtensionFactory.addAddOnExtension(extensionLoader, Model.getSingleton()
+                .getOptionsParam()
+                .getConfig(), ext);
+
+        installAddOnExtensionImpl(addOn, ext, extensionLoader);
+    }
+    
+    private static void installAddOnExtensionImpl(AddOn addOn, Extension ext, ExtensionLoader extensionLoader) {
+        if (ext.isEnabled()) {
+            logger.debug("Starting extension " + ext.getName());
+            try {
+                extensionLoader.startLifeCycle(ext);
+            } catch (Exception e) {
+                logger.error("An error occurred while installing the add-on: " + addOn.getId(), e);
+            }
+        }
     }
 
     private static boolean uninstallAddOnExtensions(AddOn addOn, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
 
         callback.extensionsWillBeRemoved(addOn.getLoadedExtensions().size());
-        for (Extension ext : addOn.getLoadedExtensions()) {
-            if (ext.isEnabled()) {
-                if (ext.canUnload()) {
-                    logger.debug("Unloading ext: " + ext.getName());
-                    try {
-                        ext.unload();
-                        ExtensionFactory.unloadAddOnExtension(ext);
-                    } catch (Exception e) {
-                        logger.error("An error occurred while uninstalling the extension \"" + ext.getName()
-                                + "\" bundled in the add-on \"" + addOn.getId() + "\":", e);
-                        uninstalledWithoutErrors = false;
-                    }
-                } else {
-                    logger.debug("Cant dynamically unload ext: " + ext.getName());
+        List<Extension> extensions = new ArrayList<>(addOn.getLoadedExtensions());
+        for (Extension ext : extensions) {
+            uninstalledWithoutErrors &= uninstallAddOnExtension(addOn, ext, callback);
+        }
+        return uninstalledWithoutErrors;
+    }
+
+    /**
+     * Uninstalls the given extension.
+     *
+     * @param addOn the add-on that has the extension
+     * @param extension the extension that should be uninstalled
+     * @param callback the callback that will be notified of the progress of the uninstallation
+     * @return {@code true} if the extension was uninstalled without errors, {@code false} otherwise.
+     * @since 2.4.0
+     * @see Extension
+     */
+    protected static boolean uninstallAddOnExtension(
+            AddOn addOn,
+            Extension extension,
+            AddOnUninstallationProgressCallback callback) {
+        boolean uninstalledWithoutErrors = true;
+        if (extension.isEnabled()) {
+            if (extension.canUnload()) {
+                logger.debug("Unloading ext: " + extension.getName());
+                try {
+                    extension.unload();
+                    ExtensionFactory.unloadAddOnExtension(extension);
+                } catch (Exception e) {
+                    logger.error("An error occurred while uninstalling the extension \"" + extension.getName()
+                            + "\" bundled in the add-on \"" + addOn.getId() + "\":", e);
                     uninstalledWithoutErrors = false;
                 }
-                callback.extensionRemoved(ext.getUIName());
+            } else {
+                logger.debug("Cant dynamically unload ext: " + extension.getName());
+                uninstalledWithoutErrors = false;
             }
+            callback.extensionRemoved(extension.getUIName());
         }
-        addOn.setLoadedExtensions(Collections.<Extension>emptyList());
+        addOn.removeLoadedExtension(extension);
 
         return uninstalledWithoutErrors;
     }
