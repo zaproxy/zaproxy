@@ -296,6 +296,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			saveButton.addActionListener(new ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
+					if (!validateFieldsCustomMessage()) {
+						return;
+					}
+
 					String errorMsg = validateFields();
 					if (errorMsg != null) {
 						View.getSingleton().showWarningDialog(StandardFieldsDialog.this, errorMsg);
@@ -307,6 +311,23 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			});
 		}
 		return saveButton;
+	}
+
+	/**
+	 * Called when the dialogue is saved, allowing to validate the fields and show custom error messages (as opposed to
+	 * validations using the method {@code validateFields()}, which only allows to show a simple message). If this method
+	 * returns {@code false} no further action is taken, if it returns {@code true} the normal validation is performed by
+	 * calling {@code validateFields()}.
+	 * <p>
+	 * By default returns {@code true}.
+	 *
+	 * @return {@code true} if the fields are valid, {@code false} otherwise.
+	 * @see #validateFields()
+	 * @see #save()
+	 * @since 2.4.0
+	 */
+	protected boolean validateFieldsCustomMessage() {
+		return true;
 	}
 
 	public String getCancelButtonText() {
