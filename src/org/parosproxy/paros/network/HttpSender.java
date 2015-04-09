@@ -52,6 +52,7 @@
 // ZAP: 2014/11/25 Issue 1411: Changed getUser() visibility
 // ZAP: 2014/12/11 Added JavaDoc to constructor and removed the instance variable allowState.
 // ZAP: 2015/04/09 Allow to specify the maximum number of retries on I/O error.
+// ZAP: 2015/04/09 Allow to specify the maximum number of redirects.
 
 package org.parosproxy.paros.network;
 
@@ -82,6 +83,7 @@ import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -766,5 +768,22 @@ public class HttpSender {
         HttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(retries, false);
         client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
         clientViaProxy.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
+    }
+
+    /**
+     * Sets the maximum number of redirects that will be followed before failing with an exception.
+     * <p>
+     * The default maximum number of redirects is 100.
+     *
+     * @param maxRedirects the maximum number of redirects
+     * @throws IllegalArgumentException if {@code maxRedirects} is negative.
+     * @since 2.4.0
+     */
+    public void setMaxRedirects(int maxRedirects) {
+        if (maxRedirects < 0) {
+            throw new IllegalArgumentException("Parameter maxRedirects must be greater or equal to zero.");
+        }
+        client.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
+        clientViaProxy.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
     }
 }
