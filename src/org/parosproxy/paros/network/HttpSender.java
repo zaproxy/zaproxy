@@ -53,6 +53,7 @@
 // ZAP: 2014/12/11 Added JavaDoc to constructor and removed the instance variable allowState.
 // ZAP: 2015/04/09 Allow to specify the maximum number of retries on I/O error.
 // ZAP: 2015/04/09 Allow to specify the maximum number of redirects.
+// ZAP: 2015/04/09 Allow to specify if circular redirects are allowed.
 
 package org.parosproxy.paros.network;
 
@@ -785,5 +786,21 @@ public class HttpSender {
         }
         client.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
         clientViaProxy.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
+    }
+
+    /**
+     * Sets whether or not circular redirects are allowed.
+     * <p>
+     * Circular redirects happen when a request redirects to itself, or when a same request was already accessed in a chain of
+     * redirects.
+     * <p>
+     * The default is to <strong>not</strong> allow circular redirects.
+     *
+     * @param allow {@code true} if circular redirects should be allowed, {@code false} otherwise
+     * @since 2.4.0
+     */
+    public void setAllowCircularRedirects(boolean allow) {
+        client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
+        clientViaProxy.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
     }
 }
