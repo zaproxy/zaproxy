@@ -40,6 +40,7 @@ package org.parosproxy.paros.extension.manualrequest;
 import java.awt.BorderLayout;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.EventQueue;
 import java.awt.HeadlessException;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -218,8 +219,14 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
 	}
 
 	protected void postSend() {
-		// redraw, as message may have changed after sending
-		getRequestPanel().updateContent();
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				// redraw, as message may have changed after sending
+				getRequestPanel().updateContent();
+			}
+		});
 	}
 	
 	protected abstract void saveConfig();
