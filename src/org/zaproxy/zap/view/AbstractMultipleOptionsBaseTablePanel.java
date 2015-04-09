@@ -179,7 +179,11 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
     }
 
     protected int getSelectedRow() {
-        return getTable().convertRowIndexToModel(getTable().getSelectionModel().getMinSelectionIndex());
+        int selectedRow = getTable().getSelectionModel().getMinSelectionIndex();
+        if (selectedRow == -1) {
+            return -1;
+        }
+        return getTable().convertRowIndexToModel(selectedRow);
     }
 
     protected AbstractMultipleOptionsBaseTableModel<E> getMultipleOptionsModel() {
