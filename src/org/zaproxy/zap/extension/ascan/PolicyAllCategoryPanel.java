@@ -224,6 +224,19 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     	return policySelector;
     }
     
+    /**
+     * Reloads the scan policies, which will pick any new ones that have been defined
+     */
+    public void reloadPolicies() {
+    	// Ensure policySelector is initialized
+    	Object selected = getPolicySelector().getSelectedItem(); 
+    	policySelector.removeAllItems();
+		for (String policy : extension.getPolicyManager().getAllPolicyNames()) {
+			policySelector.addItem(policy);
+		}
+		policySelector.setSelectedItem(selected);
+    }
+    
     private AlertThreshold strToThreshold(String str) {
     	if (str.equals(Constant.messages.getString("ascan.options.level.off"))) {
     		return AlertThreshold.OFF;

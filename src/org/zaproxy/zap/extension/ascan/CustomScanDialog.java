@@ -177,8 +177,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.addCheckBoxField(0, FIELD_RECURSE, true);
         // This option is always read from the 'global' options
         this.addCheckBoxField(0, FIELD_ADVANCED, extension.getScannerParam().isShowAdvancedDialog());
-        // Force the policy to be reloaded, even the name hasnt changed the definition could have
-        policySelected();
 
         this.addFieldListener(FIELD_POLICY, new ActionListener() {
             @Override
@@ -231,7 +229,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         String[] ROOT = {};
 
-        policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(), false);
+        policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(true), false);
 
         categoryPanels = new ArrayList<>(Category.getAllNames().length);
         for (int i = 0; i < Category.getAllNames().length; i++) {
@@ -273,10 +271,12 @@ public class CustomScanDialog extends StandardFieldsDialog {
     	return "ui.dialogs.advascan";
     }
 
-    private PolicyAllCategoryPanel getPolicyAllCategoryPanel() {
+    private PolicyAllCategoryPanel getPolicyAllCategoryPanel(boolean reinit) {
         if (policyAllCategoryPanel == null) {
             policyAllCategoryPanel = new PolicyAllCategoryPanel(this, extension, scanPolicy, true);
             policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
+        } else if (reinit) {
+        	policyAllCategoryPanel.reloadPolicies();
         }
         return policyAllCategoryPanel;
     }
@@ -285,7 +285,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         String policyName = getStringValue(FIELD_POLICY);
         try {
             scanPolicy = extension.getPolicyManager().getPolicy(policyName);
-            getPolicyAllCategoryPanel().setScanPolicy(scanPolicy);
+            getPolicyAllCategoryPanel(false).setScanPolicy(scanPolicy);
             for (PolicyCategoryPanel panel : this.categoryPanels) {
                 panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
             }
