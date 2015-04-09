@@ -38,7 +38,6 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -248,7 +247,7 @@ public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 	public JButton getNewScanButton() {
 		if (scanButton == null) {
 			scanButton = new JButton(Constant.messages.getString("spider.toolbar.button.new"));
-			scanButton.setIcon(new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/spider.png")));
+			scanButton.setIcon(new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")));
 			scanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
