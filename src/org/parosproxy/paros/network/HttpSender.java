@@ -51,6 +51,7 @@
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 // ZAP: 2014/11/25 Issue 1411: Changed getUser() visibility
 // ZAP: 2014/12/11 Added JavaDoc to constructor and removed the instance variable allowState.
+// ZAP: 2015/04/09 Allow to specify the maximum number of retries on I/O error.
 
 package org.parosproxy.paros.network;
 
@@ -62,6 +63,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -69,6 +71,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpHost;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodDirector;
+import org.apache.commons.httpclient.HttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
@@ -744,5 +747,24 @@ public class HttpSender {
     public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {
         client.getParams().setBooleanParameter(HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
         clientViaProxy.getParams().setBooleanParameter(HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
+    }
+
+    /**
+     * Sets the maximum number of retries of an unsuccessful request caused by I/O errors.
+     * <p>
+     * The default number of retries is 3.
+     *
+     * @param retries the number of retries
+     * @throws IllegalArgumentException if {@code retries} is negative.
+     * @since 2.4.0
+     */
+    public void setMaxRetriesOnIOError(int retries) {
+        if (retries < 0) {
+            throw new IllegalArgumentException("Parameter retries must be greater or equal to zero.");
+        }
+
+        HttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(retries, false);
+        client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
+        clientViaProxy.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
     }
 }
