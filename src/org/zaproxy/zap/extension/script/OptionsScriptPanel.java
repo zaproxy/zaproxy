@@ -77,7 +77,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 	@Override
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-	    ScriptParam param = (ScriptParam) optionsParam.getParamSet(ScriptParam.class);
+	    ScriptParam param = optionsParam.getParamSet(ScriptParam.class);
 	    getScriptDirModel().setTokens(param.getScriptDirs());
 	    tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveDir());
     }
@@ -92,7 +92,7 @@ public class OptionsScriptPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-	    ScriptParam param = (ScriptParam) optionsParam.getParamSet(ScriptParam.class);
+	    ScriptParam param = optionsParam.getParamSet(ScriptParam.class);
 	    
 	    // Work out whats changed..
 	    List<File> dirs = getScriptDirModel().getElements();

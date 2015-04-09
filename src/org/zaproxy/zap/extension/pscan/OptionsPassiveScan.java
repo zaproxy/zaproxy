@@ -89,7 +89,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         OptionsParam optionsParam = (OptionsParam) obj;
-        PassiveScanParam passiveScanParam = (PassiveScanParam) optionsParam.getParamSet(PassiveScanParam.class);
+        PassiveScanParam passiveScanParam = optionsParam.getParamSet(PassiveScanParam.class);
         getTableModel().setScanDefns(passiveScanParam.getAutoTagScanners());
         scannersOptionsPanel.setRemoveWithoutConfirmation(!passiveScanParam.isConfirmRemoveAutoTagScanner());
     }
@@ -102,7 +102,7 @@ public class OptionsPassiveScan extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam optionsParam = (OptionsParam) obj;
-        PassiveScanParam passiveScanParam = (PassiveScanParam) optionsParam.getParamSet(PassiveScanParam.class);
+        PassiveScanParam passiveScanParam = optionsParam.getParamSet(PassiveScanParam.class);
         passiveScanParam.setAutoTagScanners(getTableModel().getElements());
         passiveScanParam.setConfirmRemoveAutoTagScanner(!scannersOptionsPanel.isRemoveWithoutConfirmation());
         

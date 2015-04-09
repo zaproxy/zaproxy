@@ -207,7 +207,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
-	    FuzzerParam param = (FuzzerParam) options.getParamSet(FuzzerParam.class);
+	    FuzzerParam param = options.getParamSet(FuzzerParam.class);
 	    if (param != null) {
 		    getSliderThreadsPerScan().setValue(param.getThreadPerScan());
 		    this.getDefaultCategory().setSelectedItem(param.getDefaultCategory());
@@ -222,7 +222,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
-	    FuzzerParam param = (FuzzerParam) options.getParamSet(FuzzerParam.class);
+	    FuzzerParam param = options.getParamSet(FuzzerParam.class);
 	    if (param == null) {
 	    	param = new FuzzerParam();
 	    	options.addParamSet(param);
@@ -265,7 +265,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 						}
 					} );
 					
-					FuzzerParam params = (FuzzerParam) Model.getSingleton().getOptionsParam().getParamSet(FuzzerParam.class);
+					FuzzerParam params = Model.getSingleton().getOptionsParam().getParamSet(FuzzerParam.class);
 					
 					fcCommand.setCurrentDirectory(params.getLastSelectedDirectory());
 

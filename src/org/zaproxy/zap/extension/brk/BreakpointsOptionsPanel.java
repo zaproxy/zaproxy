@@ -103,7 +103,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         final OptionsParam options = (OptionsParam) obj;
-        final BreakpointsParam param = (BreakpointsParam) options.getParamSet(BreakpointsParam.class);
+        final BreakpointsParam param = options.getParamSet(BreakpointsParam.class);
 
         getCheckBoxConfirmDropMessage().setSelected(param.isConfirmDropMessage());
         // Note param.alwaysOnTop will be null if the user hasnt specified a preference yet
@@ -118,7 +118,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
         final OptionsParam options = (OptionsParam) obj;
-        final BreakpointsParam param = (BreakpointsParam) options.getParamSet(BreakpointsParam.class);
+        final BreakpointsParam param = options.getParamSet(BreakpointsParam.class);
 
         param.setConfirmDropMessage(getCheckBoxConfirmDropMessage().isSelected());
         if (param.getAlwaysOnTop() != null || ! getCheckBoxAlwaysOnTop().isSelected()) {

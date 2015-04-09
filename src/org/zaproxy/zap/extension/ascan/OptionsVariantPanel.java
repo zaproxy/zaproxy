@@ -185,7 +185,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
-        ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
+        ScannerParam param = options.getParamSet(ScannerParam.class);
         initParam(param);
     }    
     
@@ -234,7 +234,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
-        ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
+        ScannerParam param = options.getParamSet(ScannerParam.class);
         saveParam(param);
     }
 
