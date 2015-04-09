@@ -38,7 +38,7 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.ScanPanel2;
@@ -46,7 +46,7 @@ import org.zaproxy.zap.view.ScanPanel2;
 /**
  * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider Scan Tab.
  */
-public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
+public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderScan>> implements ScanListenner2 {
 
 	/** The Constant serialVersionUID. */
 	private static final long serialVersionUID = 1L;
@@ -209,16 +209,16 @@ public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 	 * Update the count of found URIs.
 	 */
 	protected void updateFoundCount() {
-		GenericScanner2 gs = this.getSelectedScanner();
-		if (gs != null && gs instanceof SpiderScan) {
-			this.getFoundCountValueLabel().setText(Integer.toString(((SpiderScan) gs).getResourcesFound().size()));
+		SpiderScan sc = this.getSelectedScanner();
+		if (sc != null) {
+			this.getFoundCountValueLabel().setText(Integer.toString(sc.getResourcesFound().size()));
 		} else {
 			this.getFoundCountValueLabel().setText("");
 		}
 	}
 
 	@Override
-	protected void switchView(final GenericScanner2 scanner) {
+	protected void switchView(final SpiderScan scanner) {
 		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
 			try {
 				EventQueue.invokeAndWait(new Runnable() {
@@ -234,8 +234,7 @@ public class SpiderPanel extends ScanPanel2 implements ScanListenner2 {
 			return;
 		}
 		if (scanner != null) {
-			SpiderScan spscan = (SpiderScan)scanner;
-			this.getScanResultsTable().setModel(spscan.getResultsTableModel());
+			this.getScanResultsTable().setModel(scanner.getResultsTableModel());
 			this.setScanResultsTableColumnSizes();
 		} else {
 			this.getScanResultsTable().setModel(EMPTY_RESULTS_MODEL);

@@ -44,13 +44,14 @@ import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.model.GenericScanner2;
+import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 
-public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, ScannerListener {
+public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<ActiveScan>> implements ScanListenner2,
+        ScannerListener {
 	
 	private static final Logger LOGGER = Logger.getLogger(ActiveScanPanel.class);
 
@@ -162,7 +163,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	}
 	
 	private void showScanProgressDialog() {
-		ActiveScan scan = (ActiveScan) this.getSelectedScanner();
+		ActiveScan scan = this.getSelectedScanner();
 		if (scan != null) {
 			ScanProgressDialog spp = new ScanProgressDialog(View.getSingleton().getMainFrame(), scan.getDisplayName());
 			spp.setActiveScan(scan);
@@ -210,7 +211,7 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	}
 
 	@Override
-	public void switchView(final GenericScanner2 scanner) {
+	public void switchView(final ActiveScan scanner) {
 		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
 			try {
 				EventQueue.invokeAndWait(new Runnable() {
@@ -227,9 +228,8 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 		}
 
 		if (scanner != null) {
-			ActiveScan ascan = (ActiveScan)scanner;
-			getMessagesTable().setModel(ascan.getMessagesTableModel());
-			this.getNumRequests().setText(Integer.toString(ascan.getTotalRequests()));
+			getMessagesTable().setModel(scanner.getMessagesTableModel());
+			this.getNumRequests().setText(Integer.toString(scanner.getTotalRequests()));
 			this.getProgressButton().setEnabled(true);
 			
 			if (scanner instanceof AttackScan) {
@@ -280,9 +280,9 @@ public class ActiveScanPanel extends ScanPanel2 implements ScanListenner2, Scann
 	}
 	
 	private void updateRequestCount() {
-		GenericScanner2 gs = this.getSelectedScanner();
-		if (gs != null && gs instanceof ActiveScan) {
-			this.getNumRequests().setText(Integer.toString(((ActiveScan) gs).getTotalRequests()));
+		ActiveScan ac = this.getSelectedScanner();
+		if (ac != null) {
+			this.getNumRequests().setText(Integer.toString(ac.getTotalRequests()));
 		}
 	}
 

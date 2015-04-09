@@ -56,13 +56,13 @@ import org.zaproxy.zap.utils.SortedComboBoxModel;
  * This is a cleaner version of ScanPanel which doesnt mix functionality and the UI.
  * Implemented as a new set of classes for backwards compatibility with existing add-ons
  */
-public abstract class ScanPanel2 extends AbstractPanel {
+public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanController<GS>> extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 
 	protected enum Location {start, beforeSites, beforeButtons, beforeProgressBar, afterProgressBar};
 	public String prefix;
 	
-	private ScanController controller = null;
+	private SC controller = null;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JLabel scannedCountNameLabel = null;
@@ -88,7 +88,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
      * @param extension
      * @param scanParam
      */
-    public ScanPanel2(String prefix, ImageIcon icon, ScanController controller, AbstractParam scanParam) {
+    public ScanPanel2(String prefix, ImageIcon icon, SC controller, AbstractParam scanParam) {
         super();
         this.prefix = prefix;
         this.controller = controller;
@@ -263,11 +263,11 @@ public abstract class ScanPanel2 extends AbstractPanel {
 	}
 	
 	private void setActiveScanLabelsEventHandler() {
-		List<GenericScanner2> ascans = controller.getActiveScans();
+		List<GS> ascans = controller.getActiveScans();
 		getActiveScansValueLabel().setText(String.valueOf(ascans.size()));
 		StringBuilder sb = new StringBuilder();
 		sb.append("<html>");
-		for (GenericScanner2 ascan : ascans) {
+		for (GS ascan : ascans) {
 			sb.append(ascan.getDisplayName());
 			sb.append("<br>");
 		}
@@ -302,7 +302,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					GenericScanner2 scanner = getSelectedScanner();
+					GS scanner = getSelectedScanner();
 					if (scanner != null) {
 						controller.stopScan(scanner.getScanId());
 					}
@@ -322,7 +322,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					GenericScanner2 scanner = getSelectedScanner();
+					GS scanner = getSelectedScanner();
 					if (scanner != null) {
 						if (pauseScanButton.isSelected()) {
 							controller.pauseScan(scanner.getScanId());
@@ -375,7 +375,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 			// Some were removed - remove all and add back the remaining ones
 			progressModel.removeAllElements();
 			progressModel.addElement(Constant.messages.getString(prefix + ".toolbar.progress.select"));
-			for (GenericScanner2 scan : controller.getAllScans()) {
+			for (GS scan : controller.getAllScans()) {
 				progressModel.addElement(nameForScanner(scan));
 			}
 			updateScannerUI();
@@ -383,7 +383,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		clearScansButton.setEnabled(false);
 	}
 	
-	public GenericScanner2 getSelectedScanner() {
+	public GS getSelectedScanner() {
 		return controller.getScan(this.idForScannerName((String)this.getProgressSelect().getSelectedItem()));
 	}
 	
@@ -409,7 +409,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		scannerSelected(this.getSelectedScanner());
 	}
 
-	private void scannerSelected(GenericScanner2 scanner) {
+	private void scannerSelected(GS scanner) {
 		if (scanner == null || Mode.safe.equals(Control.getSingleton().getMode())) {
 			// Disable everything
 			getStopScanButton().setEnabled(false);
@@ -491,7 +491,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
     	setActiveScanLabelsEventHandler();
 	}
 	
-	private String nameForScanner(GenericScanner2 scan) {
+	private String nameForScanner(GS scan) {
 		return scan.getScanId() + ": " + scan.getDisplayName(); 
 	}
 	
@@ -506,7 +506,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		return Integer.parseInt(name.substring(0, idx));
 	}
 	
-	public void scannerStarted(GenericScanner2 scanner) {
+	public void scannerStarted(GS scanner) {
 		String name = nameForScanner(scanner);
 		this.progressModel.addElement(name);
 		this.getProgressSelect().setEnabled(true);
@@ -528,7 +528,7 @@ public abstract class ScanPanel2 extends AbstractPanel {
 			// Trim past results - the +1 is for the initial 'select scan' message
 			for (int i=1; i < this.progressModel.getSize(); i++) {
 				int id = this.idForScannerName((String)this.progressModel.getElementAt(i));
-				GenericScanner2 scan = controller.getScan(id);
+				GS scan = controller.getScan(id);
 				if (scan != null && scan.isStopped()) {
 					controller.removeScan(id);
 					this.progressModel.removeElementAt(i);
@@ -569,13 +569,13 @@ public abstract class ScanPanel2 extends AbstractPanel {
 		}
 	}
 	
-	protected ScanController getController() {
+	protected SC getController() {
 		return controller;
 	}
 	
     protected abstract Component getWorkPanel();
 	
-	protected abstract void switchView (GenericScanner2 scanner);
+	protected abstract void switchView (GS scanner);
 	/*
 	 * Returns the scan button. Can return null if not relevant
 	 */

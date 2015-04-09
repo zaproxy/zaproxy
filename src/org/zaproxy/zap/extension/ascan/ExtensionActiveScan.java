@@ -62,7 +62,6 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
-import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
@@ -71,7 +70,7 @@ import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionActiveScan extends ExtensionAdaptor implements
-        SessionChangedListener, CommandLineListener, ScanController {
+        SessionChangedListener, CommandLineListener, ScanController<ActiveScan> {
 
     private static final Logger logger = Logger.getLogger(ExtensionActiveScan.class);
     private static final int ARG_SCAN_IDX = 0;
@@ -269,8 +268,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		
 		int id = this.ascanController.startScan(name, target, user, contextSpecificObjects);
     	if (View.isInitialised()) {
-    		GenericScanner2 scanner = this.ascanController.getScan(id);
-    		((ActiveScan)scanner).addScannerListener(getActiveScanPanel());	// So the UI get updated
+    		ActiveScan scanner = this.ascanController.getScan(id);
+    		scanner.addScannerListener(getActiveScanPanel());	// So the UI get updated
 			this.getActiveScanPanel().scannerStarted(scanner);
     		this.getActiveScanPanel().switchView(scanner);
     		this.getActiveScanPanel().setTabFocus();
@@ -478,8 +477,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	public void setExcludeList(List<String> urls) {
-		for (GenericScanner2 scanner : ascanController.getActiveScans()) {
-			((ActiveScan)scanner).setExcludeList(urls);
+		for (ActiveScan scanner : ascanController.getActiveScans()) {
+			scanner.setExcludeList(urls);
 		}
 	}
 
@@ -629,17 +628,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 
 	@Override
-	public List<GenericScanner2> getAllScans() {
+	public List<ActiveScan> getAllScans() {
 		return ascanController.getAllScans();
 	}
 
 	@Override
-	public List<GenericScanner2> getActiveScans() {
+	public List<ActiveScan> getActiveScans() {
 		return ascanController.getActiveScans();
 	}
 
 	@Override
-	public GenericScanner2 getScan(int id) {
+	public ActiveScan getScan(int id) {
 		return ascanController.getScan(id);
 	}
 
@@ -692,7 +691,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	@Override
-	public GenericScanner2 removeScan(int id) {
+	public ActiveScan removeScan(int id) {
 		return ascanController.removeScan(id);
 	}
 
@@ -707,15 +706,15 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	@Override
-	public GenericScanner2 getLastScan() {
+	public ActiveScan getLastScan() {
 		return ascanController.getLastScan();
 	}
 
-	public int registerScan(GenericScanner2 scanner) {
+	public int registerScan(ActiveScan scanner) {
 		int id = ascanController.registerScan(scanner);
 		if (View.isInitialised()) {
 			// Update the UI in case this was initiated from the API
-    		((ActiveScan)scanner).addScannerListener(getActiveScanPanel());	// So the UI get updated
+    		scanner.addScannerListener(getActiveScanPanel());	// So the UI get updated
 			this.getActiveScanPanel().scannerStarted(scanner);
     		this.getActiveScanPanel().switchView(scanner);
     		this.getActiveScanPanel().setTabFocus();
