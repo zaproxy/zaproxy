@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidParameterException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -200,6 +201,21 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.activeScanApi = new ActiveScanAPI(this);
         this.activeScanApi.addApiOptions(getScannerParam());
         API.getInstance().registerApiImplementor(activeScanApi);
+    }
+
+    @Override
+    public List<String> getActiveActions() {
+        List<ActiveScan> activeScans = ascanController.getActiveScans();
+        if (activeScans.isEmpty()) {
+            return null;
+        }
+
+        String activeActionPrefix = Constant.messages.getString("ascan.activeActionPrefix");
+        List<String> activeActions = new ArrayList<>(activeScans.size());
+        for (ActiveScan activeScan : activeScans) {
+            activeActions.add(MessageFormat.format(activeActionPrefix, activeScan.getDisplayName()));
+        }
+        return activeActions;
     }
 
     private ActiveScanPanel getActiveScanPanel() {

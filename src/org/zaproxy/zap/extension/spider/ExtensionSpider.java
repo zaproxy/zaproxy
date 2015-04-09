@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -136,6 +138,21 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		spiderApi = new SpiderAPI(this);
 		spiderApi.addApiOptions(getSpiderParam());
 		API.getInstance().registerApiImplementor(spiderApi);
+	}
+
+	@Override
+	public List<String> getActiveActions() {
+		List<SpiderScan> activeSpiders = scanController.getActiveScans();
+		if (activeSpiders.isEmpty()) {
+			return null;
+		}
+
+		String spiderActionPrefix = Constant.messages.getString("spider.activeActionPrefix");
+		List<String> activeActions = new ArrayList<>(activeSpiders.size());
+		for (SpiderScan activeSpider : activeSpiders) {
+			activeActions.add(MessageFormat.format(spiderActionPrefix, activeSpider.getDisplayName()));
+		}
+		return activeActions;
 	}
 
 	/**
