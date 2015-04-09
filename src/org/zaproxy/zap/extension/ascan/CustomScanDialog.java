@@ -674,7 +674,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             TechSet ts = new TechSet(Tech.builtInTech);
             Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("ascan.custom.tab.tech.node"));
             Tech tech;
             DefaultMutableTreeNode parent;
             DefaultMutableTreeNode node;
