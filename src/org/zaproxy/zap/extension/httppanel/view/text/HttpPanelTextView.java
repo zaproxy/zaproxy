@@ -18,11 +18,13 @@
 package org.zaproxy.zap.extension.httppanel.view.text;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.util.List;
 import java.util.regex.Pattern;
 
 import javax.swing.JComponent;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 
 import org.apache.commons.configuration.FileConfiguration;
@@ -80,34 +82,7 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 		httpPanelTextArea = createHttpPanelTextArea();
 		httpPanelTextArea.setEditable(false);
 		httpPanelTextArea.setLineWrap(true);
-		httpPanelTextArea.addMouseListener(new java.awt.event.MouseAdapter() {
-			@Override
-			public void mousePressed(java.awt.event.MouseEvent e) {
-				showPopupMenuIfTriggered(e);
-			}
-			@Override
-			public void mouseReleased(java.awt.event.MouseEvent e) {
-				showPopupMenuIfTriggered(e);
-			}
-			private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-				// right mouse button action
-				if (e.isPopupTrigger()) { 
-					if (!httpPanelTextArea.isFocusOwner()) {
-						httpPanelTextArea.requestFocusInWindow();
-					}
-
-					if (httpPanelTextArea.getMessage() instanceof HttpMessage) {
-						SingleHttpMessageContainer messageContainer = new DefaultSingleHttpMessageContainer(
-								messageContainerName,
-								httpPanelTextArea,
-								(HttpMessage) httpPanelTextArea.getMessage());
-						View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
-					} else {
-						View.getSingleton().getPopupMenu().show(httpPanelTextArea, e.getX(), e.getY());
-					}
-				}
-			}
-		});
+		httpPanelTextArea.setComponentPopupMenu(new CustomPopupMenu());
 
 		mainPanel = new JPanel(new BorderLayout());
 		mainPanel.add(new JScrollPane(httpPanelTextArea), BorderLayout.CENTER);
@@ -208,5 +183,27 @@ public abstract class HttpPanelTextView implements HttpPanelView, HttpPanelViewM
 	
 	@Override
 	public void saveConfiguration(FileConfiguration fileConfiguration) {
+	}
+
+	protected class CustomPopupMenu extends JPopupMenu {
+
+		private static final long serialVersionUID = 1L;
+
+		@Override
+		public void show(Component invoker, int x, int y) {
+			if (!httpPanelTextArea.isFocusOwner()) {
+				httpPanelTextArea.requestFocusInWindow();
+			}
+
+			if (httpPanelTextArea.getMessage() instanceof HttpMessage) {
+				SingleHttpMessageContainer messageContainer = new DefaultSingleHttpMessageContainer(
+						messageContainerName,
+						httpPanelTextArea,
+						(HttpMessage) httpPanelTextArea.getMessage());
+				View.getSingleton().getPopupMenu().show(messageContainer, x, y);
+			} else {
+				View.getSingleton().getPopupMenu().show(httpPanelTextArea, x, y);
+			}
+		}
 	}
 }
