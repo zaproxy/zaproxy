@@ -42,7 +42,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 
 	private JCheckBoxMenuItem menuViewImage = null;
 	private OptionsConnectionPanel optionsConnectionPanel = null;
-	private OptionsAuthenticationPanel optionsAuthenticationPanel = null;
 	private OptionsCertificatePanel optionsCertificatePanel = null;
 	private OptionsLocalProxyPanel optionsLocalProxyPanel = null;
 	private OptionsViewPanel optionsViewPanel = null;
@@ -78,7 +77,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 	        
 	        extensionHook.getHookView().addOptionPanel(getOptionsConnectionPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsLocalProxyPanel());
-	        extensionHook.getHookView().addOptionPanel(getOptionsAuthenticationPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsCertificatePanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsViewPanel());
 	        extensionHook.getHookView().addOptionPanel(getOptionsCheckForUpdatesPanel());
@@ -108,13 +106,6 @@ public class ExtensionOption extends ExtensionAdaptor {
 			optionsConnectionPanel = new OptionsConnectionPanel();
 		}
 		return optionsConnectionPanel;
-	}
-
-	private OptionsAuthenticationPanel getOptionsAuthenticationPanel() {
-		if (optionsAuthenticationPanel == null) {
-			optionsAuthenticationPanel = new OptionsAuthenticationPanel();
-		}
-		return optionsAuthenticationPanel;
 	}
 
 	private OptionsCertificatePanel getOptionsCertificatePanel() {

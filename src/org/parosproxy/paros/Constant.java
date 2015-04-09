@@ -114,6 +114,7 @@ public final class Constant {
     private static final long VERSION_TAG = 2003000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_3_1_TAG = 2003001;
     private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
     private static final long V_2_0_0_TAG = 2000000;
@@ -479,6 +480,9 @@ public final class Constant {
 	            	if (ver <= V_2_2_0_TAG) {
 	            		upgradeFrom2_2_0(config);
 	            	}
+	            	if (ver <= V_2_3_1_TAG) {
+	            		upgradeFrom2_3_1(config);
+	            	}
 	            	log.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -742,6 +746,12 @@ public final class Constant {
 		// Clear the block list - addons were incorrectly added to this if an update failed
 		config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
     	
+    }
+
+    private void upgradeFrom2_3_1(XMLConfiguration config) {
+        // Remove old authentication options no longer used
+        config.clearProperty("connection.confirmRemoveAuth");
+        config.clearTree("options.auth");
     }
 
 	public static void setLocale (String loc) {

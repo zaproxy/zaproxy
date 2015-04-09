@@ -58,8 +58,6 @@
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -185,8 +183,6 @@ public class HttpSender {
 		if (useGlobalState) {
 			checkState();
 		}
-		addAuth(client);
-		addAuth(clientViaProxy);
 	}
 
 	public static SSLConnector getSSLConnector() {
@@ -317,27 +313,6 @@ public class HttpSender {
 		}
 		if (httpConnManagerProxy != null) {
 			httpConnManagerProxy.shutdown();
-		}
-	}
-
-	// ZAP: Deprecating configuring HTTP Authentication through Options
-	@Deprecated
-	private void addAuth(HttpClient client) {
-		List<HostAuthentication> list = param.getListAuthEnabled();
-		for (int i = 0; i < list.size(); i++) {
-			HostAuthentication auth = list.get(i);
-			AuthScope authScope = null;
-			NTCredentials credentials = null;
-			try {
-				authScope = new AuthScope(auth.getHostName(), auth.getPort(),
-						(auth.getRealm() == null || auth.getRealm().equals("")) ? AuthScope.ANY_REALM
-								: auth.getRealm());
-				credentials = new NTCredentials(auth.getUserName(), auth.getPassword(), InetAddress
-						.getLocalHost().getCanonicalHostName(), auth.getHostName());
-				client.getState().setCredentials(authScope, credentials);
-			} catch (UnknownHostException e1) {
-				log.error(e1.getMessage(), e1);
-			}
 		}
 	}
 
