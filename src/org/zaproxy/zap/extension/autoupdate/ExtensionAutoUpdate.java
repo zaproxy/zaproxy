@@ -789,7 +789,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
         if (latestVersionInfo != null) {
             AddOn addOn = latestVersionInfo.getAddOn(ao.getId());
-            if (AddOn.InstallationStatus.DOWNLOADING == addOn.getInstallationStatus()) {
+            if (addOn != null && AddOn.InstallationStatus.DOWNLOADING == addOn.getInstallationStatus()) {
                 addOn.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
             }
         }
