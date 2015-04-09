@@ -298,7 +298,7 @@ public class JCheckBoxTree extends JTree {
     }
 
     public void collapseAll() {
-    	for (int i = 0; i < getRowCount(); i++) {
+    	for (int i = getRowCount(); i >= 0; i--) {
     		this.collapseRow(i);
     	}
     }
