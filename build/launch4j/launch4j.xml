@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>zap.jar</jar>
+  <jar>zap-2.4.0.jar</jar>
   <outfile>..\zap\ZAP.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -11,15 +11,17 @@
   <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
   <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
   <icon>..\..\src\resource\zap.ico</icon>
   <classPath>
     <mainClass>org.zaproxy.zap.ZAP</mainClass>
-    <cp>zap.jar</cp>
+    <cp>zap-2.4.0.jar</cp>
   </classPath>
   <jre>
     <path></path>
     <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
     <minVersion>1.7.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJdk</jdkPreference>
