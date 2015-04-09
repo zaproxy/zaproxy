@@ -64,6 +64,8 @@ import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -243,9 +245,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		case safe:
 			throw new InvalidParameterException("Scans are not allowed in Safe mode");
 		case protect:
-			if (target.getStartNode() != null && ! target.getStartNode().isIncludedInScope()) {
-				throw new InvalidParameterException("Scans are not allowed on nodes not in scope Protected mode " +
-						target.getStartNode().getHierarchicNodeName());
+			List<StructuralNode> nodes = target.getStartNodes();
+			if (nodes != null) {
+				for (StructuralNode node : nodes) {
+					if (node instanceof StructuralSiteNode) {
+						SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
+						if (!siteNode.isIncludedInScope()) {
+							throw new InvalidParameterException("Scans are not allowed on nodes not in scope Protected mode "
+									+ target.getStartNode().getHierarchicNodeName());
+						}
+					}
+				}
 			}
 			// No problem
 			break;

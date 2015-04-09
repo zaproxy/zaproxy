@@ -77,6 +77,8 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
@@ -940,6 +942,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     @Override
     public String validateFields() {
+        if (Control.Mode.safe == Control.getSingleton().getMode()) {
+            // The dialogue shouldn't be shown when in safe mode but if it is warn.
+            return Constant.messages.getString("ascan.custom.notSafe.error");
+        }
+
         if (this.customPanels != null) {
         	// Check all custom panels validate ok
         	for (CustomScanPanel customPanel : this.customPanels) {
@@ -960,6 +967,25 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         if (this.target == null || !this.target.isValid()) {
             return Constant.messages.getString("ascan.custom.nostart.error");
+        }
+
+        switch (Control.getSingleton().getMode()) {
+        case protect:
+            List<StructuralNode> nodes = target.getStartNodes();
+            if (nodes != null) {
+                for (StructuralNode node : nodes) {
+                    if (node instanceof StructuralSiteNode) {
+                        SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
+                        if (!siteNode.isIncludedInScope()) {
+                            return Constant.messages.getString(
+                                    "ascan.custom.targetNotInScope.error",
+                                    siteNode.getHierarchicNodeName());
+                        }
+                    }
+                }
+            }
+            break;
+        default:
         }
 
         return null;
