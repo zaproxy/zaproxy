@@ -124,15 +124,17 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    boolean enabled = getTable().getSelectionModel().getMinSelectionIndex() >= 0;
-                    
-                    modifyButton.setEnabled(enabled);
-                    removeButton.setEnabled(enabled);
+                    selectionChanged(getTable().getSelectionModel().getMinSelectionIndex() >= 0);
                 }
             }
         });
     }
     
+    protected void selectionChanged(boolean entrySelected) {
+        modifyButton.setEnabled(entrySelected);
+        removeButton.setEnabled(entrySelected);
+    }
+
     public AbstractMultipleOptionsBaseTablePanel(TableModel model) {
         super(model);
     }
