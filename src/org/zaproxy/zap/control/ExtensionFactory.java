@@ -43,7 +43,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
-import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public class ExtensionFactory {

@@ -52,7 +52,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.paros.ParosDatabase;
-import org.parosproxy.paros.view.View;
 import org.xml.sax.SAXException;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.db.sql.DbSQL;
