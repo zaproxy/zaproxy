@@ -410,6 +410,11 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	}
 
 	private void scannerSelected(GS scanner) {
+		updateProgressAndButtonsState(scanner);
+		switchView(scanner);
+	}
+
+	private void updateProgressAndButtonsState(GS scanner) {
 		if (scanner == null || Mode.safe.equals(Control.getSingleton().getMode())) {
 			// Disable everything
 			getStopScanButton().setEnabled(false);
@@ -434,8 +439,6 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		} else {
 			getProgressBar().setValue(0);
 		}
-		switchView(scanner);
-		
 	}
 
 	public void scanFinshed(final int id, final String host) {
@@ -458,7 +461,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	private void scanFinshedEventHandler(int id, String host) {
 		log.debug("scanFinished " + prefix + " on " + host);
 		if (this.getSelectedScanner() != null && this.getSelectedScanner().getScanId() == id) {
-			updateScannerUI();
+			updateProgressAndButtonsState(getSelectedScanner());
 		}
     	setActiveScanLabelsEventHandler();
 	}
@@ -486,7 +489,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	private void scanProgressEventHandler(int id, String host, int progress, int maximum) {
 		//log.debug("scanProgress " + prefix + " on " + currentSite + " " + progress);
 		if (this.getSelectedScanner() != null && id == this.getSelectedScanner().getScanId()) {
-			updateScannerUI();
+			updateProgressAndButtonsState(getSelectedScanner());
 		}		
     	setActiveScanLabelsEventHandler();
 	}
