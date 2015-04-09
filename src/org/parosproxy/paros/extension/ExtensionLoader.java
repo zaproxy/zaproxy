@@ -58,6 +58,7 @@
 // ZAP: 2015/01/19 Issue 1510: New Extension.postInit() method to be called once all extensions loaded
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
+// ZAP: 2015/04/09 Generify Extension.getExtension(Class) to avoid unnecessary casts
 
 package org.parosproxy.paros.extension;
 
@@ -101,6 +102,7 @@ import org.zaproxy.zap.view.TabbedPanel2;
 public class ExtensionLoader {
 
     private final List<Extension> extensionList = new ArrayList<>();
+    private final Map<Class<? extends Extension>, Extension> extensionsMap = new HashMap<>();
     private final Map<Extension, ExtensionHook> extensionHooks = new HashMap<>();
     private Model model = null;
 
@@ -114,6 +116,7 @@ public class ExtensionLoader {
 
     public void addExtension(Extension extension) {
         extensionList.add(extension);
+        extensionsMap.put(extension.getClass(), extension);
     }
 
     public void destroyAllExtension() {
@@ -158,16 +161,19 @@ public class ExtensionLoader {
         return null;
     }
 
-    public Extension getExtension(Class<?> c) {
-        if (c != null) {
-            for (int i = 0; i < extensionList.size(); i++) {
-                Extension p = getExtension(i);
-                if (p.getClass().equals(c)) {
-                    return p;
-                }
+    /**
+     * Gets the {@code Extension} with the given class.
+     *
+     * @param clazz the class of the {@code Extension}
+     * @return the {@code Extension} or {@code null} if not found.
+     */
+    public <T extends Extension> T getExtension(Class<T> clazz) {
+        if (clazz != null) {
+            Extension extension = extensionsMap.get(clazz);
+            if (extension != null) {
+                return clazz.cast(extension);
             }
         }
-        
         return null;
     }
 
@@ -1101,6 +1107,7 @@ public class ExtensionLoader {
      */
     public void removeExtension(Extension extension, ExtensionHook hook) {
         extensionList.remove(extension);
+        extensionsMap.remove(extension.getClass());
 
         if (hook == null) {
             logger.info("ExtensionHook is null for \"" + extension.getClass().getCanonicalName()
