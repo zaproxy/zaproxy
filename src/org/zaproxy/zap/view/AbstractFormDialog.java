@@ -22,7 +22,9 @@ package org.zaproxy.zap.view;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -48,18 +50,37 @@ public abstract class AbstractFormDialog extends JDialog {
 	private boolean firstTime;
 
 	public AbstractFormDialog(Dialog owner, String title) {
-		super(owner, title, true);
-
-		firstTime = true;
-		initView();
+		this(owner, title, true);
 	}
 
 	public AbstractFormDialog(Dialog owner, String title, boolean initView) {
 		super(owner, title, true);
+		initialise(initView);
+	}
 
+	private void initialise(boolean initView) {
 		firstTime = true;
-		if (initView)
+		if (initView) {
 			initView();
+		}
+	}
+
+	public AbstractFormDialog(Frame owner, String title) {
+		this(owner, title, true);
+	}
+
+	public AbstractFormDialog(Frame owner, String title, boolean initView) {
+		super(owner, title, true);
+		initialise(initView);
+	}
+
+	public AbstractFormDialog(Window owner, String title) {
+		this(owner, title, true);
+	}
+
+	public AbstractFormDialog(Window owner, String title, boolean initView) {
+		super(owner, title, Dialog.DEFAULT_MODALITY_TYPE);
+		initialise(initView);
 	}
 
 	protected void initView() {
