@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -194,8 +195,24 @@ public class API {
 				// format of url is http://zap/format/component/reqtype/name/?params
 				//                    0  1  2    3        4        5      6
 				String[] elements = url.split("/");
-			
-				if (elements.length > 3) {
+
+				if (elements.length > 3 && elements[3].equalsIgnoreCase("favicon.ico")) {
+					// Treat the favicon as a special case:)
+					InputStream is = API.class.getResourceAsStream("/resource/zap.ico");
+			    	byte[] icon = new byte[is.available()];
+			    	is.read(icon);
+			    	is.close();
+
+			    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
+			    	msg.getResponseHeader().setContentLength(icon.length);
+			    	httpOut.write(msg.getResponseHeader());
+			    	httpOut.write(icon);
+					httpOut.flush();
+					httpOut.close();
+					httpIn.close();
+					return true;
+					
+				} else if (elements.length > 3) {
 					try {
 						format = Format.valueOf(elements[3].toUpperCase());
 						switch (format) {
