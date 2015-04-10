@@ -462,7 +462,7 @@ public class SiteMapPanel extends AbstractPanel {
 		return treeSite;
 	}
 	
-	protected void reloadContextTree() {
+	public void reloadContextTree() {
 		SiteNode root;
 		if (this.contextTree == null) {
 			root = new SiteNode(null, -1, Constant.messages.getString("context.list"));
