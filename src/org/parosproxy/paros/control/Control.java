@@ -370,6 +370,7 @@ public class Control extends AbstractControl implements SessionListener {
 				@Override
 				public void run() {
 					view.getSiteTreePanel().getTreeSite().setModel(session.getSiteTree());
+					view.getSiteTreePanel().reloadContextTree();
 				}
 			});
 			
