@@ -150,8 +150,6 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 		catMap = new HashMap<>();
 
 		addFileFuzzers(new File(Constant.getInstance().FUZZER_DIR), null);
-		addFileFuzzers(new File(Constant.getZapHome(),
-				Constant.getInstance().FUZZER_DIR), null);
 		Collections.sort(fuzzerCategories);
 	}
 
@@ -296,7 +294,7 @@ public class ExtensionFuzz extends ExtensionAdaptor implements
 
 	public List<String> getCustomFileList() {
 		List<String> fileList = new ArrayList<>();
-		File customDir = new File(Constant.getInstance().FUZZER_CUSTOM_DIR);
+		File customDir = new File(Constant.getInstance().FUZZER_DIR);
 		File[] customFiles = customDir.listFiles();
 		if (customFiles != null) {
 			Arrays.sort(customFiles);

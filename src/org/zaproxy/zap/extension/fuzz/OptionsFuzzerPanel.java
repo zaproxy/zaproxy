@@ -274,7 +274,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 
 					if (state == JFileChooser.APPROVE_OPTION) {
 						final File selectedFile = fcCommand.getSelectedFile();
-						final File newFile = new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator
+						final File newFile = new File(Constant.getInstance().FUZZER_DIR + File.separator
 								+ selectedFile.getName());
 
 						boolean copyFile = false;

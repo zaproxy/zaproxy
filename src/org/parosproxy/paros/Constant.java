@@ -56,6 +56,7 @@
 // ZAP: 2014/01/04 Issue 1458: Change home/installation dir paths to be always absolute
 // ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
+// ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
 
 package org.parosproxy.paros;
 
@@ -255,7 +256,6 @@ public final class Constant {
     public String DIRBUSTER_CUSTOM_DIR = DIRBUSTER_DIR;
 
     public String FUZZER_DIR = "fuzzers";
-    public String FUZZER_CUSTOM_DIR = FUZZER_DIR;
     
     public static String FOLDER_LOCAL_PLUGIN = FOLDER_PLUGIN;
 
@@ -336,7 +336,7 @@ public final class Constant {
 		DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
 		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
 		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
-		FUZZER_CUSTOM_DIR = zapHome + FUZZER_CUSTOM_DIR;
+		FUZZER_DIR = zapHome + FUZZER_DIR;
 		FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_LOCAL_PLUGIN;
 
         try {
@@ -395,9 +395,9 @@ public final class Constant {
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
-            f = new File(FUZZER_CUSTOM_DIR);
+            f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FUZZER_CUSTOM_DIR);
+                log.info("Creating directory " + FUZZER_DIR);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());

@@ -138,7 +138,6 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 		catMap = new HashMap<>();
 		
 		addFileFuzzers(new File(Constant.getInstance().FUZZER_DIR), null);
-		addFileFuzzers(new File(Constant.getZapHome(), Constant.getInstance().FUZZER_DIR), null);
         Collections.sort(fuzzerCategories);
 	}
     
@@ -278,12 +277,12 @@ public class ExtensionFuzz extends ExtensionAdaptor implements SessionChangedLis
 	}
 
 	public FileFuzzer getCustomFileFuzzer(String string) {
-		return new FileFuzzer(new File(Constant.getInstance().FUZZER_CUSTOM_DIR + File.separator + string));
+		return new FileFuzzer(new File(Constant.getInstance().FUZZER_DIR + File.separator + string));
 	}
 	
 	public List<String> getCustomFileList() {
         List <String> fileList = new ArrayList<>();
-        File customDir = new File(Constant.getInstance().FUZZER_CUSTOM_DIR);
+        File customDir = new File(Constant.getInstance().FUZZER_DIR);
         File[] customFiles = customDir.listFiles();
         if (customFiles != null) {
                 Arrays.sort(customFiles);

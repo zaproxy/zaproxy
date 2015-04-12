@@ -294,7 +294,7 @@ public class HttpFuzzDialog extends
 					try {
 						if (isCustomCategory(cat)) {
 							fileFuzzer = new FileFuzzer<>(new File(
-									Constant.getInstance().FUZZER_CUSTOM_DIR
+									Constant.getInstance().FUZZER_DIR
 											+ File.separator + choice),
 									getPayloadFactory());
 						} else if (isJBroFuzzCategory(cat)) {

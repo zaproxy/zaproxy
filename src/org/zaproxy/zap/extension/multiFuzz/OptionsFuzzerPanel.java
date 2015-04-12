@@ -291,7 +291,7 @@ public class OptionsFuzzerPanel extends AbstractParamPanel {
 								final File selectedFile = fcCommand
 										.getSelectedFile();
 								final File newFile = new File(Constant
-										.getInstance().FUZZER_CUSTOM_DIR
+										.getInstance().FUZZER_DIR
 										+ File.separator
 										+ selectedFile.getName());
 
