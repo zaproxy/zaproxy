@@ -20,18 +20,17 @@
 package org.zaproxy.zap.extension.search;
 
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.multiFuzz.ExtensionFuzz;
 import org.zaproxy.zap.extension.search.ExtensionSearch.Type;
 
 public class SearchThread extends Thread {
@@ -46,6 +45,9 @@ public class SearchThread extends Thread {
 	private boolean searchJustInScope = false;
 	private String baseUrl;
 	private PaginationConstraintsChecker pcc;
+
+	private Map<String, HttpSearcher> searchers;
+	private String customSearcherName;
 	
     private boolean searchAllOccurrences;
 
@@ -63,9 +65,15 @@ public class SearchThread extends Thread {
 
     public SearchThread(String filter, Type reqType, SearchListenner searchListenner, boolean inverse, boolean searchJustInScope,
                 String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences) {
+        this(filter, reqType, null, searchListenner, inverse, searchJustInScope, baseUrl, start, count, searchAllOccurrences, maxOccurrences);
+    }
+
+    public SearchThread(String filter, Type reqType, String customSearcherName, SearchListenner searchListenner, boolean inverse,
+            boolean searchJustInScope, String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences) {
 		super(THREAD_NAME);
 		this.filter = filter;
 		this.reqType = reqType;
+		this.customSearcherName = customSearcherName;
 		this.searchListenner = searchListenner;
 		this.inverse = inverse;
 		this.searchJustInScope = searchJustInScope;
@@ -74,6 +82,10 @@ public class SearchThread extends Thread {
 		
 		this.searchAllOccurrences = searchAllOccurrences;
 	}
+
+    public void setCustomSearchers(Map<String, HttpSearcher> searchers) {
+        this.searchers = searchers;
+    }
 
     public void stopSearch() {
     	this.stopSearch = true;
@@ -94,22 +106,25 @@ public class SearchThread extends Thread {
 		Matcher matcher = null;
 		
         try {
-	        // Fuzz results handled differently from the others
-        	// Its also only called from the UI, so havnt implemented the baseurl, start and count options
-        	// which are (currently;) just used from the API
-        	if (Type.Fuzz.equals(reqType)) {
-        		ExtensionFuzz extFuzz = (ExtensionFuzz) Control.getSingleton().getExtensionLoader().getExtension(ExtensionFuzz.NAME);
-        		if (extFuzz != null) {
-        		    List<SearchResult> fuzzResults = extFuzz.searchFuzzResults(pattern, inverse);
-        		    int length = pcc.hasMaximumMatches()
-        		            ? Math.min(fuzzResults.size(), pcc.getMaximumMatches())
-        		            : fuzzResults.size();
-        			for (SearchResult sr : fuzzResults.subList(0, length)) {
-        				searchListenner.addSearchResult(sr);
-        			}
-        		}
-        		return;
-        	}
+
+            if (Type.Custom.equals(reqType)) {
+                if (searchers != null && customSearcherName != null) {
+                    HttpSearcher searcher = searchers.get(customSearcherName);
+                    if (searcher != null) {
+                        List<SearchResult> results;
+                        if (pcc.hasMaximumMatches()) {
+                            results = searcher.search(pattern, inverse, pcc.getMaximumMatches());
+                        } else {
+                            results = searcher.search(pattern, inverse);
+
+                        }
+                        for (SearchResult sr : results) {
+                            searchListenner.addSearchResult(sr);
+                        }
+                    }
+                }
+                return;
+            }
 
 			List<Integer> list = Model.getSingleton().getDb().getTableHistory().getHistoryIdsOfHistType(session.getSessionId(),
 							HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER, HistoryReference.TYPE_SPIDER);

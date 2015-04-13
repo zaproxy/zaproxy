@@ -445,6 +445,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     
     private void doSearch() {
     	ExtensionSearch.Type type = ExtensionSearch.Type.All;
+    	String customSearcherName = null;
     	
     	if (Constant.messages.getString("search.toolbar.label.type.url").equals(searchType.getSelectedItem())) {
     		type = ExtensionSearch.Type.URL;
@@ -454,12 +455,13 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     		type = ExtensionSearch.Type.Response;
     	} else if (Constant.messages.getString("search.toolbar.label.type.header").equals(searchType.getSelectedItem())) {
     		type = ExtensionSearch.Type.Header;
-    	} else if (Constant.messages.getString("search.toolbar.label.type.fuzz").equals(searchType.getSelectedItem())) {
-    		type = ExtensionSearch.Type.Fuzz;
+    	} else {
+    		type = ExtensionSearch.Type.Custom;
+    		customSearcherName = (String) searchType.getSelectedItem();
     	}
 
     	setNumberOfMatches(0);
-    	extension.search(regEx.getText(), type, false, chkInverse.isSelected());
+    	extension.search(regEx.getText(), type, customSearcherName, false, chkInverse.isSelected());
 		
 		// Select first result
 		if (resultsTable.getModel().getRowCount() > 0) {
@@ -475,7 +477,8 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     	case Request:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.request")); break;
     	case Response:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.response")); break;
     	case Header:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.header")); break;
-    	case Fuzz:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.fuzz")); break;
+    	case Custom:	// Not supported
+    	    break;
     	}
     }
     
@@ -598,9 +601,16 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.request"));
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.response"));
 	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.header"));
-	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.fuzz"));
     	}
     	return searchType;
+    }
+
+    protected void addCustomSearcher(String name) {
+        getSearchType().addItem(name);
+    }
+
+    protected void removeCustomSearcher(String name) {
+        getSearchType().removeItem(name);
     }
     
     public void searchFocus() {
