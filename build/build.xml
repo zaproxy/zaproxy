@@ -322,9 +322,6 @@
 		<copy todir="${dist}/filter">
 			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
 		</copy>
-		<copy todir="${dist}/fuzzers">
-			<fileset dir="${src}/fuzzers" excludes="**/.svn/** **/_svn/**" />
-		</copy>
 		<copy todir="${dist}/plugin">
 			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
 		</copy>
