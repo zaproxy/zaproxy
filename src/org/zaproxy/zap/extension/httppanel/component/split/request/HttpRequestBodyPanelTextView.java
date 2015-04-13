@@ -21,10 +21,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
@@ -40,14 +37,9 @@ public class HttpRequestBodyPanelTextView extends HttpPanelTextView {
 		return new HttpRequestBodyPanelTextArea();
 	}
 	
-	private static class HttpRequestBodyPanelTextArea extends FuzzableHttpRequestPanelTextArea {
+	private static class HttpRequestBodyPanelTextArea extends HttpPanelTextArea {
 
 		private static final long serialVersionUID = -5425819266900748512L;
-
-		@Override
-		public FuzzableMessage getFuzzableMessage() {
-			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.BODY, getSelectionStart(), getSelectionEnd());
-		}
 
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
