@@ -36,6 +36,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 /**
  * An {@code HttpPanel} that allows to select and highlight locations in the displayed message.
  *
+ * @since 2.4.0
  * @see HttpPanel
  * @see MessageLocationProducer
  * @see MessageLocationHighlighter
