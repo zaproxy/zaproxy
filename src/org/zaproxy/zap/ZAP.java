@@ -688,25 +688,6 @@ public class ZAP {
             initMac();
         }
 
-        // Warn users of dev builds that by default add-ons wont be available
-        OptionsParamView viewParams = Model.getSingleton().getOptionsParam()
-                .getViewParam();
-        if (Constant.isDevBuild() && viewParams.isShowDevWarning()) {
-            // This is deliberately not i18n'ed - its only shown in dev mode and
-            // is expected to change soon
-            view.showWarningDontPromptDialog("DEV BUILD WARNING!\n\n"
-                    + "ZAP add-ons are no longer held in source control due to space issues.\n\n"
-                    + "This means that by default a significant part of ZAP functionality\n"
-                    + "(including the active and passive scan rules) will no longer be available.\n\n"
-                    + "To get access to add-ons you will need to build and deploy them.\n\n"
-                    + "When 2.4.0 is released then you will also be able to download them from the\n"
-                    + "ZAP Marketplace.\n"
-                    + "We hope to have other alternatives available before too long!\n");
-            if (view.isDontPromptLastDialogChosen()) {
-                viewParams.setShowDevWarning(false);
-            }
-        }
-
     }
 
     private void runDaemon() throws Exception {
