@@ -223,6 +223,10 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         }
     }
 
+    protected HttpPanelComponentInterface getCurrentComponent() {
+        return currentComponent;
+    }
+
     
     public Message getMessage() {
         return message;
@@ -327,6 +331,7 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
             }
         }
         
+        HttpPanelComponentInterface previousComponent = currentComponent;
         this.currentComponent = newComponent;
         
         updateContent();
@@ -346,8 +351,12 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         ((CardLayout)getPanelContent().getLayout()).show(panelContent, name);
         
         currentComponent.setSelected(true);
+        fireComponentChangedEvent(previousComponent, currentComponent);
     }
 
+    protected List<HttpPanelComponentInterface> getEnabledComponents() {
+        return enabledComponents;
+    }
     
     private void switchEmptyComponent() {
         if (this.currentComponent != null) {
@@ -665,4 +674,39 @@ public abstract class HttpPanel extends AbstractPanel implements Tab {
         return searchableComponent;
     }
     
+    public void addMessagePanelEventListener(MessagePanelEventListener listener) {
+        listenerList.add(MessagePanelEventListener.class, listener);
+    }
+
+    public void removeMessagePanelEventListener(MessagePanelEventListener listener) {
+        listenerList.remove(MessagePanelEventListener.class, listener);
+    }
+
+    public void fireMessageViewChangedEvent(HttpPanelView previousView, HttpPanelView currentView) {
+        MessageViewSelectedEvent event = null;
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == MessagePanelEventListener.class) {
+                if (event == null) {
+                    event = new MessageViewSelectedEvent(this, previousView, currentView);
+                }
+                ((MessagePanelEventListener) listeners[i + 1]).viewSelected(event);
+            }
+        }
+    }
+
+    private void fireComponentChangedEvent(
+            HttpPanelComponentInterface previousComponent,
+            HttpPanelComponentInterface currentComponent) {
+        ComponentChangedEvent event = null;
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == MessagePanelEventListener.class) {
+                if (event == null) {
+                    event = new ComponentChangedEvent(this, previousComponent, currentComponent);
+                }
+                ((MessagePanelEventListener) listeners[i + 1]).componentChanged(event);
+            }
+        }
+    }
 }

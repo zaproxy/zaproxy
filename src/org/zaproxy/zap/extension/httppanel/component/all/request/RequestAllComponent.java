@@ -219,4 +219,10 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 	public void searchBody(Pattern p, List<SearchMatch> matches) {
 		views.search(p, matches);
 	}
+
+    @Override
+    public HttpPanelView setSelectedView(String viewName) {
+        return views.setSelectedView(viewName);
+    }
+
 }

@@ -293,4 +293,14 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 	public void searchBody(Pattern p, List<SearchMatch> matches) {
 		bodyViews.search(p, matches);
 	}
+
+    @Override
+    public HttpPanelView setSelectedView(String viewName) {
+        HttpPanelView selectedView = headerViews.setSelectedView(viewName);
+        if (selectedView != null) {
+            return selectedView;
+        }
+
+        return bodyViews.setSelectedView(viewName);
+    }
 }

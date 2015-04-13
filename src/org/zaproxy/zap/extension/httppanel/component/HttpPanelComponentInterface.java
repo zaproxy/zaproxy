@@ -98,5 +98,6 @@ public interface HttpPanelComponentInterface {
 	
     boolean isEnabled(Message aMessage);
 
+    HttpPanelView setSelectedView(String name);
 
 }
