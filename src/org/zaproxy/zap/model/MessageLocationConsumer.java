@@ -20,14 +20,10 @@
 package org.zaproxy.zap.model;
 
 
-/**
- * THC Add JavaDoc.
- * 
- */
 public interface MessageLocationConsumer {
 
     /**
-     * THC Add JavaDoc. if this replacer handles the given type of location, for example, when using a AMF replacer it would not
+     * If this replacer handles the given type of location, for example, when using a AMF replacer it would not
      * handle other locations than AMFLocation and a "text" replacer would not handle AMF locations
      *
      * @param location

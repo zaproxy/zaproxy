@@ -24,11 +24,9 @@ import org.zaproxy.zap.extension.httppanel.Message;
 /**
  * A location in a {@code Message}. Either a value (for example, a string, a number...) or a single (insertion) point.
  * 
- * @param <T> the type of message of the location
  * @since 2.4.0
  * @see Message
  */
-// THC should allow to parameterise the message and the value that it represents
 public interface MessageLocation extends Comparable<MessageLocation> {
 
     Class<? extends Message> getTargetMessageClass();
@@ -60,7 +58,6 @@ public interface MessageLocation extends Comparable<MessageLocation> {
      * 
      * @return the description of the location in the message
      */
-    // THC should be moved to other interface, MessageLocationUI?
     String getDescription();
 
     /**
