@@ -56,6 +56,7 @@
 // ZAP: 2014/01/04 Issue 1458: Change home/installation dir paths to be always absolute
 // ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
+// ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
 
 package org.parosproxy.paros;
 
@@ -113,6 +114,7 @@ public final class Constant {
     private static final long VERSION_TAG = 2003000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_3_1_TAG = 2003001;
     private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
     private static final long V_2_0_0_TAG = 2000000;
@@ -252,7 +254,6 @@ public final class Constant {
     public String DIRBUSTER_CUSTOM_DIR = DIRBUSTER_DIR;
 
     public String FUZZER_DIR = "fuzzers";
-    public String FUZZER_CUSTOM_DIR = FUZZER_DIR;
     
     public static String FOLDER_LOCAL_PLUGIN = FOLDER_PLUGIN;
 
@@ -333,7 +334,7 @@ public final class Constant {
 		DBNAME_UNTITLED = zapHome + DBNAME_UNTITLED;
 		ACCEPTED_LICENSE = zapHome + ACCEPTED_LICENSE;
 		DIRBUSTER_CUSTOM_DIR = zapHome + DIRBUSTER_DIR;
-		FUZZER_CUSTOM_DIR = zapHome + FUZZER_CUSTOM_DIR;
+		FUZZER_DIR = zapHome + FUZZER_DIR;
 		FOLDER_LOCAL_PLUGIN = zapHome + FOLDER_LOCAL_PLUGIN;
 
         try {
@@ -392,9 +393,9 @@ public final class Constant {
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
-            f = new File(FUZZER_CUSTOM_DIR);
+            f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FUZZER_CUSTOM_DIR);
+                log.info("Creating directory " + FUZZER_DIR);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -476,6 +477,9 @@ public final class Constant {
 	            	}
 	            	if (ver <= V_2_2_0_TAG) {
 	            		upgradeFrom2_2_0(config);
+	            	}
+	            	if (ver <= V_2_3_1_TAG) {
+	            		upgradeFrom2_3_1(config);
 	            	}
 	            	log.info("Upgraded from " + ver);
             		
@@ -740,6 +744,12 @@ public final class Constant {
 		// Clear the block list - addons were incorrectly added to this if an update failed
 		config.setProperty(AddOnLoader.ADDONS_BLOCK_LIST, "");
     	
+    }
+
+    private void upgradeFrom2_3_1(XMLConfiguration config) {
+        // Remove old authentication options no longer used
+        config.clearProperty("connection.confirmRemoveAuth");
+        config.clearTree("options.auth");
     }
 
 	public static void setLocale (String loc) {

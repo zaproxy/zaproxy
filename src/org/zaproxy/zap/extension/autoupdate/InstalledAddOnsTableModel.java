@@ -29,6 +29,7 @@ import java.util.Set;
 
 import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.extension.autoupdate.AddOnWrapper.Status;
 
@@ -227,8 +228,9 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     }
 
     private boolean refreshUpdateIssues(AddOnWrapper aow) {
-        String issues = getAddOnRunningIssues(aow.getAddOnUpdate().calculateRunRequirements(availableAddOns.getAddOns()));
-        aow.setUpdateIssues(issues);
+        AddOnRunRequirements reqs = aow.getAddOnUpdate().calculateRunRequirements(availableAddOns.getAddOns());
+        String issues = getAddOnRunningIssues(reqs);
+        aow.setUpdateIssues(issues, !reqs.hasExtensionsWithRunningIssues());
         return !issues.isEmpty();
     }
 

@@ -4,15 +4,15 @@ import java.util.List;
 
 import org.zaproxy.zap.users.User;
 
-public interface ScanController {
+public interface ScanController<T extends GenericScanner2> {
 
 	int startScan(String displayName, Target target, User user, Object[] contextSpecificObjects);
 
-	List<GenericScanner2> getAllScans();
+	List<T> getAllScans();
 
-	List<GenericScanner2> getActiveScans();
+	List<T> getActiveScans();
 
-	GenericScanner2 getScan(int id);
+	T getScan(int id);
 
 	void stopScan (int id);
 
@@ -26,12 +26,12 @@ public interface ScanController {
 
 	void resumeAllScans();
 
-	GenericScanner2 removeScan(int id);
+	T removeScan(int id);
 
 	int removeAllScans();
 
 	int removeFinishedScans();
 
-	GenericScanner2 getLastScan();
+	T getLastScan();
 
 }

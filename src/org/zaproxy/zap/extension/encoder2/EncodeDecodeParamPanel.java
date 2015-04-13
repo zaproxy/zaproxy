@@ -121,7 +121,7 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 		final OptionsParam options = (OptionsParam) obj;
-		final EncodeDecodeParam param = (EncodeDecodeParam) options.getParamSet(EncodeDecodeParam.class);
+		final EncodeDecodeParam param = options.getParamSet(EncodeDecodeParam.class);
 		
 		comboBoxBase64Charset.setSelectedItem(param.getBase64Charset());
 		
@@ -135,7 +135,7 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam(Object obj) throws Exception {
 		final OptionsParam options = (OptionsParam) obj;
-		final EncodeDecodeParam param = (EncodeDecodeParam) options.getParamSet(EncodeDecodeParam.class);
+		final EncodeDecodeParam param = options.getParamSet(EncodeDecodeParam.class);
 		
 		param.setBase64Charset((String)comboBoxBase64Charset.getSelectedItem());
 		

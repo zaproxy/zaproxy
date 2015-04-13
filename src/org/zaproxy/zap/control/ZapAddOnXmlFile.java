@@ -32,8 +32,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
 
-    private static final String EXTENSION_ELEMENT = "extension";
-    private static final String EXTENSIONS_ALL_ELEMENTS = "extensions/" + EXTENSION_ELEMENT;
     private static final String ASCANRULE_ELEMENT = "ascanrule";
     private static final String ASCANRULES_ALL_ELEMENTS = "ascanrules/" + ASCANRULE_ELEMENT;
     private static final String PSCANRULE_ELEMENT = "pscanrule";
@@ -41,7 +39,6 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
     private static final String FILE_ELEMENT = "file";
     private static final String FILES_ALL_ELEMENTS = "files/" + FILE_ELEMENT;
 
-    private List<String> extensions;
     private List<String> ascanrules;
     private List<String> pscanrules;
     private List<String> files;
@@ -52,14 +49,9 @@ public class ZapAddOnXmlFile extends BaseZapAddOnXmlData {
 
     @Override
     protected void readAdditionalData(HierarchicalConfiguration zapAddOnXml) {
-        extensions = getStrings(zapAddOnXml, EXTENSIONS_ALL_ELEMENTS, EXTENSION_ELEMENT);
         ascanrules = getStrings(zapAddOnXml, ASCANRULES_ALL_ELEMENTS, ASCANRULE_ELEMENT);
         pscanrules = getStrings(zapAddOnXml, PSCANRULES_ALL_ELEMENTS, PSCANRULE_ELEMENT);
         files = getStrings(zapAddOnXml, FILES_ALL_ELEMENTS, FILE_ELEMENT);
-    }
-
-    public List<String> getExtensions() {
-        return extensions;
     }
 
     public List<String> getAscanrules() {

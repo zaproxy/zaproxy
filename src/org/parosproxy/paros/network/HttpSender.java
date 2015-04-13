@@ -51,17 +51,19 @@
 // ZAP: 2014/10/28 Issue 1390: Force https on cfu call
 // ZAP: 2014/11/25 Issue 1411: Changed getUser() visibility
 // ZAP: 2014/12/11 Added JavaDoc to constructor and removed the instance variable allowState.
+// ZAP: 2015/04/09 Allow to specify the maximum number of retries on I/O error.
+// ZAP: 2015/04/09 Allow to specify the maximum number of redirects.
+// ZAP: 2015/04/09 Allow to specify if circular redirects are allowed.
 
 package org.parosproxy.paros.network;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
 import org.apache.commons.httpclient.Header;
 import org.apache.commons.httpclient.HostConfiguration;
 import org.apache.commons.httpclient.HttpClient;
@@ -69,6 +71,7 @@ import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.httpclient.HttpHost;
 import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodDirector;
+import org.apache.commons.httpclient.HttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpState;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
@@ -79,6 +82,7 @@ import org.apache.commons.httpclient.auth.AuthPolicy;
 import org.apache.commons.httpclient.auth.AuthScope;
 import org.apache.commons.httpclient.cookie.CookiePolicy;
 import org.apache.commons.httpclient.methods.EntityEnclosingMethod;
+import org.apache.commons.httpclient.params.HttpClientParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
@@ -179,8 +183,6 @@ public class HttpSender {
 		if (useGlobalState) {
 			checkState();
 		}
-		addAuth(client);
-		addAuth(clientViaProxy);
 	}
 
 	public static SSLConnector getSSLConnector() {
@@ -311,27 +313,6 @@ public class HttpSender {
 		}
 		if (httpConnManagerProxy != null) {
 			httpConnManagerProxy.shutdown();
-		}
-	}
-
-	// ZAP: Deprecating configuring HTTP Authentication through Options
-	@Deprecated
-	private void addAuth(HttpClient client) {
-		List<HostAuthentication> list = param.getListAuthEnabled();
-		for (int i = 0; i < list.size(); i++) {
-			HostAuthentication auth = list.get(i);
-			AuthScope authScope = null;
-			NTCredentials credentials = null;
-			try {
-				authScope = new AuthScope(auth.getHostName(), auth.getPort(),
-						(auth.getRealm() == null || auth.getRealm().equals("")) ? AuthScope.ANY_REALM
-								: auth.getRealm());
-				credentials = new NTCredentials(auth.getUserName(), auth.getPassword(), InetAddress
-						.getLocalHost().getCanonicalHostName(), auth.getHostName());
-				client.getState().setCredentials(authScope, credentials);
-			} catch (UnknownHostException e1) {
-				log.error(e1.getMessage(), e1);
-			}
 		}
 	}
 
@@ -744,5 +725,57 @@ public class HttpSender {
     public void setRemoveUserDefinedAuthHeaders(boolean removeHeaders) {
         client.getParams().setBooleanParameter(HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
         clientViaProxy.getParams().setBooleanParameter(HttpMethodDirector.PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS, removeHeaders);
+    }
+
+    /**
+     * Sets the maximum number of retries of an unsuccessful request caused by I/O errors.
+     * <p>
+     * The default number of retries is 3.
+     *
+     * @param retries the number of retries
+     * @throws IllegalArgumentException if {@code retries} is negative.
+     * @since 2.4.0
+     */
+    public void setMaxRetriesOnIOError(int retries) {
+        if (retries < 0) {
+            throw new IllegalArgumentException("Parameter retries must be greater or equal to zero.");
+        }
+
+        HttpMethodRetryHandler retryHandler = new DefaultHttpMethodRetryHandler(retries, false);
+        client.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
+        clientViaProxy.getParams().setParameter(HttpMethodParams.RETRY_HANDLER, retryHandler);
+    }
+
+    /**
+     * Sets the maximum number of redirects that will be followed before failing with an exception.
+     * <p>
+     * The default maximum number of redirects is 100.
+     *
+     * @param maxRedirects the maximum number of redirects
+     * @throws IllegalArgumentException if {@code maxRedirects} is negative.
+     * @since 2.4.0
+     */
+    public void setMaxRedirects(int maxRedirects) {
+        if (maxRedirects < 0) {
+            throw new IllegalArgumentException("Parameter maxRedirects must be greater or equal to zero.");
+        }
+        client.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
+        clientViaProxy.getParams().setIntParameter(HttpClientParams.MAX_REDIRECTS, maxRedirects);
+    }
+
+    /**
+     * Sets whether or not circular redirects are allowed.
+     * <p>
+     * Circular redirects happen when a request redirects to itself, or when a same request was already accessed in a chain of
+     * redirects.
+     * <p>
+     * The default is to <strong>not</strong> allow circular redirects.
+     *
+     * @param allow {@code true} if circular redirects should be allowed, {@code false} otherwise
+     * @since 2.4.0
+     */
+    public void setAllowCircularRedirects(boolean allow) {
+        client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
+        clientViaProxy.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
     }
 }

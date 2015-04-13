@@ -29,6 +29,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.security.InvalidParameterException;
+import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -62,14 +63,13 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
-import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionActiveScan extends ExtensionAdaptor implements
-        SessionChangedListener, CommandLineListener, ScanController {
+        SessionChangedListener, CommandLineListener, ScanController<ActiveScan> {
 
     private static final Logger logger = Logger.getLogger(ExtensionActiveScan.class);
     private static final int ARG_SCAN_IDX = 0;
@@ -201,6 +201,21 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         API.getInstance().registerApiImplementor(activeScanApi);
     }
 
+    @Override
+    public List<String> getActiveActions() {
+        List<ActiveScan> activeScans = ascanController.getActiveScans();
+        if (activeScans.isEmpty()) {
+            return null;
+        }
+
+        String activeActionPrefix = Constant.messages.getString("ascan.activeActionPrefix");
+        List<String> activeActions = new ArrayList<>(activeScans.size());
+        for (ActiveScan activeScan : activeScans) {
+            activeActions.add(MessageFormat.format(activeActionPrefix, activeScan.getDisplayName()));
+        }
+        return activeActions;
+    }
+
     private ActiveScanPanel getActiveScanPanel() {
         if (activeScanPanel == null) {
             activeScanPanel = new ActiveScanPanel(this);
@@ -243,9 +258,14 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		case safe:
 			throw new InvalidParameterException("Scans are not allowed in Safe mode");
 		case protect:
-			if (target.getStartNode() != null && ! target.getStartNode().isIncludedInScope()) {
-				throw new InvalidParameterException("Scans are not allowed on nodes not in scope Protected mode " +
-						target.getStartNode().getHierarchicNodeName());
+			List<SiteNode> nodes = target.getStartNodes();
+			if (nodes != null) {
+				for (SiteNode siteNode : nodes) {
+					if (!siteNode.isIncludedInScope()) {
+						throw new InvalidParameterException("Scans are not allowed on nodes not in scope Protected mode "
+								+ target.getStartNode().getHierarchicNodeName());
+					}
+				}
 			}
 			// No problem
 			break;
@@ -259,8 +279,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 		
 		int id = this.ascanController.startScan(name, target, user, contextSpecificObjects);
     	if (View.isInitialised()) {
-    		GenericScanner2 scanner = this.ascanController.getScan(id);
-    		((ActiveScan)scanner).addScannerListener(getActiveScanPanel());	// So the UI get updated
+    		ActiveScan scanner = this.ascanController.getScan(id);
+    		scanner.addScannerListener(getActiveScanPanel());	// So the UI get updated
 			this.getActiveScanPanel().scannerStarted(scanner);
     		this.getActiveScanPanel().switchView(scanner);
     		this.getActiveScanPanel().setTabFocus();
@@ -468,8 +488,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     }
 
 	public void setExcludeList(List<String> urls) {
-		for (GenericScanner2 scanner : ascanController.getActiveScans()) {
-			((ActiveScan)scanner).setExcludeList(urls);
+		for (ActiveScan scanner : ascanController.getActiveScans()) {
+			scanner.setExcludeList(urls);
 		}
 	}
 
@@ -619,17 +639,17 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
 
 	@Override
-	public List<GenericScanner2> getAllScans() {
+	public List<ActiveScan> getAllScans() {
 		return ascanController.getAllScans();
 	}
 
 	@Override
-	public List<GenericScanner2> getActiveScans() {
+	public List<ActiveScan> getActiveScans() {
 		return ascanController.getActiveScans();
 	}
 
 	@Override
-	public GenericScanner2 getScan(int id) {
+	public ActiveScan getScan(int id) {
 		return ascanController.getScan(id);
 	}
 
@@ -682,7 +702,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	@Override
-	public GenericScanner2 removeScan(int id) {
+	public ActiveScan removeScan(int id) {
 		return ascanController.removeScan(id);
 	}
 
@@ -697,15 +717,15 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	}
 
 	@Override
-	public GenericScanner2 getLastScan() {
+	public ActiveScan getLastScan() {
 		return ascanController.getLastScan();
 	}
 
-	public int registerScan(GenericScanner2 scanner) {
+	public int registerScan(ActiveScan scanner) {
 		int id = ascanController.registerScan(scanner);
 		if (View.isInitialised()) {
 			// Update the UI in case this was initiated from the API
-    		((ActiveScan)scanner).addScannerListener(getActiveScanPanel());	// So the UI get updated
+    		scanner.addScannerListener(getActiveScanPanel());	// So the UI get updated
 			this.getActiveScanPanel().scannerStarted(scanner);
     		this.getActiveScanPanel().switchView(scanner);
     		this.getActiveScanPanel().setTabFocus();

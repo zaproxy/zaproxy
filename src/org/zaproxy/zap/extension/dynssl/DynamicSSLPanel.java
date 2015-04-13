@@ -204,7 +204,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 		final OptionsParam options = (OptionsParam) obj;
-		final DynSSLParam param = (DynSSLParam) options.getParamSet(DynSSLParam.class);
+		final DynSSLParam param = options.getParamSet(DynSSLParam.class);
 		setRootca(param.getRootca());
 	}
 
@@ -216,7 +216,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam(Object obj) throws Exception {
 		final OptionsParam options = (OptionsParam) obj;
-		final DynSSLParam param = (DynSSLParam) options.getParamSet(DynSSLParam.class);
+		final DynSSLParam param = options.getParamSet(DynSSLParam.class);
 		param.setRootca(rootca);
 		extension.setRootCa(rootca);
 	}

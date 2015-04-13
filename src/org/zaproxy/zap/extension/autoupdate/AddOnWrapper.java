@@ -35,14 +35,24 @@ public class AddOnWrapper extends Enableable {
 	private boolean failed = false;
 
 	/**
-	 * The issues that prevent this add-on from being run, contents in HTML format.
+	 * The issues that prevent this add-on, or its extensions, from being run, contents in HTML format.
 	 */
 	private String runningIssues;
 
 	/**
-	 * The issues that prevent this add-on from being run after updating, contents in HTML format.
+	 * Flag that indicates if the running issues are caused by the add-on. If not are caused by its extensions.
+	 */
+	private boolean addOnRunningIssues;
+
+	/**
+	 * The issues that prevent this add-on, or its extensions, from being run after updating, contents in HTML format.
 	 */
 	private String updateIssues;
+
+	/**
+	 * Flag that indicates if the update issues are caused by the add-on. If not are caused by its extensions.
+	 */
+	private boolean addOnUpdateIssues;
 
 	public AddOnWrapper(AddOn addOn, Status status) {
 		this(addOn, status, "");
@@ -156,10 +166,23 @@ public class AddOnWrapper extends Enableable {
 	}
 	
 	/**
-	 * Tells whether or not the wrapped add-on has issues that prevents it from being run.
+	 * Tells whether or not the running issues are caused by the add-on. 
 	 *
-	 * @return {@code true} if the add-on has issues that prevents it from being run, {@code false} otherwise
+	 * @return {@code true} if the running issues are caused by the add-on, {@code false} if caused by its extensions.
 	 * @since 2.4.0
+	 * @see #hasRunningIssues()
+	 */
+	public boolean isAddOnRunningIssues() {
+		return addOnRunningIssues;
+	}
+
+	/**
+	 * Tells whether or not the wrapped add-on or its extensions have issues that prevent them from being run.
+	 *
+	 * @return {@code true} if the add-on or its extensions have issues that prevent them from being run, {@code false}
+	 *		 otherwise
+	 * @since 2.4.0
+	 * @see #isAddOnRunningIssues()
 	 * @see #getRunningIssues()
 	 */
 	public boolean hasRunningIssues() {
@@ -167,11 +190,12 @@ public class AddOnWrapper extends Enableable {
 	}
 
 	/**
-	 * Gets the issues that the wrapped add-on might have that prevents it from being run. Might be empty if there's no issues.
+	 * Gets the issues that the wrapped add-on or its extensions might have that prevent them from being run. Might be empty if
+	 * there's no issues.
 	 * <p>
 	 * The contents are in HTML.
 	 *
-	 * @return the issues of the add-on that prevents it from being run, empty if there's no issues.
+	 * @return the issues of the add-on or its extensions that prevent them from being run, empty if there's no issues.
 	 * @since 2.4.0
 	 * @see #hasRunningIssues()
 	 */
@@ -180,25 +204,41 @@ public class AddOnWrapper extends Enableable {
 	}
 
 	/**
-	 * Sets the issues that the wrapped add-on might have that prevents it from being run.
+	 * Sets the issues that the wrapped add-on or its extensions might have that prevent them from being run.
 	 * <p>
 	 * The contents should be in HTML.
 	 * 
-	 * @param runningIssues the running issues of the add-on, empty if there's no issues.
+	 * @param runningIssues the running issues of the add-on or its extensions, empty if there's no issues.
+	 * @param addOnIssues {@code true} if the issues are caused by the add-on, {@code false} if are caused by the extensions
 	 * @since 2.4.0
 	 * @see #getRunningIssues()
 	 */
-	public void setRunningIssues(String runningIssues) {
+	public void setRunningIssues(String runningIssues, boolean addOnIssues) {
 		Validate.notNull(runningIssues, "Parameter runningIssues must not be null.");
 
 		this.runningIssues = runningIssues;
+		this.addOnRunningIssues = addOnIssues;
 	}
 
 	/**
-	 * Tells whether or not the wrapped add-on has issues that prevents it from being run after updating.
+	 * Tells whether or not the running issues, after updating, are caused by the add-on.
 	 *
-	 * @return {@code true} if the add-on has issues that prevents it from being run after updating, {@code false} otherwise
+	 * @return {@code true} if the running issues, after updating, are caused by the add-on, {@code false} if caused by its
+	 *		 extensions.
 	 * @since 2.4.0
+	 * @see #hasUpdateIssues()
+	 */
+	public boolean isAddOnUpdateIssues() {
+		return addOnUpdateIssues;
+	}
+
+	/**
+	 * Tells whether or not the wrapped add-on or its extensions have issues that prevents them from being run after updating.
+	 *
+	 * @return {@code true} if the add-on or its extensions have issues that prevents them from being run after updating,
+	 *		 {@code false} otherwise
+	 * @since 2.4.0
+	 * @see #isAddOnUpdateIssues()
 	 * @see #getUpdateIssues()
 	 */
 	public boolean hasUpdateIssues() {
@@ -206,12 +246,13 @@ public class AddOnWrapper extends Enableable {
 	}
 
 	/**
-	 * Gets the issues that the wrapped add-on might have that prevents it from being run after updating. Might be empty if
-	 * there's no issues.
+	 * Gets the issues that the wrapped add-on or its extensions might have that prevent them from being run after updating.
+	 * Might be empty if there's no issues.
 	 * <p>
 	 * The contents are in HTML.
 	 *
-	 * @return the issues of the add-on that prevents it from being run after updating, empty if there's no issues.
+	 * @return the issues of the add-on or its extensions that prevent them from being run after updating, empty if there's no
+	 *		 issues.
 	 * @since 2.4.0
 	 * @see #hasUpdateIssues()
 	 */
@@ -220,18 +261,21 @@ public class AddOnWrapper extends Enableable {
 	}
 
 	/**
-	 * Sets the issues that the newer version of the wrapped add-on might have that prevents it from being run.
+	 * Sets the issues that the newer version of the wrapped add-on or its extensions might have that prevents them from being
+	 * run.
 	 * <p>
 	 * The contents should be in HTML.
 	 * 
-	 * @param updateIssues the running issues of the add-on, empty if there's no issues.
+	 * @param updateIssues the running issues of the add-on or its extensions, empty if there's no issues.
+	 * @param addOnIssues {@code true} if the issues are caused by the add-on, {@code false} if are caused by the extensions
 	 * @since 2.4.0
 	 * @see #getUpdateIssues()
 	 */
-	public void setUpdateIssues(String updateIssues) {
+	public void setUpdateIssues(String updateIssues, boolean addOnIssues) {
 		Validate.notNull(updateIssues, "Parameter updateIssues must not be null.");
 
 		this.updateIssues = updateIssues;
+		this.addOnUpdateIssues = addOnIssues;
 	}
 
 	@Override

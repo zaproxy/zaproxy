@@ -25,6 +25,8 @@ import java.awt.Dimension;
 import java.awt.EventQueue;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -41,7 +43,6 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -53,7 +54,7 @@ import org.zaproxy.zap.users.User;
 /**
  * The ExtensionSpider is the Extension that controls the Spider.
  */
-public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ScanController {
+public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedListener, ScanController<SpiderScan> {
 
 	public static final int EXTENSION_ORDER = 30;
 	
@@ -137,6 +138,21 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		spiderApi = new SpiderAPI(this);
 		spiderApi.addApiOptions(getSpiderParam());
 		API.getInstance().registerApiImplementor(spiderApi);
+	}
+
+	@Override
+	public List<String> getActiveActions() {
+		List<SpiderScan> activeSpiders = scanController.getActiveScans();
+		if (activeSpiders.isEmpty()) {
+			return null;
+		}
+
+		String spiderActionPrefix = Constant.messages.getString("spider.activeActionPrefix");
+		List<String> activeActions = new ArrayList<>(activeSpiders.size());
+		for (SpiderScan activeSpider : activeSpiders) {
+			activeActions.add(MessageFormat.format(spiderActionPrefix, activeSpider.getDisplayName()));
+		}
+		return activeActions;
 	}
 
 	/**
@@ -400,9 +416,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 			Object[] contextSpecificObjects) {
 		int id = this.scanController.startScan(displayName, target, user, contextSpecificObjects);
     	if (View.isInitialised()) {
-    		GenericScanner2 scanner = this.scanController.getScan(id);
+    		SpiderScan scanner = this.scanController.getScan(id);
 			this.getSpiderPanel().scannerStarted(scanner);
-    		((SpiderScan)scanner).setListener(getSpiderPanel());	// So the UI gets updated
+    		scanner.setListener(getSpiderPanel());	// So the UI gets updated
     		this.getSpiderPanel().switchView(scanner);
     		this.getSpiderPanel().setTabFocus();
     	}
@@ -410,17 +426,17 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	@Override
-	public List<GenericScanner2> getAllScans() {
+	public List<SpiderScan> getAllScans() {
 		return this.scanController.getAllScans();
 	}
 
 	@Override
-	public List<GenericScanner2> getActiveScans() {
+	public List<SpiderScan> getActiveScans() {
 		return this.scanController.getActiveScans();
 	}
 
 	@Override
-	public GenericScanner2 getScan(int id) {
+	public SpiderScan getScan(int id) {
 		return this.scanController.getScan(id);
 	}
 
@@ -471,7 +487,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	@Override
-	public GenericScanner2 removeScan(int id) {
+	public SpiderScan removeScan(int id) {
 		return this.scanController.removeScan(id);
 	}
 
@@ -486,7 +502,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	@Override
-	public GenericScanner2 getLastScan() {
+	public SpiderScan getLastScan() {
 		return this.scanController.getLastScan();
 	}
 

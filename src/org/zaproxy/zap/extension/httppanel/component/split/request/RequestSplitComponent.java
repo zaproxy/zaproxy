@@ -30,6 +30,7 @@ import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.model.HttpMessageLocation;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentViewsManager;
@@ -40,8 +41,11 @@ import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.Request
 import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
+import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 
-public class RequestSplitComponent implements HttpPanelComponentInterface, SearchableHttpPanelComponent {
+public class RequestSplitComponent<T extends Message> implements HttpPanelComponentInterface, SearchableHttpPanelComponent, MessageLocationHighlighter {
 
 	public static final String NAME = "RequestSplit";
 	
@@ -293,4 +297,99 @@ public class RequestSplitComponent implements HttpPanelComponentInterface, Searc
 	public void searchBody(Pattern p, List<SearchMatch> matches) {
 		bodyViews.search(p, matches);
 	}
+
+    @Override
+    public boolean supports(MessageLocation location) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return false;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+            return headerViews.supports(httpMessageLocation);
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            return bodyViews.supports(httpMessageLocation);
+        default:
+            return false;
+        }
+    }
+
+    @Override
+    public boolean supports(Class<? extends MessageLocation> classLocation) {
+        if (!(HttpMessageLocation.class.isAssignableFrom(classLocation))) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return null;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+            return headerViews.highlight(httpMessageLocation);
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            return bodyViews.highlight(httpMessageLocation);
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return null;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+            return headerViews.highlight(httpMessageLocation, highlight);
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            return bodyViews.highlight(httpMessageLocation, highlight);
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+            headerViews.removeHighlight(httpMessageLocation, highlightReference);
+            break;
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            bodyViews.removeHighlight(httpMessageLocation, highlightReference);
+            break;
+        default:
+        }
+    }
+
+    @Override
+    public HttpPanelView setSelectedView(String viewName) {
+        HttpPanelView selectedView = headerViews.setSelectedView(viewName);
+        if (selectedView != null) {
+            return selectedView;
+        }
+
+        return bodyViews.setSelectedView(viewName);
+    }
 }

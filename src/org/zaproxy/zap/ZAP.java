@@ -386,7 +386,7 @@ public class ZAP {
                 throw e;
             }
 
-            warnAddOnsNoLongerLoadable();
+            warnAddOnsAndExtensionsNoLongerRunnable();
 
             if (firstTime) {
                 // Disabled for now - we have too many popups occuring when you
@@ -501,7 +501,7 @@ public class ZAP {
         Control.initSingletonWithoutView(this.getOverrides());
         final Control control = Control.getSingleton();
 
-        warnAddOnsNoLongerLoadable();
+        warnAddOnsAndExtensionsNoLongerRunnable();
 
         // no view initialization
         try {
@@ -547,10 +547,10 @@ public class ZAP {
         System.exit(rc);
     }
 
-    private static void warnAddOnsNoLongerLoadable() {
+    private static void warnAddOnsAndExtensionsNoLongerRunnable() {
         final AddOnLoader addOnLoader = ExtensionFactory.getAddOnLoader();
         List<String> idsAddOnsNoLongerRunning = addOnLoader
-                .getIdsAddOnsNoLongerRunnableSinceLastRun();
+                .getIdsAddOnsWithRunningIssuesSinceLastRun();
         if (idsAddOnsNoLongerRunning.isEmpty()) {
             return;
         }
@@ -563,37 +563,39 @@ public class ZAP {
         }
 
         if (View.isInitialised()) {
-            showWarningMessageAddOnsNoLongerRunning(
+            showWarningMessageAddOnsAndExtensionsNoLongerRunnable(
                     addOnLoader.getAddOnCollection(), addOnsNoLongerRunning);
         } else {
             for (AddOn addOn : addOnsNoLongerRunning) {
-                AddOn.RunRequirements requirements = addOn
+                AddOn.AddOnRunRequirements requirements = addOn
                         .calculateRunRequirements(addOnLoader
                                 .getAddOnCollection().getAddOns());
                 List<String> issues = AddOnRunIssuesUtils
                         .getRunningIssues(requirements);
-                log.warn("Add-on \""
-                        + addOn.getId()
-                        + "\" will no longer be run until requirements are restored: "
+                if (issues.isEmpty()) {
+                    issues = AddOnRunIssuesUtils.getExtensionsRunningIssues(requirements);
+                }
+
+                log.warn("Add-on \"" + addOn.getId()
+                        + "\" or its extensions will no longer be run until its requirements are restored: "
                         + issues);
             }
         }
     }
 
-    private static void showWarningMessageAddOnsNoLongerRunning(
+    private static void showWarningMessageAddOnsAndExtensionsNoLongerRunnable(
             final AddOnCollection installedAddOns,
             final List<AddOn> addOnsNoLongerRunning) {
         if (EventQueue.isDispatchThread()) {
             AddOnRunIssuesUtils.showWarningMessageAddOnsNotRunnable(
-                    Constant.messages
-                            .getString("start.gui.warn.addOnsNoLongerRunning"),
+                    Constant.messages.getString("start.gui.warn.addOnsOrExtensionsNoLongerRunning"),
                     installedAddOns, addOnsNoLongerRunning);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    showWarningMessageAddOnsNoLongerRunning(installedAddOns,
+                    showWarningMessageAddOnsAndExtensionsNoLongerRunnable(installedAddOns,
                             addOnsNoLongerRunning);
                 }
             });
@@ -717,7 +719,7 @@ public class ZAP {
                 Control.initSingletonWithoutView(getOverrides());
                 Control control = Control.getSingleton();
 
-                warnAddOnsNoLongerLoadable();
+                warnAddOnsAndExtensionsNoLongerRunnable();
 
                 if (!handleCmdLineSessionOptionsSynchronously(control)) {
                     return;

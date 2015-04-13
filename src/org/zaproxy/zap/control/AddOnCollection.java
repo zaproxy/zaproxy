@@ -54,17 +54,23 @@ public class AddOnCollection {
             List<AddOn> runnableAddOns = new ArrayList<>(addOns.size());
             while (!checkedAddOns.isEmpty()) {
                 AddOn addOn = checkedAddOns.remove(0);
-                // Shouldn't happen but make sure to not show add-ons that wouldn't run because of dependency issues
-                AddOn.RunRequirements requirements = addOn.calculateRunRequirements(addOns);
+                // Shouldn't happen but make sure to not show add-ons that wouldn't run, or one of its extensions
+                // because of dependency issues or
+                AddOn.AddOnRunRequirements requirements = addOn.calculateRunRequirements(addOns);
                 if (requirements.hasDependencyIssue()) {
                     if (logger.isDebugEnabled()) {
                         logger.debug("Ignoring add-on  " + addOn.getName() + " because of dependency issue: "
                                 + AddOnRunIssuesUtils.getDependencyIssue(requirements));
-                        if (AddOn.RunRequirements.DependencyIssue.CYCLIC == requirements.getDependencyIssue()) {
-                            @SuppressWarnings("unchecked")
-                            Set<AddOn> cyclicChain = (Set<AddOn>) requirements.getDependencyIssueDetails().get(0);
-                            checkedAddOns.removeAll(cyclicChain);
-                        }
+                    }
+                    if (AddOn.AddOnRunRequirements.DependencyIssue.CYCLIC == requirements.getDependencyIssue()) {
+                        @SuppressWarnings("unchecked")
+                        Set<AddOn> cyclicChain = (Set<AddOn>) requirements.getDependencyIssueDetails().get(0);
+                        checkedAddOns.removeAll(cyclicChain);
+                    }
+                } else if (requirements.hasExtensionsWithRunningIssues()) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Ignoring add-on  " + addOn.getName() + " because of dependency issue in an extension: "
+                                + AddOnRunIssuesUtils.getDependencyIssue(requirements));
                     }
                 } else {
                     runnableAddOns.add(addOn);

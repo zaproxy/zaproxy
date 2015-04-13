@@ -24,6 +24,8 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.KeyStroke;
 
@@ -40,9 +42,11 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
 
+    private static final Logger LOGGER = Logger.getLogger(ExtensionSearch.class);
+
 	public static final String NAME = "ExtensionSearch2"; 
 
-	public enum Type {All, URL, Request, Response, Header, Fuzz};
+	public enum Type {All, URL, Request, Response, Header, Custom};
 
 	private static final Logger logger = Logger.getLogger(ExtensionSearch.class);
 	
@@ -56,6 +60,8 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
     
     private SearchThread searchThread = null;
     private boolean searchJustInScope = false;
+
+    private Map<String, HttpSearcher> customSearchers = new HashMap<>();
 
 	/**
      * 
@@ -121,7 +127,42 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 		}
 		return searchPanel;
 	}
-	
+
+    public void addCustomHttpSearcher(HttpSearcher searcher) {
+        if (searcher == null) {
+            return;
+        }
+        final String searcherName = searcher.getName();
+        if (customSearchers.containsKey(searcherName)) {
+            LOGGER.warn("Attempting to add an HTTP searcher with the same name: " + searcherName);
+            return;
+        }
+        customSearchers.put(searcherName, searcher);
+
+        if (getView() != null) {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    searchPanel.addCustomSearcher(searcherName);
+                }
+            });
+        }
+    }
+
+    public void removeCustomHttpSearcher(HttpSearcher searcher) {
+        final String searcherName = searcher.getName();
+
+        if (customSearchers.remove(searcherName) != null && getView() != null) {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    searchPanel.removeCustomSearcher(searcherName);
+                }
+            });
+        }
+    }
 
 	@Override
 	public void sessionChanged(final Session session)  {
@@ -152,10 +193,14 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	}
 	
 	public void search(String filter, Type reqType, boolean setToolbar, boolean inverse){
-		this.searchPanel.resetSearchResults();
-		this.search(filter, this.searchPanel, reqType, setToolbar, inverse,
-		        null, -1, -1, true, getSearchParam().getMaximumSearchResultsGUI());
+		this.search(filter, reqType, null, setToolbar, inverse);
 	}
+    
+    public void search(String filter, Type reqType, String customSearcherName, boolean setToolbar, boolean inverse){
+        this.searchPanel.resetSearchResults();
+        this.search(filter, this.searchPanel, reqType, customSearcherName, setToolbar, inverse,
+                null, -1, -1, true, getSearchParam().getMaximumSearchResultsGUI());
+    }
 	
 	public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse){
 		this.search(filter, listenner, reqType, setToolbar, inverse, null, -1, -1);
@@ -171,8 +216,13 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 		search(filter, listenner, reqType, setToolbar, inverse, baseUrl, start, count, searchAllOccurrences, -1);
 	}
 
-	public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse,
-			String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences){
+
+    public void search(String filter, SearchListenner listenner, Type reqType, boolean setToolbar, boolean inverse,
+            String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences){
+        search(filter, listenner, reqType, null, setToolbar, inverse, baseUrl, start, count, searchAllOccurrences, maxOccurrences);
+    }
+	public void search(String filter, SearchListenner listenner, Type reqType, String customSearcherName, boolean setToolbar, 
+	        boolean inverse, String baseUrl, int start, int count, boolean searchAllOccurrences, int maxOccurrences){
 		if (setToolbar) {
 			this.getSearchPanel().searchFocus();
 			this.getSearchPanel().getRegExField().setText(filter);
@@ -191,7 +241,9 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 					}
 	    		}
 	    	}
-    		searchThread = new SearchThread(filter, reqType, listenner, inverse, searchJustInScope, baseUrl, start, count, searchAllOccurrences, maxOccurrences);
+    		searchThread = new SearchThread(filter, reqType, customSearcherName, listenner, inverse, searchJustInScope, baseUrl,
+    		        start, count, searchAllOccurrences, maxOccurrences);
+    		searchThread.setCustomSearchers(customSearchers);
 	    	searchThread.start();
 	    	
 	    }

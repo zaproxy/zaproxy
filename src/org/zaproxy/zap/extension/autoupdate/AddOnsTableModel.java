@@ -35,7 +35,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.zaproxy.zap.control.AddOn;
-import org.zaproxy.zap.control.AddOn.RunRequirements;
+import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 
@@ -279,28 +279,32 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     }
 
     protected boolean refreshRunningIssues(AddOnWrapper aow, int row) {
-        String issues = getAddOnRunningIssues(aow.getAddOn().calculateRunRequirements(addOnCollection.getAddOns()));
-        aow.setRunningIssues(issues);
+        AddOnRunRequirements reqs = aow.getAddOn().calculateRunRequirements(addOnCollection.getAddOns());
+        String issues = getAddOnRunningIssues(reqs);
+        aow.setRunningIssues(issues, !reqs.hasExtensionsWithRunningIssues());
 
         return !issues.isEmpty();
     }
 
-    protected String getAddOnRunningIssues(RunRequirements reqs) {
-        if (reqs.isRunnable()) {
-            return "";
-        }
-
+    protected String getAddOnRunningIssues(AddOnRunRequirements reqs) {
         List<String> extractedIssues = AddOnRunIssuesUtils.getUiRunningIssues(reqs, getAddOnSearcher());
         if (extractedIssues.isEmpty()) {
+            List<String> extensionsIssues = AddOnRunIssuesUtils.getUiExtensionsRunningIssues(reqs, getAddOnSearcher());
+            if (!extensionsIssues.isEmpty()) {
+                return getHtmlFromIssues(
+                        Constant.messages.getString("cfu.warn.addon.with.extensions.with.missing.requirements"),
+                        extensionsIssues);
+            }
             return "";
         }
+        return getHtmlFromIssues(Constant.messages.getString("cfu.warn.addon.with.missing.requirements"), extractedIssues);
+    }
 
+    private static String getHtmlFromIssues(String title, List<String> issues) {
         StringBuilder strBuilder = new StringBuilder(150);
         Encoder encoder = new Encoder();
-        strBuilder.append("<html><strong>")
-                .append(encoder.getHTMLString(Constant.messages.getString("cfu.warn.addon.with.missing.requirements")))
-                .append("</strong><ul>");
-        for (String issue : extractedIssues) {
+        strBuilder.append("<html><strong>").append(encoder.getHTMLString(title)).append("</strong><ul>");
+        for (String issue : issues) {
             strBuilder.append("<li>").append(encoder.getHTMLString(issue)).append("</li>");
         }
         strBuilder.append("</ul></html>");

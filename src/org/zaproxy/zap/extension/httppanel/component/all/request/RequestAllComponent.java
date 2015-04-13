@@ -36,8 +36,12 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelComponent;
+import org.zaproxy.zap.model.HttpMessageLocation;
+import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 
-public class RequestAllComponent implements HttpPanelComponentInterface, SearchableHttpPanelComponent {
+public class RequestAllComponent implements HttpPanelComponentInterface, SearchableHttpPanelComponent, MessageLocationHighlighter {
 	
 	public static final String NAME = "RequestAll";
 
@@ -219,4 +223,90 @@ public class RequestAllComponent implements HttpPanelComponentInterface, Searcha
 	public void searchBody(Pattern p, List<SearchMatch> matches) {
 		views.search(p, matches);
 	}
+
+    @Override
+    public boolean supports(MessageLocation location) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return false;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            return views.supports(httpMessageLocation);
+        default:
+            return false;
+        }
+    }
+
+    @Override
+    public boolean supports(Class<? extends MessageLocation> classLocation) {
+        if (!(HttpMessageLocation.class.isAssignableFrom(classLocation))) {
+            return true;
+        }
+        return false;
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return null;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            return views.highlight(httpMessageLocation);
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return null;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            return views.highlight(httpMessageLocation, highlight);
+        default:
+            return null;
+        }
+    }
+
+    @Override
+    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+        if (!(location instanceof HttpMessageLocation)) {
+            return;
+        }
+
+        HttpMessageLocation httpMessageLocation = (HttpMessageLocation) location;
+        switch (httpMessageLocation.getLocation()) {
+        case REQUEST_HEADER:
+        case RESPONSE_HEADER:
+        case REQUEST_BODY:
+        case RESPONSE_BODY:
+            views.removeHighlight(httpMessageLocation, highlightReference);
+            break;
+        default:
+        }
+    }
+
+    @Override
+    public HttpPanelView setSelectedView(String viewName) {
+        return views.setSelectedView(viewName);
+    }
+
 }

@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.control;
 
+import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.List;
 public class AddOnClassLoader extends URLClassLoader {
 
     private final ParentClassLoader parent;
+    private final List<AddOnClassLoader> childClassLoaders;
     private List<AddOnClassLoader> dependencies;
 
     /**
@@ -75,6 +77,48 @@ public class AddOnClassLoader extends URLClassLoader {
 
         this.parent = new ParentClassLoader(parent);
         this.dependencies = dependencies.isEmpty() ? Collections.<AddOnClassLoader> emptyList() : new ArrayList<>(dependencies);
+        this.childClassLoaders = new ArrayList<>(2);
+    }
+
+    /**
+     * Constructs a new {@code AddOnClassLoader} with the given {@code dependencies} which are used to find classes and
+     * resources when not found in the add-on or in {@code parent} {@code AddOnClassLoader}.
+     * 
+     * @param parent the parent class loader for delegation
+     * @param dependencies the {@code AddOnClassLoader}s of the dependencies of the add-on
+     * @throws NullPointerException if {@code parent} is {@code null}.
+     * @throws IllegalArgumentException if the {@code addOnFileUrl} or {@code dependencies} is {@code null}.
+     * @since 2.4.0
+     */
+    public AddOnClassLoader(AddOnClassLoader parent, List<AddOnClassLoader> dependencies) {
+        super(parent.getURLs(), null);
+
+        if (dependencies == null) {
+            throw new IllegalArgumentException("Parameter dependencies must not be null.");
+        }
+
+        parent.childClassLoaders.add(this);
+        this.parent = new ParentClassLoader(parent);
+        this.dependencies = dependencies.isEmpty() ? Collections.<AddOnClassLoader> emptyList() : new ArrayList<>(dependencies);
+        this.childClassLoaders = Collections.emptyList();
+    }
+
+    /**
+     * Removes the given child class loader from the list of child class loaders.
+     *
+     * @param child the child class loader that will be removed
+     * @since 2.4.0
+     */
+    public void removeChildClassLoader(AddOnClassLoader child) {
+        childClassLoaders.remove(child);
+    }
+
+    @Override
+    public void close() throws IOException {
+        for (AddOnClassLoader childClassLoader : childClassLoaders) {
+            childClassLoader.close();
+        }
+        super.close();
     }
 
     /**

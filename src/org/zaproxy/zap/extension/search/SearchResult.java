@@ -31,6 +31,7 @@ public class SearchResult {
 
 
 	private ExtensionSearch.Type type;
+	private String customSearcherName;
 	private HttpMessage message;
 	private String regEx;
 	private String stringFound;
@@ -38,8 +39,13 @@ public class SearchResult {
 	private SearchMatch lastMatch = null;
 
 	public SearchResult(ExtensionSearch.Type type, String regEx, String stringFound, SearchMatch sm) { 
+		this(type, null, regEx, stringFound, sm);
+	}
+
+	public SearchResult(ExtensionSearch.Type type, String customSearcherName, String regEx, String stringFound, SearchMatch sm) { 
 		this.message = sm.getMessage();
 		this.type = type;
+		this.customSearcherName = customSearcherName;
 		this.regEx = regEx;
 		this.stringFound = stringFound;
 		matches = new ArrayList<>(1);
@@ -76,6 +82,10 @@ public class SearchResult {
 
 	public ExtensionSearch.Type getType() {
 		return type;
+	}
+	
+	public String getCustomSearcherName() {
+		return customSearcherName;
 	}
 
 	public void setType(ExtensionSearch.Type type) {

@@ -179,7 +179,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 		OptionsParam options = (OptionsParam) obj;
 
-		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
+		SpiderParam param = options.getParamSet(SpiderParam.class);
 		getSliderMaxDepth().setValue(param.getMaxDepth());
 		getSliderThreads().setValue(param.getThreadCount());
 		getDomainsAlwaysInScopeTableModel().setDomainsAlwaysInScope(param.getDomainsAlwaysInScope());
@@ -205,7 +205,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam(Object obj) throws Exception {
 		OptionsParam options = (OptionsParam) obj;
-		SpiderParam param = (SpiderParam) options.getParamSet(SpiderParam.class);
+		SpiderParam param = options.getParamSet(SpiderParam.class);
 		param.setMaxDepth(getSliderMaxDepth().getValue());
 		param.setThreadCount(getSliderThreads().getValue());
 		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());

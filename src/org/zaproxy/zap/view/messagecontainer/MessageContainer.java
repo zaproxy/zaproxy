@@ -58,6 +58,13 @@ import org.zaproxy.zap.extension.httppanel.Message;
 public interface MessageContainer<T extends Message> {
 
     /**
+     * Returns the {@code Class} of the container's message, for use as runtime type token.
+     *
+     * @return the {@code Class} of the container's message.
+     */
+    Class<T> getMessageClass();
+
+    /**
      * Returns the name of the message container.
      * <p>
      * The name should be unique among other containers since it will be used to uniquely identify them.

@@ -35,10 +35,13 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert list here.
 // ZAP: 2014/03/23 Issue 1097: Move "Run applications" (invoke) extension to zap-extensions project
+// ZAP: 2015/04/09 Generify getParamSet(Class) to avoid unnecessary casts
 
 package org.parosproxy.paros.model;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -54,6 +57,7 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.api.OptionsParamApi;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.globalexcludeurl.GlobalExcludeURLParam;
+
 import ch.csnc.extension.util.OptionsParamExperimentalSliSupport;
 
 
@@ -84,6 +88,7 @@ public class OptionsParam extends AbstractParam {
     private DatabaseParam databaseParam = new DatabaseParam();
 
 	private Vector<AbstractParam> paramSetList = new Vector<>();
+	private Map<Class<? extends AbstractParam>, AbstractParam> abstractParamsMap = new HashMap<>();
 	private boolean gui = true;
 	private File userDirectory = null;
 	
@@ -155,28 +160,23 @@ public class OptionsParam extends AbstractParam {
     
      public void addParamSet(AbstractParam paramSet) {
         paramSetList.add(paramSet);
+        abstractParamsMap.put(paramSet.getClass(), paramSet);
 	    paramSet.load(getConfig());
     }
      
      public void removeParamSet(AbstractParam paramSet) {
          paramSetList.remove(paramSet);
+         abstractParamsMap.remove(paramSet.getClass());
      }
     
-    // ZAP: Added type argument.
-    public AbstractParam getParamSet(Class<? extends AbstractParam> className) {
-       
-        AbstractParam result = null;
-        for (int i=0; i<paramSetList.size(); i++) {
-            // ZAP: Changed the type to AbstractParam and renamed to
-            // abstractParam. 
-            AbstractParam abstractParam = paramSetList.get(i);
-            if (abstractParam.getClass().equals(className)) {
-                // ZAP: Removed the cast.
-                result = abstractParam;
-                break;
+    public <T extends AbstractParam> T getParamSet(Class<T> clazz) {
+        if (clazz != null) {
+            AbstractParam abstractParam = abstractParamsMap.get(clazz);
+            if (abstractParam != null) {
+                return clazz.cast(abstractParam);
             }
         }
-        return result;
+        return null;
     }
     
     // ZAP: Removed the method getConfig().

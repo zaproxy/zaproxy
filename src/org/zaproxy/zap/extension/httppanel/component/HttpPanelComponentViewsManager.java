@@ -43,15 +43,19 @@ import javax.swing.MutableComboBoxModel;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
+import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
+import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 
 
-public class HttpPanelComponentViewsManager implements ItemListener {
+public class HttpPanelComponentViewsManager implements ItemListener, MessageLocationHighlighter {
 
     private static final Logger logger = Logger.getLogger(HttpPanelComponentViewsManager.class);
 
@@ -106,6 +110,8 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     private boolean changingComboBox;
     
     
+    private HttpPanel owner;
+
     public HttpPanelComponentViewsManager(String configurationKey) {
         enabledViews = new ArrayList<>();
         viewItems = new HashMap<>();
@@ -136,6 +142,16 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     }
     
     
+    public HttpPanelComponentViewsManager(HttpPanel owner, String configurationKey) {
+        this(configurationKey);
+        this.owner = owner;
+    }
+
+    public HttpPanelComponentViewsManager(HttpPanel owner, String configurationKey, String label) {
+        this(configurationKey, label);
+        this.owner = owner;
+    }
+
     public JComponent getSelectableViewsComponent() {
         return comboBoxSelectView;
     }
@@ -155,7 +171,10 @@ public class HttpPanelComponentViewsManager implements ItemListener {
     private void switchView(final String name) {
         if (this.currentView != null && this.currentView.getCaptionName().equals(name)) {
             currentView.setSelected(true);
-            return ;
+            if (owner != null) {
+                owner.fireMessageViewChangedEvent(currentView, currentView);
+            }
+            return;
         }
         
         HttpPanelView view = views.get(name);
@@ -165,6 +184,7 @@ public class HttpPanelComponentViewsManager implements ItemListener {
             return;
         }
         
+        HttpPanelView previousView = currentView;
         if (this.currentView != null) {
             this.currentView.setSelected(false);
             this.currentView.getModel().clear();
@@ -179,6 +199,10 @@ public class HttpPanelComponentViewsManager implements ItemListener {
         ((CardLayout) panelViews.getLayout()).show(panelViews, name);
 
         this.currentView.setSelected(true);
+
+        if (owner != null) {
+            owner.fireMessageViewChangedEvent(previousView, currentView);
+        }
     }
     
     
@@ -608,5 +632,74 @@ public class HttpPanelComponentViewsManager implements ItemListener {
             }
             return 0;
         }
+    }
+
+    @Override
+    public boolean supports(MessageLocation location) {
+        for (ViewItem item : enabledViews) {
+            HttpPanelView view = views.get(item.getConfigName());
+            if (view instanceof MessageLocationHighlighter) {
+                
+                MessageLocationHighlighter highlighter = (MessageLocationHighlighter) view;
+                if (highlighter.supports(location)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean supports(Class<? extends MessageLocation> classLocation) {
+        for (ViewItem item : enabledViews) {
+            HttpPanelView view = views.get(item.getConfigName());
+            if (view instanceof MessageLocationHighlighter) {
+                
+                MessageLocationHighlighter highlighter = (MessageLocationHighlighter) view;
+                if (highlighter.supports(classLocation)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location) {
+        if (currentView instanceof MessageLocationHighlighter) {
+            
+            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) currentView;
+            return highlighter.highlight(location);
+        }
+        return null;
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+        if (currentView instanceof MessageLocationHighlighter) {
+            
+            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) currentView;
+            return highlighter.highlight(location, highlight);
+        }
+        return null;
+    }
+
+    @Override
+    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+        if (currentView instanceof MessageLocationHighlighter) {
+            
+            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) currentView;
+            highlighter.removeHighlight(location, highlightReference);
+        }
+    }
+
+    public HttpPanelView setSelectedView(String viewName) {
+        for (ViewItem item : enabledViews) {
+            if (viewName.equals(item.getConfigName())) {
+                switchView(viewName);
+                return currentView;
+            }
+        }
+        return null;
     }
 }

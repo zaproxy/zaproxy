@@ -603,7 +603,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	public void optionsChanged(OptionsParam optionsParam) {
 		if (View.isInitialised()) {
 			this.getBreakPanel().setButtonMode(
-					((BreakpointsParam) optionsParam.getParamSet(BreakpointsParam.class)).getButtonMode());
+					optionsParam.getParamSet(BreakpointsParam.class).getButtonMode());
 		}
 	}
 

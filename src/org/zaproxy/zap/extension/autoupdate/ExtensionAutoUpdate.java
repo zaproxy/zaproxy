@@ -65,7 +65,7 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
-import org.zaproxy.zap.control.AddOn.RunRequirements;
+import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
 import org.zaproxy.zap.control.AddOnCollection.Platform;
 import org.zaproxy.zap.control.AddOnRunIssuesUtils;
@@ -230,7 +230,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		AddOnChangesResult result = dependencyChecker.calculateInstallChanges(ao);
 
 		if (result.getOldVersions().isEmpty() && result.getUninstalls().isEmpty()) {
-			RunRequirements reqs = ao.calculateRunRequirements(getLocalVersionInfo().getAddOns());
+			AddOnRunRequirements reqs = ao.calculateRunRequirements(getLocalVersionInfo().getAddOns());
 			if (!reqs.isRunnable()) {
 				if (!AddOnRunIssuesUtils.askConfirmationAddOnNotRunnable(
 						Constant.messages.getString("cfu.warn.addOnNotRunnable.message"),
@@ -793,7 +793,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
         if (latestVersionInfo != null) {
             AddOn addOn = latestVersionInfo.getAddOn(ao.getId());
-            if (AddOn.InstallationStatus.DOWNLOADING == addOn.getInstallationStatus()) {
+            if (addOn != null && AddOn.InstallationStatus.DOWNLOADING == addOn.getInstallationStatus()) {
                 addOn.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
             }
         }
@@ -967,7 +967,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
             Set<AddOn> addOns = new HashSet<>(changes.getUninstalls());
             addOns.addAll(changes.getOldVersions());
 
-            if (!warnUnsavedResourcesOrActiveActions(caller, addOns, true)) {
+            Set<Extension> extensions = new HashSet<>();
+            extensions.addAll(changes.getUnloadExtensions());
+            extensions.addAll(changes.getSoftUnloadExtensions());
+
+            if (!warnUnsavedResourcesOrActiveActions(caller, addOns, extensions, true)) {
                 return;
             }
         }
@@ -985,14 +989,18 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         }
     }
 
-    boolean warnUnsavedResourcesOrActiveActions(Window caller, Collection<AddOn> addOns, boolean updating) {
+    boolean warnUnsavedResourcesOrActiveActions(
+            Window caller,
+            Collection<AddOn> addOns,
+            Set<Extension> extensions,
+            boolean updating) {
         Set<AddOn> allAddOns = new HashSet<>(addOns);
         addDependents(allAddOns);
 
         String baseMessagePrefix = updating ? "cfu.update." : "cfu.uninstall.";
 
-        String unsavedResources = getExtensionsUnsavedResources(addOns);
-        String activeActions = getExtensionsActiveActions(addOns);
+        String unsavedResources = getExtensionsUnsavedResources(addOns, extensions);
+        String activeActions = getExtensionsActiveActions(addOns, extensions);
 
         String message = null;
         if (!unsavedResources.isEmpty()) {
@@ -1046,15 +1054,16 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     }
     
     /**
-     * Returns all unsaved resources of the given {@code addOns} wrapped in {@code <li>} elements or an empty {@code String} if
-     * there are no unsaved resources.
+     * Returns all unsaved resources of the given {@code addOns} and {@code extensions} wrapped in {@code <li>} elements or an
+     * empty {@code String} if there are no unsaved resources.
      *
      * @param addOns the add-ons that will be queried for unsaved resources
+     * @param extensions the extensions that will be queried for unsaved resources
      * @return a {@code String} containing all unsaved resources or empty {@code String} if none
      * @since 2.4.0
      * @see Extension#getUnsavedResources()
      */
-    private static String getExtensionsUnsavedResources(Collection<AddOn> addOns) {
+    private static String getExtensionsUnsavedResources(Collection<AddOn> addOns, Set<Extension> extensions) {
         List<String> unsavedResources = new ArrayList<>();
         for (AddOn addOn : addOns) {
             for (Extension extension : addOn.getLoadedExtensions()) {
@@ -1062,6 +1071,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 if (resources != null) {
                     unsavedResources.addAll(resources);
                 }
+            }
+        }
+        for (Extension extension : extensions) {
+            List<String> resources = extension.getUnsavedResources();
+            if (resources != null) {
+                unsavedResources.addAll(resources);
             }
         }
         return wrapEntriesInLiTags(unsavedResources);
@@ -1082,15 +1097,16 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     }
 
     /**
-     * Returns all active actions of the given {@code addOns} wrapped in {@code <li>} elements or an empty {@code String} if
-     * there are no active actions.
+     * Returns all active actions of the given {@code addOns} and {@code extensions} wrapped in {@code <li>} elements or an
+     * empty {@code String} if there are no active actions.
      *
      * @param addOns the add-ons that will be queried for active actions
+     * @param extensions the extensions that will be queried for active actions
      * @return a {@code String} containing all active actions or empty {@code String} if none
      * @since 2.4.0
      * @see Extension#getActiveActions()
      */
-    private static String getExtensionsActiveActions(Collection<AddOn> addOns) {
+    private static String getExtensionsActiveActions(Collection<AddOn> addOns, Set<Extension> extensions) {
         List<String> activeActions = new ArrayList<>();
         for (AddOn addOn : addOns) {
             for (Extension extension : addOn.getLoadedExtensions()) {
@@ -1098,6 +1114,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 if (actions != null) {
                     activeActions.addAll(actions);
                 }
+            }
+        }
+        for (Extension extension : extensions) {
+            List<String> resources = extension.getActiveActions();
+            if (resources != null) {
+                activeActions.addAll(resources);
             }
         }
         return wrapEntriesInLiTags(activeActions);

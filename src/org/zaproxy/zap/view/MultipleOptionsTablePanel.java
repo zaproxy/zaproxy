@@ -52,6 +52,8 @@ public class MultipleOptionsTablePanel extends JPanel {
         super(new BorderLayout());
 
         this.model = model;
+        this.table = createTable();
+        this.table.setModel(model);
 
         JPanel panel = new JPanel(new BorderLayout());
 
@@ -62,13 +64,14 @@ public class MultipleOptionsTablePanel extends JPanel {
         this.add(getFooterPanel(), BorderLayout.SOUTH);
     }
 
-    protected JXTable getTable() {
-        if (table == null) {
-            table = new JXTable();
-            table.setColumnControlVisible(true);
-            table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            table.setModel(model);
-        }
+    protected JXTable createTable() {
+        JXTable table = new JXTable();
+        table.setColumnControlVisible(true);
+        table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+        return table;
+    }
+
+    protected final JXTable getTable() {
         return table;
     }
 

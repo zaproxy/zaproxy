@@ -181,7 +181,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
-        ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
+        ScannerParam param = options.getParamSet(ScannerParam.class);
         getSliderHostPerScan().setValue(param.getHostPerScan());
         getSliderThreadsPerHost().setValue(param.getThreadPerHost());
         getSliderDelayInMs().setValue(param.getDelayInMs());
@@ -216,7 +216,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
-        ScannerParam param = (ScannerParam) options.getParamSet(ScannerParam.class);
+        ScannerParam param = options.getParamSet(ScannerParam.class);
         param.setHostPerScan(getSliderHostPerScan().getValue());
         param.setThreadPerHost(getSliderThreadsPerHost().getValue());
         param.setDelayInMs(getDelayInMs());

@@ -137,6 +137,7 @@ This list the alerts
 
 50000	Active Scan scripts
 50001	Passive Scan scripts
+50002	Fuzzer HTTP Processor scripts
 
 60000	Example simple passive rule 
 60001	Example file passive rule 

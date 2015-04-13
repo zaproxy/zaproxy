@@ -27,7 +27,6 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
-import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
@@ -36,7 +35,7 @@ import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 
-public class SpiderScanController implements ScanController {
+public class SpiderScanController implements ScanController<SpiderScan> {
 
 	private static final Logger log = Logger.getLogger(SpiderScanController.class);
 
@@ -139,7 +138,7 @@ public class SpiderScanController implements ScanController {
 	}
 	
 	@Override
-	public GenericScanner2 getScan(int id) {
+	public SpiderScan getScan(int id) {
 		return this.spiderScanMap.get(id);
 	}
 	
@@ -157,8 +156,8 @@ public class SpiderScanController implements ScanController {
 	}
 	
 	@Override
-	public List<GenericScanner2> getAllScans() {
-		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
+	public List<SpiderScan> getAllScans() {
+		List<SpiderScan> list = new ArrayList<SpiderScan>();
 		spiderScansLock.lock();
 		try {
 			for (SpiderScan scan : spiderScanList) {
@@ -171,8 +170,8 @@ public class SpiderScanController implements ScanController {
 	}
 	
 	@Override
-	public List<GenericScanner2> getActiveScans() {
-		List<GenericScanner2> list = new ArrayList<GenericScanner2>();
+	public List<SpiderScan> getActiveScans() {
+		List<SpiderScan> list = new ArrayList<SpiderScan>();
 		spiderScansLock.lock();
 		try {
 			for (SpiderScan scan : spiderScanList) {
@@ -187,7 +186,7 @@ public class SpiderScanController implements ScanController {
 	}
 	
 	@Override
-	public GenericScanner2 removeScan(int id) {
+	public SpiderScan removeScan(int id) {
 		spiderScansLock.lock();
 
 		try {

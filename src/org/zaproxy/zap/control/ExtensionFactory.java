@@ -159,49 +159,62 @@ public class ExtensionFactory {
         }
     }
 
+    public static synchronized void addAddOnExtension(
+            ExtensionLoader extensionLoader,
+            Configuration config,
+            Extension extension) {
+        synchronized (mapAllExtension) {
+            addExtensionImpl(config, extension);
+
+            if (extension.isEnabled()) {
+                log.debug("Adding new extension " + extension.getName());
+            }
+            loadMessagesAndAddExtension(extensionLoader, extension);
+        }
+    }
+
+    private static void addExtensionImpl(Configuration config, Extension extension) {
+        if (mapAllExtension.containsKey(extension.getName())) {
+            if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
+                // Same name, same class cant currently replace exts already loaded
+                log.debug("Duplicate extension: " + extension.getName() + " " + extension.getClass().getCanonicalName());
+                extension.setEnabled(false);
+                return;
+            }
+            // Same name but different class, log but still load it
+            log.error("Duplicate extension name: " + extension.getName() + " " + extension.getClass().getCanonicalName() + " "
+                    + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
+        }
+        if (extension.isDepreciated()) {
+            log.debug("Depreciated extension " + extension.getName());
+            return;
+        }
+        extension.setEnabled(config.getBoolean("ext." + extension.getName(), true));
+
+        listAllExtension.add(extension);
+        mapAllExtension.put(extension.getName(), extension);
+        // Order actually irrelevant when adding an addon;)
+        int order = extension.getOrder();
+        if (order == 0) {
+            unorderedExtensions.add(extension);
+        } else if (mapOrderToExtension.containsKey(order)) {
+            log.error("Duplicate order " + order + " " + mapOrderToExtension.get(order).getName() + "/"
+                    + mapOrderToExtension.get(order).getClass().getCanonicalName() + " already registered, "
+                    + extension.getName() + "/" + extension.getClass().getCanonicalName()
+                    + " will be added as an unordered extension");
+            unorderedExtensions.add(extension);
+        } else {
+            mapOrderToExtension.put(order, extension);
+        }
+    }
+
     public static synchronized List<Extension> loadAddOnExtensions(ExtensionLoader extensionLoader, Configuration config, AddOn addOn) {
         List<Extension> listExts = getAddOnLoader().getExtensions(addOn);
 
         synchronized (mapAllExtension) {
 
             for (Extension extension : listExts) {
-                if (mapAllExtension.containsKey(extension.getName())) {
-                    if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
-                        // Same name, same class cant currently replace exts already loaded
-                        log.debug("Duplicate extension: " + extension.getName() + " "
-                                + extension.getClass().getCanonicalName());
-                        extension.setEnabled(false);
-                        continue;
-                    } else {
-                        // Same name but different class, log but still load it
-                        log.error("Duplicate extension name: " + extension.getName() + " "
-                                + extension.getClass().getCanonicalName()
-                                + " " + mapAllExtension.get(extension.getName()).getClass().getCanonicalName());
-                    }
-                }
-                if (extension.isDepreciated()) {
-                    log.debug("Depreciated extension " + extension.getName());
-                    continue;
-                }
-                extension.setEnabled(config.getBoolean("ext." + extension.getName(), true));
-
-                listAllExtension.add(extension);
-                mapAllExtension.put(extension.getName(), extension);
-                // Order actually irrelevant when adding an addon;)
-                int order = extension.getOrder();
-                if (order == 0) {
-                    unorderedExtensions.add(extension);
-                } else if (mapOrderToExtension.containsKey(order)) {
-                    log.error("Duplicate order " + order + " "
-                            + mapOrderToExtension.get(order).getName() + "/" + mapOrderToExtension.get(order).getClass().getCanonicalName()
-                            + " already registered, "
-                            + extension.getName() + "/" + extension.getClass().getCanonicalName()
-                            + " will be added as an unordered extension");
-                    unorderedExtensions.add(extension);
-                } else {
-                    mapOrderToExtension.put(order, extension);
-                }
-
+                addExtensionImpl(config, extension);
             }
             for (Extension ext : listExts) {
                 if (ext.isEnabled()) {

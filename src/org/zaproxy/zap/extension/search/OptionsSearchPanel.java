@@ -92,7 +92,7 @@ public class OptionsSearchPanel extends AbstractParamPanel {
     @Override
     public void initParam(Object obj) {
         final OptionsParam options = (OptionsParam) obj;
-        final SearchParam param = (SearchParam) options.getParamSet(SearchParam.class);
+        final SearchParam param = options.getParamSet(SearchParam.class);
 
         numberSpinnerMaxSearchResultsGUI.setValue(Integer.valueOf(param.getMaximumSearchResultsGUI()));
     }
@@ -104,7 +104,7 @@ public class OptionsSearchPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
         final OptionsParam options = (OptionsParam) obj;
-        final SearchParam param = (SearchParam) options.getParamSet(SearchParam.class);
+        final SearchParam param = options.getParamSet(SearchParam.class);
 
         param.setMaximumSearchResultsGUI(numberSpinnerMaxSearchResultsGUI.getValue().intValue());
     }

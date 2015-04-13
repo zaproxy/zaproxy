@@ -85,7 +85,6 @@ public final class CoreFunctionality {
 			extensions.add(new org.zaproxy.zap.extension.encoder2.ExtensionEncoder2());
 			extensions.add(new org.zaproxy.zap.extension.ext.ExtensionExtension());
 			extensions.add(new org.zaproxy.zap.extension.forceduser.ExtensionForcedUser());
-			extensions.add(new org.zaproxy.zap.extension.fuzz.ExtensionFuzz());
 			extensions.add(new org.zaproxy.zap.extension.globalexcludeurl.ExtensionGlobalExcludeURL());
 			extensions.add(new org.zaproxy.zap.extension.help.ExtensionHelp());
 			extensions.add(new org.zaproxy.zap.extension.httppanel.component.all.ExtensionHttpPanelComponentAll());
@@ -100,8 +99,6 @@ public final class CoreFunctionality {
 			extensions.add(new org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions());
 			extensions.add(new org.zaproxy.zap.extension.keyboard.ExtensionKeyboard());
 			extensions.add(new org.zaproxy.zap.extension.log4j.ExtensionLog4j());
-			extensions.add(new org.zaproxy.zap.extension.multiFuzz.ExtensionFuzz());
-			extensions.add(new org.zaproxy.zap.extension.multiFuzz.impl.http.ExtensionRegister());
 			extensions.add(new org.zaproxy.zap.extension.params.ExtensionParams());
 			extensions.add(new org.zaproxy.zap.extension.pscan.ExtensionPassiveScan());
 			extensions.add(new org.zaproxy.zap.extension.script.ExtensionScript());

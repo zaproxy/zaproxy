@@ -57,4 +57,9 @@ public abstract class AbstractMultipleOptionsBaseTableModel<E> extends AbstractT
         getElements().remove(row);
         fireTableRowsDeleted(row, row);
     }
+
+    public void clear() {
+        getElements().clear();
+        fireTableDataChanged();
+    }
 }

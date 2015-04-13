@@ -17,6 +17,8 @@
  */
 package org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.components.split.request;
 
+import java.awt.Color;
+import java.awt.Component;
 import java.util.List;
 import java.util.Locale;
 import java.util.regex.Matcher;
@@ -26,29 +28,61 @@ import org.fife.ui.rsyntaxtextarea.SyntaxConstants;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.fuzz.FuzzableComponent;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.DefaultTextHttpMessageLocation;
+import org.zaproxy.zap.model.HttpMessageLocation;
+import org.zaproxy.zap.model.TextHttpMessageLocation;
 import org.zaproxy.zap.extension.httppanel.Message;
-import org.zaproxy.zap.extension.httppanel.view.FuzzableMessage;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.request.RequestBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.AutoDetectSyntaxHttpPanelTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
-import org.zaproxy.zap.extension.httppanel.view.text.FuzzableTextHttpMessage;
 import org.zaproxy.zap.extension.httppanel.view.util.CaretVisibilityEnforcerOnFocusGain;
 import org.zaproxy.zap.extension.search.SearchMatch;
+import org.zaproxy.zap.model.MessageLocation;
+import org.zaproxy.zap.view.messagecontainer.http.SelectableContentHttpMessageContainer;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightsManager;
+import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListener;
+import org.zaproxy.zap.view.messagelocation.MessageLocationProducerFocusListenerAdapter;
+import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightsManager;
 
-public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
+public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView implements SelectableContentHttpMessageContainer {
+
+    public static final String NAME = "HttpRequestBodySyntaxTextView";
+
+    private MessageLocationProducerFocusListenerAdapter focusListenerAdapter;
 
 	public HttpRequestBodyPanelSyntaxHighlightTextView(RequestBodyStringHttpPanelViewModel model) {
 		super(model);
+
+		getHttpPanelTextArea().setComponentPopupMenu(new CustomPopupMenu() {
+
+			private static final long serialVersionUID = -426000345249750052L;
+
+			@Override
+			public void show(Component invoker, int x, int y) {
+				if (!getHttpPanelTextArea().isFocusOwner()) {
+					getHttpPanelTextArea().requestFocusInWindow();
+				}
+
+				View.getSingleton().getPopupMenu().show(HttpRequestBodyPanelSyntaxHighlightTextView.this, x, y);
+			};
+		});
 	}
+
+    @Override
+    protected HttpRequestBodyPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
+        return (HttpRequestBodyPanelSyntaxHighlightTextArea) super.getHttpPanelTextArea();
+    }
 	
 	@Override
 	protected HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea() {
 		return new HttpRequestBodyPanelSyntaxHighlightTextArea();
 	}
 	
-	private static class HttpRequestBodyPanelSyntaxHighlightTextArea extends AutoDetectSyntaxHttpPanelTextArea implements FuzzableComponent {
+	private static class HttpRequestBodyPanelSyntaxHighlightTextArea extends AutoDetectSyntaxHttpPanelTextArea {
 
 		private static final long serialVersionUID = -2102275261139781996L;
 
@@ -72,41 +106,43 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 			caretVisiblityEnforcer = new CaretVisibilityEnforcerOnFocusGain(this);
 		}
 		
+        @Override
+        public String getName() {
+            return NAME;
+		}
+        
+        @Override
+        public HttpMessage getMessage() {
+            return (HttpMessage) super.getMessage();
+        }
+		
 		@Override
 		public void setMessage(Message aMessage) {
 			super.setMessage(aMessage);
 			
 			caretVisiblityEnforcer.setEnforceVisibilityOnFocusGain(aMessage != null);
 		}
-        
-        @Override
-        public Class<? extends Message> getMessageClass() {
-            return HttpMessage.class;
+
+        protected MessageLocation getSelection() {
+            int start = getSelectionStart();
+            int end = getSelectionEnd();
+            if (start == end) {
+                return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_BODY, start);
+            }
+            return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_BODY, start, end, getSelectedText());
         }
 
-		@Override
-		public boolean canFuzz() {
-			if (getMessage() == null) {
-				return false;
-			}
-			
-			//Currently do not allow to fuzz if the text area is editable, because the HttpMessage used is not updated with the changes.
-			return !isEditable();
-		}
-		
-		@Override
-		public String getFuzzTarget() {
-			final String selectedText = getSelectedText();
-			if (selectedText != null) {
-				return selectedText;
-			}
-			return "";
-		}
-		
-		@Override
-		public FuzzableMessage getFuzzableMessage() {
-			return new FuzzableTextHttpMessage((HttpMessage)getMessage(), FuzzableTextHttpMessage.Location.BODY, getSelectionStart(), getSelectionEnd());
-		}
+        protected MessageLocationHighlightsManager create() {
+            return new TextMessageLocationHighlightsManager();
+        }
+
+        protected MessageLocationHighlight highlightImpl(
+                TextHttpMessageLocation textLocation,
+                TextMessageLocationHighlight textHighlight) {
+            textHighlight.setHighlightReference(highlight(textLocation.getStart(), textLocation.getEnd(), textHighlight));
+
+            return textHighlight;
+        }
 
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
@@ -178,5 +214,109 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		}
 	}
 
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    @Override
+    public Class<HttpMessage> getMessageClass() {
+        return HttpMessage.class;
+    }
+
+    @Override
+    public Class<? extends MessageLocation> getMessageLocationClass() {
+        return TextHttpMessageLocation.class;
+    }
+
+    @Override
+    public MessageLocation getSelection() {
+        return getHttpPanelTextArea().getSelection();
+    }
+
+    @Override
+    public MessageLocationHighlightsManager create() {
+        return getHttpPanelTextArea().create();
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location) {
+        if (!supports(location)) {
+            return null;
+        }
+        TextHttpMessageLocation textLocation = (TextHttpMessageLocation) location;
+
+        return getHttpPanelTextArea().highlightImpl(textLocation, new TextMessageLocationHighlight(Color.LIGHT_GRAY));
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+        if (!supports(location) || !(highlight instanceof TextMessageLocationHighlight)) {
+            return null;
+        }
+        TextHttpMessageLocation textLocation = (TextHttpMessageLocation) location;
+        TextMessageLocationHighlight textHighlight = (TextMessageLocationHighlight) highlight;
+
+        return getHttpPanelTextArea().highlightImpl(textLocation, textHighlight);
+    }
+
+    @Override
+    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+        if (!(highlightReference instanceof TextMessageLocationHighlight)) {
+            return;
+        }
+        getHttpPanelTextArea().removeHighlight(((TextMessageLocationHighlight) highlightReference).getHighlightReference());
+    }
+
+    @Override
+    public boolean supports(MessageLocation location) {
+        if (!(location instanceof TextHttpMessageLocation)) {
+            return false;
+        }
+        return ((TextHttpMessageLocation) location).getLocation() == TextHttpMessageLocation.Location.REQUEST_BODY;
+    }
+
+    @Override
+    public boolean supports(Class<? extends MessageLocation> classLocation) {
+        return (TextHttpMessageLocation.class.isAssignableFrom(classLocation));
+    }
+
+    @Override
+    public void addFocusListener(MessageLocationProducerFocusListener focusListener) {
+        getFocusListenerAdapter().addFocusListener(focusListener);
+    }
+
+    @Override
+    public void removeFocusListener(MessageLocationProducerFocusListener focusListener) {
+        getFocusListenerAdapter().removeFocusListener(focusListener);
+
+        if (!getFocusListenerAdapter().hasFocusListeners()) {
+            getHttpPanelTextArea().removeFocusListener(focusListenerAdapter);
+            focusListenerAdapter = null;
+        }
+    }
+
+    @Override
+    public HttpMessage getMessage() {
+        return getHttpPanelTextArea().getMessage();
+    }
+
+    @Override
+    public Component getComponent() {
+        return getHttpPanelTextArea();
+    }
+
+    @Override
+    public boolean isEmpty() {
+        return getHttpPanelTextArea().getMessage() == null;
+    }
+
+    private MessageLocationProducerFocusListenerAdapter getFocusListenerAdapter() {
+        if (focusListenerAdapter == null) {
+            focusListenerAdapter = new MessageLocationProducerFocusListenerAdapter(this);
+            getHttpPanelTextArea().addFocusListener(focusListenerAdapter);
+        }
+        return focusListenerAdapter;
+    }
 }
 

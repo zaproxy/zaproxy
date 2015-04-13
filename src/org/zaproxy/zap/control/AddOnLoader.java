@@ -39,20 +39,22 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.ResourceBundle;
 import java.util.Map.Entry;
+import java.util.ResourceBundle;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 import java.util.zip.ZipEntry;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.control.AddOn.RunRequirements;
+import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
+import org.zaproxy.zap.control.AddOn.ExtensionRunRequirements;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 /**
@@ -72,7 +74,11 @@ public class AddOnLoader extends URLClassLoader {
 
 	public static final String ADDONS_BLOCK_LIST = "addons.block";
 
-    private static final String ADDONS_RUNNABLE_LIST = "addons.runnable";
+    private static final String ADDONS_RUNNABLE_BASE_KEY = "runnableAddOns";
+    private static final String ADDONS_RUNNABLE_KEY = ADDONS_RUNNABLE_BASE_KEY + ".addon";
+    private static final String ADDON_RUNNABLE_ID_KEY = "id";
+    private static final String ADDON_RUNNABLE_VERSION_KEY = "version";
+    private static final String ADDON_RUNNABLE_ALL_EXTENSIONS_KEY = "extensions.extension";
 
     /**
      * A "null" object, for use when no callback is given during the uninstallation process.
@@ -90,14 +96,17 @@ public class AddOnLoader extends URLClassLoader {
     private List<String> blockList = new ArrayList<>();
 
     /**
-     * The list of add-ons' ID that are runnable.
+     * The runnable add-ons and its extensions.
+     * <p>
+     * The key is the add-on itself and the value its runnable extensions.
      */
-    private List<String> idsRunnableAddOns;
+    private Map<AddOn, List<String>> runnableAddOns;
 
     /**
-     * The list of add-ons that are no longer runnable since the last run.
+     * The list of add-ons' IDs that have running issues (either the add-on itself or one of its extensions) since last run
+     * because of changes in the dependencies.
      */
-    private List<String> addOnsNoLongerRunnableSinceLastRun;
+    private List<String> idsAddOnsWithRunningIssuesSinceLastRun;
 
     /*
      * Using sub-classloaders means we can unload and reload addons
@@ -138,41 +147,66 @@ public class AddOnLoader extends URLClassLoader {
     }
 
     /**
-     * Returns a list with the IDs of add-ons that are no longer runnable since last run, either Java version was changed or
-     * dependencies of an add-on are no longer met.
+     * Returns a list with the IDs of add-ons that have running issues since last run, either Java version was changed, or
+     * add-on dependencies are no longer met for the add-on or one of its extensions.
      *
      * @return a list with the add-ons that are not longer runnable
      * @since 2.4.0
      */
-    public List<String> getIdsAddOnsNoLongerRunnableSinceLastRun() {
-        return Collections.unmodifiableList(addOnsNoLongerRunnableSinceLastRun);
+    public List<String> getIdsAddOnsWithRunningIssuesSinceLastRun() {
+        return Collections.unmodifiableList(idsAddOnsWithRunningIssuesSinceLastRun);
     }
 
     private void loadAllAddOns() {
-        idsRunnableAddOns  = new ArrayList<>();
-        addOnsNoLongerRunnableSinceLastRun = new ArrayList<>();
-        List<String> idsOldAddOns = loadList(ADDONS_RUNNABLE_LIST);
-        List<AddOn> runnableAddons = new ArrayList<>();
+        runnableAddOns = new HashMap<>();
+        idsAddOnsWithRunningIssuesSinceLastRun = new ArrayList<>();
+        Map<AddOn, List<String>> oldRunnableAddOns = loadAddOnsRunState(aoc);
+        List<AddOn> runAddons = new ArrayList<>();
         for (Iterator<AddOn> iterator = aoc.getAddOns().iterator(); iterator.hasNext();) {
             AddOn addOn = iterator.next();
             if (canLoadAddOn(addOn)) {
-                if (canRunAddOn(addOn, aoc.getAddOns())) {
-                    runnableAddons.add(addOn);
-                    idsRunnableAddOns.add(addOn.getId());
-                } else if (idsOldAddOns.contains(addOn.getId())) {
-                    addOnsNoLongerRunnableSinceLastRun.add(addOn.getId());
+                AddOnRunRequirements reqs = calculateRunRequirements(addOn, aoc.getAddOns());
+                if (reqs.isRunnable()) {
+                    List<String> runnableExtensions;
+                    if (addOn.hasExtensionsWithDeps()) {
+                        runnableExtensions = getRunnableExtensionsWithDeps(reqs);
+                        List<String> oldRunnableExtensions = oldRunnableAddOns.get(addOn);
+                        if (oldRunnableExtensions != null && !oldRunnableExtensions.isEmpty()) {
+                            oldRunnableExtensions.removeAll(runnableExtensions);
+                            if (!oldRunnableExtensions.isEmpty()) {
+                                idsAddOnsWithRunningIssuesSinceLastRun.add(addOn.getId());
+                            }
+                        }
+                    } else {
+                        runnableExtensions = Collections.emptyList();
+                    }
+
+                    runnableAddOns.put(addOn, runnableExtensions);
+                    runAddons.add(addOn);
+                } else if (oldRunnableAddOns.get(addOn) != null) {
+                    idsAddOnsWithRunningIssuesSinceLastRun.add(addOn.getId());
                 }
             } else {
                 iterator.remove();
             }
         }
 
-        saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+        saveAddOnsRunState(runnableAddOns);
 
-        for (AddOn addOn : runnableAddons) {
+        for (AddOn addOn : runAddons) {
             addOn.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
             createAndAddAddOnClassLoader(addOn);
         }
+    }
+
+    private static List<String> getRunnableExtensionsWithDeps(AddOnRunRequirements runRequirements) {
+        List<String> runnableExtensions = new ArrayList<>();
+        for (ExtensionRunRequirements extReqs : runRequirements.getExtensionRequirements()) {
+            if (extReqs.isRunnable()) {
+                runnableExtensions.add(extReqs.getClassname());
+            }
+        }
+        return runnableExtensions;
     }
 
     private boolean canLoadAddOn(AddOn ao) {
@@ -195,16 +229,15 @@ public class AddOnLoader extends URLClassLoader {
         return true;
     }
 
-    private static boolean canRunAddOn(AddOn ao, Collection<AddOn> availableAddOns) {
-        RunRequirements reqs = ao.calculateRunRequirements(availableAddOns);
+    private static AddOnRunRequirements calculateRunRequirements(AddOn ao, Collection<AddOn> availableAddOns) {
+        AddOnRunRequirements reqs = ao.calculateRunRequirements(availableAddOns);
         if (!reqs.isRunnable()) {
             if (logger.isDebugEnabled()) {
                 logger.debug("Can't run add-on " + ao.getName() + " because of missing requirements: "
                         + AddOnRunIssuesUtils.getRunningIssues(reqs));
             }
-            return false;
         }
-        return true;
+        return reqs;
     }
 
     private AddOnClassLoader createAndAddAddOnClassLoader(AddOn ao) {
@@ -326,7 +359,8 @@ public class AddOnLoader extends URLClassLoader {
 			return;
 		}
 
-		if (!canRunAddOn(ao, aoc.getInstalledAddOns())) {
+		AddOnRunRequirements reqs = calculateRunRequirements(ao, aoc.getInstalledAddOns());
+		if (!reqs.isRunnable()) {
 		    ao.setInstallationStatus(AddOn.InstallationStatus.NOT_INSTALLED);
 		    return;
 		}
@@ -334,11 +368,12 @@ public class AddOnLoader extends URLClassLoader {
 		AddOnInstaller.install(createAndAddAddOnClassLoader(ao), ao);
 		ao.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
 
-        if (!idsRunnableAddOns.contains(ao.getId())) {
-            idsRunnableAddOns.add(ao.getId());
-            saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+        if (runnableAddOns.get(ao) == null) {
+            runnableAddOns.put(ao, getRunnableExtensionsWithDeps(reqs));
+            saveAddOnsRunState(runnableAddOns);
         }
 
+        checkAndLoadDependentExtensions();
 		checkAndInstallAddOnsNotInstalled();
 
         if (View.isInitialised()) {
@@ -366,7 +401,7 @@ public class AddOnLoader extends URLClassLoader {
         List<AddOn> runnableAddOns = new ArrayList<>();
         for (AddOn addOn : aoc.getAddOns()) {
             if (AddOn.InstallationStatus.NOT_INSTALLED == addOn.getInstallationStatus() && addOnLoaders.get(addOn.getId()) == null) {
-                RunRequirements reqs = addOn.calculateRunRequirements(aoc.getInstalledAddOns());
+                AddOnRunRequirements reqs = addOn.calculateRunRequirements(aoc.getInstalledAddOns());
                 if (reqs.isRunnable()) {
                     runnableAddOns.add(addOn);
                 }
@@ -375,6 +410,44 @@ public class AddOnLoader extends URLClassLoader {
 
         for (AddOn addOn : runnableAddOns) {
             addAddOnImpl(addOn);
+        }
+    }
+
+    /**
+     * Checks and loads all the extensions that have (now) all required dependencies fulfilled.
+     * <p>
+     * Should be called after an installation of an add-on.
+     *
+     * @see #addAddOnImpl(AddOn)
+     * @since 2.4.0
+     */
+    private void checkAndLoadDependentExtensions() {
+        boolean changed = false;
+        for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
+            AddOn runningAddOn = aoc.getAddOn(entry.getKey());
+            for (String extClassName : runningAddOn.getExtensionsWithDeps()) {
+                if (!runningAddOn.isExtensionLoaded(extClassName)) {
+                    AddOn.AddOnRunRequirements reqs = runningAddOn.calculateExtensionRunRequirements(
+                            extClassName,
+                            aoc.getInstalledAddOns());
+                    ExtensionRunRequirements extReqs = reqs.getExtensionRequirements().get(0);
+                    if (extReqs.isRunnable()) {
+                        List<AddOnClassLoader> dependencies = new ArrayList<>(extReqs.getDependencies().size());
+                        for (AddOn addOnDep : extReqs.getDependencies()) {
+                            dependencies.add(addOnLoaders.get(addOnDep.getId()));
+                        }
+                        AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(entry.getValue(), dependencies);
+                        Extension ext = loadAddOnExtension(runningAddOn, extReqs.getClassname(), extAddOnClassLoader);
+                        AddOnInstaller.installAddOnExtension(runningAddOn, ext);
+                        runnableAddOns.get(runningAddOn).add(extReqs.getClassname());
+                        changed = true;
+                    }
+                }
+            }
+        }
+
+        if (changed) {
+            saveAddOnsRunState(runnableAddOns);
         }
     }
 
@@ -408,8 +481,8 @@ public class AddOnLoader extends URLClassLoader {
 		}
 
 		if (AddOn.InstallationStatus.SOFT_UNINSTALLATION_FAILED == ao.getInstallationStatus()) {
-			if (idsRunnableAddOns.remove(ao.getId())) {
-				saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+			if (runnableAddOns.remove(ao) != null) {
+			    saveAddOnsRunState(runnableAddOns);
 			}
 			AddOnInstaller.uninstallAddOnFiles(ao, NULL_CALLBACK);
 			removeAddOnClassLoader(ao);
@@ -424,8 +497,8 @@ public class AddOnLoader extends URLClassLoader {
 		}
 
 		if (AddOn.InstallationStatus.NOT_INSTALLED == ao.getInstallationStatus()) {
-			if (idsRunnableAddOns.remove(ao.getId())) {
-				saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+			if (runnableAddOns.remove(ao) != null) {
+			    saveAddOnsRunState(runnableAddOns);
 			}
 			
 			deleteAddOnFile(ao, upgrading);
@@ -433,7 +506,8 @@ public class AddOnLoader extends URLClassLoader {
 			return this.aoc.removeAddOn(ao);
 		}
 
-		softUninstallDependentAddOns(ao, callback);
+		unloadDependentExtensions(ao);
+		softUninstallDependentAddOns(ao);
 
 		boolean uninstalledWithoutErrors = AddOnInstaller.uninstall(ao, callback);
 
@@ -447,8 +521,8 @@ public class AddOnLoader extends URLClassLoader {
 
 		deleteAddOnFile(ao, upgrading);
 
-		if (idsRunnableAddOns.remove(ao.getId())) {
-			saveList(ADDONS_RUNNABLE_LIST, idsRunnableAddOns);
+		if (runnableAddOns.remove(ao) != null) {
+		    saveAddOnsRunState(runnableAddOns);
 		}
 		
 		ao.setInstallationStatus(uninstalledWithoutErrors
@@ -481,18 +555,45 @@ public class AddOnLoader extends URLClassLoader {
         }
     }
 
-    private void softUninstallDependentAddOns(AddOn ao, AddOnUninstallationProgressCallback callback) {
+    private void unloadDependentExtensions(AddOn ao) {
+        boolean changed = true;
+        for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
+            AddOn runningAddOn = aoc.getAddOn(entry.getKey());
+            for (Extension ext : runningAddOn.getLoadedExtensionsWithDeps()) {
+                if (runningAddOn.dependsOn(ext, ao)) {
+                    String classname = ext.getClass().getCanonicalName();
+                    AddOnInstaller.uninstallAddOnExtension(runningAddOn, ext, NULL_CALLBACK);
+                    try (AddOnClassLoader extensionClassLoader = (AddOnClassLoader) ext.getClass().getClassLoader()) {
+                        ext = null;
+                        entry.getValue().removeChildClassLoader(extensionClassLoader);
+                        extensionClassLoader.clearDependencies();
+                        ResourceBundle.clearCache(extensionClassLoader);
+                    } catch (Exception e) {
+                        logger.error("Failure while closing class loader of extension '" + classname + "':", e);
+                    }
+                    runnableAddOns.get(runningAddOn).remove(classname);
+                    changed = true;
+                }
+            }
+        }
+
+        if (changed) {
+            saveAddOnsRunState(runnableAddOns);
+        }
+    }
+
+    private void softUninstallDependentAddOns(AddOn ao) {
         for (Entry<String, AddOnClassLoader> entry : new HashMap<>(addOnLoaders).entrySet()) {
             AddOn runningAddOn = aoc.getAddOn(entry.getKey());
             if (runningAddOn.dependsOn(ao)) {
-                softUninstallDependentAddOns(runningAddOn, callback);
+                softUninstallDependentAddOns(runningAddOn);
 
-                softUninstall(runningAddOn, callback);
+                softUninstall(runningAddOn);
             }
         }
     }
 
-    private void softUninstall(AddOn addOn, AddOnUninstallationProgressCallback callback) {
+    private void softUninstall(AddOn addOn) {
         if (AddOn.InstallationStatus.INSTALLED != addOn.getInstallationStatus()) {
             return;
         }
@@ -533,6 +634,8 @@ public class AddOnLoader extends URLClassLoader {
 	 * Returns all the {@code Extension}s of all the installed add-ons.
 	 * <p>
 	 * The discovery of {@code Extension}s is done by resorting to the {@code ZapAddOn.xml} file bundled in the add-ons.
+	 * <p>
+	 * Extensions with unfulfilled dependencies are not be returned.
 	 *
 	 * @return a list containing all {@code Extension}s of all installed add-ons
 	 * @since 2.4.0
@@ -553,6 +656,8 @@ public class AddOnLoader extends URLClassLoader {
      * <p>
      * The discovery of {@code Extension}s is done by resorting to {@code ZapAddOn.xml} file bundled in the add-on.
      * <p>
+     * Extensions with unfulfilled dependencies are not be returned.
+     * <p>
      * <strong>Note:</strong> If the add-on is not installed the method returns an empty list.
      *
      * @param addOn the add-on whose extensions will be returned
@@ -562,46 +667,78 @@ public class AddOnLoader extends URLClassLoader {
      * @see #getExtensions()
      */
     public List<Extension> getExtensions(AddOn addOn) {
-        List<String> extensions = addOn.getExtensions();
-        if (extensions == null || extensions.isEmpty()) {
-            return Collections.emptyList();
-        }
         AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
         if (addOnClassLoader == null) {
             return Collections.emptyList();
         }
 
-        List<Extension> list = new ArrayList<>(extensions.size());
-        for (String extName : extensions) {
-            Class<?> cls;
-            try {
-                cls = addOnClassLoader.loadClass(extName);
-            } catch (ClassNotFoundException e) {
-                logger.error("Declared extension was not found: " + extName, e);
-                continue;
-            }
+        List<Extension> extensions = new ArrayList<>();
+        extensions.addAll(loadAddOnExtensions(addOn, addOn.getExtensions(), addOnClassLoader));
 
-            if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
-                logger.error("Declared \"extension\" is abstract or an interface: " + extName);
-                continue;
-            }
-
-            if (!Extension.class.isAssignableFrom(cls)) {
-                logger.error("Declared \"extension\" is not of type Extension: " + extName);
-                continue;
-            }
-
-            try {
-                @SuppressWarnings("unchecked")
-                Constructor<Extension> c = (Constructor<Extension>) cls.getConstructor();
-                list.add(c.newInstance());
-            } catch (Exception e) {
-                logger.debug(e.getMessage());
+        if (addOn.hasExtensionsWithDeps()) {
+            AddOn.AddOnRunRequirements reqs = addOn.calculateRunRequirements(aoc.getInstalledAddOns());
+            for (ExtensionRunRequirements extReqs : reqs.getExtensionRequirements()) {
+                if (extReqs.isRunnable()) {
+                    List<AddOnClassLoader> dependencies = new ArrayList<>(extReqs.getDependencies().size());
+                    for (AddOn addOnDep : extReqs.getDependencies()) {
+                        dependencies.add(addOnLoaders.get(addOnDep.getId()));
+                    }
+                    AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(addOnClassLoader, dependencies);
+                    Extension ext = loadAddOnExtension(addOn, extReqs.getClassname(), extAddOnClassLoader);
+                    extensions.add(ext);
+                } else if (logger.isDebugEnabled()) {
+                    logger.debug("Can't run extension '" + extReqs.getClassname() + "' of add-on '" + addOn.getName()
+                            + "' because of missing requirements: " + AddOnRunIssuesUtils.getRunningIssues(extReqs));
+                }
             }
         }
+        return extensions;
+    }
 
-        addOn.setLoadedExtensions(list);
+    private List<Extension> loadAddOnExtensions(AddOn addOn, List<String> extensions, AddOnClassLoader addOnClassLoader) {
+        if (extensions == null || extensions.isEmpty()) {
+            return Collections.emptyList();
+        }
+
+        List<Extension> list = new ArrayList<>(extensions.size());
+        for (String extName : extensions) {
+            Extension ext = loadAddOnExtension(addOn, extName, addOnClassLoader);
+            if (ext != null) {
+                list.add(ext);
+            }
+        }
         return list;
+    }
+
+    private static Extension loadAddOnExtension(AddOn addOn, String classname, AddOnClassLoader addOnClassLoader) {
+        Class<?> cls;
+        try {
+            cls = addOnClassLoader.loadClass(classname);
+        } catch (ClassNotFoundException e) {
+            logger.error("Declared extension was not found: " + classname, e);
+            return null;
+        }
+
+        if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
+            logger.error("Declared \"extension\" is abstract or an interface: " + classname);
+            return null;
+        }
+
+        if (!Extension.class.isAssignableFrom(cls)) {
+            logger.error("Declared \"extension\" is not of type Extension: " + classname);
+            return null;
+        }
+
+        try {
+            @SuppressWarnings("unchecked")
+            Constructor<Extension> c = (Constructor<Extension>) cls.getConstructor();
+            Extension extension = c.newInstance();
+            addOn.addLoadedExtension(extension);
+            return extension;
+        } catch (Exception e) {
+            logger.debug(e.getMessage());
+        }
+        return null;
     }
 
 	@SuppressWarnings("unchecked")
@@ -866,6 +1003,63 @@ public class AddOnLoader extends URLClassLoader {
             Model.getSingleton().getOptionsParam().getConfig().save();
         } catch (ConfigurationException e) {
             logger.error("Failed to save list [" + key + "]: " + sb.toString(), e);
+        }
+    }
+
+    private static Map<AddOn, List<String>> loadAddOnsRunState(AddOnCollection addOnCollection) {
+        List<HierarchicalConfiguration> savedAddOns = ((HierarchicalConfiguration) Model.getSingleton()
+                .getOptionsParam()
+                .getConfig()).configurationsAt(ADDONS_RUNNABLE_KEY);
+
+        Map<AddOn, List<String>> runnableAddOns = new HashMap<>();
+        for (HierarchicalConfiguration savedAddOn : savedAddOns) {
+            AddOn addOn = addOnCollection.getAddOn(savedAddOn.getString(ADDON_RUNNABLE_ID_KEY, ""));
+            if (addOn == null) {
+                // No longer exists, skip it.
+                continue;
+            }
+            int version = savedAddOn.getInt(ADDON_RUNNABLE_VERSION_KEY, -1);
+            if (version == -1 || addOn.getFileVersion() != version) {
+                // No version or not the same version, skip it.
+                continue;
+            }
+            List<String> runnableExtensions = new ArrayList<>();
+            List<String> currentExtensions = addOn.getExtensionsWithDeps();
+            for (String savedExtension : savedAddOn.getStringArray(ADDON_RUNNABLE_ALL_EXTENSIONS_KEY)) {
+                if (currentExtensions.contains(savedExtension)) {
+                    runnableExtensions.add(savedExtension);
+                }
+            }
+            runnableAddOns.put(addOn, runnableExtensions);
+        }
+
+        return runnableAddOns;
+    }
+
+    private static void saveAddOnsRunState(Map<AddOn, List<String>> runnableAddOns) {
+        HierarchicalConfiguration config = (HierarchicalConfiguration) Model.getSingleton().getOptionsParam().getConfig();
+        config.clearTree(ADDONS_RUNNABLE_BASE_KEY);
+
+        int i = 0;
+        for (Map.Entry<AddOn, List<String>> runnableAddOnEntry : runnableAddOns.entrySet()) {
+            String elementBaseKey = ADDONS_RUNNABLE_KEY + "(" + i + ").";
+            AddOn addOn = runnableAddOnEntry.getKey();
+
+            config.setProperty(elementBaseKey + ADDON_RUNNABLE_ID_KEY, addOn.getId());
+            config.setProperty(elementBaseKey + ADDON_RUNNABLE_VERSION_KEY, Integer.valueOf(addOn.getFileVersion()));
+
+            String extensionBaseKey = elementBaseKey + ADDON_RUNNABLE_ALL_EXTENSIONS_KEY;
+            for (String extension : runnableAddOnEntry.getValue()) {
+                config.addProperty(extensionBaseKey, extension);
+            }
+
+            i++;
+        }
+
+        try {
+            Model.getSingleton().getOptionsParam().getConfig().save();
+        } catch (ConfigurationException e) {
+            logger.error("Failed to save state of runnable add-ons:", e);
         }
     }
 

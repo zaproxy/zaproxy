@@ -91,7 +91,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	public void initParam(Object obj) {
 		// Initialize the default token names
 		OptionsParam optionsParam = (OptionsParam) obj;
-		HttpSessionsParam param = (HttpSessionsParam) optionsParam.getParamSet(HttpSessionsParam.class);
+		HttpSessionsParam param = optionsParam.getParamSet(HttpSessionsParam.class);
 		getDefaultTokensModel().setTokens(param.getDefaultTokens());
 		getChkProxyOnly().setSelected(param.isEnabledProxyOnly());
 		tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveDefaultToken());
@@ -104,7 +104,7 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	@Override
 	public void saveParam(Object obj) throws Exception {
 		OptionsParam optionsParam = (OptionsParam) obj;
-		HttpSessionsParam sessionParam = (HttpSessionsParam) optionsParam.getParamSet(HttpSessionsParam.class);
+		HttpSessionsParam sessionParam = optionsParam.getParamSet(HttpSessionsParam.class);
 		sessionParam.setDefaultTokens(getDefaultTokensModel().getTokens());
 		sessionParam.setEnabledProxyOnly(getChkProxyOnly().isSelected());
 		sessionParam.setConfirmRemoveDefaultToken(!tokensOptionsPanel.isRemoveWithoutConfirmation());

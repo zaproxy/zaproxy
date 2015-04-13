@@ -672,7 +672,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             TechSet ts = new TechSet(Tech.builtInTech);
             Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+            DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("ascan.custom.tab.tech.node"));
             Tech tech;
             DefaultMutableTreeNode parent;
             DefaultMutableTreeNode node;
@@ -940,6 +940,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
     @Override
     public String validateFields() {
+        if (Control.Mode.safe == Control.getSingleton().getMode()) {
+            // The dialogue shouldn't be shown when in safe mode but if it is warn.
+            return Constant.messages.getString("ascan.custom.notSafe.error");
+        }
+
         if (this.customPanels != null) {
         	// Check all custom panels validate ok
         	for (CustomScanPanel customPanel : this.customPanels) {
@@ -960,6 +965,22 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         if (this.target == null || !this.target.isValid()) {
             return Constant.messages.getString("ascan.custom.nostart.error");
+        }
+
+        switch (Control.getSingleton().getMode()) {
+        case protect:
+            List<SiteNode> nodes = target.getStartNodes();
+            if (nodes != null) {
+                for (SiteNode node : nodes) {
+                    if (!node.isIncludedInScope()) {
+                        return Constant.messages.getString(
+                                "ascan.custom.targetNotInScope.error",
+                                node.getHierarchicNodeName());
+                    }
+                }
+            }
+            break;
+        default:
         }
 
         return null;

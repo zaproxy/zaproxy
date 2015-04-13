@@ -77,23 +77,11 @@ public class ConnectionParam extends AbstractParam {
     private static final String SECURITY_PROTOCOL_ELEMENT_KEY = "protocol";
     private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + "." + SECURITY_PROTOCOL_ELEMENT_KEY;
 
-    private static final String AUTH_KEY = CONNECTION_BASE_KEY + ".auths";
-    private static final String ALL_AUTHS_KEY = AUTH_KEY + ".auth";
-    private static final String AUTH_NAME_KEY = "name";
-    private static final String AUTH_HOST_NAME_KEY = "hostName";
-    private static final String AUTH_PORT_KEY = "port";
-    private static final String AUTH_USER_NAME_KEY = "userName";
-    private static final String AUTH_PASSWORD_KEY = "password";
-    private static final String AUTH_REALM_KEY = "realm";
-    private static final String AUTH_ENABLED_KEY = "enabled";
-    
     // ZAP: Added prompt option and timeout
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
 	private static final String SINGLE_COOKIE_REQUEST_HEADER = CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
     
-    private static final String CONFIRM_REMOVE_AUTH_KEY = CONNECTION_BASE_KEY + ".confirmRemoveAuth";
-
     private boolean useProxyChain;
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
@@ -104,8 +92,6 @@ public class ConnectionParam extends AbstractParam {
 	private String proxyChainPassword = "";
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
-	private List<HostAuthentication> listAuth = new ArrayList<>(0);
-    private List<HostAuthentication> listAuthEnabled = new ArrayList<>(0);
     private List<ProxyExcludedDomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
     private List<ProxyExcludedDomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
 
@@ -116,8 +102,6 @@ public class ConnectionParam extends AbstractParam {
 	private int timeoutInSecs = 120;
 
 	private boolean singleCookieRequestHeader = true;
-	
-	private boolean confirmRemoveAuth = true;
 
 	/**
      * @return Returns the httpStateEnabled.
@@ -192,15 +176,7 @@ public class ConnectionParam extends AbstractParam {
         	// ZAP: Log exceptions
         	log.error(e.getMessage(), e);
 		}
-		
-		parseAuthentication();
 
-        try {
-            this.confirmRemoveAuth = getConfig().getBoolean(CONFIRM_REMOVE_AUTH_KEY, true);
-        } catch (ConversionException e) {
-            log.error("Error while loading the confirm remove option: " + e.getMessage(), e);
-        }
-        
         try {
             this.singleCookieRequestHeader = getConfig().getBoolean(SINGLE_COOKIE_REQUEST_HEADER, true);
         } catch (ConversionException e) {
@@ -486,84 +462,6 @@ public class ConnectionParam extends AbstractParam {
 	}
 	
     /**
-     * @return Returns the listAuth.
-     */
-    public List<HostAuthentication> getListAuth() {
-        return listAuth;
-    }
-    
-    public List<HostAuthentication> getListAuthEnabled() {
-        return listAuthEnabled;
-    }
-    
-    /**
-     * @param listAuth The listAuth to set.
-     */
-    public void setListAuth(List<HostAuthentication> listAuth) {
-        this.listAuth = new ArrayList<>(listAuth);
-        
-        ((HierarchicalConfiguration) getConfig()).clearTree(ALL_AUTHS_KEY);
-        
-        ArrayList<HostAuthentication> enabledAuths = new ArrayList<>(listAuth.size());
-        for (int i = 0, size = listAuth.size(); i < size; ++i) {
-            String elementBaseKey = ALL_AUTHS_KEY + "(" + i + ").";
-            HostAuthentication auth = listAuth.get(i);
-            
-            getConfig().setProperty(elementBaseKey + AUTH_NAME_KEY, auth.getName());
-            getConfig().setProperty(elementBaseKey + AUTH_HOST_NAME_KEY, auth.getHostName());
-            getConfig().setProperty(elementBaseKey + AUTH_PORT_KEY, Integer.valueOf(auth.getPort()));
-            getConfig().setProperty(elementBaseKey + AUTH_USER_NAME_KEY, auth.getUserName());
-            getConfig().setProperty(elementBaseKey + AUTH_PASSWORD_KEY, auth.getPassword());
-            getConfig().setProperty(elementBaseKey + AUTH_REALM_KEY, auth.getRealm());
-            getConfig().setProperty(elementBaseKey + AUTH_ENABLED_KEY, Boolean.valueOf(auth.isEnabled()));
-            
-            if (auth.isEnabled()) {
-                enabledAuths.add(auth);
-            }
-        }
-        
-        enabledAuths.trimToSize();
-        this.listAuthEnabled = enabledAuths;
-    }
-    
-    private void parseAuthentication() {
-        List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_AUTHS_KEY);
-        this.listAuth = new ArrayList<>(fields.size());
-        ArrayList<HostAuthentication> enabledAuths = new ArrayList<>(fields.size());
-        List<String> tempListNames = new ArrayList<>(fields.size());
-        for (HierarchicalConfiguration sub : fields) {
-            String name = sub.getString(AUTH_NAME_KEY, "");
-            if (!"".equals(name) && !tempListNames.contains(name)) {
-                tempListNames.add(name);
-                
-                String host = sub.getString(AUTH_HOST_NAME_KEY, "");
-                if ("".equals(host)) {
-                    continue;
-                }
-                
-                HostAuthentication auth = new HostAuthentication(
-                        name,
-                        host,
-                        sub.getInt(AUTH_PORT_KEY),
-                        sub.getString(AUTH_USER_NAME_KEY),
-                        sub.getString(AUTH_PASSWORD_KEY),
-                        sub.getString(AUTH_REALM_KEY));
-                
-                auth.setEnabled(sub.getBoolean(AUTH_ENABLED_KEY, true));
-                
-                listAuth.add(auth);
-                
-                if (auth.isEnabled()) {
-                    enabledAuths.add(auth);
-                }
-            }
-        }
-        
-        enabledAuths.trimToSize();
-        this.listAuthEnabled = enabledAuths;
-    }
-    
-    /**
      * @return Returns the httpState.
      */
     public HttpState getHttpState() {
@@ -582,17 +480,6 @@ public class ConnectionParam extends AbstractParam {
 		this.timeoutInSecs = timeoutInSecs;
 		getConfig().setProperty(TIMEOUT_IN_SECS, this.timeoutInSecs);
 	}
-    
-    @ZapApiIgnore
-    public boolean isConfirmRemoveAuth() {
-        return this.confirmRemoveAuth;
-    }
-    
-    @ZapApiIgnore
-    public void setConfirmRemoveAuth(boolean confirmRemove) {
-        this.confirmRemoveAuth = confirmRemove;
-        getConfig().setProperty(CONFIRM_REMOVE_AUTH_KEY, Boolean.valueOf(confirmRemoveAuth));
-    }
     
 	/**
 	 * Tells whether the cookies should be set on a single "Cookie" request header or multiple "Cookie" request headers, when

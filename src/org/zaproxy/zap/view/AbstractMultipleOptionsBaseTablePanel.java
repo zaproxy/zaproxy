@@ -55,6 +55,10 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
     protected JCheckBox removeWithoutConfirmationCheckBox;
 
     public AbstractMultipleOptionsBaseTablePanel(AbstractMultipleOptionsBaseTableModel<E> model) {
+        this(model, true);
+    }
+
+    protected AbstractMultipleOptionsBaseTablePanel(AbstractMultipleOptionsBaseTableModel<E> model, boolean allowModification) {
         super(model);
         
         getFooterPanel().setLayout(new GridBagLayout());
@@ -82,20 +86,22 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
             }
         });
         
-        modifyButton = new JButton(MODIFY_BUTTON_LABEL);
-        modifyButton.setEnabled(false);
-        modifyButton.addActionListener(new ActionListener() {
-            
-            @Override
-            public void actionPerformed(ActionEvent evt) {
-                int row = getSelectedRow();
+        if (allowModification) {
+            modifyButton = new JButton(MODIFY_BUTTON_LABEL);
+            modifyButton.setEnabled(false);
+            modifyButton.addActionListener(new ActionListener() {
                 
-                E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
-                if (e != null) {
-                    getMultipleOptionsModel().modifyElement(row, e);
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    int row = getSelectedRow();
+                    
+                    E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
+                    if (e != null) {
+                        getMultipleOptionsModel().modifyElement(row, e);
+                    }
                 }
-            }
-        });
+            });
+        }
         
         removeButton = new JButton(REMOVE_BUTTON_LABEL);
         removeButton.setEnabled(false);
@@ -116,7 +122,9 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         });
         
         addButton(addButton);
-        addButton(modifyButton);
+        if (allowModification) {
+            addButton(modifyButton);
+        }
         addButton(removeButton);
                 
         getTable().getSelectionModel().addListSelectionListener(new ListSelectionListener() {
@@ -124,15 +132,19 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
             @Override
             public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
-                    boolean enabled = getTable().getSelectionModel().getMinSelectionIndex() >= 0;
-                    
-                    modifyButton.setEnabled(enabled);
-                    removeButton.setEnabled(enabled);
+                    selectionChanged(getTable().getSelectionModel().getMinSelectionIndex() >= 0);
                 }
             }
         });
     }
     
+    protected void selectionChanged(boolean entrySelected) {
+        if (modifyButton != null) {
+            modifyButton.setEnabled(entrySelected);
+        }
+        removeButton.setEnabled(entrySelected);
+    }
+
     public AbstractMultipleOptionsBaseTablePanel(TableModel model) {
         super(model);
     }
@@ -151,7 +163,9 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
         removeWithoutConfirmationCheckBox.setEnabled(enabled);
 
         boolean enable = enabled && getTable().getSelectionModel().getMinSelectionIndex() >= 0;
-        modifyButton.setEnabled(enable);
+        if (modifyButton != null) {
+            modifyButton.setEnabled(enable);
+        }
         removeButton.setEnabled(enable);
     }
 
@@ -179,7 +193,11 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
     }
 
     protected int getSelectedRow() {
-        return getTable().convertRowIndexToModel(getTable().getSelectionModel().getMinSelectionIndex());
+        int selectedRow = getTable().getSelectionModel().getMinSelectionIndex();
+        if (selectedRow == -1) {
+            return -1;
+        }
+        return getTable().convertRowIndexToModel(selectedRow);
     }
 
     protected AbstractMultipleOptionsBaseTableModel<E> getMultipleOptionsModel() {

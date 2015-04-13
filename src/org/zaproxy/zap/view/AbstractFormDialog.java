@@ -22,7 +22,9 @@ package org.zaproxy.zap.view;
 import java.awt.BorderLayout;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.Rectangle;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -34,6 +36,7 @@ import javax.swing.JDialog;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public abstract class AbstractFormDialog extends JDialog {
 
@@ -42,30 +45,52 @@ public abstract class AbstractFormDialog extends JDialog {
 	private static final String CANCEL_BUTTON_LABEL = Constant.messages
 			.getString("form.dialog.button.cancel");
 
+	private JButton helpButton;
 	private JButton confirmButton;
 	private JButton cancelButton;
 
 	private boolean firstTime;
+	private String helpTarget;
 
 	public AbstractFormDialog(Dialog owner, String title) {
-		super(owner, title, true);
-
-		firstTime = true;
-		initView();
+		this(owner, title, true);
 	}
 
 	public AbstractFormDialog(Dialog owner, String title, boolean initView) {
 		super(owner, title, true);
+		initialise(initView);
+	}
 
+	private void initialise(boolean initView) {
 		firstTime = true;
-		if (initView)
+		if (initView) {
 			initView();
+		}
+	}
+
+	public AbstractFormDialog(Frame owner, String title) {
+		this(owner, title, true);
+	}
+
+	public AbstractFormDialog(Frame owner, String title, boolean initView) {
+		super(owner, title, true);
+		initialise(initView);
+	}
+
+	public AbstractFormDialog(Window owner, String title) {
+		this(owner, title, true);
+	}
+
+	public AbstractFormDialog(Window owner, String title, boolean initView) {
+		super(owner, title, Dialog.DEFAULT_MODALITY_TYPE);
+		initialise(initView);
 	}
 
 	protected void initView() {
 		JPanel buttonsPanel = new JPanel();
 		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.LINE_AXIS));
 		buttonsPanel.setBorder(BorderFactory.createEmptyBorder(5, 5, 5, 5));
+		buttonsPanel.add(getHelpButton());
 		buttonsPanel.add(Box.createHorizontalGlue());
 		buttonsPanel.add(getCancelButton());
 		buttonsPanel.add(Box.createRigidArea(new Dimension(5, 0)));
@@ -77,6 +102,31 @@ public abstract class AbstractFormDialog extends JDialog {
 		panel.add(buttonsPanel, BorderLayout.PAGE_END);
 
 		this.setContentPane(panel);
+	}
+
+	private JButton getHelpButton() {
+		if (helpButton == null) {
+			helpButton = new JButton();
+			helpButton.setIcon(ExtensionHelp.HELP_ICON);
+			helpButton.setToolTipText(Constant.messages.getString("help.dialog.button.tooltip"));
+			helpButton.setVisible(false);
+
+			helpButton.addActionListener(new java.awt.event.ActionListener() {
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {
+					if (helpTarget != null) {
+						ExtensionHelp.showHelp(helpTarget);
+					}
+				}
+			});
+		}
+		return helpButton;
+	}
+
+	protected void setHelpTarget(String helpTarget) {
+		this.helpTarget = helpTarget;
+		getHelpButton().setVisible(helpTarget != null);
 	}
 
 	private JButton getConfirmButton() {

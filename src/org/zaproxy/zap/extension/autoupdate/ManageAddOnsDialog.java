@@ -55,10 +55,12 @@ import org.jdesktop.swingx.decorator.CompoundHighlighter;
 import org.jdesktop.swingx.decorator.HighlightPredicate;
 import org.jdesktop.swingx.decorator.IconHighlighter;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.IconAware;
 import org.jdesktop.swingx.renderer.IconValues;
 import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
@@ -74,6 +76,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
 	static final Icon ICON_ADD_ON_ISSUES = new ImageIcon(
 			InstalledAddOnsTableModel.class.getResource("/resource/icon/16/050.png"));
+	static final Icon ICON_ADD_ON_EXTENSION_ISSUES = new ImageIcon(
+			InstalledAddOnsTableModel.class.getResource("/resource/icon/fugue/information-white.png"));
 	
 	private static final Logger logger = Logger.getLogger(ManageAddOnsDialog.class);
 	private static final long serialVersionUID = 1L;
@@ -379,8 +383,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			installedAddOnsTable.getColumnExt(0).setCellRenderer(
 					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
 			installedAddOnsTable.getColumnExt(0).setHighlighters(
-					new CompoundHighlighter(new WarningRunningIssuesHighlighter(), new WarningRunningIssuesToolTipHighlighter(
-							AddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
+					new CompoundHighlighter(
+							new WarningRunningIssuesHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER),
+							new WarningRunningIssuesToolTipHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
 			installedAddOnsTable.getColumnExt(3).setHighlighters(
 					new CompoundHighlighter(
 							new WarningUpdateIssuesHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER),
@@ -433,8 +438,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			uninstalledAddOnsTable.getColumnExt(0).setCellRenderer(
 					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
 			uninstalledAddOnsTable.getColumnExt(0).setHighlighters(
-					new CompoundHighlighter(new WarningRunningIssuesHighlighter(), new WarningRunningIssuesToolTipHighlighter(
-							UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
+					new CompoundHighlighter(
+							new WarningRunningIssuesHighlighter(AddOnsTableModel.COLUMN_ADD_ON_WRAPPER),
+							new WarningRunningIssuesToolTipHighlighter(UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER)));
 			uninstalledAddOnsTable.getColumnExt(5).addHighlighter(
 					new DisableSelectionHighlighter(UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER));
 		}
@@ -833,7 +839,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 					}
 
 					Set<AddOn> addOns = changes.getUninstallations();
-					if (!extension.warnUnsavedResourcesOrActiveActions(ManageAddOnsDialog.this, addOns, false)) {
+					Set<Extension> extensions = changes.getExtensions();
+					if (!extension.warnUnsavedResourcesOrActiveActions(ManageAddOnsDialog.this, addOns, extensions, false)) {
 						return;
 					}
 
@@ -989,29 +996,71 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 
     private static class WarningRunningIssuesHighlighter extends IconHighlighter {
 
-        public WarningRunningIssuesHighlighter() {
-            super(ICON_ADD_ON_ISSUES);
+        private final int columnIndex;
+
+        public WarningRunningIssuesHighlighter(int columnIndex) {
+            super();
+            this.columnIndex = columnIndex;
 
             setHighlightPredicate(new HighlightPredicate.EqualsHighlightPredicate(Boolean.TRUE));
+        }
+
+        public Icon getIcon(ComponentAdapter adapter) {
+            AddOnWrapper aow = (AddOnWrapper) adapter.getValue(columnIndex);
+            if (aow.isAddOnRunningIssues()) {
+                return ICON_ADD_ON_ISSUES;
+            }
+            return ICON_ADD_ON_EXTENSION_ISSUES;
+        }
+
+        @Override
+        protected Component doHighlight(Component component, ComponentAdapter adapter) {
+            if (component instanceof IconAware) {
+                ((IconAware) component).setIcon(getIcon(adapter));
+            } else if (component instanceof JLabel) {
+                ((JLabel) component).setIcon(getIcon(adapter));
+            }
+            return component;
         }
     }
 
     private static class WarningUpdateIssuesHighlighter extends IconHighlighter {
 
-        public WarningUpdateIssuesHighlighter(final int columnIndex) {
-            super(ICON_ADD_ON_ISSUES);
+        private final int columnIndex;
+
+        public WarningUpdateIssuesHighlighter(int columnIndex) {
+            super();
+            this.columnIndex = columnIndex;
 
             setHighlightPredicate(new HighlightPredicate() {
 
                 @Override
                 public boolean isHighlighted(final Component renderer, final ComponentAdapter adapter) {
-                    AddOnWrapper aow = (AddOnWrapper) adapter.getValue(columnIndex);
+                    AddOnWrapper aow = (AddOnWrapper) adapter.getValue(WarningUpdateIssuesHighlighter.this.columnIndex);
                     if (AddOnWrapper.Status.newVersion == aow.getStatus()) {
                         return aow.hasUpdateIssues();
                     }
                     return false;
                 }
             });
+        }
+
+        public Icon getIcon(ComponentAdapter adapter) {
+            AddOnWrapper aow = (AddOnWrapper) adapter.getValue(columnIndex);
+            if (aow.isAddOnUpdateIssues()) {
+                return ICON_ADD_ON_ISSUES;
+            }
+            return ICON_ADD_ON_EXTENSION_ISSUES;
+        }
+
+        @Override
+        protected Component doHighlight(Component component, ComponentAdapter adapter) {
+            if (component instanceof IconAware) {
+                ((IconAware) component).setIcon(getIcon(adapter));
+            } else if (component instanceof JLabel) {
+                ((JLabel) component).setIcon(getIcon(adapter));
+            }
+            return component;
         }
     }
 

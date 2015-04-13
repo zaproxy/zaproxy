@@ -26,7 +26,7 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 
 	private static void loadUsersManagementExtension() {
 		if (usersExtension == null) {
-			usersExtension = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
+			usersExtension = Control.getSingleton().getExtensionLoader()
 					.getExtension(ExtensionUserManagement.class);
 			if (usersExtension == null)
 				throw new IllegalStateException(
