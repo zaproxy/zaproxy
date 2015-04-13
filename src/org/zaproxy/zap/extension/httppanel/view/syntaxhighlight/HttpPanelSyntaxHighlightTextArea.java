@@ -197,6 +197,21 @@ public abstract class HttpPanelSyntaxHighlightTextArea extends RSyntaxTextArea i
 			log.error(e.getMessage(), e);
 		}
 	}
+
+    public Object highlight(int start, int end, HighlightPainter painter) {
+        try {
+            Object highlightReference = getHighlighter().addHighlight(start, end, painter);
+            this.setCaretPosition(start);
+            return highlightReference;
+        } catch (BadLocationException e) {
+            log.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    public void removeHighlight(Object highlightReference) {
+        getHighlighter().removeHighlight(highlightReference);
+    }
 	
 	private void removeAllHighlights() {
 		Highlighter hilite = this.getHighlighter();

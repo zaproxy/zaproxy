@@ -49,10 +49,13 @@ import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
 import org.zaproxy.zap.extension.search.SearchMatch;
 import org.zaproxy.zap.extension.search.SearchableHttpPanelView;
+import org.zaproxy.zap.model.MessageLocation;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlighter;
 
 
-public class HttpPanelComponentViewsManager implements ItemListener {
+public class HttpPanelComponentViewsManager implements ItemListener, MessageLocationHighlighter {
 
     private static final Logger logger = Logger.getLogger(HttpPanelComponentViewsManager.class);
 
@@ -628,6 +631,65 @@ public class HttpPanelComponentViewsManager implements ItemListener {
                 return 1;
             }
             return 0;
+        }
+    }
+
+    @Override
+    public boolean supports(MessageLocation location) {
+        for (ViewItem item : enabledViews) {
+            HttpPanelView view = views.get(item.getConfigName());
+            if (view instanceof MessageLocationHighlighter) {
+                
+                MessageLocationHighlighter highlighter = (MessageLocationHighlighter) view;
+                if (highlighter.supports(location)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public boolean supports(Class<? extends MessageLocation> classLocation) {
+        for (ViewItem item : enabledViews) {
+            HttpPanelView view = views.get(item.getConfigName());
+            if (view instanceof MessageLocationHighlighter) {
+                
+                MessageLocationHighlighter highlighter = (MessageLocationHighlighter) view;
+                if (highlighter.supports(classLocation)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location) {
+        if (currentView instanceof MessageLocationHighlighter) {
+            
+            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) currentView;
+            return highlighter.highlight(location);
+        }
+        return null;
+    }
+
+    @Override
+    public MessageLocationHighlight highlight(MessageLocation location, MessageLocationHighlight highlight) {
+        if (currentView instanceof MessageLocationHighlighter) {
+            
+            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) currentView;
+            return highlighter.highlight(location, highlight);
+        }
+        return null;
+    }
+
+    @Override
+    public void removeHighlight(MessageLocation location, MessageLocationHighlight highlightReference) {
+        if (currentView instanceof MessageLocationHighlighter) {
+            
+            MessageLocationHighlighter highlighter = (MessageLocationHighlighter) currentView;
+            highlighter.removeHighlight(location, highlightReference);
         }
     }
 

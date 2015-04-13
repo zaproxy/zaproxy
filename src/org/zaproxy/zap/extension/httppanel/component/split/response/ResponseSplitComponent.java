@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.httppanel.component.split.response;
 
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.httppanel.component.split.request.RequestSplitComponent;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseBodyStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderStringHttpPanelViewModel;
@@ -26,7 +27,7 @@ import org.zaproxy.zap.extension.httppanel.view.text.HttpPanelTextView;
  * ResponseSplitComponent is identical to RequestSplitComponent
  */
 
-public class ResponseSplitComponent extends RequestSplitComponent {
+public class ResponseSplitComponent<T extends Message> extends RequestSplitComponent<T> {
 
 	public static final String NAME = "ResponseSplit";
 	

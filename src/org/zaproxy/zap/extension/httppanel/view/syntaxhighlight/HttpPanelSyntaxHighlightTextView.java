@@ -100,6 +100,10 @@ public abstract class HttpPanelSyntaxHighlightTextView implements HttpPanelView,
 	
 	protected abstract HttpPanelSyntaxHighlightTextArea createHttpPanelTextArea();
 	
+	protected HttpPanelSyntaxHighlightTextArea getHttpPanelTextArea() {
+		return httpPanelTextArea;
+	}
+
 	@Override
 	public void setSelected(boolean selected) {
 		if (selected) {

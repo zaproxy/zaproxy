@@ -59,6 +59,7 @@
 // ZAP: 2015/01/19 Expose splash screen as Component
 // ZAP: 2015/02/02 Move output panel help key registration to prevent NPE
 // ZAP: 2015/03/04 Added no prompt warning methods
+// ZAP: 2015/04/13 Add default editor and renderer for TextMessageLocationHighlight
 
 package org.parosproxy.paros.view;
 
@@ -117,6 +118,10 @@ import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
 import org.zaproxy.zap.view.SplashScreen;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapMenuItem;
+import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightRenderersEditors;
+import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
+import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightEditor;
+import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightRenderer;
 
 public class View implements ViewDelegate {
 
@@ -196,6 +201,14 @@ public class View implements ViewDelegate {
 //  ZAP: Removed method changeDisplayOption(int)
     public void init() {
         mainFrame = new MainFrame(displayOption);
+
+        // Install default editor and renderer for TextMessageLocationHighlight
+        MessageLocationHighlightRenderersEditors.getInstance().addEditor(
+                TextMessageLocationHighlight.class,
+                new TextMessageLocationHighlightEditor());
+        MessageLocationHighlightRenderersEditors.getInstance().addRenderer(
+                TextMessageLocationHighlight.class,
+                new TextMessageLocationHighlightRenderer());
 
         getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
         getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());

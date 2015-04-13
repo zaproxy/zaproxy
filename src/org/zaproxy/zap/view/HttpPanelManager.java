@@ -28,8 +28,6 @@ import java.util.Map;
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
-import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
-import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.component.HttpPanelComponentInterface;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelDefaultViewSelector;
 import org.zaproxy.zap.extension.httppanel.view.HttpPanelView;
@@ -60,7 +58,7 @@ public class HttpPanelManager {
 		}
 	}
 	
-	public void addRequestPanel(HttpPanelRequest panel) {
+	public void addRequestPanel(HttpPanel panel) {
 		requestPanels.addPanel(panel);
 	}
 	
@@ -76,7 +74,7 @@ public class HttpPanelManager {
 		requestPanels.addDefaultViewSelectorFactory(componentName, defaultViewSelectorFactory);
 	}
 	
-	public void addResponsePanel(HttpPanelResponse panel) {
+	public void addResponsePanel(HttpPanel panel) {
 		responsePanels.addPanel(panel);
 	}
 	
@@ -92,7 +90,7 @@ public class HttpPanelManager {
 		responsePanels.addDefaultViewSelectorFactory(componentName, defaultViewSelectorFactory);
 	}
 	
-	public void removeRequestPanel(HttpPanelRequest panel) {
+	public void removeRequestPanel(HttpPanel panel) {
 		requestPanels.removePanel(panel);
 	}
 	
@@ -120,7 +118,7 @@ public class HttpPanelManager {
 		requestPanels.removeDefaultViewSelectors(componentName, defaultViewSelectorName, options);
 	}
 	
-	public void removeResponsePanel(HttpPanelResponse panel) {
+	public void removeResponsePanel(HttpPanel panel) {
 		responsePanels.removePanel(panel);
 	}
 	
