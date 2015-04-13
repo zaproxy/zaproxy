@@ -82,11 +82,7 @@
 	<taskdef name="crowdindownload" classname="org.zaproxy.ant.crowdin.taskdefs.CrowdinDownloadPackage" loaderref="lib.path.loader" />
 
 	<!-- task to do conditionals -->
-	<taskdef resource="net/sf/antcontrib/antlib.xml" >
-		<classpath>
-			<pathelement location="${dist.lib.dir}/ant-contrib-1.0b3.jar"/>
-		</classpath>
-	</taskdef>
+	<taskdef classpathref="build.classpath" resource="net/sf/antcontrib/antlib.xml" />
 
 	<!-- task to build debs -->
 	<taskdef classpathref="build.classpath" name="deb" classname="org.vafer.jdeb.ant.DebAntTask"/>
