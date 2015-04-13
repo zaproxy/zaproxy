@@ -273,6 +273,11 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
     }
 
     @Override
+    public Class<HttpMessage> getMessageClass() {
+        return HttpMessage.class;
+    }
+
+    @Override
     public Class<? extends MessageLocation> getMessageLocationClass() {
         return TextHttpMessageLocation.class;
     }

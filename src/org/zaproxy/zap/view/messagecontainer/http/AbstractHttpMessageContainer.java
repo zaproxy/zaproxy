@@ -44,4 +44,8 @@ public abstract class AbstractHttpMessageContainer extends AbstractMessageContai
         super(name, component);
     }
 
+    @Override
+    public Class<HttpMessage> getMessageClass() {
+        return HttpMessage.class;
+    }
 }
