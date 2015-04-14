@@ -35,6 +35,7 @@
 	<property name="app.bundle" value="${dist-mac}/${app.name}" />
 	<property name="app.executable" value="${app.bundle}/Contents/MacOS/JavaAppLauncher" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
+	<!--This version downloaded from  http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html -->
 	<property name="app.jrearchive" value="jre-7u75-macosx-x64.tar.gz" />
 	<property name="app.jredir" value="jre1.7.0_75.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
@@ -506,6 +507,7 @@
 				<include name="zaphelp_es_ES" />
 				<include name="zaphelp_fr_FR" />
 				<include name="zaphelp_ja_JP" />
+				<include name="zaphelp_pt_BR" />
 			</dirset>
 		</generatejavahelpjars>
 		<!-- copy the jars to the right add-ons -->
@@ -515,11 +517,13 @@
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_es_ES"/>
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_fr_FR"/>
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_ja_JP"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_pt_BR"/>
 
 		<delete dir="${wkdir}" includeEmptyDirs="true" />
 	</target>
 
-	<target name="generate-language-file" description="Generates the language file (note the X should be changed;)">
+	<target name="generate-language-file" depends="setup" 
+			description="Generates the language file (note the X should be changed;)">
 		<property name="langfile" value="ZAP_${version}_language_pack.X.zaplang" />
 		<!-- delete the previous one (if present) -->
 		<delete file="${langfile}" />
@@ -529,6 +533,8 @@
              includes="lang/**"
              excludes="**/.svn/**"
                 />
+		<copy file="${langfile}" 
+        	todir="${zap.extensions.trunk.dir}/src/org/zaproxy/zap/extension/coreLang/files/lang"/>
 	</target>
 
 	<target name="crowdin-update-sources" description="Updates the sources, of all ZAP projects, into Crowdin">
@@ -647,11 +653,11 @@
 		</java>
 	</target>
 
-	<target name="copy-jar-to-extension-projects" depends="dist">
-		<copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
-		<copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
-		<copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
-	</target>
+    <target name="copy-jar-to-extension-projects" depends="setup, dist">
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
+        <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
+    </target>
 
 	<target name="deploy-release-addons">
 		<delete includeEmptyDirs="false">
@@ -659,7 +665,8 @@
 		</delete>
 		<ant antfile="${zap.extensions.trunk.dir}/build/build.xml" target="deploy-release" inheritAll="false"/>
 		<ant antfile="${zap.extensions.beta.dir}/build/build.xml"  target="deploy-release" inheritAll="false"/>
-		<ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-release" inheritAll="false"/>
+		<!-- Alpha add-ons should typically _not_ be included in a full release -->
+		<!--ant antfile="${zap.extensions.alpha.dir}/build/build.xml" target="deploy-release" inheritAll="false"/-->
 	</target>
 
 	<target name="deploy-weekly-addons">
@@ -685,10 +692,10 @@
 		<echo message="Packaging the Lite build..." />
 
 		<!-- delete previously build packages -->
-		<delete file="ZAP_${version}_Lite.tar.gz" />
+		<delete file="ZAP_${version}_Core.tar.gz" />
 
 		<!-- Tar up the release -->
-		<tar destfile="ZAP_${version}_Lite.tar.gz" compression="gzip">
+		<tar destfile="ZAP_${version}_Core.tar.gz" compression="gzip">
 			<tarfileset dir="${dist}" prefix="ZAP_${version}" preserveLeadingSlashes="false">
 				<include name="**" />
 				<exclude name="**/.svn/**" />
@@ -703,14 +710,16 @@
 				<include name="plugin/bruteforce-*.zap" />
 				<include name="plugin/coreLang-*.zap" />
 				<include name="plugin/diff-*.zap" />
+				<include name="plugin/gettingStarted-*.zap" />
+				<include name="plugin/help-*.zap" />
 				<include name="plugin/invoke-*.zap" />
+				<include name="plugin/onlineMenu-*.zap" />
 				<include name="plugin/plugnhack-*.zap" />
 				<include name="plugin/pscanrules-*.zap" />
 				<include name="plugin/quickstart-*.zap" />
 				<include name="plugin/reveal-*.zap" />
 				<include name="plugin/saverawmessage-*.zap" />
-				<include name="plugin/scripts-*.zap" />
-				<include name="plugin/zest-*.zap" />
+				<include name="plugin/tips-*.zap" />
 			</tarfileset>
 			<tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
 				<include name="zap.sh" />
