@@ -45,6 +45,13 @@ public class Ascan {
 		return api.callApi("ascan", "view", "status", map);
 	}
 
+	public ApiResponse scanProgress(String scanid) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("scanId", scanid);
+		return api.callApi("ascan", "view", "scanProgress", map);
+	}
+
 	public ApiResponse messagesIds(String scanid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -88,6 +95,11 @@ public class Ascan {
 		map.put("scanPolicyName", scanpolicyname);
 		map.put("policyId", policyid);
 		return api.callApi("ascan", "view", "policies", map);
+	}
+
+	public ApiResponse attackModeQueue() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "attackModeQueue", map);
 	}
 
 	public ApiResponse optionMaxScansInUI() throws ClientApiException {
@@ -165,7 +177,12 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionAttackPolicy", map);
 	}
 
-	public ApiResponse scan(String apikey, String url, String recurse, String inscopeonly, String scanpolicyname) throws ClientApiException {
+	public ApiResponse optionAllowAttackOnStart() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionAllowAttackOnStart", map);
+	}
+
+	public ApiResponse scan(String apikey, String url, String recurse, String inscopeonly, String scanpolicyname, String method, String postdata) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -175,6 +192,8 @@ public class Ascan {
 		map.put("recurse", recurse);
 		map.put("inScopeOnly", inscopeonly);
 		map.put("scanPolicyName", scanpolicyname);
+		map.put("method", method);
+		map.put("postData", postdata);
 		return api.callApi("ascan", "action", "scan", map);
 	}
 
@@ -335,14 +354,14 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setPolicyAttackStrength", map);
 	}
 
-	public ApiResponse setPolicyAlertThreshold(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
+	public ApiResponse setPolicyAlertThreshold(String apikey, String id, String alertthreshold, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("id", id);
-		map.put("attackStrength", attackstrength);
+		map.put("alertThreshold", alertthreshold);
 		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "setPolicyAlertThreshold", map);
 	}
@@ -359,14 +378,14 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setScannerAttackStrength", map);
 	}
 
-	public ApiResponse setScannerAlertThreshold(String apikey, String id, String attackstrength, String scanpolicyname) throws ClientApiException {
+	public ApiResponse setScannerAlertThreshold(String apikey, String id, String alertthreshold, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("id", id);
-		map.put("attackStrength", attackstrength);
+		map.put("alertThreshold", alertthreshold);
 		map.put("scanPolicyName", scanpolicyname);
 		return api.callApi("ascan", "action", "setScannerAlertThreshold", map);
 	}
@@ -529,6 +548,16 @@ public class Ascan {
 		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("ascan", "action", "setOptionPromptToClearFinishedScans", map);
+	}
+
+	public ApiResponse setOptionAllowAttackOnStart(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionAllowAttackOnStart", map);
 	}
 
 }

@@ -197,16 +197,6 @@ public class Core {
 		return api.callApi("core", "view", "optionProxyChainPrompt", map);
 	}
 
-	public ApiResponse optionListAuth() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("core", "view", "optionListAuth", map);
-	}
-
-	public ApiResponse optionListAuthEnabled() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("core", "view", "optionListAuthEnabled", map);
-	}
-
 	public ApiResponse optionHttpState() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "optionHttpState", map);

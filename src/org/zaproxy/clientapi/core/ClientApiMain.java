@@ -114,7 +114,7 @@ public class ClientApiMain {
                         showHelp();
                         System.exit(1);
                     }else{
-                        api.ascan.scan((String)params.get("apikey"), (String)params.get("url"), "true", "false", "");
+                        api.ascan.scan((String)params.get("apikey"), (String)params.get("url"), "true", "false", "", "", "");
                     }
                     break;
                 case activeScanSiteInScope:
