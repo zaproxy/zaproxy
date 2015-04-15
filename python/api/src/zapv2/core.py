@@ -140,14 +140,6 @@ class core(object):
         return self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/').get('ProxyChainPrompt')
 
     @property
-    def option_list_auth(self):
-        return self.zap._request(self.zap.base + 'core/view/optionListAuth/').get('ListAuth')
-
-    @property
-    def option_list_auth_enabled(self):
-        return self.zap._request(self.zap.base + 'core/view/optionListAuthEnabled/').get('ListAuthEnabled')
-
-    @property
     def option_http_state(self):
         return self.zap._request(self.zap.base + 'core/view/optionHttpState/').get('HttpState')
 

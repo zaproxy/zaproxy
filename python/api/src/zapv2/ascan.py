@@ -27,6 +27,9 @@ class ascan(object):
     def status(self, scanid=''):
         return self.zap._request(self.zap.base + 'ascan/view/status/', {'scanId' : scanid}).get('status')
 
+    def scan_progress(self, scanid=''):
+        return self.zap._request(self.zap.base + 'ascan/view/scanProgress/', {'scanId' : scanid}).get('scanProgress')
+
     def messages_ids(self, scanid):
         return self.zap._request(self.zap.base + 'ascan/view/messagesIds/', {'scanId' : scanid}).get('messagesIds')
 
@@ -50,6 +53,10 @@ class ascan(object):
 
     def policies(self, scanpolicyname='', policyid=''):
         return self.zap._request(self.zap.base + 'ascan/view/policies/', {'scanPolicyName' : scanpolicyname, 'policyId' : policyid}).get('policies')
+
+    @property
+    def attack_mode_queue(self):
+        return self.zap._request(self.zap.base + 'ascan/view/attackModeQueue/').get('attackModeQueue')
 
     @property
     def option_max_scans_in_ui(self):
@@ -111,8 +118,12 @@ class ascan(object):
     def option_attack_policy(self):
         return self.zap._request(self.zap.base + 'ascan/view/optionAttackPolicy/').get('AttackPolicy')
 
-    def scan(self, url, recurse='', inscopeonly='', scanpolicyname='', apikey=''):
-        return self.zap._request(self.zap.base + 'ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
+    @property
+    def option_allow_attack_on_start(self):
+        return self.zap._request(self.zap.base + 'ascan/view/optionAllowAttackOnStart/').get('AllowAttackOnStart')
+
+    def scan(self, url, recurse='', inscopeonly='', scanpolicyname='', method='', postdata='', apikey=''):
+        return self.zap._request(self.zap.base + 'ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey})
 
     def pause(self, scanid, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/pause/', {'scanId' : scanid, 'apikey' : apikey})
@@ -162,14 +173,14 @@ class ascan(object):
     def set_policy_attack_strength(self, id, attackstrength, scanpolicyname='', apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setPolicyAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
 
-    def set_policy_alert_threshold(self, id, attackstrength, scanpolicyname='', apikey=''):
-        return self.zap._request(self.zap.base + 'ascan/action/setPolicyAlertThreshold/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
+    def set_policy_alert_threshold(self, id, alertthreshold, scanpolicyname='', apikey=''):
+        return self.zap._request(self.zap.base + 'ascan/action/setPolicyAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
 
     def set_scanner_attack_strength(self, id, attackstrength, scanpolicyname='', apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setScannerAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
 
-    def set_scanner_alert_threshold(self, id, attackstrength, scanpolicyname='', apikey=''):
-        return self.zap._request(self.zap.base + 'ascan/action/setScannerAlertThreshold/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
+    def set_scanner_alert_threshold(self, id, alertthreshold, scanpolicyname='', apikey=''):
+        return self.zap._request(self.zap.base + 'ascan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
 
     def add_scan_policy(self, scanpolicyname, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/addScanPolicy/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey})
@@ -218,5 +229,8 @@ class ascan(object):
 
     def set_option_prompt_to_clear_finished_scans(self, boolean, apikey=''):
         return self.zap._request(self.zap.base + 'ascan/action/setOptionPromptToClearFinishedScans/', {'Boolean' : boolean, 'apikey' : apikey})
+
+    def set_option_allow_attack_on_start(self, boolean, apikey=''):
+        return self.zap._request(self.zap.base + 'ascan/action/setOptionAllowAttackOnStart/', {'Boolean' : boolean, 'apikey' : apikey})
 
 

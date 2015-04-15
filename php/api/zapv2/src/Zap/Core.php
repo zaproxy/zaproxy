@@ -153,14 +153,6 @@ class Core {
 		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainPrompt/')->{'ProxyChainPrompt'};
 	}
 
-	public function optionListAuth() {
-		return $this->zap->request($this->zap->base . 'core/view/optionListAuth/')->{'ListAuth'};
-	}
-
-	public function optionListAuthEnabled() {
-		return $this->zap->request($this->zap->base . 'core/view/optionListAuthEnabled/')->{'ListAuthEnabled'};
-	}
-
 	public function optionHttpState() {
 		return $this->zap->request($this->zap->base . 'core/view/optionHttpState/')->{'HttpState'};
 	}

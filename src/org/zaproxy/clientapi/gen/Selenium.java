@@ -41,14 +41,6 @@ public class Selenium {
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
-	public ApiResponse optionChromeDriverPath() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("selenium", "view", "optionChromeDriverPath", map);
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
 	public ApiResponse optionIeDriverPath() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("selenium", "view", "optionIeDriverPath", map);
@@ -65,14 +57,9 @@ public class Selenium {
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
-	public ApiResponse setOptionChromeDriverPath(String apikey, String string) throws ClientApiException {
+	public ApiResponse optionChromeDriverPath() throws ClientApiException {
 		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("String", string);
-		return api.callApi("selenium", "action", "setOptionChromeDriverPath", map);
+		return api.callApi("selenium", "view", "optionChromeDriverPath", map);
 	}
 
 	/**
@@ -99,6 +86,19 @@ public class Selenium {
 		}
 		map.put("String", string);
 		return api.callApi("selenium", "action", "setOptionPhantomJsBinaryPath", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionChromeDriverPath(String apikey, String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("String", string);
+		return api.callApi("selenium", "action", "setOptionChromeDriverPath", map);
 	}
 
 }
