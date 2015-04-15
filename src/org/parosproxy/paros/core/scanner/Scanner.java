@@ -294,7 +294,11 @@ public class Scanner implements Runnable {
 	    } else {
 	    	String url = node.getName();
 	    	int idx = url.indexOf("/", url.indexOf("//")+2);
-	    	result = url.substring(0, idx);
+	    	if (idx > 0) {
+	    		result = url.substring(0, idx);
+	    	} else {
+	    		result = url;
+	    	}
 	    }
 	    return result;
 	}
