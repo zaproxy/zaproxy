@@ -50,6 +50,8 @@ elif [ "$OS" = "Darwin" ]; then
 	MEM=$(system_profiler SPMemoryDataType | sed -n -e 's/.*Size: \([0-9]\{1,\}\) GB/\1/p' | awk '{s+=$0} END {print s*1024}')
 elif [ "$OS" = "SunOS" ]; then
 	MEM=$(/usr/sbin/prtconf | awk '/Memory/{print $3}')
+elif [ "$OS" = "FreeBSD" ]; then
+	MEM=$(($(sysctl -n hw.physmem)/1024/1024))
 fi
 
 if [ -z $MEM ]
