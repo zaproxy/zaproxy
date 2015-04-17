@@ -48,6 +48,7 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2015/04/17 A problem occur when a single node should be scanned because count start from -1
 
 package org.parosproxy.paros.core.scanner;
 
@@ -97,7 +98,7 @@ public class HostProcess implements Runnable {
     private long hostProcessStartTime = 0;
 
     // ZAP: progress related
-    private int nodeInScopeCount = -1;
+    private int nodeInScopeCount = 0;
     private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
     private int percentage = 0;
     
