@@ -114,7 +114,7 @@ public class SplashScreen extends JFrame implements Runnable {
         panel.add(lblProgramName, LayoutHelper.getGBC(0, 0, 2, 1));
         // Version is +8 horizontally respect to the other components
         panel.add(lblVersion, LayoutHelper.getGBC(0, 1, 2, 1, new Insets(0, 8, 0, 8)));
-        // Progress bar (height 12) is +16 and then +64 
+        // Progress bar (height 12) is +56 and then +24 
         // vertically respect the other elements (tot + 92)
         panel.add(getLoadingJProgressBar(), LayoutHelper.getGBC(0, 2, 1, 1.0, new Insets(56, 0, 24, 0))); 
         panel.add(Box.createHorizontalGlue(), LayoutHelper.getGBC(1, 2, 1, 1.0));

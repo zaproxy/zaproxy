@@ -90,9 +90,9 @@
         <copy todir="${dist.dir}/filter">
             <fileset dir="${src.src.dir}/filter" excludes="**/.svn/** **/_svn/**" />
         </copy>
-        <copy todir="${dist.dir}/fuzzers">
+        <!--copy todir="${dist.dir}/fuzzers">
             <fileset dir="${src.src.dir}/fuzzers" excludes="**/.svn/** **/_svn/**" />
-        </copy>
+        </copy-->
         <copy todir="${dist.dir}/plugin">
             <fileset dir="${src.src.dir}/plugin" excludes="**/.svn/** **/_svn/**" />
         </copy>
