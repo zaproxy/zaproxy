@@ -108,6 +108,9 @@ This list the alerts
 20018	Remote Code Execution - CVE-2012-1823
 20019   External Redirect
 
+30001  Check for buffer overflow in backend C code
+30002  Check for proper format string handeling in backend c code.
+
 40000	Cross site scripting
 40001	Cross site scripting in SCRIPT section 
 40002	Cross site scripting without brackets
