@@ -52,9 +52,9 @@ public class SpiderTextParser extends SpiderParser {
 
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
-		// Fall-back parser - if it's a text message which has not already been processed
+		// Fall-back parser - if it's a text, non-HTML response which has not already been processed
 		return !wasAlreadyConsumed && message.getResponseHeader() != null
-				&& message.getResponseHeader().isText();
+				&& message.getResponseHeader().isText() && !message.getResponseHeader().isHtml();
 	}
 
 }
