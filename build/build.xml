@@ -517,7 +517,7 @@
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_es_ES"/>
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_fr_FR"/>
 		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_ja_JP"/>
-		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_pt_BR"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.beta.dir}" lang="_pt_BR"/>
 
 		<delete dir="${wkdir}" includeEmptyDirs="true" />
 	</target>
