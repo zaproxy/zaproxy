@@ -29,8 +29,6 @@ import org.zaproxy.clientapi.core.ApiResponseList;
 import org.zaproxy.clientapi.core.ApiResponseSet;
 import org.zaproxy.clientapi.core.ClientApi;
 import org.zaproxy.clientapi.core.ClientApiException;
-import org.zaproxy.clientapi.gen.Authentication;
-import org.zaproxy.clientapi.gen.Users;
 
 /**
  * An example of how to set up authentication via the API and get information about existing
@@ -60,13 +58,14 @@ import org.zaproxy.clientapi.gen.Users;
  */
 public class AuthenticationApiExample {
 
-	private static void listAuthInformation() throws ClientApiException {
-		ClientApi api = new ClientApi("localhost", 8090);
-		Authentication authApi = new Authentication(api);
+	private static final String ZAP_ADDRESS = "localhost";
+	private static final int ZAP_PORT = 8090;
+	private static final String ZAP_API_KEY = null;
 
+	private static void listAuthInformation(ClientApi clientApi) throws ClientApiException {
 		// Check out which authentication methods are supported by the API
 		List<String> supportedMethodNames = new LinkedList<>();
-		ApiResponseList authMethodsList = (ApiResponseList) authApi.getSupportedAuthenticationMethods();
+		ApiResponseList authMethodsList = (ApiResponseList) clientApi.authentication.getSupportedAuthenticationMethods();
 		for (ApiResponse authMethod : authMethodsList.getItems()) {
 			supportedMethodNames.add(((ApiResponseElement) authMethod).getValue());
 		}
@@ -75,7 +74,7 @@ public class AuthenticationApiExample {
 		// Check out which are the config parameters of the authentication methods
 		for (String methodName : supportedMethodNames) {
 
-			ApiResponseList configParamsList = (ApiResponseList) authApi
+			ApiResponseList configParamsList = (ApiResponseList) clientApi.authentication
 					.getAuthenticationMethodConfigParams(methodName);
 
 			for (ApiResponse r : configParamsList.getItems()) {
@@ -86,14 +85,11 @@ public class AuthenticationApiExample {
 		}
 	}
 
-	private static void listUserConfigInformation() throws ClientApiException {
-		ClientApi api = new ClientApi("localhost", 8090);
-		Users usersApi = new Users(api);
-
+	private static void listUserConfigInformation(ClientApi clientApi) throws ClientApiException {
 		// Check out which are the config parameters required to set up an user with the currently
 		// set authentication methods
 		String contextId = "1";
-		ApiResponseList configParamsList = (ApiResponseList) usersApi
+		ApiResponseList configParamsList = (ApiResponseList) clientApi.users
 				.getAuthenticationCredentialsConfigParams(contextId);
 
 		StringBuilder sb = new StringBuilder("Users' config params: ");
@@ -106,27 +102,21 @@ public class AuthenticationApiExample {
 		System.out.println(sb.deleteCharAt(sb.length() - 2).toString());
 	}
 
-	private static void setLoggedInIndicator() throws UnsupportedEncodingException, ClientApiException {
-		ClientApi api = new ClientApi("localhost", 8090);
-		Authentication authApi = new Authentication(api);
-
+	private static void setLoggedInIndicator(ClientApi clientApi) throws UnsupportedEncodingException, ClientApiException {
 		// Prepare values to set, with the logged in indicator as a regex matching the logout link
 		String loggedInIndicator = "<a href=\"logout.jsp\"></a>";
 		String contextId = "1";
 
 		// Actually set the logged in indicator
-		authApi.setLoggedInIndicator(null, contextId, java.util.regex.Pattern.quote(loggedInIndicator));
+		clientApi.authentication.setLoggedInIndicator(ZAP_API_KEY, contextId, java.util.regex.Pattern.quote(loggedInIndicator));
 
 		// Check out the logged in indicator that is set
 		System.out.println("Configured logged in indicator regex: "
-				+ ((ApiResponseElement) authApi.getLoggedInIndicator(contextId)).getValue());
+				+ ((ApiResponseElement) clientApi.authentication.getLoggedInIndicator(contextId)).getValue());
 	}
 
-	private static void setFormBasedAuthenticationForBodgeit() throws ClientApiException,
+	private static void setFormBasedAuthenticationForBodgeit(ClientApi clientApi) throws ClientApiException,
 			UnsupportedEncodingException {
-		ClientApi api = new ClientApi("localhost", 8090);
-		Authentication authApi = new Authentication(api);
-
 		// Setup the authentication method
 		String contextId = "1";
 		String loginUrl = "http://localhost:8080/bodgeit/login.jsp";
@@ -140,27 +130,23 @@ public class AuthenticationApiExample {
 
 		System.out.println("Setting form based authentication configuration as: "
 				+ formBasedConfig.toString());
-		authApi.setAuthenticationMethod(null, contextId, "formBasedAuthentication",
+		clientApi.authentication.setAuthenticationMethod(ZAP_API_KEY, contextId, "formBasedAuthentication",
 				formBasedConfig.toString());
 
 		// Check if everything is set up ok
 		System.out
-				.println("Authentication config: " + authApi.getAuthenticationMethod(contextId).toString(0));
+				.println("Authentication config: " + clientApi.authentication.getAuthenticationMethod(contextId).toString(0));
 	}
 
-	private static void setUserAuthConfigForBodgeit() throws ClientApiException, UnsupportedEncodingException {
-		ClientApi api = new ClientApi("localhost", 8090);
-		Users usersApi = new Users(api);
-
+	private static void setUserAuthConfigForBodgeit(ClientApi clientApi) throws ClientApiException, UnsupportedEncodingException {
 		// Prepare info
 		String contextId = "1";
-		String userId = "0"; // We assume the user we created was the first one so it has id 0
 		String user = "Test User";
 		String username = "test@example.com";
 		String password = "weakPassword";
 
 		// Make sure we have at least one user
-		usersApi.newUser(null, contextId, user);
+		String userId = extractUserId(clientApi.users.newUser(ZAP_API_KEY, contextId, user));
 
 		// Prepare the configuration in a format similar to how URL parameters are formed. This
 		// means that any value we add for the configuration values has to be URL encoded.
@@ -169,10 +155,14 @@ public class AuthenticationApiExample {
 		userAuthConfig.append("&password=").append(URLEncoder.encode(password, "UTF-8"));
 
 		System.out.println("Setting user authentication configuration as: " + userAuthConfig.toString());
-		usersApi.setAuthenticationCredentials(null, contextId, userId, userAuthConfig.toString());
+		clientApi.users.setAuthenticationCredentials(ZAP_API_KEY, contextId, userId, userAuthConfig.toString());
 
 		// Check if everything is set up ok
-		System.out.println("Authentication config: " + usersApi.getUserById(contextId, userId).toString(0));
+		System.out.println("Authentication config: " + clientApi.users.getUserById(contextId, userId).toString(0));
+	}
+
+	private static String extractUserId(ApiResponse response) {
+		return ((ApiResponseElement) response).getValue();
 	}
 
 	/**
@@ -183,14 +173,16 @@ public class AuthenticationApiExample {
 	 * @throws UnsupportedEncodingException
 	 */
 	public static void main(String[] args) throws ClientApiException, UnsupportedEncodingException {
-		listAuthInformation();
+		ClientApi clientApi = new ClientApi(ZAP_ADDRESS, ZAP_PORT);
+
+		listAuthInformation(clientApi);
 		System.out.println("-------------");
-		setFormBasedAuthenticationForBodgeit();
+		setFormBasedAuthenticationForBodgeit(clientApi);
 		System.out.println("-------------");
-		setLoggedInIndicator();
+		setLoggedInIndicator(clientApi);
 		System.out.println("-------------");
-		listUserConfigInformation();
+		listUserConfigInformation(clientApi);
 		System.out.println("-------------");
-		setUserAuthConfigForBodgeit();
+		setUserAuthConfigForBodgeit(clientApi);
 	}
 }
