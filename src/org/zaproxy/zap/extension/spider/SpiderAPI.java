@@ -315,11 +315,8 @@ public class SpiderAPI extends ApiImplementor {
 		StructuralNode node = null;
 		try {
 			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), "GET", "");
-			if (node == null) {
-				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
-			}
 		} catch (Exception e) {
-			throw new ApiException(ApiException.Type.URL_NOT_FOUND);
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 		}
 		Target target = new Target(node);
 		target.setRecurse(true);
