@@ -279,34 +279,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					Pattern pattern;
-					try {
-						pattern = Pattern.compile(regEx.getText());
-					} catch (IllegalArgumentException e) {
-						regEx.requestFocusInWindow();
-						View.getSingleton()
-								.showWarningDialog(Constant.messages.getString("search.toolbar.error.invalid.regex"));
-						return;
-					}
-
-					if (pattern.matcher("").find()) {
-						int option = JOptionPane.showOptionDialog(
-								View.getSingleton().getMainFrame(),
-								Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.text"),
-								Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.title"),
-								JOptionPane.OK_CANCEL_OPTION,
-								JOptionPane.QUESTION_MESSAGE,
-								null,
-								new String[] {
-										Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.search"),
-										Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.cancel") },
-								null);
-						if (option != JOptionPane.OK_OPTION) {
-							regEx.requestFocusInWindow();
-							return;
-						}
-					}
-
 					doSearch();
 				}
 			});
@@ -444,6 +416,34 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
     
     private void doSearch() {
+        Pattern pattern;
+        try {
+            pattern = Pattern.compile(regEx.getText());
+        } catch (IllegalArgumentException e) {
+            regEx.requestFocusInWindow();
+            View.getSingleton()
+                    .showWarningDialog(Constant.messages.getString("search.toolbar.error.invalid.regex"));
+            return;
+        }
+
+        if (pattern.matcher("").find()) {
+            int option = JOptionPane.showOptionDialog(
+                    View.getSingleton().getMainFrame(),
+                    Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.text"),
+                    Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.title"),
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[] {
+                            Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.search"),
+                            Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.cancel") },
+                    null);
+            if (option != JOptionPane.OK_OPTION) {
+                regEx.requestFocusInWindow();
+                return;
+            }
+        }
+
         SearchOption option = (SearchOption) getSearchType().getSelectedItem();
 
         ExtensionSearch.Type type = option.getType();
