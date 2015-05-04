@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONObject;
 
@@ -151,6 +153,8 @@ public class SearchAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 
+		validateRegex(params);
+
 		try {
 			SearchResultsProcessor processor;
 
@@ -192,6 +196,14 @@ public class SearchAPI extends ApiImplementor {
 		return result;
 	}
 
+	private static void validateRegex(JSONObject params) throws ApiException {
+		try {
+			Pattern.compile(params.getString(PARAM_REGEX));
+		} catch (NullPointerException | PatternSyntaxException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX, e);
+		}
+	}
+
 	@Override
 	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
 		byte responseBody[] = {};
@@ -214,6 +226,8 @@ public class SearchAPI extends ApiImplementor {
 		default:
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
+
+		validateRegex(params);
 
 		try {
 			final HarEntries entries = new HarEntries();
