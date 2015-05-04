@@ -88,6 +88,8 @@ public class AntiCsrfAPI extends ApiImplementor {
 				
 			} catch (NumberFormatException e) {
 				throw new ApiException(ApiException.Type.BAD_FORMAT, OTHER_GENERATE_FORM_PARAM_HREFID);
+			} catch (ApiException e) {
+				throw e;
 			} catch (Exception e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}

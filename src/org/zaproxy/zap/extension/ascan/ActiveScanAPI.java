@@ -504,6 +504,8 @@ public class ActiveScanAPI extends ApiImplementor {
 			}
 
 			return controller.startScan(null, target, null, objs);
+		} catch(ApiException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 		}
