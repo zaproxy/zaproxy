@@ -35,6 +35,7 @@ import org.parosproxy.paros.db.RecordStructure;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -63,12 +64,21 @@ public class SessionStructure {
     }
     
 	public static StructuralNode find(long sessionId, URI uri, String method, String postData) throws DatabaseException, URIException {
+		Model model = Model.getSingleton();
     	if (!Constant.isLowMemoryOptionSet()) {
-			return new StructuralSiteNode (Model.getSingleton().getSession().getSiteTree().findNode(uri, method, postData));
-    	} else {
-			return new StructuralTableNode(Model.getSingleton().getDb().getTableStructure().find(
-					sessionId, getNodeName(sessionId, uri, method, postData), method));
-    	}
+			SiteNode node = model.getSession().getSiteTree().findNode(uri, method, postData);
+			if (node == null) {
+				return null;
+			}
+			return new StructuralSiteNode(node);
+		}
+
+		String nodeName = getNodeName(sessionId, uri, method, postData);
+		RecordStructure rs = model.getDb().getTableStructure().find(sessionId, nodeName, method);
+		if (rs == null) {
+			return null;
+		}
+		return new StructuralTableNode(rs);
 	}
 
 	private static String getNodeName(long sessionId, URI uri, String method, String postData) throws URIException {
