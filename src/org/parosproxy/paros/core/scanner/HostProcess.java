@@ -461,7 +461,15 @@ public class HostProcess implements Runnable {
         if (pluginFactory.totalPluginToRun() == 0) {
             percentage = 100;
         } else {
-            percentage = (100 * pluginFactory.totalPluginCompleted() / pluginFactory.totalPluginToRun());
+            int numberRunning = 0;
+            float progressRunning = 0;
+            for (Plugin plugin : pluginFactory.getRunning()) {
+                progressRunning += (getTestCurrentCount(plugin) * 100.0) / getTestTotalCount();
+                numberRunning++;
+            }
+
+            int avgRunning = (int) (progressRunning / numberRunning);
+            percentage = ((100 * pluginFactory.totalPluginCompleted()) + avgRunning) / pluginFactory.totalPluginToRun();
         }
         
         parentScanner.notifyHostProgress(hostAndPort, msg, percentage);

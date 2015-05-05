@@ -143,8 +143,7 @@ public class AlertViewPanel extends AbstractPanel {
 	}
 	
 	private ZapTextArea createZapTextArea() {
-		ZapTextArea ZapTextArea = new ZapTextArea();
-		ZapTextArea = new ZapTextArea(3, 30);
+		ZapTextArea ZapTextArea = new ZapTextArea(3, 30);
 		ZapTextArea.setLineWrap(true);
 		ZapTextArea.setWrapStyleWord(true);
 		ZapTextArea.setEditable(editable);

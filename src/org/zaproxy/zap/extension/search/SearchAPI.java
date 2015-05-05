@@ -22,6 +22,8 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONObject;
 
@@ -111,47 +113,49 @@ public class SearchAPI extends ApiImplementor {
 	public ApiResponse handleApiView(final String name, JSONObject params)
 			throws ApiException {
 		final ApiResponseList result = new ApiResponseList(name);
+		ExtensionSearch.Type searchType;
+		SearchViewResponseType responseType;
+
+		switch (name) {
+		case VIEW_URLS_BY_URL_REGEX:
+			searchType = ExtensionSearch.Type.URL;
+			responseType = SearchViewResponseType.URL;
+			break;
+		case VIEW_MESSAGES_BY_URL_REGEX:
+			searchType = ExtensionSearch.Type.URL;
+			responseType = SearchViewResponseType.MESSAGE;
+			break;
+		case VIEW_URLS_BY_REQUEST_REGEX:
+			searchType = ExtensionSearch.Type.Request;
+			responseType = SearchViewResponseType.URL;
+			break;
+		case VIEW_MESSAGES_BY_REQUEST_REGEX:
+			searchType = ExtensionSearch.Type.Request;
+			responseType = SearchViewResponseType.MESSAGE;
+			break;
+		case VIEW_URLS_BY_RESPONSE_REGEX:
+			searchType = ExtensionSearch.Type.Response;
+			responseType = SearchViewResponseType.URL;
+			break;
+		case VIEW_MESSAGES_BY_RESPONSE_REGEX:
+			searchType = ExtensionSearch.Type.Response;
+			responseType = SearchViewResponseType.MESSAGE;
+			break;
+		case VIEW_URLS_BY_HEADER_REGEX:
+			searchType = ExtensionSearch.Type.Header;
+			responseType = SearchViewResponseType.URL;
+			break;
+		case VIEW_MESSAGES_BY_HEADER_REGEX:
+			searchType = ExtensionSearch.Type.Header;
+			responseType = SearchViewResponseType.MESSAGE;
+			break;
+		default:
+			throw new ApiException(ApiException.Type.BAD_VIEW);
+		}
+
+		validateRegex(params);
+
 		try {
-			ExtensionSearch.Type searchType;
-			SearchViewResponseType responseType;
-
-			switch (name) {
-			case VIEW_URLS_BY_URL_REGEX:
-				searchType = ExtensionSearch.Type.URL;
-				responseType = SearchViewResponseType.URL;
-				break;
-			case VIEW_MESSAGES_BY_URL_REGEX:
-				searchType = ExtensionSearch.Type.URL;
-				responseType = SearchViewResponseType.MESSAGE;
-				break;
-			case VIEW_URLS_BY_REQUEST_REGEX:
-				searchType = ExtensionSearch.Type.Request;
-				responseType = SearchViewResponseType.URL;
-				break;
-			case VIEW_MESSAGES_BY_REQUEST_REGEX:
-				searchType = ExtensionSearch.Type.Request;
-				responseType = SearchViewResponseType.MESSAGE;
-				break;
-			case VIEW_URLS_BY_RESPONSE_REGEX:
-				searchType = ExtensionSearch.Type.Response;
-				responseType = SearchViewResponseType.URL;
-				break;
-			case VIEW_MESSAGES_BY_RESPONSE_REGEX:
-				searchType = ExtensionSearch.Type.Response;
-				responseType = SearchViewResponseType.MESSAGE;
-				break;
-			case VIEW_URLS_BY_HEADER_REGEX:
-				searchType = ExtensionSearch.Type.Header;
-				responseType = SearchViewResponseType.URL;
-				break;
-			case VIEW_MESSAGES_BY_HEADER_REGEX:
-				searchType = ExtensionSearch.Type.Header;
-				responseType = SearchViewResponseType.MESSAGE;
-				break;
-			default:
-				throw new ApiException(ApiException.Type.BAD_VIEW);
-			}
-
 			SearchResultsProcessor processor;
 
 			if (SearchViewResponseType.MESSAGE == responseType) {
@@ -192,29 +196,40 @@ public class SearchAPI extends ApiImplementor {
 		return result;
 	}
 
+	private static void validateRegex(JSONObject params) throws ApiException {
+		try {
+			Pattern.compile(params.getString(PARAM_REGEX));
+		} catch (NullPointerException | PatternSyntaxException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX, e);
+		}
+	}
+
 	@Override
 	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
 		byte responseBody[] = {};
+		
+		ExtensionSearch.Type searchType;
+
+		switch (name) {
+		case OTHER_HAR_BY_URL_REGEX:
+			searchType = ExtensionSearch.Type.URL;
+			break;
+		case OTHER_HAR_BY_REQUEST_REGEX:
+			searchType = ExtensionSearch.Type.Request;
+			break;
+		case OTHER_HAR_BY_RESPONSE_REGEX:
+			searchType = ExtensionSearch.Type.Response;
+			break;
+		case OTHER_HAR_BY_HEADER_REGEX:
+			searchType = ExtensionSearch.Type.Header;
+			break;
+		default:
+			throw new ApiException(ApiException.Type.BAD_OTHER);
+		}
+
+		validateRegex(params);
+
 		try {
-			ExtensionSearch.Type searchType;
-
-			switch (name) {
-			case OTHER_HAR_BY_URL_REGEX:
-				searchType = ExtensionSearch.Type.URL;
-				break;
-			case OTHER_HAR_BY_REQUEST_REGEX:
-				searchType = ExtensionSearch.Type.Request;
-				break;
-			case OTHER_HAR_BY_RESPONSE_REGEX:
-				searchType = ExtensionSearch.Type.Response;
-				break;
-			case OTHER_HAR_BY_HEADER_REGEX:
-				searchType = ExtensionSearch.Type.Header;
-				break;
-			default:
-				throw new ApiException(ApiException.Type.BAD_OTHER);
-			}
-
 			final HarEntries entries = new HarEntries();
 			search(params, searchType, new SearchResultsProcessor() {
 

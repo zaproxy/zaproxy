@@ -77,7 +77,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private ZapToggleButton scopeButton = null;
 	private ZapTextField regEx = null;
 	private JButton btnSearch = null;
-	private JComboBox<String> searchType = null;
+	private JComboBox<SearchOption> searchType = null;
 	private JButton btnNext = null;
 	private JButton btnPrev = null;
 	private JCheckBox chkInverse = null;
@@ -279,34 +279,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent evt) {
-					Pattern pattern;
-					try {
-						pattern = Pattern.compile(regEx.getText());
-					} catch (IllegalArgumentException e) {
-						regEx.requestFocusInWindow();
-						View.getSingleton()
-								.showWarningDialog(Constant.messages.getString("search.toolbar.error.invalid.regex"));
-						return;
-					}
-
-					if (pattern.matcher("").find()) {
-						int option = JOptionPane.showOptionDialog(
-								View.getSingleton().getMainFrame(),
-								Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.text"),
-								Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.title"),
-								JOptionPane.OK_CANCEL_OPTION,
-								JOptionPane.QUESTION_MESSAGE,
-								null,
-								new String[] {
-										Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.search"),
-										Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.cancel") },
-								null);
-						if (option != JOptionPane.OK_OPTION) {
-							regEx.requestFocusInWindow();
-							return;
-						}
-					}
-
 					doSearch();
 				}
 			});
@@ -444,22 +416,43 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
     
     private void doSearch() {
-    	ExtensionSearch.Type type = ExtensionSearch.Type.All;
-    	String customSearcherName = null;
-    	
-    	if (Constant.messages.getString("search.toolbar.label.type.url").equals(searchType.getSelectedItem())) {
-    		type = ExtensionSearch.Type.URL;
-    	} else if (Constant.messages.getString("search.toolbar.label.type.request").equals(searchType.getSelectedItem())) {
-    		type = ExtensionSearch.Type.Request;
-    	} else if (Constant.messages.getString("search.toolbar.label.type.response").equals(searchType.getSelectedItem())) {
-    		type = ExtensionSearch.Type.Response;
-    	} else if (Constant.messages.getString("search.toolbar.label.type.header").equals(searchType.getSelectedItem())) {
-    		type = ExtensionSearch.Type.Header;
-    	} else {
-    		type = ExtensionSearch.Type.Custom;
-    		customSearcherName = (String) searchType.getSelectedItem();
-    	}
+        Pattern pattern;
+        try {
+            pattern = Pattern.compile(regEx.getText());
+        } catch (IllegalArgumentException e) {
+            regEx.requestFocusInWindow();
+            View.getSingleton()
+                    .showWarningDialog(Constant.messages.getString("search.toolbar.error.invalid.regex"));
+            return;
+        }
 
+        if (pattern.matcher("").find()) {
+            int option = JOptionPane.showOptionDialog(
+                    View.getSingleton().getMainFrame(),
+                    Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.text"),
+                    Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.title"),
+                    JOptionPane.OK_CANCEL_OPTION,
+                    JOptionPane.QUESTION_MESSAGE,
+                    null,
+                    new String[] {
+                            Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.search"),
+                            Constant.messages.getString("search.toolbar.warn.regex.match.empty.string.button.cancel") },
+                    null);
+            if (option != JOptionPane.OK_OPTION) {
+                regEx.requestFocusInWindow();
+                return;
+            }
+        }
+
+        SearchOption option = (SearchOption) getSearchType().getSelectedItem();
+
+        ExtensionSearch.Type type = option.getType();
+        String customSearcherName = null;
+
+        if (ExtensionSearch.Type.Custom == type) {
+            customSearcherName = option.getName();
+        }
+    	
     	setNumberOfMatches(0);
     	extension.search(regEx.getText(), type, customSearcherName, false, chkInverse.isSelected());
 		
@@ -471,15 +464,18 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
     
     protected void setSearchType(ExtensionSearch.Type type) {
-    	switch (type) {
-    	case All:  	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.all")); break;
-    	case URL:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.url")); break;
-    	case Request:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.request")); break;
-    	case Response:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.response")); break;
-    	case Header:	this.getSearchType().setSelectedItem(Constant.messages.getString("search.toolbar.label.type.header")); break;
-    	case Custom:	// Not supported
-    	    break;
-    	}
+        if (ExtensionSearch.Type.Custom == type) {
+            // Not supported
+            return;
+        }
+
+        for (int i = 0; i < getSearchType().getItemCount(); i++) {
+            SearchOption option = getSearchType().getItemAt(i);
+            if (option.getType() == type) {
+                getSearchType().setSelectedIndex(i);
+                break;
+            }
+        }
     }
     
     private void displayMessage(SearchResult sr) {
@@ -593,24 +589,40 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     	}
     }
 
-    private JComboBox<String> getSearchType () {
+    private JComboBox<SearchOption> getSearchType () {
     	if (searchType == null) {
 	    	searchType = new JComboBox<>();
-	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.all"));
-	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.url"));
-	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.request"));
-	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.response"));
-	    	searchType.addItem(Constant.messages.getString("search.toolbar.label.type.header"));
+            searchType.addItem(new SearchOption(
+                    Constant.messages.getString("search.toolbar.label.type.all"),
+                    ExtensionSearch.Type.All));
+            searchType.addItem(new SearchOption(
+                    Constant.messages.getString("search.toolbar.label.type.url"),
+                    ExtensionSearch.Type.URL));
+            searchType.addItem(new SearchOption(
+                    Constant.messages.getString("search.toolbar.label.type.request"),
+                    ExtensionSearch.Type.Request));
+            searchType.addItem(new SearchOption(
+                    Constant.messages.getString("search.toolbar.label.type.response"),
+                    ExtensionSearch.Type.Response));
+            searchType.addItem(new SearchOption(
+                    Constant.messages.getString("search.toolbar.label.type.header"),
+                    ExtensionSearch.Type.Header));
     	}
     	return searchType;
     }
 
     protected void addCustomSearcher(String name) {
-        getSearchType().addItem(name);
+        getSearchType().addItem(new SearchOption(name, ExtensionSearch.Type.Custom));
     }
 
     protected void removeCustomSearcher(String name) {
-        getSearchType().removeItem(name);
+        for (int i = 0; i < getSearchType().getItemCount(); i++) {
+            SearchOption option = getSearchType().getItemAt(i);
+            if (option.getType() == ExtensionSearch.Type.Custom && name.equals(option.getName())) {
+                getSearchType().removeItemAt(i);
+                break;
+            }
+        }
     }
     
     public void searchFocus() {
@@ -623,4 +635,28 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	public void searchComplete() {
 		// Ignore
 	}
+
+    private static class SearchOption {
+
+        private final String name;
+        private final ExtensionSearch.Type type;
+
+        public SearchOption(String name, ExtensionSearch.Type type) {
+            this.name = name;
+            this.type = type;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public ExtensionSearch.Type getType() {
+            return type;
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
 }

@@ -24,6 +24,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
@@ -36,8 +37,13 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zaproxy.zap.extension.api.*;
+import org.zaproxy.zap.extension.api.ApiException.Type;
+import org.zaproxy.zap.extension.users.ExtensionUserManagement;
+import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
 import java.util.*;
@@ -49,6 +55,7 @@ public class ActiveScanAPI extends ApiImplementor {
 
 	private static final String PREFIX = "ascan";
     private static final String ACTION_SCAN = "scan";
+	private static final String ACTION_SCAN_AS_USER = "scanAsUser";
 	private static final String ACTION_PAUSE_SCAN = "pause";
 	private static final String ACTION_RESUME_SCAN = "resume";
 	private static final String ACTION_STOP_SCAN = "stop";
@@ -85,6 +92,8 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String VIEW_SCAN_PROGRESS = "scanProgress";
 
 	private static final String PARAM_URL = "url";
+	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String PARAM_USER_ID = "userId";
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_RECURSE = "recurse";
     private static final String PARAM_JUST_IN_SCOPE = "inScopeOnly";
@@ -106,6 +115,10 @@ public class ActiveScanAPI extends ApiImplementor {
         this.addApiAction(new ApiAction(ACTION_SCAN,
         		new String[] {PARAM_URL}, 
         		new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA}));
+		this.addApiAction(new ApiAction(
+				ACTION_SCAN_AS_USER,
+				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID },
+				new String[] { PARAM_RECURSE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA }));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, new String[] { PARAM_SCAN_ID }));
@@ -155,13 +168,38 @@ public class ActiveScanAPI extends ApiImplementor {
 		log.debug("handleApiAction " + name + " " + params.toString());
 		ScanPolicy policy;
 		int policyId;
+
+		User user = null;
 		try {
 			switch(name) {
+			case ACTION_SCAN_AS_USER:
+				String urlUserScan = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
+				int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
+				ExtensionUserManagement usersExtension = Control.getSingleton()
+						.getExtensionLoader()
+						.getExtension(ExtensionUserManagement.class);
+				if (usersExtension == null) {
+					throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
+				}
+				Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+				if (!context.isIncluded(urlUserScan)) {
+					throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
+				}
+				user = usersExtension.getContextUserAuthManager(context.getIndex()).getUserById(userID);
+				if (user == null) {
+					throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
+				}
+
+				// Same behaviour but with addition of the user to scan
+				// $FALL-THROUGH$
 			case ACTION_SCAN:
 				String url = params.getString(PARAM_URL);
 				if (url == null || url.length() == 0) {
 					throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
 				}
+
+				boolean scanJustInScope = user == null ? this.getParam(params, PARAM_JUST_IN_SCOPE, false) : false;
+
 				String policyName = null;
 				policy = null;
 
@@ -189,8 +227,9 @@ public class ActiveScanAPI extends ApiImplementor {
 
 				int scanId = scanURL(
 						params.getString(PARAM_URL),
+						user,
 						this.getParam(params, PARAM_RECURSE, true),
-						this.getParam(params, PARAM_JUST_IN_SCOPE, false),
+						scanJustInScope,
 						method,
 						this.getParam(params, PARAM_POST_DATA, ""),
 						policy);
@@ -472,7 +511,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		return scanner;
 	}
 
-	private int scanURL(String url, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
+	private int scanURL(String url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
 		SiteNode startNode;
 		try {
@@ -487,13 +526,16 @@ public class ActiveScanAPI extends ApiImplementor {
 		Target target = new Target(startNode);
 		target.setRecurse(scanChildren);
 		target.setInScopeOnly(scanJustInScope);
+		if (user != null) {
+			target.setContext(user.getContext());
+		}
 
 		Object [] objs = new Object[]{};
 		if (policy != null) {
 			objs = new Object[]{policy};
 		}
 
-		return controller.startScan(null, new Target(startNode, null, scanJustInScope, scanChildren), null, objs);
+		return controller.startScan(null, target, user, objs);
 	}
 
 	@Override
