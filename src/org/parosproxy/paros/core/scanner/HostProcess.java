@@ -48,6 +48,7 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
 // ZAP: 2015/04/17 A problem occur when a single node should be scanned because count start from -1
+// ZAP: 2015/05/04 Issue 1566: Improve active scan's reported progress
 
 package org.parosproxy.paros.core.scanner;
 
