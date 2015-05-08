@@ -1199,7 +1199,7 @@ public class Session extends FileXML {
 		config.setProperty(Context.CONTEXT_CONFIG_EXC_REGEXES, c.getExcludeFromContextRegexs());
 		config.setProperty(Context.CONTEXT_CONFIG_TECH_INCLUDE, techListToStringList(c.getTechSet().getIncludeTech()));
 		config.setProperty(Context.CONTEXT_CONFIG_TECH_EXCLUDE, techListToStringList(c.getTechSet().getExcludeTech()));
-		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER, c.getUrlParamParser().getClass().getCanonicalName());
+		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER_CLASS, c.getUrlParamParser().getClass().getCanonicalName());
 		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER_CONFIG, c.getUrlParamParser().getConfig());
 		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CLASS, c.getPostParamParser().getClass().getCanonicalName());
 		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
@@ -1243,21 +1243,33 @@ public class Session extends FileXML {
 		}
 		c.setTechSet(techSet );
 		
-		Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS));
+		String urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS);
+		if (urlParserClass == null) {
+			// Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
+			urlParserClass = config.getString(Context.CONTEXT_CONFIG_URLPARSER);
+		}
+		Class<?> cl = ExtensionFactory.getAddOnLoader().loadClass(urlParserClass);
 		if (cl == null) {
-			throw new ConfigurationException("Failed to load URL parser for context " + config.getString(Context.CONTEXT_CONFIG_URLPARSER_CLASS));
+			throw new ConfigurationException("Failed to load URL parser for context " + urlParserClass);
 		} else {
 			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
     		parser.init(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG));
 	    	c.setUrlParamParser(parser);
 		}
 
-		cl = ExtensionFactory.getAddOnLoader().loadClass(config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS));
+		String postParserClass = config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS);
+		String postParserConfig = config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG);
+		if (postParserClass == null) {
+			// Can happen due to a bug in 2.4.0 where is was saved using the wrong name :(
+			postParserClass = config.getString(urlParserClass);
+			postParserConfig = config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG);
+		}
+		cl = ExtensionFactory.getAddOnLoader().loadClass(postParserClass);
 		if (cl == null) {
-			throw new ConfigurationException("Failed to load POST parser for context " + config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CLASS));
+			throw new ConfigurationException("Failed to load POST parser for context " + postParserClass);
 		} else {
 			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
-    		parser.init(config.getString(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG));
+    		parser.init(postParserConfig);
 	    	c.setPostParamParser(parser);
 		}
 		model.importContext(c, config);
