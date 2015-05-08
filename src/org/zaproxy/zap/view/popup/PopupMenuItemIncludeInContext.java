@@ -80,7 +80,8 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
             return;
         }
 
-        if (sn.isLeaf()) {
+        if (sn.isLeaf() && ! (sn.getParent().getParent() == null)) {
+        	// Its a leaf and not a site
             url = Pattern.quote(url);
         } else {
             url = Pattern.quote(url) + ".*";
