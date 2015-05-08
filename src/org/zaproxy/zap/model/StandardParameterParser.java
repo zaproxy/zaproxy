@@ -210,11 +210,13 @@ public class StandardParameterParser implements ParameterParser {
 				list.add(pathList[i]);
 			}
 		}
-		// Add any structural params (url param)
+		// Add any structural params (url param) in key order
 		Map<String, String> urlParams = this.parse(uri.getQuery());
-		for (Entry<String, String> param : urlParams.entrySet()) {
-			if (this.structuralParameters.contains(param.getKey())) {
-				list.add(param.getValue());
+		List<String> keys = new ArrayList<String>(urlParams.keySet());
+		Collections.sort(keys);
+		for (String key: keys) {
+			if (this.structuralParameters.contains(key)) {
+				list.add(urlParams.get(key));
 			}
 		}
 
@@ -228,11 +230,13 @@ public class StandardParameterParser implements ParameterParser {
 
 		List<String> list = getTreePath(uri);
 		
-		// Add any structural params (form params)
+		// Add any structural params (form params) in key order
 		Map<String, String> formParams = this.parse(msg.getRequestBody().toString());
-		for (Entry<String, String> param : formParams.entrySet()) {
-			if (this.structuralParameters.contains(param.getKey())) {
-				list.add(param.getValue());
+		List<String> keys = new ArrayList<String>(formParams.keySet());
+		Collections.sort(keys);
+		for (String key: keys) {
+			if (this.structuralParameters.contains(key)) {
+				list.add(formParams.get(key));
 			}
 		}
 
@@ -245,8 +249,9 @@ public class StandardParameterParser implements ParameterParser {
 	public String getAncestorPath(URI uri, int depth) throws URIException {
 		// If the depth is 0, return an empty path
 		String path = uri.getPath();
-		if (depth == 0 || path == null)
+		if (depth == 0 || path == null) {
 			return "";
+		}
 
 		// Add the 'normal' path elements until we finish them or we reach the desired depth
 		String[] pathList = path.split("/");
@@ -268,11 +273,13 @@ public class StandardParameterParser implements ParameterParser {
 				if (firstElement) {
 					firstElement = false;
 					parentPath.append('?');
-				} else
+				} else {
 					parentPath.append(keyValuePairSeparators);
+				}
 				parentPath.append(param.getKey()).append(keyValueSeparators).append(param.getValue());
-				if ((--depth) == 0)
+				if ((--depth) == 0) {
 					break;
+				}
 			}
 		}
 		return parentPath.toString();
