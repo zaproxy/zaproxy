@@ -55,7 +55,7 @@ public class Context {
 	public static final String CONTEXT_CONFIG_URLPARSER = CONTEXT_CONFIG + ".urlparser";
 	public static final String CONTEXT_CONFIG_URLPARSER_CLASS = CONTEXT_CONFIG_URLPARSER + ".class";
 	public static final String CONTEXT_CONFIG_URLPARSER_CONFIG = CONTEXT_CONFIG_URLPARSER + ".config";
-	public static final String CONTEXT_CONFIG_POSTPARSER = CONTEXT_CONFIG + ".urlparser";
+	public static final String CONTEXT_CONFIG_POSTPARSER = CONTEXT_CONFIG + ".postparser";
 	public static final String CONTEXT_CONFIG_POSTPARSER_CLASS = CONTEXT_CONFIG_POSTPARSER + ".class";
 	public static final String CONTEXT_CONFIG_POSTPARSER_CONFIG = CONTEXT_CONFIG_POSTPARSER + ".config";
 

@@ -241,6 +241,12 @@ public class ContextAPI extends ApiImplementor {
 		if(authorizationDetectionMethod != null){
 			fields.put("authenticationDetectionMethodId",String.valueOf(authorizationDetectionMethod.getMethodUniqueIdentifier()));
 		}
+		
+		fields.put("urlParameterParserClass", c.getUrlParamParser().getClass().getCanonicalName());
+		fields.put("urlParameterParserConfig", c.getUrlParamParser().getConfig());
+		fields.put("postParameterParserClass", c.getPostParamParser().getClass().getCanonicalName());
+		fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
+		
 		return new ApiResponseSet(c.getName(), fields);
 	}
 }
