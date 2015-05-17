@@ -19,8 +19,6 @@
  */
 package org.zaproxy.clientapi.core;
 
-import static org.junit.Assert.fail;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -159,7 +157,7 @@ public class ClientApi {
             throw new ClientApiException (e);
 		}
         if (alertsFound>0 || alertsNotFound>0){
-            fail("Check Alerts Failed!\n"+resultsString);
+            throw new ClientApiException("Check Alerts Failed!\n"+resultsString);
         }else{
         	if (debug) {
         		debugStream.println("Check Alerts Passed!\n" + resultsString);
