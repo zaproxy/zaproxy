@@ -32,7 +32,7 @@ public class WikiAPIGenerator {
 	 * Note that this currently only generates English wiki pages, although the API itself can be internationalized
 	 */
 	private String base = "ApiGen_";
-	private String title = "= ZAP 2.0.0 API =\n";
+	private String title = "= ZAP 2.4.0 API =\n";
 	private File dir; 
 	private int methods = 0;
 	private boolean optional = false;
