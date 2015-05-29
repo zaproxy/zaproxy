@@ -150,7 +150,7 @@ public class PythonAPIGenerator {
 		}
 		
 		if (type.equals("other")) {
-			out.write("        return ("); 
+			out.write("        return "); 
 		} else {
 			out.write("        return next("); 
 		}
@@ -191,11 +191,12 @@ public class PythonAPIGenerator {
 				out.write("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
 			}
 
-			out.write("}).itervalues())");
-		} else if (!type.equals("other")) {
-			out.write(").itervalues())");
-		} else {
+			out.write("}");
+		}
+		if (type.equals("other")) {
 			out.write(")");
+		} else {
+			out.write(").itervalues())");
 		}
 		out.write("\n\n");
 		
