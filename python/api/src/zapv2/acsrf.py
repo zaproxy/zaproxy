@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,24 +29,24 @@ class acsrf(object):
         """
         Lists the names of all anti CSRF tokens
         """
-        return self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/').get('TokensNames')
+        return next(self.zap._request(self.zap.base + 'acsrf/view/optionTokensNames/').itervalues())
 
     def add_option_token(self, string, apikey=''):
         """
         Adds an anti CSRF token with the given name, enabled by default
         """
-        return self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'acsrf/action/addOptionToken/', {'String' : string, 'apikey' : apikey}))
 
     def remove_option_token(self, string, apikey=''):
         """
         Removes the anti CSRF token with the given name
         """
-        return self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'acsrf/action/removeOptionToken/', {'String' : string, 'apikey' : apikey}))
 
     def gen_form(self, hrefid, apikey=''):
         """
         Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
         """
-        return self.zap._request_other(self.zap.base_other + 'acsrf/other/genForm/', {'hrefId' : hrefid, 'apikey' : apikey})
+        return (self.zap._request_other(self.zap.base_other + 'acsrf/other/genForm/', {'hrefId' : hrefid, 'apikey' : apikey}))
 
 

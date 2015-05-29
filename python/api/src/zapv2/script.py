@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,25 +26,25 @@ class script(object):
 
     @property
     def list_engines(self):
-        return self.zap._request(self.zap.base + 'script/view/listEngines/').get('listEngines')
+        return next(self.zap._request(self.zap.base + 'script/view/listEngines/').itervalues())
 
     @property
     def list_scripts(self):
-        return self.zap._request(self.zap.base + 'script/view/listScripts/').get('listScripts')
+        return next(self.zap._request(self.zap.base + 'script/view/listScripts/').itervalues())
 
     def enable(self, scriptname, apikey=''):
-        return self.zap._request(self.zap.base + 'script/action/enable/', {'scriptName' : scriptname, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'script/action/enable/', {'scriptName' : scriptname, 'apikey' : apikey}))
 
     def disable(self, scriptname, apikey=''):
-        return self.zap._request(self.zap.base + 'script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey}))
 
     def load(self, scriptname, scripttype, scriptengine, filename, scriptdescription='', apikey=''):
-        return self.zap._request(self.zap.base + 'script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}))
 
     def remove(self, scriptname, apikey=''):
-        return self.zap._request(self.zap.base + 'script/action/remove/', {'scriptName' : scriptname, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'script/action/remove/', {'scriptName' : scriptname, 'apikey' : apikey}))
 
     def run_stand_alone_script(self, scriptname, apikey=''):
-        return self.zap._request(self.zap.base + 'script/action/runStandAloneScript/', {'scriptName' : scriptname, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'script/action/runStandAloneScript/', {'scriptName' : scriptname, 'apikey' : apikey}))
 
 

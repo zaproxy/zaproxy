@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,54 +29,54 @@ class context(object):
         """
         List context names of current session
         """
-        return self.zap._request(self.zap.base + 'context/view/contextList/').get('contextList')
+        return next(self.zap._request(self.zap.base + 'context/view/contextList/').itervalues())
 
     def exclude_regexs(self, contextname):
         """
         List excluded regexs for context
         """
-        return self.zap._request(self.zap.base + 'context/view/excludeRegexs/', {'contextName' : contextname}).get('excludeRegexs')
+        return next(self.zap._request(self.zap.base + 'context/view/excludeRegexs/', {'contextName' : contextname}).itervalues())
 
     def include_regexs(self, contextname):
         """
         List included regexs for context
         """
-        return self.zap._request(self.zap.base + 'context/view/includeRegexs/', {'contextName' : contextname}).get('includeRegexs')
+        return next(self.zap._request(self.zap.base + 'context/view/includeRegexs/', {'contextName' : contextname}).itervalues())
 
     def context(self, contextname):
         """
         List the information about the named context
         """
-        return self.zap._request(self.zap.base + 'context/view/context/', {'contextName' : contextname}).get('context')
+        return next(self.zap._request(self.zap.base + 'context/view/context/', {'contextName' : contextname}).itervalues())
 
     def exclude_from_context(self, contextname, regex, apikey=''):
         """
         Add exclude regex to context
         """
-        return self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}))
 
     def include_in_context(self, contextname, regex, apikey=''):
         """
         Add include regex to context
         """
-        return self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}))
 
     def new_context(self, contextname='', apikey=''):
         """
         Creates a new context in the current session
         """
-        return self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}))
 
     def export_context(self, contextname, contextfile, apikey=''):
-        return self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey}))
 
     def import_context(self, contextfile, apikey=''):
-        return self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey}))
 
     def set_context_in_scope(self, contextname, booleaninscope, apikey=''):
         """
         Sets a context to in scope (contexts are in scope by default)
         """
-        return self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey}))
 
 

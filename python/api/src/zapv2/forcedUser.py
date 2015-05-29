@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,15 +26,15 @@ class forcedUser(object):
 
     @property
     def is_forced_user_mode_enabled(self):
-        return self.zap._request(self.zap.base + 'forcedUser/view/isForcedUserModeEnabled/').get('isForcedUserModeEnabled')
+        return next(self.zap._request(self.zap.base + 'forcedUser/view/isForcedUserModeEnabled/').itervalues())
 
     def get_forced_user(self, contextid):
-        return self.zap._request(self.zap.base + 'forcedUser/view/getForcedUser/', {'contextId' : contextid}).get('getForcedUser')
+        return next(self.zap._request(self.zap.base + 'forcedUser/view/getForcedUser/', {'contextId' : contextid}).itervalues())
 
     def set_forced_user(self, contextid, userid, apikey=''):
-        return self.zap._request(self.zap.base + 'forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}))
 
     def set_forced_user_mode_enabled(self, boolean, apikey=''):
-        return self.zap._request(self.zap.base + 'forcedUser/action/setForcedUserModeEnabled/', {'boolean' : boolean, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'forcedUser/action/setForcedUserModeEnabled/', {'boolean' : boolean, 'apikey' : apikey}))
 
 

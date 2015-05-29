@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,15 +26,15 @@ class sessionManagement(object):
 
     @property
     def get_supported_session_management_methods(self):
-        return self.zap._request(self.zap.base + 'sessionManagement/view/getSupportedSessionManagementMethods/').get('getSupportedSessionManagementMethods')
+        return next(self.zap._request(self.zap.base + 'sessionManagement/view/getSupportedSessionManagementMethods/').itervalues())
 
     def get_session_management_method_config_params(self, methodname):
-        return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethodConfigParams/', {'methodName' : methodname}).get('getSessionManagementMethodConfigParams')
+        return next(self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethodConfigParams/', {'methodName' : methodname}).itervalues())
 
     def get_session_management_method(self, contextid):
-        return self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid}).get('getSessionManagementMethod')
+        return next(self.zap._request(self.zap.base + 'sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid}).itervalues())
 
     def set_session_management_method(self, contextid, methodname, methodconfigparams='', apikey=''):
-        return self.zap._request(self.zap.base + 'sessionManagement/action/setSessionManagementMethod/', {'contextId' : contextid, 'methodName' : methodname, 'methodConfigParams' : methodconfigparams, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'sessionManagement/action/setSessionManagementMethod/', {'contextId' : contextid, 'methodName' : methodname, 'methodConfigParams' : methodconfigparams, 'apikey' : apikey}))
 
 
