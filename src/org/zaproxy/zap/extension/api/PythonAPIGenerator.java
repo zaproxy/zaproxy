@@ -191,12 +191,7 @@ public class PythonAPIGenerator {
 				out.write("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
 			}
 
-			out.write("})");
-			if (type.equals("view")) {
-				out.write(".itervalues())");
-			} else {
-				out.write(")");
-			}
+			out.write("}).itervalues())");
 		} else if (!type.equals("other")) {
 			out.write(").itervalues())");
 		} else {
