@@ -39,7 +39,7 @@ public class PythonAPIGenerator {
 			"#\n" +
 			"# ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			"#\n" +
-			"# Copyright 2014 the ZAP development team\n" +
+			"# Copyright 2015 the ZAP development team\n" +
 			"#\n" +
 			"# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			"# you may not use this file except in compliance with the License.\n" +
@@ -94,7 +94,7 @@ public class PythonAPIGenerator {
 							(element.getOptionalParamNames() != null &&
 								element.getOptionalParamNames().size() > 0);
 				
-		if (!(hasParams || type.equals("action"))) {
+		if (!hasParams && type.equals("view")) {
 			out.write("    @property\n");
 		}
 		out.write("    def " + createFunctionName(element.getName()) + "(self");
@@ -149,7 +149,12 @@ public class PythonAPIGenerator {
 			baseUrl += "_other";
 		}
 		
-		out.write("        return self.zap." + method + "(self.zap." + baseUrl + " + '" + 
+		if (type.equals("other")) {
+			out.write("        return ("); 
+		} else {
+			out.write("        return next("); 
+		}
+		out.write("self.zap." + method + "(self.zap." + baseUrl + " + '" + 
 				component + "/" + type + "/" + element.getName() + "/'");
 		
 		// , {'url': url}))
@@ -188,14 +193,12 @@ public class PythonAPIGenerator {
 
 			out.write("})");
 			if (type.equals("view")) {
-				out.write(".get('" + element.getName() + "')");
+				out.write(".itervalues())");
+			} else {
+				out.write(")");
 			}
 		} else if (!type.equals("other")) {
-			if (element.getName().startsWith("option")) {
-				out.write(").get('" + element.getName().substring(6) + "')");
-			} else {
-				out.write(").get('" + element.getName() + "')");
-			}
+			out.write(").itervalues())");
 		} else {
 			out.write(")");
 		}
