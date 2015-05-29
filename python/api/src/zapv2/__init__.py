@@ -85,7 +85,7 @@ class ZAPv2(object):
         self.httpsessions = httpSessions(self)
         self.importLogFiles = importLogFiles(self)
         self.params = params(self)
-        self.php = php(self)
+        self.pnh = pnh(self)
         self.pscan = pscan(self)
         self.script = script(self)
         self.search = search(self)
