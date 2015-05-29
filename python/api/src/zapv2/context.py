@@ -53,30 +53,30 @@ class context(object):
         """
         Add exclude regex to context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}).itervalues())
 
     def include_in_context(self, contextname, regex, apikey=''):
         """
         Add include regex to context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}).itervalues())
 
     def new_context(self, contextname='', apikey=''):
         """
         Creates a new context in the current session
         """
-        return next(self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}).itervalues())
 
     def export_context(self, contextname, contextfile, apikey=''):
-        return next(self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey}).itervalues())
 
     def import_context(self, contextfile, apikey=''):
-        return next(self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey}).itervalues())
 
     def set_context_in_scope(self, contextname, booleaninscope, apikey=''):
         """
         Sets a context to in scope (contexts are in scope by default)
         """
-        return next(self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey}).itervalues())
 
 
