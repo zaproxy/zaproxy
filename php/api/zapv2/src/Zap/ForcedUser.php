@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,19 +33,23 @@ class ForcedUser {
 	}
 
 	public function isForcedUserModeEnabled() {
-		return $this->zap->request($this->zap->base . 'forcedUser/view/isForcedUserModeEnabled/')->{'isForcedUserModeEnabled'};
+		$res = $this->zap->request($this->zap->base . 'forcedUser/view/isForcedUserModeEnabled/');
+		return reset($res);
 	}
 
 	public function getForcedUser($contextid) {
-		return $this->zap->request($this->zap->base . 'forcedUser/view/getForcedUser/', array('contextId' => $contextid))->{'getForcedUser'};
+		$res = $this->zap->request($this->zap->base . 'forcedUser/view/getForcedUser/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function setForcedUser($contextid, $userid, $apikey='') {
-		return $this->zap->request($this->zap->base . 'forcedUser/action/setForcedUser/', array('contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'forcedUser/action/setForcedUser/', array('contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setForcedUserModeEnabled($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'forcedUser/action/setForcedUserModeEnabled/', array('boolean' => $boolean, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'forcedUser/action/setForcedUserModeEnabled/', array('boolean' => $boolean, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

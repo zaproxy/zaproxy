@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,39 +33,48 @@ class Users {
 	}
 
 	public function usersList($contextid='') {
-		return $this->zap->request($this->zap->base . 'users/view/usersList/', array('contextId' => $contextid))->{'usersList'};
+		$res = $this->zap->request($this->zap->base . 'users/view/usersList/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function getUserById($contextid='', $userid='') {
-		return $this->zap->request($this->zap->base . 'users/view/getUserById/', array('contextId' => $contextid, 'userId' => $userid))->{'getUserById'};
+		$res = $this->zap->request($this->zap->base . 'users/view/getUserById/', array('contextId' => $contextid, 'userId' => $userid));
+		return reset($res);
 	}
 
 	public function getAuthenticationCredentialsConfigParams($contextid) {
-		return $this->zap->request($this->zap->base . 'users/view/getAuthenticationCredentialsConfigParams/', array('contextId' => $contextid))->{'getAuthenticationCredentialsConfigParams'};
+		$res = $this->zap->request($this->zap->base . 'users/view/getAuthenticationCredentialsConfigParams/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function getAuthenticationCredentials($contextid, $userid) {
-		return $this->zap->request($this->zap->base . 'users/view/getAuthenticationCredentials/', array('contextId' => $contextid, 'userId' => $userid))->{'getAuthenticationCredentials'};
+		$res = $this->zap->request($this->zap->base . 'users/view/getAuthenticationCredentials/', array('contextId' => $contextid, 'userId' => $userid));
+		return reset($res);
 	}
 
 	public function newUser($contextid, $name, $apikey='') {
-		return $this->zap->request($this->zap->base . 'users/action/newUser/', array('contextId' => $contextid, 'name' => $name, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'users/action/newUser/', array('contextId' => $contextid, 'name' => $name, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function removeUser($contextid, $userid, $apikey='') {
-		return $this->zap->request($this->zap->base . 'users/action/removeUser/', array('contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'users/action/removeUser/', array('contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setUserEnabled($contextid, $userid, $enabled, $apikey='') {
-		return $this->zap->request($this->zap->base . 'users/action/setUserEnabled/', array('contextId' => $contextid, 'userId' => $userid, 'enabled' => $enabled, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'users/action/setUserEnabled/', array('contextId' => $contextid, 'userId' => $userid, 'enabled' => $enabled, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setUserName($contextid, $userid, $name, $apikey='') {
-		return $this->zap->request($this->zap->base . 'users/action/setUserName/', array('contextId' => $contextid, 'userId' => $userid, 'name' => $name, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'users/action/setUserName/', array('contextId' => $contextid, 'userId' => $userid, 'name' => $name, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setAuthenticationCredentials($contextid, $userid, $authcredentialsconfigparams='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'users/action/setAuthenticationCredentials/', array('contextId' => $contextid, 'userId' => $userid, 'authCredentialsConfigParams' => $authcredentialsconfigparams, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'users/action/setAuthenticationCredentials/', array('contextId' => $contextid, 'userId' => $userid, 'authCredentialsConfigParams' => $authcredentialsconfigparams, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

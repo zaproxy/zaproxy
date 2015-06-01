@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,15 +33,18 @@ class Brk {
 	}
 
 	public function brk($type, $scope, $state, $apikey='') {
-		return $this->zap->request($this->zap->base . 'break/action/break/', array('type' => $type, 'scope' => $scope, 'state' => $state, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'break/action/break/', array('type' => $type, 'scope' => $scope, 'state' => $state, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function addHttpBreakpoint($string, $location, $match, $inverse, $ignorecase, $apikey='') {
-		return $this->zap->request($this->zap->base . 'break/action/addHttpBreakpoint/', array('string' => $string, 'location' => $location, 'match' => $match, 'inverse' => $inverse, 'ignorecase' => $ignorecase, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'break/action/addHttpBreakpoint/', array('string' => $string, 'location' => $location, 'match' => $match, 'inverse' => $inverse, 'ignorecase' => $ignorecase, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function removeHttpBreakpoint($string, $location, $match, $inverse, $ignorecase, $apikey='') {
-		return $this->zap->request($this->zap->base . 'break/action/removeHttpBreakpoint/', array('string' => $string, 'location' => $location, 'match' => $match, 'inverse' => $inverse, 'ignorecase' => $ignorecase, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'break/action/removeHttpBreakpoint/', array('string' => $string, 'location' => $location, 'match' => $match, 'inverse' => $inverse, 'ignorecase' => $ignorecase, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

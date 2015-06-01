@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,19 +33,23 @@ class SessionManagement {
 	}
 
 	public function getSupportedSessionManagementMethods() {
-		return $this->zap->request($this->zap->base . 'sessionManagement/view/getSupportedSessionManagementMethods/')->{'getSupportedSessionManagementMethods'};
+		$res = $this->zap->request($this->zap->base . 'sessionManagement/view/getSupportedSessionManagementMethods/');
+		return reset($res);
 	}
 
 	public function getSessionManagementMethodConfigParams($methodname) {
-		return $this->zap->request($this->zap->base . 'sessionManagement/view/getSessionManagementMethodConfigParams/', array('methodName' => $methodname))->{'getSessionManagementMethodConfigParams'};
+		$res = $this->zap->request($this->zap->base . 'sessionManagement/view/getSessionManagementMethodConfigParams/', array('methodName' => $methodname));
+		return reset($res);
 	}
 
 	public function getSessionManagementMethod($contextid) {
-		return $this->zap->request($this->zap->base . 'sessionManagement/view/getSessionManagementMethod/', array('contextId' => $contextid))->{'getSessionManagementMethod'};
+		$res = $this->zap->request($this->zap->base . 'sessionManagement/view/getSessionManagementMethod/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function setSessionManagementMethod($contextid, $methodname, $methodconfigparams='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'sessionManagement/action/setSessionManagementMethod/', array('contextId' => $contextid, 'methodName' => $methodname, 'methodConfigParams' => $methodconfigparams, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'sessionManagement/action/setSessionManagementMethod/', array('contextId' => $contextid, 'methodName' => $methodname, 'methodConfigParams' => $methodconfigparams, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

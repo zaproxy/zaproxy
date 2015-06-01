@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,35 +33,43 @@ class Authentication {
 	}
 
 	public function getSupportedAuthenticationMethods() {
-		return $this->zap->request($this->zap->base . 'authentication/view/getSupportedAuthenticationMethods/')->{'getSupportedAuthenticationMethods'};
+		$res = $this->zap->request($this->zap->base . 'authentication/view/getSupportedAuthenticationMethods/');
+		return reset($res);
 	}
 
 	public function getAuthenticationMethodConfigParams($authmethodname) {
-		return $this->zap->request($this->zap->base . 'authentication/view/getAuthenticationMethodConfigParams/', array('authMethodName' => $authmethodname))->{'getAuthenticationMethodConfigParams'};
+		$res = $this->zap->request($this->zap->base . 'authentication/view/getAuthenticationMethodConfigParams/', array('authMethodName' => $authmethodname));
+		return reset($res);
 	}
 
 	public function getAuthenticationMethod($contextid) {
-		return $this->zap->request($this->zap->base . 'authentication/view/getAuthenticationMethod/', array('contextId' => $contextid))->{'getAuthenticationMethod'};
+		$res = $this->zap->request($this->zap->base . 'authentication/view/getAuthenticationMethod/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function getLoggedInIndicator($contextid) {
-		return $this->zap->request($this->zap->base . 'authentication/view/getLoggedInIndicator/', array('contextId' => $contextid))->{'getLoggedInIndicator'};
+		$res = $this->zap->request($this->zap->base . 'authentication/view/getLoggedInIndicator/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function getLoggedOutIndicator($contextid) {
-		return $this->zap->request($this->zap->base . 'authentication/view/getLoggedOutIndicator/', array('contextId' => $contextid))->{'getLoggedOutIndicator'};
+		$res = $this->zap->request($this->zap->base . 'authentication/view/getLoggedOutIndicator/', array('contextId' => $contextid));
+		return reset($res);
 	}
 
 	public function setAuthenticationMethod($contextid, $authmethodname, $authmethodconfigparams='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'authentication/action/setAuthenticationMethod/', array('contextId' => $contextid, 'authMethodName' => $authmethodname, 'authMethodConfigParams' => $authmethodconfigparams, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'authentication/action/setAuthenticationMethod/', array('contextId' => $contextid, 'authMethodName' => $authmethodname, 'authMethodConfigParams' => $authmethodconfigparams, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setLoggedInIndicator($contextid, $loggedinindicatorregex, $apikey='') {
-		return $this->zap->request($this->zap->base . 'authentication/action/setLoggedInIndicator/', array('contextId' => $contextid, 'loggedInIndicatorRegex' => $loggedinindicatorregex, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'authentication/action/setLoggedInIndicator/', array('contextId' => $contextid, 'loggedInIndicatorRegex' => $loggedinindicatorregex, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setLoggedOutIndicator($contextid, $loggedoutindicatorregex, $apikey='') {
-		return $this->zap->request($this->zap->base . 'authentication/action/setLoggedOutIndicator/', array('contextId' => $contextid, 'loggedOutIndicatorRegex' => $loggedoutindicatorregex, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'authentication/action/setLoggedOutIndicator/', array('contextId' => $contextid, 'loggedOutIndicatorRegex' => $loggedoutindicatorregex, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

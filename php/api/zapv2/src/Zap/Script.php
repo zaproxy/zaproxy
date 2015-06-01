@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,31 +33,38 @@ class Script {
 	}
 
 	public function listEngines() {
-		return $this->zap->request($this->zap->base . 'script/view/listEngines/')->{'listEngines'};
+		$res = $this->zap->request($this->zap->base . 'script/view/listEngines/');
+		return reset($res);
 	}
 
 	public function listScripts() {
-		return $this->zap->request($this->zap->base . 'script/view/listScripts/')->{'listScripts'};
+		$res = $this->zap->request($this->zap->base . 'script/view/listScripts/');
+		return reset($res);
 	}
 
 	public function enable($scriptname, $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/enable/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'script/action/enable/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function disable($scriptname, $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/disable/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'script/action/disable/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function load($scriptname, $scripttype, $scriptengine, $filename, $scriptdescription='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/load/', array('scriptName' => $scriptname, 'scriptType' => $scripttype, 'scriptEngine' => $scriptengine, 'fileName' => $filename, 'scriptDescription' => $scriptdescription, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'script/action/load/', array('scriptName' => $scriptname, 'scriptType' => $scripttype, 'scriptEngine' => $scriptengine, 'fileName' => $filename, 'scriptDescription' => $scriptdescription, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function remove($scriptname, $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/remove/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'script/action/remove/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function runStandAloneScript($scriptname, $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/runStandAloneScript/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'script/action/runStandAloneScript/', array('scriptName' => $scriptname, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

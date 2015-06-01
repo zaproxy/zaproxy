@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -33,35 +33,43 @@ class Search {
 	}
 
 	public function urlsByUrlRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByUrlRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/urlsByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function urlsByRequestRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByRequestRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/urlsByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function urlsByResponseRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByResponseRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/urlsByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function urlsByHeaderRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByHeaderRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/urlsByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function messagesByUrlRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByUrlRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/messagesByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function messagesByRequestRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByRequestRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/messagesByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function messagesByResponseRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByResponseRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/messagesByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function messagesByHeaderRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByHeaderRegex'};
+		$res = $this->zap->request($this->zap->base . 'search/view/messagesByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	public function harByUrlRegex($regex, $baseurl='', $start='', $count='', $apikey='') {

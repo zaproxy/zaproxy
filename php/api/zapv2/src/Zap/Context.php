@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,64 +36,74 @@ class Context {
 	 * List context names of current session
 	 */
 	public function contextList() {
-		return $this->zap->request($this->zap->base . 'context/view/contextList/')->{'contextList'};
+		$res = $this->zap->request($this->zap->base . 'context/view/contextList/');
+		return reset($res);
 	}
 
 	/**
 	 * List excluded regexs for context
 	 */
 	public function excludeRegexs($contextname) {
-		return $this->zap->request($this->zap->base . 'context/view/excludeRegexs/', array('contextName' => $contextname))->{'excludeRegexs'};
+		$res = $this->zap->request($this->zap->base . 'context/view/excludeRegexs/', array('contextName' => $contextname));
+		return reset($res);
 	}
 
 	/**
 	 * List included regexs for context
 	 */
 	public function includeRegexs($contextname) {
-		return $this->zap->request($this->zap->base . 'context/view/includeRegexs/', array('contextName' => $contextname))->{'includeRegexs'};
+		$res = $this->zap->request($this->zap->base . 'context/view/includeRegexs/', array('contextName' => $contextname));
+		return reset($res);
 	}
 
 	/**
 	 * List the information about the named context
 	 */
 	public function context($contextname) {
-		return $this->zap->request($this->zap->base . 'context/view/context/', array('contextName' => $contextname))->{'context'};
+		$res = $this->zap->request($this->zap->base . 'context/view/context/', array('contextName' => $contextname));
+		return reset($res);
 	}
 
 	/**
 	 * Add exclude regex to context
 	 */
 	public function excludeFromContext($contextname, $regex, $apikey='') {
-		return $this->zap->request($this->zap->base . 'context/action/excludeFromContext/', array('contextName' => $contextname, 'regex' => $regex, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'context/action/excludeFromContext/', array('contextName' => $contextname, 'regex' => $regex, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Add include regex to context
 	 */
 	public function includeInContext($contextname, $regex, $apikey='') {
-		return $this->zap->request($this->zap->base . 'context/action/includeInContext/', array('contextName' => $contextname, 'regex' => $regex, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'context/action/includeInContext/', array('contextName' => $contextname, 'regex' => $regex, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Creates a new context in the current session
 	 */
 	public function newContext($contextname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'context/action/newContext/', array('contextName' => $contextname, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'context/action/newContext/', array('contextName' => $contextname, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function exportContext($contextname, $contextfile, $apikey='') {
-		return $this->zap->request($this->zap->base . 'context/action/exportContext/', array('contextName' => $contextname, 'contextFile' => $contextfile, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'context/action/exportContext/', array('contextName' => $contextname, 'contextFile' => $contextfile, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function importContext($contextfile, $apikey='') {
-		return $this->zap->request($this->zap->base . 'context/action/importContext/', array('contextFile' => $contextfile, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'context/action/importContext/', array('contextFile' => $contextfile, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Sets a context to in scope (contexts are in scope by default)
 	 */
 	public function setContextInScope($contextname, $booleaninscope, $apikey='') {
-		return $this->zap->request($this->zap->base . 'context/action/setContextInScope/', array('contextName' => $contextname, 'booleanInScope' => $booleaninscope, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'context/action/setContextInScope/', array('contextName' => $contextname, 'booleanInScope' => $booleaninscope, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 }

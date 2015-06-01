@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2015 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,248 +36,298 @@ class Core {
 	 * Gets the alert with the given ID, the corresponding HTTP message can be obtained with the 'messageId' field and 'message' API method
 	 */
 	public function alert($id) {
-		return $this->zap->request($this->zap->base . 'core/view/alert/', array('id' => $id))->{'alert'};
+		$res = $this->zap->request($this->zap->base . 'core/view/alert/', array('id' => $id));
+		return reset($res);
 	}
 
 	/**
 	 * Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
 	 */
 	public function alerts($baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'core/view/alerts/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'alerts'};
+		$res = $this->zap->request($this->zap->base . 'core/view/alerts/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	/**
 	 * Gets the number of alerts, optionally filtering by URL
 	 */
 	public function numberOfAlerts($baseurl='') {
-		return $this->zap->request($this->zap->base . 'core/view/numberOfAlerts/', array('baseurl' => $baseurl))->{'numberOfAlerts'};
+		$res = $this->zap->request($this->zap->base . 'core/view/numberOfAlerts/', array('baseurl' => $baseurl));
+		return reset($res);
 	}
 
 	/**
 	 * Gets the name of the hosts accessed through/by ZAP
 	 */
 	public function hosts() {
-		return $this->zap->request($this->zap->base . 'core/view/hosts/')->{'hosts'};
+		$res = $this->zap->request($this->zap->base . 'core/view/hosts/');
+		return reset($res);
 	}
 
 	/**
 	 * Gets the sites accessed through/by ZAP (scheme and domain)
 	 */
 	public function sites() {
-		return $this->zap->request($this->zap->base . 'core/view/sites/')->{'sites'};
+		$res = $this->zap->request($this->zap->base . 'core/view/sites/');
+		return reset($res);
 	}
 
 	/**
 	 * Gets the URLs accessed through/by ZAP
 	 */
 	public function urls() {
-		return $this->zap->request($this->zap->base . 'core/view/urls/')->{'urls'};
+		$res = $this->zap->request($this->zap->base . 'core/view/urls/');
+		return reset($res);
 	}
 
 	/**
 	 * Gets the HTTP message with the given ID. Returns the ID, request/response headers and bodies, cookies and note.
 	 */
 	public function message($id) {
-		return $this->zap->request($this->zap->base . 'core/view/message/', array('id' => $id))->{'message'};
+		$res = $this->zap->request($this->zap->base . 'core/view/message/', array('id' => $id));
+		return reset($res);
 	}
 
 	/**
 	 * Gets the HTTP messages sent by ZAP, request and response in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
 	 */
 	public function messages($baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'core/view/messages/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messages'};
+		$res = $this->zap->request($this->zap->base . 'core/view/messages/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count));
+		return reset($res);
 	}
 
 	/**
 	 * Gets the number of messages, optionally filtering by URL
 	 */
 	public function numberOfMessages($baseurl='') {
-		return $this->zap->request($this->zap->base . 'core/view/numberOfMessages/', array('baseurl' => $baseurl))->{'numberOfMessages'};
+		$res = $this->zap->request($this->zap->base . 'core/view/numberOfMessages/', array('baseurl' => $baseurl));
+		return reset($res);
 	}
 
 	/**
 	 * Gets ZAP version
 	 */
 	public function version() {
-		return $this->zap->request($this->zap->base . 'core/view/version/')->{'version'};
+		$res = $this->zap->request($this->zap->base . 'core/view/version/');
+		return reset($res);
 	}
 
 	/**
 	 * Gets the regular expressions, applied to URLs, to exclude from the Proxy
 	 */
 	public function excludedFromProxy() {
-		return $this->zap->request($this->zap->base . 'core/view/excludedFromProxy/')->{'excludedFromProxy'};
+		$res = $this->zap->request($this->zap->base . 'core/view/excludedFromProxy/');
+		return reset($res);
 	}
 
 	public function homeDirectory() {
-		return $this->zap->request($this->zap->base . 'core/view/homeDirectory/')->{'homeDirectory'};
+		$res = $this->zap->request($this->zap->base . 'core/view/homeDirectory/');
+		return reset($res);
 	}
 
 	public function optionHttpStateEnabled() {
-		return $this->zap->request($this->zap->base . 'core/view/optionHttpStateEnabled/')->{'HttpStateEnabled'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionHttpStateEnabled/');
+		return reset($res);
 	}
 
 	public function optionUseProxyChain() {
-		return $this->zap->request($this->zap->base . 'core/view/optionUseProxyChain/')->{'UseProxyChain'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionUseProxyChain/');
+		return reset($res);
 	}
 
 	public function optionProxyChainName() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainName/')->{'ProxyChainName'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainName/');
+		return reset($res);
 	}
 
 	public function optionProxyChainPort() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainPort/')->{'ProxyChainPort'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainPort/');
+		return reset($res);
 	}
 
 	public function optionProxyChainSkipName() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainSkipName/')->{'ProxyChainSkipName'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainSkipName/');
+		return reset($res);
 	}
 
 	public function optionUseProxyChainAuth() {
-		return $this->zap->request($this->zap->base . 'core/view/optionUseProxyChainAuth/')->{'UseProxyChainAuth'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionUseProxyChainAuth/');
+		return reset($res);
 	}
 
 	public function optionProxyChainUserName() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainUserName/')->{'ProxyChainUserName'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainUserName/');
+		return reset($res);
 	}
 
 	public function optionProxyChainRealm() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainRealm/')->{'ProxyChainRealm'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainRealm/');
+		return reset($res);
 	}
 
 	public function optionProxyChainPassword() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainPassword/')->{'ProxyChainPassword'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainPassword/');
+		return reset($res);
 	}
 
 	public function optionProxyChainPrompt() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyChainPrompt/')->{'ProxyChainPrompt'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyChainPrompt/');
+		return reset($res);
 	}
 
 	public function optionHttpState() {
-		return $this->zap->request($this->zap->base . 'core/view/optionHttpState/')->{'HttpState'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionHttpState/');
+		return reset($res);
 	}
 
 	public function optionTimeoutInSecs() {
-		return $this->zap->request($this->zap->base . 'core/view/optionTimeoutInSecs/')->{'TimeoutInSecs'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionTimeoutInSecs/');
+		return reset($res);
 	}
 
 	public function optionSingleCookieRequestHeader() {
-		return $this->zap->request($this->zap->base . 'core/view/optionSingleCookieRequestHeader/')->{'SingleCookieRequestHeader'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionSingleCookieRequestHeader/');
+		return reset($res);
 	}
 
 	public function optionProxyExcludedDomains() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyExcludedDomains/')->{'ProxyExcludedDomains'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyExcludedDomains/');
+		return reset($res);
 	}
 
 	public function optionProxyExcludedDomainsEnabled() {
-		return $this->zap->request($this->zap->base . 'core/view/optionProxyExcludedDomainsEnabled/')->{'ProxyExcludedDomainsEnabled'};
+		$res = $this->zap->request($this->zap->base . 'core/view/optionProxyExcludedDomainsEnabled/');
+		return reset($res);
 	}
 
 	/**
 	 * Shuts down ZAP
 	 */
 	public function shutdown($apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/shutdown/', array('apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/shutdown/', array('apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Creates a new session, optionally overwriting existing files
 	 */
 	public function newSession($name='', $overwrite='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/newSession/', array('name' => $name, 'overwrite' => $overwrite, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/newSession/', array('name' => $name, 'overwrite' => $overwrite, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Loads the session with the given name
 	 */
 	public function loadSession($name, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/loadSession/', array('name' => $name, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/loadSession/', array('name' => $name, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Saves the session with the name supplied, optionally overwriting existing files
 	 */
 	public function saveSession($name, $overwrite='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/saveSession/', array('name' => $name, 'overwrite' => $overwrite, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/saveSession/', array('name' => $name, 'overwrite' => $overwrite, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function snapshotSession($apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/snapshotSession/', array('apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/snapshotSession/', array('apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function clearExcludedFromProxy($apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/clearExcludedFromProxy/', array('apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/clearExcludedFromProxy/', array('apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function excludeFromProxy($regex, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/excludeFromProxy/', array('regex' => $regex, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/excludeFromProxy/', array('regex' => $regex, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setHomeDirectory($dir, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setHomeDirectory/', array('dir' => $dir, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setHomeDirectory/', array('dir' => $dir, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function generateRootCA($apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/generateRootCA/', array('apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/generateRootCA/', array('apikey' => $apikey));
+		return reset($res);
 	}
 
 	/**
 	 * Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
 	 */
 	public function sendRequest($request, $followredirects='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/sendRequest/', array('request' => $request, 'followRedirects' => $followredirects, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/sendRequest/', array('request' => $request, 'followRedirects' => $followredirects, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function deleteAllAlerts($apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/deleteAllAlerts/', array('apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/deleteAllAlerts/', array('apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainName($string, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainName/', array('String' => $string, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainName/', array('String' => $string, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainRealm($string, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainRealm/', array('String' => $string, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainRealm/', array('String' => $string, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainUserName($string, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainUserName/', array('String' => $string, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainUserName/', array('String' => $string, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainPassword($string, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainPassword/', array('String' => $string, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainPassword/', array('String' => $string, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainSkipName($string, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainSkipName/', array('String' => $string, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainSkipName/', array('String' => $string, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionHttpStateEnabled($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionHttpStateEnabled/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionHttpStateEnabled/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainPort($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainPort/', array('Integer' => $integer, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainPort/', array('Integer' => $integer, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionProxyChainPrompt($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainPrompt/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionProxyChainPrompt/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionTimeoutInSecs($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionTimeoutInSecs/', array('Integer' => $integer, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionTimeoutInSecs/', array('Integer' => $integer, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionUseProxyChain($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionUseProxyChain/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionUseProxyChain/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionUseProxyChainAuth($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionUseProxyChainAuth/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionUseProxyChainAuth/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function setOptionSingleCookieRequestHeader($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/setOptionSingleCookieRequestHeader/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		$res = $this->zap->request($this->zap->base . 'core/action/setOptionSingleCookieRequestHeader/', array('Boolean' => $boolean, 'apikey' => $apikey));
+		return reset($res);
 	}
 
 	public function proxypac($apikey='') {
