@@ -26,8 +26,10 @@ import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Rectangle;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.SortedSet;
@@ -426,49 +428,7 @@ public class AlertPanel extends AbstractPanel {
 				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
 					// right mouse button action
 				    if (e.isPopupTrigger()) {
-						// Select site list item on right click
-				    	TreePath tp = treeAlert.getPathForLocation( e.getPoint().x, e.getPoint().y );
-				    	if ( tp != null ) {
-				    		boolean select = true;
-				    		// Only select a new item if the current item is not
-				    		// already selected - this is to allow multiple items
-				    		// to be selected
-					    	if (treeAlert.getSelectionPaths() != null) {
-					    		for (TreePath t : treeAlert.getSelectionPaths()) {
-					    			if (t.equals(tp)) {
-					    				select = false;
-					    				break;
-					    			}
-					    		}
-					    	}
-					    	if (select) {
-					    		treeAlert.getSelectionModel().setSelectionPath(tp);
-					    	}
-				    	}
-                        final int countSelectedNodes = treeAlert.getSelectionCount();
-                        final ArrayList<HistoryReference> uniqueHistoryReferences = new ArrayList<>(countSelectedNodes);
-                        if (countSelectedNodes > 0) {
-                            SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
-                            for (TreePath path : treeAlert.getSelectionPaths()) {
-                                final AlertNode node = (AlertNode) path.getLastPathComponent();
-                                final Object userObject = node.getUserObject();
-                                if (userObject instanceof Alert) {
-                                    HistoryReference historyReference = ((Alert) userObject).getHistoryRef();
-                                    if (historyReference != null
-                                            && !historyReferenceIdsAdded.contains(Integer.valueOf(historyReference.getHistoryId()))) {
-                                        historyReferenceIdsAdded.add(Integer.valueOf(historyReference.getHistoryId()));
-                                        uniqueHistoryReferences.add(historyReference);
-                                    }
-                                }
-                            }
-                            uniqueHistoryReferences.trimToSize();
-                        }
-                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
-                                treeAlert.getName(),
-                                treeAlert,
-                                Collections.<HistoryReference> emptyList(),
-                                uniqueHistoryReferences);
-				        view.getPopupMenu().show(messageContainer, e.getX(), e.getY());
+				    	showPopupMenu(e.getX(), e.getY());
 				    }	
 				}
 
@@ -512,11 +472,76 @@ public class AlertPanel extends AbstractPanel {
 				    }
 				}
 			});
+			treeAlert.addKeyListener(new KeyListener(){
+
+				@Override
+				public void keyTyped(KeyEvent e) {
+				}
+
+				@Override
+				public void keyPressed(KeyEvent e) {
+					if (e.getKeyCode() == KeyEvent.VK_CONTEXT_MENU) {
+						Rectangle rec = treeAlert.getUI().getPathBounds(treeAlert, treeAlert.getSelectionPath());
+						showPopupMenu(rec.x, rec.y);
+					}
+				}
+
+				@Override
+				public void keyReleased(KeyEvent e) {
+				}});
 		}
 		return treeAlert;
 	}
 	
-	
+	private void showPopupMenu (int x, int y) {
+		// Note that in theory it would be better to use setComponentPopupMenu
+		// but for some reason that didnt work - for the content menu key it selected the wrong node :/
+		
+		// Select site list item on right click
+    	TreePath tp = treeAlert.getPathForLocation(x, y);
+    	if ( tp != null ) {
+    		boolean select = true;
+    		// Only select a new item if the current item is not
+    		// already selected - this is to allow multiple items
+    		// to be selected
+	    	if (treeAlert.getSelectionPaths() != null) {
+	    		for (TreePath t : treeAlert.getSelectionPaths()) {
+	    			if (t.equals(tp)) {
+	    				select = false;
+	    				break;
+	    			}
+	    		}
+	    	}
+	    	if (select) {
+	    		treeAlert.getSelectionModel().setSelectionPath(tp);
+	    	}
+    	}
+        final int countSelectedNodes = treeAlert.getSelectionCount();
+        final ArrayList<HistoryReference> uniqueHistoryReferences = new ArrayList<>(countSelectedNodes);
+        if (countSelectedNodes > 0) {
+            SortedSet<Integer> historyReferenceIdsAdded = new TreeSet<>();
+            for (TreePath path : treeAlert.getSelectionPaths()) {
+                final AlertNode node = (AlertNode) path.getLastPathComponent();
+                final Object userObject = node.getUserObject();
+                if (userObject instanceof Alert) {
+                    HistoryReference historyReference = ((Alert) userObject).getHistoryRef();
+                    if (historyReference != null
+                            && !historyReferenceIdsAdded.contains(Integer.valueOf(historyReference.getHistoryId()))) {
+                        historyReferenceIdsAdded.add(Integer.valueOf(historyReference.getHistoryId()));
+                        uniqueHistoryReferences.add(historyReference);
+                    }
+                }
+            }
+            uniqueHistoryReferences.trimToSize();
+        }
+        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                treeAlert.getName(),
+                treeAlert,
+                Collections.<HistoryReference> emptyList(),
+                uniqueHistoryReferences);
+        view.getPopupMenu().show(messageContainer, x, y);
+
+	}
 	
 	
 	/**

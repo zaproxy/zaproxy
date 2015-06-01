@@ -35,9 +35,11 @@
 // ZAP: 2014/12/22 Issue 1476: Display contexts in the Sites tree
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2015/06/01 Issue 1653: Support context menu key for trees
 
 package org.parosproxy.paros.view;
 
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Event;
 import java.awt.EventQueue;
@@ -55,6 +57,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToggleButton;
 import javax.swing.JTree;
@@ -346,66 +349,6 @@ public class SiteMapPanel extends AbstractPanel {
 			treeSite.setShowsRootHandles(true);
 			treeSite.setName("treeSite");
 			treeSite.setToggleClickCount(1);
-			treeSite.addMouseListener(new java.awt.event.MouseAdapter() { 
-
-				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-					
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-				
-				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-				    if (treeSite.getLastSelectedPathComponent() != null) {
-				    	// They selected a site node, deselect any context
-				    	getTreeContext().clearSelection();
-				    }
-					// right mouse button action
-					if (e.isPopupTrigger()) {
-
-						// ZAP: Select site list item on right click
-				    	TreePath tp = treeSite.getPathForLocation( e.getPoint().x, e.getPoint().y );
-				    	if ( tp != null ) {
-				    		boolean select = true;
-				    		// Only select a new item if the current item is not
-				    		// already selected - this is to allow multiple items
-				    		// to be selected
-					    	if (treeSite.getSelectionPaths() != null) {
-					    		for (TreePath t : treeSite.getSelectionPaths()) {
-					    			if (t.equals(tp)) {
-					    				select = false;
-					    				break;
-					    			}
-					    		}
-					    	}
-					    	if (select) {
-					    		treeSite.getSelectionModel().setSelectionPath(tp);
-					    	}
-				    	}
-
-                        final int countSelectedNodes = treeSite.getSelectionCount();
-                        final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedNodes);
-                        if (countSelectedNodes > 0) {
-                            for (TreePath path : treeSite.getSelectionPaths()) {
-                                final SiteNode node = (SiteNode) path.getLastPathComponent();
-                                final HistoryReference historyReference = node.getHistoryReference();
-                                if (historyReference != null) {
-                                    historyReferences.add(historyReference);
-                                }
-                            }
-                        }
-                        SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
-                                treeSite.getName(),
-                                treeSite,
-                                Collections.<HistoryReference> emptyList(),
-                                historyReferences);
-	          			View.getSingleton().getPopupMenu().show(messageContainer, e.getX(), e.getY());
-	            	}
-				} 
-			});
 
 			treeSite.addTreeSelectionListener(new javax.swing.event.TreeSelectionListener() { 
 
@@ -454,6 +397,7 @@ public class SiteMapPanel extends AbstractPanel {
 	
 				}
 			});
+	        treeSite.setComponentPopupMenu(new SitesCustomPopupMenu());
 
 			// ZAP: Add custom tree cell renderer.
 	        DefaultTreeCellRenderer renderer = new SiteMapTreeCellRenderer(listeners);
@@ -461,6 +405,7 @@ public class SiteMapPanel extends AbstractPanel {
 		}
 		return treeSite;
 	}
+	
 	
 	public void reloadContextTree() {
 		SiteNode root;
@@ -490,49 +435,6 @@ public class SiteMapPanel extends AbstractPanel {
 			treeContext.setName(CONTEXT_TREE_COMPONENT_NAME);
 			treeContext.setToggleClickCount(1);
 			treeContext.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-			treeContext.addMouseListener(new java.awt.event.MouseAdapter() { 
-				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-					
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-				
-				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-				    if (treeSite.getLastSelectedPathComponent() != null) {
-				    	// They selected a context node, deselect any context
-				    	getTreeSite().clearSelection();
-				    }
-					// right mouse button action
-					if (e.isPopupTrigger()) {
-
-						// Select context list item on right click
-				    	TreePath tp = treeContext.getPathForLocation( e.getPoint().x, e.getPoint().y );
-				    	if ( tp != null ) {
-				    		boolean select = true;
-				    		// Only select a new item if the current item is not
-				    		// already selected - this is to allow multiple items
-				    		// to be selected
-					    	if (treeContext.getSelectionPaths() != null) {
-					    		for (TreePath t : treeContext.getSelectionPaths()) {
-					    			if (t.equals(tp)) {
-					    				select = false;
-					    				break;
-					    			}
-					    		}
-					    	}
-					    	if (select) {
-					    		treeContext.getSelectionModel().setSelectionPath(tp);
-					    	}
-				    	}
-	          			View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-	            	}
-				} 
-			});
-
 			
 			treeContext.addMouseListener(new java.awt.event.MouseAdapter() { 
 				@Override
@@ -561,6 +463,7 @@ public class SiteMapPanel extends AbstractPanel {
 				    }
 				}
 			});
+	        treeContext.setComponentPopupMenu(new ContextsCustomPopupMenu());
 
 			treeContext.setCellRenderer(new ContextsTreeCellRenderer());
 		}
@@ -625,4 +528,80 @@ public class SiteMapPanel extends AbstractPanel {
 	    	}
 		}
 	}
+	
+    protected class SitesCustomPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void show(Component invoker, int x, int y) {
+    		// ZAP: Select site list item on right click / menu key
+        	TreePath tp = treeSite.getPathForLocation( x, y );
+        	if ( tp != null ) {
+        		boolean select = true;
+        		// Only select a new item if the current item is not
+        		// already selected - this is to allow multiple items
+        		// to be selected
+    	    	if (treeSite.getSelectionPaths() != null) {
+    	    		for (TreePath t : treeSite.getSelectionPaths()) {
+    	    			if (t.equals(tp)) {
+    	    				select = false;
+    	    				break;
+    	    			}
+    	    		}
+    	    	}
+    	    	if (select) {
+    	    		treeSite.getSelectionModel().setSelectionPath(tp);
+    	    	}
+        	}
+
+            final int countSelectedNodes = treeSite.getSelectionCount();
+            final List<HistoryReference> historyReferences = new ArrayList<>(countSelectedNodes);
+            if (countSelectedNodes > 0) {
+                for (TreePath path : treeSite.getSelectionPaths()) {
+                    final SiteNode node = (SiteNode) path.getLastPathComponent();
+                    final HistoryReference historyReference = node.getHistoryReference();
+                    if (historyReference != null) {
+                        historyReferences.add(historyReference);
+                    }
+                }
+            }
+            SelectableHistoryReferencesContainer messageContainer = new DefaultSelectableHistoryReferencesContainer(
+                    treeSite.getName(),
+                    treeSite,
+                    Collections.<HistoryReference> emptyList(),
+                    historyReferences);
+    		View.getSingleton().getPopupMenu().show(messageContainer, x, y);
+        }
+
+    }
+
+    protected class ContextsCustomPopupMenu extends JPopupMenu {
+        private static final long serialVersionUID = 1L;
+
+        @Override
+        public void show(Component invoker, int x, int y) {
+    		// Select context list item on right click
+        	TreePath tp = treeContext.getPathForLocation(x, y);
+        	if ( tp != null ) {
+        		boolean select = true;
+        		// Only select a new item if the current item is not
+        		// already selected - this is to allow multiple items
+        		// to be selected
+    	    	if (treeContext.getSelectionPaths() != null) {
+    	    		for (TreePath t : treeContext.getSelectionPaths()) {
+    	    			if (t.equals(tp)) {
+    	    				select = false;
+    	    				break;
+    	    			}
+    	    		}
+    	    	}
+    	    	if (select) {
+    	    		treeContext.getSelectionModel().setSelectionPath(tp);
+    	    	}
+        	}
+    		View.getSingleton().getPopupMenu().show(treeContext, x, y);
+        }
+    	
+    }
+
 }
