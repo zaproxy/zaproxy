@@ -13,8 +13,8 @@
 	<property name="dist.lib.exploded.dir" location="api-libs-exploded" />
 	<property name="javadocs.dir" location="../javadocs" />
 	<property name="lang.dir" value="${src}/lang" />
-	<property name="help.dir" value="${src}/help" />
-	<property name="wiki.dir" location="../../zaproxy-wiki/" />
+	<property name="help.dir" value="../../zap-core-help/src/help" />
+	<property name="wiki.dir" location="../../zap-core-help-wiki/" />
 	<property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
@@ -458,11 +458,10 @@
 		<loadfile property="version" srcfile="version.txt" />
 		<generatewiki basesrcdir="${help.dir}" basedestdir="${wiki.dir}"
             helpcontentsdir="contents/" helpcontentsinclude=".*\.html"
-            srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://zaproxy.googlecode.com/svn/wiki/images/"
-            outputfilenameprefix="Help" includeoutputfiles="Help.*\.wiki" excludeoutputfiles="HelpAddons.*\.wiki"
-            helpfileextension=".html" wikifileextension=".wiki"
-            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="TableOfContents-CoreUserGuide" wikitocentryinitpadding="2"
-            labels="UserGuide-ZAP-v${version}">
+            srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://github.com/zaproxy/zap-core-help/wiki/images/"
+            outputfilenameprefix="Help" includeoutputfiles="Help.*\.md" excludeoutputfiles="HelpAddons.*\.md"
+            helpfileextension=".html" wikifileextension=".md"
+            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="_Sidebar.md">
 
 			<!-- Default language is at root of dest dir -->
 			<helpdir src="zaphelp" dest="" />
