@@ -14,6 +14,7 @@ Current status:
 * ZAP core help migrated to https://github.com/zaproxy/zap-core-help
 * Permissions removed from the Google Code repo
 * ZAP wiki moved to https://github.com/zaproxy/zaproxy/wiki
-* Migration of the source code and issues has started and is ongoing...
+* The source code and issues have also been migrated
+* Still to do - lots of tidying up of links ;)
  
 More details on this [ZAP Developer Group thread](https://groups.google.com/d/msg/zaproxy-develop/H3GzoTf9MEI/Jco2UljUTkoJ)
