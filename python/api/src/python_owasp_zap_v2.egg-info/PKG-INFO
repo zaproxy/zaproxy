@@ -6,7 +6,7 @@ Home-page: https://www.owasp.org/index.php/OWASP_Zed_Attack_Proxy_Project
 Author: ZAP development team
 Author-email: UNKNOWN
 License: ASL2.0
-Download-URL: http://code.google.com/p/zaproxy/downloads/list
+Download-URL: https://github.com/zaproxy/zaproxy/wiki/Downloads
 Description: OWASP Zed Attack Proxy API v2 python client
 Platform: any
 Classifier: License :: OSI Approved :: Apache Software License

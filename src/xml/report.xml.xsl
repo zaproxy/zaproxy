@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <!-- OWASP ZAP XSL file for generating XML output. -->
-<!-- Works with OWASP ZAP 1.2.0+ from code.google.com/p/zaproxy/ -->
+<!-- Works with OWASP ZAP 1.2.0+ from github.com/zaproxy/zaproxy -->
 <!-- Place this file in the ZAP xml directory. -->
 <!-- Removes the <p></p> tags, keep the contents, add a line break. -->
 <xsl:template match="p">
