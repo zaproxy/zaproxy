@@ -88,7 +88,7 @@ It is designed to be used by people with a wide range of security experience and
 			<Application_XML_File_URL>http://zaproxy.googlecode.com/svn/trunk/build/pad_file.xml</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
-			<Primary_Download_URL>http://code.google.com/p/zaproxy/downloads/list</Primary_Download_URL>
+			<Primary_Download_URL>https://github.com/zaproxy/zaproxy/wiki/Downloads</Primary_Download_URL>
 			<Secondary_Download_URL />
 			<Additional_Download_URL_1 />
 			<Additional_Download_URL_2 />

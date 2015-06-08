@@ -32,7 +32,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
  * Adding a request ID to each HTTP header.
- * See <a href="http://code.google.com/p/zaproxy/issues/detail?id=68">Issue 68</a>
+ * See <a href="https://github.com/zaproxy/zaproxy/issues/68">Issue 68</a>
  * 
  * @author MaWoKi
  */
