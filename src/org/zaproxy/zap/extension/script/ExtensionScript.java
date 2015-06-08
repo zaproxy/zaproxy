@@ -70,7 +70,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public static final String SCRIPTS_DIR = "scripts";
 	public static final String TEMPLATES_DIR = SCRIPTS_DIR + File.separator + "templates";
 	private static final String LANG_ENGINE_SEP = " : ";
-	protected static final String SCRIPT_CONSOLE_HOME_PAGE = "http://code.google.com/p/zaproxy/wiki/ScriptConsole";
+	protected static final String SCRIPT_CONSOLE_HOME_PAGE = "https://github.com/zaproxy/zaproxy/wiki/ScriptConsole";
 	protected static final String SCRIPT_NAME_ATT = "zap.script.name";
 
 	public static final String TYPE_PROXY = "proxy";
