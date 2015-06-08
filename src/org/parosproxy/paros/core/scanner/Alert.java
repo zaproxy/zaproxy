@@ -523,9 +523,31 @@ public class Alert implements Comparable<Object>  {
     public void setAlertId(int alertId) {
         this.alertId = alertId;
     }
-    
+
+    private String getHTML() {
+        //gets HttpMessage request and response data from each alert and removes illegal and special characters
+        StringBuilder httpMessage = new StringBuilder();
+        
+        String requestHeader = this.getMessage().getRequestHeader().toString();
+        String requestBody = this.getMessage().getRequestBody().toString();
+        String responseHeader = this.getMessage().getResponseHeader().toString();
+        String responseBody = this.getMessage().getResponseBody().toString();
+        
+        httpMessage.append("<requestdata>");
+        httpMessage.append(ReportGenerator.entityEncode(requestHeader));
+        httpMessage.append(ReportGenerator.entityEncode(requestBody));
+        httpMessage.append("\n</requestdata>\n");
+        httpMessage.append("<responsedata>");
+        httpMessage.append(ReportGenerator.entityEncode(responseHeader));
+        httpMessage.append(ReportGenerator.entityEncode(responseBody));
+        httpMessage.append("\n</responsedata>\n");
+        
+        return httpMessage.toString();
+        }
+
     public String getUrlParamXML() {
     	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
+    	sb.append(getHTML());
         sb.append("  <uri>").append(breakNoSpaceString(replaceEntity(uri))).append("</uri>\r\n");
         sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
         sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
