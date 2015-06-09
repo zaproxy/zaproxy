@@ -49,6 +49,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.RecordAlert;
 import org.parosproxy.paros.extension.report.ReportGenerator;
+import org.parosproxy.paros.extension.report.ReportSettings;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -545,9 +546,11 @@ public class Alert implements Comparable<Object>  {
         return httpMessage.toString();
         }
 
-    public String getUrlParamXML() {
+    public String getUrlParamXML(ReportSettings settings) {
     	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
-    	sb.append(getHTML());
+    	if (settings.getIncludeHTML()) {
+    		sb.append(getHTML());
+    	}
         sb.append("  <uri>").append(breakNoSpaceString(replaceEntity(uri))).append("</uri>\r\n");
         sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
         sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");

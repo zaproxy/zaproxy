@@ -58,6 +58,7 @@ import org.parosproxy.paros.db.TableHistory;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.extension.report.ReportLastScan;
+import org.parosproxy.paros.extension.report.ReportSettings;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -889,7 +890,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static void writeReportLastScanTo(HttpMessage msg, ScanReportType reportType) throws Exception {
 		ReportLastScan rls = new ReportLastScan();
 		StringBuilder report = new StringBuilder();
-		rls.generate(report, Model.getSingleton());
+		rls.generate(report, Model.getSingleton(), new ReportSettings(false));
 
 		String type = ScanReportType.XML == reportType ? "xml" : "html";
 		String response = ReportGenerator.stringToHtml(
