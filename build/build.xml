@@ -693,7 +693,7 @@
         			<include name="*.jar" />
         		</fileset>
             	
-        		<pathelement location="bin"/>		<!-- When running in Eclipse -->
+        		<!--pathelement location="bin"/-->		<!-- When running in Eclipse -->
         		<pathelement location="build"/>		<!-- When running on build server -->
             </classpath>
             <formatter type="plain"/>
