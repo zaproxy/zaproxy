@@ -699,7 +699,7 @@
             <formatter type="plain"/>
             <formatter type="xml"/>
             <batchtest fork="yes" todir="results">
-                <fileset dir="../bin">
+                <fileset dir="build">
                     <include name="**/*UnitTest.class"/>
                     <exclude name="**/Abstract*Test.class"/>
                 </fileset>
