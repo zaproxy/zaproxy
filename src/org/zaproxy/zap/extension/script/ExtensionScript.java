@@ -56,6 +56,7 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
@@ -73,10 +74,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	protected static final String SCRIPT_CONSOLE_HOME_PAGE = "https://github.com/zaproxy/zaproxy/wiki/ScriptConsole";
 	protected static final String SCRIPT_NAME_ATT = "zap.script.name";
 
+	public static final String TYPE_HTTP_SENDER = "httpsender";
 	public static final String TYPE_PROXY = "proxy";
 	public static final String TYPE_STANDALONE = "standalone";
 	public static final String TYPE_TARGETED = "targeted";
 
+	private static final ImageIcon HTTP_SENDER_ICON = 
+			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-httpsender.png"));
 	private static final ImageIcon PROXY_ICON = 
 			new ImageIcon(ZAP.class.getResource("/resource/icon/16/script-proxy.png"));
 	private static final ImageIcon STANDALONE_ICON = 
@@ -92,6 +96,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	private List <ScriptEngineWrapper> engineWrappers = new ArrayList<>();
 	private Map<String, ScriptType> typeMap = new HashMap<>();
 	private ProxyListenerScript proxyListener = null;
+	private HttpSenderScriptListener httpSenderScriptListener;
 	
 	private List<ScriptEventListener> listeners = new ArrayList<>();
 	private MultipleWriters writers = new MultipleWriters();
@@ -150,8 +155,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.registerScriptType(new ScriptType(TYPE_STANDALONE, "script.type.standalone", STANDALONE_ICON, false, 
 				new String[] {ScriptType.CAPABILITY_APPEND}));
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
+		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", HTTP_SENDER_ICON, true));
 
 		extensionHook.addProxyListener(this.getProxyListener());
+		HttpSender.addListener(getHttpSenderScriptListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
 
 	    extensionHook.addCommandLine(getCommandLineArguments());
@@ -180,6 +187,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		}
 		return this.proxyListener;
 	}
+
+    private HttpSenderScriptListener getHttpSenderScriptListener() {
+        if (this.httpSenderScriptListener == null) {
+            this.httpSenderScriptListener = new HttpSenderScriptListener(this);
+        }
+        return this.httpSenderScriptListener;
+    }
 	
 	public List<String> getScriptingEngines() {
 		List <String> engineNames = new ArrayList<>();
@@ -1087,6 +1101,26 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     	return true;
 	}
 
+    public void invokeSenderScript(ScriptWrapper script, HttpMessage msg, int initiator, HttpSender sender, boolean request) {
+        validateScriptType(script, TYPE_HTTP_SENDER);
+
+        Writer writer = getWriters(script);
+        try {
+            HttpSenderScript senderScript = this.getInterface(script, HttpSenderScript.class);
+
+            if (senderScript != null) {
+                if (request) {
+                    senderScript.sendingRequest(msg, initiator, new HttpSenderScriptHelper(sender));
+                } else {
+                    senderScript.responseReceived(msg, initiator, new HttpSenderScriptHelper(sender));
+                }
+            } else {
+                handleFailedScriptInterface(script, writer, Constant.messages.getString("script.interface.httpsender.error"));
+            }
+        } catch (Exception e) {
+            handleScriptException(script, writer, e);
+        }
+    }
 
 	public void setChanged(ScriptWrapper script, boolean changed) {
 		script.setChanged(changed);
