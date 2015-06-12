@@ -42,7 +42,8 @@ import static org.junit.Assert.assertThat;
 @RunWith(MockitoJUnitRunner.class)
 public class AddOnCollectionUnitTest {
 
-    private static final Path DIRECTORY = Paths.get("test/resources/org/zaproxy/zap/control/");
+    //private static final Path DIRECTORY = Paths.get("test/resources/org/zaproxy/zap/control/");
+    private static final Path DIRECTORY = Paths.get("../test/resources/org/zaproxy/zap/control/");
 
 	private ZapXmlConfiguration configA;
 	private ZapXmlConfiguration configB;

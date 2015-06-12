@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="src" path="test"/>
 	<classpathentry kind="lib" path="build/lib/ant-contrib-1.0b3.jar"/>
 	<classpathentry kind="lib" path="build/lib/crowdin-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="build/lib/java-help-0.0.1-SNAPSHOT.jar"/>
