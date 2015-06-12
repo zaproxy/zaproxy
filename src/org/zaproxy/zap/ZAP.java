@@ -53,7 +53,6 @@ import org.jdesktop.swingx.error.ErrorInfo;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
-import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.SSLConnector;
 import org.parosproxy.paros.view.View;
