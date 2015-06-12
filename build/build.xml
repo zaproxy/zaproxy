@@ -14,6 +14,8 @@
 	<property name="javadocs.dir" location="../javadocs" />
 	<property name="lang.dir" value="${src}/lang" />
 	<property name="help.dir" value="../../zap-core-help/src/help" />
+	<property name="test.lib" location="../testlib" />
+	<property name="test.src" location="../test" />
 	<property name="wiki.dir" location="../../zap-core-help-wiki/" />
 	<property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
@@ -263,6 +265,7 @@
 		<delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
 
 		<mkdir dir="${build}" />
+		<mkdir dir="results" />
 	</target>
 
 	<target name="clean" depends="setup" description="Cleans up previous distributions">
@@ -290,6 +293,18 @@
 		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
+					<include name="**/*.jar" />
+				</fileset>
+			</classpath>
+		</javac>
+
+		<!-- Compile the java test code from ${test-src} into ${build} -->
+		<javac srcdir="${test.src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+			<classpath>
+				<fileset dir="${dist.lib.dir}">
+					<include name="**/*.jar" />
+				</fileset>
+				<fileset dir="${test.lib}">
 					<include name="**/*.jar" />
 				</fileset>
 			</classpath>
@@ -658,6 +673,48 @@
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
     </target>
 
+	<target name="test" depends="setup, dist">
+        <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
+        <junit printsummary="yes" haltonerror="true">
+            <classpath>
+        		<fileset dir="../lib">
+        			<include name="*.jar" />
+        		</fileset>
+        		<fileset dir="lib">
+        			<include name="*.jar" />
+        			<exclude name="ant*.jar" />
+        			<exclude name="junit*.jar" />
+        		</fileset>
+        		<fileset dir="zap">
+        			<include name="zap.jar" />
+        			<exclude name="ant*.jar" />
+        		</fileset>
+        		<fileset dir="../testlib">
+        			<include name="*.jar" />
+        		</fileset>
+            	
+        		<pathelement location="bin"/>		<!-- When running in Eclipse -->
+        		<pathelement location="build"/>		<!-- When running on build server -->
+            </classpath>
+            <formatter type="plain"/>
+            <formatter type="xml"/>
+            <batchtest fork="yes" todir="results">
+                <fileset dir="../bin">
+                    <include name="**/*UnitTest.class"/>
+                    <exclude name="**/Abstract*Test.class"/>
+                </fileset>
+            </batchtest>
+		</junit>
+        <!-- Run the quick unit tests -->
+		<!-- TODO
+		<antcall target="unit-test-start-stop"/>
+		--> 
+		<!-- The 2.2 tests will fail as the add-ons are not backwards compatible
+		<antcall target="unit-test-2.2-start-stop"/>
+		--> 
+	</target>
+
+	
 	<target name="deploy-release-addons">
 		<delete includeEmptyDirs="false">
 			<fileset dir="${src}/plugin" includes="*.zap" />
