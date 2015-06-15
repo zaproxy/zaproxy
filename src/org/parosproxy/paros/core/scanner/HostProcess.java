@@ -256,20 +256,22 @@ public class HostProcess implements Runnable {
         }
 
         if (parentScanner.scanChildren()) {
-        	Iterator<StructuralNode> iter = node.getChildIterator();
-        	while (iter.hasNext() && !isStop() && !isSkipped(plugin)) {
-        		StructuralNode child = iter.next();
-                // ZAP: Implement pause and resume
-                while (parentScanner.isPaused() && !isStop()) {
-                    Util.sleep(500);
-                }
-
-                try {
-                    traverse(plugin, child);
-                    
-                } catch (Exception e) {
-                    log.error(e.getMessage(), e);
-                }
+        	for (StructuralNode pNode : parentNodes) {
+	        	Iterator<StructuralNode> iter = pNode.getChildIterator();
+	        	while (iter.hasNext() && !isStop() && !isSkipped(plugin)) {
+	        		StructuralNode child = iter.next();
+	                // ZAP: Implement pause and resume
+	                while (parentScanner.isPaused() && !isStop()) {
+	                    Util.sleep(500);
+	                }
+	
+	                try {
+	                    traverse(plugin, child);
+	                    
+	                } catch (Exception e) {
+	                    log.error(e.getMessage(), e);
+	                }
+	        	}
         	}
         }
     }
