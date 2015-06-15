@@ -17,8 +17,8 @@
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
 	<property name="wiki.dir" location="../../zap-core-help-wiki/" />
-	<property name="zap.extensions.alpha.dir" location="../../zap-extensions-alpha/" />
-	<property name="zap.extensions.beta.dir" location="../../zap-extensions-beta/" />
+	<property name="zap.extensions.alpha.dir" location="../../zap-extensions_alpha/" />
+	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
 	<property name="zap.java.api.version" value="4" />
