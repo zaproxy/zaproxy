@@ -54,7 +54,6 @@ public class SqlDatabase implements Database {
 	private TableStructure tableStructure = null;
     private static final Logger log = Logger.getLogger(SqlDatabase.class);
 	private Vector<DatabaseListener> listenerList = new Vector<>();
-	private String type = null;
 
 	public SqlDatabase() {
 		
@@ -293,7 +292,7 @@ public class SqlDatabase implements Database {
 	
 	@Override
 	public String getType() {
-		return type;
+		return DbSQL.getDbType();
 	}
 
 }
