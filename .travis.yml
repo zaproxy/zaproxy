@@ -15,3 +15,11 @@ addons:
     build_command_prepend: "ant -buildfile build/build.xml clean"
     build_command:   "ant -buildfile build/build.xml compile"
     branch_pattern: coverity_scan
+
+notifications:
+  webhooks:
+    urls:
+      - https://webhooks.gitter.im/e/641454d994918ebeef0e
+    on_success: change
+    on_failure: always
+    on_start: false
