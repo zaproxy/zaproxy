@@ -1,2 +1,17 @@
 language: java
 script: ant -buildfile build/build.xml test
+
+env:
+  global:
+   # COVERITY_SCAN_TOKEN
+   - secure: "KYrFpaQbUrRWI+BcWwRQR0tqQnO5oOx+ZwF0GtvBqMB7QDKR6I9rxV5Kx5FrHY/qVKIo3leF18GJlJvwHoVRO+oXldhPsifeQju5OhXSyqA9pLmttn9WnGiHJXp/wxh2JCepzIx9ggNCDW60ZFIkZpI5T2qgAILdpTPFybIImEzVFyQHdD02+UQ2c7kmIpYkUau28G9Powb2Xvg11HWDj3TodA5zDcLinTKVkehDSB4/1s7zGcvlLfSnJcfmDQon6+ZckkBgdkGcpxqNaDe3SZ6QEQQqBELpwhFAIU2ApjUgKI7xvWy+FV4XsdpNYGuoYrh33vEDC8K1nTqkbWIEDa6LhNxEs9eChghlqsliTC1f5fz06Bk63Wv5XVGOIXzlJHdX1z3NXEggFolK1ZszpicoI5WdXyBHtefNupXnOjkGGvuBT1QqFGwkac73MVYhKa0CEf0pe8b4G6pd1xTPtSFWp4Gpvbl7v/z+OVB7tNllhwQxLykXe0RKyBf8r1084DnUcRR+gAozgbvdcLji1hU6A0GrhPnV0mYVHWfXR8aEH1iwf0q2W0kizk02+/WL1ktSP7AjTaJRg02koOgCJZLb842E6opNuDFvCZpvn0543l+jhga1SCKVfJ7M53W3VV4fRBLoSqYaZ265lOUsA3d511PNH87zQi+FjNdurnE="
+
+addons:
+  coverity_scan:
+    project:
+      name: "zaproxy/zaproxy"
+      description: "The OWASP ZAP core project"
+    notification_email: bjoern.kimminich@gmx.de
+    build_command_prepend: "ant -buildfile build/build.xml clean"
+    build_command:   "ant -buildfile build/build.xml compile"
+    branch_pattern: coverity_scan
