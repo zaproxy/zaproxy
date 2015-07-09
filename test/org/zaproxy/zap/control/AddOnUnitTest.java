@@ -108,11 +108,11 @@ public class AddOnUnitTest {
 	@Test
 	public void testCanLoadAddOnNotBefore() throws Exception {
 		AddOn ao = new AddOn("test-alpha-1.zap");
-		assertTrue(ao.canLoadInVersion("2.0.0"));
+		assertTrue(ao.canLoadInVersion("2.4.0"));
 		
-		ao.setNotBeforeVersion("2.0.0");
-		assertTrue(ao.canLoadInVersion("2.0.0"));
-		assertTrue(ao.canLoadInVersion("2.1.0"));
+		ao.setNotBeforeVersion("2.4.0");
+		assertTrue(ao.canLoadInVersion("2.4.0"));
+		assertTrue(ao.canLoadInVersion("2.5.0"));
 		assertFalse(ao.canLoadInVersion("1.4.0"));
 		assertFalse(ao.canLoadInVersion("2.0.alpha"));
 	}
@@ -132,15 +132,15 @@ public class AddOnUnitTest {
 	@Test
 	public void testCanLoadAddOnNotBeforeNotFrom() throws Exception {
 		AddOn ao = new AddOn("test-alpha-1.zap");
-		assertTrue(ao.canLoadInVersion("2.0.0"));
-		ao.setNotBeforeVersion("2.0.0");
-		ao.setNotFromVersion("2.3.0");
-		assertTrue(ao.canLoadInVersion("2.0.0"));
-		assertTrue(ao.canLoadInVersion("2.1.0"));
-		assertTrue(ao.canLoadInVersion("2.2.0"));
-		assertFalse(ao.canLoadInVersion("2.3.0"));
-		assertFalse(ao.canLoadInVersion("2.3.0.1"));
-		assertFalse(ao.canLoadInVersion("2.4.0"));
+		assertTrue(ao.canLoadInVersion("2.4.0"));
+		ao.setNotBeforeVersion("2.4.0");
+		ao.setNotFromVersion("2.7.0");
+		assertTrue(ao.canLoadInVersion("2.4.0"));
+		assertTrue(ao.canLoadInVersion("2.5.0"));
+		assertTrue(ao.canLoadInVersion("2.6.0"));
+		assertFalse(ao.canLoadInVersion("2.7.0"));
+		assertFalse(ao.canLoadInVersion("2.7.0.1"));
+		assertFalse(ao.canLoadInVersion("2.8.0"));
 		
 	}
 }
