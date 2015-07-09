@@ -162,10 +162,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
     }
 
 	/**
-	 * Generates an 1024 bit RSA key pair using SHA1PRNG.
-	 *
-	 * Thoughts: 2048 takes much longer time on older CPUs.
-	 * And for almost every client, 1024 is sufficient.
+	 * Generates a 2048 bit RSA key pair using SHA1PRNG.
 	 *
 	 * @return
 	 * @throws NoSuchAlgorithmException
@@ -174,7 +171,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 		final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
 		final SecureRandom random  = SecureRandom.getInstance("SHA1PRNG");
 		random.setSeed(Long.toString(System.currentTimeMillis()).getBytes());
-		keyGen.initialize(1024, random);
+		keyGen.initialize(2048, random);
 		final KeyPair keypair = keyGen.generateKeyPair();
 		return keypair;
 	}
