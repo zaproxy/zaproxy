@@ -318,4 +318,14 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 		}
 	}
 	
+	public void reset() {
+		this.removeAllScans();
+		spiderScansLock.lock();
+		try {
+			this.scanIdCounter = 0;
+		} finally {
+			spiderScansLock.unlock();
+		}
+	}
+
 }
