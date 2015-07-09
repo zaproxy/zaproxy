@@ -675,7 +675,7 @@
 
 	<target name="test" depends="setup, dist">
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
-        <junit printsummary="yes" haltonerror="true">
+        <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
         		<fileset dir="../lib">
         			<include name="*.jar" />
@@ -705,6 +705,7 @@
                 </fileset>
             </batchtest>
 		</junit>
+		<fail if="TestsFailed" message="Test(s) failed!" />
         <!-- Run the quick unit tests -->
 		<!-- TODO
 		<antcall target="unit-test-start-stop"/>
