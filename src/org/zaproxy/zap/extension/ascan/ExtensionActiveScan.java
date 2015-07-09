@@ -510,11 +510,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 
     @Override
     public void sessionAboutToChange(final Session session) {
-        if (activeScanApi != null) {
-            activeScanApi.reset();
-        }
-
-        // Stop all scans and reset the scan id counter
+        // Stop, remove all scans and reset the scan id counter
         this.ascanController.reset();
 		this.attackModeScanner.stop();
         
@@ -570,10 +566,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     	
         if (View.isInitialised()) {
         this.getActiveScanPanel().reset();
-        }
-
-        if (activeScanApi != null) {
-            activeScanApi.reset();
         }
     }
 

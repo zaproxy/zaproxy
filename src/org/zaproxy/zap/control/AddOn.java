@@ -943,18 +943,21 @@ public class AddOn  {
 	 * @return {@code true} if the add-on can be loaded in the given {@code zapVersion}, {@code false} otherwise
 	 */
 	public boolean canLoadInVersion(String zapVersion) {
+		// Require add-ons to declare the version they implement
+		if (this.notBeforeVersion == null || this.notBeforeVersion.isEmpty()) {
+			return false;
+		}
+
 		ZapReleaseComparitor zrc = new ZapReleaseComparitor();
 		ZapRelease zr = new ZapRelease(zapVersion);
-		if (this.notBeforeVersion != null && this.notBeforeVersion.length() > 0) {
-			ZapRelease notBeforeRelease = new ZapRelease(this.notBeforeVersion);
-			if (zrc.compare(zr, notBeforeRelease) < 0) {
-				return false;
-			}
-			
-			if (zrc.compare(notBeforeRelease, v2_4) < 0) {
-				// Dont load any add-ons that imply they are prior to 2.4.0 - they probably wont work
-				return false;
-			}
+		ZapRelease notBeforeRelease = new ZapRelease(this.notBeforeVersion);
+		if (zrc.compare(zr, notBeforeRelease) < 0) {
+			return false;
+		}
+		
+		if (zrc.compare(notBeforeRelease, v2_4) < 0) {
+			// Dont load any add-ons that imply they are prior to 2.4.0 - they probably wont work
+			return false;
 		}
 		if (this.notFromVersion != null && this.notFromVersion.length() > 0) {
 			ZapRelease notFromRelease = new ZapRelease(this.notFromVersion);
