@@ -352,7 +352,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 	}
 	
 	public void reset() {
-		this.stopAllScans();
+		this.removeAllScans();
 		activeScansLock.lock();
 		try {
 			this.scanIdCounter = 0;
