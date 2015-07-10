@@ -45,16 +45,18 @@ import java.util.concurrent.atomic.AtomicLong;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
-import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 
 /**
  * This is a singleton class. Use {@link #getService()} method to
@@ -139,8 +141,8 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 				pubKey
 			);
 
-		certGen.addExtension(X509Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(pubKey));
-		certGen.addExtension(X509Extension.basicConstraints, false, new BasicConstraints(false));
+		certGen.addExtension(Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifier(pubKey.getEncoded()));
+		certGen.addExtension(Extension.basicConstraints, false, new BasicConstraints(false));
 
 		ContentSigner sigGen;
 		try {
