@@ -44,7 +44,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.MiscPEMGenerator;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -732,7 +732,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					}
 					final StringWriter sw = new StringWriter();
 					try (final PemWriter pw = new PemWriter(sw)) {
-						pw.writeObject(new MiscPEMGenerator(rootCA));
+						pw.writeObject(new JcaMiscPEMGenerator(rootCA));
 						pw.flush();
 					}
 					String response = sw.toString();
