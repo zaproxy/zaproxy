@@ -34,6 +34,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextPane;
 import javax.swing.ScrollPaneConstants;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractFrame;
 
 public class LicenseFrame extends AbstractFrame {
@@ -214,7 +215,7 @@ public class LicenseFrame extends AbstractFrame {
 	//String remoteUrl = "http://www.statistica.unimib.it/utenti/dellavedova/software/artistic2.html";
 	    	case 0:
 	    	    //localUrl = "file:" + System.getProperty("user.dir") + System.getProperty("file.separator") + "license/TheClarifiedArtisticLicense.htm";
-	    	    localUrl = "file:" + System.getProperty("user.dir") + System.getProperty("file.separator") + "license/ApacheLicense-2.0.txt";
+	    	    localUrl = "file:" + Constant.getZapInstall() + System.getProperty("file.separator") + "license/ApacheLicense-2.0.txt";
 	    	    break;
 	    }
 	    try{
