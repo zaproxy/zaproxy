@@ -33,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -61,6 +62,7 @@ import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 import org.parosproxy.paros.security.SslCertificateService;
@@ -90,8 +92,9 @@ public class SslCertificateUtils {
 		g.initialize(2048, SecureRandom.getInstance("SHA1PRNG"));
 		final KeyPair keypair = g.genKeyPair();
 		final PrivateKey privKey = keypair.getPrivate();
-        final PublicKey  pubKey = keypair.getPublic();
-        Random rnd = new Random();
+		final PublicKey  pubKey = keypair.getPublic();
+		Security.addProvider(new BouncyCastleProvider());
+		Random rnd = new Random();
 
 		// using the hash code of the user's name and home path, keeps anonymity
 		// but also gives user a chance to distinguish between each other
@@ -125,7 +128,7 @@ public class SslCertificateUtils {
 			};
 			certGen.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(eku));
  
-			final ContentSigner sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privKey);
+			final ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider("BC").build(privKey);
 			final X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
 
 			ks = KeyStore.getInstance(KeyStore.getDefaultType());
