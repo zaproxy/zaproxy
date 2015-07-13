@@ -47,7 +47,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.MiscPEMGenerator;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
@@ -233,7 +233,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 			try {
 				final Certificate cert = rootca.getCertificate(SslCertificateService.ZAPROXY_JKS_ALIAS);
 				try (final PemWriter pw = new PemWriter(sw)) {
-					pw.writeObject(new MiscPEMGenerator(cert));
+					pw.writeObject(new JcaMiscPEMGenerator(cert));
 					pw.flush();
 				}
 			} catch (final Exception e) {

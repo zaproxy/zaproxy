@@ -83,7 +83,6 @@ public class CookieBasedSessionManagementMethodType extends SessionManagementMet
 			else {
 				// Make sure any cookies in the message are put in the session
 				CookieBasedSession session = new CookieBasedSession();
-				session.getHttpState();
 				for (HttpCookie c : msg.getRequestHeader().getHttpCookies())
 					session.getHttpState().addCookie(convertCookie(c));
 				// Use the messages hostname as default domain when generating SET cookies

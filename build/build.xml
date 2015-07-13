@@ -424,7 +424,6 @@
 				<include name="**/commons-lang-2.6.jar" />
 				<include name="**/commons-logging-1.1.1.jar" />
 				<include name="**/ezmorph-1.0.6.jar" />
-				<include name="**/junit-4.8.2.jar" />
 				<!--
                     NOTE: If you're adding a jar to this list, ensure you add the license to ../license
                     so it is brought into zap-api.jar
@@ -476,7 +475,7 @@
             srcimagesdir="contents/images/" destimagesdir="images" prefixlinkimages="https://github.com/zaproxy/zap-core-help/wiki/images/"
             outputfilenameprefix="Help" includeoutputfiles="Help.*\.md" excludeoutputfiles="HelpAddons.*\.md"
             helpfileextension=".html" wikifileextension=".md"
-            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="_Sidebar.md">
+            srctocfile="toc.xml" srcmapfile="map.jhm" wikitocfilename="_Sidebar-CoreUserGuide.md">
 
 			<!-- Default language is at root of dest dir -->
 			<helpdir src="zaphelp" dest="" />
@@ -675,7 +674,7 @@
 
 	<target name="test" depends="setup, dist">
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
-        <junit printsummary="yes" haltonerror="true">
+        <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
         		<fileset dir="../lib">
         			<include name="*.jar" />
@@ -705,6 +704,7 @@
                 </fileset>
             </batchtest>
 		</junit>
+		<fail if="TestsFailed" message="Test(s) failed!" />
         <!-- Run the quick unit tests -->
 		<!-- TODO
 		<antcall target="unit-test-start-stop"/>

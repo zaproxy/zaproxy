@@ -181,8 +181,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	
 	@Override
 	public void sessionAboutToChange(Session session) {
-		// Shut all of the scans down
-		this.stopAllScans();
+		// Shut all of the scans down and remove them
+		this.scanController.reset();
 		if (View.isInitialised()) {
 			this.getSpiderPanel().reset();
 		}

@@ -26,6 +26,8 @@ import net.sf.json.JSONObject;
 
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpResponseHeader;
+import org.zaproxy.zap.extension.api.API.RequestType;
 
 
 public abstract class ApiImplementor {
@@ -333,4 +335,13 @@ public abstract class ApiImplementor {
 		}
 	}
 
+	/**
+	 * Override to add custom headers for specific API operations
+	 * @param name	the name of the operation
+	 * @param type the type of the operation
+	 * @param header the response header to modify
+	 */
+	public void addCustomHeaders(String name, RequestType type, HttpResponseHeader header) {
+		// Do nothing in the default implementation
+	}
 }
