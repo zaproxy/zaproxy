@@ -385,6 +385,10 @@ public class API {
 	    	msg.setResponseBody(response);
 	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
 		}
+		
+		if (impl != null) {
+			impl.addCustomHeaders(name, reqType, msg.getResponseHeader());
+		}
 
     	httpOut.write(msg.getResponseHeader());
     	httpOut.write(msg.getResponseBody().getBytes());
@@ -525,7 +529,6 @@ public class API {
         sb.append("HTTP/1.1 200 OK\r\n");
         sb.append("Pragma: no-cache\r\n");
         sb.append("Cache-Control: no-cache\r\n");
-        sb.append("Access-Control-Allow-Origin: *\r\n");
         sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
         sb.append("Access-Control-Allow-Headers: ZAP-Header\r\n");
         sb.append("X-Clacks-Overhead: GNU Terry Pratchett\r\n");
