@@ -25,9 +25,16 @@ public class OptionsParamApi extends AbstractParam {
 	public static final String SECURE_ONLY = "api.secure";
 	public static final String POST_ACTIONS = "api.postactions";
 	public static final String API_KEY = "api.key";
+	private static final String DISABLE_KEY = "api.disablekey";
+	private static final String INC_ERROR_DETAILS = "api.incerrordetails";
+	private static final String AUTOFILL_KEY = "api.autofillkey";
 	
 	private boolean enabled = false;
 	private boolean secureOnly = false;
+	private boolean disableKey = false;
+	private boolean incErrorDetails = false;
+	private boolean autofillKey = false;
+
 	private String key = "";
 	//private boolean postActions = false;
 	
@@ -40,6 +47,9 @@ public class OptionsParamApi extends AbstractParam {
         
 	    enabled = getConfig().getBoolean(ENABLED, true);
 	    secureOnly = getConfig().getBoolean(SECURE_ONLY, false);
+		disableKey = getConfig().getBoolean(DISABLE_KEY, false);
+		incErrorDetails = getConfig().getBoolean(INC_ERROR_DETAILS, false);
+		autofillKey = getConfig().getBoolean(AUTOFILL_KEY, false);
 	    key = getConfig().getString(API_KEY, "");
 	    //postActions = getConfig().getBoolean(POST_ACTIONS, false);
     }
@@ -62,7 +72,39 @@ public class OptionsParamApi extends AbstractParam {
 		getConfig().setProperty(SECURE_ONLY, secureOnly);
 	}
 
+	public boolean isDisableKey() {
+		return disableKey;
+	}
+
+	public void setDisableKey(boolean disableKey) {
+		this.disableKey = disableKey;
+		getConfig().setProperty(DISABLE_KEY, disableKey);
+	}
+
+	public boolean isIncErrorDetails() {
+		return incErrorDetails;
+	}
+
+	public void setIncErrorDetails(boolean incErrorDetails) {
+		this.incErrorDetails = incErrorDetails;
+		getConfig().setProperty(INC_ERROR_DETAILS, incErrorDetails);
+	}
+
+	public boolean isAutofillKey() {
+		return autofillKey;
+	}
+
+	public void setAutofillKey(boolean autofillKey) {
+		this.autofillKey = autofillKey;
+		getConfig().setProperty(AUTOFILL_KEY, autofillKey);
+	}
+
 	public String getKey() {
+		if (this.isDisableKey()) {
+			return "";
+		} else if (key == null || key.length() == 0) {
+			key = ExtensionAPI.generateApiKey();
+		}
 		return key;
 	}
 

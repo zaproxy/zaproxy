@@ -69,19 +69,26 @@ public class ApiException extends Exception {
 
 	@Override
 	public String toString () {
-		if (detail != null) {
+		return this.toString(true);
+	}
+	
+	public String toString (boolean incDetails) {
+		if (! incDetails) {
+			return Constant.messages.getString("api.error." + super.getMessage());
+		} else if (detail != null) {
 			return Constant.messages.getString("api.error." + super.getMessage()) +
 				" (" + super.getMessage() + ") : " + detail;
+		} else {
+			return Constant.messages.getString("api.error." + super.getMessage()) +
+				" (" + super.getMessage() + ")";
 		}
-		return Constant.messages.getString("api.error." + super.getMessage()) +
-			" (" + super.getMessage() + ")";
 	}
 
-	public String toString(API.Format format) {
+	public String toString(API.Format format, boolean incDetails) {
 		switch(format) {
 		case HTML:
 		case UI:
-			return StringEscapeUtils.escapeHtml(this.toString());
+			return StringEscapeUtils.escapeHtml(this.toString(incDetails));
 			
 		case XML:
 			try {
@@ -94,11 +101,11 @@ public class ApiException extends Exception {
 				
 				rootElement.setAttribute("type", "exception");
 				rootElement.setAttribute("code", this.getMessage());
-				if (detail != null) {
+				if (incDetails && detail != null) {
 					rootElement.setAttribute("detail", XMLStringUtil.escapeControlChrs(this.detail));
 				}
 				
-				rootElement.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.toString())));
+				rootElement.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(this.toString(incDetails))));
 				
 				TransformerFactory transformerFactory = TransformerFactory.newInstance();
 				Transformer transformer = transformerFactory.newTransformer();
@@ -116,7 +123,7 @@ public class ApiException extends Exception {
 			break;
 
 		case JSON:
-			return this.toJSON().toString();
+			return this.toJSON(incDetails).toString();
 			
 		default:
 			break;
@@ -124,11 +131,11 @@ public class ApiException extends Exception {
 		return null;
 	}
 	
-	private JSONObject toJSON () {
+	private JSONObject toJSON (boolean incDetails) {
 		JSONObject ja = new JSONObject();
 		ja.put("code", super.getMessage());
 		ja.put("message", Constant.messages.getString("api.error." + super.getMessage()));
-		if (detail != null) {
+		if (incDetails && detail != null) {
 			ja.put("detail", detail);
 		}
 		return ja;

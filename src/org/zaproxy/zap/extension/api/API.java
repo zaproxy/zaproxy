@@ -129,6 +129,10 @@ public class API {
 		return Model.getSingleton().getOptionsParam().getApiParam().isSecureOnly();
 	}
 
+	private boolean incErrorDetails() {
+		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
+	}
+
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
@@ -376,7 +380,7 @@ public class API {
 			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (ApiException e) {
-			response =  e.toString(format);
+			response =  e.toString(format, incErrorDetails());
  			logger.warn("handleApiRequest error: " + response, e);
 		}
 		

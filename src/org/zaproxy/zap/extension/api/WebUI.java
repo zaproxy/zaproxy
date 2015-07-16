@@ -238,7 +238,9 @@ public class WebUI {
 						sb.append("\" name=\"");
 						sb.append(API.API_KEY_PARAM);
 						sb.append("\" value=\"");
-						sb.append(key);
+						if (Model.getSingleton().getOptionsParam().getApiParam().isAutofillKey()) {
+							sb.append(key);
+						}
 						sb.append("\"></input>");
 						sb.append("</td>");
 						sb.append("</tr>\n");

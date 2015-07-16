@@ -17,8 +17,10 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import java.math.BigInteger;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.security.SecureRandom;
 
 import javax.swing.JOptionPane;
 
@@ -85,6 +87,12 @@ public class ExtensionAPI extends ExtensionAdaptor implements SessionChangedList
 			optionsApiPanel = new OptionsApiPanel();
 		}
 		return optionsApiPanel;
+	}
+	
+	public static String generateApiKey() {
+		SecureRandom random = new SecureRandom();
+		return new BigInteger(130, random).toString(32);
+
 	}
 
 	private ZapMenuItem getMenuAPI() {
