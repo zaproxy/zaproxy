@@ -59,6 +59,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/03/03 Added delete(href) method to ensure local map updated 
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2015/07/16 Issue 1617: ZAP 2.4.0 throws HeadlessExceptions when running in daemon mode on headless machine
 
 package org.parosproxy.paros.extension.history;
 
@@ -387,7 +388,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private void buildHistory(List<Integer> dbList, HistoryFilter historyFilter) {
 	    HistoryReference historyRef = null;
 	    synchronized (historyTableModel) {
-	        getLogPanel().setModel(EMPTY_MODEL);
+            if (getView() != null) {
+                getLogPanel().setModel(EMPTY_MODEL);
+            }
 	        historyTableModel.clear();
 	        
 	        for (int i=0; i<dbList.size(); i++) {
@@ -422,7 +425,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    			logger.error(e.getMessage(), e);
 	            }
 	        }
-	        getLogPanel().setModel(historyTableModel);
+            if (getView() != null) {
+                getLogPanel().setModel(historyTableModel);
+            }
 	    }
 	}
 
