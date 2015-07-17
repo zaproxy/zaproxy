@@ -31,6 +31,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -41,6 +42,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
@@ -197,15 +199,28 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	public void initContextData(Session session, Context uiContext) {
 		// Init model from context
 		TechSet techSet = uiContext.getTechSet();
+		Set<Tech> includedTech = techSet.getIncludeTech();
 		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
 		while (iter.hasNext()) {
 			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
 			TreePath tp = this.getPath(node.getValue());
-			if (techSet.includes(node.getKey())) {
-				this.getTechTree().check(tp, true);
+			Tech tech = node.getKey();
+			if (ArrayUtils.contains(Tech.builtInTopLevelTech, tech)) {
+				this.getTechTree().check(tp, containsAnyOfTopLevelTech(includedTech, tech));
+			} else {
+				this.getTechTree().check(tp, techSet.includes(tech));
 			}
 		}
 
+	}
+
+	private static boolean containsAnyOfTopLevelTech(Set<Tech> techSet, Tech topLevelTech) {
+		for (Tech tech : techSet) {
+			if (topLevelTech.equals(tech.getParent())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
