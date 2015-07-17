@@ -28,7 +28,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("OWASPZAPDotNetAPI.Tests")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
+[assembly: AssemblyCompany("OWASP ZAP")]
 [assembly: AssemblyProduct("OWASPZAPDotNetAPI.Tests")]
 [assembly: AssemblyCopyright("Copyright ©  2015")]
 [assembly: AssemblyTrademark("")]
