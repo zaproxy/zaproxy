@@ -29,6 +29,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.zaproxy.zap.utils.ZapTextField;
@@ -126,7 +127,11 @@ public class OptionsApiPanel extends AbstractParamPanel {
 				public void actionPerformed(ActionEvent e) {
 					getKeyField().setEnabled(!disableKey.isSelected());
 					getGenerateKeyButton().setEnabled(!disableKey.isSelected());
-					
+					if (!disableKey.isSelected()) {
+						// Repopulate the previously used value
+						getKeyField().setText(
+								Model.getSingleton().getOptionsParam().getApiParam().getRealKey());
+					}
 				}});
 		}
 		return disableKey;
@@ -214,7 +219,10 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	    options.getApiParam().setIncErrorDetails(getIncErrorDetails().isSelected());
 	    options.getApiParam().setAutofillKey(getAutofillKey().isSelected());
 	    
-    	options.getApiParam().setKey(getKeyField().getText());
+	    if (!getDisableKey().isSelected()) {
+	    	// Dont loose the old value on disabling
+	    	options.getApiParam().setKey(getKeyField().getText());
+	    }
 	    //options.getApiParam().setPostActions(getChkPostActions().isEnabled());
 	    
 	}

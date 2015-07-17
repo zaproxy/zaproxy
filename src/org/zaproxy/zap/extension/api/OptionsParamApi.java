@@ -99,6 +99,10 @@ public class OptionsParamApi extends AbstractParam {
 		getConfig().setProperty(AUTOFILL_KEY, autofillKey);
 	}
 
+	protected String getRealKey() {
+		return key;
+	}
+
 	public String getKey() {
 		if (this.isDisableKey()) {
 			return "";
