@@ -231,7 +231,9 @@ public class ExtensionParams extends ExtensionAdaptor
 	private void sessionChangedEventHandler(Session session) {
 		// Clear all scans
 		siteParamsMap = new HashMap <>();
-		this.getParamsPanel().reset();
+		if (getView() != null) {
+			this.getParamsPanel().reset();
+		}
 		if (session == null) {
 			// Closedown
 			return;
@@ -246,7 +248,9 @@ public class ExtensionParams extends ExtensionAdaptor
 			if (site.indexOf("//") >= 0) {
 				site = site.substring(site.indexOf("//") + 2);
 			}
-			this.getParamsPanel().addSite(site);
+			if (getView() != null) {
+				this.getParamsPanel().addSite(site);
+			}
 		}
 		
 		try {
@@ -268,7 +272,9 @@ public class ExtensionParams extends ExtensionAdaptor
 		// Check we know the site
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
-		this.getParamsPanel().addSite(site);
+		if (getView() != null) {
+			this.getParamsPanel().addSite(site);
+		}
 		
 		SiteParameters sps = this.siteParamsMap.get(site);
 		if (sps == null) {
@@ -354,7 +360,9 @@ public class ExtensionParams extends ExtensionAdaptor
 		// Check we know the site
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
-		this.getParamsPanel().addSite(site);
+		if (getView() != null) {
+			this.getParamsPanel().addSite(site);
+		}
 		
 		SiteParameters sps = this.getSiteParameters(site);
 

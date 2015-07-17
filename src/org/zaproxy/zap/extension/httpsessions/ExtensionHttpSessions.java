@@ -581,7 +581,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
 		site = ScanPanel.cleanSiteName(site, true);
-		this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		if (getView() != null) {
+			this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		}
 
 		// Check if it's enabled for proxy only
 		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
@@ -615,7 +617,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
 		site = ScanPanel.cleanSiteName(site, true);
-		this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		if (getView() != null) {
+			this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		}
 
 		// Check if it's enabled for proxy only
 		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR) {
