@@ -54,6 +54,7 @@
 // ZAP: 2014/05/01 Issue 1168: Add support for deflate encoded responses
 // ZAP: 2015/01/04 Issue 1334: ZAP does not handle API requests on reused connections
 // ZAP: 2015/02/24 Issue 1540: Allow proxy scripts to fake responses
+// ZAP: 2015/07/17 Show stack trace of the exceptions on proxy errors
 
 package org.parosproxy.paros.core.proxy;
 
@@ -74,6 +75,7 @@ import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
 
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
@@ -272,7 +274,11 @@ class ProxyThread implements Runnable {
                 .append(" [")
                 .append(cause.getClass().getName())
                 .append("]: ")
-                .append(cause.getLocalizedMessage());
+                .append(cause.getLocalizedMessage())
+                .append("\n\nStack Trace:\n");
+        for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+            strBuilder.append(stackTraceFrame).append('\n');
+        }
 
         if (!HttpRequestHeader.HEAD.equals(msg.getRequestHeader().getMethod())) {
             msg.setResponseBody(strBuilder.toString());
