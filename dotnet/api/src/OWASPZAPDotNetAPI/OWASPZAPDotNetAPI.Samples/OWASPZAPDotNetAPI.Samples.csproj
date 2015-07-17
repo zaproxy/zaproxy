@@ -66,12 +66,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OWASPZAPDotNetAPI\OWASPZAPDotNetAPI.csproj">
-      <Project>{112707db-10a3-40c9-bff2-172c2a9e82eb}</Project>
-      <Name>OWASPZAPDotNetAPI</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
       <Visible>False</Visible>
       <ProductName>Microsoft .NET Framework 4.5 %28x86 and x64%29</ProductName>
@@ -87,6 +81,12 @@
       <ProductName>.NET Framework 3.5 SP1</ProductName>
       <Install>false</Install>
     </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OWASPZAPDotNetAPI\OWASPZAPDotNetAPI.csproj">
+      <Project>{112707db-10a3-40c9-bff2-172c2a9e82eb}</Project>
+      <Name>OWASPZAPDotNetAPI</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
