@@ -225,9 +225,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
-			if (!sessionPath.isAbsolute()) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-			}
 			String filename = sessionPath.toAbsolutePath().toString();
 			
 			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -299,9 +296,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 		} else if (ACTION_LOAD_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
-			if (!sessionPath.isAbsolute()) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-			}
 			String filename = sessionPath.toAbsolutePath().toString();
 
 			if (!Files.exists(sessionPath)) {
@@ -333,9 +327,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				Control.getSingleton().newSession();
 			} else {
 				Path sessionPath = SessionUtils.getSessionPath(sessionName);
-				if (!sessionPath.isAbsolute()) {
-					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-				}
 				String filename = sessionPath.toAbsolutePath().toString();
 				
 				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);

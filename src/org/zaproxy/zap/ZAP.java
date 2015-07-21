@@ -629,43 +629,29 @@ public class ZAP {
         } else if (cmdLine.isEnabled(CommandLine.SESSION)) {
             Path sessionPath = SessionUtils.getSessionPath(cmdLine
                     .getArgument(CommandLine.SESSION));
-            if (!sessionPath.isAbsolute()) {
+            if (!Files.exists(sessionPath)) {
                 view.showWarningDialog(Constant.messages.getString(
-                        "start.gui.cmdline.session.absolute.path.required",
+                        "start.gui.cmdline.session.does.not.exist",
                         Constant.getZapHome()));
 
             } else {
-                if (!Files.exists(sessionPath)) {
-                    view.showWarningDialog(Constant.messages.getString(
-                            "start.gui.cmdline.session.does.not.exist",
-                            Constant.getZapHome()));
-
-                } else {
-                    createNewSession = !control.getMenuFileControl()
-                            .openSession(
-                                    sessionPath.toAbsolutePath().toString());
-                }
+                createNewSession = !control.getMenuFileControl()
+                        .openSession(
+                                sessionPath.toAbsolutePath().toString());
             }
 
         } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
             Path sessionPath = SessionUtils.getSessionPath(cmdLine
                     .getArgument(CommandLine.NEW_SESSION));
-            if (!sessionPath.isAbsolute()) {
+            if (Files.exists(sessionPath)) {
                 view.showWarningDialog(Constant.messages.getString(
-                        "start.gui.cmdline.session.absolute.path.required",
+                        "start.gui.cmdline.newsession.already.exist",
                         Constant.getZapHome()));
 
             } else {
-                if (Files.exists(sessionPath)) {
-                    view.showWarningDialog(Constant.messages.getString(
-                            "start.gui.cmdline.newsession.already.exist",
-                            Constant.getZapHome()));
-
-                } else {
-                    createNewSession = !control
-                            .getMenuFileControl()
-                            .newSession(sessionPath.toAbsolutePath().toString());
-                }
+                createNewSession = !control
+                        .getMenuFileControl()
+                        .newSession(sessionPath.toAbsolutePath().toString());
             }
         }
         view.hideSplashScreen();
@@ -748,14 +734,6 @@ public class ZAP {
         if (cmdLine.isEnabled(CommandLine.SESSION)) {
             Path sessionPath = SessionUtils.getSessionPath(cmdLine
                     .getArgument(CommandLine.SESSION));
-            if (!sessionPath.isAbsolute()) {
-                System.err
-                        .println("Error: Invalid command line value: option '"
-                                + CommandLine.SESSION
-                                + "' requires an absolute path");
-
-                return false;
-            }
 
             String absolutePath = sessionPath.toAbsolutePath().toString();
             try {
@@ -771,14 +749,6 @@ public class ZAP {
         } else if (cmdLine.isEnabled(CommandLine.NEW_SESSION)) {
             Path sessionPath = SessionUtils.getSessionPath(cmdLine
                     .getArgument(CommandLine.NEW_SESSION));
-            if (!sessionPath.isAbsolute()) {
-                System.err
-                        .println("Error: Invalid command line value: option '"
-                                + CommandLine.NEW_SESSION
-                                + "' requires an absolute path");
-
-                return false;
-            }
 
             String absolutePath = sessionPath.toAbsolutePath().toString();
             if (Files.exists(sessionPath)) {
