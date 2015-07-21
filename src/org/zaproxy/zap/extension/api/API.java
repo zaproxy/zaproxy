@@ -380,7 +380,10 @@ public class API {
 			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (ApiException e) {
-			response =  e.toString(format, incErrorDetails());
+			response =  e.toString(Format.HTML, incErrorDetails());
+	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
+	    	msg.setResponseBody(response);
+	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
  			logger.warn("handleApiRequest error: " + response, e);
 		}
 		
@@ -391,7 +394,7 @@ public class API {
 		}
 		
 		if (impl != null) {
-			impl.addCustomHeaders(name, reqType, msg.getResponseHeader());
+			impl.addCustomHeaders(name, reqType, msg);
 		}
 
     	httpOut.write(msg.getResponseHeader());
@@ -519,7 +522,7 @@ public class API {
 	}
 	
 	public String getApiKey() {
-		// Dont cache - could be changes via the optionss screen
+		// Dont cache - could be changes via the options screen
 		return Model.getSingleton().getOptionsParam().getApiParam().getKey();
 	}
 	
