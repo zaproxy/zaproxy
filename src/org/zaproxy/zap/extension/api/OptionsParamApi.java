@@ -17,6 +17,7 @@
  */
 package org.zaproxy.zap.extension.api;
 
+import org.apache.commons.configuration.ConfigurationException;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class OptionsParamApi extends AbstractParam {
@@ -108,6 +109,12 @@ public class OptionsParamApi extends AbstractParam {
 			return "";
 		} else if (key == null || key.length() == 0) {
 			key = ExtensionAPI.generateApiKey();
+			getConfig().setProperty(API_KEY, key);
+			try {
+				getConfig().save();
+			} catch (ConfigurationException e) {
+				// Ignore
+			}
 		}
 		return key;
 	}
