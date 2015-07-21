@@ -32,6 +32,7 @@ import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.api.ApiResponseElement;
+import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
 
@@ -88,26 +89,37 @@ public class ContextAPI extends ApiImplementor {
     @Override
     public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
         log.debug("handleApiAction " + name + " " + params.toString());
-        if (EXCLUDE_FROM_CONTEXT_REGEX.equals(name)) {
-            addExcludeToContext(getContext(params), getRegex(params));
-        } else if (INCLUDE_IN_CONTEXT_REGEX.equals(name)) {
-            addIncludeToContext(getContext(params), getRegex(params));
-        } else if (ACTION_NEW_CONTEXT.equals(name)){
-            String contextName = params.getString(CONTEXT_NAME);
+        
+        String contextName;
+        Context context;
+        String filename;
+        File f;
+        
+        switch(name) {
+        case EXCLUDE_FROM_CONTEXT_REGEX:
+        	addExcludeToContext(getContext(params), getRegex(params));
+        	break;
+        case INCLUDE_IN_CONTEXT_REGEX:
+        	addIncludeToContext(getContext(params), getRegex(params));
+        	break;
+        case ACTION_NEW_CONTEXT:
+        	contextName = params.getString(CONTEXT_NAME);
             if (contextName != null && contextName.length() > 0){
-                Context context = Model.getSingleton().getSession().getNewContext(contextName);
+                context = Model.getSingleton().getSession().getNewContext(contextName);
                 Model.getSingleton().getSession().saveContext(context);
                 return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
             }
-        } else if (ACTION_SET_CONTEXT_IN_SCOPE.equals(name)){
-            if (params.getString(IN_SCOPE) == null || params.getString(IN_SCOPE).length()==0){
+            break;
+        case ACTION_SET_CONTEXT_IN_SCOPE: 
+        	if (params.getString(IN_SCOPE) == null || params.getString(IN_SCOPE).length()==0){
                 throw new ApiException(ApiException.Type.MISSING_PARAMETER, IN_SCOPE);
             }
             getContext(params).setInScope(params.getBoolean(IN_SCOPE));
             Model.getSingleton().getSession().saveContext(getContext(params));
-        } else if (ACTION_IMPORT_CONTEXT.equals(name)){
-            String filename = params.getString(CONTEXT_FILE_PARAM);
-            File f = new File(filename);
+            break;
+        case ACTION_IMPORT_CONTEXT:
+        	filename = params.getString(CONTEXT_FILE_PARAM);
+            f = new File(filename);
             if (! f.exists()) {
             	// Try relative to the contexts dir
             	f = new File(Constant.getContextsDir(), filename);
@@ -122,16 +134,17 @@ public class ContextAPI extends ApiImplementor {
 		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
             }
-        } else if (ACTION_EXPORT_CONTEXT.equals(name)){
-            String filename = params.getString(CONTEXT_FILE_PARAM);
-            String ctxname = params.getString(CONTEXT_NAME);
+            break;
+        case ACTION_EXPORT_CONTEXT:
+        	filename = params.getString(CONTEXT_FILE_PARAM);
+            contextName = params.getString(CONTEXT_NAME);
             
-            Context ctx = Model.getSingleton().getSession().getContext(ctxname);
-            if (ctx == null) {
-	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, ctxname);
+            context = Model.getSingleton().getSession().getContext(contextName);
+            if (context == null) {
+	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
             }
             
-            File f = new File(filename);
+            f = new File(filename);
             if (! f.getAbsolutePath().equals(filename)) {
             	// Not an absolute filename, use one relative to the contexts dir
             	f = new File(Constant.getContextsDir(), filename);
@@ -141,14 +154,16 @@ public class ContextAPI extends ApiImplementor {
 	            throw new ApiException(ApiException.Type.NO_ACCESS, f.getAbsolutePath());
             } else {
             	try {
-					Model.getSingleton().getSession().exportContext(ctx, f);
+					Model.getSingleton().getSession().exportContext(context, f);
 				} catch (Exception e) {
 		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
             }
-        } else {
-            throw new ApiException(ApiException.Type.BAD_ACTION);
+            break;
+            default:
+            	throw new ApiException(Type.BAD_ACTION);
         }
+        
         return ApiResponseElement.OK;
     }
 
@@ -173,20 +188,28 @@ public class ContextAPI extends ApiImplementor {
     @Override
     public ApiResponse handleApiView(String name, JSONObject params)
             throws ApiException {
-        ApiResponseElement result = new ApiResponseElement(name, "");
-        if (VIEW_EXCLUDE_REGEXS.equals(name)){
-            result = new ApiResponseElement(name, getContext(params).getExcludeFromContextRegexs().toString());
-        } else if(VIEW_INCLUDE_REGEXS.equals(name)){
-            result = new ApiResponseElement(name, getContext(params).getIncludeInContextRegexs().toString());
-        } else if (VIEW_CONTEXT_LIST.equals(name)){
-            List<String> contextNames = new ArrayList<>();
+        ApiResponse result;
+        
+        switch(name) {
+        case VIEW_EXCLUDE_REGEXS:
+        	result = new ApiResponseElement(name, getContext(params).getExcludeFromContextRegexs().toString());
+        	break;
+        case VIEW_INCLUDE_REGEXS:
+        	result = new ApiResponseElement(name, getContext(params).getIncludeInContextRegexs().toString());
+        	break;
+        case VIEW_CONTEXT_LIST:
+        	List<String> contextNames = new ArrayList<>();
             List<Context> contexts = Model.getSingleton().getSession().getContexts();
             for (Context context : contexts){
                 contextNames.add(context.getName());
             }
             result = new ApiResponseElement(name, contextNames.toString());
-        } else if (VIEW_CONTEXT.equals(name)){
-			return buildResponseFromContext(getContext(params));
+            break;
+        case VIEW_CONTEXT:
+        	result = buildResponseFromContext(getContext(params));
+        	break;
+        default:
+        	throw new ApiException(Type.BAD_VIEW);
         }
         return result;
     }
