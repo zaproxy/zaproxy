@@ -35,27 +35,38 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.Tech;
+import org.zaproxy.zap.model.TechSet;
 
 public class ContextAPI extends ApiImplementor {
 
-    private static Logger log = Logger.getLogger(ContextAPI.class);
+    private static final Logger log = Logger.getLogger(ContextAPI.class);
 
     private static final String PREFIX = "context";
+    private static final String TECH_NAME = "technologyName";
     private static final String EXCLUDE_FROM_CONTEXT_REGEX = "excludeFromContext";
     private static final String INCLUDE_IN_CONTEXT_REGEX = "includeInContext";
     private static final String ACTION_NEW_CONTEXT = "newContext";
     private static final String ACTION_SET_CONTEXT_IN_SCOPE = "setContextInScope";
     private static final String ACTION_EXPORT_CONTEXT = "exportContext";
     private static final String ACTION_IMPORT_CONTEXT = "importContext";
+    private static final String ACTION_INCLUDE_TECHS = "includeContextTechnologies";
+	private static final String ACTION_INCLUDE_ALL_TECHS = "includeAllContextTechnologies";
+	private static final String ACTION_EXCLUDE_TECHS = "excludeContextTechnologies";
+	private static final String ACTION_EXCLUDE_ALL_TECHS = "excludeAllContextTechnologies";
     private static final String VIEW_EXCLUDE_REGEXS = "excludeRegexs";
     private static final String VIEW_INCLUDE_REGEXS = "includeRegexs";
     private static final String VIEW_CONTEXT_LIST = "contextList";
     private static final String VIEW_CONTEXT = "context";
+    private static final String VIEW_ALL_TECHS = "technologyList";
+	private static final String VIEW_INCLUDED_TECHS = "includedTechnologyList";
+	private static final String VIEW_EXCLUDED_TECHS = "excludedTechnologyList";
     private static final String REGEX_PARAM = "regex";
     private static final String CONTEXT_NAME = "contextName";
     private static final String IN_SCOPE = "booleanInScope";
     private static final String CONTEXT_FILE_PARAM = "contextFile";
     private static final String CONTEXT_ID = "contextId";
+    private static final String PARAM_TECH_NAMES = "technologyNames";
 
     public ContextAPI() {
         List<String> contextNameAndRegexParam = new ArrayList<>(2);
@@ -63,13 +74,18 @@ public class ContextAPI extends ApiImplementor {
         contextNameAndRegexParam.add(REGEX_PARAM);
         List<String> contextNameOnlyParam = new ArrayList<>(1);
         contextNameOnlyParam.add((CONTEXT_NAME));
+        String[] contextNameAndTechNames = new String[] { CONTEXT_NAME, PARAM_TECH_NAMES };
 
         this.addApiAction(new ApiAction(EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, null, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_EXPORT_CONTEXT, new String[] {CONTEXT_NAME, CONTEXT_FILE_PARAM}, null));
         this.addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
-
+        this.addApiAction(new ApiAction(ACTION_INCLUDE_TECHS, contextNameAndTechNames));
+		this.addApiAction(new ApiAction(ACTION_INCLUDE_ALL_TECHS, contextNameOnlyParam));
+		this.addApiAction(new ApiAction(ACTION_EXCLUDE_TECHS, contextNameAndTechNames));
+		this.addApiAction(new ApiAction(ACTION_EXCLUDE_ALL_TECHS, contextNameOnlyParam));
+		
         List<String> contextInScopeParams = new ArrayList<>(2);
         contextInScopeParams.add(CONTEXT_NAME);
         contextInScopeParams.add(IN_SCOPE);
@@ -79,6 +95,9 @@ public class ContextAPI extends ApiImplementor {
         this.addApiView(new ApiView(VIEW_EXCLUDE_REGEXS, contextNameOnlyParam));
         this.addApiView(new ApiView(VIEW_INCLUDE_REGEXS, contextNameOnlyParam));
         this.addApiView(new ApiView(VIEW_CONTEXT, contextNameOnlyParam));
+        this.addApiView(new ApiView(VIEW_ALL_TECHS));
+		this.addApiView(new ApiView(VIEW_INCLUDED_TECHS, contextNameOnlyParam));
+		this.addApiView(new ApiView(VIEW_EXCLUDED_TECHS, contextNameOnlyParam));
     }
 
     @Override
@@ -92,6 +111,8 @@ public class ContextAPI extends ApiImplementor {
         
         String contextName;
         Context context;
+        TechSet techSet;
+        String[] techNames;
         String filename;
         File f;
         
@@ -160,8 +181,40 @@ public class ContextAPI extends ApiImplementor {
 				}
             }
             break;
-            default:
-            	throw new ApiException(Type.BAD_ACTION);
+        case ACTION_INCLUDE_TECHS:
+        	context = getContext(params);
+        	techSet = context.getTechSet();
+        	techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
+        	for (String techName : techNames) {
+        		techSet.include(getTech(techName));
+        	}
+        	context.save();
+        	break;
+        case ACTION_INCLUDE_ALL_TECHS:
+        	context = getContext(params);
+        	techSet = new TechSet(Tech.builtInTech);
+        	context.setTechSet(techSet);
+        	context.save();
+        	break;
+        case ACTION_EXCLUDE_TECHS:
+        	context = getContext(params);
+        	techSet = context.getTechSet();
+        	techNames = getParam(params, PARAM_TECH_NAMES, "").split(",");
+        	for(String techName : techNames) {
+        		techSet.exclude(getTech(techName));
+        	}
+        	context.save();
+        	break;
+        case ACTION_EXCLUDE_ALL_TECHS:
+        	context = getContext(params);
+        	techSet = context.getTechSet();
+        	for (Tech tech : Tech.builtInTech) {
+        		techSet.exclude(tech);
+        	}
+        	context.save();
+        	break;
+        default:
+            throw new ApiException(Type.BAD_ACTION);
         }
         
         return ApiResponseElement.OK;
@@ -188,7 +241,11 @@ public class ContextAPI extends ApiImplementor {
     @Override
     public ApiResponse handleApiView(String name, JSONObject params)
             throws ApiException {
+    	log.debug("handleApiView " + name + " " + params.toString());
+    	
         ApiResponse result;
+        ApiResponseList resultList;
+        TechSet techSet;
         
         switch(name) {
         case VIEW_EXCLUDE_REGEXS:
@@ -208,6 +265,29 @@ public class ContextAPI extends ApiImplementor {
         case VIEW_CONTEXT:
         	result = buildResponseFromContext(getContext(params));
         	break;
+        case VIEW_ALL_TECHS:
+        	resultList = new ApiResponseList(name);
+        	for(Tech tech : Tech.builtInTech) {
+        		resultList.addItem(new ApiResponseElement(TECH_NAME, tech.toString()));
+        	}
+        	result = resultList;
+        	break;
+        case VIEW_INCLUDED_TECHS:
+        	resultList = new ApiResponseList(name);
+        	techSet = getContext(params).getTechSet();
+        	for(Tech tech : techSet.getIncludeTech()) {
+        		resultList.addItem(new ApiResponseElement(TECH_NAME, tech.toString()));
+        	}
+        	result = resultList;
+        	break;
+		case VIEW_EXCLUDED_TECHS:
+			resultList = new ApiResponseList(name);
+			techSet = getContext(params).getTechSet();
+			for(Tech tech : techSet.getExcludeTech()) {
+				resultList.addItem(new ApiResponseElement(TECH_NAME, tech.toString()));
+			}
+			result = resultList;
+			break;
         default:
         	throw new ApiException(Type.BAD_VIEW);
         }
@@ -271,5 +351,22 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 		
 		return new ApiResponseSet(c.getName(), fields);
+	}
+	
+	/**
+	 * Gets the tech that matches the techName
+	 * or throws an exception if no tech matches
+	 * 
+	 * @param techName the name of the tech
+	 * @return the matching tech
+	 * @throws ApiException the api exception
+	 */
+	private Tech getTech(String techName) throws ApiException {
+		for(Tech tech : Tech.builtInTech) {
+			if (tech.toString().equalsIgnoreCase(techName))
+				return tech;
+		}
+		throw new ApiException(Type.ILLEGAL_PARAMETER, 
+				"The tech " + techName + " does not exist");
 	}
 }
