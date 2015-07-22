@@ -61,7 +61,7 @@ public class DotNetAPIGenerator {
 		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
 	/**
-	 * Map any names which are reserved in java to something legal
+	 * Map any names which are reserved in CSharp (or Dot Net) to something legal
 	 */
 	private static final Map<String, String> nameMap;
     static {
