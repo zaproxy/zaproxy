@@ -146,7 +146,7 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 
 		ContentSigner sigGen;
 		try {
-			sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(caPrivKey);
+			sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider("BC").build(caPrivKey);
 		} catch (OperatorCreationException e) {
 			throw new CertificateException(e);
 		}
