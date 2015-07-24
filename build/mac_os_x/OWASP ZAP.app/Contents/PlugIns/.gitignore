@@ -1,0 +1,4 @@
+# We want this directory to exist in git (for building), but never to add files
+
+*
+!.gitignore
