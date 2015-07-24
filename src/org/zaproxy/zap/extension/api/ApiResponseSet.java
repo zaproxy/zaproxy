@@ -69,11 +69,11 @@ public class ApiResponseSet extends ApiResponse {
 
 	@Override
 	public void toHTML(StringBuilder sb) {
-		sb.append("<h2>" + this.getName() + "</h2>\n");
+		sb.append("<h2>" + StringEscapeUtils.escapeHtml(this.getName()) + "</h2>\n");
 		sb.append("<table border=\"1\">\n");
 		for (Entry<String, Object> val : values.entrySet()) {
 			sb.append("<tr><td>\n");
-			sb.append(val.getKey());
+			sb.append(StringEscapeUtils.escapeHtml(val.getKey()));
 			sb.append("</td><td>\n");
 			if (val.getValue() instanceof String) {
 				sb.append(StringEscapeUtils.escapeHtml((String)val.getValue()));

@@ -91,7 +91,7 @@ public class ApiResponseElement extends ApiResponse {
 		if (apiResponse == null) {
 			sb.append("<table border=\"1\">\n");
 			sb.append("<tr><td>\n");
-			sb.append(this.getName());
+			sb.append(StringEscapeUtils.escapeHtml(this.getName()));
 			sb.append("</td><td>\n");
 			sb.append(StringEscapeUtils.escapeHtml(this.getValue()));
 			sb.append("</td></tr>\n");
