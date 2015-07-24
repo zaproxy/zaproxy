@@ -119,20 +119,16 @@ public class API {
 	
 	public boolean isEnabled() {
 		// Check API is enabled (its always enabled if run from the cmdline)
-		if ( View.isInitialised() && ! Model.getSingleton().getOptionsParam().getApiParam().isEnabled()) {
+		if ( View.isInitialised() && ! getOptionsParamApi().isEnabled()) {
 			return false;
 		}
 		return true;
 	}
 	
-	private boolean isSecureOnly() {
-		return Model.getSingleton().getOptionsParam().getApiParam().isSecureOnly();
+	private OptionsParamApi getOptionsParamApi() {
+		return Model.getSingleton().getOptionsParam().getApiParam();
 	}
-
-	private boolean incErrorDetails() {
-		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
-	}
-
+	
 	public boolean handleApiRequest (HttpRequestHeader requestHeader, HttpInputStream httpIn, 
 			HttpOutputStream httpOut) throws IOException {
 		return this.handleApiRequest(requestHeader, httpIn, httpOut, false);
@@ -169,7 +165,7 @@ public class API {
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
-		if (this.isSecureOnly() && ! requestHeader.isSecure()) {
+		if (this.getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
 			// Insecure request with secure only set, always ignore
 			logger.debug("handleApiRequest rejecting insecure request");
 			return false;
@@ -270,13 +266,26 @@ public class API {
 						throw new ApiException(ApiException.Type.DISABLED);
 					}
 					String key = this.getApiKey();
+					
+					if (format.equals(Format.JSONP)) {
+						if (! getOptionsParamApi().isEnableJSONP()) {
+							// Not enabled
+							throw new ApiException(ApiException.Type.DISABLED);
+						}
+						if (key != null && key.length() > 0) {
+							// An api key is required for ALL JSONP requests
+							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
+								throw new ApiException(ApiException.Type.BAD_API_KEY);
+							}
+						}
+					}
 
 					ApiResponse res;
 					switch (reqType) {
 					case action:	
 						// TODO Handle POST requests - need to read these in and then parse params from POST body
 						/*
-						if (Model.getSingleton().getOptionsParam().getApiParam().isPostActions()) {
+						if (getOptionsParamApi().isPostActions()) {
 							throw new ApiException(ApiException.Type.DISABLED);
 						}
 						*/
@@ -380,7 +389,7 @@ public class API {
 			logger.debug("handleApiRequest returning: " + response);
 			
 		} catch (ApiException e) {
-			response =  e.toString(Format.HTML, incErrorDetails());
+			response =  e.toString(Format.HTML, getOptionsParamApi().isIncErrorDetails());
 	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
 	    	msg.setResponseBody(response);
 	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
@@ -418,12 +427,12 @@ public class API {
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String key = this.getApiKey();
 		String base = API_URL;
-		if (this.isSecureOnly()) {
+		if (this.getOptionsParamApi().isSecureOnly()) {
 			base = API_URL_S;
 		}
 		if (!proxy) {
 			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			if (this.isSecureOnly()) {
+			if (this.getOptionsParamApi().isSecureOnly()) {
 				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
 			} else {
 				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
@@ -523,7 +532,7 @@ public class API {
 	
 	public String getApiKey() {
 		// Dont cache - could be changes via the options screen
-		return Model.getSingleton().getOptionsParam().getApiParam().getKey();
+		return getOptionsParamApi().getKey();
 	}
 	
     public static String getDefaultResponseHeader(String contentType) {

@@ -44,6 +44,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	private JCheckBox disableKey = null;
 	private JCheckBox incErrorDetails = null;
 	private JCheckBox autofillKey = null;
+	private JCheckBox enableJSONP = null;
 	private ZapTextField keyField = null; 
 	private JButton generateKeyButton = null;
 
@@ -86,6 +87,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 			panelMisc.add(getDisableKey(), LayoutHelper.getGBC(0, 5, 1, 0.5));
 			panelMisc.add(getIncErrorDetails(), LayoutHelper.getGBC(0, 6, 1, 0.5));
 			panelMisc.add(getAutofillKey(), LayoutHelper.getGBC(0, 7, 1, 0.5));
+			panelMisc.add(getEnableJSONP(), LayoutHelper.getGBC(0, 8, 1, 0.5));
 			
 			panelMisc.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 		}
@@ -136,7 +138,18 @@ public class OptionsApiPanel extends AbstractParamPanel {
 		}
 		return disableKey;
 	}
-	
+
+	private JCheckBox getEnableJSONP() {
+		if (enableJSONP == null) {
+			enableJSONP = new JCheckBox();
+			enableJSONP.setText(Constant.messages.getString("api.options.enableJSONP"));
+			enableJSONP.setVerticalAlignment(javax.swing.SwingConstants.TOP);
+			enableJSONP.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+		}
+		return enableJSONP;
+	}
+
+
 	private JCheckBox getIncErrorDetails() {
 		if (incErrorDetails == null) {
 			incErrorDetails = new JCheckBox();
@@ -196,6 +209,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	    getDisableKey().setSelected(options.getApiParam().isDisableKey());
 	    getIncErrorDetails().setSelected(options.getApiParam().isIncErrorDetails());
 	    getAutofillKey().setSelected(options.getApiParam().isAutofillKey());
+	    getEnableJSONP().setSelected(options.getApiParam().isEnableJSONP());
 	    getKeyField().setText(options.getApiParam().getKey());
 	    //getChkPostActions().setSelected(options.getApiParam().isPostActions());
 
@@ -218,6 +232,7 @@ public class OptionsApiPanel extends AbstractParamPanel {
 	    options.getApiParam().setDisableKey(getDisableKey().isSelected());
 	    options.getApiParam().setIncErrorDetails(getIncErrorDetails().isSelected());
 	    options.getApiParam().setAutofillKey(getAutofillKey().isSelected());
+	    options.getApiParam().setEnableJSONP(getEnableJSONP().isSelected());
 	    
 	    if (!getDisableKey().isSelected()) {
 	    	// Dont loose the old value on disabling
