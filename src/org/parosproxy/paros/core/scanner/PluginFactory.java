@@ -37,6 +37,7 @@
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/01/04 Issue 1484: NullPointerException during uninstallation of an add-on with active scanners
 // ZAP: 2015/01/04 Issue 1486: Add-on components leak
+// ZAP: 2015/07/25 Do not log error if the duplicated scanner is (apparently) a newer/older version
 
 package org.parosproxy.paros.core.scanner;
 
@@ -47,6 +48,7 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
@@ -311,14 +313,12 @@ public class PluginFactory {
                     if (log.isDebugEnabled()) {
                     	log.debug("Theshold=" + plugin.getAlertThreshold().name() + " Strength=" + plugin.getAttackStrength().toString());
                     }
-                    if (mapAllPlugin.get(Integer.valueOf(plugin.getId())) != null) {
-                        log.error("Duplicate id " + plugin.getId() + " " + plugin.getClass().getCanonicalName() + " "
-                                + mapAllPlugin.get(Integer.valueOf(plugin.getId())).getClass().getCanonicalName());
-                    }
                     
-                    // ZAP: Changed to use the method Integer.valueOf.
-                    mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
-                    mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+                    if (canAddPlugin(mapAllPlugin, plugin)) {
+                        // ZAP: Changed to use the method Integer.valueOf.
+                        mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+                        mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
+                    }
                     
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -329,6 +329,36 @@ public class PluginFactory {
                 listAllPlugin.add(iterator.next());
             }
         }
+    }
+
+    private static boolean canAddPlugin(Map<Integer, Plugin> plugins, Plugin plugin) {
+        Plugin existingPlugin = plugins.get(Integer.valueOf(plugin.getId()));
+        if (existingPlugin == null) {
+            return true;
+        }
+
+        // Check if it has also the same name, might be the same scanner but a newer/older version
+        if (existingPlugin.getName().equals(plugin.getName())) {
+            if (existingPlugin.getStatus().compareTo(plugin.getStatus()) > 0) {
+                log.info("Ignoring (apparently) less stable scanner version, id=" + plugin.getId() + ", ExistingPlugin[Status="
+                        + existingPlugin.getStatus() + ", Class=" + existingPlugin.getClass().getCanonicalName()
+                        + "], LessStablePlugin[Status=" + plugin.getStatus() + ", Class="
+                        + plugin.getClass().getCanonicalName() + "]");
+                return false;
+            }
+
+            if (existingPlugin.getStatus() != plugin.getStatus()) {
+                log.info("Replacing existing scanner with (apparently) stabler version, id=" + plugin.getId()
+                        + ", ExistingPlugin[Status=" + existingPlugin.getStatus() + ", Class="
+                        + existingPlugin.getClass().getCanonicalName() + "], StablerPlugin[Status=" + plugin.getStatus()
+                        + ", Class=" + plugin.getClass().getCanonicalName() + "]");
+                return true;
+            }
+        }
+
+        log.error("Duplicate id " + plugin.getId() + " " + plugin.getClass().getCanonicalName() + " "
+                + existingPlugin.getClass().getCanonicalName());
+        return true;
     }
 
     public synchronized void loadFrom(PluginFactory pf) {
