@@ -22,9 +22,8 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -91,32 +89,9 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 		if (panelSession == null) {
 
 			panelSession = new JPanel();
-			panelSession.setLayout(new GridBagLayout());
+			panelSession.setLayout(new BorderLayout());
 			panelSession.setName("SessionTech");
-
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel = new JLabel();
-
-			jLabel.setText(Constant.messages.getString("context.technology.tree.root"));
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.gridheight = 1;
-			gridBagConstraints1.insets = new java.awt.Insets(10, 0, 5, 0);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1.weightx = 0.0D;
-
-			gridBagConstraints2.gridx = 0;
-			gridBagConstraints2.gridy = 1;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.weighty = 1.0;
-			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints2.ipadx = 0;
-			gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			panelSession.add(getJScrollPane(), gridBagConstraints2);
+			panelSession.add(getJScrollPane(), BorderLayout.CENTER);
 		}
 		return panelSession;
 	}
@@ -152,7 +127,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 			TechSet ts = new TechSet(Tech.builtInTech);
 			Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+			DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("context.technology.tree.root"));
 			Tech tech;
 			DefaultMutableTreeNode parent;
 			DefaultMutableTreeNode node;
