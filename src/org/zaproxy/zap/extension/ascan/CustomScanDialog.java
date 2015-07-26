@@ -441,7 +441,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
             if (parent == null) {
                 parent = root;
             }
-            node = new DefaultMutableTreeNode(tech.getName());
+            node = new DefaultMutableTreeNode(tech.getUiName());
             parent.add(node);
             techToNodeMap.put(tech, node);
         }
@@ -688,7 +688,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 if (parent == null) {
                     parent = root;
                 }
-                node = new DefaultMutableTreeNode(tech.getName());
+                node = new DefaultMutableTreeNode(tech.getUiName());
                 parent.add(node);
                 techToNodeMap.put(tech, node);
             }

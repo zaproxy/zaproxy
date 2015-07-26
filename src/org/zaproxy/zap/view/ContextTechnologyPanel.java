@@ -141,7 +141,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 				if (parent == null) {
 					parent = root;
 				}
-				node = new DefaultMutableTreeNode(tech.getName());
+				node = new DefaultMutableTreeNode(tech.getUiName());
 				parent.add(node);
 				techToNodeMap.put(tech, node);
 			}
