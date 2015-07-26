@@ -50,6 +50,7 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/04/17 A problem occur when a single node should be scanned because count start from -1
 // ZAP: 2015/05/04 Issue 1566: Improve active scan's reported progress
+// ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 
 package org.parosproxy.paros.core.scanner;
 
@@ -201,11 +202,17 @@ public class HostProcess implements Runnable {
     }
 
     private void processPlugin(Plugin plugin) {
-        log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
-                + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
-        
         mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
         mapPluginProgress.put(plugin.getId(), 0);
+
+        if (techSet != null && !plugin.targets(techSet)) {
+            listPluginIdSkipped.add(plugin.getId());
+            pluginCompleted(plugin);
+            return;
+        }
+
+        log.info("start host " + hostAndPort + " | " + plugin.getCodeName()
+                + " strength " + plugin.getAttackStrength() + " threshold " + plugin.getAlertThreshold());
         
         for (StructuralNode startNode : startNodes) {
 	        if (plugin instanceof AbstractHostPlugin) {
