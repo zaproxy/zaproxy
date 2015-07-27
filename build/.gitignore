@@ -1,0 +1,6 @@
+# Ignore the build directory
+build
+zap
+ZAP*.dmg
+ZAP*.tar.gz
+zap*.deb
