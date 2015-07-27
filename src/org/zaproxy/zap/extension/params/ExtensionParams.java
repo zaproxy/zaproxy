@@ -297,6 +297,7 @@ public class ExtensionParams extends ExtensionAdaptor
 		}
 
 		// Form Parameters
+		// TODO flag anti csrf url ones too?
 		
 		ExtensionAntiCSRF extAntiCSRF = 
 			(ExtensionAntiCSRF) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAntiCSRF.NAME);

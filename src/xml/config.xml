@@ -208,6 +208,10 @@
 				<enabled>true</enabled>
 				<name>csrfmiddlewaretoken</name>
 			</token>
+			<token>
+				<enabled>true</enabled>
+				<name>authenticity_token</name>
+			</token>
 		</tokens>
 	</anticsrf>
 

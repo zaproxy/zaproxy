@@ -24,6 +24,6 @@ Example:
 ```
 
 ## API
-For a full API list, see [https://code.google.com/p/zaproxy/wiki/ApiGen_Index](https://code.google.com/p/zaproxy/wiki/ApiGen_Index).
+For a full API list, see [https://github.com/zaproxy/zaproxy/wiki/ApiGen_Index](https://github.com/zaproxy/zaproxy/wiki/ApiGen_Index).
 
 The Node.js API methods have the same signature as the API documentation, except that they all take a callback as their last parameter. The callback will be called with error and response arguments, with the response being the an object that corresponds to the JSON output of the API call.
