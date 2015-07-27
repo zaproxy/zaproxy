@@ -78,7 +78,9 @@ public class ZapTable extends JXTable {
 
         JComponent columnControl = getColumnControl();
         if (columnControl instanceof ZapColumnControlButton) {
-            ((ZapColumnControlButton) columnControl).addAction(getAutoScrollAction());
+            ZapColumnControlButton zapColumnControl = ((ZapColumnControlButton) columnControl);
+            zapColumnControl.addAction(getAutoScrollAction());
+            zapColumnControl.populatePopup();
         }
 
         setAutoScrollOnNewValues(true);
