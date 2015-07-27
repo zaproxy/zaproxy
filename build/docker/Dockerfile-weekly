@@ -1,13 +1,13 @@
 # This dockerfile builds the zap weekly release
-FROM debian:jessie
+FROM ubuntu
 MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
 
 RUN apt-get update && apt-get clean
-RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk rubygems wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools && apt-get clean
+RUN apt-get install -q -y make automake autoconf gcc g++ openjdk-7-jre-headless openjdk-7-jdk ruby wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools ruby-dev && apt-get clean
 RUN mkdir /zap 
 RUN gem install zapr
 WORKDIR /zap
-RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - 
+RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - 
 RUN unzip *.zip && rm *.zip
 RUN mv ZAP* weekly 
 

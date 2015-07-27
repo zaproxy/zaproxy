@@ -247,7 +247,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		try {
 			List<String> encodedUsers = session.getContextDataStrings(context.getIndex(),
 					RecordContext.TYPE_USER);
-			ContextUserAuthManager usersManager = contextManagers.get(context.getIndex());
+			ContextUserAuthManager usersManager = getContextUserAuthManager(context.getIndex());
 			for (String e : encodedUsers) {
 				User u = User.decode(context.getIndex(), e);
 				usersManager.addUser(u);
@@ -316,7 +316,7 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	@Override
 	public void importContextData(Context ctx, Configuration config) {
 		List<Object> list = config.getList(CONTEXT_CONFIG_USERS_USER);
-		ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
+		ContextUserAuthManager m = getContextUserAuthManager(ctx.getIndex());
 		for (Object o : list) {
 			User usersManager = User.decode(ctx.getIndex(), o.toString());
 			m.addUser(usersManager);

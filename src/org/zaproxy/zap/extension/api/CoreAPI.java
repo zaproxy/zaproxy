@@ -44,7 +44,7 @@ import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
-import org.bouncycastle.openssl.MiscPEMGenerator;
+import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -225,9 +225,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		} else if (ACTION_SAVE_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
-			if (!sessionPath.isAbsolute()) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-			}
 			String filename = sessionPath.toAbsolutePath().toString();
 			
 			final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -299,9 +296,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			
 		} else if (ACTION_LOAD_SESSION.equalsIgnoreCase(name)) {	// Ignore case for backwards compatibility
 			Path sessionPath = SessionUtils.getSessionPath(params.getString(PARAM_SESSION));
-			if (!sessionPath.isAbsolute()) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-			}
 			String filename = sessionPath.toAbsolutePath().toString();
 
 			if (!Files.exists(sessionPath)) {
@@ -333,9 +327,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				Control.getSingleton().newSession();
 			} else {
 				Path sessionPath = SessionUtils.getSessionPath(sessionName);
-				if (!sessionPath.isAbsolute()) {
-					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Session path must be absolute.");
-				}
 				String filename = sessionPath.toAbsolutePath().toString();
 				
 				final boolean overwrite = getParam(params, PARAM_OVERWRITE_SESSION, false);
@@ -732,7 +723,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					}
 					final StringWriter sw = new StringWriter();
 					try (final PemWriter pw = new PemWriter(sw)) {
-						pw.writeObject(new MiscPEMGenerator(rootCA));
+						pw.writeObject(new JcaMiscPEMGenerator(rootCA));
 						pw.flush();
 					}
 					String response = sw.toString();
@@ -791,7 +782,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 
 				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			}
 
 			try {
@@ -826,7 +817,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 
 				ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 			}
 
 			try {
@@ -844,7 +835,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				request = HarUtils.createHttpMessage(params.getString(PARAM_REQUEST));
 			} catch (IOException e) {
 				ApiException apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
-				responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 				
 				msg.setResponseBody(responseBody);
 			}
@@ -869,7 +860,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					logger.error(e.getMessage(), e);
 	
 					ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-					responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+					responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 				}
 			}
 
@@ -884,6 +875,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
+	}
+
+	private boolean incErrorDetails() {
+		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
 	}
 
 	private static void writeReportLastScanTo(HttpMessage msg, ScanReportType reportType) throws Exception {

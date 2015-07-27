@@ -248,7 +248,7 @@ public class SearchAPI extends ApiImplementor {
 			log.error(e.getMessage(), e);
 
 			ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-			responseBody = apiException.toString(API.Format.JSON).getBytes(StandardCharsets.UTF_8);
+			responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
 		}
 
 		try {
@@ -259,6 +259,10 @@ public class SearchAPI extends ApiImplementor {
 		msg.setResponseBody(responseBody);
 
 		return msg;
+	}
+
+	private boolean incErrorDetails() {
+		return Model.getSingleton().getOptionsParam().getApiParam().isIncErrorDetails();
 	}
 
 	private void search(JSONObject params, ExtensionSearch.Type searchType, SearchResultsProcessor processor)

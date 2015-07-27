@@ -851,8 +851,4 @@ public class ActiveScanAPI extends ApiImplementor {
 			return sb.toString();
 		}
 	}
-
-	void reset() {
-		controller.removeAllScans();
-	}
 }

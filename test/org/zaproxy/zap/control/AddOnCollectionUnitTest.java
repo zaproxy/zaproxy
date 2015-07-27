@@ -104,6 +104,7 @@ public class AddOnCollectionUnitTest {
 		"		<changes>A list of changes for bbb</changes>\n" +
 		"		<url>https://zap-extensions.googlecode.com/files/bbb-beta-2.zap</url>\n" +
 		"		<size>23456</size>\n" +
+		"		<not-before-version>2.4.0</not-before-version>\n" +
 		"	</addon_bbb>\n" +
 		"	<addon>ddd</addon>\n" +
 		"		<addon_ddd>\n" +
@@ -115,6 +116,7 @@ public class AddOnCollectionUnitTest {
 		"		<changes>A list of changes for ddd</changes>\n" +
 		"		<url>https://zap-extensions.googlecode.com/files/ddd-release-3.zap</url>\n" +
 		"		<size>3456</size>\n" +
+		"		<not-before-version>2.4.0</not-before-version>\n" +
 		"	</addon_ddd>\n" +
 		"</ZAP>";
 
@@ -130,6 +132,7 @@ public class AddOnCollectionUnitTest {
 			"		<changes>A list of changes for aaa</changes>\n" +
 			"		<url>https://zap-extensions.googlecode.com/files/aaa-alpha-1.zap</url>\n" +
 			"		<size>12345</size>\n" +
+			"		<not-before-version>2.4.0</not-before-version>\n" +
 			"	</addon_aaa>\n" +
 			"	<addon>bbb</addon>\n" +
 			"	<addon_bbb>\n" +
@@ -141,6 +144,7 @@ public class AddOnCollectionUnitTest {
 			"		<changes>A list of changes for bbb</changes>\n" +
 			"		<url>https://zap-extensions.googlecode.com/files/bbb-beta-1.zap</url>\n" +
 			"		<size>23456</size>\n" +
+			"		<not-before-version>2.4.0</not-before-version>\n" +
 			"	</addon_bbb>\n" +
 			"</ZAP>";
 

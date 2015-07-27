@@ -54,14 +54,15 @@ public class AliasCertificateUnitTest {
 		assertThat(cn, is(nullValue()));
 	}	
 	
-	@Test(expected = NullPointerException.class)
+	@Test
 	public void shouldFailRetrievingNameOnNullCn() {
 		// Given
 		given(certificate.toString()).willReturn("xxx");
 		aliasCertificate = new AliasCertificate(certificate, "");
 		// When
-		aliasCertificate.getName();
-		// Then = NullPointerException.class
+		String name = aliasCertificate.getName();
+		// Then
+		assertThat(name, is(""));
 	}
 
 }

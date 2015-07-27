@@ -539,10 +539,16 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	@Override
 	public void sessionChanged(Session session) {
+        if (getView() == null) {
+            return;
+        }
 		getBreakPanel().init();
 	}
 	
 	private void sessionAboutToChange() {
+        if (getView() == null) {
+            return;
+        }
 	    getBreakPanel().reset();
 	}
 	
@@ -586,6 +592,9 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	@Override
 	public void sessionModeChanged(Mode mode) {
 		this.mode = mode;
+        if (getView() == null) {
+            return;
+        }
 		this.getBreakPanel().sessionModeChanged(mode);
 	}
 
