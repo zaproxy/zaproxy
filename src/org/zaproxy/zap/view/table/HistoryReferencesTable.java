@@ -20,9 +20,6 @@
 package org.zaproxy.zap.view.table;
 
 import java.awt.Component;
-import java.awt.Container;
-import java.awt.Point;
-import java.awt.event.MouseEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
@@ -30,11 +27,8 @@ import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
-import javax.swing.JScrollPane;
-import javax.swing.JViewport;
 import javax.swing.ListSelectionModel;
 import javax.swing.SortOrder;
-import javax.swing.SwingUtilities;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
@@ -53,7 +47,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.PagingTableModel;
-import org.zaproxy.zap.utils.StickyScrollbarAdjustmentListener;
+import org.zaproxy.zap.view.ZapTable;
 import org.zaproxy.zap.view.messagecontainer.http.DefaultSelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHistoryReferencesContainer;
 import org.zaproxy.zap.view.renderer.DateFormatStringValue;
@@ -66,7 +60,7 @@ import org.zaproxy.zap.view.table.decorator.NoteTableCellItemIconHighlighter;
 /**
  * A table specialised in showing data from {@code HistoryReference}s obtained from {@code HistoryReferencesTableModel}s.
  */
-public class HistoryReferencesTable extends JXTable {
+public class HistoryReferencesTable extends ZapTable {
 
     private static final long serialVersionUID = -6988769961088738602L;
 
@@ -77,9 +71,6 @@ public class HistoryReferencesTable extends JXTable {
     private static final int MAXIMUM_ROWS_FOR_TABLE_CONFIG = 75;
 
     private int maximumRowsForTableConfig;
-
-    private boolean autoScroll;
-    private StickyScrollbarAdjustmentListener autoScrollScrollbarAdjustmentListener;
 
     public HistoryReferencesTable() {
         this(new DefaultHistoryReferencesTableModel());
@@ -97,7 +88,6 @@ public class HistoryReferencesTable extends JXTable {
         super(model);
 
         maximumRowsForTableConfig = MAXIMUM_ROWS_FOR_TABLE_CONFIG;
-        autoScroll = true;
 
         setName("GenericHistoryReferenceTable");
 
@@ -110,9 +100,6 @@ public class HistoryReferencesTable extends JXTable {
         setColumnSelectionAllowed(false);
         setCellSelectionEnabled(false);
         setRowSelectionAllowed(true);
-        setColumnControlVisible(true);
-
-        setDoubleBuffered(true);
 
         if (useDefaultSelectionListener) {
             getSelectionModel().addListSelectionListener(new DisplayMessageOnSelectionValueChange());
@@ -132,129 +119,6 @@ public class HistoryReferencesTable extends JXTable {
         setColumnFactory(DEFAULT_COLUMN_FACTORY);
         createDefaultColumnsFromModel();
         initializeColumnWidths();
-    }
-
-    /**
-     * Sets if the vertical scroll bar of the wrapper {@code JScrollPane} should be automatically scrolled on new values.
-     * <p>
-     * Default value is to {@code true}.
-     * 
-     * @param autoScroll {@code true} if vertical scroll bar should be automatically scrolled on new values, {@code false}
-     *            otherwise.
-     */
-    public void setAutoScrollOnNewValues(boolean autoScroll) {
-        if (this.autoScroll == autoScroll) {
-            return;
-        }
-        if (this.autoScroll) {
-            removeAutoScrollScrollbarAdjustmentListener();
-        }
-
-        this.autoScroll = autoScroll;
-
-        if (this.autoScroll) {
-            addAutoScrollScrollbarAdjustmentListener();
-        }
-    }
-
-    /**
-     * Tells whether or not the vertical scroll bar of the wrapper {@code JScrollPane} is automatically scrolled on new values.
-     * 
-     * @return {@code true} if the vertical scroll bar is automatically scrolled on new values, {@code false} otherwise.
-     * @see #setAutoScrollOnNewValues(boolean)
-     */
-    public boolean isAutoScrollOnNewValues() {
-        return autoScroll;
-    }
-
-    private void addAutoScrollScrollbarAdjustmentListener() {
-        JScrollPane scrollPane = getEnclosingScrollPane();
-        if (scrollPane != null && autoScrollScrollbarAdjustmentListener == null) {
-            autoScrollScrollbarAdjustmentListener = new StickyScrollbarAdjustmentListener();
-            scrollPane.getVerticalScrollBar().addAdjustmentListener(autoScrollScrollbarAdjustmentListener);
-        }
-    }
-
-    private void removeAutoScrollScrollbarAdjustmentListener() {
-        JScrollPane scrollPane = getEnclosingScrollPane();
-        if (scrollPane != null && autoScrollScrollbarAdjustmentListener != null) {
-            scrollPane.getVerticalScrollBar().removeAdjustmentListener(autoScrollScrollbarAdjustmentListener);
-            autoScrollScrollbarAdjustmentListener = null;
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to set auto-scroll on new values, if enabled.
-     * </p>
-     */
-    @Override
-    protected void configureEnclosingScrollPane() {
-        super.configureEnclosingScrollPane();
-
-        if (isAutoScrollOnNewValues()) {
-            addAutoScrollScrollbarAdjustmentListener();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to unset auto-scroll on new values, if enabled.
-     * </p>
-     */
-    @Override
-    protected void unconfigureEnclosingScrollPane() {
-        super.unconfigureEnclosingScrollPane();
-
-        if (isAutoScrollOnNewValues()) {
-            removeAutoScrollScrollbarAdjustmentListener();
-        }
-    }
-
-    /**
-     * {@inheritDoc}
-     * <p>
-     * Overridden to take into account for possible parent {@code JLayer}s.
-     * </p>
-     * 
-     * @see javax.swing.JLayer
-     */
-    // Note: Same implementation as in JXTable#getEnclosingScrollPane() but changed to get the parent and viewport view using
-    // the methods SwingUtilities#getUnwrappedParent(Component) and SwingUtilities#getUnwrappedView(JViewport) respectively.
-    @Override
-    protected JScrollPane getEnclosingScrollPane() {
-        Container p = SwingUtilities.getUnwrappedParent(this);
-        if (p instanceof JViewport) {
-            Container gp = p.getParent();
-            if (gp instanceof JScrollPane) {
-                JScrollPane scrollPane = (JScrollPane) gp;
-                // Make certain we are the viewPort's view and not, for
-                // example, the rowHeaderView of the scrollPane -
-                // an implementor of fixed columns might do this.
-                JViewport viewport = scrollPane.getViewport();
-                if (viewport == null || SwingUtilities.getUnwrappedView(viewport) != this) {
-                    return null;
-                }
-                return scrollPane;
-            }
-        }
-        return null;
-    }
-
-    @Override
-    public Point getPopupLocation(final MouseEvent event) {
-        // Hack to select the row before showing the pop up menu when invoked using the mouse.
-        if (event != null) {
-            final int row = rowAtPoint(event.getPoint());
-            if (row < 0) {
-                getSelectionModel().clearSelection();
-            } else if (!getSelectionModel().isSelectedIndex(row)) {
-                getSelectionModel().setSelectionInterval(row, row);
-            }
-        }
-        return super.getPopupLocation(event);
     }
 
     protected void displayMessage(final HttpMessage msg) {
