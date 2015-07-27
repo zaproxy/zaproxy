@@ -19,6 +19,7 @@
 package org.zaproxy.zap.network;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 
 /**
  * A listener that will be notified when a new request is ready to be forwarded
@@ -72,7 +73,7 @@ public interface HttpSenderListener {
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the server
      */
-    void onHttpRequestSend(HttpMessage msg, int initiator);
+    void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender);
 
     /**
      * Notifies the listener that a new response was received from the server
@@ -102,6 +103,6 @@ public interface HttpSenderListener {
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the client
      */
-    void onHttpResponseReceive(HttpMessage msg, int initiator);
+    void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender);
 
 }

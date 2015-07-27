@@ -54,6 +54,7 @@
 // ZAP: 2015/04/09 Allow to specify the maximum number of retries on I/O error.
 // ZAP: 2015/04/09 Allow to specify the maximum number of redirects.
 // ZAP: 2015/04/09 Allow to specify if circular redirects are allowed.
+// ZAP: 2015/06/12 Issue 1459: Add an HTTP sender listener script
 
 package org.parosproxy.paros.network;
 
@@ -131,6 +132,7 @@ public class HttpSender {
 
 	private static HttpMethodHelper helper = new HttpMethodHelper();
 	private static String userAgent = "";
+	private static final ThreadLocal<Boolean> IN_LISTENER = new ThreadLocal<Boolean>();
 
 	private HttpClient client = null;
 	private HttpClient clientViaProxy = null;
@@ -397,22 +399,40 @@ public class HttpSender {
 	}
 
 	private void notifyRequestListeners(HttpMessage msg) {
-		for (HttpSenderListener listener : listeners) {
-			try {
-				listener.onHttpRequestSend(msg, initiator);
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+		if (IN_LISTENER.get() != null) {
+			// This is a request from one of the listeners - prevent infinite recursion 
+			return;
+		}
+		try {
+			IN_LISTENER.set(true);
+			for (HttpSenderListener listener : listeners) {
+				try {
+					listener.onHttpRequestSend(msg, initiator, this);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
 			}
+		} finally {
+			IN_LISTENER.set(null);
 		}
 	}
 
 	private void notifyResponseListeners(HttpMessage msg) {
-		for (HttpSenderListener listener : listeners) {
-			try {
-				listener.onHttpResponseReceive(msg, initiator);
-			} catch (Exception e) {
-				log.error(e.getMessage(), e);
+		if (IN_LISTENER.get() != null) {
+			// This is a request from one of the listeners - prevent infinite recursion 
+			return;
+		}
+		try {
+			IN_LISTENER.set(true);
+			for (HttpSenderListener listener : listeners) {
+				try {
+					listener.onHttpResponseReceive(msg, initiator, this);
+				} catch (Exception e) {
+					log.error(e.getMessage(), e);
+				}
 			}
+		} finally {
+			IN_LISTENER.set(null);
 		}
 	}
 	

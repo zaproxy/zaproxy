@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Reader;
 import java.security.InvalidParameterException;
 import java.sql.PreparedStatement;
@@ -133,6 +134,10 @@ public class DbSQL implements DatabaseListener {
 			throw new InvalidParameterException("db.class is not an instance of Database: " + dbObj.getClass().getCanonicalName());
 		}
 		return (Database) dbObj;
+	}
+	
+	public static void addSqlProperties (InputStream inStream) throws IOException {
+		sqlProperties.load(inStream);
 	}
 	
 	public static String getSQL(String key) {
