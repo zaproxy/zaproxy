@@ -611,7 +611,11 @@ public class ZAP {
      * @throws Exception
      */
     private void runGUI() throws ClassNotFoundException, Exception {
-
+        // Initialize OS X Everything
+        if (Constant.isMacOsX()) {
+            initMac();
+        }
+        
         Control.initSingletonWithView(this.getOverrides());
 
         final Control control = Control.getSingleton();
@@ -683,11 +687,6 @@ public class ZAP {
         } catch (Exception e) {
             view.showWarningDialog(e.getMessage());
             log.error(e.getMessage(), e);
-        }
-
-        // Initialize OS X Everything
-        if (Constant.isMacOsX()) {
-            initMac();
         }
 
     }
