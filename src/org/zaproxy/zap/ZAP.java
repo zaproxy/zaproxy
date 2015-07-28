@@ -610,6 +610,10 @@ public class ZAP {
      * @throws Exception
      */
     private void runGUI() throws ClassNotFoundException, Exception {
+        // Initialize OS X everything, so that the dock icon is correct while everything is loading
+        if (Constant.isMacOsX()) {
+            initMac();
+        }
 
         Control.initSingletonWithView(this.getOverrides());
 
@@ -668,11 +672,6 @@ public class ZAP {
         } catch (Exception e) {
             view.showWarningDialog(e.getMessage());
             log.error(e.getMessage(), e);
-        }
-
-        // Initialize OS X Everything
-        if (Constant.isMacOsX()) {
-            initMac();
         }
 
     }

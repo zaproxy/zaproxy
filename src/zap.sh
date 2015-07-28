@@ -82,5 +82,8 @@ fi
 
 #Start ZAP
 
-exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap-dev.jar" "$@"
-
+if [ "$OS" = "Darwin" ]; then
+  exec ../PlugIns/jre*/Contents/Home/bin/java ${JMEM} -XX:PermSize=256M -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "$@"
+else
+  exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap-dev.jar" "$@"
+fi
