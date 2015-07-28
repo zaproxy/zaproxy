@@ -6,6 +6,8 @@ RUN apt-get update && apt-get clean
 RUN apt-get install -q -y make automake autoconf gcc g++ openjdk-7-jre-headless openjdk-7-jdk ruby wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools ruby-dev && apt-get clean
 RUN mkdir /zap 
 RUN gem install zapr
+RUN apt-get --assume-yes install python-pip
+RUN pip install python-owasp-zap-v2.4
 WORKDIR /zap
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
 
