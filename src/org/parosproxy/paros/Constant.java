@@ -112,7 +112,7 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2003000;
+    private static final long VERSION_TAG = 2004001;
     
     // Old version numbers - for upgrade
     private static final long V_2_3_1_TAG = 2003001;
