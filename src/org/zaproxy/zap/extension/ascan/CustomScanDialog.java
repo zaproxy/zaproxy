@@ -934,6 +934,10 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
 
+        if (target.getContext() == null && getSelectedContext() != null) {
+            target.setContext(getSelectedContext());
+        }
+
         this.extension.startScan(
                 target,
                 getSelectedUser(),
