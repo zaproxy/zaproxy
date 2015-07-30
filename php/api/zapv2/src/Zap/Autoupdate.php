@@ -40,22 +40,6 @@ class Autoupdate {
 		return $this->zap->request($this->zap->base . 'autoupdate/view/isLatestVersion/')->{'isLatestVersion'};
 	}
 
-	public function optionInstallScannerRules() {
-		return $this->zap->request($this->zap->base . 'autoupdate/view/optionInstallScannerRules/')->{'InstallScannerRules'};
-	}
-
-	public function optionReportReleaseAddons() {
-		return $this->zap->request($this->zap->base . 'autoupdate/view/optionReportReleaseAddons/')->{'ReportReleaseAddons'};
-	}
-
-	public function optionReportBetaAddons() {
-		return $this->zap->request($this->zap->base . 'autoupdate/view/optionReportBetaAddons/')->{'ReportBetaAddons'};
-	}
-
-	public function optionReportAlphaAddons() {
-		return $this->zap->request($this->zap->base . 'autoupdate/view/optionReportAlphaAddons/')->{'ReportAlphaAddons'};
-	}
-
 	public function optionCheckOnStart() {
 		return $this->zap->request($this->zap->base . 'autoupdate/view/optionCheckOnStart/')->{'CheckOnStart'};
 	}
@@ -72,24 +56,24 @@ class Autoupdate {
 		return $this->zap->request($this->zap->base . 'autoupdate/view/optionInstallAddonUpdates/')->{'InstallAddonUpdates'};
 	}
 
+	public function optionInstallScannerRules() {
+		return $this->zap->request($this->zap->base . 'autoupdate/view/optionInstallScannerRules/')->{'InstallScannerRules'};
+	}
+
+	public function optionReportReleaseAddons() {
+		return $this->zap->request($this->zap->base . 'autoupdate/view/optionReportReleaseAddons/')->{'ReportReleaseAddons'};
+	}
+
+	public function optionReportBetaAddons() {
+		return $this->zap->request($this->zap->base . 'autoupdate/view/optionReportBetaAddons/')->{'ReportBetaAddons'};
+	}
+
+	public function optionReportAlphaAddons() {
+		return $this->zap->request($this->zap->base . 'autoupdate/view/optionReportAlphaAddons/')->{'ReportAlphaAddons'};
+	}
+
 	public function downloadLatestRelease($apikey='') {
 		return $this->zap->request($this->zap->base . 'autoupdate/action/downloadLatestRelease/', array('apikey' => $apikey));
-	}
-
-	public function setOptionInstallScannerRules($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionInstallScannerRules/', array('Boolean' => $boolean, 'apikey' => $apikey));
-	}
-
-	public function setOptionReportReleaseAddons($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionReportReleaseAddons/', array('Boolean' => $boolean, 'apikey' => $apikey));
-	}
-
-	public function setOptionReportBetaAddons($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionReportBetaAddons/', array('Boolean' => $boolean, 'apikey' => $apikey));
-	}
-
-	public function setOptionReportAlphaAddons($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionReportAlphaAddons/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 	public function setOptionCheckOnStart($boolean, $apikey='') {
@@ -106,6 +90,22 @@ class Autoupdate {
 
 	public function setOptionInstallAddonUpdates($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionInstallAddonUpdates/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionInstallScannerRules($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionInstallScannerRules/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionReportReleaseAddons($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionReportReleaseAddons/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionReportBetaAddons($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionReportBetaAddons/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionReportAlphaAddons($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'autoupdate/action/setOptionReportAlphaAddons/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 }

@@ -45,6 +45,7 @@
 // hook before and after message update
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
+// ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 
 package org.parosproxy.paros.core.scanner;
 
@@ -859,8 +860,25 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         this.techSet = ts;
     }
     
+    /**
+     * Returns the technologies enabled for the scan.
+     *
+     * @return a {@code TechSet} with the technologies enabled for the scan.
+     * @see #inScope(Tech)
+     * @see #targets(TechSet)
+     */
     public TechSet getTechSet() {
     	return this.techSet;
+    }
+
+    /**
+     * Returns {@code true} by default.
+     * 
+     * @see #getTechSet()
+     */
+    @Override
+    public boolean targets(TechSet technologies) {
+        return true;
     }
 
     @Override

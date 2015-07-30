@@ -59,7 +59,7 @@ public class AliasCertificate {
 		
 		String cn = getCN();
 		
-		if(cn.length() == 0){
+		if(cn == null || cn.length() == 0){
 			return getAlias();
 		}else{
 			return cn + " ["+getAlias()+"]";

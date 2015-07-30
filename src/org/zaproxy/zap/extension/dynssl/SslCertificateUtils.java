@@ -33,6 +33,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 import java.security.SecureRandom;
+import java.security.Security;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
@@ -43,26 +44,27 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Random;
-import java.util.Vector;
 
 import javax.xml.bind.DatatypeConverter;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.FileUtils;
-import org.bouncycastle.asn1.DERObject;
+import org.bouncycastle.asn1.ASN1OctetString;
 import org.bouncycastle.asn1.x500.X500NameBuilder;
 import org.bouncycastle.asn1.x500.style.BCStyle;
 import org.bouncycastle.asn1.x509.BasicConstraints;
 import org.bouncycastle.asn1.x509.ExtendedKeyUsage;
 import org.bouncycastle.asn1.x509.KeyPurposeId;
 import org.bouncycastle.asn1.x509.KeyUsage;
-import org.bouncycastle.asn1.x509.X509Extension;
+import org.bouncycastle.asn1.x509.Extension;
+import org.bouncycastle.asn1.x509.SubjectKeyIdentifier;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateConverter;
 import org.bouncycastle.cert.jcajce.JcaX509v3CertificateBuilder;
+import org.bouncycastle.cert.jcajce.JcaX509ExtensionUtils;
+import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.bouncycastle.operator.ContentSigner;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
-import org.bouncycastle.x509.extension.SubjectKeyIdentifierStructure;
 import org.parosproxy.paros.security.SslCertificateService;
 
 /**
@@ -90,8 +92,9 @@ public class SslCertificateUtils {
 		g.initialize(2048, SecureRandom.getInstance("SHA1PRNG"));
 		final KeyPair keypair = g.genKeyPair();
 		final PrivateKey privKey = keypair.getPrivate();
-        final PublicKey  pubKey = keypair.getPublic();
-        Random rnd = new Random();
+		final PublicKey  pubKey = keypair.getPublic();
+		Security.addProvider(new BouncyCastleProvider());
+		Random rnd = new Random();
 
 		// using the hash code of the user's name and home path, keeps anonymity
 		// but also gives user a chance to distinguish between each other
@@ -114,17 +117,18 @@ public class SslCertificateUtils {
 		
 		KeyStore ks = null;
 		try {
-			certGen.addExtension(X509Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifierStructure(pubKey));
-			certGen.addExtension(X509Extension.basicConstraints, true, new BasicConstraints(true));
-			certGen.addExtension(X509Extension.keyUsage, false, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.cRLSign));
+			certGen.addExtension(Extension.subjectKeyIdentifier, false, new SubjectKeyIdentifier(pubKey.getEncoded()));
+			certGen.addExtension(Extension.basicConstraints, true, new BasicConstraints(true));
+			certGen.addExtension(Extension.keyUsage, false, new KeyUsage(KeyUsage.keyCertSign | KeyUsage.digitalSignature | KeyUsage.keyEncipherment | KeyUsage.dataEncipherment | KeyUsage.cRLSign));
 			
-			Vector<DERObject> eku = new Vector<>(3, 1);
-			eku.add(KeyPurposeId.id_kp_serverAuth);
-			eku.add(KeyPurposeId.id_kp_clientAuth);
-			eku.add(KeyPurposeId.anyExtendedKeyUsage);
-			certGen.addExtension(X509Extension.extendedKeyUsage, false, new ExtendedKeyUsage(eku));
+			KeyPurposeId[] eku = {
+				KeyPurposeId.id_kp_serverAuth,
+				KeyPurposeId.id_kp_clientAuth,
+				KeyPurposeId.anyExtendedKeyUsage
+			};
+			certGen.addExtension(Extension.extendedKeyUsage, false, new ExtendedKeyUsage(eku));
  
-			final ContentSigner sigGen = new JcaContentSignerBuilder("SHA1WithRSAEncryption").setProvider("BC").build(privKey);
+			final ContentSigner sigGen = new JcaContentSignerBuilder("SHA256WithRSAEncryption").setProvider("BC").build(privKey);
 			final X509Certificate cert = new JcaX509CertificateConverter().setProvider("BC").getCertificate(certGen.build(sigGen));
 
 			ks = KeyStore.getInstance(KeyStore.getDefaultType());

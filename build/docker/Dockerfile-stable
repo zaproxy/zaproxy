@@ -1,13 +1,15 @@
-FROM debian:jessie
+FROM ubuntu
 MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
 
 
 RUN apt-get update && apt-get clean
-RUN apt-get install -q -y openjdk-7-jre-headless openjdk-7-jdk rubygems wget curl git xmlstarlet x11vnc xvfb openbox xterm net-tools && apt-get clean
+RUN apt-get install -q -y make automake autoconf gcc g++ openjdk-7-jre-headless openjdk-7-jdk ruby wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools ruby-dev && apt-get clean
 RUN mkdir /zap 
 RUN gem install zapr
+RUN apt-get --assume-yes install python-pip
+RUN pip install python-owasp-zap-v2.4
 WORKDIR /zap
-RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
+RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
 
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd
@@ -22,14 +24,14 @@ RUN chmod a+x /home/zap/.xinitrc
 RUN chown -R zap /home/zap/
 RUN chmod -R u+rw /home/zap/
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
-ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.3.1/:$PATH
-ENV ZAP_PATH /zap/ZAP_2.3.1/zap.sh
+ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.4.0/:$PATH
+ENV ZAP_PATH /zap/ZAP_2.4.0/zap.sh
 ENV HOME /home/zap/
 
 
 # download addons
 WORKDIR /zap/ZAP_2.3.1/plugins/
-RUN curl -s https://zaproxy.googlecode.com/svn/wiki/ZapVersions.xml | xmlstarlet sel -t -v //url |grep -i .zap/download | egrep '(ascanrules-.*|bruteforce-.*|coreLang-.*|diff-.*|directorylistv1-.*|invoke-.*|plugnhack-.*|pscanrules-.*|quickstart-.*|reveal-.*|saverawmessage-.*|scripts-.*|spiderAjax-.*|websocket-.*|zest-.*)'|wget --content-disposition -i - 
+RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i .zap/download | egrep '(ascanrules-.*|bruteforce-.*|coreLang-.*|diff-.*|directorylistv1-.*|fuzz-.*|gettingStarted-.*|help-.*|invoke-.*|onlineMenu-.*|plugnhack-.*|pscanrules-.*|quickstart-.*|reveal-.*|saverawmessage-.*|scripts-.*|selenium-.*|spiderAjax-.*|tips-.*|websocket-.*|zest-.*)'|wget --content-disposition -i - 
 
 # For noVNC support. Currently broken. Please fix.
 #RUN git clone http://github.com/kanaka/noVNC

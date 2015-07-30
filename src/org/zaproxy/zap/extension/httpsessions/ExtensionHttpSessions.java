@@ -107,6 +107,8 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	/** The popup menu used to add a Manual Authentication User. */
 	private PopupMenuFactoryAddUserFromSession popupMenuAddUserFromSession;
 
+	private PopupMenuItemCopySessionToken popupMenuItemCopySessionToken;
+
 	/**
 	 * Instantiates a new extension http sessions.
 	 */
@@ -169,6 +171,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuUnsetActiveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuRemoveSession());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAddUserFromSession());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemCopySessionToken());
 		}
 
 		// Register as an API implementor
@@ -239,6 +242,12 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		return popupMenuAddUserFromSession;
 	}
 
+	private PopupMenuItemCopySessionToken getPopupMenuItemCopySessionToken() {
+		if (popupMenuItemCopySessionToken == null) {
+			popupMenuItemCopySessionToken = new PopupMenuItemCopySessionToken(getHttpSessionsPanel());
+		}
+		return popupMenuItemCopySessionToken;
+	}
 
 	/**
 	 * Gets the parameters (options) for this extension and related classes.
@@ -572,7 +581,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
 		site = ScanPanel.cleanSiteName(site, true);
-		this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		if (getView() != null) {
+			this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		}
 
 		// Check if it's enabled for proxy only
 		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR)
@@ -606,7 +617,9 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		String site = msg.getRequestHeader().getHostName() + ":" + msg.getRequestHeader().getHostPort();
 
 		site = ScanPanel.cleanSiteName(site, true);
-		this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		if (getView() != null) {
+			this.getHttpSessionsPanel().addSiteAsynchronously(site);
+		}
 
 		// Check if it's enabled for proxy only
 		if (getParam().isEnabledProxyOnly() && initiator != HttpSender.PROXY_INITIATOR) {

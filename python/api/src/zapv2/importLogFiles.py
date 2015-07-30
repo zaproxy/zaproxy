@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -28,30 +28,30 @@ class importLogFiles(object):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPLogFromFile/', {'FilePath' : filepath}).get('ImportZAPLogFromFile')
+        return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPLogFromFile/', {'FilePath' : filepath}).itervalues())
 
     def import_mod_security_log_from_file(self, filepath):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'importLogFiles/view/ImportModSecurityLogFromFile/', {'FilePath' : filepath}).get('ImportModSecurityLogFromFile')
+        return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportModSecurityLogFromFile/', {'FilePath' : filepath}).itervalues())
 
     def import_zap_http_request_response_pair(self, httprequest, httpresponse):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPHttpRequestResponsePair/', {'HTTPRequest' : httprequest, 'HTTPResponse' : httpresponse}).get('ImportZAPHttpRequestResponsePair')
+        return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPHttpRequestResponsePair/', {'HTTPRequest' : httprequest, 'HTTPResponse' : httpresponse}).itervalues())
 
     def post_mod_security_audit_event(self, auditeventstring='', apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}))
 
     def other_post_mod_security_audit_event(self, auditeventstring, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request_other(self.zap.base_other + 'importLogFiles/other/OtherPostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey})
+        return (self.zap._request_other(self.zap.base_other + 'importLogFiles/other/OtherPostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}))
 
 

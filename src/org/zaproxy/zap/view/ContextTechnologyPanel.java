@@ -22,17 +22,16 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.Set;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.tree.DefaultMutableTreeNode;
@@ -41,6 +40,7 @@ import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreeNode;
 import javax.swing.tree.TreePath;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
@@ -89,32 +89,9 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 		if (panelSession == null) {
 
 			panelSession = new JPanel();
-			panelSession.setLayout(new GridBagLayout());
+			panelSession.setLayout(new BorderLayout());
 			panelSession.setName("SessionTech");
-
-			java.awt.GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
-
-			javax.swing.JLabel jLabel = new JLabel();
-
-			jLabel.setText(Constant.messages.getString("context.technology.tree.root"));
-			gridBagConstraints1.gridx = 0;
-			gridBagConstraints1.gridy = 0;
-			gridBagConstraints1.gridheight = 1;
-			gridBagConstraints1.insets = new java.awt.Insets(10, 0, 5, 0);
-			gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints1.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints1.weightx = 0.0D;
-
-			gridBagConstraints2.gridx = 0;
-			gridBagConstraints2.gridy = 1;
-			gridBagConstraints2.weightx = 1.0;
-			gridBagConstraints2.weighty = 1.0;
-			gridBagConstraints2.fill = java.awt.GridBagConstraints.BOTH;
-			gridBagConstraints2.ipadx = 0;
-			gridBagConstraints2.insets = new java.awt.Insets(0, 0, 0, 0);
-			gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			panelSession.add(getJScrollPane(), gridBagConstraints2);
+			panelSession.add(getJScrollPane(), BorderLayout.CENTER);
 		}
 		return panelSession;
 	}
@@ -150,7 +127,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 			TechSet ts = new TechSet(Tech.builtInTech);
 			Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+			DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("context.technology.tree.root"));
 			Tech tech;
 			DefaultMutableTreeNode parent;
 			DefaultMutableTreeNode node;
@@ -164,7 +141,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 				if (parent == null) {
 					parent = root;
 				}
-				node = new DefaultMutableTreeNode(tech.getName());
+				node = new DefaultMutableTreeNode(tech.getUiName());
 				parent.add(node);
 				techToNodeMap.put(tech, node);
 			}
@@ -197,15 +174,28 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	public void initContextData(Session session, Context uiContext) {
 		// Init model from context
 		TechSet techSet = uiContext.getTechSet();
+		Set<Tech> includedTech = techSet.getIncludeTech();
 		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
 		while (iter.hasNext()) {
 			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
 			TreePath tp = this.getPath(node.getValue());
-			if (techSet.includes(node.getKey())) {
-				this.getTechTree().check(tp, true);
+			Tech tech = node.getKey();
+			if (ArrayUtils.contains(Tech.builtInTopLevelTech, tech)) {
+				this.getTechTree().check(tp, containsAnyOfTopLevelTech(includedTech, tech));
+			} else {
+				this.getTechTree().check(tp, techSet.includes(tech));
 			}
 		}
 
+	}
+
+	private static boolean containsAnyOfTopLevelTech(Set<Tech> techSet, Tech topLevelTech) {
+		for (Tech tech : techSet) {
+			if (topLevelTech.equals(tech.getParent())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override

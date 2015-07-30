@@ -219,6 +219,12 @@ public class WebUI {
 					sb.append("</td><td>\n");
 					sb.append("<select id=\"zapapiformat\" name=\"zapapiformat\">\n");
 					sb.append("<option value=\"JSON\">JSON</option>\n");
+					if (getOptionsParamApi().isEnableJSONP()) {
+						sb.append("<option value=\"JSONP\">JSONP</option>\n");
+					} else {
+						sb.append("<option value=\"JSONP\" disabled>JSONP</option>\n");
+					}
+					
 					sb.append("<option value=\"HTML\">HTML</option>\n");
 					sb.append("<option value=\"XML\">XML</option>\n");
 					sb.append("</select>\n");
@@ -226,7 +232,7 @@ public class WebUI {
 				}
 				
 				if (RequestType.action.equals(reqType) || RequestType.other.equals(reqType)) {
-					String key = Model.getSingleton().getOptionsParam().getApiParam().getKey();
+					String key = getOptionsParamApi().getKey();
 					if (key != null && key.length() > 0) {
 						sb.append("<tr>");
 						sb.append("<td>");
@@ -238,7 +244,9 @@ public class WebUI {
 						sb.append("\" name=\"");
 						sb.append(API.API_KEY_PARAM);
 						sb.append("\" value=\"");
-						sb.append(key);
+						if (getOptionsParamApi().isAutofillKey()) {
+							sb.append(key);
+						}
 						sb.append("\"></input>");
 						sb.append("</td>");
 						sb.append("</tr>\n");
@@ -371,5 +379,9 @@ public class WebUI {
 		sb.append("</body>\n");
 		
 		return sb.toString();
+	}
+	
+	private OptionsParamApi getOptionsParamApi() {
+		return Model.getSingleton().getOptionsParam().getApiParam();
 	}
 }

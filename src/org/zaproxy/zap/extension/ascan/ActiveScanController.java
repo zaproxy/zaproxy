@@ -122,6 +122,8 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 			ascan.setId(id);
 			ascan.setUser(user);
 			
+			boolean techOverridden = false;
+
 			if (contextSpecificObjects != null) {
 				for (Object obj : contextSpecificObjects) {
 					if (obj instanceof ScannerParam) {
@@ -133,6 +135,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 						ascan.setScanPolicy(policy);
 					} else if (obj instanceof TechSet) {
 						ascan.setTechSet((TechSet) obj);
+						techOverridden = true;
 					} else if (obj instanceof ScriptCollection) {
 						ascan.addScriptCollection((ScriptCollection)obj);
 					} else {
@@ -145,6 +148,10 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 				policy = extension.getPolicyManager().getDefaultScanPolicy();
 				logger.debug("Setting default policy " + policy.getName());
 				ascan.setScanPolicy(policy);
+			}
+
+			if (!techOverridden && target.getContext() != null) {
+				ascan.setTechSet(target.getContext().getTechSet());
 			}
 			
 			this.activeScanMap.put(id, ascan);
@@ -352,7 +359,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 	}
 	
 	public void reset() {
-		this.stopAllScans();
+		this.removeAllScans();
 		activeScansLock.lock();
 		try {
 			this.scanIdCounter = 0;

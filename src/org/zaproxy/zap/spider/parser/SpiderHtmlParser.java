@@ -165,7 +165,7 @@ public class SpiderHtmlParser extends SpiderParser {
 					Matcher matcher = urlPattern.matcher(content);
 					if (matcher.find()) {
 						String url = matcher.group(1);
-						processURL(message, depth, baseURL, url);
+						processURL(message, depth, url, baseURL);
 					}
 				}
 			}

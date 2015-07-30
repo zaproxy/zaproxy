@@ -27,14 +27,23 @@ function ForcedUser(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 ForcedUser.prototype.isForcedUserModeEnabled = function (callback) {
   this.api.request('/forcedUser/view/isForcedUserModeEnabled/', callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 ForcedUser.prototype.getForcedUser = function (contextid, callback) {
   this.api.request('/forcedUser/view/getForcedUser/', {'contextId' : contextid}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 ForcedUser.prototype.setForcedUser = function (contextid, userid, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -43,6 +52,9 @@ ForcedUser.prototype.setForcedUser = function (contextid, userid, apikey, callba
   this.api.request('/forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 ForcedUser.prototype.setForcedUserModeEnabled = function (bool, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

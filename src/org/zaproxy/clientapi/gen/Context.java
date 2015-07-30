@@ -77,6 +77,34 @@ public class Context {
 	}
 
 	/**
+	 * Lists the names of all built in technologies
+	 */
+	public ApiResponse technologyList() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("context", "view", "technologyList", map);
+	}
+
+	/**
+	 * Lists the names of all technologies included in a context
+	 */
+	public ApiResponse includedTechnologyList(String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextName", contextname);
+		return api.callApi("context", "view", "includedTechnologyList", map);
+	}
+
+	/**
+	 * Lists the names of all technologies excluded from a context
+	 */
+	public ApiResponse excludedTechnologyList(String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		map.put("contextName", contextname);
+		return api.callApi("context", "view", "excludedTechnologyList", map);
+	}
+
+	/**
 	 * Add exclude regex to context
 	 */
 	public ApiResponse excludeFromContext(String apikey, String contextname, String regex) throws ClientApiException {
@@ -136,6 +164,60 @@ public class Context {
 		}
 		map.put("contextFile", contextfile);
 		return api.callApi("context", "action", "importContext", map);
+	}
+
+	/**
+	 * Includes technologies with the given names, separated by a comma, to a context
+	 */
+	public ApiResponse includeContextTechnologies(String apikey, String contextname, String technologynames) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextName", contextname);
+		map.put("technologyNames", technologynames);
+		return api.callApi("context", "action", "includeContextTechnologies", map);
+	}
+
+	/**
+	 * Includes all built in technologies in to a context
+	 */
+	public ApiResponse includeAllContextTechnologies(String apikey, String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextName", contextname);
+		return api.callApi("context", "action", "includeAllContextTechnologies", map);
+	}
+
+	/**
+	 * Excludes technologies with the given names, separated by a comma, from a context
+	 */
+	public ApiResponse excludeContextTechnologies(String apikey, String contextname, String technologynames) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextName", contextname);
+		map.put("technologyNames", technologynames);
+		return api.callApi("context", "action", "excludeContextTechnologies", map);
+	}
+
+	/**
+	 * Excludes all built in technologies from a context
+	 */
+	public ApiResponse excludeAllContextTechnologies(String apikey, String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextName", contextname);
+		return api.callApi("context", "action", "excludeAllContextTechnologies", map);
 	}
 
 	/**

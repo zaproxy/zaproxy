@@ -29,6 +29,7 @@
 // ZAP: 2014/02/12 Issue 1030: Load and save scan policies
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
+// ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 
 package org.parosproxy.paros.core.scanner;
 
@@ -266,19 +267,37 @@ public interface Plugin extends Runnable {
     AttackStrength[] getAttackStrengthsSupported();
 
     /**
-     * Set the technology set this scanner should include in scope (if relevant)
+     * Sets the technologies enabled for the scan. Might be {@code null} when all technologies are enabled.
      *
-     * @param ts
+     * @param ts the technologies enabled for the scan
+     * @see #targets(TechSet)
      */
     void setTechSet(TechSet ts);
 
     /**
-     * Returns true if the technology should be includes in the scope
+     * Tells whether or not the given technology is enabled for the scan.
+     * <p>
+     * Helper method to check if a technology is enabled before performing the scan.
      *
-     * @param tech
-     * @return
+     * @param tech the technology that will be checked
+     * @return {@code true} if the technology is enabled for the scan, {@code false} otherwise
+     * @see #targets(TechSet)
      */
     boolean inScope(Tech tech);
+
+    /**
+     * Tells whether or not the scanner targets the given {@code technologies} to be run. If the scanner does not target a
+     * specific technology is should return, always, {@code true} so the scanner is run independently of the technologies
+     * enabled.
+     * <p>
+     * Scanners that target multiple technologies must check which technologies are enabled before performing the actual scans.
+     *
+     * @param technologies the technologies that are enabled for the scan, never {@code null}
+     * @return {@code true} if the scanner is targeting the given technologies (or none at all), {@code false} otherwise
+     * @see #setTechSet(TechSet)
+     * @see #inScope(Tech)
+     */
+    boolean targets(TechSet technologies);
 
     void setTimeStarted();
 

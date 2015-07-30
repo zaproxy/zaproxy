@@ -38,16 +38,17 @@ public class Acsrf {
 		this.api = api;
 	}
 
-	public ApiResponse optionTokens() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("acsrf", "view", "optionTokens", map);
-	}
-
+	/**
+	 * Lists the names of all anti CSRF tokens
+	 */
 	public ApiResponse optionTokensNames() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("acsrf", "view", "optionTokensNames", map);
 	}
 
+	/**
+	 * Adds an anti CSRF token with the given name, enabled by default
+	 */
 	public ApiResponse addOptionToken(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -58,6 +59,9 @@ public class Acsrf {
 		return api.callApi("acsrf", "action", "addOptionToken", map);
 	}
 
+	/**
+	 * Removes the anti CSRF token with the given name
+	 */
 	public ApiResponse removeOptionToken(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();

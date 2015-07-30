@@ -27,38 +27,65 @@ function Search(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.urlsByUrlRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/urlsByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.urlsByRequestRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/urlsByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.urlsByResponseRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/urlsByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.urlsByHeaderRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/urlsByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.messagesByUrlRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/messagesByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.messagesByRequestRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/messagesByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.messagesByResponseRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/messagesByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.messagesByHeaderRegex = function (regex, baseurl, start, count, callback) {
   this.api.request('/search/view/messagesByHeaderRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.harByUrlRegex = function (regex, baseurl, start, count, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -67,6 +94,9 @@ Search.prototype.harByUrlRegex = function (regex, baseurl, start, count, apikey,
   this.api.requestOther('/search/other/harByUrlRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.harByRequestRegex = function (regex, baseurl, start, count, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -75,6 +105,9 @@ Search.prototype.harByRequestRegex = function (regex, baseurl, start, count, api
   this.api.requestOther('/search/other/harByRequestRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.harByResponseRegex = function (regex, baseurl, start, count, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -83,6 +116,9 @@ Search.prototype.harByResponseRegex = function (regex, baseurl, start, count, ap
   this.api.requestOther('/search/other/harByResponseRegex/', {'regex' : regex, 'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Search.prototype.harByHeaderRegex = function (regex, baseurl, start, count, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

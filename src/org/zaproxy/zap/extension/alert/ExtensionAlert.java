@@ -746,6 +746,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
      * @see AlertPanel#getTreeAlert()
      */
     private void setTreeModel(AlertTreeModel alertTreeModel) {
+        if (getView() == null) {
+            return;
+        }
         getAlertPanel().getTreeAlert().setModel(alertTreeModel);
         recalcAlerts();
     }
