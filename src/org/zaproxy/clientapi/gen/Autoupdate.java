@@ -48,26 +48,6 @@ public class Autoupdate {
 		return api.callApi("autoupdate", "view", "isLatestVersion", map);
 	}
 
-	public ApiResponse optionInstallScannerRules() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("autoupdate", "view", "optionInstallScannerRules", map);
-	}
-
-	public ApiResponse optionReportReleaseAddons() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("autoupdate", "view", "optionReportReleaseAddons", map);
-	}
-
-	public ApiResponse optionReportBetaAddons() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("autoupdate", "view", "optionReportBetaAddons", map);
-	}
-
-	public ApiResponse optionReportAlphaAddons() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("autoupdate", "view", "optionReportAlphaAddons", map);
-	}
-
 	public ApiResponse optionCheckOnStart() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("autoupdate", "view", "optionCheckOnStart", map);
@@ -88,6 +68,26 @@ public class Autoupdate {
 		return api.callApi("autoupdate", "view", "optionInstallAddonUpdates", map);
 	}
 
+	public ApiResponse optionInstallScannerRules() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("autoupdate", "view", "optionInstallScannerRules", map);
+	}
+
+	public ApiResponse optionReportReleaseAddons() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("autoupdate", "view", "optionReportReleaseAddons", map);
+	}
+
+	public ApiResponse optionReportBetaAddons() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("autoupdate", "view", "optionReportBetaAddons", map);
+	}
+
+	public ApiResponse optionReportAlphaAddons() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("autoupdate", "view", "optionReportAlphaAddons", map);
+	}
+
 	public ApiResponse downloadLatestRelease(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -95,46 +95,6 @@ public class Autoupdate {
 			map.put("apikey", apikey);
 		}
 		return api.callApi("autoupdate", "action", "downloadLatestRelease", map);
-	}
-
-	public ApiResponse setOptionInstallScannerRules(String apikey, boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("autoupdate", "action", "setOptionInstallScannerRules", map);
-	}
-
-	public ApiResponse setOptionReportReleaseAddons(String apikey, boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("autoupdate", "action", "setOptionReportReleaseAddons", map);
-	}
-
-	public ApiResponse setOptionReportBetaAddons(String apikey, boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("autoupdate", "action", "setOptionReportBetaAddons", map);
-	}
-
-	public ApiResponse setOptionReportAlphaAddons(String apikey, boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("autoupdate", "action", "setOptionReportAlphaAddons", map);
 	}
 
 	public ApiResponse setOptionCheckOnStart(String apikey, boolean bool) throws ClientApiException {
@@ -175,6 +135,46 @@ public class Autoupdate {
 		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("autoupdate", "action", "setOptionInstallAddonUpdates", map);
+	}
+
+	public ApiResponse setOptionInstallScannerRules(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("autoupdate", "action", "setOptionInstallScannerRules", map);
+	}
+
+	public ApiResponse setOptionReportReleaseAddons(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("autoupdate", "action", "setOptionReportReleaseAddons", map);
+	}
+
+	public ApiResponse setOptionReportBetaAddons(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("autoupdate", "action", "setOptionReportBetaAddons", map);
+	}
+
+	public ApiResponse setOptionReportAlphaAddons(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("autoupdate", "action", "setOptionReportAlphaAddons", map);
 	}
 
 }

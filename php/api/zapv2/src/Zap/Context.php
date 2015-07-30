@@ -61,6 +61,27 @@ class Context {
 	}
 
 	/**
+	 * Lists the names of all built in technologies
+	 */
+	public function technologyList() {
+		return $this->zap->request($this->zap->base . 'context/view/technologyList/')->{'technologyList'};
+	}
+
+	/**
+	 * Lists the names of all technologies included in a context
+	 */
+	public function includedTechnologyList($contextname) {
+		return $this->zap->request($this->zap->base . 'context/view/includedTechnologyList/', array('contextName' => $contextname))->{'includedTechnologyList'};
+	}
+
+	/**
+	 * Lists the names of all technologies excluded from a context
+	 */
+	public function excludedTechnologyList($contextname) {
+		return $this->zap->request($this->zap->base . 'context/view/excludedTechnologyList/', array('contextName' => $contextname))->{'excludedTechnologyList'};
+	}
+
+	/**
 	 * Add exclude regex to context
 	 */
 	public function excludeFromContext($contextname, $regex, $apikey='') {
@@ -87,6 +108,34 @@ class Context {
 
 	public function importContext($contextfile, $apikey='') {
 		return $this->zap->request($this->zap->base . 'context/action/importContext/', array('contextFile' => $contextfile, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Includes technologies with the given names, separated by a comma, to a context
+	 */
+	public function includeContextTechnologies($contextname, $technologynames, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/includeContextTechnologies/', array('contextName' => $contextname, 'technologyNames' => $technologynames, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Includes all built in technologies in to a context
+	 */
+	public function includeAllContextTechnologies($contextname, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/includeAllContextTechnologies/', array('contextName' => $contextname, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Excludes technologies with the given names, separated by a comma, from a context
+	 */
+	public function excludeContextTechnologies($contextname, $technologynames, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/excludeContextTechnologies/', array('contextName' => $contextname, 'technologyNames' => $technologynames, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Excludes all built in technologies from a context
+	 */
+	public function excludeAllContextTechnologies($contextname, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/excludeAllContextTechnologies/', array('contextName' => $contextname, 'apikey' => $apikey));
 	}
 
 	/**

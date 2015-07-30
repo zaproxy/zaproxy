@@ -27,22 +27,37 @@ function Users(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.usersList = function (contextid, callback) {
   this.api.request('/users/view/usersList/', {'contextId' : contextid}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.getUserById = function (contextid, userid, callback) {
   this.api.request('/users/view/getUserById/', {'contextId' : contextid, 'userId' : userid}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.getAuthenticationCredentialsConfigParams = function (contextid, callback) {
   this.api.request('/users/view/getAuthenticationCredentialsConfigParams/', {'contextId' : contextid}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.getAuthenticationCredentials = function (contextid, userid, callback) {
   this.api.request('/users/view/getAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.newUser = function (contextid, name, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -51,6 +66,9 @@ Users.prototype.newUser = function (contextid, name, apikey, callback) {
   this.api.request('/users/action/newUser/', {'contextId' : contextid, 'name' : name, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.removeUser = function (contextid, userid, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -59,6 +77,9 @@ Users.prototype.removeUser = function (contextid, userid, apikey, callback) {
   this.api.request('/users/action/removeUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.setUserEnabled = function (contextid, userid, enabled, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -67,6 +88,9 @@ Users.prototype.setUserEnabled = function (contextid, userid, enabled, apikey, c
   this.api.request('/users/action/setUserEnabled/', {'contextId' : contextid, 'userId' : userid, 'enabled' : enabled, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.setUserName = function (contextid, userid, name, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -75,6 +99,9 @@ Users.prototype.setUserName = function (contextid, userid, name, apikey, callbac
   this.api.request('/users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Users.prototype.setAuthenticationCredentials = function (contextid, userid, authcredentialsconfigparams, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

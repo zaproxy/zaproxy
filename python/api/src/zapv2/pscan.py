@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,25 +29,49 @@ class pscan(object):
         """
         The number of records the passive scanner still has to scan
         """
-        return self.zap._request(self.zap.base + 'pscan/view/recordsToScan/').get('recordsToScan')
+        return next(self.zap._request(self.zap.base + 'pscan/view/recordsToScan/').itervalues())
 
     @property
     def scanners(self):
-        return self.zap._request(self.zap.base + 'pscan/view/scanners/').get('scanners')
+        """
+        Lists all passive scanners with its ID, name, enabled state and alert threshold.
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/view/scanners/').itervalues())
 
     def set_enabled(self, enabled, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled, 'apikey' : apikey})
+        """
+        Sets whether or not the passive scanning is enabled
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled, 'apikey' : apikey}))
 
     def enable_all_scanners(self, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/', {'apikey' : apikey})
+        """
+        Enables all passive scanners
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/', {'apikey' : apikey}))
 
     def disable_all_scanners(self, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/', {'apikey' : apikey})
+        """
+        Disables all passive scanners
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/', {'apikey' : apikey}))
 
     def enable_scanners(self, ids, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey})
+        """
+        Enables all passive scanners with the given IDs (comma separated list of IDs)
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey}))
 
     def disable_scanners(self, ids, apikey=''):
-        return self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey})
+        """
+        Disables all passive scanners with the given IDs (comma separated list of IDs)
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey}))
+
+    def set_scanner_alert_threshold(self, id, alertthreshold, apikey=''):
+        """
+        Sets the alert threshold of the passive scanner with the given ID, accepted values for alert threshold: OFF, DEFAULT, LOW, MEDIUM and HIGH
+        """
+        return next(self.zap._request(self.zap.base + 'pscan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey}))
 
 

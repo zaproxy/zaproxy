@@ -29,7 +29,7 @@ public class ActiveScanUrlTask extends ZapTask {
 	@Override
 	public void execute() throws BuildException {
 		try {
-			this.getClientApi().ascan.scan(apikey, url, "false", "false", "");
+			this.getClientApi().ascan.scan(apikey, url, "false", "false", "", "", "");
 			
 		} catch (Exception e) {
 			throw new BuildException(e);

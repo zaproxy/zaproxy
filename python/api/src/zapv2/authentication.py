@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -26,27 +26,27 @@ class authentication(object):
 
     @property
     def get_supported_authentication_methods(self):
-        return self.zap._request(self.zap.base + 'authentication/view/getSupportedAuthenticationMethods/').get('getSupportedAuthenticationMethods')
+        return next(self.zap._request(self.zap.base + 'authentication/view/getSupportedAuthenticationMethods/').itervalues())
 
     def get_authentication_method_config_params(self, authmethodname):
-        return self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethodConfigParams/', {'authMethodName' : authmethodname}).get('getAuthenticationMethodConfigParams')
+        return next(self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethodConfigParams/', {'authMethodName' : authmethodname}).itervalues())
 
     def get_authentication_method(self, contextid):
-        return self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethod/', {'contextId' : contextid}).get('getAuthenticationMethod')
+        return next(self.zap._request(self.zap.base + 'authentication/view/getAuthenticationMethod/', {'contextId' : contextid}).itervalues())
 
     def get_logged_in_indicator(self, contextid):
-        return self.zap._request(self.zap.base + 'authentication/view/getLoggedInIndicator/', {'contextId' : contextid}).get('getLoggedInIndicator')
+        return next(self.zap._request(self.zap.base + 'authentication/view/getLoggedInIndicator/', {'contextId' : contextid}).itervalues())
 
     def get_logged_out_indicator(self, contextid):
-        return self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid}).get('getLoggedOutIndicator')
+        return next(self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid}).itervalues())
 
     def set_authentication_method(self, contextid, authmethodname, authmethodconfigparams='', apikey=''):
-        return self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams, 'apikey' : apikey}))
 
     def set_logged_in_indicator(self, contextid, loggedinindicatorregex, apikey=''):
-        return self.zap._request(self.zap.base + 'authentication/action/setLoggedInIndicator/', {'contextId' : contextid, 'loggedInIndicatorRegex' : loggedinindicatorregex, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'authentication/action/setLoggedInIndicator/', {'contextId' : contextid, 'loggedInIndicatorRegex' : loggedinindicatorregex, 'apikey' : apikey}))
 
     def set_logged_out_indicator(self, contextid, loggedoutindicatorregex, apikey=''):
-        return self.zap._request(self.zap.base + 'authentication/action/setLoggedOutIndicator/', {'contextId' : contextid, 'loggedOutIndicatorRegex' : loggedoutindicatorregex, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'authentication/action/setLoggedOutIndicator/', {'contextId' : contextid, 'loggedOutIndicatorRegex' : loggedoutindicatorregex, 'apikey' : apikey}))
 
 

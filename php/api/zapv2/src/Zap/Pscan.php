@@ -39,28 +39,53 @@ class Pscan {
 		return $this->zap->request($this->zap->base . 'pscan/view/recordsToScan/')->{'recordsToScan'};
 	}
 
+	/**
+	 * Lists all passive scanners with its ID, name, enabled state and alert threshold.
+	 */
 	public function scanners() {
 		return $this->zap->request($this->zap->base . 'pscan/view/scanners/')->{'scanners'};
 	}
 
+	/**
+	 * Sets whether or not the passive scanning is enabled
+	 */
 	public function setEnabled($enabled, $apikey='') {
 		return $this->zap->request($this->zap->base . 'pscan/action/setEnabled/', array('enabled' => $enabled, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Enables all passive scanners
+	 */
 	public function enableAllScanners($apikey='') {
 		return $this->zap->request($this->zap->base . 'pscan/action/enableAllScanners/', array('apikey' => $apikey));
 	}
 
+	/**
+	 * Disables all passive scanners
+	 */
 	public function disableAllScanners($apikey='') {
 		return $this->zap->request($this->zap->base . 'pscan/action/disableAllScanners/', array('apikey' => $apikey));
 	}
 
+	/**
+	 * Enables all passive scanners with the given IDs (comma separated list of IDs)
+	 */
 	public function enableScanners($ids, $apikey='') {
 		return $this->zap->request($this->zap->base . 'pscan/action/enableScanners/', array('ids' => $ids, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Disables all passive scanners with the given IDs (comma separated list of IDs)
+	 */
 	public function disableScanners($ids, $apikey='') {
 		return $this->zap->request($this->zap->base . 'pscan/action/disableScanners/', array('ids' => $ids, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Sets the alert threshold of the passive scanner with the given ID, accepted values for alert threshold: OFF, DEFAULT, LOW, MEDIUM and HIGH
+	 */
+	public function setScannerAlertThreshold($id, $alertthreshold, $apikey='') {
+		return $this->zap->request($this->zap->base . 'pscan/action/setScannerAlertThreshold/', array('id' => $id, 'alertThreshold' => $alertthreshold, 'apikey' => $apikey));
 	}
 
 }

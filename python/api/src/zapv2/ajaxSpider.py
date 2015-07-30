@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2014 the ZAP development team
+# Copyright 2015 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,31 +29,31 @@ class ajaxSpider(object):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'ajaxSpider/view/status/').get('status')
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/status/').itervalues())
 
     def results(self, start='', count=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'ajaxSpider/view/results/', {'start' : start, 'count' : count}).get('results')
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/results/', {'start' : start, 'count' : count}).itervalues())
 
     @property
     def number_of_results(self):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'ajaxSpider/view/numberOfResults/').get('numberOfResults')
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/numberOfResults/').itervalues())
 
     def scan(self, url, inscope='', apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'ajaxSpider/action/scan/', {'url' : url, 'inScope' : inscope, 'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/scan/', {'url' : url, 'inScope' : inscope, 'apikey' : apikey}))
 
     def stop(self, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return self.zap._request(self.zap.base + 'ajaxSpider/action/stop/', {'apikey' : apikey})
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/stop/', {'apikey' : apikey}))
 
 

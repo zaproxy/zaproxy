@@ -46,11 +46,17 @@ public class Pscan {
 		return api.callApi("pscan", "view", "recordsToScan", map);
 	}
 
+	/**
+	 * Lists all passive scanners with its ID, name, enabled state and alert threshold.
+	 */
 	public ApiResponse scanners() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("pscan", "view", "scanners", map);
 	}
 
+	/**
+	 * Sets whether or not the passive scanning is enabled
+	 */
 	public ApiResponse setEnabled(String apikey, String enabled) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -61,6 +67,9 @@ public class Pscan {
 		return api.callApi("pscan", "action", "setEnabled", map);
 	}
 
+	/**
+	 * Enables all passive scanners
+	 */
 	public ApiResponse enableAllScanners(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -70,6 +79,9 @@ public class Pscan {
 		return api.callApi("pscan", "action", "enableAllScanners", map);
 	}
 
+	/**
+	 * Disables all passive scanners
+	 */
 	public ApiResponse disableAllScanners(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -79,6 +91,9 @@ public class Pscan {
 		return api.callApi("pscan", "action", "disableAllScanners", map);
 	}
 
+	/**
+	 * Enables all passive scanners with the given IDs (comma separated list of IDs)
+	 */
 	public ApiResponse enableScanners(String apikey, String ids) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -89,6 +104,9 @@ public class Pscan {
 		return api.callApi("pscan", "action", "enableScanners", map);
 	}
 
+	/**
+	 * Disables all passive scanners with the given IDs (comma separated list of IDs)
+	 */
 	public ApiResponse disableScanners(String apikey, String ids) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -97,6 +115,20 @@ public class Pscan {
 		}
 		map.put("ids", ids);
 		return api.callApi("pscan", "action", "disableScanners", map);
+	}
+
+	/**
+	 * Sets the alert threshold of the passive scanner with the given ID, accepted values for alert threshold: OFF, DEFAULT, LOW, MEDIUM and HIGH
+	 */
+	public ApiResponse setScannerAlertThreshold(String apikey, String id, String alertthreshold) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("id", id);
+		map.put("alertThreshold", alertthreshold);
+		return api.callApi("pscan", "action", "setScannerAlertThreshold", map);
 	}
 
 }
