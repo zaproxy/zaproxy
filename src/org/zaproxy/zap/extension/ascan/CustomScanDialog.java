@@ -427,7 +427,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         TechSet ts = new TechSet(Tech.builtInTech);
         Iterator<Tech> iter = ts.getIncludeTech().iterator();
 
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Technology");
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("ascan.custom.tab.tech.node"));
         Tech tech;
         DefaultMutableTreeNode parent;
         DefaultMutableTreeNode node;
@@ -670,33 +670,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
                     }
                 }
             };
-            // Initialise the structure based on all the tech we know about
-            TechSet ts = new TechSet(Tech.builtInTech);
-            Iterator<Tech> iter = ts.getIncludeTech().iterator();
-
-            DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("ascan.custom.tab.tech.node"));
-            Tech tech;
-            DefaultMutableTreeNode parent;
-            DefaultMutableTreeNode node;
-            while (iter.hasNext()) {
-                tech = iter.next();
-                if (tech.getParent() != null) {
-                    parent = techToNodeMap.get(tech.getParent());
-                } else {
-                    parent = null;
-                }
-                if (parent == null) {
-                    parent = root;
-                }
-                node = new DefaultMutableTreeNode(tech.getUiName());
-                parent.add(node);
-                techToNodeMap.put(tech, node);
-            }
-
-            techModel = new DefaultTreeModel(root);
-            techTree.setModel(techModel);
-            techTree.expandAll();
-            techTree.setCheckBoxEnabled(new TreePath(root), false);
             this.setTech();
 
         }
