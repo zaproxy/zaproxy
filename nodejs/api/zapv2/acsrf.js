@@ -27,14 +27,18 @@ function Acsrf(clientApi) {
   this.api = clientApi;
 }
 
-Acsrf.prototype.optionTokens = function (callback) {
-  this.api.request('/acsrf/view/optionTokens/', callback);
-};
-
+/**
+ * Lists the names of all anti CSRF tokens
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Acsrf.prototype.optionTokensNames = function (callback) {
   this.api.request('/acsrf/view/optionTokensNames/', callback);
 };
 
+/**
+ * Adds an anti CSRF token with the given name, enabled by default
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Acsrf.prototype.addOptionToken = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -43,6 +47,10 @@ Acsrf.prototype.addOptionToken = function (string, apikey, callback) {
   this.api.request('/acsrf/action/addOptionToken/', {'String' : string, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Removes the anti CSRF token with the given name
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Acsrf.prototype.removeOptionToken = function (string, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -53,6 +61,7 @@ Acsrf.prototype.removeOptionToken = function (string, apikey, callback) {
 
 /**
  * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
+ * This component is optional and therefore the API will only work if it is installed
  **/
 Acsrf.prototype.genForm = function (hrefid, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {

@@ -36,6 +36,10 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/status/', array('scanId' => $scanid))->{'status'};
 	}
 
+	public function scanProgress($scanid='') {
+		return $this->zap->request($this->zap->base . 'ascan/view/scanProgress/', array('scanId' => $scanid))->{'scanProgress'};
+	}
+
 	public function messagesIds($scanid) {
 		return $this->zap->request($this->zap->base . 'ascan/view/messagesIds/', array('scanId' => $scanid))->{'messagesIds'};
 	}
@@ -64,6 +68,10 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/policies/', array('scanPolicyName' => $scanpolicyname, 'policyId' => $policyid))->{'policies'};
 	}
 
+	public function attackModeQueue() {
+		return $this->zap->request($this->zap->base . 'ascan/view/attackModeQueue/')->{'attackModeQueue'};
+	}
+
 	public function optionMaxScansInUI() {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionMaxScansInUI/')->{'MaxScansInUI'};
 	}
@@ -90,6 +98,10 @@ class Ascan {
 
 	public function optionDelayInMs() {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionDelayInMs/')->{'DelayInMs'};
+	}
+
+	public function optionInjectPluginIdInHeader() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionInjectPluginIdInHeader/')->{'InjectPluginIdInHeader'};
 	}
 
 	public function optionHandleAntiCSRFTokens() {
@@ -124,8 +136,19 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionAttackPolicy/')->{'AttackPolicy'};
 	}
 
-	public function scan($url, $recurse='', $inscopeonly='', $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/scan/', array('url' => $url, 'recurse' => $recurse, 'inScopeOnly' => $inscopeonly, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function optionAllowAttackOnStart() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionAllowAttackOnStart/')->{'AllowAttackOnStart'};
+	}
+
+	public function scan($url, $recurse='', $inscopeonly='', $scanpolicyname='', $method='', $postdata='', $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/scan/', array('url' => $url, 'recurse' => $recurse, 'inScopeOnly' => $inscopeonly, 'scanPolicyName' => $scanpolicyname, 'method' => $method, 'postData' => $postdata, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Active Scans from the perspective of an User, obtained using the given Context ID and User ID. See 'scan' action for more details.
+	 */
+	public function scanAsUser($url, $contextid, $userid, $recurse='', $scanpolicyname='', $method='', $postdata='', $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/scanAsUser/', array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'recurse' => $recurse, 'scanPolicyName' => $scanpolicyname, 'method' => $method, 'postData' => $postdata, 'apikey' => $apikey));
 	}
 
 	public function pause($scanid, $apikey='') {
@@ -192,16 +215,16 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAttackStrength/', array('id' => $id, 'attackStrength' => $attackstrength, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
 	}
 
-	public function setPolicyAlertThreshold($id, $attackstrength, $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAlertThreshold/', array('id' => $id, 'attackStrength' => $attackstrength, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function setPolicyAlertThreshold($id, $alertthreshold, $scanpolicyname='', $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAlertThreshold/', array('id' => $id, 'alertThreshold' => $alertthreshold, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
 	}
 
 	public function setScannerAttackStrength($id, $attackstrength, $scanpolicyname='', $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAttackStrength/', array('id' => $id, 'attackStrength' => $attackstrength, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
 	}
 
-	public function setScannerAlertThreshold($id, $attackstrength, $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAlertThreshold/', array('id' => $id, 'attackStrength' => $attackstrength, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function setScannerAlertThreshold($id, $alertthreshold, $scanpolicyname='', $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAlertThreshold/', array('id' => $id, 'alertThreshold' => $alertthreshold, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
 	}
 
 	public function addScanPolicy($scanpolicyname, $apikey='') {
@@ -244,6 +267,10 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionDelayInMs/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
+	public function setOptionInjectPluginIdInHeader($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionInjectPluginIdInHeader/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
 	public function setOptionHandleAntiCSRFTokens($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionHandleAntiCSRFTokens/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
@@ -266,6 +293,10 @@ class Ascan {
 
 	public function setOptionPromptToClearFinishedScans($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionPromptToClearFinishedScans/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionAllowAttackOnStart($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionAllowAttackOnStart/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 }

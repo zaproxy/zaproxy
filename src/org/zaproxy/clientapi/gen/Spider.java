@@ -169,6 +169,14 @@ public class Spider {
 		return api.callApi("spider", "view", "optionShowAdvancedDialog", map);
 	}
 
+	/**
+	 * Sets whether or not the 'Referer' header should be sent while spidering
+	 */
+	public ApiResponse optionSendRefererHeader() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionSendRefererHeader", map);
+	}
+
 	public ApiResponse scan(String apikey, String url, String maxchildren) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -456,6 +464,16 @@ public class Spider {
 		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("spider", "action", "setOptionShowAdvancedDialog", map);
+	}
+
+	public ApiResponse setOptionSendRefererHeader(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("spider", "action", "setOptionSendRefererHeader", map);
 	}
 
 }

@@ -27,14 +27,23 @@ function Script(clientApi) {
   this.api = clientApi;
 }
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.listEngines = function (callback) {
   this.api.request('/script/view/listEngines/', callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.listScripts = function (callback) {
   this.api.request('/script/view/listScripts/', callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.enable = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -43,6 +52,9 @@ Script.prototype.enable = function (scriptname, apikey, callback) {
   this.api.request('/script/action/enable/', {'scriptName' : scriptname, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.disable = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -51,6 +63,9 @@ Script.prototype.disable = function (scriptname, apikey, callback) {
   this.api.request('/script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.load = function (scriptname, scripttype, scriptengine, filename, scriptdescription, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -59,6 +74,9 @@ Script.prototype.load = function (scriptname, scripttype, scriptengine, filename
   this.api.request('/script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.remove = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -67,6 +85,9 @@ Script.prototype.remove = function (scriptname, apikey, callback) {
   this.api.request('/script/action/remove/', {'scriptName' : scriptname, 'apikey' : apikey}, callback);
 };
 
+/**
+ * This component is optional and therefore the API will only work if it is installed
+ **/
 Script.prototype.runStandAloneScript = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

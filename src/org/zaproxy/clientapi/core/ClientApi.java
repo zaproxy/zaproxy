@@ -405,7 +405,7 @@ public class ClientApi {
     }
 
     public void activeScanSiteInScope(String apikey, String url) throws Exception {
-        ascan.scan(apikey, url, "true", "true", "");
+        ascan.scan(apikey, url, "true", "true", "", "", "");
         // Poll until spider finished
         int status = 0;
         while ( status < 100) {
