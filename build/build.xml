@@ -14,7 +14,6 @@
 	<property name="help.dir" value="../../zap-core-help/src/help" />
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
-	<property name="wiki.dir" location="../../zap-core-help-wiki/" />
 	<property name="zap.extensions.alpha.dir" location="../../zap-extensions_alpha/" />
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
@@ -49,9 +48,6 @@
 	<path id="build.classpath">
 		<fileset dir="${build.lib.dir}" includes="*.jar"/>
 	</path>
-
-	<!-- Ant task to generate the wiki -->
-	<taskdef classpathref="build.classpath" resource="wikitasks.properties" />
 
 	<!-- Ant task to generate JavaHelp jars -->
 	<taskdef name="generatejavahelpjars" classname="org.zaproxy.ant.javahelp.taskdefs.GenerateJavaHelpJars" classpathref="build.classpath" />
@@ -278,6 +274,47 @@
 		<copy todir="${build}">
 			<fileset dir="${src}" includes="**/*.java" />
 		</copy>
+	</target>
+
+	<macrodef name="copy-help-to-addon" description="deploy the help file to the equivalent addon">
+		<attribute name="src"/>
+		<attribute name="ext"/>
+		<attribute name="lang"/>
+		<sequential>
+			<copy file="@{src}/zaphelp@{lang}.jar" 
+	        	todir="@{ext}/src/org/zaproxy/zap/extension/help@{lang}/lib"/>
+		</sequential>
+	</macrodef>
+
+	<target name="generate-help-jars" description="Generates all ZAP (core) help jars (default and i18n) and copies them to the right place (lib directory)">
+		<!-- Note that the translated languages currently supported are explicitly named - 
+    		most dont have enough content for an alpha release -->
+		<local name="wkdir" />
+		<property name="wkdir" location="${build}/HelpJars" />
+		<delete dir="${wkdir}" includeEmptyDirs="true" />
+		<mkdir dir="${wkdir}" />
+		<mkdir dir="${wkdir}/jars" />
+		<generatejavahelpjars jhalljar="${build.lib.dir}/jhall.jar" destdir="${wkdir}/jars" 
+            workingdir="${wkdir}" helpcontentsdirname="contents" helpsetfilename="helpset*.hs">
+			<dirset dir="${help.dir}">
+				<include name="zaphelp" />
+				<include name="zaphelp_bs_BA" />
+				<include name="zaphelp_es_ES" />
+				<include name="zaphelp_fr_FR" />
+				<include name="zaphelp_ja_JP" />
+				<include name="zaphelp_pt_BR" />
+			</dirset>
+		</generatejavahelpjars>
+		<!-- copy the jars to the right add-ons -->
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.trunk.dir}" lang=""/>
+		<!-- default en_GB -->
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_bs_BA"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_es_ES"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_fr_FR"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.alpha.dir}" lang="_ja_JP"/>
+		<copy-help-to-addon src="${wkdir}/jars" ext="${zap.extensions.trunk.dir}" lang="_pt_BR"/>
+
+		<delete dir="${wkdir}" includeEmptyDirs="true" />
 	</target>
 
 	<target name="generate-language-file" depends="setup" 

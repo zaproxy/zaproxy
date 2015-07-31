@@ -8,7 +8,6 @@
 	<classpathentry kind="lib" path="build/lib/jdeb-1.4.jar"/>
 	<classpathentry kind="lib" path="build/lib/jhall.jar"/>
 	<classpathentry kind="lib" path="build/lib/remark-1.0.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="build/lib/wiki-ant-0.0.1-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/ant.jar"/>
 	<classpathentry kind="lib" path="lib/AppleJavaExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/bcmail-jdk15on-152.jar"/>
