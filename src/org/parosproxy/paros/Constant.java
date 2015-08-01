@@ -57,7 +57,7 @@
 // ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
-// ZAP: 2015/08/01 Remove code duplication in catch of exceptions
+// ZAP: 2015/08/01 Remove code duplication in catch of exceptions, use installation directory in default config file
 
 package org.parosproxy.paros;
 
@@ -148,6 +148,11 @@ public final class Constant {
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
+    /**
+     * @deprecated (TODO add version) The path does not take into account the installation directory, use
+     *             {@link #getPathDefaultConfigFile()} instead.
+     */
+    @Deprecated
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
@@ -375,8 +380,8 @@ public final class Constant {
             		copier.copy(oldf,f);
             		
             	} else {
-            		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT + " to " + FILE_CONFIG);
-            		copier.copy(new File(FILE_CONFIG_DEFAULT),f);
+            		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
+            		copier.copy(getPathDefaultConfigFile().toFile(),f);
             	}
             }
             
@@ -495,7 +500,7 @@ public final class Constant {
 	            //  if there is any error in config file (eg config file not exist, corrupted),
 	            //  overwrite previous configuration file 
 	            // ZAP: changed to use the correct file
-	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
+	            copier.copy(getPathDefaultConfigFile().toFile(), new File(FILE_CONFIG));
 	            
 	        }
         } catch (Exception e) {
@@ -546,7 +551,7 @@ public final class Constant {
     private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
+        XMLConfiguration newConfig = new ZapXmlConfiguration(getPathDefaultConfigFile().toFile());
         newConfig.setAutoSave(false);
 
         copyAllProperties(newConfig, config, "pscans");                
@@ -555,7 +560,7 @@ public final class Constant {
     private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
+        XMLConfiguration newConfig = new ZapXmlConfiguration(getPathDefaultConfigFile().toFile());
         newConfig.setAutoSave(false);
 
         copyProperty(newConfig, config, "view.editorView");
@@ -859,6 +864,16 @@ public final class Constant {
     
     public static String getZapHome () {
     	return zapHome;
+    }
+
+    /**
+     * Returns the path to default configuration file, located in installation directory.
+     *
+     * @return the {@code Path} to default configuration file.
+     * @since TODO add version
+     */
+    public static Path getPathDefaultConfigFile() {
+        return Paths.get(getZapInstall(), "xml", FILE_CONFIG_NAME);
     }
 
 	public static File getContextsDir () {
