@@ -57,6 +57,7 @@
 // ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
+// ZAP: 2015/08/01 Remove code duplication in catch of exceptions
 
 package org.parosproxy.paros;
 
@@ -490,20 +491,9 @@ public final class Constant {
             		config.save();
             	}
 
-	        } catch (ConfigurationException e) {
-	            //  if there is any error in config file (eg config file not exist),
+	        } catch (ConfigurationException | ConversionException | NoSuchElementException e) {
+	            //  if there is any error in config file (eg config file not exist, corrupted),
 	            //  overwrite previous configuration file 
-	            // ZAP: changed to use the correct file
-	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
-
-	        } catch (ConversionException e) {
-	            //  if there is any error in config file (eg config file not exist),
-	            //  overwrite previous configuration file 
-	            // ZAP: changed to use the correct file
-	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
-	
-	        } catch (NoSuchElementException e) {
-	            //  overwrite previous configuration file if config file corrupted
 	            // ZAP: changed to use the correct file
 	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
 	            
