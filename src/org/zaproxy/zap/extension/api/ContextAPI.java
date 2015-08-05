@@ -47,6 +47,7 @@ public class ContextAPI extends ApiImplementor {
     private static final String EXCLUDE_FROM_CONTEXT_REGEX = "excludeFromContext";
     private static final String INCLUDE_IN_CONTEXT_REGEX = "includeInContext";
     private static final String ACTION_NEW_CONTEXT = "newContext";
+    private static final String ACTION_REMOVE_CONTEXT = "removeContext";
     private static final String ACTION_SET_CONTEXT_IN_SCOPE = "setContextInScope";
     private static final String ACTION_EXPORT_CONTEXT = "exportContext";
     private static final String ACTION_IMPORT_CONTEXT = "importContext";
@@ -79,6 +80,7 @@ public class ContextAPI extends ApiImplementor {
         this.addApiAction(new ApiAction(EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, null, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_EXPORT_CONTEXT, new String[] {CONTEXT_NAME, CONTEXT_FILE_PARAM}, null));
         this.addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
         this.addApiAction(new ApiAction(ACTION_INCLUDE_TECHS, contextNameAndTechNames));
@@ -131,6 +133,10 @@ public class ContextAPI extends ApiImplementor {
                 return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
             }
             break;
+        case ACTION_REMOVE_CONTEXT:
+        	context = getContext(params);
+        	Model.getSingleton().getSession().deleteContext(context);
+        	break;
         case ACTION_SET_CONTEXT_IN_SCOPE: 
         	if (params.getString(IN_SCOPE) == null || params.getString(IN_SCOPE).length()==0){
                 throw new ApiException(ApiException.Type.MISSING_PARAMETER, IN_SCOPE);
