@@ -333,6 +333,7 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("name", c.getName());
 		fields.put("id", Integer.toString(c.getIndex()));
 		fields.put("description", c.getDescription());
+		fields.put("inScope", Boolean.toString(c.isInScope()));
 		fields.put("excludeRegexs", c.getExcludeFromContextRegexs().toString());
 		fields.put("includeRegexs", c.getIncludeInContextRegexs().toString());
 		
