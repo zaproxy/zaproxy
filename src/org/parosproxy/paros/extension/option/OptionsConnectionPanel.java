@@ -29,6 +29,7 @@
 // and enhance the usability of some options
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 
 package org.parosproxy.paros.extension.option;
 
@@ -37,9 +38,15 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -53,10 +60,12 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.CommonUserAgents;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
+import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.ProxyDialog;
 
 
@@ -80,6 +89,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtTimeoutInSecs = null;
 	private JPanel panelGeneral = null;
     private JCheckBox checkBoxSingleCookieRequestHeader;
+    private JComboBox<String> commonUserAgents = null;
+	private ZapTextField defaultUserAgent = null;
 
     private SecurityProtocolsPanel securityProtocolsPanel;
 
@@ -382,6 +393,61 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		return spinnerProxyChainPort;
 	}
 
+    private JComboBox<String> getCommonUserAgents() {
+    	if (commonUserAgents == null) {
+    		commonUserAgents = new JComboBox<String>(CommonUserAgents.getNames());
+    		if (commonUserAgents.getItemCount() == 0) {
+	    		commonUserAgents.setEnabled(false);
+    		} else {
+	    		commonUserAgents.addItem("");
+	    		commonUserAgents.addActionListener(new ActionListener() {
+					@Override
+					public void actionPerformed(ActionEvent e) {
+						String item = (String) commonUserAgents.getSelectedItem();
+						String ua = CommonUserAgents.getStringFromName(item);
+						if (ua != null) {
+							getDefaultUserAgent().setText(ua);
+						}
+					}});
+    		}
+    	}
+    	return commonUserAgents;
+    }
+
+    private ZapTextField getDefaultUserAgent() {
+    	if (defaultUserAgent == null) {
+    		defaultUserAgent = new ZapTextField();
+    		defaultUserAgent.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setUaFromString();
+				}
+    		});
+    		defaultUserAgent.addKeyListener(new KeyListener() {
+				@Override
+				public void keyTyped(KeyEvent e) {
+				}
+				@Override
+				public void keyPressed(KeyEvent e) {
+				}
+				@Override
+				public void keyReleased(KeyEvent e) {
+					setUaFromString();
+				}});
+    	}
+    	return defaultUserAgent;
+    }
+
+	private void setUaFromString() {
+		String name = CommonUserAgents.getNameFromString(getDefaultUserAgent().getText());
+		if (name != null) {
+			getCommonUserAgents().setSelectedItem(name);
+		} else {
+			getCommonUserAgents().setSelectedItem("");
+		}
+	}
+			
+
 	/**
 	 * This method initializes this
 	 */
@@ -390,8 +456,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         this.setName(Constant.messages.getString("conn.options.title"));
         
         this.add(getPanelProxyChain(), getPanelProxyChain().getName());
-
-
 	}
 	
 	@Override
@@ -433,6 +497,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
         securityProtocolsPanel.setSecurityProtocolsEnabled(connectionParam.getSecurityProtocolsEnabled());
+        
+        defaultUserAgent.setText(connectionParam.getDefaultUserAgent());
+        setUaFromString();
 	}
 	
 	private void setProxyChainEnabled(boolean isEnabled) {
@@ -556,6 +623,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
 
         connectionParam.setSecurityProtocolsEnabled(securityProtocolsPanel.getSelectedProtocols());
+        
+        connectionParam.setDefaultUserAgent(defaultUserAgent.getText());
 	}
 
 	/**
@@ -638,6 +707,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelGeneral = new JPanel();
 			panelGeneral.setLayout(new GridBagLayout());
 			jLabel.setText(Constant.messages.getString("conn.options.timeout"));
+			jLabel.setLabelFor(getTxtTimeoutInSecs());
 			
 			panelGeneral.setBorder(javax.swing.BorderFactory.createTitledBorder(null, 
 					Constant.messages.getString("conn.options.general"), 
@@ -664,14 +734,23 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelGeneral.add(getTxtTimeoutInSecs(), gridBagConstraints01);
 			
 			java.awt.GridBagConstraints gbc = new java.awt.GridBagConstraints();
-			gbc.gridy = 1;
+			gbc.gridy = 3;
 			gbc.gridwidth = 2;
 			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
 			gbc.insets = new java.awt.Insets(2,2,2,2);
 			gbc.anchor = java.awt.GridBagConstraints.WEST;
             
+			JLabel uaLabel = new JLabel(Constant.messages.getString("conn.options.defaultUserAgent"));
+			uaLabel.setLabelFor(this.getDefaultUserAgent());
+			panelGeneral.add(uaLabel, LayoutHelper.getGBC(0, 1, 1,0.5D));
+			panelGeneral.add(this.getCommonUserAgents(), 
+					LayoutHelper.getGBC(1, 1, 1, 0.5D, new Insets(2,2,2,2)));
+			panelGeneral.add(this.getDefaultUserAgent(), 
+					LayoutHelper.getGBC(0, 2, 2, 1.0D, new Insets(2,2,2,2)));
+
             panelGeneral.add(getCheckBoxSingleCookeRequestHeader(), gbc);
-		}
+
+}
 		return panelGeneral;
 	}
 

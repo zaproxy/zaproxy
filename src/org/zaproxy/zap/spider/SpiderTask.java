@@ -138,7 +138,8 @@ public class SpiderTask implements Runnable {
 		// Create a new HttpMessage that will be used for the request and persist it in the database using
 		// HistoryReference
 		try {
-			HttpRequestHeader requestHeader = new HttpRequestHeader(method, uri, HttpHeader.HTTP11);
+			HttpRequestHeader requestHeader = 
+					new HttpRequestHeader(method, uri, HttpHeader.HTTP11, parent.getConnectionParam());
 			if (sourceUri != null && parent.getSpiderParam().isSendRefererHeader()) {
 				requestHeader.setHeader(HttpRequestHeader.REFERER, sourceUri.toString());
 			}

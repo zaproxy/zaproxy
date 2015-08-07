@@ -192,7 +192,9 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			} else {
 				String method = (requestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
 				requestMessage = new HttpMessage();
-				requestMessage.setRequestHeader(new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10));
+				requestMessage.setRequestHeader(
+						new HttpRequestHeader(method, requestURI, HttpHeader.HTTP10,
+								Model.getSingleton().getOptionsParam().getConnectionParam()));
 				if (requestBody != null) {
 					requestMessage.getRequestBody().setBody(requestBody);
 				}
@@ -269,31 +271,6 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				this.loginRequestBody = requestMessage.getRequestBody().toString();
 			else
 				this.loginRequestBody = null;
-		}
-
-		/**
-		 * Gets the login request message.
-		 * 
-		 * Method added for use with the 'mock' up {@link org.zaproxy.zap.extension.auth.ExtensionAuth}. Should be eliminated 
-		 * after ZAP 2.3 is released.
-		 * 
-		 */
-		@Deprecated
-		public HttpMessage getLoginRequestMessage() throws HttpMalformedHeaderException, DatabaseException,
-				URIException, NullPointerException {
-			HttpMessage requestMessage = null;
-			if (this.loginSiteNode != null)
-				requestMessage = this.loginSiteNode.getHistoryReference().getHttpMessage();
-			else {
-				String method = (loginRequestBody != null) ? HttpRequestHeader.POST : HttpRequestHeader.GET;
-				requestMessage = new HttpMessage();
-				requestMessage.setRequestHeader(new HttpRequestHeader(method, new URI(loginRequestURL, true),
-						HttpHeader.HTTP10));
-				if (loginRequestBody != null) {
-					requestMessage.getRequestBody().setBody(loginRequestBody);
-				}
-			}
-			return requestMessage;
 		}
 
 		/**

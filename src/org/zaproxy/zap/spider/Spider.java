@@ -359,6 +359,10 @@ public class Spider {
 		return spiderParam;
 	}
 
+	protected ConnectionParam getConnectionParam() {
+		return connectionParam;
+	}
+
 	/**
 	 * Gets the controller.
 	 * 

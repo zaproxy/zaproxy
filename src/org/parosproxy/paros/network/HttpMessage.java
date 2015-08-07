@@ -42,6 +42,7 @@
 // ZAP: 2014/06/16 Issue 1217: Table format does not display information when charset is
 // present in Content-Type header
 // ZAP: 2015/02/09 Fix NullPointerException in equals(Object) when comparing with empty messages
+// ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 
 package org.parosproxy.paros.network;
 
@@ -136,8 +137,8 @@ public class HttpMessage implements Message {
 	public HttpMessage() {
 	}
 	
-	public HttpMessage(URI uri) throws HttpMalformedHeaderException {
-	    setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11));
+	public HttpMessage(URI uri, ConnectionParam params) throws HttpMalformedHeaderException {
+	    setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11, params));
 	}
 
 	/**
