@@ -136,6 +136,10 @@ public class HttpMessage implements Message {
 	 */
 	public HttpMessage() {
 	}
+
+	public HttpMessage(URI uri) throws HttpMalformedHeaderException {
+		this(uri, null);
+	}
 	
 	public HttpMessage(URI uri, ConnectionParam params) throws HttpMalformedHeaderException {
 	    setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP11, params));

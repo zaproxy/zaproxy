@@ -146,6 +146,10 @@ public class HttpRequestHeader extends HttpHeader {
 
     }
 
+    public HttpRequestHeader(String method, URI uri, String version) throws HttpMalformedHeaderException {
+        this(method, uri, version, null);
+    }
+
     public HttpRequestHeader(String method, URI uri, String version,
     		ConnectionParam params) throws HttpMalformedHeaderException {
         this(method + " " + uri.toString() + " " + version.toUpperCase() + CRLF + CRLF);
@@ -157,7 +161,10 @@ public class HttpRequestHeader extends HttpHeader {
             log.error(e.getMessage(), e);
         }
         
-        setHeader(USER_AGENT, params.getDefaultUserAgent());
+        String userAgent = params != null
+                ? params.getDefaultUserAgent()
+                : "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)";
+        setHeader(USER_AGENT, userAgent);
         setHeader(PRAGMA, "no-cache");
         
         // ZAP: added the Cache-Control header field to comply with HTTP/1.1
