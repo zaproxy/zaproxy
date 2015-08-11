@@ -29,6 +29,7 @@ import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
+import org.zaproxy.zap.view.popup.ExtensionPopupMenuComponent;
 import org.zaproxy.zap.view.popup.PopupMenuHistoryReferenceContainer;
 
 public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
@@ -41,15 +42,6 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
     public PopupMenuShowAlerts(String label) {
         super(label);
         setProcessExtensionPopupChildren(false);
-    }
-
-    @Override
-    protected boolean isEnable(HttpMessageContainer messageContainer) {
-        if (getMenuComponentCount() > 0) {
-            removeAll();
-        }
-
-        return super.isEnable(messageContainer);
     }
 
 	@Override
@@ -89,6 +81,13 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 		
 		return (alertList.size() > 0);
     }
+
+	@Override
+	public void dismissed(ExtensionPopupMenuComponent selectedMenuComponent) {
+		if (getMenuComponentCount() > 0) {
+			removeAll();
+		}
+	}
 
     @Override
     public boolean isSafe() {
