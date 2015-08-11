@@ -79,7 +79,7 @@ public class ContextAPI extends ApiImplementor {
 
         this.addApiAction(new ApiAction(EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
-        this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, null, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_EXPORT_CONTEXT, new String[] {CONTEXT_NAME, CONTEXT_FILE_PARAM}, null));
         this.addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
@@ -126,13 +126,9 @@ public class ContextAPI extends ApiImplementor {
         	addIncludeToContext(getContext(params), getRegex(params));
         	break;
         case ACTION_NEW_CONTEXT:
-        	contextName = params.getString(CONTEXT_NAME);
-            if (contextName != null && contextName.length() > 0){
-                context = Model.getSingleton().getSession().getNewContext(contextName);
-                Model.getSingleton().getSession().saveContext(context);
-                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
-            }
-            break;
+            context = Model.getSingleton().getSession().getNewContext(params.getString(CONTEXT_NAME));
+            Model.getSingleton().getSession().saveContext(context);
+            return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
         case ACTION_REMOVE_CONTEXT:
         	context = getContext(params);
         	Model.getSingleton().getSession().deleteContext(context);
