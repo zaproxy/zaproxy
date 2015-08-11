@@ -60,6 +60,7 @@
 // ZAP: 2015/02/02 Move output panel help key registration to prevent NPE
 // ZAP: 2015/03/04 Added no prompt warning methods
 // ZAP: 2015/04/13 Add default editor and renderer for TextMessageLocationHighlight
+// ZAP: 2015/08/11 Fix the removal of context panels
 
 package org.parosproxy.paros.view;
 
@@ -72,6 +73,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Vector;
 
@@ -152,7 +154,7 @@ public class View implements ViewDelegate {
     private JCheckBox rememberCheckbox = null;
     private JCheckBox dontPromptCheckbox = null;
 
-    private List<AbstractParamPanel> contextPanels = new ArrayList<>();
+    private List<AbstractContextPropertiesPanel> contextPanels = new ArrayList<>();
     private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
 
     private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
@@ -726,15 +728,16 @@ public class View implements ViewDelegate {
     }
 
     public void deleteContext(Context c) {
-        for (AbstractParamPanel panel : contextPanels) {
-        	if (((AbstractContextPropertiesPanel)panel).getContextIndex() == c.getIndex()) {
+        for (Iterator<AbstractContextPropertiesPanel> it = contextPanels.iterator(); it.hasNext();) {
+            AbstractContextPropertiesPanel panel = it.next();
+        	if (panel.getContextIndex() == c.getIndex()) {
                 getSessionDialog().removeParamPanel(panel);
+                it.remove();
         	}
         }
         for (ContextPanelFactory cpf : this.contextPanelFactories) {
             cpf.discardContext(c);
         }
-        contextPanels.remove(c);
         this.getSiteTreePanel().reloadContextTree();
     }
 
