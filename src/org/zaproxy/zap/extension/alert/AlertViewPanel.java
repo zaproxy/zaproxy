@@ -427,8 +427,8 @@ public class AlertViewPanel extends AbstractPanel {
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
 			alertEvidence.setText(alert.getEvidence());
-			alertCweId.setText("" + alert.getCweId());
-			alertWascId.setText("" + alert.getWascId());
+			alertCweId.setText(Integer.toString(alert.getCweId()));
+			alertWascId.setText(Integer.toString(alert.getWascId()));
 		}
 		
 		setAlertDescription(alert.getDescription());

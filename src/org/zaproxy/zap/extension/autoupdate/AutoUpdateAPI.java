@@ -73,7 +73,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 		if (VIEW_LATEST_VERSION_NUMBER.equals(name)) {
 			result = new ApiResponseElement(name, this.getLatestVersionNumber());
 		} else if (VIEW_IS_LATEST_VERSION.equals(name)) {
-			result = new ApiResponseElement(name, "" + this.isLatestVersion());
+			result = new ApiResponseElement(name, Boolean.toString(this.isLatestVersion()));
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

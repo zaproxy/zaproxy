@@ -329,7 +329,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             val = " " + value;
             
         } else {
-            val = "" + value;
+            val = Integer.toString(value);
         }
         
         labelDelayInMsValue.setText(val);
