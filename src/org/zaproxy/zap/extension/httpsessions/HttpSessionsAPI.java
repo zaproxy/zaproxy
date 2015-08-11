@@ -134,7 +134,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 		HttpSessionsSite site;
 		switch (name) {
 		case ACTION_CREATE_EMPTY_SESSION:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), true);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
