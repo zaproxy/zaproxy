@@ -832,6 +832,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		if (aoc == null) {
 			return;
 		}
+		if (getView() != null) {
+			// Initialise the dialogue so that it gets notifications of
+			// possible add-on changes and is also shown when needed
+			getAddOnsDialog();
+		}
 		try {
 			ZapRelease rel = aoc.getZapRelease();
 
@@ -919,10 +924,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 if (addonsDialog != null) {
                     // Just show the dialog
                     getAddOnsDialog().setVisible(true);
-                } else {
-                    logger.info("Updates not installed some add-ons would be uninstalled or require newer java version: "
-                            + result.getUninstalls());
+                    return false;
                 }
+                logger.info("Updates not installed some add-ons would be uninstalled or require newer java version: "
+                        + result.getUninstalls());
             }
             return true;
         }
@@ -943,6 +948,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
             logger.debug("Auto-downloading scanner rules");
             processAddOnChanges(null, addOnDependencyChecker.calculateUpdateChanges(addOns));
+            return false;
+        }
+
+        if (options.isCheckAddonUpdates() && addonsDialog != null) {
+            // Just show the dialog
+            addonsDialog.setVisible(true);
             return false;
         }
 
