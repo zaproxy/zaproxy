@@ -262,10 +262,12 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 		try {
 			List<String> encodedUsers = new ArrayList<>();
 			ContextUserAuthManager m = contextManagers.get(context.getIndex());
-			for (User u : m.getUsers()) {
-				encodedUsers.add(User.encode(u));
+			if (m != null) {
+				for (User u : m.getUsers()) {
+					encodedUsers.add(User.encode(u));
+				}
+				session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
 			}
-			session.setContextData(context.getIndex(), RecordContext.TYPE_USER, encodedUsers);
 		} catch (Exception ex) {
 			log.error("Unable to persist Users.", ex);
 		}
@@ -308,8 +310,10 @@ public class ExtensionUserManagement extends ExtensionAdaptor implements Context
 	@Override
 	public void exportContextData(Context ctx, Configuration config) {
 		ContextUserAuthManager m = contextManagers.get(ctx.getIndex());
-		for (User u : m.getUsers()) {
-			config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+		if (m != null) {
+			for (User u : m.getUsers()) {
+				config.addProperty(CONTEXT_CONFIG_USERS_USER, User.encode(u));
+			}
 		}
 	}
 
