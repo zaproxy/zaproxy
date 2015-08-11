@@ -320,16 +320,21 @@ public class HttpSessionsAPI extends ApiImplementor {
 	 */
 	static String getAuthority (String site) {
 		String authority = site;
+		boolean isSecure = false;
 		// Remove http(s)://
 		if (authority.toLowerCase(Locale.ROOT).startsWith("http://")) {
 			authority = authority.substring(7);
 		} else if (authority.toLowerCase(Locale.ROOT).startsWith("https://")) {
 			authority = authority.substring(8);
+			isSecure = true;
 		}
 		// Remove trailing chrs
 		int idx = authority.indexOf('/');
 		if (idx > 0) {
 			authority = authority.substring(0, idx);
+		}
+		if (isSecure && authority.indexOf(':') == -1) {
+			return authority + ":443";
 		}
 		return authority;
 	}
