@@ -149,13 +149,13 @@ public class ContextAPI extends ApiImplementor {
 	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, f.getAbsolutePath());
             } else {
             	try {
-					Model.getSingleton().getSession().importContext(f);
+					context = Model.getSingleton().getSession().importContext(f);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
             }
-            break;
+            return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
         case ACTION_EXPORT_CONTEXT:
         	filename = params.getString(CONTEXT_FILE_PARAM);
             context = getContext(params);
