@@ -24,10 +24,8 @@ import java.util.List;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.api.API.RequestType;
 
 
