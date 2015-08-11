@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -351,15 +352,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			String regex = params.getString(PARAM_REGEX);
 			try {
 				session.addExcludeFromProxyRegex(regex);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			} catch (DatabaseException e) {
+				log.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (PatternSyntaxException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 			}
 		} else if (ACTION_SET_HOME_DIRECTORY.equals(name)) {
 			File f = new File(params.getString(PARAM_DIR));
 			if (f.exists() && f.isDirectory()) {
 				Model.getSingleton().getOptionsParam().setUserDirectory(f);
 			} else {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_DIR);
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_DIR);
 			}
 		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
 			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
@@ -701,7 +705,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 								
 					}
 				} catch (JSONException e) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT);
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PROXY_DETAILS);
 				}
 				msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 				

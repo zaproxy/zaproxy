@@ -504,12 +504,12 @@ public class API {
 					jp.put(key, value);
 				} catch (UnsupportedEncodingException | IllegalArgumentException e) {
 					// Carry on anyway
-					Exception apiException = new ApiException(ApiException.Type.BAD_FORMAT, params, e);
+					Exception apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params, e);
 					logger.error(apiException.getMessage(), apiException);
 				}
 			} else {
 				// Carry on anyway
-				Exception e = new ApiException(ApiException.Type.BAD_FORMAT, params);
+				Exception e = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params);
 				logger.error(e.getMessage(), e);
 			}
 		}

@@ -39,8 +39,26 @@ public class ApiException extends Exception {
 
 	private static final long serialVersionUID = 1L;
 	
-	public enum Type {BAD_FORMAT, BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
-		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST, ILLEGAL_PARAMETER, CONTEXT_NOT_FOUND,
+	public enum Type {
+		/**
+		 * Indicates that the response's format requested is not valid.
+		 * 
+		 * @see API.Format
+		 */
+		BAD_FORMAT,
+		BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
+		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST,
+		/**
+		 * Indicates that the value of a parameter is illegal/invalid (for example, it's not of expected type (boolean,
+		 * integer)).
+		 * <p>
+		 * The name of the parameter should be in the {@code detail} of the exception.
+		 * 
+		 * @see ApiException#ApiException(Type, String)
+		 * @see ApiException#ApiException(Type, String, Throwable)
+		 */
+		ILLEGAL_PARAMETER,
+		CONTEXT_NOT_FOUND,
 		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT, NO_ACCESS};
 	
 	private final String detail;

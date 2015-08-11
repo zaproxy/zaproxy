@@ -185,7 +185,7 @@ public class UsersAPI extends ApiImplementor {
 			try {
 				enabled = params.getBoolean(PARAM_ENABLED);
 			} catch (JSONException e) {
-				throw new ApiException(Type.BAD_FORMAT, PARAM_ENABLED + " - should be boolean");
+				throw new ApiException(Type.ILLEGAL_PARAMETER, PARAM_ENABLED + " - should be boolean");
 			}
 			getUser(params).setEnabled(enabled);
 			return ApiResponseElement.OK;

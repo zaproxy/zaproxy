@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONObject;
 
@@ -251,8 +252,10 @@ public class SpiderAPI extends ApiImplementor {
 			try {
 				Session session = Model.getSingleton().getSession();
 				session.addExcludeFromSpiderRegex(regex);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			} catch (DatabaseException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (PatternSyntaxException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 			}
 			break;
 		default:
@@ -309,11 +312,11 @@ public class SpiderAPI extends ApiImplementor {
 			// Try to build uri
 			startURI = new URI(url, true);
 		} catch (URIException e) {
-			throw new ApiException(ApiException.Type.BAD_FORMAT);
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
 		}
 		String scheme = startURI.getScheme();
 		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
-			throw new ApiException(ApiException.Type.BAD_FORMAT);
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
 		}
 
 		StructuralNode node = null;

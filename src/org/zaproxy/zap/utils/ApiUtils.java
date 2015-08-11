@@ -100,7 +100,7 @@ public final class ApiUtils {
 			try {
 				enumVal = Enum.valueOf(enumType, enumValS);
 			} catch (Exception ex) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, paramName + ": "
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, paramName + ": "
 						+ ex.getLocalizedMessage());
 			}
 		}

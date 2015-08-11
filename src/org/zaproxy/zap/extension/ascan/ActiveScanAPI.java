@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
@@ -281,6 +282,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					Session session = Model.getSingleton().getSession();
 					session.setExcludeFromScanRegexs(new ArrayList<String>());
 				} catch (DatabaseException e) {
+					log.error(e.getMessage(), e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			    break;
@@ -289,8 +291,11 @@ public class ActiveScanAPI extends ApiImplementor {
 				try {
 					Session session = Model.getSingleton().getSession();
 					session.addExcludeFromScanRegexs(regex);
-				} catch (Exception e) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+				} catch (DatabaseException e) {
+					log.error(e.getMessage(), e);
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}catch (PatternSyntaxException e) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 				}
 				break;
 			case ACTION_ENABLE_ALL_SCANNERS:

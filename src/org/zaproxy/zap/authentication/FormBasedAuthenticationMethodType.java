@@ -910,7 +910,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				try {
 					new URL(loginUrl);
 				} catch (Exception ex) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_LOGIN_URL);
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_LOGIN_URL);
 				}
 				String postData = "";
 				if (params.containsKey(PARAM_LOGIN_REQUEST_DATA)) {
