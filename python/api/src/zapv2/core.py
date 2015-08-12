@@ -162,95 +162,102 @@ class core(object):
     def option_proxy_excluded_domains_enabled(self):
         return next(self.zap._request(self.zap.base + 'core/view/optionProxyExcludedDomainsEnabled/').itervalues())
 
+    @property
+    def option_default_user_agent(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionDefaultUserAgent/').itervalues())
+
     def shutdown(self, apikey=''):
         """
         Shuts down ZAP
         """
-        return next(self.zap._request(self.zap.base + 'core/action/shutdown/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/shutdown/', {'apikey' : apikey}).itervalues())
 
     def new_session(self, name='', overwrite='', apikey=''):
         """
         Creates a new session, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}).itervalues())
 
     def load_session(self, name, apikey=''):
         """
         Loads the session with the given name. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/loadSession/', {'name' : name, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/loadSession/', {'name' : name, 'apikey' : apikey}).itervalues())
 
     def save_session(self, name, overwrite='', apikey=''):
         """
         Saves the session with the name supplied, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}).itervalues())
 
     def snapshot_session(self, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/snapshotSession/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/snapshotSession/', {'apikey' : apikey}).itervalues())
 
     def clear_excluded_from_proxy(self, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/clearExcludedFromProxy/', {'apikey' : apikey}).itervalues())
 
     def exclude_from_proxy(self, regex, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/excludeFromProxy/', {'regex' : regex, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/excludeFromProxy/', {'regex' : regex, 'apikey' : apikey}).itervalues())
 
     def set_home_directory(self, dir, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setHomeDirectory/', {'dir' : dir, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setHomeDirectory/', {'dir' : dir, 'apikey' : apikey}).itervalues())
 
     def generate_root_ca(self, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/generateRootCA/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/generateRootCA/', {'apikey' : apikey}).itervalues())
 
     def send_request(self, request, followredirects='', apikey=''):
         """
         Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/sendRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/sendRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey}).itervalues())
 
     def delete_all_alerts(self, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/deleteAllAlerts/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/deleteAllAlerts/', {'apikey' : apikey}).itervalues())
 
     def run_garbage_collection(self, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/runGarbageCollection/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/runGarbageCollection/', {'apikey' : apikey}).itervalues())
 
     def clear_stats(self, keyprefix, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/clearStats/', {'keyPrefix' : keyprefix, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/clearStats/', {'keyPrefix' : keyprefix, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_name(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainName/', {'String' : string, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainName/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_realm(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainRealm/', {'String' : string, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainRealm/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_user_name(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainUserName/', {'String' : string, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainUserName/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_password(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPassword/', {'String' : string, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPassword/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_skip_name(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainSkipName/', {'String' : string, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainSkipName/', {'String' : string, 'apikey' : apikey}).itervalues())
+
+    def set_option_default_user_agent(self, string, apikey=''):
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionDefaultUserAgent/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_http_state_enabled(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionHttpStateEnabled/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionHttpStateEnabled/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_port(self, integer, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPort/', {'Integer' : integer, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPort/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_prompt(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPrompt/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPrompt/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_timeout_in_secs(self, integer, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionTimeoutInSecs/', {'Integer' : integer, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionTimeoutInSecs/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
 
     def set_option_use_proxy_chain(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionUseProxyChain/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionUseProxyChain/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_use_proxy_chain_auth(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionUseProxyChainAuth/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionUseProxyChainAuth/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_single_cookie_request_header(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def proxy_pac(self, apikey=''):
         return (self.zap._request_other(self.zap.base_other + 'core/other/proxy.pac/', {'apikey' : apikey}))

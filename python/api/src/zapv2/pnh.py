@@ -28,25 +28,25 @@ class pnh(object):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'pnh/action/monitor/', {'id' : id, 'message' : message, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pnh/action/monitor/', {'id' : id, 'message' : message, 'apikey' : apikey}).itervalues())
 
     def oracle(self, id, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'pnh/action/oracle/', {'id' : id, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pnh/action/oracle/', {'id' : id, 'apikey' : apikey}).itervalues())
 
     def start_monitoring(self, url, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'pnh/action/startMonitoring/', {'url' : url, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pnh/action/startMonitoring/', {'url' : url, 'apikey' : apikey}).itervalues())
 
     def stop_monitoring(self, id, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'pnh/action/stopMonitoring/', {'id' : id, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pnh/action/stopMonitoring/', {'id' : id, 'apikey' : apikey}).itervalues())
 
     def pnh(self, apikey=''):
         """

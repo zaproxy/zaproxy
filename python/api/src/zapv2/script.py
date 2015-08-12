@@ -33,18 +33,18 @@ class script(object):
         return next(self.zap._request(self.zap.base + 'script/view/listScripts/').itervalues())
 
     def enable(self, scriptname, apikey=''):
-        return next(self.zap._request(self.zap.base + 'script/action/enable/', {'scriptName' : scriptname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'script/action/enable/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
     def disable(self, scriptname, apikey=''):
-        return next(self.zap._request(self.zap.base + 'script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
     def load(self, scriptname, scripttype, scriptengine, filename, scriptdescription='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}).itervalues())
 
     def remove(self, scriptname, apikey=''):
-        return next(self.zap._request(self.zap.base + 'script/action/remove/', {'scriptName' : scriptname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'script/action/remove/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
     def run_stand_alone_script(self, scriptname, apikey=''):
-        return next(self.zap._request(self.zap.base + 'script/action/runStandAloneScript/', {'scriptName' : scriptname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'script/action/runStandAloneScript/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
 

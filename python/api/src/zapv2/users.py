@@ -37,18 +37,18 @@ class users(object):
         return next(self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid}).itervalues())
 
     def new_user(self, contextid, name, apikey=''):
-        return next(self.zap._request(self.zap.base + 'users/action/newUser/', {'contextId' : contextid, 'name' : name, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'users/action/newUser/', {'contextId' : contextid, 'name' : name, 'apikey' : apikey}).itervalues())
 
     def remove_user(self, contextid, userid, apikey=''):
-        return next(self.zap._request(self.zap.base + 'users/action/removeUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'users/action/removeUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}).itervalues())
 
     def set_user_enabled(self, contextid, userid, enabled, apikey=''):
-        return next(self.zap._request(self.zap.base + 'users/action/setUserEnabled/', {'contextId' : contextid, 'userId' : userid, 'enabled' : enabled, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'users/action/setUserEnabled/', {'contextId' : contextid, 'userId' : userid, 'enabled' : enabled, 'apikey' : apikey}).itervalues())
 
     def set_user_name(self, contextid, userid, name, apikey=''):
-        return next(self.zap._request(self.zap.base + 'users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name, 'apikey' : apikey}).itervalues())
 
     def set_authentication_credentials(self, contextid, userid, authcredentialsconfigparams='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams, 'apikey' : apikey}).itervalues())
 
 
