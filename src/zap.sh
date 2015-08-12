@@ -92,7 +92,15 @@ fi
 
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
-  exec java ${JMEM} -XX:PermSize=256M -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "$@"
+  # Strip the automatic -psn_x_xxxxxxx argument that OS X automatically passes into apps, since
+  # it freaks out ZAP
+  ZAP_ARGS=()
+  for value in "$@"; do
+    [[ $value != -psn_* ]] && ZAP_ARGS+=( "$value" )
+  done
+
+  # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
+  exec java ${JMEM} -XX:PermSize=256M -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "${ZAP_ARGS[@]}"
 else
   exec java ${JMEM} -XX:PermSize=256M -jar "${BASEDIR}/zap-dev.jar" "$@"
 fi
