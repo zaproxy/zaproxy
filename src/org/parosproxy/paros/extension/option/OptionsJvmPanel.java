@@ -28,10 +28,10 @@ import java.util.List;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import org.apache.commons.io.FileUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
-import org.vafer.jdeb.shaded.compress.io.FileUtils;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -99,10 +99,10 @@ public class OptionsJvmPanel extends AbstractParamPanel {
 			 * by the scripts rather than the java code. 
 			 */
 			if (JVM_PROPERTIES_FILE.exists()) {
-				List<String> lines;
-				lines = FileUtils.readLines(JVM_PROPERTIES_FILE);
+				@SuppressWarnings("rawtypes")
+				List lines = FileUtils.readLines(JVM_PROPERTIES_FILE);
 				if (lines.size() > 0) {
-					getJvmOptionsField().setText(lines.get(0));
+					getJvmOptionsField().setText((String)lines.get(0));
 				}
 			}
 		} catch (IOException e) {
@@ -125,7 +125,7 @@ public class OptionsJvmPanel extends AbstractParamPanel {
 				}
 			} else {
 				// Replace the file contents, even if its just with whitespace
-				FileUtils.writeStringToFile(JVM_PROPERTIES_FILE, opts, false);
+				FileUtils.writeStringToFile(JVM_PROPERTIES_FILE, opts);
 			}
 		} catch (IOException e) {
 			View.getSingleton().showWarningDialog(this, 
