@@ -54,7 +54,10 @@ else
 fi
 
 # Work out best memory options
-if [ "$OS" = "Linux" ]; then
+if [ -f ~/.ZAP_JVM.properties ]; then
+  # Local jvm properties file present
+  JMEM=$(head -1 ~/.ZAP_JVM.properties)
+elif [ "$OS" = "Linux" ]; then
   MEM=$(expr $(sed -n 's/MemTotal:[ ]\{1,\}\([0-9]\{1,\}\) kB/\1/p' /proc/meminfo) / 1024)
 elif [ "$OS" = "Darwin" ]; then
   MEM=$(system_profiler SPMemoryDataType | sed -n -e 's/.*Size: \([0-9]\{1,\}\) GB/\1/p' | awk '{s+=$0} END {print s*1024}')
@@ -64,8 +67,9 @@ elif [ "$OS" = "FreeBSD" ]; then
   MEM=$(($(sysctl -n hw.physmem)/1024/1024))
 fi
 
-if [ -z $MEM ]
-then
+if [ ! -z $JMEM ]; then
+  echo "Using jvm memory setting from " ~/.ZAP_JVM.properties
+elif [ -z $MEM ]; then
   echo "Failed to obtain current memory, using jmv default memory settings"
 else
   echo "Available memory: " $MEM "MB"
