@@ -1,5 +1,5 @@
-if exist %HOMEPATH\.ZAP_JVM.properties (
-	set /p jvmopts=< %HOMEPATH\.ZAP_JVM.properties
+if exist "%HOMEPATH\OWASP ZAP\.ZAP_JVM.properties" (
+	set /p jvmopts=< "%HOMEPATH\OWASP ZAP\.ZAP_JVM.properties"
 ) else (
 	set jvmopts=-Xmx512m
 )

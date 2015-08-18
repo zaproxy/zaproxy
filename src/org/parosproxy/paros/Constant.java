@@ -207,7 +207,8 @@ public final class Constant {
     // 
     // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set to default loc
     private static String zapHome = null;
-    // Default home dir for 'full' releases - only used for copying full conf file when dev/daily release run for the first time
+    // Default home dir for 'full' releases - used for copying full conf file when dev/daily release run for the first time
+    // and also for the JVM options config file
     private static String zapStd = null;
     // Install dir for ZAP, but default will be cwd
     private static String zapInstall = null;
@@ -295,6 +296,36 @@ public final class Constant {
     	initializeFilesAndDirectories();
     	setAcceleratorKeys();
     }
+    
+    public static String getDefaultHomeDirectory(boolean incDevOption) {
+    	if (zapStd == null) {
+    		zapStd = System.getProperty("user.home");
+            if (zapStd == null) {
+            	zapStd = ".";
+            }
+
+            if (isLinux()) {
+            	// Linux: Hidden Zap directory in the user's home directory
+            	zapStd += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
+    		} else if (isMacOsX()) {
+    			// Mac Os X: Support for writing the configuration into the users Library 
+    			zapStd += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
+    				+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
+    		} else {
+    			// Windows: Zap directory in the user's home directory
+    			zapStd += FILE_SEPARATOR + PROGRAM_NAME;
+    		}
+    	}
+    	
+        if (incDevOption) {
+	        if (isDevBuild() || isDailyBuild()) {
+	        	// Default to a different home dir to prevent messing up full releases
+	        	return zapStd + "_D";
+	        }
+        }
+        return zapStd;
+    		
+    }
     	
     private void initializeFilesAndDirectories() {
 
@@ -310,31 +341,10 @@ public final class Constant {
         PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
 
         if (zapHome == null) {
-            zapHome = System.getProperty("user.home");
-            if (zapHome == null) {
-            	zapHome = ".";
-            }
-
-            if (isLinux()) {
-            	// Linux: Hidden Zap directory in the user's home directory
-            	zapHome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
-			} else if (isMacOsX()) {
-				// Mac Os X: Support for writing the configuration into the users Library 
-				zapHome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
-					+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
-			} else {
-				// Windows: Zap directory in the user's home directory
-				zapHome += FILE_SEPARATOR + PROGRAM_NAME;
-			}
-            // Will use default when first dev/daily release run
-            zapStd = zapHome;
-            if (isDevBuild() || isDailyBuild()) {
-            	// Default to a different home dir to prevent messing up full releases
-            	zapHome += "_D";
-            }
+            zapHome = getDefaultHomeDirectory(true);
         }
 
-		zapHome = getAbsolutePath(zapHome);
+        zapHome = getAbsolutePath(zapHome);
 		f = new File(zapHome);
 		
 		FILE_CONFIG = zapHome + FILE_CONFIG;
@@ -369,7 +379,7 @@ public final class Constant {
             	File oldf;
                 if (isDevBuild() || isDailyBuild()) {
                 	// try standard location
-                	oldf = new File (zapStd + FILE_SEPARATOR + FILE_CONFIG_NAME);
+                	oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
                 } else {
                 	// try old location
                 	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);

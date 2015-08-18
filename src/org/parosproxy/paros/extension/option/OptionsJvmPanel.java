@@ -20,15 +20,17 @@
 package org.parosproxy.paros.extension.option;
 
 import java.awt.GridBagLayout;
-import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.List;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import org.apache.commons.io.FileUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
@@ -45,8 +47,9 @@ import org.zaproxy.zap.view.LayoutHelper;
 public class OptionsJvmPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = -7541236934312940852L;
-    private static final File JVM_PROPERTIES_FILE = 
-    		new File(System.getProperty("user.home"), ".ZAP_JVM.properties");
+    private static final Path JVM_PROPERTIES_FILE = 
+    		Paths.get(Constant.getDefaultHomeDirectory(false), 
+    		".ZAP_JVM.properties");
     
     /**
      * The name of the options panel.
@@ -98,11 +101,10 @@ public class OptionsJvmPanel extends AbstractParamPanel {
 			 * This is for various reasons, including the fact they are used 
 			 * by the scripts rather than the java code. 
 			 */
-			if (JVM_PROPERTIES_FILE.exists()) {
-				@SuppressWarnings("rawtypes")
-				List lines = FileUtils.readLines(JVM_PROPERTIES_FILE);
+			if (Files.exists(JVM_PROPERTIES_FILE)) {
+				List<String> lines = Files.readAllLines(JVM_PROPERTIES_FILE, StandardCharsets.UTF_8);
 				if (lines.size() > 0) {
-					getJvmOptionsField().setText((String)lines.get(0));
+					getJvmOptionsField().setText(lines.get(0));
 				}
 			}
 		} catch (IOException e) {
@@ -119,19 +121,21 @@ public class OptionsJvmPanel extends AbstractParamPanel {
 		try {
 			String opts = getJvmOptionsField().getText();
 			if (opts.length() == 0) {
-				if (JVM_PROPERTIES_FILE.exists()) {
-					// Delete the file so that the 'normal' defaults apply
-					JVM_PROPERTIES_FILE.delete();
-				}
+				// Delete the file so that the 'normal' defaults apply
+				Files.deleteIfExists(JVM_PROPERTIES_FILE);
 			} else {
+				if (! JVM_PROPERTIES_FILE.getParent().toFile().exists()) {
+					// Can happen if the user has only run the dev version not the release one
+					JVM_PROPERTIES_FILE.getParent().toFile().mkdirs();
+				}
 				// Replace the file contents, even if its just with whitespace
-				FileUtils.writeStringToFile(JVM_PROPERTIES_FILE, opts);
+				Files.write(JVM_PROPERTIES_FILE, opts.getBytes(StandardCharsets.UTF_8));
 			}
 		} catch (IOException e) {
 			View.getSingleton().showWarningDialog(this, 
 					MessageFormat.format(
 							Constant.messages.getString("jvm.options.error.writing"),
-							JVM_PROPERTIES_FILE.getAbsolutePath(),
+							JVM_PROPERTIES_FILE.toAbsolutePath(),
 							e.getMessage()));
 		}
     }

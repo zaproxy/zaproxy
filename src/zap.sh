@@ -53,10 +53,16 @@ else
   exit 1
 fi
 
+if [ "$OS" = "Darwin" ]; then
+  JVMPROPS="~/Library/Application Support/ZAP/.ZAP_JVM.properties"
+else
+  JVMPROPS="~/.ZAP/.ZAP_JVM.properties"
+fi
+
 # Work out best memory options
-if [ -f ~/.ZAP_JVM.properties ]; then
+if [ -f $JVMPROPS ]; then
   # Local jvm properties file present
-  JMEM=$(head -1 ~/.ZAP_JVM.properties)
+  JMEM=$(head -1 $JVMPROPS)
 elif [ "$OS" = "Linux" ]; then
   MEM=$(expr $(sed -n 's/MemTotal:[ ]\{1,\}\([0-9]\{1,\}\) kB/\1/p' /proc/meminfo) / 1024)
 elif [ "$OS" = "Darwin" ]; then
