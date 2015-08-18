@@ -23,11 +23,13 @@ import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.swing.JButton;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -35,6 +37,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
@@ -96,7 +99,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
         this.removeAllFields();
 
-        this.addTargetSelectField(0, FIELD_START, this.target, false, false);
+        this.addTargetSelectField(0, FIELD_START, this.target, true, false);
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
@@ -274,6 +277,14 @@ public class SpiderDialog extends StandardFieldsDialog {
     @Override
     public void save() {
         Object[] contextSpecificObjects = null;
+		URI startUri = null;
+        try {
+        	// Always include the startUri, this has the side effect
+        	// of handling URLs that have not been accessed
+			startUri = new URI(this.getStringValue(FIELD_START), true);
+		} catch (Exception e1) {
+			// Ignore - will have been checked in validateParams
+		}
         if (this.getBoolValue(FIELD_ADVANCED)) {
         	// Set the advanced options
         	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
@@ -303,14 +314,35 @@ public class SpiderDialog extends StandardFieldsDialog {
 		        contextSpecificObjects = new Object[]{
 			            spiderParam,
 			            maxChildrenFetchFilter,
-			            maxChildrenParseFilter
+			            maxChildrenParseFilter,
+			            startUri
 			        };
         	} else {
 		        contextSpecificObjects = new Object[]{
-			            spiderParam
+			            spiderParam,
+			            startUri
 			        };
         	}
+    	} else {
+	        contextSpecificObjects = new Object[]{
+		            startUri
+		        };
     	}
+        
+        String displayName;
+        if (target == null || target.getStartNode() == null ||
+        		! this.getStringValue(FIELD_START).equals(
+        				target.getStartNode().getHierarchicNodeName())) {
+       		// Clear the target as it doesnt match the value entered manually
+			target = new Target((StructuralNode)null);
+			displayName = startUri.toString();
+    		if (displayName.length() >= 30) {
+    			// Just use the first and last 14 chrs to prevent huge urls messing up the display
+    			displayName = displayName.substring(0, 14) + ".." + displayName.substring(displayName.length()-15, displayName.length());
+    		}
+        } else {
+        	displayName = target.getDisplayName();
+        }
         
         // Save the adv option permanently for next time
         extension.getSpiderParam().setShowAdvancedDialog(this.getBoolValue(FIELD_ADVANCED));
@@ -318,7 +350,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         target.setRecurse(this.getBoolValue(FIELD_RECURSE));
 
         this.extension.startScan(
-        		target.getDisplayName(),
+        		displayName,
                 target,
                 getSelectedUser(), 
                 contextSpecificObjects);
@@ -326,7 +358,19 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     @Override
     public String validateFields() {
-        if (this.target == null || !this.target.isValid()) {
+    	if (this.isEmptyField(FIELD_START)) {
+            return Constant.messages.getString("spider.custom.nostart.error");
+    	}
+		try {
+			// Need both constructors as they catch slightly different issues ;)
+			String url = this.getStringValue(FIELD_START);
+			new URI(url, true);
+			new URL(url);
+		} catch (Exception e) {
+            return Constant.messages.getString("spider.custom.nostart.error");
+		}
+
+    	if (this.target != null && !this.target.isValid()) {
             return Constant.messages.getString("spider.custom.nostart.error");
         }
         
