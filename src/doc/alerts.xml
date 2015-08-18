@@ -86,6 +86,7 @@ This list the alerts
 10046	Insecure Component
 10047	HTTPS Content Available via HTTP
 10048	ShellShock
+10049  Image Location Scanner - passive scanner finding
 
 10101	Insufficient Authentication
 10102	Insufficient Authorization
@@ -369,6 +370,15 @@ http://webappfirewall.com/lib/crlf-injection.txt</reference>
 <solution>Enforce 128-bit SSL encryption.  Sometimes cipher suites of weak encryption strength are required for legacy export version of browser to step up to 128-bit SSL.</solution>
 <reference>http://www.meer.net/~ericm/papers/ssl_servers.html#2.1</reference>
 </alertitem>
+
+<alertitem>
+<id>10049</id>
+<alert>Image Contains Embedded Location Information</alert>
+<desc>This image contains embedded location information.</desc>
+<solution>Before allowing images to be stored on the server and/or transmitted to the browser, strip out the embedded location information from image.  This could mean removing all Exif data or just the GPS component.</solution>
+<reference>http://www.veggiespam.com/ils/</reference>
+</alertitem>
+
 <!--
 **************************
 20000 - 29999 checks below
