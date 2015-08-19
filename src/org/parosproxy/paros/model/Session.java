@@ -50,6 +50,7 @@
 // ZAP: 2015/01/30 Set default context name
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2015/08/19 Change to use ZapXmlConfiguration instead of extending FileXML
 
 package org.parosproxy.paros.model;
 
@@ -72,7 +73,6 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.common.FileXML;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
@@ -81,7 +81,6 @@ import org.parosproxy.paros.db.RecordSessionUrl;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
-import org.xml.sax.SAXException;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
@@ -93,7 +92,7 @@ import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 
-public class Session extends FileXML {
+public class Session {
 	
     // ZAP: Added logger
     private static Logger log = Logger.getLogger(Session.class);
@@ -104,9 +103,7 @@ public class Session extends FileXML {
 	private static final String SESSION_ID = "sessionId";
 	private static final String SESSION_NAME = "sessionName";
 	
-	private static final String[] PATH_SESSION_DESC = {ROOT, SESSION_DESC};	
-	private static final String[] PATH_SESSION_ID = {ROOT, SESSION_ID};
-	private static final String[] PATH_SESSION_NAME = {ROOT, SESSION_NAME};
+	private ZapXmlConfiguration configuration;
 
 	// other runtime members
 	private Model model = null;
@@ -133,7 +130,8 @@ public class Session extends FileXML {
 	 * @param model
 	 */
 	protected Session(Model model) {
-		super(ROOT);
+		configuration = new ZapXmlConfiguration();
+		configuration.setRootElementName(ROOT);
 
 		// add session variable here
 		setSessionId(System.currentTimeMillis());
@@ -255,11 +253,14 @@ public class Session extends FileXML {
         t.start();
     }
 
-	protected void open(String fileName) throws DatabaseException, SAXException, IOException, Exception {
+	protected void open(String fileName) throws DatabaseException, IOException, Exception {
 
 		// TODO extract into db specific classes??
 		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
-			readAndParseFile(new File(fileName).toURI().toASCIIString());
+			configuration = new ZapXmlConfiguration(new File(fileName));
+			sessionId = configuration.getLong(SESSION_ID);
+			sessionName = configuration.getString(SESSION_NAME, "");
+			sessionDesc = configuration.getString(SESSION_DESC, "");
 		} else {
 			this.setSessionId(Long.parseLong(fileName));
 		}
@@ -446,27 +447,6 @@ public class Session extends FileXML {
 	    }
 	    return urlList;
 	}
-	
-	@Override
-	protected void parse() throws Exception {
-	    
-	    long tempSessionId = 0;
-	    String tempSessionName = "";
-	    String tempSessionDesc = "";
-	    
-	    // use temp variable to check.  Exception will be flagged if any error.
-		tempSessionId = Long.parseLong(getValue(SESSION_ID));
-		tempSessionName = getValue(SESSION_NAME);
-		// ZAP: Changed to get the session description and use the variable
-		// tempSessionDesc.
-		tempSessionDesc = getValue(SESSION_DESC);
-
-		// set member variable after here
-		sessionId = tempSessionId;
-		sessionName = tempSessionName;
-		sessionDesc = tempSessionDesc;
-		
-	}
 
 	/**
 	 * Asynchronous call to save a session.
@@ -500,7 +480,7 @@ public class Session extends FileXML {
      * @throws Exception
      */
 	protected void save(String fileName) throws Exception {
-	    saveFile(fileName);
+	    configuration.save(new File(fileName));
 		if (isNewState()) {
 		    model.moveSessionDb(fileName);
 		} else {
@@ -552,7 +532,7 @@ public class Session extends FileXML {
      * @throws Exception
      */
 	protected void snapshot(String fileName) throws Exception {
-	    saveFile(fileName);
+	    configuration.save(new File(fileName));
         model.snapshotSessionDb(this.fileName, fileName);
 	}
 
@@ -561,7 +541,7 @@ public class Session extends FileXML {
      */
     public void setSessionDesc(String sessionDesc) {
         this.sessionDesc = sessionDesc;
-		setValue(PATH_SESSION_DESC, sessionDesc);
+        configuration.setProperty(SESSION_DESC, sessionDesc);
     }
 	
 	/**
@@ -570,7 +550,7 @@ public class Session extends FileXML {
 	public void setSessionId(long sessionId) {
 		this.sessionId = sessionId;
 		//setText(SESSION_ID, Long.toString(sessionId));
-		setValue(PATH_SESSION_ID, Long.toString(sessionId));
+		configuration.setProperty(SESSION_ID, Long.toString(sessionId));
 
 	}
 	/**
@@ -579,7 +559,7 @@ public class Session extends FileXML {
 	public void setSessionName(String name) {
 		this.sessionName = name;
 		//setText(SESSION_NAME, name);
-		setValue(PATH_SESSION_NAME, name);
+		configuration.setProperty(SESSION_NAME, name);
 		
 	}
 

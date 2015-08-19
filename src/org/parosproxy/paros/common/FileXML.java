@@ -23,6 +23,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
+// ZAP: 2015/08/19 Deprecated
 package org.parosproxy.paros.common;
 
 import java.io.File;
@@ -49,6 +50,10 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+/**
+ * @deprecated (TODO version) Use {@link org.zaproxy.zap.utils.ZapXmlConfiguration} instead.
+ */
+@Deprecated
 public abstract class FileXML {
 
 	private static final Logger logger = Logger.getLogger(FileXML.class);
