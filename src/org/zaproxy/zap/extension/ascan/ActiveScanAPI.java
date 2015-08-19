@@ -339,7 +339,7 @@ public class ActiveScanAPI extends ApiImplementor {
 
 				for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 					if (scanner.getCategory() == policyId) {
-						setAlertThresholdToScanner(alertThreshold1, scanner);
+						scanner.setAlertThreshold(alertThreshold1);
 					}
 				}
 				policy.save();
@@ -353,7 +353,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			case ACTION_SET_SCANNER_ALERT_THRESHOLD:
 				policy = getScanPolicyFromParams(params);
 				AlertThreshold alertThreshold2 = getAlertThresholdFromParamAlertThreshold(params);
-				setAlertThresholdToScanner(alertThreshold2, getScannerFromParamId(policy, params));
+				getScannerFromParamId(policy, params).setAlertThreshold(alertThreshold2);
 				policy.save();
 				break;
 			case ACTION_ADD_SCAN_POLICY:
@@ -453,19 +453,12 @@ public class ActiveScanAPI extends ApiImplementor {
 				try {
 					Plugin scanner = policy.getPluginFactory().getPlugin(Integer.valueOf(id.trim()).intValue());
 					if (scanner != null) {
-						setScannerEnabled(scanner, enabled);
+						scanner.setEnabled(enabled);
 					}
 				} catch (NumberFormatException e) {
 					log.warn("Failed to parse scanner ID: ", e);
 				}
 			}
-		}
-	}
-
-	private static void setScannerEnabled(Plugin scanner, boolean enabled) {
-		scanner.setEnabled(enabled);
-		if (enabled && scanner.getAlertThreshold() == Plugin.AlertThreshold.OFF) {
-			scanner.setAlertThreshold(Plugin.AlertThreshold.DEFAULT);
 		}
 	}
 
@@ -478,7 +471,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					if (hasPolicyWithId(policyId)) {
 						for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 							if (scanner.getCategory() == policyId) {
-							    setScannerEnabled(scanner, true);
+							    scanner.setEnabled(true);
 							}
 						}
 					}
@@ -520,11 +513,6 @@ public class ActiveScanAPI extends ApiImplementor {
 		} catch (IllegalArgumentException e) {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ALERT_THRESHOLD);
 		}
-	}
-
-	private static void setAlertThresholdToScanner(Plugin.AlertThreshold alertThreshold, Plugin scanner) {
-		scanner.setAlertThreshold(alertThreshold);
-		scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
 	}
 
 	private Plugin getScannerFromParamId(ScanPolicy policy, JSONObject params) throws ApiException {
