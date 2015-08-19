@@ -43,6 +43,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/08/19 Change to cope with deprecation of HttpMessage.getParamNameSet(HtmlParameter.Type, String)
+// ZAP: 2015/08/19 Issue 1784: NullPointerException when active scanning through the API with a target without scheme
 
 package org.parosproxy.paros.model;
 
@@ -629,7 +630,12 @@ public class SiteMap extends DefaultTreeModel {
 	private String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		
-		String scheme = uri.getScheme().toLowerCase();
+		String scheme = uri.getScheme();
+		if (scheme == null) {
+			scheme = "http";
+		} else {
+			scheme = scheme.toLowerCase();
+		}
 		host.append(scheme).append("://").append(uri.getHost());
 		
 		int port = uri.getPort();		

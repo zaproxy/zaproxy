@@ -31,6 +31,7 @@ import net.sf.json.JSONObject;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -187,7 +188,6 @@ public class ActiveScanAPI extends ApiImplementor {
 		try {
 			switch(name) {
 			case ACTION_SCAN_AS_USER:
-				String urlUserScan = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
 				int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
 				ExtensionUserManagement usersExtension = Control.getSingleton()
 						.getExtensionLoader()
@@ -196,7 +196,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 				}
 				Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-				if (!context.isIncluded(urlUserScan)) {
+				if (!context.isIncluded(params.getString(PARAM_URL))) {
 					throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
 				}
 				user = usersExtension.getContextUserAuthManager(context.getIndex()).getUserById(userID);
@@ -207,10 +207,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				// Same behaviour but with addition of the user to scan
 				// $FALL-THROUGH$
 			case ACTION_SCAN:
-				String url = params.getString(PARAM_URL);
-				if (url == null || url.length() == 0) {
-					throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
-				}
+				URI url = getTargetUrl(params.getString(PARAM_URL));
 
 				boolean scanJustInScope = user == null ? this.getParam(params, PARAM_JUST_IN_SCOPE, false) : false;
 
@@ -240,7 +237,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 
 				int scanId = scanURL(
-						params.getString(PARAM_URL),
+						url,
 						user,
 						this.getParam(params, PARAM_RECURSE, true),
 						scanJustInScope,
@@ -389,6 +386,19 @@ public class ActiveScanAPI extends ApiImplementor {
 		return ApiResponseElement.OK;
 	}
 
+	private static URI getTargetUrl(String url) throws ApiException {
+		try {
+			URI targetUrl = new URI(url, false);
+			String scheme = targetUrl.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+			return targetUrl;
+		} catch (URIException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+		}
+	}
+
 	private ScanPolicy getScanPolicyFromParams(JSONObject params) throws ApiException {
 		String policyName = null;
 		try {
@@ -529,12 +539,12 @@ public class ActiveScanAPI extends ApiImplementor {
 		return scanner;
 	}
 
-	private int scanURL(String url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
+	private int scanURL(URI url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
 		StructuralNode node;
 		
 		try {
-			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), method, postData);
+			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), url, method, postData);
 			if (node == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}
