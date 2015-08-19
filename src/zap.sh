@@ -76,7 +76,7 @@ fi
 if [ ! -z $JMEM ]; then
   echo "Using jvm memory setting from " ~/.ZAP_JVM.properties
 elif [ -z $MEM ]; then
-  echo "Failed to obtain current memory, using jmv default memory settings"
+  echo "Failed to obtain current memory, using jvm default memory settings"
 else
   echo "Available memory: " $MEM "MB"
   if [ $MEM -gt 1500 ]
