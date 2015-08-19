@@ -108,7 +108,7 @@ public class DbSQL implements DatabaseListener {
 		}
 		
 		Reader reader = new FileReader(file );
-		dbProperties = new Properties();;
+		dbProperties = new Properties();
 		dbProperties.load(reader);
 		
 		dbType = dbProperties.getProperty("db.type");

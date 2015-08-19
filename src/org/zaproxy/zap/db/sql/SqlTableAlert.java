@@ -332,10 +332,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 		}
     }
 
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.paros.TableAlert#getAlertList()
-	 */
-    //@Override
+	@Override
 	public Vector<Integer> getAlertList() throws DatabaseException {
     	SqlPreparedStatementWrapper psGetAllAlertIds = null;
         try {

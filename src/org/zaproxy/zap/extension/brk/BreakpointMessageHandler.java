@@ -40,7 +40,7 @@ public class BreakpointMessageHandler {
     
     protected List<BreakpointMessageInterface> enabledBreakpoints;
     
-    private List<String> enabledKeyBreakpoints = new ArrayList<>();;
+    private List<String> enabledKeyBreakpoints = new ArrayList<>();
     
     public List<String> getEnabledKeyBreakpoints() {
 		return enabledKeyBreakpoints;

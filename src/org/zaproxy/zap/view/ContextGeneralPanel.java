@@ -48,6 +48,7 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		this.add(getPanelSession(), this.getName() + "gen");
 	}
 	
+	@Override
 	public void setName(String name) {
 		if (name.startsWith(this.getContextIndex() + ":")) {
 			name = name.substring(name.indexOf(":")+1);

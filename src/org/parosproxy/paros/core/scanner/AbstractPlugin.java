@@ -914,6 +914,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return 0;
     }
 
+	@Override
 	public AddOn.Status getStatus() {
 		return status;
 	}

@@ -265,6 +265,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
     }
     
+	@Override
 	public synchronized RecordHistory read(int historyId) throws HttpMalformedHeaderException, DatabaseException {
 	    try {
 			psRead.setInt(1, historyId);
@@ -280,6 +281,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
 	}
 	
+	@Override
 	public synchronized RecordHistory write(long sessionId, int histType, HttpMessage msg) throws HttpMalformedHeaderException, DatabaseException {
 	    
 	    try {
@@ -426,6 +428,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @since 2.3.0
      * @see #getHistoryIdsOfHistType(long, int...)
      */
+    @Override
     public List<Integer> getHistoryIds(long sessionId) throws DatabaseException {
         return getHistoryIdsOfHistType(sessionId, null);
     }
@@ -441,6 +444,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @see #getHistoryIds(long)
      * @see #getHistoryIdsExceptOfHistType(long, int...)
      */
+    @Override
     public List<Integer> getHistoryIdsOfHistType(long sessionId, int... histTypes) throws DatabaseException {
         try {
 			boolean hasHistTypes = histTypes != null && histTypes.length > 0;
@@ -485,6 +489,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @since 2.3.0
      * @see #getHistoryIdsOfHistType(long, int...)
      */
+    @Override
     public List<Integer> getHistoryIdsExceptOfHistType(long sessionId, int... histTypes) throws DatabaseException {
         try {
 			boolean hasHistTypes = histTypes != null && histTypes.length > 0;
@@ -540,6 +545,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		return new Vector<>(getHistoryIds(sessionId));
 	}
 
+	@Override
 	public List<Integer> getHistoryList(long sessionId, int histType, String filter, boolean isRequest) throws DatabaseException {
         try {
 			PreparedStatement psReadSearch = getConnection().prepareStatement("SELECT * FROM HISTORY WHERE " + SESSIONID + " = ? AND " + HISTTYPE + " = ? ORDER BY " + HISTORYID);
@@ -600,6 +606,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
 	}
 	
+	@Override
 	public void deleteHistorySession(long sessionId) throws DatabaseException {
         try {
 			try (Statement stmt = getConnection().createStatement()) {
@@ -610,6 +617,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
 	}
 	
+	@Override
 	public void deleteHistoryType(long sessionId, int historyType) throws DatabaseException {
         try {
 			try (Statement stmt = getConnection().createStatement()) {
@@ -620,6 +628,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
 	}
 
+	@Override
 	public synchronized void delete(int historyId) throws DatabaseException {
 		try {
 			psDelete.setInt(1, historyId);
@@ -644,6 +653,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @see #delete(List, int)
      */
 	// ZAP: Added method.
+    @Override
     public void delete(List<Integer> ids) throws DatabaseException {
         delete(ids, 1000);
     }
@@ -659,6 +669,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @throws DatabaseException if an error occurred while deleting the history records
      * @since 2.3.0
      */
+    @Override
     public synchronized void delete(List<Integer> ids, int batchSize) throws DatabaseException {
         try {
 			if (ids == null) {
@@ -726,6 +737,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * @see #unsetHistoryTypeAsTemporary(int)
      * @see HistoryReference#TYPE_TEMPORARY
      */
+    @Override
     public void deleteTemporary() throws DatabaseException {
         try {
 			Integer[] ids = new Integer[temporaryHistoryTypes.size()];
@@ -738,6 +750,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
     }
 	
+	@Override
 	public synchronized boolean containsURI(long sessionId, int historyType, String method, String uri, byte[] body) throws DatabaseException {
 	    try {
 			psContainsURI.setString(1, uri);
@@ -762,6 +775,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
 	}
     
+    @Override
     public RecordHistory getHistoryCache(HistoryReference ref, HttpMessage reqMsg) throws DatabaseException , HttpMalformedHeaderException {
         try {
 			//  get the cache from provided reference.
@@ -871,6 +885,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
     }
     
+    @Override
     public synchronized void updateNote(int historyId, String note) throws DatabaseException {
         try {
 			psUpdateNote.setString(1, note);
@@ -881,6 +896,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 		}
     }
 
+    @Override
     public int lastIndex () {
         return lastInsertedIndex;
     }

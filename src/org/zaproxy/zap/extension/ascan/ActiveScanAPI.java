@@ -390,7 +390,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	}
 
 	private ScanPolicy getScanPolicyFromParams(JSONObject params) throws ApiException {
-		String policyName = null;;
+		String policyName = null;
 		try {
 			policyName = params.getString(PARAM_SCAN_POLICY_NAME);
 		} catch (Exception e1) {

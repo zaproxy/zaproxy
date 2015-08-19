@@ -102,9 +102,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	
 	private List<SpiderParser> customSpiderParsers = null;
 
-	private List<FetchFilter> customFetchFilters = null;;
+	private List<FetchFilter> customFetchFilters = null;
 
-	private List<ParseFilter> customParseFilters = null;;
+	private List<ParseFilter> customParseFilters = null;
 
 	/**
 	 * Instantiates a new spider thread.
