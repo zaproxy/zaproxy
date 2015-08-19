@@ -43,6 +43,7 @@
 // present in Content-Type header
 // ZAP: 2015/02/09 Fix NullPointerException in equals(Object) when comparing with empty messages
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
+// ZAP: 2015/08/19 Deprecate/change methods with unused parameters 
 
 package org.parosproxy.paros.network;
 
@@ -450,24 +451,15 @@ public class HttpMessage implements Message {
 	    return result;
 	}
 	
-	private boolean queryEquals(HttpMessage msg) throws URIException {
+	private boolean queryEquals(HttpMessage msg) {
 	    boolean result = false;
 	    
-	    URI uri1 = this.getRequestHeader().getURI();
-	    URI uri2 = msg.getRequestHeader().getURI();
-
-	    String query1 = "";
-	    String query2 = "";
-
 	    SortedSet<String> set1 = null;
 	    SortedSet<String> set2 = null;
 
         // compare the URI query part.  2 msg is consider same param set here.
-        if (uri1.getQuery() != null) query1 = uri1.getQuery();
-        if (uri2.getQuery() != null) query2 = uri2.getQuery();
-
-        set1 = getParamNameSet(HtmlParameter.Type.url, query1);
-	    set2 = getParamNameSet(HtmlParameter.Type.url, query2);
+        set1 = getParamNameSet(HtmlParameter.Type.url);
+	    set2 = getParamNameSet(HtmlParameter.Type.url);
 
 	    if (!set1.equals(set2)) {
 	        return false;
@@ -478,10 +470,8 @@ public class HttpMessage implements Message {
         //the POST body part must also be the same set
 	    if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
 	        
-	        query1 = this.getRequestBody().toString();
-	        query2 = msg.getRequestBody().toString();
-	        set1 = getParamNameSet(HtmlParameter.Type.form, query1);
-		    set2 = getParamNameSet(HtmlParameter.Type.form, query2);	        
+	        set1 = getParamNameSet(HtmlParameter.Type.form);
+		    set2 = getParamNameSet(HtmlParameter.Type.form);	        
 
 		    if (!set1.equals(set2)) {
 		        return false;
@@ -495,7 +485,24 @@ public class HttpMessage implements Message {
 	    return result;
 	}
 	
+	/**
+	 * @deprecated (TODO version) Use {@link #getParamNameSet(org.parosproxy.paros.network.HtmlParameter.Type)} instead, it will
+	 *             be removed in a following release.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	public TreeSet<String> getParamNameSet(HtmlParameter.Type type, String params) {
+		return getParamNameSet(type);
+	}
+
+	/**
+	 * Returns the names of the parameters of the given {@code type}.
+	 *
+	 * @param type the type of the parameters that will be extracted from the message
+	 * @return a {@code TreeSet} with the names of the parameters of the given {@code type}, never {@code null}
+	 * @since TODO version
+	 */
+	public TreeSet<String> getParamNameSet(HtmlParameter.Type type) {
 	    TreeSet<String> set = new TreeSet<>();
 		Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
 
@@ -505,7 +512,7 @@ public class HttpMessage implements Message {
 		return set;
 	}
 
-	private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type, String params) {
+	private TreeSet<HtmlParameter> getParamsSet(HtmlParameter.Type type) {
 		TreeSet<HtmlParameter> set = new TreeSet<>();
 		Map<String, String> paramMap = Model.getSingleton().getSession().getParams(this, type);
 
@@ -518,38 +525,26 @@ public class HttpMessage implements Message {
 	// ZAP: Added getParamNames
 	public String [] getParamNames() {
 		Vector<String> v = new Vector<>();
-		try {
-			// Get the params names from the query
-			String query = this.getRequestHeader().getURI().getQuery();
-			if (query == null) {
-				query = "";
+		// Get the params names from the query
+		SortedSet<String> pns = this.getParamNameSet(HtmlParameter.Type.url);
+		Iterator<String> iterator = pns.iterator();
+		while (iterator.hasNext()) {
+			String name = iterator.next();
+			if (name != null) {
+				v.add(name);
 			}
-			SortedSet<String> pns = this.getParamNameSet(HtmlParameter.Type.url, query);
-			Iterator<String> iterator = pns.iterator();
-			while (iterator.hasNext()) {
+		}
+		if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+			// Get the param names from the POST
+			pns = this.getParamNameSet(HtmlParameter.Type.form);
+		    iterator = pns.iterator();
+		    while (iterator.hasNext()) {
 				String name = iterator.next();
-				if (name != null) {
-					v.add(name);
-				}
+		        if (name != null) {
+		        	v.add(name);
+		        }
+				
 			}
-			if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-				// Get the param names from the POST
-				query = this.getRequestBody().toString();
-				if (query == null) {
-					query = "";
-				}
-				pns = this.getParamNameSet(HtmlParameter.Type.form, query);
-			    iterator = pns.iterator();
-			    while (iterator.hasNext()) {
-					String name = iterator.next();
-			        if (name != null) {
-			        	v.add(name);
-			        }
-					
-				}
-			}
-		} catch (URIException e) {
-			log.error(e.getMessage(), e);
 		}
 		String [] a = new String [v.size()];
 		v.toArray(a);
@@ -558,17 +553,7 @@ public class HttpMessage implements Message {
 	
 	// ZAP: Added getUrlParams
 	public TreeSet<HtmlParameter> getUrlParams() {
-		// Get the params names from the query
-		String query = null;
-		try {
-			query = this.getRequestHeader().getURI().getQuery();
-		} catch (URIException e) {
-			log.error(e.getMessage(), e);
-		}
-		if (query == null) {
-			query = "";
-		}
-		return this.getParamsSet(HtmlParameter.Type.url, query);
+		return this.getParamsSet(HtmlParameter.Type.url);
 	}
 	
 	// ZAP: Added getFormParams
@@ -578,18 +563,7 @@ public class HttpMessage implements Message {
 				|| !StringUtils.startsWithIgnoreCase(contentType.trim(), HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
 			return new TreeSet<>();
 		}
-
-		String query = null;
-		// use the body even if it's not POST, this allows the user to add/edit the POST
-		// params when the method is other than POST.
-		//if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
-			// Get the param names from the POST
-			query = this.getRequestBody().toString();
-		//}
-		if (query == null) {
-			query = "";
-		}
-		return this.getParamsSet(HtmlParameter.Type.form, query);
+		return this.getParamsSet(HtmlParameter.Type.form);
 	}
 	
 	public void setCookieParamsAsString(String data) {
