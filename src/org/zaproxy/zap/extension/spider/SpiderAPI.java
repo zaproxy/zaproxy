@@ -327,6 +327,9 @@ public class SpiderAPI extends ApiImplementor {
 		}
 		Target target = new Target(node);
 		target.setRecurse(recurse);
+		if (user != null) {
+			target.setContext(user.getContext());
+		}
 		
 		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
 		objs.add(startURI);
