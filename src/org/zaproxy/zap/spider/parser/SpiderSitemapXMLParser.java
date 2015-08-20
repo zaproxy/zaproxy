@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.XPath;
 import javax.xml.xpath.XPathConstants;
@@ -38,6 +37,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.utils.XmlUtils;
 
 /**
  * SitemapXMLParser is used for parsing URLs from a sitemap.xml file, which sometimes (very helpfully) resides in the web root.
@@ -56,9 +56,6 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 	private SpiderParam params;
 	
 	/** used to parse the XML based file format */ 
-	private static DocumentBuilderFactory dbFactory;
-	
-	/** used to parse the XML based file format */ 
 	private static DocumentBuilder dBuilder;
 	
 	/**
@@ -68,9 +65,8 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 
 	/** statically initialise the XML DocumentBuilderFactory and DocumentBuilder */
 	static {		
-		dbFactory = DocumentBuilderFactory.newInstance();
 		try {
-			dBuilder = dbFactory.newDocumentBuilder();
+			dBuilder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
 			XPath  xpath = (XPath) XPathFactory.newInstance().newXPath();
 			xpathLocationExpression = xpath.compile("/urlset/url/loc/text()");
 		} catch (ParserConfigurationException | XPathExpressionException e) {

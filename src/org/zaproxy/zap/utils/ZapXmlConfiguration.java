@@ -22,8 +22,15 @@ package org.zaproxy.zap.utils;
 import java.io.File;
 import java.net.URL;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.XMLConfiguration;
+import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
+import org.xml.sax.helpers.DefaultHandler;
 
 /**
  * A {@code XMLConfiguration} with character encoding always set to UTF-8 and
@@ -79,6 +86,36 @@ public class ZapXmlConfiguration extends XMLConfiguration {
 		this();
 		setFile(file);
 		load();
+	}
+
+	@Override
+	protected DocumentBuilder createDocumentBuilder() throws ParserConfigurationException {
+		DocumentBuilderFactory factory = XmlUtils.newXxeDisabledDocumentBuilderFactory();
+
+		// Same behaviour as base method:
+		if (isValidating()) {
+			factory.setValidating(true);
+			if (isSchemaValidation()) {
+				factory.setNamespaceAware(true);
+				factory.setAttribute(
+						"http://java.sun.com/xml/jaxp/properties/schemaLanguage",
+						"http://www.w3.org/2001/XMLSchema");
+			}
+		}
+
+		DocumentBuilder result = factory.newDocumentBuilder();
+		result.setEntityResolver(getEntityResolver());
+
+		if (isValidating()) {
+			result.setErrorHandler(new DefaultHandler() {
+
+				@Override
+				public void error(SAXParseException ex) throws SAXException {
+					throw ex;
+				}
+			});
+		}
+		return result;
 	}
 
 	/**

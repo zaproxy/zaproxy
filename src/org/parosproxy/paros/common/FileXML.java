@@ -23,7 +23,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
-// ZAP: 2015/08/19 Deprecated
+// ZAP: 2015/08/19 Deprecated; Issue 1804: Disable processing of XML external entities by default
 package org.parosproxy.paros.common;
 
 import java.io.File;
@@ -49,6 +49,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.zaproxy.zap.utils.XmlUtils;
 
 /**
  * @deprecated (TODO version) Use {@link org.zaproxy.zap.utils.ZapXmlConfiguration} instead.
@@ -64,9 +65,9 @@ public abstract class FileXML {
 	
 	public FileXML(String rootElementName) {
 
-		docBuilderFactory = DocumentBuilderFactory.newInstance();
 		String rootString = "<" + rootElementName + "></" + rootElementName + ">";
 		try {
+			docBuilderFactory = XmlUtils.newXxeDisabledDocumentBuilderFactory();
 			docBuilder = docBuilderFactory.newDocumentBuilder();
 			
 			doc = docBuilder.parse(new InputSource(new StringReader(rootString)));
@@ -229,7 +230,7 @@ public abstract class FileXML {
 		DocumentBuilder 		builder	= null;
 		
 		try {
-			factory = DocumentBuilderFactory.newInstance();
+			factory = XmlUtils.newXxeDisabledDocumentBuilderFactory();
 			factory.setValidating(false);
 			builder	= factory.newDocumentBuilder();
 			//builder.setErrorHandler(new ErrorHandler() {
