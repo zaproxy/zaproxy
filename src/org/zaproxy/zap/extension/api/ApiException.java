@@ -61,29 +61,32 @@ public class ApiException extends Exception {
 		CONTEXT_NOT_FOUND,
 		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT, NO_ACCESS};
 	
+	private final Type type;
 	private final String detail;
 
     private final Logger logger = Logger.getLogger(this.getClass());
 
 	public ApiException(Type type) {
-		super(type.name().toLowerCase());
-		this.detail = null;
+		this(type, null, null);
 	}
 
     public ApiException(Type type, Throwable cause) {
-        super(type.name().toLowerCase(), cause);
-        this.detail = null;
+        this(type, null, cause);
     }
 
 	public ApiException(Type type, String detail) {
-		super(type.name().toLowerCase());
-		this.detail = detail;
+		this(type, detail, null);
 	}
 
     public ApiException(Type type, String detail, Throwable cause) {
         super(type.name().toLowerCase(), cause);
+        this.type = type;
         this.detail = detail;
     }
+
+	public Type getType() {
+		return type;
+	}
 
 	@Override
 	public String toString () {

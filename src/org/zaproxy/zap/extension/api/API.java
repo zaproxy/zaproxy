@@ -574,7 +574,7 @@ public class API {
             ApiException exception;
             if (cause instanceof ApiException) {
                 exception = (ApiException) cause;
-                if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getMessage())) {
+                if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getType())) {
                     responseStatus = STATUS_BAD_REQUEST;
                     logger.warn("ApiException while handling API request:", cause);
                 }
