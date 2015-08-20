@@ -157,6 +157,11 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 			}
 		}
 	}
+
+    @Override
+    public boolean isStop() {
+        return super.isStop();
+    }
     
     public String setParam(HttpMessage msg, String param, String value) {
     	return super.setParameter(msg, param, value);
