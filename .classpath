@@ -2,12 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="test"/>
-	<classpathentry kind="lib" path="build/lib/ant-contrib-1.0b3.jar"/>
-	<classpathentry kind="lib" path="build/lib/crowdin-0.0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="build/lib/java-help-0.0.1-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="build/lib/jdeb-1.4.jar"/>
-	<classpathentry kind="lib" path="build/lib/jhall.jar"/>
-	<classpathentry kind="lib" path="build/lib/remark-1.0.0-SNAPSHOT.jar"/>
 	<classpathentry kind="lib" path="lib/ant.jar"/>
 	<classpathentry kind="lib" path="lib/AppleJavaExtensions.jar"/>
 	<classpathentry kind="lib" path="lib/bcmail-jdk15on-152.jar"/>
@@ -53,7 +47,6 @@
 	<classpathentry kind="lib" path="testlib/objenesis-1.2.jar"/>
 	<classpathentry kind="lib" path="testlib/powermock-mockito-release-full-1.5.6-full.jar"/>
 	<classpathentry kind="lib" path="testlib/simple-5.0.2.jar"/>
-	<classpathentry kind="lib" path="wave/jsp/zap-wave/WEB-INF/lib/hsqldb.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
