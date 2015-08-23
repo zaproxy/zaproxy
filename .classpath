@@ -22,7 +22,6 @@
 	<classpathentry kind="lib" path="lib/ezmorph-1.0.6.jar"/>
 	<classpathentry kind="lib" path="lib/harlib-jackson-1.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/hsqldb.jar"/>
-	<classpathentry kind="lib" path="lib/httpclient-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/httpcore-4.1.2.jar"/>
 	<classpathentry kind="lib" path="lib/java-semver-0.8.0.jar"/>
 	<classpathentry kind="lib" path="lib/JBroFuzz.jar"/>
@@ -36,7 +35,6 @@
 	<classpathentry kind="lib" path="lib/json-lib-2.4-jdk15.jar"/>
 	<classpathentry kind="lib" path="lib/log4j-1.2.17.jar"/>
 	<classpathentry kind="lib" path="lib/rsyntaxtextarea-2.5.6.jar"/>
-	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.7.15-M1.jar"/>
 	<classpathentry kind="lib" path="lib/swingx-all-1.6.4.jar"/>
 	<classpathentry kind="lib" path="lib/xom-1.2.10.jar"/>
 	<classpathentry kind="lib" path="testlib/cglib-nodep-2.2.jar"/>
@@ -48,5 +46,7 @@
 	<classpathentry kind="lib" path="testlib/powermock-mockito-release-full-1.5.6-full.jar"/>
 	<classpathentry kind="lib" path="testlib/simple-5.0.2.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="lib/sqlite-jdbc-3.8.11.1.jar"/>
+	<classpathentry kind="lib" path="lib/httpclient-4.5.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
