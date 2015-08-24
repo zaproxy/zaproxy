@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.tree.TreeNode;
@@ -654,15 +656,15 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
-        List<Integer> handledAlerts = new ArrayList<Integer>(); 
+        SortedSet<String> handledAlerts = new TreeSet<String>(); 
         
         for (int i=0; i < alerts.size(); i++) {
         	Alert alert = alerts.get(i);
             if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
             	if (this.getAlertParam().isMergeRelatedIssues()) {
-	            	if (!handledAlerts.contains(alert.getPluginId())) {
+            		String fingerprint = alertFingerprint(alert);
+	            	if (handledAlerts.add(fingerprint)) {
 	            		// Its a new one
-	            		handledAlerts.add(alert.getPluginId());
 	            		// Build up the full set of details
 	            		StringBuilder sb = new StringBuilder();
 	            		sb.append("  <instances>\n");
@@ -670,9 +672,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	            		for (int j=i; j < alerts.size(); j++) {
 	            			// Deliberately include i!
 	            			Alert alert2 = alerts.get(j);
-	            			if (alert.getPluginId() == alert2.getPluginId() &&
-	            					alert.getRisk() == alert2.getRisk() && 
-	            					alert.getConfidence() == alert2.getConfidence()) {
+	            			if (fingerprint.equals(alertFingerprint(alert2))) {
 	            				if (this.getAlertParam().getMaximumInstances() == 0 ||
 	            						count < this.getAlertParam().getMaximumInstances()) {
 		            				sb.append("  <instance>\n");
@@ -696,6 +696,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
         xml.append("</alerts>");
         return xml.toString();
+    }
+    
+    private String alertFingerprint(Alert alert) {
+    	return alert.getPluginId() + "/" + alert.getRisk() + "/" + alert.getConfidence();
     }
 
     @Override
