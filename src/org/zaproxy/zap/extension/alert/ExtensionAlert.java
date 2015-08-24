@@ -71,6 +71,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
+	private AlertParam alertParam = null;
+	private OptionsAlertPanel optionsPanel = null;
 
     /**
      *
@@ -98,7 +100,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+	    extensionHook.addOptionsParamSet(getAlertParam());
         if (getView() != null) {
+	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
@@ -111,6 +115,20 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         extensionHook.addSessionListener(this);
 
     }
+
+	private OptionsAlertPanel getOptionsPanel() {
+		if (optionsPanel == null) {
+			optionsPanel = new OptionsAlertPanel();
+		}
+		return optionsPanel;
+	}
+
+	private AlertParam getAlertParam() {
+		if (alertParam == null) {
+			alertParam = new AlertParam();
+		}
+		return alertParam;
+	}
 
     public void alertFound(Alert alert, HistoryReference ref) {
         try {
@@ -636,10 +654,41 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
-        for (Alert alert : alerts) {
+        List<Integer> handledAlerts = new ArrayList<Integer>(); 
+        
+        for (int i=0; i < alerts.size(); i++) {
+        	Alert alert = alerts.get(i);
             if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
-                String urlParamXML = alert.getUrlParamXML();
-                xml.append(alert.toPluginXML(urlParamXML));
+            	if (this.getAlertParam().isMergeRelatedIssues()) {
+	            	if (!handledAlerts.contains(alert.getPluginId())) {
+	            		// Its a new one
+	            		handledAlerts.add(alert.getPluginId());
+	            		// Build up the full set of details
+	            		StringBuilder sb = new StringBuilder();
+	            		sb.append("  <instances>\n");
+	            		int count = 0;
+	            		for (int j=i; j < alerts.size(); j++) {
+	            			// Deliberately include i!
+	            			Alert alert2 = alerts.get(j);
+	            			if (alert.getPluginId() == alert2.getPluginId()) {
+	            				if (count < this.getAlertParam().getMaximumInstances()) {
+		            				sb.append("  <instance>\n");
+		            				sb.append(alert2.getUrlParamXML());
+		            				sb.append("  </instance>\n");
+	            				}
+	            				count ++;
+	            			}
+	            		}
+	            		sb.append("  </instances>\n");
+	            		sb.append("  <count>");
+	            		sb.append(count);
+	            		sb.append("</count>\n");
+	            		xml.append(alert.toPluginXML(sb.toString()));
+	            	}
+            	} else {
+                    String urlParamXML = alert.getUrlParamXML();
+                    xml.append(alert.toPluginXML(urlParamXML));
+            	}
             }
         }
         xml.append("</alerts>");
