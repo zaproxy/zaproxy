@@ -128,6 +128,6 @@ public class OptionsAlertPanel extends AbstractParamPanel {
 
     @Override
     public String getHelpIndex() {
-        return "ui.dialogs.options.report";
+        return "ui.dialogs.options.alert";
     }
 }
