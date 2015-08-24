@@ -671,7 +671,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	            			// Deliberately include i!
 	            			Alert alert2 = alerts.get(j);
 	            			if (alert.getPluginId() == alert2.getPluginId()) {
-	            				if (count < this.getAlertParam().getMaximumInstances()) {
+	            				if (this.getAlertParam().getMaximumInstances() == 0 ||
+	            						count < this.getAlertParam().getMaximumInstances()) {
 		            				sb.append("  <instance>\n");
 		            				sb.append(alert2.getUrlParamXML());
 		            				sb.append("  </instance>\n");
