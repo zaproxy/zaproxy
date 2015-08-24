@@ -670,7 +670,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	            		for (int j=i; j < alerts.size(); j++) {
 	            			// Deliberately include i!
 	            			Alert alert2 = alerts.get(j);
-	            			if (alert.getPluginId() == alert2.getPluginId()) {
+	            			if (alert.getPluginId() == alert2.getPluginId() &&
+	            					alert.getRisk() == alert2.getRisk() && 
+	            					alert.getConfidence() == alert2.getConfidence()) {
 	            				if (this.getAlertParam().getMaximumInstances() == 0 ||
 	            						count < this.getAlertParam().getMaximumInstances()) {
 		            				sb.append("  <instance>\n");
