@@ -216,6 +216,10 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		if (startNode != null || justScanInScope) {
 			addSeeds(spider, startNode);
 		} else if (this.scanContext != null) {
+			if (startURI != null && scanContext.isInContext(startURI.toString())) {
+				spider.addSeed(startURI);
+			}
+
 			for (SiteNode node : this.scanContext.getNodesInContextFromSiteTree()) {
 				addSeeds(spider, node);
 			}
