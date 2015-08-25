@@ -429,6 +429,7 @@ public class Spider {
 		if (seedList == null || seedList.isEmpty()) {
 			log.warn("No seeds available for the Spider. Cancelling scan...");
 			notifyListenersSpiderComplete(false);
+			notifyListenersSpiderProgress(100, 0, 0);
 			return;
 		}
 
