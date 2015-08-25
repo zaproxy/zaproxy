@@ -320,6 +320,9 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			pauseScanButton.setSelectedToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 			pauseScanButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setRolloverIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setSelectedIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png")));
+			pauseScanButton.setRolloverSelectedIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
