@@ -1,24 +1,54 @@
 package org.zaproxy.zap.view.widgets;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.text.MessageFormat;
 
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.extension.report.ReportSettings;
 import org.parosproxy.paros.model.Model;
 
 public class WritableFileChooser extends JFileChooser {
 
 	private static final long serialVersionUID = -8600149638325315049L;
-
+	private ReportSettings settings;
+	
 	public WritableFileChooser() {
 		super();
 	}
 
 	public WritableFileChooser(File currentDirectory) {
 		super(currentDirectory);
+		settings = new ReportSettings(false);
+		JPanel htmlContainer = new JPanel(new FlowLayout());
+		JCheckBox htmlButton = new JCheckBox("include HTML");
+		
+		Container southContainer = (Container)this.getComponent(3);
+		Container buttonContainer = (Container)southContainer.getComponent(3);
+		htmlContainer.add(htmlButton, FlowLayout.LEFT);
+		buttonContainer.add(htmlContainer, FlowLayout.LEFT);
+		southContainer.add(buttonContainer, BorderLayout.SOUTH);
+		this.add(southContainer, BorderLayout.SOUTH);
+		
+		htmlButton.addActionListener(new ActionListener() {
+			@Override 
+			public void actionPerformed(ActionEvent e) {
+				settings.setIncludeHTML(htmlButton.isSelected());
+			}
+		});
+	}
+	
+	public ReportSettings getSettings() {
+		return settings;
 	}
 
 	@Override

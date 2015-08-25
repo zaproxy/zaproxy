@@ -4,6 +4,7 @@
  */
 package org.zaproxy.zap.extension;
 
+import org.parosproxy.paros.extension.report.ReportSettings;
 import org.parosproxy.paros.model.SiteNode;
 
 /**
@@ -14,6 +15,6 @@ import org.parosproxy.paros.model.SiteNode;
  */
 public interface XmlReporterExtension {
     
-    String getXml(SiteNode site);
+    String getXml(SiteNode site, ReportSettings settings);
     
 }

@@ -133,7 +133,7 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             // ZAP: Removed unnecessary cast.
             String fileName = arg.getArguments().get(0);
             try {
-                report.generate(fileName, getModel(), "xml/report.html.xsl");
+                report.generate(fileName, getModel(), "xml/report.html.xsl", new ReportSettings(false));
                 System.out.println("Last Scan Report generated at " + fileName);
             } catch (Exception e) {
             	// ZAP: Log the exception

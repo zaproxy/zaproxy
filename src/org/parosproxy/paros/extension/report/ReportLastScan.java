@@ -67,20 +67,20 @@ public class ReportLastScan {
     }
 
 
-    public File generate(String fileName, Model model, String xslFile) throws Exception {
+    public File generate(String fileName, Model model, String xslFile, ReportSettings settings) throws Exception {
     	StringBuilder sb = new StringBuilder(500);
-        this.generate(sb, model);
+        this.generate(sb, model, settings);
         return ReportGenerator.stringToHtml(sb.toString(), xslFile, fileName);
     }
 
-    public void generate(StringBuilder report, Model model) throws Exception {
+    public void generate(StringBuilder report, Model model, ReportSettings settings) throws Exception {
         report.append("<?xml version=\"1.0\"?>");
         report.append("<OWASPZAPReport version=\"").append(Constant.PROGRAM_VERSION).append("\" generated=\"").append(ReportGenerator.getCurrentDateTimeString()).append("\">\r\n");
-        siteXML(report);
+        siteXML(report, settings);
         report.append("</OWASPZAPReport>");
     }
 
-    private void siteXML(StringBuilder report) {
+    private void siteXML(StringBuilder report, ReportSettings settings) {
         SiteMap siteMap = Model.getSingleton().getSession().getSiteTree();
         SiteNode root = (SiteNode) siteMap.getRoot();
         int siteNumber = root.getChildCount();
@@ -94,7 +94,7 @@ public class ReportLastScan {
                     " port=\"" + XMLStringUtil.escapeControlChrs(hostAndPort[1])+ "\""+
                     " ssl=\"" + String.valueOf(isSSL) + "\"" +
                     ">";
-            StringBuilder extensionsXML = getExtensionsXML(site);
+            StringBuilder extensionsXML = getExtensionsXML(site, settings);
             String siteEnd = "</site>";
             report.append(siteStart);
             report.append(extensionsXML);
@@ -102,14 +102,14 @@ public class ReportLastScan {
         }
     }
     
-    public StringBuilder getExtensionsXML(SiteNode site) {
+    public StringBuilder getExtensionsXML(SiteNode site, ReportSettings settings) {
         StringBuilder extensionXml = new StringBuilder();
         ExtensionLoader loader = Control.getSingleton().getExtensionLoader();
         int extensionCount = loader.getExtensionCount();
         for(int i=0; i<extensionCount; i++) {
             Extension extension = loader.getExtension(i);
             if(extension instanceof XmlReporterExtension) {
-                extensionXml.append(((XmlReporterExtension)extension).getXml(site));
+                extensionXml.append(((XmlReporterExtension)extension).getXml(site, settings));
             }
         }
         return extensionXml;
@@ -133,7 +133,7 @@ public class ReportLastScan {
     	}
     	
         try {
-            JFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
+        	WritableFileChooser chooser = new WritableFileChooser(Model.getSingleton().getOptionsParam().getUserDirectory());
 	        
             chooser.setFileFilter(new FileFilter() {
 
@@ -185,8 +185,9 @@ public class ReportLastScan {
             File file = null;
             if (rc == JFileChooser.APPROVE_OPTION) {
                 file = chooser.getSelectedFile();
+                ReportSettings settings = chooser.getSettings();
 
-                File report = generate(file.getAbsolutePath(), model, reportXSL);
+                File report = generate(file.getAbsolutePath(), model, reportXSL, settings);
                 if (report == null) {
                     view.showMessageDialog(
                             MessageFormat.format(Constant.messages.getString("report.unknown.error"),

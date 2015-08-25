@@ -44,6 +44,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
+import org.parosproxy.paros.extension.report.ReportSettings;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
@@ -632,13 +633,13 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     @Override
-    public String getXml(SiteNode site) {
+    public String getXml(SiteNode site, ReportSettings settings) {
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
         for (Alert alert : alerts) {
             if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
-                String urlParamXML = alert.getUrlParamXML();
+                String urlParamXML = alert.getUrlParamXML(settings);
                 xml.append(alert.toPluginXML(urlParamXML));
             }
         }
