@@ -458,7 +458,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
         	scanFinshedEventHandler(id, host);
 	    } else {
 	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
+	            EventQueue.invokeLater(new Runnable() {
 	                @Override
 	                public void run() {
 	                	scanFinshedEventHandler(id, host);

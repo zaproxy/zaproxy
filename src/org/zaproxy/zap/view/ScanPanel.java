@@ -757,7 +757,7 @@ public abstract class ScanPanel extends AbstractPanel {
         	scanFinshedEventHandler(host);
 	    } else {
 	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
+	            EventQueue.invokeLater(new Runnable() {
 	                @Override
 	                public void run() {
 	                	scanFinshedEventHandler(host);
