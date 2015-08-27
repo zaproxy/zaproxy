@@ -134,6 +134,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 						logger.debug("Setting custom policy " + policy.getName());
 						ascan.setScanPolicy(policy);
 					} else if (obj instanceof TechSet) {
+						logger.debug("Setting custom technology set");
 						ascan.setTechSet((TechSet) obj);
 						techOverridden = true;
 					} else if (obj instanceof ScriptCollection) {

@@ -60,6 +60,7 @@ import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
+import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.XMLStringUtil;
@@ -532,23 +533,41 @@ public class ActiveScanAPI extends ApiImplementor {
 		StructuralNode node;
 		
 		try {
-			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), url, method, postData);
+			Session session = Model.getSingleton().getSession();
+			node = SessionStructure.find(session.getSessionId(), url, method, postData);
 			if (node == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}
 			Target target = new Target(node);
 			target.setRecurse(scanChildren);
 			target.setInScopeOnly(scanJustInScope);
+
+			ArrayList<Object> objs = new ArrayList<Object>();
+			if (policy != null) {
+				objs.add(policy);
+			}
+
+			/*
+			 * A side effect of setting the Context based on the specified user
+			 * is the limiting of the scan to technologies associated with the
+			 * Context. When user is not specified, technologies should be
+			 * limited based on Contexts containing the supplied URL.
+			 */
+			TechSet mergedTechSet = new TechSet();
 			if (user != null) {
 				target.setContext(user.getContext());
 			}
-
-			Object [] objs = new Object[]{};
-			if (policy != null) {
-				objs = new Object[]{policy};
+			else {
+				List<Context> contexts = session.getContextsForUrl(url.getURI());
+				for (Context ctx : contexts) {
+					mergedTechSet.merge(ctx.getTechSet());
+				}
+				if (!contexts.isEmpty()) {
+					objs.add(mergedTechSet);
+				}
 			}
 
-			return controller.startScan(null, target, user, objs);
+			return controller.startScan(null, target, user, objs.toArray());
 		} catch(ApiException e) {
 			throw e;
 		} catch (Exception e) {
