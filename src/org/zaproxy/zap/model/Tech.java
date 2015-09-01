@@ -42,11 +42,16 @@ public class Tech implements Comparable<Tech> {
     public static final Tech ASP = new Tech(Lang, "ASP");
     public static final Tech C= new Tech(Lang, "C");
     public static final Tech PHP = new Tech(Lang, "PHP");
+    public static final Tech XML = new Tech(Lang, "XML");
 
     public static final Tech OS = new Tech("OS", "technologies.os");
     public static final Tech Linux = new Tech(OS, "Linux");
     public static final Tech MacOS = new Tech(OS, "MacOS");
     public static final Tech Windows = new Tech(OS, "Windows");
+
+    public static final Tech SCM = new Tech("SCM", "technologies.scm");
+    public static final Tech Git = new Tech(SCM, "Git");
+    public static final Tech SVN = new Tech(SCM, "SVN");
 
     public static final Tech WS = new Tech("WS", "technologies.ws");
     public static final Tech Apache = new Tech(WS, "Apache");
@@ -55,11 +60,12 @@ public class Tech implements Comparable<Tech> {
 
     public static final Tech[] builtInTech = {
         Db, MySQL, PostgreSQL, MsSQL, Oracle, SQLite, Access, Firebird, MaxDB, Sybase, Db2, HypersonicSQL, 
-        Lang, ASP, C, PHP,
+        Lang, ASP, C, PHP, XML,
         OS, Linux, MacOS, Windows,
+        SCM, Git, SVN,
         WS, Apache, IIS, Tomcat};
 
-    public static final Tech[] builtInTopLevelTech = {Db, Lang, OS, WS};
+    public static final Tech[] builtInTopLevelTech = {Db, Lang, OS, SCM, WS};
 
     private Tech parent = null;
     private String name = null;
