@@ -276,7 +276,7 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     @Override
     public void save() {
-        Object[] contextSpecificObjects = null;
+        List<Object> contextSpecificObjects = new ArrayList<>();
 		URI startUri = null;
         try {
         	// Always include the startUri, this has the side effect
@@ -301,6 +301,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         	
         	maxChildrenToCrawl = this.getIntValue(FIELD_MAX_CHILDREN);
         	
+        	contextSpecificObjects.add(spiderParam);
         	if (maxChildrenToCrawl > 0) {
         		// Add the filters to filter on maximum number of children
         		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
@@ -311,28 +312,17 @@ public class SpiderDialog extends StandardFieldsDialog {
         		maxChildrenParseFilter.setMaxChildren(maxChildrenToCrawl);
         		maxChildrenParseFilter.setModel(extension.getModel());
         		
-		        contextSpecificObjects = new Object[]{
-			            spiderParam,
-			            maxChildrenFetchFilter,
-			            maxChildrenParseFilter,
-			            startUri
-			        };
-        	} else {
-		        contextSpecificObjects = new Object[]{
-			            spiderParam,
-			            startUri
-			        };
+        		contextSpecificObjects.add(maxChildrenFetchFilter);
+        		contextSpecificObjects.add(maxChildrenParseFilter);
         	}
-    	} else {
-	        contextSpecificObjects = new Object[]{
-		            startUri
-		        };
     	}
+
+		if (startUri != null) {
+			contextSpecificObjects.add(startUri);
+		}
         
         String displayName;
-        if (target == null || target.getStartNode() == null ||
-        		! this.getStringValue(FIELD_START).equals(
-        				target.getStartNode().getHierarchicNodeName())) {
+        if (target == null || ! this.getStringValue(FIELD_START).equals(getTargetText(target))) {
        		// Clear the target as it doesnt match the value entered manually
 			target = new Target((StructuralNode)null);
 			displayName = startUri.toString();
@@ -357,7 +347,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         		displayName,
                 target,
                 getSelectedUser(), 
-                contextSpecificObjects);
+                contextSpecificObjects.toArray());
     }
 
     @Override
@@ -365,13 +355,15 @@ public class SpiderDialog extends StandardFieldsDialog {
     	if (this.isEmptyField(FIELD_START)) {
             return Constant.messages.getString("spider.custom.nostart.error");
     	}
-		try {
-			// Need both constructors as they catch slightly different issues ;)
-			String url = this.getStringValue(FIELD_START);
-			new URI(url, true);
-			new URL(url);
-		} catch (Exception e) {
-            return Constant.messages.getString("spider.custom.nostart.error");
+		if (!getStringValue(FIELD_START).equals(getTargetText(target))) {
+			try {
+				// Need both constructors as they catch slightly different issues ;)
+				String url = this.getStringValue(FIELD_START);
+				new URI(url, true);
+				new URL(url);
+			} catch (Exception e) {
+                return Constant.messages.getString("spider.custom.nostart.error");
+			}
 		}
 
     	if (this.target != null && !this.target.isValid()) {
