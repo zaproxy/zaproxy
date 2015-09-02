@@ -134,9 +134,15 @@ class ZAPv2(object):
 
         :Parameters:
            - `url`: the url to GET at.
-           - `get`: the disctionary to turn into GET variables.
+           - `get`: the dictionary to turn into GET variables.
         """
-        return json.loads(self.urlopen(url + '?' + urllib.urlencode(get)))
+        try:
+            req = json.loads(self.urlopen(url + '?' + urllib.urlencode(get)))
+            return req
+        except ValueError, e:
+            # If API KEY is required, but not passed
+            # Raising custom error
+            raise ZapError("Invalid or missing API key")
 
     def _request_other(self, url, get={}):
         """
@@ -144,6 +150,6 @@ class ZAPv2(object):
 
         :Parameters:
            - `url`: the url to GET at.
-           - `get`: the disctionary to turn into GET variables.
+           - `get`: the dictionary to turn into GET variables.
         """
         return self.urlopen(url + '?' + urllib.urlencode(get))
