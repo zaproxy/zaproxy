@@ -267,12 +267,7 @@ public class ClientApi {
 
 	public ApiResponse callApi (String component, String type, String method,
 			Map<String, String> params) throws ClientApiException {
-		Document dom;
-		try {
-			dom = this.callApiDom(component, type, method, params);
-		} catch (Exception e) {
-			throw new ClientApiException(e);
-		}
+		Document dom = this.callApiDom(component, type, method, params);
 		return ApiResponseFactory.getResponse(dom.getFirstChild());
 	}
 
@@ -311,8 +306,6 @@ public class ClientApi {
 			    while ((bytesRead = in.read(buffer)) != -1) {
 			    	out.write(buffer, 0, bytesRead);
 			    }
-			} catch (IOException e) {
-				throw new ClientApiException(e);
 			} finally {
 				out.close();
 				in.close();
