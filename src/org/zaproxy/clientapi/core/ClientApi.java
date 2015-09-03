@@ -278,16 +278,24 @@ public class ClientApi {
 			if (debug) {
 				debugStream.println("Open URL: " + url);
 			}
-			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
 			//get the factory
 			DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 			//Using factory get an instance of document builder
 			DocumentBuilder db = dbf.newDocumentBuilder();
 			//parse using builder to get DOM representation of the XML file
-			return db.parse(uc.getInputStream());
+			return db.parse(getConnectionInputStream(url));
 		} catch (Exception e) {
 			throw new ClientApiException(e);
 		}
+	}
+
+	private InputStream getConnectionInputStream(URL url) throws IOException {
+		HttpURLConnection uc = (HttpURLConnection) url.openConnection(proxy);
+		uc.connect();
+		if (uc.getResponseCode() >= HttpURLConnection.HTTP_BAD_REQUEST) {
+			return uc.getErrorStream();
+		}
+		return uc.getInputStream();
 	}
 
 	public byte[] callApiOther (String component, String type, String method,
@@ -297,8 +305,7 @@ public class ClientApi {
 			if (debug) {
 				debugStream.println("Open URL: " + url);
 			}
-			HttpURLConnection uc = (HttpURLConnection)url.openConnection(proxy);
-			InputStream in = uc.getInputStream();
+			InputStream in = getConnectionInputStream(url);
 			ByteArrayOutputStream out = new ByteArrayOutputStream();
 			byte[] buffer = new byte[8 * 1024];
 			try {
