@@ -229,6 +229,11 @@ public class Core {
 		return api.callApi("core", "view", "optionProxyExcludedDomainsEnabled", map);
 	}
 
+	public ApiResponse optionDefaultUserAgent() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "optionDefaultUserAgent", map);
+	}
+
 	/**
 	 * Shuts down ZAP
 	 */
@@ -419,6 +424,16 @@ public class Core {
 		}
 		map.put("String", string);
 		return api.callApi("core", "action", "setOptionProxyChainSkipName", map);
+	}
+
+	public ApiResponse setOptionDefaultUserAgent(String apikey, String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("String", string);
+		return api.callApi("core", "action", "setOptionDefaultUserAgent", map);
 	}
 
 	public ApiResponse setOptionHttpStateEnabled(String apikey, boolean bool) throws ClientApiException {

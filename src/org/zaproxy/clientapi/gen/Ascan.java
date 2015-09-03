@@ -203,7 +203,7 @@ public class Ascan {
 	}
 
 	/**
-	 * Active Scans from the perspective of an User, obtained using the given Context ID and User ID. See 'scan' action for more details.
+	 * Active Scans from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
 	 */
 	public ApiResponse scanAsUser(String apikey, String url, String contextid, String userid, String recurse, String scanpolicyname, String method, String postdata) throws ClientApiException {
 		Map<String, String> map = null;
