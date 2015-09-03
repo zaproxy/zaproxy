@@ -241,7 +241,7 @@
 		</unjar>
 
 		<!-- Need to manually increment the API jar version ${zap.java.api.version} (at the start) before uploading a new one -->
-		<jar jarfile="${dist}/zap-api-v2-${zap.java.api.version}.jar" update="true" compress="false">
+		<jar jarfile="${dist}/zap-api-v2.4-${zap.java.api.version}.jar" update="true" compress="false">
 			<zipfileset dir="${build}" prefix="">
 				<include name="org/zaproxy/clientapi/**"/>
 			</zipfileset>
