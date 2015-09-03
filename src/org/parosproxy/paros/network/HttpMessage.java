@@ -486,7 +486,7 @@ public class HttpMessage implements Message {
 	}
 	
 	/**
-	 * @deprecated (TODO version) Use {@link #getParamNameSet(org.parosproxy.paros.network.HtmlParameter.Type)} instead, it will
+	 * @deprecated (2.4.2) Use {@link #getParamNameSet(org.parosproxy.paros.network.HtmlParameter.Type)} instead, it will
 	 *             be removed in a following release.
 	 */
 	@Deprecated
@@ -500,7 +500,7 @@ public class HttpMessage implements Message {
 	 *
 	 * @param type the type of the parameters that will be extracted from the message
 	 * @return a {@code TreeSet} with the names of the parameters of the given {@code type}, never {@code null}
-	 * @since TODO version
+	 * @since 2.4.2
 	 */
 	public TreeSet<String> getParamNameSet(HtmlParameter.Type type) {
 	    TreeSet<String> set = new TreeSet<>();

@@ -149,7 +149,7 @@ public final class Constant {
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
     /**
-     * @deprecated (TODO add version) The path does not take into account the installation directory, use
+     * @deprecated (2.4.2) The path does not take into account the installation directory, use
      *             {@link #getPathDefaultConfigFile()} instead.
      */
     @Deprecated
@@ -880,7 +880,7 @@ public final class Constant {
      * Returns the path to default configuration file, located in installation directory.
      *
      * @return the {@code Path} to default configuration file.
-     * @since TODO add version
+     * @since 2.4.2
      */
     public static Path getPathDefaultConfigFile() {
         return Paths.get(getZapInstall(), "xml", FILE_CONFIG_NAME);

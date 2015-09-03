@@ -52,7 +52,7 @@ import org.xml.sax.SAXException;
 import org.zaproxy.zap.utils.XmlUtils;
 
 /**
- * @deprecated (TODO version) Use {@link org.zaproxy.zap.utils.ZapXmlConfiguration} instead.
+ * @deprecated (2.4.2) Use {@link org.zaproxy.zap.utils.ZapXmlConfiguration} instead.
  */
 @Deprecated
 public abstract class FileXML {
