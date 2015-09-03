@@ -4,3 +4,4 @@
 *.iws
 *.eml
 out/
+/bin/
