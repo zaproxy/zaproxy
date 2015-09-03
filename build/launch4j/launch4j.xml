@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>zap.jar</jar>
+  <jar>zap-2.4.2.jar</jar>
   <outfile>..\zap\ZAP.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -9,30 +10,33 @@
   <priority>normal</priority>
   <downloadUrl>http://java.com/download</downloadUrl>
   <supportUrl></supportUrl>
-  <customProcName>false</customProcName>
   <stayAlive>false</stayAlive>
+  <restartOnCrash>false</restartOnCrash>
   <manifest></manifest>
   <icon>..\..\src\resource\zap.ico</icon>
   <classPath>
     <mainClass>org.zaproxy.zap.ZAP</mainClass>
-    <cp>zap.jar</cp>
+    <cp>zap-2.4.2.jar</cp>
   </classPath>
   <jre>
     <path></path>
-    <minVersion>1.6.0</minVersion>
+    <bundledJre64Bit>false</bundledJre64Bit>
+    <bundledJreAsFallback>false</bundledJreAsFallback>
+    <minVersion>1.7.0</minVersion>
     <maxVersion></maxVersion>
     <jdkPreference>preferJdk</jdkPreference>
+    <runtimeBits>64/32</runtimeBits>
     <maxHeapSize>512</maxHeapSize>
     <maxHeapPercent>25</maxHeapPercent>
     <opt>-XX:PermSize=256M</opt>
   </jre>
   <versionInfo>
-    <fileVersion>1.4.0.1</fileVersion>
-    <txtFileVersion>1.4.0</txtFileVersion>
+    <fileVersion>2.4.2.0</fileVersion>
+    <txtFileVersion>2.4.2</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>The OWASP Zed Attack Proxy Project</copyright>
-    <productVersion>1.4.0.1</productVersion>
-    <txtProductVersion>1.4.0</txtProductVersion>
+    <productVersion>2.4.2.0</productVersion>
+    <txtProductVersion>2.4.2</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName>OWASP</companyName>
     <internalName>ZAP</internalName>
