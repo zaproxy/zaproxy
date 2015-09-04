@@ -277,8 +277,7 @@ public class DotNetAPIGenerator {
 	}
 
 	public static void main(String[] args) throws Exception {
-		// Command for generating a DotNet version of the ZAP API
-		
+		// Command for generating a DotNet version of the ZAP API		
 		DotNetAPIGenerator dnapi = new DotNetAPIGenerator("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated", true);
 		dnapi.generateCSharpFiles(ApiGeneratorUtils.getAllImplementors());
 		
