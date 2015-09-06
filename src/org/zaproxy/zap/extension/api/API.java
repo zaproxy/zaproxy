@@ -563,10 +563,6 @@ public class API {
     }
 
     private static void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
-        // XXX Change the call getDefaultResponseHeader to use "responseStatus" instead of STATUS_OK
-        // once API clients are changed to cope with a not 200 response, specially Java which fails 
-        // with a not so much useful exception
-        @SuppressWarnings("unused")
         String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
         if (format == Format.OTHER) {
             logger.error("API 'other' endpoint didn't handle exception:", cause);
@@ -588,7 +584,7 @@ public class API {
         }
 
         try {
-            msg.setResponseHeader(getDefaultResponseHeader(STATUS_OK, contentType, msg.getResponseBody().length()));
+            msg.setResponseHeader(getDefaultResponseHeader(responseStatus, contentType, msg.getResponseBody().length()));
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Failed to build API error response:", e);
         }
