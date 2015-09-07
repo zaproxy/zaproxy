@@ -19,15 +19,16 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.EventQueue;
 import java.awt.Font;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Random;
 import java.util.ResourceBundle;
-import java.util.Stack;
 
 import javax.swing.BorderFactory;
 import javax.swing.Box;
@@ -36,7 +37,6 @@ import javax.swing.JLabel;
 import javax.swing.JProgressBar;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
-import javax.swing.SwingUtilities;
 import javax.swing.border.Border;
 
 import org.apache.log4j.Level;
@@ -48,40 +48,34 @@ import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
-public class SplashScreen extends JFrame implements Runnable {
+public class SplashScreen extends JFrame {
 
     private static final String TIPS_PREFIX = "tips";
     private static final String TIPS_TIP_PREFIX = TIPS_PREFIX + ".tip.";
 
+    private static final Logger LOGGER = Logger.getLogger(SplashScreen.class);
+
     private static final long serialVersionUID = 1L;
     private final static char NEWLINE = '\n';
-    private boolean close = false;
 
     private JScrollPane logScrollPane = null;
     private JScrollPane tipsScrollPane = null;
     private JProgressBar loadProgressBar = null;
     private ZapTextArea logPanel = null;
     private ZapTextArea tipsPanel = null;
-    private final Stack<String> stack = new Stack<>();
-    private static Thread thread = null;
 
     // Tips and Tricks related variables
     private List<String> tipsAndTricks = null;
     private final Random random = new Random();
     private boolean tipsLoaded = false;
     private double currentPerc;
+    private SplashOutputWriter splashOutputWriter;
 
-    /**
-     * Main thread for a correct visualization of the panel
-     * regarding component updates
-     */
-    @Override
-    public void run() {
-        thread = Thread.currentThread();
+    public SplashScreen() {
+        super();
 
         setSize(DisplayUtils.getScaledDimension(420, 420));
         setLocationRelativeTo(null);
-        setUndecorated(true);
         setTitle(Constant.PROGRAM_NAME);
         setIconImages(DisplayUtils.getZapIconImages());
 
@@ -120,51 +114,11 @@ public class SplashScreen extends JFrame implements Runnable {
 
         this.add(panel);
         this.pack();
-        this.setVisible(true);
 
-        SplashOutputWriter splashOutputWriter = new SplashOutputWriter();
+        splashOutputWriter = new SplashOutputWriter();
         Logger.getRootLogger().addAppender(splashOutputWriter);
 
-        try {
-            // Show INFO and ERROR log messages until the UI is ready
-            while (!close) {
-                try {
-                    if (stack.isEmpty()) {
-                        Thread.sleep(100);
-                        
-                    } else {
-                        if (!tipsLoaded && getTipsAndTricks() != null) {
-                        	SwingUtilities.invokeLater(new Runnable() {
-								@Override
-								public void run() {
-                                    displayRandomTip();
-								}});
-                        }
-                        
-                    	SwingUtilities.invokeLater(new Runnable() {
-							@Override
-							public void run() {
-								while (!stack.isEmpty()) {
-									// Need to double check as another thread could have grabved the message
-                                    getLogPanel().append(stack.pop());
-                                    JScrollBar vertical = getLogJScrollPane().getVerticalScrollBar();
-                                    vertical.setValue(vertical.getMaximum());
-								}
-							}});
-                    }
-                    
-                } catch (InterruptedException e) {
-                    // New message to display
-                    Thread.interrupted();
-                }
-            }
-        
-        } catch (Exception e) {
-            // Ignore
-        }
-
-        Logger.getRootLogger().removeAppender(splashOutputWriter);
-        dispose();
+        setVisible(true);
     }
 
     /**
@@ -182,6 +136,22 @@ public class SplashScreen extends JFrame implements Runnable {
     }
 
     private void updateLoadingJProgressBar() {
+        if (!EventQueue.isDispatchThread()) {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+                    
+                    @Override
+                    public void run() {
+                        updateLoadingJProgressBar();
+                    }
+                });
+            } catch (InvocationTargetException e) {
+                LOGGER.error("Failed to update progress bar: ", e);
+            } catch (InterruptedException ignore) {
+            }
+            return;
+        }
+
         if (currentPerc > 100) {
             currentPerc = 100;
 
@@ -230,8 +200,7 @@ public class SplashScreen extends JFrame implements Runnable {
             logPanel.setLineWrap(true);
             logPanel.setName("");
 
-            // Dont use appendMsg as the interupt wont be handled at this stage
-            stack.push(Constant.messages.getString("start.splash.start"));
+            logPanel.append(Constant.messages.getString("start.splash.start"));
         }
         
         return logPanel;
@@ -253,8 +222,8 @@ public class SplashScreen extends JFrame implements Runnable {
     }
 
     private void displayRandomTip() {
-        if (this.getTipsAndTricks() == null) {
-            // Not loaded yet
+        if (tipsLoaded || this.getTipsAndTricks() == null) {
+            // Already shown or not loaded yet
             return;
         }
         
@@ -274,7 +243,8 @@ public class SplashScreen extends JFrame implements Runnable {
      * Close current splash screen
      */
     public void close() {
-        close = true;
+        Logger.getRootLogger().removeAppender(splashOutputWriter);
+        dispose();
     }
 
     /**
@@ -282,38 +252,43 @@ public class SplashScreen extends JFrame implements Runnable {
      * @param msg the message that should be appended
      */
     public void appendMsg(final String msg) {
-        stack.push(msg);
-        thread.interrupt();
+        if (!EventQueue.isDispatchThread()) {
+            try {
+                EventQueue.invokeAndWait(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        appendMsg(msg);
+                    }
+                });
+            } catch (InvocationTargetException e) {
+                LOGGER.error("Failed to append message: ", e);
+            } catch (InterruptedException ignore) {
+            }
+            return;
+        }
+
+        displayRandomTip();
+        getLogPanel().append(msg);
+        JScrollBar vertical = getLogJScrollPane().getVerticalScrollBar();
+        vertical.setValue(vertical.getMaximum());
     }
 
-    /* This can apparently cause lockups, probably due to a bug in log4j1
-     * Log4j2 might be ok, but upgrading is really painful :/
-
-     public void appendMsg(final String msg) {
-     if (EventQueue.isDispatchThread()) {
-     getTxtOutput().append(msg);
-     JScrollBar vertical = getJScrollPane().getVerticalScrollBar();
-     vertical.setValue( vertical.getMaximum() );
-     return;
-     }
-     try {
-     EventQueue.invokeAndWait(new Runnable() {
-     @Override
-     public void run() {
-     getTxtOutput().append(msg);
-     JScrollBar vertical = getJScrollPane().getVerticalScrollBar();
-     vertical.setValue( vertical.getMaximum() );
-     }
-     });
-     } catch (Exception e) {
-     // Ignore
-     }
-     }
-     */
     private class SplashOutputWriter extends WriterAppender {
 
         @Override
-        public void append(LoggingEvent event) {
+        public void append(final LoggingEvent event) {
+            if (!EventQueue.isDispatchThread()) {
+                EventQueue.invokeLater(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        append(event);
+                    }
+                });
+                return;
+            }
+
             if (event.getLevel().equals(Level.INFO)) {
                 String renderedmessage = event.getRenderedMessage();
                 if (renderedmessage != null) {

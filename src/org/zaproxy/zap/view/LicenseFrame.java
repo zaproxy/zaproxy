@@ -51,6 +51,9 @@ public class LicenseFrame extends AbstractFrame {
 	private boolean accepted = false;
 
 	private JPanel jPanel2 = null;
+
+	private Runnable postTask;
+
     /**
      *
      */
@@ -64,7 +67,7 @@ public class LicenseFrame extends AbstractFrame {
 	 *
 	 */
 	private void initialize() {
-        this.setDefaultCloseOperation(javax.swing.JFrame.EXIT_ON_CLOSE);
+        this.setDefaultCloseOperation(javax.swing.JFrame.DO_NOTHING_ON_CLOSE);
         this.setContentPane(getJPanel());
        	this.setPreferredSize(new Dimension(550, 375));
         this.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -78,6 +81,11 @@ public class LicenseFrame extends AbstractFrame {
 
         showLicense(currentPage);
 	}
+
+	public void setPostTask(Runnable postTask) {
+		this.postTask = postTask;
+	}
+
 	/**
 	 * This method initializes jPanel
 	 *
@@ -163,7 +171,9 @@ public class LicenseFrame extends AbstractFrame {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    accepted = true;
-			        LicenseFrame.this.dispose();
+				    if (postTask != null) {
+				        postTask.run();
+				    }
 
 				}
 			});
@@ -185,7 +195,9 @@ public class LicenseFrame extends AbstractFrame {
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
 				    accepted = false;
-				    System.exit(1);
+				    if (postTask != null) {
+				        postTask.run();
+				    }
 
 				}
 			});
