@@ -24,14 +24,9 @@ RUN chmod a+x /home/zap/.xinitrc
 RUN chown -R zap /home/zap/
 RUN chmod -R u+rw /home/zap/
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
-ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.4.0/:$PATH
-ENV ZAP_PATH /zap/ZAP_2.4.0/zap.sh
+ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.4.2/:$PATH
+ENV ZAP_PATH /zap/ZAP_2.4.2/zap.sh
 ENV HOME /home/zap/
-
-
-# download addons
-WORKDIR /zap/ZAP_2.3.1/plugins/
-RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i .zap/download | egrep '(ascanrules-.*|bruteforce-.*|coreLang-.*|diff-.*|directorylistv1-.*|fuzz-.*|gettingStarted-.*|help-.*|invoke-.*|onlineMenu-.*|plugnhack-.*|pscanrules-.*|quickstart-.*|reveal-.*|saverawmessage-.*|scripts-.*|selenium-.*|spiderAjax-.*|tips-.*|websocket-.*|zest-.*)'|wget --content-disposition -i - 
 
 # For noVNC support. Currently broken. Please fix.
 #RUN git clone http://github.com/kanaka/noVNC
