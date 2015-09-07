@@ -21,9 +21,7 @@ package org.zaproxy.zap.view;
 
 import java.awt.Font;
 import java.awt.GridBagLayout;
-import java.awt.Image;
 import java.awt.Insets;
-import java.awt.Toolkit;
 import java.util.ArrayList;
 import java.util.Enumeration;
 import java.util.List;
@@ -46,7 +44,6 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.WriterAppender;
 import org.apache.log4j.spi.LoggingEvent;
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.view.AbstractFrame;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
@@ -67,7 +64,6 @@ public class SplashScreen extends JFrame implements Runnable {
     private ZapTextArea tipsPanel = null;
     private final Stack<String> stack = new Stack<>();
     private static Thread thread = null;
-    private List<Image> icons;
 
     // Tips and Tricks related variables
     private List<String> tipsAndTricks = null;
@@ -87,7 +83,7 @@ public class SplashScreen extends JFrame implements Runnable {
         setLocationRelativeTo(null);
         setUndecorated(true);
         setTitle(Constant.PROGRAM_NAME);
-        setIconImages(loadIconImages());
+        setIconImages(DisplayUtils.getZapIconImages());
 
         BackgroundImagePanel panel = new BackgroundImagePanel();
         panel.setPreferredSize(DisplayUtils.getScaledDimension(420, 420));    //420x560
@@ -169,22 +165,6 @@ public class SplashScreen extends JFrame implements Runnable {
 
         Logger.getRootLogger().removeAppender(splashOutputWriter);
         dispose();
-    }
-
-    private List<Image> loadIconImages() {
-        if (icons == null) {
-            icons = new ArrayList<>(8);
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap16x16.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap32x32.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap48x48.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap64x64.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap128x128.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap256x256.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap512x512.png")));
-            icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap1024x1024.png")));
-        }
-        
-        return icons;
     }
 
     /**
