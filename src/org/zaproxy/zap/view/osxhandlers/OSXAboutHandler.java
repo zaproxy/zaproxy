@@ -7,6 +7,7 @@ import com.apple.eawt.AboutHandler;
 import com.apple.eawt.AppEvent.AboutEvent;
 
 public class OSXAboutHandler implements AboutHandler {
+    @Override
     public void handleAbout(AboutEvent ae) {
         AboutDialog dialog = new AboutDialog(View.getSingleton().getMainFrame(), true);
         dialog.setVisible(true);

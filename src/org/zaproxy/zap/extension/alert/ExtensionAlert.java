@@ -26,6 +26,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.Vector;
 
 import javax.swing.tree.TreeNode;
@@ -71,6 +73,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertsRefresh popupMenuAlertsRefresh = null;
     private PopupMenuShowAlerts popupMenuShowAlerts = null;
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
+	private AlertParam alertParam = null;
+	private OptionsAlertPanel optionsPanel = null;
 
     /**
      *
@@ -98,7 +102,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+	    extensionHook.addOptionsParamSet(getAlertParam());
         if (getView() != null) {
+	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertEdit());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertDelete());
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuAlertsRefresh());
@@ -111,6 +117,20 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         extensionHook.addSessionListener(this);
 
     }
+
+	private OptionsAlertPanel getOptionsPanel() {
+		if (optionsPanel == null) {
+			optionsPanel = new OptionsAlertPanel();
+		}
+		return optionsPanel;
+	}
+
+	private AlertParam getAlertParam() {
+		if (alertParam == null) {
+			alertParam = new AlertParam();
+		}
+		return alertParam;
+	}
 
     public void alertFound(Alert alert, HistoryReference ref) {
         try {
@@ -169,11 +189,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     private void addAlertToTree(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
     	
-        if (!View.isInitialised() || Constant.isLowMemoryOptionSet()) {
+        if (Constant.isLowMemoryOptionSet()) {
         	return;
         }
     	
-        if (EventQueue.isDispatchThread()) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             addAlertToTreeEventHandler(alert, ref, msg);
 
         } else {
@@ -636,14 +656,50 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         StringBuilder xml = new StringBuilder();
         xml.append("<alerts>");
         List<Alert> alerts = site.getAlerts();
-        for (Alert alert : alerts) {
+        SortedSet<String> handledAlerts = new TreeSet<String>(); 
+        
+        for (int i=0; i < alerts.size(); i++) {
+        	Alert alert = alerts.get(i);
             if (alert.getConfidence() != Alert.CONFIDENCE_FALSE_POSITIVE) {
-                String urlParamXML = alert.getUrlParamXML();
-                xml.append(alert.toPluginXML(urlParamXML));
+            	if (this.getAlertParam().isMergeRelatedIssues()) {
+            		String fingerprint = alertFingerprint(alert);
+	            	if (handledAlerts.add(fingerprint)) {
+	            		// Its a new one
+	            		// Build up the full set of details
+	            		StringBuilder sb = new StringBuilder();
+	            		sb.append("  <instances>\n");
+	            		int count = 0;
+	            		for (int j=i; j < alerts.size(); j++) {
+	            			// Deliberately include i!
+	            			Alert alert2 = alerts.get(j);
+	            			if (fingerprint.equals(alertFingerprint(alert2))) {
+	            				if (this.getAlertParam().getMaximumInstances() == 0 ||
+	            						count < this.getAlertParam().getMaximumInstances()) {
+		            				sb.append("  <instance>\n");
+		            				sb.append(alert2.getUrlParamXML());
+		            				sb.append("  </instance>\n");
+	            				}
+	            				count ++;
+	            			}
+	            		}
+	            		sb.append("  </instances>\n");
+	            		sb.append("  <count>");
+	            		sb.append(count);
+	            		sb.append("</count>\n");
+	            		xml.append(alert.toPluginXML(sb.toString()));
+	            	}
+            	} else {
+                    String urlParamXML = alert.getUrlParamXML();
+                    xml.append(alert.toPluginXML(urlParamXML));
+            	}
             }
         }
         xml.append("</alerts>");
         return xml.toString();
+    }
+    
+    private String alertFingerprint(Alert alert) {
+    	return alert.getPluginId() + "/" + alert.getRisk() + "/" + alert.getConfidence();
     }
 
     @Override

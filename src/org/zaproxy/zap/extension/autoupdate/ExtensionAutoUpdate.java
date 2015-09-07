@@ -83,8 +83,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
-    private static final String ZAP_VERSIONS_XML_SHORT = "https://bit.ly/owaspzap-2-4-1";
-    private static final String ZAP_VERSIONS_XML_WEEKLY_SHORT = "https://bit.ly/owaspzap-devw";
+	
+    private static final String ZAP_VERSIONS_XML_SHORT = "https://bit.ly/owaspzap-2-4-2";
+    private static final String ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT = "https://bit.ly/owaspzap-devw";
     private static final String ZAP_VERSIONS_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml";
 
 	// URLs for use when testing locally ;)
@@ -565,7 +566,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
     private ZapXmlConfiguration getRemoteConfigurationUrl(String url) throws 
     		IOException, ConfigurationException, InvalidCfuUrlException {
-        HttpMessage msg = new HttpMessage(new URI(url, true));
+        HttpMessage msg = new HttpMessage(new URI(url, true), 
+        		Model.getSingleton().getOptionsParam().getConnectionParam());
         getHttpSender().sendAndReceive(msg,true);
         if (msg.getResponseHeader().getStatusCode() != HttpStatusCode.OK) {
             throw new IOException();
@@ -685,7 +687,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	    				this.setName("ZAP-cfu");
 						String url = ZAP_VERSIONS_XML_SHORT;
 						if (Constant.isDailyBuild()) {
-							url = ZAP_VERSIONS_XML_WEEKLY_SHORT;
+							url = ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT;
 						}
 						logger.debug("Getting latest version info from " + url);
 			    		try {
@@ -831,6 +833,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		if (aoc == null) {
 			return;
 		}
+		if (getView() != null) {
+			// Initialise the dialogue so that it gets notifications of
+			// possible add-on changes and is also shown when needed
+			getAddOnsDialog();
+		}
 		try {
 			ZapRelease rel = aoc.getZapRelease();
 
@@ -918,10 +925,10 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 if (addonsDialog != null) {
                     // Just show the dialog
                     getAddOnsDialog().setVisible(true);
-                } else {
-                    logger.info("Updates not installed some add-ons would be uninstalled or require newer java version: "
-                            + result.getUninstalls());
+                    return false;
                 }
+                logger.info("Updates not installed some add-ons would be uninstalled or require newer java version: "
+                        + result.getUninstalls());
             }
             return true;
         }
@@ -942,6 +949,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
             logger.debug("Auto-downloading scanner rules");
             processAddOnChanges(null, addOnDependencyChecker.calculateUpdateChanges(addOns));
+            return false;
+        }
+
+        if (options.isCheckAddonUpdates() && addonsDialog != null) {
+            // Just show the dialog
+            addonsDialog.setVisible(true);
             return false;
         }
 

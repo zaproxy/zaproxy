@@ -22,7 +22,10 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.Dimension;
+import java.awt.Event;
 import java.awt.EventQueue;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -30,12 +33,13 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.KeyStroke;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.parosproxy.paros.extension.ExtensionHookView;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
@@ -50,6 +54,7 @@ import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.view.ZapMenuItem;
 
 /**
  * The ExtensionSpider is the Extension that controls the Spider.
@@ -89,6 +94,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 */
 	private List<String> excludeList = null;
 
+	private ZapMenuItem menuItemCustomScan = null;
+
 	/**
 	 * Instantiates a new spider extension.
 	 */
@@ -125,9 +132,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 		// Initialize views
 		if (getView() != null) {
-			ExtensionHookView pv = extensionHook.getHookView();
-			pv.addStatusPanel(getSpiderPanel());
-			pv.addOptionPanel(getOptionsSpiderPanel());
+			extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
+			extensionHook.getHookView().addStatusPanel(getSpiderPanel());
+			extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
 			ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
 		}
 
@@ -505,6 +512,23 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public SpiderScan getLastScan() {
 		return this.scanController.getLastScan();
 	}
+
+    private ZapMenuItem getMenuItemCustomScan() {
+        if (menuItemCustomScan  == null) {
+            menuItemCustomScan = new ZapMenuItem("menu.tools.spider",
+                    KeyStroke.getKeyStroke(KeyEvent.VK_S, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+
+            menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                	showSpiderDialog(null);
+                }
+            });
+
+        }
+        
+        return menuItemCustomScan;
+    }
 
 	public void showSpiderDialog(SiteNode node) {
 		if (spiderDialog == null) {

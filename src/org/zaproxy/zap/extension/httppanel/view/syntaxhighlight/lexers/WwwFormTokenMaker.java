@@ -396,6 +396,7 @@ public class WwwFormTokenMaker extends AbstractMarkupTokenMaker {
 
 
 
+  @Override
   public final void yybegin(int newState) {
     zzLexicalState = newState;
   }

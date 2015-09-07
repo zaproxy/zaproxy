@@ -81,7 +81,10 @@ public class ConnectionParam extends AbstractParam {
 	private static final String PROXY_CHAIN_PROMPT = CONNECTION_BASE_KEY + ".proxyChain.prompt";
 	private static final String TIMEOUT_IN_SECS = CONNECTION_BASE_KEY + ".timeoutInSecs";
 	private static final String SINGLE_COOKIE_REQUEST_HEADER = CONNECTION_BASE_KEY + ".singleCookieRequestHeader";
-    
+	private static final String DEFAULT_USER_AGENT = CONNECTION_BASE_KEY + ".defaultUserAgent";
+
+	private static final String DEFAULT_DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0";
+
     private boolean useProxyChain;
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
@@ -102,6 +105,7 @@ public class ConnectionParam extends AbstractParam {
 	private int timeoutInSecs = 120;
 
 	private boolean singleCookieRequestHeader = true;
+	private String defaultUserAgent = "";
 
 	/**
      * @return Returns the httpStateEnabled.
@@ -182,7 +186,14 @@ public class ConnectionParam extends AbstractParam {
         } catch (ConversionException e) {
             log.error("Error while loading the option singleCookieRequestHeader: " + e.getMessage(), e);
         }
-
+        
+        try {
+			this.defaultUserAgent = getConfig().getString(DEFAULT_USER_AGENT, DEFAULT_DEFAULT_USER_AGENT);
+		} catch (Exception e) {
+            log.error("Error while loading the option defaultUserAgent: " + e.getMessage(), e);
+			this.defaultUserAgent = DEFAULT_DEFAULT_USER_AGENT;
+		}
+        
         loadSecurityProtocolsEnabled();
 	}
 	
@@ -685,4 +696,12 @@ public class ConnectionParam extends AbstractParam {
             setSecurityProtocolsEnabled(SSLConnector.getClientEnabledProtocols());
         }
     }
+    
+	public String getDefaultUserAgent() {
+		return this.defaultUserAgent;
+	}
+	public void setDefaultUserAgent(String defaultUserAgent) {
+		this.defaultUserAgent = defaultUserAgent;
+		getConfig().setProperty(DEFAULT_USER_AGENT, defaultUserAgent);
+	}
 }

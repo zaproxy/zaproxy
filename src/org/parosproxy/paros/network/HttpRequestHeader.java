@@ -38,7 +38,8 @@
 // ZAP: 2013/04/14 Issue 596: Rename the method HttpRequestHeader.getSecure to isSecure
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/12/09 Set Content-type only in case of POST or PUT HTTP methods
-//
+// ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
+
 package org.parosproxy.paros.network;
 
 import java.io.UnsupportedEncodingException;
@@ -146,6 +147,11 @@ public class HttpRequestHeader extends HttpHeader {
     }
 
     public HttpRequestHeader(String method, URI uri, String version) throws HttpMalformedHeaderException {
+        this(method, uri, version, null);
+    }
+
+    public HttpRequestHeader(String method, URI uri, String version,
+    		ConnectionParam params) throws HttpMalformedHeaderException {
         this(method + " " + uri.toString() + " " + version.toUpperCase() + CRLF + CRLF);
         
         try {
@@ -155,7 +161,10 @@ public class HttpRequestHeader extends HttpHeader {
             log.error(e.getMessage(), e);
         }
         
-        setHeader(USER_AGENT, "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)");
+        String userAgent = params != null
+                ? params.getDefaultUserAgent()
+                : "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.0;)";
+        setHeader(USER_AGENT, userAgent);
         setHeader(PRAGMA, "no-cache");
         
         // ZAP: added the Cache-Control header field to comply with HTTP/1.1

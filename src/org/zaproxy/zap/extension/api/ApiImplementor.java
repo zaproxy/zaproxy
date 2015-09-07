@@ -24,10 +24,8 @@ import java.util.List;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
-import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
-import org.parosproxy.paros.network.HttpResponseHeader;
 import org.zaproxy.zap.extension.api.API.RequestType;
 
 
@@ -204,13 +202,13 @@ public abstract class ApiImplementor {
 							try {
 								val = params.getInt("Integer");
 							} catch (JSONException e) {
-								throw new ApiException(ApiException.Type.BAD_FORMAT, "Integer");
+								throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Integer");
 							}
 						} else if (method.getParameterTypes()[0].equals(Boolean.class) || method.getParameterTypes()[0].equals(boolean.class)) {
 							try {
 								val = params.getBoolean("Boolean");
 							} catch (JSONException e) {
-								throw new ApiException(ApiException.Type.BAD_FORMAT, "Boolean");
+								throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, "Boolean");
 							}
 						}
 						if (val == null) {

@@ -70,7 +70,7 @@
   <xsl:template match="alertitem">
 <p></p>
 <table width="100%" border="0">
-<xsl:apply-templates select="text()|alert|desc|uri|param|attack|evidence|otherinfo|solution|reference|cweid|wascid|p|br|wbr|ul|li"/>
+<xsl:apply-templates select="text()|alert|desc|uri|param|attack|evidence|instances|count|otherinfo|solution|reference|cweid|wascid|p|br|wbr|ul|li"/>
 </table>
   </xsl:template>
 
@@ -154,10 +154,10 @@
 
   <xsl:template match="uri">
   <tr bgcolor="#e8e8e8" valign="top"> 
-    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif">URL</font></blockquote></td>
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>URL</p></font></blockquote></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:apply-templates select="text()|*"/>
+    <p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:template>
@@ -165,10 +165,10 @@
   <xsl:template match="param">
   <xsl:if test="text() !=''">
   <tr bgcolor="#e8e8e8" valign="top"> 
-    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif">Parameter</font></blockquote></td>
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>Parameter</p></font></blockquote></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-	<xsl:apply-templates select="text()|*"/>
+    <p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:if>
@@ -177,10 +177,10 @@
 <xsl:template match="attack">
   <xsl:if test="text() !=''">
   <tr bgcolor="#e8e8e8" valign="top"> 
-    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif">Attack</font></blockquote></td>
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>Attack</p></font></blockquote></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-	<xsl:apply-templates select="text()|*"/>
+    <p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:if>
@@ -189,25 +189,81 @@
   <xsl:template match="evidence">
   <xsl:if test="text() !=''">
   <tr bgcolor="#e8e8e8" valign="top"> 
-    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif">Evidence</font></blockquote></td>
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>Evidence</p></font></blockquote></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-    <xsl:apply-templates select="text()|*"/>
+    <p><xsl:apply-templates select="text()|*"/></p>
+    </font></td>
+  </tr>
+  </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="instances/instance/uri">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>URL</p></font></blockquote></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+    <p><xsl:apply-templates select="text()|*"/></p>
+    </font></td>
+  </tr>
+  </xsl:template>
+ 
+  <xsl:template match="instances/instance/param">
+  <xsl:if test="text() !=''">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>&#160;&#160;&#160;&#160;Parameter</p></font></blockquote></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+	<p><xsl:apply-templates select="text()|*"/></p>
+    </font></td>
+  </tr>
+  </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="instances/instance/attack">
+  <xsl:if test="text() !=''">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>&#160;&#160;&#160;&#160;Attack</p></font></blockquote></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+	<p><xsl:apply-templates select="text()|*"/></p>
+    </font></td>
+  </tr>
+  </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="instances/instance/evidence">
+  <xsl:if test="text() !=''">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif"><p>&#160;&#160;&#160;&#160;Evidence</p></font></blockquote></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+    <p><xsl:apply-templates select="text()|*"/></p>
+    </font></td>
+  </tr>
+  </xsl:if>
+  </xsl:template>
+
+  <xsl:template match="count">
+  <xsl:if test="text() !=''">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><font size="2" face="Arial, Helvetica, sans-serif"><p>Instances</p></font></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+    <p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:if>
   </xsl:template>
 
   <xsl:template match="otherinfo">
-  <xsl:if test="text() !=''">
   <tr bgcolor="#e8e8e8" valign="top"> 
-    <td width="20%"><blockquote><font size="2" face="Arial, Helvetica, sans-serif">Other information</font></blockquote></td>
+    <td width="20%"><font size="2" face="Arial, Helvetica, sans-serif"><p>Other information</p></font></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-	<xsl:apply-templates select="text()|*"/>
+    <p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
-  </xsl:if>
 
   <TR vAlign="top"> 
     <TD colspan="2"> </TD>
@@ -239,7 +295,7 @@
     <td width="20%"><font size="2" face="Arial, Helvetica, sans-serif"><p>CWE Id</p></font></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-	<xsl:apply-templates select="text()|*"/>
+	<p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:template>
@@ -249,7 +305,7 @@
     <td width="20%"><font size="2" face="Arial, Helvetica, sans-serif"><p>WASC Id</p></font></td>
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
-	<xsl:apply-templates select="text()|*"/>
+	<p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:template>

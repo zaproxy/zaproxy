@@ -40,7 +40,7 @@ public class ContextCreateDialog extends StandardFieldsDialog {
 	private static final String TOP_NODE = "context.label.top"; 
 	private static final String IN_SCOPE_FIELD = "context.inscope.label"; 
 	
-	private SiteNode topNode = null;;
+	private SiteNode topNode = null;
     private Logger logger = Logger.getLogger(ContextCreateDialog.class);
 
 	public ContextCreateDialog(Frame owner) {

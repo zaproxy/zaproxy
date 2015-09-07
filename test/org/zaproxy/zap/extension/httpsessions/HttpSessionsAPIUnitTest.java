@@ -72,13 +72,23 @@ public class HttpSessionsAPIUnitTest {
     }
 
     @Test
-    public void shouldRemoveSecureHttpSchemeWhenGettingAuthorityFromSite() {
+    public void shouldRemoveSecureHttpSchemeAndKeepNonDefaultPortWhenGettingAuthorityFromSite() {
+        // Given
+        String site = "https://" + HOST + ":8443";
+        // When
+        String authority = HttpSessionsAPI.getAuthority(site);
+        // Then
+        assertThat(authority, is(equalTo(HOST + ":8443")));
+    }
+
+    @Test
+    public void shouldRemoveSecureHttpSchemeAndAddDefaultPortWhenGettingAuthorityFromSite() {
         // Given
         String site = "https://" + HOST;
         // When
         String authority = HttpSessionsAPI.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST)));
+        assertThat(authority, is(equalTo(HOST + ":443")));
     }
 
     @Test

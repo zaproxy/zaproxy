@@ -28,11 +28,14 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class WikiAPIGenerator {
+
+    private static final String WIKI_FILE_EXTENSION = ".md";
+
 	/*
 	 * Note that this currently only generates English wiki pages, although the API itself can be internationalized
 	 */
 	private String base = "ApiGen_";
-	private String title = "= ZAP 2.0.0 API =\n";
+	private String title = "# ZAP " + Constant.PROGRAM_VERSION + " API\n";
 	private File dir; 
 	private int methods = 0;
 	private boolean optional = false;
@@ -50,11 +53,11 @@ public class WikiAPIGenerator {
     }
 
 	private void generateWikiIndex() throws IOException {
-		File f = new File(this.dir, base + "Index.wiki");
+		File f = new File(this.dir, base + "Index" + WIKI_FILE_EXTENSION);
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(title);
-		out.write("== Components ==\n");
+		out.write("## Components\n");
 		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
 			out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
 		}
@@ -64,12 +67,13 @@ public class WikiAPIGenerator {
 	}
 
 	private void generateWikiFull() throws IOException {
-		File f = new File(this.dir, base + "Full.wiki");
+		File f = new File(this.dir, base + "Full" + WIKI_FILE_EXTENSION);
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(title);
-		out.write("== Full List ==\n");
-		out.write("|| _Component_ || _Name_ || _Type_ || _Parameters_ || _Description_ ||\n");
+		out.write("## Full List\n");
+		out.write("| _Component_ | _Name_ | _Type_ | _Parameters_ | _Description_ |\n");
+		out.write("|:------------|:-------|:-------|:-------------|:--------------|\n");
 		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
 			for (ApiElement view : imp.getApiViews()) {
 				this.generateWikiElement(view, imp.getPrefix(), "view", out, true);
@@ -86,7 +90,7 @@ public class WikiAPIGenerator {
 		if (optional) {
 			out.write("This component is optional and therefore the API will only work if it is installed.\n\n");
 		}
-		out.write("Back to [" + base + "Index index]\n\n");
+		out.write("Back to [index](" + base + "Index)\n\n");
 		//out.write("\nGenerated on " + new Date() + "\n");
 		out.close();
 	}
@@ -108,12 +112,12 @@ public class WikiAPIGenerator {
 	}
 	private void generateWikiElement(ApiElement element, String component, String type, Writer out, boolean incComponentCol) throws IOException {
 		if (incComponentCol) {
-			out.write("|| " + component);
+			out.write("| " + component);
 		}
-		out.write("|| " + element.getName() + "|| " + type + " || ");
+		out.write("| " + element.getName() + "| " + type + " | ");
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
-				out.write(param + "`*` ");
+				out.write(param + "* ");
 			}
 		}
 		if (element.getOptionalParamNames() != null) {
@@ -121,7 +125,7 @@ public class WikiAPIGenerator {
 				out.write(param + " ");
 			}
 		}
-		out.write(" || ");
+		out.write(" | ");
 		// Add description if defined
 		String descTag = element.getDescriptionTag();
 		if (descTag == null) {
@@ -135,18 +139,19 @@ public class WikiAPIGenerator {
 			System.out.println("No i18n for: " + descTag);
 		}
 		
-		out.write(" ||\n");
+		out.write(" |\n");
 		methods++;
 		
 	}
 
 	private void generateWikiComponent(ApiImplementor imp) throws IOException {
-		File f = new File(this.dir, base + imp.getPrefix() + ".wiki");
+		File f = new File(this.dir, base + imp.getPrefix() + WIKI_FILE_EXTENSION);
 		System.out.println("Generating " + f.getAbsolutePath());
 		FileWriter out = new FileWriter(f);
 		out.write(title);
-		out.write("== Component: " + imp.getPrefix() + " ==\n");
-		out.write("|| _Name_ || _Type_ || _Parameters_ || _Description_ ||\n");
+		out.write("## Component: " + imp.getPrefix() + "\n");
+		out.write("| _Name_ | _Type_ | _Parameters_ | _Description_ |\n");
+		out.write("|:-------|:-------|:-------------|:--------------|\n");
 		for (ApiElement view : imp.getApiViews()) {
 			this.generateWikiElement(view, imp.getPrefix(), "view", out);
 		}
@@ -158,7 +163,7 @@ public class WikiAPIGenerator {
 		}
 		out.write("\n");
 		out.write("Starred parameters are mandatory\n\n");
-		out.write("Back to [" + base + "Index index]\n\n");
+		out.write("Back to [index](" + base + "Index)\n\n");
 		//out.write("\nGenerated on " + new Date() + "\n");
 		out.close();
 	}

@@ -42,36 +42,36 @@ class pscan(object):
         """
         Sets whether or not the passive scanning is enabled
         """
-        return next(self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pscan/action/setEnabled/', {'enabled' : enabled, 'apikey' : apikey}).itervalues())
 
     def enable_all_scanners(self, apikey=''):
         """
         Enables all passive scanners
         """
-        return next(self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pscan/action/enableAllScanners/', {'apikey' : apikey}).itervalues())
 
     def disable_all_scanners(self, apikey=''):
         """
         Disables all passive scanners
         """
-        return next(self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pscan/action/disableAllScanners/', {'apikey' : apikey}).itervalues())
 
     def enable_scanners(self, ids, apikey=''):
         """
         Enables all passive scanners with the given IDs (comma separated list of IDs)
         """
-        return next(self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pscan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey}).itervalues())
 
     def disable_scanners(self, ids, apikey=''):
         """
         Disables all passive scanners with the given IDs (comma separated list of IDs)
         """
-        return next(self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pscan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey}).itervalues())
 
     def set_scanner_alert_threshold(self, id, alertthreshold, apikey=''):
         """
         Sets the alert threshold of the passive scanner with the given ID, accepted values for alert threshold: OFF, DEFAULT, LOW, MEDIUM and HIGH
         """
-        return next(self.zap._request(self.zap.base + 'pscan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'pscan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey}).itervalues())
 
 

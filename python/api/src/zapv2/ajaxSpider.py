@@ -48,12 +48,12 @@ class ajaxSpider(object):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/scan/', {'url' : url, 'inScope' : inscope, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/scan/', {'url' : url, 'inScope' : inscope, 'apikey' : apikey}).itervalues())
 
     def stop(self, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/stop/', {'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/stop/', {'apikey' : apikey}).itervalues())
 
 

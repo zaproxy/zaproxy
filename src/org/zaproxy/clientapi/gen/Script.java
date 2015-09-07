@@ -38,16 +38,25 @@ public class Script {
 		this.api = api;
 	}
 
+	/**
+	 * Lists the script engines available
+	 */
 	public ApiResponse listEngines() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("script", "view", "listEngines", map);
 	}
 
+	/**
+	 * Lists the scripts available, with its engine, name, description, type and error state.
+	 */
 	public ApiResponse listScripts() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("script", "view", "listScripts", map);
 	}
 
+	/**
+	 * Enables the script with the given name
+	 */
 	public ApiResponse enable(String apikey, String scriptname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -58,6 +67,9 @@ public class Script {
 		return api.callApi("script", "action", "enable", map);
 	}
 
+	/**
+	 * Disables the script with the given name
+	 */
 	public ApiResponse disable(String apikey, String scriptname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -68,6 +80,9 @@ public class Script {
 		return api.callApi("script", "action", "disable", map);
 	}
 
+	/**
+	 * Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
+	 */
 	public ApiResponse load(String apikey, String scriptname, String scripttype, String scriptengine, String filename, String scriptdescription) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -82,6 +97,9 @@ public class Script {
 		return api.callApi("script", "action", "load", map);
 	}
 
+	/**
+	 * Removes the script with the given name
+	 */
 	public ApiResponse remove(String apikey, String scriptname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -92,6 +110,9 @@ public class Script {
 		return api.callApi("script", "action", "remove", map);
 	}
 
+	/**
+	 * Runs the stand alone script with the give name
+	 */
 	public ApiResponse runStandAloneScript(String apikey, String scriptname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();

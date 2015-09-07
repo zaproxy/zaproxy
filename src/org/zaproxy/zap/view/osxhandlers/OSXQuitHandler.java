@@ -8,6 +8,7 @@ import com.apple.eawt.QuitHandler;
 import com.apple.eawt.QuitResponse;
 
 public class OSXQuitHandler implements QuitHandler {
+    @Override
     public void handleQuitRequestWith(QuitEvent qe, QuitResponse qr) {
 
         // Quitting is way better when you're saving your state

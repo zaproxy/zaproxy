@@ -26,6 +26,7 @@
 // method getOptionsDatabasePanel() and changed the method hook(ExtensionHook)
 // to add the optionsDatabasePanel to the options panel.
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
+// ZAP: 2015/08/17 Issue 1795: Allow JVM options to be configured via GUI
 
 package org.parosproxy.paros.extension.option;
 
@@ -53,6 +54,7 @@ public class ExtensionOption extends ExtensionAdaptor {
 	 */
     // ZAP: Added the instance variable.
 	private OptionsDatabasePanel optionsDatabasePanel = null;
+	private OptionsJvmPanel optionsJvmPanel = null;
 
 	
     public ExtensionOption() {
@@ -83,6 +85,7 @@ public class ExtensionOption extends ExtensionAdaptor {
 	        extensionHook.getHookView().addOptionPanel(getOptionsLangPanel());
 	        // ZAP: Added the statement.
             extensionHook.getHookView().addOptionPanel(getOptionsDatabasePanel());
+            extensionHook.getHookView().addOptionPanel(getOptionsJvmPanel());
 	    }
 	}
 
@@ -154,6 +157,13 @@ public class ExtensionOption extends ExtensionAdaptor {
             optionsDatabasePanel = new OptionsDatabasePanel();
         }
         return optionsDatabasePanel;
+    }
+	
+    private OptionsJvmPanel getOptionsJvmPanel() {
+        if (optionsJvmPanel == null) {
+            optionsJvmPanel = new OptionsJvmPanel();
+        }
+        return optionsJvmPanel;
     }
 	
 	@Override

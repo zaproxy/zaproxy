@@ -72,54 +72,66 @@ class context(object):
         """
         Add exclude regex to context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/excludeFromContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}).itervalues())
 
     def include_in_context(self, contextname, regex, apikey=''):
         """
         Add include regex to context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/includeInContext/', {'contextName' : contextname, 'regex' : regex, 'apikey' : apikey}).itervalues())
 
-    def new_context(self, contextname='', apikey=''):
+    def new_context(self, contextname, apikey=''):
         """
-        Creates a new context in the current session
+        Creates a new context with then given name in the current session
         """
-        return next(self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}).itervalues())
+
+    def remove_context(self, contextname, apikey=''):
+        """
+        Removes a context in the current session
+        """
+        return next(self.zap._request(self.zap.base + 'context/action/removeContext/', {'contextName' : contextname, 'apikey' : apikey}).itervalues())
 
     def export_context(self, contextname, contextfile, apikey=''):
-        return next(self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey}))
+        """
+        Exports the context with the given name to a file. If a relative file path is specified it will be resolved against the "contexts" directory in ZAP "home" dir.
+        """
+        return next(self.zap._request(self.zap.base + 'context/action/exportContext/', {'contextName' : contextname, 'contextFile' : contextfile, 'apikey' : apikey}).itervalues())
 
     def import_context(self, contextfile, apikey=''):
-        return next(self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey}))
+        """
+        Imports a context from a file. If a relative file path is specified it will be resolved against the "contexts" directory in ZAP "home" dir.
+        """
+        return next(self.zap._request(self.zap.base + 'context/action/importContext/', {'contextFile' : contextfile, 'apikey' : apikey}).itervalues())
 
     def include_context_technologies(self, contextname, technologynames, apikey=''):
         """
         Includes technologies with the given names, separated by a comma, to a context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/includeContextTechnologies/', {'contextName' : contextname, 'technologyNames' : technologynames, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/includeContextTechnologies/', {'contextName' : contextname, 'technologyNames' : technologynames, 'apikey' : apikey}).itervalues())
 
     def include_all_context_technologies(self, contextname, apikey=''):
         """
         Includes all built in technologies in to a context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/includeAllContextTechnologies/', {'contextName' : contextname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/includeAllContextTechnologies/', {'contextName' : contextname, 'apikey' : apikey}).itervalues())
 
     def exclude_context_technologies(self, contextname, technologynames, apikey=''):
         """
         Excludes technologies with the given names, separated by a comma, from a context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/excludeContextTechnologies/', {'contextName' : contextname, 'technologyNames' : technologynames, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/excludeContextTechnologies/', {'contextName' : contextname, 'technologyNames' : technologynames, 'apikey' : apikey}).itervalues())
 
     def exclude_all_context_technologies(self, contextname, apikey=''):
         """
         Excludes all built in technologies from a context
         """
-        return next(self.zap._request(self.zap.base + 'context/action/excludeAllContextTechnologies/', {'contextName' : contextname, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/excludeAllContextTechnologies/', {'contextName' : contextname, 'apikey' : apikey}).itervalues())
 
     def set_context_in_scope(self, contextname, booleaninscope, apikey=''):
         """
         Sets a context to in scope (contexts are in scope by default)
         """
-        return next(self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'context/action/setContextInScope/', {'contextName' : contextname, 'booleanInScope' : booleaninscope, 'apikey' : apikey}).itervalues())
 
 

@@ -100,6 +100,7 @@ public class StructuralTableNode implements StructuralNode {
 		return this.rs;
 	}
 
+	@Override
 	public boolean isSameAs (StructuralNode node) {
 		if (node instanceof StructuralTableNode) {
 			return this.rs.getStructureId() == ((StructuralTableNode)node).rs.getStructureId();

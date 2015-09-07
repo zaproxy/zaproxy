@@ -26,10 +26,16 @@ class autoupdate(object):
 
     @property
     def latest_version_number(self):
+        """
+        Returns the latest version number
+        """
         return next(self.zap._request(self.zap.base + 'autoupdate/view/latestVersionNumber/').itervalues())
 
     @property
     def is_latest_version(self):
+        """
+        Returns 'true' if ZAP is on the latest version
+        """
         return next(self.zap._request(self.zap.base + 'autoupdate/view/isLatestVersion/').itervalues())
 
     @property
@@ -65,30 +71,33 @@ class autoupdate(object):
         return next(self.zap._request(self.zap.base + 'autoupdate/view/optionReportAlphaAddons/').itervalues())
 
     def download_latest_release(self, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/', {'apikey' : apikey}))
+        """
+        Downloads the latest release, if any 
+        """
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/downloadLatestRelease/', {'apikey' : apikey}).itervalues())
 
     def set_option_check_on_start(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckOnStart/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_download_new_release(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionDownloadNewRelease/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_check_addon_updates(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionCheckAddonUpdates/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_install_addon_updates(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallAddonUpdates/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_install_scanner_rules(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionInstallScannerRules/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_report_release_addons(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportReleaseAddons/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_report_beta_addons(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportBetaAddons/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_report_alpha_addons(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'autoupdate/action/setOptionReportAlphaAddons/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
 

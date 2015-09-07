@@ -39,6 +39,7 @@ from pnh import pnh
 from pscan import pscan
 from script import script
 from search import search
+from selenium import selenium
 from sessionManagement import sessionManagement
 from spider import spider
 from users import users
@@ -85,10 +86,11 @@ class ZAPv2(object):
         self.httpsessions = httpSessions(self)
         self.importLogFiles = importLogFiles(self)
         self.params = params(self)
-        self.php = php(self)
+        self.pnh = pnh(self)
         self.pscan = pscan(self)
         self.script = script(self)
         self.search = search(self)
+        self.selenium = selenium(self)
         self.sessionManagement = sessionManagement(self)
         self.spider = spider(self)
         self.users = users(self)

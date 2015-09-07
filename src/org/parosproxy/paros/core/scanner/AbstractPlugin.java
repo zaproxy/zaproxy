@@ -46,6 +46,7 @@
 // ZAP: 2014/11/19 Issue 1412: Init scan rule status (quality) from add-on
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
+// ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
 
 package org.parosproxy.paros.core.scanner;
 
@@ -84,7 +85,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     protected static final String CRLF = "\r\n";
     private HostProcess parent = null;
     private HttpMessage msg = null;
-    // private boolean enabled = false;
+    private boolean enabled = true;
     private Logger log = Logger.getLogger(this.getClass());
     private Configuration config = null;
     // ZAP Added delayInMs
@@ -454,7 +455,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     @Override
     public boolean isEnabled() {
-        return getProperty("enabled").equals("1");
+        return enabled;
 
     }
 
@@ -468,11 +469,12 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      */
     @Override
     public void setEnabled(boolean enabled) {
-        if (enabled) {
-            setProperty("enabled", "1");
-            
-        } else {
-            setProperty("enabled", "0");
+        if (this.enabled != enabled) {
+            this.enabled = enabled;
+            setProperty("enabled", Boolean.toString(enabled));
+            if (enabled && getAlertThreshold() == AlertThreshold.OFF) {
+                setAlertThreshold(AlertThreshold.DEFAULT);
+            }
         }
     }
 
@@ -525,6 +527,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void setAlertThreshold(AlertThreshold level) {
         setProperty("level", level.name());
+        setEnabled(level != AlertThreshold.OFF);
     }
 
     @Override
@@ -781,18 +784,14 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     
     @Override
     public void saveTo(Configuration conf) {
-        if (getProperty("enabled") == null) {
-            setProperty(conf, "enabled", "1");
-        }
+        setProperty(conf, "enabled", getProperty("enabled"));
         setProperty(conf, "level", getProperty("level"));
         setProperty(conf, "strength", getProperty("strength"));
     }
     
     @Override
     public void loadFrom(Configuration conf) {
-        if (getProperty(conf, "enabled") == null) {
-            setProperty("enabled", "1");
-        }
+        setProperty("enabled", getProperty(conf, "enabled"));
         setProperty("level", getProperty(conf, "level"));
         setProperty("strength", getProperty(conf, "strength"));
     }
@@ -822,7 +821,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     @Override
     public void createParamIfNotExist() {
         if (getProperty("enabled") == null) {
-            setProperty("enabled", "1");
+            setEnabled(getAlertThreshold() != AlertThreshold.OFF);
         }
     }
 
@@ -914,6 +913,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return 0;
     }
 
+	@Override
 	public AddOn.Status getStatus() {
 		return status;
 	}

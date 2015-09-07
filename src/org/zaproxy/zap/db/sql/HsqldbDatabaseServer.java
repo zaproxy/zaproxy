@@ -85,6 +85,7 @@ public class HsqldbDatabaseServer extends SqlDatabaseServer implements DatabaseS
     }
     
     
+    @Override
     void shutdown(boolean compact) throws SQLException {
     	super.shutdown(compact);
         Connection conn = getNewConnection();

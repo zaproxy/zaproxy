@@ -27,6 +27,7 @@ import javax.swing.tree.DefaultTreeModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.view.View;
 
 
 class AlertTreeModel extends DefaultTreeModel {
@@ -47,7 +48,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     void addPath(final Alert alert) {
-        if (EventQueue.isDispatchThread()) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	addPathEventHandler(alert);
         } else {
             try {

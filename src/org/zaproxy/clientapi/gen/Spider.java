@@ -177,7 +177,10 @@ public class Spider {
 		return api.callApi("spider", "view", "optionSendRefererHeader", map);
 	}
 
-	public ApiResponse scan(String apikey, String url, String maxchildren) throws ClientApiException {
+	/**
+	 * Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, and the 'recurse' parameter can be used to prevent the spider from seeding recursively.
+	 */
+	public ApiResponse scan(String apikey, String url, String maxchildren, String recurse) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -185,10 +188,14 @@ public class Spider {
 		}
 		map.put("url", url);
 		map.put("maxChildren", maxchildren);
+		map.put("recurse", recurse);
 		return api.callApi("spider", "action", "scan", map);
 	}
 
-	public ApiResponse scanAsUser(String apikey, String url, String contextid, String userid, String maxchildren) throws ClientApiException {
+	/**
+	 * Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
+	 */
+	public ApiResponse scanAsUser(String apikey, String url, String contextid, String userid, String maxchildren, String recurse) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
@@ -198,6 +205,7 @@ public class Spider {
 		map.put("contextId", contextid);
 		map.put("userId", userid);
 		map.put("maxChildren", maxchildren);
+		map.put("recurse", recurse);
 		return api.callApi("spider", "action", "scanAsUser", map);
 	}
 

@@ -114,11 +114,11 @@ Vérifiez périodiquement que vous n'utilisez pas une cryptographie obsolète. C
 Phase: Architecture et Design
 Compartimentez votre système afin d'obtenir des zones "sûres" où les limites de confiance peuvent être tracées sans équivoque. Ne permettez pas que des données sensibles sortent de la limite de confiance et soyez toujours attentif à l'interface avec un compartiment situé hors de la zone sûre.
 
-Phases: Implementation; Architecture and Design
-When you use industry-approved techniques, you need to use them correctly. N'économisez pas en sautant des étapes gourmandes en ressource (CWE-325). Ces étapes sont souvent essentielles pour prévenir les attaques courantes.
+Phases : Implémentation; Architecture et Design
+Quand vous utilisez des techniques éprouvées dans l'industrie, vous devez les utiliser correctement. N'économisez pas en sautant des étapes gourmandes en ressource (CWE-325). Ces étapes sont souvent essentielles pour prévenir les attaques courantes.
 
-Phase: Implementation
-Use naming conventions and strong types to make it easier to spot when sensitive data is being used. Lors de la création de structures, objets ou autres entités complexes, séparez autant que possible les données sensibles des non sensibles.
+Phase: Implémentation
+Utilisez des conventions de nommage et des types forts pour repérer plus facilement quand des données sensibles sont utilisées. Lors de la création de structures, objets ou autres entités complexes, séparez autant que possible les données sensibles des non sensibles.
 Il est ainsi plus facile de repérer les parties du code traitant des données non chiffrées.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Transport-Layer-Protection</reference>
 	<reference>http://cwe.mitre.org/data/definitions/311.html</reference>
@@ -130,33 +130,33 @@ Il est ainsi plus facile de repérer les parties du code traitant des données n
 	<desc>L'inclusion de fichiers distants (Remote File Inclusion - RFI) est une technique d'attaque exploitant les mécanismes "d'inclusion de fichier dynamique" (dynamic file include) dans les applications internet. Lorsque des applications web acceptent des entrées de l'utilisateur (URL, valeur de paramètres, etc.) et passent celles-ci dans les commandes de fichiers inclus, l'application web peut être trompée en incluant du code malveillant dans les fichiers distants.
 
 Presque tous les frameworks d'application internet prennent en charge l'inclusion de fichiers. L'inclusion de fichier est principalement utilisée pour rassembler le code commun dans des fichiers distincts, qui sont référencés par la suite par les différents modules de l'application principale. Quand une application internet fait référence à un fichier inclus, le code du fichier peut être exécuté implicitement ou explicitement en appelant des procédures spécifiques. Si le choix du module à charger est basé sur les éléments de la requête HTTP, l'application internet peut être sujette à RFI.
-An attacker can use RFI for:
-    * Running malicious code on the server: any code in the included malicious files will be run by the server. Si le fichier inclus n'est pas exécuté à l'aide d'un wrapper quelconque, le code de ces fichiers inclus est exécuté dans le contexte de l'utilisateur du serveur. Ceci pourrait conduire à la prise de contrôle totale du système.
+Un agresseur peut utiliser RFI pour: 
+* exécuter du code malveillant sur le serveur: tout code trouvé dans les fichiers inclus malveillants va être exécuté par le serveur. Si le fichier inclus n'est pas exécuté à l'aide d'un wrapper quelconque, le code de ces fichiers inclus est exécuté dans le contexte de l'utilisateur du serveur. Ceci pourrait conduire à la prise de contrôle totale du système.
     * Exécuter du code malveillant sur les clients : le code malveillant de l'agresseur peut trafiquer le contenu de la réponse envoyée au client. L'attaquant peut incorporer du code malveillant dans la réponse qui sera exécutée par le client (par exemple, du code Javascript pour voler les cookies de session du client).
 
 PHP est particulièrement vulnérable aux attaques RFI, d'une part en raison de l'usage intensif de l'inclusion de fichiers en programmation PHP, d'autre part en raison des configurations par défaut des serveurs, qui augmentent le risque d'attaque RFI.</desc>
-	<solution>Phase: Architecture and Design
-When the set of acceptable objects, such as filenames or URLs, is limited or known, create a mapping from a set of fixed input values (such as numeric IDs) to the actual filenames or URLs, and reject all other inputs.
+	<solution>Phase: Architecture et Design
+Quand l'ensemble des objets admissibles, tels que les noms de fichier ou URL, est limité ou connu, créez un mappage à partir d'un ensemble de valeurs d'entrée fixes (telles que des ID numériques) sur les URLs ou noms de fichiers réels, et rejetez toutes les autres entrées.
 Par exemple, ID 1 pourrait correspondre à "inbox.txt" et ID 2 pourrait représenter "profile.txt". Des librairies telles que ESAPI AccessReferenceMap fournissent cette fonctionnalité.
 
-Phases: Architecture and Design; Operation
-Run your code in a "jail" or similar sandbox environment that enforces strict boundaries between the process and the operating system. Cela peut restreindre efficacement quels fichiers sont accessibles dans un répertoire particulier ou lesquels peuvent être exécutés par votre logiciel.
+Phases: Architecture et Design; Exploitation
+Exécutez votre code dans un bac à sable ou un autre environnement similaire, qui impose des limites strictes entre le processus et le système d'exploitation. Cela peut restreindre efficacement quels fichiers sont accessibles dans un répertoire particulier ou lesquels peuvent être exécutés par votre logiciel.
 Au niveau du système d'exploitation, on peut citer les exemples pour Unix: chroot, AppArmor et SELinux. En général, le code géré (managed code) peut offrir une certaine protection. Par exemple, java.io.FilePermission dans le SecurityManager de Java permet de spécifier des restrictions sur les opérations de fichiers.
 Ceci peut ne pas être une solution adéquate. Par ailleurs, elle limite l'impact au seul système d'exploitation; le reste de votre application peut encore faire l'objet de vulnérabilités.
 Veillez à éviter CWE-243 et d'autres failles liées aux environnements virtuels.
 L'interprèteur PHP propose des restrictions telles que "open basedir" ou le mode sans échec, qui peuvent rendre plus difficile pour un agresseur de s'échapper de l'application. Envisagez également Suhosin, une extension PHP endurcie, qui comprend diverses options désactivant les fonctionnalités les plus dangereuses de PHP.
 
-Phase: Implementation
-Assume all input is malicious. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
-For filenames, use stringent whitelists that limit the character set to be used. Dans la mesure du possible, ne permettez qu'un seul caractère "." dans le nom de fichier, pour éviter les failles comme CWE-23, et excluez les séparateurs de répertoire comme "/" pour éviter la CWE-36. Utilisez une liste d'extensions de fichier autorisées, ce qui contribuera à éviter CWE-434.
+Phase: Implémentation
+Partez du principe que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide car l'entrée ne contient que des caractères alphanumériques, mais elle n'est pas valide si vous attendez des couleurs telles que "rouge" ou "bleu".
+Pour les noms de fichiers, utilisez des listes blanches rigoureuses qui limitent le jeu de caractères à utiliser. Dans la mesure du possible, ne permettez qu'un seul caractère "." dans le nom de fichier, pour éviter les failles comme CWE-23, et excluez les séparateurs de répertoire comme "/" pour éviter la CWE-36. Utilisez une liste d'extensions de fichier autorisées, ce qui contribuera à éviter CWE-434.
 
-Phases: Architecture and Design; Operation
-Store library, include, and utility files outside of the web document root, if possible. Sinon, stockez-les dans un répertoire distinct et utilisez le contrôle d'accès du serveur web pour empêcher les agresseurs de les référencer directement. Une pratique courante consiste à définir une constante fixe dans chaque programme appelant, puis à vérifier l'existence de la constante dans le fichier de bibliothèque/include; si la constante n'existe pas, alors le fichier a été directement demandé et l'exécution devrait stopper immédiatement.
+Phases: Architecture et Design; Exploitation
+Stockez si possible les fichiers bibliothèque, include et utilitaire en dehors de la racine des documents internet. Sinon, stockez-les dans un répertoire distinct et utilisez le contrôle d'accès du serveur web pour empêcher les agresseurs de les référencer directement. Une pratique courante consiste à définir une constante fixe dans chaque programme appelant, puis à vérifier l'existence de la constante dans le fichier de bibliothèque/include; si la constante n'existe pas, alors le fichier a été directement demandé et l'exécution devrait stopper immédiatement.
 Ceci réduit considérablement les risques qu'un attaquant soit capable de contourner les mécanismes de protection présents dans le programme de base, mais pas dans les fichiers include. La surface d'attaque en sera également réduite.
 
-Phases: Architecture and Design; Implementation
-Understand all the potential areas where untrusted inputs can enter your software: parameters or arguments, cookies, anything read from the network, environment variables, reverse DNS lookups, query results, request headers, URL components, e-mail, files, databases, and any external systems that provide data to the application. Rappelez-vous que de telles entrées peuvent être obtenues indirectement via des appels d'API.
+Phases : Architecture et Design; Implémentation
+Assurez-vous de comprendre tous les secteurs potentiels où les entrées douteuses peuvent pénétrer dans votre logiciel: paramètres ou arguments, cookies, tout ce qui vient du réseau, variables d'environnement, requêtes DNS inverses, résultats de requêtes, en-têtes de requêtes, composantes d'URLs, courriels, fichiers, bases de données et tout système externe fournissant des données à l'application. Rappelez-vous que de telles entrées peuvent être obtenues indirectement via des appels d'API.
 De nombreux problèmes d'inclusion de fichiers se produisent parce que le programmeur a assumé que certaines entrées ne pouvaient pas être modifiées, en particulier les cookies et les composants d'URL.</solution>
 	<reference>http://projects.webappsec.org/Remote-File-Inclusion</reference>
 	<reference>http://cwe.mitre.org/data/definitions/98.html</reference>
@@ -167,17 +167,17 @@ De nombreux problèmes d'inclusion de fichiers se produisent parce que le progra
 	<alert>Formatage de chaînes</alert>
 	<desc>Les attaques par formatage de chaînes perturbent le flux d'une application en utilisant les fonctionnalités des librairies de formatage de chaînes pour accéder à d'autres espaces mémoire. Ces vulnérabilités apparaissent lorsque les données fournies par l'utilisateur sont utilisées directement comme schéma de formatage pour certaines fonctions en C/C++ (par exemple, fprintf, printf, sprintf, setproctitle, syslog,...).
 
-If an attacker passes a format string consisting of printf conversion characters (e.g. "%f", "%p", "%n", etc.) as a parameter value to the web application, they may:
-    * Execute arbitrary code on the server
-    * Read values off the stack
-    * Cause segmentation faults / software crashes
+Si un agresseur passe un schéma de formatage de chaîne composé de caractères de conversion printf (p.ex. «%f», «%p», «%n», etc.) comme valeur de paramètre à l'application internet, il est possible de:
+* exécuter du code arbitraire sur le serveur 
+* lire les valeurs sur la pile
+* provoquer des erreurs de segmentation ou des plantages logiciels
 
-Format String attacks are related to other attacks in the Threat Classification: Buffer Overflows and Integer Overflows. Toutes les trois sont basées sur la capacité à manipuler la mémoire ou son interprétation d'une manière qui contribue à l'objectif de l'agresseur.</desc>
-	<solution>Phase: Requirements
-Choose a language that is not subject to this flaw.
+Les attaques par formatage de chaînes sont liées aux autres attaques de la classification des  menaces : Débordement de tampon et Débordement d'entier. Toutes les trois sont basées sur la capacité à manipuler la mémoire ou son interprétation d'une manière qui contribue à l'objectif de l'agresseur.</desc>
+	<solution>Phase : Exigences
+Choisissez un langage qui n'est pas sujet à cette faille.
 
-Phase: Implementation
-Ensure that all format string functions are passed a static string which cannot be controlled by the user and that the proper number of arguments are always sent to that function as well. Dans la mesure du possible, utilisez les fonctions qui ne supportent pas l'opérateur %n en schéma de formatage.
+Phase : Implémentation
+Assurez-vous que toutes les fonctions de formatage de chaînes reçoivent une chaîne statique qui ne peut être manipulée par l'utilisateur et que ces fonctions sont toujours appelées avec le nombre correct d'arguments. Dans la mesure du possible, utilisez les fonctions qui ne supportent pas l'opérateur %n en schéma de formatage.
 Construction : observez les avertissements des compilateurs et des linkers, car ils peuvent vous alerter de l'usage impropre de l'une de ces fonctions.
 </solution>
 	<reference>http://projects.webappsec.org/Format-String</reference>
@@ -187,12 +187,12 @@ Construction : observez les avertissements des compilateurs et des linkers, car 
 <vuln_items>wasc_7</vuln_items>
 <vuln_item_wasc_7>
 	<alert>Débordement de tampon</alert>
-	<desc>Un débordement de mémoire tampon est une erreur qui se produit lorsque plus de données sont écrites dans un bloc de mémoire ou de mémoire tampon, que la mémoire tampon allouée pour les contenir. Exploiter un débordement de tampon permet à un agresseur de modifier des portions d'espace d'adressage du processus cible. This ability can be used for a number of purposes, including the following:
-    * Control the process execution
-    * Crash the process
-    * Modify internal variables
+	<desc>Un débordement de mémoire tampon est une erreur qui se produit lorsque plus de données sont écrites dans un bloc de mémoire ou de mémoire tampon, que la mémoire tampon allouée pour les contenir. Exploiter un débordement de tampon permet à un agresseur de modifier des portions d'espace d'adressage du processus cible. Cette capacité peut être utilisée de diverses manières, notamment: 
+* pour prendre le contrôle de l'exécution du processus 
+* interrompre le processus 
+* modifier les variables internes
 
-The attacker’s goal is almost always to control the target process’ execution. Ceci est obtenu en identifiant un pointeur de fonction en mémoire, qui peut être modifié, directement ou indirectement, à l'aide du dépassement de capacité. Lorsqu'un tel pointeur est utilisé par le programme pour exécuter une instruction de saut ou d'appel, l'emplacement de l'instruction fournie par l'agresseur sera utilisé, permettant ainsi au pirate de contrôler le processus.
+Le but de l'agresseur est presque toujours de contrôler l'exécution du processus cible. Ceci est obtenu en identifiant un pointeur de fonction en mémoire, qui peut être modifié, directement ou indirectement, à l'aide du dépassement de capacité. Lorsqu'un tel pointeur est utilisé par le programme pour exécuter une instruction de saut ou d'appel, l'emplacement de l'instruction fournie par l'agresseur sera utilisé, permettant ainsi au pirate de contrôler le processus.
 
 Dans de nombreux cas, le pointeur de fonction est modifié de manière à pointer vers un emplacement où l'agresseur a placé du code machine. Ces instructions sont communément dénommées shellcode, dû au fait que les agresseurs souhaitent souvent intégrer un environnement de ligne de commande, ou shell, dans le contexte du processus en cours d'exécution.
 
@@ -207,27 +207,26 @@ Phase: Architecture et Design
 Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Citons comme exemple les bibliothèques Safe C String (SafeStr) de Messier et Viega et la bibliothèque Strsafe.h de Microsoft. Ces bibliothèques offrent des versions plus sûres des fonctions de gestion de chaînes, sujettes au débordement . Celles-ci ne forment toutefois pas une solution complète, puisque de nombreux dépassements de tampon ne sont pas liés aux chaînes de caractères.
 
-Phase: Build and Compilation
-Run or compile your software using features or extensions that automatically provide a protection mechanism that mitigates or eliminates buffer overflows.
+Phase : Construction et Compilation 
+Exécutez ou compilez votre logiciel à l'aide des fonctionnalités ou extensions qui fournissent automatiquement un mécanisme de protection atténuant ou supprimant le débordement de tampon.
 Par exemple, certains compilateurs et extensions fournissent des mécanismes de détection automatique de dépassement de capacité tampon qui sont intégrés dans le code compilé. Le paramètre /GS de Visual Studio de Microsoft , le paramètre FORTIFY SOURCE de GCC de Fedora/Red Hat, StackGuard et ProPolice en sont quelques exemples.
 
-Phase: Implementation
-Consider adhering to the following rules when allocating and managing an application's memory:
-      Double check that your buffer is as large as you specify.
+Phase: Implémentation
+Envisagez de respecter les règles suivantes lors de l'attribution et la gestion de mémoire de l'application:
+Vérifiez que votre tampon est aussi grand que vous l'avez spécifié.
       Lorsque vous utilisez des fonctions acceptant un certain nombre d'octets à copier, comme strncpy(), rappelez-vous que si la taille du tampon de destination est égale à la taille du tampon source, alors la chaîne peut ne pas se terminer par NULL.
       Vérifiez les limites de la mémoire tampon si vous appelez cette fonction dans une boucle et assurez-vous que vous ne risquez pas d'écrire au-delà de l'espace alloué.
       Si nécessaire, tronquez toutes les chaînes d'entrée à une longueur raisonnable avant de les passer aux fonctions de copie et de concaténation.
 
-Phase: Operation
-Use a feature like Address Space Layout Randomization (ASLR).
+Phase: Exploitation
+Utilisez une fonctionnalité comme Address Space Layout Randomization (ASLR).
 
-Phase: Operation
+Phase: Exploitation
 
-Use a CPU and operating system that offers Data Execution Protection (NX) or its equivalent.
+Utilisez un processeur et un système d'exploitation offrant la Data Execution Protection (NX) ou son équivalent.
 
-Phase: Implementation
-
-Replace unbounded copy functions with analogous functions that support length arguments, such as strcpy with strncpy. Créez celles-ci si elles ne sont pas disponibles.
+Phase: Implémentation
+Remplacez les fonctions de copie non bornée par des fonctions analogues demandant la longueur en argument, p.ex. remplacez strcpy par strncpy. Créez celles-ci si elles ne sont pas disponibles.
 </solution>
 	<reference>http://projects.webappsec.org/Buffer-Overflow</reference>
 	<reference>http://cwe.mitre.org/data/definitions/119.html</reference>
@@ -246,26 +245,26 @@ Les attaques persistantes se produisent lorsque le code malveillant est envoyé 
 Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Quelques exemples de bibliothèques et de frameworks facilitant l'encodage approprié des pages internet sont: la bibliothèque Microsoft Anti-XSS, le module d'encodage OWASP ESAPI, et Apache Wicket.
 
-Phases: Implementation; Architecture and Design
-Understand the context in which your data will be used and the encoding that will be expected. Ceci est particulièrement important lors de la transmission de données entre les différents composants, ou lors de la génération de sorties qui peuvent contenir plusieurs encodages en même temps, comme des pages internet ou des messages électroniques multi-parties. Étudiez tous les protocoles de communication et les représentations de données attendus pour déterminer les stratégies de codage requis.
+Phases: Implémentation; Architecture et Design
+Tenez compte du contexte dans lequel vos données seront utilisées et de l'encodage qui sera attendu. Ceci est particulièrement important lors de la transmission de données entre les différents composants, ou lors de la génération de sorties qui peuvent contenir plusieurs encodages en même temps, comme des pages internet ou des messages électroniques multi-parties. Étudiez tous les protocoles de communication et les représentations de données attendus pour déterminer les stratégies de codage requis.
 Pour toutes les données qui seront affichées sur une autre page web, en particulier toutes les données qui ont été reçues de l'extérieur, utilisez l'encodage approprié pour tous les caractères non alphanumériques.
 Consultez le XSS Prevention Cheat Sheet pour plus de détails sur les types d'encodage et d'échappement dont vous pouvez avoir besoin.
 
-Phase: Architecture and Design
-For any security checks that are performed on the client side, ensure that these checks are duplicated on the server side, in order to avoid CWE-602. Les agresseurs peuvent contourner les contrôles côté client en modifiant les valeurs après que ces contrôles aient été effectués, ou en changeant le client afin d'en retirer complètement les contrôles. Ensuite, ces valeurs modifiées seraient soumises au serveur.
+Phase : Architecture et Design
+Pour tous les contrôles de sécurité effectués du côté client, veillez à ce que ces contrôles soient réitérés du côté serveur également, afin d'éviter la faille CWE-602. Les agresseurs peuvent contourner les contrôles côté client en modifiant les valeurs après que ces contrôles aient été effectués, ou en changeant le client afin d'en retirer complètement les contrôles. Ensuite, ces valeurs modifiées seraient soumises au serveur.
 
 Le cas échéant, utilisez des mécanismes structurés appliquant automatiquement la séparation entre le code et les données. Ces mécanismes peuvent être en mesure de fournir automatiquement la présentation, le codage et la validation adéquat, au lieu de se fier au développeur pour réaliser ces fonctionnalités pour chaque champ de sortie généré.
 
-Phase: Implementation
-For every web page that is generated, use and specify a character encoding such as ISO-8859-1 or UTF-8. Quand aucun codage n'est spécifié, le navigateur web tente de deviner quel encodage est effectivement utilisé dans la page web et peut choisir un codage erroné. Ceci peut pousser le navigateur internet à traiter spécialement certaines séquences, exposant ainsi le client à de subtiles attaques XSS. Voir CWE-116 pour des mesures de réduction de risque plus liées à l'encodage / l'échappement.
+Phase: Implémentation
+Pour chaque page internet générée, utilisez et spécifiez un encodage de chaînes de caractères comme ISO-8859-1 ou UTF-8. Quand aucun codage n'est spécifié, le navigateur web tente de deviner quel encodage est effectivement utilisé dans la page web et peut choisir un codage erroné. Ceci peut pousser le navigateur internet à traiter spécialement certaines séquences, exposant ainsi le client à de subtiles attaques XSS. Voir CWE-116 pour des mesures de réduction de risque plus liées à l'encodage / l'échappement.
 
 Pour aider à réduire les attaques XSS contre le cookie de session de l'utilisateur, fixez la valeur du cookie à HttpOnly. Dans les navigateurs prennant en charge la fonctionnalité HttpOnly (telles que les versions les plus récentes d'Internet Explorer et de Firefox), cet attribut peut éviter que le cookie de session de l'utilisateur soit accessible à des scripts malveillants utilisant document.cookie côté client. Ce n'est toutefois pas une solution complète, car HttpOnly n'est pas supporté par tous les navigateurs. Plus important encore, XMLHTTPRequest et d'autres puissantes  technologies de navigateur fournissent un accès en lecture aux en-têtes HTTP, y compris à l'en-tête Set-Cookie, dans laquelle la balise HttpOnly est définie.
 
 Supposez que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
 
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide car elle ne contient que des caractères alphanumériques, mais elle n'est pas valide si des couleurs sont attendues, telles que "rouge" ou "bleu".
 
-Ensure that you perform input validation at well-defined interfaces within the application. Ceci aidera à protéger l'application, même si un composant est réutilisé ou déplacé ailleurs.
+Veillez à effectuer une validation d'entrée à des interfaces bien définies au sein de l'application. Ceci aidera à protéger l'application, même si un composant est réutilisé ou déplacé ailleurs.
 	</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Scripting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/79.html</reference>
@@ -276,8 +275,8 @@ Ensure that you perform input validation at well-defined interfaces within the a
 	<alert>Cross Site Request Forgery</alert>
 	<desc>La contrefaçon de requête intersites (Cross Site Request Forgery - CSRF) est une attaque qui consiste à forcer une victime à envoyer une requête HTTP vers une destination cible, sans qu'elle n'en aie ni connaissance ni intention, afin d'effectuer une action en se faisant passer pour la victime. La cause originelle est que les fonctionnalités de l'application sont appelées à l'aide d'URL ou d'actions de formulaires prévisibles et reproductibles. La nature de l'attaque est que le CSRF exploite la confiance qu'un site internet accorde à un utilisateur. En revanche, le cross-site scripting (XSS) exploite la confiance que l'utilisateur porte à un site internet. Comme XSS, les attaques CSRF ne sont pas nécessairement multi-sites, mais elles peuvent l'être. La contrefaçon de requête intersite est également connue sous les noms CSRF, XSRF, attaque en un clic (one-click attack), session riding, confused deputy et sea surf.
 
-CSRF attacks are effective in a number of situations, including:
-    * The victim has an active session on the target site.
+Les attaques CSRF sont efficaces dans de nombreuses situations, notamment:
+* quand la victime a une session active sur le site cible.
     * quand la victime est authentifiée via HTTP auth sur le site cible.
     * quand la victime est sur le même réseau local que le site cible.
 
@@ -286,11 +285,11 @@ CSRF a d'abord été utilisée pour effectuer une action contre un site cible en
 Utilisez une librairie ou un framework approuvé qui ne permet pas cette vulnérabilité, ou qui contient des fonctionnalités permettant d'éviter plus facilement cette vulnérabilité.
 Utilisez  par exemple des librairies anti-CSRF telles que CSRFGuard de l'OWASP.
 
-Phase: Implementation
-Ensure that your application is free of cross-site scripting issues, because most CSRF defenses can be bypassed using attacker-controlled script.
+Phase: Implémentation
+Assurez-vous que votre application soit exempte de problèmes de cross-site scripting, parce que la plupart des défenses contre le CSRF peuvent être contournées en utilisant des scripts contrôlés par le pirate.
 
-Phase: Architecture and Design
-Generate a unique nonce for each form, place the nonce into the form, and verify the nonce upon receipt of the form. Assurez-vous que cette valeur unique ne soit pas prévisible (CWE-330).
+Phase: Architecture et Design
+Générez une valeur à usage unique pour chaque formulaire, placez-la dans le formulaire et vérifiez-la à la réception du formulaire. Assurez-vous que cette valeur unique ne soit pas prévisible (CWE-330).
 Notez que ceci peut aussi être contourné en utilisant XSS.
 
 Identifiez les opérations particulièrement dangereuses. Quand l'utilisateur exécute une opération dangereuse, envoyez une requête de confirmation distincte pour vérifier que l'utilisateur veut effectivement effectuer cette opération.
@@ -301,8 +300,8 @@ Cette librairie comprend un composant pour le contrôle de CSRF.
 
 N'utilisez pas la méthode GET pour les requêtes entraînant un changement d'état.
 
-Phase: Implementation
-Check the HTTP Referer header to see if the request originated from an expected page. Ceci pourrait toutefois restreindre la fonctionnalité de l'application, car les utilisateurs ou les serveurs proxy pourraient avoir désactivé le renvoi du HTTP Referer pour des raisons de confidentialité.</solution>
+Phase: Implémentation
+Vérifiez l'en-tête HTTP Referer pour voir si la requête provient d'une page attendue. Ceci pourrait toutefois restreindre la fonctionnalité de l'application, car les utilisateurs ou les serveurs proxy pourraient avoir désactivé le renvoi du HTTP Referer pour des raisons de confidentialité.</solution>
 	<reference>http://projects.webappsec.org/Cross-Site-Request-Forgery</reference>
 	<reference>http://cwe.mitre.org/data/definitions/352.html</reference>
 </vuln_item_wasc_9>
@@ -315,13 +314,12 @@ Check the HTTP Referer header to see if the request originated from an expected 
 La plupart du temps, les attaques DoS vont tenter de consommer toutes les ressources système disponibles d'un site internet, telles que: CPU, mémoire, espace disque, etc. Quand l'une de ces ressources critiques atteint sa capacité, maximale le site internet deviendra normalement inaccessible.
 
 Comme les environnements d'applications internet d'aujourd'hui comprennent un serveur internet, un serveur de base de données et un serveur d'authentification, les attaques par DoS à la couche applicative peuvent cibler chacun de ces composants indépendamment. Contrairement aux attaques DoS à la couche réseau, où un grand nombre de tentatives de connexion est nécessaire, la DoS à la couche applicative est une tâche beaucoup plus simple à réaliser.</desc>
-	<solution>Phase: Architecture and Design
+	<solution>Phase: Architecture et Design
+Introduisez des mécanismes de limitation dans l'architecture du système. La meilleure protection est de limiter la quantité de ressources qu'un utilisateur non autorisé peut consommer. Une authentification forte et un modèle de contrôle d'accès seront les premières mesures qui empêcheront de telles attaques de se produire. L'authentification à l'application doit être protégée dans toute la mesure du possible contre les attaques DoS. Limitez l'accès à la base de données, par exemple en mettant en cache des groupes de résultats, afin de minimiser les ressources consommées. Pour restreindre davantage le risque d'une attaque DoS, envisagez de surveiller le taux de requêtes reçues des utilisateurs et de bloquer ces requêtes lorsqu'un taux prédéfini est dépassé.
 
-Design throttling mechanisms into the system architecture. La meilleure protection est de limiter la quantité de ressources qu'un utilisateur non autorisé peut consommer. Une authentification forte et un modèle de contrôle d'accès seront les premières mesures qui empêcheront de telles attaques de se produire. L'authentification à l'application doit être protégée dans toute la mesure du possible contre les attaques DoS. Limitez l'accès à la base de données, par exemple en mettant en cache des groupes de résultats, afin de minimiser les ressources consommées. Pour restreindre davantage le risque d'une attaque DoS, envisagez de surveiller le taux de requêtes reçues des utilisateurs et de bloquer ces requêtes lorsqu'un taux prédéfini est dépassé.
-
-Mitigation of resource exhaustion attacks requires that the target system either:
-      recognizes the attack and denies that user further access for a given amount of time, or
-      uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+L'atténuation des attaques par épuisement de ressources exige du système cible:
+ soit qu'il détecte l'attaque et refuse tout accès supplémentaire durant un certain temps,
+ soit qu'il limite uniformément toutes les requêtes, afin d'éviter que les ressources soient consommées plus rapidement qu'elles ne sont à nouveau libérées. 
 
 La première de ces solutions est un problème en soi, car elle pourrait permettre à des agresseurs d'empêcher l'utilisation du système par un utilisateur autorisé. Si le pirate emprunte l'identité de l'utilisateur autorisé, il peut être en mesure d'empêcher l'utilisateur d'accéder au serveur en question.
 
@@ -329,8 +327,8 @@ Quant à la deuxième solution, il est difficile de la mettre en place efficacem
 
 Assurez-vous que les protocoles sont pourvus de limites d'échelle spécifiques.
 
-Phase: Implementation
-Ensure that all failures in resource allocation place the system into a safe posture.</solution>
+Phase: Implémentation
+Veillez à ce que tous les échecs d'allocation des ressources laissent le système dans un état sûr.</solution>
 	<reference>http://projects.webappsec.org/Denial-of-Service</reference>
 	<reference>http://cwe.mitre.org/data/definitions/400.html</reference>
 </vuln_item_wasc_10>
@@ -394,11 +392,11 @@ Afin de saisir les informations manquantes, le pirate peut deviner les informati
 	<alert>Usurpation de contenu</alert>
 	<desc>L'usurpation de contenu (content spoofing) est une technique d'attaque permettant à un agresseur d'injecter une charge utile malveillante, qui est présentée plus tard comme contenu légitime d'une application web.
  
-Text Only Content Spoofing
-A common approach to dynamically build pages involves passing the body or portions thereof into the page via a query string value. Cette approche est commune pour les pages d'erreur ou des sites fournissant des nouvelles. Le contenu spécifié dans ce paramètre apparaît plus tard dans la page pour former le contenu de la page.
+Usurpation de contenu Texte seulement
+Une approche fréquente pour construire dynamiquement des pages internet consiste à passer le corps ou des parties de celui-ci dans la page via une valeur de chaîne de requête. Cette approche est commune pour les pages d'erreur ou des sites fournissant des nouvelles. Le contenu spécifié dans ce paramètre apparaît plus tard dans la page pour former le contenu de la page.
  
-Markup Reflected Content Spoofing
-Some web pages are served using dynamically built HTML content sources. Par exemple, l'emplacement de la source d'une trame <frame src="http://foo.example/file.html"/>) peut être spécifié par la valeur d'un paramètre d'URL. (http://foo.example/page?frame_src=http://foo.example/file.html). Un agresseur peut être en mesure de remplacer la valeur du paramètre "frame_src" par "frame_src = http://attacker.example/spoof.html". À la différence des redirections, lorsque la page internet résultante est présentée, la barre d'adresse du navigateur reste manifestement sur le domaine attendu par l'utilisateur (foo.example), mais les données d'origine étrangère (attacker.example) sont entourées par le contenu légitime.
+Usurpation de balisage réfléchi
+Certaines pages internet sont construites de manière dynamique à partir de sources de contenu HTML. Par exemple, l'emplacement de la source d'une trame <frame src="http://foo.example/file.html"/>) peut être spécifié par la valeur d'un paramètre d'URL. (http://foo.example/page?frame_src=http://foo.example/file.html). Un agresseur peut être en mesure de remplacer la valeur du paramètre "frame_src" par "frame_src = http://attacker.example/spoof.html". À la différence des redirections, lorsque la page internet résultante est présentée, la barre d'adresse du navigateur reste manifestement sur le domaine attendu par l'utilisateur (foo.example), mais les données d'origine étrangère (attacker.example) sont entourées par le contenu légitime.
 
 Des liens spécialement conçus peuvent être envoyés à l'utilisateur par e-mail ou par messagerie instantanée, publiés sur un tableau de messages ou imposés aux utilisateurs par une attaque de Cross-site Scripting. Si un agresseur peut forcer un utilisateur à visiter une page web désignée par leur URL malveillante, l'utilisateur croira qu'il voit le contenu d'un site authentique, alors qu'il ne l'est pas. Les utilisateurs feront implicitement confiance au contenu usurpé, car la barre d'adresse du navigateur affiche http://foo.example, alors qu'en fait le cadre HTML sous-jacent fait appel à http://attacker.example.
 
@@ -495,16 +493,16 @@ Exécutez votre code à l'aide des droits d'accès les plus réduits possible po
 
 Plus précisément, suivez le principe du moindre privilège lors de la création de comptes d'utilisateur à une base de données SQL. Les utilisateurs de la base de données devraient avoir seulement les privilèges minimums nécessaires pour utiliser leur compte. Si les spécifications du système indiquent qu'un utilisateur peut lire et modifier ses propres données, alors limitez ses privilèges de manière à ce qu'il ne puisse ni lire ni écrire d'autres données. Utilisez les droits les plus restreints possibles sur tous les objets de base de données, tels que l'exécution seulement pour les procédures stockées.
 
-Phase: Implementation
-If you need to use dynamically-generated query strings or commands in spite of the risk, properly quote arguments and escape any special characters within those arguments. L'approche la plus prudente consiste à échapper ou à filtrer tous les caractères ne figurant pas dans une liste blanche extrêmement stricte (par exemple, tout ce qui n'est pas un caractère alphanumérique ou un espace). Si certains caractères spéciaux sont encore nécessaires, tels que des espaces, entourez chaque argument par des guillemets après l'étape de filtrage ou d'échappement. Prenez garde à l'injection d'argument (CWE-88).
+Phase: Implémentation
+Si vous devez utiliser des commandes ou des requêtes générées dynamiquement malgré le risque, énumérez correctement les arguments et échappez tous les caractères spéciaux dans ces arguments. L'approche la plus prudente consiste à échapper ou à filtrer tous les caractères ne figurant pas dans une liste blanche extrêmement stricte (par exemple, tout ce qui n'est pas un caractère alphanumérique ou un espace). Si certains caractères spéciaux sont encore nécessaires, tels que des espaces, entourez chaque argument par des guillemets après l'étape de filtrage ou d'échappement. Prenez garde à l'injection d'argument (CWE-88).
 
 Au lieu de construire votre propre implémentation, ces fonctionnalités sont souvent disponibles dans la base de données ou le langage de programmation. Par exemple, le paquet DBMS ASSERT d'Oracle peut vérifier ou imposer que les paramètres ont certaines propriétés les rendant moins vulnérables à l'injection de code SQL. Pour MySQL, la fonction d'échappement string() est disponible dans l'API en C et en PHP.
 
 Supposez que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
 
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide, car la chaîne ne contient que des caractères alphanumériques, mais elle n'est pas valide si vous attendez des couleurs telles que "rouge" ou "bleu".
 
-When constructing SQL query strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. Vous limiterez ainsi indirectement la portée d'une attaque, mais cette technique est moins importante qu'un bon encodage et un bon échappement.
+Lors de la construction des chaînes de requête SQL, utilisez des listes blanches rigoureuses qui limitent le jeu de caractères en fonction de la valeur attendue du paramètre dans la requête. Vous limiterez ainsi indirectement la portée d'une attaque, mais cette technique est moins importante qu'un bon encodage et un bon échappement.
 
 Notez que le codage de sortie, l'échappement, et la mise entre guillemets est la solution la plus efficace pour prévenir les injections SQL, même si la validation d'entrée peut fournir une certaine défense en profondeur. La raison est qu'elle limite efficacement ce qui apparaîtra en sortie. La validation des entrées n'empêchera pas toujours l'injection SQL, surtout si vous êtes tenu de supporter des champs de texte libre qui peuvent contenir des caractères arbitraires. Par exemple, le nom "d'Aubigné" pourrait probablement passer l'étape de validation, puisque c'est un nom commun en français. Toutefois, il ne peut pas être directement inséré dans la base de données car il contient le caractère apostrophe "'", qui aurait besoin d'être échappé ou traîté d'une manière ou d'une autre. Dans ce cas, retirer l'apostrophe réduirait le risque d'injection SQL, mais il produirait un comportement incorrect parce qu'un mauvais nom serait enregistré.
 
@@ -523,9 +521,8 @@ Généralement, le terme de traitement d'entrée est utilisé pour décrire des 
 L'un des aspects-clés du traitement d'entrée est de valider que l'entrée répond à certains critères. Pour une validation appropriée, il est important d'identifier la forme et le type de données qui sont acceptables et attendues par l'application. Définir un format attendu et l'utilisation de chaque instance d'entrée douteuse est nécessaire pour définir avec précision les restrictions. 
 
 La validation peut comporter des contrôles pour garantir le type et la syntaxe correcte. Pour des chaînes de caractères, la longueur (nombre de caractères min et max) et la validation du jeu de caractères peuvent être vérifiées, tandis que les types d'entrée numériques, comme des nombres entiers ou des nombres décimaux, peuvent être validés selon les limites inférieure et supérieure des valeurs possibles. Lorsque des entrées provenant de sources diverses sont combinées, la validation doit être exécutée sur la concaténation, et pas seulement sur les éléments de données individuels. Cette pratique permet d'éviter les situations où la validation d'entrée peut réussir sur les éléments de données pris individuellement, mais échoue quand elle est exécutée sur un ensemble de combinaisons de toutes les sources.</desc>
-	<solution>Phase: Architecture and Design
-
-Use an input validation framework such as Struts or the OWASP ESAPI Validation API.
+	<solution>Phase: Architecture et Design
+Utilisez un framework de validation d'entrée tel que Struts ou l'API Validation de OWASP ESAPI.
 
 Assurez-vous que vous comprenez tous les secteurs potentiels où des entrées douteuses peuvent pénétrer dans votre logiciel: paramètres ou arguments, cookies, toute entrée en provenance du réseau, requêtes DNS inverses, résultats de requêtes, en-têtes de requêtes, composants d'URL, e-mails, fichiers, bases de données, et tout système externe fournissant des données à l'application. Rappelez-vous que de telles entrées peuvent être obtenues indirectement via des appels d'API.
 
@@ -539,11 +536,11 @@ Quand votre application combine des données issues de plusieurs sources, effect
 
 Supposez que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
 
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide, car la chaîne ne contient que des caractères alphanumériques; mais elle n'est pas valide si vous attendez des couleurs, telles que "rouge" ou "bleu".
 
-Phase: Implementation
+Phase: Implémentation
 
-Be especially careful to validate your input when you invoke code that crosses language boundaries, such as from an interpreted language to native code. Cela pourrait créer une interaction inattendue entre les langages. Assurez-vous que vous ne violez aucune des attentes du langage que vous interfacez. Par exemple, bien que Java ne soit pas sensible aux débordements de tampon, fournir un argument de grande taille à un appel à du code natif peut déclencher un dépassement de capacité.
+Assurez-vous particulièrement de valider les entrées lorsque vous invoquez du code passant d'un langage à un autre, comme par exemple entre un langage interprété et du code natif. Cela pourrait créer une interaction inattendue entre les langages. Assurez-vous que vous ne violez aucune des attentes du langage que vous interfacez. Par exemple, bien que Java ne soit pas sensible aux débordements de tampon, fournir un argument de grande taille à un appel à du code natif peut déclencher un dépassement de capacité.
 
 Convertissez directement le type d'entrée dans le type de donnée attendu, par exemple en utilisant une fonction de conversion d'une chaîne de caractères en un nombre. Après avoir converti vers le type de données attendu, assurez-vous que les valeurs de l'entrée entrent dans la gamme attendue des valeurs autorisées, et que les consistances entre champs sont maintenues.
 
@@ -561,14 +558,14 @@ Lors de l'échange de données entre des composants, assurez-vous que les deux c
 	<alert>Anti-automatisation insuffisante</alert>
 	<desc>Une anti-automatisation insuffisante (insufficient anti automation) se produit quand une application internet permet à un agresseur d'automatiser un processus originellement conçu pour être exécuté manuellement uniquement, c-à-d. par un internaute humain.
 
-Web application functionality that is often a target for automation attacks may include:
-    * Application login forms – attackers may automate brute force login requests in an attempt to guess user credentials
-    * Service registration forms – attackers may automatically create thousands of new accounts
-    * Email forms – attackers may exploit email forms as spam relays or for flooding a certain user’s mailbox
-    * Account maintenance – attackers may perform mass DoS against an application, by flooding it with numerous requests to disable or delete user accounts
-    * Account information forms – attackers may perform mass attempts to harvest user personal information from a web application
-    * Comment forms / Content Submission forms – these may be used for spamming blogs, web forums and web bulletin boards by automatically submitting contents such as spam or even web-based malware
-    * Forms tied to SQL database queries - these may be exploited in order to perform a denial of service attack against the application. L'attaque est conduite en envoyant de nombreuses requêtes SQL lourdes dans un court laps de temps, ce qui empêche l'accès au service pour les utilisateurs réels.
+Les fonctionnalités ci-dessous sont souvent la cible d'attaques par automatisation:
+* Formulaires de connexion – des agresseurs peuvent automatiser les requêtes de connexion par force brute pour tenter de deviner les identifiants de l'utilisateur
+* Formulaires d'inscription au service – des agresseurs peuvent créer automatiquement des milliers de nouveaux comptes
+* Formulaires Email – des agresseurs peuvent exploiter les formulaires de courriel comme relais de spam ou pour inonder la boîte aux lettres d'un utilisateur
+* Maintenance de comptes – des agresseurs peuvent conduire des attaques par déni de service contre une application, en l'inondant de nombreuses requêtes pour désactiver ou supprimer des comptes utilisateurs
+* Formulaires d'information de compte – des agresseurs peuvent effectuer des tentatives en masse pour récolter des informations personnelles de l'utilisateur d'une application internet
+* Formulaires de commentaires / formulaires de soumission de contenu – ceux-ci peuvent servir pour spammer des blogs, des forums internet et des tableaux de messages en soumettant automatiquement du contenu, comme des spams ou même des maliciels
+* Formulaires liés aux requêtes de base de données SQL - ceux-ci peuvent être exploités afin d'effectuer une attaque par déni de service contre l'application. L'attaque est conduite en envoyant de nombreuses requêtes SQL lourdes dans un court laps de temps, ce qui empêche l'accès au service pour les utilisateurs réels.
     * eShopping / E-commerce - les applications eShopping et eCommerce ne forçant pas des acheteurs humains seulement, peuvent être exploitées afin d'acheter certaines marchandises en grandes quantités, telles que des tickets de matchs de sport. Plus tard, ceux-ci sont vendus par des revendeurs à des prix plus élevés.
     * Sondages en ligne - les sondages et autres types de systèmes de vote en ligne peuvent être automatiquement détournés en faveur d'un certain choix.
     * Envoi de textos par internet - des agresseurs peuvent exploiter les systèmes de messagerie SMS pour spammer les utilisateurs de téléphone mobile
@@ -626,9 +623,9 @@ Lors de l'échange de données entre des composants, assurez-vous que les deux c
 <vuln_item_wasc_24>
 	<alert>Fractionnement de requête HTTP</alert>
 	<desc>Le fractionnement de requête HTTP (HTTP Request Splitting) est une attaque qui permet de forcer le navigateur à envoyer des requêtes HTTP arbitraires, ce qui peut conduire à du XSS et à l'empoisonnement du cache du navigateur. Le but fondamental de l'agresseur, dans cette attaque, est la capacité de manipuler une des fonctions du navigateur pour envoyer 2 requêtes HTTP au lieu d'une seule. Pour cela, le pirate doit obliger la victime (navigateur) à charger une page HTML malveillante. Deux mécanismes ont été exploités à ce jour : l'objet XmlHttpRequest (en abrégé XHR) et le mécanisme d'authentification HTTP digest. Pour que cette attaque fonctionne, le navigateur doit utiliser un proxy HTTP direct (tous ne permettent pas cette attaque), ou l'attaque doit être menée contre un hôte situé à la même adresse IP (du point de vue du navigateur) que la machine de l'agresseur.</desc>
-	<solution>Avoid using CRLF as a special sequence.
+	<solution>Évitez d'utiliser CRLF comme une séquence spéciale. 
 
-Appropriately filter or quote CRLF sequences in user-controlled input.</solution>
+Filtrez ou mettez entre guillemets les séquences CRLF dans les entrées contrôlées par l'utilisateur.</solution>
 	<reference>http://projects.webappsec.org/HTTP-Request-Splitting</reference>
 	<reference>http://cwe.mitre.org/data/definitions/93.html</reference>
 </vuln_item_wasc_24>
@@ -639,9 +636,9 @@ Appropriately filter or quote CRLF sequences in user-controlled input.</solution
 	<desc>In the HTTP Response Splitting attack, there are always 3 parties (at least) involved:
     * Web server, which has a security hole enabling HTTP Response Splitting
     * Target - an entity that interacts with the web server perhaps on behalf of the attacker. En général, il s'agit d'un serveur cache (proxy direct/inverse), ou d'un navigateur (éventuellement avec un cache de navigateur).
-    * Attacker - initiates the attack
+    * l'agresseur - lance l'attaque
 
-The essence of HTTP Response Splitting is the attacker's ability to send a single HTTP request that forces the web server to form an output stream, which is then interpreted by the target as two HTTP responses instead of one response, in the normal case. La première réponse peut être partiellement contrôlée par l'agresseur, mais cela est moins important. Ce qui est crucial, c'est que l'agresseur contrôle complètement la forme de la deuxième réponse, de la première ligne du status HTTP jusqu'au dernier octet du corps de la réponse HTTP. Une fois que ceci est possible, l'agresseur réalise l'attaque en envoyant deux requêtes par l'intermédiaire de la cible. La première appelle deux réponses du serveur internet, quant à la deuxième requête, elle demanderait typiquement quelque "innocente" ressource au serveur internet. Toutefois, la deuxième requête serait associée par la cible à la deuxième réponse HTTP, qui est entièrement contrôlée par l'agresseur. Le pirate trompe par conséquent la cible en lui faisant croire qu'une ressource particulière sur le serveur internet (désigné par la deuxième requête) est la réponse HTTP du serveur (serveur de contenu), alors qu'il s'agit en fait de données manipulées par l'agresseur via le serveur internet - cette fois la deuxième réponse.
+Le principe du fractionnement de réponse HTTP consiste pour l'agresseur à envoyer une requête HTTP unique qui force le serveur internet à établir un flux de sortie, qui est ensuite interprété par la cible comme deux réponses HTTP, au lieu d'une seule dans le cas normal. La première réponse peut être partiellement contrôlée par l'agresseur, mais cela est moins important. Ce qui est crucial, c'est que l'agresseur contrôle complètement la forme de la deuxième réponse, de la première ligne du status HTTP jusqu'au dernier octet du corps de la réponse HTTP. Une fois que ceci est possible, l'agresseur réalise l'attaque en envoyant deux requêtes par l'intermédiaire de la cible. La première appelle deux réponses du serveur internet, quant à la deuxième requête, elle demanderait typiquement quelque "innocente" ressource au serveur internet. Toutefois, la deuxième requête serait associée par la cible à la deuxième réponse HTTP, qui est entièrement contrôlée par l'agresseur. Le pirate trompe par conséquent la cible en lui faisant croire qu'une ressource particulière sur le serveur internet (désigné par la deuxième requête) est la réponse HTTP du serveur (serveur de contenu), alors qu'il s'agit en fait de données manipulées par l'agresseur via le serveur internet - cette fois la deuxième réponse.
 
 Les attaques par fractionnement de réponse HTTP ont lieu là où le script serveur introduit des données utilisateur dans les en-têtes de réponse HTTP. Cela se produit généralement lorsque le script intègre des données utilisateur dans l'URL de redirection d'une réponse de redirection (code de statut HTTP 3xx), ou lorsque le script intègre les données utilisateur dans un nom ou une valeur de cookie, au cas où la réponse définit un cookie.</desc>
 	<solution>Construisez très soigneusement les en-têtes HTTP, en évitant l'utilisation de données d'entrée non validées.</solution>
@@ -764,9 +761,9 @@ Certains langages offrent de multiples fonctions pouvant être utilisées pour l
 
 Supposez que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
 
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide, car la chaîne ne contient que des caractères alphanumériques, mais elle n'est pas valide si vous attendez des couleurs telles que "rouge" ou "bleu".
 
-When constructing OS command strings, use stringent whitelists that limit the character set based on the expected value of the parameter in the request. Vous limiterez ainsi indirectement la portée d'une attaque, mais cette technique est moins importante qu'un bon encodage et un bon échappement.
+Lors de la construction des chaînes de commande d'OS, utilisez des listes blanches rigoureuses qui limitent le jeu de caractères en fonction de la valeur attendue du paramètre dans la requête. Vous limiterez ainsi indirectement la portée d'une attaque, mais cette technique est moins importante qu'un bon encodage et un bon échappement.
 
 Notez que le codage de sortie, l'échappement, et la mise entre guillemets est la solution la plus efficace pour prévenir les injections de commandes d'OS, même si la validation d'entrée peut fournir une certaine défense en profondeur. La raison est qu'elle limite efficacement ce qui apparaîtra en sortie. La validation des entrées n'empêchera pas toujours l'injection de commande d'OS, surtout si vous êtes tenu de supporter des champs de texte libre qui peuvent contenir des caractères arbitraires. Par exemple, lors de l'appel à un logiciel de messagerie, vous devrez accepter que le champ objet contienne des entrées potentiellement dangereuses, comme les caractères ";" et ">", qui devraient être échappés ou traités autrement. Dans ce cas, supprimer ce caractère pourrait réduire le risque d'injection de  commande d'OS, mais il produirait un comportement incorrect, parce que le champ objet ne serait pas traité de la façon dont l'utilisateur l'attend. Cela peut sembler être un inconvénient mineur, mais il pourrait être plus important lorsque le programme s'appuie sur des lignes d'objet bien structuré afin de transmettre des messages à d'autres composants.
 
@@ -804,9 +801,9 @@ L'attaque par traversée de chemin la plus élémentaire utilise la séquence de
 Et même si le serveur internet limite correctement les tentatives de traversée de chemin d'accès dans le chemin d'URL, une application internet peut encore être elle-même vulnérable en raison d'un mauvais traitement des entrées fournies par l'utilisateur. Il s'agit d'un problème commun des applications internet qui utilisent des mécanismes de modèle ou qui chargent du texte statique à partir de fichiers. Dans des variantes de cette attaque, la valeur du paramètre de l'URL originale est remplacée par le nom de fichier de l'un des scripts dynamiques de l'application internet. En conséquence, les résultats peuvent révéler le code source, parce que le fichier est interprété comme du texte plutôt que comme un script exécutable. Ces techniques utilisent souvent des caractères spéciaux supplémentaires, tels que le point ("."), pour révéler le listage du répertoire de travail courant, ou des caractères NULL "%00" afin de contourner des contrôles rudimentaires de l'extension des fichiers.</desc>
 	<solution>Supposez que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
 
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide car l'entrée ne contient que des caractères alphanumériques, mais elle n'est pas valide si vous attendez des couleurs telles que "rouge" ou "bleu".
 
-For filenames, use stringent whitelists that limit the character set to be used. Si possible, ne permettez qu'un seul caractère "." dans le nom de fichier pour éviter les failles et excluez les séparateurs de répertoire comme "/". Utiliser une liste blanche des extensions de fichier autorisées.
+Pour les noms de fichiers, utilisez des listes blanches rigoureuses qui limitent le jeu de caractères à utiliser. Si possible, ne permettez qu'un seul caractère "." dans le nom de fichier pour éviter les failles et excluez les séparateurs de répertoire comme "/". Utiliser une liste blanche des extensions de fichier autorisées.
 
 Avertissement: si vous essayez de nettoyer vos données, faites-le alors de manière à ce que le résultat final ne soit pas sous une forme qui puisse être dangereuse. Un mécanisme d'assainissement peut supprimer des caractères tels que '.' et ';', qui peuvent être nécessaires pour certains exploits. Un agresseur peut essayer de tromper le mécanisme d'assainissement en transformant les données sous une forme dangereuse. Supposons que le pirate injecte un '.' à l'intérieur d'un nom de fichier (par exemple "sensi.tiveFile"), et le mécanisme d'assainissement supprimera le caractère, résultant en un nom de fichier valide, "sensitiveFile". Si les données d'entrée sont maintenant supposées sûres, alors le fichier peut être compromis. 
 
@@ -834,9 +831,9 @@ Ceci peut ne pas être une solution adéquate. Par ailleurs, elle limite l'impac
 	<desc>L'emplacement prévisible de ressources (Predictable Resource Location) est une technique d'attaque utilisée pour découvrir le contenu et les fonctionnalités cachés de site internet. En faisant des déductions logiques par force brute, un agresseur peut deviner des noms de fichiers et de répertoires non destinés à la consultation publique. Craquer des noms de fichiers par force brute est facile, parce que les fichiers et chemins suivent souvent des conventions de nommage communes et résident dans des emplacements standards. Ceux-ci peuvent inclure des fichiers temporaires, des fichiers de sauvegarde, des journaux, des sections d'administration de site, des fichiers de configuration, des applications de démo et des fichiers d'exemple. Ces fichiers peuvent divulguer des informations sensibles sur le site internet, la structure interne d'une application internet, les bases de données, des mots de passe, des noms de machine, des chemins d'accès à d'autres zones sensibles, etc...
 
 Cela n'aidera pas seulement à identifier la surface du site qui peut conduire à des vulnérabilités supplémentaires, mais cela peut aussi divulguer des informations précieuses pour un agresseur sur l'environnement ou ses utilisateurs. L'emplacement prévisible de ressources est également connu sous le nom de navigation forcée, de navigation efficace, l'énumération de fichiers et l'énumération de répertoires.</desc>
-	<solution>Apply appropriate access control authorizations for each access to all restricted URLs, scripts or files.
+	<solution>Appliquez les autorisations de contrôle d'accès appropriées pour chaque accès à toutes les URLs, scripts ou fichiers interdits. 
 
-Consider using MVC based frameworks such as Struts.</solution>
+Envisagez d'utiliser des frameworks basés sur MVC, comme Struts.</solution>
 	<reference>http://projects.webappsec.org/Predictable-Resource-Location</reference>
 	<reference>http://cwe.mitre.org/data/definitions/425.html</reference>
 </vuln_item_wasc_34>
@@ -860,8 +857,8 @@ Exécutez votre programme à l'aide des limites en ressources mémoire fournies 
 Avant de servir une page web HTML, un serveur internet peut analyser et exécuter des instructions Server-Side Include côté serveur avant de les envoyer au client. Dans certains cas (p.ex. forums, livres d'or ou des systèmes de gestion de contenu), une application internet insère les données fournies par l'utilisateur dans la source d'une page web.
 
 Si un utilisateur malveillant soumet une instruction Server-Side Include, il peut avoir la possibilité d'exécuter des commandes arbitraires du système d'exploitation, ou inclure le contenu d'un fichier interdit la prochaine fois que la page est servie. Cette opération est exécutée au niveau d'autorisation de l'utilisateur du serveur internet.</desc>
-	<solution>Désactivez l'exécution SSI sur les pages qui n'exigent pas cette fonctionnalité. For pages requiring SSI ensure that you perform the following checks
-- Only enable the SSI directives that are needed for this page and disable all others.
+	<solution>Désactivez l'exécution SSI sur les pages qui n'exigent pas cette fonctionnalité. Pour les pages nécessitant des SSI, assurez-vous que vous effectuez les vérifications suivantes
+ - activez seulement les directives SSI qui sont nécessaires pour cette page et désactivez toutes les autres.
 - encodez selon HTML les données fournies par l'utilisateur avant de les passer à une page ayant des autorisations d'exécution de SSI.
 - Utilisez SUExec pour que la page s'exécute en tant que propriétaire du fichier plutôt que comme utilisateur du serveur internet.</solution>
 	<reference>http://projects.webappsec.org/SSI-Injection</reference>
@@ -891,9 +888,9 @@ For platforms such as ASP that do not generate new values for sessionid cookies,
 	<desc>La redirection d'URL représente une fonctionnalité communément employée par les sites internet pour transmettre une requête entrante vers une autre ressource. Cela peut être fait pour diverses raisons, et notamment souvent pour déplacer des ressources dans la structure de répertoire tout en évitant de casser la fonctionnalité pour les utilisateurs qui demandent la ressource à son emplacement précédent. La redirection d'URL peut également être utilisée pour distribuer la charge, tout en conservant les facilités des URLs abrégées ou de l'enregistrement des liens sortants. C'est cette dernière application qui est souvent utilisée dans les attaques de phishing comme décrit dans l'exemple ci-dessous. La redirection d'URL ne représente pas nécessairement une faille de sécurité directe, mais elle peut être utilisée par des agresseurs essayant de tromper des victimes en leur faisant croire par ingénierie sociale qu'ils accèdent à un site autre que la véritable destination.</desc>
 	<solution>Supposez que toutes les entrées sont malveillantes. Utilisez une stratégie de validation des entrées basée sur le principe "n'accepter que le bon", c'est-à-dire utilisez une liste blanche des entrées acceptables se conformant strictement aux spécifications. Rejetez toute entrée ne se conformant pas strictement aux spécifications, ou transformez-la en une valeur qui soit conforme. Ne vous fiez pas exclusivement à la recherche d'entrées malveillantes ou incorrectes (par exemple, ne comptez pas sur une liste noire). Toutefois, les listes noires peuvent être utiles pour détecter les attaques potentielles ou pour déterminer quelles entrées sont si mal formées qu'elles devraient être rejetées purement et simplement.
 
-Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. As an example of business rule logic, "boat" may be syntactically valid because it only contains alphanumeric characters, but it is not valid if you are expecting colors such as "red" or "blue."
+Lorsque vous effectuez une validation d'entrée, considérez toutes les propriétés potentiellement pertinentes, comme la longueur, le type d'entrée, la gamme complète des valeurs acceptables, les entrées manquantes ou défectueuses, la syntaxe, la cohérence dans des domaines connexes et la conformité aux règles métier. Comme exemple de logique de règle métier, "bateau" peut être syntaxiquement valide, car elle ne contient que des caractères alphanumériques, mais elle n'est pas valide si vous attendez des couleurs telles que "rouge" ou "bleu".
 
-Use a whitelist of approved URLs or domains to be used for redirection.
+Utilisez une liste blanche des URL ou des domaines approuvés pour la redirection.
 
 Utilisez une page d'avertissement intermédiaire signalant clairement à l'utilisateur qu'il quitte votre site. Mettez en place un long délai d'attente avant que la redirection se produise, ou forcez l'utilisateur à cliquer sur un lien. Veillez à éviter les problèmes XSS lors de la génération de la page d'avertissement.
 
@@ -942,9 +939,9 @@ La "logique métier" se réfère au contexte dans lequel un processus s'exécute
 	<desc>Le gonflement d'attribut XML (XML Attribute Blowup) est une attaque par déni de service contre les parseurs XML. L'agresseur fournit un document XML malveillant, que les parseurs XML vulnérables traitent de manière très inefficace, conduisant à une charge excessive du CPU. Le principe de l'attaque est d'inclure beaucoup d'attributs dans le même nœud XML. Les parseurs XML vulnérables gérent les attributs de manière inefficace (par exemple dans un conteneur de données pour lequel l'insertion d'un nouvel attribut prend un temps en O(n)), ce qui entraîne une durée d'exécution globale non linéaire (dans cet exemple, quadratique, c'est-à-dire en O(n2)), conduisant à un déni de service par épuisement du CPU.</desc>
 	<solution>Introduisez des mécanismes de régulation dans l'architecture du système. La meilleure protection est de limiter la quantité de ressources qu'un utilisateur non autorisé peut consommer. Une authentification forte et un modèle de contrôle d'accès seront les premières mesures qui empêcheront de telles attaques de se produire. L'authentification à l'application doit être protégée dans toute la mesure du possible contre les attaques DoS. Limitez l'accès à la base de données, par exemple en mettant en cache des groupes de résultats, afin de minimiser les ressources consommées. Pour restreindre davantage le risque d'une attaque DoS, envisagez de surveiller le taux de requêtes reçues des utilisateurs et de bloquer ces requêtes lorsqu'un taux prédéfini est dépassé.
 
-Mitigation of resource exhaustion attacks requires that the target system either:
- * recognizes the attack and denies that user further access for a given amount of time, or
- * uniformly throttles all requests in order to make it more difficult to consume resources more quickly than they can again be freed. 
+Les attaques par épuisement de ressources peuvent être réduites par le système cible:
+* soit en détectant l'attaque et en refusant tout accès supplémentaire durant un certain temps,
+* soit en limitant uniformément toutes les requêtes, afin d'éviter que les ressources ne soient consommées plus rapidement qu'elles ne sont à nouveau libérées. 
 
 La première de ces solutions est un problème en soi, car elle pourrait permettre à des agresseurs d'empêcher l'utilisation du système par un utilisateur autorisé. Si le pirate emprunte l'identité de l'utilisateur autorisé, il peut être en mesure d'empêcher l'utilisateur d'accéder au serveur en question.
 
@@ -1043,9 +1040,9 @@ Une application internet devrait invalider une session après un temps d'inactiv
 Comme exemple de processus de récupération de mot de passe automatisée, citons l'obligation faite à l'utilisateur de répondre à une "question secrète" définie dans le cadre de la procédure d'enregistrement de l'utilisateur. Cette question peut être choisie parmi une liste de questions prédéfinie ou fournie par l'utilisateur. Un autre mécanisme utilisé est de demander un "indice" à l'utilisateur lors de l'inscription, indice qui aidera l'utilisateur à se rappeler son mot de passe. D'autres mécanismes obligent l'utilisateur à fournir plusieurs éléments de données personnelles, telles que leur numéro de sécurité sociale, adresse, code postal, etc. pour valider leur identité. Après que l'utilisateur ait prouvé son identité, le système de récupération affiche un nouveau mot de passe ou l'envoie par courriel.
 
 Un site internet est considéré comme ayant une récupération de mot de passe insuffisante lorsqu'un agresseur est capable de déjouer le mécanisme de récupération utilisé. Cela se produit lorsque les informations demandées pour valider l'identité d'un utilisateur sont faciles à deviner ou peuvent être contournées. Les systèmes de récupération de mot de passe peuvent être compromis par l'utilisation d'attaques par force brute, par des failles inhérentes au système, ou par des questions secrètes facile à deviner.</desc>
-	<solution>Make sure that all input supplied by the user to the password recovery mechanism is thoroughly filtered and validated
+	<solution>Assurez-vous que toutes les entrées fournies par l'utilisateur pour le mécanisme de récupération de mot de passe sont soigneusement filtrées et validées
 
-Do not use standard weak security questions and use several security questions.
+N'utilisez pas de questions de sécurité standard faibles et utilisez plusieurs questions de sécurité.
 
 Assurez-vous qu'il y ait une limitation du nombre de mauvaises réponses à une question de sécurité. Désactivez la fonctionnalité de récupération de mot de passe après un certain (petit) nombre de tentatives erronées.
 

@@ -82,6 +82,7 @@ public class StructuralSiteNode implements StructuralNode {
 		return this.node;
 	}
 	
+	@Override
 	public boolean isSameAs (StructuralNode node) {
 		if (node instanceof StructuralSiteNode) {
 			return this.getSiteNode().equals(((StructuralSiteNode)node).getSiteNode());

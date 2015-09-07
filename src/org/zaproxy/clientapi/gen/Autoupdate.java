@@ -38,11 +38,17 @@ public class Autoupdate {
 		this.api = api;
 	}
 
+	/**
+	 * Returns the latest version number
+	 */
 	public ApiResponse latestVersionNumber() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("autoupdate", "view", "latestVersionNumber", map);
 	}
 
+	/**
+	 * Returns 'true' if ZAP is on the latest version
+	 */
 	public ApiResponse isLatestVersion() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("autoupdate", "view", "isLatestVersion", map);
@@ -88,6 +94,9 @@ public class Autoupdate {
 		return api.callApi("autoupdate", "view", "optionReportAlphaAddons", map);
 	}
 
+	/**
+	 * Downloads the latest release, if any 
+	 */
 	public ApiResponse downloadLatestRelease(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();

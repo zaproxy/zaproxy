@@ -46,7 +46,7 @@ class importLogFiles(object):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}))
+        return next(self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}).itervalues())
 
     def other_post_mod_security_audit_event(self, auditeventstring, apikey=''):
         """

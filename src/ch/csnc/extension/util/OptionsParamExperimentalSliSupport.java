@@ -29,6 +29,7 @@ public class OptionsParamExperimentalSliSupport extends AbstractParam {
     public OptionsParamExperimentalSliSupport() {
     }
 
+    @Override
     protected void parse() {
 	    expSliSupportEnabled = getConfig().getBoolean(EXPERIMENTAL_SLOT_LIST_INDEXES, false);
     }

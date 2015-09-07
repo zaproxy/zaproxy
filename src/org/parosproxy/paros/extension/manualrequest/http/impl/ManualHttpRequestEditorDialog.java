@@ -22,6 +22,7 @@
 // ZAP: 2013/04/15 Issue 632: Manual Request Editor dialogue (HTTP) configurations not saved correctly
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/12/12 Issue 1449: Added help button
+// ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
@@ -285,7 +286,9 @@ public class ManualHttpRequestEditorDialog extends ManualRequestEditorDialog {
 		HttpMessage msg = new HttpMessage();
 		try {
 			URI uri = new URI("http://www.any_domain_name.org/path", true);
-			msg.setRequestHeader(new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10));
+			msg.setRequestHeader(
+					new HttpRequestHeader(HttpRequestHeader.GET, uri, HttpHeader.HTTP10,
+							Model.getSingleton().getOptionsParam().getConnectionParam()));
 			setMessage(msg);
 		} catch (HttpMalformedHeaderException e) {
 			logger.error(e.getMessage(), e);

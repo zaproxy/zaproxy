@@ -42,6 +42,8 @@
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 1582: Low memory option
+// ZAP: 2015/08/19 Change to cope with deprecation of HttpMessage.getParamNameSet(HtmlParameter.Type, String)
+// ZAP: 2015/08/19 Issue 1784: NullPointerException when active scanning through the API with a target without scheme
 
 package org.parosproxy.paros.model;
 
@@ -514,28 +516,15 @@ public class SiteMap extends DefaultTreeModel {
         //String leafName = "\u007f" + msg.getRequestHeader().getMethod()+":"+nodeName;
         String leafName = msg.getRequestHeader().getMethod()+":"+nodeName;
         
-        String query = "";
-
-        try {
-            query = msg.getRequestHeader().getURI().getQuery();
-        } catch (URIException e) {
-            // ZAP: Added error
-            log.error(e.getMessage(), e);
-        }
-        if (query == null) {
-            query = "";
-        }
-        leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.url, query));
+        leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.url));
         
         // also handle POST method query in body
-        query = "";
         if (msg.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
         	String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         	if (contentType != null && contentType.startsWith("multipart/form-data")) {
         		leafName = leafName + "(multipart/form-data)";
         	} else {
-        		query = msg.getRequestBody().toString();
-        		leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.form, query));
+        		leafName = leafName + getQueryParamString(msg.getParamNameSet(HtmlParameter.Type.form));
         	}
         }
         
@@ -641,7 +630,12 @@ public class SiteMap extends DefaultTreeModel {
 	private String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		
-		String scheme = uri.getScheme().toLowerCase();
+		String scheme = uri.getScheme();
+		if (scheme == null) {
+			scheme = "http";
+		} else {
+			scheme = scheme.toLowerCase();
+		}
 		host.append(scheme).append("://").append(uri.getHost());
 		
 		int port = uri.getPort();		

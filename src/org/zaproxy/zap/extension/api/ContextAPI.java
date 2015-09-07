@@ -47,6 +47,7 @@ public class ContextAPI extends ApiImplementor {
     private static final String EXCLUDE_FROM_CONTEXT_REGEX = "excludeFromContext";
     private static final String INCLUDE_IN_CONTEXT_REGEX = "includeInContext";
     private static final String ACTION_NEW_CONTEXT = "newContext";
+    private static final String ACTION_REMOVE_CONTEXT = "removeContext";
     private static final String ACTION_SET_CONTEXT_IN_SCOPE = "setContextInScope";
     private static final String ACTION_EXPORT_CONTEXT = "exportContext";
     private static final String ACTION_IMPORT_CONTEXT = "importContext";
@@ -78,7 +79,8 @@ public class ContextAPI extends ApiImplementor {
 
         this.addApiAction(new ApiAction(EXCLUDE_FROM_CONTEXT_REGEX, contextNameAndRegexParam));
         this.addApiAction(new ApiAction(INCLUDE_IN_CONTEXT_REGEX, contextNameAndRegexParam));
-        this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, null, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_NEW_CONTEXT, contextNameOnlyParam));
+        this.addApiAction(new ApiAction(ACTION_REMOVE_CONTEXT, contextNameOnlyParam));
         this.addApiAction(new ApiAction(ACTION_EXPORT_CONTEXT, new String[] {CONTEXT_NAME, CONTEXT_FILE_PARAM}, null));
         this.addApiAction(new ApiAction(ACTION_IMPORT_CONTEXT, new String[] {CONTEXT_FILE_PARAM}, null));
         this.addApiAction(new ApiAction(ACTION_INCLUDE_TECHS, contextNameAndTechNames));
@@ -118,25 +120,23 @@ public class ContextAPI extends ApiImplementor {
         
         switch(name) {
         case EXCLUDE_FROM_CONTEXT_REGEX:
-        	addExcludeToContext(getContext(params), getRegex(params));
+        	addExcludeToContext(getContext(params), params.getString(REGEX_PARAM));
         	break;
         case INCLUDE_IN_CONTEXT_REGEX:
-        	addIncludeToContext(getContext(params), getRegex(params));
+        	addIncludeToContext(getContext(params), params.getString(REGEX_PARAM));
         	break;
         case ACTION_NEW_CONTEXT:
-        	contextName = params.getString(CONTEXT_NAME);
-            if (contextName != null && contextName.length() > 0){
-                context = Model.getSingleton().getSession().getNewContext(contextName);
-                Model.getSingleton().getSession().saveContext(context);
-                return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
-            }
-            break;
+            context = Model.getSingleton().getSession().getNewContext(params.getString(CONTEXT_NAME));
+            Model.getSingleton().getSession().saveContext(context);
+            return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
+        case ACTION_REMOVE_CONTEXT:
+        	context = getContext(params);
+        	Model.getSingleton().getSession().deleteContext(context);
+        	break;
         case ACTION_SET_CONTEXT_IN_SCOPE: 
-        	if (params.getString(IN_SCOPE) == null || params.getString(IN_SCOPE).length()==0){
-                throw new ApiException(ApiException.Type.MISSING_PARAMETER, IN_SCOPE);
-            }
-            getContext(params).setInScope(params.getBoolean(IN_SCOPE));
-            Model.getSingleton().getSession().saveContext(getContext(params));
+            context = getContext(params);
+            context.setInScope(params.getBoolean(IN_SCOPE));
+            Model.getSingleton().getSession().saveContext(context);
             break;
         case ACTION_IMPORT_CONTEXT:
         	filename = params.getString(CONTEXT_FILE_PARAM);
@@ -149,21 +149,16 @@ public class ContextAPI extends ApiImplementor {
 	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, f.getAbsolutePath());
             } else {
             	try {
-					Model.getSingleton().getSession().importContext(f);
+					context = Model.getSingleton().getSession().importContext(f);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
             }
-            break;
+            return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
         case ACTION_EXPORT_CONTEXT:
         	filename = params.getString(CONTEXT_FILE_PARAM);
-            contextName = params.getString(CONTEXT_NAME);
-            
-            context = Model.getSingleton().getSession().getContext(contextName);
-            if (context == null) {
-	            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
-            }
+            context = getContext(params);
             
             f = new File(filename);
             if (! f.getAbsolutePath().equals(filename)) {
@@ -218,14 +213,6 @@ public class ContextAPI extends ApiImplementor {
         }
         
         return ApiResponseElement.OK;
-    }
-
-    private String getRegex(JSONObject params) throws ApiException {
-        String regex = params.getString(REGEX_PARAM);
-        if (regex == null || regex.length() == 0) {
-            throw new ApiException(ApiException.Type.MISSING_PARAMETER, REGEX_PARAM);
-        }
-        return regex;
     }
 
     private void addExcludeToContext(Context context, String regex) {
@@ -294,26 +281,27 @@ public class ContextAPI extends ApiImplementor {
         return result;
     }
 
+    /**
+     * Returns the {@code Context} with the given name. The context's name is obtained from the given parameters, whose name is
+     * {@value #CONTEXT_NAME}.
+     * <p>
+     * The parameter must exist, that is, it should be a mandatory parameter, otherwise a runtime exception is thrown.
+     *
+     * @param params the parameters that contain the context's name
+     * @return the {@code Context} with the given name
+     * @throws ApiException If the context with the given name does not exist
+     * @see JSONObject#getString(String)
+     */
     private Context getContext(JSONObject params) throws ApiException {
-        return getContext(getContextName(params));
-    }
-
-    private String getContextName(JSONObject params) throws ApiException {
-        String contextName = params.getString(CONTEXT_NAME);
-        if (contextName == null || contextName.length() == 0){
-            throw new ApiException(ApiException.Type.MISSING_PARAMETER, CONTEXT_NAME);
-        }
-        return contextName;
+        return getContext(params.getString(CONTEXT_NAME));
     }
 
     private Context getContext(String contextName) throws ApiException {
-        List<Context> contexts = Model.getSingleton().getSession().getContexts();
-        for (Context context : contexts){
-            if (context.getName().equals(contextName)){
-                return context;
-            }
+        Context context = Model.getSingleton().getSession().getContext(contextName);
+        if (context == null) {
+            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
         }
-        throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
+        return context;
     }
 
     /**
@@ -327,6 +315,7 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("name", c.getName());
 		fields.put("id", Integer.toString(c.getIndex()));
 		fields.put("description", c.getDescription());
+		fields.put("inScope", Boolean.toString(c.isInScope()));
 		fields.put("excludeRegexs", c.getExcludeFromContextRegexs().toString());
 		fields.put("includeRegexs", c.getIncludeInContextRegexs().toString());
 		

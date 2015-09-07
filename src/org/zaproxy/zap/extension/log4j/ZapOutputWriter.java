@@ -47,10 +47,6 @@ public class ZapOutputWriter extends WriterAppender {
 		}
 
 		if (event.getLevel().equals(Level.ERROR)) {
-			if (scanStatus != null) {
-				scanStatus.incScanCount();
-			}
-			
 			if (! SwingUtilities.isEventDispatchThread()) {
 				SwingUtilities.invokeLater(new Runnable(){
 					@Override
@@ -58,6 +54,10 @@ public class ZapOutputWriter extends WriterAppender {
 						append(event);
 					}});
 				return;
+			}
+
+			if (scanStatus != null) {
+				scanStatus.incScanCount();
 			}
 			
 			String renderedmessage=event.getRenderedMessage();

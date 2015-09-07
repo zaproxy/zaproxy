@@ -935,17 +935,42 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.incTabOffset(tabIndex);
 	}
 	
-	private void setTextTarget(ZapTextField text, Target target) {
+	private void setTextTarget(ZapTextField field, Target target) {
+		String text = getTargetText(target);
+		if (text != null) {
+			field.setText(text);
+		}
+	}
+
+	/**
+	 * Returns the text representation of the given {@code target}.
+	 * <p>
+	 * If the {@code target} is not {@code null} it returns:
+	 * <ol>
+	 * <li>the URI, if it has a start node with an history reference;</li>
+	 * <li>"Context: " followed by context's name, if it has a context;</li>
+	 * <li>"Everything in scope", if it's only in scope.</li>
+	 * </ol>
+	 * For remaining cases it returns {@code null}.
+	 *
+	 * @param target the target whose text representation will be returned
+	 * @return the text representation of the given {@code target}, might be {@code null}
+	 * @since 2.4.2
+	 * @see Target#getStartNode()
+	 * @see Target#getContext()
+	 * @see Target#isInScopeOnly()
+	 */
+	protected static String getTargetText(Target target) {
 		if (target != null) {
 			if (target.getStartNode() != null && target.getStartNode().getHistoryReference() != null) {
-				text.setText(target.getStartNode().getHistoryReference().getURI().toString());
+				return target.getStartNode().getHistoryReference().getURI().toString();
 			} else if (target.getContext() != null) {
-				text.setText(Constant.messages.getString("context.prefixName", new Object[] {target.getContext().getName()}));
+				return Constant.messages.getString("context.prefixName", target.getContext().getName());
 			} else if (target.isInScopeOnly()) {
-				text.setText(Constant.messages.getString("context.allInScope"));
+				return Constant.messages.getString("context.allInScope");
 			}
 		}
-		
+		return null;
 	}
 	
 	public void addContextSelectField(String fieldLabel, Context selectedContext){

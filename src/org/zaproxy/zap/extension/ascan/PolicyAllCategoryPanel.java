@@ -210,9 +210,14 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     		policySelector.addActionListener(new ActionListener(){
 				@Override
 				public void actionPerformed(ActionEvent e) {
+					String policyName = (String) policySelector.getSelectedItem();
+					if (policyName == null) {
+						return;
+					}
+
 					ScanPolicy policy;
 					try {
-						policy = extension.getPolicyManager().getPolicy((String)policySelector.getSelectedItem());
+						policy = extension.getPolicyManager().getPolicy(policyName);
 						if (policy != null) {
 							setScanPolicy(policy);
 						}

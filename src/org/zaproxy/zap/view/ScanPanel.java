@@ -349,6 +349,9 @@ public abstract class ScanPanel extends AbstractPanel {
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			pauseScanButton.setSelectedToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
 			pauseScanButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setRolloverIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setSelectedIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/131.png")));
+			pauseScanButton.setRolloverSelectedIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/131.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -754,7 +757,7 @@ public abstract class ScanPanel extends AbstractPanel {
         	scanFinshedEventHandler(host);
 	    } else {
 	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
+	            EventQueue.invokeLater(new Runnable() {
 	                @Override
 	                public void run() {
 	                	scanFinshedEventHandler(host);
@@ -879,6 +882,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	public void sessionModeChanged(Mode mode) {
 		this.mode = mode;
 		switch (mode) {
+		case attack:
 		case standard:
 		case protect:
 			getSiteSelect().setEnabled(true);

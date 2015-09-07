@@ -24,12 +24,14 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
@@ -186,7 +188,6 @@ public class ActiveScanAPI extends ApiImplementor {
 		try {
 			switch(name) {
 			case ACTION_SCAN_AS_USER:
-				String urlUserScan = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
 				int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
 				ExtensionUserManagement usersExtension = Control.getSingleton()
 						.getExtensionLoader()
@@ -195,7 +196,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 				}
 				Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-				if (!context.isIncluded(urlUserScan)) {
+				if (!context.isIncluded(params.getString(PARAM_URL))) {
 					throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
 				}
 				user = usersExtension.getContextUserAuthManager(context.getIndex()).getUserById(userID);
@@ -206,10 +207,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				// Same behaviour but with addition of the user to scan
 				// $FALL-THROUGH$
 			case ACTION_SCAN:
-				String url = params.getString(PARAM_URL);
-				if (url == null || url.length() == 0) {
-					throw new ApiException(ApiException.Type.MISSING_PARAMETER, PARAM_URL);
-				}
+				URI url = getTargetUrl(params.getString(PARAM_URL));
 
 				boolean scanJustInScope = user == null ? this.getParam(params, PARAM_JUST_IN_SCOPE, false) : false;
 
@@ -239,7 +237,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 
 				int scanId = scanURL(
-						params.getString(PARAM_URL),
+						url,
 						user,
 						this.getParam(params, PARAM_RECURSE, true),
 						scanJustInScope,
@@ -281,6 +279,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					Session session = Model.getSingleton().getSession();
 					session.setExcludeFromScanRegexs(new ArrayList<String>());
 				} catch (DatabaseException e) {
+					log.error(e.getMessage(), e);
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 				}
 			    break;
@@ -289,8 +288,11 @@ public class ActiveScanAPI extends ApiImplementor {
 				try {
 					Session session = Model.getSingleton().getSession();
 					session.addExcludeFromScanRegexs(regex);
-				} catch (Exception e) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+				} catch (DatabaseException e) {
+					log.error(e.getMessage(), e);
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}catch (PatternSyntaxException e) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 				}
 				break;
 			case ACTION_ENABLE_ALL_SCANNERS:
@@ -337,7 +339,7 @@ public class ActiveScanAPI extends ApiImplementor {
 
 				for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 					if (scanner.getCategory() == policyId) {
-						setAlertThresholdToScanner(alertThreshold1, scanner);
+						scanner.setAlertThreshold(alertThreshold1);
 					}
 				}
 				policy.save();
@@ -351,7 +353,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			case ACTION_SET_SCANNER_ALERT_THRESHOLD:
 				policy = getScanPolicyFromParams(params);
 				AlertThreshold alertThreshold2 = getAlertThresholdFromParamAlertThreshold(params);
-				setAlertThresholdToScanner(alertThreshold2, getScannerFromParamId(policy, params));
+				getScannerFromParamId(policy, params).setAlertThreshold(alertThreshold2);
 				policy.save();
 				break;
 			case ACTION_ADD_SCAN_POLICY:
@@ -384,8 +386,21 @@ public class ActiveScanAPI extends ApiImplementor {
 		return ApiResponseElement.OK;
 	}
 
+	private static URI getTargetUrl(String url) throws ApiException {
+		try {
+			URI targetUrl = new URI(url, false);
+			String scheme = targetUrl.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+			return targetUrl;
+		} catch (URIException e) {
+			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+		}
+	}
+
 	private ScanPolicy getScanPolicyFromParams(JSONObject params) throws ApiException {
-		String policyName = null;;
+		String policyName = null;
 		try {
 			policyName = params.getString(PARAM_SCAN_POLICY_NAME);
 		} catch (Exception e1) {
@@ -438,19 +453,12 @@ public class ActiveScanAPI extends ApiImplementor {
 				try {
 					Plugin scanner = policy.getPluginFactory().getPlugin(Integer.valueOf(id.trim()).intValue());
 					if (scanner != null) {
-						setScannerEnabled(scanner, enabled);
+						scanner.setEnabled(enabled);
 					}
 				} catch (NumberFormatException e) {
 					log.warn("Failed to parse scanner ID: ", e);
 				}
 			}
-		}
-	}
-
-	private static void setScannerEnabled(Plugin scanner, boolean enabled) {
-		scanner.setEnabled(enabled);
-		if (enabled && scanner.getAlertThreshold() == Plugin.AlertThreshold.OFF) {
-			scanner.setAlertThreshold(Plugin.AlertThreshold.DEFAULT);
 		}
 	}
 
@@ -463,7 +471,7 @@ public class ActiveScanAPI extends ApiImplementor {
 					if (hasPolicyWithId(policyId)) {
 						for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 							if (scanner.getCategory() == policyId) {
-							    setScannerEnabled(scanner, true);
+							    scanner.setEnabled(true);
 							}
 						}
 					}
@@ -507,11 +515,6 @@ public class ActiveScanAPI extends ApiImplementor {
 		}
 	}
 
-	private static void setAlertThresholdToScanner(Plugin.AlertThreshold alertThreshold, Plugin scanner) {
-		scanner.setAlertThreshold(alertThreshold);
-		scanner.setEnabled(!Plugin.AlertThreshold.OFF.equals(alertThreshold));
-	}
-
 	private Plugin getScannerFromParamId(ScanPolicy policy, JSONObject params) throws ApiException {
 		final int id = getParam(params, PARAM_ID, -1);
 		if (id == -1) {
@@ -524,12 +527,12 @@ public class ActiveScanAPI extends ApiImplementor {
 		return scanner;
 	}
 
-	private int scanURL(String url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
+	private int scanURL(URI url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
 		StructuralNode node;
 		
 		try {
-			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), method, postData);
+			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), url, method, postData);
 			if (node == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}

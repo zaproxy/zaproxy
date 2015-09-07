@@ -539,6 +539,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private class JComboBoxFontRenderer extends BasicComboBoxRenderer {
 	    protected DefaultListCellRenderer defaultRenderer = new DefaultListCellRenderer();
 
+	    @Override
 	    @SuppressWarnings("rawtypes")
 		public Component getListCellRendererComponent(JList list, Object value, int index, boolean isSelected, boolean cellHasFocus) {
 	        JLabel renderer = (JLabel) defaultRenderer.getListCellRendererComponent(list, value, index, isSelected,cellHasFocus);

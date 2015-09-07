@@ -192,7 +192,7 @@ public class PythonAPIGenerator {
 			}
 
 			out.write("})");
-			if (type.equals("view")) {
+			if (!type.equals("other")) {
 				out.write(".itervalues())");
 			} else {
 				out.write(")");

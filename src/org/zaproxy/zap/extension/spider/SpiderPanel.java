@@ -18,6 +18,7 @@
 
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.Component;
 import java.awt.Event;
 import java.awt.EventQueue;
 import java.awt.Insets;
@@ -30,6 +31,7 @@ import java.lang.reflect.InvocationTargetException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
+import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
@@ -42,6 +44,7 @@ import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.ScanPanel2;
+import org.zaproxy.zap.view.ZapTable;
 
 /**
  * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider Scan Tab.
@@ -62,7 +65,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	private JButton scanButton = null;
 
 	/** The results table. */
-	private JXTable resultsTable;
+	private ZapTable resultsTable;
 
 	/** The results pane. */
 	private JScrollPane workPane;
@@ -130,40 +133,24 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	private JXTable getScanResultsTable() {
 		if (resultsTable == null) {
 			// Create the table with a default, empty TableModel and the proper settings
-			resultsTable = new JXTable(EMPTY_RESULTS_MODEL);
+			resultsTable = new ZapTable(EMPTY_RESULTS_MODEL);
 			resultsTable.setColumnSelectionAllowed(false);
 			resultsTable.setCellSelectionEnabled(false);
 			resultsTable.setRowSelectionAllowed(true);
 			resultsTable.setAutoCreateRowSorter(true);
-			resultsTable.setColumnControlVisible(true);
 
 			this.setScanResultsTableColumnSizes();
 
 			resultsTable.setName(PANEL_NAME);
 			resultsTable.setDoubleBuffered(true);
 			resultsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
-			// Add hack to force row selection on right click
-			resultsTable.addMouseListener(new java.awt.event.MouseAdapter() {
+			resultsTable.setComponentPopupMenu(new JPopupMenu() {
+
+				private static final long serialVersionUID = 6608291059686282641L;
+
 				@Override
-				public void mousePressed(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-				@Override
-				public void mouseReleased(java.awt.event.MouseEvent e) {
-					showPopupMenuIfTriggered(e);
-				}
-				private void showPopupMenuIfTriggered(java.awt.event.MouseEvent e) {
-					if (e.isPopupTrigger()) {
-						// Select table item
-						int row = resultsTable.rowAtPoint(e.getPoint());
-						if (row < 0 || !resultsTable.getSelectionModel().isSelectedIndex(row)) {
-							resultsTable.getSelectionModel().clearSelection();
-							if (row >= 0) {
-								resultsTable.getSelectionModel().setSelectionInterval(row, row);
-							}
-						}
-						View.getSingleton().getPopupMenu().show(e.getComponent(), e.getX(), e.getY());
-					}
+				public void show(Component invoker, int x, int y) {
+					View.getSingleton().getPopupMenu().show(invoker, x, y);
 				}
 			});
 		}

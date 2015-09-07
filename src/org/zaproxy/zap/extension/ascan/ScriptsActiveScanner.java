@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Iterator;
 import java.util.List;
 
 import org.apache.commons.httpclient.HttpException;
@@ -96,7 +97,8 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         }
 		List<ScriptWrapper> scripts = this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
 			
-		for (ScriptWrapper script : scripts) {
+		for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
+			ScriptWrapper script = it.next();
 			StringWriter writer = new StringWriter();
 			try {
 				if (script.isEnabled()) {
@@ -116,7 +118,10 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 				extension.setEnabled(script, false);
 			}
 		}
-		super.scan();
+
+		if (!isStop()) {
+			super.scan();
+		}
     }
 
     @Override
@@ -126,7 +131,8 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
         }
 		List<ScriptWrapper> scripts = this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
 			
-		for (ScriptWrapper script : scripts) {
+		for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
+			ScriptWrapper script = it.next();
 			StringWriter writer = new StringWriter();
 			try {
 				if (script.isEnabled()) {
@@ -151,6 +157,11 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 			}
 		}
 	}
+
+    @Override
+    public boolean isStop() {
+        return super.isStop();
+    }
     
     public String setParam(HttpMessage msg, String param, String value) {
     	return super.setParameter(msg, param, value);

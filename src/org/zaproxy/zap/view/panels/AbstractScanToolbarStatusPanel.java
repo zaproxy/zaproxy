@@ -153,14 +153,18 @@ public abstract class AbstractScanToolbarStatusPanel extends AbstractContextSele
 			pauseScanButton.setSelectedToolTipText(Constant.messages.getString(panelPrefix
 					+ ".toolbar.button.unpause"));
 			pauseScanButton.setIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setRolloverIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/141.png")));
+			pauseScanButton.setSelectedIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/131.png")));
+			pauseScanButton.setRolloverSelectedIcon(new ImageIcon(ScanPanel.class.getResource("/resource/icon/16/131.png")));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener() {
 				@Override
 				public void actionPerformed(ActionEvent e) {
-					if (isScanPaused(getSelectedContext()))
+					if (isScanPaused(getSelectedContext())) {
 						resumeScan(getSelectedContext());
-					else
+					} else {
 						pauseScan(getSelectedContext());
+					}
 				}
 			});
 		}

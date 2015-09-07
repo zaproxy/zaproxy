@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Vector;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
@@ -80,7 +81,7 @@ import edu.umass.cs.benchlab.har.HarLog;
 
 public class CoreAPI extends ApiImplementor implements SessionListener {
 
-	private static Logger log = Logger.getLogger(CoreAPI.class);
+	private static final Logger logger = Logger.getLogger(CoreAPI.class);
 
 	private enum ScanReportType {
 		HTML,
@@ -140,7 +141,6 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_KEY_PREFIX = "keyPrefix";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
-	private Logger logger = Logger.getLogger(this.getClass());
 	private boolean savingSession = false;
 
 	public CoreAPI() {
@@ -217,7 +217,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						// Ignore
 					}
 					Control.getSingleton().shutdown(Model.getSingleton().getOptionsParam().getDatabaseParam().isCompactDatabase());
-					log.info(Constant.PROGRAM_TITLE + " terminated.");
+					logger.info(Constant.PROGRAM_TITLE + " terminated.");
 					System.exit(0);
 				}
 			};
@@ -351,15 +351,18 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			String regex = params.getString(PARAM_REGEX);
 			try {
 				session.addExcludeFromProxyRegex(regex);
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_REGEX);
+			} catch (DatabaseException e) {
+				logger.error(e.getMessage(), e);
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (PatternSyntaxException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REGEX);
 			}
 		} else if (ACTION_SET_HOME_DIRECTORY.equals(name)) {
 			File f = new File(params.getString(PARAM_DIR));
 			if (f.exists() && f.isDirectory()) {
 				Model.getSingleton().getOptionsParam().setUserDirectory(f);
 			} else {
-				throw new ApiException(ApiException.Type.BAD_FORMAT, PARAM_DIR);
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_DIR);
 			}
 		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
 			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
@@ -487,7 +490,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		try {
 			historyRef = new HistoryReference(Model.getSingleton().getSession(), HistoryReference.TYPE_ZAP_USER, message);
 		} catch (Exception e) {
-			log.warn(e.getMessage(), e);
+			logger.warn(e.getMessage(), e);
 			return;
 		}
 
@@ -701,7 +704,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 								
 					}
 				} catch (JSONException e) {
-					throw new ApiException(ApiException.Type.BAD_FORMAT);
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_PROXY_DETAILS);
 				}
 				msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 				
@@ -788,7 +791,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
 			} catch (HttpMalformedHeaderException e) {
-				log.error("Failed to create response header: " + e.getMessage(), e);
+				logger.error("Failed to create response header: " + e.getMessage(), e);
 			}
 			msg.setResponseBody(responseBody);
 
@@ -823,7 +826,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
 			} catch (HttpMalformedHeaderException e) {
-				log.error("Failed to create response header: " + e.getMessage(), e);
+				logger.error("Failed to create response header: " + e.getMessage(), e);
 			}
 			msg.setResponseBody(responseBody);
 			
@@ -867,7 +870,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			try {
 				msg.setResponseHeader(API.getDefaultResponseHeader("application/json; charset=UTF-8", responseBody.length));
 			} catch (HttpMalformedHeaderException e) {
-				log.error("Failed to create response header: " + e.getMessage(), e);
+				logger.error("Failed to create response header: " + e.getMessage(), e);
 			}
 			msg.setResponseBody(responseBody);
 			

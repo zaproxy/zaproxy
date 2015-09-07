@@ -334,6 +334,7 @@ public class JCheckBoxTree extends JTree {
     	p.setSize(new Dimension(500,500));
     	f.getContentPane().add(p);
     	JCheckBoxTree cbt = new JCheckBoxTree();
+    	cbt.setShowsRootHandles(true);
 
     	JScrollPane scroll = new JScrollPane();
     	scroll.setViewportView(cbt);

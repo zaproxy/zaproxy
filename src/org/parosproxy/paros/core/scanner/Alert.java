@@ -38,6 +38,7 @@
 // ZAP: 2015/01/04 Issue 1419: Include alert's evidence in HTML report
 // ZAP: 2014/01/04 Issue 1475: Alerts with different name from same scanner might not be shown in report
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2015/08/24 Issue 1849: Option to merge related issues in reports
 
 package org.parosproxy.paros.core.scanner;
 
@@ -527,12 +528,15 @@ public class Alert implements Comparable<Object>  {
     public String getUrlParamXML() {
     	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
         sb.append("  <uri>").append(breakNoSpaceString(replaceEntity(uri))).append("</uri>\r\n");
-        sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
-        sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
+        if (param != null && param.length() > 0) {
+        	sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
+        }
+        if (attack != null && attack.length() > 0) {
+        	sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
+        }
         if (evidence != null && evidence.length() > 0) {
             sb.append("  <evidence>").append(breakNoSpaceString(replaceEntity(evidence))).append("</evidence>\r\n");
         }
-        sb.append("  <otherinfo>").append(breakNoSpaceString(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
         return sb.toString();
     }
 

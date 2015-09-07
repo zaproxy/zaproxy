@@ -43,6 +43,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpInputStream;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
@@ -62,6 +63,10 @@ public class API {
 
 	private static Pattern patternParam = Pattern.compile("&", Pattern.CASE_INSENSITIVE);
 	private static final String CALL_BACK_URL = "/zapCallBackUrl/";
+
+	private static final String STATUS_OK = "200 OK";
+	private static final String STATUS_BAD_REQUEST = "400 Bad Request";
+	private static final String STATUS_INTERNAL_SERVER_ERROR = "500 Internal Server Error";
 
 	private Map<String, ApiImplementor> implementors = new HashMap<>();
 	private static API api = null;
@@ -125,7 +130,7 @@ public class API {
 		return true;
 	}
 	
-	private OptionsParamApi getOptionsParamApi() {
+	private static OptionsParamApi getOptionsParamApi() {
 		return Model.getSingleton().getOptionsParam().getApiParam();
 	}
 	
@@ -181,6 +186,7 @@ public class API {
 		String contentType = "text/plain; charset=UTF-8";
 		String response = "";
 		String name = null;
+		boolean error = false;
 		
 		try {
 			JSONObject params = getParams(requestHeader.getURI().getEscapedQuery());
@@ -230,6 +236,7 @@ public class API {
 									break;
 						}
 					} catch (IllegalArgumentException e) {
+						format = Format.HTML;
 						throw new ApiException(ApiException.Type.BAD_FORMAT);
 					}
 				}
@@ -388,15 +395,12 @@ public class API {
 			}
 			logger.debug("handleApiRequest returning: " + response);
 			
-		} catch (ApiException e) {
-			response =  e.toString(Format.HTML, getOptionsParamApi().isIncErrorDetails());
-	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
-	    	msg.setResponseBody(response);
-	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
- 			logger.warn("handleApiRequest error: " + response, e);
+		} catch (Exception e) {
+			handleException(msg, format, contentType, e);
+			error = true;
 		}
 		
-		if (format == null || ! format.equals(Format.OTHER) && shortcutImpl == null) {
+		if (!error && ! format.equals(Format.OTHER) && shortcutImpl == null) {
 	    	msg.setResponseHeader(getDefaultResponseHeader(contentType));
 	    	msg.setResponseBody(response);
 	    	msg.getResponseHeader().setContentLength(msg.getResponseBody().length());
@@ -504,12 +508,12 @@ public class API {
 					jp.put(key, value);
 				} catch (UnsupportedEncodingException | IllegalArgumentException e) {
 					// Carry on anyway
-					Exception apiException = new ApiException(ApiException.Type.BAD_FORMAT, params, e);
+					Exception apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params, e);
 					logger.error(apiException.getMessage(), apiException);
 				}
 			} else {
 				// Carry on anyway
-				Exception e = new ApiException(ApiException.Type.BAD_FORMAT, params);
+				Exception e = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, params);
 				logger.error(e.getMessage(), e);
 			}
 		}
@@ -540,9 +544,13 @@ public class API {
     }
 
     public static String getDefaultResponseHeader(String contentType, int contentLength) {
+        return getDefaultResponseHeader(STATUS_OK, contentType, contentLength);
+    }
+
+    public static String getDefaultResponseHeader(String responseStatus, String contentType, int contentLength) {
         StringBuilder sb = new StringBuilder(250);
 
-        sb.append("HTTP/1.1 200 OK\r\n");
+        sb.append("HTTP/1.1 ").append(responseStatus).append("\r\n");
         sb.append("Pragma: no-cache\r\n");
         sb.append("Cache-Control: no-cache\r\n");
         sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
@@ -552,5 +560,33 @@ public class API {
         sb.append("Content-Type: ").append(contentType).append("\r\n");
 
         return sb.toString();
+    }
+
+    private static void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
+        String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
+        if (format == Format.OTHER) {
+            logger.error("API 'other' endpoint didn't handle exception:", cause);
+        } else {
+            ApiException exception;
+            if (cause instanceof ApiException) {
+                exception = (ApiException) cause;
+                if (!ApiException.Type.INTERNAL_ERROR.equals(exception.getType())) {
+                    responseStatus = STATUS_BAD_REQUEST;
+                    logger.warn("ApiException while handling API request:", cause);
+                }
+            } else {
+                exception = new ApiException(ApiException.Type.INTERNAL_ERROR, cause);
+                logger.error("Exception while handling API request:", cause);
+            }
+            String response = exception.toString(format, getOptionsParamApi().isIncErrorDetails());
+
+            msg.setResponseBody(response);
+        }
+
+        try {
+            msg.setResponseHeader(getDefaultResponseHeader(responseStatus, contentType, msg.getResponseBody().length()));
+        } catch (HttpMalformedHeaderException e) {
+            logger.warn("Failed to build API error response:", e);
+        }
     }
 }

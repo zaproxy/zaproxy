@@ -38,6 +38,7 @@
 // ZAP: 2015/01/04 Issue 1484: NullPointerException during uninstallation of an add-on with active scanners
 // ZAP: 2015/01/04 Issue 1486: Add-on components leak
 // ZAP: 2015/07/25 Do not log error if the duplicated scanner is (apparently) a newer/older version
+// ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
 
 package org.parosproxy.paros.core.scanner;
 
@@ -54,7 +55,6 @@ import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
-import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 
@@ -174,7 +174,7 @@ public class PluginFactory {
             while (iterator.hasNext()) {
                 // ZAP: Removed unnecessary cast.
                 plugin = iterator.next();
-                if (plugin.isEnabled() && ! Plugin.AlertThreshold.OFF.equals(plugin.getAlertThreshold())) {
+                if (plugin.isEnabled()) {
                     enableDependency(plugin);
                 }
             }
@@ -184,7 +184,7 @@ public class PluginFactory {
             while (iterator.hasNext()) {
                 // ZAP: Removed unnecessary cast.
                 plugin = iterator.next();
-                if (plugin.isEnabled() && ! Plugin.AlertThreshold.OFF.equals(plugin.getAlertThreshold())) {
+                if (plugin.isEnabled()) {
                     listPending.add(plugin);
                 }
             }
@@ -591,7 +591,7 @@ public class PluginFactory {
     public int getEnabledPluginCount () {
     	int count = 0;
     	for (Plugin plugin : listAllPlugin) {
-    		if (! AlertThreshold.OFF.equals(plugin.getAlertThreshold())) {
+    		if (plugin.isEnabled()) {
     			count ++;
     		}
     	}

@@ -38,11 +38,17 @@ public class ForcedUser {
 		this.api = api;
 	}
 
+	/**
+	 * Returns 'true' if 'forced user' mode is enabled, 'false' otherwise
+	 */
 	public ApiResponse isForcedUserModeEnabled() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("forcedUser", "view", "isForcedUserModeEnabled", map);
 	}
 
+	/**
+	 * Gets the user (ID) set as 'forced user' for the given context (ID)
+	 */
 	public ApiResponse getForcedUser(String contextid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -50,6 +56,9 @@ public class ForcedUser {
 		return api.callApi("forcedUser", "view", "getForcedUser", map);
 	}
 
+	/**
+	 * Sets the user (ID) that should be used in 'forced user' mode for the given context (ID)
+	 */
 	public ApiResponse setForcedUser(String apikey, String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -61,6 +70,9 @@ public class ForcedUser {
 		return api.callApi("forcedUser", "action", "setForcedUser", map);
 	}
 
+	/**
+	 * Sets if 'forced user' mode should be enabled or not
+	 */
 	public ApiResponse setForcedUserModeEnabled(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();

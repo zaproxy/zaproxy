@@ -20,6 +20,7 @@ package org.zaproxy.zap.spider;
 import java.io.IOException;
 import java.net.ConnectException;
 import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
 import java.util.List;
 
 import net.htmlparser.jericho.Source;
@@ -138,7 +139,8 @@ public class SpiderTask implements Runnable {
 		// Create a new HttpMessage that will be used for the request and persist it in the database using
 		// HistoryReference
 		try {
-			HttpRequestHeader requestHeader = new HttpRequestHeader(method, uri, HttpHeader.HTTP11);
+			HttpRequestHeader requestHeader = 
+					new HttpRequestHeader(method, uri, HttpHeader.HTTP11, parent.getConnectionParam());
 			if (sourceUri != null && parent.getSpiderParam().isSendRefererHeader()) {
 				requestHeader.setHeader(HttpRequestHeader.REFERER, sourceUri.toString());
 			}
@@ -192,6 +194,10 @@ public class SpiderTask implements Runnable {
 			parent.postTaskExecution();
 			return;
 		} catch (SocketTimeoutException e) {
+			// This will have been logged at debug level with the URL (which we dont have here)
+			parent.postTaskExecution();
+			return;
+		} catch (UnknownHostException e) {
 			// This will have been logged at debug level with the URL (which we dont have here)
 			parent.postTaskExecution();
 			return;
@@ -331,6 +337,9 @@ public class SpiderTask implements Runnable {
 				throw e;
 			} catch (SocketTimeoutException e) {
 				log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
+				throw e;
+			} catch (UnknownHostException e) {
+				log.debug("Unknown host: " + msg.getRequestHeader().getURI(), e);
 				throw e;
 			}
 		}

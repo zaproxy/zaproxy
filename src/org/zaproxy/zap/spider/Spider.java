@@ -25,7 +25,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
@@ -103,10 +102,10 @@ public class Spider {
 	private HttpSender httpSender;
 
 	/** The count of the tasks finished. */
-	private AtomicInteger tasksDoneCount;
+	private int tasksDoneCount;
 
 	/** The total count of all the submitted tasks. */
-	private AtomicInteger tasksTotalCount;
+	private int tasksTotalCount;
 
 	/** The cookie manager. */
 	private CookieManager cookieManager;
@@ -162,8 +161,8 @@ public class Spider {
 	private void init() {
 		this.paused = false;
 		this.stopped = true;
-		this.tasksDoneCount = new AtomicInteger(0);
-		this.tasksTotalCount = new AtomicInteger(0);
+		this.tasksDoneCount = 0;
+		this.tasksTotalCount = 0;
 		this.initialized = false;
 
 		// Add a default fetch filter and any custom ones
@@ -359,6 +358,10 @@ public class Spider {
 		return spiderParam;
 	}
 
+	protected ConnectionParam getConnectionParam() {
+		return connectionParam;
+	}
+
 	/**
 	 * Gets the controller.
 	 * 
@@ -400,7 +403,7 @@ public class Spider {
 			log.debug("Submitting task skipped (" + task + ") as the Spider process is terminated.");
 			return;
 		}
-		this.tasksTotalCount.incrementAndGet();
+		this.tasksTotalCount++;
 		try {
 			this.threadPool.execute(task);
 		} catch (RejectedExecutionException e) {
@@ -425,6 +428,7 @@ public class Spider {
 		if (seedList == null || seedList.isEmpty()) {
 			log.warn("No seeds available for the Spider. Cancelling scan...");
 			notifyListenersSpiderComplete(false);
+			notifyListenersSpiderProgress(100, 0, 0);
 			return;
 		}
 
@@ -595,19 +599,19 @@ public class Spider {
 	}
 
 	/**
-	 * This method is run by each thread in the Thread Pool before the task execution. Particularly,
+	 * This method is run by each thread in the Thread Pool after the task execution. Particularly,
 	 * it notifies the listeners of the progress and checks if the scan is complete. Called from the
 	 * SpiderTask.
 	 */
-	protected void postTaskExecution() {
-		int done = this.tasksDoneCount.incrementAndGet();
-		int total = this.tasksTotalCount.get();
+	protected synchronized void postTaskExecution() {
+		tasksDoneCount++;
+		int percentageComplete = tasksDoneCount * 100 / tasksTotalCount;
 
 		// Compute the progress and notify the listeners
-		this.notifyListenersSpiderProgress(done * 100 / total, done, total - done);
+		this.notifyListenersSpiderProgress(percentageComplete, tasksDoneCount, tasksTotalCount - tasksDoneCount);
 
 		// Check for ending conditions
-		if (done == total && initialized) {
+		if (tasksDoneCount == tasksTotalCount && initialized) {
 			this.complete();
 		}
 	}

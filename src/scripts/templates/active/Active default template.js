@@ -16,6 +16,12 @@ function scanNode(as, msg) {
 	as.sendAndReceive(msg, false, false);
 
 	// Test the responses and raise alerts as below
+
+	// Check if the scan was stopped before performing lengthy tasks
+	if (as.isStop()) {
+		return
+	}
+	// Do lengthy task...
 }
 
 function scan(as, msg, param, value) {

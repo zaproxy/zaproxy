@@ -57,6 +57,7 @@
 // ZAP: 2015/03/10 Issue 653: Handle updates on Kali better
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
+// ZAP: 2015/08/01 Remove code duplication in catch of exceptions, use installation directory in default config file
 
 package org.parosproxy.paros;
 
@@ -112,7 +113,7 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2004001;
+    private static final long VERSION_TAG = 2004002;
     
     // Old version numbers - for upgrade
     private static final long V_2_3_1_TAG = 2003001;
@@ -147,6 +148,11 @@ public final class Constant {
 
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
+    /**
+     * @deprecated (2.4.2) The path does not take into account the installation directory, use
+     *             {@link #getPathDefaultConfigFile()} instead.
+     */
+    @Deprecated
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
@@ -201,7 +207,8 @@ public final class Constant {
     // 
     // Home dir for ZAP, ie where the config file is. Can be set on cmdline, otherwise will be set to default loc
     private static String zapHome = null;
-    // Default home dir for 'full' releases - only used for copying full conf file when dev/daily release run for the first time
+    // Default home dir for 'full' releases - used for copying full conf file when dev/daily release run for the first time
+    // and also for the JVM options config file
     private static String zapStd = null;
     // Install dir for ZAP, but default will be cwd
     private static String zapInstall = null;
@@ -289,6 +296,36 @@ public final class Constant {
     	initializeFilesAndDirectories();
     	setAcceleratorKeys();
     }
+    
+    public static String getDefaultHomeDirectory(boolean incDevOption) {
+    	if (zapStd == null) {
+    		zapStd = System.getProperty("user.home");
+            if (zapStd == null) {
+            	zapStd = ".";
+            }
+
+            if (isLinux()) {
+            	// Linux: Hidden Zap directory in the user's home directory
+            	zapStd += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
+    		} else if (isMacOsX()) {
+    			// Mac Os X: Support for writing the configuration into the users Library 
+    			zapStd += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
+    				+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
+    		} else {
+    			// Windows: Zap directory in the user's home directory
+    			zapStd += FILE_SEPARATOR + PROGRAM_NAME;
+    		}
+    	}
+    	
+        if (incDevOption) {
+	        if (isDevBuild() || isDailyBuild()) {
+	        	// Default to a different home dir to prevent messing up full releases
+	        	return zapStd + "_D";
+	        }
+        }
+        return zapStd;
+    		
+    }
     	
     private void initializeFilesAndDirectories() {
 
@@ -304,31 +341,10 @@ public final class Constant {
         PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
 
         if (zapHome == null) {
-            zapHome = System.getProperty("user.home");
-            if (zapHome == null) {
-            	zapHome = ".";
-            }
-
-            if (isLinux()) {
-            	// Linux: Hidden Zap directory in the user's home directory
-            	zapHome += FILE_SEPARATOR + "." + PROGRAM_NAME_SHORT;
-			} else if (isMacOsX()) {
-				// Mac Os X: Support for writing the configuration into the users Library 
-				zapHome += FILE_SEPARATOR + "Library" + FILE_SEPARATOR
-					+ "Application Support" + FILE_SEPARATOR + PROGRAM_NAME_SHORT;
-			} else {
-				// Windows: Zap directory in the user's home directory
-				zapHome += FILE_SEPARATOR + PROGRAM_NAME;
-			}
-            // Will use default when first dev/daily release run
-            zapStd = zapHome;
-            if (isDevBuild() || isDailyBuild()) {
-            	// Default to a different home dir to prevent messing up full releases
-            	zapHome += "_D";
-            }
+            zapHome = getDefaultHomeDirectory(true);
         }
 
-		zapHome = getAbsolutePath(zapHome);
+        zapHome = getAbsolutePath(zapHome);
 		f = new File(zapHome);
 		
 		FILE_CONFIG = zapHome + FILE_CONFIG;
@@ -363,7 +379,7 @@ public final class Constant {
             	File oldf;
                 if (isDevBuild() || isDailyBuild()) {
                 	// try standard location
-                	oldf = new File (zapStd + FILE_SEPARATOR + FILE_CONFIG_NAME);
+                	oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
                 } else {
                 	// try old location
                 	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
@@ -374,8 +390,8 @@ public final class Constant {
             		copier.copy(oldf,f);
             		
             	} else {
-            		log.info("Copying defaults from " + FILE_CONFIG_DEFAULT + " to " + FILE_CONFIG);
-            		copier.copy(new File(FILE_CONFIG_DEFAULT),f);
+            		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
+            		copier.copy(getPathDefaultConfigFile().toFile(),f);
             	}
             }
             
@@ -490,22 +506,11 @@ public final class Constant {
             		config.save();
             	}
 
-	        } catch (ConfigurationException e) {
-	            //  if there is any error in config file (eg config file not exist),
+	        } catch (ConfigurationException | ConversionException | NoSuchElementException e) {
+	            //  if there is any error in config file (eg config file not exist, corrupted),
 	            //  overwrite previous configuration file 
 	            // ZAP: changed to use the correct file
-	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
-
-	        } catch (ConversionException e) {
-	            //  if there is any error in config file (eg config file not exist),
-	            //  overwrite previous configuration file 
-	            // ZAP: changed to use the correct file
-	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
-	
-	        } catch (NoSuchElementException e) {
-	            //  overwrite previous configuration file if config file corrupted
-	            // ZAP: changed to use the correct file
-	            copier.copy(new File(FILE_CONFIG_DEFAULT), new File(FILE_CONFIG));
+	            copier.copy(getPathDefaultConfigFile().toFile(), new File(FILE_CONFIG));
 	            
 	        }
         } catch (Exception e) {
@@ -556,7 +561,7 @@ public final class Constant {
     private void upgradeFrom1_1_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
+        XMLConfiguration newConfig = new ZapXmlConfiguration(getPathDefaultConfigFile().toFile());
         newConfig.setAutoSave(false);
 
         copyAllProperties(newConfig, config, "pscans");                
@@ -565,7 +570,7 @@ public final class Constant {
     private void upgradeFrom1_2_0(XMLConfiguration config) throws ConfigurationException {
 		// Upgrade the regexs
         // ZAP: Changed to use ZapXmlConfiguration, to enforce the same character encoding when reading/writing configurations.
-        XMLConfiguration newConfig = new ZapXmlConfiguration(FILE_CONFIG_DEFAULT);
+        XMLConfiguration newConfig = new ZapXmlConfiguration(getPathDefaultConfigFile().toFile());
         newConfig.setAutoSave(false);
 
         copyProperty(newConfig, config, "view.editorView");
@@ -869,6 +874,16 @@ public final class Constant {
     
     public static String getZapHome () {
     	return zapHome;
+    }
+
+    /**
+     * Returns the path to default configuration file, located in installation directory.
+     *
+     * @return the {@code Path} to default configuration file.
+     * @since 2.4.2
+     */
+    public static Path getPathDefaultConfigFile() {
+        return Paths.get(getZapInstall(), "xml", FILE_CONFIG_NAME);
     }
 
 	public static File getContextsDir () {
