@@ -27,6 +27,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
 // ZAP: 2015/04/02 Issue 1582: Low memory option
+// ZAP: 2015/09/07 Issue 1872: EDT accessed in daemon mode
 
 package org.parosproxy.paros.extension.history;
  
@@ -150,35 +151,30 @@ public class ProxyListenerLog implements ProxyListener {
         
         extension.addHistory(historyRef);
 
-        // add history to site panel.  Must use event queue because this proxylistener may not be run from event queue.
-        final HistoryReference ref = historyRef;
-        final HttpMessage finalMsg = msg;
-        if (EventQueue.isDispatchThread()) {
-            SessionStructure.addPath(model.getSession(), ref, msg);
-            if (isFirstAccess) {
-                isFirstAccess = false;
-                if (View.isInitialised()) {
-                	view.getSiteTreePanel().expandRoot();
-                }
-            }
-            
-        } else {
+        addToSiteMap(historyRef, msg);
+    }
+
+    private void addToSiteMap(final HistoryReference ref, final HttpMessage msg) {
+        if (View.isInitialised() && !EventQueue.isDispatchThread()) {
             try {
                 EventQueue.invokeAndWait(new Runnable() {
                     @Override
                     public void run() {
-                        SessionStructure.addPath(model.getSession(), ref, finalMsg);
-                        if (isFirstAccess && ! Constant.isLowMemoryOptionSet()) {
-                            isFirstAccess = false;
-                            if (View.isInitialised()) {
-                            	view.getSiteTreePanel().expandRoot();
-                            }
-                        }
+                        addToSiteMap(ref, msg);
                     }
                 });
             } catch (Exception e) {
             	// ZAP: Log exceptions
             	log.warn(e.getMessage(), e);
+            }
+            return;
+        }
+
+        SessionStructure.addPath(model.getSession(), ref, msg);
+        if (isFirstAccess && !Constant.isLowMemoryOptionSet()) {
+            isFirstAccess = false;
+            if (View.isInitialised()) {
+                view.getSiteTreePanel().expandRoot();
             }
         }
     }
