@@ -22,6 +22,7 @@
 // ZAP: 2013/01/16 Minor fix to prevent NPE
 // ZAP: 2014/10/17 Issue 1308: Updated for latest icons
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2015/09/07 Move icon loading to a utility class
 
 package org.parosproxy.paros.view;
 
@@ -43,6 +44,7 @@ import javax.swing.JFrame;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 /**
  * Generic Frame, which handles some basic properties.
@@ -79,8 +81,6 @@ public abstract class AbstractFrame extends JFrame {
 	private final String prefnzPrefix = this.getClass().getSimpleName()+".";
 	private final Logger logger = Logger.getLogger(AbstractFrame.class);
 
-	private List<Image> icons = null;
-
 	/**
 	 * This is the default constructor
 	 */
@@ -94,7 +94,7 @@ public abstract class AbstractFrame extends JFrame {
 	 */
 	private void initialize() {
 		// ZAP: Rebrand
-		this.setIconImages(loadIconImages());
+		this.setIconImages(DisplayUtils.getZapIconImages());
 
 		this.setVisible(false);
 		this.setTitle(Constant.PROGRAM_NAME);
@@ -262,28 +262,18 @@ public abstract class AbstractFrame extends JFrame {
 		return result;
 	}
 
+	/**
+	 * @deprecated (2.4.2) Use {@link DisplayUtils#getZapIconImages()} instead. It will be removed in a future release.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	protected List<Image> loadIconImages() {
-		if (icons == null) {
-			icons = new ArrayList<>(8);
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap16x16.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap32x32.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap48x48.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap64x64.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap128x128.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap256x256.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap512x512.png")));
-			icons.add(Toolkit.getDefaultToolkit().getImage(AbstractFrame.class.getResource("/resource/zap1024x1024.png")));
-		}
-		return icons;
+		return new ArrayList<>(DisplayUtils.getZapIconImages());
 	}
 
 	@Override
 	public void dispose() {
 		super.dispose();
-		if (icons != null) {
-			this.icons.clear(); // free the bounded resources
-			this.icons = null;
-		}
 		try {
 			this.preferences.flush();
 		} catch (final BackingStoreException e) {

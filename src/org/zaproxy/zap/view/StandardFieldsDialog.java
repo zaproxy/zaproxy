@@ -955,7 +955,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 *
 	 * @param target the target whose text representation will be returned
 	 * @return the text representation of the given {@code target}, might be {@code null}
-	 * @since TODO add version
+	 * @since 2.4.2
 	 * @see Target#getStartNode()
 	 * @see Target#getContext()
 	 * @see Target#isInScopeOnly()

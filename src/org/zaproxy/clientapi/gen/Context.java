@@ -133,7 +133,7 @@ public class Context {
 	}
 
 	/**
-	 * Creates a new context in the current session
+	 * Creates a new context with the given name in the current session
 	 */
 	public ApiResponse newContext(String apikey, String contextname) throws ClientApiException {
 		Map<String, String> map = null;
@@ -145,6 +145,22 @@ public class Context {
 		return api.callApi("context", "action", "newContext", map);
 	}
 
+	/**
+	 * Removes a context in the current session
+	 */
+	public ApiResponse removeContext(String apikey, String contextname) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("contextName", contextname);
+		return api.callApi("context", "action", "removeContext", map);
+	}
+
+	/**
+	 * Exports the context with the given name to a file. If a relative file path is specified it will be resolved against the "contexts" directory in ZAP "home" dir.
+	 */
 	public ApiResponse exportContext(String apikey, String contextname, String contextfile) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -156,6 +172,9 @@ public class Context {
 		return api.callApi("context", "action", "exportContext", map);
 	}
 
+	/**
+	 * Imports a context from a file. If a relative file path is specified it will be resolved against the "contexts" directory in ZAP "home" dir.
+	 */
 	public ApiResponse importContext(String apikey, String contextfile) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();

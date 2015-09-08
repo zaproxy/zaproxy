@@ -21,6 +21,10 @@ package org.zaproxy.zap.utils;
 
 import java.awt.Dimension;
 import java.awt.Image;
+import java.awt.Toolkit;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -33,6 +37,8 @@ import org.parosproxy.paros.model.Model;
 
 public class DisplayUtils {
 	
+	private static List<Image> zapIconImages;
+
 	private static Boolean scaleImages = null;
 	private final static int STD_HEIGHT = 16;
 	
@@ -109,6 +115,36 @@ public class DisplayUtils {
 			if (button.getPressedIcon() != null && button.getPressedIcon() instanceof ImageIcon) {
 				button.setPressedIcon(getScaledIcon((ImageIcon)button.getPressedIcon()));
 			}
+		}
+	}
+
+	/**
+	 * Gets the available ZAP icon images.
+	 * <p>
+	 * Contains images with several dimensions, with higher dimensions at the end of the list.
+	 * 
+	 * @return a unmodifiable {@code List} with the ZAP icon images.
+	 * @since 2.4.2
+	 */
+	public static List<Image> getZapIconImages() {
+		if (zapIconImages == null) {
+			createZapIconImages();
+		}
+		return zapIconImages;
+	}
+
+	private static synchronized void createZapIconImages() {
+		if (zapIconImages == null) {
+			List<Image> images = new ArrayList<>(8);
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap16x16.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap32x32.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap48x48.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap64x64.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap128x128.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap256x256.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap512x512.png")));
+			images.add(Toolkit.getDefaultToolkit().getImage(DisplayUtils.class.getResource("/resource/zap1024x1024.png")));
+			zapIconImages = Collections.unmodifiableList(images);
 		}
 	}
 }

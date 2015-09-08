@@ -61,6 +61,7 @@
 // ZAP: 2015/03/04 Added no prompt warning methods
 // ZAP: 2015/04/13 Add default editor and renderer for TextMessageLocationHighlight
 // ZAP: 2015/08/11 Fix the removal of context panels
+// ZAP: 2015/09/07 Start GUI on EDT
 
 package org.parosproxy.paros.view;
 
@@ -389,8 +390,6 @@ public class View implements ViewDelegate {
         if (Model.getSingleton().getOptionsParam().getViewParam().isShowSplashScreen()) {
             // Show the splash screen to show the user something is happening..
             splashScreen = new SplashScreen();
-            Thread splashThread = new Thread(splashScreen);
-            splashThread.start();
         }        
     }
 

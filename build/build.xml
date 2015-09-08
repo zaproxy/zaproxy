@@ -18,7 +18,7 @@
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
-	<property name="zap.java.api.version" value="5" />
+	<property name="zap.java.api.version" value="6" />
 	<property name="package" value="zaproxy" />
 
 	<!-- mac specific properties -->
@@ -241,7 +241,7 @@
 		</unjar>
 
 		<!-- Need to manually increment the API jar version ${zap.java.api.version} (at the start) before uploading a new one -->
-		<jar jarfile="${dist}/zap-api-v2-${zap.java.api.version}.jar" update="true" compress="false">
+		<jar jarfile="${dist}/zap-api-2.4-v${zap.java.api.version}.jar" update="true" compress="false">
 			<zipfileset dir="${build}" prefix="">
 				<include name="org/zaproxy/clientapi/**"/>
 			</zipfileset>
@@ -644,11 +644,13 @@
 				</exec>
 			</then>
 			<else>
+				<!-- No point if not on Mac? Uncomment to generate if required
 				<delete file="ZAP_${version}_Mac_OS_X.zip" />
 				<echo message="Creating ZIP archive for the Mac OS X release; build on a Mac for compressed .dmg" />
 				<exec dir="${dist-mac}" executable="zip" spawn="false" failonerror="true">
 					<arg line="-y -q -r '../ZAP_${version}_Mac_OS_X.zip' '${app.name}'" />
 				</exec>
+				-->
 			</else>
 		</if>
 

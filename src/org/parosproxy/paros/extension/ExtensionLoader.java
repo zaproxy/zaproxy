@@ -59,6 +59,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/09 Generify Extension.getExtension(Class) to avoid unnecessary casts
+// ZAP: 2015/09/07 Start GUI on EDT
 
 package org.parosproxy.paros.extension;
 
@@ -651,22 +652,27 @@ public class ExtensionLoader {
     }
 
     private void hookAllExtension(double progressFactor) {
-        ExtensionHook extHook;
-        double factorPerc = progressFactor / getExtensionCount();
+        final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
                 Extension ext = getExtension(i);
                 logger.info("Initializing " + ext.getDescription());
-                extHook = new ExtensionHook(model, view);
+                final ExtensionHook extHook = new ExtensionHook(model, view);
                 ext.hook(extHook);
                 extensionHooks.put(ext, extHook);
 
                 if (view != null) {
-                    // no need to hook view if no GUI
-                    hookView(view, extHook);
-                    hookMenu(view, extHook);
-                    view.addSplashScreenLoadingCompletion(factorPerc);
+                    EventQueue.invokeAndWait(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            // no need to hook view if no GUI
+                            hookView(view, extHook);
+                            hookMenu(view, extHook);
+                            view.addSplashScreenLoadingCompletion(factorPerc);
+                        }
+                    });
                 }
                 
                 hookOptions(extHook);
@@ -1064,17 +1070,24 @@ public class ExtensionLoader {
      * Init all extensions with the same View
      * @param view the View that need to be applied
      */
-    private void initViewAllExtension(View view, double progressFactor) {
+    private void initViewAllExtension(final View view, double progressFactor) {
         if (view == null) {
             return;
         }
 
-        double factorPerc = progressFactor / getExtensionCount();
+        final double factorPerc = progressFactor / getExtensionCount();
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
-                getExtension(i).initView(view);                
-                view.addSplashScreenLoadingCompletion(factorPerc);
+                final Extension extension = getExtension(i);
+                EventQueue.invokeAndWait(new Runnable() {
+
+                    @Override
+                    public void run() {
+                        extension.initView(view);
+                        view.addSplashScreenLoadingCompletion(factorPerc);
+                    }
+                });
                 
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
