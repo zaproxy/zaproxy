@@ -73,7 +73,7 @@ public class DotNetAPIGenerator {
     }
     
     public DotNetAPIGenerator() {
-    	dir = new File("dotnet/api/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated"); 
+    	dir = new File("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated"); 
     }
 
     public DotNetAPIGenerator(String path, boolean optional) {
@@ -278,7 +278,7 @@ public class DotNetAPIGenerator {
 
 	public static void main(String[] args) throws Exception {
 		// Command for generating a DotNet version of the ZAP API		
-		DotNetAPIGenerator dnapi = new DotNetAPIGenerator("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated", true);
+		DotNetAPIGenerator dnapi = new DotNetAPIGenerator("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated", false);
 		dnapi.generateCSharpFiles(ApiGeneratorUtils.getAllImplementors());
 		
 	}
