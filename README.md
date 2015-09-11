@@ -6,5 +6,3 @@ It is designed to be used by people with a wide range of security experience and
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
 
 For more general information about ZAP go to the [ZAP home page](https://www.owasp.org/index.php/ZAP)
-
-[$700 is up for grabs for the best OWASP ZAP scripts written during August 2015!](https://www.owasp.org/index.php/2015-08-ZAP-ScriptingCompetition)
