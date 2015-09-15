@@ -22,8 +22,10 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.network.HttpHeaderField;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
@@ -33,14 +35,12 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  */
 public class VariantHeader implements Variant {
 
-    // I've found an XSS using this payload on the Host header
-    // "%s-->\">'>'\"<sfi%06uv%06u>"
-
-    public static final String[] injectableHeaders = {
-        HttpRequestHeader.USER_AGENT,
-        HttpRequestHeader.REFERER,
-        HttpRequestHeader.HOST
+    public static final String[] nonInjectableHeaders = {
+        HttpRequestHeader.CONTENT_LENGTH,
+        HttpRequestHeader.PRAGMA,
+        HttpRequestHeader.CACHE_CONTROL
     };
+
     
     private final List<NameValuePair> params = new ArrayList<>();
     private static final Logger log = Logger.getLogger(VariantHeader.class);
@@ -51,7 +51,6 @@ public class VariantHeader implements Variant {
      */
     @Override
     public void setMessage(HttpMessage msg) {
-        String headerContent;
         
         // First we check if it's a dynamic or static page
         // I'd to do this because scanning starts to be veeeeery slow
@@ -76,11 +75,20 @@ public class VariantHeader implements Variant {
             }
         }        
         
-        for (int idx = 0; idx < injectableHeaders.length; idx++) {
-            headerContent = msg.getRequestHeader().getHeader(injectableHeaders[idx]);
-            if (headerContent != null) {
-                params.add(new NameValuePair(NameValuePair.TYPE_HEADER, injectableHeaders[idx], headerContent, idx));
-            }
+        List<HttpHeaderField> httpHeaders = msg.getRequestHeader().getHeaders();
+        if (httpHeaders == null) return;
+        int headerPos=0;
+        for (HttpHeaderField header : httpHeaders) {       	
+        	boolean ignoreHeader = false;
+        	for (int idx = 0; idx < nonInjectableHeaders.length; idx++) {
+	        	if ( header.getName().equalsIgnoreCase(nonInjectableHeaders[idx])) {
+	        		ignoreHeader=true;
+	        		break;
+	        	}
+        	}
+	        if (!ignoreHeader) {
+	        	params.add(new NameValuePair(NameValuePair.TYPE_HEADER, header.getName(), header.getValue(), headerPos++));	        	
+	        }
         }
     }
 
