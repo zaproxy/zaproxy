@@ -120,6 +120,11 @@ public abstract class HttpHeader implements java.io.Serializable {
 	public static final String METHODS_ALLOW = "Allow";
 	public static final String METHODS_PUBLIC = "Public";  //IIS specific?
 	public static final String X_ZAP_SCAN_ID = "X-ZAP-Scan-ID";
+	//ZAP: additional standard/defacto headers
+	public static final String PROXY_AUTHORIZATION = "Proxy-Authorization";
+	public static final String X_CSRF_TOKEN = "X-Csrf-Token";
+	public static final String X_CSRFTOKEN = "X-CsrfToken";
+	public static final String X_XSRF_TOKEN = "X-Xsrf-Token";
 
     public HttpHeader() {
         init();
