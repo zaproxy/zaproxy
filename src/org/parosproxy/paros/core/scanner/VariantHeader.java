@@ -36,9 +36,16 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 public class VariantHeader implements Variant {
 
     public static final String[] nonInjectableHeaders = {
-        HttpRequestHeader.CONTENT_LENGTH,
-        HttpRequestHeader.PRAGMA,
-        HttpRequestHeader.CACHE_CONTROL
+        HttpRequestHeader.CONTENT_LENGTH,	//scanning this would likely break the entire request 
+        HttpRequestHeader.PRAGMA,			//unlikely to be picked up/used by the app itself.
+        HttpRequestHeader.CACHE_CONTROL,	//unlikely to be picked up/used by the app itself.          
+        HttpRequestHeader.COOKIE,			//The Cookie header has its own variant that controls whether it is scanned. Better not to scan it as a header.
+        HttpRequestHeader.AUTHORIZATION,	//scanning this would break authorisation
+        "PROXY-AUTHORIZATION",				//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
+        "X-CSRF-TOKEN",						//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
+        "X-CSRFTOKEN",						//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
+        "X-XSRF-TOKEN",						//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
+        HttpRequestHeader.X_ZAP_SCAN_ID		//inserted by ZAP, so no need to scan it.
     };
 
     
