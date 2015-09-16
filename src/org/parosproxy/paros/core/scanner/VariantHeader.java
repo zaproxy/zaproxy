@@ -21,7 +21,10 @@
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
@@ -34,19 +37,36 @@ import org.parosproxy.paros.network.HttpRequestHeader;
  * @author andy
  */
 public class VariantHeader implements Variant {
+	
+	//might still be publicly used.
+	@Deprecated 
+	public static final String[] injectableHeaders = {
+		  HttpRequestHeader.USER_AGENT,
+		  HttpRequestHeader.REFERER,
+		  HttpRequestHeader.HOST
+	};
 
-    public static final String[] nonInjectableHeaders = {
-        HttpRequestHeader.CONTENT_LENGTH,	//scanning this would likely break the entire request 
-        HttpRequestHeader.PRAGMA,			//unlikely to be picked up/used by the app itself.
-        HttpRequestHeader.CACHE_CONTROL,	//unlikely to be picked up/used by the app itself.          
-        HttpRequestHeader.COOKIE,			//The Cookie header has its own variant that controls whether it is scanned. Better not to scan it as a header.
-        HttpRequestHeader.AUTHORIZATION,	//scanning this would break authorisation
-        "PROXY-AUTHORIZATION",				//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
-        "X-CSRF-TOKEN",						//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
-        "X-CSRFTOKEN",						//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
-        "X-XSRF-TOKEN",						//scanning this would break authorisation		//TODO: add to HttpRequestHeader?
-        HttpRequestHeader.X_ZAP_SCAN_ID		//inserted by ZAP, so no need to scan it.
+	//headers converted to lowercase to make comparison easier later.    
+    private static final String [] injectablesTempArray = {    	
+        HttpRequestHeader.CONTENT_LENGTH.toLowerCase(Locale.ROOT),			//scanning this would likely break the entire request 
+        HttpRequestHeader.PRAGMA.toLowerCase(Locale.ROOT),					//unlikely to be picked up/used by the app itself.
+        HttpRequestHeader.CACHE_CONTROL.toLowerCase(Locale.ROOT),			//unlikely to be picked up/used by the app itself.          
+        HttpRequestHeader.COOKIE.toLowerCase(Locale.ROOT),					//The Cookie header has its own variant that controls whether it is scanned. Better not to scan it as a header.
+        HttpRequestHeader.AUTHORIZATION.toLowerCase(Locale.ROOT),			//scanning this would break authorisation
+        HttpRequestHeader.PROXY_AUTHORIZATION.toLowerCase(Locale.ROOT),		//scanning this would break authorisation
+        HttpRequestHeader.CONNECTION.toLowerCase(Locale.ROOT),				//scanning this would likely break the entire request
+        HttpRequestHeader.PROXY_CONNECTION.toLowerCase(Locale.ROOT),		//scanning this would likely break the entire request
+        HttpRequestHeader.IF_MODIFIED_SINCE.toLowerCase(Locale.ROOT),		//unlikely to be picked up/used by the app itself.
+        HttpRequestHeader.IF_NONE_MATCH.toLowerCase(Locale.ROOT),			//unlikely to be picked up/used by the app itself.
+        HttpRequestHeader.X_CSRF_TOKEN.toLowerCase(Locale.ROOT),			//scanning this would break authorisation
+        HttpRequestHeader.X_CSRFTOKEN.toLowerCase(Locale.ROOT),				//scanning this would break authorisation
+        HttpRequestHeader.X_XSRF_TOKEN.toLowerCase(Locale.ROOT),			//scanning this would break authorisation
+        HttpRequestHeader.X_ZAP_SCAN_ID.toLowerCase(Locale.ROOT),			//inserted by ZAP, so no need to scan it.
+        HttpRequestHeader.X_ZAP_REQUESTID.toLowerCase(Locale.ROOT),			//inserted by ZAP, so no need to scan it.
+        HttpRequestHeader.X_SECURITY_PROXY.toLowerCase(Locale.ROOT),		//unlikely to be picked up/used by the app itself.
     };
+    //a hashset of (lowercase) headers that we can look up quickly and easily
+    private static final HashSet <String> NON_INJECTABLE_HEADERS = new HashSet<String>(Arrays.asList(injectablesTempArray));
 
     
     private final List<NameValuePair> params = new ArrayList<>();
@@ -82,18 +102,11 @@ public class VariantHeader implements Variant {
             }
         }        
         
+        //httpHeaders is never null, so no need to check for null
         List<HttpHeaderField> httpHeaders = msg.getRequestHeader().getHeaders();
-        if (httpHeaders == null) return;
         int headerPos=0;
-        for (HttpHeaderField header : httpHeaders) {       	
-        	boolean ignoreHeader = false;
-        	for (int idx = 0; idx < nonInjectableHeaders.length; idx++) {
-	        	if ( header.getName().equalsIgnoreCase(nonInjectableHeaders[idx])) {
-	        		ignoreHeader=true;
-	        		break;
-	        	}
-        	}
-	        if (!ignoreHeader) {
+        for (HttpHeaderField header : httpHeaders) {
+	        if (! NON_INJECTABLE_HEADERS.contains(header.getName().toLowerCase(Locale.ROOT))) {
 	        	params.add(new NameValuePair(NameValuePair.TYPE_HEADER, header.getName(), header.getValue(), headerPos++));	        	
 	        }
         }
