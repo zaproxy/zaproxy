@@ -800,8 +800,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     public void cloneInto(Plugin plugin) {
     	if (plugin instanceof AbstractPlugin) {
     		AbstractPlugin ap = (AbstractPlugin) plugin;
-    		ap.setEnabled(this.isEnabled());
     		ap.setAlertThreshold(this.getAlertThreshold(true));
+    		ap.setEnabled(this.isEnabled());
     		ap.setAttackStrength(this.getAttackStrength(true));
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);
