@@ -45,7 +45,7 @@ public class VariantHeader implements Variant {
 		  HttpRequestHeader.REFERER,
 		  HttpRequestHeader.HOST
 	};
-
+	
 	//headers converted to lowercase to make comparison easier later.    
     private static final String [] injectablesTempArray = {    	
         HttpRequestHeader.CONTENT_LENGTH.toLowerCase(Locale.ROOT),			//scanning this would likely break the entire request 
