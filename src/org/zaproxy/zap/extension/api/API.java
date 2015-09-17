@@ -580,7 +580,8 @@ public class API {
             }
             String response = exception.toString(format, getOptionsParamApi().isIncErrorDetails());
 
-            msg.setResponseBody(response);
+            msg.getResponseBody().setCharset(getCharset(contentType));
+            msg.getResponseBody().setBody(response);
         }
 
         try {
@@ -588,5 +589,13 @@ public class API {
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Failed to build API error response:", e);
         }
+    }
+
+    private static String getCharset(String contentType) {
+        int idx = contentType.indexOf("charset=");
+        if (idx == -1) {
+            return "UTF-8";
+        }
+        return contentType.substring(idx + 8);
     }
 }

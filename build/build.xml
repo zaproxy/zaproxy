@@ -409,6 +409,9 @@
                     <include name="**/*UnitTest.class"/>
                     <exclude name="**/Abstract*Test.class"/>
                 </fileset>
+                <fileset dir="build">
+                    <include name="**/AbstractPluginUnitTest.class"/>
+                </fileset>
             </batchtest>
 		</junit>
 		<fail if="TestsFailed" message="Test(s) failed!" />
