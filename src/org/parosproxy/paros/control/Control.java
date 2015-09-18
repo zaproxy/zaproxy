@@ -55,6 +55,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2015/09/17 Issue 1914: Support multiple add-on directories
 
 package org.parosproxy.paros.control;
 
@@ -138,7 +139,7 @@ public class Control extends AbstractControl implements SessionListener {
     
     @Override
     protected void addExtension() {
-    	ExtensionFactory.loadAllExtension(getExtensionLoader(), model.getOptionsParam().getConfig());
+    	ExtensionFactory.loadAllExtension(getExtensionLoader(), model.getOptionsParam());
     }
     
     public MenuFileControl getMenuFileControl() {
