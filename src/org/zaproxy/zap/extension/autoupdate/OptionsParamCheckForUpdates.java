@@ -259,7 +259,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	}
 
 	private void setDownloadDirectory(File downloadDirectory, boolean save) throws InvalidParameterException {
-		if (!Constant.FOLDER_LOCAL_PLUGIN.equals(downloadDirectory)) {
+		if (!Constant.FOLDER_LOCAL_PLUGIN.equals(downloadDirectory.getAbsolutePath())) {
 			// Check its one of the extra addon dirs
 			boolean found = false;
 			for (File f : this.addonDirectories) {
