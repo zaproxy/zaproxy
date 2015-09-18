@@ -49,6 +49,7 @@ import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -374,6 +375,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
 	public void installNewExtensions() {
+    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
 		List<Downloader> handledFiles = new ArrayList<>();
 		
 		for (Downloader dl : downloadFiles) {
@@ -396,7 +398,30 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 						}
 					}
 				} else if (AddOn.isAddOn(dl.getTargetFile())) {
-					AddOn ao = new AddOn(dl.getTargetFile());
+					File f = dl.getTargetFile();
+					if (! options.getDownloadDirectory().equals(dl.getTargetFile().getParentFile())) {
+						// Move the file to the specified directory - we do this after its been downloaded
+						// as these directories can be shared, and other ZAP instances could get incomplete
+						// add-ons
+						try {
+							f = new File(options.getDownloadDirectory(), dl.getTargetFile().getName());
+							logger.info("Moving downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
+									" to " + f.getAbsolutePath());
+							FileUtils.moveFile(dl.getTargetFile(), f);
+						} catch (Exception e) {
+							if (!f.exists() && dl.getTargetFile().exists()) {
+								logger.error("Failed to move downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
+										" to " + f.getAbsolutePath() + " - left at original location", e);
+								f = dl.getTargetFile();
+							} else {
+								logger.error("Failed to move downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
+										" to " + f.getAbsolutePath() + " - skipping", e);
+								continue;
+							}
+						}
+					}
+					
+					AddOn ao = new AddOn(f);
 					if (ao.canLoadInCurrentVersion()) {
 						install(ao);
 					} else {
