@@ -43,9 +43,9 @@
 		<brkPanelView>0</brkPanelView>
 		<showMainToolbar>1</showMainToolbar>
 	</view>
-    <start>
-        <checkForUpdates>false</checkForUpdates>
-    </start>
+	<start>
+		<checkForUpdates>false</checkForUpdates>
+	</start>
     
 	<certificate>
 		<use>0</use>
