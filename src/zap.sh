@@ -54,15 +54,15 @@ else
 fi
 
 if [ "$OS" = "Darwin" ]; then
-  JVMPROPS="~/Library/Application Support/ZAP/.ZAP_JVM.properties"
+  JVMPROPS="$HOME/Library/Application Support/ZAP/.ZAP_JVM.properties"
 else
-  JVMPROPS="~/.ZAP/.ZAP_JVM.properties"
+  JVMPROPS="$HOME/.ZAP/.ZAP_JVM.properties"
 fi
 
 # Work out best memory options
-if [ -f $JVMPROPS ]; then
+if [ -f "$JVMPROPS" ]; then
   # Local jvm properties file present
-  JMEM=$(head -1 $JVMPROPS)
+  JMEM=$(head -1 "$JVMPROPS")
 elif [ "$OS" = "Linux" ]; then
   MEM=$(expr $(sed -n 's/MemTotal:[ ]\{1,\}\([0-9]\{1,\}\) kB/\1/p' /proc/meminfo) / 1024)
 elif [ "$OS" = "Darwin" ]; then
@@ -74,7 +74,7 @@ elif [ "$OS" = "FreeBSD" ]; then
 fi
 
 if [ ! -z $JMEM ]; then
-  echo "Using jvm memory setting from " ~/.ZAP_JVM.properties
+  echo "Using jvm memory setting from $JVMPROPS"
 elif [ -z $MEM ]; then
   echo "Failed to obtain current memory, using jvm default memory settings"
 else
