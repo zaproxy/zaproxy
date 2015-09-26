@@ -22,6 +22,7 @@ package org.zaproxy.zap.extension.brk.impl.http;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.extension.history.ProxyListenerLog;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
@@ -53,10 +54,18 @@ public class ProxyListenerBreak implements ProxyListener {
 			return true;
 		}
 		
+		if (extension.isInScopeOnly()) {
+			// Cant use msg,isInScope() as it wont have been initialised
+			Session session = Model.getSingleton().getSession();
+			if (!session.isInScope(msg.getRequestHeader().getURI().toString())) { 
+				return true;
+			}
+		}
+
 		if (extension.messageReceivedFromClient(msg)) {
 		    return true;
 		}
-
+		
 		return false;
 	}
 
@@ -66,6 +75,14 @@ public class ProxyListenerBreak implements ProxyListener {
 			return true;
 		}
 		
+		if (extension.isInScopeOnly()) {
+			// Cant use msg,isInScope() as it wont have been initialised
+			Session session = Model.getSingleton().getSession();
+			if (!session.isInScope(msg.getRequestHeader().getURI().toString())) { 
+				return true;
+			}
+		}
+
 		if (extension.messageReceivedFromServer(msg)) {
 		    return true;
 		}
