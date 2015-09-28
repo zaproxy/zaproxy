@@ -7,8 +7,8 @@
 	<desc>Nedostatak Autentifkacije nastaje kada web sajt dopušta napadaču pristup poverljivom sadržaju ili funkcionalnostima bez provere validnosti autentifikacije. Web-bazirani administratorski alati su dobar primer omogućavanja pristupa poverljivim funkcionalnostima. U zavisnosti od ospecifičnog online resursa, te web aplikacije ne bi trebale biti direktno dostupne bez zahtevanja da korisnik ispravno potvrdi svoj identitet.
 
 Da biste dobili postavljanje autentifikacije, neki resursi su zaštićeni "skrivanjem" određenih lokacija i ne povezivanjem lokacije s glavnim web sajtom ili drugim javnim mestima. Međutim, ovaj pristup nije ništa više od "Sigurnost Kroz Nepoznato". Važno je razumeti da iako je resurs nepoznat napadaču, on i dalje ostaje dostupan direktno kroz određeni URL. Specifični URL može biti otkriven kroz Brute Force ispitivanje za zajedničke datoteke i lokacije direktorijuma (/admin na primjr), poruke o greškama, logovi ili dokumentaciju kao što su datoteke pomoći. Ovi resursi, bilo da su sadržaj- ili funkcionalnost- vođeni, trebaju biti adekvatno zaštićeni.</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+	<solution>Faza: Arhitektura i dizajn
+Koriste autentifikovan framework ili biblioteku kao sto je OWASP ESAPI autentifikacioni dodatak.</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
