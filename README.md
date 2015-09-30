@@ -7,7 +7,7 @@ It is designed to be used by people with a wide range of security experience and
 
 For more general information about ZAP see
   * [The ZAP home page](https://www.owasp.org/index.php/ZAP)
-  * [The ZAP Getting Strated Guide](https://github.com/zaproxy/zaproxy/releases/download/2.4.0/ZAPGettingStartedGuide-2.4.pdf) (PDF file)
+  * [The ZAP Getting Started Guide](https://github.com/zaproxy/zaproxy/releases/download/2.4.0/ZAPGettingStartedGuide-2.4.pdf) (PDF file)
   * [The ZAP User Guide](https://github.com/zaproxy/zap-core-help/wiki)
 
 
