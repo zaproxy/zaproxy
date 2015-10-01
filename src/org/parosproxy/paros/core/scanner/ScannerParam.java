@@ -39,6 +39,7 @@
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
 // ZAP: 2015/03/04 Issue 1345: Added 'attack on start' option
 // ZAP: 2015/03/25 Issue 1573: Add option to inject plugin ID in header for all ascan requests
+// ZAP: 2015/10/01 Issue 1944:  Chart responses per second in ascan progress
 
 package org.parosproxy.paros.core.scanner;
 
@@ -72,6 +73,7 @@ public class ScannerParam extends AbstractParam {
     private static final String DEFAULT_POLICY = ACTIVE_SCAN_BASE_KEY + ".defaultPolicy";
     private static final String ATTACK_POLICY = ACTIVE_SCAN_BASE_KEY + ".attackPolicy";
     private static final String ALLOW_ATTACK_ON_START = ACTIVE_SCAN_BASE_KEY + ".attackOnStart";
+    private static final String MAX_CHART_TIME_IN_MINS = ACTIVE_SCAN_BASE_KEY + ".chartTimeInMins";
 
     // ZAP: Excluded Parameters
     private static final String EXCLUDED_PARAMS_KEY = ACTIVE_SCAN_BASE_KEY + ".excludedParameters";
@@ -102,6 +104,7 @@ public class ScannerParam extends AbstractParam {
     // Defaults for initial configuration
     public static final int TARGET_INJECTABLE_DEFAULT = TARGET_QUERYSTRING | TARGET_POSTDATA;
     public static final int TARGET_ENABLED_RPC_DEFAULT = RPC_MULTIPART | RPC_XML | RPC_JSON | RPC_GWT | RPC_ODATA | RPC_DWR;
+    private static final int DEFAULT_MAX_CHART_TIME_IN_MINS = 10;
 
     // Internal variables
     private int hostPerScan = 2;
@@ -118,6 +121,7 @@ public class ScannerParam extends AbstractParam {
     private boolean allowAttackOnStart = false;
     private String defaultPolicy;
     private String attackPolicy;
+    private int maxChartTimeInMins = DEFAULT_MAX_CHART_TIME_IN_MINS;
 
     // ZAP: Variants Configuration
     private int targetParamsInjectable = TARGET_INJECTABLE_DEFAULT;
@@ -214,6 +218,11 @@ public class ScannerParam extends AbstractParam {
 
         try {
             this.allowAttackOnStart = getConfig().getBoolean(ALLOW_ATTACK_ON_START, false);
+        } catch (Exception e) {
+        }
+
+        try {
+            this.maxChartTimeInMins = getConfig().getInt(MAX_CHART_TIME_IN_MINS, DEFAULT_MAX_CHART_TIME_IN_MINS);
         } catch (Exception e) {
         }
 
@@ -526,6 +535,15 @@ public class ScannerParam extends AbstractParam {
 	public void setAllowAttackOnStart(boolean allowAttackOnStart) {
 		this.allowAttackOnStart = allowAttackOnStart;
         getConfig().setProperty(ALLOW_ATTACK_ON_START, this.allowAttackOnStart);
+	}
+
+	public int getMaxChartTimeInMins() {
+		return maxChartTimeInMins;
+	}
+
+	public void setMaxChartTimeInMins(int maxChartTimeInMins) {
+		this.maxChartTimeInMins = maxChartTimeInMins;
+        getConfig().setProperty(MAX_CHART_TIME_IN_MINS, this.maxChartTimeInMins);
 	}
 
 }

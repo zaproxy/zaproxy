@@ -30,6 +30,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -59,6 +60,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private JComboBox<String> defaultAscanPolicy = null;
     private JComboBox<String> defaultAttackPolicy = null;
     private JCheckBox allowAttackModeOnStart = null;
+    private ZapNumberSpinner spinnerMaxChartTime = null;
     
     private ExtensionActiveScan extension;
     
@@ -78,7 +80,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(Constant.messages.getString("ascan.options.title"));
-        this.add(getPanelScanner(), getPanelScanner().getName());
+        this.add(new JScrollPane(getPanelScanner()));
     }
 
     /**
@@ -106,7 +108,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxRes.label")),
                     LayoutHelper.getGBC(0, 4, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(this.getSpinnerMaxResultsList(),
-                    LayoutHelper.getGBC(1, 4, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+                    LayoutHelper.getGBC(1, 4, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
             panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.delayInMs.label")),
                     LayoutHelper.getGBC(0, 5, 2, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
@@ -141,6 +143,12 @@ public class OptionsScannerPanel extends AbstractParamPanel {
                     LayoutHelper.getGBC(1, 12, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
             panelScanner.add(this.getAllowAttackModeOnStart(),
                     LayoutHelper.getGBC(0, 13, 3, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(16, 2, 2, 2)));
+
+            // Chart
+            panelScanner.add(new JLabel(Constant.messages.getString("ascan.options.maxChart.label")),
+                    LayoutHelper.getGBC(0, 14, 1, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
+            panelScanner.add(this.getSpinnerMaxChartTime(),
+                    LayoutHelper.getGBC(1, 14, 2, 0.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 2, 2, 2)));
 
             // Close Panel
             panelScanner.add(
@@ -200,6 +208,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         getDefaultAscanPolicyPulldown().setSelectedItem(param.getDefaultPolicy());
         getDefaultAttackPolicyPulldown().setSelectedItem(param.getAttackPolicy());
         getAllowAttackModeOnStart().setSelected(param.isAllowAttackOnStart());
+        getSpinnerMaxChartTime().setValue(param.getMaxChartTimeInMins());
 
     }
 
@@ -232,6 +241,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         param.setDefaultPolicy((String)this.getDefaultAscanPolicyPulldown().getSelectedItem());
         param.setAttackPolicy((String)this.getDefaultAttackPolicyPulldown().getSelectedItem());
         param.setAllowAttackOnStart(this.getAllowAttackModeOnStart().isSelected());
+        param.setMaxChartTimeInMins(this.getSpinnerMaxChartTime().getValue());
     }
 
     /**
@@ -366,6 +376,14 @@ public class OptionsScannerPanel extends AbstractParamPanel {
             spinnerMaxResultsList.setToolTipText(Constant.messages.getString("ascan.options.maxRes.tooltip"));
         }
         return spinnerMaxResultsList;
+    }
+
+    private ZapNumberSpinner getSpinnerMaxChartTime() {
+        if (spinnerMaxChartTime == null) {
+            spinnerMaxChartTime = new ZapNumberSpinner();
+            spinnerMaxChartTime.setToolTipText(Constant.messages.getString("ascan.options.maxChart.tooltip"));
+        }
+        return spinnerMaxChartTime;
     }
 
     /**
