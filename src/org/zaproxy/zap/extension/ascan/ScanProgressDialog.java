@@ -70,6 +70,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
 /**
@@ -347,7 +348,7 @@ public class ScanProgressDialog extends AbstractDialog {
 				            	XYTextAnnotation updateLabel = 
 				            			new XYTextAnnotation(plugin.getName(), 
 				            					plugin.getTimeStarted().getTime(), center);
-				            	updateLabel.setFont(new Font("Sans Serif", Font.PLAIN, 12));
+				            	updateLabel.setFont(FontUtils.getFont("Sans Serif"));
 				            	updateLabel.setRotationAnchor(TextAnchor.BASELINE_CENTER);
 				            	
 				            	updateLabel.setTextAnchor(TextAnchor.BASELINE_CENTER);
