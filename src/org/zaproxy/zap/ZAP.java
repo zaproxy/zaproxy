@@ -88,7 +88,7 @@ public class ZAP {
             cmdLine = new CommandLine(args);
 
         } catch (final Exception e) {
-            System.out.println(CommandLine.getHelpGeneral());
+            System.out.println(CommandLine.getHelp(null));
             System.exit(1);
         }
 

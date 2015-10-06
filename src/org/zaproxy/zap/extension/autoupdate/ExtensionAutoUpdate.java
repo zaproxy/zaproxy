@@ -37,6 +37,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.swing.ImageIcon;
@@ -48,11 +49,15 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLPropertiesConfiguration;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.CommandLineArgument;
+import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -80,7 +85,7 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
+public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback, CommandLineListener {
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
@@ -118,6 +123,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     // Files currently being downloaded
 	private List<Downloader> downloadFiles = new ArrayList<>();
 
+    private static final int ARG_CFU_INSTALL_IDX = 0;
+    private static final int ARG_CFU_UPDATE_IDX = 1;
+    private static final int[] ARG_IDXS = {
+    							ARG_CFU_INSTALL_IDX,
+    							ARG_CFU_UPDATE_IDX};
+	private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
+
     /**
      * 
      */
@@ -131,7 +143,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	 */
 	private void initialize() {
         this.setName("ExtensionAutoUpdate");
-        this.setOrder(40);
+        this.setOrder(1);	// High order so that cmdline updates are installed asap
         this.downloadManager = new DownloadManager(Model.getSingleton().getOptionsParam().getConnectionParam());
         this.downloadManager.start();
         // Do this before it can get overwritten by the latest one
@@ -460,6 +472,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
 	    }
+	    extensionHook.addCommandLine(getCommandLineArguments());
         this.api = new AutoUpdateAPI(this);
         this.api.addApiOptions(getModel().getOptionsParam().getCheckForUpdatesParam());
         API.getInstance().registerApiImplementor(this.api);
@@ -1320,4 +1333,96 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	public boolean supportsDb(String type) {
     	return true;
     }
+
+    private CommandLineArgument[] getCommandLineArguments() {
+        arguments[ARG_CFU_INSTALL_IDX] = new CommandLineArgument("-addoninstall", 1, null, "", 
+        		"-addoninstall <addon>    " + Constant.messages.getString("cfu.cmdline.install.help"));
+        arguments[ARG_CFU_UPDATE_IDX] = new CommandLineArgument("-addonupdate", 0, null, "", 
+        		"-addonupdate             " + Constant.messages.getString("cfu.cmdline.update.help"));
+        return arguments;
+    }
+
+
+	@Override
+	public void execute(CommandLineArgument[] args) {
+        if (arguments[ARG_CFU_UPDATE_IDX].isEnabled()) {
+        	AddOnCollection aoc = getLatestVersionInfo();
+        	// Create some temporary options with the settings we need
+        	OptionsParamCheckForUpdates options = new OptionsParamCheckForUpdates();
+        	options.load(new XMLPropertiesConfiguration());
+        	options.setCheckOnStart(true);
+        	options.setCheckAddonUpdates(true);
+        	options.setInstallAddonUpdates(true);
+			checkForAddOnUpdates(aoc, options);
+			while (downloadManager.getCurrentDownloadCount() > 0) {
+    			try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+    		CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
+        }
+        if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
+        	Vector<String> params = arguments[ARG_CFU_INSTALL_IDX].getArguments();
+            if (params.size() == 1) {
+            	AddOnCollection aoc = getLatestVersionInfo();
+            	if (aoc == null) {
+            		CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+            	} else {
+            		String aoName = params.get(0);
+            		AddOn ao = aoc.getAddOn(aoName);
+            		if (ao == null) {
+                		CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
+            			return;
+            		}
+            		// Check to see if its already installed
+            		AddOn iao = ExtensionFactory.getAddOnLoader().getAddOnCollection().getAddOn(aoName);
+            		if (iao != null) {
+            			if (iao.getFileVersion() >= ao.getFileVersion()) {
+                    		CommandLine.info(MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addoninst"),
+                                    iao.getFile().getAbsolutePath()));
+                			return;
+            			}
+            		}
+            		
+            		try {
+                		CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addonurl"),
+                                ao.getUrl()));
+            			this.downloadAddOn(ao);
+            			
+						while (downloadManager.getCurrentDownloadCount() > 0) {
+	            			try {
+								Thread.sleep(200);
+							} catch (InterruptedException e) {
+								// Ignore
+							}
+						}
+                		CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addondown"),
+                                iao.getFile().getAbsolutePath()));
+						this.install(ao);
+					} catch (IllegalArgumentException e) {
+                		CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName), e);
+					}
+            	}
+            }
+        }
+	}
+	
+	@Override
+	public boolean handleFile(File file) {
+		// Not supported
+		return false;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// None
+		return null;
+	}
 }
