@@ -49,6 +49,7 @@ import javax.script.ScriptException;
 import javax.swing.ImageIcon;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -1297,25 +1298,25 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void openCmdLineFile(File f) throws IOException, ScriptException {
 		if (! f.exists()) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
 			return;
 		}
 		if (! f.canRead()) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
 			return;
 		}
 		int dotIndex = f.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
 			return;
 		}
 		String ext = f.getName().substring(dotIndex+1);
 		String engineName = this.getEngineNameForExtension(ext);
 		if (engineName == null) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noengine"), ext));
 			return;
 		}
@@ -1354,7 +1355,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private CommandLineArgument[] getCommandLineArguments() {
     	
         arguments[ARG_SCRIPT_IDX] = new CommandLineArgument("-script", 1, null, "", 
-        		"-script [script_path]: " + Constant.messages.getString("script.cmdline.help"));
+        		"-script <script>         " + Constant.messages.getString("script.cmdline.help"));
         return arguments;
     }
 
