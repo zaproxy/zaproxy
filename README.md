@@ -7,8 +7,8 @@ It is designed to be used by people with a wide range of security experience and
 
 For general information about ZAP:
   * [Home page](https://www.owasp.org/index.php/ZAP) - the official ZAP page on the OWASP wiki (includes a donate button;)
-  * [Twitter](https://twitter.com/zaproxy)	Official ZAP announcements (low volume)
-  * [Blog](http://zaproxy.blogspot.co.uk/)	Official ZAP blog
+  * [Twitter](https://twitter.com/zaproxy)	- official ZAP announcements (low volume)
+  * [Blog](http://zaproxy.blogspot.co.uk/)	- official ZAP blog
 
 For help using ZAP:
   * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.4.0/ZAPGettingStartedGuide-2.4.pdf) - an introductory guide you can print
@@ -20,11 +20,11 @@ For help using ZAP:
 
 To learn more about ZAP development:
   * [Source Code](https://github.com/zaproxy) - for all of the ZAP related projects
-  * [Wiki](https://github.com/zaproxy/zaproxy/wiki/Introduction) - Lots of details info
+  * [Wiki](https://github.com/zaproxy/zaproxy/wiki/Introduction) - lots of detailed info
   * [Developer Group](http://groups.google.com/group/zaproxy-develop) - ask questions about the ZAP internals
   * [Crowdin (GUI)](https://crowdin.com/project/owasp-zap) - help translate the ZAP GUI
   * [Crowdin (User Guide)](https://crowdin.com/project/owasp-zap-help) - help translate the ZAP User Guide
-  * [OpenHub](https://www.openhub.net/p/zaproxy)	FOSS analytics
-  * [BountySource](https://www.bountysource.com/teams/zap/issues)	Vote on ZAP issues (you can also donate money here, but 10% taken out)
+  * [OpenHub](https://www.openhub.net/p/zaproxy)	- FOSS analytics
+  * [BountySource](https://www.bountysource.com/teams/zap/issues)	- Vote on ZAP issues (you can also donate money here, but 10% taken out)
 
 [The ZAP Scripting Competition results are now available](https://www.owasp.org/index.php/2015-08-ZAP-ScriptingCompetition)
