@@ -117,6 +117,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
 	private static final String VIEW_STATS = "stats";
+	private static final String VIEW_SESSION_LOCATION = "sessionLocation";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
@@ -176,6 +177,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
 		this.addApiView(new ApiView(VIEW_STATS, null, new String[] { PARAM_KEY_PREFIX }));
+		this.addApiView(new ApiView(VIEW_SESSION_LOCATION));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
@@ -642,6 +644,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			}
 			result = new ApiResponseSet(name, map);
 
+		} else if (VIEW_SESSION_LOCATION.equals(name)) {
+			result = new ApiResponseElement(name, session.getFileName());
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
