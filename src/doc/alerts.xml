@@ -86,7 +86,8 @@ This list the alerts
 10046	Insecure Component
 10047	HTTPS Content Available via HTTP
 10048	ShellShock
-10049  Image Location Scanner - passive scanner finding
+10049   Image Location Scanner - passive scanner finding
+10050   TestUserAgent
 
 10101	Insufficient Authentication
 10102	Insufficient Authorization
