@@ -7,8 +7,8 @@
 	<desc>不適切な認証は、あるWebサイトにおいて、攻撃者が機密性の高いコンテンツや機能に対して適切なアクセス許可なしにアクセス可能な際、発生します。 Web上の管理ツールは、機密性の高い機能へのアクセスを提供するWebサイトの良い例です。 ものによって、これらのWebアプリケーションは、適切な利用者の確認をユーザに要求せず、直接的にアクセス出来る状態ではいけません。
 
 認証の設定を要領良く行うために、いくつかのリソースは特定の場所に「隠すこと」や、メインのWebサイトやその他の公共サイトにリンクを貼らないことで、保護されます。 ただし、この方法は「隠蔽によるセキュリティ」にしかすぎません。 あるリソースが、攻撃者に対して知られていない状態でさえも、特定のURLによって直接アクセス出来る状況のままであるということを理解することが重要です。 その特定のURLと言うものは、共通ファイルやディレクトリの配置（例えば、/admin）、エラーメッセージ、参照ログ、あるいはヘルプファイルのような文書を総当りで調査することで発見される可能性があります。 これらのリソースは、コンテンツや機能として使用される、されないに関わらず、適切に保護されるべきです。</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+	<solution>フェーズ： アーキテクチャと設計
+認証フレームワーク、あるいはOWASP ESAPIの認証機能を持つようなライブラリを使用してください。</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
