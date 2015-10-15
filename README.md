@@ -13,7 +13,7 @@ For general information about ZAP:
 For help using ZAP:
   * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.4.0/ZAPGettingStartedGuide-2.4.pdf) - an introductory guide you can print
   * [Tutorial Videos](https://www.youtube.com/playlist?list=PLEBitBW-Hlsv8cEIUntAO8st2UGhmrjUB)
-  * [Frequenty Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
+  * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
   * [User Guide](https://github.com/zaproxy/zap-core-help/wiki) - online version of the User Guide included with ZAP
   * [User Group](http://groups.google.com/group/zaproxy-users) - ask questions about using ZAP
   * [Add-ons](https://github.com/zaproxy/zap-extensions/wiki) - help for the optional add-ons you can install
