@@ -77,7 +77,7 @@ public class ParosTableStructure extends ParosAbstractTable implements TableStru
 
 			psFind	= conn.prepareStatement("SELECT * FROM STRUCTURE WHERE SESSIONID = ? AND NAMEHASH = ? AND METHOD = ?");
 
-			psInsert = conn.prepareStatement("INSERT INTO STRUCTURE (SESSIONID, PARENTID, HISTORYID, NAME, NAMEHASH, URL) VALUES (?, ?, ?, ?, ?, ?)");
+			psInsert = conn.prepareStatement("INSERT INTO STRUCTURE (SESSIONID, PARENTID, HISTORYID, NAME, NAMEHASH, URL, METHOD) VALUES (?, ?, ?, ?, ?, ?, ?)");
 			psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
 
 			psGetChildren = conn.prepareStatement("SELECT * FROM STRUCTURE WHERE SESSIONID = ? AND PARENTID = ?");
