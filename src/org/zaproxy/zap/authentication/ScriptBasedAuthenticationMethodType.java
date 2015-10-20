@@ -206,7 +206,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				script = getScriptsExtension().getInterface(this.script, AuthenticationScript.class);
 				msg = script.authenticate(new AuthenticationHelper(getHttpSender(), sessionManagementMethod,
 						user), this.paramValues, cred);
-			} catch (ScriptException | IOException e) {
+			} catch (Exception e) {
+				// Catch Exception instead of ScriptException and IOException because script engine implementations
+				// might throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
 				log.error("An error occurred while trying to authenticate using the Authentication Script: "
 						+ this.script.getName(), e);
 				getScriptsExtension().setError(this.script, e);
