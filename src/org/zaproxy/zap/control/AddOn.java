@@ -1024,9 +1024,7 @@ public class AddOn  {
 			return false;
 		}
 
-		dependsOn(dependencies.getAddOns(), addOn);
-
-		return false;
+		return dependsOn(dependencies.getAddOns(), addOn);
 	}
 
 	/**
