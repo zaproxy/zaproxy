@@ -69,10 +69,27 @@ public abstract class AuthenticationMethod {
 	protected abstract AuthenticationMethod duplicate();
 
 	/**
+	 * Validates that the creation of authentication credentials is possible, returning {@code true} if it is, {@code false}
+	 * otherwise.
+	 * <p>
+	 * If view is enabled the user should be informed that it's not possible to create authentication credentials.
+	 * <p>
+	 * Default implementation returns, always, {@code true}.
+	 * 
+	 * @return {@code true} if the creation of authentication credentials is possible, {@code false} otherwise
+	 * @see #createAuthenticationCredentials()
+	 * @since TODO add version
+	 */
+	public boolean validateCreationOfAuthenticationCredentials() {
+		return true;
+	}
+
+	/**
 	 * Creates a new, empty, Authentication Credentials object corresponding to this type of
 	 * Authentication method.
 	 * 
 	 * @return the authentication credentials
+	 * @see #validateCreationOfAuthenticationCredentials()
 	 */
 	public abstract AuthenticationCredentials createAuthenticationCredentials();
 
