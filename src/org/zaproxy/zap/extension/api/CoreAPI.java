@@ -467,7 +467,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 					sender.sendAndReceive(tempReq);
 					persistMessage(tempReq);
-					processor.process(request);
+					processor.process(tempReq);
 				}
 			}
 		} finally {
