@@ -41,7 +41,11 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 public class AbstractPluginUnitTest {
 
     private static AbstractPlugin createAbstractPluginWithConfig() {
-        AbstractPlugin plugin = createAbstractPlugin();
+        return createAbstractPluginWithConfig(0);
+    }
+
+    private static AbstractPlugin createAbstractPluginWithConfig(int id) {
+        AbstractPlugin plugin = createAbstractPlugin(id);
         plugin.setConfig(new ZapXmlConfiguration());
         return plugin;
     }
@@ -56,6 +60,25 @@ public class AbstractPluginUnitTest {
 
     private static Plugin createNonAbstractPlugin() {
         return new PluginImpl();
+    }
+
+    @Test
+    public void shouldNotHaveConfigByDefault() {
+        // Given / When
+        AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.getConfig(), is(equalTo(null)));
+    }
+
+    @Test
+    public void shouldRetrieveConfigSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        Configuration config = new ZapXmlConfiguration();
+        // WHen
+        plugin.setConfig(config);
+        // Then
+        assertThat(plugin.getConfig(), is(equalTo(config)));
     }
 
     @Test
@@ -80,6 +103,33 @@ public class AbstractPluginUnitTest {
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
         assertThat(plugin.getCweId(), is(equalTo(0)));
+    }
+
+    @Test
+    public void shouldRetrieveMediumRiskByDefault() {
+        // Given / When
+        AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.getRisk(), is(equalTo(Alert.RISK_MEDIUM)));
+    }
+
+    @Test
+    public void shouldRetrieveZeroDelayInMsByDefault() {
+        // Given / When
+        AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.getDelayInMs(), is(equalTo(0)));
+    }
+
+    @Test
+    public void shouldRetrieveDelaySet() {
+        // Given
+        int aDelayInMs = 1234;
+        AbstractPlugin plugin = createAbstractPlugin();
+        // When
+        plugin.setDelayInMs(aDelayInMs);
+        // Then
+        assertThat(plugin.getDelayInMs(), is(equalTo(aDelayInMs)));
     }
 
     @Test
@@ -395,6 +445,107 @@ public class AbstractPluginUnitTest {
         int comparisonResult = pluginA.compareTo(pluginB);
         // Then
         assertThat(comparisonResult, is(equalTo(1)));
+    }
+
+    @Test(expected = Exception.class)
+    public void shouldFailToLoadFromConfigIfConfigNotSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        Configuration config = new ZapXmlConfiguration();
+        // When
+        plugin.loadFrom(config);
+        // Then = Exception.class
+    }
+
+    @Test
+    public void shouldNotLoadFromConfigIfPluginHasDifferentId() {
+        // Given
+        AbstractPlugin pluginA = createAbstractPluginWithConfig(10);
+        pluginA.setAlertThreshold(Plugin.AlertThreshold.HIGH);
+        pluginA.setAttackStrength(Plugin.AttackStrength.INSANE);
+        pluginA.setEnabled(false);
+        AbstractPlugin pluginB = createAbstractPluginWithConfig(15);
+        // When
+        pluginB.loadFrom(pluginA.getConfig());
+        // Then
+        assertThat(pluginB.isEnabled(), is(equalTo(Boolean.TRUE)));
+        assertThat(pluginB.getAlertThreshold(), is(equalTo(Plugin.AlertThreshold.MEDIUM)));
+        assertThat(pluginB.getAttackStrength(), is(equalTo(Plugin.AttackStrength.MEDIUM)));
+    }
+
+    @Test
+    public void shouldLoadFromConfigIfPluginsHaveSameId() {
+        // Given
+        AbstractPlugin pluginA = createAbstractPluginWithConfig(10);
+        pluginA.setAlertThreshold(Plugin.AlertThreshold.HIGH);
+        pluginA.setAttackStrength(Plugin.AttackStrength.INSANE);
+        pluginA.setEnabled(false);
+        AbstractPlugin pluginB = createAbstractPluginWithConfig(10);
+        // When
+        pluginB.loadFrom(pluginA.getConfig());
+        // Then
+        assertThat(pluginB.isEnabled(), is(equalTo(Boolean.FALSE)));
+        assertThat(pluginB.getAlertThreshold(), is(equalTo(Plugin.AlertThreshold.HIGH)));
+        assertThat(pluginB.getAttackStrength(), is(equalTo(Plugin.AttackStrength.INSANE)));
+    }
+
+    @Test
+    public void shouldJustSaveEnabledStateToOwnConfigWhenLoadFromEmptyConfig() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig(15);
+        Configuration emptyConfig = new ZapXmlConfiguration();
+        Configuration config = plugin.getConfig();
+        String basePropertyKey = "plugins.p" + plugin.getId() + ".";
+        // When
+        plugin.loadFrom(emptyConfig);
+        // Then
+        assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("true")));
+        assertThat(config.getString(basePropertyKey + "level"), is(equalTo(null)));
+        assertThat(config.getString(basePropertyKey + "strength"), is(equalTo(null)));
+    }
+
+    @Test
+    public void shouldSaveToOwnConfigWhenLoadFromOtherConfig() {
+        // Given
+        AbstractPlugin pluginA = createAbstractPluginWithConfig(10);
+        pluginA.setAlertThreshold(Plugin.AlertThreshold.LOW);
+        pluginA.setAttackStrength(Plugin.AttackStrength.HIGH);
+        pluginA.setEnabled(false);
+        AbstractPlugin pluginB = createAbstractPluginWithConfig(10);
+        Configuration config = pluginB.getConfig();
+        String basePropertyKey = "plugins.p" + pluginB.getId() + ".";
+        // When
+        pluginB.loadFrom(pluginA.getConfig());
+        // Then
+        assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("false")));
+        assertThat(config.getString(basePropertyKey + "level"), is(equalTo(Plugin.AlertThreshold.LOW.name())));
+        assertThat(config.getString(basePropertyKey + "strength"), is(equalTo(Plugin.AttackStrength.HIGH.name())));
+    }
+
+    @Test(expected = Exception.class)
+    public void shouldFailToSaveToConfigIfConfigNotSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        Configuration config = new ZapXmlConfiguration();
+        // When
+        plugin.saveTo(config);
+        // Then = Exception.class
+    }
+
+    @Test
+    public void shouldSaveToConfig() {
+        // Given
+        AbstractPlugin plugin = createAbstractPluginWithConfig(10);
+        plugin.setAlertThreshold(Plugin.AlertThreshold.HIGH);
+        plugin.setAttackStrength(Plugin.AttackStrength.INSANE);
+        Configuration config = new ZapXmlConfiguration();
+        String basePropertyKey = "plugins.p" + plugin.getId() + ".";
+        // When
+        plugin.saveTo(config);
+        // Then
+        assertThat(config.getString(basePropertyKey + "enabled"), is(equalTo("true")));
+        assertThat(config.getString(basePropertyKey + "level"), is(equalTo(Plugin.AlertThreshold.HIGH.name())));
+        assertThat(config.getString(basePropertyKey + "strength"), is(equalTo(Plugin.AttackStrength.INSANE.name())));
     }
 
     private static class TestPlugin extends AbstractPlugin {

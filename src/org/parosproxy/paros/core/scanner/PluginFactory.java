@@ -298,6 +298,7 @@ public class PluginFactory {
                     Plugin plugin = getLoadedPlugins().get(i);
                     plugin.setConfig(config);
                     plugin.createParamIfNotExist();
+                    plugin.loadFrom(config);
                     if (!plugin.isVisible()) {
                         log.info("Plugin " + plugin.getName() + " not visible");
                         continue;
