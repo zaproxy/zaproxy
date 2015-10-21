@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
+import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,8 +48,12 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.CommandLineArgument;
@@ -597,15 +602,27 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void postInit() {
+		final List<String[]> scriptsNotAdded = new ArrayList<>(1);
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
 			try {
 				this.loadScript(script);
-				this.addScript(script, false);
+				if (script.getType() != null) {
+					this.addScript(script, false);
+				} else {
+					logger.warn(
+							"Failed to add script \"" + script.getName() + "\", script type not found: "
+									+ script.getTypeName());
+					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+				}
 				
-			} catch (IOException e) {
+			} catch (InvalidParameterException | IOException e) {
 				logger.error(e.getMessage(), e);
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
 			}
 		}
+
+		informScriptsNotAdded(scriptsNotAdded);
+
 		this.loadTemplates();
 		
 		for (File dir : this.getScriptParam().getScriptDirs()) {
@@ -614,6 +631,60 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
 		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
+    }
+
+    private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
+        if (!View.isInitialised() || scriptsNotAdded.isEmpty()) {
+            return;
+        }
+
+        final List<Object> optionPaneContents = new ArrayList<>(2);
+        optionPaneContents.add(Constant.messages.getString("script.info.scriptsNotAdded.message"));
+
+        JXTable table = new JXTable(new AbstractTableModel() {
+
+            private static final long serialVersionUID = -457689656746030560L;
+
+            @Override
+            public String getColumnName(int column) {
+                if (column == 0) {
+                    return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptName");
+                }
+                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                return scriptsNotAdded.get(rowIndex)[columnIndex];
+            }
+
+            @Override
+            public int getRowCount() {
+                return scriptsNotAdded.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return 2;
+            }
+        });
+
+        table.setColumnControlVisible(true);
+        table.setVisibleRowCount(Math.min(scriptsNotAdded.size() + 1, 5));
+        table.packAll();
+        optionPaneContents.add(new JScrollPane(table));
+
+        EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(
+                        View.getSingleton().getMainFrame(),
+                        optionPaneContents.toArray(),
+                        Constant.PROGRAM_NAME,
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
     }
 
 	
