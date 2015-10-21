@@ -198,7 +198,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	protected void updateFoundCount() {
 		SpiderScan sc = this.getSelectedScanner();
 		if (sc != null) {
-			this.getFoundCountValueLabel().setText(Integer.toString(sc.getResourcesFound().size()));
+			this.getFoundCountValueLabel().setText(Integer.toString(sc.getNumberOfURIsFound()));
 		} else {
 			this.getFoundCountValueLabel().setText("");
 		}

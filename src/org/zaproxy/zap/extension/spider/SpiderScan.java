@@ -27,6 +27,7 @@ import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
@@ -70,6 +71,16 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private String displayName = "";
 
+	/**
+	 * Counter for number of URIs, in and out of scope, found during the scan.
+	 * <p>
+	 * The counter is incremented when a new URI is found.
+	 * 
+	 * @see #foundURI(String, String, FetchStatus)
+	 * @see #getNumberOfURIsFound()
+	 */
+	private AtomicInteger numberOfURIsFound;
+
 	private Set<String> foundURIs;
 
 	private List<SpiderResource> resourcesFound;
@@ -88,6 +99,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		lock = new ReentrantLock();
 		this.scanId = scanId;
 
+		numberOfURIsFound = new AtomicInteger();
 		foundURIs = Collections.synchronizedSet(new HashSet<String>());
 		resourcesFound = Collections.synchronizedList(new ArrayList<SpiderResource>());
 		foundURIsOutOfScope = Collections.synchronizedSet(new HashSet<String>());
@@ -291,6 +303,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 	@Override
 	public void foundURI(String uri, String method, FetchStatus status) {
+		numberOfURIsFound.incrementAndGet();
 		if (FETCH_STATUS_IN_SCOPE.contains(status)) {
 			foundURIs.add(uri);
 		} else if (FETCH_STATUS_OUT_OF_SCOPE.contains(status)) {
@@ -328,6 +341,15 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		return 100;
 	}
 
+	/**
+	 * Gets the number of URIs, in and out of scope, found during the scan.
+	 *
+	 * @return the number of URIs found during the scan
+	 * @since TODO add version
+	 */
+	public int getNumberOfURIsFound() {
+		return numberOfURIsFound.get();
+	}
 
 	@Override
 	public boolean isPaused() {
