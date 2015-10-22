@@ -17,17 +17,20 @@
  */
 package org.zaproxy.zap.model;
 
+import static org.junit.Assert.assertEquals;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.httpclient.URIException;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.parosproxy.paros.model.Session;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import static org.junit.Assert.assertEquals;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StandardParameterParserUnitTest {
@@ -102,4 +105,73 @@ public class StandardParameterParserUnitTest {
 		assertEquals(res.get("b"), "c");
 	}
 
+	/**
+	 * Gets the path of the URI's ancestor found at the given depth, taking into account any context
+	 * specific configuration (e.g. structural parameters). The depth could also be seen as the
+	 * number of path elements returned.
+	 * <p/>
+	 * A few examples (uri, depth):
+	 * <ul>
+	 * <li>(<i>http://example.org/path/to/element</i>, 0) -> ""</li>
+	 * <li>(<i>http://example.org/path/to/element</i>, 1) -> "/path"</li>
+	 * <li>(<i>http://example.org/path/to/element</i>, 3) -> "/path/to/element"</li>
+	 * <li>(<i>http://example.org/path?page=12&data=123</i>, 2) -> "/path?page=12", if {@code page}
+	 * is a structural parameter</li>
+	 * <li>(<i>http://example.org/path?page=12&data=123&type=1</i>, 3) -> "/path?page=12&type=1", if
+	 * {@code page} and {@code type} are both structural parameter</li>
+	 * </ul>
+	 * @throws NullPointerException 
+	 * 
+	 * @throws URIException if an error occurred while accessing the provided uri
+	 */
+	@Test
+	public void ansestorPath() throws Exception {
+		// standard urls
+		assertEquals("",
+				spp.getAncestorPath(
+						new URI("http://example.org/path/to/element", true), 0));
+		assertEquals("/path",
+				spp.getAncestorPath(
+						new URI("http://example.org/path/to/element", true), 1));
+		assertEquals("/path/to",
+				spp.getAncestorPath(
+						new URI("http://example.org/path/to/element", true), 2));
+		assertEquals("/path/to/element",
+				spp.getAncestorPath(
+						new URI("http://example.org/path/to/element", true), 3));
+		assertEquals("/path",
+				spp.getAncestorPath(
+						new URI("http://example.org/path?page=12&data=123", true), 3));
+		assertEquals("/path",
+				spp.getAncestorPath(
+						new URI("http://example.org/path?page=12&data=123&type=1", true), 3));
+
+		// With structural params
+		List<String> structuralParameters = new ArrayList<String>();
+		structuralParameters.add("page");
+		structuralParameters.add("type");
+		spp.setStructuralParameters(structuralParameters );
+		assertEquals("/path?page=12",
+				spp.getAncestorPath(
+						new URI("http://example.org/path?page=12&data=123", true), 3));
+		assertEquals("/path?page=12&type=1",
+				spp.getAncestorPath(
+						new URI("http://example.org/path?page=12&data=123&type=1", true), 3));
+		
+		// with data driven nodes
+		Context context = new Context(session, 0);
+		Pattern p = Pattern.compile("http://example.org/(path/to/)(.+?)(/.*)");
+		StructuralNodeModifier ddn = 
+				new StructuralNodeModifier(
+						StructuralNodeModifier.Type.DataDrivenNode, 
+						p, "DDN");
+		context.addDataDrivenNodes(ddn );
+		spp.setContext(context);
+		assertEquals("/path/to/(.+?)",
+				spp.getAncestorPath(
+						new URI("http://example.org/path/to/ddn/aa", true), 3));
+		assertEquals("/path/to/(.+?)/aa",
+				spp.getAncestorPath(
+						new URI("http://example.org/path/to/ddn/aa", true), 4));
+	}
 }

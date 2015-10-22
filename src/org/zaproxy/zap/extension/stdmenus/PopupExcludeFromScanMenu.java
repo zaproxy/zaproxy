@@ -20,25 +20,21 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 public class PopupExcludeFromScanMenu extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 2282358266003940700L;
-
-    private static final Logger logger = Logger.getLogger(PopupExcludeFromScanMenu.class);
 
 	/**
 	 * This method initializes 
@@ -66,20 +62,12 @@ public class PopupExcludeFromScanMenu extends PopupMenuItemSiteNodeContainer {
    
 	@Override
 	public void performAction(SiteNode sn) {
-        Session session = Model.getSingleton().getSession();
-        String url;
         try {
-            url = new URI(sn.getHierarchicNodeName(), false).toString();
-        } catch (URIException e) {
-            logger.error("Failed to create the URI to exclude from scanner: " + e.getMessage(), e);
-            return;
-        }
-        if (sn.isLeaf()) {
-            url = Pattern.quote(url);
-        } else {
-        	url = Pattern.quote(url+"/") + ".*";
-        }
-        session.getExcludeFromScanRegexs().add(url);
+			Session session = Model.getSingleton().getSession();
+			session.getExcludeFromScanRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
+		} catch (DatabaseException e) {
+			// Ignore
+		}
 	}
 
 	@Override

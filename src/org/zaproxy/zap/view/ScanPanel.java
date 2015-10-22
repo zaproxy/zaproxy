@@ -611,7 +611,7 @@ public abstract class ScanPanel extends AbstractPanel {
 	public static String cleanSiteName(SiteNode node, boolean incPort) {
 		if (node != null) {
 			while (node.getParent() != null && node.getParent().getParent() != null) {
-				node = (SiteNode) node.getParent();
+				node = node.getParent();
 			}
 			return cleanSiteName(node.getNodeName(), incPort);
 		}

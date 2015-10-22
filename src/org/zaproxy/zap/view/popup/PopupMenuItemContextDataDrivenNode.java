@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2014 The ZAP Development Team
+ * Copyright 2015 The ZAP Development Team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,45 +19,36 @@
  */
 package org.zaproxy.zap.view.popup;
 
+import java.util.regex.Pattern;
+
 import org.parosproxy.paros.Constant;
-import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.StructuralSiteNode;
-import org.zaproxy.zap.view.ContextIncludePanel;
+import org.zaproxy.zap.model.StructuralNodeModifier;
+import org.zaproxy.zap.view.ContextStructurePanel;
 
 
 /**
- * @since 2.3.0
+ * @since TODO add version
  */
-public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContainer {
+public class PopupMenuItemContextDataDrivenNode extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 990419495607725846L;
 
     protected Context context;
 
-    /**
-     * This method initializes
-     * 
-     */
-    public PopupMenuItemIncludeInContext() {
-        super(Constant.messages.getString("context.new.title"), true);
-        this.context = null;
-        this.setPrecedeWithSeparator(true);
-    }
-
-    public PopupMenuItemIncludeInContext(Context context) {
-        super(context.getName(), true);
+    public PopupMenuItemContextDataDrivenNode(Context context, String name) {
+        super(name, true);
         this.context = context;
     }
 
     @Override
     public String getParentMenuName() {
-        return Constant.messages.getString("context.include.popup");
+        return Constant.messages.getString("context.flag.popup");
     }
 
     @Override
@@ -67,45 +58,46 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
 
     @Override
     public void performAction(SiteNode sn) {
-        try {
-			performAction(sn.getNodeName(), new StructuralSiteNode(sn).getRegexPattern());
-		} catch (DatabaseException e) {
-			// Ignore
-		}
-    }
-
-    protected void performAction(String name, String url) {
         Session session = Model.getSingleton().getSession();
 
-        if (context == null) {
-            context = session.getNewContext(name);
-        }
-
-        // Manually create the UI shared contexts so any modifications are done
-        // on an UI shared Context, so changes can be undone by pressing Cancel
         SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
         sessionDialog.recreateUISharedContexts(session);
         Context uiSharedContext = sessionDialog.getUISharedContext(context.getIndex());
 
-        uiSharedContext.addIncludeInContextRegex(url);
+        // We want to form a regex expression like:
+        // https://www.example.com/(aa/bb/cc/)(.+?)(/.*)
+        
+        StringBuilder sb = new StringBuilder();
+        
+        SiteNode parent = sn.getParent();
+        
+        while (!parent.getParent().isRoot()) {
+        	sb.insert(0, "/");
+        	if (parent.isDataDriven()) {
+        		// Dont want these in their own regex group
+        		sb.insert(0, ".+?");
+        	} else {
+        		sb.insert(0, parent.getCleanNodeName());
+        	}
+            parent = parent.getParent();
+        }
+    	sb.insert(0, "/(");
+    	sb.insert(0, parent.getCleanNodeName());
+        sb.append(")(.+?)(/.*)");
+        Pattern p = Pattern.compile(sb.toString());
+        
+        uiSharedContext.addDataDrivenNodes(
+        		new StructuralNodeModifier(StructuralNodeModifier.Type.DataDrivenNode, 
+        				p, uiSharedContext.getDefaultDDNName()));
 
         // Show the session dialog without recreating UI Shared contexts
-        View.getSingleton().showSessionDialog(session, ContextIncludePanel.getPanelName(context.getIndex()),
+        View.getSingleton().showSessionDialog(session, ContextStructurePanel.getPanelName(context.getIndex()),
                 false);
     }
 
     @Override
     public boolean isButtonEnabledForSiteNode(SiteNode sn) {
-        if (context == null) {
-            // New context
-            return true;
-        }
-        if (context.isIncluded(sn) || context.isExcluded(sn)) {
-            // Either explicitly included or excluded, so would have to change that regex in a non
-            // trivial way to include!
-            return false;
-        }
-        return true;
+    	return sn.getLevel() > 2;
     }
 
     @Override

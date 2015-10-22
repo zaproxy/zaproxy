@@ -37,11 +37,17 @@ public interface StructuralNode {
 	
 	String getName();
 	
+	String getRegexPattern() throws DatabaseException;
+
+	String getRegexPattern(boolean incChildren) throws DatabaseException;
+
 	URI getURI();
 	
 	boolean isRoot();
 	
 	boolean isLeaf();
+	
+	boolean isDataDriven();
 	
 	boolean isSameAs (StructuralNode node);
 }

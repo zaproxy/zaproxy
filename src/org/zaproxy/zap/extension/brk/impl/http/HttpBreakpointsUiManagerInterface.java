@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.brk.impl.http;
 
 import java.awt.Dimension;
 
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.extension.ExtensionHookMenu;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -28,6 +29,7 @@ import org.zaproxy.zap.extension.brk.BreakpointMessageInterface;
 import org.zaproxy.zap.extension.brk.BreakpointsUiManagerInterface;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.model.StructuralSiteNode;
 
 
 public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerInterface {
@@ -98,18 +100,23 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     private void populateAddDialogAndSetVisible(String url) {
     	breakDialog.init(
     			new HttpBreakpointMessage(url, HttpBreakpointMessage.Location.url, 
-    					HttpBreakpointMessage.Match.contains, false, true), 
+    					HttpBreakpointMessage.Match.regex, false, true), 
     			true);
     	breakDialog.setVisible(true);
     }
     
     private void showAddDialog(Message aMessage) {
     	HttpMessage msg = (HttpMessage) aMessage;
-    	if (msg.getRequestHeader().getURI() != null) {
-            this.showAddDialog(msg.getRequestHeader().getURI().toString());
-    	} else {
-            this.showAddDialog("");
+    	String regex = "";
+    	
+    	if (msg.getHistoryRef().getSiteNode() != null && msg.getHistoryRef().getSiteNode() != null) {
+        	try {
+				regex = new StructuralSiteNode(msg.getHistoryRef().getSiteNode()).getRegexPattern();
+			} catch (DatabaseException e) {
+				// Ignore
+			}
     	}
+        this.showAddDialog(regex);
     }
     
     private void showAddDialog(String url) {
@@ -154,5 +161,4 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
         }
         return popupMenuAddBreakHistory;
     }
-    
 }

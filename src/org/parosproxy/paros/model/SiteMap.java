@@ -44,6 +44,7 @@
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/08/19 Change to cope with deprecation of HttpMessage.getParamNameSet(HtmlParameter.Type, String)
 // ZAP: 2015/08/19 Issue 1784: NullPointerException when active scanning through the API with a target without scheme
+// ZAP: 2015/10/21 Issue 1576: Support data driven content
 
 package org.parosproxy.paros.model;
 
@@ -594,10 +595,23 @@ public class SiteMap extends DefaultTreeModel {
         TreeNode[] path = node.getPath();
         StringBuilder sb = new StringBuilder();
         String nodeName;
+        String [] origPath = baseRef.getURI().getPath().split("/");
         for (int i=1; i<path.length; i++) {
         	// ZAP Cope with error counts in the node names
         	nodeName = ((SiteNode)path[i]).getNodeName();
-            sb.append(nodeName);
+        	if (((SiteNode)path[i]).isDataDriven()) {
+            	// Retrieve original name..
+            	if (origPath.length > i-1) {
+            		log.debug("Replace Data Driven element " + nodeName + " with " + origPath[i-1]);
+            		sb.append(origPath[i-1]);
+            	} else {
+            		log.error("Failed to determine original node name for element " + i +
+            				nodeName + " original request: " + baseRef.getURI().toString());
+                    sb.append(nodeName);
+            	}
+            } else {
+                sb.append(nodeName);
+            }
             if (i<path.length-1) {
                 sb.append('/');
             }
@@ -696,7 +710,7 @@ public class SiteMap extends DefaultTreeModel {
 	protected void applyFilter (SiteNode node) {
     	if (filter != null) {
     		boolean filtered = this.setFilter(filter, node);
-    		SiteNode parent = ((SiteNode)node.getParent());
+    		SiteNode parent = node.getParent();
     		if (parent != null && ! filtered && parent.isFiltered()) {
     			// This node is no longer filtered but its parent is, unfilter the parent so it becomes visible
     			this.clearParentFilter(parent);
@@ -713,7 +727,7 @@ public class SiteMap extends DefaultTreeModel {
 	private void clearParentFilter (SiteNode parent) {
 		if (parent != null) {
 			parent.setFiltered(false);
-			clearParentFilter((SiteNode)parent.getParent());
+			clearParentFilter(parent.getParent());
 		}
 	}
 
