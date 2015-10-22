@@ -24,6 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
@@ -42,6 +43,7 @@ public class StandardParameterParser implements ParameterParser {
 	private static final String CONFIG_KV_SEPARATORS = "kvs";
 	private static final String CONFIG_STRUCTURAL_PARAMS = "struct";
 
+	private Context context;
 	private Pattern keyValuePairSeparatorPattern;
 	private Pattern keyValueSeparatorPattern;
 	private String keyValuePairSeparators;
@@ -200,9 +202,45 @@ public class StandardParameterParser implements ParameterParser {
 
 	@Override
 	public List<String> getTreePath(URI uri) throws URIException {
+		return this.getTreePath(uri, true);
+	}
+
+	private List<String> getTreePath(URI uri, boolean incStructParams) throws URIException {
 		String path = uri.getPath();
 		List<String> list = new ArrayList<String>();
 		if (path != null) {
+			Context context = this.getContext();
+			if (context != null) {
+				String uriStr = uri.toString();
+				boolean changed = false;
+				for (StructuralNodeModifier ddn : context.getDataDrivenNodes()) {
+					Matcher m = ddn.getPattern().matcher(uriStr);
+					if (m.find()){ 
+						if (m.groupCount() == 3) {
+							path = m.group(1) + SessionStructure.DATA_DRIVEN_NODE_PREFIX + 
+									ddn.getName() + SessionStructure.DATA_DRIVEN_NODE_POSTFIX + 
+									m.group(3);
+							if (!path.startsWith("/")) {
+								// Should always start with a slash;)
+								path = "/" + path;
+							}
+							changed = true;
+						} else if (m.groupCount() == 2) {
+							path = m.group(1) + SessionStructure.DATA_DRIVEN_NODE_PREFIX + 
+									ddn.getName() + SessionStructure.DATA_DRIVEN_NODE_POSTFIX;
+							if (!path.startsWith("/")) {
+								// Should always start with a slash;)
+								path = "/" + path;
+							}
+							changed = true;
+						}
+					}
+				}
+				if (changed) {
+					log.debug("Changed path from " + uri.getPath() + " to " + path);
+				}
+			}
+			
 			// Note: Start from the 2nd path element as the first on is always the empty string due
 			// to the split
 			String[] pathList = path.split("/");
@@ -210,19 +248,20 @@ public class StandardParameterParser implements ParameterParser {
 				list.add(pathList[i]);
 			}
 		}
-		// Add any structural params (url param) in key order
-		Map<String, String> urlParams = this.parse(uri.getQuery());
-		List<String> keys = new ArrayList<String>(urlParams.keySet());
-		Collections.sort(keys);
-		for (String key: keys) {
-			if (this.structuralParameters.contains(key)) {
-				list.add(urlParams.get(key));
+		if (incStructParams) {
+			// Add any structural params (url param) in key order
+			Map<String, String> urlParams = this.parse(uri.getQuery());
+			List<String> keys = new ArrayList<String>(urlParams.keySet());
+			Collections.sort(keys);
+			for (String key: keys) {
+				if (this.structuralParameters.contains(key)) {
+					list.add(urlParams.get(key));
+				}
 			}
 		}
 
 		return list;
 	}
-	
 	
 	@Override
 	public List<String> getTreePath(HttpMessage msg) throws URIException {
@@ -242,8 +281,6 @@ public class StandardParameterParser implements ParameterParser {
 
 		return list;
 	}
-	
-	
 
 	@Override
 	public String getAncestorPath(URI uri, int depth) throws URIException {
@@ -252,18 +289,25 @@ public class StandardParameterParser implements ParameterParser {
 		if (depth == 0 || path == null) {
 			return "";
 		}
+		List<String> pathList = getTreePath(uri, false);
 
-		// Add the 'normal' path elements until we finish them or we reach the desired depth
-		String[] pathList = path.split("/");
+		// Add the 'normal' (plus data driven) path elements 
+		// until we finish them or we reach the desired depth
 		StringBuilder parentPath = new StringBuilder(path.length());
-		// Note: Start from the 2nd path element as the first on is always the empty string due to
-		// the split
-		for (int i = 1; i < pathList.length && depth > 0; i++, depth--) {
-			parentPath.append('/').append(pathList[i]);
+		for (int i = 0; i < pathList.size() && depth > 0; i++, depth--) {
+			String element = pathList.get(i);
+			parentPath.append('/');
+			if (element.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
+				// Its a data driven node - use the regex pattern instead
+				parentPath.append(SessionStructure.DATA_DRIVEN_NODE_REGEX);
+			} else {
+				parentPath.append(element);
+			}
 		}
 		// If we're done or we have no structural parameters, just return
-		if (depth == 0 || structuralParameters.isEmpty())
+		if (depth == 0 || structuralParameters.isEmpty()) {
 			return parentPath.toString();
+		}
 
 		// Add the 'structural params' path elements
 		boolean firstElement = true;
@@ -283,6 +327,16 @@ public class StandardParameterParser implements ParameterParser {
 			}
 		}
 		return parentPath.toString();
+	}
+
+	@Override
+	public void setContext(Context context) {
+		this.context = context;
+	}
+
+	@Override
+	public Context getContext() {
+		return context;
 	}
 
 }

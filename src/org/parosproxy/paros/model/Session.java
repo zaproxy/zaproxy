@@ -52,6 +52,7 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/08/19 Change to use ZapXmlConfiguration instead of extending FileXML
 // ZAP: 2015/08/19 Issue 1789: Forced Browse/AJAX Spider messages not restored to Sites tab
+// ZAP: 2015/10/21 Issue 1576: Support data driven content
 
 package org.parosproxy.paros.model;
 
@@ -88,6 +89,7 @@ import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
+import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
@@ -406,6 +408,7 @@ public class Session {
 				    	if (strs.size() == 1) {
 				    		parser.init(strs.get(0));
 				    	}
+				    	parser.setContext(ctx);
 				    	ctx.setUrlParamParser(parser);
 					}
 				}
@@ -425,12 +428,25 @@ public class Session {
 				    	if (strs.size() == 1) {
 				    		parser.init(strs.get(0));
 				    	}
+				    	parser.setContext(ctx);
 				    	ctx.setPostParamParser(parser);
 					}
 				}
 			} catch (Exception e) {
 				log.error("Failed to load POST parser for context " + ctx.getIndex(), e);
 			}
+	    	
+	    	try {
+	    		// Set up the Data Driven Nodes
+				List<String> strs = this.getContextDataStrings(ctx.getIndex(), RecordContext.TYPE_DATA_DRIVEN_NODES);
+				for (String str : strs) {
+					ctx.addDataDrivenNodes(new StructuralNodeModifier(str));
+				}
+			} catch (Exception e) {
+				log.error("Failed to load data driven nodes for context " + ctx.getIndex(), e);
+			}
+	    	
+	    	ctx.restructureSiteTree();
 		}
 		
 		if (View.isInitialised()) {
@@ -1078,6 +1094,14 @@ public class Session {
 		return strList;
 	}
 	
+	private List<String> snmListToStringList (List<StructuralNodeModifier> list) {
+		List<String> strList = new ArrayList<>();
+		for (StructuralNodeModifier snm : list) {
+			strList.add(snm.getConfig());
+		}
+		return strList;
+	}
+	
 	public void saveContext (Context c) {
 		try {
 			this.setContextData(c.getIndex(), RecordContext.TYPE_NAME, c.getName());
@@ -1093,6 +1117,9 @@ public class Session {
 			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CLASSNAME, 
 					c.getPostParamParser().getClass().getCanonicalName());
 			this.setContextData(c.getIndex(), RecordContext.TYPE_POST_PARSER_CONFIG, c.getPostParamParser().getConfig());
+			this.setContextData(c.getIndex(), RecordContext.TYPE_DATA_DRIVEN_NODES, 
+					snmListToStringList(c.getDataDrivenNodes()));
+
 			model.saveContext(c);
 		} catch (DatabaseException e) {
             log.error(e.getMessage(), e);
@@ -1221,6 +1248,10 @@ public class Session {
 		config.setProperty(Context.CONTEXT_CONFIG_URLPARSER_CONFIG, c.getUrlParamParser().getConfig());
 		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CLASS, c.getPostParamParser().getClass().getCanonicalName());
 		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
+		for (StructuralNodeModifier snm : c.getDataDrivenNodes()) {
+			config.setProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
+		}
+		
 		model.exportContext(c, config);
 		config.save(file);
 	}
@@ -1272,6 +1303,7 @@ public class Session {
 		} else {
 			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
     		parser.init(config.getString(Context.CONTEXT_CONFIG_URLPARSER_CONFIG));
+    		parser.setContext(c);
 	    	c.setUrlParamParser(parser);
 		}
 
@@ -1288,9 +1320,17 @@ public class Session {
 		} else {
 			ParameterParser parser = (ParameterParser) cl.getConstructor().newInstance();
     		parser.init(postParserConfig);
+    		parser.setContext(c);
 	    	c.setPostParamParser(parser);
 		}
+		for (Object obj : config.getList(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES)) {
+			c.addDataDrivenNodes(new StructuralNodeModifier(obj.toString()));
+		}
+
 		model.importContext(c, config);
+		
+		c.restructureSiteTree();
+		
 		Model.getSingleton().getSession().saveContext(c);
 		return c;
 	}

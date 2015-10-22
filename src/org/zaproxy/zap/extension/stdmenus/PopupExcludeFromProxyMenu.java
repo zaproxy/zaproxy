@@ -20,12 +20,9 @@
 package org.zaproxy.zap.extension.stdmenus;
 
 import java.util.List;
-import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -33,14 +30,13 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 2282358266003940700L;
-
-	private static final Logger logger = Logger.getLogger(PopupExcludeFromProxyMenu.class);
 
 	/**
 	 * This method initializes 
@@ -67,23 +63,15 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
    
 	@Override
 	public void performAction(SiteNode sn) {
-        Session session = Model.getSingleton().getSession();
-        String url;
         try {
-            url = new URI(sn.getHierarchicNodeName(), false).toString();
-        } catch (URIException e) {
-            logger.error("Failed to create the URI to exclude from proxy: " + e.getMessage(), e);
-            return;
-        }
-        if (sn.isLeaf()) {
-            url = Pattern.quote(url);
-        } else {
-        	url = Pattern.quote(url+"/") + ".*";
-        }
-        session.getExcludeFromProxyRegexs().add(url);
-        SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
+			Session session = Model.getSingleton().getSession();
+			session.getExcludeFromProxyRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
+			SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
 
-        PopupMenuPurgeSites.purge(map, sn);
+			PopupMenuPurgeSites.purge(map, sn);
+		} catch (DatabaseException e) {
+			// Ignore
+		}
 	}
 
 	@Override

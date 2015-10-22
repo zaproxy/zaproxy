@@ -105,6 +105,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this((Window)owner, titleLabel, dim);
 	}
 
+	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, boolean modal) {
+		this(owner, titleLabel, dim, null, modal);
+	}
+
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim) {
 		this(owner, titleLabel, dim, null);
 	}
@@ -119,9 +123,13 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim, String[] tabLabels) {
 		this((Window)owner, titleLabel, dim, tabLabels);
 	}
-
+	
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels) {
-		super(owner, false);
+		this((Window)owner, titleLabel, dim, tabLabels, false);
+	}
+
+	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels, boolean modal) {
+		super(owner, modal);
 		this.setTitle(Constant.messages.getString(titleLabel));
 		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);

@@ -20,15 +20,13 @@
 package org.zaproxy.zap.view;
 
 import java.awt.Frame;
-import java.util.regex.Pattern;
 
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.utils.DisplayUtils;
 
 public class ContextCreateDialog extends StandardFieldsDialog {
@@ -41,7 +39,6 @@ public class ContextCreateDialog extends StandardFieldsDialog {
 	private static final String IN_SCOPE_FIELD = "context.inscope.label"; 
 	
 	private SiteNode topNode = null;
-    private Logger logger = Logger.getLogger(ContextCreateDialog.class);
 
 	public ContextCreateDialog(Frame owner) {
 		super(owner, "context.create.title", DisplayUtils.getScaledDimension(400,300));
@@ -66,18 +63,11 @@ public class ContextCreateDialog extends StandardFieldsDialog {
 		ctx.setDescription(this.getStringValue(DESC_FIELD));
 		ctx.setInScope(this.getBoolValue(IN_SCOPE_FIELD));
 		if (topNode != null) {
-			String url;
 	        try {
-	            url = new URI(topNode.getHierarchicNodeName(), false).toString();
-		        if (topNode.isLeaf()) {
-		            url = Pattern.quote(url);
-		        } else {
-		            url = Pattern.quote(url) + ".*";
-		        }
-		        ctx.addIncludeInContextRegex(url);
-	        } catch (URIException e) {
-	        	logger.error("Bad context start url " + this.getStringValue(TOP_NODE), e);
-	        }
+				ctx.addIncludeInContextRegex(new StructuralSiteNode(topNode).getRegexPattern());
+			} catch (DatabaseException e) {
+				// Ignore
+			}
 		}
 		
 		Model.getSingleton().getSession().saveContext(ctx);
