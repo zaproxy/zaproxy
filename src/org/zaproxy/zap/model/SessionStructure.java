@@ -164,12 +164,13 @@ public class SessionStructure {
 				name = name.substring(0, quesIndex);
 			}
 		}
-
     	try {
-			String host = getHostName(sn.getURI());
-			if (name.equals(host) || name.equals(host + "/")) {
-				// This is a top level node (under the root)
-				return host;
+			if (sn.getURI().getPath() == null || sn.getURI().getPath().length() == 1) {
+				// Its a top level node, return as is (minus any trailing slash
+				if (name.charAt(name.length()-1) == '/') {
+					return name.substring(0, name.length()-1);
+				}
+				return name;
 			}
 		} catch (URIException e) {
 			// Ignore
@@ -201,7 +202,7 @@ public class SessionStructure {
     	 * 	inc \/ between nodes
     	 * 	for NSPs use (.+?) ?
     	 */
-    	
+
 		StringBuilder sb = new StringBuilder();
 		boolean incParams = sn.isLeaf() || ! incChildren;
 		
@@ -301,8 +302,8 @@ public class SessionStructure {
     	return sb.toString();
     	
     }
-
-	private static String getHostName(URI uri) throws URIException {
+    
+	public static String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		
 		String scheme = uri.getScheme().toLowerCase();
