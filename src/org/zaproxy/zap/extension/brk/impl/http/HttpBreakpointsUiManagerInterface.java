@@ -71,7 +71,7 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     
     public void handleAddBreakpoint(String url) {
         extensionBreak.dialogShown(ExtensionBreak.DialogType.ADD);
-        showAddDialog(url);
+        showAddDialog(url, HttpBreakpointMessage.Match.regex);
     }
 
     void addBreakpoint(HttpBreakpointMessage breakpoint) {
@@ -97,33 +97,42 @@ public class HttpBreakpointsUiManagerInterface implements BreakpointsUiManagerIn
     public void reset() {
     }
     
-    private void populateAddDialogAndSetVisible(String url) {
+    private void populateAddDialogAndSetVisible(
+    		String url, HttpBreakpointMessage.Match match) {
     	breakDialog.init(
     			new HttpBreakpointMessage(url, HttpBreakpointMessage.Location.url, 
-    					HttpBreakpointMessage.Match.regex, false, true), 
+    					match, false, true), 
     			true);
     	breakDialog.setVisible(true);
     }
     
     private void showAddDialog(Message aMessage) {
+    	HttpBreakpointMessage.Match match = HttpBreakpointMessage.Match.regex;
     	HttpMessage msg = (HttpMessage) aMessage;
     	String regex = "";
     	
-    	if (msg.getHistoryRef().getSiteNode() != null && msg.getHistoryRef().getSiteNode() != null) {
+    	if (msg.getHistoryRef() != null && 
+    			msg.getHistoryRef().getSiteNode() != null) {
         	try {
-				regex = new StructuralSiteNode(msg.getHistoryRef().getSiteNode()).getRegexPattern();
+				regex = new StructuralSiteNode(
+						msg.getHistoryRef().getSiteNode()).getRegexPattern(false);
 			} catch (DatabaseException e) {
 				// Ignore
 			}
     	}
-        this.showAddDialog(regex);
+    	if (regex.length() == 0 && msg.getRequestHeader().getURI() != null) {
+    		// Just use the escaped url
+    		regex = msg.getRequestHeader().getURI().toString();
+    		match = HttpBreakpointMessage.Match.contains;
+    	}
+        this.showAddDialog(regex, match);
     }
     
-    private void showAddDialog(String url) {
+    private void showAddDialog(String url, HttpBreakpointMessage.Match match) {
         if (breakDialog == null) {
         	breakDialog = new BreakAddEditDialog(this, View.getSingleton().getMainFrame(), new Dimension(407, 255));
         }
-        populateAddDialogAndSetVisible(url);
+        populateAddDialogAndSetVisible(url, match);
     }
 
     void hideAddDialog() {
