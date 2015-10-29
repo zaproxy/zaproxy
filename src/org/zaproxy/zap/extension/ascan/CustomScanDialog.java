@@ -28,6 +28,8 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -136,6 +138,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private JCheckBoxTree techTree = null;
     private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
     private TreeModel techModel = null;
+    private String scanPolicyName;
     private ScanPolicy scanPolicy = null;
     private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     private OptionsVariantPanel variantPanel = null;
@@ -148,6 +151,14 @@ public class CustomScanDialog extends StandardFieldsDialog {
         
         this.extension = ext;
         this.customPanels = customPanels;
+
+        addWindowListener(new WindowAdapter() {
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                scanPolicy = null;
+            }
+        });
 
         // The first time init to the default options set, after that keep own copies
         reset(false);
@@ -166,8 +177,17 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.headerLength = -1;
         this.urlPathStart = -1;
 
+        if (scanPolicyName != null && PolicyManager.policyExists(scanPolicyName)) {
+            try {
+                scanPolicy = extension.getPolicyManager().getPolicy(scanPolicyName);
+            } catch (ConfigurationException e) {
+                logger.warn("Failed to load scan policy (" + scanPolicyName + "):", e);
+            }
+        }
+
         if (scanPolicy == null) {
             scanPolicy = extension.getPolicyManager().getDefaultScanPolicy();
+            scanPolicyName = scanPolicy.getName();
         }
 
         this.addTargetSelectField(0, FIELD_START, this.target, false, false);
@@ -290,6 +310,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
             }
 
+            scanPolicyName = policyName;
         } catch (ConfigurationException e) {
             logger.error(e.getMessage(), e);
         }
@@ -915,6 +936,15 @@ public class CustomScanDialog extends StandardFieldsDialog {
                 target,
                 getSelectedUser(),
                 contextSpecificObjects.toArray());
+    }
+
+    @Override
+    public void setVisible(boolean show) {
+        super.setVisible(show);
+
+        if (!show) {
+            scanPolicy = null;
+        }
     }
 
     @Override
