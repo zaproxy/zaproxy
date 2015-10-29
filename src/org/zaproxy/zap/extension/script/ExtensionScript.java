@@ -1206,6 +1206,17 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			this.getTreeModel().nodeStructureChanged(node.getParent());
 		}
 		
+		notifyScriptChanged(script);
+	}
+
+	/**
+	 * Notifies the {@code ScriptEventListener}s that the given {@code script} was changed.
+	 *
+	 * @param script the script that was changed, must not be {@code null}
+	 * @see #listeners
+	 * @see ScriptEventListener#scriptChanged(ScriptWrapper)
+	 */
+	private void notifyScriptChanged(ScriptWrapper script) {
 		for (ScriptEventListener listener : this.listeners) {
 			try {
 				listener.scriptChanged(script);
@@ -1222,6 +1233,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 		script.setEnabled(enabled);
 		this.getTreeModel().nodeStructureChanged(script);
+
+		notifyScriptChanged(script);
 	}
 
 	public void setError(ScriptWrapper script, String details) {
