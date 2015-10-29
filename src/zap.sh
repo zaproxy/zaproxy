@@ -73,21 +73,21 @@ elif [ "$OS" = "FreeBSD" ]; then
   MEM=$(($(sysctl -n hw.physmem)/1024/1024))
 fi
 
-if [ ! -z $JMEM ]; then
+if [ ! -z "$JMEM" ]; then
   echo "Using jvm memory setting from $JVMPROPS"
-elif [ -z $MEM ]; then
+elif [ -z "$MEM" ]; then
   echo "Failed to obtain current memory, using jvm default memory settings"
 else
-  echo "Available memory: " $MEM "MB"
-  if [ $MEM -gt 1500 ]
+  echo "Available memory: $MEM MB"
+  if [ "$MEM" -gt 1500 ]
   then
     JMEM="-Xmx512m"
   else
-    if [ $MEM -gt 900 ]
+    if [ "$MEM" -gt 900 ]
     then
       JMEM="-Xmx256m"
     else
-      if [ $MEM -gt 512 ]
+      if [ "$MEM" -gt 512 ]
       then
         JMEM="-Xmx128m"
       fi
