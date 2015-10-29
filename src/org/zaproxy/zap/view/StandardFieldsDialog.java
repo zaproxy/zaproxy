@@ -816,12 +816,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		final ZapTextField text = new ZapTextField();
 		text.setEditable(editable);
-		if (value != null && value.getHistoryReference() != null) {
-			try {
-				text.setText(value.getHistoryReference().getURI().toString());
-			} catch (Exception e1) {
-				// Ignore
-			}
+		if (value != null) {
+			text.setText(getNodeText(value));
 		}
 		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
 		selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
@@ -833,12 +829,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
 				nsd.setAllowRoot(allowRoot);
 				SiteNode node = nsd.showDialog(this.node);
-				if (node != null && node.getHistoryReference() != null) {
-					try {
-						text.setText(node.getHistoryReference().getURI().toString());
-					} catch (Exception e1) {
-						// Ignore
-					}
+				if (node != null) {
+					text.setText(getNodeText(node));
 					this.node = node;
 					siteNodeSelected(fieldLabel, node);
 				}
@@ -867,12 +859,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		final ZapTextField text = new ZapTextField();
 		text.setEditable(editable);
-		if (value != null && value.getHistoryReference() != null) {
-			try {
-				text.setText(value.getHistoryReference().getURI().toString());
-			} catch (Exception e1) {
-				// Ignore
-			}
+		if (value != null) {
+			text.setText(getNodeText(value));
 		}
 		JButton selectButton = new JButton(Constant.messages.getString("all.button.select"));
 		selectButton.setIcon(new ImageIcon(View.class.getResource("/resource/icon/16/094.png"))); // Globe icon
@@ -884,12 +872,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				NodeSelectDialog nsd = new NodeSelectDialog(StandardFieldsDialog.this);
 				nsd.setAllowRoot(allowRoot);
 				SiteNode node = nsd.showDialog(this.node);
-				if (node != null && node.getHistoryReference() != null) {
-					try {
-						text.setText(node.getHistoryReference().getURI().toString());
-					} catch (Exception e1) {
-						// Ignore
-					}
+				if (node != null) {
+					text.setText(getNodeText(node));
 					this.node = node;
 					siteNodeSelected(fieldLabel, node);
 				}
@@ -970,8 +954,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	 */
 	protected static String getTargetText(Target target) {
 		if (target != null) {
-			if (target.getStartNode() != null && target.getStartNode().getHistoryReference() != null) {
-				return target.getStartNode().getHistoryReference().getURI().toString();
+			if (target.getStartNode() != null) {
+				return getNodeText(target.getStartNode());
 			} else if (target.getContext() != null) {
 				return Constant.messages.getString("context.prefixName", target.getContext().getName());
 			} else if (target.isInScopeOnly()) {
@@ -980,7 +964,23 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		return null;
 	}
-	
+
+	private static String getNodeText(SiteNode node) {
+		if (node != null && node.getHistoryReference() != null) {
+			String url = node.getHistoryReference().getURI().toString();
+			if (node.isLeaf() && url.endsWith("/")) {
+				// String off the slash so we dont match a non leaf
+				// node with the same name
+				url = url.substring(0, url.length()-1);
+			} else if (! node.isLeaf() && ! url.endsWith("/")) {
+				// Add the slash to show its a non leaf node
+				url = url + "/";
+			}
+			return url;
+		}
+		return "";
+	}
+
 	public void addContextSelectField(String fieldLabel, Context selectedContext){
 		if (isTabbed()) {
 			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");

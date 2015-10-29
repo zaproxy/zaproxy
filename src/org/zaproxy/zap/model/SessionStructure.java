@@ -142,9 +142,27 @@ public class SessionStructure {
 	 * @param incParams if true then include URL params in the regex, otherwise exclude them 
 	 * @return a regex pattern that will match the specified StructuralNode, ignoring the parent and children.
 	 */
-	private static String getRegexName(StructuralNode sn, boolean incParams) {
+	public static String getRegexName(StructuralNode sn, boolean incParams) {
+		return getSpecifiedName(sn, incParams, true);
+	}
+	
+	/**
+	 * Returns the name of the node ignoring the parent and children,
+	 * ie the last element in the path.
+	 * Data driven nodes will return the user specified name surrounded by the 
+	 * double angled brackets. 
+	 * @param sn a StructuralNode
+	 * @param incParams if true then include URL params in the regex, otherwise exclude them 
+	 * @return the name of the node ignoring the parent and children
+	 */
+	public static String getCleanRelativeName(StructuralNode sn, boolean incParams) {
+		return getSpecifiedName(sn, incParams, false);
+	}
+
+	private static String getSpecifiedName(StructuralNode sn, 
+			boolean incParams, boolean dataDrivenNodesAsRegex) {
     	String name = sn.getName();
-    	if (sn.isDataDriven()) {
+    	if (sn.isDataDriven() && dataDrivenNodesAsRegex) {
     		// Non-greedy regex pattern 
 			return DATA_DRIVEN_NODE_REGEX;
     	} 
@@ -164,18 +182,18 @@ public class SessionStructure {
 				name = name.substring(0, quesIndex);
 			}
 		}
+		if (name.endsWith("/")) {
+    		name = name.substring(0, name.length()-1);
+		}
     	try {
 			if (sn.getURI().getPath() == null || sn.getURI().getPath().length() == 1) {
-				// Its a top level node, return as is (minus any trailing slash
-				if (name.charAt(name.length()-1) == '/') {
-					return name.substring(0, name.length()-1);
-				}
+				// Its a top level node, return as is
 				return name;
 			}
 		} catch (URIException e) {
 			// Ignore
 		}
-    	
+
     	int slashIndex = name.lastIndexOf('/');
     	if (slashIndex >= 0) {
     		name = name.substring(slashIndex+1);
