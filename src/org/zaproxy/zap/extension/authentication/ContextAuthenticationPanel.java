@@ -282,7 +282,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.contexts";
+		return "ui.dialogs.context-auth";
 	}
 
 	@Override
