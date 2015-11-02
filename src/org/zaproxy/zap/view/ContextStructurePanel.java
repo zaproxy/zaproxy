@@ -272,7 +272,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public String getHelpIndex() {
-		return "ui.dialogs.contexts";
+		return "ui.dialogs.context-struct";
 	}
 
 	public static class DataDrivenNodesMultipleOptionsPanel extends AbstractMultipleOptionsBaseTablePanel<StructuralNodeModifier> {
