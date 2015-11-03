@@ -37,6 +37,7 @@ import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.utils.ApiUtils;
 
 public class ContextAPI extends ApiImplementor {
 
@@ -293,15 +294,7 @@ public class ContextAPI extends ApiImplementor {
      * @see JSONObject#getString(String)
      */
     private Context getContext(JSONObject params) throws ApiException {
-        return getContext(params.getString(CONTEXT_NAME));
-    }
-
-    private Context getContext(String contextName) throws ApiException {
-        Context context = Model.getSingleton().getSession().getContext(contextName);
-        if (context == null) {
-            throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
-        }
-        return context;
+        return ApiUtils.getContextByName(params, CONTEXT_NAME);
     }
 
     /**

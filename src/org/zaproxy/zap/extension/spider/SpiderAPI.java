@@ -92,6 +92,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_USER_ID = "userId";
 	private static final String PARAM_CONTEXT_ID = "contextId";
+	private static final String PARAM_CONTEXT_NAME = "contextName";
 	private static final String PARAM_REGEX = "regex";
 	private static final String PARAM_RECURSE = "recurse";
 	private static final String PARAM_SCAN_ID = "scanId";
@@ -114,7 +115,7 @@ public class SpiderAPI extends ApiImplementor {
 		this.extension = extension;
 		// Register the actions
 		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] { PARAM_URL },
-				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE }));
+				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME }));
 		this.addApiAction(new ApiAction(ACTION_START_SCAN_AS_USER, 
 				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID },
 				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE }));
@@ -148,6 +149,7 @@ public class SpiderAPI extends ApiImplementor {
 		log.debug("Request for handleApiAction: " + name + " (params: " + params.toString() + ")");
 		GenericScanner2 scan;
 		int maxChildren = -1;
+		Context context = null;
 
 		switch (name) {
 		case ACTION_START_SCAN:
@@ -163,7 +165,10 @@ public class SpiderAPI extends ApiImplementor {
 					}
 				}
 			}
-			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true));
+			if (params.containsKey(PARAM_CONTEXT_NAME)) {
+				context = ApiUtils.getContextByName(params, PARAM_CONTEXT_NAME);
+			}
+			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
 		case ACTION_START_SCAN_AS_USER:
@@ -175,7 +180,7 @@ public class SpiderAPI extends ApiImplementor {
 			if (usersExtension == null) {
 				throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 			}
-			Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+			context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
 			if (!context.isIncluded(urlUserScan)) {
 				throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
 			}
@@ -193,7 +198,7 @@ public class SpiderAPI extends ApiImplementor {
 					}
 				}
 			}
-			scanId = scanURL(urlUserScan, user, maxChildren, this.getParam(params, PARAM_RECURSE, true));
+			scanId = scanURL(urlUserScan, user, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
 
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
@@ -299,12 +304,13 @@ public class SpiderAPI extends ApiImplementor {
 	 * @param user the user to scan as, or null if the scan is done without the perspective of any user
 	 * @param maxChildren Max number of children to scan
 	 * @param recurse Whether or not to scan recursively
+	 * @param context the context that will be used during spider process, might be {@code null}
 	 * @return the ID of the newly started scan
 	 * @throws ApiException if the {@code url} is not valid
 	 * @see #scanIdCounter
 	 * @see #spiderScans
 	 */
-	private int scanURL(String url, User user, int maxChildren, boolean recurse) throws ApiException {
+	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
 
 		URI startURI;
@@ -327,8 +333,8 @@ public class SpiderAPI extends ApiImplementor {
 		}
 		Target target = new Target(node);
 		target.setRecurse(recurse);
-		if (user != null) {
-			target.setContext(user.getContext());
+		if (context != null) {
+			target.setContext(context);
 		}
 		
 		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
