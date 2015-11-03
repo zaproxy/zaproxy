@@ -145,19 +145,20 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
 			        if (me.getClickCount() == 2 && modifyButton != null && modifyButton.isEnabled()) {
 						JXTable table =(JXTable) me.getSource();
 				        Point p = me.getPoint();
-			        	modifyElement(table.rowAtPoint(p));
+				        int row = table.rowAtPoint(p);
+				        if (row >= 0) {
+				            modifyElement(getTable().convertRowIndexToModel(row));
+				        }
 			        }
 				}});
         }
     }
     
     private void modifyElement(int row) {
-    	if (row >= 0) {
-	        E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
-	        if (e != null) {
-	            getMultipleOptionsModel().modifyElement(row, e);
-	        }
-    	}
+        E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
+        if (e != null) {
+            getMultipleOptionsModel().modifyElement(row, e);
+        }
     }
     
     protected void selectionChanged(boolean entrySelected) {
