@@ -9,6 +9,7 @@ For general information about ZAP:
   * [Home page](https://www.owasp.org/index.php/ZAP) - the official ZAP page on the OWASP wiki (includes a donate button;)
   * [Twitter](https://twitter.com/zaproxy)	- official ZAP announcements (low volume)
   * [Blog](http://zaproxy.blogspot.co.uk/)	- official ZAP blog
+  * [Monthly Newsletters](https://github.com/zaproxy/zaproxy/wiki/Newsletters)
 
 For help using ZAP:
   * [Getting Started Guide (pdf)](https://github.com/zaproxy/zaproxy/releases/download/2.4.0/ZAPGettingStartedGuide-2.4.pdf) - an introductory guide you can print
