@@ -30,6 +30,8 @@ public class AlertEventPublisher implements EventPublisher {
 	public static final String ALERT_REMOVED_EVENT	= "alert.removed";
 	public static final String ALL_ALERTS_REMOVED_EVENT	= "alert.all.removed";
 	
+    public static final String ALERT_ID = "alertId";
+
 	@Override
 	public String getPublisherName() {
 		return AlertEventPublisher.class.getCanonicalName();
