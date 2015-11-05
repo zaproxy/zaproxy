@@ -1377,38 +1377,62 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                                 Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
             			return;
             		}
+            		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+            		AddOnDependencyChecker.AddOnChangesResult result;
             		// Check to see if its already installed
-            		AddOn iao = ExtensionFactory.getAddOnLoader().getAddOnCollection().getAddOn(aoName);
+            		AddOn iao = getLocalVersionInfo().getAddOn(aoName);
             		if (iao != null) {
-            			if (iao.getFileVersion() >= ao.getFileVersion()) {
+            			if (!ao.isUpdateTo(iao)) {
                     		CommandLine.info(MessageFormat.format(
                                     Constant.messages.getString("cfu.cmdline.addoninst"),
                                     iao.getFile().getAbsolutePath()));
                 			return;
             			}
+
+                        result = addOnDependencyChecker.calculateUpdateChanges(ao);
+                    } else {
+                        result = addOnDependencyChecker.calculateInstallChanges(ao);
             		}
             		
-            		try {
-                		CommandLine.info(MessageFormat.format(
+                    if (!result.getUninstalls().isEmpty()) {
+                        CommandLine.info(
+                                MessageFormat.format(
+                                        Constant.messages.getString("cfu.cmdline.addonurl.unintalls.required"),
+                                        result.getUninstalls()));
+                        return;
+                    }
+
+                    Set<AddOn> allAddOns = new HashSet<>();
+                    allAddOns.addAll(result.getInstalls());
+                    allAddOns.addAll(result.getNewVersions());
+                    for (AddOn addOn : allAddOns) {
+                        CommandLine.info(MessageFormat.format(
                                 Constant.messages.getString("cfu.cmdline.addonurl"),
-                                ao.getUrl()));
-            			this.downloadAddOn(ao);
-            			
-						while (downloadManager.getCurrentDownloadCount() > 0) {
-	            			try {
-								Thread.sleep(200);
-							} catch (InterruptedException e) {
-								// Ignore
-							}
-						}
-                		CommandLine.info(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.addondown"),
-                                iao.getFile().getAbsolutePath()));
-						this.install(ao);
-					} catch (IllegalArgumentException e) {
-                		CommandLine.error(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName), e);
-					}
+                                addOn.getUrl()));
+                    }
+
+                    processAddOnChanges(null, result);
+
+                    while (downloadManager.getCurrentDownloadCount() > 0) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            // Ignore
+                        }
+                    }
+
+                    for (Downloader download : downloadManager.getProgress()) {
+                        if (download.isValidated()) {
+                            CommandLine.info(MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addondown"),
+                                    download.getTargetFile().getAbsolutePath()));
+                        } else {
+                            CommandLine.error(MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addondown.failed"),
+                                    download.getTargetFile().getName()));
+                        }
+                    }
+                    installNewExtensions();
             	}
             }
         }
