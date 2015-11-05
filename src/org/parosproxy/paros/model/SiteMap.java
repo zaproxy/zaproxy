@@ -45,6 +45,7 @@
 // ZAP: 2015/08/19 Change to cope with deprecation of HttpMessage.getParamNameSet(HtmlParameter.Type, String)
 // ZAP: 2015/08/19 Issue 1784: NullPointerException when active scanning through the API with a target without scheme
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2015/11/05 Change findNode(..) methods to match top level nodes
 
 package org.parosproxy.paros.model;
 
@@ -125,6 +126,10 @@ public class SiteMap extends DefaultTreeModel {
                 return null;
         	}
             List<String> path = model.getSession().getTreePath(uri);
+            if (path.size() == 0) {
+            	// Its a top level node
+            	resultNode = parent;
+            }
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
@@ -187,6 +192,10 @@ public class SiteMap extends DefaultTreeModel {
         	}
             
             List<String> path = model.getSession().getTreePath(msg);
+            if (path.size() == 0) {
+            	// Its a top level node
+            	resultNode = parent;
+            }
             for (int i=0; i < path.size(); i++) {
             	folder = path.get(i);
                 if (folder != null && !folder.equals("")) {
