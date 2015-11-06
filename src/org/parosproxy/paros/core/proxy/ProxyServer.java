@@ -29,6 +29,8 @@
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/08/14 Issue 1312: Misleading error message when unable to bind the local proxy to specified address
+// ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
+
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -157,7 +159,7 @@ public class ProxyServer implements Runnable {
                     return -1;
                 } else if ("Permission denied".equals(e.getMessage()) || "Address already in use".equals(e.getMessage())) {
                     if (!isDynamicPort) {
-                        showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + port);
+                        showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + ip + ":" + port);
                         return -1;
                     } else if (port < 65535) {
                         port++;
@@ -187,6 +189,7 @@ public class ProxyServer implements Runnable {
         if (View.isInitialised()) {
             View.getSingleton().showWarningDialog(error);
         } else {
+            log.error(error);
             System.out.println(error);
         }
     }

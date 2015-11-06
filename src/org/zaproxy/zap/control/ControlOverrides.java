@@ -42,6 +42,9 @@ public class ControlOverrides {
 	}
 
 	public String getProxyHost() {
+		if (proxyHost == null || proxyHost.length() == 0) {
+			return "0.0.0.0";
+		}
 		return proxyHost;
 	}
 

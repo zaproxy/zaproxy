@@ -29,6 +29,7 @@
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
+// ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 
 package org.parosproxy.paros.core.proxy;
 
@@ -161,6 +162,9 @@ public class ProxyParam extends AbstractParam {
     
     // ZAP: added a method for nullable proxy...
     public String getRawProxyIP() {
+    	if (proxyIp == null || proxyIp.length() == 0) {
+    		return "0.0.0.0";
+    	}
         return proxyIp;
     }
 
