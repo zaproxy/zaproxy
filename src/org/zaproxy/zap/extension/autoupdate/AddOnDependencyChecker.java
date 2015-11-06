@@ -347,6 +347,22 @@ class AddOnDependencyChecker {
     }
 
     /**
+     * Calculates the changes required to update the given add-on.
+     * <p>
+     * It might require updating, installing or uninstalling other add-ons depending on the dependencies of the affected
+     * add-ons.
+     *
+     * @param addOn the add-on that would be updated
+     * @return the resulting changes with the add-ons that need to be updated, installed or uninstalled
+     * @since TODO add version
+     */
+    public AddOnChangesResult calculateUpdateChanges(AddOn addOn) {
+        Set<AddOn> addOns = new HashSet<>();
+        addOns.add(addOn);
+        return calculateUpdateChanges(addOns);
+    }
+
+    /**
      * Calculates the changes required to update the given add-ons.
      * <p>
      * It might require updating, installing or uninstalling other add-ons depending on the dependencies of the affected
