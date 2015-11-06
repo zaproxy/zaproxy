@@ -56,6 +56,7 @@
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/09/17 Issue 1914: Support multiple add-on directories
+// ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 
 package org.parosproxy.paros.control;
 
@@ -107,7 +108,7 @@ public class Control extends AbstractControl implements SessionListener {
 		super(null, null);
 	}
 
-	private void init(ControlOverrides overrides) {
+	private boolean init(ControlOverrides overrides) {
 
 		// Load extensions first as message bundles are loaded as a side effect
 		loadExtension();
@@ -122,7 +123,7 @@ public class Control extends AbstractControl implements SessionListener {
 		    getExtensionLoader().hookSiteMapListener(view.getSiteTreePanel());
 		}
 		
-		proxy.startServer();
+		return proxy.startServer();
     }
 
     public Proxy getProxy() {
@@ -280,14 +281,14 @@ public class Control extends AbstractControl implements SessionListener {
         return control;
     }
 
-    public static void initSingletonWithView(ControlOverrides overrides) {
+    public static boolean initSingletonWithView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), View.getSingleton());
-        control.init(overrides);
+        return control.init(overrides);
     }
     
-    public static void initSingletonWithoutView(ControlOverrides overrides) {
+    public static boolean initSingletonWithoutView(ControlOverrides overrides) {
         control = new Control(Model.getSingleton(), null);
-        control.init(overrides);
+        return control.init(overrides);
     }
 
     // ZAP: Added method to allow for testing
