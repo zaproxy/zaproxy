@@ -46,6 +46,7 @@
 // ZAP: 2015/08/19 Issue 1784: NullPointerException when active scanning through the API with a target without scheme
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
 // ZAP: 2015/11/05 Change findNode(..) methods to match top level nodes
+// ZAP: 2015/11/09 Fix NullPointerException when creating a HistoryReference with a request URI without path
 
 package org.parosproxy.paros.model;
 
@@ -604,7 +605,11 @@ public class SiteMap extends DefaultTreeModel {
         TreeNode[] path = node.getPath();
         StringBuilder sb = new StringBuilder();
         String nodeName;
-        String [] origPath = baseRef.getURI().getPath().split("/");
+        String uriPath = baseRef.getURI().getPath();
+        if (uriPath == null) {
+            uriPath = "";
+        }
+        String [] origPath = uriPath.split("/");
         for (int i=1; i<path.length; i++) {
         	// ZAP Cope with error counts in the node names
         	nodeName = ((SiteNode)path[i]).getNodeName();
