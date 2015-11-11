@@ -58,6 +58,7 @@
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
 // ZAP: 2015/08/01 Remove code duplication in catch of exceptions, use installation directory in default config file
+// ZAP: 2015/11/11 Issue 2045: Dont copy old configs if -dir option used 
 
 package org.parosproxy.paros;
 
@@ -385,7 +386,8 @@ public final class Constant {
                 	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
                 }
             	
-            	if (oldf.exists()) {
+            	if (oldf.exists() && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
+            		// Dont copy old configs if they've specified a non std directory
             		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
             		copier.copy(oldf,f);
             		
