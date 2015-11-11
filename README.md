@@ -18,7 +18,7 @@ For help using ZAP:
   * [User Guide](https://github.com/zaproxy/zap-core-help/wiki) - online version of the User Guide included with ZAP
   * [User Group](http://groups.google.com/group/zaproxy-users) - ask questions about using ZAP
   * [Add-ons](https://github.com/zaproxy/zap-extensions/wiki) - help for the optional add-ons you can install
-  * [StackOverflow](https://stackoverflow.com/questions/tagged/zap) - because some people use this for all everything ;)
+  * [StackOverflow](https://stackoverflow.com/questions/tagged/zap) - because some people use this for everything ;)
 
 To learn more about ZAP development:
   * [Source Code](https://github.com/zaproxy) - for all of the ZAP related projects
