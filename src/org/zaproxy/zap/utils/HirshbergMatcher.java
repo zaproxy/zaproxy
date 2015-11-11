@@ -111,7 +111,7 @@ public class HirshbergMatcher {
             sb = new StringBuilder();
             for (j = 0; j < n; j++) {
                 if (a.charAt(0) == b.charAt(j)) {
-                    sb = new StringBuilder(a.charAt(0));
+                    sb.append(a.charAt(0));
                     break;
                 }
             }
@@ -179,6 +179,9 @@ public class HirshbergMatcher {
      * @return the Longest Common Subsequence of strA and strB
      */
     public String getLCS(String strA, String strB) {
+        if ("".equals(strA)) {
+            return "";
+        }
         return algC(strA.length(), strB.length(), strA, strB);
     }
     
