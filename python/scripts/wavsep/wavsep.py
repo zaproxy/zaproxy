@@ -36,9 +36,7 @@
 # * Open the report.html file generated in your browser
 #
 # Notes:
-# This has only been tested against wavsep 1.1.1
-# It will be updated to later versions of wavsep asap after their release
-# And it only scores the active vulnerabiolities, not the passive ones.
+# This has been tested against wavsep 1.5
 
 from zapv2 import ZAPv2
 import datetime
@@ -49,17 +47,21 @@ zapUrl = 'http://127.0.0.1:8090'
 # Dictionary of abbreviation to keep the output a bit shorter
 abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
+		'Application Error Disclosure' : 'AppError',\
 		'Anti CSRF tokens scanner' : 'ACSRF',\
 		'Cookie set without HttpOnly flag' : 'HttpOnly',\
 		'Cross Site Request Forgery' : 'CSRF',\
 		'HTTP Parameter Override' : 'ParamOver',\
 		'Information disclosure - database error messages' : 'InfoDb',\
 		'Information disclosure - debug error messages' : 'InfoDebug',\
-		'Information disclosure - sensitive informations in URL' : 'InfoUrl',\
+		'Information Disclosure - Sensitive Informations in URL' : 'InfoUrl',\
+		'Loosely Scoped Cookie' : 'LooseCookie',\
 		'None. Warning only.' : 'NoCSRF2',\
 		'Password Autocomplete in browser' : 'Auto',\
 		'Path Traversal' : 'PathTrav',\
+		'Private IP Disclosure' : 'PrivIP',\
 		'Remote File Inclusion' : 'RFI',\
+		'Session ID in URL Rewrite' : 'SessRewrite',\
 		'SQL Injection' : 'SQLi',\
 		'SQL Injection - MySQL' : 'SqlMySql',\
 		'SQL Injection - Generic SQL RDBMS' : 'SqlGen',\
@@ -74,8 +76,9 @@ abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'URL Redirector Abuse' : 'UrlRedir',\
 		'Viewstate without MAC signature (Unsure)' : 'ViewstateNoMac',\
 		'Weak Authentication Method' : 'WeakAuth',\
-		'X-Content-Type-Options header missing' : 'XContent',\
-		'X-Frame-Options header not set' : 'XFrame'}
+		'Web Browser XSS Protection Not Enabled' : 'XSSoff',\
+		'X-Content-Type-Options Header Missing' : 'XContent',\
+		'X-Frame-Options Header Not Set' : 'XFrame'}
 
 # The rules to apply:
 # Column 1:	String to match against an alert URL
@@ -87,11 +90,14 @@ rules = [ \
 		['-', 'InfoDebug', 'ignore'], \
 		['-', 'InfoUrl', 'ignore'], \
 		['-', 'ACSRF', 'ignore'], \
-		['-', 'NoCSRF', 'ignore'], \
+		['-', 'ACSRF', 'ignore'], \
+		['-', 'LooseCookie', 'ignore'], \
 		['-', 'NoCSRF2', 'ignore'], \
 		['-', 'ParamOver', 'ignore'], \
+		['-', 'PrivIP', 'ignore'], \
 		['-', 'XFrame', 'ignore'], \
 		['-', 'XContent', 'ignore'], \
+		['-', 'XSSoff', 'ignore'], \
 		['LFI-', 'RXSS', 'ignore'], \
 		['RFI-', 'RXSS', 'ignore'], \
 		['SInjection-', 'RXSS', 'ignore'], \
@@ -129,6 +135,7 @@ rules = [ \
 		['SInjection-FalsePositives', 'SqlPostgre', 'fail'], \
 		
 		['info-cookie-no-httponly', 'HttpOnly', 'pass'], \
+		['info-server-stack-trace', 'AppError', 'pass'], \
 		['session-password-autocomplete', 'Auto', 'pass'], \
 		['weak-authentication-basic', 'WeakAuth', 'pass'], \
 		]
@@ -151,9 +158,9 @@ offset = 0
 page = 100
 # Page through the alerts as otherwise ZAP can hang...
 alerts = zap.core.alerts('', offset, page)
-while len(alerts['alerts']) > 0:
-	totalAlerts += len(alerts['alerts'])
-	for alert in alerts['alerts']:
+while len(alerts) > 0:
+	totalAlerts += len(alerts)
+	for alert in alerts:
 		url = alert.get('url')
 		# Grab the url before any '?'
 		url = url.split('?')[0]
@@ -162,21 +169,22 @@ while len(alerts['alerts']) > 0:
 		if (len(urlEl) > 6):
 			#print 'URL 4:' + urlEl[4] + ' 6:' + urlEl[6].split('-')[0]
 			if (urlEl[3] != 'wavsep'):
-				# print 'Ignoring non wavsep URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
+				print 'Ignoring non wavsep URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
 				continue
 				
 			if (urlEl[6].split('-')[0][:9] == 'index.jsp'):
 				#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
 				continue
-			if (urlEl[6] == 'active'):
-				if (urlEl[6].split('-')[0][:4] != 'Case'):
-					#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
+			if (urlEl[4] == 'active'):
+				if (urlEl[7].split('-')[0][:4] != 'Case'):
+					#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5] + ' URL 6:' + urlEl[6] + ' URL 7:' + urlEl[7]
 					continue
-				urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6].split('-')[0]
+				urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6] + ' : ' + urlEl[7].split('-')[0]
 			else:
 				# Passive URLs have different format
 				urlSummary = urlEl[4] + ' : ' + urlEl[5] + ' : ' + urlEl[6]
 				
+			#print 'URL summary:' + urlSummary
 			short = abbrev.get(alert.get('alert'))
 			if (short is None):
 				short = 'UNKNOWN'
@@ -260,13 +268,14 @@ for key, value in sorted(alertsPerUrl.iteritems()):
 		thisGroup[2] += 1
 
 # Output the summary
+scale=8
 reportFile.write("<h3>Total Score</h3>\n")
 reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">")
-for i in range (totalPass/4):
+for i in range (totalPass/scale):
 	reportFile.write("&nbsp;")
 reportFile.write("</font>")
 reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">")
-for i in range (totalFail/4):
+for i in range (totalFail/scale):
 	reportFile.write("&nbsp;")
 reportFile.write("</font>")
 total = 100 * totalPass / (totalPass + totalFail)
@@ -275,8 +284,9 @@ reportFile.write(str(total) + "%<br/>")
 # Output the top level table
 reportFile.write("<h3>Top Level Scores</h3>\n")
 reportFile.write("<table border=\"1\">\n")
-reportFile.write("<tr><th>Top Level</th><th>Pass</th><th>Fail</th><th>Score</th><th>Chart</th>\n")
+reportFile.write("<tr><th>Top Level</th><th>Pass</th><th>Fail</th><th>Score</th><th>Chart</th></tr>\n")
 
+scale=6
 for topResult in topResults:
     #print "%s Pass: %i Fail: %i Score: %i\%" % (topResult[0], topResult[1], topResult[2], (100*topResult[1]/topResult[1]+topResult[2]))
 	reportFile.write("<tr>")
@@ -287,11 +297,11 @@ for topResult in topResults:
 	reportFile.write("<td align=\"right\">" + str(score) + "%</td>")
 	reportFile.write("<td>")
 	reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">")
-	for i in range (topResult[1]/4):
+	for i in range (topResult[1]/scale):
 		reportFile.write("&nbsp;")
 	reportFile.write("</font>")
 	reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">")
-	for i in range (topResult[2]/4):
+	for i in range (topResult[2]/scale):
 		reportFile.write("&nbsp;")
 	reportFile.write("</font>")
 	reportFile.write("</td>")
@@ -301,7 +311,7 @@ reportFile.write("</table><br/>\n")
 
 reportFile.write("<h3>Alerts</h3>\n")
 reportFile.write("<table border=\"1\">\n")
-reportFile.write("<tr><th>Alert</th><th>Description</th><th>Pass</th><th>Fail</th><th>Ignore</th><th>Other</th>\n")
+reportFile.write("<tr><th>Alert</th><th>Description</th><th>Pass</th><th>Fail</th><th>Ignore</th><th>Other</th></tr>\n")
 
 #for key, value in abbrev.items():
 for (k, v) in sorted(abbrev.items(), key=lambda (k,v): v):
@@ -319,7 +329,7 @@ reportFile.write("</table><br/>\n")
 # Output the group table
 reportFile.write("<h3>Group Scores</h3>\n")
 reportFile.write("<table border=\"1\">\n")
-reportFile.write("<tr><th>Group</th><th>Pass</th><th>Fail</th><th>Score</th><th>Chart</th>\n")
+reportFile.write("<tr><th>Group</th><th>Pass</th><th>Fail</th><th>Score</th><th>Chart</th></tr>\n")
 
 for groupResult in groupResults:
     #print "%s Pass: %i Fail: %i Score: %i\%" % (groupResult[0], groupResult[1], groupResult[2], (100*groupResult[1]/groupResult[1]+groupResult[2]))
@@ -332,11 +342,11 @@ for groupResult in groupResults:
 	reportFile.write("<td>")
 	reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">")
 	for i in range (groupResult[1]):
-		reportFile.write("&nbsp;&nbsp;")
+		reportFile.write("&nbsp;")
 	reportFile.write("</font>")
 	reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">")
 	for i in range (groupResult[2]):
-		reportFile.write("&nbsp;&nbsp;")
+		reportFile.write("&nbsp;")
 	reportFile.write("</font>")
 	reportFile.write("</td>")
 	reportFile.write("</tr>\n")
@@ -346,7 +356,7 @@ reportFile.write("</table><br/>\n")
 # Output the detail table
 reportFile.write("<h3>Detailed Results</h3>\n")
 reportFile.write("<table border=\"1\">\n")
-reportFile.write("<tr><th>Page</th><th>Result</th><th>Pass</th><th>Fail</th><th>Ignore</th><th>Other</th>\n")
+reportFile.write("<tr><th>Page</th><th>Result</th><th>Pass</th><th>Fail</th><th>Ignore</th><th>Other</th></tr>\n")
 
 for key, value in sorted(alertsPerUrl.iteritems()):
 	reportFile.write("<tr>")
@@ -382,6 +392,25 @@ for key, value in sorted(alertsPerUrl.iteritems()):
 		reportFile.write(" ".join(value.get('other')))
 	reportFile.write("&nbsp;</td>")
 
+	reportFile.write("</tr>\n")
+
+reportFile.write("</table><br/>\n")
+
+# Output the plugin times table
+reportFile.write("<h3>Plugin Times</h3>\n")
+reportFile.write("<table border=\"1\">\n")
+reportFile.write("<tr><th>Plugin</th><th>ms</th></tr>\n")
+
+progress = zap.ascan.scan_progress()
+for plugin in progress[1]['HostProcess']:
+	reportFile.write("<tr>")
+	reportFile.write("<td>" + plugin['Plugin'][0] + "</td>")
+	# Convert ms into something more readable
+	s, ms = divmod(int(plugin['Plugin'][3]), 1000)
+	m, s = divmod(s, 60)
+	h, m = divmod(m, 60)
+	time = "%d:%02d:%02d.%03d" % (h, m, s, ms)
+	reportFile.write("<td>" + time + "</td>")
 	reportFile.write("</tr>\n")
 
 reportFile.write("</table><br/>\n")
