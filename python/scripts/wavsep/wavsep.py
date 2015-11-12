@@ -48,13 +48,16 @@ zapUrl = 'http://127.0.0.1:8090'
 abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'Absence of Anti-CSRF Tokens' : 'NoCSRF',\
 		'Application Error Disclosure' : 'AppError',\
-		'Anti CSRF tokens scanner' : 'ACSRF',\
+		'Anti CSRF Tokens Scanner' : 'ACSRF',\
+		'Buffer Overflow' : 'Buffer',\
 		'Cookie set without HttpOnly flag' : 'HttpOnly',\
 		'Cross Site Request Forgery' : 'CSRF',\
+		'Format String Error' : 'Format',\
 		'HTTP Parameter Override' : 'ParamOver',\
 		'Information disclosure - database error messages' : 'InfoDb',\
 		'Information disclosure - debug error messages' : 'InfoDebug',\
 		'Information Disclosure - Sensitive Informations in URL' : 'InfoUrl',\
+		'LDAP Injection' : 'LDAP',\
 		'Loosely Scoped Cookie' : 'LooseCookie',\
 		'None. Warning only.' : 'NoCSRF2',\
 		'Password Autocomplete in browser' : 'Auto',\
@@ -69,10 +72,10 @@ abbrev = {'Cross Site Scripting (Reflected)' : 'RXSS',\
 		'SQL Injection - Error Based - Generic SQL RDBMS' : 'SqlGenE',\
 		'SQL Injection - Error Based - MySQL' : 'SqlMySqlE',\
 		'SQL Injection - Error Based - Java' : 'SqlJavaE',\
-		'SQL Injection (Hypersonic SQL) - Time Based' : 'SqlHyperT',\
-		'SQL Injection (MySQL) - Time Based' : 'SqlMySqTl',\
-		'SQL Injection (Oracle) - Time Based' : 'SqlOracleT',\
-		'SQL Injection (PostgreSQL) - Time Based' : 'SqlPostgreT',\
+		'SQL Injection - Hypersonic SQL - Time Based' : 'SqlHyperT',\
+		'SQL Injection - MySQL - Time Based' : 'SqlMySqlT',\
+		'SQL Injection - Oracle - Time Based' : 'SqlOracleT',\
+		'SQL Injection - PostgreSQL - Time Based' : 'SqlPostgreT',\
 		'URL Redirector Abuse' : 'UrlRedir',\
 		'Viewstate without MAC signature (Unsure)' : 'ViewstateNoMac',\
 		'Weak Authentication Method' : 'WeakAuth',\
@@ -98,12 +101,55 @@ rules = [ \
 		['-', 'XFrame', 'ignore'], \
 		['-', 'XContent', 'ignore'], \
 		['-', 'XSSoff', 'ignore'], \
+		['LFI-', 'AppError', 'ignore'], \
+		['LFI-', 'Buffer', 'ignore'], \
+		['LFI-', 'Format', 'ignore'], \
+		['LFI-', 'NoCSRF', 'ignore'], \
+		['LFI-', 'RFI', 'ignore'], \
 		['LFI-', 'RXSS', 'ignore'], \
+		['LFI-', 'SqlHyperT', 'ignore'], \
+		['LFI-', 'SqlMySql', 'ignore'], \
+		['LFI-', 'SqlOracleT', 'ignore'], \
+		['LFI-', 'SqlPostgreT', 'ignore'], \
+		['Redirect-', 'LDAP', 'ignore'], \
+		['Redirect-', 'NoCSRF', 'ignore'], \
+		['Redirect-', 'RFI', 'ignore'], \
+		['Redirect-', 'RXSS', 'ignore'], \
+		['Redirect-', 'SqlHyperT', 'ignore'], \
+		['Redirect-', 'SqlMySql', 'ignore'], \
+		['Redirect-', 'SqlOracleT', 'ignore'], \
+		['Redirect-', 'SqlPostgreT', 'ignore'], \
+		['RFI-', 'AppError', 'ignore'], \
+		['RFI-', 'Buffer', 'ignore'], \
+		['RFI-', 'Format', 'ignore'], \
+		['RFI-', 'NoCSRF', 'ignore'], \
 		['RFI-', 'RXSS', 'ignore'], \
+		['RFI-', 'SqlHyperT', 'ignore'], \
+		['RFI-', 'SqlMySql', 'ignore'], \
+		['RFI-', 'SqlOracleT', 'ignore'], \
+		['RFI-', 'SqlPostgreT', 'ignore'], \
+		['RXSS-', 'Auto', 'ignore'], \
+		['RXSS-', 'Buffer', 'ignore'], \
+		['RXSS-', 'Format', 'ignore'], \
+		['RXSS-', 'HttpOnly', 'ignore'], \
+		['RXSS-', 'NoCSRF', 'ignore'], \
+		['RXSS-', 'SqlOracleT', 'ignore'], \
+		['RXSS-', 'SqlPostgreT', 'ignore'], \
+		['RXSS-', 'SqlMySql', 'ignore'], \
+		['RXSS-', 'SqlOracleT', 'ignore'], \
+		['RXSS-', 'ViewstateNoMac', 'ignore'], \
+		['SInjection-', 'AppError', 'ignore'], \
+		['SInjection-', 'Auto', 'ignore'], \
+		['SInjection-', 'Buffer', 'ignore'], \
+		['SInjection-', 'NoCSRF', 'ignore'], \
+		['SInjection-', 'Format', 'ignore'], \
+		['SInjection-', 'LDAP', 'ignore'], \
 		['SInjection-', 'RXSS', 'ignore'], \
+		['SInjection-', 'SqlHyperT', 'ignore'], \
 		['LoginBypass', 'Auto', 'ignore'], \
 		['CrlfRemovalInHttpHeader', 'HttpOnly', 'ignore'], \
 		['Tag2HtmlPageScopeValidViewstateRequired', 'ViewstateNoMac', 'ignore'], \
+		['session-password-autocomplete', 'NoCSRF', 'ignore'], \
 		#
 		['LFI-Detection-Evaluation', 'PathTrav', 'pass'], \
 		['LFI-FalsePositives', 'PathTrav', 'fail'], \
@@ -120,8 +166,9 @@ rules = [ \
 		['SInjection-Detection-Evaluation', 'SqlGenE', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SqlMySql', 'pass'], \
 		['SInjection-Detection-Evaluation', 'SqlMySqlE', 'pass'], \
-		#['SInjection-Detection-Evaluation', 'SqlOracle', 'pass'], \
-		#['SInjection-Detection-Evaluation', 'SqlPostgre', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlMySqlT', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlOracleT', 'pass'], \
+		['SInjection-Detection-Evaluation', 'SqlPostgreT', 'pass'], \
 		['SInjection-FalsePositives', 'SQLfp', 'fail'], \
 		['SInjection-FalsePositives', 'SQLi', 'fail'], \
 		['SInjection-FalsePositives', 'SqlBool', 'fail'], \
@@ -129,10 +176,11 @@ rules = [ \
 		['SInjection-FalsePositives', 'SqlGenE', 'fail'], \
 		['SInjection-FalsePositives', 'SqlMySql', 'fail'], \
 		['SInjection-FalsePositives', 'SqlMySqlE', 'fail'], \
-		['SInjection-FalsePositives', 'SqlHyper', 'fail'], \
-		['SInjection-FalsePositives', 'SqlMySql', 'fail'], \
-		['SInjection-FalsePositives', 'SqlOracle', 'fail'], \
-		['SInjection-FalsePositives', 'SqlPostgre', 'fail'], \
+		['SInjection-FalsePositives', 'SqlMySqlT', 'fail'], \
+		['SInjection-FalsePositives', 'SqlHyperT', 'fail'], \
+		['SInjection-FalsePositives', 'SqlMySqlT', 'fail'], \
+		['SInjection-FalsePositives', 'SqlOracleT', 'fail'], \
+		['SInjection-FalsePositives', 'SqlPostgreT', 'fail'], \
 		
 		['info-cookie-no-httponly', 'HttpOnly', 'pass'], \
 		['info-server-stack-trace', 'AppError', 'pass'], \
@@ -152,6 +200,8 @@ alertPassCount = {}
 alertFailCount = {}
 alertIgnoreCount = {}
 alertOtherCount = {}
+
+zapVersion = zap.core.version
 
 totalAlerts = 0
 offset = 0
@@ -219,7 +269,7 @@ while len(alerts) > 0:
 reportFile = open('report.html', 'w')
 reportFile.write("<html><head><title>ZAP Wavsep Report</title></head><body>\n")
 
-reportFile.write("<h1><img src=\"http://zaproxy.googlecode.com/svn/trunk/src/resource/zap64x64.png\" align=\"middle\">OWASP ZAP wavsep results</h1>\n")
+reportFile.write("<h1><img src=\"https://raw.githubusercontent.com/zaproxy/zaproxy/develop/src/resource/zap64x64.png\" align=\"middle\">OWASP ZAP wavsep results</h1>\n")
 reportFile.write("Generated: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + "\n")
 
 topResults = []
@@ -279,7 +329,10 @@ for i in range (totalFail/scale):
 	reportFile.write("&nbsp;")
 reportFile.write("</font>")
 total = 100 * totalPass / (totalPass + totalFail)
-reportFile.write(str(total) + "%<br/>")
+reportFile.write(str(total) + "%<br/><br/>\n")
+
+reportFile.write('ZAP Version: ' + zapVersion + '<br/>\n')
+reportFile.write('URLs found: ' + str(len(uniqueUrls)))
 
 # Output the top level table
 reportFile.write("<h3>Top Level Scores</h3>\n")
@@ -331,8 +384,9 @@ reportFile.write("<h3>Group Scores</h3>\n")
 reportFile.write("<table border=\"1\">\n")
 reportFile.write("<tr><th>Group</th><th>Pass</th><th>Fail</th><th>Score</th><th>Chart</th></tr>\n")
 
+scale=4
 for groupResult in groupResults:
-    #print "%s Pass: %i Fail: %i Score: %i\%" % (groupResult[0], groupResult[1], groupResult[2], (100*groupResult[1]/groupResult[1]+groupResult[2]))
+	#print "%s Pass: %i Fail: %i Score: %i\%" % (groupResult[0], groupResult[1], groupResult[2], (100*groupResult[1]/groupResult[1]+groupResult[2]))
 	reportFile.write("<tr>")
 	reportFile.write("<td>" + groupResult[0] + "</td>")
 	reportFile.write("<td align=\"right\">" + str(groupResult[1]) + "</td>")
@@ -341,11 +395,11 @@ for groupResult in groupResults:
 	reportFile.write("<td align=\"right\">" + str(score) + "%</td>")
 	reportFile.write("<td>")
 	reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">")
-	for i in range (groupResult[1]):
+	for i in range (groupResult[1]/scale):
 		reportFile.write("&nbsp;")
 	reportFile.write("</font>")
 	reportFile.write("<font style=\"BACKGROUND-COLOR: RED\">")
-	for i in range (groupResult[2]):
+	for i in range (groupResult[2]/scale):
 		reportFile.write("&nbsp;")
 	reportFile.write("</font>")
 	reportFile.write("</td>")
@@ -360,7 +414,11 @@ reportFile.write("<tr><th>Page</th><th>Result</th><th>Pass</th><th>Fail</th><th>
 
 for key, value in sorted(alertsPerUrl.iteritems()):
 	reportFile.write("<tr>")
-	reportFile.write("<td>" + key.split(':')[0] + key.split(':')[2] + "</td>")
+	keyArray = key.split(':')
+	if (len(keyArray) == 4):
+		reportFile.write("<td>" + keyArray[0] + keyArray[2] + keyArray[3] + "</td>")
+	else:
+		reportFile.write("<td>" + keyArray[0] + keyArray[2] + "</td>")
 	reportFile.write("<td>")
 	if (len(value.get('pass')) > 0):
 		reportFile.write("<font style=\"BACKGROUND-COLOR: GREEN\">&nbsp;PASS&nbsp</font>")
@@ -402,16 +460,30 @@ reportFile.write("<table border=\"1\">\n")
 reportFile.write("<tr><th>Plugin</th><th>ms</th></tr>\n")
 
 progress = zap.ascan.scan_progress()
+totalTime = 0
 for plugin in progress[1]['HostProcess']:
 	reportFile.write("<tr>")
 	reportFile.write("<td>" + plugin['Plugin'][0] + "</td>")
 	# Convert ms into something more readable
-	s, ms = divmod(int(plugin['Plugin'][3]), 1000)
+	t = int(plugin['Plugin'][3])
+	totalTime += t
+	s, ms = divmod(t, 1000)
 	m, s = divmod(s, 60)
 	h, m = divmod(m, 60)
 	time = "%d:%02d:%02d.%03d" % (h, m, s, ms)
 	reportFile.write("<td>" + time + "</td>")
 	reportFile.write("</tr>\n")
+
+reportFile.write("<tr><td></td><td></td></tr>")
+reportFile.write("<tr>")
+reportFile.write("<td>Total</td>")
+# Convert ms into something more readable
+s, ms = divmod(totalTime, 1000)
+m, s = divmod(s, 60)
+h, m = divmod(m, 60)
+time = "%d:%02d:%02d.%03d" % (h, m, s, ms)
+reportFile.write("<td>" + time + "</td>")
+reportFile.write("</tr>\n")
 
 reportFile.write("</table><br/>\n")
 
@@ -426,5 +498,7 @@ reportFile.close()
 print ''	
 print 'Got ' + str(totalAlerts) + ' alerts'
 print 'Got ' + str(len(uniqueUrls)) + ' unique urls'
+print 'Took ' + time
+print 'Score ' + str(total)
 
 
