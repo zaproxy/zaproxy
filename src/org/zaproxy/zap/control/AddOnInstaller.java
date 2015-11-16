@@ -26,18 +26,21 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 /**
  * Helper class responsible to install and uninstall add-ons and all its (dynamically installable) components 
@@ -81,8 +84,8 @@ public final class AddOnInstaller {
     public static void install(AddOnClassLoader addOnClassLoader, AddOn addOn) {
         installAddOnFiles(addOnClassLoader, addOn, true);
         List<Extension> listExts = installAddOnExtensions(addOn);
-        installAddOnActiveScanRules(addOn);
-        installAddOnPassiveScanRules(addOn);
+        installAddOnActiveScanRules(addOn, addOnClassLoader);
+        installAddOnPassiveScanRules(addOn, addOnClassLoader);
  
         // postInstall actions
         for (Extension ext : listExts) {
@@ -250,12 +253,14 @@ public final class AddOnInstaller {
         return uninstalledWithoutErrors;
     }
 
-    private static void installAddOnActiveScanRules(AddOn addOn) {
-        List<String> ascanNames = addOn.getAscanrules();
-        if (ascanNames != null) {
-            for (String name : ascanNames) {
+    private static void installAddOnActiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
+        List<AbstractPlugin> ascanrules = AddOnLoaderUtils.getActiveScanRules(addOn, addOnClassLoader);
+        if (!ascanrules.isEmpty()) {
+            for (AbstractPlugin ascanrule : ascanrules) {
+                String name = ascanrule.getClass().getCanonicalName();
                 logger.debug("Install ascanrule: " + name);
-                if (!PluginFactory.loadedPlugin(name)) {
+                PluginFactory.loadedPlugin(ascanrule);
+                if (!PluginFactory.isPluginLoaded(ascanrule)) {
                     logger.error("Failed to install ascanrule: " + name);
                 }
             }
@@ -265,33 +270,38 @@ public final class AddOnInstaller {
     private static boolean uninstallAddOnActiveScanRules(AddOn addOn, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
 
-        List<String> ascanNames = addOn.getAscanrules();
-        logger.debug("Uninstall ascanrules: " + ascanNames);
-        if (ascanNames != null) {
-            for (String name : ascanNames) {
-                callback.activeScanRulesWillBeRemoved(ascanNames.size());
+        List<AbstractPlugin> loadedAscanrules = addOn.getLoadedAscanrules();
+        if (!loadedAscanrules.isEmpty()) {
+            logger.debug("Uninstall ascanrules: " + addOn.getAscanrules());
+            callback.activeScanRulesWillBeRemoved(loadedAscanrules.size());
+            for (AbstractPlugin ascanrule : loadedAscanrules) {
+                String name = ascanrule.getClass().getCanonicalName();
                 logger.debug("Uninstall ascanrule: " + name);
-                if (!PluginFactory.unloadedPlugin(name)) {
+                PluginFactory.unloadedPlugin(ascanrule);
+                if (PluginFactory.isPluginLoaded(ascanrule)) {
                     logger.error("Failed to uninstall ascanrule: " + name);
                     uninstalledWithoutErrors = false;
                 }
                 callback.activeScanRuleRemoved(name);
             }
+            addOn.setLoadedAscanrules(Collections.<AbstractPlugin>emptyList());
+            addOn.setLoadedAscanrulesSet(false);
         }
 
         return uninstalledWithoutErrors;
     }
 
-    private static void installAddOnPassiveScanRules(AddOn addOn) {
-        List<String> pscanNames = addOn.getPscanrules();
+    private static void installAddOnPassiveScanRules(AddOn addOn, AddOnClassLoader addOnClassLoader) {
+        List<PluginPassiveScanner> pscanrules = AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader);
         ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton()
                 .getExtensionLoader()
                 .getExtension(ExtensionPassiveScan.NAME);
 
-        if (pscanNames != null && extPscan != null) {
-            for (String name : pscanNames) {
+        if (!pscanrules.isEmpty() && extPscan != null) {
+            for (PluginPassiveScanner pscanrule : pscanrules) {
+                String name = pscanrule.getClass().getCanonicalName();
                 logger.debug("Install pscanrule: " + name);
-                if (!extPscan.addPassiveScanner(name)) {
+                if (!extPscan.addPassiveScanner(pscanrule)) {
                     logger.error("Failed to install pscanrule: " + name);
                 }
             }
@@ -301,21 +311,24 @@ public final class AddOnInstaller {
     private static boolean uninstallAddOnPassiveScanRules(AddOn addOn, AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
 
-        List<String> pscanNames = addOn.getPscanrules();
+        List<PluginPassiveScanner> loadedPscanrules = addOn.getLoadedPscanrules();
         ExtensionPassiveScan extPscan = (ExtensionPassiveScan) Control.getSingleton()
                 .getExtensionLoader()
                 .getExtension(ExtensionPassiveScan.NAME);
-        logger.debug("Uninstall pscanrules: " + pscanNames);
-        if (pscanNames != null && extPscan != null) {
-            callback.passiveScanRulesWillBeRemoved(pscanNames.size());
-            for (String name : pscanNames) {
+        if (!loadedPscanrules.isEmpty()) {
+            logger.debug("Uninstall pscanrules: " + addOn.getPscanrules());
+            callback.passiveScanRulesWillBeRemoved(loadedPscanrules.size());
+            for (PluginPassiveScanner pscanrule : loadedPscanrules) {
+                String name = pscanrule.getClass().getCanonicalName();
                 logger.debug("Uninstall pscanrule: " + name);
-                if (!extPscan.removePassiveScanner(name)) {
+                if (!extPscan.removePassiveScanner(pscanrule)) {
                     logger.error("Failed to uninstall pscanrule: " + name);
                     uninstalledWithoutErrors = false;
                 }
                 callback.passiveScanRuleRemoved(name);
             }
+            addOn.setLoadedPscanrules(Collections.<PluginPassiveScanner>emptyList());
+            addOn.setLoadedPscanrulesSet(false);
         }
 
         return uninstalledWithoutErrors;
