@@ -117,6 +117,13 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         getPassiveScannerList().setAutoTagScanners(getPassiveScanParam().getAutoTagScanners());
     }
 
+    /**
+     * @deprecated (TODO add version) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the status of the
+     *             scanner is not properly set.
+     * @see PluginPassiveScanner#getStatus()
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public boolean addPassiveScanner(String className) {
         try {
             Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
