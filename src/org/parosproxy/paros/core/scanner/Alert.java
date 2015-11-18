@@ -39,6 +39,7 @@
 // ZAP: 2014/01/04 Issue 1475: Alerts with different name from same scanner might not be shown in report
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/08/24 Issue 1849: Option to merge related issues in reports
+// ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -355,20 +356,20 @@ public class Alert implements Comparable<Object>  {
 		StringBuilder sb = new StringBuilder(150); // ZAP: Changed the type to StringBuilder.
 		sb.append("<alertitem>\r\n");
 		sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
-		sb.append("  <alert>").append(alert).append("</alert>\r\n");
+		sb.append("  <alert>").append(replaceEntity(alert)).append("</alert>\r\n");
 		sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
 		sb.append("  <confidence>").append(confidence).append("</confidence>\r\n");
 		sb.append("  <riskdesc>").append(replaceEntity(MSG_RISK[risk] + " (" + MSG_CONFIDENCE[confidence] + ")")).append("</riskdesc>\r\n");
-        sb.append("  <desc>").append(paragraph(replaceEntity(description))).append("</desc>\r\n");
+        sb.append("  <desc>").append(replaceEntity(paragraph(description))).append("</desc>\r\n");
 
         sb.append(urls);
 
-        sb.append("  <solution>").append(paragraph(replaceEntity(solution))).append("</solution>\r\n");
+        sb.append("  <solution>").append(replaceEntity(paragraph(solution))).append("</solution>\r\n");
         // ZAP: Added otherInfo to the report
         if (otherInfo != null && otherInfo.length() > 0) {
-            sb.append("  <otherinfo>").append(paragraph(replaceEntity(otherInfo))).append("</otherinfo>\r\n");
+            sb.append("  <otherinfo>").append(replaceEntity(paragraph(otherInfo))).append("</otherinfo>\r\n");
         }
-		sb.append("  <reference>" ).append(paragraph(replaceEntity(reference))).append("</reference>\r\n");
+		sb.append("  <reference>" ).append(replaceEntity(paragraph(reference))).append("</reference>\r\n");
 		if (cweId > 0) {
 			sb.append("  <cweid>" ).append(cweId).append("</cweid>\r\n");
 		}
@@ -389,23 +390,9 @@ public class Alert implements Comparable<Object>  {
 	}
 	
 	public String paragraph(String text) {
-		String result = null;
-		result = "<p>" + text.replaceAll("\\r\\n","</p><p>").replaceAll("\\n","</p><p>") + "</p>";
-        result = result.replaceAll("&lt;ul&gt;", "<ul>").replaceAll("&lt;/ul&gt;", "</ul>").replaceAll("&lt;li&gt;", "<li>").replaceAll("&lt;/li&gt;", "</li>");
-        //result = text.replaceAll("\\r\\n","<br/>").replaceAll("\\n","<br/>");
-
-        return result;
+		return "<p>" + text.replaceAll("\\r\\n","</p><p>").replaceAll("\\n","</p><p>") + "</p>";
 	}
     
-    private String breakNoSpaceString(String text) {
-        String result = null;
-        if (text != null) {
-        	result = text.replaceAll("&amp;","&amp;<wbr/>");
-        }
-        return result;
-        
-    }
-		
     /**
      * @return Returns the alert.
      */
@@ -527,15 +514,15 @@ public class Alert implements Comparable<Object>  {
     
     public String getUrlParamXML() {
     	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
-        sb.append("  <uri>").append(breakNoSpaceString(replaceEntity(uri))).append("</uri>\r\n");
+        sb.append("  <uri>").append(replaceEntity(uri)).append("</uri>\r\n");
         if (param != null && param.length() > 0) {
-        	sb.append("  <param>").append(breakNoSpaceString(replaceEntity(param))).append("</param>\r\n");
+        	sb.append("  <param>").append(replaceEntity(param)).append("</param>\r\n");
         }
         if (attack != null && attack.length() > 0) {
-        	sb.append("  <attack>").append(breakNoSpaceString(replaceEntity(attack))).append("</attack>\r\n");
+        	sb.append("  <attack>").append(replaceEntity(attack)).append("</attack>\r\n");
         }
         if (evidence != null && evidence.length() > 0) {
-            sb.append("  <evidence>").append(breakNoSpaceString(replaceEntity(evidence))).append("</evidence>\r\n");
+            sb.append("  <evidence>").append(replaceEntity(evidence)).append("</evidence>\r\n");
         }
         return sb.toString();
     }
