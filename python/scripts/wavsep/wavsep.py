@@ -299,7 +299,6 @@ def main(argv):
 
 	# Generate report file
 	reportFile = open('report.html', 'w')
-	reportFile.write("<html><head><title>ZAP Wavsep Report</title></head><body>\n")
 	reportFile.write("<html>\n")
 	reportFile.write("  <head>\n")
 	reportFile.write("    <title>ZAP Wavsep Report</title>\n")
