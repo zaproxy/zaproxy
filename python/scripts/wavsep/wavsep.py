@@ -71,6 +71,7 @@ def main(argv):
 			'Anti CSRF Tokens Scanner' : 'ACSRF',\
 			'Buffer Overflow' : 'Buffer',\
 			'Cookie set without HttpOnly flag' : 'HttpOnly',\
+			'Cookie Slack Detector' : 'CookieSlack',\
 			'Cross Site Request Forgery' : 'CSRF',\
 			'External Redirect' : 'ExtRedir',\
 			'Format String Error' : 'Format',\
@@ -79,13 +80,14 @@ def main(argv):
 			'Information disclosure - debug error messages' : 'InfoDebug',\
 			'Information Disclosure - Sensitive Informations in URL' : 'InfoUrl',\
 			'LDAP Injection' : 'LDAP',\
-			'Loosely Scoped Cookie' : 'LooseCookie',\
+			'Loosely Scoped Cookie' : 'CookieLoose',\
 			'None. Warning only.' : 'NoCSRF2',\
 			'Password Autocomplete in browser' : 'Auto',\
 			'Path Traversal' : 'PathTrav',\
 			'Private IP Disclosure' : 'PrivIP',\
 			'Remote File Inclusion' : 'RFI',\
 			'Session ID in URL Rewrite' : 'SessRewrite',\
+			'Source Code Disclosure - File Inclusion' : 'SrcInc',\
 			'SQL Injection' : 'SQLi',\
 			'SQL Injection - MySQL' : 'SqlMySql',\
 			'SQL Injection - Generic SQL RDBMS' : 'SqlGen',\
@@ -116,10 +118,12 @@ def main(argv):
 			['-', 'ACSRF', 'ignore'], \
 			['-', 'ACSRF', 'ignore'], \
 			['-', 'Ex', 'ignore'], \
-			['-', 'LooseCookie', 'ignore'], \
+			['-', 'CookieLoose', 'ignore'], \
+			['-', 'CookieSlack', 'ignore'], \
 			['-', 'NoCSRF2', 'ignore'], \
 			['-', 'ParamOver', 'ignore'], \
 			['-', 'PrivIP', 'ignore'], \
+			['-', 'SrcInc', 'ignore'], \
 			['-', 'XFrame', 'ignore'], \
 			['-', 'XContent', 'ignore'], \
 			['-', 'XSSoff', 'ignore'], \
@@ -253,7 +257,7 @@ def main(argv):
 				if (urlEl[6].split('-')[0][:9] == 'index.jsp'):
 					#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5]  + ' URL 6:' + urlEl[6]
 					continue
-				if (urlEl[4] == 'active'):
+				if (len(urlEl) > 7 and urlEl[4] == 'active'):
 					if (urlEl[7].split('-')[0][:4] != 'Case'):
 						#print 'Ignoring index URL 4:' + urlEl[4] + ' URL 5:' + urlEl[5] + ' URL 6:' + urlEl[6] + ' URL 7:' + urlEl[7]
 						continue
