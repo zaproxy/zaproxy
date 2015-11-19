@@ -300,6 +300,13 @@ def main(argv):
 	# Generate report file
 	reportFile = open('report.html', 'w')
 	reportFile.write("<html><head><title>ZAP Wavsep Report</title></head><body>\n")
+	reportFile.write("<html>\n")
+	reportFile.write("  <head>\n")
+	reportFile.write("    <title>ZAP Wavsep Report</title>\n")
+	reportFile.write("    <!--Load the AJAX API-->\n")
+	reportFile.write("    <script type=\"text/javascript\" src=\"https://www.google.com/jsapi\"></script>\n")
+	reportFile.write("  </head>\n")
+	reportFile.write("<body>\n")
 
 	reportFile.write("<h1><img src=\"https://raw.githubusercontent.com/zaproxy/zaproxy/develop/src/resource/zap64x64.png\" align=\"middle\">OWASP ZAP wavsep results</h1>\n")
 	reportFile.write("Generated: " + datetime.datetime.now().strftime("%Y-%m-%d %H:%M") + "\n")
@@ -486,12 +493,43 @@ def main(argv):
 
 	reportFile.write("</table><br/>\n")
 
-	# Output the plugin times table
 	reportFile.write("<h3>Plugin Times</h3>\n")
+
+	# The start of the chart script
+	reportFile.write("<script type=\"text/javascript\">\n")
+	reportFile.write("  // Load the Visualization API and the piechart package.\n")
+	reportFile.write("  google.load('visualization', '1.0', {'packages':['corechart']});\n")
+	reportFile.write("  // Set a callback to run when the Google Visualization API is loaded.\n")
+	reportFile.write("  google.setOnLoadCallback(drawChart);\n")
+	reportFile.write("  function drawChart() {\n")
+	reportFile.write("    // Create the data table.\n")
+	reportFile.write("    var data = new google.visualization.DataTable();\n")
+	reportFile.write("    data.addColumn('string', 'Plugin');\n")
+	reportFile.write("    data.addColumn('number', 'Time in ms');\n")
+	reportFile.write("    data.addRows([\n")
+        
+	progress = zap.ascan.scan_progress()
+	# Loop through first time for the chart
+	for plugin in progress[1]['HostProcess']:
+		reportFile.write("      ['" + plugin['Plugin'][0] + "', " + plugin['Plugin'][3] + "],\n")
+
+	# The end of the chart script
+	reportFile.write("    ]);\n")
+	reportFile.write("    // Set chart options\n")
+	reportFile.write("    var options = {'title':'Plugin times',\n")
+	reportFile.write("                   'width':600,\n")
+	reportFile.write("                   'height':500};\n")
+	reportFile.write("    // Instantiate and draw our chart, passing in some options.\n")
+	reportFile.write("    var chart = new google.visualization.PieChart(document.getElementById('chart_div'));\n")
+	reportFile.write("    chart.draw(data, options);\n")
+	reportFile.write("  }\n")
+	reportFile.write("</script>\n")
+	reportFile.write("<div id=\"chart_div\"></div>\n")
+
 	reportFile.write("<table border=\"1\">\n")
 	reportFile.write("<tr><th>Plugin</th><th>ms</th></tr>\n")
 
-	progress = zap.ascan.scan_progress()
+	# Loop through second time for the table
 	totalTime = 0
 	for plugin in progress[1]['HostProcess']:
 		reportFile.write("<tr>")
