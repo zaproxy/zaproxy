@@ -34,10 +34,10 @@ import org.zaproxy.zap.utils.DisplayUtils;
  */
 public class ContextsTreeCellRenderer extends DefaultTreeCellRenderer {
 	
-	private static final ImageIcon ROOT_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/applications-blue.png"));
-	private static final ImageIcon CONTEXT_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/application-blue-target.png"));
-	private static final ImageIcon CONTEXT_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/application-blue.png"));
-	private static final ImageIcon ALL_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/target.png"));
+	private static final ImageIcon ROOT_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/applications-blue.png"));
+	private static final ImageIcon CONTEXT_IN_SCOPE_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/application-blue-target.png"));
+	private static final ImageIcon CONTEXT_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/application-blue.png"));
+	private static final ImageIcon ALL_IN_SCOPE_ICON = new ImageIcon(ContextsTreeCellRenderer.class.getResource("/resource/icon/fugue/target.png"));
 
 	private static final long serialVersionUID = -4278691012245035225L;
 

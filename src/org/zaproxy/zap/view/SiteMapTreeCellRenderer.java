@@ -41,17 +41,17 @@ import org.zaproxy.zap.utils.DisplayUtils;
  */
 public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	
-	private static final ImageIcon ROOT_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
-	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
-	private static final ImageIcon LEAF_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
-	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
-	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
-	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
-	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
-	private static final ImageIcon DATA_DRIVEN_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/database.png"));
-	private static final ImageIcon DATA_DRIVEN_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/database-target.png"));
+	private static final ImageIcon ROOT_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
+	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
+	private static final ImageIcon LEAF_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
+	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
+	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
+	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
+	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
+	private static final ImageIcon DATA_DRIVEN_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/database.png"));
+	private static final ImageIcon DATA_DRIVEN_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/database-target.png"));
 
-	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
+	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
 
 	private static final long serialVersionUID = -4278691012245035225L;
 
