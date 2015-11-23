@@ -114,7 +114,7 @@ public class AddOnLoader extends URLClassLoader {
     private Map<String, AddOnClassLoader> addOnLoaders = new HashMap<>();
 
     public AddOnLoader(File[] dirs) {
-        super(new URL[0]);
+        super(new URL[0], AddOnLoader.class.getClassLoader());
         
         this.loadBlockList();
 
