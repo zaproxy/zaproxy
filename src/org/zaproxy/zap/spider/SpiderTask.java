@@ -19,6 +19,7 @@ package org.zaproxy.zap.spider;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -197,6 +198,10 @@ public class SpiderTask implements Runnable {
 			// This will have been logged at debug level with the URL (which we dont have here)
 			parent.postTaskExecution();
 			return;
+		} catch (SocketException e) {
+			// This will have been logged at debug level with the URL (which we dont have here)
+			parent.postTaskExecution();
+			return;
 		} catch (UnknownHostException e) {
 			// This will have been logged at debug level with the URL (which we dont have here)
 			parent.postTaskExecution();
@@ -337,6 +342,9 @@ public class SpiderTask implements Runnable {
 				throw e;
 			} catch (SocketTimeoutException e) {
 				log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
+				throw e;
+			} catch (SocketException e) {
+				log.debug("Socket exception: " + msg.getRequestHeader().getURI(), e);
 				throw e;
 			} catch (UnknownHostException e) {
 				log.debug("Unknown host: " + msg.getRequestHeader().getURI(), e);
