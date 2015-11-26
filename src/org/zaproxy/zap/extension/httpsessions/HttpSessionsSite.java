@@ -567,7 +567,7 @@ public class HttpSessionsSite {
 	 * 
 	 * @return the http sessions
 	 */
-	protected Set<HttpSession> getHttpSessions() {
+	public Set<HttpSession> getHttpSessions() {
 		synchronized (this.sessions) {
 			return Collections.unmodifiableSet(sessions);
 		}
@@ -579,7 +579,7 @@ public class HttpSessionsSite {
 	 * @param name the name
 	 * @return the http session with a given name, or null, if no such session exists
 	 */
-	protected HttpSession getHttpSession(String name) {
+	public HttpSession getHttpSession(String name) {
 		synchronized (this.sessions) {
 			for (HttpSession session : sessions) {
 				if (session.getName().equals(name)) {
@@ -625,5 +625,9 @@ public class HttpSessionsSite {
 
 	static void resetLastGeneratedSessionId() {
 		lastGeneratedSessionID = 0;
+	}
+	
+	public static int getNextSessionId() {
+		return lastGeneratedSessionID++;
 	}
 }
