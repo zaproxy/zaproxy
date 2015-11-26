@@ -450,7 +450,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 *            missing, a default protocol of 80 is used.
 	 * @return the http sessions site container
 	 */
-	protected HttpSessionsSite getHttpSessionsSite(String site) {
+	public HttpSessionsSite getHttpSessionsSite(String site) {
 		return getHttpSessionsSite(site, true);
 	}
 
@@ -467,7 +467,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 	 *         false
 	 * 
 	 */
-	protected HttpSessionsSite getHttpSessionsSite(String site, boolean createIfNeeded) {
+	public HttpSessionsSite getHttpSessionsSite(String site, boolean createIfNeeded) {
 		// Add a default port
 		if (!site.contains(":")) {
 			site = site + (":80");
