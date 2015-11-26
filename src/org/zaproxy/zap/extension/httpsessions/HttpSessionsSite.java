@@ -626,4 +626,8 @@ public class HttpSessionsSite {
 	static void resetLastGeneratedSessionId() {
 		lastGeneratedSessionID = 0;
 	}
+	
+	public static int getNextSessionId() {
+		return lastGeneratedSessionID++;
+	}
 }
