@@ -244,6 +244,16 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
         return selectedAddOns;
     }
 
+    public Set<AddOn> getAllUpdates() {
+        Set<AddOn> selectedAddOns = new HashSet<>();
+        for (AddOnWrapper aow : getAddOnWrappers()) {
+            if (aow.getAddOnUpdate() != null) {
+                selectedAddOns.add(aow.getAddOnUpdate());
+            }
+        }
+        return selectedAddOns;
+    }
+
     @Override
     protected AddOn getAddOnForDownload(AddOnWrapper aow) {
         if (aow.getAddOnUpdate() == null) {

@@ -96,6 +96,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JButton downloadZapButton = null;
 	private JButton checkForUpdatesButton = null;
 	private JButton updateButton = null;
+	private JButton updateAllButton = null;
 	private JButton uninstallButton = null;
 	private JButton installButton = null;
 	private JButton close1Button = null;
@@ -259,11 +260,12 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			scrollPane.setViewportView(getInstalledAddOnsTable());
 
 			int row = 0;
-			installedAddOnsPanel.add(scrollPane, LayoutHelper.getGBC(0, row++, 4, 1.0D, 1.0D));
+			installedAddOnsPanel.add(scrollPane, LayoutHelper.getGBC(0, row++, 5, 1.0D, 1.0D));
 			installedAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			installedAddOnsPanel.add(getUninstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
 			installedAddOnsPanel.add(getUpdateButton(), LayoutHelper.getGBC(2, row, 1, 0.0D));
-			installedAddOnsPanel.add(getClose1Button(), LayoutHelper.getGBC(3, row, 1, 0.0D));
+			installedAddOnsPanel.add(getUpdateAllButton(), LayoutHelper.getGBC(3, row, 1, 0.0D));
+			installedAddOnsPanel.add(getClose1Button(), LayoutHelper.getGBC(4, row, 1, 0.0D));
 
 		}
 		return installedAddOnsPanel;
@@ -358,6 +360,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				@Override
 				public void tableChanged(TableModelEvent e) {
 					getUpdateButton().setEnabled(installedAddOnsModel.canUpdateSelected());
+					getUpdateAllButton().setEnabled(installedAddOnsModel.getAllUpdates().size() > 0);
 					getUninstallButton().setEnabled(installedAddOnsModel.canUninstallSelected());
 					
 				}});
@@ -661,6 +664,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	protected void setDownloadingZap() {
 		downloadZapButton.setEnabled(false);
 		getUpdateButton().setEnabled(false);	// Makes things less complicated
+		getUpdateAllButton().setEnabled(false);
 		state = State.DOWNLOADING_ZAP;
 		getUpdatesMessage().setText(Constant.messages.getString("cfu.check.zap.downloading"));
 	}
@@ -669,6 +673,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		if (EventQueue.isDispatchThread()) {
 			this.getDownloadZapButton().setEnabled(false); // Makes things less complicated
 			this.getUpdateButton().setEnabled(false);
+			this.getUpdateAllButton().setEnabled(false);
 			this.state = State.DOWNLOADING_UPDATES;
 			this.getUpdatesMessage().setText(Constant.messages.getString("cfu.check.upd.downloading"));
 		} else {
@@ -794,25 +799,44 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			updateButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {    
-					Set<AddOn> selectedAddOns = installedAddOnsModel.getSelectedUpdates();
-
-					if (selectedAddOns.isEmpty()) {
-						return;
-					}
-
-					AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
-
-					AddOnDependencyChecker.AddOnChangesResult result = calc.calculateUpdateChanges(selectedAddOns);
-					if (!calc.confirmUpdateChanges(ManageAddOnsDialog.this, result)) {
-						return;
-					}
-
-					extension.processAddOnChanges(ManageAddOnsDialog.this, result);
+					processUpdates(installedAddOnsModel.getSelectedUpdates());
 				}
 			});
 
 		}
 		return updateButton;
+	}
+
+	private JButton getUpdateAllButton() {
+		if (updateAllButton == null) {
+			updateAllButton = new JButton();
+			updateAllButton.setText(Constant.messages.getString("cfu.button.addons.updateAll"));
+			updateAllButton.setEnabled(false);	// Nothing will be selected initially
+			updateAllButton.addActionListener(new java.awt.event.ActionListener() { 
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					processUpdates(installedAddOnsModel.getAllUpdates());
+				}
+			});
+
+		}
+		return updateAllButton;
+	}
+	
+	private void processUpdates(Set<AddOn> updatedAddOns) {
+		if (updatedAddOns.isEmpty()) {
+			return;
+		}
+
+		AddOnDependencyChecker calc = new AddOnDependencyChecker(installedAddOns, latestInfo);
+
+		AddOnDependencyChecker.AddOnChangesResult result = calc.calculateUpdateChanges(updatedAddOns);
+		if (!calc.confirmUpdateChanges(ManageAddOnsDialog.this, result)) {
+			return;
+		}
+
+		extension.processAddOnChanges(ManageAddOnsDialog.this, result);
+		
 	}
 
 	private JButton getUninstallButton() {
@@ -948,6 +972,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		}
 		// Let people download updates now
 		this.getUpdateButton().setEnabled(true);
+		this.getUpdateAllButton().setEnabled(true);
 		this.getUpdatesMessage().setText(MessageFormat.format(
 				Constant.messages.getString("cfu.check.zap.downloaded"), 
 				f.getAbsolutePath()));
