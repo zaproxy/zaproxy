@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.autoupdate;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,6 +35,7 @@ import java.nio.file.FileAlreadyExistsException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -42,6 +45,7 @@ import java.util.Vector;
 import javax.net.ssl.SSLHandshakeException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
@@ -67,6 +71,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
@@ -113,12 +118,16 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private Thread remoteCallThread = null; 
 	private ScanStatus scanStatus = null;
 	private JButton addonsButton = null;
-	
+    private JButton outOfDateButton = null;
+
 	private AddOnCollection latestVersionInfo = null;
 	private AddOnCollection localVersionInfo = null;
 	private AddOnCollection previousVersionInfo = null;
 
     private AutoUpdateAPI api = null;
+
+    private boolean oldZapAlertAdded = false;
+    private boolean noCfuAlertAdded = false;
 
     // Files currently being downloaded
 	private List<Downloader> downloadFiles = new ArrayList<>();
@@ -149,7 +158,21 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         // Do this before it can get overwritten by the latest one
         this.getPreviousVersionInfo();
 	}
-	
+
+	@Override
+	public void postInit() {
+		switch (ZAP.getProcessType()) {
+		case cmdline:
+		case daemon:
+		case zaas:
+			this.warnIfOutOfDate();
+			break;
+		case desktop:
+		default:
+			break;
+		}
+	}
+
 	/**
 	 * This method initializes menuItemEncoder	
 	 * 	
@@ -538,13 +561,18 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         return httpSender;
     }
     
+    private int dayDiff(Date d1, Date d2) {
+    	long diff = d1.getTime() - d2.getTime();
+    	return (int) (diff / (1000 * 60 * 60 * 24));
+    }
+    
     /*
      * 
      */
     public void alertIfNewVersions() {
-    	// Kicks off a thread and pops up a window if there are new verisons
-    	// (depending on the options the user has chosen
-    	// Only expect this to be called on startup
+    	// Kicks off a thread and pops up a window if there are new versions.
+    	// Depending on the options the user has chosen.
+    	// Only expect this to be called on startup and in desktop mode
     	
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
     	
@@ -571,6 +599,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	            }
 			}
 			if (! options.isCheckOnStart()) {
+				alertIfOutOfDate(false);
 				return;
 			}
 		}
@@ -593,6 +622,145 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		this.getLatestVersionInfo(this);
     }
     
+    private void warnIfOutOfDate() {
+    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
+		Date today = new Date();
+		Date releaseCreated = Constant.getReleaseCreateDate();
+		if (releaseCreated != null) {
+			// Should only be null for dev builds
+			if (dayDiff(today, releaseCreated) > 365) {
+				// Oh no, its more than a year old!
+				if (ZAP.getProcessType().equals(ZAP.ProcessType.cmdline)) {
+					CommandLine.error("This ZAP installation is over a year old - its probably very out of date");
+				} else {
+					logger.warn("This ZAP installation is over a year old - its probably very out of date");
+				}
+				return;
+			}
+		}
+		
+		Date lastChecked = options.getDayLastChecked();
+		Date installDate = Constant.getInstallDate();
+		if (installDate == null || dayDiff(today, installDate) < 90) {
+			// Dont warn if installed in the last 3 months
+		} else if (lastChecked == null || dayDiff(today, lastChecked) > 90) {
+			// Not checked for update in 3 months :(
+			if (ZAP.getProcessType().equals(ZAP.ProcessType.cmdline)) {
+				CommandLine.error("No check for updates for over 3 month - add-ons may well be out of date");
+			} else {
+				logger.warn("No check for updates for over 3 month - add-ons may well be out of date");
+			}
+		}
+    }
+    
+
+    
+    private void alertIfOutOfDate(boolean alwaysPrompt) {
+    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
+		Date today = new Date();
+		Date releaseCreated = Constant.getReleaseCreateDate();
+		Date lastInstallWarning = options.getDayLastInstallWarned();
+        int result = -1;
+        logger.debug("Install created " + releaseCreated);
+		if (releaseCreated != null) {
+			// Should only be null for dev builds
+			int daysOld = dayDiff(today, releaseCreated);
+	        logger.debug("Install is " + daysOld + " days old");
+			if (daysOld > 365) {
+				// Oh no, its more than a year old!
+				boolean setCfuOnStart = false;
+				
+				if (alwaysPrompt || lastInstallWarning == null || dayDiff(today, lastInstallWarning) > 30) {
+					JCheckBox cfuOnStart = new JCheckBox(Constant.messages.getString("cfu.label.cfuonstart"));
+					cfuOnStart.setSelected(true);
+					String msg = Constant.messages.getString("cfu.label.oldzap"); 
+					
+					result = View.getSingleton().showYesNoDialog(
+							View.getSingleton().getMainFrame(), new Object[]{msg, cfuOnStart}						);
+					setCfuOnStart = cfuOnStart.isSelected();
+					
+				}
+				options.setDayLastInstallWarned();
+				
+                if (result == JOptionPane.OK_OPTION) {
+    				if (setCfuOnStart) {
+    					options.setCheckOnStart(true);
+    				}
+					getAddOnsDialog().setVisible(true);
+					getAddOnsDialog().checkForUpdates();
+					
+                } else if (!oldZapAlertAdded){
+                	JButton button = new JButton(Constant.messages.getString("cfu.label.outofdatezap"));
+                	button.setIcon(new ImageIcon(
+                			ExtensionAutoUpdate.class.getResource("/resource/icon/16/050.png"))); // Alert triangle
+                	button.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							alertIfOutOfDate(true);
+						}
+                	});
+                	
+        			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarLeftComponent(button );
+        			oldZapAlertAdded = true;
+                }
+            	return;
+			}
+		}
+		
+		Date lastChecked = options.getDayLastChecked();
+		Date lastUpdateWarning = options.getDayLastUpdateWarned();
+		Date installDate = Constant.getInstallDate();
+		if (installDate == null || dayDiff(today, installDate) < 90) {
+			// Dont warn if installed in the last 3 months
+		} else if (lastChecked == null || dayDiff(today, lastChecked) > 90) {
+			// Not checked for updates in 3 months :(
+			boolean setCfuOnStart = false;
+			
+			if (alwaysPrompt || lastUpdateWarning == null || dayDiff(today, lastUpdateWarning) > 30) {
+				JCheckBox cfuOnStart = new JCheckBox(Constant.messages.getString("cfu.label.cfuonstart"));
+				cfuOnStart.setSelected(true);
+				String msg = Constant.messages.getString("cfu.label.norecentcfu");
+				
+				result = View.getSingleton().showYesNoDialog(
+						View.getSingleton().getMainFrame(), new Object[]{msg, cfuOnStart});
+				setCfuOnStart = cfuOnStart.isSelected();
+				
+			}
+			options.setDayLastUpdateWarned();
+			
+            if (result == JOptionPane.OK_OPTION) {
+				if (setCfuOnStart) {
+					options.setCheckOnStart(true);
+				}
+				getAddOnsDialog().setVisible(true);
+				getAddOnsDialog().checkForUpdates();
+				if (noCfuAlertAdded) {
+	    			View.getSingleton().getMainFrame().getMainFooterPanel().
+    					removeFooterToolbarLeftComponent(getOutOfDateButton());
+				}
+				
+            } else if (!noCfuAlertAdded){
+    			View.getSingleton().getMainFrame().getMainFooterPanel().
+    				addFooterToolbarLeftComponent(getOutOfDateButton());
+    			noCfuAlertAdded = true;
+            }
+		}
+    }
+    
+    private JButton getOutOfDateButton() {
+    	if (outOfDateButton == null) {
+    		outOfDateButton = new JButton(Constant.messages.getString("cfu.label.outofdateaddons"));
+    		outOfDateButton.setIcon(new ImageIcon(
+	    			ExtensionAutoUpdate.class.getResource("/resource/icon/16/050.png"))); // Alert triangle
+    		outOfDateButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					alertIfOutOfDate(true);
+				}
+	    	});
+		}
+    	return outOfDateButton;	
+    }
     
     private AddOnCollection getLocalVersionInfo () {
     	if (localVersionInfo == null) {
