@@ -59,6 +59,7 @@
 // ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
 // ZAP: 2015/08/01 Remove code duplication in catch of exceptions, use installation directory in default config file
 // ZAP: 2015/11/11 Issue 2045: Dont copy old configs if -dir option used 
+// ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 
 package org.parosproxy.paros;
 
@@ -72,7 +73,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -933,23 +937,64 @@ public final class Constant {
     	return zapInstall;
     }
 
-    private static String getVersionFromManifest() {
+    private static Manifest getManifest() {
     	String className = Constant.class.getSimpleName() + ".class";
     	String classPath = Constant.class.getResource(className).toString();
     	if (!classPath.startsWith("jar")) {
     	  // Class not from JAR
-    	  return DEV_VERSION;
+    	  return null;
     	}
     	String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
-    	Manifest manifest;
 		try {
-			manifest = new Manifest(new URL(manifestPath).openStream());
-	    	Attributes attr = manifest.getMainAttributes();
-	    	return attr.getValue("Implementation-Version");
+			return new Manifest(new URL(manifestPath).openStream());
 		} catch (Exception e) {
 			// Ignore
-			return DEV_VERSION;
+			return null;
 		}
+    }
+
+    private static String getVersionFromManifest() {
+    	Manifest manifest = getManifest();
+    	if (manifest != null) {
+	    	Attributes attr = manifest.getMainAttributes();
+	    	return attr.getValue("Implementation-Version");
+    	} else {
+			return DEV_VERSION;
+    	}
+    }
+    
+    public static Date getReleaseCreateDate() {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	Manifest manifest = getManifest();
+    	if (manifest != null) {
+	    	Attributes attr = manifest.getMainAttributes();
+	    	try {
+				return sdf.parse(attr.getValue("Create-Date"));
+			} catch (ParseException e) {
+				// Ignore - treat as undated
+			}
+    	}
+		return null;
+    }
+
+    public static Date getInstallDate() {
+    	String className = Constant.class.getSimpleName() + ".class";
+    	String classPath = Constant.class.getResource(className).toString();
+    	if (!classPath.startsWith("jar:file:")) {
+    	  // Class not from JAR
+    	  return null;
+    	}
+    	classPath = classPath.substring(9);
+    	int ind = classPath.indexOf("!");
+    	if (ind > 0) {
+    		classPath = classPath.substring(0, ind);
+    	}
+    	File f = new File(classPath);
+    	if (f.exists()) {
+        	// Choose the parent directories date, in case the creation date was maintained
+    		return new Date(f.getParentFile().lastModified());
+    	}
+    	return null;
     }
     
     public static boolean isDevBuild() {

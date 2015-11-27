@@ -62,6 +62,7 @@
 // ZAP: 2015/04/13 Add default editor and renderer for TextMessageLocationHighlight
 // ZAP: 2015/08/11 Fix the removal of context panels
 // ZAP: 2015/09/07 Start GUI on EDT
+// ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 
 package org.parosproxy.paros.view;
 
@@ -491,6 +492,10 @@ public class View implements ViewDelegate {
         this.getRememberCheckbox().setSelected(false);
         return JOptionPane.showConfirmDialog(parent,
                 new Object[]{msg + "\n", this.getRememberCheckbox()}, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
+    }
+
+    public int showYesNoDialog(Window parent, Object[] objs) {
+        return JOptionPane.showConfirmDialog(parent, objs, Constant.PROGRAM_NAME, JOptionPane.YES_NO_OPTION);
     }
 
     private JCheckBox getDontPromptCheckbox() {
