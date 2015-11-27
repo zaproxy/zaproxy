@@ -52,6 +52,7 @@
 // ZAP: 2015/05/04 Issue 1566: Improve active scan's reported progress
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 // ZAP: 2015/10/29 Issue 2005: Active scanning incorrectly performed on sibling nodes 
+// ZAP: 2015/11/27 Issue 2086: Report request counts per plugin
 
 package org.parosproxy.paros.core.scanner;
 
@@ -104,6 +105,7 @@ public class HostProcess implements Runnable {
     // ZAP: progress related
     private int nodeInScopeCount = 0;
     private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
+    private final Map<Integer, Integer> mapPluginReqCounts = new HashMap<>();
     private int percentage = 0;
     
     /**
@@ -654,5 +656,16 @@ public class HostProcess implements Runnable {
 	
 	public String getHostAndPort() {
 		return this.hostAndPort;
+	}
+	
+	public void setPluginRequestCount(int pluginId, int reqCount) {
+		this.mapPluginReqCounts.put(pluginId, reqCount);
+	}
+	
+	public int getPluginRequestCount(int pluginId) {
+		if (this.mapPluginReqCounts.containsKey(pluginId)) {
+			return this.mapPluginReqCounts.get(pluginId);
+		}
+		return 0;
 	}
 }
