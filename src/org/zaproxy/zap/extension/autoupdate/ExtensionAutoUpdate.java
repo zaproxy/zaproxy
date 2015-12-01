@@ -133,9 +133,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private List<Downloader> downloadFiles = new ArrayList<>();
 
     private static final int ARG_CFU_INSTALL_IDX = 0;
-    private static final int ARG_CFU_UPDATE_IDX = 1;
+    private static final int ARG_CFU_INSTALL_ALL_IDX = 1;
+    private static final int ARG_CFU_UPDATE_IDX = 2;
     private static final int[] ARG_IDXS = {
     							ARG_CFU_INSTALL_IDX,
+    							ARG_CFU_INSTALL_ALL_IDX,
     							ARG_CFU_UPDATE_IDX};
 	private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
 
@@ -1505,6 +1507,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     private CommandLineArgument[] getCommandLineArguments() {
         arguments[ARG_CFU_INSTALL_IDX] = new CommandLineArgument("-addoninstall", 1, null, "", 
         		"-addoninstall <addon>    " + Constant.messages.getString("cfu.cmdline.install.help"));
+        arguments[ARG_CFU_INSTALL_ALL_IDX] = new CommandLineArgument("-addoninstallall", 0, null, "", 
+        		"-addoninstallall         " + Constant.messages.getString("cfu.cmdline.installall.help"));
         arguments[ARG_CFU_UPDATE_IDX] = new CommandLineArgument("-addonupdate", 0, null, "", 
         		"-addonupdate             " + Constant.messages.getString("cfu.cmdline.update.help"));
         return arguments;
@@ -1530,6 +1534,81 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 				}
 			}
     		CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
+        }
+        if (arguments[ARG_CFU_INSTALL_ALL_IDX].isEnabled()) {
+        	AddOnCollection aoc = getLatestVersionInfo();
+        	if (aoc == null) {
+        		CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+        	} else {
+        		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+        		AddOnDependencyChecker.AddOnChangesResult result;
+        		AddOnDependencyChecker.AddOnChangesResult allResults = null;
+                Set<AddOn> allAddOns = new HashSet<>();
+
+        		for (AddOn ao : aoc.getAddOns()) {
+        			if (ao.getId().equals("coreLang") && (Constant.isDevBuild() || Constant.isDailyBuild())) {
+        				// Ignore coreLang add-on if its not a full release
+        				// this may well be missing strings that are now necessary
+        				continue;
+        			}
+
+            		// Check to see if its already installed
+            		AddOn iao = getLocalVersionInfo().getAddOn(ao.getId());
+            		if (iao != null) {
+            			if (!ao.isUpdateTo(iao)) {
+                			continue;
+            			}
+
+                        result = addOnDependencyChecker.calculateUpdateChanges(ao);
+                    } else {
+                        result = addOnDependencyChecker.calculateInstallChanges(ao);
+            		}
+            		
+                    if (result.getUninstalls().isEmpty()) {
+                        allAddOns.addAll(result.getInstalls());
+                        allAddOns.addAll(result.getNewVersions());
+                        if (allResults == null) {
+                        	allResults = result;
+                        } else {
+                        	allResults.addResults(result);
+                        }
+                    }
+        		}
+
+                if (allAddOns.isEmpty()) {
+                	// Nothing to do
+                	return;
+                }
+
+                for (AddOn addOn : allAddOns) {
+                    CommandLine.info(MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.addonurl"),
+                            addOn.getUrl()));
+                }
+                
+                processAddOnChanges(null, allResults);
+
+                while (downloadManager.getCurrentDownloadCount() > 0) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+                }
+
+                for (Downloader download : downloadManager.getProgress()) {
+                    if (download.isValidated()) {
+                        CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addondown"),
+                                download.getTargetFile().getAbsolutePath()));
+                    } else {
+                        CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addondown.failed"),
+                                download.getTargetFile().getName()));
+                    }
+                }
+                installNewExtensions();
+        	}
         }
         if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
         	Vector<String> params = arguments[ARG_CFU_INSTALL_IDX].getArguments();
