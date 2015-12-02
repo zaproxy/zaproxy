@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.ascan;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -125,7 +124,7 @@ public class ScanProgressDialog extends AbstractDialog {
      * 
      */
     private void initialize() {
-        this.setSize(new Dimension(560, 504));
+        this.setSize(new Dimension(580, 504));
 
         if (site != null) {
             this.setTitle(MessageFormat.format(
@@ -278,12 +277,18 @@ public class ScanProgressDialog extends AbstractDialog {
             // Third column is for plugin's elapsed time
             DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
             centerRenderer.setHorizontalAlignment(JLabel.CENTER);
-            table.getColumnModel().getColumn(3).setPreferredWidth(80);                  
+            table.getColumnModel().getColumn(3).setPreferredWidth(85);                  
             table.getColumnModel().getColumn(3).setCellRenderer(centerRenderer);
             
-            // Fourth column is for plugin's completion and actions
-            table.getColumnModel().getColumn(4).setPreferredWidth(40);                  
-            table.getColumnModel().getColumn(4).setCellRenderer(new ScanProgressActionRenderer());
+            // Forth column is for plugin's request count
+            DefaultTableCellRenderer rightRenderer = new DefaultTableCellRenderer();
+            rightRenderer.setHorizontalAlignment(JLabel.RIGHT);
+            table.getColumnModel().getColumn(4).setPreferredWidth(60);
+            table.getColumnModel().getColumn(4).setCellRenderer(rightRenderer);
+            
+            // Fifth column is for plugin's completion and actions
+            table.getColumnModel().getColumn(5).setPreferredWidth(40);                  
+            table.getColumnModel().getColumn(5).setCellRenderer(new ScanProgressActionRenderer());
 
             ScanProgressActionListener listener = new ScanProgressActionListener(table);
             table.addMouseListener(listener);

@@ -158,4 +158,8 @@ public class ScanProgressItem {
     protected Plugin getPlugin() {
         return plugin;
     }
+
+	public int getReqCount() {
+		return hProcess.getPluginRequestCount(plugin.getId());
+	}
 }

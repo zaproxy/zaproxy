@@ -35,6 +35,7 @@ import javax.swing.DefaultListModel;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.db.DatabaseException;
@@ -73,6 +74,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private int maxResultsToList = 0;
+	private int prevScanReqCount = 0;
 
 	private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
 	private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
@@ -203,6 +205,36 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			tot += process.getPercentageComplete();
 		}
 		this.progress = tot / this.getHostProcesses().size();
+		updatePluginRequestCounts();
+	}
+	
+	public void updatePluginRequestCounts() {
+		List<Plugin> pluginList;
+		if (this.getHostProcesses().size() == 1) {
+			// Currently only support 1 HostProcess
+			HostProcess process = this.getHostProcesses().get(0);
+			pluginList = process.getRunning();
+			int totReqs = this.getTotalRequests();
+			int pluginReqs = totReqs - prevScanReqCount;
+			if (pluginList.size() > 1) {
+				// Thats a bit unexpected
+				log.debug("More than 1 plugin running: " + pluginList.size() + " unable to calculate request counts");
+			} else if (pluginReqs > 0) {
+				// We have something to count
+				if (pluginList.size() == 1) {
+					// Theres one running
+					process.setPluginRequestCount(pluginList.get(0).getId(), pluginReqs);
+				} else {
+					pluginList = process.getCompleted();
+					if (pluginList.size() > 0) {
+						// One must have just finished, update it and record the current level
+						log.debug("Plugin " + pluginList.get(pluginList.size()-1).getId() + " total # reqs: " + pluginReqs);
+						process.setPluginRequestCount(pluginList.get(pluginList.size()-1).getId(), pluginReqs);
+						prevScanReqCount = totReqs;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
