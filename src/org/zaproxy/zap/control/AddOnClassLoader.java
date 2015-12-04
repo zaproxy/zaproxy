@@ -38,6 +38,7 @@ public class AddOnClassLoader extends URLClassLoader {
     private final ParentClassLoader parent;
     private final List<AddOnClassLoader> childClassLoaders;
     private List<AddOnClassLoader> dependencies;
+    private AddOnClassnames addOnClassnames;
 
     /**
      * Constructs a new {@code AddOnClassLoader} without dependencies on other add-ons.
@@ -47,7 +48,22 @@ public class AddOnClassLoader extends URLClassLoader {
      * @throws IllegalArgumentException if the {@code addOnFileUrl} or {@code parent} is {@code null}.
      */
     public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent) {
-        this(addOnFileUrl, parent, Collections.<AddOnClassLoader> emptyList());
+        this(addOnFileUrl, parent, Collections.<AddOnClassLoader> emptyList(), AddOnClassnames.ALL_ALLOWED);
+    }
+
+    /**
+     * Constructs a new {@code AddOnClassLoader} without dependencies on other add-ons. Possibly restricting or allowing the
+     * loading of the given {@code addOnClassnames}, directly from this {@code AddOnClassLoader}.
+     * 
+     * 
+     * @param addOnFileUrl the URL to the add-on file that will be (first) used to load classes and resources
+     * @param parent the parent class loader for delegation
+     * @param addOnClassnames the classnames that can be loaded
+     * @throws IllegalArgumentException if the {@code addOnFileUrl} or {@code parent} is {@code null}.
+     * @since TODO add version
+     */
+    public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent, AddOnClassnames addOnClassnames) {
+        this(addOnFileUrl, parent, Collections.<AddOnClassLoader> emptyList(), addOnClassnames);
     }
 
     /**
@@ -61,6 +77,22 @@ public class AddOnClassLoader extends URLClassLoader {
      * @since 2.4.0
      */
     public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent, List<AddOnClassLoader> dependencies) {
+        this(addOnFileUrl, parent, dependencies, AddOnClassnames.ALL_ALLOWED);
+    }
+
+    /**
+     * Constructs a new {@code AddOnClassLoader} with the given {@code dependencies} which are used to find classes and
+     * resources when not found in the add-on or in {@code parent} ClassLoader. Possibly restricting or allowing the loading of
+     * the given {@code addOnClassnames}, directly from this {@code AddOnClassLoader}.
+     * 
+     * @param addOnFileUrl the URL to the add-on file that will be (first) used to load classes and resources
+     * @param parent the parent class loader for delegation
+     * @param dependencies the {@code AddOnClassLoader}s of the dependencies of the add-on
+     * @param addOnClassnames the classnames that can be loaded
+     * @throws IllegalArgumentException if the {@code addOnFileUrl}, {@code parent} or {@code dependencies} is {@code null}.
+     * @since TODO add version
+     */
+    public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent, List<AddOnClassLoader> dependencies, AddOnClassnames addOnClassnames) {
         super(new URL[] { addOnFileUrl }, null);
 
         if (addOnFileUrl == null) {
@@ -78,6 +110,7 @@ public class AddOnClassLoader extends URLClassLoader {
         this.parent = new ParentClassLoader(parent);
         this.dependencies = dependencies.isEmpty() ? Collections.<AddOnClassLoader> emptyList() : new ArrayList<>(dependencies);
         this.childClassLoaders = new ArrayList<>(2);
+        this.addOnClassnames = addOnClassnames;
     }
 
     /**
@@ -101,6 +134,37 @@ public class AddOnClassLoader extends URLClassLoader {
         this.parent = new ParentClassLoader(parent);
         this.dependencies = dependencies.isEmpty() ? Collections.<AddOnClassLoader> emptyList() : new ArrayList<>(dependencies);
         this.childClassLoaders = Collections.emptyList();
+        this.addOnClassnames = AddOnClassnames.ALL_ALLOWED;
+    }
+
+    /**
+     * Constructs a new {@code AddOnClassLoader} with the given {@code dependencies} which are used to find classes and
+     * resources when not found in the add-on or in {@code parent} {@code AddOnClassLoader}. Possibly restricting or allowing
+     * the loading of the given {@code classnames}, directly from this {@code AddOnClassLoader}.
+     * 
+     * @param parent the parent class loader for delegation
+     * @param dependencies the {@code AddOnClassLoader}s of the dependencies of the add-on
+     * @param addOnClassnames the classnames that can be loaded
+     * @throws NullPointerException if {@code parent} is {@code null}.
+     * @throws IllegalArgumentException if the {@code addOnFileUrl}, {@code dependencies} or {@code packages} is {@code null}.
+     * @since TODO add version
+     */
+    public AddOnClassLoader(AddOnClassLoader parent, List<AddOnClassLoader> dependencies, AddOnClassnames addOnClassnames) {
+        super(parent.getURLs(), null);
+
+        if (dependencies == null) {
+            throw new IllegalArgumentException("Parameter dependencies must not be null.");
+        }
+
+        if (addOnClassnames == null) {
+            throw new IllegalArgumentException("Parameter addOnClassnames must not be null.");
+        }
+
+        parent.childClassLoaders.add(this);
+        this.parent = new ParentClassLoader(parent);
+        this.dependencies = dependencies.isEmpty() ? Collections.<AddOnClassLoader> emptyList() : new ArrayList<>(dependencies);
+        this.childClassLoaders = Collections.emptyList();
+        this.addOnClassnames = addOnClassnames;
     }
 
     /**
@@ -132,9 +196,11 @@ public class AddOnClassLoader extends URLClassLoader {
 
     @Override
     protected Class<?> findClass(String name) throws ClassNotFoundException {
-        try {
-            return findClassInAddOn(name);
-        } catch (ClassNotFoundException ignore) {
+        if (addOnClassnames.isAllowed(name)) {
+            try {
+                return findClassInAddOn(name);
+            } catch (ClassNotFoundException ignore) {
+            }
         }
 
         try {

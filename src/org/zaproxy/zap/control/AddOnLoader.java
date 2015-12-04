@@ -249,7 +249,7 @@ public class AddOnLoader extends URLClassLoader {
 
             List<String> idsAddOnDependencies = ao.getIdsAddOnDependencies();
             if (idsAddOnDependencies.isEmpty()) {
-                addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this);
+                addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, ao.getAddOnClassnames());
                 this.addOnLoaders.put(ao.getId(), addOnClassLoader);
                 return addOnClassLoader;
             }
@@ -263,7 +263,7 @@ public class AddOnLoader extends URLClassLoader {
                 dependencies.add(addOnClassLoader);
             }
 
-            addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies);
+            addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies, ao.getAddOnClassnames());
             this.addOnLoaders.put(ao.getId(), addOnClassLoader);
             return addOnClassLoader;
         } catch (MalformedURLException e) {
@@ -436,7 +436,10 @@ public class AddOnLoader extends URLClassLoader {
                         for (AddOn addOnDep : extReqs.getDependencies()) {
                             dependencies.add(addOnLoaders.get(addOnDep.getId()));
                         }
-                        AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(entry.getValue(), dependencies);
+                        AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(
+                                entry.getValue(),
+                                dependencies,
+                                runningAddOn.getExtensionAddOnClassnames(extClassName));
                         Extension ext = loadAddOnExtension(runningAddOn, extReqs.getClassname(), extAddOnClassLoader);
                         AddOnInstaller.installAddOnExtension(runningAddOn, ext);
                         runnableAddOns.get(runningAddOn).add(extReqs.getClassname());
@@ -683,7 +686,10 @@ public class AddOnLoader extends URLClassLoader {
                     for (AddOn addOnDep : extReqs.getDependencies()) {
                         dependencies.add(addOnLoaders.get(addOnDep.getId()));
                     }
-                    AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(addOnClassLoader, dependencies);
+                    AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(
+                            addOnClassLoader,
+                            dependencies,
+                            addOn.getExtensionAddOnClassnames(extReqs.getClassname()));
                     Extension ext = loadAddOnExtension(addOn, extReqs.getClassname(), extAddOnClassLoader);
                     if (ext != null) {
                         extensions.add(ext);
