@@ -78,7 +78,7 @@ public abstract class AuthenticationMethod {
 	 * 
 	 * @return {@code true} if the creation of authentication credentials is possible, {@code false} otherwise
 	 * @see #createAuthenticationCredentials()
-	 * @since TODO add version
+	 * @since 2.4.3
 	 */
 	public boolean validateCreationOfAuthenticationCredentials() {
 		return true;

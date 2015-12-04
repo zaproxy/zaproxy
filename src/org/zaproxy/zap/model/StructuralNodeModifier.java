@@ -46,7 +46,7 @@ import org.zaproxy.zap.utils.Enableable;
  * In this case the 'page' parameter should be treated as being 'structural' rather than data
  * 
  * @author simon
- * @since TODO add version
+ * @since 2.4.3
  */
 public class StructuralNodeModifier extends Enableable implements Cloneable {
 	public enum Type {DataDrivenNode, StructuralParameter}

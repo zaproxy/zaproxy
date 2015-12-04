@@ -34,7 +34,7 @@ import com.apple.eawt.Application;
  * <p>
  * The class should only be used on OSX.
  *
- * @since TODO add version
+ * @since 2.4.3
  * @see org.parosproxy.paros.Constant#isMacOsX()
  */
 class OsXGui {

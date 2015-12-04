@@ -136,7 +136,7 @@ public final class ApiUtils {
 	 * @param parameterName the name of the parameter used to obtain the context's name
 	 * @return the {@code Context} with the given name
 	 * @throws ApiException If the context with the given name does not exist
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #getContextByName(String)
 	 * @see JSONObject#getString(String)
 	 */
@@ -150,7 +150,7 @@ public final class ApiUtils {
 	 * @param contextName the name of the context
 	 * @return the {@code Context} with the given name
 	 * @throws ApiException If the context with the given name does not exist
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #getContextByName(JSONObject, String)
 	 */
 	public static Context getContextByName(String contextName) throws ApiException {

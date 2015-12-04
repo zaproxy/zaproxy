@@ -96,7 +96,7 @@ public class PluginFactory {
      *
      * @param plugin the plugin that will be checked
      * @return {@code true} if the plugin was already loaded, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.4.3
      */
     public static boolean isPluginLoaded(AbstractPlugin plugin) {
         if (loadedPlugins == null) {
@@ -132,7 +132,7 @@ public class PluginFactory {
     }
     
     /**
-     * @deprecated (TODO add version) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the scanner is not
+     * @deprecated (2.4.3) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the scanner is not
      *             properly set.
      * @see AbstractPlugin#getStatus()
      */
@@ -162,7 +162,7 @@ public class PluginFactory {
     }
     
     /**
-     * @deprecated (TODO add version) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that the exact scanner
+     * @deprecated (2.4.3) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that the exact scanner
      *             instance is unloaded.
      */
     @Deprecated

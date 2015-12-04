@@ -60,7 +60,7 @@ public class AddOnClassLoader extends URLClassLoader {
      * @param parent the parent class loader for delegation
      * @param addOnClassnames the classnames that can be loaded
      * @throws IllegalArgumentException if the {@code addOnFileUrl} or {@code parent} is {@code null}.
-     * @since TODO add version
+     * @since 2.4.3
      */
     public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent, AddOnClassnames addOnClassnames) {
         this(addOnFileUrl, parent, Collections.<AddOnClassLoader> emptyList(), addOnClassnames);
@@ -90,7 +90,7 @@ public class AddOnClassLoader extends URLClassLoader {
      * @param dependencies the {@code AddOnClassLoader}s of the dependencies of the add-on
      * @param addOnClassnames the classnames that can be loaded
      * @throws IllegalArgumentException if the {@code addOnFileUrl}, {@code parent} or {@code dependencies} is {@code null}.
-     * @since TODO add version
+     * @since 2.4.3
      */
     public AddOnClassLoader(URL addOnFileUrl, ClassLoader parent, List<AddOnClassLoader> dependencies, AddOnClassnames addOnClassnames) {
         super(new URL[] { addOnFileUrl }, null);
@@ -147,7 +147,7 @@ public class AddOnClassLoader extends URLClassLoader {
      * @param addOnClassnames the classnames that can be loaded
      * @throws NullPointerException if {@code parent} is {@code null}.
      * @throws IllegalArgumentException if the {@code addOnFileUrl}, {@code dependencies} or {@code packages} is {@code null}.
-     * @since TODO add version
+     * @since 2.4.3
      */
     public AddOnClassLoader(AddOnClassLoader parent, List<AddOnClassLoader> dependencies, AddOnClassnames addOnClassnames) {
         super(parent.getURLs(), null);

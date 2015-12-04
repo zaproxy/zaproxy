@@ -111,7 +111,7 @@ public class PolicyManager {
 	 *
 	 * @param name the name of the scan policy
 	 * @return {@code true} if the scan policy exists, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.4.3
 	 */
 	public static boolean policyExists(String name) {
 		return (new File(Constant.getPoliciesDir(), name + POLICY_EXTENSION)).exists();
