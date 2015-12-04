@@ -153,6 +153,8 @@ public class AddOn  {
 	private List<PluginPassiveScanner> loadedPscanrules = Collections.emptyList();
 	private boolean loadedPscanRulesSet;
 	private List<String> files = Collections.emptyList();
+
+	private AddOnClassnames addOnClassnames = AddOnClassnames.ALL_ALLOWED;
 	
 	private Dependencies dependencies;
 
@@ -239,6 +241,8 @@ public class AddOn  {
 						this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
 						this.files = zapAddOnXml.getFiles();
 						this.pscanrules = zapAddOnXml.getPscanrules();
+
+						this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
 
 						hasZapAddOnEntry = true;
 					}
@@ -421,6 +425,16 @@ public class AddOn  {
 		}
 		return hasZapAddOnEntry;
 	}
+
+	/**
+	 * Gets the classnames that can be loaded for the add-on.
+	 * 
+	 * @return the classnames that can be loaded
+	 * @since TODO add version
+	 */
+	public AddOnClassnames getAddOnClassnames() {
+		return addOnClassnames;
+	}
 	
 	public List<String> getExtensions() {
 		return extensions;
@@ -442,6 +456,27 @@ public class AddOn  {
 			extensionClassnames.add(extension.getClassname());
 		}
 		return extensionClassnames;
+	}
+
+	/**
+	 * Returns the classnames that can be loaded for the given {@code Extension} (with dependencies).
+	 * 
+	 * @param classname the classname of the extension
+	 * @return the classnames that can be loaded
+	 * @since TODO add version
+	 * @see #hasExtensionsWithDeps()
+	 */
+	public AddOnClassnames getExtensionAddOnClassnames(String classname) {
+		if (extensionsWithDeps.isEmpty() || classname == null || classname.isEmpty()) {
+			return AddOnClassnames.ALL_ALLOWED;
+		}
+
+		for (ExtensionWithDeps extension : extensionsWithDeps) {
+			if (classname.equals(extension.getClassname())) {
+				return extension.getAddOnClassnames();
+			}
+		}
+		return AddOnClassnames.ALL_ALLOWED;
 	}
 
 	/**
