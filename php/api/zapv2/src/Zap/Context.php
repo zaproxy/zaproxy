@@ -96,16 +96,29 @@ class Context {
 	}
 
 	/**
-	 * Creates a new context in the current session
+	 * Creates a new context with the given name in the current session
 	 */
-	public function newContext($contextname='', $apikey='') {
+	public function newContext($contextname, $apikey='') {
 		return $this->zap->request($this->zap->base . 'context/action/newContext/', array('contextName' => $contextname, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Removes a context in the current session
+	 */
+	public function removeContext($contextname, $apikey='') {
+		return $this->zap->request($this->zap->base . 'context/action/removeContext/', array('contextName' => $contextname, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Exports the context with the given name to a file. If a relative file path is specified it will be resolved against the "contexts" directory in ZAP "home" dir.
+	 */
 	public function exportContext($contextname, $contextfile, $apikey='') {
 		return $this->zap->request($this->zap->base . 'context/action/exportContext/', array('contextName' => $contextname, 'contextFile' => $contextfile, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Imports a context from a file. If a relative file path is specified it will be resolved against the "contexts" directory in ZAP "home" dir.
+	 */
 	public function importContext($contextfile, $apikey='') {
 		return $this->zap->request($this->zap->base . 'context/action/importContext/', array('contextFile' => $contextfile, 'apikey' => $apikey));
 	}

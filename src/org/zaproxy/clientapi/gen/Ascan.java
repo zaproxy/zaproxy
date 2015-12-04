@@ -102,74 +102,9 @@ public class Ascan {
 		return api.callApi("ascan", "view", "attackModeQueue", map);
 	}
 
-	public ApiResponse optionMaxScansInUI() throws ClientApiException {
+	public ApiResponse optionAttackPolicy() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionMaxScansInUI", map);
-	}
-
-	public ApiResponse optionShowAdvancedDialog() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionShowAdvancedDialog", map);
-	}
-
-	public ApiResponse optionExcludedParamList() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionExcludedParamList", map);
-	}
-
-	public ApiResponse optionThreadPerHost() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionThreadPerHost", map);
-	}
-
-	public ApiResponse optionHostPerScan() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionHostPerScan", map);
-	}
-
-	public ApiResponse optionMaxResultsToList() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionMaxResultsToList", map);
-	}
-
-	public ApiResponse optionDelayInMs() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionDelayInMs", map);
-	}
-
-	public ApiResponse optionInjectPluginIdInHeader() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionInjectPluginIdInHeader", map);
-	}
-
-	public ApiResponse optionHandleAntiCSRFTokens() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionHandleAntiCSRFTokens", map);
-	}
-
-	public ApiResponse optionRescanInAttackMode() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionRescanInAttackMode", map);
-	}
-
-	public ApiResponse optionPromptInAttackMode() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionPromptInAttackMode", map);
-	}
-
-	public ApiResponse optionTargetParamsInjectable() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionTargetParamsInjectable", map);
-	}
-
-	public ApiResponse optionTargetParamsEnabledRPC() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionTargetParamsEnabledRPC", map);
-	}
-
-	public ApiResponse optionPromptToClearFinishedScans() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionPromptToClearFinishedScans", map);
+		return api.callApi("ascan", "view", "optionAttackPolicy", map);
 	}
 
 	public ApiResponse optionDefaultPolicy() throws ClientApiException {
@@ -177,14 +112,84 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionDefaultPolicy", map);
 	}
 
-	public ApiResponse optionAttackPolicy() throws ClientApiException {
+	public ApiResponse optionDelayInMs() throws ClientApiException {
 		Map<String, String> map = null;
-		return api.callApi("ascan", "view", "optionAttackPolicy", map);
+		return api.callApi("ascan", "view", "optionDelayInMs", map);
+	}
+
+	public ApiResponse optionExcludedParamList() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionExcludedParamList", map);
+	}
+
+	public ApiResponse optionHandleAntiCSRFTokens() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionHandleAntiCSRFTokens", map);
+	}
+
+	public ApiResponse optionHostPerScan() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionHostPerScan", map);
+	}
+
+	public ApiResponse optionMaxChartTimeInMins() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionMaxChartTimeInMins", map);
+	}
+
+	public ApiResponse optionMaxResultsToList() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionMaxResultsToList", map);
+	}
+
+	public ApiResponse optionMaxScansInUI() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionMaxScansInUI", map);
+	}
+
+	public ApiResponse optionTargetParamsEnabledRPC() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsEnabledRPC", map);
+	}
+
+	public ApiResponse optionTargetParamsInjectable() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionTargetParamsInjectable", map);
+	}
+
+	public ApiResponse optionThreadPerHost() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionThreadPerHost", map);
 	}
 
 	public ApiResponse optionAllowAttackOnStart() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionAllowAttackOnStart", map);
+	}
+
+	public ApiResponse optionInjectPluginIdInHeader() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionInjectPluginIdInHeader", map);
+	}
+
+	public ApiResponse optionPromptInAttackMode() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionPromptInAttackMode", map);
+	}
+
+	public ApiResponse optionPromptToClearFinishedScans() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionPromptToClearFinishedScans", map);
+	}
+
+	public ApiResponse optionRescanInAttackMode() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionRescanInAttackMode", map);
+	}
+
+	public ApiResponse optionShowAdvancedDialog() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionShowAdvancedDialog", map);
 	}
 
 	public ApiResponse scan(String apikey, String url, String recurse, String inscopeonly, String scanpolicyname, String method, String postdata) throws ClientApiException {
@@ -434,16 +439,6 @@ public class Ascan {
 		return api.callApi("ascan", "action", "removeScanPolicy", map);
 	}
 
-	public ApiResponse setOptionDefaultPolicy(String apikey, String string) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("String", string);
-		return api.callApi("ascan", "action", "setOptionDefaultPolicy", map);
-	}
-
 	public ApiResponse setOptionAttackPolicy(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -454,54 +449,24 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionAttackPolicy", map);
 	}
 
-	public ApiResponse setOptionMaxScansInUI(String apikey, int i) throws ClientApiException {
+	public ApiResponse setOptionDefaultPolicy(String apikey, String string) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("Integer", Integer.toString(i));
-		return api.callApi("ascan", "action", "setOptionMaxScansInUI", map);
+		map.put("String", string);
+		return api.callApi("ascan", "action", "setOptionDefaultPolicy", map);
 	}
 
-	public ApiResponse setOptionShowAdvancedDialog(String apikey, boolean bool) throws ClientApiException {
+	public ApiResponse setOptionAllowAttackOnStart(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("ascan", "action", "setOptionShowAdvancedDialog", map);
-	}
-
-	public ApiResponse setOptionThreadPerHost(String apikey, int i) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Integer", Integer.toString(i));
-		return api.callApi("ascan", "action", "setOptionThreadPerHost", map);
-	}
-
-	public ApiResponse setOptionHostPerScan(String apikey, int i) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Integer", Integer.toString(i));
-		return api.callApi("ascan", "action", "setOptionHostPerScan", map);
-	}
-
-	public ApiResponse setOptionMaxResultsToList(String apikey, int i) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Integer", Integer.toString(i));
-		return api.callApi("ascan", "action", "setOptionMaxResultsToList", map);
+		return api.callApi("ascan", "action", "setOptionAllowAttackOnStart", map);
 	}
 
 	public ApiResponse setOptionDelayInMs(String apikey, int i) throws ClientApiException {
@@ -514,16 +479,6 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionDelayInMs", map);
 	}
 
-	public ApiResponse setOptionInjectPluginIdInHeader(String apikey, boolean bool) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("ascan", "action", "setOptionInjectPluginIdInHeader", map);
-	}
-
 	public ApiResponse setOptionHandleAntiCSRFTokens(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -534,14 +489,54 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionHandleAntiCSRFTokens", map);
 	}
 
-	public ApiResponse setOptionRescanInAttackMode(String apikey, boolean bool) throws ClientApiException {
+	public ApiResponse setOptionHostPerScan(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionHostPerScan", map);
+	}
+
+	public ApiResponse setOptionInjectPluginIdInHeader(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("ascan", "action", "setOptionRescanInAttackMode", map);
+		return api.callApi("ascan", "action", "setOptionInjectPluginIdInHeader", map);
+	}
+
+	public ApiResponse setOptionMaxChartTimeInMins(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionMaxChartTimeInMins", map);
+	}
+
+	public ApiResponse setOptionMaxResultsToList(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionMaxResultsToList", map);
+	}
+
+	public ApiResponse setOptionMaxScansInUI(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionMaxScansInUI", map);
 	}
 
 	public ApiResponse setOptionPromptInAttackMode(String apikey, boolean bool) throws ClientApiException {
@@ -554,14 +549,34 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionPromptInAttackMode", map);
 	}
 
-	public ApiResponse setOptionTargetParamsInjectable(String apikey, int i) throws ClientApiException {
+	public ApiResponse setOptionPromptToClearFinishedScans(String apikey, boolean bool) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("Integer", Integer.toString(i));
-		return api.callApi("ascan", "action", "setOptionTargetParamsInjectable", map);
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionPromptToClearFinishedScans", map);
+	}
+
+	public ApiResponse setOptionRescanInAttackMode(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionRescanInAttackMode", map);
+	}
+
+	public ApiResponse setOptionShowAdvancedDialog(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionShowAdvancedDialog", map);
 	}
 
 	public ApiResponse setOptionTargetParamsEnabledRPC(String apikey, int i) throws ClientApiException {
@@ -574,24 +589,24 @@ public class Ascan {
 		return api.callApi("ascan", "action", "setOptionTargetParamsEnabledRPC", map);
 	}
 
-	public ApiResponse setOptionPromptToClearFinishedScans(String apikey, boolean bool) throws ClientApiException {
+	public ApiResponse setOptionTargetParamsInjectable(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("ascan", "action", "setOptionPromptToClearFinishedScans", map);
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionTargetParamsInjectable", map);
 	}
 
-	public ApiResponse setOptionAllowAttackOnStart(String apikey, boolean bool) throws ClientApiException {
+	public ApiResponse setOptionThreadPerHost(String apikey, int i) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("Boolean", Boolean.toString(bool));
-		return api.callApi("ascan", "action", "setOptionAllowAttackOnStart", map);
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ascan", "action", "setOptionThreadPerHost", map);
 	}
 
 }

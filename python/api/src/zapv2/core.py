@@ -103,56 +103,36 @@ class core(object):
         return next(self.zap._request(self.zap.base + 'core/view/stats/', {'keyPrefix' : keyprefix}).itervalues())
 
     @property
-    def option_http_state_enabled(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionHttpStateEnabled/').itervalues())
-
-    @property
-    def option_use_proxy_chain(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionUseProxyChain/').itervalues())
-
-    @property
-    def option_proxy_chain_name(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainName/').itervalues())
-
-    @property
-    def option_proxy_chain_port(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainPort/').itervalues())
-
-    @property
-    def option_proxy_chain_skip_name(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainSkipName/').itervalues())
-
-    @property
-    def option_use_proxy_chain_auth(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionUseProxyChainAuth/').itervalues())
-
-    @property
-    def option_proxy_chain_user_name(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainUserName/').itervalues())
-
-    @property
-    def option_proxy_chain_realm(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainRealm/').itervalues())
-
-    @property
-    def option_proxy_chain_password(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainPassword/').itervalues())
-
-    @property
-    def option_proxy_chain_prompt(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/').itervalues())
+    def option_default_user_agent(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionDefaultUserAgent/').itervalues())
 
     @property
     def option_http_state(self):
         return next(self.zap._request(self.zap.base + 'core/view/optionHttpState/').itervalues())
 
     @property
-    def option_timeout_in_secs(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionTimeoutInSecs/').itervalues())
+    def option_proxy_chain_name(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainName/').itervalues())
 
     @property
-    def option_single_cookie_request_header(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionSingleCookieRequestHeader/').itervalues())
+    def option_proxy_chain_password(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainPassword/').itervalues())
+
+    @property
+    def option_proxy_chain_port(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainPort/').itervalues())
+
+    @property
+    def option_proxy_chain_realm(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainRealm/').itervalues())
+
+    @property
+    def option_proxy_chain_skip_name(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainSkipName/').itervalues())
+
+    @property
+    def option_proxy_chain_user_name(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainUserName/').itervalues())
 
     @property
     def option_proxy_excluded_domains(self):
@@ -163,8 +143,28 @@ class core(object):
         return next(self.zap._request(self.zap.base + 'core/view/optionProxyExcludedDomainsEnabled/').itervalues())
 
     @property
-    def option_default_user_agent(self):
-        return next(self.zap._request(self.zap.base + 'core/view/optionDefaultUserAgent/').itervalues())
+    def option_timeout_in_secs(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionTimeoutInSecs/').itervalues())
+
+    @property
+    def option_http_state_enabled(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionHttpStateEnabled/').itervalues())
+
+    @property
+    def option_proxy_chain_prompt(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionProxyChainPrompt/').itervalues())
+
+    @property
+    def option_single_cookie_request_header(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionSingleCookieRequestHeader/').itervalues())
+
+    @property
+    def option_use_proxy_chain(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionUseProxyChain/').itervalues())
+
+    @property
+    def option_use_proxy_chain_auth(self):
+        return next(self.zap._request(self.zap.base + 'core/view/optionUseProxyChainAuth/').itervalues())
 
     def shutdown(self, apikey=''):
         """
@@ -220,23 +220,23 @@ class core(object):
     def clear_stats(self, keyprefix, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/clearStats/', {'keyPrefix' : keyprefix, 'apikey' : apikey}).itervalues())
 
+    def set_option_default_user_agent(self, string, apikey=''):
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionDefaultUserAgent/', {'String' : string, 'apikey' : apikey}).itervalues())
+
     def set_option_proxy_chain_name(self, string, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainName/', {'String' : string, 'apikey' : apikey}).itervalues())
-
-    def set_option_proxy_chain_realm(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainRealm/', {'String' : string, 'apikey' : apikey}).itervalues())
-
-    def set_option_proxy_chain_user_name(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainUserName/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_proxy_chain_password(self, string, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPassword/', {'String' : string, 'apikey' : apikey}).itervalues())
 
+    def set_option_proxy_chain_realm(self, string, apikey=''):
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainRealm/', {'String' : string, 'apikey' : apikey}).itervalues())
+
     def set_option_proxy_chain_skip_name(self, string, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainSkipName/', {'String' : string, 'apikey' : apikey}).itervalues())
 
-    def set_option_default_user_agent(self, string, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionDefaultUserAgent/', {'String' : string, 'apikey' : apikey}).itervalues())
+    def set_option_proxy_chain_user_name(self, string, apikey=''):
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainUserName/', {'String' : string, 'apikey' : apikey}).itervalues())
 
     def set_option_http_state_enabled(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionHttpStateEnabled/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
@@ -247,6 +247,9 @@ class core(object):
     def set_option_proxy_chain_prompt(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionProxyChainPrompt/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
+    def set_option_single_cookie_request_header(self, boolean, apikey=''):
+        return next(self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
+
     def set_option_timeout_in_secs(self, integer, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionTimeoutInSecs/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
 
@@ -255,9 +258,6 @@ class core(object):
 
     def set_option_use_proxy_chain_auth(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionUseProxyChainAuth/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
-
-    def set_option_single_cookie_request_header(self, boolean, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/setOptionSingleCookieRequestHeader/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def proxy_pac(self, apikey=''):
         return (self.zap._request_other(self.zap.base_other + 'core/other/proxy.pac/', {'apikey' : apikey}))

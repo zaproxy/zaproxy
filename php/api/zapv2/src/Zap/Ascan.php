@@ -72,72 +72,76 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/attackModeQueue/')->{'attackModeQueue'};
 	}
 
-	public function optionMaxScansInUI() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionMaxScansInUI/')->{'MaxScansInUI'};
-	}
-
-	public function optionShowAdvancedDialog() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionShowAdvancedDialog/')->{'ShowAdvancedDialog'};
-	}
-
-	public function optionExcludedParamList() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionExcludedParamList/')->{'ExcludedParamList'};
-	}
-
-	public function optionThreadPerHost() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionThreadPerHost/')->{'ThreadPerHost'};
-	}
-
-	public function optionHostPerScan() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionHostPerScan/')->{'HostPerScan'};
-	}
-
-	public function optionMaxResultsToList() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionMaxResultsToList/')->{'MaxResultsToList'};
-	}
-
-	public function optionDelayInMs() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionDelayInMs/')->{'DelayInMs'};
-	}
-
-	public function optionInjectPluginIdInHeader() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionInjectPluginIdInHeader/')->{'InjectPluginIdInHeader'};
-	}
-
-	public function optionHandleAntiCSRFTokens() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionHandleAntiCSRFTokens/')->{'HandleAntiCSRFTokens'};
-	}
-
-	public function optionRescanInAttackMode() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionRescanInAttackMode/')->{'RescanInAttackMode'};
-	}
-
-	public function optionPromptInAttackMode() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionPromptInAttackMode/')->{'PromptInAttackMode'};
-	}
-
-	public function optionTargetParamsInjectable() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionTargetParamsInjectable/')->{'TargetParamsInjectable'};
-	}
-
-	public function optionTargetParamsEnabledRPC() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionTargetParamsEnabledRPC/')->{'TargetParamsEnabledRPC'};
-	}
-
-	public function optionPromptToClearFinishedScans() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionPromptToClearFinishedScans/')->{'PromptToClearFinishedScans'};
+	public function optionAttackPolicy() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionAttackPolicy/')->{'AttackPolicy'};
 	}
 
 	public function optionDefaultPolicy() {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionDefaultPolicy/')->{'DefaultPolicy'};
 	}
 
-	public function optionAttackPolicy() {
-		return $this->zap->request($this->zap->base . 'ascan/view/optionAttackPolicy/')->{'AttackPolicy'};
+	public function optionDelayInMs() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionDelayInMs/')->{'DelayInMs'};
+	}
+
+	public function optionExcludedParamList() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionExcludedParamList/')->{'ExcludedParamList'};
+	}
+
+	public function optionHandleAntiCSRFTokens() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionHandleAntiCSRFTokens/')->{'HandleAntiCSRFTokens'};
+	}
+
+	public function optionHostPerScan() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionHostPerScan/')->{'HostPerScan'};
+	}
+
+	public function optionMaxChartTimeInMins() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionMaxChartTimeInMins/')->{'MaxChartTimeInMins'};
+	}
+
+	public function optionMaxResultsToList() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionMaxResultsToList/')->{'MaxResultsToList'};
+	}
+
+	public function optionMaxScansInUI() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionMaxScansInUI/')->{'MaxScansInUI'};
+	}
+
+	public function optionTargetParamsEnabledRPC() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionTargetParamsEnabledRPC/')->{'TargetParamsEnabledRPC'};
+	}
+
+	public function optionTargetParamsInjectable() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionTargetParamsInjectable/')->{'TargetParamsInjectable'};
+	}
+
+	public function optionThreadPerHost() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionThreadPerHost/')->{'ThreadPerHost'};
 	}
 
 	public function optionAllowAttackOnStart() {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionAllowAttackOnStart/')->{'AllowAttackOnStart'};
+	}
+
+	public function optionInjectPluginIdInHeader() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionInjectPluginIdInHeader/')->{'InjectPluginIdInHeader'};
+	}
+
+	public function optionPromptInAttackMode() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionPromptInAttackMode/')->{'PromptInAttackMode'};
+	}
+
+	public function optionPromptToClearFinishedScans() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionPromptToClearFinishedScans/')->{'PromptToClearFinishedScans'};
+	}
+
+	public function optionRescanInAttackMode() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionRescanInAttackMode/')->{'RescanInAttackMode'};
+	}
+
+	public function optionShowAdvancedDialog() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionShowAdvancedDialog/')->{'ShowAdvancedDialog'};
 	}
 
 	public function scan($url, $recurse='', $inscopeonly='', $scanpolicyname='', $method='', $postdata='', $apikey='') {
@@ -145,7 +149,7 @@ class Ascan {
 	}
 
 	/**
-	 * Active Scans from the perspective of an User, obtained using the given Context ID and User ID. See 'scan' action for more details.
+	 * Active Scans from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
 	 */
 	public function scanAsUser($url, $contextid, $userid, $recurse='', $scanpolicyname='', $method='', $postdata='', $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/scanAsUser/', array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'recurse' => $recurse, 'scanPolicyName' => $scanpolicyname, 'method' => $method, 'postData' => $postdata, 'apikey' => $apikey));
@@ -235,68 +239,72 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/action/removeScanPolicy/', array('scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
 	}
 
-	public function setOptionDefaultPolicy($string, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionDefaultPolicy/', array('String' => $string, 'apikey' => $apikey));
-	}
-
 	public function setOptionAttackPolicy($string, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionAttackPolicy/', array('String' => $string, 'apikey' => $apikey));
 	}
 
-	public function setOptionMaxScansInUI($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionMaxScansInUI/', array('Integer' => $integer, 'apikey' => $apikey));
+	public function setOptionDefaultPolicy($string, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionDefaultPolicy/', array('String' => $string, 'apikey' => $apikey));
 	}
 
-	public function setOptionShowAdvancedDialog($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionShowAdvancedDialog/', array('Boolean' => $boolean, 'apikey' => $apikey));
-	}
-
-	public function setOptionThreadPerHost($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionThreadPerHost/', array('Integer' => $integer, 'apikey' => $apikey));
-	}
-
-	public function setOptionHostPerScan($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionHostPerScan/', array('Integer' => $integer, 'apikey' => $apikey));
-	}
-
-	public function setOptionMaxResultsToList($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionMaxResultsToList/', array('Integer' => $integer, 'apikey' => $apikey));
+	public function setOptionAllowAttackOnStart($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionAllowAttackOnStart/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 	public function setOptionDelayInMs($integer, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionDelayInMs/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
-	public function setOptionInjectPluginIdInHeader($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionInjectPluginIdInHeader/', array('Boolean' => $boolean, 'apikey' => $apikey));
-	}
-
 	public function setOptionHandleAntiCSRFTokens($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionHandleAntiCSRFTokens/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
-	public function setOptionRescanInAttackMode($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionRescanInAttackMode/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	public function setOptionHostPerScan($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionHostPerScan/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	public function setOptionInjectPluginIdInHeader($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionInjectPluginIdInHeader/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionMaxChartTimeInMins($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionMaxChartTimeInMins/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	public function setOptionMaxResultsToList($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionMaxResultsToList/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	public function setOptionMaxScansInUI($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionMaxScansInUI/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
 	public function setOptionPromptInAttackMode($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionPromptInAttackMode/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
-	public function setOptionTargetParamsInjectable($integer, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionTargetParamsInjectable/', array('Integer' => $integer, 'apikey' => $apikey));
+	public function setOptionPromptToClearFinishedScans($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionPromptToClearFinishedScans/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionRescanInAttackMode($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionRescanInAttackMode/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	public function setOptionShowAdvancedDialog($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionShowAdvancedDialog/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 	public function setOptionTargetParamsEnabledRPC($integer, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionTargetParamsEnabledRPC/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
-	public function setOptionPromptToClearFinishedScans($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionPromptToClearFinishedScans/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	public function setOptionTargetParamsInjectable($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionTargetParamsInjectable/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
-	public function setOptionAllowAttackOnStart($boolean, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setOptionAllowAttackOnStart/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	public function setOptionThreadPerHost($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionThreadPerHost/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
 }

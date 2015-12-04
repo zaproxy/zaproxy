@@ -26,25 +26,46 @@ class script(object):
 
     @property
     def list_engines(self):
+        """
+        Lists the script engines available
+        """
         return next(self.zap._request(self.zap.base + 'script/view/listEngines/').itervalues())
 
     @property
     def list_scripts(self):
+        """
+        Lists the scripts available, with its engine, name, description, type and error state.
+        """
         return next(self.zap._request(self.zap.base + 'script/view/listScripts/').itervalues())
 
     def enable(self, scriptname, apikey=''):
+        """
+        Enables the script with the given name
+        """
         return next(self.zap._request(self.zap.base + 'script/action/enable/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
     def disable(self, scriptname, apikey=''):
+        """
+        Disables the script with the given name
+        """
         return next(self.zap._request(self.zap.base + 'script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
     def load(self, scriptname, scripttype, scriptengine, filename, scriptdescription='', apikey=''):
+        """
+        Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
+        """
         return next(self.zap._request(self.zap.base + 'script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}).itervalues())
 
     def remove(self, scriptname, apikey=''):
+        """
+        Removes the script with the given name
+        """
         return next(self.zap._request(self.zap.base + 'script/action/remove/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
     def run_stand_alone_script(self, scriptname, apikey=''):
+        """
+        Runs the stand alone script with the give name
+        """
         return next(self.zap._request(self.zap.base + 'script/action/runStandAloneScript/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
 
