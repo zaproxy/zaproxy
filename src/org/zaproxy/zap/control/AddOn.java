@@ -430,7 +430,7 @@ public class AddOn  {
 	 * Gets the classnames that can be loaded for the add-on.
 	 * 
 	 * @return the classnames that can be loaded
-	 * @since TODO add version
+	 * @since 2.4.3
 	 */
 	public AddOnClassnames getAddOnClassnames() {
 		return addOnClassnames;
@@ -463,7 +463,7 @@ public class AddOn  {
 	 * 
 	 * @param classname the classname of the extension
 	 * @return the classnames that can be loaded
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #hasExtensionsWithDeps()
 	 */
 	public AddOnClassnames getExtensionAddOnClassnames(String classname) {
@@ -578,7 +578,7 @@ public class AddOn  {
 	 * Gets the active scan rules of this add-on that were loaded.
 	 *
 	 * @return an unmodifiable {@code List} with the active scan rules of this add-on that were loaded, never {@code null}
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedAscanrules(List)
 	 */
 	public List<AbstractPlugin> getLoadedAscanrules() {
@@ -595,7 +595,7 @@ public class AddOn  {
 	 * 
 	 * @param ascanrules the active scan rules loaded, might be empty if none were actually loaded
 	 * @throws IllegalArgumentException if {@code ascanrules} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedAscanrulesSet(boolean)
 	 * @see AbstractPlugin#setStatus(Status)
 	 */
@@ -621,7 +621,7 @@ public class AddOn  {
 	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
 	 *
 	 * @return {@code true} if the loaded active scan rules were already set, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedAscanrules(List)
 	 * @see #setLoadedAscanrulesSet(boolean)
 	 */
@@ -637,7 +637,7 @@ public class AddOn  {
 	 * calling the method {@code setLoadedAscanrules(List)}.
 	 *
 	 * @param ascanrulesSet {@code true} if the loaded active scan rules were already set, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedAscanrules(List)
 	 */
 	void setLoadedAscanrulesSet(boolean ascanrulesSet) {
@@ -652,7 +652,7 @@ public class AddOn  {
 	 * Gets the passive scan rules of this add-on that were loaded.
 	 *
 	 * @return an unmodifiable {@code List} with the passive scan rules of this add-on that were loaded, never {@code null}
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedPscanrules(List)
 	 */
 	public List<PluginPassiveScanner> getLoadedPscanrules() {
@@ -669,7 +669,7 @@ public class AddOn  {
 	 * 
 	 * @param pscanrules the passive scan rules loaded, might be empty if none were actually loaded
 	 * @throws IllegalArgumentException if {@code pscanrules} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedPscanrulesSet(boolean)
 	 * @see PluginPassiveScanner#setStatus(Status)
 	 */
@@ -695,7 +695,7 @@ public class AddOn  {
 	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
 	 *
 	 * @return {@code true} if the loaded passive scan rules were already set, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedPscanrules(List)
 	 * @see #setLoadedPscanrulesSet(boolean)
 	 */
@@ -711,7 +711,7 @@ public class AddOn  {
 	 * calling the method {@code setLoadedPscanrules(List)}.
 	 *
 	 * @param pscanrulesSet {@code true} if the loaded passive scan rules were already set, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.4.3
 	 * @see #setLoadedPscanrules(List)
 	 */
 	void setLoadedPscanrulesSet(boolean pscanrulesSet) {

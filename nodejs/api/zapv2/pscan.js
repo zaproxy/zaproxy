@@ -29,7 +29,6 @@ function Pscan(clientApi) {
 
 /**
  * The number of records the passive scanner still has to scan
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.recordsToScan = function (callback) {
   this.api.request('/pscan/view/recordsToScan/', callback);
@@ -37,7 +36,6 @@ Pscan.prototype.recordsToScan = function (callback) {
 
 /**
  * Lists all passive scanners with its ID, name, enabled state and alert threshold.
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.scanners = function (callback) {
   this.api.request('/pscan/view/scanners/', callback);
@@ -45,7 +43,6 @@ Pscan.prototype.scanners = function (callback) {
 
 /**
  * Sets whether or not the passive scanning is enabled
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.setEnabled = function (enabled, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -57,7 +54,6 @@ Pscan.prototype.setEnabled = function (enabled, apikey, callback) {
 
 /**
  * Enables all passive scanners
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.enableAllScanners = function (apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -69,7 +65,6 @@ Pscan.prototype.enableAllScanners = function (apikey, callback) {
 
 /**
  * Disables all passive scanners
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.disableAllScanners = function (apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -81,7 +76,6 @@ Pscan.prototype.disableAllScanners = function (apikey, callback) {
 
 /**
  * Enables all passive scanners with the given IDs (comma separated list of IDs)
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.enableScanners = function (ids, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -93,7 +87,6 @@ Pscan.prototype.enableScanners = function (ids, apikey, callback) {
 
 /**
  * Disables all passive scanners with the given IDs (comma separated list of IDs)
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.disableScanners = function (ids, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -105,7 +98,6 @@ Pscan.prototype.disableScanners = function (ids, apikey, callback) {
 
 /**
  * Sets the alert threshold of the passive scanner with the given ID, accepted values for alert threshold: OFF, DEFAULT, LOW, MEDIUM and HIGH
- * This component is optional and therefore the API will only work if it is installed
  **/
 Pscan.prototype.setScannerAlertThreshold = function (id, alertthreshold, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {

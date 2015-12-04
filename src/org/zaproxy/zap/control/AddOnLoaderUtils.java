@@ -32,7 +32,7 @@ import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 /**
  * A class with utility methods to help with add-on loading and (un)installation.
  *
- * @since TODO add version
+ * @since 2.4.3
  */
 final class AddOnLoaderUtils {
 

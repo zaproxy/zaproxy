@@ -345,7 +345,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * Gets the number of URIs, in and out of scope, found during the scan.
 	 *
 	 * @return the number of URIs found during the scan
-	 * @since TODO add version
+	 * @since 2.4.3
 	 */
 	public int getNumberOfURIsFound() {
 		return numberOfURIsFound.get();

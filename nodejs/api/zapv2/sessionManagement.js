@@ -27,30 +27,18 @@ function SessionManagement(clientApi) {
   this.api = clientApi;
 }
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.getSupportedSessionManagementMethods = function (callback) {
   this.api.request('/sessionManagement/view/getSupportedSessionManagementMethods/', callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.getSessionManagementMethodConfigParams = function (methodname, callback) {
   this.api.request('/sessionManagement/view/getSessionManagementMethodConfigParams/', {'methodName' : methodname}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.getSessionManagementMethod = function (contextid, callback) {
   this.api.request('/sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.setSessionManagementMethod = function (contextid, methodname, methodconfigparams, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

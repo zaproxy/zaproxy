@@ -28,21 +28,21 @@ function Script(clientApi) {
 }
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Lists the script engines available
  **/
 Script.prototype.listEngines = function (callback) {
   this.api.request('/script/view/listEngines/', callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Lists the scripts available, with its engine, name, description, type and error state.
  **/
 Script.prototype.listScripts = function (callback) {
   this.api.request('/script/view/listScripts/', callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Enables the script with the given name
  **/
 Script.prototype.enable = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -53,7 +53,7 @@ Script.prototype.enable = function (scriptname, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Disables the script with the given name
  **/
 Script.prototype.disable = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -64,7 +64,7 @@ Script.prototype.disable = function (scriptname, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
  **/
 Script.prototype.load = function (scriptname, scripttype, scriptengine, filename, scriptdescription, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -75,7 +75,7 @@ Script.prototype.load = function (scriptname, scripttype, scriptengine, filename
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Removes the script with the given name
  **/
 Script.prototype.remove = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -86,7 +86,7 @@ Script.prototype.remove = function (scriptname, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Runs the stand alone script with the give name
  **/
 Script.prototype.runStandAloneScript = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {

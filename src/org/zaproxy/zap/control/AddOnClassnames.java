@@ -27,7 +27,7 @@ import java.util.List;
  * <p>
  * The classnames can be allowed or restricted.
  * 
- * @since TODO add version
+ * @since 2.4.3
  */
 final class AddOnClassnames {
 

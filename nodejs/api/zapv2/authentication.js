@@ -27,44 +27,26 @@ function Authentication(clientApi) {
   this.api = clientApi;
 }
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.getSupportedAuthenticationMethods = function (callback) {
   this.api.request('/authentication/view/getSupportedAuthenticationMethods/', callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.getAuthenticationMethodConfigParams = function (authmethodname, callback) {
   this.api.request('/authentication/view/getAuthenticationMethodConfigParams/', {'authMethodName' : authmethodname}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.getAuthenticationMethod = function (contextid, callback) {
   this.api.request('/authentication/view/getAuthenticationMethod/', {'contextId' : contextid}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.getLoggedInIndicator = function (contextid, callback) {
   this.api.request('/authentication/view/getLoggedInIndicator/', {'contextId' : contextid}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.getLoggedOutIndicator = function (contextid, callback) {
   this.api.request('/authentication/view/getLoggedOutIndicator/', {'contextId' : contextid}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.setAuthenticationMethod = function (contextid, authmethodname, authmethodconfigparams, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -73,9 +55,6 @@ Authentication.prototype.setAuthenticationMethod = function (contextid, authmeth
   this.api.request('/authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams, 'apikey' : apikey}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.setLoggedInIndicator = function (contextid, loggedinindicatorregex, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -84,9 +63,6 @@ Authentication.prototype.setLoggedInIndicator = function (contextid, loggedinind
   this.api.request('/authentication/action/setLoggedInIndicator/', {'contextId' : contextid, 'loggedInIndicatorRegex' : loggedinindicatorregex, 'apikey' : apikey}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 Authentication.prototype.setLoggedOutIndicator = function (contextid, loggedoutindicatorregex, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;

@@ -82,7 +82,7 @@ class context(object):
 
     def new_context(self, contextname, apikey=''):
         """
-        Creates a new context with then given name in the current session
+        Creates a new context with the given name in the current session
         """
         return next(self.zap._request(self.zap.base + 'context/action/newContext/', {'contextName' : contextname, 'apikey' : apikey}).itervalues())
 

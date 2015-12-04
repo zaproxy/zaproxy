@@ -28,7 +28,7 @@ import org.zaproxy.zap.model.StructuralNodeModifier;
 
 /**
  * A table model for holding a set of structural node modifiers, for a {@link Context}.
- * @since TODO add version
+ * @since 2.4.3
  */
 public class StructuralNodeModifiersTableModel extends AbstractMultipleOptionsTableModel<StructuralNodeModifier> {
 

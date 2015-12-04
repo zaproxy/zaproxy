@@ -354,7 +354,7 @@ class AddOnDependencyChecker {
      *
      * @param addOn the add-on that would be updated
      * @return the resulting changes with the add-ons that need to be updated, installed or uninstalled
-     * @since TODO add version
+     * @since 2.4.3
      */
     public AddOnChangesResult calculateUpdateChanges(AddOn addOn) {
         Set<AddOn> addOns = new HashSet<>();

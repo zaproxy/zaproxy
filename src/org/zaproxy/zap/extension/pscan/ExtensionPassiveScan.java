@@ -118,7 +118,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the status of the
+     * @deprecated (2.4.3) Use {@link #addPluginPassiveScanner(PluginPassiveScanner)} instead, the status of the
      *             scanner is not properly set.
      * @see PluginPassiveScanner#getStatus()
      */
