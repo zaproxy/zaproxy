@@ -18,7 +18,7 @@
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
-	<property name="zap.java.api.version" value="6" />
+	<property name="zap.java.api.version" value="7" />
 	<property name="package" value="zaproxy" />
 
 	<!-- mac specific properties -->
@@ -157,7 +157,11 @@
 		</copy>
 
 		<copy todir="${dist}/license">
-			<fileset dir="${src}/license" excludes="**/.svn/** **/_svn/**" />
+			<fileset dir="${src}/license">
+				<exclude name="**/.svn/**" />
+				<exclude name="**/_svn/**" />
+				<exclude name="OrangeExtensions.License.txt" />
+			</fileset>
 		</copy>
 		<copy todir="${dist}/log">
 			<fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
@@ -165,6 +169,7 @@
 		<copy todir="${dist}/lib">
 			<fileset dir="${dist.lib.dir}">
 				<include name="**/*.jar" />
+				<exclude name="orange-extensions-1.3.0.jar" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
 			</fileset>
@@ -213,6 +218,10 @@
 			</classpath>
 		</manifestclasspath>
 
+		<tstamp>
+			<format property="yyyymmdd" pattern="yyyy-MM-dd"/>
+		</tstamp>
+
 		<jar jarfile="${dist}/${zap.jar}" update="true" compress="false">
 			<zipfileset dir="${build}" prefix="">
 				<!-- Exclude all extensions that are build as addons - these are build next -->
@@ -221,6 +230,7 @@
 				<attribute name="Main-Class" value="org.zaproxy.zap.ZAP" />
 				<attribute name="Class-Path" value="${dist.manifest.classpath}" />
 				<attribute name="Implementation-Version" value="${version}" />
+				<attribute name="Create-Date" value="${yyyymmdd}" />
 			</manifest>
 		</jar>
 
@@ -254,6 +264,7 @@
 			<manifest>
 				<attribute name="Implementation-Version" value="${zap.java.api.version}" />
 				<attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
+				<attribute name="Create-Date" value="${yyyymmdd}" />
 			</manifest>
 		</jar>
 
@@ -371,6 +382,9 @@
 		<java classname="org.zaproxy.zap.extension.api.PhpAPIGenerator" dir=".." fork="yes">
 			<classpath refid="classpath" />
 		</java>
+		<java classname="org.zaproxy.zap.extension.api.GoAPIGenerator" dir=".." fork="yes">
+			<classpath refid="classpath" />
+		</java>
 	</target>
 
     <target name="copy-jar-to-extension-projects" depends="setup, dist">
@@ -408,6 +422,9 @@
                 <fileset dir="build">
                     <include name="**/*UnitTest.class"/>
                     <exclude name="**/Abstract*Test.class"/>
+                </fileset>
+                <fileset dir="build">
+                    <include name="**/AbstractPluginUnitTest.class"/>
                 </fileset>
             </batchtest>
 		</junit>

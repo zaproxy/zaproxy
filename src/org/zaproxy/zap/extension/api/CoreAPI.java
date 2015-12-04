@@ -467,7 +467,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 					sender.sendAndReceive(tempReq);
 					persistMessage(tempReq);
-					processor.process(request);
+					processor.process(tempReq);
 				}
 			}
 		} finally {
@@ -889,12 +889,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		StringBuilder report = new StringBuilder();
 		rls.generate(report, Model.getSingleton());
 
-		String type = ScanReportType.XML == reportType ? "xml" : "html";
-		String response = ReportGenerator.stringToHtml(
-				report.toString(),
-				Paths.get(Constant.getZapInstall(), "xml/report." + type + ".xsl").toString());
-
-		msg.setResponseHeader(API.getDefaultResponseHeader("text/" + type + "; charset=UTF-8"));
+		String response;
+		if (ScanReportType.XML == reportType) {
+			// Copy as is
+			msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
+			response = report.toString();
+		} else {
+			msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
+			response = ReportGenerator.stringToHtml(
+					report.toString(),
+					Paths.get(Constant.getZapInstall(), "xml/report.html.xsl").toString());
+		}
 
 		msg.setResponseBody(response);
 		msg.getResponseHeader().setContentLength(msg.getResponseBody().length());

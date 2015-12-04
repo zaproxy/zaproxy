@@ -63,7 +63,6 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	public static final String TAG = "AntiCSRF"; 
 	
 	private Map<String, AntiCsrfToken> valueToToken = new HashMap<>();
-	private Map<String, AntiCsrfToken> urlToToken = new HashMap<>();
 	
 	private OptionsAntiCsrfPanel optionsAntiCsrfPanel = null;
 	private PopupMenuGenerateForm popupMenuGenerateForm = null;
@@ -115,6 +114,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 				}
 			};
 		}
+		AntiCsrfToken.setHistoryReferenceFactory(historyReferenceFactory);
 
 	    extensionHook.addSessionListener(this);
 
@@ -182,9 +182,19 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 	public void registerAntiCsrfToken(AntiCsrfToken token) {
 		log.debug("registerAntiCsrfToken " + token.getMsg().getRequestHeader().getURI().toString() + " " + token.getValue());
 		synchronized (valueToToken) {
-			valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+			try {
+				HistoryReference hRef = token.getMsg().getHistoryRef();
+				if (hRef == null) {
+					hRef = new HistoryReference(getModel().getSession(), HistoryReference.TYPE_TEMPORARY, token.getMsg());
+					token.getMsg().setHistoryRef(null);
+				}
+
+				token.setHistoryReferenceId(hRef.getHistoryId());
+				valueToToken.put(encoder.getURLEncode(token.getValue()), token);
+			} catch (HttpMalformedHeaderException | DatabaseException e) {
+				log.error("Failed to persist the message: ", e);
+			}
 		}
-		urlToToken.put(token.getMsg().getRequestHeader().getURI().toString(), token);
 	}
 
 	public boolean requestHasToken(HttpMessage msg) {
@@ -316,7 +326,6 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		synchronized (valueToToken) {
 			valueToToken = new HashMap<>();
 		}
-		urlToToken = new HashMap<>();
 		// search for tokens...
         try {
 			List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
@@ -431,7 +440,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		return null;
 	}
 
-	private static interface HistoryReferenceFactory {
+	static interface HistoryReferenceFactory {
 
 		HistoryReference createHistoryReference(int id) throws DatabaseException, HttpMalformedHeaderException;
 

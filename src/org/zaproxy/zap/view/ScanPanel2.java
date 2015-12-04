@@ -545,6 +545,8 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		progressModel.removeAllElements();
 		progressSelect.addItem(selectScanEntry);
 		progressSelect.setSelectedIndex(0);
+
+		clearScansButton.setEnabled(false);
 	}
 
 	public void sessionScopeChanged(Session session) {

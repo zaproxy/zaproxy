@@ -39,6 +39,7 @@
 // ZAP: 2015/01/04 Issue 1486: Add-on components leak
 // ZAP: 2015/07/25 Do not log error if the duplicated scanner is (apparently) a newer/older version
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
+// ZAP: 2015/11/02 Issue 1969: Issues with installation of scanners
 
 package org.parosproxy.paros.core.scanner;
 
@@ -90,11 +91,53 @@ public class PluginFactory {
     	return loadedPlugins;
     }
     
+    /**
+     * Tells whether or not the given {@code plugin} was already loaded.
+     *
+     * @param plugin the plugin that will be checked
+     * @return {@code true} if the plugin was already loaded, {@code false} otherwise
+     * @since 2.4.3
+     */
+    public static boolean isPluginLoaded(AbstractPlugin plugin) {
+        if (loadedPlugins == null) {
+            return false;
+        }
+        return isPluginLoadedImpl(plugin);
+    }
+
+    private static boolean isPluginLoadedImpl(AbstractPlugin plugin) {
+        for (AbstractPlugin otherPlugin : getLoadedPlugins()) {
+            if (otherPlugin == plugin) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds the given loaded {@code plugin} to the {@code PluginFactory}. Loaded plugins, are used by the active scanner, if
+     * enabled.
+     * <p>
+     * Call to this method has not effect it the {@code plugin} was already added.
+     *
+     * @param plugin the plugin that should be loaded
+     * @since 2.4.0
+     * @see #isPluginLoaded(AbstractPlugin)
+     */
     public static void loadedPlugin(AbstractPlugin plugin) {
-    	getLoadedPlugins().add(plugin);
-        Collections.sort(loadedPlugins, riskComparator);
+        if (!isPluginLoadedImpl(plugin)) {
+            getLoadedPlugins().add(plugin);
+            Collections.sort(loadedPlugins, riskComparator);
+        }
     }
     
+    /**
+     * @deprecated (2.4.3) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the scanner is not
+     *             properly set.
+     * @see AbstractPlugin#getStatus()
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public static boolean loadedPlugin(String className) {
         try {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
@@ -107,9 +150,23 @@ public class PluginFactory {
     }
     
     public static void unloadedPlugin(AbstractPlugin plugin) {
-    	getLoadedPlugins().remove(plugin);
+        if (loadedPlugins == null) {
+            return;
+        }
+        for (Iterator<AbstractPlugin> it = getLoadedPlugins().iterator(); it.hasNext();) {
+            if (it.next() == plugin) {
+                it.remove();
+                return;
+            }
+        }
     }
     
+    /**
+     * @deprecated (2.4.3) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that the exact scanner
+     *             instance is unloaded.
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public static boolean unloadedPlugin(String className) {
         if (loadedPlugins == null) {
             return true;
@@ -298,6 +355,7 @@ public class PluginFactory {
                     Plugin plugin = getLoadedPlugins().get(i);
                     plugin.setConfig(config);
                     plugin.createParamIfNotExist();
+                    plugin.loadFrom(config);
                     if (!plugin.isVisible()) {
                         log.info("Plugin " + plugin.getName() + " not visible");
                         continue;

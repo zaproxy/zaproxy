@@ -565,7 +565,32 @@ public class API {
     private static void handleException(HttpMessage msg, Format format, String contentType, Exception cause) {
         String responseStatus = STATUS_INTERNAL_SERVER_ERROR;
         if (format == Format.OTHER) {
-            logger.error("API 'other' endpoint didn't handle exception:", cause);
+            boolean logError = true;
+            if (cause instanceof ApiException) {
+                switch (((ApiException) cause).getType()) {
+                case DISABLED:
+                    responseStatus = STATUS_BAD_REQUEST;
+                    logger.warn("ApiException while handling API request:", cause);
+                    logError = false;
+                    break;
+                case BAD_TYPE:
+                case NO_IMPLEMENTOR:
+                case BAD_API_KEY:
+                case MISSING_PARAMETER:
+                case BAD_ACTION:
+                case BAD_VIEW:
+                case BAD_OTHER:
+                    responseStatus = STATUS_BAD_REQUEST;
+                    logger.warn("API 'other' malformed request:", cause);
+                    logError = false;
+                    break;
+                default:
+                }
+            }
+
+            if (logError) {
+                logger.error("API 'other' endpoint didn't handle exception:", cause);
+            }
         } else {
             ApiException exception;
             if (cause instanceof ApiException) {
@@ -580,7 +605,8 @@ public class API {
             }
             String response = exception.toString(format, getOptionsParamApi().isIncErrorDetails());
 
-            msg.setResponseBody(response);
+            msg.getResponseBody().setCharset(getCharset(contentType));
+            msg.getResponseBody().setBody(response);
         }
 
         try {
@@ -588,5 +614,13 @@ public class API {
         } catch (HttpMalformedHeaderException e) {
             logger.warn("Failed to build API error response:", e);
         }
+    }
+
+    private static String getCharset(String contentType) {
+        int idx = contentType.indexOf("charset=");
+        if (idx == -1) {
+            return "UTF-8";
+        }
+        return contentType.substring(idx + 8);
     }
 }

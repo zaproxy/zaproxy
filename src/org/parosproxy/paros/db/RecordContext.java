@@ -66,6 +66,7 @@ public class RecordContext {
 	public static final int TYPE_URL_PARSER_CONFIG = 401;
 	public static final int TYPE_POST_PARSER_CLASSNAME = 402;
 	public static final int TYPE_POST_PARSER_CONFIG = 403;
+	public static final int TYPE_DATA_DRIVEN_NODES = 404;
 	
 	public static final int TYPE_ACCESS_CONTROL_RULE = 410;
 	

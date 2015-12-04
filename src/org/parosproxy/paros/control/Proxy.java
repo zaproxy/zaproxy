@@ -26,6 +26,7 @@
 // ZAP: 2013/08/30 Issue 775: Allow host to be set via the command line
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2015/01/04 Issue 1387: Unable to change the proxy's port/address if the port/address was specified through the command line
+// ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 package org.parosproxy.paros.control;
  
 import java.util.List;
@@ -58,7 +59,7 @@ public class Proxy {
 
 	}
 	
-	public void startServer() {
+	public boolean startServer() {
 
 		// setProxyParam put in here so restart can reread param.
 		proxyServer.setProxyParam(model.getOptionsParam().getProxyParam());
@@ -103,9 +104,12 @@ public class Proxy {
 		    	proxyPort = model.getOptionsParam().getProxyParam().getProxyPort();
 		    }
 
-			proxyServer.startServer(proxyHost, proxyPort, false);
+			if (proxyServer.startServer(proxyHost, proxyPort, false) == -1) {
+				return false;
+			}
 		    
 		}
+		return true;
 	}
 
 	public void stopServer() {

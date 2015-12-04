@@ -8,6 +8,7 @@ RUN mkdir /zap
 RUN gem install zapr
 RUN apt-get --assume-yes install python-pip
 RUN pip install python-owasp-zap-v2.4
+RUN pip install zapcli
 WORKDIR /zap
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
 
@@ -23,9 +24,12 @@ run echo "zap.sh" >> /home/zap/.xinitrc
 RUN chmod a+x /home/zap/.xinitrc
 RUN chown -R zap /home/zap/
 RUN chmod -R u+rw /home/zap/
+RUN chown -R zap /zap/
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.4.2/:$PATH
 ENV ZAP_PATH /zap/ZAP_2.4.2/zap.sh
+# Default port for use with zapcli
+ENV ZAP_PORT 8080
 ENV HOME /home/zap/
 
 # For noVNC support. Currently broken. Please fix.

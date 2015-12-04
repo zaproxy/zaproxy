@@ -29,7 +29,7 @@ public class SpiderUrlTask extends ZapTask {
 	@Override
 	public void execute() throws BuildException {
 		try {
-			this.getClientApi().spider.scan(apikey, url, "", "");
+			this.getClientApi().spider.scan(apikey, url, "", "", "");
 			
 		} catch (Exception e) {
 			throw new BuildException(e);

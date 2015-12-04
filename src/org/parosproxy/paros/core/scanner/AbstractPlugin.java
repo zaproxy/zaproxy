@@ -784,24 +784,31 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     
     @Override
     public void saveTo(Configuration conf) {
-        setProperty(conf, "enabled", getProperty("enabled"));
+        setProperty(conf, "enabled", Boolean.toString(enabled));
         setProperty(conf, "level", getProperty("level"));
         setProperty(conf, "strength", getProperty("strength"));
     }
     
     @Override
     public void loadFrom(Configuration conf) {
-        setProperty("enabled", getProperty(conf, "enabled"));
         setProperty("level", getProperty(conf, "level"));
         setProperty("strength", getProperty(conf, "strength"));
+        String enabledProperty = getProperty(conf, "enabled");
+        if (enabledProperty != null) {
+            enabled = Boolean.parseBoolean(enabledProperty);
+        } else {
+            enabled = getAlertThreshold() != AlertThreshold.OFF;
+            enabledProperty = Boolean.toString(enabled);
+        }
+        setProperty("enabled", enabledProperty);
     }
 
     @Override
     public void cloneInto(Plugin plugin) {
     	if (plugin instanceof AbstractPlugin) {
     		AbstractPlugin ap = (AbstractPlugin) plugin;
-    		ap.setEnabled(this.isEnabled());
     		ap.setAlertThreshold(this.getAlertThreshold(true));
+    		ap.setEnabled(this.isEnabled());
     		ap.setAttackStrength(this.getAttackStrength(true));
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);

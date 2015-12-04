@@ -1,13 +1,14 @@
 # This dockerfile builds the zap weekly release
-FROM ubuntu
-MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
+FROM ubuntu:15.04
+MAINTAINER Simon Bennetts "psiinon@gmail.com"
 
 RUN apt-get update && apt-get clean
 RUN apt-get install -q -y make automake autoconf gcc g++ openjdk-7-jre-headless openjdk-7-jdk ruby wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools ruby-dev && apt-get clean
 RUN mkdir /zap 
 RUN gem install zapr
-RUN apt-get --assume-yes install python-pip
+RUN apt-get --assume-yes --fix-missing install python-pip x11vnc xvfb firefox
 RUN pip install python-owasp-zap-v2.4
+RUN pip install zapcli
 WORKDIR /zap
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml | xmlstarlet sel -t -v //url |grep -i weekly | wget --content-disposition -i - 
 RUN unzip *.zip && rm *.zip
@@ -16,16 +17,69 @@ RUN mv ZAP* weekly
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd
 
+# Create the script which will run ZAP with Xvfb
+RUN echo "#!/bin/sh" > /zap/weekly/zap-x.sh
+RUN echo "export DISPLAY=:1.0" >> /zap/weekly/zap-x.sh
+RUN echo "Xvfb :1 -screen 0 1024x768x16 -ac &" >> /zap/weekly/zap-x.sh
+RUN echo "/zap/weekly/zap.sh \$@" >> /zap/weekly/zap-x.sh
+RUN chmod a+x /zap/weekly/zap-x.sh
+
 RUN mkdir /home/zap/.vnc
 RUN echo "openbox &" > /home/zap/.xinitrc
 RUN echo "xsetroot -solid black" >> /home/zap/.xinitrc
-run echo "zap.sh" >> /home/zap/.xinitrc
+RUN echo "zap.sh" >> /home/zap/.xinitrc
 RUN chmod a+x /home/zap/.xinitrc
 RUN chown -R zap /home/zap/
 RUN chmod -R u+rw /home/zap/
+RUN chown -R zap /zap/
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/weekly/:$PATH
 ENV ZAP_PATH /zap/weekly/zap.sh
+# Default port for use with zapcli
+ENV ZAP_PORT 8080
 ENV HOME /home/zap/
 
+RUN mkdir -p /home/zap/.ZAP_D/policies
 
+# Create some useful policies
+ENV zappolicy /home/zap/.ZAP_D/policies/St-High-Th-Med.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-High-Th-Med</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>MEDIUM</level>" 	>> ${zappolicy}
+RUN echo "<strength>HIGH</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+ENV zappolicy /home/zap/.ZAP_D/policies/St-Ins-Th-Med.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-Ins-Th-Med</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>MEDIUM</level>" 	>> ${zappolicy}
+RUN echo "<strength>INSANE</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+ENV zappolicy /home/zap/.ZAP_D/policies/St-Low-Th-Med.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-Low-Th-Med</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>MEDIUM</level>" 	>> ${zappolicy}
+RUN echo "<strength>LOW</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+ENV zappolicy /home/zap/.ZAP_D/policies/St-Ins-Th-High.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-Ins-Th-High</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>HIGH</level>"	 	>> ${zappolicy}
+RUN echo "<strength>INSANE</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+RUN chown -R zap /home/zap/.ZAP_D

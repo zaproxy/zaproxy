@@ -114,7 +114,7 @@ public class AddOnLoader extends URLClassLoader {
     private Map<String, AddOnClassLoader> addOnLoaders = new HashMap<>();
 
     public AddOnLoader(File[] dirs) {
-        super(new URL[0]);
+        super(new URL[0], AddOnLoader.class.getClassLoader());
         
         this.loadBlockList();
 
@@ -249,7 +249,7 @@ public class AddOnLoader extends URLClassLoader {
 
             List<String> idsAddOnDependencies = ao.getIdsAddOnDependencies();
             if (idsAddOnDependencies.isEmpty()) {
-                addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this);
+                addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, ao.getAddOnClassnames());
                 this.addOnLoaders.put(ao.getId(), addOnClassLoader);
                 return addOnClassLoader;
             }
@@ -263,7 +263,7 @@ public class AddOnLoader extends URLClassLoader {
                 dependencies.add(addOnClassLoader);
             }
 
-            addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies);
+            addOnClassLoader = new AddOnClassLoader(ao.getFile().toURI().toURL(), this, dependencies, ao.getAddOnClassnames());
             this.addOnLoaders.put(ao.getId(), addOnClassLoader);
             return addOnClassLoader;
         } catch (MalformedURLException e) {
@@ -436,7 +436,10 @@ public class AddOnLoader extends URLClassLoader {
                         for (AddOn addOnDep : extReqs.getDependencies()) {
                             dependencies.add(addOnLoaders.get(addOnDep.getId()));
                         }
-                        AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(entry.getValue(), dependencies);
+                        AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(
+                                entry.getValue(),
+                                dependencies,
+                                runningAddOn.getExtensionAddOnClassnames(extClassName));
                         Extension ext = loadAddOnExtension(runningAddOn, extReqs.getClassname(), extAddOnClassLoader);
                         AddOnInstaller.installAddOnExtension(runningAddOn, ext);
                         runnableAddOns.get(runningAddOn).add(extReqs.getClassname());
@@ -683,9 +686,14 @@ public class AddOnLoader extends URLClassLoader {
                     for (AddOn addOnDep : extReqs.getDependencies()) {
                         dependencies.add(addOnLoaders.get(addOnDep.getId()));
                     }
-                    AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(addOnClassLoader, dependencies);
+                    AddOnClassLoader extAddOnClassLoader = new AddOnClassLoader(
+                            addOnClassLoader,
+                            dependencies,
+                            addOn.getExtensionAddOnClassnames(extReqs.getClassname()));
                     Extension ext = loadAddOnExtension(addOn, extReqs.getClassname(), extAddOnClassLoader);
-                    extensions.add(ext);
+                    if (ext != null) {
+                        extensions.add(ext);
+                    }
                 } else if (logger.isDebugEnabled()) {
                     logger.debug("Can't run extension '" + extReqs.getClassname() + "' of add-on '" + addOn.getName()
                             + "' because of missing requirements: " + AddOnRunIssuesUtils.getRunningIssues(extReqs));
@@ -711,79 +719,54 @@ public class AddOnLoader extends URLClassLoader {
     }
 
     private static Extension loadAddOnExtension(AddOn addOn, String classname, AddOnClassLoader addOnClassLoader) {
-        Class<?> cls;
-        try {
-            cls = addOnClassLoader.loadClass(classname);
-        } catch (ClassNotFoundException e) {
-            logger.error("Declared extension was not found: " + classname, e);
-            return null;
-        }
-
-        if (Modifier.isAbstract(cls.getModifiers()) || Modifier.isInterface(cls.getModifiers())) {
-            logger.error("Declared \"extension\" is abstract or an interface: " + classname);
-            return null;
-        }
-
-        if (!Extension.class.isAssignableFrom(cls)) {
-            logger.error("Declared \"extension\" is not of type Extension: " + classname);
-            return null;
-        }
-
-        try {
-            @SuppressWarnings("unchecked")
-            Constructor<Extension> c = (Constructor<Extension>) cls.getConstructor();
-            Extension extension = c.newInstance();
+        Extension extension = AddOnLoaderUtils
+                .loadAndInstantiateClass(addOnClassLoader, classname, Extension.class, "extension");
+        if (extension != null) {
             addOn.addLoadedExtension(extension);
-            return extension;
-        } catch (Exception e) {
-            logger.debug(e.getMessage());
         }
-        return null;
+        return extension;
     }
 
-	@SuppressWarnings("unchecked")
+	/**
+	 * Gets the active scan rules of all the loaded add-ons.
+	 * <p>
+	 * The discovery of active scan rules is done by resorting to {@code ZapAddOn.xml} file bundled in the add-ons.
+	 *
+	 * @return an unmodifiable {@code List} with all the active scan rules, never {@code null}
+	 * @since 2.4.0
+	 * @see AbstractPlugin
+	 */
 	public List<AbstractPlugin> getActiveScanRules () {
-		List<AbstractPlugin> list = new ArrayList<AbstractPlugin>();
+		ArrayList<AbstractPlugin> list = new ArrayList<>();
 		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			if (addOn.getAscanrules() != null) {
-				for (String extName : addOn.getAscanrules()) {
-					try {
-						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
-	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
-	                    AbstractPlugin plugin = ((Constructor<AbstractPlugin>)c).newInstance();
-	                    plugin.setStatus(addOn.getStatus());
-	                    list.add(plugin);
-					} catch (Exception e) {
-		            	logger.debug(e.getMessage());
-					}
-				}
+			AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
+			if (addOnClassLoader != null) {
+				list.addAll(AddOnLoaderUtils.getActiveScanRules(addOn, addOnClassLoader));
 			}
         }
-		
-		return list;
+		list.trimToSize();
+		return Collections.unmodifiableList(list);
 	}
 
-
-	@SuppressWarnings("unchecked")
+	/**
+	 * Gets the passive scan rules of all the loaded add-ons.
+	 * <p>
+	 * The discovery of passive scan rules is done by resorting to {@code ZapAddOn.xml} file bundled in the add-ons.
+	 *
+	 * @return an unmodifiable {@code List} with all the passive scan rules, never {@code null}
+	 * @since 2.4.0
+	 * @see PluginPassiveScanner
+	 */
 	public List<PluginPassiveScanner> getPassiveScanRules() {
-		List<PluginPassiveScanner> list = new ArrayList<PluginPassiveScanner>();
+		ArrayList<PluginPassiveScanner> list = new ArrayList<>();
 		for (AddOn addOn : getAddOnCollection().getAddOns()) {
-			if (addOn.getPscanrules() != null) {
-				for (String extName : addOn.getPscanrules()) {
-					try {
-						Class<?> cls = this.addOnLoaders.get(addOn.getId()).loadClass(extName);
-	                    Constructor<?> c = (Constructor<?>) cls.getConstructor();
-						PluginPassiveScanner plugin = ((Constructor<PluginPassiveScanner>)c).newInstance();
-	                    plugin.setStatus(addOn.getStatus());
-	                    list.add(plugin);
-					} catch (Exception e) {
-		            	logger.debug(e.getMessage());
-					}
-				}
+			AddOnClassLoader addOnClassLoader = this.addOnLoaders.get(addOn.getId());
+			if (addOnClassLoader != null) {
+				list.addAll(AddOnLoaderUtils.getPassiveScanRules(addOn, addOnClassLoader));
 			}
         }
-		
-		return list;
+		list.trimToSize();
+		return Collections.unmodifiableList(list);
 	}
 
 	public <T> List<T> getImplementors (String packageName, Class<T> classType) {

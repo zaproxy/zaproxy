@@ -65,4 +65,8 @@ public interface ParameterParser {
 	String getConfig();
 
 	ParameterParser clone();
+	
+	void setContext(Context context);
+	
+	Context getContext();
 }

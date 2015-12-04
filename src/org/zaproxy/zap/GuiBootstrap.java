@@ -20,8 +20,6 @@
 package org.zaproxy.zap;
 
 import java.awt.EventQueue;
-import java.awt.Image;
-import java.awt.Toolkit;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -60,11 +58,6 @@ import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
-import org.zaproxy.zap.view.osxhandlers.OSXAboutHandler;
-import org.zaproxy.zap.view.osxhandlers.OSXPreferencesHandler;
-import org.zaproxy.zap.view.osxhandlers.OSXQuitHandler;
-
-import com.apple.eawt.Application;
 
 /**
  * The bootstrap process for GUI mode.
@@ -296,7 +289,7 @@ public class GuiBootstrap extends ZapBootstrap {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
             if (Constant.isMacOsX()) {
-                setupOsXGui();
+                OsXGui.setup();
             } else {
                 // Set Nimbus LaF if available
                 for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -312,35 +305,6 @@ public class GuiBootstrap extends ZapBootstrap {
                  | IllegalAccessException e) {
             // handle exception
         }
-    }
-
-    /**
-     * Setups OS X related GUI properties and functionalities.
-     */
-    private void setupOsXGui() {
-        // Set the various and sundry OS X-specific system properties
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        System.setProperty("dock:name", "ZAP"); // Broken and unfixed; thanks, Apple
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ZAP"); // more thx
-
-        // Override various handlers, so that About, Preferences, and Quit behave in an OS X typical fashion.
-        logger.info("Initializing OS X specific settings, despite Apple's best efforts");
-
-        // Attempt to load the apple classes
-        Application app = Application.getApplication();
-
-        // Set the dock image icon
-        Image img = Toolkit.getDefaultToolkit().getImage(GuiBootstrap.class.getResource("/resource/zap1024x1024.png"));
-        app.setDockIconImage(img);
-
-        // Set handlers for About and Preferences
-        app.setAboutHandler(new OSXAboutHandler());
-        app.setPreferencesHandler(new OSXPreferencesHandler());
-
-        // Let's not forget to clean up our database mess when we Quit
-        OSXQuitHandler quitHandler = new OSXQuitHandler();
-        // quitHandler.removeZAPViewItem(view); // TODO
-        app.setQuitHandler(quitHandler);
     }
 
     /**

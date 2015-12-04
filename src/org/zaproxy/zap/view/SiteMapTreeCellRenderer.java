@@ -41,15 +41,17 @@ import org.zaproxy.zap.utils.DisplayUtils;
  */
 public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	
-	private static final ImageIcon ROOT_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
-	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
-	private static final ImageIcon LEAF_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
-	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
-	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
-	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
-	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
+	private static final ImageIcon ROOT_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/16/094.png"));
+	private static final ImageIcon LEAF_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document-target.png"));
+	private static final ImageIcon LEAF_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/document.png"));
+	private static final ImageIcon FOLDER_OPEN_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open-target.png"));
+	private static final ImageIcon FOLDER_OPEN_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-open.png"));
+	private static final ImageIcon FOLDER_CLOSED_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal-target.png"));
+	private static final ImageIcon FOLDER_CLOSED_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/folder-horizontal.png"));
+	private static final ImageIcon DATA_DRIVEN_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/database.png"));
+	private static final ImageIcon DATA_DRIVEN_IN_SCOPE_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/database-target.png"));
 
-	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(DefaultTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
+	private static final ImageIcon LOCK_OVERLAY_ICON = new ImageIcon(SiteMapTreeCellRenderer.class.getResource("/resource/icon/fugue/lock-overlay.png"));
 
 	private static final long serialVersionUID = -4278691012245035225L;
 
@@ -87,36 +89,39 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			if (node.isRoot()) {
 				setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));	// 'World' icon
 			} else {
-		        ImageIcon icon;
-				if (leaf) {
+				OverlayIcon icon;
+		        if (node.isDataDriven()) {
 					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-						icon = LEAF_IN_SCOPE_ICON;
+						icon = new OverlayIcon(DATA_DRIVEN_IN_SCOPE_ICON);
 					} else {
-						icon = LEAF_ICON;
+						icon = new OverlayIcon(DATA_DRIVEN_ICON);
+					}
+		        } else if (leaf) {
+					if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
+						icon = new OverlayIcon(LEAF_IN_SCOPE_ICON);
+					} else {
+						icon = new OverlayIcon(LEAF_ICON);
 					}
 				} else {
 					if  (expanded) {
 						if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-							icon = FOLDER_OPEN_IN_SCOPE_ICON;
+							icon = new OverlayIcon(FOLDER_OPEN_IN_SCOPE_ICON);
 						} else {
-							icon = FOLDER_OPEN_ICON;
+							icon = new OverlayIcon(FOLDER_OPEN_ICON);
 						}
 					} else {
 						if (node.isIncludedInScope() && ! node.isExcludedFromScope()) {
-							icon = FOLDER_CLOSED_IN_SCOPE_ICON;
+							icon = new OverlayIcon(FOLDER_CLOSED_IN_SCOPE_ICON);
 						} else {
-							icon = FOLDER_CLOSED_ICON;
+							icon = new OverlayIcon(FOLDER_CLOSED_ICON);
 						}
 					}
 				}
-				if (((SiteNode)node.getParent()).isRoot() && node.getNodeName().startsWith("https://")) {
+				if (node.getParent().isRoot() && node.getNodeName().startsWith("https://")) {
 					// Add lock icon to site nodes with https
-					OverlayIcon oi = new OverlayIcon(icon);
-					oi.add(LOCK_OVERLAY_ICON);
-					setIcon(DisplayUtils.getScaledIcon(oi));
-				} else {
-					setIcon(DisplayUtils.getScaledIcon(icon));
+					icon.add(LOCK_OVERLAY_ICON);
 				}
+				setIcon(DisplayUtils.getScaledIcon(icon));
 			}
 
 	        for (SiteMapListener listener : listeners) {

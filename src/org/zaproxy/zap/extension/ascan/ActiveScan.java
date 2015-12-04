@@ -25,13 +25,17 @@ import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.HostProcess;
+import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.ScannerListener;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.db.DatabaseException;
@@ -47,6 +51,11 @@ import org.zaproxy.zap.model.Target;
 
 public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implements GenericScanner2, ScannerListener {
 	
+	/**
+	 * The maximum number of statistic history records cached
+	 */
+	private static final int MAX_STATS_HISTORY_SIZE = 240;
+	
 	public static enum State {
 		NOT_STARTED,
 		RUNNING,
@@ -58,13 +67,20 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private int progress = 0;
 	private ActiveScanTableModel messagesTableModel = new ActiveScanTableModel();
 	private SiteNode startNode = null;
-	private AtomicInteger totalRequests = new AtomicInteger(0);
+	private ResponseCountSnapshot rcTotals = new ResponseCountSnapshot();
+	private ResponseCountSnapshot rcLastSnapshot = new ResponseCountSnapshot();
+	private List<ResponseCountSnapshot> rcHistory = new ArrayList<ResponseCountSnapshot>();
+
 	private Date timeStarted = null;
 	private Date timeFinished = null;
 	private int maxResultsToList = 0;
+	private int prevScanReqCount = 0;
 
 	private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
 	private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
+
+	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+    private ScheduledFuture<?> schedHandle;
 
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
 
@@ -104,18 +120,57 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		}
 	}
 
+    public int getTotalRequests() {
+		return this.rcTotals.getTotal();
+	}
+	
+	public ResponseCountSnapshot getRequestHistory() {
+		if (this.rcHistory.size() > 0) {
+			try {
+				return this.rcHistory.remove(0);
+			} catch (Exception e) {
+				// Ignore - another thread must have just removed the last snapshot
+			}
+		}
+		return null;
+	}
+    
 	@Override
 	public void start(Target target) {
 		reset();
 		this.timeStarted = new Date();
 		this.progress = 0;
+		final int period = 2;
 		
 		super.start(target);
+		
+		if (View.isInitialised()) {
+			// For now this is only supported in the desktop UI
+			final Runnable requestCounter = new Runnable() {
+	            public void run() {
+	            	if (isStop()) {
+	            		schedHandle.cancel(true);
+	            		return;
+	            	}
+	            	ResponseCountSnapshot currentSnapshot = rcTotals.clone();
+	            	rcHistory.add(currentSnapshot.getDifference(rcLastSnapshot));
+	            	if (rcHistory.size() > MAX_STATS_HISTORY_SIZE) {
+	            		// Trim it to prevent it from getting too big
+	            		rcHistory.remove(0);
+	            	}
+	            	rcLastSnapshot = currentSnapshot;
+	            }
+	        };
+	        schedHandle = scheduler.scheduleAtFixedRate(requestCounter, period, period, TimeUnit.SECONDS);
+		}
 	}
 
 	@Override
 	public void stopScan() {
 		super.stop();
+		if (schedHandle != null) {
+			schedHandle.cancel(true);
+		}
 	}
 
 	@Override
@@ -150,6 +205,36 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			tot += process.getPercentageComplete();
 		}
 		this.progress = tot / this.getHostProcesses().size();
+		updatePluginRequestCounts();
+	}
+	
+	public void updatePluginRequestCounts() {
+		List<Plugin> pluginList;
+		if (this.getHostProcesses().size() == 1) {
+			// Currently only support 1 HostProcess
+			HostProcess process = this.getHostProcesses().get(0);
+			pluginList = process.getRunning();
+			int totReqs = this.getTotalRequests();
+			int pluginReqs = totReqs - prevScanReqCount;
+			if (pluginList.size() > 1) {
+				// Thats a bit unexpected
+				log.debug("More than 1 plugin running: " + pluginList.size() + " unable to calculate request counts");
+			} else if (pluginReqs > 0) {
+				// We have something to count
+				if (pluginList.size() == 1) {
+					// Theres one running
+					process.setPluginRequestCount(pluginList.get(0).getId(), pluginReqs);
+				} else {
+					pluginList = process.getCompleted();
+					if (pluginList.size() > 0) {
+						// One must have just finished, update it and record the current level
+						log.debug("Plugin " + pluginList.get(pluginList.size()-1).getId() + " total # reqs: " + pluginReqs);
+						process.setPluginRequestCount(pluginList.get(pluginList.size()-1).getId(), pluginReqs);
+						prevScanReqCount = totReqs;
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -184,7 +269,9 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 			hRefs.add(Integer.valueOf(hRef.getHistoryId()));
 		}
 		
-        if (hRef != null && this.totalRequests.incrementAndGet() <= this.maxResultsToList) {
+		this.rcTotals.incResponseCodeCount(msg.getResponseHeader().getStatusCode());
+		
+        if (hRef != null && this.rcTotals.getTotal() <= this.maxResultsToList) {
             // Very large lists significantly impact the UI responsiveness
             // limiting them makes large scans _much_ quicker
         	addHistoryReference(hRef);
@@ -233,10 +320,6 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
                 }
             });
         }
-	}
-
-	public int getTotalRequests() {
-		return totalRequests.intValue();
 	}
 
 	public Date getTimeStarted() {

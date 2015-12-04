@@ -45,11 +45,13 @@ import org.jgrapht.graph.DefaultDirectedGraph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.traverse.TopologicalOrderIterator;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.zaproxy.zap.Version;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.AddOnDep;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.Dependencies;
 import org.zaproxy.zap.control.BaseZapAddOnXmlData.ExtensionWithDeps;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 public class AddOn  {
 	public enum Status {unknown, example, alpha, beta, weekly, release}
@@ -145,8 +147,14 @@ public class AddOn  {
 	 */
 	private List<Extension> loadedExtensions;
 	private List<String> ascanrules = Collections.emptyList();
+	private List<AbstractPlugin> loadedAscanrules = Collections.emptyList();
+	private boolean loadedAscanRulesSet;
 	private List<String> pscanrules = Collections.emptyList();
+	private List<PluginPassiveScanner> loadedPscanrules = Collections.emptyList();
+	private boolean loadedPscanRulesSet;
 	private List<String> files = Collections.emptyList();
+
+	private AddOnClassnames addOnClassnames = AddOnClassnames.ALL_ALLOWED;
 	
 	private Dependencies dependencies;
 
@@ -233,6 +241,8 @@ public class AddOn  {
 						this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
 						this.files = zapAddOnXml.getFiles();
 						this.pscanrules = zapAddOnXml.getPscanrules();
+
+						this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
 
 						hasZapAddOnEntry = true;
 					}
@@ -415,6 +425,16 @@ public class AddOn  {
 		}
 		return hasZapAddOnEntry;
 	}
+
+	/**
+	 * Gets the classnames that can be loaded for the add-on.
+	 * 
+	 * @return the classnames that can be loaded
+	 * @since 2.4.3
+	 */
+	public AddOnClassnames getAddOnClassnames() {
+		return addOnClassnames;
+	}
 	
 	public List<String> getExtensions() {
 		return extensions;
@@ -436,6 +456,27 @@ public class AddOn  {
 			extensionClassnames.add(extension.getClassname());
 		}
 		return extensionClassnames;
+	}
+
+	/**
+	 * Returns the classnames that can be loaded for the given {@code Extension} (with dependencies).
+	 * 
+	 * @param classname the classname of the extension
+	 * @return the classnames that can be loaded
+	 * @since 2.4.3
+	 * @see #hasExtensionsWithDeps()
+	 */
+	public AddOnClassnames getExtensionAddOnClassnames(String classname) {
+		if (extensionsWithDeps.isEmpty() || classname == null || classname.isEmpty()) {
+			return AddOnClassnames.ALL_ALLOWED;
+		}
+
+		for (ExtensionWithDeps extension : extensionsWithDeps) {
+			if (classname.equals(extension.getClassname())) {
+				return extension.getAddOnClassnames();
+			}
+		}
+		return AddOnClassnames.ALL_ALLOWED;
 	}
 
 	/**
@@ -533,8 +574,148 @@ public class AddOn  {
 		return ascanrules;
 	}
 	
+	/**
+	 * Gets the active scan rules of this add-on that were loaded.
+	 *
+	 * @return an unmodifiable {@code List} with the active scan rules of this add-on that were loaded, never {@code null}
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrules(List)
+	 */
+	public List<AbstractPlugin> getLoadedAscanrules() {
+		return loadedAscanrules;
+	}
+
+	/**
+	 * Sets the loaded active scan rules of the add-on, allowing to set the status of the active scan rules appropriately and to
+	 * keep track of the active scan rules loaded so that they can be removed during uninstallation.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 * Should be called when installing/loading the add-on, by setting the loaded active scan rules, and when uninstalling by
+	 * setting an empty list. The method {@code setLoadedAscanrulesSet(boolean)} should also be called.
+	 * 
+	 * @param ascanrules the active scan rules loaded, might be empty if none were actually loaded
+	 * @throws IllegalArgumentException if {@code ascanrules} is {@code null}.
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrulesSet(boolean)
+	 * @see AbstractPlugin#setStatus(Status)
+	 */
+	void setLoadedAscanrules(List<AbstractPlugin> ascanrules) {
+		if (ascanrules == null) {
+			throw new IllegalArgumentException("Parameter ascanrules must not be null.");
+		}
+
+		if (ascanrules.isEmpty()) {
+			loadedAscanrules = Collections.emptyList();
+			return;
+		}
+
+		for (AbstractPlugin ascanrule : ascanrules) {
+			ascanrule.setStatus(getStatus());
+		}
+		loadedAscanrules = Collections.unmodifiableList(new ArrayList<>(ascanrules));
+	}
+
+	/**
+	 * Tells whether or not the loaded active scan rules of the add-on, if any, were already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 *
+	 * @return {@code true} if the loaded active scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrules(List)
+	 * @see #setLoadedAscanrulesSet(boolean)
+	 */
+	boolean isLoadedAscanrulesSet() {
+		return loadedAscanRulesSet;
+	}
+
+	/**
+	 * Sets whether or not the loaded active scan rules, if any, where already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on. The
+	 * method should be called, with {@code true} during installation/loading and {@code false} during uninstallation, after
+	 * calling the method {@code setLoadedAscanrules(List)}.
+	 *
+	 * @param ascanrulesSet {@code true} if the loaded active scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedAscanrules(List)
+	 */
+	void setLoadedAscanrulesSet(boolean ascanrulesSet) {
+		loadedAscanRulesSet = ascanrulesSet;
+	}
+
 	public List<String> getPscanrules() {
 		return pscanrules;
+	}
+
+	/**
+	 * Gets the passive scan rules of this add-on that were loaded.
+	 *
+	 * @return an unmodifiable {@code List} with the passive scan rules of this add-on that were loaded, never {@code null}
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrules(List)
+	 */
+	public List<PluginPassiveScanner> getLoadedPscanrules() {
+		return loadedPscanrules;
+	}
+
+	/**
+	 * Sets the loaded passive scan rules of the add-on, allowing to set the status of the passive scan rules appropriately and
+	 * keep track of the passive scan rules loaded so that they can be removed during uninstallation.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 * Should be called when installing/loading the add-on, by setting the loaded passive scan rules, and when uninstalling by
+	 * setting an empty list. The method {@code setLoadedPscanrulesSet(boolean)} should also be called.
+	 * 
+	 * @param pscanrules the passive scan rules loaded, might be empty if none were actually loaded
+	 * @throws IllegalArgumentException if {@code pscanrules} is {@code null}.
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrulesSet(boolean)
+	 * @see PluginPassiveScanner#setStatus(Status)
+	 */
+	void setLoadedPscanrules(List<PluginPassiveScanner> pscanrules) {
+		if (pscanrules == null) {
+			throw new IllegalArgumentException("Parameter pscanrules must not be null.");
+		}
+
+		if (pscanrules.isEmpty()) {
+			loadedPscanrules = Collections.emptyList();
+			return;
+		}
+
+		for (PluginPassiveScanner pscanrule : pscanrules) {
+			pscanrule.setStatus(getStatus());
+		}
+		loadedPscanrules = Collections.unmodifiableList(new ArrayList<>(pscanrules));
+	}
+
+	/**
+	 * Tells whether or not the loaded passive scan rules of the add-on, if any, were already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on.
+	 *
+	 * @return {@code true} if the loaded passive scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrules(List)
+	 * @see #setLoadedPscanrulesSet(boolean)
+	 */
+	boolean isLoadedPscanrulesSet() {
+		return loadedPscanRulesSet;
+	}
+
+	/**
+	 * Sets whether or not the loaded passive scan rules, if any, where already set to the add-on.
+	 * <p>
+	 * <strong>Note:</strong> Helper method to be used (only) by/during (un)installation process and loading of the add-on. The
+	 * method should be called, with {@code true} during installation/loading and {@code false} during uninstallation, after
+	 * calling the method {@code setLoadedPscanrules(List)}.
+	 *
+	 * @param pscanrulesSet {@code true} if the loaded passive scan rules were already set, {@code false} otherwise
+	 * @since 2.4.3
+	 * @see #setLoadedPscanrules(List)
+	 */
+	void setLoadedPscanrulesSet(boolean pscanrulesSet) {
+		loadedPscanRulesSet = pscanrulesSet;
 	}
 	
 	public List<String> getFiles() {
@@ -1024,9 +1205,7 @@ public class AddOn  {
 			return false;
 		}
 
-		dependsOn(dependencies.getAddOns(), addOn);
-
-		return false;
+		return dependsOn(dependencies.getAddOns(), addOn);
 	}
 
 	/**

@@ -23,17 +23,26 @@ import java.awt.CardLayout;
 import java.awt.GridBagLayout;
 import java.awt.event.ItemEvent;
 import java.awt.event.ItemListener;
+import java.io.File;
 
 import javax.swing.BorderFactory;
 import javax.swing.JCheckBox;
+import javax.swing.JComboBox;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.SortOrder;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.TableModelEvent;
+import javax.swing.event.TableModelListener;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.view.AbstractMultipleOptionsBaseTablePanel;
 import org.zaproxy.zap.view.LayoutHelper;
 
 public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
@@ -49,7 +58,9 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 	private JCheckBox chkReportReleaseAddons = null;
 	private JCheckBox chkReportBetaAddons = null;
 	private JCheckBox chkReportAlphaAddons = null;
-	
+	private OptionsAutoupdateDirsTableModel scriptDirModel = null;
+	private JComboBox<String> downloadDir = null;
+
     public OptionsCheckForUpdatesPanel() {
         super();
  		initialize();
@@ -106,16 +117,31 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 							javax.swing.border.TitledBorder.DEFAULT_POSITION,
 							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
-			
+
 			newPanel.add(getChkReportReleaseAddons(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			newPanel.add(getChkReportBetaAddons(), LayoutHelper.getGBC(0, 1, 1, 1.0D));
 			newPanel.add(getChkReportAlphaAddons(), LayoutHelper.getGBC(0, 2, 1, 1.0D));
+
+			JPanel dirsPanel = new JPanel();
+			dirsPanel.setLayout(new GridBagLayout());
+			dirsPanel.setBorder(
+					BorderFactory.createTitledBorder(
+							null, Constant.messages.getString("cfu.options.dir.border"), TitledBorder.DEFAULT_JUSTIFICATION,
+							javax.swing.border.TitledBorder.DEFAULT_POSITION,
+							FontUtils.getFont(FontUtils.Size.standard),
+							java.awt.Color.black));
+			
+			dirsPanel.add(new CfuDirsOptionsPanel(getScriptDirModel()), LayoutHelper.getGBC(0, 0, 2, 1.0D, 1.0D));
+			JLabel downloadDirLabel = new JLabel(Constant.messages.getString("cfu.options.downloaddir.label"));
+			downloadDirLabel.setLabelFor(getDownloadDirCombo());
+			dirsPanel.add(downloadDirLabel, LayoutHelper.getGBC(0, 1, 1, 0.5D));
+			dirsPanel.add(getDownloadDirCombo(), LayoutHelper.getGBC(1, 1, 1, 0.5D));
 
 			panelMisc.add(getChkCheckOnStart(), LayoutHelper.getGBC(0, 0, 1, 1.0D));
 			panelMisc.add(zapPanel, LayoutHelper.getGBC(0, 1, 1, 1.0D));
 			panelMisc.add(updPanel, LayoutHelper.getGBC(0, 2, 1, 1.0D));
 			panelMisc.add(newPanel, LayoutHelper.getGBC(0, 3, 1, 1.0D));
-			panelMisc.add(new JLabel(""), LayoutHelper.getGBC(0, 4, 1, 1.0D, 1.0D));	// Padding
+			panelMisc.add(dirsPanel, LayoutHelper.getGBC(0, 4, 1, 1.0D, 1.0D));
 
 		}
 		return panelMisc;
@@ -250,6 +276,40 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 		return chkReportAlphaAddons;
 	}
 	
+	private OptionsAutoupdateDirsTableModel getScriptDirModel() {
+		if (scriptDirModel == null) {
+			scriptDirModel = new OptionsAutoupdateDirsTableModel();
+			scriptDirModel.addTableModelListener(new TableModelListener(){
+				@Override
+				public void tableChanged(TableModelEvent e) {
+					repopulatDownloadDirs();
+				}});
+		}
+		return scriptDirModel;
+	}
+
+	private JComboBox<String> getDownloadDirCombo() {
+		if (downloadDir == null) {
+			downloadDir = new JComboBox<String>();
+			repopulatDownloadDirs();
+		}
+		return downloadDir;
+	}
+
+	private void repopulatDownloadDirs() {
+		// Save for later
+		Object selectedItem = getDownloadDirCombo().getSelectedItem();
+		getDownloadDirCombo().removeAllItems();
+		downloadDir.addItem(Constant.FOLDER_LOCAL_PLUGIN);
+		for (File f : this.getScriptDirModel().getElements()) {
+			if (f.canWrite()) {
+				downloadDir.addItem(f.getAbsolutePath());
+			}
+		}
+		// The selected item may no longer exist, but thats ok as it will correctly default to the first one
+		getDownloadDirCombo().setSelectedItem(selectedItem);
+	}
+	
 	@Override
 	public void initParam(Object obj) {
 	    OptionsParam options = (OptionsParam) obj;
@@ -261,6 +321,8 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 		getChkReportReleaseAddons().setSelected(options.getCheckForUpdatesParam().isReportReleaseAddons());
 		getChkReportBetaAddons().setSelected(options.getCheckForUpdatesParam().isReportBetaAddons());
 		getChkReportAlphaAddons().setSelected(options.getCheckForUpdatesParam().isReportAlphaAddons());
+		getScriptDirModel().setFiles(options.getCheckForUpdatesParam().getAddonDirectories());
+		getDownloadDirCombo().setSelectedItem(options.getCheckForUpdatesParam().getDownloadDirectory().getAbsolutePath());
 		
 		setCheckBoxStates();
 	}
@@ -281,11 +343,63 @@ public class OptionsCheckForUpdatesPanel extends AbstractParamPanel {
 		options.getCheckForUpdatesParam().setReportReleaseAddons(getChkReportReleaseAddons().isSelected());
 		options.getCheckForUpdatesParam().setReportBetaAddons(getChkReportBetaAddons().isSelected());
 		options.getCheckForUpdatesParam().setReportAlphaAddons(getChkReportAlphaAddons().isSelected());
+		options.getCheckForUpdatesParam().setAddonDirectories(getScriptDirModel().getElements());
+		options.getCheckForUpdatesParam().setDownloadDirectory(new File(getDownloadDirCombo().getSelectedItem().toString()));
 	}
 
 	@Override
 	public String getHelpIndex() {
 		return "ui.dialogs.options.checkforupdates";
+	}
+
+	private static class CfuDirsOptionsPanel extends AbstractMultipleOptionsBaseTablePanel<File> {
+        
+		private static final long serialVersionUID = 1L;
+        private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("cfu.options.dialog.dirs.remove.title");
+	    private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("cfu.options.dialog.dirs.remove.text");
+	    private static final String REMOVE_DIALOG_CONFIRM_BUTTON_LABEL = Constant.messages.getString("cfu.options.dialog.dirs.remove.button.confirm");
+	    private static final String REMOVE_DIALOG_CANCEL_BUTTON_LABEL = Constant.messages.getString("cfu.options.dialog.dirs.remove.button.cancel");
+	    private static final String REMOVE_DIALOG_CHECKBOX_LABEL = Constant.messages.getString("cfu.options.dialog.dirs.remove.checkbox.label");
+	    
+        public CfuDirsOptionsPanel(OptionsAutoupdateDirsTableModel model) {
+            super(model);
+            getTable().setSortOrder(0, SortOrder.ASCENDING);
+        }
+
+        @Override
+        public File showAddDialogue() {
+        	return showDirSelectDialog(null);
+        }
+        
+        @Override
+        public File showModifyDialogue(File dir) {
+        	return showDirSelectDialog(dir);
+        }
+        
+        private File showDirSelectDialog(File dir) {
+        	JFileChooser fc = new JFileChooser();
+        	fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        	if (fc.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+        		return fc.getSelectedFile();
+        	}
+        	return null;
+        }
+        
+        @Override
+        public boolean showRemoveDialogue(File f) {
+            JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
+            Object[] messages = {REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox};
+            int option = JOptionPane.showOptionDialog(View.getSingleton().getMainFrame(), messages, REMOVE_DIALOG_TITLE,
+                    JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE,
+                    null, new String[] { REMOVE_DIALOG_CONFIRM_BUTTON_LABEL, REMOVE_DIALOG_CANCEL_BUTTON_LABEL }, null);
+
+            if (option == JOptionPane.OK_OPTION) {
+                setRemoveWithoutConfirmation(removeWithoutConfirmationCheckBox.isSelected());
+                return true;
+            }
+            
+            return false;
+        }
 	}
 
 }

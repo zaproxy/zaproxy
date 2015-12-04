@@ -114,6 +114,11 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 		@Override
 		public User showAddDialogue() {
+			boolean valid = uiSharedContext.getAuthenticationMethod().validateCreationOfAuthenticationCredentials();
+			if (!valid) {
+				return null;
+			}
+
 			if (addDialog == null) {
 				addDialog = new DialogAddUser(View.getSingleton().getOptionsDialog(null), this.extension);
 				addDialog.pack();

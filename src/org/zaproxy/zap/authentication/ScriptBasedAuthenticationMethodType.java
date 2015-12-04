@@ -40,6 +40,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.authentication.GenericAuthenticationCredentials.GenericAuthenticationCredentialsOptionsPanel;
 import org.zaproxy.zap.extension.api.ApiDynamicActionImplementor;
@@ -176,6 +177,20 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		}
 
 		@Override
+		public boolean validateCreationOfAuthenticationCredentials() {
+			if (credentialsParamNames != null) {
+				return true;
+			}
+
+			if (View.isInitialised()) {
+				View.getSingleton().showMessageDialog(
+						Constant.messages.getString("authentication.method.script.dialog.error.text.notLoaded"));
+			}
+
+			return false;
+		}
+
+		@Override
 		public AuthenticationCredentials createAuthenticationCredentials() {
 			return new GenericAuthenticationCredentials(this.credentialsParamNames);
 		}
@@ -206,7 +221,9 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				script = getScriptsExtension().getInterface(this.script, AuthenticationScript.class);
 				msg = script.authenticate(new AuthenticationHelper(getHttpSender(), sessionManagementMethod,
 						user), this.paramValues, cred);
-			} catch (ScriptException | IOException e) {
+			} catch (Exception e) {
+				// Catch Exception instead of ScriptException and IOException because script engine implementations
+				// might throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
 				log.error("An error occurred while trying to authenticate using the Authentication Script: "
 						+ this.script.getName(), e);
 				getScriptsExtension().setError(this.script, e);
@@ -299,7 +316,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				this.scriptsComboBox.requestFocusInWindow();
 				throw new IllegalStateException(
 						Constant.messages
-								.getString("authentication.method.script.dialog.error.text.notLoaded"));
+								.getString("authentication.method.script.dialog.error.text.notLoadedNorConfigured"));
 			}
 			this.dynamicFieldsPanel.validateFields();
 		}

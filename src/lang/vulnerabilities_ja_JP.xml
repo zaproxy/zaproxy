@@ -7,8 +7,8 @@
 	<desc>不適切な認証は、あるWebサイトにおいて、攻撃者が機密性の高いコンテンツや機能に対して適切なアクセス許可なしにアクセス可能な際、発生します。 Web上の管理ツールは、機密性の高い機能へのアクセスを提供するWebサイトの良い例です。 ものによって、これらのWebアプリケーションは、適切な利用者の確認をユーザに要求せず、直接的にアクセス出来る状態ではいけません。
 
 認証の設定を要領良く行うために、いくつかのリソースは特定の場所に「隠すこと」や、メインのWebサイトやその他の公共サイトにリンクを貼らないことで、保護されます。 ただし、この方法は「隠蔽によるセキュリティ」にしかすぎません。 あるリソースが、攻撃者に対して知られていない状態でさえも、特定のURLによって直接アクセス出来る状況のままであるということを理解することが重要です。 その特定のURLと言うものは、共通ファイルやディレクトリの配置（例えば、/admin）、エラーメッセージ、参照ログ、あるいはヘルプファイルのような文書を総当りで調査することで発見される可能性があります。 これらのリソースは、コンテンツや機能として使用される、されないに関わらず、適切に保護されるべきです。</desc>
-	<solution>Phase: Architecture and Design
-Use an authentication framework or library such as the OWASP ESAPI Authentication feature.</solution>
+	<solution>フェーズ： アーキテクチャと設計
+認証フレームワーク、あるいはOWASP ESAPIの認証機能を持つようなライブラリを使用してください。</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
@@ -19,26 +19,26 @@ Use an authentication framework or library such as the OWASP ESAPI Authenticatio
 	<alert>不適切な承認</alert>
 	<desc>不適切な承認は、あるアプリケーションにおいて、セキュリティポリシーに準ずる一貫した体制のもと、ユーザが機能を実行、あるいはデータへアクセスすることを確認するための適切な承認チェックが行われない際に、発生します。 承認の手続きは、どのユーザ、サービス、あるいはアプリケーションが実行を許可されるかを確実にすべきです。 ユーザがあるWebサイトに対して承認された場合、そのユーザが全てのコンテンツや機能への全アクセス権限を持つべきだと言うことは必ずしもありません。
 
-Insufficient Function Authorization
+不十分な認証機能
 
-Many applications grant different application functionality to different users. 例えば、ニュースサイトでは、ユーザは記事を閲覧することは許可されますが、発行することは許可されません。 決済システムでは、お金を支払う人と受取とる人に異なるアクセス権限の許可が与えられます。 不適切な承認は、あるアプリケーションにおいて、セキュリティポリシーを破られ、ユーザがアプリケーション機能にアクセスすることを防止できない場合に発生します。
+多くのアプリケーションは、異なるユーザに異なるアプリケーション機能を付与します。 例えば、ニュースサイトでは、ユーザは記事を閲覧することは許可されますが、発行することは許可されません。 決済システムでは、お金を支払う人と受取とる人に異なるアクセス権限の許可が与えられます。 不適切な承認は、あるアプリケーションにおいて、セキュリティポリシーを破られ、ユーザがアプリケーション機能にアクセスすることを防止できない場合に発生します。
 
 1つの良い例をあげるとすれば、2005年に起こったハーバード・ビジネス・スクールの事件でしょう。 承認の失敗によって、ユーザは、アクセス出来ないはずのWebサイトページの一部に、アクセスが出来ていました。
  
-Insufficient Data Authorization
+不十分なデータ認証
 
-Many applications expose underlying data identifiers in a URL. For example, when accessing a medical record on a system one might have a URL such as:
+多くのアプリケーションは、URL内に存在するデータ情報を公開しています。 たとえば、以下のようなURLをもつ医療記録システムがあるかもしれません。
 
 http://example.com/RecordView?id=12345
 
-If the application does not check that the authenticated user ID has read rights, then it could display data to the user that the user should not see.
+仮に、閲覧権限を持つ承認されたユーザIDをアプリケーションが確認しない場合、閲覧すべきでないデータが当該ユーザに表示される可能性があります。
 
 不適切なデータの承認は、不適切な機能の承認よりも一般的です。なぜなら、プログラマーは通常、アプリケーション機能の完璧な知識はありますが、アプリケーションでアクセスされる、全データの完全な構造を常に把握している訳ではないからです。 プログラマーは、承認機能のアルゴリズムはきっちりと定義しますが、データの承認を行うデータベースなどは別のシステムに頼っています。</desc>
-	<solution>Phases: Architecture and Design; Operation
-Very carefully manage the setting, management, and handling of privileges. 明確に、ソフトウェアの信頼範囲を管理してください。
+	<solution>フェーズ： アーキテクチャと設計；オペレーション
+特に注意して、設定、マネジメント、および権限の操作を管理してください。 明確に、ソフトウェアの信頼範囲を管理してください。
 
-Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. 構築者や設計者は、システム権限を適切に使用、破棄する場合を決定する最低権限の原則を信頼すべきです。</solution>
+フェーズ： アーキテクチャと設計
+システム設計に組み込まれた適切な区分や、権限分離機能を強化・許可するサーバ区分を確認してください。 構築者や設計者は、システム権限を適切に使用、破棄する場合を決定する最低権限の原則を信頼すべきです。</solution>
 	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
 	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
@@ -50,24 +50,24 @@ Ensure that appropriate compartmentalization is built into the system design and
 	<desc>整数オーバフローは、ある算出操作の結果において（たとえば掛け算、足し算）、値を保有する整数型の最大値を超えた場合に、発生します。 整数オーバフローが発生した際、その解釈された値は、最大値を「回り込ませ」、最小の値から再び開始させるように思えます。たとえば、時計で言うと13:00が1:00を指しているイメージに近いです。
 
 具体例をあげると、多くの一般的なパソコン上において8bitの符号あり整数は、最大の値が127で、最小の値が-128です。 仮に、プログラマがある変数で127の値を保持し、それに1を加えると、計算結果は128になるべきでしょう。 しかしながら、この値は上記の整数型の最大値を超えているため、その解釈された値は「回り込み」、-128になります。</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+	<solution>フェーズ： 要件
+全てのプロトコルは厳格に定義されている、領域を超えた全てのものは簡単に認識されているかを確認してください。プロトコルに対して、厳密な整合性を要求してください。
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+フェーズ： 要件
+同脆弱性を引き起こさせない、あるいは容易に回避可能な言語を使用してください。
 可能ならば、限界値の自動チェックを行う言語、あるいはコンパイラを選択してください。
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+フェーズ： アーキテクチャと設計
+同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
 予期しない結果が起こらない数値を容易に扱えるライブラリー、あるいはフレームワークを使用してください。
 例として、SafeInt（C++）、IntegerLib（C、C++）のような、安全な整数を取り扱う処理があります。
 
-Phase: Implementation
-Perform input validation on any numeric input by ensuring that it is within the expected range. 予想される範囲の最大と最小に適する入力を強制してください。
+フェーズ：　実装
+予想される範囲を定め、特定の数値入力の検証を行ってください。 予想される範囲の最大と最小に適する入力を強制してください。
 可能なところで、符号なし整数を使用してください。 これは、整数オーバフローの正当性チェックを実行しやすくなります。 符号なし整数を使用する必要がある場合は、最小値と最大値の範囲チェックが含まれていることを確認してください。
 
-Phase: Implementation
-Understand your programming language's underlying representation and how it interacts with numeric calculation (CWE-681). Pay close attention to byte size discrepancies, precision, signed/unsigned distinctions, truncation, conversion and casting between types, "not-a-number" calculations, and how your language handles numbers that are too large or too small for its underlying representation.
+フェーズ： 実装
+プログラミング言語の基になる表現と数値計算 (CWE-681) とがどのように影響し合うのかを理解してください。 バイトサイズの不一致、精度、符号付き/符号なしの区別、切り捨て、変換とキャストの種類、非数の計算や過大小数値の操作における基礎表現へ細心の注意を払ってください。
 Also be careful to account for 32-bit, 64-bit, and other potential differences that may affect the numeric representation.
 
 Phase: Implementation
@@ -198,13 +198,13 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>フェーズ： 要件
+同脆弱性を引き起こさせない、あるいは容易に回避可能な言語を使用してください。
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
-Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+フェーズ： アーキテクチャと設計
+同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
 Examples include the Safe C String Library (SafeStr) by Messier and Viega, and the Strsafe.h library from Microsoft. These libraries provide safer versions of overflow-prone string-handling functions. This is not a complete solution, since many buffer overflows are not related to strings.
 
 Phase: Build and Compilation
@@ -242,8 +242,8 @@ When an attacker gets a user's browser to execute his/her code, the code will ru
 There are three types of Cross-site Scripting attacks: non-persistent, persistent and DOM-based.
 Non-persistent attacks and DOM-based attacks require a user to either visit a specially crafted link laced with malicious code, or visit a malicious web page containing a web form, which when posted to the vulnerable site, will mount the attack. Using a malicious form will oftentimes take place when the vulnerable resource only accepts HTTP POST requests. In such a case, the form can be submitted automatically, without the victim's knowledge (e.g. by using JavaScript). Upon clicking on the malicious link or submitting the malicious form, the XSS payload will get echoed back and will get interpreted by the user's browser and execute. Another technique to send almost arbitrary requests (GET and POST) is by using an embedded client, such as Adobe Flash.
 Persistent attacks occur when the malicious code is submitted to a web site where it's stored for a period of time. Examples of an attacker's favorite targets often include message board posts, web mail messages, and web chat software. The unsuspecting user is not required to interact with any additional site/link (e.g. an attacker site or a malicious link sent via email), just simply view the web page containing the code.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>フェーズ： アーキテクチャと設計
+同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
 Examples of libraries and frameworks that make it easier to generate properly encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding module, and Apache Wicket.
 
 Phases: Implementation; Architecture and Design
@@ -282,8 +282,8 @@ CSRF attacks are effective in a number of situations, including:
     * The victim is on the same local network as the target site.
 
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>フェーズ： アーキテクチャと設計
+同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
 For example, use anti-CSRF packages such as the OWASP CSRFGuard.
 
 Phase: Implementation
@@ -483,8 +483,8 @@ Many web sites are designed to authenticate and track a user when communication 
 	<desc>SQL Injection is an attack technique used to exploit applications that construct SQL statements from user-supplied input. When successful, the attacker is able to change the logic of SQL statements executed against the database.
 
 Structured Query Language (SQL) is a specialized programming language for sending queries to databases. The SQL programming language is both an ANSI and an ISO standard, though many database products supporting SQL do so with proprietary extensions to the standard language. Applications often use user-supplied data to create SQL statements. If an application fails to properly construct SQL statements it is possible for an attacker to alter the statement structure and execute unplanned and potentially hostile commands. When such commands are executed, they do so under the context of the user specified by the application executing the statement. This capability allows attackers to gain control of all database resources accessible by that user, up to and including the ability to execute commands on the hosting system.</desc>
-	<solution>Phase: Architecture and Design
-Use a vetted library or framework that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>フェーズ： アーキテクチャと設計
+同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
 For example, consider using persistence layers such as Hibernate or Enterprise Java Beans, which can provide significant protection against SQL injection if used properly.
 
 If available, use structured mechanisms that automatically enforce the separation between data and code. These mechanisms may be able to provide the relevant quoting, encoding, and validation automatically, instead of relying on the developer to provide this capability at every point where output is generated.

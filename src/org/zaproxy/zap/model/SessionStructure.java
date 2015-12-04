@@ -43,6 +43,10 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 public class SessionStructure {
 
 	public static final String ROOT = "Root";
+	
+	public static final String DATA_DRIVEN_NODE_PREFIX = "\u00AB";
+	public static final String DATA_DRIVEN_NODE_POSTFIX = "\u00BB";
+	public static final String DATA_DRIVEN_NODE_REGEX = "(.+?)";
 
     private static final Logger log = Logger.getLogger(SessionStructure.class);
 
@@ -110,6 +114,129 @@ public class SessionStructure {
 			}
 		}
 		return nodeUrl;
+	}
+
+    public static String regexEscape (String str) {
+    	String chrsToEscape = ".*+?^=!${}()|[]\\";
+		StringBuilder sb = new StringBuilder();
+		char c;
+		for (int i=0; i < str.length(); i++) {
+			c = str.charAt(i);
+			if (chrsToEscape.indexOf(c) >= 0) {
+				sb.append('\\');
+			}
+			sb.append(c);
+		}
+		return sb.toString();
+    }
+
+	/**
+	 * Returns a regex pattern that will match the specified StructuralNode, ignoring the parent and children.
+	 * For most nodes this will just be the last element in the path, eg
+	 * URL								regex name
+	 * https://www.example.com/aaa/bbb 	bbb
+	 * https://www.example.com/aaa		aaa
+	 * https://www.example.com/			https://www.example.com
+	 * Datadriven nodes are different, they will always return (.+?) to match anything.
+	 * @param sn a StructuralNode
+	 * @param incParams if true then include URL params in the regex, otherwise exclude them 
+	 * @return a regex pattern that will match the specified StructuralNode, ignoring the parent and children.
+	 */
+	public static String getRegexName(StructuralNode sn, boolean incParams) {
+		return getSpecifiedName(sn, incParams, true);
+	}
+	
+	/**
+	 * Returns the name of the node ignoring the parent and children,
+	 * ie the last element in the path.
+	 * Data driven nodes will return the user specified name surrounded by the 
+	 * double angled brackets. 
+	 * @param sn a StructuralNode
+	 * @param incParams if true then include URL params in the regex, otherwise exclude them 
+	 * @return the name of the node ignoring the parent and children
+	 */
+	public static String getCleanRelativeName(StructuralNode sn, boolean incParams) {
+		return getSpecifiedName(sn, incParams, false);
+	}
+
+	private static String getSpecifiedName(StructuralNode sn, 
+			boolean incParams, boolean dataDrivenNodesAsRegex) {
+    	String name = sn.getName();
+    	if (sn.isDataDriven() && dataDrivenNodesAsRegex) {
+    		// Non-greedy regex pattern 
+			return DATA_DRIVEN_NODE_REGEX;
+    	} 
+		int bracketIndex = name.lastIndexOf("(");
+		if (bracketIndex >= 0) {
+			// Strip the param summary off
+			name = name.substring(0, bracketIndex);
+		}
+		int quesIndex = name.indexOf("?");
+		if (quesIndex >= 0) {
+			if (incParams) {
+				// Escape the params
+				String params = name.substring(quesIndex);
+				name = name.substring(0, quesIndex) + regexEscape(params);
+			} else {
+				// Strip the parameters off
+				name = name.substring(0, quesIndex);
+			}
+		}
+		if (name.endsWith("/")) {
+    		name = name.substring(0, name.length()-1);
+		}
+    	try {
+			if (sn.getURI().getPath() == null || sn.getURI().getPath().length() == 1) {
+				// Its a top level node, return as is
+				return name;
+			}
+		} catch (URIException e) {
+			// Ignore
+		}
+
+    	int slashIndex = name.lastIndexOf('/');
+    	if (slashIndex >= 0) {
+    		name = name.substring(slashIndex+1);
+    	}
+    	if (sn.isLeaf()) {
+    		int colonIndex = name.indexOf(":");
+    		if (colonIndex > 0) {
+    			// Strip the GET/POST etc off
+    			name = name.substring(colonIndex+1);
+    		}
+    	}
+    	return name;
+	}
+
+	public static String getRegexPattern(StructuralNode sn) throws DatabaseException {
+		return getRegexPattern(sn, true);
+	}
+
+	public static String getRegexPattern(StructuralNode sn, boolean incChildren) throws DatabaseException {
+    	/*
+    	 * The logic...
+    	 * 	Loop up to parent / recurse up
+    	 * 	for std nodes escape special cases
+    	 * 	inc \/ between nodes
+    	 * 	for NSPs use (.+?) ?
+    	 */
+
+		StringBuilder sb = new StringBuilder();
+		boolean incParams = sn.isLeaf() || ! incChildren;
+		
+		// Work back up the tree..
+		while (!sn.isRoot()) {
+			if (sb.length() > 0) {
+				sb.insert(0, "/");
+			}
+			sb.insert(0, getRegexName(sn, incParams));
+			sn = sn.getParent();
+			incParams = false;	// Only do this for the top node
+		}
+		if (incChildren) {
+			sb.append(".*");
+		}
+		return sb.toString();
 	}
 
     private static RecordStructure addStructure (Session session, String host, HttpMessage msg, 
@@ -193,8 +320,8 @@ public class SessionStructure {
     	return sb.toString();
     	
     }
-
-	private static String getHostName(URI uri) throws URIException {
+    
+	public static String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		
 		String scheme = uri.getScheme().toLowerCase();

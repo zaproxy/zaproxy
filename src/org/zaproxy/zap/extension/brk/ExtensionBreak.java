@@ -622,6 +622,10 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 			this.getBreakPanel().setButtonMode(this.getOptionsParam().getButtonMode());
 		}
 	}
+	
+	public boolean isInScopeOnly() {
+		return this.getOptionsParam().isInScopeOnly();
+	}
 
 	@Override
 	/**

@@ -19,18 +19,15 @@
  */
 package org.zaproxy.zap.view.popup;
 
-import java.util.regex.Pattern;
-
-import org.apache.commons.httpclient.URI;
-import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.ContextIncludePanel;
 
 
@@ -40,8 +37,6 @@ import org.zaproxy.zap.view.ContextIncludePanel;
 public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContainer {
 
     private static final long serialVersionUID = 990419495607725846L;
-
-    private static final Logger LOGGER = Logger.getLogger(PopupMenuItemIncludeInContext.class);
 
     protected Context context;
 
@@ -72,22 +67,11 @@ public class PopupMenuItemIncludeInContext extends PopupMenuItemSiteNodeContaine
 
     @Override
     public void performAction(SiteNode sn) {
-        String url;
         try {
-            url = new URI(sn.getHierarchicNodeName(), false).toString();
-        } catch (URIException e) {
-            LOGGER.error("Failed to execute action include in context: " + e.getMessage(), e);
-            return;
-        }
-
-        if (sn.isLeaf() && ! (sn.getParent().getParent() == null)) {
-        	// Its a leaf and not a site
-            url = Pattern.quote(url);
-        } else {
-            url = Pattern.quote(url) + ".*";
-        }
-
-        performAction(sn.getNodeName(), url);
+			performAction(sn.getNodeName(), new StructuralSiteNode(sn).getRegexPattern());
+		} catch (DatabaseException e) {
+			// Ignore
+		}
     }
 
     protected void performAction(String name, String url) {

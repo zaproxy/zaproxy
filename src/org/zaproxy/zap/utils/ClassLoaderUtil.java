@@ -44,6 +44,9 @@ public class ClassLoaderUtil {
      * @throws IOException IOException
      */
     public static void addURL(URL u) throws IOException {
+        if (!(ClassLoader.getSystemClassLoader() instanceof URLClassLoader)) {
+            return;
+        }
 
         URLClassLoader sysLoader = (URLClassLoader) ClassLoader.getSystemClassLoader();
         URL[] urls = sysLoader.getURLs();

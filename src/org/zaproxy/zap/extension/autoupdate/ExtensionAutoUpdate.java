@@ -21,6 +21,8 @@ package org.zaproxy.zap.extension.autoupdate;
 import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.FileWriter;
@@ -33,14 +35,17 @@ import java.nio.file.FileAlreadyExistsException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import java.util.Vector;
 
 import javax.net.ssl.SSLHandshakeException;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.KeyStroke;
@@ -48,10 +53,15 @@ import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.XMLPropertiesConfiguration;
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.io.FileUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.extension.CommandLineArgument;
+import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -61,6 +71,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.AddOnRunRequirements;
 import org.zaproxy.zap.control.AddOnCollection;
@@ -79,14 +90,13 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
 import org.zaproxy.zap.view.ScanStatus;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback {
+public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpdateCallback, CommandLineListener {
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
-	
-    private static final String ZAP_VERSIONS_XML_SHORT = "https://bit.ly/owaspzap-2-4-2";
-    private static final String ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT = "https://bit.ly/owaspzap-devw";
+    private static final String ZAP_VERSIONS_XML_SHORT = "https://bit.ly/owaspzap-2-4-3";
     private static final String ZAP_VERSIONS_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml";
+    private static final String ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT = "https://bit.ly/owaspzap-devw";
 
 	// URLs for use when testing locally ;)
 	//private static final String ZAP_VERSIONS_XML_SHORT = "https://localhost:8080/zapcfu/ZapVersions.xml";
@@ -108,15 +118,28 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private Thread remoteCallThread = null; 
 	private ScanStatus scanStatus = null;
 	private JButton addonsButton = null;
-	
+    private JButton outOfDateButton = null;
+
 	private AddOnCollection latestVersionInfo = null;
 	private AddOnCollection localVersionInfo = null;
 	private AddOnCollection previousVersionInfo = null;
 
     private AutoUpdateAPI api = null;
 
+    private boolean oldZapAlertAdded = false;
+    private boolean noCfuAlertAdded = false;
+
     // Files currently being downloaded
 	private List<Downloader> downloadFiles = new ArrayList<>();
+
+    private static final int ARG_CFU_INSTALL_IDX = 0;
+    private static final int ARG_CFU_INSTALL_ALL_IDX = 1;
+    private static final int ARG_CFU_UPDATE_IDX = 2;
+    private static final int[] ARG_IDXS = {
+    							ARG_CFU_INSTALL_IDX,
+    							ARG_CFU_INSTALL_ALL_IDX,
+    							ARG_CFU_UPDATE_IDX};
+	private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
 
     /**
      * 
@@ -131,13 +154,27 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	 */
 	private void initialize() {
         this.setName("ExtensionAutoUpdate");
-        this.setOrder(40);
+        this.setOrder(1);	// High order so that cmdline updates are installed asap
         this.downloadManager = new DownloadManager(Model.getSingleton().getOptionsParam().getConnectionParam());
         this.downloadManager.start();
         // Do this before it can get overwritten by the latest one
         this.getPreviousVersionInfo();
 	}
-	
+
+	@Override
+	public void postInit() {
+		switch (ZAP.getProcessType()) {
+		case cmdline:
+		case daemon:
+		case zaas:
+			this.warnIfOutOfDate();
+			break;
+		case desktop:
+		default:
+			break;
+		}
+	}
+
 	/**
 	 * This method initializes menuItemEncoder	
 	 * 	
@@ -375,6 +412,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 	
 	public void installNewExtensions() {
+    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
 		List<Downloader> handledFiles = new ArrayList<>();
 		
 		for (Downloader dl : downloadFiles) {
@@ -397,7 +435,30 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 						}
 					}
 				} else if (AddOn.isAddOn(dl.getTargetFile())) {
-					AddOn ao = new AddOn(dl.getTargetFile());
+					File f = dl.getTargetFile();
+					if (! options.getDownloadDirectory().equals(dl.getTargetFile().getParentFile())) {
+						// Move the file to the specified directory - we do this after its been downloaded
+						// as these directories can be shared, and other ZAP instances could get incomplete
+						// add-ons
+						try {
+							f = new File(options.getDownloadDirectory(), dl.getTargetFile().getName());
+							logger.info("Moving downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
+									" to " + f.getAbsolutePath());
+							FileUtils.moveFile(dl.getTargetFile(), f);
+						} catch (Exception e) {
+							if (!f.exists() && dl.getTargetFile().exists()) {
+								logger.error("Failed to move downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
+										" to " + f.getAbsolutePath() + " - left at original location", e);
+								f = dl.getTargetFile();
+							} else {
+								logger.error("Failed to move downloaded add-on from " + dl.getTargetFile().getAbsolutePath() +
+										" to " + f.getAbsolutePath() + " - skipping", e);
+								continue;
+							}
+						}
+					}
+					
+					AddOn ao = new AddOn(f);
 					if (ao.canLoadInCurrentVersion()) {
 						install(ao);
 					} else {
@@ -436,6 +497,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
 			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarRightLabel(getScanStatus().getCountLabel());
 	    }
+	    extensionHook.addCommandLine(getCommandLineArguments());
         this.api = new AutoUpdateAPI(this);
         this.api.addApiOptions(getModel().getOptionsParam().getCheckForUpdatesParam());
         API.getInstance().registerApiImplementor(this.api);
@@ -501,13 +563,18 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         return httpSender;
     }
     
+    private int dayDiff(Date d1, Date d2) {
+    	long diff = d1.getTime() - d2.getTime();
+    	return (int) (diff / (1000 * 60 * 60 * 24));
+    }
+    
     /*
      * 
      */
     public void alertIfNewVersions() {
-    	// Kicks off a thread and pops up a window if there are new verisons
-    	// (depending on the options the user has chosen
-    	// Only expect this to be called on startup
+    	// Kicks off a thread and pops up a window if there are new versions.
+    	// Depending on the options the user has chosen.
+    	// Only expect this to be called on startup and in desktop mode
     	
     	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
     	
@@ -534,6 +601,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	            }
 			}
 			if (! options.isCheckOnStart()) {
+				alertIfOutOfDate(false);
 				return;
 			}
 		}
@@ -556,6 +624,145 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		this.getLatestVersionInfo(this);
     }
     
+    private void warnIfOutOfDate() {
+    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
+		Date today = new Date();
+		Date releaseCreated = Constant.getReleaseCreateDate();
+		if (releaseCreated != null) {
+			// Should only be null for dev builds
+			if (dayDiff(today, releaseCreated) > 365) {
+				// Oh no, its more than a year old!
+				if (ZAP.getProcessType().equals(ZAP.ProcessType.cmdline)) {
+					CommandLine.error("This ZAP installation is over a year old - its probably very out of date");
+				} else {
+					logger.warn("This ZAP installation is over a year old - its probably very out of date");
+				}
+				return;
+			}
+		}
+		
+		Date lastChecked = options.getDayLastChecked();
+		Date installDate = Constant.getInstallDate();
+		if (installDate == null || dayDiff(today, installDate) < 90) {
+			// Dont warn if installed in the last 3 months
+		} else if (lastChecked == null || dayDiff(today, lastChecked) > 90) {
+			// Not checked for update in 3 months :(
+			if (ZAP.getProcessType().equals(ZAP.ProcessType.cmdline)) {
+				CommandLine.error("No check for updates for over 3 month - add-ons may well be out of date");
+			} else {
+				logger.warn("No check for updates for over 3 month - add-ons may well be out of date");
+			}
+		}
+    }
+    
+
+    
+    private void alertIfOutOfDate(boolean alwaysPrompt) {
+    	final OptionsParamCheckForUpdates options = getModel().getOptionsParam().getCheckForUpdatesParam();
+		Date today = new Date();
+		Date releaseCreated = Constant.getReleaseCreateDate();
+		Date lastInstallWarning = options.getDayLastInstallWarned();
+        int result = -1;
+        logger.debug("Install created " + releaseCreated);
+		if (releaseCreated != null) {
+			// Should only be null for dev builds
+			int daysOld = dayDiff(today, releaseCreated);
+	        logger.debug("Install is " + daysOld + " days old");
+			if (daysOld > 365) {
+				// Oh no, its more than a year old!
+				boolean setCfuOnStart = false;
+				
+				if (alwaysPrompt || lastInstallWarning == null || dayDiff(today, lastInstallWarning) > 30) {
+					JCheckBox cfuOnStart = new JCheckBox(Constant.messages.getString("cfu.label.cfuonstart"));
+					cfuOnStart.setSelected(true);
+					String msg = Constant.messages.getString("cfu.label.oldzap"); 
+					
+					result = View.getSingleton().showYesNoDialog(
+							View.getSingleton().getMainFrame(), new Object[]{msg, cfuOnStart}						);
+					setCfuOnStart = cfuOnStart.isSelected();
+					
+				}
+				options.setDayLastInstallWarned();
+				
+                if (result == JOptionPane.OK_OPTION) {
+    				if (setCfuOnStart) {
+    					options.setCheckOnStart(true);
+    				}
+					getAddOnsDialog().setVisible(true);
+					getAddOnsDialog().checkForUpdates();
+					
+                } else if (!oldZapAlertAdded){
+                	JButton button = new JButton(Constant.messages.getString("cfu.label.outofdatezap"));
+                	button.setIcon(new ImageIcon(
+                			ExtensionAutoUpdate.class.getResource("/resource/icon/16/050.png"))); // Alert triangle
+                	button.addActionListener(new ActionListener() {
+						@Override
+						public void actionPerformed(ActionEvent e) {
+							alertIfOutOfDate(true);
+						}
+                	});
+                	
+        			View.getSingleton().getMainFrame().getMainFooterPanel().addFooterToolbarLeftComponent(button );
+        			oldZapAlertAdded = true;
+                }
+            	return;
+			}
+		}
+		
+		Date lastChecked = options.getDayLastChecked();
+		Date lastUpdateWarning = options.getDayLastUpdateWarned();
+		Date installDate = Constant.getInstallDate();
+		if (installDate == null || dayDiff(today, installDate) < 90) {
+			// Dont warn if installed in the last 3 months
+		} else if (lastChecked == null || dayDiff(today, lastChecked) > 90) {
+			// Not checked for updates in 3 months :(
+			boolean setCfuOnStart = false;
+			
+			if (alwaysPrompt || lastUpdateWarning == null || dayDiff(today, lastUpdateWarning) > 30) {
+				JCheckBox cfuOnStart = new JCheckBox(Constant.messages.getString("cfu.label.cfuonstart"));
+				cfuOnStart.setSelected(true);
+				String msg = Constant.messages.getString("cfu.label.norecentcfu");
+				
+				result = View.getSingleton().showYesNoDialog(
+						View.getSingleton().getMainFrame(), new Object[]{msg, cfuOnStart});
+				setCfuOnStart = cfuOnStart.isSelected();
+				
+			}
+			options.setDayLastUpdateWarned();
+			
+            if (result == JOptionPane.OK_OPTION) {
+				if (setCfuOnStart) {
+					options.setCheckOnStart(true);
+				}
+				getAddOnsDialog().setVisible(true);
+				getAddOnsDialog().checkForUpdates();
+				if (noCfuAlertAdded) {
+	    			View.getSingleton().getMainFrame().getMainFooterPanel().
+    					removeFooterToolbarLeftComponent(getOutOfDateButton());
+				}
+				
+            } else if (!noCfuAlertAdded){
+    			View.getSingleton().getMainFrame().getMainFooterPanel().
+    				addFooterToolbarLeftComponent(getOutOfDateButton());
+    			noCfuAlertAdded = true;
+            }
+		}
+    }
+    
+    private JButton getOutOfDateButton() {
+    	if (outOfDateButton == null) {
+    		outOfDateButton = new JButton(Constant.messages.getString("cfu.label.outofdateaddons"));
+    		outOfDateButton.setIcon(new ImageIcon(
+	    			ExtensionAutoUpdate.class.getResource("/resource/icon/16/050.png"))); // Alert triangle
+    		outOfDateButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					alertIfOutOfDate(true);
+				}
+	    	});
+		}
+    	return outOfDateButton;	
+    }
     
     private AddOnCollection getLocalVersionInfo () {
     	if (localVersionInfo == null) {
@@ -1296,4 +1503,197 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	public boolean supportsDb(String type) {
     	return true;
     }
+
+    private CommandLineArgument[] getCommandLineArguments() {
+        arguments[ARG_CFU_INSTALL_IDX] = new CommandLineArgument("-addoninstall", 1, null, "", 
+        		"-addoninstall <addon>    " + Constant.messages.getString("cfu.cmdline.install.help"));
+        arguments[ARG_CFU_INSTALL_ALL_IDX] = new CommandLineArgument("-addoninstallall", 0, null, "", 
+        		"-addoninstallall         " + Constant.messages.getString("cfu.cmdline.installall.help"));
+        arguments[ARG_CFU_UPDATE_IDX] = new CommandLineArgument("-addonupdate", 0, null, "", 
+        		"-addonupdate             " + Constant.messages.getString("cfu.cmdline.update.help"));
+        return arguments;
+    }
+
+
+	@Override
+	public void execute(CommandLineArgument[] args) {
+        if (arguments[ARG_CFU_UPDATE_IDX].isEnabled()) {
+        	AddOnCollection aoc = getLatestVersionInfo();
+        	// Create some temporary options with the settings we need
+        	OptionsParamCheckForUpdates options = new OptionsParamCheckForUpdates();
+        	options.load(new XMLPropertiesConfiguration());
+        	options.setCheckOnStart(true);
+        	options.setCheckAddonUpdates(true);
+        	options.setInstallAddonUpdates(true);
+			checkForAddOnUpdates(aoc, options);
+			while (downloadManager.getCurrentDownloadCount() > 0) {
+    			try {
+					Thread.sleep(200);
+				} catch (InterruptedException e) {
+					// Ignore
+				}
+			}
+    		CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
+        }
+        if (arguments[ARG_CFU_INSTALL_ALL_IDX].isEnabled()) {
+        	AddOnCollection aoc = getLatestVersionInfo();
+        	if (aoc == null) {
+        		CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+        	} else {
+        		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+        		AddOnDependencyChecker.AddOnChangesResult result;
+        		AddOnDependencyChecker.AddOnChangesResult allResults = null;
+                Set<AddOn> allAddOns = new HashSet<>();
+
+        		for (AddOn ao : aoc.getAddOns()) {
+        			if (ao.getId().equals("coreLang") && (Constant.isDevBuild() || Constant.isDailyBuild())) {
+        				// Ignore coreLang add-on if its not a full release
+        				// this may well be missing strings that are now necessary
+        				continue;
+        			}
+
+            		// Check to see if its already installed
+            		AddOn iao = getLocalVersionInfo().getAddOn(ao.getId());
+            		if (iao != null) {
+            			if (!ao.isUpdateTo(iao)) {
+                			continue;
+            			}
+
+                        result = addOnDependencyChecker.calculateUpdateChanges(ao);
+                    } else {
+                        result = addOnDependencyChecker.calculateInstallChanges(ao);
+            		}
+            		
+                    if (result.getUninstalls().isEmpty()) {
+                        allAddOns.addAll(result.getInstalls());
+                        allAddOns.addAll(result.getNewVersions());
+                        if (allResults == null) {
+                        	allResults = result;
+                        } else {
+                        	allResults.addResults(result);
+                        }
+                    }
+        		}
+
+                if (allAddOns.isEmpty()) {
+                	// Nothing to do
+                	return;
+                }
+
+                for (AddOn addOn : allAddOns) {
+                    CommandLine.info(MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.addonurl"),
+                            addOn.getUrl()));
+                }
+                
+                processAddOnChanges(null, allResults);
+
+                while (downloadManager.getCurrentDownloadCount() > 0) {
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        // Ignore
+                    }
+                }
+
+                for (Downloader download : downloadManager.getProgress()) {
+                    if (download.isValidated()) {
+                        CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addondown"),
+                                download.getTargetFile().getAbsolutePath()));
+                    } else {
+                        CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addondown.failed"),
+                                download.getTargetFile().getName()));
+                    }
+                }
+                installNewExtensions();
+        	}
+        }
+        if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
+        	Vector<String> params = arguments[ARG_CFU_INSTALL_IDX].getArguments();
+            if (params.size() == 1) {
+            	AddOnCollection aoc = getLatestVersionInfo();
+            	if (aoc == null) {
+            		CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+            	} else {
+            		String aoName = params.get(0);
+            		AddOn ao = aoc.getAddOn(aoName);
+            		if (ao == null) {
+                		CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
+            			return;
+            		}
+            		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+            		AddOnDependencyChecker.AddOnChangesResult result;
+            		// Check to see if its already installed
+            		AddOn iao = getLocalVersionInfo().getAddOn(aoName);
+            		if (iao != null) {
+            			if (!ao.isUpdateTo(iao)) {
+                    		CommandLine.info(MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addoninst"),
+                                    iao.getFile().getAbsolutePath()));
+                			return;
+            			}
+
+                        result = addOnDependencyChecker.calculateUpdateChanges(ao);
+                    } else {
+                        result = addOnDependencyChecker.calculateInstallChanges(ao);
+            		}
+            		
+                    if (!result.getUninstalls().isEmpty()) {
+                        CommandLine.info(
+                                MessageFormat.format(
+                                        Constant.messages.getString("cfu.cmdline.addonurl.unintalls.required"),
+                                        result.getUninstalls()));
+                        return;
+                    }
+
+                    Set<AddOn> allAddOns = new HashSet<>();
+                    allAddOns.addAll(result.getInstalls());
+                    allAddOns.addAll(result.getNewVersions());
+                    for (AddOn addOn : allAddOns) {
+                        CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addonurl"),
+                                addOn.getUrl()));
+                    }
+
+                    processAddOnChanges(null, result);
+
+                    while (downloadManager.getCurrentDownloadCount() > 0) {
+                        try {
+                            Thread.sleep(200);
+                        } catch (InterruptedException e) {
+                            // Ignore
+                        }
+                    }
+
+                    for (Downloader download : downloadManager.getProgress()) {
+                        if (download.isValidated()) {
+                            CommandLine.info(MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addondown"),
+                                    download.getTargetFile().getAbsolutePath()));
+                        } else {
+                            CommandLine.error(MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addondown.failed"),
+                                    download.getTargetFile().getName()));
+                        }
+                    }
+                    installNewExtensions();
+            	}
+            }
+        }
+	}
+	
+	@Override
+	public boolean handleFile(File file) {
+		// Not supported
+		return false;
+	}
+
+	@Override
+	public List<String> getHandledExtensions() {
+		// None
+		return null;
+	}
 }

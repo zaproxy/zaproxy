@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
+import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,8 +48,13 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -596,15 +602,27 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void postInit() {
+		final List<String[]> scriptsNotAdded = new ArrayList<>(1);
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
 			try {
 				this.loadScript(script);
-				this.addScript(script, false);
+				if (script.getType() != null) {
+					this.addScript(script, false);
+				} else {
+					logger.warn(
+							"Failed to add script \"" + script.getName() + "\", script type not found: "
+									+ script.getTypeName());
+					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+				}
 				
-			} catch (IOException e) {
+			} catch (InvalidParameterException | IOException e) {
 				logger.error(e.getMessage(), e);
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
 			}
 		}
+
+		informScriptsNotAdded(scriptsNotAdded);
+
 		this.loadTemplates();
 		
 		for (File dir : this.getScriptParam().getScriptDirs()) {
@@ -613,6 +631,60 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
 		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
+    }
+
+    private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
+        if (!View.isInitialised() || scriptsNotAdded.isEmpty()) {
+            return;
+        }
+
+        final List<Object> optionPaneContents = new ArrayList<>(2);
+        optionPaneContents.add(Constant.messages.getString("script.info.scriptsNotAdded.message"));
+
+        JXTable table = new JXTable(new AbstractTableModel() {
+
+            private static final long serialVersionUID = -457689656746030560L;
+
+            @Override
+            public String getColumnName(int column) {
+                if (column == 0) {
+                    return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptName");
+                }
+                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                return scriptsNotAdded.get(rowIndex)[columnIndex];
+            }
+
+            @Override
+            public int getRowCount() {
+                return scriptsNotAdded.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return 2;
+            }
+        });
+
+        table.setColumnControlVisible(true);
+        table.setVisibleRowCount(Math.min(scriptsNotAdded.size() + 1, 5));
+        table.packAll();
+        optionPaneContents.add(new JScrollPane(table));
+
+        EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(
+                        View.getSingleton().getMainFrame(),
+                        optionPaneContents.toArray(),
+                        Constant.PROGRAM_NAME,
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
     }
 
 	
@@ -1134,6 +1206,17 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			this.getTreeModel().nodeStructureChanged(node.getParent());
 		}
 		
+		notifyScriptChanged(script);
+	}
+
+	/**
+	 * Notifies the {@code ScriptEventListener}s that the given {@code script} was changed.
+	 *
+	 * @param script the script that was changed, must not be {@code null}
+	 * @see #listeners
+	 * @see ScriptEventListener#scriptChanged(ScriptWrapper)
+	 */
+	private void notifyScriptChanged(ScriptWrapper script) {
 		for (ScriptEventListener listener : this.listeners) {
 			try {
 				listener.scriptChanged(script);
@@ -1150,6 +1233,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 		script.setEnabled(enabled);
 		this.getTreeModel().nodeStructureChanged(script);
+
+		notifyScriptChanged(script);
 	}
 
 	public void setError(ScriptWrapper script, String details) {
@@ -1297,25 +1382,25 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void openCmdLineFile(File f) throws IOException, ScriptException {
 		if (! f.exists()) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
 			return;
 		}
 		if (! f.canRead()) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
 			return;
 		}
 		int dotIndex = f.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
 			return;
 		}
 		String ext = f.getName().substring(dotIndex+1);
 		String engineName = this.getEngineNameForExtension(ext);
 		if (engineName == null) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noengine"), ext));
 			return;
 		}
@@ -1354,7 +1439,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private CommandLineArgument[] getCommandLineArguments() {
     	
         arguments[ARG_SCRIPT_IDX] = new CommandLineArgument("-script", 1, null, "", 
-        		"-script [script_path]: " + Constant.messages.getString("script.cmdline.help"));
+        		"-script <script>         " + Constant.messages.getString("script.cmdline.help"));
         return arguments;
     }
 

@@ -165,7 +165,8 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private void showScanProgressDialog() {
 		ActiveScan scan = this.getSelectedScanner();
 		if (scan != null) {
-			ScanProgressDialog spp = new ScanProgressDialog(View.getSingleton().getMainFrame(), scan.getDisplayName());
+			ScanProgressDialog spp = 
+					new ScanProgressDialog(View.getSingleton().getMainFrame(), scan.getDisplayName(), this.extension);
 			spp.setActiveScan(scan);
 			spp.setVisible(true);
 		}

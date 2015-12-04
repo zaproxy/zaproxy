@@ -19,12 +19,18 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.io.File;
+import java.security.InvalidParameterException;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConversionException;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
@@ -32,6 +38,8 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 
 	public static final String CHECK_ON_START = "start.checkForUpdates";
 	public static final String DAY_LAST_CHECKED = "start.dayLastChecked";
+	public static final String DAY_LAST_INSTALL_WARNED = "start.dayLastInstallWarned";
+	public static final String DAY_LAST_UPDATE_WARNED = "start.dayLastUpdateWarned";
 	public static final String DOWNLOAD_NEW_RELEASE = "start.downloadNewRelease";
 	public static final String CHECK_ADDON_UPDATES = "start.checkAddonUpdates";
 	public static final String INSTALL_ADDON_UPDATES = "start.installAddonUpdates";
@@ -39,7 +47,11 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	public static final String REPORT_RELEASE_ADDON = "start.reportReleaseAddons";
 	public static final String REPORT_BETA_ADDON = "start.reportBetaAddons";
 	public static final String REPORT_ALPHA_ADDON = "start.reportAlphaAddons";
-	
+	public static final String ADDON_DIRS = "start.addonDirs";
+	public static final String DOWNLOAD_DIR = "start.downloadDir";
+
+	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+
 	private boolean checkOnStart;
 	private boolean downloadNewRelease = false;
 	private boolean checkAddonUpdates = false;
@@ -48,9 +60,13 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	private boolean reportReleaseAddons = false;
 	private boolean reportBetaAddons = false;
 	private boolean reportAlphaAddons = false;
+	private List<File> addonDirectories = new ArrayList<File>();
+	private File downloadDirectory = new File(Constant.FOLDER_LOCAL_PLUGIN);
 	
 	// Day last checked is used to ensure if the user has agreed then we only check the first time ZAP is run every day
 	private String dayLastChecked = null; 
+	private String dayLastInstallWarned = null; 
+	private String dayLastUpdateWarned = null; 
 	private boolean unset = true;
     private static Logger log = Logger.getLogger(OptionsParamCheckForUpdates.class);
     
@@ -66,6 +82,8 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	    // There was a bug in 1.2.0 where it defaulted silently to dont check
 	    // We now use the lack of a dayLastChecked value to indicate we should reprompt the user.
 		unset = dayLastChecked.length() == 0;
+	    dayLastInstallWarned = getConfig().getString(DAY_LAST_INSTALL_WARNED, "");
+	    dayLastUpdateWarned = getConfig().getString(DAY_LAST_UPDATE_WARNED, "");
 		
 		downloadNewRelease = getConfig().getBoolean(DOWNLOAD_NEW_RELEASE, false);
 		checkAddonUpdates = getConfig().getBoolean(CHECK_ADDON_UPDATES, false);
@@ -74,6 +92,19 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		reportReleaseAddons = getConfig().getBoolean(REPORT_RELEASE_ADDON, false);
 		reportBetaAddons = getConfig().getBoolean(REPORT_BETA_ADDON, false);
 		reportAlphaAddons = getConfig().getBoolean(REPORT_ALPHA_ADDON, false);
+		for (Object dir : getConfig().getList(ADDON_DIRS)) {
+			File f = new File(dir.toString());
+			if (!f.exists()) {
+				log.error("Add-on directory does not exist: " + f.getAbsolutePath());
+			} else if (! f.isDirectory()) {
+				log.error("Add-on directory is not a directory: " + f.getAbsolutePath());
+			} else if (! f.canRead()) {
+				log.error("Add-on directory not readable: " + f.getAbsolutePath());
+			} else {
+				this.addonDirectories.add(f);
+			}
+		}
+		setDownloadDirectory(new File(getConfig().getString(DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN)), false);
     }
 
 	private void updateOldOptions() {
@@ -140,7 +171,6 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 			log.debug("isCheckForStart - false");
 			return false;
 		}
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 		String today = sdf.format(new Date());
 		if (today.equals(dayLastChecked)) {
 			log.debug("isCheckForStart - already checked today");
@@ -154,6 +184,65 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		}
 		
 		return true;
+	}
+	
+	/**
+	 * Returns the date the last check for updates check was made, or null if no check has been made
+	 * @return
+	 */
+	public Date getDayLastChecked() {
+		try {
+			return sdf.parse(dayLastChecked);
+		} catch (ParseException e) {
+			// Assume its not been checked
+			return null;
+		}
+	}
+
+	/**
+	 * Returns the date the last check for warning about out of date ZAP / add-ons was made, 
+	 * or null if no check has been made
+	 * @return
+	 */
+	public Date getDayLastInstallWarned() {
+		try {
+			return sdf.parse(dayLastInstallWarned);
+		} catch (ParseException e) {
+			// Assume we've never warned
+			return null;
+		}
+	}
+	
+	/**
+	 * Returns the date the last check for warning about out of date add-ons was made, 
+	 * or null if no check has been made
+	 * @return
+	 */
+	public Date getDayLastUpdateWarned() {
+		try {
+			return sdf.parse(dayLastUpdateWarned);
+		} catch (ParseException e) {
+			// Assume we've never warned
+			return null;
+		}
+	}
+	
+	public void setDayLastInstallWarned() {
+		getConfig().setProperty(DAY_LAST_INSTALL_WARNED, sdf.format(new Date()));
+		try {
+			getConfig().save();
+		} catch (ConfigurationException e) {
+			log.error(e.getMessage(), e);
+		}
+	}
+
+	public void setDayLastUpdateWarned() {
+		getConfig().setProperty(DAY_LAST_UPDATE_WARNED, sdf.format(new Date()));
+		try {
+			getConfig().save();
+		} catch (ConfigurationException e) {
+			log.error(e.getMessage(), e);
+		}
 	}
 
 	public boolean isDownloadNewRelease() {
@@ -219,5 +308,49 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 		getConfig().setProperty(REPORT_ALPHA_ADDON, reportAlphaAddons);
 	}
 
-	
+	public List<File> getAddonDirectories() {
+		return addonDirectories;
+	}
+
+	public void setAddonDirectories(List<File> addonDirectories) {
+		this.addonDirectories = addonDirectories;
+		getConfig().setProperty(ADDON_DIRS, addonDirectories);
+	}
+
+	public File getDownloadDirectory() {
+		return downloadDirectory;
+	}
+
+	public void setDownloadDirectory(File downloadDirectory) throws InvalidParameterException {
+		setDownloadDirectory(downloadDirectory, true);
+	}
+
+	private void setDownloadDirectory(File downloadDirectory, boolean save) throws InvalidParameterException {
+		if (!Constant.FOLDER_LOCAL_PLUGIN.equals(downloadDirectory.getAbsolutePath())) {
+			// Check its one of the extra addon dirs
+			boolean found = false;
+			for (File f : this.addonDirectories) {
+				if (f.equals(downloadDirectory)) {
+					found = true;
+					break;
+				}
+			}
+			if (!found) {
+				throw new InvalidParameterException(
+						"Directory must be the default one or one of the addonDirectories " + 
+						downloadDirectory.getAbsolutePath());
+			}
+		}
+		if (!downloadDirectory.canWrite()) {
+			throw new InvalidParameterException(
+					"No write access to directory " + 
+					downloadDirectory.getAbsolutePath());
+		}
+		
+		this.downloadDirectory = downloadDirectory;
+		if (save) {
+			getConfig().setProperty(DOWNLOAD_DIR, downloadDirectory.getAbsolutePath());
+		}
+	}
+
 }
