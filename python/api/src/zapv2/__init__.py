@@ -37,6 +37,7 @@ from importLogFiles import importLogFiles
 from params import params
 from pnh import pnh
 from pscan import pscan
+from reveal import reveal
 from script import script
 from search import search
 from selenium import selenium
@@ -88,6 +89,7 @@ class ZAPv2(object):
         self.params = params(self)
         self.pnh = pnh(self)
         self.pscan = pscan(self)
+        self.reveal = reveal(self)
         self.script = script(self)
         self.search = search(self)
         self.selenium = selenium(self)

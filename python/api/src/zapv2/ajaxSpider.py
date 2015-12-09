@@ -44,6 +44,104 @@ class ajaxSpider(object):
         """
         return next(self.zap._request(self.zap.base + 'ajaxSpider/view/numberOfResults/').itervalues())
 
+    @property
+    def option_browser_id(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionBrowserId/').itervalues())
+
+    @property
+    def option_config_version_key(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionConfigVersionKey/').itervalues())
+
+    @property
+    def option_current_version(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionCurrentVersion/').itervalues())
+
+    @property
+    def option_elems(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionElems/').itervalues())
+
+    @property
+    def option_elems_names(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionElemsNames/').itervalues())
+
+    @property
+    def option_event_wait(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionEventWait/').itervalues())
+
+    @property
+    def option_max_crawl_depth(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionMaxCrawlDepth/').itervalues())
+
+    @property
+    def option_max_crawl_states(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionMaxCrawlStates/').itervalues())
+
+    @property
+    def option_max_duration(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionMaxDuration/').itervalues())
+
+    @property
+    def option_number_of_browsers(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionNumberOfBrowsers/').itervalues())
+
+    @property
+    def option_reload_wait(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionReloadWait/').itervalues())
+
+    @property
+    def option_click_default_elems(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionClickDefaultElems/').itervalues())
+
+    @property
+    def option_click_elems_once(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionClickElemsOnce/').itervalues())
+
+    @property
+    def option_random_inputs(self):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/view/optionRandomInputs/').itervalues())
+
     def scan(self, url, inscope='', apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
@@ -55,5 +153,65 @@ class ajaxSpider(object):
         This component is optional and therefore the API will only work if it is installed
         """
         return next(self.zap._request(self.zap.base + 'ajaxSpider/action/stop/', {'apikey' : apikey}).itervalues())
+
+    def set_option_browser_id(self, string, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionBrowserId/', {'String' : string, 'apikey' : apikey}).itervalues())
+
+    def set_option_click_default_elems(self, boolean, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionClickDefaultElems/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
+
+    def set_option_click_elems_once(self, boolean, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionClickElemsOnce/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
+
+    def set_option_event_wait(self, integer, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionEventWait/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
+
+    def set_option_max_crawl_depth(self, integer, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionMaxCrawlDepth/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
+
+    def set_option_max_crawl_states(self, integer, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionMaxCrawlStates/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
+
+    def set_option_max_duration(self, integer, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionMaxDuration/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
+
+    def set_option_number_of_browsers(self, integer, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionNumberOfBrowsers/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
+
+    def set_option_random_inputs(self, boolean, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionRandomInputs/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
+
+    def set_option_reload_wait(self, integer, apikey=''):
+        """
+        This component is optional and therefore the API will only work if it is installed
+        """
+        return next(self.zap._request(self.zap.base + 'ajaxSpider/action/setOptionReloadWait/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
 
 
