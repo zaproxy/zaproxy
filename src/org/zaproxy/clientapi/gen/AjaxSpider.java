@@ -68,6 +68,118 @@ public class AjaxSpider {
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
+	public ApiResponse optionBrowserId() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionBrowserId", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionConfigVersionKey() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionConfigVersionKey", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionCurrentVersion() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionCurrentVersion", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionElems() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionElems", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionElemsNames() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionElemsNames", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionEventWait() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionEventWait", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionMaxCrawlDepth() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionMaxCrawlDepth", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionMaxCrawlStates() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionMaxCrawlStates", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionMaxDuration() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionMaxDuration", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionNumberOfBrowsers() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionNumberOfBrowsers", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionReloadWait() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionReloadWait", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionClickDefaultElems() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionClickDefaultElems", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionClickElemsOnce() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionClickElemsOnce", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse optionRandomInputs() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ajaxSpider", "view", "optionRandomInputs", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
 	public ApiResponse scan(String apikey, String url, String inscope) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -89,6 +201,136 @@ public class AjaxSpider {
 			map.put("apikey", apikey);
 		}
 		return api.callApi("ajaxSpider", "action", "stop", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionBrowserId(String apikey, String string) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("String", string);
+		return api.callApi("ajaxSpider", "action", "setOptionBrowserId", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionClickDefaultElems(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ajaxSpider", "action", "setOptionClickDefaultElems", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionClickElemsOnce(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ajaxSpider", "action", "setOptionClickElemsOnce", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionEventWait(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ajaxSpider", "action", "setOptionEventWait", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionMaxCrawlDepth(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ajaxSpider", "action", "setOptionMaxCrawlDepth", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionMaxCrawlStates(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ajaxSpider", "action", "setOptionMaxCrawlStates", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionMaxDuration(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ajaxSpider", "action", "setOptionMaxDuration", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionNumberOfBrowsers(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ajaxSpider", "action", "setOptionNumberOfBrowsers", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionRandomInputs(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ajaxSpider", "action", "setOptionRandomInputs", map);
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public ApiResponse setOptionReloadWait(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("ajaxSpider", "action", "setOptionReloadWait", map);
 	}
 
 }

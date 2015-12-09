@@ -18,7 +18,7 @@
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
-	<property name="zap.java.api.version" value="7" />
+	<property name="zap.java.api.version" value="8" />
 	<property name="package" value="zaproxy" />
 
 	<!-- mac specific properties -->
