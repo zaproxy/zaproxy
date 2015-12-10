@@ -33,12 +33,14 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -128,7 +130,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	public ActiveScanAPI (ExtensionActiveScan controller) {
 		this.controller = controller;
         this.addApiAction(new ApiAction(ACTION_SCAN,
-        		new String[] {PARAM_URL}, 
+        		new String[] {PARAM_URL},
         		new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA}));
 		this.addApiAction(new ApiAction(
 				ACTION_SCAN_AS_USER,
@@ -157,7 +159,8 @@ public class ActiveScanAPI extends ApiImplementor {
 				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD,
 				new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }, new String[] {PARAM_SCAN_POLICY_NAME}));
-		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
+				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
@@ -366,6 +369,8 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				policy = controller.getPolicyManager().getTemplatePolicy();
 				policy.setName(newPolicyName);
+				policy.setDefaultThreshold(getAlertThreshold(params));
+				policy.setDefaultStrength(getAttackStrength(params));
 				controller.getPolicyManager().savePolicy(policy);
 				break;
 			case ACTION_REMOVE_SCAN_POLICY:
@@ -384,6 +389,26 @@ public class ActiveScanAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private AlertThreshold getAlertThreshold(JSONObject params) throws ApiException {
+		if (!isParamExists(params.getString(PARAM_ALERT_THRESHOLD))) {
+			return AlertThreshold.MEDIUM;
+		}
+
+		return getAlertThresholdFromParamAlertThreshold(params);
+	}
+
+	private AttackStrength getAttackStrength(JSONObject params) throws ApiException {
+		if (!isParamExists(params.getString(PARAM_ATTACK_STRENGTH))) {
+			return AttackStrength.MEDIUM;
+		}
+
+		return getAttackStrengthFromParamAttack(params);
+	}
+
+	private boolean isParamExists(String param) {
+		return StringUtils.isNotBlank(param);
 	}
 
 	private static URI getTargetUrl(String url) throws ApiException {
@@ -530,7 +555,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private int scanURL(URI url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
 		StructuralNode node;
-		
+
 		try {
 			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), url, method, postData);
 			if (node == null) {
@@ -601,7 +626,7 @@ public class ActiveScanAPI extends ApiImplementor {
 						pList.addItem(new ApiResponseElement("status", "Complete"));
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
 						pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
-						pList.addItem(new ApiResponseElement("reqCount", 
+						pList.addItem(new ApiResponseElement("reqCount",
 								Integer.toString(hp.getPluginRequestCount(plugin.getId()))));
 						hpList.addItem(pList);
 			        }
@@ -614,7 +639,7 @@ public class ActiveScanAPI extends ApiImplementor {
 						pList.addItem(new ApiResponseElement("status", pc + "%"));
 						long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
 						pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
-						pList.addItem(new ApiResponseElement("reqCount", 
+						pList.addItem(new ApiResponseElement("reqCount",
 								Integer.toString(hp.getPluginRequestCount(plugin.getId()))));
 						hpList.addItem(pList);
 			        }
