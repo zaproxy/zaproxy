@@ -95,6 +95,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
 	private static final String ACTION_ADD_SCAN_POLICY = "addScanPolicy";
 	private static final String ACTION_REMOVE_SCAN_POLICY = "removeScanPolicy";
+	private static final String ACTION_UPDATE_SCAN_POLICY = "updateScanPolicy";
 
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_SCANS = "scans";
@@ -162,6 +163,8 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
 				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_UPDATE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
+				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] { PARAM_SCAN_ID }));
@@ -382,6 +385,12 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				controller.getPolicyManager().deletePolicy(policy.getName());
 				break;
+			case ACTION_UPDATE_SCAN_POLICY:
+				policy = getScanPolicyFromParams(params);
+				changeAlertThreshold(policy, params);
+				changeAttackStrength(policy, params);
+				controller.getPolicyManager().savePolicy(policy);
+				break;
 			default:
 				throw new ApiException(ApiException.Type.BAD_ACTION);
 			}
@@ -405,6 +414,18 @@ public class ActiveScanAPI extends ApiImplementor {
 		}
 
 		return getAttackStrengthFromParamAttack(params);
+	}
+
+	private void changeAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params.getString(PARAM_ALERT_THRESHOLD))) {
+			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+		}
+	}
+
+	private void changeAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params.getString(PARAM_ATTACK_STRENGTH))) {
+			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+		}
 	}
 
 	private boolean isParamExists(String param) {
