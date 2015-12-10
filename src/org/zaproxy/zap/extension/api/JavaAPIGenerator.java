@@ -188,7 +188,10 @@ public class JavaAPIGenerator {
 			}
 			if (element.getOptionalParamNames() != null) {
 				for (String param : element.getOptionalParamNames()) {
-					out.write("\t\tmap.put(\"" + param + "\", ");
+					out.write("\t\tif (");
+					out.write(param.toLowerCase());
+					out.write(" != null) {\n");
+					out.write("\t\t\tmap.put(\"" + param + "\", ");
 					if (param.toLowerCase().equals("boolean")) {
 						out.write("Boolean.toString(bool)");
 					} else if (param.toLowerCase().equals("integer")) {
@@ -197,6 +200,7 @@ public class JavaAPIGenerator {
 						out.write(param.toLowerCase());
 					}
 					out.write(");\n");
+					out.write("\t\t}\n");
 				}
 			}
 		}

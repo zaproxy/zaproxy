@@ -42,9 +42,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "urlsByUrlRegex", map);
 	}
 
@@ -52,9 +58,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "urlsByRequestRegex", map);
 	}
 
@@ -62,9 +74,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "urlsByResponseRegex", map);
 	}
 
@@ -72,9 +90,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "urlsByHeaderRegex", map);
 	}
 
@@ -82,9 +106,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "messagesByUrlRegex", map);
 	}
 
@@ -92,9 +122,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "messagesByRequestRegex", map);
 	}
 
@@ -102,9 +138,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "messagesByResponseRegex", map);
 	}
 
@@ -112,9 +154,15 @@ public class Search {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("search", "view", "messagesByHeaderRegex", map);
 	}
 
@@ -125,9 +173,15 @@ public class Search {
 			map.put("apikey", apikey);
 		}
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApiOther("search", "other", "harByUrlRegex", map);
 	}
 
@@ -138,9 +192,15 @@ public class Search {
 			map.put("apikey", apikey);
 		}
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApiOther("search", "other", "harByRequestRegex", map);
 	}
 
@@ -151,9 +211,15 @@ public class Search {
 			map.put("apikey", apikey);
 		}
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApiOther("search", "other", "harByResponseRegex", map);
 	}
 
@@ -164,9 +230,15 @@ public class Search {
 			map.put("apikey", apikey);
 		}
 		map.put("regex", regex);
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApiOther("search", "other", "harByHeaderRegex", map);
 	}
 

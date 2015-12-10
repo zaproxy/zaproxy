@@ -65,7 +65,9 @@ public class SessionManagement {
 		}
 		map.put("contextId", contextid);
 		map.put("methodName", methodname);
-		map.put("methodConfigParams", methodconfigparams);
+		if (methodconfigparams != null) {
+			map.put("methodConfigParams", methodconfigparams);
+		}
 		return api.callApi("sessionManagement", "action", "setSessionManagementMethod", map);
 	}
 

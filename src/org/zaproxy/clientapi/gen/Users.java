@@ -41,15 +41,21 @@ public class Users {
 	public ApiResponse usersList(String contextid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
+		if (contextid != null) {
+			map.put("contextId", contextid);
+		}
 		return api.callApi("users", "view", "usersList", map);
 	}
 
 	public ApiResponse getUserById(String contextid, String userid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("contextId", contextid);
-		map.put("userId", userid);
+		if (contextid != null) {
+			map.put("contextId", contextid);
+		}
+		if (userid != null) {
+			map.put("userId", userid);
+		}
 		return api.callApi("users", "view", "getUserById", map);
 	}
 
@@ -122,7 +128,9 @@ public class Users {
 		}
 		map.put("contextId", contextid);
 		map.put("userId", userid);
-		map.put("authCredentialsConfigParams", authcredentialsconfigparams);
+		if (authcredentialsconfigparams != null) {
+			map.put("authCredentialsConfigParams", authcredentialsconfigparams);
+		}
 		return api.callApi("users", "action", "setAuthenticationCredentials", map);
 	}
 

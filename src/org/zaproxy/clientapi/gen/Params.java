@@ -44,7 +44,9 @@ public class Params {
 	public ApiResponse params(String site) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("site", site);
+		if (site != null) {
+			map.put("site", site);
+		}
 		return api.callApi("params", "view", "params", map);
 	}
 

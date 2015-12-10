@@ -93,7 +93,9 @@ public class Script {
 		map.put("scriptType", scripttype);
 		map.put("scriptEngine", scriptengine);
 		map.put("fileName", filename);
-		map.put("scriptDescription", scriptdescription);
+		if (scriptdescription != null) {
+			map.put("scriptDescription", scriptdescription);
+		}
 		return api.callApi("script", "action", "load", map);
 	}
 

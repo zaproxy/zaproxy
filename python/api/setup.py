@@ -15,7 +15,7 @@ except ImportError:
 
 setup(
     name="python-owasp-zap-v2.4",
-    version="0.0.6",
+    version="0.0.7",
     description="OWASP ZAP 2.4 API client",
     long_description="OWASP Zed Attack Proxy 2.4 API python client",
     author="ZAP development team",

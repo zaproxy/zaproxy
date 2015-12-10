@@ -24,11 +24,14 @@ class httpSessions(object):
     def __init__(self, zap):
         self.zap = zap
 
-    def sessions(self, site, session=''):
+    def sessions(self, site, session=None):
         """
         Gets the sessions of the given site. Optionally returning just the session with the given name.
         """
-        return next(self.zap._request(self.zap.base + 'httpSessions/view/sessions/', {'site' : site, 'session' : session}).itervalues())
+        params = {'site' : site}
+        if session is not None:
+            params['session'] = session
+        return next(self.zap._request(self.zap.base + 'httpSessions/view/sessions/', params).itervalues())
 
     def active_session(self, site):
         """
@@ -42,11 +45,14 @@ class httpSessions(object):
         """
         return next(self.zap._request(self.zap.base + 'httpSessions/view/sessionTokens/', {'site' : site}).itervalues())
 
-    def create_empty_session(self, site, session='', apikey=''):
+    def create_empty_session(self, site, session=None, apikey=''):
         """
         Creates an empty session for the given site. Optionally with the given name.
         """
-        return next(self.zap._request(self.zap.base + 'httpSessions/action/createEmptySession/', {'site' : site, 'session' : session, 'apikey' : apikey}).itervalues())
+        params = {'site' : site, 'apikey' : apikey}
+        if session is not None:
+            params['session'] = session
+        return next(self.zap._request(self.zap.base + 'httpSessions/action/createEmptySession/', params).itervalues())
 
     def remove_session(self, site, session, apikey=''):
         """

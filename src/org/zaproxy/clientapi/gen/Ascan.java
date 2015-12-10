@@ -41,14 +41,18 @@ public class Ascan {
 	public ApiResponse status(String scanid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("scanId", scanid);
+		if (scanid != null) {
+			map.put("scanId", scanid);
+		}
 		return api.callApi("ascan", "view", "status", map);
 	}
 
 	public ApiResponse scanProgress(String scanid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("scanId", scanid);
+		if (scanid != null) {
+			map.put("scanId", scanid);
+		}
 		return api.callApi("ascan", "view", "scanProgress", map);
 	}
 
@@ -84,16 +88,24 @@ public class Ascan {
 	public ApiResponse scanners(String scanpolicyname, String policyid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("scanPolicyName", scanpolicyname);
-		map.put("policyId", policyid);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
+		if (policyid != null) {
+			map.put("policyId", policyid);
+		}
 		return api.callApi("ascan", "view", "scanners", map);
 	}
 
 	public ApiResponse policies(String scanpolicyname, String policyid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("scanPolicyName", scanpolicyname);
-		map.put("policyId", policyid);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
+		if (policyid != null) {
+			map.put("policyId", policyid);
+		}
 		return api.callApi("ascan", "view", "policies", map);
 	}
 
@@ -199,11 +211,21 @@ public class Ascan {
 			map.put("apikey", apikey);
 		}
 		map.put("url", url);
-		map.put("recurse", recurse);
-		map.put("inScopeOnly", inscopeonly);
-		map.put("scanPolicyName", scanpolicyname);
-		map.put("method", method);
-		map.put("postData", postdata);
+		if (recurse != null) {
+			map.put("recurse", recurse);
+		}
+		if (inscopeonly != null) {
+			map.put("inScopeOnly", inscopeonly);
+		}
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
+		if (method != null) {
+			map.put("method", method);
+		}
+		if (postdata != null) {
+			map.put("postData", postdata);
+		}
 		return api.callApi("ascan", "action", "scan", map);
 	}
 
@@ -219,10 +241,18 @@ public class Ascan {
 		map.put("url", url);
 		map.put("contextId", contextid);
 		map.put("userId", userid);
-		map.put("recurse", recurse);
-		map.put("scanPolicyName", scanpolicyname);
-		map.put("method", method);
-		map.put("postData", postdata);
+		if (recurse != null) {
+			map.put("recurse", recurse);
+		}
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
+		if (method != null) {
+			map.put("method", method);
+		}
+		if (postdata != null) {
+			map.put("postData", postdata);
+		}
 		return api.callApi("ascan", "action", "scanAsUser", map);
 	}
 
@@ -327,7 +357,9 @@ public class Ascan {
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("scanPolicyName", scanpolicyname);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "enableAllScanners", map);
 	}
 
@@ -337,7 +369,9 @@ public class Ascan {
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("scanPolicyName", scanpolicyname);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "disableAllScanners", map);
 	}
 
@@ -379,7 +413,9 @@ public class Ascan {
 		}
 		map.put("id", id);
 		map.put("attackStrength", attackstrength);
-		map.put("scanPolicyName", scanpolicyname);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "setPolicyAttackStrength", map);
 	}
 
@@ -391,7 +427,9 @@ public class Ascan {
 		}
 		map.put("id", id);
 		map.put("alertThreshold", alertthreshold);
-		map.put("scanPolicyName", scanpolicyname);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "setPolicyAlertThreshold", map);
 	}
 
@@ -403,7 +441,9 @@ public class Ascan {
 		}
 		map.put("id", id);
 		map.put("attackStrength", attackstrength);
-		map.put("scanPolicyName", scanpolicyname);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "setScannerAttackStrength", map);
 	}
 
@@ -415,7 +455,9 @@ public class Ascan {
 		}
 		map.put("id", id);
 		map.put("alertThreshold", alertthreshold);
-		map.put("scanPolicyName", scanpolicyname);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "setScannerAlertThreshold", map);
 	}
 

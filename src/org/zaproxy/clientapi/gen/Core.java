@@ -54,9 +54,15 @@ public class Core {
 	public ApiResponse alerts(String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("core", "view", "alerts", map);
 	}
 
@@ -66,7 +72,9 @@ public class Core {
 	public ApiResponse numberOfAlerts(String baseurl) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("baseurl", baseurl);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
 		return api.callApi("core", "view", "numberOfAlerts", map);
 	}
 
@@ -110,9 +118,15 @@ public class Core {
 	public ApiResponse messages(String baseurl, String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("core", "view", "messages", map);
 	}
 
@@ -122,7 +136,9 @@ public class Core {
 	public ApiResponse numberOfMessages(String baseurl) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("baseurl", baseurl);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
 		return api.callApi("core", "view", "numberOfMessages", map);
 	}
 
@@ -150,7 +166,9 @@ public class Core {
 	public ApiResponse stats(String keyprefix) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("keyPrefix", keyprefix);
+		if (keyprefix != null) {
+			map.put("keyPrefix", keyprefix);
+		}
 		return api.callApi("core", "view", "stats", map);
 	}
 
@@ -255,8 +273,12 @@ public class Core {
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("name", name);
-		map.put("overwrite", overwrite);
+		if (name != null) {
+			map.put("name", name);
+		}
+		if (overwrite != null) {
+			map.put("overwrite", overwrite);
+		}
 		return api.callApi("core", "action", "newSession", map);
 	}
 
@@ -283,7 +305,9 @@ public class Core {
 			map.put("apikey", apikey);
 		}
 		map.put("name", name);
-		map.put("overwrite", overwrite);
+		if (overwrite != null) {
+			map.put("overwrite", overwrite);
+		}
 		return api.callApi("core", "action", "saveSession", map);
 	}
 
@@ -344,7 +368,9 @@ public class Core {
 			map.put("apikey", apikey);
 		}
 		map.put("request", request);
-		map.put("followRedirects", followredirects);
+		if (followredirects != null) {
+			map.put("followRedirects", followredirects);
+		}
 		return api.callApi("core", "action", "sendRequest", map);
 	}
 
@@ -580,9 +606,15 @@ public class Core {
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("baseurl", baseurl);
-		map.put("start", start);
-		map.put("count", count);
+		if (baseurl != null) {
+			map.put("baseurl", baseurl);
+		}
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApiOther("core", "other", "messagesHar", map);
 	}
 
@@ -596,7 +628,9 @@ public class Core {
 			map.put("apikey", apikey);
 		}
 		map.put("request", request);
-		map.put("followRedirects", followredirects);
+		if (followredirects != null) {
+			map.put("followRedirects", followredirects);
+		}
 		return api.callApiOther("core", "other", "sendHarRequest", map);
 	}
 

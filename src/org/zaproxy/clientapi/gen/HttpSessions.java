@@ -45,7 +45,9 @@ public class HttpSessions {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		map.put("site", site);
-		map.put("session", session);
+		if (session != null) {
+			map.put("session", session);
+		}
 		return api.callApi("httpSessions", "view", "sessions", map);
 	}
 
@@ -79,7 +81,9 @@ public class HttpSessions {
 			map.put("apikey", apikey);
 		}
 		map.put("site", site);
-		map.put("session", session);
+		if (session != null) {
+			map.put("session", session);
+		}
 		return api.callApi("httpSessions", "action", "createEmptySession", map);
 	}
 

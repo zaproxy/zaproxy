@@ -157,46 +157,54 @@ public class NodeJSAPIGenerator {
             out.write("    " + API.API_KEY_PARAM + " = null;\n");
             out.write("  }\n");
         }
-        String method = "request";
-        if (type.equals("other")) {
-            method = "requestOther";
-        }
-        out.write("  this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
 
         // , {'url': url}))
+        StringBuilder reqParams = new StringBuilder();
         if (hasParams) {
-            out.write(", {");
+            reqParams.append("{");
             boolean first = true;
             if (element.getMandatoryParamNames() != null) {
                 for (String param : element.getMandatoryParamNames()) {
                     if (first) {
                         first = false;
                     } else {
-                        out.write(", ");
+                        reqParams.append(", ");
                     }
-                    out.write("'" + param + "' : " + safeName(param.toLowerCase()));
-                }
-            }
-            if (element.getOptionalParamNames() != null) {
-                for (String param : element.getOptionalParamNames()) {
-                    if (first) {
-                        first = false;
-                    } else {
-                        out.write(", ");
-                    }
-                    out.write("'" + param + "' : " + safeName(param.toLowerCase()));
+                    reqParams.append("'" + param + "' : " + safeName(param.toLowerCase()));
                 }
             }
             if (type.equals("action") || type.equals("other")) {
                 // Always add the API key - we've no way of knowing if it will be required or not
-                if (first) {
-                    first = false;
-                } else {
-                    out.write(", ");
+                if (!first) {
+                    reqParams.append(", ");
                 }
-                out.write("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
+                reqParams.append("'" + API.API_KEY_PARAM + "' : " + API.API_KEY_PARAM);
             }
-            out.write("}");
+            reqParams.append("}");
+
+            if (element.getOptionalParamNames() != null && !element.getOptionalParamNames().isEmpty()) {
+                out.write("  var params = ");
+                out.write(reqParams.toString());
+                out.write(";\n");
+                reqParams.replace(0, reqParams.length(), "params");
+
+                for (String param : element.getOptionalParamNames()) {
+                    out.write("  if ("+safeName(param.toLowerCase())+" && "+safeName(param.toLowerCase())+" !== null) {\n");
+                    out.write("    params['" + param + "'] = " + safeName(param.toLowerCase())+";\n");
+                    out.write("  }\n");
+                }
+            }
+        }
+        
+        String method = "request";
+        if (type.equals("other")) {
+            method = "requestOther";
+        }
+        out.write("  this.api." + method + "('/" + component + "/" + type + "/" + element.getName() + "/'");
+
+        if (hasParams) {
+            out.write(", ");
+            out.write(reqParams.toString());
         }
         out.write(", callback);\n");
         out.write("};\n\n");

@@ -24,11 +24,17 @@ class spider(object):
     def __init__(self, zap):
         self.zap = zap
 
-    def status(self, scanid=''):
-        return next(self.zap._request(self.zap.base + 'spider/view/status/', {'scanId' : scanid}).itervalues())
+    def status(self, scanid=None):
+        params = {}
+        if scanid is not None:
+            params['scanId'] = scanid
+        return next(self.zap._request(self.zap.base + 'spider/view/status/', params).itervalues())
 
-    def results(self, scanid=''):
-        return next(self.zap._request(self.zap.base + 'spider/view/results/', {'scanId' : scanid}).itervalues())
+    def results(self, scanid=None):
+        params = {}
+        if scanid is not None:
+            params['scanId'] = scanid
+        return next(self.zap._request(self.zap.base + 'spider/view/results/', params).itervalues())
 
     def full_results(self, scanid):
         return next(self.zap._request(self.zap.base + 'spider/view/fullResults/', {'scanId' : scanid}).itervalues())
@@ -128,17 +134,29 @@ class spider(object):
     def option_show_advanced_dialog(self):
         return next(self.zap._request(self.zap.base + 'spider/view/optionShowAdvancedDialog/').itervalues())
 
-    def scan(self, url, maxchildren='', recurse='', contextname='', apikey=''):
+    def scan(self, url, maxchildren=None, recurse=None, contextname=None, apikey=''):
         """
         Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively and the parameter 'contextName' can be used to constrain the scan to a Context.
         """
-        return next(self.zap._request(self.zap.base + 'spider/action/scan/', {'url' : url, 'maxChildren' : maxchildren, 'recurse' : recurse, 'contextName' : contextname, 'apikey' : apikey}).itervalues())
+        params = {'url' : url, 'apikey' : apikey}
+        if maxchildren is not None:
+            params['maxChildren'] = maxchildren
+        if recurse is not None:
+            params['recurse'] = recurse
+        if contextname is not None:
+            params['contextName'] = contextname
+        return next(self.zap._request(self.zap.base + 'spider/action/scan/', params).itervalues())
 
-    def scan_as_user(self, url, contextid, userid, maxchildren='', recurse='', apikey=''):
+    def scan_as_user(self, url, contextid, userid, maxchildren=None, recurse=None, apikey=''):
         """
         Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
         """
-        return next(self.zap._request(self.zap.base + 'spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'maxChildren' : maxchildren, 'recurse' : recurse, 'apikey' : apikey}).itervalues())
+        params = {'url' : url, 'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}
+        if maxchildren is not None:
+            params['maxChildren'] = maxchildren
+        if recurse is not None:
+            params['recurse'] = recurse
+        return next(self.zap._request(self.zap.base + 'spider/action/scanAsUser/', params).itervalues())
 
     def pause(self, scanid, apikey=''):
         return next(self.zap._request(self.zap.base + 'spider/action/pause/', {'scanId' : scanid, 'apikey' : apikey}).itervalues())
@@ -146,8 +164,11 @@ class spider(object):
     def resume(self, scanid, apikey=''):
         return next(self.zap._request(self.zap.base + 'spider/action/resume/', {'scanId' : scanid, 'apikey' : apikey}).itervalues())
 
-    def stop(self, scanid='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'spider/action/stop/', {'scanId' : scanid, 'apikey' : apikey}).itervalues())
+    def stop(self, scanid=None, apikey=''):
+        params = {'apikey' : apikey}
+        if scanid is not None:
+            params['scanId'] = scanid
+        return next(self.zap._request(self.zap.base + 'spider/action/stop/', params).itervalues())
 
     def remove_scan(self, scanid, apikey=''):
         return next(self.zap._request(self.zap.base + 'spider/action/removeScan/', {'scanId' : scanid, 'apikey' : apikey}).itervalues())

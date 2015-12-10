@@ -79,7 +79,9 @@ public class Authentication {
 		}
 		map.put("contextId", contextid);
 		map.put("authMethodName", authmethodname);
-		map.put("authMethodConfigParams", authmethodconfigparams);
+		if (authmethodconfigparams != null) {
+			map.put("authMethodConfigParams", authmethodconfigparams);
+		}
 		return api.callApi("authentication", "action", "setAuthenticationMethod", map);
 	}
 

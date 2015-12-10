@@ -139,7 +139,7 @@ public class PhpAPIGenerator {
 			    if (paramMan != "" || paramOpt != "") {
 			        paramOpt += ", ";
 			    }
-				paramOpt += "$" + param.toLowerCase() + "=''";
+				paramOpt += "$" + param.toLowerCase() + "=NULL";
 			}
 			out.write(paramOpt);
 		}
@@ -155,6 +155,43 @@ public class PhpAPIGenerator {
 
 		out.write(") {\n");
 
+		StringBuilder reqParams = new StringBuilder();
+		if (hasParams) {
+			reqParams.append("array(");
+			boolean first = true;
+			if (element.getMandatoryParamNames() != null) {
+				for (String param : element.getMandatoryParamNames()) {
+					if (first) {
+						first = false;
+					} else {
+						reqParams.append(", ");
+					}
+					reqParams.append("'" + param + "' => $" + param.toLowerCase());
+				}
+			}
+			if (type.equals("action") || type.equals("other")) {
+				// Always add the API key - we've no way of knowing if it will be required or not
+				if (!first) {
+					reqParams.append(", ");
+				}
+				reqParams.append("'").append(API.API_KEY_PARAM).append("' => $").append(API.API_KEY_PARAM);
+			}
+			reqParams.append(")");
+
+			if (element.getOptionalParamNames() != null && !element.getOptionalParamNames().isEmpty()) {
+				out.write("\t\t$params = ");
+				out.write(reqParams.toString());
+				out.write(";\n");
+				reqParams.replace(0, reqParams.length(), "$params");
+
+				for (String param : element.getOptionalParamNames()) {
+					out.write("\t\tif ($" + param.toLowerCase() + " !== NULL) {\n");
+					out.write("\t\t\t$params['" + param + "'] = $" + param.toLowerCase() + ";\n");
+					out.write("\t\t}\n");
+				}
+			}
+		}
+
 		String method = "request";
 		String baseUrl = "base";
 		if (type.equals("other")) {
@@ -166,38 +203,9 @@ public class PhpAPIGenerator {
 				component + "/" + type + "/" + element.getName() + "/'");
 
 		if (hasParams) {
-			out.write(", array(");
-			boolean first = true;
-			if (element.getMandatoryParamNames() != null) {
-				for (String param : element.getMandatoryParamNames()) {
-					if (first) {
-						first = false;
-					} else {
-						out.write(", ");
-					}
-					out.write("'" + param + "' => $" + param.toLowerCase());
-				}
-			}
-			if (element.getOptionalParamNames() != null) {
-				for (String param : element.getOptionalParamNames()) {
-					if (first) {
-						first = false;
-					} else {
-						out.write(", ");
-					}
-					out.write("'" + param + "' => $" + param.toLowerCase());
-				}
-			}
-			if (type.equals("action") || type.equals("other")) {
-					// Always add the API key - we've no way of knowing if it will be required or not
-					if (first) {
-						first = false;
-					} else {
-						out.write(", ");
-					}
-					out.write("'" + API.API_KEY_PARAM + "' => $" + API.API_KEY_PARAM);
-			}
-			out.write("))");
+			out.write(", ");
+			out.write(reqParams.toString());
+			out.write(")");
 			if (type.equals("view")) {
 				out.write("->{'" + element.getName() + "'};\n");
 			} else {

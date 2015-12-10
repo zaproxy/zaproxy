@@ -41,14 +41,18 @@ public class Spider {
 	public ApiResponse status(String scanid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("scanId", scanid);
+		if (scanid != null) {
+			map.put("scanId", scanid);
+		}
 		return api.callApi("spider", "view", "status", map);
 	}
 
 	public ApiResponse results(String scanid) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("scanId", scanid);
+		if (scanid != null) {
+			map.put("scanId", scanid);
+		}
 		return api.callApi("spider", "view", "results", map);
 	}
 
@@ -187,9 +191,15 @@ public class Spider {
 			map.put("apikey", apikey);
 		}
 		map.put("url", url);
-		map.put("maxChildren", maxchildren);
-		map.put("recurse", recurse);
-		map.put("contextName", contextname);
+		if (maxchildren != null) {
+			map.put("maxChildren", maxchildren);
+		}
+		if (recurse != null) {
+			map.put("recurse", recurse);
+		}
+		if (contextname != null) {
+			map.put("contextName", contextname);
+		}
 		return api.callApi("spider", "action", "scan", map);
 	}
 
@@ -205,8 +215,12 @@ public class Spider {
 		map.put("url", url);
 		map.put("contextId", contextid);
 		map.put("userId", userid);
-		map.put("maxChildren", maxchildren);
-		map.put("recurse", recurse);
+		if (maxchildren != null) {
+			map.put("maxChildren", maxchildren);
+		}
+		if (recurse != null) {
+			map.put("recurse", recurse);
+		}
 		return api.callApi("spider", "action", "scanAsUser", map);
 	}
 
@@ -236,7 +250,9 @@ public class Spider {
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("scanId", scanid);
+		if (scanid != null) {
+			map.put("scanId", scanid);
+		}
 		return api.callApi("spider", "action", "stop", map);
 	}
 

@@ -24,10 +24,13 @@ class params(object):
     def __init__(self, zap):
         self.zap = zap
 
-    def params(self, site=''):
+    def params(self, site=None):
         """
         Shows the parameters for the specified site, or for all sites if the site is not specified
         """
-        return next(self.zap._request(self.zap.base + 'params/view/params/', {'site' : site}).itervalues())
+        params = {}
+        if site is not None:
+            params['site'] = site
+        return next(self.zap._request(self.zap.base + 'params/view/params/', params).itervalues())
 
 

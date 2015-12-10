@@ -30,17 +30,27 @@ class core(object):
         """
         return next(self.zap._request(self.zap.base + 'core/view/alert/', {'id' : id}).itervalues())
 
-    def alerts(self, baseurl='', start='', count=''):
+    def alerts(self, baseurl=None, start=None, count=None):
         """
         Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
         """
-        return next(self.zap._request(self.zap.base + 'core/view/alerts/', {'baseurl' : baseurl, 'start' : start, 'count' : count}).itervalues())
+        params = {}
+        if baseurl is not None:
+            params['baseurl'] = baseurl
+        if start is not None:
+            params['start'] = start
+        if count is not None:
+            params['count'] = count
+        return next(self.zap._request(self.zap.base + 'core/view/alerts/', params).itervalues())
 
-    def number_of_alerts(self, baseurl=''):
+    def number_of_alerts(self, baseurl=None):
         """
         Gets the number of alerts, optionally filtering by URL
         """
-        return next(self.zap._request(self.zap.base + 'core/view/numberOfAlerts/', {'baseurl' : baseurl}).itervalues())
+        params = {}
+        if baseurl is not None:
+            params['baseurl'] = baseurl
+        return next(self.zap._request(self.zap.base + 'core/view/numberOfAlerts/', params).itervalues())
 
     @property
     def hosts(self):
@@ -69,17 +79,27 @@ class core(object):
         """
         return next(self.zap._request(self.zap.base + 'core/view/message/', {'id' : id}).itervalues())
 
-    def messages(self, baseurl='', start='', count=''):
+    def messages(self, baseurl=None, start=None, count=None):
         """
         Gets the HTTP messages sent by ZAP, request and response, optionally filtered by URL and paginated with 'start' position and 'count' of messages
         """
-        return next(self.zap._request(self.zap.base + 'core/view/messages/', {'baseurl' : baseurl, 'start' : start, 'count' : count}).itervalues())
+        params = {}
+        if baseurl is not None:
+            params['baseurl'] = baseurl
+        if start is not None:
+            params['start'] = start
+        if count is not None:
+            params['count'] = count
+        return next(self.zap._request(self.zap.base + 'core/view/messages/', params).itervalues())
 
-    def number_of_messages(self, baseurl=''):
+    def number_of_messages(self, baseurl=None):
         """
         Gets the number of messages, optionally filtering by URL
         """
-        return next(self.zap._request(self.zap.base + 'core/view/numberOfMessages/', {'baseurl' : baseurl}).itervalues())
+        params = {}
+        if baseurl is not None:
+            params['baseurl'] = baseurl
+        return next(self.zap._request(self.zap.base + 'core/view/numberOfMessages/', params).itervalues())
 
     @property
     def version(self):
@@ -99,8 +119,11 @@ class core(object):
     def home_directory(self):
         return next(self.zap._request(self.zap.base + 'core/view/homeDirectory/').itervalues())
 
-    def stats(self, keyprefix=''):
-        return next(self.zap._request(self.zap.base + 'core/view/stats/', {'keyPrefix' : keyprefix}).itervalues())
+    def stats(self, keyprefix=None):
+        params = {}
+        if keyprefix is not None:
+            params['keyPrefix'] = keyprefix
+        return next(self.zap._request(self.zap.base + 'core/view/stats/', params).itervalues())
 
     @property
     def option_default_user_agent(self):
@@ -172,11 +195,16 @@ class core(object):
         """
         return next(self.zap._request(self.zap.base + 'core/action/shutdown/', {'apikey' : apikey}).itervalues())
 
-    def new_session(self, name='', overwrite='', apikey=''):
+    def new_session(self, name=None, overwrite=None, apikey=''):
         """
         Creates a new session, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/newSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}).itervalues())
+        params = {'apikey' : apikey}
+        if name is not None:
+            params['name'] = name
+        if overwrite is not None:
+            params['overwrite'] = overwrite
+        return next(self.zap._request(self.zap.base + 'core/action/newSession/', params).itervalues())
 
     def load_session(self, name, apikey=''):
         """
@@ -184,11 +212,14 @@ class core(object):
         """
         return next(self.zap._request(self.zap.base + 'core/action/loadSession/', {'name' : name, 'apikey' : apikey}).itervalues())
 
-    def save_session(self, name, overwrite='', apikey=''):
+    def save_session(self, name, overwrite=None, apikey=''):
         """
         Saves the session with the name supplied, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/saveSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}).itervalues())
+        params = {'name' : name, 'apikey' : apikey}
+        if overwrite is not None:
+            params['overwrite'] = overwrite
+        return next(self.zap._request(self.zap.base + 'core/action/saveSession/', params).itervalues())
 
     def snapshot_session(self, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/snapshotSession/', {'apikey' : apikey}).itervalues())
@@ -205,11 +236,14 @@ class core(object):
     def generate_root_ca(self, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/generateRootCA/', {'apikey' : apikey}).itervalues())
 
-    def send_request(self, request, followredirects='', apikey=''):
+    def send_request(self, request, followredirects=None, apikey=''):
         """
         Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
         """
-        return next(self.zap._request(self.zap.base + 'core/action/sendRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey}).itervalues())
+        params = {'request' : request, 'apikey' : apikey}
+        if followredirects is not None:
+            params['followRedirects'] = followredirects
+        return next(self.zap._request(self.zap.base + 'core/action/sendRequest/', params).itervalues())
 
     def delete_all_alerts(self, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/deleteAllAlerts/', {'apikey' : apikey}).itervalues())
@@ -286,16 +320,26 @@ class core(object):
         """
         return (self.zap._request_other(self.zap.base_other + 'core/other/messageHar/', {'id' : id, 'apikey' : apikey}))
 
-    def messages_har(self, baseurl='', start='', count='', apikey=''):
+    def messages_har(self, baseurl=None, start=None, count=None, apikey=''):
         """
         Gets the HTTP messages sent through/by ZAP, in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
         """
-        return (self.zap._request_other(self.zap.base_other + 'core/other/messagesHar/', {'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey}))
+        params = {'apikey' : apikey}
+        if baseurl is not None:
+            params['baseurl'] = baseurl
+        if start is not None:
+            params['start'] = start
+        if count is not None:
+            params['count'] = count
+        return (self.zap._request_other(self.zap.base_other + 'core/other/messagesHar/', params))
 
-    def send_har_request(self, request, followredirects='', apikey=''):
+    def send_har_request(self, request, followredirects=None, apikey=''):
         """
         Sends the first HAR request entry, optionally following redirections. Returns, in HAR format, the request sent and response received and followed redirections, if any.
         """
-        return (self.zap._request_other(self.zap.base_other + 'core/other/sendHarRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey}))
+        params = {'request' : request, 'apikey' : apikey}
+        if followredirects is not None:
+            params['followRedirects'] = followredirects
+        return (self.zap._request_other(self.zap.base_other + 'core/other/sendHarRequest/', params))
 
 
