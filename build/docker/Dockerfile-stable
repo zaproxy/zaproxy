@@ -1,12 +1,12 @@
-FROM ubuntu
-MAINTAINER Samuli Elomaa "samuli.elomaa@gmail.com"
-
+# This dockerfile builds the zap stable release
+FROM ubuntu:15.04
+MAINTAINER Simon Bennetts "psiinon@gmail.com"
 
 RUN apt-get update && apt-get clean
 RUN apt-get install -q -y make automake autoconf gcc g++ openjdk-7-jre-headless openjdk-7-jdk ruby wget curl xmlstarlet unzip git x11vnc xvfb openbox xterm net-tools ruby-dev && apt-get clean
 RUN mkdir /zap 
 RUN gem install zapr
-RUN apt-get --assume-yes install python-pip
+RUN apt-get --assume-yes --fix-missing install python-pip x11vnc xvfb firefox
 RUN pip install python-owasp-zap-v2.4
 RUN pip install zapcli
 WORKDIR /zap
@@ -15,19 +15,24 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd
 
+# Create the script which will run ZAP with Xvfb
+RUN echo "#!/bin/sh" > /zap/ZAP_2.4.3/zap-x.sh
+RUN echo "export DISPLAY=:1.0" >> /zap/ZAP_2.4.3/zap-x.sh
+RUN echo "Xvfb :1 -screen 0 1024x768x16 -ac &" >> /zap/ZAP_2.4.3/zap-x.sh
+RUN echo "/zap/ZAP_2.4.3/zap.sh \$@" >> /zap/ZAP_2.4.3/zap-x.sh
+RUN chmod a+x /zap/ZAP_2.4.3/zap-x.sh
+
 RUN mkdir /home/zap/.vnc
-# use this to create static pass for x11vnc
-#RUN x11vnc -storepasswd zap /home/zap/.vnc/passwd
 RUN echo "openbox &" > /home/zap/.xinitrc
 RUN echo "xsetroot -solid black" >> /home/zap/.xinitrc
-run echo "zap.sh" >> /home/zap/.xinitrc
+RUN echo "zap.sh" >> /home/zap/.xinitrc
 RUN chmod a+x /home/zap/.xinitrc
 RUN chown -R zap /home/zap/
 RUN chmod -R u+rw /home/zap/
 RUN chown -R zap /zap/
 ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
-ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.4.2/:$PATH
-ENV ZAP_PATH /zap/ZAP_2.4.2/zap.sh
+ENV PATH $JAVA_HOME/bin:/zap/ZAP_2.4.3/:$PATH
+ENV ZAP_PATH /zap/ZAP_2.4.3/zap.sh
 # Default port for use with zapcli
 ENV ZAP_PORT 8080
 ENV HOME /home/zap/
