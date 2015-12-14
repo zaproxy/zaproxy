@@ -166,7 +166,10 @@ public class SpiderAPI extends ApiImplementor {
 				}
 			}
 			if (params.containsKey(PARAM_CONTEXT_NAME)) {
-				context = ApiUtils.getContextByName(params, PARAM_CONTEXT_NAME);
+				String contextName = params.getString(PARAM_CONTEXT_NAME);
+				if (!contextName.isEmpty()) {
+					context = ApiUtils.getContextByName(contextName);
+				}
 			}
 			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
 			return new ApiResponseElement(name, Integer.toString(scanId));
