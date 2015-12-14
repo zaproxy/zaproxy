@@ -53,6 +53,7 @@
 // ZAP: 2015/08/19 Change to use ZapXmlConfiguration instead of extending FileXML
 // ZAP: 2015/08/19 Issue 1789: Forced Browse/AJAX Spider messages not restored to Sites tab
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2015/12/14 Issue 2119: Context's description not imported
 
 package org.parosproxy.paros.model;
 
@@ -1274,7 +1275,7 @@ public class Session {
 		
 		Context c = this.getNewContext(config.getString(Context.CONTEXT_CONFIG_NAME));
 
-		c.setDescription(Context.CONTEXT_CONFIG_DESC);
+		c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
 		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
 		for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
 			c.addIncludeInContextRegex(obj.toString());
