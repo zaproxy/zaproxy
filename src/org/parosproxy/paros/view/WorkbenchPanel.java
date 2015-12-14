@@ -30,6 +30,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2015/02/11 Ensure that a tab is always selected when the layout is switched
+// ZAP: 2015/12/14 Disable request/response tab buttons location when in full layout
 
 package org.parosproxy.paros.view;
 
@@ -184,6 +185,7 @@ public class WorkbenchPanel extends JPanel {
                 getTabbedStatus().addTab((AbstractPanel)c);
             }
         }
+        View.getSingleton().getMessagePanelsPositionController().setEnabled(false);
         break;
       case View.DISPLAY_OPTION_BOTTOM_FULL:
       case View.DISPLAY_OPTION_LEFT_FULL:
@@ -222,8 +224,12 @@ public class WorkbenchPanel extends JPanel {
     // Restore state of the MessagePanelsPositionController after changing the layout, so
     // the Request/Response do not appear as empty panels. This should only happen when
     // changing the layout when starting ZAP and when not switching to 'Full Layout'.
-    if((this.previousDisplayOption != -1) && (this.displayOption != View.DISPLAY_OPTION_TOP_FULL)) {
-      View.getSingleton().getMessagePanelsPositionController().restoreState();
+    if(this.previousDisplayOption != -1) {
+        boolean nonTopFullOption = this.displayOption != View.DISPLAY_OPTION_TOP_FULL;
+        if (nonTopFullOption) {
+            View.getSingleton().getMessagePanelsPositionController().restoreState();
+        }
+        View.getSingleton().getMessagePanelsPositionController().setEnabled(nonTopFullOption);
     }
 
     // save previous display option

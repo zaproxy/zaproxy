@@ -27,7 +27,6 @@ import javax.swing.BorderFactory;
 import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JSplitPane;
-import javax.swing.JToggleButton;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.parosproxy.paros.Constant;
@@ -50,8 +49,11 @@ public class MessagePanelsPositionController {
     }
 
     private static final String TABS_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.tabs");
+    private static final String DISABLED_TABS_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.tabs.disabled");
     private static final String ABOVE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.above");
+    private static final String DISABLED_ABOVE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.above.disabled");
     private static final String SIDE_BY_SIDE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.sideBySide");
+    private static final String DISABLED_SIDE_BY_SIDE_VIEW_TOOL_TIP = Constant.messages.getString("view.toolbar.messagePanelsPosition.sideBySide.disabled");
 
     private static final String BASE_KEY = OptionsParamView.BASE_VIEW_KEY + ".messagePanelsPosition.";
 
@@ -63,9 +65,9 @@ public class MessagePanelsPositionController {
     private WorkbenchPanel workbenchPanel;
     private TabbedPanel tabbedWork;
 
-    private JToggleButton tabsButtonView;
-    private JToggleButton aboveButtonView;
-    private JToggleButton sideBySideButtonView;
+    private ZapToggleButton tabsButtonView;
+    private ZapToggleButton aboveButtonView;
+    private ZapToggleButton sideBySideButtonView;
 
     private TabbedPanel splitTabbedPanel;
 
@@ -82,20 +84,23 @@ public class MessagePanelsPositionController {
         this.tabbedWork = workbenchPanel.getTabbedWork();
         this.currentPosition = MessagePanelsPosition.TABS_SIDE_BY_SIDE;
 
-        tabsButtonView = new JToggleButton(new ChangeMessagePanelsPositionAction(
+        tabsButtonView = new ZapToggleButton(new ChangeMessagePanelsPositionAction(
                 MessagePanelsPositionController.class.getResource("/resource/icon/layout_tabbed.png"),
                 MessagePanelsPosition.TABS_SIDE_BY_SIDE));
         tabsButtonView.setToolTipText(TABS_VIEW_TOOL_TIP);
+        tabsButtonView.setDisabledToolTipText(DISABLED_TABS_VIEW_TOOL_TIP);
 
-        aboveButtonView = new JToggleButton(new ChangeMessagePanelsPositionAction(
+        aboveButtonView = new ZapToggleButton(new ChangeMessagePanelsPositionAction(
                 MessagePanelsPositionController.class.getResource("/resource/icon/layout_vertical_split.png"),
                 MessagePanelsPosition.PANEL_ABOVE));
         aboveButtonView.setToolTipText(ABOVE_VIEW_TOOL_TIP);
+        aboveButtonView.setDisabledToolTipText(DISABLED_ABOVE_VIEW_TOOL_TIP);
 
-        sideBySideButtonView = new JToggleButton(new ChangeMessagePanelsPositionAction(
+        sideBySideButtonView = new ZapToggleButton(new ChangeMessagePanelsPositionAction(
                 MessagePanelsPositionController.class.getResource("/resource/icon/layout_horizontal_split.png"),
                 MessagePanelsPosition.PANELS_SIDE_BY_SIDE));
         sideBySideButtonView.setToolTipText(SIDE_BY_SIDE_VIEW_TOOL_TIP);
+        sideBySideButtonView.setDisabledToolTipText(DISABLED_SIDE_BY_SIDE_VIEW_TOOL_TIP);
 
         ButtonGroup messageTabsPositionButtonGroup = new ButtonGroup();
         messageTabsPositionButtonGroup.add(tabsButtonView);
@@ -115,6 +120,18 @@ public class MessagePanelsPositionController {
         splitTabbedPanel = new TabbedPanel();
         splitTabbedPanel.setAlternativeParent(mainFrame.getPaneDisplay());
         splitTabbedPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 0, 0));
+    }
+
+    /**
+     * Sets whether or not the buttons that control the message panels' position should be enabled.
+     *
+     * @param enabled {@code true} if the buttons should be enabled, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public void setEnabled(boolean enabled) {
+        tabsButtonView.setEnabled(enabled);
+        aboveButtonView.setEnabled(enabled);
+        sideBySideButtonView.setEnabled(enabled);
     }
 
     private void changeMessageTabsPosition(MessagePanelsPosition position) {
