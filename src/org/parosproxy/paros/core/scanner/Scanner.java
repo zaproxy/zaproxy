@@ -37,6 +37,7 @@
 // ZAP: 2015/02/18 Issue 1062: Tidied up extension hooks
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/10/21 Issue 1576: Removed SiteNode cast no longer needed
+// ZAP: 2015/12/14 Prevent scans from becoming in undefined state
 
 package org.parosproxy.paros.core.scanner;
 
@@ -155,13 +156,18 @@ public class Scanner implements Runnable {
 
 	@Override
 	public void run() {
-	    scan(target);
+        try {
+            scan(target);
 	    
 //	    while (pool.isAllThreadComplete()) {
 //	        Util.sleep(4000);
 //	    }
-	    pool.waitAllThreadComplete(0);
-	    notifyScannerComplete();
+            pool.waitAllThreadComplete(0);
+        } catch (Exception e) {
+            log.error("An error occurred while active scanning:", e);
+        } finally {
+            notifyScannerComplete();
+        }
 	}
 	
 	public void scan(Target target) {
