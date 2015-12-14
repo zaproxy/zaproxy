@@ -171,7 +171,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		protected AuthenticationMethod duplicate() {
 			ScriptBasedAuthenticationMethod method = new ScriptBasedAuthenticationMethod();
 			method.script = script;
-			method.paramValues = new HashMap<String, String>(this.paramValues);
+			method.paramValues = this.paramValues != null ? new HashMap<String, String>(this.paramValues) : null;
 			method.credentialsParamNames = this.credentialsParamNames;
 			return method;
 		}
@@ -529,9 +529,13 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			if (script == null) {
 				log.error("Unable to find script while loading Script Based Authentication Method for name: "
 						+ scriptName);
-			} else {
-				log.info("Loaded script:" + script.getName());
+				if (View.isInitialised()) {
+					View.getSingleton().showMessageDialog(
+							Constant.messages.getString("authentication.method.script.load.errorScriptNotFound", scriptName));
+				}
+				return;
 			}
+			log.info("Loaded script:" + script.getName());
 			method.script = script;
 
 			// Check script interface and make sure we load the credentials parameter names
