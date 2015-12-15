@@ -102,6 +102,11 @@ public class JCheckBoxTree extends JTree {
         return checkedPaths.toArray(new TreePath[checkedPaths.size()]);
     }
 
+    public boolean isChecked(TreePath path) {
+        CheckedNode cn = nodesCheckingState.get(path);
+        return cn.isSelected;
+    }
+
     // Returns true in case that the node is selected, has children but not all of them are selected
     public boolean isSelectedPartially(TreePath path) {
         CheckedNode cn = nodesCheckingState.get(path);
@@ -258,7 +263,7 @@ public class JCheckBoxTree extends JTree {
             CheckedNode childCheckedNode = nodesCheckingState.get(childPath);           
             // It is enough that even one subtree is not fully selected
             // to determine that the parent is not fully selected
-            if (! childCheckedNode.allChildrenSelected) {
+            if (!allSelected(childCheckedNode)) {
                 parentCheckedNode.allChildrenSelected = false;      
             }
             // If at least one child is selected, selecting also the parent
@@ -275,6 +280,16 @@ public class JCheckBoxTree extends JTree {
         updatePredecessorsWithCheckMode(parentPath, check);
     }
 
+    private boolean allSelected(CheckedNode checkedNode) {
+        if (!checkedNode.isSelected) {
+            return false;
+        }
+        if (checkedNode.hasChildren) {
+            return checkedNode.allChildrenSelected;
+        }
+        return true;
+    }
+
     // Recursively checks/unchecks a subtree
     public void checkSubTree(TreePath tp, boolean check) {
         CheckedNode cn = nodesCheckingState.get(tp);
@@ -289,6 +304,7 @@ public class JCheckBoxTree extends JTree {
         } else {
             checkedPaths.remove(tp);
         }
+        updatePredecessorsAllChildrenSelectedState(tp);
     }
 
     public void expandAll() {
@@ -305,7 +321,7 @@ public class JCheckBoxTree extends JTree {
     
     public boolean isSelectedFully(TreePath path) {
         CheckedNode cn = nodesCheckingState.get(path);
-        return cn.isSelected && (!cn.hasChildren || cn.allChildrenSelected);
+        return allSelected(cn);
     }
 
     // Recursively checks/unchecks a subtree
@@ -317,6 +333,26 @@ public class JCheckBoxTree extends JTree {
         } else {
             checkedPaths.remove(tp);
         }
+        updatePredecessorsAllChildrenSelectedState(tp);
+    }
+
+    private void updatePredecessorsAllChildrenSelectedState(TreePath tp) {
+        TreePath parentPath = tp.getParentPath();
+        if (parentPath == null) {
+            return;
+        }
+        CheckedNode parentCheckedNode = nodesCheckingState.get(parentPath);
+        parentCheckedNode.allChildrenSelected = true;
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) parentPath.getLastPathComponent();
+        for (int i = 0; i < parentNode.getChildCount(); i++) {
+            TreePath childPath = parentPath.pathByAddingChild(parentNode.getChildAt(i));
+            CheckedNode childCheckedNode = nodesCheckingState.get(childPath);
+            if (!allSelected(childCheckedNode)) {
+                parentCheckedNode.allChildrenSelected = false;
+                break;
+            }
+        }
+        updatePredecessorsAllChildrenSelectedState(parentPath);
     }
 
     public void setCheckBoxEnabled(TreePath tp, boolean enabled) {
