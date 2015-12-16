@@ -40,7 +40,6 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
-import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -372,8 +371,8 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				policy = controller.getPolicyManager().getTemplatePolicy();
 				policy.setName(newPolicyName);
-				policy.setDefaultThreshold(getAlertThreshold(params));
-				policy.setDefaultStrength(getAttackStrength(params));
+				setAlertThreshold(policy, params);
+				setAttackStrength(policy, params);
 				controller.getPolicyManager().savePolicy(policy);
 				break;
 			case ACTION_REMOVE_SCAN_POLICY:
@@ -400,36 +399,32 @@ public class ActiveScanAPI extends ApiImplementor {
 		return ApiResponseElement.OK;
 	}
 
-	private AlertThreshold getAlertThreshold(JSONObject params) throws ApiException {
-		if (!isParamExists(params.getString(PARAM_ALERT_THRESHOLD))) {
-			return AlertThreshold.MEDIUM;
+	private void setAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
 		}
-
-		return getAlertThresholdFromParamAlertThreshold(params);
 	}
 
-	private AttackStrength getAttackStrength(JSONObject params) throws ApiException {
-		if (!isParamExists(params.getString(PARAM_ATTACK_STRENGTH))) {
-			return AttackStrength.MEDIUM;
+	private void setAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
 		}
-
-		return getAttackStrengthFromParamAttack(params);
 	}
 
 	private void changeAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
-		if (isParamExists(params.getString(PARAM_ALERT_THRESHOLD))) {
+		if (isParamExists(params, PARAM_ALERT_THRESHOLD)) {
 			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
 		}
 	}
 
 	private void changeAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
-		if (isParamExists(params.getString(PARAM_ATTACK_STRENGTH))) {
+		if (isParamExists(params, PARAM_ATTACK_STRENGTH)) {
 			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
 		}
 	}
 
-	private boolean isParamExists(String param) {
-		return StringUtils.isNotBlank(param);
+	private boolean isParamExists(JSONObject params, String key) {
+		return params.has(key) && StringUtils.isNotBlank(params.getString(key));
 	}
 
 	private static URI getTargetUrl(String url) throws ApiException {
