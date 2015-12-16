@@ -40,6 +40,7 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -328,7 +329,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			case ACTION_SET_POLICY_ATTACK_STRENGTH:
 				policyId = getPolicyIdFromParamId(params);
 				policy = getScanPolicyFromParams(params);
-				Plugin.AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
+				AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
 
 				for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 					if (scanner.getCategory() == policyId) {
@@ -386,8 +387,11 @@ public class ActiveScanAPI extends ApiImplementor {
 				break;
 			case ACTION_UPDATE_SCAN_POLICY:
 				policy = getScanPolicyFromParams(params);
-				changeAlertThreshold(policy, params);
-				changeAttackStrength(policy, params);
+				if (!isParamsChanged(policy, params)) {
+					break;
+				}
+				updateAlertThreshold(policy, params);
+				updateAttackStrength(policy, params);
 				controller.getPolicyManager().savePolicy(policy);
 				break;
 			default:
@@ -411,14 +415,38 @@ public class ActiveScanAPI extends ApiImplementor {
 		}
 	}
 
-	private void changeAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
-		if (isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+	private boolean isParamsChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		return isAlertThresholdChanged(policy, params) || isAttackStrengthChanged(policy, params);
+	}
+
+	private boolean isAlertThresholdChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (!isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+			return false;
+		}
+
+		AlertThreshold updatedAlertThreshold = getAlertThresholdFromParamAlertThreshold(params);
+		AlertThreshold currentThreshold = policy.getDefaultThreshold();
+		return !currentThreshold.equals(updatedAlertThreshold);
+	}
+
+	private boolean isAttackStrengthChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (!isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+			return false;
+		}
+
+		AttackStrength updatedAttackStrength = getAttackStrengthFromParamAttack(params);
+		AttackStrength currentAttackStrength = policy.getDefaultStrength();
+		return !currentAttackStrength.equals(updatedAttackStrength);
+	}
+
+	private void updateAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isAlertThresholdChanged(policy, params)) {
 			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
 		}
 	}
 
-	private void changeAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
-		if (isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+	private void updateAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isAttackStrengthChanged(policy, params)) {
 			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
 		}
 	}
@@ -538,10 +566,10 @@ public class ActiveScanAPI extends ApiImplementor {
 		return id;
 	}
 
-	private Plugin.AttackStrength getAttackStrengthFromParamAttack(JSONObject params) throws ApiException {
+	private AttackStrength getAttackStrengthFromParamAttack(JSONObject params) throws ApiException {
 		final String paramAttackStrength = params.getString(PARAM_ATTACK_STRENGTH).trim().toUpperCase();
 		try {
-			return Plugin.AttackStrength.valueOf(paramAttackStrength);
+			return AttackStrength.valueOf(paramAttackStrength);
 		} catch (IllegalArgumentException e) {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ATTACK_STRENGTH);
 		}
@@ -731,7 +759,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			resultList = new ApiResponseList(name);
 			for (String pluginName : policies) {
 				categoryId = Category.getCategory(pluginName);
-				Plugin.AttackStrength attackStrength = getPolicyAttackStrength(policy, categoryId);
+				AttackStrength attackStrength = getPolicyAttackStrength(policy, categoryId);
 				Plugin.AlertThreshold alertThreshold = getPolicyAlertThreshold(policy, categoryId);
 				Map<String, String> map = new HashMap<>();
 				map.put("id", String.valueOf(categoryId));
@@ -769,8 +797,8 @@ public class ActiveScanAPI extends ApiImplementor {
 		return true;
 	}
 
-	private Plugin.AttackStrength getPolicyAttackStrength(ScanPolicy policy, int categoryd) {
-		Plugin.AttackStrength attackStrength = null;
+	private AttackStrength getPolicyAttackStrength(ScanPolicy policy, int categoryd) {
+		AttackStrength attackStrength = null;
 		for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 			if (scanner.getCategory() == categoryd) {
 				if (attackStrength == null) {
