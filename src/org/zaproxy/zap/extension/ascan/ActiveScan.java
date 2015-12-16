@@ -79,7 +79,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	private final List<Integer> hRefs = Collections.synchronizedList(new ArrayList<Integer>());
 	private final List<Integer> alerts = Collections.synchronizedList(new ArrayList<Integer>());
 
-	private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
+	private ScheduledExecutorService scheduler;
     private ScheduledFuture<?> schedHandle;
 
 	private static final Logger log = Logger.getLogger(ActiveScan.class);
@@ -145,6 +145,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 		super.start(target);
 		
 		if (View.isInitialised()) {
+			scheduler = Executors.newScheduledThreadPool(1);
 			// For now this is only supported in the desktop UI
 			final Runnable requestCounter = new Runnable() {
 	            public void run() {
@@ -240,6 +241,9 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	@Override
 	public void scannerComplete(int id) {
 		this.timeFinished = new Date();
+		if (scheduler != null) {
+			scheduler.shutdown();
+		}
 	}
 
 	//@Override
