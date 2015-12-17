@@ -48,7 +48,8 @@ ENV HOME /home/zap/
 #RUN chmod a+x /bin/startzap.sh 
 
 # Create some useful policies
-ENV zappolicy /home/zap/.ZAP_D/policies/St-High-Th-Med.policy
+RUN mkdir -p /home/zap/.ZAP/policies
+ENV zappolicy /home/zap/.ZAP/policies/St-High-Th-Med.policy
 RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
 RUN echo "<configuration>" 		>> ${zappolicy}
 RUN echo "<policy>St-High-Th-Med</policy>" 	>> ${zappolicy}
@@ -58,7 +59,7 @@ RUN echo "<strength>HIGH</strength>" 	>> ${zappolicy}
 RUN echo "</scanner>" 			>> ${zappolicy}
 RUN echo "</configuration>" 		>> ${zappolicy}
 
-ENV zappolicy /home/zap/.ZAP_D/policies/St-Ins-Th-Med.policy
+ENV zappolicy /home/zap/.ZAP/policies/St-Ins-Th-Med.policy
 RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
 RUN echo "<configuration>" 		>> ${zappolicy}
 RUN echo "<policy>St-Ins-Th-Med</policy>" 	>> ${zappolicy}
@@ -68,7 +69,7 @@ RUN echo "<strength>INSANE</strength>" 	>> ${zappolicy}
 RUN echo "</scanner>" 			>> ${zappolicy}
 RUN echo "</configuration>" 		>> ${zappolicy}
 
-ENV zappolicy /home/zap/.ZAP_D/policies/St-Low-Th-Med.policy
+ENV zappolicy /home/zap/.ZAP/policies/St-Low-Th-Med.policy
 RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
 RUN echo "<configuration>" 		>> ${zappolicy}
 RUN echo "<policy>St-Low-Th-Med</policy>" 	>> ${zappolicy}
@@ -78,7 +79,7 @@ RUN echo "<strength>LOW</strength>" 	>> ${zappolicy}
 RUN echo "</scanner>" 			>> ${zappolicy}
 RUN echo "</configuration>" 		>> ${zappolicy}
 
-ENV zappolicy /home/zap/.ZAP_D/policies/St-Ins-Th-High.policy
+ENV zappolicy /home/zap/.ZAP/policies/St-Ins-Th-High.policy
 RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
 RUN echo "<configuration>" 		>> ${zappolicy}
 RUN echo "<policy>St-Ins-Th-High</policy>" 	>> ${zappolicy}
@@ -88,5 +89,5 @@ RUN echo "<strength>INSANE</strength>" 	>> ${zappolicy}
 RUN echo "</scanner>" 			>> ${zappolicy}
 RUN echo "</configuration>" 		>> ${zappolicy}
 
-RUN chown -R zap /home/zap/.ZAP_D
+RUN chown -R zap /home/zap/.ZAP
 
