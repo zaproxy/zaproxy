@@ -47,3 +47,46 @@ ENV HOME /home/zap/
 #RUN echo 'sh launch.sh --vnc localhost:5900' >> /bin/startzap.sh
 #RUN chmod a+x /bin/startzap.sh 
 
+# Create some useful policies
+ENV zappolicy /home/zap/.ZAP_D/policies/St-High-Th-Med.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-High-Th-Med</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>MEDIUM</level>" 	>> ${zappolicy}
+RUN echo "<strength>HIGH</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+ENV zappolicy /home/zap/.ZAP_D/policies/St-Ins-Th-Med.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-Ins-Th-Med</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>MEDIUM</level>" 	>> ${zappolicy}
+RUN echo "<strength>INSANE</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+ENV zappolicy /home/zap/.ZAP_D/policies/St-Low-Th-Med.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-Low-Th-Med</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>MEDIUM</level>" 	>> ${zappolicy}
+RUN echo "<strength>LOW</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+ENV zappolicy /home/zap/.ZAP_D/policies/St-Ins-Th-High.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>" 		>> ${zappolicy}
+RUN echo "<policy>St-Ins-Th-High</policy>" 	>> ${zappolicy}
+RUN echo "<scanner>" 			>> ${zappolicy}
+RUN echo "<level>HIGH</level>"	 	>> ${zappolicy}
+RUN echo "<strength>INSANE</strength>" 	>> ${zappolicy}
+RUN echo "</scanner>" 			>> ${zappolicy}
+RUN echo "</configuration>" 		>> ${zappolicy}
+
+RUN chown -R zap /home/zap/.ZAP_D
+
