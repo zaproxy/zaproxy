@@ -104,20 +104,32 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 
 		@Override
 		public void tableChanged(TableModelEvent e) {
-			// Handle the situation when something is selected and but there aren't any users to
-			// select
-			if (selectedItem != null && getSize() == 0)
-				setSelectedItem(null);
-			// Handle the situation when nothing selected or the event is a deletion or update and
-			// the previously selected item does not exist any more
-			else if (selectedItem == null
-					|| ((e.getType() == TableModelEvent.DELETE || e.getType() == TableModelEvent.UPDATE) && getIndexOf(selectedItem) == -1)) {
-				if (getSize() > 0)
-					setSelectedItem(getElementAt(0));
-				else
-					setSelectedItem(null);
+			switch (e.getType()) {
+			case TableModelEvent.INSERT:
+				if (selectedItem == null) {
+					setSelectedItemImpl(getElementAt(0));
+				}
+				fireIntervalAdded(this, e.getFirstRow(), e.getLastRow());
+				break;
+			case TableModelEvent.UPDATE:
+				if (selectedItem != null) {
+					User user = getElementAt(getIndexOf(selectedItem));
+					if (user != selectedItem) {
+						// Same user (by ID) but different objects, refresh it.
+						setSelectedItemImpl(user);
+					}
+				}
+				fireContentsChanged(this, e.getFirstRow(), e.getLastRow());
+				break;
+			case TableModelEvent.DELETE:
+				if (selectedItem != null && getIndexOf(selectedItem) == -1) {
+					setSelectedItemImpl(getSize() != 0 ? getElementAt(0) : null);
+				}
+				fireIntervalRemoved(this, e.getFirstRow(), e.getLastRow());
+				break;
+			default:
+				// Nothing to do.
 			}
-			fireContentsChanged(this, e.getFirstRow(), e.getLastRow());
 		}
 
 		@Override
@@ -127,9 +139,15 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 
 		@Override
 		public void setSelectedItem(Object anItem) {
-			// No item is selected and object is null, so no change required.
-			if (selectedItem == null && anItem == null)
+			if (anItem == null) {
+				if (selectedItem == null) {
+					// No item is selected and object is null, so no change required.
+					return;
+				}
+				// Item selected and object is null, just remove selection.
+				setSelectedItemImpl(null);
 				return;
+			}
 
 			// Wrong class element selected
 			if (!(anItem instanceof User))
@@ -140,11 +158,22 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 				return;
 
 			// Simply return if object is not in the list.
-			if (anItem != null && getIndexOf(anItem) == -1)
+			if (getIndexOf(anItem) == -1)
 				return;
 
-			// Here we know that object is either an item in the list or null.
-			selectedItem = (User) anItem;
+			// Here we know that object is an item in the list.
+			setSelectedItemImpl((User) anItem);
+		}
+
+		/**
+		 * Sets the given {@code user} as selected, bypassing any validations done by {@code setSelectedItem(Object)} (for
+		 * example, if the user exists in the combo box or if it's already selected).
+		 *
+		 * @param user the user that should be selected, or {@code null} for none
+		 * @see #setSelectedItem(Object)
+		 */
+		private void setSelectedItemImpl(User user) {
+			selectedItem = user;
 			fireContentsChanged(this, -1, -1);
 		}
 
@@ -156,11 +185,11 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 		public void setSelectedInternalItem(User user) {
 			int index = getIndexOf(user);
 			if (index != -1)
-				setSelectedItem(tableModel.getUsers().get(index));
+				setSelectedItemImpl(tableModel.getUsers().get(index));
 			else if (getSize() > 0)
-				setSelectedItem(getElementAt(0));
+				setSelectedItemImpl(getElementAt(0));
 			else
-				setSelectedItem(null);
+				setSelectedItemImpl(null);
 
 		}
 
