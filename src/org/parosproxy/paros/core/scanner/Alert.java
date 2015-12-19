@@ -40,6 +40,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/08/24 Issue 1849: Option to merge related issues in reports
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
+// ZAP: 2016/02/26 Deprecate alert as an element of Alert in favour of name
 
 package org.parosproxy.paros.core.scanner;
 
@@ -95,7 +96,7 @@ public class Alert implements Comparable<Object>  {
 	
 	private int		alertId = -1;	// ZAP: Changed default alertId
 	private int		pluginId = 0;
-	private String 	alert = "";
+	private String name = "";
 	private int risk = RISK_INFO;
 	/**
 	 * @deprecated
@@ -131,10 +132,10 @@ public class Alert implements Comparable<Object>  {
 		
 	}
 	
-	public Alert(int pluginId, int risk, int confidence, String alert) {
+	public Alert(int pluginId, int risk, int confidence, String name) {
 		this(pluginId);
 		setRiskConfidence(risk, confidence);
-		setAlert(alert);
+		setName(name);
 	}
 
 	public Alert(RecordAlert recordAlert) {
@@ -185,13 +186,23 @@ public class Alert implements Comparable<Object>  {
 		this.risk = risk;
 		this.confidence = confidence;
 	}
-	
+	/**
+	 * @deprecated (TODO add version) Replaced by {@link #setName}.
+	 * Use of alert has been deprecated in favour of using name.
+	 */
+	@Deprecated
 	public void setAlert(String alert) {
-	    if (alert == null) return;
-	    // ZAP: Changed to not create a new String.
-	    this.alert = alert;
+	    setName(alert);
 	}
-	
+	/**
+	 * Sets the name of the alert to name
+	 * @param name the name to set for the alert
+	 * @since TODO add version
+	 */
+	public void setName(String name) {
+	    if (name == null) return;
+	    this.name = name;
+	}
 	
 	/**
 	 * @deprecated (2.2.0) Replaced by
@@ -304,7 +315,7 @@ public class Alert implements Comparable<Object>  {
 			return 1;
 		}
 		
-		int result = alert.compareToIgnoreCase(alert2.alert);
+		int result = name.compareToIgnoreCase(alert2.name);
 		if (result != 0) {
 			return result;
 		}
@@ -333,7 +344,7 @@ public class Alert implements Comparable<Object>  {
 		Alert item = null;
 		if (obj instanceof Alert) {
 			item = (Alert) obj;
-			if ((pluginId == item.pluginId) && alert.equals(item.alert) && uri.equalsIgnoreCase(item.uri)
+			if ((pluginId == item.pluginId) && name.equals(item.name) && uri.equalsIgnoreCase(item.uri)
 				&& param.equalsIgnoreCase(item.param) && otherInfo.equalsIgnoreCase(item.otherInfo)) {
 				return true;
 			}
@@ -347,7 +358,7 @@ public class Alert implements Comparable<Object>  {
 	public Alert newInstance() {
 		Alert item = new Alert(this.pluginId);
 		item.setRiskConfidence(this.risk, this.confidence);
-		item.setAlert(this.alert);
+		item.setName(this.name);
 		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.historyRef);
 		return item;
 	}
@@ -356,7 +367,8 @@ public class Alert implements Comparable<Object>  {
 		StringBuilder sb = new StringBuilder(150); // ZAP: Changed the type to StringBuilder.
 		sb.append("<alertitem>\r\n");
 		sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
-		sb.append("  <alert>").append(replaceEntity(alert)).append("</alert>\r\n");
+		sb.append("  <alert>").append(replaceEntity(name)).append("</alert>\r\n"); //Deprecated in TODO add version, maintain for compatibility with custom code
+		sb.append("  <name>").append(replaceEntity(name)).append("</name>\r\n");
 		sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
 		sb.append("  <confidence>").append(confidence).append("</confidence>\r\n");
 		sb.append("  <riskdesc>").append(replaceEntity(MSG_RISK[risk] + " (" + MSG_CONFIDENCE[confidence] + ")")).append("</riskdesc>\r\n");
@@ -392,12 +404,21 @@ public class Alert implements Comparable<Object>  {
 	public String paragraph(String text) {
 		return "<p>" + text.replaceAll("\\r\\n","</p><p>").replaceAll("\\n","</p><p>") + "</p>";
 	}
-    
-    /**
-     * @return Returns the alert.
-     */
+	/**
+	 * @deprecated (TODO add version) Replaced by {@link #getName}.
+	 * Use of alert has been deprecated in favour of using name.
+	 * @return Returns the alert.
+	 */
+	@Deprecated
     public String getAlert() {
-        return alert;
+        return name;
+    }
+	/**
+	 * @return Returns the name of the alert.
+	 * @since TODO add version
+	 */
+    public String getName() {
+        return name;
     }
     /**
      * @return Returns the description.

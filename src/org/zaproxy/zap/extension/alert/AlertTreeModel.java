@@ -44,7 +44,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     private String getRiskString (Alert alert) {
-		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
+		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getName() + "<html>";
     }
     
     void addPath(final Alert alert) {

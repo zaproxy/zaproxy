@@ -68,7 +68,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 			if (hrefURI != null && ! alert.getUri().equals(hrefURI.toString())) {
 				continue;
 			}
-			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getAlert(), alert);
+			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getName(), alert);
 			menuItem.setIcon(new ImageIcon(alert.getIconUrl()));
 			
 			alertList.add(menuItem);
