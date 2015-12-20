@@ -93,6 +93,7 @@ This list the alerts
 10049   Cacheability and Retrievability Content
 10050   Retrieved from Cache
 10051   Relative Path Confusion
+10052	X-ChromeLogger-Data Header Information Leak
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure
