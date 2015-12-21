@@ -40,6 +40,7 @@
 // ZAP: 2015/07/25 Do not log error if the duplicated scanner is (apparently) a newer/older version
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
 // ZAP: 2015/11/02 Issue 1969: Issues with installation of scanners
+// ZAP: 2015/12/21 Issue 2112: Wrong policy on active Scan
 
 package org.parosproxy.paros.core.scanner;
 
@@ -52,6 +53,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -352,31 +354,31 @@ public class PluginFactory {
             for (int i = 0; i < getLoadedPlugins().size(); i++) {
                 // ZAP: Removed unnecessary cast.
                 try {
-                    Plugin plugin = getLoadedPlugins().get(i);
-                    plugin.setConfig(config);
-                    plugin.createParamIfNotExist();
-                    plugin.loadFrom(config);
-                    if (!plugin.isVisible()) {
-                        log.info("Plugin " + plugin.getName() + " not visible");
+                    Plugin loadedPlugin = getLoadedPlugins().get(i);
+                    if (!loadedPlugin.isVisible()) {
+                        log.info("Plugin " + loadedPlugin.getName() + " not visible");
                         continue;
                     }
                     
-                    if (plugin.isDepreciated()) {
+                    if (loadedPlugin.isDepreciated()) {
                         // ZAP: ignore all depreciated plugins
-                        log.info("Plugin " + plugin.getName() + " depricated");
+                        log.info("Plugin " + loadedPlugin.getName() + " depricated");
                         continue;
                     }
                     
+                    if (!canAddPlugin(mapAllPlugin, loadedPlugin)) {
+                        continue;
+                    }
+
+                    Plugin plugin = createNewPlugin(loadedPlugin, config);
                     log.info("loaded plugin " + plugin.getName());
                     if (log.isDebugEnabled()) {
                     	log.debug("Theshold=" + plugin.getAlertThreshold().name() + " Strength=" + plugin.getAttackStrength().toString());
                     }
                     
-                    if (canAddPlugin(mapAllPlugin, plugin)) {
-                        // ZAP: Changed to use the method Integer.valueOf.
-                        mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
-                        mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
-                    }
+                    // ZAP: Changed to use the method Integer.valueOf.
+                    mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+                    mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
                     
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -387,6 +389,17 @@ public class PluginFactory {
                 listAllPlugin.add(iterator.next());
             }
         }
+    }
+
+    private static Plugin createNewPlugin(Plugin plugin, Configuration config) throws ReflectiveOperationException {
+        Plugin newPlugin = plugin.getClass().newInstance();
+        newPlugin.setConfig(new BaseConfiguration());
+        plugin.cloneInto(newPlugin);
+
+        newPlugin.setConfig(config);
+        newPlugin.createParamIfNotExist();
+        newPlugin.loadFrom(config);
+        return newPlugin;
     }
 
     private static boolean canAddPlugin(Map<Integer, Plugin> plugins, Plugin plugin) {
