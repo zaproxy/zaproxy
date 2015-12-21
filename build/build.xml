@@ -14,6 +14,7 @@
 	<property name="help.dir" value="../../zap-core-help/src/help" />
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
+	<property name="test.build" location="buildtest" />
 	<property name="zap.extensions.alpha.dir" location="../../zap-extensions_alpha/" />
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
@@ -71,9 +72,11 @@
 
 		<delete dir="${dist}" includeEmptyDirs="true" />
 		<delete dir="${build}" includeEmptyDirs="true" />
+		<delete dir="${test.build}" includeEmptyDirs="true" />
 		<delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
 
 		<mkdir dir="${build}" />
+		<mkdir dir="${test.build}" />
 		<mkdir dir="results" />
 	</target>
 
@@ -86,6 +89,8 @@
 		</delete>
 		<delete dir="${app.name}" />      <!-- if you've unzipped the Mac version, for testing -->
 		<delete dir="ZAP_${version}" />   <!-- if you've untarred the Linux version, for testing -->
+		<delete dir="${test.build}" includeEmptyDirs="true" />
+		<delete dir="results"  includeEmptyDirs="true" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile the source ">
@@ -107,8 +112,8 @@
 			</classpath>
 		</javac>
 
-		<!-- Compile the java test code from ${test-src} into ${build} -->
-		<javac srcdir="${test.src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+		<!-- Compile the java test code from ${test.src} into ${test.build} -->
+		<javac srcdir="${test.src}" destdir="${test.build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
@@ -116,6 +121,7 @@
 				<fileset dir="${test.lib}">
 					<include name="**/*.jar" />
 				</fileset>
+				<pathelement location="${build}" />
 			</classpath>
 		</javac>
 
@@ -414,16 +420,17 @@
         		</fileset>
             	
         		<!--pathelement location="bin"/-->		<!-- When running in Eclipse -->
-        		<pathelement location="build"/>		<!-- When running on build server -->
+        		<pathelement location="${build}"/>		<!-- When running on build server -->
+        		<pathelement location="${test.build}"/>
             </classpath>
             <formatter type="plain"/>
             <formatter type="xml"/>
             <batchtest fork="yes" todir="results">
-                <fileset dir="build">
+                <fileset dir="${test.build}">
                     <include name="**/*UnitTest.class"/>
                     <exclude name="**/Abstract*Test.class"/>
                 </fileset>
-                <fileset dir="build">
+                <fileset dir="${test.build}">
                     <include name="**/AbstractPluginUnitTest.class"/>
                 </fileset>
             </batchtest>
