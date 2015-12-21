@@ -53,6 +53,7 @@
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 // ZAP: 2015/10/29 Issue 2005: Active scanning incorrectly performed on sibling nodes 
 // ZAP: 2015/11/27 Issue 2086: Report request counts per plugin
+// ZAP: 2015/12/16 Prevent HostProcess (and plugins run) from becoming in undefined state
 
 package org.parosproxy.paros.core.scanner;
 
@@ -175,34 +176,39 @@ public class HostProcess implements Runnable {
     public void run() {
         log.debug("HostProcess.run");
 
-        hostProcessStartTime = System.currentTimeMillis();
-        for (StructuralNode node : startNodes) {
-	        // ZAP: before all get back the size of this scan
-	        nodeInScopeCount += getNodeInScopeCount(node, true);
-	        // ZAP: begin to analyze the scope
-	        getAnalyser().start(node);
-        }
-        
-        Plugin plugin;
-        
-        while (!isStop() && pluginFactory.existPluginToRun()) {
-            plugin = pluginFactory.nextPlugin();
-            
-            if (plugin != null) {
-                plugin.setDelayInMs(this.scannerParam.getDelayInMs());
-                plugin.setTechSet(this.techSet);
-                processPlugin(plugin);
-            
-            } else {
-                // waiting for dependency - no test ready yet
-                Util.sleep(1000);
+        try {
+            hostProcessStartTime = System.currentTimeMillis();
+            for (StructuralNode node : startNodes) {
+    	        // ZAP: before all get back the size of this scan
+    	        nodeInScopeCount += getNodeInScopeCount(node, true);
+    	        // ZAP: begin to analyze the scope
+    	        getAnalyser().start(node);
             }
+            
+            Plugin plugin;
+            
+            while (!isStop() && pluginFactory.existPluginToRun()) {
+                plugin = pluginFactory.nextPlugin();
+                
+                if (plugin != null) {
+                    plugin.setDelayInMs(this.scannerParam.getDelayInMs());
+                    plugin.setTechSet(this.techSet);
+                    processPlugin(plugin);
+                
+                } else {
+                    // waiting for dependency - no test ready yet
+                    Util.sleep(1000);
+                }
+            }
+            threadPool.waitAllThreadComplete(300000);
+        } catch (Exception e) {
+            log.error("An error occurred while active scanning:", e);
+            stop();
+        } finally {
+            notifyHostProgress(null);
+            notifyHostComplete();
+            getHttpSender().shutdown();
         }
-        
-        threadPool.waitAllThreadComplete(300000);
-        notifyHostProgress(null);
-        notifyHostComplete();
-        getHttpSender().shutdown();
     }
 
     private void processPlugin(Plugin plugin) {
@@ -227,9 +233,12 @@ public class HostProcess implements Runnable {
 	            }
 	            
 	        } else if (plugin instanceof AbstractAppPlugin) {
-	            traverse(plugin, startNode, true);
-	            threadPool.waitAllThreadComplete(600000);
-	            pluginCompleted(plugin);
+	            try {
+	                traverse(plugin, startNode, true);
+	                threadPool.waitAllThreadComplete(600000);
+	            } finally {
+	                pluginCompleted(plugin);
+	            }
 	        }
         }
     }
