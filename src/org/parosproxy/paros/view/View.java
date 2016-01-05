@@ -63,6 +63,7 @@
 // ZAP: 2015/08/11 Fix the removal of context panels
 // ZAP: 2015/09/07 Start GUI on EDT
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
+// ZAP: 2016/03/16 Add StatusUI handling
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 
 package org.parosproxy.paros.view;
@@ -76,8 +77,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.MissingResourceException;
 import java.util.Vector;
 
 import javax.swing.ImageIcon;
@@ -102,6 +106,8 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.zaproxy.zap.control.AddOn;
+import org.zaproxy.zap.control.AddOn.Status;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -121,6 +127,7 @@ import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
 import org.zaproxy.zap.view.SplashScreen;
+import org.zaproxy.zap.view.StatusUI;
 import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapMenuItem;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightRenderersEditors;
@@ -168,6 +175,8 @@ public class View implements ViewDelegate {
 
     // ZAP: splash screen
     private SplashScreen splashScreen = null;
+
+    private Map<AddOn.Status, StatusUI> statusMap = new HashMap<>();
 
     private boolean postInitialisation;
 
@@ -223,6 +232,25 @@ public class View implements ViewDelegate {
 
         // adds the Request/Response representation buttons in ZAP toolbar
         getMessagePanelsPositionController().restoreState();
+        
+        String statusString;
+        for(Status status : AddOn.Status.values()) {     	
+        	//Try/catch in case AddOn.Status gets out of sync with cfu.status i18n entries
+        	try {
+        		statusString = Constant.messages.getString("cfu.status." + status.toString());
+        	} catch (MissingResourceException mre) {
+        		statusString = status.toString();
+        		
+        		String errString="Caught " + mre.getClass().getName() + " " + mre.getMessage() + 
+						" when looking for i18n string: cfu.status." + statusString;
+        		if (Constant.isDevBuild()) {
+        			logger.error(errString);
+        		} else {
+        			logger.warn(errString);
+        		}
+        	}
+        	statusMap.put(status, new StatusUI(status, statusString));
+        }
     }
 
     public void postInit() {
@@ -917,5 +945,15 @@ public class View implements ViewDelegate {
      */
     public Component getSplashScreen() {
         return splashScreen;
+    }
+    
+    /**
+     * Returns a StatusUI for the given AddOn.Status
+     * @param status the Status for which a StatusUI is wanted
+     * @return a StatusUI
+     * @since TODO add version
+     */
+    public StatusUI getStatusUI(AddOn.Status status) {
+    	return statusMap.get(status);
     }
 }

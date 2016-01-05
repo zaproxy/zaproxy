@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.autoupdate;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -47,18 +46,10 @@ public class InstalledAddOnsTableModel extends AddOnsTableModel {
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    private static final Comparator<AddOnWrapper> COMPARATOR = new Comparator<AddOnWrapper>() {
-
-        @Override
-        public int compare(AddOnWrapper ao1, AddOnWrapper ao2) {
-            return ao1.getAddOn().getName().toLowerCase().compareTo(ao2.getAddOn().getName().toLowerCase());
-        };
-    };
-
     private AddOnCollection availableAddOns;
 
     public InstalledAddOnsTableModel(AddOnCollection installedAddOns) {
-        super(COMPARATOR, installedAddOns, 3);
+        super(installedAddOns, 3);
 
         for (AddOn addOn : installedAddOns.getAddOns()) {
             addAddOnWrapper(addOn, null);
