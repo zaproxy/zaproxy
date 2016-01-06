@@ -432,6 +432,7 @@
                 </fileset>
                 <fileset dir="${test.build}">
                     <include name="**/AbstractPluginUnitTest.class"/>
+                    <include name="**/AbstractParamUnitTest.class"/>
                 </fileset>
             </batchtest>
 		</junit>
