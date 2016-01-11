@@ -1068,6 +1068,24 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * Handles exceptions thrown by scripts.
 	 * <p>
 	 * The given {@code exception} (if of type {@code ScriptException} the cause will be used instead) will be written to the
+	 * the writer(s) associated with the given {@code script}, moreover it will be disabled and flagged that has an error.
+	 *
+	 * @param script the script that resulted in an exception, must not be {@code null}
+	 * @param exception the exception thrown , must not be {@code null}
+	 * @since TODO add version
+	 * @see #setEnabled(ScriptWrapper, boolean)
+	 * @see #setError(ScriptWrapper, Exception)
+	 * @see #handleFailedScriptInterface(ScriptWrapper, String)
+	 * @see ScriptException
+	 */
+	public void handleScriptException(ScriptWrapper script, Exception exception) {
+		handleScriptException(script, getWriters(script), exception);
+	}
+	
+	/**
+	 * Handles exceptions thrown by scripts.
+	 * <p>
+	 * The given {@code exception} (if of type {@code ScriptException} the cause will be used instead) will be written to the
 	 * given {@code writer} and the given {@code script} will be disabled and flagged that has an error.
 	 *
 	 * @param script the script that resulted in an exception, must not be {@code null}
@@ -1131,19 +1149,42 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	/**
 	 * Handles a failed attempt to convert a script into an interface.
 	 * <p>
+	 * The given {@code errorMessage} will be written to the writer(s) associated with the given {@code script}, moreover it
+	 * will be disabled and flagged that has an error.
+	 *
+	 * @param script the script that resulted in an exception, must not be {@code null}
+	 * @param errorMessage the message that will be written to the writer(s)
+	 * @since TODO add version
+	 * @see #setEnabled(ScriptWrapper, boolean)
+	 * @see #setError(ScriptWrapper, Exception)
+	 * @see #handleScriptException(ScriptWrapper, Exception)
+	 */
+	public void handleFailedScriptInterface(ScriptWrapper script, String errorMessage) {
+		handleFailedScriptInterface(script, getWriters(script), errorMessage);
+	}
+
+	/**
+	 * Handles a failed attempt to convert a script into an interface.
+	 * <p>
 	 * The given {@code errorMessage} will be written to the given {@code writer} and the given {@code script} will be disabled
 	 * and flagged that has an error.
 	 *
 	 * @param script the script that failed to be converted to an interface, must not be {@code null}
 	 * @param writer the writer associated with the script, must not be {@code null}
 	 * @param errorMessage the message that will be written to the given {@code writer}
-	 * @throws IOException if an error occurred while writing the {@code errorMessage}
 	 * @see #setError(ScriptWrapper, String)
 	 * @see #setEnabled(ScriptWrapper, boolean)
 	 */
-	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) throws IOException {
-		writer.append(errorMessage);
-		this.setError(script, writer.toString());
+	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) {
+		try {
+			writer.append(errorMessage);
+		} catch (IOException e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Failed to append script error message because of an exception:", e);
+			}
+			logger.warn("Failed to append error message: " + errorMessage);
+		}
+		this.setError(script, errorMessage);
 		this.setEnabled(script, false);
 	}
 
@@ -1227,6 +1268,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	public void setEnabled(ScriptWrapper script, boolean enabled) {
+		if (!script.getType().isEnableable()) {
+			return;
+		}
+
 		if (enabled && script.getEngine() == null) {
 			return;
 		}
@@ -1239,6 +1284,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void setError(ScriptWrapper script, String details) {
 		script.setError(true);
+		script.setLastErrorDetails(details);
 		script.setLastOutput(details);
 		
 		this.getTreeModel().nodeStructureChanged(script);
@@ -1253,18 +1299,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	public void setError(ScriptWrapper script, Exception e) {
-		script.setError(true);
 		script.setLastException(e);
-		
-		this.getTreeModel().nodeStructureChanged(script);
-		
-		for (ScriptEventListener listener : this.listeners) {
-			try {
-				listener.scriptError(script);
-			} catch (Exception e1) {
-				logger.error(e.getMessage(), e);
-			}
-		}
+		setError(script, e.getMessage());
 	}
 	
 	public void addListener(ScriptEventListener listener) {
