@@ -32,12 +32,23 @@ class Users {
 		$this->zap = $zap;
 	}
 
-	public function usersList($contextid='') {
-		return $this->zap->request($this->zap->base . 'users/view/usersList/', array('contextId' => $contextid))->{'usersList'};
+	public function usersList($contextid=NULL) {
+		$params = array();
+		if ($contextid !== NULL) {
+			$params['contextId'] = $contextid;
+		}
+		return $this->zap->request($this->zap->base . 'users/view/usersList/', $params)->{'usersList'};
 	}
 
-	public function getUserById($contextid='', $userid='') {
-		return $this->zap->request($this->zap->base . 'users/view/getUserById/', array('contextId' => $contextid, 'userId' => $userid))->{'getUserById'};
+	public function getUserById($contextid=NULL, $userid=NULL) {
+		$params = array();
+		if ($contextid !== NULL) {
+			$params['contextId'] = $contextid;
+		}
+		if ($userid !== NULL) {
+			$params['userId'] = $userid;
+		}
+		return $this->zap->request($this->zap->base . 'users/view/getUserById/', $params)->{'getUserById'};
 	}
 
 	public function getAuthenticationCredentialsConfigParams($contextid) {
@@ -64,8 +75,12 @@ class Users {
 		return $this->zap->request($this->zap->base . 'users/action/setUserName/', array('contextId' => $contextid, 'userId' => $userid, 'name' => $name, 'apikey' => $apikey));
 	}
 
-	public function setAuthenticationCredentials($contextid, $userid, $authcredentialsconfigparams='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'users/action/setAuthenticationCredentials/', array('contextId' => $contextid, 'userId' => $userid, 'authCredentialsConfigParams' => $authcredentialsconfigparams, 'apikey' => $apikey));
+	public function setAuthenticationCredentials($contextid, $userid, $authcredentialsconfigparams=NULL, $apikey='') {
+		$params = array('contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey);
+		if ($authcredentialsconfigparams !== NULL) {
+			$params['authCredentialsConfigParams'] = $authcredentialsconfigparams;
+		}
+		return $this->zap->request($this->zap->base . 'users/action/setAuthenticationCredentials/', $params);
 	}
 
 }

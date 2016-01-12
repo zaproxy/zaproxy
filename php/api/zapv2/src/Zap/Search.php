@@ -32,52 +32,172 @@ class Search {
 		$this->zap = $zap;
 	}
 
-	public function urlsByUrlRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByUrlRegex'};
+	public function urlsByUrlRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/urlsByUrlRegex/', $params)->{'urlsByUrlRegex'};
 	}
 
-	public function urlsByRequestRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByRequestRegex'};
+	public function urlsByRequestRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/urlsByRequestRegex/', $params)->{'urlsByRequestRegex'};
 	}
 
-	public function urlsByResponseRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByResponseRegex'};
+	public function urlsByResponseRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/urlsByResponseRegex/', $params)->{'urlsByResponseRegex'};
 	}
 
-	public function urlsByHeaderRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/urlsByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'urlsByHeaderRegex'};
+	public function urlsByHeaderRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/urlsByHeaderRegex/', $params)->{'urlsByHeaderRegex'};
 	}
 
-	public function messagesByUrlRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByUrlRegex'};
+	public function messagesByUrlRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/messagesByUrlRegex/', $params)->{'messagesByUrlRegex'};
 	}
 
-	public function messagesByRequestRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByRequestRegex'};
+	public function messagesByRequestRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/messagesByRequestRegex/', $params)->{'messagesByRequestRegex'};
 	}
 
-	public function messagesByResponseRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByResponseRegex'};
+	public function messagesByResponseRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/messagesByResponseRegex/', $params)->{'messagesByResponseRegex'};
 	}
 
-	public function messagesByHeaderRegex($regex, $baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'search/view/messagesByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messagesByHeaderRegex'};
+	public function messagesByHeaderRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array('regex' => $regex);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'search/view/messagesByHeaderRegex/', $params)->{'messagesByHeaderRegex'};
 	}
 
-	public function harByUrlRegex($regex, $baseurl='', $start='', $count='', $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'search/other/harByUrlRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count, 'apikey' => $apikey));
+	public function harByUrlRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL, $apikey='') {
+		$params = array('regex' => $regex, 'apikey' => $apikey);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->requestother($this->zap->base_other . 'search/other/harByUrlRegex/', $params);
 	}
 
-	public function harByRequestRegex($regex, $baseurl='', $start='', $count='', $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'search/other/harByRequestRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count, 'apikey' => $apikey));
+	public function harByRequestRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL, $apikey='') {
+		$params = array('regex' => $regex, 'apikey' => $apikey);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->requestother($this->zap->base_other . 'search/other/harByRequestRegex/', $params);
 	}
 
-	public function harByResponseRegex($regex, $baseurl='', $start='', $count='', $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'search/other/harByResponseRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count, 'apikey' => $apikey));
+	public function harByResponseRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL, $apikey='') {
+		$params = array('regex' => $regex, 'apikey' => $apikey);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->requestother($this->zap->base_other . 'search/other/harByResponseRegex/', $params);
 	}
 
-	public function harByHeaderRegex($regex, $baseurl='', $start='', $count='', $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'search/other/harByHeaderRegex/', array('regex' => $regex, 'baseurl' => $baseurl, 'start' => $start, 'count' => $count, 'apikey' => $apikey));
+	public function harByHeaderRegex($regex, $baseurl=NULL, $start=NULL, $count=NULL, $apikey='') {
+		$params = array('regex' => $regex, 'apikey' => $apikey);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->requestother($this->zap->base_other . 'search/other/harByHeaderRegex/', $params);
 	}
 
 }

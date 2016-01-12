@@ -42,15 +42,29 @@ class Core {
 	/**
 	 * Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
 	 */
-	public function alerts($baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'core/view/alerts/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'alerts'};
+	public function alerts($baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array();
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'core/view/alerts/', $params)->{'alerts'};
 	}
 
 	/**
 	 * Gets the number of alerts, optionally filtering by URL
 	 */
-	public function numberOfAlerts($baseurl='') {
-		return $this->zap->request($this->zap->base . 'core/view/numberOfAlerts/', array('baseurl' => $baseurl))->{'numberOfAlerts'};
+	public function numberOfAlerts($baseurl=NULL) {
+		$params = array();
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		return $this->zap->request($this->zap->base . 'core/view/numberOfAlerts/', $params)->{'numberOfAlerts'};
 	}
 
 	/**
@@ -84,15 +98,29 @@ class Core {
 	/**
 	 * Gets the HTTP messages sent by ZAP, request and response, optionally filtered by URL and paginated with 'start' position and 'count' of messages
 	 */
-	public function messages($baseurl='', $start='', $count='') {
-		return $this->zap->request($this->zap->base . 'core/view/messages/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count))->{'messages'};
+	public function messages($baseurl=NULL, $start=NULL, $count=NULL) {
+		$params = array();
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'core/view/messages/', $params)->{'messages'};
 	}
 
 	/**
 	 * Gets the number of messages, optionally filtering by URL
 	 */
-	public function numberOfMessages($baseurl='') {
-		return $this->zap->request($this->zap->base . 'core/view/numberOfMessages/', array('baseurl' => $baseurl))->{'numberOfMessages'};
+	public function numberOfMessages($baseurl=NULL) {
+		$params = array();
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		return $this->zap->request($this->zap->base . 'core/view/numberOfMessages/', $params)->{'numberOfMessages'};
 	}
 
 	/**
@@ -113,8 +141,12 @@ class Core {
 		return $this->zap->request($this->zap->base . 'core/view/homeDirectory/')->{'homeDirectory'};
 	}
 
-	public function stats($keyprefix='') {
-		return $this->zap->request($this->zap->base . 'core/view/stats/', array('keyPrefix' => $keyprefix))->{'stats'};
+	public function stats($keyprefix=NULL) {
+		$params = array();
+		if ($keyprefix !== NULL) {
+			$params['keyPrefix'] = $keyprefix;
+		}
+		return $this->zap->request($this->zap->base . 'core/view/stats/', $params)->{'stats'};
 	}
 
 	public function optionDefaultUserAgent() {
@@ -191,8 +223,15 @@ class Core {
 	/**
 	 * Creates a new session, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
 	 */
-	public function newSession($name='', $overwrite='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/newSession/', array('name' => $name, 'overwrite' => $overwrite, 'apikey' => $apikey));
+	public function newSession($name=NULL, $overwrite=NULL, $apikey='') {
+		$params = array('apikey' => $apikey);
+		if ($name !== NULL) {
+			$params['name'] = $name;
+		}
+		if ($overwrite !== NULL) {
+			$params['overwrite'] = $overwrite;
+		}
+		return $this->zap->request($this->zap->base . 'core/action/newSession/', $params);
 	}
 
 	/**
@@ -205,8 +244,12 @@ class Core {
 	/**
 	 * Saves the session with the name supplied, optionally overwriting existing files. If a relative path is specified it will be resolved against the "session" directory in ZAP "home" dir.
 	 */
-	public function saveSession($name, $overwrite='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/saveSession/', array('name' => $name, 'overwrite' => $overwrite, 'apikey' => $apikey));
+	public function saveSession($name, $overwrite=NULL, $apikey='') {
+		$params = array('name' => $name, 'apikey' => $apikey);
+		if ($overwrite !== NULL) {
+			$params['overwrite'] = $overwrite;
+		}
+		return $this->zap->request($this->zap->base . 'core/action/saveSession/', $params);
 	}
 
 	public function snapshotSession($apikey='') {
@@ -232,8 +275,12 @@ class Core {
 	/**
 	 * Sends the HTTP request, optionally following redirections. Returns the request sent and response received and followed redirections, if any.
 	 */
-	public function sendRequest($request, $followredirects='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/sendRequest/', array('request' => $request, 'followRedirects' => $followredirects, 'apikey' => $apikey));
+	public function sendRequest($request, $followredirects=NULL, $apikey='') {
+		$params = array('request' => $request, 'apikey' => $apikey);
+		if ($followredirects !== NULL) {
+			$params['followRedirects'] = $followredirects;
+		}
+		return $this->zap->request($this->zap->base . 'core/action/sendRequest/', $params);
 	}
 
 	public function deleteAllAlerts($apikey='') {
@@ -301,50 +348,64 @@ class Core {
 	}
 
 	public function proxypac($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/proxy.pac/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'core/other/proxy.pac/', array('apikey' => $apikey));
 	}
 
 	public function rootcert($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/rootcert/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'core/other/rootcert/', array('apikey' => $apikey));
 	}
 
 	public function setproxy($proxy, $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/setproxy/', array('proxy' => $proxy, 'apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'core/other/setproxy/', array('proxy' => $proxy, 'apikey' => $apikey));
 	}
 
 	/**
 	 * Generates a report in XML format
 	 */
 	public function xmlreport($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/xmlreport/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'core/other/xmlreport/', array('apikey' => $apikey));
 	}
 
 	/**
 	 * Generates a report in HTML format
 	 */
 	public function htmlreport($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/htmlreport/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'core/other/htmlreport/', array('apikey' => $apikey));
 	}
 
 	/**
 	 * Gets the message with the given ID in HAR format
 	 */
 	public function messageHar($id, $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/messageHar/', array('id' => $id, 'apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'core/other/messageHar/', array('id' => $id, 'apikey' => $apikey));
 	}
 
 	/**
 	 * Gets the HTTP messages sent through/by ZAP, in HAR format, optionally filtered by URL and paginated with 'start' position and 'count' of messages
 	 */
-	public function messagesHar($baseurl='', $start='', $count='', $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/messagesHar/', array('baseurl' => $baseurl, 'start' => $start, 'count' => $count, 'apikey' => $apikey));
+	public function messagesHar($baseurl=NULL, $start=NULL, $count=NULL, $apikey='') {
+		$params = array('apikey' => $apikey);
+		if ($baseurl !== NULL) {
+			$params['baseurl'] = $baseurl;
+		}
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->requestother($this->zap->base_other . 'core/other/messagesHar/', $params);
 	}
 
 	/**
 	 * Sends the first HAR request entry, optionally following redirections. Returns, in HAR format, the request sent and response received and followed redirections, if any.
 	 */
-	public function sendHarRequest($request, $followredirects='', $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'core/other/sendHarRequest/', array('request' => $request, 'followRedirects' => $followredirects, 'apikey' => $apikey));
+	public function sendHarRequest($request, $followredirects=NULL, $apikey='') {
+		$params = array('request' => $request, 'apikey' => $apikey);
+		if ($followredirects !== NULL) {
+			$params['followRedirects'] = $followredirects;
+		}
+		return $this->zap->requestother($this->zap->base_other . 'core/other/sendHarRequest/', $params);
 	}
 
 }

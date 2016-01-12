@@ -196,7 +196,7 @@ public class PhpAPIGenerator {
 		String baseUrl = "base";
 		if (type.equals("other")) {
 			method += "other";
-			baseUrl += "other";
+			baseUrl += "_other";
 		}
 
 		out.write("\t\treturn $this->zap->" + method + "($this->zap->" + baseUrl + " . '" +

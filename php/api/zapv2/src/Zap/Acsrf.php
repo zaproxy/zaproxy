@@ -57,7 +57,7 @@ class Acsrf {
 	 * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
 	 */
 	public function genForm($hrefid, $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'acsrf/other/genForm/', array('hrefId' => $hrefid, 'apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'acsrf/other/genForm/', array('hrefId' => $hrefid, 'apikey' => $apikey));
 	}
 
 }

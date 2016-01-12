@@ -32,12 +32,20 @@ class Ascan {
 		$this->zap = $zap;
 	}
 
-	public function status($scanid='') {
-		return $this->zap->request($this->zap->base . 'ascan/view/status/', array('scanId' => $scanid))->{'status'};
+	public function status($scanid=NULL) {
+		$params = array();
+		if ($scanid !== NULL) {
+			$params['scanId'] = $scanid;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/view/status/', $params)->{'status'};
 	}
 
-	public function scanProgress($scanid='') {
-		return $this->zap->request($this->zap->base . 'ascan/view/scanProgress/', array('scanId' => $scanid))->{'scanProgress'};
+	public function scanProgress($scanid=NULL) {
+		$params = array();
+		if ($scanid !== NULL) {
+			$params['scanId'] = $scanid;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/view/scanProgress/', $params)->{'scanProgress'};
 	}
 
 	public function messagesIds($scanid) {
@@ -60,12 +68,26 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/excludedFromScan/')->{'excludedFromScan'};
 	}
 
-	public function scanners($scanpolicyname='', $policyid='') {
-		return $this->zap->request($this->zap->base . 'ascan/view/scanners/', array('scanPolicyName' => $scanpolicyname, 'policyId' => $policyid))->{'scanners'};
+	public function scanners($scanpolicyname=NULL, $policyid=NULL) {
+		$params = array();
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		if ($policyid !== NULL) {
+			$params['policyId'] = $policyid;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/view/scanners/', $params)->{'scanners'};
 	}
 
-	public function policies($scanpolicyname='', $policyid='') {
-		return $this->zap->request($this->zap->base . 'ascan/view/policies/', array('scanPolicyName' => $scanpolicyname, 'policyId' => $policyid))->{'policies'};
+	public function policies($scanpolicyname=NULL, $policyid=NULL) {
+		$params = array();
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		if ($policyid !== NULL) {
+			$params['policyId'] = $policyid;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/view/policies/', $params)->{'policies'};
 	}
 
 	public function attackModeQueue() {
@@ -144,15 +166,44 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionShowAdvancedDialog/')->{'ShowAdvancedDialog'};
 	}
 
-	public function scan($url, $recurse='', $inscopeonly='', $scanpolicyname='', $method='', $postdata='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/scan/', array('url' => $url, 'recurse' => $recurse, 'inScopeOnly' => $inscopeonly, 'scanPolicyName' => $scanpolicyname, 'method' => $method, 'postData' => $postdata, 'apikey' => $apikey));
+	public function scan($url, $recurse=NULL, $inscopeonly=NULL, $scanpolicyname=NULL, $method=NULL, $postdata=NULL, $apikey='') {
+		$params = array('url' => $url, 'apikey' => $apikey);
+		if ($recurse !== NULL) {
+			$params['recurse'] = $recurse;
+		}
+		if ($inscopeonly !== NULL) {
+			$params['inScopeOnly'] = $inscopeonly;
+		}
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		if ($method !== NULL) {
+			$params['method'] = $method;
+		}
+		if ($postdata !== NULL) {
+			$params['postData'] = $postdata;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/scan/', $params);
 	}
 
 	/**
 	 * Active Scans from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
 	 */
-	public function scanAsUser($url, $contextid, $userid, $recurse='', $scanpolicyname='', $method='', $postdata='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/scanAsUser/', array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'recurse' => $recurse, 'scanPolicyName' => $scanpolicyname, 'method' => $method, 'postData' => $postdata, 'apikey' => $apikey));
+	public function scanAsUser($url, $contextid, $userid, $recurse=NULL, $scanpolicyname=NULL, $method=NULL, $postdata=NULL, $apikey='') {
+		$params = array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey);
+		if ($recurse !== NULL) {
+			$params['recurse'] = $recurse;
+		}
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		if ($method !== NULL) {
+			$params['method'] = $method;
+		}
+		if ($postdata !== NULL) {
+			$params['postData'] = $postdata;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/scanAsUser/', $params);
 	}
 
 	public function pause($scanid, $apikey='') {
@@ -195,12 +246,20 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/action/excludeFromScan/', array('regex' => $regex, 'apikey' => $apikey));
 	}
 
-	public function enableAllScanners($scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/enableAllScanners/', array('scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function enableAllScanners($scanpolicyname=NULL, $apikey='') {
+		$params = array('apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/enableAllScanners/', $params);
 	}
 
-	public function disableAllScanners($scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/disableAllScanners/', array('scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function disableAllScanners($scanpolicyname=NULL, $apikey='') {
+		$params = array('apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/disableAllScanners/', $params);
 	}
 
 	public function enableScanners($ids, $apikey='') {
@@ -215,20 +274,36 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/action/setEnabledPolicies/', array('ids' => $ids, 'apikey' => $apikey));
 	}
 
-	public function setPolicyAttackStrength($id, $attackstrength, $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAttackStrength/', array('id' => $id, 'attackStrength' => $attackstrength, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function setPolicyAttackStrength($id, $attackstrength, $scanpolicyname=NULL, $apikey='') {
+		$params = array('id' => $id, 'attackStrength' => $attackstrength, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAttackStrength/', $params);
 	}
 
-	public function setPolicyAlertThreshold($id, $alertthreshold, $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAlertThreshold/', array('id' => $id, 'alertThreshold' => $alertthreshold, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function setPolicyAlertThreshold($id, $alertthreshold, $scanpolicyname=NULL, $apikey='') {
+		$params = array('id' => $id, 'alertThreshold' => $alertthreshold, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/setPolicyAlertThreshold/', $params);
 	}
 
-	public function setScannerAttackStrength($id, $attackstrength, $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAttackStrength/', array('id' => $id, 'attackStrength' => $attackstrength, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function setScannerAttackStrength($id, $attackstrength, $scanpolicyname=NULL, $apikey='') {
+		$params = array('id' => $id, 'attackStrength' => $attackstrength, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAttackStrength/', $params);
 	}
 
-	public function setScannerAlertThreshold($id, $alertthreshold, $scanpolicyname='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAlertThreshold/', array('id' => $id, 'alertThreshold' => $alertthreshold, 'scanPolicyName' => $scanpolicyname, 'apikey' => $apikey));
+	public function setScannerAlertThreshold($id, $alertthreshold, $scanpolicyname=NULL, $apikey='') {
+		$params = array('id' => $id, 'alertThreshold' => $alertthreshold, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/setScannerAlertThreshold/', $params);
 	}
 
 	public function addScanPolicy($scanpolicyname, $apikey='') {

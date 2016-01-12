@@ -63,8 +63,12 @@ class Script {
 	/**
 	 * Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
 	 */
-	public function load($scriptname, $scripttype, $scriptengine, $filename, $scriptdescription='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/load/', array('scriptName' => $scriptname, 'scriptType' => $scripttype, 'scriptEngine' => $scriptengine, 'fileName' => $filename, 'scriptDescription' => $scriptdescription, 'apikey' => $apikey));
+	public function load($scriptname, $scripttype, $scriptengine, $filename, $scriptdescription=NULL, $apikey='') {
+		$params = array('scriptName' => $scriptname, 'scriptType' => $scripttype, 'scriptEngine' => $scriptengine, 'fileName' => $filename, 'apikey' => $apikey);
+		if ($scriptdescription !== NULL) {
+			$params['scriptDescription'] = $scriptdescription;
+		}
+		return $this->zap->request($this->zap->base . 'script/action/load/', $params);
 	}
 
 	/**
