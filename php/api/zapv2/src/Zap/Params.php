@@ -35,8 +35,12 @@ class Params {
 	/**
 	 * Shows the parameters for the specified site, or for all sites if the site is not specified
 	 */
-	public function params($site='') {
-		return $this->zap->request($this->zap->base . 'params/view/params/', array('site' => $site))->{'params'};
+	public function params($site=NULL) {
+		$params = array();
+		if ($site !== NULL) {
+			$params['site'] = $site;
+		}
+		return $this->zap->request($this->zap->base . 'params/view/params/', $params)->{'params'};
 	}
 
 }

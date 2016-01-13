@@ -42,8 +42,15 @@ class AjaxSpider {
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
-	public function results($start='', $count='') {
-		return $this->zap->request($this->zap->base . 'ajaxSpider/view/results/', array('start' => $start, 'count' => $count))->{'results'};
+	public function results($start=NULL, $count=NULL) {
+		$params = array();
+		if ($start !== NULL) {
+			$params['start'] = $start;
+		}
+		if ($count !== NULL) {
+			$params['count'] = $count;
+		}
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/results/', $params)->{'results'};
 	}
 
 	/**
@@ -56,8 +63,110 @@ class AjaxSpider {
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
-	public function scan($url, $inscope='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'ajaxSpider/action/scan/', array('url' => $url, 'inScope' => $inscope, 'apikey' => $apikey));
+	public function optionBrowserId() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionBrowserId/')->{'BrowserId'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionConfigVersionKey() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionConfigVersionKey/')->{'ConfigVersionKey'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionCurrentVersion() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionCurrentVersion/')->{'CurrentVersion'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionElems() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionElems/')->{'Elems'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionElemsNames() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionElemsNames/')->{'ElemsNames'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionEventWait() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionEventWait/')->{'EventWait'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionMaxCrawlDepth() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionMaxCrawlDepth/')->{'MaxCrawlDepth'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionMaxCrawlStates() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionMaxCrawlStates/')->{'MaxCrawlStates'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionMaxDuration() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionMaxDuration/')->{'MaxDuration'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionNumberOfBrowsers() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionNumberOfBrowsers/')->{'NumberOfBrowsers'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionReloadWait() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionReloadWait/')->{'ReloadWait'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionClickDefaultElems() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionClickDefaultElems/')->{'ClickDefaultElems'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionClickElemsOnce() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionClickElemsOnce/')->{'ClickElemsOnce'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function optionRandomInputs() {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionRandomInputs/')->{'RandomInputs'};
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function scan($url, $inscope=NULL, $apikey='') {
+		$params = array('url' => $url, 'apikey' => $apikey);
+		if ($inscope !== NULL) {
+			$params['inScope'] = $inscope;
+		}
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/scan/', $params);
 	}
 
 	/**
@@ -65,6 +174,76 @@ class AjaxSpider {
 	 */
 	public function stop($apikey='') {
 		return $this->zap->request($this->zap->base . 'ajaxSpider/action/stop/', array('apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionBrowserId($string, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionBrowserId/', array('String' => $string, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionClickDefaultElems($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionClickDefaultElems/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionClickElemsOnce($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionClickElemsOnce/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionEventWait($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionEventWait/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionMaxCrawlDepth($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionMaxCrawlDepth/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionMaxCrawlStates($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionMaxCrawlStates/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionMaxDuration($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionMaxDuration/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionNumberOfBrowsers($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionNumberOfBrowsers/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionRandomInputs($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionRandomInputs/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	/**
+	 * This component is optional and therefore the API will only work if it is installed
+	 */
+	public function setOptionReloadWait($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ajaxSpider/action/setOptionReloadWait/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
 }
