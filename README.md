@@ -3,8 +3,6 @@ The OWASP Zed Attack Proxy (ZAP) is an easy to use integrated penetration testin
 
 It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing as well as being a useful addition to an experienced pen testers toolbox.
 
-Vote for ZAP in the [Toolswatch Top Security Tools of 2015](https://www.toolswatch.org/2015/11/vote-for-2015-best-security-tool/) survey.
-
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
 
 For general information about ZAP:
