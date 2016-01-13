@@ -91,4 +91,7 @@ public class AuthenticationHelper {
 		this.httpSender.sendAndReceive(msg, followRedirect);
 	}
 
+	public HttpSender getHttpSender() {
+		return httpSender;
+	}
 }
