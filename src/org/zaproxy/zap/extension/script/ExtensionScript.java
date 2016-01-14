@@ -1335,7 +1335,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			Thread.currentThread().setContextClassLoader(previousContextClassLoader);
 		}
 		
-		return invokeScript(script).getInterface(class1);
+		if (script.isRunableStandalone()) {
+			return null;
+		}
+
+		Invocable invocable = invokeScript(script);
+		if (invocable != null) {
+			return invocable.getInterface(class1);
+		}
+		return null;
 
 	}
 
