@@ -118,7 +118,15 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		public void loadScript(ScriptWrapper scriptW) throws IllegalArgumentException {
 			try {
 				AuthenticationScript script = getScriptsExtension().getInterface(scriptW,
-						AuthenticationScript.class);
+						AuthenticationScriptV2.class);
+
+				if (script != null) {
+					AuthenticationScriptV2 scriptV2 = (AuthenticationScriptV2) script;
+					setLoggedInIndicatorPattern(scriptV2.getLoggedInIndicator());
+					setLoggedOutIndicatorPattern(scriptV2.getLoggedOutIndicator());
+				} else {
+					script = getScriptsExtension().getInterface(scriptW, AuthenticationScript.class);
+				}
 
 				if (script != null) {
 					String[] requiredParams = script.getRequiredParamsNames();
@@ -218,7 +226,14 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			AuthenticationScript script;
 			HttpMessage msg = null;
 			try {
-				script = getScriptsExtension().getInterface(this.script, AuthenticationScript.class);
+				script = getScriptsExtension().getInterface(this.script, AuthenticationScriptV2.class);
+				if (script != null) {
+					AuthenticationScriptV2 scriptV2 = (AuthenticationScriptV2) script;
+					setLoggedInIndicatorPattern(scriptV2.getLoggedInIndicator());
+					setLoggedOutIndicatorPattern(scriptV2.getLoggedOutIndicator());
+				} else {
+					script = getScriptsExtension().getInterface(this.script, AuthenticationScript.class);
+				}
 				msg = script.authenticate(new AuthenticationHelper(getHttpSender(), sessionManagementMethod,
 						user), this.paramValues, cred);
 			} catch (Exception e) {
@@ -263,6 +278,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		private JButton loadScriptButton;
 
 		private ScriptBasedAuthenticationMethod method;
+		private AuthenticationIndicatorsPanel indicatorsPanel;
 
 		private ScriptWrapper loadedScript;
 
@@ -355,6 +371,13 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		}
 
 		@Override
+		public void bindMethod(AuthenticationMethod method, AuthenticationIndicatorsPanel indicatorsPanel)
+				throws UnsupportedAuthenticationMethodException {
+			this.indicatorsPanel = indicatorsPanel;
+			bindMethod(method);
+		}
+
+		@Override
 		public AuthenticationMethod getMethod() {
 			return this.method;
 		}
@@ -362,11 +385,32 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		private void loadScript(ScriptWrapper scriptW, boolean adaptOldValues) {
 			String errorMessage;
 			try {
-				AuthenticationScript script = getScriptsExtension().getInterface(scriptW,
-						AuthenticationScript.class);
+				AuthenticationScript script = getScriptsExtension().getInterface(scriptW, AuthenticationScriptV2.class);
 
 				if (script != null) {
+					AuthenticationScriptV2 scriptV2 = (AuthenticationScriptV2) script;
+					String toolTip = Constant.messages
+							.getString("authentication.method.script.dialog.loggedInOutIndicatorsInScript.toolTip");
+					String loggedInIndicator = scriptV2.getLoggedInIndicator();
+					this.method.setLoggedInIndicatorPattern(loggedInIndicator);
+					this.indicatorsPanel.setLoggedInIndicatorPattern(loggedInIndicator);
+					this.indicatorsPanel.setLoggedInIndicatorEnabled(false);
+					this.indicatorsPanel.setLoggedInIndicatorToolTip(toolTip);
 
+					String loggedOutIndicator = scriptV2.getLoggedOutIndicator();
+					this.method.setLoggedOutIndicatorPattern(loggedOutIndicator);
+					this.indicatorsPanel.setLoggedOutIndicatorPattern(loggedOutIndicator);
+					this.indicatorsPanel.setLoggedOutIndicatorEnabled(false);
+					this.indicatorsPanel.setLoggedOutIndicatorToolTip(toolTip);
+				} else {
+					script = getScriptsExtension().getInterface(scriptW, AuthenticationScript.class);
+					this.indicatorsPanel.setLoggedInIndicatorEnabled(true);
+					this.indicatorsPanel.setLoggedInIndicatorToolTip(null);
+					this.indicatorsPanel.setLoggedOutIndicatorEnabled(true);
+					this.indicatorsPanel.setLoggedOutIndicatorToolTip(null);
+				}
+
+				if (script != null) {
 					String[] requiredParams = script.getRequiredParamsNames();
 					String[] optionalParams = script.getOptionalParamsNames();
 					this.loadedCredentialParams = script.getCredentialsParamsNames();
@@ -541,7 +585,14 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			// Check script interface and make sure we load the credentials parameter names
 			AuthenticationScript s;
 			try {
-				s = getScriptsExtension().getInterface(script, AuthenticationScript.class);
+				s = getScriptsExtension().getInterface(script, AuthenticationScriptV2.class);
+				if (s != null) {
+					AuthenticationScriptV2 sV2 = (AuthenticationScriptV2) s;
+					method.setLoggedInIndicatorPattern(sV2.getLoggedInIndicator());
+					method.setLoggedOutIndicatorPattern(sV2.getLoggedOutIndicator());
+				} else {
+					s = getScriptsExtension().getInterface(script, AuthenticationScript.class);
+				}
 				if (s != null) {
 					method.credentialsParamNames = s.getCredentialsParamsNames();
 				} else {
@@ -611,6 +662,28 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				GenericAuthenticationCredentials credentials) throws ScriptException;
 	}
 
+	/**
+	 * An {@code AuthenticationScript} that allows to specify the logged in/out indicators.
+	 * 
+	 * @since TODO add version
+	 */
+	public interface AuthenticationScriptV2 extends AuthenticationScript {
+
+		/**
+		 * Gets the logged in indicator pattern.
+		 * 
+		 * @return the logged in indicator pattern
+		 */
+		String getLoggedInIndicator();
+
+		/**
+		 * Gets the logged out indicator pattern.
+		 * 
+		 * @return the logged out indicator pattern
+		 */
+		String getLoggedOutIndicator();
+	}
+
 	/* API related constants and methods. */
 	private static final String PARAM_SCRIPT_NAME = "scriptName";
 	private static final String PARAM_SCRIPT_CONFIG_PARAMS = "scriptConfigParams";
@@ -640,7 +713,14 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				// Check script interface and make sure we load the credentials parameter names
 				AuthenticationScript s;
 				try {
-					s = getScriptsExtension().getInterface(script, AuthenticationScript.class);
+					s = getScriptsExtension().getInterface(script, AuthenticationScriptV2.class);
+					if (s != null) {
+						AuthenticationScriptV2 sV2 = (AuthenticationScriptV2) s;
+						method.setLoggedInIndicatorPattern(sV2.getLoggedInIndicator());
+						method.setLoggedOutIndicatorPattern(sV2.getLoggedOutIndicator());
+					} else {
+						s = getScriptsExtension().getInterface(script, AuthenticationScript.class);
+					}
 					if (s != null) {
 						method.credentialsParamNames = s.getCredentialsParamsNames();
 

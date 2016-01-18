@@ -58,3 +58,15 @@ function getOptionalParamsNames(){
 function getCredentialsParamsNames(){
 	return ["username", "password"];
 }
+
+// This optional function is called during the script loading to obtain the logged in indicator.
+// NOTE: although optional this function must be implemented along with the function getLoggedOutIndicator().
+//function getLoggedInIndicator() {
+//	return "LoggedInIndicator";
+//}
+
+// This optional function is called during the script loading to obtain the logged out indicator.
+// NOTE: although optional this function must be implemented along with the function getLoggedInIndicator().
+//function getLoggedOutIndicator() {
+//	return "LoggedOutIndicator";
+//}

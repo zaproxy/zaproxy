@@ -40,6 +40,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.authentication.AbstractAuthenticationMethodOptionsPanel;
+import org.zaproxy.zap.authentication.AuthenticationIndicatorsPanel;
 import org.zaproxy.zap.authentication.AuthenticationMethod;
 import org.zaproxy.zap.authentication.AuthenticationMethodType;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
@@ -96,6 +97,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 
 	/** Hacked used to make sure a confirmation is not needed if changes where done during init. */
 	private boolean needsConfirm = true;
+
+	private AuthenticationIndicatorsPanel authenticationIndicatorsPanel;
 
 	/**
 	 * Instantiates a new context authentication configuration panel.
@@ -208,6 +211,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 							authenticationMethodsComboBox.setSelectedItem(shownMethodType);
 							return;
 						}
+						resetLoggedInOutIndicators();
 
 						// Prepare the new authentication method
 						AuthenticationMethodType type = ((AuthenticationMethodType) e.getItem());
@@ -222,13 +226,20 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 						// Show the configuration panel
 						changeMethodConfigPanel(type);
 						if (type.hasOptionsPanel()) {
-							shownConfigPanel.bindMethod(selectedAuthenticationMethod);
+							shownConfigPanel.bindMethod(selectedAuthenticationMethod, getAuthenticationIndicatorsPanel());
 						}
 					}
 				}
 			});
 		}
 		return authenticationMethodsComboBox;
+	}
+
+	private AuthenticationIndicatorsPanel getAuthenticationIndicatorsPanel() {
+		if (authenticationIndicatorsPanel == null) {
+			authenticationIndicatorsPanel = new AuthenticationIndicatorsPanelImpl();
+		}
+		return authenticationIndicatorsPanel;
 	}
 
 	/**
@@ -292,6 +303,8 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 			log.debug("Initializing configuration panel for authentication method: "
 					+ selectedAuthenticationMethod + " for context " + uiSharedContext.getName());
 
+		resetLoggedInOutIndicators();
+
 		// If something was already configured, find the type and set the UI accordingly
 		if (selectedAuthenticationMethod != null) {
 			// Set logged in/out indicators
@@ -311,7 +324,7 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 				if (shownMethodType.hasOptionsPanel()) {
 					log.debug("Binding authentication method to existing panel of proper type for context "
 							+ uiSharedContext.getName());
-					shownConfigPanel.bindMethod(selectedAuthenticationMethod);
+					shownConfigPanel.bindMethod(selectedAuthenticationMethod, getAuthenticationIndicatorsPanel());
 				}
 				return;
 			}
@@ -331,6 +344,19 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 					break;
 				}
 		}
+	}
+
+	/**
+	 * Resets the tool tip and enables the fields of the logged in/out indicators.
+	 * 
+	 *  @see #getLoggedInIndicaterRegexField()
+	 *  @see #getLoggedOutIndicaterRegexField()
+	 */
+	private void resetLoggedInOutIndicators() {
+		getLoggedInIndicaterRegexField().setToolTipText(null);
+		getLoggedInIndicaterRegexField().setEnabled(true);
+		getLoggedOutIndicaterRegexField().setToolTipText(null);
+		getLoggedOutIndicaterRegexField().setEnabled(true);
 	}
 
 	@Override
@@ -379,4 +405,46 @@ public class ContextAuthenticationPanel extends AbstractContextPropertiesPanel {
 		uiSharedContext.setAuthenticationMethod(selectedAuthenticationMethod);
 	}
 
+	private class AuthenticationIndicatorsPanelImpl implements AuthenticationIndicatorsPanel {
+
+		@Override
+		public String getLoggedInIndicatorPattern() {
+			return getLoggedInIndicaterRegexField().getText();
+		}
+
+		@Override
+		public void setLoggedInIndicatorPattern(String loggedInIndicatorPattern) {
+			getLoggedInIndicaterRegexField().setText(loggedInIndicatorPattern);
+		}
+
+		@Override
+		public void setLoggedInIndicatorEnabled(boolean enabled) {
+			getLoggedInIndicaterRegexField().setEnabled(enabled);
+		}
+
+		@Override
+		public void setLoggedInIndicatorToolTip(String toolTip) {
+			getLoggedInIndicaterRegexField().setToolTipText(toolTip);
+		}
+
+		@Override
+		public String getLoggedOutIndicatorPattern() {
+			return getLoggedOutIndicaterRegexField().getText();
+		}
+
+		@Override
+		public void setLoggedOutIndicatorPattern(String loggedOutIndicatorPattern) {
+			getLoggedOutIndicaterRegexField().setText(loggedOutIndicatorPattern);
+		}
+
+		@Override
+		public void setLoggedOutIndicatorEnabled(boolean enabled) {
+			getLoggedOutIndicaterRegexField().setEnabled(enabled);
+		}
+
+		@Override
+		public void setLoggedOutIndicatorToolTip(String toolTip) {
+			getLoggedOutIndicaterRegexField().setToolTipText(toolTip);
+		}
+	}
 }
