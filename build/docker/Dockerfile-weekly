@@ -41,6 +41,16 @@ ENV HOME /home/zap/
 
 RUN mkdir -p /home/zap/.ZAP_D/policies
 
+ENV zappolicy /home/zap/.ZAP_D/policies/Default Policy.policy
+RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
+RUN echo "<configuration>"      >> ${zappolicy}
+RUN echo "<policy>Default Policy</policy>"  >> ${zappolicy}
+RUN echo "<scanner>"            >> ${zappolicy}
+RUN echo "<level>MEDIUM</level>"    >> ${zappolicy}
+RUN echo "<strength>MEDIUM</strength>"    >> ${zappolicy}
+RUN echo "</scanner>"           >> ${zappolicy}
+RUN echo "</configuration>"         >> ${zappolicy}
+
 # Create some useful policies
 ENV zappolicy /home/zap/.ZAP_D/policies/St-High-Th-Med.policy
 RUN echo "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" > ${zappolicy}
