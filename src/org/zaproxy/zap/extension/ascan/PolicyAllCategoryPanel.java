@@ -20,6 +20,7 @@
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
+// ZAP: 2016/01/19 Allow to obtain the ScanPolicy
 package org.zaproxy.zap.extension.ascan;
 
 import java.awt.GridBagConstraints;
@@ -30,9 +31,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
+import java.util.EventListener;
 import java.util.List;
 
 import javax.swing.DefaultCellEditor;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -220,6 +223,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
 						policy = extension.getPolicyManager().getPolicy(policyName);
 						if (policy != null) {
 							setScanPolicy(policy);
+							fireScanPolicyChanged(policy);
 						}
 					} catch (ConfigurationException e1) {
 						logger.error(e1.getMessage(), e1);
@@ -230,16 +234,28 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     }
     
     /**
+     * Reloads the scan policies, which will pick any new ones that have been defined and selects the policy with the given
+     * name.
+     * 
+     * @param scanPolicyName the name of the policy that should be selected
+     * @since TODO add version
+     */
+    public void reloadPolicies(String scanPolicyName) {
+        DefaultComboBoxModel<String> policies = new DefaultComboBoxModel<>();
+        for (String policy : extension.getPolicyManager().getAllPolicyNames()) {
+            policies.addElement(policy);
+        }
+        getPolicySelector().setModel(policies);
+        getPolicySelector().setSelectedItem(scanPolicyName);
+    }
+
+    /**
      * Reloads the scan policies, which will pick any new ones that have been defined
      */
     public void reloadPolicies() {
     	// Ensure policySelector is initialized
     	Object selected = getPolicySelector().getSelectedItem(); 
-    	policySelector.removeAllItems();
-		for (String policy : extension.getPolicyManager().getAllPolicyNames()) {
-			policySelector.addItem(policy);
-		}
-		policySelector.setSelectedItem(selected);
+    	reloadPolicies((String) selected);
     }
     
     private AlertThreshold strToThreshold(String str) {
@@ -550,4 +566,49 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         return "ui.dialogs.scanpolicy";
     }
     
+    /**
+     * Adds the given {@code listener} to the list that's notified of each change in the selected scan policy.
+     *
+     * @param listener the listener that will be added
+     * @since TODO add version
+     */
+    public void addScanPolicyChangedEventListener(ScanPolicyChangedEventListener listener) {
+        listenerList.add(ScanPolicyChangedEventListener.class, listener);
+    }
+
+    /**
+     * Removes the given {@code listener} from the list that's notified of each change in the selected scan policy.
+     *
+     * @param listener the listener that will be removed
+     * @since TODO add version
+     */
+    public void removeScanPolicyChangedEventListener(ScanPolicyChangedEventListener listener) {
+        listenerList.remove(ScanPolicyChangedEventListener.class, listener);
+    }
+
+    private void fireScanPolicyChanged(ScanPolicy scanPolicy) {
+        Object[] listeners = listenerList.getListenerList();
+        for (int i = listeners.length - 2; i >= 0; i -= 2) {
+            if (listeners[i] == ScanPolicyChangedEventListener.class) {
+                ((ScanPolicyChangedEventListener) listeners[i + 1]).scanPolicyChanged(scanPolicy);
+            }
+        }
+    }
+
+    /**
+     * The listener interface for receiving notifications of changes in the selected scan policy.
+     * 
+     * @since TODO add version
+     * @see PolicyAllCategoryPanel#addScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
+     * @see PolicyAllCategoryPanel#removeScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
+     */
+    public interface ScanPolicyChangedEventListener extends EventListener {
+
+        /**
+         * Notifies that the selected scan policy was changed.
+         *
+         * @param scanPolicy the new selected scan policy
+         */
+        public void scanPolicyChanged(ScanPolicy scanPolicy);
+    }
 }
