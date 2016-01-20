@@ -61,6 +61,12 @@ public class CookieBasedSessionManagementHelper {
 
 		// Make a copy of the session tokens set, as they will be modified
 		HttpSessionTokensSet tokensSet = session.getTokensNames();
+		
+		// If no tokens exists create dummy Object -> NPE
+		if (tokensSet == null) {
+			tokensSet = new HttpSessionTokensSet();
+		}
+		
 		Set<String> unsetSiteTokens = new LinkedHashSet<>(tokensSet.getTokensSet());
 
 		// Iterate through the cookies in the request
