@@ -29,6 +29,7 @@ import java.util.Locale;
 import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeaderField;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
@@ -72,13 +73,33 @@ public class VariantHeader implements Variant {
     private final List<NameValuePair> params = new ArrayList<>();
     private static final Logger log = Logger.getLogger(VariantHeader.class);
 
+    private static ScannerParam scannerOptions;
+
     /**
      * 
      * @param msg 
      */
     @Override
     public void setMessage(HttpMessage msg) {
+        if (!isValidMessageToScan(msg)) {
+            return;
+        }
         
+        //httpHeaders is never null, so no need to check for null
+        List<HttpHeaderField> httpHeaders = msg.getRequestHeader().getHeaders();
+        int headerPos=0;
+        for (HttpHeaderField header : httpHeaders) {
+	        if (! NON_INJECTABLE_HEADERS.contains(header.getName().toLowerCase(Locale.ROOT))) {
+	        	params.add(new NameValuePair(NameValuePair.TYPE_HEADER, header.getName(), header.getValue(), headerPos++));             
+	        }
+        }
+    }
+
+    private boolean isValidMessageToScan(HttpMessage msg) {
+        if (getScannerOptions().isScanHeadersAllRequests()) {
+            return true;
+        }
+
         // First we check if it's a dynamic or static page
         // I'd to do this because scanning starts to be veeeeery slow
         // --
@@ -98,17 +119,22 @@ public class VariantHeader implements Variant {
         if (query == null || query.isEmpty()) {
             // If also the Request body is null maybe it's a static page oer a null parameter page
             if (msg.getRequestBody().length() == 0) {
-                return;
+                return false;
             }
         }        
-        
-        //httpHeaders is never null, so no need to check for null
-        List<HttpHeaderField> httpHeaders = msg.getRequestHeader().getHeaders();
-        int headerPos=0;
-        for (HttpHeaderField header : httpHeaders) {
-	        if (! NON_INJECTABLE_HEADERS.contains(header.getName().toLowerCase(Locale.ROOT))) {
-	        	params.add(new NameValuePair(NameValuePair.TYPE_HEADER, header.getName(), header.getValue(), headerPos++));	        	
-	        }
+        return true;
+    }
+
+    private static ScannerParam getScannerOptions() {
+        if (scannerOptions == null) {
+            getScannerOptionsSync();
+        }
+        return scannerOptions;
+    }
+
+    private static synchronized void getScannerOptionsSync() {
+        if (scannerOptions == null) {
+            scannerOptions = Model.getSingleton().getOptionsParam().getParamSet(ScannerParam.class);
         }
     }
 
