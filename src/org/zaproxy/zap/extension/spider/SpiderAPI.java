@@ -340,6 +340,23 @@ public class SpiderAPI extends ApiImplementor {
 			target.setContext(context);
 		}
 		
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			throw new ApiException(ApiException.Type.MODE_VIOLATION);
+		case protect:
+			if (!Model.getSingleton().getSession().isInScope(url)) {
+				throw new ApiException(ApiException.Type.MODE_VIOLATION);
+			}
+			// No problem
+			break;
+		case standard:
+			// No problem
+			break;
+		case attack:
+			// No problem
+			break;
+		}
+		
 		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
 		objs.add(startURI);
 		if (maxChildren > 0) {
