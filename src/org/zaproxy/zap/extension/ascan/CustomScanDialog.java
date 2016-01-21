@@ -32,10 +32,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -54,11 +51,6 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.Highlight;
 import javax.swing.text.Highlighter.HighlightPainter;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.ConfigurationUtils;
@@ -82,13 +74,11 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.model.Tech;
-import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ZapTextArea;
-import org.zaproxy.zap.view.JCheckBoxTree;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.StandardFieldsDialog;
+import org.zaproxy.zap.view.TechnologyTreePanel;
 
 public class CustomScanDialog extends StandardFieldsDialog {
 	
@@ -135,9 +125,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private final DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<>();
     private final JLabel customPanelStatus = new JLabel();
     private JCheckBox disableNonCustomVectors = null;
-    private JCheckBoxTree techTree = null;
-    private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
-    private TreeModel techModel = null;
+    private TechnologyTreePanel techTree;
     private String scanPolicyName;
     private ScanPolicy scanPolicy = null;
     private PolicyAllCategoryPanel policyAllCategoryPanel = null;
@@ -445,61 +433,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private void setTech() {
         Context context = this.getSelectedContext();
 
-        TechSet ts = new TechSet(Tech.builtInTech);
-        Iterator<Tech> iter = ts.getIncludeTech().iterator();
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("ascan.custom.tab.tech.node"));
-        Tech tech;
-        DefaultMutableTreeNode parent;
-        DefaultMutableTreeNode node;
-        while (iter.hasNext()) {
-            tech = iter.next();
-            if (tech.getParent() != null) {
-                parent = techToNodeMap.get(tech.getParent());
-            } else {
-                parent = null;
-            }
-            if (parent == null) {
-                parent = root;
-            }
-            node = new DefaultMutableTreeNode(tech.getUiName());
-            parent.add(node);
-            techToNodeMap.put(tech, node);
-        }
-
-        techModel = new DefaultTreeModel(root);
-        techTree.setModel(techModel);
-        techTree.expandAll();
-        // Default to everything set
-        TreePath rootTp = new TreePath(root);
-        techTree.checkSubTree(rootTp, true);
-        techTree.setCheckBoxEnabled(rootTp, false);
-
         if (context != null) {
-            TechSet techSet = context.getTechSet();
-            Iterator<Entry<Tech, DefaultMutableTreeNode>> iter2 = techToNodeMap.entrySet().iterator();
-            while (iter.hasNext()) {
-                Entry<Tech, DefaultMutableTreeNode> nodeEntry = iter2.next();
-                TreePath tp = this.getTechPath(nodeEntry.getValue());
-                if (techSet.includes(nodeEntry.getKey())) {
-                    this.getTechTree().check(tp, true);
-                }
-            }
+            techTree.setTechSet(context.getTechSet());
+        } else {
+            techTree.reset();
         }
-    }
-
-    private TreePath getTechPath(TreeNode node) {
-        List<TreeNode> list = new ArrayList<>();
-
-        // Add all nodes to list
-        while (node != null) {
-            list.add(node);
-            node = node.getParent();
-        }
-        Collections.reverse(list);
-
-        // Convert array of nodes to TreePath
-        return new TreePath(list.toArray());
     }
 
     private ZapTextArea getRequestField() {
@@ -678,21 +616,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
-    private JCheckBoxTree getTechTree() {
+    private TechnologyTreePanel getTechTree() {
         if (techTree == null) {
-            techTree = new JCheckBoxTree() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected void setExpandedState(TreePath path, boolean state) {
-                    // Ignore all collapse requests; collapse events will not be fired
-                    if (state) {
-                        super.setExpandedState(path, state);
-                    }
-                }
-            };
-            this.setTech();
-
+            techTree = new TechnologyTreePanel(Constant.messages.getString("ascan.custom.tab.tech.node"));
         }
         return techTree;
     }
@@ -740,24 +666,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         getRequestField().getCaret().setVisible(true);
-    }
-
-    private TechSet getTechSet() {
-        TechSet techSet = new TechSet();
-
-        Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-            TreePath tp = this.getTechPath(node.getValue());
-            Tech tech = node.getKey();
-            if (this.getTechTree().isSelectedFully(tp)) {
-                techSet.include(tech);
-                
-            } else {
-                techSet.exclude(tech);
-            }
-        }
-        return techSet;
     }
 
     private JList<Highlight> getInjectionPointList() {
@@ -912,7 +820,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
 
             contextSpecificObjects.add(scannerParam);
-            contextSpecificObjects.add(this.getTechSet());
+            contextSpecificObjects.add(getTechTree().getTechSet());
             
             if (this.customPanels != null) {
             	for (CustomScanPanel customPanel : this.customPanels) {
