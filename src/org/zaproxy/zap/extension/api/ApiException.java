@@ -59,7 +59,11 @@ public class ApiException extends Exception {
 		 */
 		ILLEGAL_PARAMETER,
 		CONTEXT_NOT_FOUND,
-		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT, NO_ACCESS};
+		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT, NO_ACCESS,
+		/*
+		 * Indicates that the requested operation is not allowed in the current mode
+		 */
+		MODE_VIOLATION};
 	
 	private final Type type;
 	private final String detail;

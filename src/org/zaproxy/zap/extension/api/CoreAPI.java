@@ -49,6 +49,7 @@ import org.bouncycastle.openssl.jcajce.JcaMiscPEMGenerator;
 import org.bouncycastle.util.io.pem.PemWriter;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
@@ -70,6 +71,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
 import org.zaproxy.zap.model.SessionUtils;
@@ -103,6 +105,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_DELETE_ALL_ALERTS = "deleteAllAlerts";
 	private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
 	private static final String ACTION_CLEAR_STATS = "clearStats";
+	private static final String ACTION_SET_MODE = "setMode";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -112,6 +115,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_URLS = "urls";
 	private static final String VIEW_MESSAGE = "message";
 	private static final String VIEW_MESSAGES = "messages";
+	private static final String VIEW_MODE = "mode";
 	private static final String VIEW_NUMBER_OF_MESSAGES = "numberOfMessages";
 	private static final String VIEW_VERSION = "version";
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
@@ -139,6 +143,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_REQUEST = "request";
 	private static final String PARAM_FOLLOW_REDIRECTS = "followRedirects";
 	private static final String PARAM_KEY_PREFIX = "keyPrefix";
+	private static final String PARAM_MODE = "mode";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
@@ -152,6 +157,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_CLEAR_EXCLUDED_FROM_PROXY));
 		this.addApiAction(new ApiAction(ACTION_EXCLUDE_FROM_PROXY, new String[] {PARAM_REGEX}));
 		this.addApiAction(new ApiAction(ACTION_SET_HOME_DIRECTORY, new String[] {PARAM_DIR}));
+		this.addApiAction(new ApiAction(ACTION_SET_MODE, new String[] {PARAM_MODE}));
 		this.addApiAction(new ApiAction(ACTION_GENERATE_ROOT_CA));
 		this.addApiAction(new ApiAction(
 				ACTION_SEND_REQUEST,
@@ -172,6 +178,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_MESSAGES, null, 
 				new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiView(new ApiView(VIEW_NUMBER_OF_MESSAGES, null, new String[] { PARAM_BASE_URL }));
+		this.addApiView(new ApiView(VIEW_MODE));
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
@@ -363,6 +370,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				Model.getSingleton().getOptionsParam().setUserDirectory(f);
 			} else {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_DIR);
+			}
+		} else if (ACTION_SET_MODE.equals(name)) {
+			try {
+				Mode mode = Mode.valueOf(params.getString(PARAM_MODE).toLowerCase());
+		    	if (View.isInitialised()) {
+	    			View.getSingleton().getMainFrame().getMainToolbarPanel().setMode(mode);
+		    	} else {
+	    			Control.getSingleton().setMode(mode);
+		    	}
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_MODE);
 			}
 		} else if (ACTION_GENERATE_ROOT_CA.equals(name)) {
 			ExtensionDynSSL extDyn = (ExtensionDynSSL) 
@@ -624,6 +642,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 					counter);
 
 			result = new ApiResponseElement(name, Integer.toString(counter.getCount()));
+		} else if (VIEW_MODE.equals(name)) {
+			result = new ApiResponseElement(name, Control.getSingleton().getMode().name());
 		} else if (VIEW_VERSION.equals(name)) {
 			result = new ApiResponseElement(name, Constant.PROGRAM_VERSION);
 		} else if (VIEW_EXCLUDED_FROM_PROXY.equals(name)) {

@@ -34,6 +34,7 @@ import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 
 import org.apache.commons.configuration.ConfigurationException;
@@ -209,8 +210,13 @@ public class MainToolbarPanel extends JPanel {
 		return modeSelect;
 	}
 	
-	public void setMode (Mode mode) {
-		this.getModeSelect().setSelectedItem(Constant.messages.getString("view.toolbar.mode." + mode.name() + ".select"));
+	public void setMode (final Mode mode) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				getModeSelect().setSelectedItem(
+						Constant.messages.getString("view.toolbar.mode." + mode.name() + ".select"));
+			}});
 	}
 
 	private JButton getBtnNew() {

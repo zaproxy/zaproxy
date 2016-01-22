@@ -21,6 +21,7 @@ package org.zaproxy.zap.model;
 
 import java.awt.EventQueue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
@@ -280,7 +281,7 @@ public class Context {
 	}
 
 	public List<String> getIncludeInContextRegexs() {
-		return includeInRegexs;
+		return Collections.unmodifiableList(includeInRegexs);
 	}
 
 	private void checkRegexs(List<String> regexs) throws Exception {
@@ -336,7 +337,7 @@ public class Context {
 	}
 
 	public List<String> getExcludeFromContextRegexs() {
-		return excludeFromRegexs;
+		return Collections.unmodifiableList(excludeFromRegexs);
 	}
 
 	public void setExcludeFromContextRegexs(List<String> excludeRegexs) throws Exception {

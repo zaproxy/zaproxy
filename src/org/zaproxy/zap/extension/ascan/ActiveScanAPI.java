@@ -536,6 +536,24 @@ public class ActiveScanAPI extends ApiImplementor {
 			if (node == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}
+			
+			switch (Control.getSingleton().getMode()) {
+			case safe:
+				throw new ApiException(ApiException.Type.MODE_VIOLATION);
+			case protect:
+				if (!Model.getSingleton().getSession().isInScope(url.toString())) {
+					throw new ApiException(ApiException.Type.MODE_VIOLATION);
+				}
+				// No problem
+				break;
+			case standard:
+				// No problem
+				break;
+			case attack:
+				// No problem
+				break;
+			}
+			
 			Target target = new Target(node);
 			target.setRecurse(scanChildren);
 			target.setInScopeOnly(scanJustInScope);
