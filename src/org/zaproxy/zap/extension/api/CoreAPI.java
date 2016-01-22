@@ -953,6 +953,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private ApiResponseSet alertToSet(Alert alert) {
 		Map<String, String> map = new HashMap<>();
 		map.put("id", String.valueOf(alert.getAlertId()));
+		map.put("pluginId", String.valueOf(alert.getPluginId()));
 		map.put("alert", alert.getAlert());
 		map.put("description", alert.getDescription());
 		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
