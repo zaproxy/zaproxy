@@ -984,7 +984,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	            return;
 			}
 		}
-		logger.debug("Installing new addon " + ao.getId() + " v" + ao.getFileVersion());
+		logger.info("Installing new addon " + ao.getId() + " v" + ao.getFileVersion());
 		if (View.isInitialised()) {
 			// Report info to the Output tab
 			View.getSingleton().getOutputPanel().append(
@@ -1526,13 +1526,8 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         	options.setCheckAddonUpdates(true);
         	options.setInstallAddonUpdates(true);
 			checkForAddOnUpdates(aoc, options);
-			while (downloadManager.getCurrentDownloadCount() > 0) {
-    			try {
-					Thread.sleep(200);
-				} catch (InterruptedException e) {
-					// Ignore
-				}
-			}
+
+			waitAndInstallDownloads();
     		CommandLine.info(Constant.messages.getString("cfu.cmdline.updated"));
         }
         if (arguments[ARG_CFU_INSTALL_ALL_IDX].isEnabled()) {
@@ -1588,26 +1583,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                 
                 processAddOnChanges(null, allResults);
 
-                while (downloadManager.getCurrentDownloadCount() > 0) {
-                    try {
-                        Thread.sleep(200);
-                    } catch (InterruptedException e) {
-                        // Ignore
-                    }
-                }
-
-                for (Downloader download : downloadManager.getProgress()) {
-                    if (download.isValidated()) {
-                        CommandLine.info(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.addondown"),
-                                download.getTargetFile().getAbsolutePath()));
-                    } else {
-                        CommandLine.error(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.addondown.failed"),
-                                download.getTargetFile().getName()));
-                    }
-                }
-                installNewExtensions();
+                waitAndInstallDownloads();
         	}
         }
         if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
@@ -1660,31 +1636,34 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
                     processAddOnChanges(null, result);
 
-                    while (downloadManager.getCurrentDownloadCount() > 0) {
-                        try {
-                            Thread.sleep(200);
-                        } catch (InterruptedException e) {
-                            // Ignore
-                        }
-                    }
-
-                    for (Downloader download : downloadManager.getProgress()) {
-                        if (download.isValidated()) {
-                            CommandLine.info(MessageFormat.format(
-                                    Constant.messages.getString("cfu.cmdline.addondown"),
-                                    download.getTargetFile().getAbsolutePath()));
-                        } else {
-                            CommandLine.error(MessageFormat.format(
-                                    Constant.messages.getString("cfu.cmdline.addondown.failed"),
-                                    download.getTargetFile().getName()));
-                        }
-                    }
-                    installNewExtensions();
+                    waitAndInstallDownloads();
             	}
             }
         }
 	}
 	
+	private void waitAndInstallDownloads() {
+		while (downloadManager.getCurrentDownloadCount() > 0) {
+			try {
+				Thread.sleep(200);
+			} catch (InterruptedException e) {
+				// Ignore
+			}
+		}
+		for (Downloader download : downloadManager.getProgress()) {
+			if (download.isValidated()) {
+				CommandLine.info(MessageFormat.format(
+						Constant.messages.getString("cfu.cmdline.addondown"),
+						download.getTargetFile().getAbsolutePath()));
+			} else {
+				CommandLine.error(MessageFormat.format(
+						Constant.messages.getString("cfu.cmdline.addondown.failed"),
+						download.getTargetFile().getName()));
+			}
+		}
+		installNewExtensions();
+	}
+
 	@Override
 	public boolean handleFile(File file) {
 		// Not supported
