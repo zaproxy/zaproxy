@@ -26,6 +26,7 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -77,6 +78,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
+import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
@@ -140,17 +142,21 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private TreeModel techModel = null;
     private String scanPolicyName;
     private ScanPolicy scanPolicy = null;
-    private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     private OptionsVariantPanel variantPanel = null;
-    private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
     private List<CustomScanPanel> customPanels = null;
     private boolean showingAdvTabs = true;
+    private ScanPolicyPanel policyPanel;
 
     public CustomScanDialog(ExtensionActiveScan ext, String[] tabLabels, List<CustomScanPanel> customPanels, Frame owner, Dimension dim) {
         super(owner, "ascan.custom.title", dim, tabLabels);
         
         this.extension = ext;
         this.customPanels = customPanels;
+        this.policyPanel = new ScanPolicyPanel(
+                this,
+                extension,
+                Constant.messages.getString("ascan.custom.tab.policy"),
+                new ScanPolicy());
 
         addWindowListener(new WindowAdapter() {
 
@@ -244,23 +250,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setCustomTabPanel(3, getTechPanel());
 
         // Policy panel
-        AbstractParamContainerPanel policyPanel
-                = new AbstractParamContainerPanel(Constant.messages.getString("ascan.custom.tab.policy"));
-
-        String[] ROOT = {};
-
-        policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(true), false);
-
-        categoryPanels = new ArrayList<>(Category.getAllNames().length);
-        for (int i = 0; i < Category.getAllNames().length; i++) {
-            PolicyCategoryPanel panel
-                    = new PolicyCategoryPanel(i, this.scanPolicy.getPluginFactory(),
-                            scanPolicy.getDefaultThreshold());
-            policyPanel.addParamPanel(ROOT, Category.getName(i), panel, true);
-            this.categoryPanels.add(panel);
-        }
-
-        policyPanel.showDialog(true);
+        policyPanel.resetAndSetPolicy(scanPolicy.getName());
 
         this.setCustomTabPanel(4, policyPanel);
         
@@ -291,24 +281,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
     	return "ui.dialogs.advascan";
     }
 
-    private PolicyAllCategoryPanel getPolicyAllCategoryPanel(boolean reinit) {
-        if (policyAllCategoryPanel == null) {
-            policyAllCategoryPanel = new PolicyAllCategoryPanel(this, extension, scanPolicy, true);
-            policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
-        } else if (reinit) {
-        	policyAllCategoryPanel.reloadPolicies();
-        }
-        return policyAllCategoryPanel;
-    }
-
     private void policySelected() {
         String policyName = getStringValue(FIELD_POLICY);
         try {
             scanPolicy = extension.getPolicyManager().getPolicy(policyName);
-            getPolicyAllCategoryPanel(false).setScanPolicy(scanPolicy);
-            for (PolicyCategoryPanel panel : this.categoryPanels) {
-                panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
-            }
+            policyPanel.setScanPolicy(scanPolicy);
 
             scanPolicyName = policyName;
         } catch (ConfigurationException e) {
@@ -858,9 +835,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
     @Override
     public void save() {
         List<Object> contextSpecificObjects = new ArrayList<Object>();
-        contextSpecificObjects.add(scanPolicy);
 
-        if (this.getBoolValue(FIELD_ADVANCED)) {
+        if (!this.getBoolValue(FIELD_ADVANCED)) {
+            contextSpecificObjects.add(scanPolicy);
+        } else {
+            contextSpecificObjects.add(policyPanel.getScanPolicy());
         	
         	if (target == null && this.customPanels != null) {
         		// One of the custom scan panels must have specified a target 
@@ -1006,5 +985,61 @@ public class CustomScanDialog extends StandardFieldsDialog {
         int enabledRpc = scannerParam.getTargetParamsEnabledRPC();
         enabledRpc |= ScannerParam.RPC_USERDEF;
         scannerParam.setTargetParamsEnabledRPC(enabledRpc);
+    }
+
+    /**
+     * An {@code AbstractParamContainerPanel} that allows to configure {@link ScanPolicy scan policies}.
+     */
+    private static class ScanPolicyPanel extends AbstractParamContainerPanel {
+
+        private static final long serialVersionUID = -7997974525786756431L;
+
+        private PolicyAllCategoryPanel policyAllCategoryPanel = null;
+        private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
+        private ScanPolicy scanPolicy;
+
+        public ScanPolicyPanel(Window parent, ExtensionActiveScan extension, String rootName, ScanPolicy scanPolicy) {
+            super(rootName);
+
+            this.scanPolicy = scanPolicy;
+            String[] ROOT = {};
+
+            policyAllCategoryPanel = new PolicyAllCategoryPanel(parent, extension, scanPolicy, true);
+            policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
+            policyAllCategoryPanel.addScanPolicyChangedEventListener(new ScanPolicyChangedEventListener() {
+
+                @Override
+                public void scanPolicyChanged(ScanPolicy scanPolicy) {
+                    ScanPolicyPanel.this.scanPolicy = scanPolicy;
+                    for (PolicyCategoryPanel panel : categoryPanels) {
+                        panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
+                    }
+                }
+            });
+            addParamPanel(null, policyAllCategoryPanel, false);
+
+            categoryPanels = new ArrayList<>(Category.getAllNames().length);
+            for (int i = 0; i < Category.getAllNames().length; i++) {
+                PolicyCategoryPanel panel = new PolicyCategoryPanel(
+                        i,
+                        this.scanPolicy.getPluginFactory(),
+                        scanPolicy.getDefaultThreshold());
+                addParamPanel(ROOT, Category.getName(i), panel, true);
+                this.categoryPanels.add(panel);
+            }
+            showDialog(true);
+        }
+
+        public void resetAndSetPolicy(String scanPolicyName) {
+            policyAllCategoryPanel.reloadPolicies(scanPolicyName);
+        }
+
+        public void setScanPolicy(ScanPolicy scanPolicy) {
+            policyAllCategoryPanel.setScanPolicy(scanPolicy);
+        }
+
+        public ScanPolicy getScanPolicy() {
+            return scanPolicy;
+        }
     }
 }
