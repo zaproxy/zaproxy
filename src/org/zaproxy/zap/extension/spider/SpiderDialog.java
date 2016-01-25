@@ -352,22 +352,42 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     @Override
     public String validateFields() {
+        if (Control.Mode.safe == Control.getSingleton().getMode()) {
+            // The dialogue shouldn't be shown when in safe mode but if it is warn.
+            return Constant.messages.getString("spider.custom.notSafe.error");
+        }
+
     	if (this.isEmptyField(FIELD_START)) {
             return Constant.messages.getString("spider.custom.nostart.error");
     	}
 		if (!getStringValue(FIELD_START).equals(getTargetText(target))) {
+			String url = this.getStringValue(FIELD_START);
 			try {
 				// Need both constructors as they catch slightly different issues ;)
-				String url = this.getStringValue(FIELD_START);
 				new URI(url, true);
 				new URL(url);
 			} catch (Exception e) {
                 return Constant.messages.getString("spider.custom.nostart.error");
 			}
+
+            if (Control.getSingleton().getMode() == Control.Mode.protect) {
+                if (!extension.isTargetUriInScope(url)) {
+                    return Constant.messages.getString("spider.custom.targetNotInScope.error", url);
+                }
+            }
 		}
 
-    	if (this.target != null && !this.target.isValid()) {
-            return Constant.messages.getString("spider.custom.nostart.error");
+    	if (this.target != null) {
+            if (!this.target.isValid()) {
+                return Constant.messages.getString("spider.custom.nostart.error");
+            }
+
+            if (Control.getSingleton().getMode() == Control.Mode.protect) {
+                String uri = extension.getTargetUriOutOfScope(target);
+                if (uri != null) {
+                    return Constant.messages.getString("spider.custom.targetNotInScope.error", uri);
+                }
+            }
         }
         
         return null;
