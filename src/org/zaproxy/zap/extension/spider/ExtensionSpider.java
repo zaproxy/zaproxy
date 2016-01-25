@@ -35,8 +35,10 @@ import java.util.List;
 
 import javax.swing.KeyStroke;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -48,6 +50,8 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
@@ -290,6 +294,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void sessionModeChanged(Mode mode) {
 		if (View.isInitialised()) {
 			this.getSpiderPanel().sessionModeChanged(mode);
+			getMenuItemCustomScan().setEnabled( ! Mode.safe.equals(mode));
 		}
 	}
 
@@ -421,6 +426,21 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public int startScan(String displayName, Target target, User user,
 			Object[] contextSpecificObjects) {
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			throw new IllegalStateException("Scans are not allowed in Safe mode");
+		case protect:
+			String uri = getTargetUriOutOfScope(target, contextSpecificObjects);
+			if (uri != null) {
+				throw new IllegalStateException("Scans are not allowed on targets not in scope when in Protected mode: " + uri);
+			}
+			//$FALL-THROUGH$
+		case standard:
+		case attack:
+			// No problem
+			break;
+		}
+
 		int id = this.scanController.startScan(displayName, target, user, contextSpecificObjects);
     	if (View.isInitialised()) {
     		SpiderScan scanner = this.scanController.getScan(id);
@@ -430,6 +450,75 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
     		this.getSpiderPanel().setTabFocus();
     	}
     	return id;
+	}
+
+	/**
+	 * Returns the first URI that is out of scope in the given {@code target}.
+	 *
+	 * @param target the target that will be checked
+	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
+	 * @since TODO add version
+	 * @see Session#isInScope(String)
+	 */
+	protected String getTargetUriOutOfScope(Target target) {
+		return getTargetUriOutOfScope(target, null);
+	}
+
+	/**
+	 * Returns the first URI that is out of scope in the given {@code target} or {@code contextSpecificObjects}.
+	 *
+	 * @param target the target that will be checked
+	 * @param contextSpecificObjects other {@code Objects} used to enhance the target
+	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
+	 * @since TODO add version
+	 * @see Session#isInScope(String)
+	 */
+	protected String getTargetUriOutOfScope(Target target, Object[] contextSpecificObjects) {
+		List<StructuralNode> nodes = target.getStartNodes();
+		if (nodes != null) {
+			for (StructuralNode node : nodes) {
+				if (node == null) {
+					continue;
+				}
+				if (node instanceof StructuralSiteNode) {
+					SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
+					if (!siteNode.isIncludedInScope()) {
+						return node.getURI().toString();
+					}
+				} else {
+					String uri = node.getURI().toString();
+					if (!isTargetUriInScope(uri)) {
+						return uri;
+					}
+				}
+			}
+		}
+		if (contextSpecificObjects != null) {
+			for (Object obj : contextSpecificObjects) {
+				if (obj instanceof URI) {
+					String uri = ((URI) obj).toString();
+					if (!isTargetUriInScope(uri)) {
+						return uri;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Tells whether or not the given {@code uri} is in scope.
+	 *
+	 * @param uri the uri that will be checked
+	 * @return {@code true} if the {@code uri} is in scope, {@code false} otherwise
+	 * @since TODO add version
+	 * @see Session#isInScope(String)
+	 */
+	protected boolean isTargetUriInScope(String uri) {
+		if (uri == null) {
+			return false;
+		}
+		return getModel().getSession().isInScope(uri);
 	}
 
 	@Override
