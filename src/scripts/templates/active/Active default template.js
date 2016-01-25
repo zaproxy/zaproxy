@@ -22,6 +22,18 @@ function scanNode(as, msg) {
 		return
 	}
 	// Do lengthy task...
+	
+	// Raise less reliable alert (that is, prone to false positives) when in LOW alert threshold
+	// Expected values: "LOW", "MEDIUM", "HIGH"
+	if (as.getAlertThreshold() == "LOW") {
+		// ...
+	}
+	
+	// Do more tests in HIGH attack strength
+	// Expected values: "LOW", "MEDIUM", "HIGH", "INSANE"
+	if (as.getAttackStrength() == "HIGH") {
+		// ...
+	}
 }
 
 function scan(as, msg, param, value) {
