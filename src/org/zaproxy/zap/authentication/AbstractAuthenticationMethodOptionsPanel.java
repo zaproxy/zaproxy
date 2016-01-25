@@ -60,9 +60,25 @@ public abstract class AbstractAuthenticationMethodOptionsPanel extends JPanel {
 	 * {@link #saveMethod()} was called).
 	 * 
 	 * @param method the method to be loaded/shown in the panel.
+	 * @throws UnsupportedAuthenticationMethodException if the {@code method} being bond is not supported
 	 */
 	public abstract void bindMethod(AuthenticationMethod method)
 			throws UnsupportedAuthenticationMethodException;
+
+	/**
+	 * Binds (loads) data from an existing Authentication method in the panel. After this method, to
+	 * {@link #getMethod()} should return the same object, eventually with some changes (if
+	 * {@link #saveMethod()} was called).
+	 * 
+	 * @param method the method to be loaded/shown in the panel.
+	 * @param indicatorsPanel the interface to manipulate the fields of the logged in/out indicators
+	 * @throws UnsupportedAuthenticationMethodException if the {@code method} being bond is not supported
+	 * @since TODO add version
+	 */
+	public void bindMethod(AuthenticationMethod method, AuthenticationIndicatorsPanel indicatorsPanel)
+			throws UnsupportedAuthenticationMethodException {
+		bindMethod(method);
+	}
 
 	/**
 	 * Gets the corresponding authentication method configured by this panel.
