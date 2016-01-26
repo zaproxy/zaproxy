@@ -617,9 +617,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
             }
             ScanEntry<?> other = (ScanEntry<?>) obj;
             if (scan == null) {
-                if (other.scan != null) {
-                    return false;
-                }
+                return (other.scan == null);
             } else if (other.scan == null) {
                 return false;
             }

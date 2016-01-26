@@ -38,6 +38,9 @@ public class DateFormatStringValue implements StringValue {
     public DateFormatStringValue() {
     }
 
+    /**
+     * This method is not threadsafe and should therefore only be called from the EDT
+     */
     @Override
     public String getString(Object value) {
         try {

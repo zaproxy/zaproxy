@@ -45,6 +45,7 @@
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2016/01/26 Fixed findbugs warning
 
 package org.parosproxy.paros.model;
 
@@ -99,8 +100,9 @@ public class SiteNode extends DefaultMutableTreeNode {
 	}
     
     public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
-    	synchronized (this.icons) {  
-    		this.icons = i;
+    	synchronized (this.icons) {
+    		this.icons.clear();
+    		this.icons.addAll(i);
     		this.clearIfManual = c;
     	}
     }
