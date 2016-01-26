@@ -324,7 +324,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 		}
 
 		synchronized (valueToToken) {
-			valueToToken = new HashMap<>();
+			valueToToken.clear();
 		}
 		// search for tokens...
         try {

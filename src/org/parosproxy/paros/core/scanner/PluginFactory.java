@@ -41,6 +41,7 @@
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
 // ZAP: 2015/11/02 Issue 1969: Issues with installation of scanners
 // ZAP: 2015/12/21 Issue 2112: Wrong policy on active Scan
+// ZAP: 2016/01/26 Fixed findbugs warning
 
 package org.parosproxy.paros.core.scanner;
 
@@ -83,12 +84,18 @@ public class PluginFactory {
         super();
     }
     
-    private static List<AbstractPlugin> getLoadedPlugins() {
+    private static synchronized void initPlugins() {
     	if (loadedPlugins == null) {
 	    	loadedPlugins = new ArrayList<>(CoreFunctionality.getBuiltInActiveScanRules());
 	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
 	        //sort by the criteria below.
 	        Collections.sort(loadedPlugins, riskComparator);
+    	}
+    }
+    
+    private static List<AbstractPlugin> getLoadedPlugins() {
+    	if (loadedPlugins == null) {
+    		initPlugins();
     	}
     	return loadedPlugins;
     }

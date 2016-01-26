@@ -61,6 +61,7 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/07/16 Issue 1617: ZAP 2.4.0 throws HeadlessExceptions when running in daemon mode on headless machine
 // ZAP: 2015/09/16 Issue 1890: ZAP can't completely scan OWASP Benchmark
+// ZAP: 2016/01/26 Fixed findbugs warning
 
 package org.parosproxy.paros.extension.history;
 
@@ -406,7 +407,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            		historyRef = sn.getHistoryReference();
 	            	} else {
 	                    historyRef = getHistoryReference(historyId);
-	                    sn.setHistoryReference(historyRef);
+	                    if (sn != null) {
+	                    	sn.setHistoryReference(historyRef);
+	                    }
 	            	}
 	            	final String uri = historyRef.getURI().toString();
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {

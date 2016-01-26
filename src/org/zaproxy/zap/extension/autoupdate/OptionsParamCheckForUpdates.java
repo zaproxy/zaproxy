@@ -50,7 +50,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	public static final String ADDON_DIRS = "start.addonDirs";
 	public static final String DOWNLOAD_DIR = "start.downloadDir";
 
-	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+	private static String SDF_FORMAT = "yyyy-MM-dd";
 
 	private boolean checkOnStart;
 	private boolean downloadNewRelease = false;
@@ -156,6 +156,14 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	}
 
 	/**
+	 * Get a new SimpleDateFormat each time for thread safeness
+	 * @return
+	 */
+	private SimpleDateFormat getSdf() {
+		return new SimpleDateFormat(SDF_FORMAT);
+	}
+
+	/**
 	 * Tells whether or not a "check for updates on start up" needs to be performed.
 	 * <p>
 	 * A check for updates needs to be performed if the method {@code isCheckOnStart()} returns {@code true} and if no check was
@@ -171,7 +179,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 			log.debug("isCheckForStart - false");
 			return false;
 		}
-		String today = sdf.format(new Date());
+		String today = getSdf().format(new Date());
 		if (today.equals(dayLastChecked)) {
 			log.debug("isCheckForStart - already checked today");
 			return false;
@@ -192,7 +200,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	 */
 	public Date getDayLastChecked() {
 		try {
-			return sdf.parse(dayLastChecked);
+			return getSdf().parse(dayLastChecked);
 		} catch (ParseException e) {
 			// Assume its not been checked
 			return null;
@@ -206,7 +214,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	 */
 	public Date getDayLastInstallWarned() {
 		try {
-			return sdf.parse(dayLastInstallWarned);
+			return getSdf().parse(dayLastInstallWarned);
 		} catch (ParseException e) {
 			// Assume we've never warned
 			return null;
@@ -220,7 +228,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	 */
 	public Date getDayLastUpdateWarned() {
 		try {
-			return sdf.parse(dayLastUpdateWarned);
+			return getSdf().parse(dayLastUpdateWarned);
 		} catch (ParseException e) {
 			// Assume we've never warned
 			return null;
@@ -228,7 +236,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	}
 	
 	public void setDayLastInstallWarned() {
-		getConfig().setProperty(DAY_LAST_INSTALL_WARNED, sdf.format(new Date()));
+		getConfig().setProperty(DAY_LAST_INSTALL_WARNED, getSdf().format(new Date()));
 		try {
 			getConfig().save();
 		} catch (ConfigurationException e) {
@@ -237,7 +245,7 @@ public class OptionsParamCheckForUpdates extends AbstractParam {
 	}
 
 	public void setDayLastUpdateWarned() {
-		getConfig().setProperty(DAY_LAST_UPDATE_WARNED, sdf.format(new Date()));
+		getConfig().setProperty(DAY_LAST_UPDATE_WARNED, getSdf().format(new Date()));
 		try {
 			getConfig().save();
 		} catch (ConfigurationException e) {

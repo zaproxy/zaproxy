@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -60,7 +59,6 @@ public class JCheckBoxTree extends JTree {
     HashSet<TreePath> checkedPaths = new HashSet<TreePath>();
 
     // Defining a new event type for the checking mechanism and preparing event-handling mechanism
-    protected EventListenerList listenerList = new EventListenerList();
 
     public class CheckChangeEvent extends EventObject {     
         private static final long serialVersionUID = -8100230309044193368L;
