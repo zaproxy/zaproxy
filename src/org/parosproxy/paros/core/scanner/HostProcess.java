@@ -54,6 +54,7 @@
 // ZAP: 2015/10/29 Issue 2005: Active scanning incorrectly performed on sibling nodes 
 // ZAP: 2015/11/27 Issue 2086: Report request counts per plugin
 // ZAP: 2015/12/16 Prevent HostProcess (and plugins run) from becoming in undefined state
+// ZAP: 2016/01/27 Prevent HostProcess from reporting progress higher than 100%
 
 package org.parosproxy.paros.core.scanner;
 
@@ -177,13 +178,17 @@ public class HostProcess implements Runnable {
         log.debug("HostProcess.run");
 
         try {
+            TraverseCounter counter = new TraverseCounter();
             hostProcessStartTime = System.currentTimeMillis();
             for (StructuralNode node : startNodes) {
     	        // ZAP: before all get back the size of this scan
-    	        nodeInScopeCount += getNodeInScopeCount(node, true);
+    	        traverse(node, true, counter);
     	        // ZAP: begin to analyze the scope
     	        getAnalyser().start(node);
             }
+            nodeInScopeCount = counter.getCount();
+
+            log.info("Scanning " + nodeInScopeCount + " node(s) from " + hostAndPort);
             
             Plugin plugin;
             
@@ -211,7 +216,7 @@ public class HostProcess implements Runnable {
         }
     }
 
-    private void processPlugin(Plugin plugin) {
+    private void processPlugin(final Plugin plugin) {
         mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
         mapPluginProgress.put(plugin.getId(), 0);
 
@@ -234,7 +239,19 @@ public class HostProcess implements Runnable {
 	            
 	        } else if (plugin instanceof AbstractAppPlugin) {
 	            try {
-	                traverse(plugin, startNode, true);
+	                traverse(startNode, true, new TraverseAction() {
+
+                        @Override
+                        public void apply(StructuralNode node) {
+                            log.debug("traverse: plugin=" + plugin.getName() + " url=" + node.getName());
+                            scanSingleNode(plugin, node);
+                        }
+
+                        @Override
+                        public boolean isStopTraversing() {
+                            return isSkipped(plugin);
+                        }
+                    });
 	                threadPool.waitAllThreadComplete(600000);
 	            } finally {
 	                pluginCompleted(plugin);
@@ -243,22 +260,21 @@ public class HostProcess implements Runnable {
         }
     }
 
-    private void traverse(Plugin plugin, StructuralNode node) {
-        this.traverse(plugin, node, false);
+    private void traverse(StructuralNode node, TraverseAction action) {
+        this.traverse(node, false, action);
     }
 
-    private void traverse(Plugin plugin, StructuralNode node, boolean incRelatedSiblings) {
-        if (node == null || plugin == null || isStop()) {
+    private void traverse(StructuralNode node, boolean incRelatedSiblings, TraverseAction action) {
+        if (node == null || isStop()) {
             return;
         }
-        log.debug("traverse: plugin=" + plugin.getName() + " url=" + node.getName());
 
         Set<StructuralNode> parentNodes = new HashSet<>();
         parentNodes.add(node);
 
-        scanSingleNode(plugin, node);
+        action.apply(node);
 
-        if (parentScanner.scanChildren()) {
+        if (!action.isStopTraversing() && parentScanner.scanChildren()) {
             if (incRelatedSiblings) {
                 // Also match siblings with the same hierarchic name
                 // If we dont do this http://localhost/start might match the GET variant 
@@ -283,7 +299,7 @@ public class HostProcess implements Runnable {
         	
         	for (StructuralNode pNode : parentNodes) {
 	        	Iterator<StructuralNode> iter = pNode.getChildIterator();
-	        	while (iter.hasNext() && !isStop() && !isSkipped(plugin)) {
+	        	while (iter.hasNext() && !isStop() && !action.isStopTraversing()) {
 	        		StructuralNode child = iter.next();
 	                // ZAP: Implement pause and resume
 	                while (parentScanner.isPaused() && !isStop()) {
@@ -291,7 +307,7 @@ public class HostProcess implements Runnable {
 	                }
 	
 	                try {
-	                    traverse(plugin, child);
+	                    traverse(child, action);
 	                    
 	                } catch (Exception e) {
 	                    log.error(e.getMessage(), e);
@@ -399,52 +415,6 @@ public class HostProcess implements Runnable {
     public void setTestCurrentCount(Plugin plugin, int value) {        
         mapPluginProgress.put(plugin.getId(), value);
     }
-
-    /**
-     * ZAP: inner recursive method to count nodes in scope
-     * @param node the starting node
-     * @param incRelatedSiblings true if siblings should be included
-     * @return the number of nodes
-     */
-    private int getNodeInScopeCount(StructuralNode node, boolean incRelatedSiblings) {
-        if (node == null) {
-            return 0;
-        }
-        
-        int nodeCount = 1;
-        if (parentScanner.scanChildren()) {
-            
-            Set<StructuralNode> parentNodes = new HashSet<>();
-            parentNodes.add(node);
-                        
-            if (incRelatedSiblings) {
-                // Also match siblings with the same hierarchic name
-                // If we dont do this http://localhost/start might match the GET variant in the Sites tree and miss the hierarchic node
-                // note that this is only done for the top level.
-                try {
-					Iterator<StructuralNode> iter = node.getParent().getChildIterator();
-					while (iter.hasNext()) {
-					    StructuralNode sibling = iter.next();
-						if (! node.isSameAs(sibling) && ! node.getName().equals(sibling.getName())) {
-					        parentNodes.add(sibling);
-					        nodeCount++;
-						}
-					}
-				} catch (DatabaseException e) {
-					// Ignore - if we cant connect to the db there will be plenty of other errors logged ;)
-				}
-            }
-            
-            for (StructuralNode pNode : parentNodes) {
-                Iterator<StructuralNode> iter = pNode.getChildIterator();
-                while (iter.hasNext()) {
-                    nodeCount += getNodeInScopeCount(iter.next(), false);
-                }
-            }
-        }
-        
-        return nodeCount;
-    }
     
     /**
      * @return Returns the httpSender.
@@ -478,9 +448,18 @@ public class HostProcess implements Runnable {
             percentage = 100;
         } else {
             int numberRunning = 0;
-            float progressRunning = 0;
+            double progressRunning = 0;
             for (Plugin plugin : pluginFactory.getRunning()) {
-                progressRunning += (getTestCurrentCount(plugin) * 100.0) / getTestTotalCount();
+                int scannedNodes = getTestCurrentCount(plugin);
+                double pluginPercentage = (scannedNodes * 100.0) / getTestTotalCount();
+                if (pluginPercentage >= 100) {
+                    // More nodes are being scanned that the ones enumerated at the beginning...
+                    // Update global count and...
+                    nodeInScopeCount = scannedNodes;
+                    // make sure not return 100 (or more).
+                    pluginPercentage = 99;
+                }
+                progressRunning += pluginPercentage;
                 numberRunning++;
             }
 
@@ -677,4 +656,57 @@ public class HostProcess implements Runnable {
 		}
 		return 0;
 	}
+
+    /**
+     * An action to be executed for each node traversed during the scan.
+     *
+     * @see #apply(StructuralNode)
+     */
+    private interface TraverseAction {
+
+        /**
+         * Applies an action to the node traversed.
+         *
+         * @param node the node being traversed
+         */
+        void apply(StructuralNode node);
+
+        /**
+         * Called after traversing a node, to know if the traversing should be stopped.
+         *
+         * @return {@code true} if the traversing should be stopped, {@code false} otherwise
+         */
+        boolean isStopTraversing();
+
+    }
+
+    /**
+     * A {@code TraverseAction} that counts the nodes traversed.
+     * 
+     * @see #getCount()
+     */
+    private static class TraverseCounter implements TraverseAction {
+
+        private int count;
+
+        /**
+         * Returns the number of nodes traversed.
+         *
+         * @return the number of nodes traversed
+         */
+        public int getCount() {
+            return count;
+        }
+
+        @Override
+        public void apply(StructuralNode node) {
+            count++;
+        }
+
+        @Override
+        public boolean isStopTraversing() {
+            return false;
+        }
+    }
+
 }

@@ -627,6 +627,11 @@ public class ActiveScanAPI extends ApiImplementor {
 			        for (Plugin plugin : hp.getRunning()) {
 						ApiResponseList pList = new ApiResponseList("Plugin");
 						int pc = (int)(hp.getTestCurrentCount(plugin) * 100 / hp.getTestTotalCount());
+						// Make sure not return 100 (or more) if still running...
+						// That might happen if more nodes are being scanned that the ones enumerated at the beginning.
+						if (pc >= 100) {
+							pc = 99;
+						}
 						pList.addItem(new ApiResponseElement("name", XMLStringUtil.escapeControlChrs(plugin.getName())));
 						pList.addItem(new ApiResponseElement("id", Integer.toString(plugin.getId())));
 						pList.addItem(new ApiResponseElement("status", pc + "%"));
