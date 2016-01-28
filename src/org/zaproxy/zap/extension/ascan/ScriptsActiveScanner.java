@@ -19,7 +19,6 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.io.IOException;
-import java.io.StringWriter;
 import java.util.Iterator;
 import java.util.List;
 
@@ -99,7 +98,6 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 			
 		for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
 			ScriptWrapper script = it.next();
-			StringWriter writer = new StringWriter();
 			try {
 				if (script.isEnabled()) {
 					// Note that 'old' scripts may not implement the scan() method, so just ignore them
@@ -113,9 +111,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 				}
 				
 			} catch (Exception e) {
-				writer.append(e.toString());
-				extension.setError(script, e);
-				extension.setEnabled(script, false);
+				extension.handleScriptException(script, e);
 			}
 		}
 
@@ -133,7 +129,6 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 			
 		for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
 			ScriptWrapper script = it.next();
-			StringWriter writer = new StringWriter();
 			try {
 				if (script.isEnabled()) {
 					ActiveScript s = extension.getInterface(script, ActiveScript.class);
@@ -144,16 +139,14 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 						s.scan(this, msg, param, value);
 						
 					} else {
-						writer.append(Constant.messages.getString("scripts.interface.active.error"));
-						extension.setError(script, writer.toString());
-						extension.setEnabled(script, false);
+						extension.handleFailedScriptInterface(
+								script,
+								Constant.messages.getString("ascan.scripts.interface.active.error", script.getName()));
 					}
 				}
 				
 			} catch (Exception e) {
-				writer.append(e.toString());
-				extension.setError(script, e);
-				extension.setEnabled(script, false);
+				extension.handleScriptException(script, e);
 			}
 		}
 	}

@@ -19,12 +19,11 @@
  */
 package org.parosproxy.paros.core.scanner;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
-import javax.script.ScriptException;
 import org.apache.commons.codec.binary.Base64;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptWrapper;
@@ -57,10 +56,15 @@ public class VariantCustom implements Variant {
             try {
                 this.script = extension.getInterface(wrapper, VariantScript.class);
 
-            } catch (ScriptException | IOException ex) {
-                this.extension.setError(wrapper, ex);
-                this.extension.setEnabled(wrapper, false);
-                this.script = null;
+                if (script == null) {
+                    extension.handleFailedScriptInterface(
+                            wrapper,
+                            Constant.messages.getString("variant.scripts.interface.variant.error", wrapper.getName()));
+                }
+            } catch (Exception ex) {
+                // Catch Exception instead of ScriptException and IOException because script engine implementations
+                // might throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
+                this.extension.handleScriptException(wrapper, ex);
             }
         }
     }
@@ -76,9 +80,10 @@ public class VariantCustom implements Variant {
                 script.parseParameters(this, msg);
             }
             
-        } catch (ScriptException se) {
-            extension.setError(wrapper, se);
-            extension.setEnabled(wrapper, false);
+        } catch (Exception e) {
+            // Catch Exception instead of ScriptException because script engine implementations might
+            // throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
+            extension.handleScriptException(wrapper, e);
         }
     }
 
@@ -206,9 +211,10 @@ public class VariantCustom implements Variant {
                 script.setParameter(this, msg, paramName, value, escaped);
             }
                         
-        } catch (ScriptException se) {
-            extension.setError(wrapper, se);
-            extension.setEnabled(wrapper, false);
+        } catch (Exception e) {
+            // Catch Exception instead of ScriptException because script engine implementations might
+            // throw other exceptions on script errors (e.g. jdk.nashorn.internal.runtime.ECMAException)
+            extension.handleScriptException(wrapper, e);
         }
         
         return value;
