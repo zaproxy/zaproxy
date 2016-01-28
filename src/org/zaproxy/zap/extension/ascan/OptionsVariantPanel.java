@@ -207,6 +207,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkInjectablePostData().setSelected((targets & ScannerParam.TARGET_POSTDATA) != 0);
         this.getChkInjectableHeaders().setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
         this.getChkInjectableHeadersAllRequests().setSelected(param.isScanHeadersAllRequests());
+        this.getChkInjectableHeadersAllRequests().setEnabled(getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
 
         int rpcEnabled = param.getTargetParamsEnabledRPC();
