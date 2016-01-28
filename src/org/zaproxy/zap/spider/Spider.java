@@ -476,10 +476,11 @@ public class Spider {
 		}
 		
 		// Issue the shutdown command
-		this.threadPool.shutdownNow();
+		this.threadPool.shutdown();
 		try {
 			if (!this.threadPool.awaitTermination(2, TimeUnit.SECONDS)) {
 				log.warn("Failed to await for all spider threads to stop in the given time (2s)...");
+				this.threadPool.shutdownNow();
 			}
 		} catch (InterruptedException ignore) {
 			log.warn("Interrupted while awaiting for all spider threads to stop...");
@@ -501,6 +502,10 @@ public class Spider {
 	 * The Spidering process is complete.
 	 */
 	private void complete() {
+		if (stopped) {
+			return;
+		}
+
 		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
 		if (httpSender != null) {
@@ -517,7 +522,7 @@ public class Spider {
 			@Override
 			public void run() {
 				if (threadPool != null) {
-					threadPool.shutdownNow();
+					threadPool.shutdown();
 				}
 				// Notify the listeners -- in the meanwhile
 				notifyListenersSpiderComplete(true);
@@ -604,6 +609,11 @@ public class Spider {
 	 * SpiderTask.
 	 */
 	protected synchronized void postTaskExecution() {
+		if (stopped) {
+			// Stopped, so don't count the task(s) as done.
+			// (worker threads call this method even if the task was not really executed.)
+			return;
+		}
 		tasksDoneCount++;
 		int percentageComplete = tasksDoneCount * 100 / tasksTotalCount;
 
