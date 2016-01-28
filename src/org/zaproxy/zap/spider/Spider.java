@@ -18,7 +18,7 @@
 package org.zaproxy.zap.spider;
 
 import java.net.CookieManager;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -90,7 +90,7 @@ public class Spider {
 	private DefaultFetchFilter defaultFetchFilter;
 	
 	/** The seed list. */
-	private List<URI> seedList;
+	private LinkedHashSet<URI> seedList;
 	
 	/** The extension. */
 	private ExtensionSpider extension;
@@ -147,7 +147,7 @@ public class Spider {
 		this.model = model;
 		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
-		this.seedList = new ArrayList<>();
+		this.seedList = new LinkedHashSet<>();
 		this.cookieManager = new CookieManager();
 		this.scanContext = scanContext;
 		this.extension = extension;
@@ -451,8 +451,8 @@ public class Spider {
 
 		// Add the seeds
 		for (URI uri : seedList) {
-			if (log.isInfoEnabled()) {
-				log.info("Adding seed for spider: " + uri);
+			if (log.isDebugEnabled()) {
+				log.debug("Adding seed for spider: " + uri);
 			}
 			controller.addSeed(uri, HttpRequestHeader.GET);
 		}
