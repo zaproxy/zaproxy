@@ -35,6 +35,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -82,6 +84,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.control.ZapRelease;
 import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.AddOnChangesResult;
+import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.UninstallationResult;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnUninstallListener;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressEvent;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.UninstallationProgressHandler;
@@ -134,11 +137,15 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 
     private static final int ARG_CFU_INSTALL_IDX = 0;
     private static final int ARG_CFU_INSTALL_ALL_IDX = 1;
-    private static final int ARG_CFU_UPDATE_IDX = 2;
+    private static final int ARG_CFU_UNINSTALL_IDX = 2;
+    private static final int ARG_CFU_UPDATE_IDX = 3;
+    private static final int ARG_CFU_LIST_IDX = 4;
     private static final int[] ARG_IDXS = {
     							ARG_CFU_INSTALL_IDX,
     							ARG_CFU_INSTALL_ALL_IDX,
-    							ARG_CFU_UPDATE_IDX};
+    							ARG_CFU_UNINSTALL_IDX,
+    							ARG_CFU_UPDATE_IDX,
+    							ARG_CFU_LIST_IDX};
 	private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
 
     /**
@@ -1509,8 +1516,12 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         		"-addoninstall <addon>    " + Constant.messages.getString("cfu.cmdline.install.help"));
         arguments[ARG_CFU_INSTALL_ALL_IDX] = new CommandLineArgument("-addoninstallall", 0, null, "", 
         		"-addoninstallall         " + Constant.messages.getString("cfu.cmdline.installall.help"));
+        arguments[ARG_CFU_UNINSTALL_IDX] = new CommandLineArgument("-addonuninstall", 1, null, "", 
+        		"-addonuninstall <addon>  " + Constant.messages.getString("cfu.cmdline.uninstall.help"));
         arguments[ARG_CFU_UPDATE_IDX] = new CommandLineArgument("-addonupdate", 0, null, "", 
         		"-addonupdate             " + Constant.messages.getString("cfu.cmdline.update.help"));
+        arguments[ARG_CFU_LIST_IDX] = new CommandLineArgument("-addonlist", 0, null, "", 
+        		"-addonlist               " + Constant.messages.getString("cfu.cmdline.list.help"));
         return arguments;
     }
 
@@ -1588,17 +1599,16 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         }
         if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
         	Vector<String> params = arguments[ARG_CFU_INSTALL_IDX].getArguments();
-            if (params.size() == 1) {
-            	AddOnCollection aoc = getLatestVersionInfo();
-            	if (aoc == null) {
-            		CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
-            	} else {
-            		String aoName = params.get(0);
+			AddOnCollection aoc = getLatestVersionInfo();
+			if (aoc == null) {
+				CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+			} else {
+				for (String aoName : params) {
             		AddOn ao = aoc.getAddOn(aoName);
             		if (ao == null) {
                 		CommandLine.error(MessageFormat.format(
                                 Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
-            			return;
+            			continue;
             		}
             		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
             		AddOnDependencyChecker.AddOnChangesResult result;
@@ -1609,7 +1619,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                     		CommandLine.info(MessageFormat.format(
                                     Constant.messages.getString("cfu.cmdline.addoninst"),
                                     iao.getFile().getAbsolutePath()));
-                			return;
+                			continue;
             			}
 
                         result = addOnDependencyChecker.calculateUpdateChanges(ao);
@@ -1620,9 +1630,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                     if (!result.getUninstalls().isEmpty()) {
                         CommandLine.info(
                                 MessageFormat.format(
-                                        Constant.messages.getString("cfu.cmdline.addonurl.unintalls.required"),
+                                        Constant.messages.getString("cfu.cmdline.addoninst.uninstalls.required"),
                                         result.getUninstalls()));
-                        return;
+                        continue;
                     }
 
                     Set<AddOn> allAddOns = new HashSet<>();
@@ -1635,10 +1645,67 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
                     }
 
                     processAddOnChanges(null, result);
+            	}
+                waitAndInstallDownloads();
+            }
+        }
+        if (arguments[ARG_CFU_UNINSTALL_IDX].isEnabled()) {
+        	Vector<String> params = arguments[ARG_CFU_UNINSTALL_IDX].getArguments();
+			AddOnCollection aoc = this.getLocalVersionInfo();
+			if (aoc == null) {
+				CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
+			} else {
+				for (String aoName : params) {
+            		AddOn ao = aoc.getAddOn(aoName);
+            		if (ao == null) {
+                		CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
+            			continue;
+            		}
+            		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+            		
+            		Set<AddOn> addonSet = new HashSet<AddOn>();
+            		addonSet.add(ao);
+            		UninstallationResult result = addOnDependencyChecker.calculateUninstallChanges(addonSet);
+            		
+            		// Check to see if other add-ons depend on it
+            		if (result.getUninstallations().size() > 1) {
+            			// Will always report this add-on as needing to be uninstalled
+                    	// Remove the specified add-on for the error message
+                    	result.getUninstallations().remove(ao);
+                        CommandLine.info(
+                                MessageFormat.format(
+                                        Constant.messages.getString("cfu.cmdline.addonuninst.uninstalls.required"),
+                                        result.getUninstallations()));
+            			continue;
+            		}
 
-                    waitAndInstallDownloads();
+            		if (this.uninstallAddOn(null, ao, false)) {
+                		CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.uninstallok"), aoName));
+
+            		} else {
+                		CommandLine.error(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.uninstallfail"), aoName));
+
+            		}
             	}
             }
+        }
+        if (arguments[ARG_CFU_LIST_IDX].isEnabled()) {
+			AddOnCollection aoc = this.getLocalVersionInfo();
+			List<AddOn> aolist = new ArrayList<AddOn>(aoc.getAddOns());
+	        Collections.sort(aolist, new Comparator<AddOn>(){
+				@Override
+				public int compare(AddOn ao1, AddOn ao2) {
+					return ao1.getName().compareTo(ao2.getName());
+				}});
+
+			for (AddOn addon : aolist) {
+				CommandLine.info(addon.getName() + "\t" + addon.getId() + 
+						"\tv" + addon.getFileVersion() + "\t" + addon.getStatus().name() +
+						"\t" + addon.getDescription());
+			}
         }
 	}
 	
@@ -1661,7 +1728,9 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 						download.getTargetFile().getName()));
 			}
 		}
-		installNewExtensions();
+		if (getView() == null) {
+			installNewExtensions();
+		}
 	}
 
 	@Override
