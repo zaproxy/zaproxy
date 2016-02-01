@@ -98,18 +98,16 @@ public class ScanProgressItem {
 
     /**
      * Get back the percentage of completion.
-     * Currently this is a fake percentage which set 50%
-     * when the plugin begins and 100% when finished...
-     * Should be improved using HostProcess informations regarding
-     * the overall nodes that need to be scanned and the current
-     * executions done...
+     * 
      * @return the percentage value from 0 to 100
      */
     public int getProgressPercentage()  {
         // Implemented using node counts...
         if (isRunning()) {
-            return (int)((hProcess.getTestCurrentCount(plugin) * 100) / hProcess.getTestTotalCount());
-            
+            int progress = (hProcess.getTestCurrentCount(plugin) * 100) / hProcess.getTestTotalCount();
+            // Make sure not return 100 (or more) if still running...
+            // That might happen if more nodes are being scanned that the ones enumerated at the beginning.
+            return progress >= 100 ? 99 : progress;
         } else if (isCompleted()) {
             return 100;        
             
