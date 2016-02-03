@@ -319,6 +319,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public boolean hasAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
 		for (Alert a : this.getAlerts()) {
 			   if (a.equals(alert)) {
 				   // We've already recorded it
@@ -329,6 +332,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void addAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
     	if (this.hasAlert(alert)) {
     		return;
     	}
@@ -344,6 +350,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void updateAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
 		Alert foundAlert = null;
 		for (Alert a : this.getAlerts()) {
 			if (a.getAlertId() == alert.getAlertId()) {
@@ -396,6 +405,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
 
 	public void deleteAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
 		alerts.remove(alert);
 		
 		// Remove from parents, if not in siblings
