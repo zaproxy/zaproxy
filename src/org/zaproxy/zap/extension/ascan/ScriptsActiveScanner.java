@@ -80,6 +80,47 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public void init() {
+        if (shouldSkipScan()) {
+            getParent().pluginSkipped(this);
+        }
+    }
+
+    /**
+     * Tells whether or not the scanner should be skipped. The scanner should be skipped when the {@code ExtensionScript} is not
+     * enabled, when there are no scripts, or if there are none is enabled.
+     *
+     * @return {@code true} if the scanner should be skipped, {@code false} otherwise
+     */
+    private boolean shouldSkipScan() {
+        if (this.getExtension() == null) {
+            return true;
+        }
+
+        List<ScriptWrapper> scripts = getActiveScripts();
+        if (scripts.isEmpty()) {
+            return true;
+        }
+
+        for (ScriptWrapper script : scripts) {
+            if (script.isEnabled()) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Returns the scripts of active script type.
+     * <p>
+     * <strong>Note:</strong> this method should be called only when {@code getExtension()} returns non-{@code null}.
+     *
+     * @return a {@code List} containing the scripts with active script type, never {@code null}
+     * @see #getExtension()
+     * @see ExtensionActiveScan#SCRIPT_TYPE_ACTIVE
+     */
+    private List<ScriptWrapper> getActiveScripts() {
+        return this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
     }
 
 	private ExtensionScript getExtension() {
@@ -91,10 +132,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public void scan() {
-        if (this.getExtension() == null) {
-            return;
-        }
-		List<ScriptWrapper> scripts = this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
+		List<ScriptWrapper> scripts = this.getActiveScripts();
 			
 		for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
 			ScriptWrapper script = it.next();
@@ -122,10 +160,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public void scan(HttpMessage msg, String param, String value) {
-        if (this.getExtension() == null) {
-            return;
-        }
-		List<ScriptWrapper> scripts = this.getExtension().getScripts(ExtensionActiveScan.SCRIPT_TYPE_ACTIVE);
+		List<ScriptWrapper> scripts = this.getActiveScripts();
 			
 		for (Iterator<ScriptWrapper> it = scripts.iterator(); it.hasNext() && !isStop();) {
 			ScriptWrapper script = it.next();
