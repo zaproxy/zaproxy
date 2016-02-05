@@ -17,6 +17,7 @@ For help using ZAP:
   * [Frequently Asked Questions](https://github.com/zaproxy/zaproxy/wiki/FAQtoplevel)
   * [User Guide](https://github.com/zaproxy/zap-core-help/wiki) - online version of the User Guide included with ZAP
   * [User Group](http://groups.google.com/group/zaproxy-users) - ask questions about using ZAP
+  * IRC: irc.mozilla.org #websectools (eg [using Mibbit](http://chat.mibbit.com/?server=irc.mozilla.org%3A%2B6697&channel=%23websectools)) - chat with core ZAP developers (European office hours usually best)
   * [Add-ons](https://github.com/zaproxy/zap-extensions/wiki) - help for the optional add-ons you can install
   * [StackOverflow](https://stackoverflow.com/questions/tagged/zap) - because some people use this for everything ;)
 
