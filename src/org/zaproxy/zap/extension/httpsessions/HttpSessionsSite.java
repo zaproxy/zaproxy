@@ -386,8 +386,15 @@ public class HttpSessionsSite {
 		for (HttpCookie cookie : cookiesToSet) {
 			String lcCookieName = cookie.getName();
 			if (siteTokensSet.isSessionToken(lcCookieName)) {
-				Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) cookie.getMaxAge(),cookie.getSecure());				
-				tokenValues.put(lcCookieName, ck);
+				try {
+					// Use 0 if max-age less than -1, Cookie class does not accept negative (expired) max-age (-1 has special
+					// meaning).
+					long maxAge = cookie.getMaxAge() < -1 ? 0 : cookie.getMaxAge();
+					Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) maxAge,cookie.getSecure());				
+					tokenValues.put(lcCookieName, ck);
+				} catch (IllegalArgumentException e) {
+					log.warn("Failed to create cookie [" + cookie + "] for site [" + getSite() + "]: " + e.getMessage());
+				}
 			}
 		}
 
