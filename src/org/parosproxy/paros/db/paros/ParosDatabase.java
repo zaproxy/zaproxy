@@ -34,6 +34,7 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 1582: Low memory option
+// ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 
 package org.parosproxy.paros.db.paros;
 
@@ -56,6 +57,7 @@ import org.parosproxy.paros.db.TableSession;
 import org.parosproxy.paros.db.TableSessionUrl;
 import org.parosproxy.paros.db.TableStructure;
 import org.parosproxy.paros.db.TableTag;
+import org.parosproxy.paros.extension.option.DatabaseParam;
 
 
 
@@ -79,6 +81,8 @@ public class ParosDatabase implements Database {
 
 	// ZAP: Added type arguments.
 	private Vector<DatabaseListener> listenerList = new Vector<>();
+
+	private DatabaseParam databaseOptions;
 
 	public ParosDatabase() {
 	    tableHistory = new ParosTableHistory();
@@ -180,7 +184,7 @@ public class ParosDatabase implements Database {
 	public void open(String path) throws ClassNotFoundException, Exception {
 	    // ZAP: Added log statement.
 		log.debug("open " + path);
-	    setDatabaseServer(new ParosDatabaseServer(path));
+	    setDatabaseServer(new ParosDatabaseServer(path, databaseOptions));
 	    notifyListenerDatabaseOpen();
 	}
 	
@@ -346,4 +350,17 @@ public class ParosDatabase implements Database {
 		return Database.DB_TYPE_HSQLDB;
 	}
 
+	/**
+	 * Sets the object that holds the database options.
+	 *
+	 * @param databaseOptions the object that holds the database options, must not be {@code null}
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 */
+	public void setDatabaseParam(DatabaseParam databaseOptions) {
+		if (databaseOptions == null) {
+			throw new IllegalArgumentException("Parameter databaseOptions must not be null.");
+		}
+		this.databaseOptions = databaseOptions;
+	}
 }
