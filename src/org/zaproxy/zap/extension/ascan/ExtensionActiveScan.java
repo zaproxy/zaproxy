@@ -510,6 +510,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         
         if (View.isInitialised()) {
         	this.getActiveScanPanel().reset();
+            if (customScanDialog != null) {
+                customScanDialog.reset();
+            }
         }
     }
 
