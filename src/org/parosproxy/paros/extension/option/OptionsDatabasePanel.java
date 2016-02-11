@@ -44,6 +44,7 @@ import org.zaproxy.zap.view.LayoutHelper;
  * <li>Compact - allows the database to be compacted on exit.</li>
  * <li>Request Body Size - the size of the request body in the 'History' database table.</li>
  * <li>Response Body Size - the size of the response body in the 'History' database table.</li>
+ * <li>Recovery Log - if the recovery log should be enabled (HSQLDB option only).</li>
  * </ul>
  * </p>
  * 
@@ -73,6 +74,19 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
      */
     private static final String RESPONSE_BODY_SIZE_DATABASE_LABEL = Constant.messages.getString("database.optionspanel.option.response.body.size.label");
 
+    /**
+     * The label for the recovery log option.
+     * 
+     * @see #getCheckRecoveryLog()
+     */
+    private static final String RECOVERY_LOG_LABEL = Constant.messages.getString("database.optionspanel.option.recoveryLog.label");
+
+    /**
+     * The tool tip for the recovery log option.
+     * 
+     * @see #getCheckRecoveryLog()
+     */
+    private static final String RECOVERY_LOG_TOOL_TIP = Constant.messages.getString("database.optionspanel.option.recoveryLog.tooltip");
     
 	/**
 	 * The check box used to select/deselect the compact option.
@@ -93,6 +107,11 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
 	
 	private JComboBox<String> comboNewSessionOption = null;
 
+	/**
+	 * The check box used to enabled/disable database's recovery log option.
+	 */
+	private JCheckBox checkBoxRecoveryLog = null;
+
     public OptionsDatabasePanel() {
         super();
         setName(NAME);
@@ -101,7 +120,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         
         java.awt.GridBagConstraints gridBagConstraintsLabelRequestBodySize = new GridBagConstraints();
         gridBagConstraintsLabelRequestBodySize.gridx = 0;
-        gridBagConstraintsLabelRequestBodySize.gridy = 1;
+        gridBagConstraintsLabelRequestBodySize.gridy = 2;
         gridBagConstraintsLabelRequestBodySize.insets = new java.awt.Insets(2,2,2,2);
         gridBagConstraintsLabelRequestBodySize.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraintsLabelRequestBodySize.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -109,7 +128,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         
         java.awt.GridBagConstraints gridBagConstraintsRequestBodySize = new GridBagConstraints();
         gridBagConstraintsRequestBodySize.gridx = 1;
-        gridBagConstraintsRequestBodySize.gridy = 1;
+        gridBagConstraintsRequestBodySize.gridy = 2;
         gridBagConstraintsRequestBodySize.weightx = 0.5D;
         gridBagConstraintsRequestBodySize.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraintsRequestBodySize.insets = new java.awt.Insets(2,2,2,2);
@@ -118,7 +137,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
 
         java.awt.GridBagConstraints gridBagConstraintsLabelResponseBodySize = new GridBagConstraints();
         gridBagConstraintsLabelResponseBodySize.gridx = 0;
-        gridBagConstraintsLabelResponseBodySize.gridy = 2;
+        gridBagConstraintsLabelResponseBodySize.gridy = 3;
         gridBagConstraintsLabelResponseBodySize.insets = new java.awt.Insets(2,2,2,2);
         gridBagConstraintsLabelResponseBodySize.anchor = java.awt.GridBagConstraints.WEST;
         gridBagConstraintsLabelResponseBodySize.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -126,7 +145,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         
         java.awt.GridBagConstraints gridBagConstraintsResponseBodySize = new GridBagConstraints();
         gridBagConstraintsResponseBodySize.gridx = 1;
-        gridBagConstraintsResponseBodySize.gridy = 2;
+        gridBagConstraintsResponseBodySize.gridy = 3;
         gridBagConstraintsResponseBodySize.weightx = 0.5D;
         gridBagConstraintsResponseBodySize.fill = java.awt.GridBagConstraints.HORIZONTAL;
         gridBagConstraintsResponseBodySize.insets = new java.awt.Insets(2,2,2,2);
@@ -149,14 +168,15 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         gbc.insets = new java.awt.Insets(2,2,2,2);
         gbc.anchor = GridBagConstraints.WEST;
         panel.add(getCheckBoxCompactDatabase(), gbc);
+        panel.add(getCheckRecoveryLog(), LayoutHelper.getGBC(0, 1, 1, 1.0D, new Insets(2,2,2,2)));
         panel.add(jLabelRequestBodySize, gridBagConstraintsLabelRequestBodySize);
         panel.add(getRequestBodySize(), gridBagConstraintsRequestBodySize);
         panel.add(jLabelResponseBodySize, gridBagConstraintsLabelResponseBodySize);
         panel.add(getResponseBodySize(), gridBagConstraintsResponseBodySize);
-        panel.add(getCheckBoxNewSessionPrompt(), LayoutHelper.getGBC(0, 3, 2, 1.0D, new Insets(2,2,2,2)));
+        panel.add(getCheckBoxNewSessionPrompt(), LayoutHelper.getGBC(0, 4, 2, 1.0D, new Insets(2,2,2,2)));
         panel.add(new JLabel(Constant.messages.getString("database.optionspanel.option.newsessionopt.label")), 
-        		LayoutHelper.getGBC(0, 4, 1, 0.5D, new Insets(2,2,2,2)));
-        panel.add(comboNewSessionOption(), LayoutHelper.getGBC(1, 4, 1, 1.0D, new Insets(2,2,2,2)));
+        		LayoutHelper.getGBC(0, 5, 1, 0.5D, new Insets(2,2,2,2)));
+        panel.add(comboNewSessionOption(), LayoutHelper.getGBC(1, 5, 1, 1.0D, new Insets(2,2,2,2)));
         add(panel);
     }
     
@@ -167,6 +187,14 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         return checkBoxCompactDatabase;
     }
     
+    private JCheckBox getCheckRecoveryLog() {
+        if (checkBoxRecoveryLog == null) {
+            checkBoxRecoveryLog = new JCheckBox(RECOVERY_LOG_LABEL);
+            checkBoxRecoveryLog.setToolTipText(RECOVERY_LOG_TOOL_TIP);
+        }
+        return checkBoxRecoveryLog;
+    }
+
     private ZapSizeNumberSpinner getRequestBodySize() {
         if (spinnerRequestBodySize == null) {
         	spinnerRequestBodySize = new ZapSizeNumberSpinner(16777216);
@@ -211,6 +239,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         spinnerResponseBodySize.setValue(param.getResponseBodySize());
     	checkBoxNewSessionPrompt.setSelected(param.isNewSessionPrompt());
     	comboNewSessionOption.setSelectedIndex(param.getNewSessionOption());
+    	checkBoxRecoveryLog.setSelected(param.isRecoveryLogEnabled());
     }
 
     @Override
@@ -227,6 +256,7 @@ public class OptionsDatabasePanel extends AbstractParamPanel {
         param.setResponseBodySize(spinnerResponseBodySize.getValue());
         param.setNewSessionPrompt(checkBoxNewSessionPrompt.isSelected());
         param.setNewSessionOption(comboNewSessionOption.getSelectedIndex());
+        param.setRecoveryLogEnabled(checkBoxRecoveryLog.isSelected());
     }
     
     @Override

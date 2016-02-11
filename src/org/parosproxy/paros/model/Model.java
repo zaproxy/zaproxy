@@ -35,6 +35,7 @@
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 321: Support multiple databases
+// ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 
 package org.parosproxy.paros.model;
 
@@ -176,11 +177,15 @@ public class Model {
 	}
 
 	public void init(ControlOverrides overrides) throws SAXException, IOException, Exception {
+		getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
+
 		if (overrides.isExperimentalDb()) {
 			logger.info("Using experimental database :/");
 			db = DbSQL.getSingleton().initDatabase();
 		} else {
-			db = new ParosDatabase();
+			ParosDatabase parosDb = new ParosDatabase();
+			parosDb.setDatabaseParam(getOptionsParam().getDatabaseParam());
+			db = parosDb;
 		}
 
 		createAndOpenUntitledDb();
@@ -188,7 +193,6 @@ public class Model {
 		HistoryReference.setTableHistory(getDb().getTableHistory());
 		HistoryReference.setTableTag(getDb().getTableTag());
 		HistoryReference.setTableAlert(getDb().getTableAlert());
-		getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 	}
 
 	public static Model getSingleton() {
