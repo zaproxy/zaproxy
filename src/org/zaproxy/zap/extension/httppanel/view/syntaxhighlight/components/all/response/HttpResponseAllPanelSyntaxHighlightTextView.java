@@ -167,7 +167,7 @@ public class HttpResponseAllPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		@Override
 		protected String detectSyntax(HttpMessage httpMessage) {
 			String syntax = null;
-			if (httpMessage != null && httpMessage.getResponseHeader() != null) {
+			if (httpMessage != null) {
 				String contentType = httpMessage.getResponseHeader().getHeader(HttpHeader.CONTENT_TYPE);
 				if(contentType != null && !contentType.isEmpty()) {
 					contentType = contentType.toLowerCase(Locale.ENGLISH);

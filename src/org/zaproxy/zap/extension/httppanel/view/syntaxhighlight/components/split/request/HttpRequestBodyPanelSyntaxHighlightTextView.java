@@ -169,7 +169,7 @@ public class HttpRequestBodyPanelSyntaxHighlightTextView extends HttpPanelSyntax
 		@Override
 		protected String detectSyntax(HttpMessage httpMessage) {
 			String syntax = null;
-			if (httpMessage != null && httpMessage.getRequestHeader() != null) {
+			if (httpMessage != null) {
 				String contentType = httpMessage.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
 				if(contentType != null && !contentType.isEmpty()) {
 					contentType = contentType.toLowerCase(Locale.ENGLISH);

@@ -78,8 +78,7 @@ public class SpiderODataAtomParser extends SpiderParser {
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyParsed) {
 		// Fallback parser - if it's an XML message which has not already been processed
-		return !wasAlreadyParsed && message.getResponseHeader() != null
-				&& message.getResponseHeader().isXml();
+		return !wasAlreadyParsed && message.getResponseHeader().isXml();
 	}
 
 }
