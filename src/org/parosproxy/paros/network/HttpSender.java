@@ -458,7 +458,7 @@ public class HttpSender {
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
 		if (initiator != AUTHENTICATION_INITIATOR && forceUser != null
-				&& msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
+				&& !msg.getRequestHeader().isImage()
 				&& !forceUser.isAuthenticated(msg)) {
 			log.debug("First try to send authenticated message failed for " + msg.getRequestHeader().getURI()
 					+ ". Authenticating and trying again...");
