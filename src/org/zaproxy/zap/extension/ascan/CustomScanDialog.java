@@ -950,14 +950,4 @@ public class CustomScanDialog extends StandardFieldsDialog {
             return scanPolicy;
         }
     }
-
-    /**
-     * Resets the active scan dialogue to its default state.
-     * 
-     * @since TODO add version
-     */
-    void reset() {
-        target = null;
-        reset(true);
-    }
 }

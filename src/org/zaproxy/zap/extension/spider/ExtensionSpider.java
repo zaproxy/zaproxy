@@ -196,9 +196,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.scanController.reset();
 		if (View.isInitialised()) {
 			this.getSpiderPanel().reset();
-			if (spiderDialog != null) {
-				spiderDialog.reset();
-			}
 		}
 	}
 
