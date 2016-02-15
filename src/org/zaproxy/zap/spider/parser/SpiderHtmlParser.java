@@ -42,6 +42,8 @@ public class SpiderHtmlParser extends SpiderParser {
 
 	/** The Constant urlPattern defining the pattern for a meta url. */
 	private static final Pattern urlPattern = Pattern.compile("url\\s*=\\s*([^;]+)", Pattern.CASE_INSENSITIVE);
+	private static final Pattern PLAIN_COMMENTS_URL_PATTERN = Pattern
+			.compile("(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#]+", Pattern.CASE_INSENSITIVE);
 
 	/** The params. */
 	private SpiderParam params;
@@ -50,12 +52,19 @@ public class SpiderHtmlParser extends SpiderParser {
 	 * Instantiates a new spider html parser.
 	 * 
 	 * @param params the params
+	 * @throws IllegalArgumentException if {@code params} is null.
 	 */
 	public SpiderHtmlParser(SpiderParam params) {
 		super();
+		if (params == null) {
+			throw new IllegalArgumentException("Parameter params must not be null.");
+		}
 		this.params = params;
 	}
 
+	/**
+	 * @throws NullPointerException if {@code message} is null.
+	 */
 	@Override
 	public boolean parseResource(HttpMessage message, Source source, int depth) {
 
@@ -65,12 +74,7 @@ public class SpiderHtmlParser extends SpiderParser {
 		}
 
 		// Get the context (base url)
-		String baseURL;
-		if (message == null) {
-			baseURL = "";
-		} else {
-			baseURL = message.getRequestHeader().getURI().toString();
-		}
+		String baseURL = message.getRequestHeader().getURI().toString();
 
 		// Try to see if there's any BASE tag that could change the base URL
 		Element base = source.getFirstElement(HTMLElementName.BASE);
@@ -78,8 +82,9 @@ public class SpiderHtmlParser extends SpiderParser {
 			if (log.isDebugEnabled()) {
 				log.debug("Base tag was found in HTML: " + base.getDebugInfo());
 			}
-			if (base.getAttributeValue("href") != null) {
-				baseURL = base.getAttributeValue("href");
+			String href = base.getAttributeValue("href");
+			if (href != null && !href.isEmpty()) {
+				baseURL = href;
 			}
 		}
 
@@ -91,7 +96,12 @@ public class SpiderHtmlParser extends SpiderParser {
 			List<StartTag> comments = source.getAllStartTags(StartTagType.COMMENT);
 			for (StartTag comment : comments) {
 				Source s = new Source(comment.getTagContent());
-				parseSource(message, s, depth, baseURL);
+				if (!parseSource(message, s, depth, baseURL)) {
+					Matcher matcher = PLAIN_COMMENTS_URL_PATTERN.matcher(s.toString());
+					while (matcher.find()) {
+						processURL(message, depth, matcher.group(), baseURL);
+					}
+				}
 			}
 		}
 		
@@ -105,49 +115,51 @@ public class SpiderHtmlParser extends SpiderParser {
 	 * @param source the source
 	 * @param depth the depth
 	 * @param baseURL the base url
+	 * @return {@code true} if at least one URL was found, {@code false} otherwise.
 	 */
-	private void parseSource(HttpMessage message, Source source, int depth, String baseURL) {
+	private boolean parseSource(HttpMessage message, Source source, int depth, String baseURL) {
 		log.debug("Parsing an HTML message...");
+		boolean resourcesfound = false;
 		// Process A elements
 		List<Element> elements = source.getAllElements(HTMLElementName.A);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "href");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "href");
 		}
 
 		// Process AREA elements
 		elements = source.getAllElements(HTMLElementName.AREA);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "href");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "href");
 		}
 
 		// Process Frame Elements
 		elements = source.getAllElements(HTMLElementName.FRAME);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "src");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
 		}
 
 		// Process IFrame Elements
 		elements = source.getAllElements(HTMLElementName.IFRAME);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "src");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
 		}
 
 		// Process Link elements
 		elements = source.getAllElements(HTMLElementName.LINK);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "href");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "href");
 		}
 
 		// Process Script elements with src
 		elements = source.getAllElements(HTMLElementName.SCRIPT);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "src");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
 		}
 
 		// Process Img elements
 		elements = source.getAllElements(HTMLElementName.IMG);
 		for (Element el : elements) {
-			processAttributeElement(message, depth, baseURL, el, "src");
+			resourcesfound |= processAttributeElement(message, depth, baseURL, el, "src");
 		}
 
 		// Process META elements
@@ -166,10 +178,13 @@ public class SpiderHtmlParser extends SpiderParser {
 					if (matcher.find()) {
 						String url = matcher.group(1);
 						processURL(message, depth, url, baseURL);
+						resourcesfound = true;
 					}
 				}
 			}
 		}
+
+		return resourcesfound;
 	}
 
 	/**
@@ -181,18 +196,23 @@ public class SpiderHtmlParser extends SpiderParser {
 	 * @param baseURL the base url
 	 * @param element the element
 	 * @param attributeName the attribute name
+	 * @return {@code true} if a URL was processed, {@code false} otherwise.
 	 */
-	private void processAttributeElement(HttpMessage message, int depth, String baseURL, Element element,
+	private boolean processAttributeElement(HttpMessage message, int depth, String baseURL, Element element,
 			String attributeName) {
 		// The URL as written in the attribute (can be relative or absolute)
 		String localURL = element.getAttributeValue(attributeName);
 		if (localURL == null) {
-			return;
+			return false;
 		}
 
 		processURL(message, depth, localURL, baseURL);
+		return true;
 	}
 
+	/**
+	 * @throws NullPointerException if {@code message} is null.
+	 */
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
 		// Fallback parser - if it's a HTML message which has not already been processed
