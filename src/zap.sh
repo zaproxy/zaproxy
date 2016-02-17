@@ -95,6 +95,18 @@ else
   fi
 fi
 
+ARGS=()
+for var in "$@"; do
+  if [[ "$var" == -Xmx* ]]; then
+    # Overridden by the user
+    JMEM="$var"
+  elif [[ $var != -psn_* ]]; then
+    # Strip the automatic -psn_x_xxxxxxx argument that OS X automatically passes into apps, since
+    # it freaks out ZAP
+    ARGS+=("$var")
+  fi
+done
+
 if [ -n "$JMEM" ]
 then
   echo "Setting jvm heap size: $JMEM"
@@ -102,15 +114,8 @@ fi
 
 # Start ZAP; it's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
 if [ "$OS" = "Darwin" ]; then
-  # Strip the automatic -psn_x_xxxxxxx argument that OS X automatically passes into apps, since
-  # it freaks out ZAP
-  ZAP_ARGS=()
-  for value in "$@"; do
-    [[ $value != -psn_* ]] && ZAP_ARGS+=( "$value" )
-  done
-
   # It's likely that -Xdock:icon would be ignored on other platforms, but this is known to work
-  exec java ${JMEM} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "${ZAP_ARGS[@]}"
+  exec java ${JMEM} -Xdock:icon="../Resources/ZAP.icns" -jar "${BASEDIR}/zap-dev.jar" "${ARGS[@]}"
 else
-  exec java ${JMEM} -jar "${BASEDIR}/zap-dev.jar" "$@"
+  exec java ${JMEM} -jar "${BASEDIR}/zap-dev.jar" "${ARGS[@]}"
 fi
