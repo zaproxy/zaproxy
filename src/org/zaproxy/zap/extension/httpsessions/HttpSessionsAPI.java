@@ -1,6 +1,10 @@
 package org.zaproxy.zap.extension.httpsessions;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import net.sf.json.JSONObject;
@@ -8,6 +12,8 @@ import net.sf.json.JSONObject;
 import org.apache.commons.httpclient.Cookie;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
@@ -16,6 +22,8 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.utils.Pair;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 /**
  * The Class HttpSessionsAPI.
@@ -243,24 +251,14 @@ public class HttpSessionsAPI extends ApiImplementor {
 				for (HttpSession session : sessions) {
 					// Dont include 'null' sessions
 					if (session.getTokenValuesUnmodifiableMap().size() > 0) {
-						ApiResponseList sessionResult = new ApiResponseList("session");
-						sessionResult.addItem(new ApiResponseElement("name", session.getName()));
-						sessionResult.addItem(new ApiResponseSet("tokens", session.getTokenValuesUnmodifiableMap()));
-						sessionResult.addItem(new ApiResponseElement("messages_matched", Integer.toString(session
-								.getMessagesMatched())));
-						response.addItem(sessionResult);
+						response.addItem(createSessionResponse(session));
 					}
 				}
 			} // If a session name was provided
 			else {
 				HttpSession session = site.getHttpSession(vsName);
 				if (session != null) {
-					ApiResponseList sessionResult = new ApiResponseList("session");
-					sessionResult.addItem(new ApiResponseElement("name", session.getName()));
-					sessionResult.addItem(new ApiResponseSet("tokens", session.getTokenValuesUnmodifiableMap()));
-					sessionResult.addItem(new ApiResponseElement("messages_matched", Integer.toString(session
-							.getMessagesMatched())));
-					response.addItem(sessionResult);
+					response.addItem(createSessionResponse(session));
 				}
 			}
 			return response;
@@ -305,6 +303,14 @@ public class HttpSessionsAPI extends ApiImplementor {
 		}
 	}
 	
+	private ApiResponseList createSessionResponse(HttpSession session) {
+		ApiResponseList sessionResult = new ApiResponseList("session");
+		sessionResult.addItem(new ApiResponseElement("name", session.getName()));
+		sessionResult.addItem(new TokenValuesResponseSet(session.getTokenValuesUnmodifiableMap()));
+		sessionResult.addItem(new ApiResponseElement("messages_matched", Integer.toString(session.getMessagesMatched())));
+		return sessionResult;
+	}
+
 	/**
 	 * Returns the authority of the given {@code site} (i.e. the host [ ":" port ] ).
 	 * <p>
@@ -337,5 +343,46 @@ public class HttpSessionsAPI extends ApiImplementor {
 			return authority + ":443";
 		}
 		return authority;
+	}
+
+	private static class TokenValuesResponseSet extends ApiResponseSet {
+
+		private final List<List<Pair<String, String>>> xmlTokenElements;
+
+		public TokenValuesResponseSet(Map<String, Cookie> values) {
+			super("tokens", values);
+			this.xmlTokenElements = convertTokenValues(values);
+		}
+
+		@Override
+		public void toXML(Document doc, Element parent) {
+			parent.setAttribute("type", "set");
+
+			for (List<Pair<String, String>> tokenElements : xmlTokenElements) {
+				Element tokenSet = doc.createElement("token");
+				tokenSet.setAttribute("type", "set");
+				for (Pair<String, String> element : tokenElements) {
+					Element el = doc.createElement(element.first);
+					el.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(element.second)));
+					tokenSet.appendChild(el);
+				}
+				parent.appendChild(tokenSet);
+			}
+		}
+
+		private static List<List<Pair<String, String>>> convertTokenValues(Map<String, Cookie> values) {
+			List<List<Pair<String, String>>> tokens = new ArrayList<>();
+			for (Entry<String, Cookie> token : values.entrySet()) {
+				Cookie cookie = token.getValue();
+				List<Pair<String, String>> fields = new ArrayList<>();
+				fields.add(new Pair<>("name", token.getKey()));
+				fields.add(new Pair<>("value", cookie.getValue()));
+				fields.add(new Pair<>("domain", cookie.getDomain()));
+				fields.add(new Pair<>("path", cookie.getPath()));
+				fields.add(new Pair<>("secure", Boolean.toString(cookie.getSecure())));
+				tokens.add(fields);
+			}
+			return tokens;
+		}
 	}
 }
