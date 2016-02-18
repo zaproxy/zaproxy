@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>IFrame Elements - Spider HTML Parser</title>
+</head>
+<body>
+<iframe src="//iframe.example.com/base/scheme"></iframe>
+<iframe src="http://iframe.example.com:8000/b"></iframe>
+<iframe src="https://iframe.example.com/c?a=b#fragment"></iframe>
+<iframe src="iframe/relative"></iframe>
+<iframe src=""></iframe>
+<iframe src="/iframe/absolute"></iframe>
+<iframe src="ftp://iframe.example.com/"></iframe>
+
+<!--  Ignored: -->
+<iframe></iframe>
+<iframe src="mailto:iframe@example.com"></iframe>
+<iframe src="javascript:hello();"></iframe>
+<iframe src="scheme://iframe.example.com/invalid"></iframe>
+
+</body>
+</html>

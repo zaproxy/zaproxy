@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Frame Elements - Spider HTML Parser</title>
+</head>
+<body>
+<frameset>
+<frame src="//frame.example.com/base/scheme" />
+<frame src="http://frame.example.com:8000/b" />
+<frame src="https://frame.example.com/c?a=b#fragment" />
+<frame src="frame/relative" />
+<frame src="" />
+<frame src="/frame/absolute" />
+<frame src="ftp://frame.example.com/" />
+</frameset>
+
+<!--  Ignored: -->
+<frameset>
+<frame />
+<frame src="mailto:frame@example.com" />
+<frame src="javascript:hello();" />
+<frame src="scheme://frame.example.com/invalid" />
+</frameset>
+
+</body>
+</html>
