@@ -3,7 +3,7 @@
  * 
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  * 
- * Copyright 2015 The ZAP Development Team
+ * Copyright 2016 The ZAP Development Team
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.zaproxy.zap.extension.httpsessions;
+package org.zaproxy.zap.utils;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
@@ -26,9 +26,9 @@ import static org.junit.Assert.assertThat;
 import org.junit.Test;
 
 /**
- * Unit test for {@link HttpSessionsAPI}.
+ * Unit test for {@link ApiUtils}.
  */
-public class HttpSessionsAPIUnitTest {
+public class ApiUtilsUnitTest {
 
     private static final String HOST = "example.com";
 
@@ -37,7 +37,7 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String nullSite = null;
         // When
-        HttpSessionsAPI.getAuthority(nullSite);
+        ApiUtils.getAuthority(nullSite);
         // Then = NullPointerException
     }
 
@@ -46,7 +46,7 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String emptySite = "";
         // When
-        String authority = HttpSessionsAPI.getAuthority(emptySite);
+        String authority = ApiUtils.getAuthority(emptySite);
         // Then
         assertThat(authority, is(equalTo(emptySite)));
     }
@@ -56,19 +56,19 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String siteWithPort = HOST + ":8080";
         // When
-        String authority = HttpSessionsAPI.getAuthority(siteWithPort);
+        String authority = ApiUtils.getAuthority(siteWithPort);
         // Then
         assertThat(authority, is(equalTo(siteWithPort)));
     }
 
     @Test
-    public void shouldRemoveHttpSchemeWhenGettingAuthorityFromSite() {
+    public void shouldRemoveHttpSchemeAndAddDefaultPortWhenGettingAuthorityFromSite() {
         // Given
         String site = "http://" + HOST;
         // When
-        String authority = HttpSessionsAPI.getAuthority(site);
+        String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST)));
+        assertThat(authority, is(equalTo(HOST + ":80")));
     }
 
     @Test
@@ -76,7 +76,7 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String site = "https://" + HOST + ":8443";
         // When
-        String authority = HttpSessionsAPI.getAuthority(site);
+        String authority = ApiUtils.getAuthority(site);
         // Then
         assertThat(authority, is(equalTo(HOST + ":8443")));
     }
@@ -86,7 +86,7 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String site = "https://" + HOST;
         // When
-        String authority = HttpSessionsAPI.getAuthority(site);
+        String authority = ApiUtils.getAuthority(site);
         // Then
         assertThat(authority, is(equalTo(HOST + ":443")));
     }
@@ -96,9 +96,9 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String site = HOST;
         // When
-        String authority = HttpSessionsAPI.getAuthority(site);
+        String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST)));
+        assertThat(authority, is(equalTo(HOST + ":80")));
     }
 
     @Test
@@ -106,8 +106,8 @@ public class HttpSessionsAPIUnitTest {
         // Given
         String site = HOST + "/path";
         // When
-        String authority = HttpSessionsAPI.getAuthority(site);
+        String authority = ApiUtils.getAuthority(site);
         // Then
-        assertThat(authority, is(equalTo(HOST)));
+        assertThat(authority, is(equalTo(HOST + ":80")));
     }
 }

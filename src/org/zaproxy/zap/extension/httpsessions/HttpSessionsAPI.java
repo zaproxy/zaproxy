@@ -2,7 +2,6 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -22,6 +21,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiResponseList;
 import org.zaproxy.zap.extension.api.ApiResponseSet;
 import org.zaproxy.zap.extension.api.ApiView;
+import org.zaproxy.zap.utils.ApiUtils;
 import org.zaproxy.zap.utils.Pair;
 import org.zaproxy.zap.utils.XMLStringUtil;
 
@@ -142,7 +142,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 		HttpSessionsSite site;
 		switch (name) {
 		case ACTION_CREATE_EMPTY_SESSION:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), true);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), true);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
@@ -154,7 +154,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			}
 			return ApiResponseElement.OK;
 		case ACTION_REMOVE_SESSION:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
@@ -165,7 +165,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			site.removeHttpSession(sessionRS);
 			return ApiResponseElement.OK;
 		case ACTION_SET_ACTIVE_SESSION:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
@@ -179,22 +179,22 @@ public class HttpSessionsAPI extends ApiImplementor {
 			// At this point, the given name does not match any session name
 			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SESSION);
 		case ACTION_UNSET_ACTIVE_SESSION:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
 			site.unsetActiveSession();
 			return ApiResponseElement.OK;
 		case ACTION_ADD_SESSION_TOKEN:
-			extension.addHttpSessionToken(getAuthority(params.getString(ACTION_PARAM_SITE)),
+			extension.addHttpSessionToken(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)),
 					params.getString(ACTION_PARAM_TOKEN_NAME));
 			return ApiResponseElement.OK;
 		case ACTION_REMOVE_SESSION_TOKEN:
-			extension.removeHttpSessionToken(getAuthority(params.getString(ACTION_PARAM_SITE)),
+			extension.removeHttpSessionToken(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)),
 					params.getString(ACTION_PARAM_TOKEN_NAME));
 			return ApiResponseElement.OK;
 		case ACTION_SET_SESSION_TOKEN:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
@@ -202,13 +202,13 @@ public class HttpSessionsAPI extends ApiImplementor {
 			if (sessionSST == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SESSION);
 			}
-			extension.addHttpSessionToken(getAuthority(params.getString(ACTION_PARAM_SITE)), 
+			extension.addHttpSessionToken(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), 
 					params.getString(ACTION_PARAM_TOKEN_NAME));
 			sessionSST.setTokenValue(params.getString(ACTION_PARAM_TOKEN_NAME),
 					new Cookie(null /* domain */, params.getString(ACTION_PARAM_TOKEN_NAME), params.getString(ACTION_PARAM_TOKEN_VALUE)));
 			return ApiResponseElement.OK;
 		case ACTION_RENAME_SESSION:
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
@@ -233,7 +233,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 		switch (name) {
 		case VIEW_SESSIONS:
 			// Get existing sessions
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
@@ -244,7 +244,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			if (vsName == null || vsName.isEmpty()) {
 				Set<HttpSession> sessions = site.getHttpSessions();
 				if (log.isDebugEnabled()) {
-					log.debug("API View for sessions for " + getAuthority(params.getString(VIEW_PARAM_SITE)) + ": " + site);
+					log.debug("API View for sessions for " + ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)) + ": " + site);
 				}
 
 				// Build the response
@@ -265,12 +265,12 @@ public class HttpSessionsAPI extends ApiImplementor {
 
 		case VIEW_ACTIVE_SESSION:
 			// Get existing sessions
-			site = extension.getHttpSessionsSite(getAuthority(params.getString(ACTION_PARAM_SITE)), false);
+			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
 			if (site == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
 			}
 			if (log.isDebugEnabled()) {
-				log.debug("API View for active session for " + getAuthority(params.getString(VIEW_PARAM_SITE)) + ": " + site);
+				log.debug("API View for active session for " + ApiUtils.getAuthority(params.getString(VIEW_PARAM_SITE)) + ": " + site);
 			}
 
 			if (site.getActiveSession() != null) {
@@ -279,7 +279,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 				return new ApiResponseElement("active_session", "");
 			}
 		case VIEW_SESSION_TOKENS:
-			final String siteName = getAuthority(params.getString(ACTION_PARAM_SITE));
+			final String siteName = ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE));
 			// Check if the site exists
 			if (extension.getHttpSessionsSite(siteName, false) == null) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, ACTION_PARAM_SITE);
@@ -309,40 +309,6 @@ public class HttpSessionsAPI extends ApiImplementor {
 		sessionResult.addItem(new TokenValuesResponseSet(session.getTokenValuesUnmodifiableMap()));
 		sessionResult.addItem(new ApiResponseElement("messages_matched", Integer.toString(session.getMessagesMatched())));
 		return sessionResult;
-	}
-
-	/**
-	 * Returns the authority of the given {@code site} (i.e. the host [ ":" port ] ).
-	 * <p>
-	 * For example, the result of returning the authority from:
-	 * <blockquote><pre>http://example.com:8080/some/path?a=b#c</pre></blockquote> is:
-	 * <blockquote><pre>example.com:8080</pre></blockquote>
-	 * <p>
-	 * <strong>Note:</strong> The implementation is optimised to handle only HTTP and HTTPS schemes, the behaviour is undefined
-	 * for other schemes.
-	 * 
-	 * @param site the site whose authority will be extracted
-	 * @return the authority of the site
-	 */
-	static String getAuthority (String site) {
-		String authority = site;
-		boolean isSecure = false;
-		// Remove http(s)://
-		if (authority.toLowerCase(Locale.ROOT).startsWith("http://")) {
-			authority = authority.substring(7);
-		} else if (authority.toLowerCase(Locale.ROOT).startsWith("https://")) {
-			authority = authority.substring(8);
-			isSecure = true;
-		}
-		// Remove trailing chrs
-		int idx = authority.indexOf('/');
-		if (idx > 0) {
-			authority = authority.substring(0, idx);
-		}
-		if (isSecure && authority.indexOf(':') == -1) {
-			return authority + ":443";
-		}
-		return authority;
 	}
 
 	private static class TokenValuesResponseSet extends ApiResponseSet {
