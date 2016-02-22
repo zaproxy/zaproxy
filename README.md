@@ -31,5 +31,3 @@ To learn more about ZAP development:
   * [Crowdin (User Guide)](https://crowdin.com/project/owasp-zap-help) - help translate the ZAP User Guide
   * [OpenHub](https://www.openhub.net/p/zaproxy)	- FOSS analytics
   * [BountySource](https://www.bountysource.com/teams/zap/issues)	- Vote on ZAP issues (you can also donate money here, but 10% taken out)
-
-[The ZAP Scripting Competition results are now available](https://www.owasp.org/index.php/2015-08-ZAP-ScriptingCompetition)
