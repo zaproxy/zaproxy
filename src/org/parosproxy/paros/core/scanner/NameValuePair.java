@@ -21,7 +21,7 @@
 // ZAP: 2013/07/02 Changed API to public because future extensible Variant model
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
-//
+// ZAP: 2016/02/22 Add hashCode, equals and toString methods. Remove redundant instance variable initialisations.
 package org.parosproxy.paros.core.scanner;
 
 public class NameValuePair {
@@ -34,10 +34,10 @@ public class NameValuePair {
     public static final int TYPE_POST_DATA = ScannerParam.TARGET_POSTDATA;
     public static final int TYPE_UNDEFINED = -1;
     
-    private int targetType = 0;
-    private String name = null;
-    private String value = null;
-    private int position = 0;
+    private final int targetType;
+    private String name;
+    private String value;
+    private int position;
 
     /**
      * @param name
@@ -100,5 +100,66 @@ public class NameValuePair {
      */
     public void setPosition(int position) {
         this.position = position;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + position;
+        result = prime * result + targetType;
+        result = prime * result + ((value == null) ? 0 : value.hashCode());
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        NameValuePair other = (NameValuePair) obj;
+        if (name == null) {
+            if (other.name != null) {
+                return false;
+            }
+        } else if (!name.equals(other.name)) {
+            return false;
+        }
+        if (position != other.position) {
+            return false;
+        }
+        if (targetType != other.targetType) {
+            return false;
+        }
+        if (value == null) {
+            if (other.value != null) {
+                return false;
+            }
+        } else if (!value.equals(other.value)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder strBuilder = new StringBuilder(75);
+        strBuilder.append("[Position=").append(position);
+        strBuilder.append(", Type=").append(targetType);
+        if (name != null) {
+            strBuilder.append(", Name=").append(name);
+        }
+        if (value != null) {
+            strBuilder.append(", Value=").append(value);
+        }
+        strBuilder.append(']');
+        return strBuilder.toString();
     }
 }
