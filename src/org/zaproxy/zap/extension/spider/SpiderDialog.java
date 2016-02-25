@@ -321,17 +321,9 @@ public class SpiderDialog extends StandardFieldsDialog {
 			contextSpecificObjects.add(startUri);
 		}
         
-        String displayName;
         if (target == null || ! this.getStringValue(FIELD_START).equals(getTargetText(target))) {
        		// Clear the target as it doesnt match the value entered manually
 			target = new Target((StructuralNode)null);
-			displayName = startUri.toString();
-    		if (displayName.length() >= 30) {
-    			// Just use the first and last 14 chrs to prevent huge urls messing up the display
-    			displayName = displayName.substring(0, 14) + ".." + displayName.substring(displayName.length()-15, displayName.length());
-    		}
-        } else {
-        	displayName = target.getDisplayName();
         }
         
         // Save the adv option permanently for next time
@@ -344,7 +336,6 @@ public class SpiderDialog extends StandardFieldsDialog {
         }
 
         this.extension.startScan(
-        		displayName,
                 target,
                 getSelectedUser(), 
                 contextSpecificObjects.toArray());

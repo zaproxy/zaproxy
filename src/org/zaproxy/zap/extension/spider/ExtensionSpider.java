@@ -36,6 +36,7 @@ import java.util.List;
 import javax.swing.KeyStroke;
 
 import org.apache.commons.httpclient.URI;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -309,7 +310,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanNode(SiteNode node) {
 		Target target = new Target(node);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, null, null);
+		this.startScan(target, null, null);
 	}
 	
 	/**
@@ -320,7 +321,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanNode(SiteNode node, User user) {
 		Target target = new Target(node);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, user, null);
+		this.startScan(target, user, null);
 	}
 
 	/**
@@ -329,7 +330,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanAllInScope() {
 		Target target = new Target(true);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, null, null);
+		this.startScan(target, null, null);
 	}
 
 	/**
@@ -340,7 +341,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScan(SiteNode startNode) {
 		Target target = new Target(startNode);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, null, null);
+		this.startScan(target, null, null);
 	}
 
 	/**
@@ -349,7 +350,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanAllInContext(Context context, User user) {
 		Target target = new Target(context);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, user, null);
+		this.startScan(target, user, null);
 	}
 	
 	
@@ -426,14 +427,81 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.customParseFilters.add(filter);
 	}
 
+	/**
+	 * Starts a new spider scan using the given target and, optionally, spidering from the perspective of a user and with custom
+	 * configurations.
+	 * <p>
+	 * The spider scan will use the most appropriate display name created from the given target, user and custom configurations.
+	 *
+	 * @param target the target that will be spidered
+	 * @param user the user that will be used to spider, might be {@code null}
+	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
+	 * @return the ID of the spider scan
+	 * @since TODO add version
+	 * @see #startScan(String, Target, User, Object[])
+	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
+	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
+	 */
+	public int startScan(Target target, User user, Object[] customConfigurations) {
+		return startScan(createDisplayName(target, customConfigurations), target, user, customConfigurations);
+	}
+
+	/**
+	 * Creates the display name for the given target and, optionally, the given custom configurations.
+	 *
+	 * @param target the target that will be spidered
+	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
+	 * @return a {@code String} containing the display name, never {@code null}
+	 */
+	private String createDisplayName(Target target, Object[] customConfigurations) {
+		if (target.getContext() != null) {
+			return Constant.messages.getString("context.prefixName", target.getContext().getName());
+		} else if (target.isInScopeOnly()) {
+			return Constant.messages.getString("target.allInScope");
+		} else if (target.getStartNode() == null) {
+			if (customConfigurations != null) {
+				for (Object customConfiguration : customConfigurations) {
+					if (customConfiguration instanceof URI) {
+						return abbreviateDisplayName(((URI) customConfiguration).toString());
+					}
+				}
+			}
+			return Constant.messages.getString("target.empty");
+		}
+		return abbreviateDisplayName(target.getStartNode().getHierarchicNodeName(false));
+	}
+
+	/**
+	 * Abbreviates (the middle of) the given display name if greater than 30 characters.
+	 *
+	 * @param displayName the display name that might be abbreviated
+	 * @return the, possibly, abbreviated display name
+	 */
+	private static String abbreviateDisplayName(String displayName) {
+		return StringUtils.abbreviateMiddle(displayName, "..", 30);
+	}
+
+	/**
+	 * Starts a new spider scan, with the given display name, using the given target and, optionally, spidering from the
+	 * perspective of a user and with custom configurations.
+	 * <p>
+	 * <strong>Note:</strong> The preferred method to start the scan is with {@link #startScan(Target, User, Object[])}, unless
+	 * a custom display name is really needed.
+	 * 
+	 * @param target the target that will be spidered
+	 * @param user the user that will be used to spider, might be {@code null}
+	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
+	 * @return the ID of the spider scan
+	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
+	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
+	 */
 	@Override
-	public int startScan(String displayName, Target target, User user,
-			Object[] contextSpecificObjects) {
+	public int startScan(String displayName, Target target, User user, Object[] customConfigurations) {
 		switch (Control.getSingleton().getMode()) {
 		case safe:
 			throw new IllegalStateException("Scans are not allowed in Safe mode");
 		case protect:
-			String uri = getTargetUriOutOfScope(target, contextSpecificObjects);
+			String uri = getTargetUriOutOfScope(target, customConfigurations);
 			if (uri != null) {
 				throw new IllegalStateException("Scans are not allowed on targets not in scope when in Protected mode: " + uri);
 			}
@@ -444,7 +512,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 			break;
 		}
 
-		int id = this.scanController.startScan(displayName, target, user, contextSpecificObjects);
+		int id = this.scanController.startScan(displayName, target, user, customConfigurations);
     	if (View.isInitialised()) {
     		SpiderScan scanner = this.scanController.getScan(id);
 			this.getSpiderPanel().scannerStarted(scanner);
