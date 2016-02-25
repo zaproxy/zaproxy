@@ -114,11 +114,11 @@ public class SpiderAPI extends ApiImplementor {
 	public SpiderAPI(ExtensionSpider extension) {
 		this.extension = extension;
 		// Register the actions
-		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] { PARAM_URL },
-				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME }));
+		this.addApiAction(new ApiAction(ACTION_START_SCAN, null,
+				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME }));
 		this.addApiAction(new ApiAction(ACTION_START_SCAN_AS_USER, 
-				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID },
-				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE }));
+				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID },
+				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE }));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, null, new String[] { PARAM_SCAN_ID }));
@@ -154,7 +154,7 @@ public class SpiderAPI extends ApiImplementor {
 		switch (name) {
 		case ACTION_START_SCAN:
 			// The action is to start a new Scan
-			String url = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
+			String url = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 			if (params.containsKey(PARAM_MAX_CHILDREN)) {
 				String maxChildrenStr = params.getString(PARAM_MAX_CHILDREN);
 				if (maxChildrenStr != null && maxChildrenStr.length() > 0) {
@@ -176,7 +176,7 @@ public class SpiderAPI extends ApiImplementor {
 
 		case ACTION_START_SCAN_AS_USER:
 			// The action is to start a new Scan from the perspective of a user
-			String urlUserScan = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
+			String urlUserScan = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 			int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
 			ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
 					.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
@@ -184,9 +184,6 @@ public class SpiderAPI extends ApiImplementor {
 				throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 			}
 			context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-			if (!context.isIncluded(urlUserScan)) {
-				throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
-			}
 			User user = usersExtension.getContextUserAuthManager(context.getIndex()).getUserById(userID);
 			if (user == null) {
 				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
@@ -316,35 +313,51 @@ public class SpiderAPI extends ApiImplementor {
 	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
 
-		URI startURI;
-		try {
-			// Try to build uri
-			startURI = new URI(url, true);
-		} catch (URIException e) {
-			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
-		}
-		String scheme = startURI.getScheme();
-		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
-			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+		boolean useUrl = true;
+		if (url == null || url.isEmpty()) {
+			if (context == null || !context.hasNodesInContextFromSiteTree()) {
+				throw new ApiException(Type.MISSING_PARAMETER, PARAM_URL);
+			}
+			useUrl = false;
+		} else if (context != null && !context.isIncluded(url)) {
+			throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_URL);
 		}
 
 		StructuralNode node = null;
-		try {
-			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), "GET", "");
-		} catch (Exception e) {
-			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+		URI startURI = null;
+		if (useUrl) {
+			try {
+				// Try to build uri
+				startURI = new URI(url, true);
+			} catch (URIException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+			String scheme = startURI.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+
+			try {
+				node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), "GET", "");
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
 		}
-		Target target = new Target(node);
-		target.setRecurse(recurse);
-		if (context != null) {
+		Target target;
+		if (useUrl) {
+			target = new Target(node);
 			target.setContext(context);
+		} else {
+			target = new Target(context);
 		}
+		target.setRecurse(recurse);
 		
 		switch (Control.getSingleton().getMode()) {
 		case safe:
 			throw new ApiException(ApiException.Type.MODE_VIOLATION);
 		case protect:
-			if (!Model.getSingleton().getSession().isInScope(url)) {
+			if ((useUrl && !Model.getSingleton().getSession().isInScope(url))
+					|| (context != null && !context.isInScope())) {
 				throw new ApiException(ApiException.Type.MODE_VIOLATION);
 			}
 			// No problem
@@ -358,7 +371,10 @@ public class SpiderAPI extends ApiImplementor {
 		}
 		
 		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
-		objs.add(startURI);
+		if (startURI != null) {
+			objs.add(startURI);
+		}
+
 		if (maxChildren > 0) {
     		// Add the filters to filter on maximum number of children
     		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
