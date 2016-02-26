@@ -25,10 +25,9 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -153,7 +152,7 @@ public final class URLCanonicalizer {
 			path = path.trim();
 
 			/* Process parameters and sort them. */
-			final SortedMap<String, String> params = createParameterMap(canonicalURI.getRawQuery());
+			final SortedSet<QueryParameter> params = createSortedParameters(canonicalURI.getRawQuery());
 			final String queryString;
 			String canonicalParams = canonicalize(params);
 			queryString = (canonicalParams.isEmpty() ? "" : "?" + canonicalParams);
@@ -273,18 +272,24 @@ public final class URLCanonicalizer {
 
     private static String getCleanedQuery(String escapedQuery) {
         // Get the parameters' names
-        SortedMap<String, String> params = createParameterMap(escapedQuery);
+        SortedSet<QueryParameter> params = createSortedParameters(escapedQuery);
+        Set<String> parameterNames = new HashSet<>();
         StringBuilder cleanedQueryBuilder = new StringBuilder();
         if (params != null && !params.isEmpty()) {
-            for (String key : params.keySet()) {
+            for (QueryParameter parameter : params) {
+                String name = parameter.getName();
+                if (parameterNames.contains(name)) {
+                    continue;
+                }
+                parameterNames.add(name);
                 // Ignore irrelevant parameters
-                if (IRRELEVANT_PARAMETERS.contains(key) || key.startsWith("utm_")) {
+                if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
                     continue;
                 }
                 if (cleanedQueryBuilder.length() > 0) {
                     cleanedQueryBuilder.append('&');
                 }
-                cleanedQueryBuilder.append(key);
+                cleanedQueryBuilder.append(name);
             }
         }
 
@@ -370,19 +375,18 @@ public final class URLCanonicalizer {
 	}
 
 	/**
-	 * Takes a query string, separates the constituent name-value pairs, and stores them in a SortedMap
-	 * ordered by lexicographical order.
+	 * Creates a sorted set with all the parameters from the given {@code query}, ordered lexicographically by name and value.
 	 * 
 	 * @param queryString the query string
-	 * @return Null if there is no query string.
+	 * @return a sorted set with all parameters, or {@code null} if the query string is {@code null} or empty.
 	 */
-	private static SortedMap<String, String> createParameterMap(final String queryString) {
+	private static SortedSet<QueryParameter> createSortedParameters(final String queryString) {
 		if (queryString == null || queryString.isEmpty()) {
 			return null;
 		}
 
 		final String[] pairs = queryString.split("&");
-		final SortedMap<String, String> params = new TreeMap<>();
+		final SortedSet<QueryParameter> params = new TreeSet<>();
 
 		for (final String pair : pairs) {
 			if (pair.length() == 0) {
@@ -393,13 +397,13 @@ public final class URLCanonicalizer {
 			switch (tokens.length) {
 			case 1:
 				if (pair.charAt(0) == '=') {
-					params.put("", tokens[0]);
+					params.add(new QueryParameter("", tokens[0]));
 				} else {
-					params.put(tokens[0], "");
+					params.add(new QueryParameter(tokens[0], ""));
 				}
 				break;
 			case 2:
-				params.put(tokens[0], tokens[1]);
+				params.add(new QueryParameter(tokens[0], tokens[1]));
 				break;
 			}
 		}
@@ -409,28 +413,28 @@ public final class URLCanonicalizer {
 	/**
 	 * Canonicalize the query string.
 	 * 
-	 * @param sortedParamMap Parameter name-value pairs in lexicographical order.
+	 * @param sortedParameters Parameter name-value pairs in lexicographical order.
 	 * @return Canonical form of query string.
 	 */
-	private static String canonicalize(final SortedMap<String, String> sortedParamMap) {
-		if (sortedParamMap == null || sortedParamMap.isEmpty()) {
+	private static String canonicalize(final SortedSet<QueryParameter> sortedParameters) {
+		if (sortedParameters == null || sortedParameters.isEmpty()) {
 			return "";
 		}
 
 		final StringBuilder sb = new StringBuilder(100);
-		for (Map.Entry<String, String> pair : sortedParamMap.entrySet()) {
-			final String key = pair.getKey().toLowerCase();
+		for (QueryParameter parameter : sortedParameters) {
+			final String name = parameter.getName().toLowerCase();
 			// Ignore irrelevant parameters
-			if (IRRELEVANT_PARAMETERS.contains(key) || key.startsWith("utm_")) {
+			if (IRRELEVANT_PARAMETERS.contains(name) || name.startsWith("utm_")) {
 				continue;
 			}
 			if (sb.length() > 0) {
 				sb.append('&');
 			}
-			sb.append(pair.getKey());
-			if (!pair.getValue().isEmpty()) {
+			sb.append(parameter.getName());
+			if (!parameter.getValue().isEmpty()) {
 				sb.append('=');
-				sb.append(pair.getValue());
+				sb.append(parameter.getValue());
 			}
 		}
 		return sb.toString();
@@ -446,4 +450,75 @@ public final class URLCanonicalizer {
 		return path.replace("%7E", "~").replace(" ", "%20");
 	}
 
+	/**
+	 * A query parameter, with non-{@code null} name and value.
+	 * <p>
+	 * The query parameters are ordered by name and value.
+	 */
+	private static class QueryParameter implements Comparable<QueryParameter> {
+
+		private final String name;
+		private final String value;
+
+		public QueryParameter(String name, String value) {
+			if (name == null) {
+				throw new IllegalArgumentException("Parameter name must not be null.");
+			}
+			if (value == null) {
+				throw new IllegalArgumentException("Parameter value must not be null.");
+			}
+			this.name = name;
+			this.value = value;
+		}
+
+		public String getName() {
+			return name;
+		}
+
+		public String getValue() {
+			return value;
+		}
+
+		@Override
+		public int compareTo(QueryParameter other) {
+			if (other == null) {
+				return 1;
+			}
+			int result = name.compareTo(other.name);
+			if (result != 0) {
+				return result;
+			}
+			return value.compareTo(other.value);
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + name.hashCode();
+			result = prime * result + value.hashCode();
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) {
+				return true;
+			}
+			if (obj == null) {
+				return false;
+			}
+			if (getClass() != obj.getClass()) {
+				return false;
+			}
+			QueryParameter other = (QueryParameter) obj;
+			if (!name.equals(other.name)) {
+				return false;
+			}
+			if (!value.equals(other.value)) {
+				return false;
+			}
+			return true;
+		}
+	}
 }

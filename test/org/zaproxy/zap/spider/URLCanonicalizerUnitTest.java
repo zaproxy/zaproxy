@@ -27,6 +27,26 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
+    public void shouldRemoveDefaultPortOfHttpUriWhenCanonicalizing() {
+        // Given
+        String uri = "http://example.com:80/";
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/")));
+    }
+
+    @Test
+    public void shouldAddEmptyPathIfUriHasNoPathWhenCanonicalizing() {
+        // Given
+        String uri = "http://example.com";
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/")));
+    }
+
+    @Test
     public void shouldCanonicalizeURIsWithAuthority() {
         // Given
         String[] uris = { "http://example.com/", "https://example.com/", "ftp://example.com/" };
@@ -35,6 +55,46 @@ public class URLCanonicalizerUnitTest {
             String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
             // Then
             assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(uri)));
+        }
+    }
+
+    @Test
+    public void shouldUseBaseURIToResolveRelativeURIsWhenCanonicalizing() {
+        // Given
+        String baseURI = "http://example.com/path/";
+        String[] relativeURIs = { "relative", "a/b/c", "../", "/absolute/path", "" };
+        String[] expectedCanonicalURIs = {
+                "http://example.com/path/relative",
+                "http://example.com/path/a/b/c",
+                "http://example.com/",
+                "http://example.com/absolute/path",
+                "http://example.com/path/", };
+        for (int i = 0; i < relativeURIs.length; i++) {
+            // When
+            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(relativeURIs[i], baseURI);
+            // Then
+            assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(expectedCanonicalURIs[i])));
+        }
+    }
+
+    @Test
+    public void shouldNormaliseEmptyAndDotPathSegmentsWhenCanonicalizing() {
+        // Given
+        String[] uris = {
+                "http://example.com/../../x",
+                "http://example.com/a//b/c//",
+                "http://example.com/a/./b/./c",
+                "http://example.com/.." };
+        String[] expectedCanonicalURIs = {
+                "http://example.com/x",
+                "http://example.com/a/b/c/",
+                "http://example.com/a/b/c",
+                "http://example.com/.." };
+        for (int i = 0; i < uris.length; i++) {
+            // When
+            String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uris[i]);
+            // Then
+            assertThat(canonicalizedUri, canonicalizedUri, is(equalTo(expectedCanonicalURIs[i])));
         }
     }
 
@@ -78,6 +138,26 @@ public class URLCanonicalizerUnitTest {
         String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
         // Then
         assertThat(canonicalizedUri, is(equalTo("http://example.com/?par%26am%3D1=val%26u%3De1")));
+    }
+
+    @Test
+    public void shouldPreserveQueryParametersWithSameNameWhenCanonicalizing() throws URIException {
+        // Given
+        String uri = new URI("http://example.com/?name1=value1.1&name1=value1.2&name2=value2&name2=value3", true).toString();
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/?name1=value1.1&name1=value1.2&name2=value2&name2=value3")));
+    }
+
+    @Test
+    public void shouldSortQueryParametersByNameAndValueWhenCanonicalizing() throws URIException {
+        // Given
+        String uri = new URI("http://example.com/?&name2=value2&name3=value3&name1=value1.2&name1=value1.1", true).toString();
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com/?name1=value1.1&name1=value1.2&name2=value2&name3=value3")));
     }
 
     @Test
@@ -157,6 +237,39 @@ public class URLCanonicalizerUnitTest {
                 uri,
                 HandleParametersOption.IGNORE_COMPLETELY,
                 false);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/path/")));
+    }
+
+    @Test
+    public void shouldPreserveQueryParametersWithSameNameWhenCleaningParametersIn_USE_ALL_mode() throws URIException {
+        // Given
+        URI uri = new URI("http://example.com/path/?param%5B%5D=value1.1&param%5B%5D=value1.2&param2=value2", true);
+        // When
+        String cleanedUri = URLCanonicalizer
+                .buildCleanedParametersURIRepresentation(uri, HandleParametersOption.USE_ALL, false);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/path/?param%5B%5D=value1.1&param%5B%5D=value1.2&param2=value2")));
+    }
+
+    @Test
+    public void shouldKeepJustOneQueryParameterWithSameNameWhenCleaningParametersIn_IGNORE_VALUE_mode() throws URIException {
+        // Given
+        URI uri = new URI("http://example.com/path/?param1=value1.1&param1=value1.2&param2=value2", true);
+        // When
+        String cleanedUri = URLCanonicalizer
+                .buildCleanedParametersURIRepresentation(uri, HandleParametersOption.IGNORE_VALUE, false);
+        // Then
+        assertThat(cleanedUri, is(equalTo("http://example.com/path/?param1&param2")));
+    }
+
+    @Test
+    public void shouldRemoveAllQueryParametersWhenCleaningParametersIn_IGNORE_COMPLETELY_mode() throws URIException {
+        // Given
+        URI uri = new URI("http://example.com/path/?param1=value1.1&param1=value1.2&param2=value2", true);
+        // When
+        String cleanedUri = URLCanonicalizer
+                .buildCleanedParametersURIRepresentation(uri, HandleParametersOption.IGNORE_COMPLETELY, false);
         // Then
         assertThat(cleanedUri, is(equalTo("http://example.com/path/")));
     }
