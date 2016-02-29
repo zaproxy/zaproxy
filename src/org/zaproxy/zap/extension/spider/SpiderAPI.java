@@ -388,7 +388,7 @@ public class SpiderAPI extends ApiImplementor {
 			objs.add(maxChildrenParseFilter);
 		}
 		
-		return extension.startScan(target.getDisplayName(), target, user, objs.toArray(new Object[objs.size()]));
+		return extension.startScan(target, user, objs.toArray(new Object[objs.size()]));
 	}
 
 	@Override
