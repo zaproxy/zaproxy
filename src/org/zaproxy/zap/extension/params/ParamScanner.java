@@ -25,6 +25,7 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.pscan.PassiveScanThread;
 import org.zaproxy.zap.extension.pscan.PassiveScanner;
+import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 public class ParamScanner implements PassiveScanner {
 
@@ -73,6 +74,11 @@ public class ParamScanner implements PassiveScanner {
 	@Override
 	public void setLevel(AlertThreshold level) {
 		// Always ignore
+	}
+
+	@Override
+	public boolean appliesToHistoryType(int historyType) {
+		return PluginPassiveScanner.getDefaultHistoryTypes().contains(historyType);
 	}
 
 }

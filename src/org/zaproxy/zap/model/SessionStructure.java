@@ -320,7 +320,11 @@ public class SessionStructure {
     	return sb.toString();
     	
     }
-    
+
+	public static String getHostName(HttpMessage msg) throws URIException {
+		return getHostName(msg.getRequestHeader().getURI());
+	}
+
 	public static String getHostName(URI uri) throws URIException {
 		StringBuilder host = new StringBuilder(); 				
 		

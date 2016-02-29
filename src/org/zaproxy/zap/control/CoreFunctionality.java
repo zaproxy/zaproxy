@@ -160,6 +160,7 @@ public final class CoreFunctionality {
 			ArrayList<PluginPassiveScanner> rules = new ArrayList<>();
 			rules.add(new org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner());
 			rules.add(new org.zaproxy.zap.extension.pscan.scanner.ScriptsPassiveScanner());
+			rules.add(new org.zaproxy.zap.extension.pscan.scanner.StatsPassiveScanner());
 			rules.trimToSize();
 
 			for (PluginPassiveScanner rule : rules) {

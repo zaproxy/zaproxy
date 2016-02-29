@@ -39,6 +39,8 @@ import java.util.Vector;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import net.sf.json.JSON;
+import net.sf.json.JSONArray;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
@@ -72,11 +74,16 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Text;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.HarUtils;
 import org.zaproxy.zap.utils.Stats;
+import org.zaproxy.zap.utils.XMLStringUtil;
 
 import edu.umass.cs.benchlab.har.HarEntries;
 import edu.umass.cs.benchlab.har.HarLog;
@@ -121,6 +128,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
 	private static final String VIEW_STATS = "stats";
+	private static final String VIEW_SITE_STATS = "siteStats";
+	private static final String VIEW_ALL_SITES_STATS = "allSitesStats";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
@@ -144,6 +153,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_FOLLOW_REDIRECTS = "followRedirects";
 	private static final String PARAM_KEY_PREFIX = "keyPrefix";
 	private static final String PARAM_MODE = "mode";
+	private static final String PARAM_SITE = "site";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
@@ -183,6 +193,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
 		this.addApiView(new ApiView(VIEW_STATS, null, new String[] { PARAM_KEY_PREFIX }));
+		this.addApiView(new ApiView(VIEW_ALL_SITES_STATS, null, new String[] {PARAM_KEY_PREFIX }));
+		this.addApiView(new ApiView(VIEW_SITE_STATS, new String[] {PARAM_SITE}, new String[] {PARAM_KEY_PREFIX }));
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
@@ -658,9 +670,34 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			Map<String, String> map = new HashMap<>();
 
 			for (Entry<String, Long> stat : Stats.getStats(this.getParam(params, PARAM_KEY_PREFIX, "")).entrySet()) {
-				map.put(stat.getKey(), Long.toString(stat.getValue()));
+				map.put(stat.getKey(), stat.getValue().toString());
 			}
 			result = new ApiResponseSet(name, map);
+
+		} else if (VIEW_ALL_SITES_STATS.equals(name)) {
+			result = new ApiResponseList(name);
+			for (Entry<String, Map<String, Long>> stats :
+					Stats.getAllSiteStats(this.getParam(params, PARAM_KEY_PREFIX, "")).entrySet()) {
+				((ApiResponseList)result).addItem(new SiteStatsApiResponse(stats.getKey(), stats.getValue()));
+			}
+
+		} else if (VIEW_SITE_STATS.equals(name)) {
+			String site = this.getParam(params, PARAM_SITE, null);
+			URI siteURI;
+			
+			try {
+				siteURI = new URI(site, true);
+				site = SessionStructure.getHostName(siteURI);
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_SITE);
+			}
+			String scheme = siteURI.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_SITE);
+			}
+
+			result = new SiteStatsApiResponse(site, 
+					Stats.getSiteStats(site, this.getParam(params, PARAM_KEY_PREFIX, "")));
 
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
@@ -1161,5 +1198,64 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			return pageEnded;
 		}
 	}
+	
+	private static class SiteStatsApiResponse extends ApiResponseList {
 
+		private String site;
+		private Map<String, Long> stats;
+		
+		public SiteStatsApiResponse(String site, Map<String, Long> stats) {
+			super("statistics");
+			this.site = site;
+			this.stats = stats;
+			Map<String, String> map = new HashMap<>();
+			
+			for (Entry<String, Long> stat : this.stats.entrySet()) {
+				map.put(stat.getKey(), stat.getValue().toString());
+			}
+			this.addItem(new ApiResponseSet(site/*this.getName()*/, map));
+		}
+		
+		@Override
+		public void toXML(Document doc, Element parent) {
+			parent.setAttribute("type", "list");
+			Element els = doc.createElement("site");
+			Text texts = doc.createTextNode(XMLStringUtil.escapeControlChrs(this.site));
+			els.appendChild(texts);
+			parent.appendChild(els);
+			
+			for (Entry<String, Long> stat : this.stats.entrySet()) {
+				Element el = doc.createElement("statistic");
+				el.setAttribute("type", "set");
+				
+				Element elk = doc.createElement("key");
+				Text textk = doc.createTextNode(XMLStringUtil.escapeControlChrs(stat.getKey()));
+				elk.appendChild(textk);
+				el.appendChild(elk);
+
+				Element elv = doc.createElement("value");
+				Text textv = doc.createTextNode(XMLStringUtil.escapeControlChrs(stat.getValue().toString()));
+				elv.appendChild(textv);
+				el.appendChild(elv);
+				
+				parent.appendChild(el);
+			}
+		}
+
+		@Override
+		public JSON toJSON() {
+			JSONObject jo = new JSONObject();
+			JSONArray array = new JSONArray();
+			for (ApiResponse resp: this.getItems()) {
+				if (resp instanceof ApiResponseElement) {
+					array.add(((ApiResponseElement)resp).getValue());
+				} else {
+					array.add(resp.toJSON());
+				}
+			}
+			// Use the site name instead of 'statistics'
+			jo.put(this.site, array);
+			return jo;
+		}
+	}
 }

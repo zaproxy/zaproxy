@@ -54,6 +54,7 @@
 // ZAP: 2015/08/19 Issue 1789: Forced Browse/AJAX Spider messages not restored to Sites tab
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
 // ZAP: 2015/12/14 Issue 2119: Context's description not imported
+// ZAP: 2016/02/26 Issue 2273: Clear stats on session init
 
 package org.parosproxy.paros.model;
 
@@ -93,6 +94,7 @@ import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 
@@ -152,6 +154,8 @@ public class Session {
 		discardContexts();
 		// Always start with one context
 	    getNewContext(Constant.messages.getString("context.default.name"));
+	    
+	    Stats.clearAll();
 
 	}
 	
@@ -455,6 +459,7 @@ public class Session {
 		    View.getSingleton().getSiteTreePanel().expandRoot();
 		}
 	    this.refreshScope();
+	    Stats.clearAll();
 
 		System.gc();
 	}
