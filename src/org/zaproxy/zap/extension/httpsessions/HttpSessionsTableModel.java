@@ -17,14 +17,14 @@
  */
 package org.zaproxy.zap.extension.httpsessions;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
 import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.View;
 
 /**
  * The Class HttpSessionsTableModel that is used as a TableModel for the Http Sessions Panel.
@@ -43,7 +43,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
 	/** The http sessions. */
-	private List<HttpSession> sessions;
+	private ArrayList<HttpSession> sessions;
 
 	/** The site. */
 	private HttpSessionsSite site;
@@ -61,16 +61,7 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 		super();
 
 		this.site = site;
-		sessions = createEmptySessionsList();
-	}
-
-	/**
-	 * Creates a new empty sessions list.
-	 * 
-	 * @return the list
-	 */
-	private List<HttpSession> createEmptySessionsList() {
-		return Collections.synchronizedList(new ArrayList<HttpSession>(2));
+		sessions = new ArrayList<>(2);
 	}
 
 	@Override
@@ -118,12 +109,20 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 * Removes all the elements.
 	 */
 	public void removeAllElements() {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					removeAllElements();
+				}
+			});
+
+			return;
+		}
+
 		sessions.clear();
-		// When all the elements are removed a new list is created because the ArrayList doesn't
-		// shrink automatically. The method ArrayList.trimToSize() would have to be called, but as
-		// it is behind a synchronized list there is no direct access to it, so a
-		// new one is created.
-		sessions = createEmptySessionsList();
+		sessions.trimToSize();
 		fireTableDataChanged();
 	}
 
@@ -132,7 +131,19 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 * 
 	 * @param session the session
 	 */
-	public void addHttpSession(HttpSession session) {
+	public void addHttpSession(final HttpSession session) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					addHttpSession(session);
+				}
+			});
+
+			return;
+		}
+
 		if (sessions.contains(session))
 			return;
 		sessions.add(session);
@@ -201,7 +212,19 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 * 
 	 * @param session the session
 	 */
-	public void removeHttpSession(HttpSession session) {
+	public void removeHttpSession(final HttpSession session) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					removeHttpSession(session);
+				}
+			});
+
+			return;
+		}
+
 		int index = sessions.indexOf(session);
 		sessions.remove(index);
 		fireTableRowsDeleted(index, index);
@@ -212,7 +235,19 @@ public class HttpSessionsTableModel extends AbstractTableModel {
 	 * 
 	 * @param session the session
 	 */
-	public void fireHttpSessionUpdated(HttpSession session) {
+	public void fireHttpSessionUpdated(final HttpSession session) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					fireHttpSessionUpdated(session);
+				}
+			});
+
+			return;
+		}
+
 		int index = sessions.indexOf(session);
 		fireTableRowsUpdated(index, index);
 	}

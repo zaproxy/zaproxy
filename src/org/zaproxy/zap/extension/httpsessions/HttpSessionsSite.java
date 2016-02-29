@@ -19,6 +19,8 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -478,8 +480,11 @@ public class HttpSessionsSite {
 	 *         all the tokens
 	 */
 	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, final HttpSessionTokensSet siteTokens) {
-
-		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessions, cookies, siteTokens);
+		Collection<HttpSession> sessionsCopy;
+		synchronized (sessions) {
+			sessionsCopy = new ArrayList<>(sessions);
+		}
+		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessionsCopy, cookies, siteTokens);
 	}
 
 	@Override
