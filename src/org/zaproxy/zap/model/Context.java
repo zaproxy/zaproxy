@@ -212,12 +212,47 @@ public class Context {
 	 * every node in the Site Tree.
 	 * 
 	 * @return the nodes in scope from site tree
+	 * @see #hasNodesInContextFromSiteTree()
 	 */
 	public List<SiteNode> getNodesInContextFromSiteTree() {
 		List<SiteNode> nodes = new LinkedList<>();
 		SiteNode rootNode = (SiteNode) session.getSiteTree().getRoot();
 		fillNodesInContext(rootNode, nodes);
 		return nodes;
+	}
+
+	/**
+	 * Tells whether or not there's at least one node from the sites tree in context.
+	 * 
+	 * @return {@code true} if the context has at least one node from the sites tree in context, {@code false} otherwise
+	 * @since TODO add version
+	 * @see #getNodesInContextFromSiteTree()
+	 */
+	public boolean hasNodesInContextFromSiteTree() {
+		return hasNodesInContext((SiteNode) session.getSiteTree().getRoot());
+	}
+
+	/**
+	 * Tells whether or not there's at least one node from the sites tree in context.
+	 * <p>
+	 * The whole tree is traversed until is found one node in context.
+	 * 
+	 * @param node the node to check, recursively
+	 * @return {@code true} if the context has at least one node from the sites tree in context, {@code false} otherwise
+	 */
+	private boolean hasNodesInContext(SiteNode node) {
+		@SuppressWarnings("unchecked")
+		Enumeration<SiteNode> en = node.children();
+		while (en.hasMoreElements()) {
+			SiteNode sn = en.nextElement();
+			if (isInContext(sn)) {
+				return true;
+			}
+			if (hasNodesInContext(sn)) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
