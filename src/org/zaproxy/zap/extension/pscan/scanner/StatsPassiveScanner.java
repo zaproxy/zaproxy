@@ -34,6 +34,7 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
 	
 	public static final String CODE_STATS_PREFIX = "stats.code.";
 	public static final String CONTENT_TYPE_STATS_PREFIX = "stats.contentType.";
+	public static final String RESPONSE_TIME_STATS_PREFIX = "stats.responseTime.";
 
 	public StatsPassiveScanner() {
 	}
@@ -62,6 +63,9 @@ public class StatsPassiveScanner extends PluginPassiveScanner {
 			if (contentType != null) {
 				Stats.incCounter(site, CONTENT_TYPE_STATS_PREFIX + contentType);
 			}
+			// Multiply by 2 so we inc the 'next highest' stat
+			Stats.incCounter(site, RESPONSE_TIME_STATS_PREFIX + 
+					(Integer.highestOneBit(msg.getTimeElapsedMillis()) * 2));
 		} catch (URIException e) {
 			// Ignore
 		}
