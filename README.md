@@ -5,6 +5,8 @@ It is designed to be used by people with a wide range of security experience and
 
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
 
+####ZAP is taking part in the Google Summer of Code! If you'd like to participate then see the [GSoC 2016 wiki page](https://github.com/zaproxy/zaproxy/wiki/GSoC2016)
+
 ####Please help us to make ZAP even better for you by answering the [ZAP User Questionnaire](https://docs.google.com/forms/d/1-k-vcj_sSxlil6XLxCFade-m-IQVeE2h9gduA-2ZPPA/viewform)!
 
 For general information about ZAP:
