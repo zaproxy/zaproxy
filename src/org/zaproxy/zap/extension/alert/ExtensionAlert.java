@@ -134,7 +134,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     public void alertFound(Alert alert, HistoryReference ref) {
         try {
-            logger.debug("alertFound " + alert.getAlert() + " " + alert.getUri());
+            logger.debug("alertFound " + alert.getName() + " " + alert.getUri());
             if (ref == null) {
                 ref = alert.getHistoryRef();
             }
@@ -294,7 +294,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             scanId = recordScan.getScanId();
         }
         RecordAlert recordAlert = tableAlert.write(
-                scanId, alert.getPluginId(), alert.getAlert(), alert.getRisk(), alert.getConfidence(),
+                scanId, alert.getPluginId(), alert.getName(), alert.getRisk(), alert.getConfidence(),
                 alert.getDescription(), alert.getUri(), alert.getParam(), alert.getAttack(),
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(),
@@ -305,7 +305,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
-        logger.debug("updateAlert " + alert.getAlert() + " " + alert.getUri());
+        logger.debug("updateAlert " + alert.getName() + " " + alert.getUri());
         updateAlertInDB(alert);
         if (alert.getHistoryRef() != null) {
             this.siteNodeChanged(alert.getHistoryRef().getSiteNode());
@@ -315,14 +315,14 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private void updateAlertInDB(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
 
         TableAlert tableAlert = getModel().getDb().getTableAlert();
-        tableAlert.update(alert.getAlertId(), alert.getAlert(), alert.getRisk(),
+        tableAlert.update(alert.getAlertId(), alert.getName(), alert.getRisk(),
                 alert.getConfidence(), alert.getDescription(), alert.getUri(),
                 alert.getParam(), alert.getAttack(), alert.getOtherInfo(), alert.getSolution(), alert.getReference(), 
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(), alert.getSourceHistoryId());
     }
 
     public void displayAlert(Alert alert) {
-        logger.debug("displayAlert " + alert.getAlert() + " " + alert.getUri());
+        logger.debug("displayAlert " + alert.getName() + " " + alert.getUri());
         this.alertPanel.getAlertViewPanel().displayAlert(alert);
     }
 
@@ -452,7 +452,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     public void deleteAlert(Alert alert) {
-        logger.debug("deleteAlert " + alert.getAlert() + " " + alert.getUri());
+        logger.debug("deleteAlert " + alert.getName() + " " + alert.getUri());
 
         try {
             getModel().getDb().getTableAlert().deleteAlert(alert.getAlertId());

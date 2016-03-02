@@ -1011,7 +1011,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		Map<String, String> map = new HashMap<>();
 		map.put("id", String.valueOf(alert.getAlertId()));
 		map.put("pluginId", String.valueOf(alert.getPluginId()));
-		map.put("alert", alert.getAlert());
+		map.put("alert", alert.getName()); //Deprecated in TODO add version, maintain for compatibility with custom code
+		map.put("name", alert.getName());
 		map.put("description", alert.getDescription());
 		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
 		map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
