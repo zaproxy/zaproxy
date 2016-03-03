@@ -706,7 +706,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
     
     private String alertFingerprint(Alert alert) {
-    	return alert.getPluginId() + "/" + alert.getRisk() + "/" + alert.getConfidence();
+    	return alert.getPluginId() + "/" + alert.getName() + "/" + alert.getRisk() + "/" + alert.getConfidence();
     }
 
     @Override
