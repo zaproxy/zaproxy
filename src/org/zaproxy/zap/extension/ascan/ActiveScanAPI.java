@@ -781,7 +781,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				map.put("id", Integer.toString(scan.getScanId()));
 				map.put("progress", Integer.toString(scan.getProgress()));
 				map.put("state", ((ActiveScan)scan).getState().name());
-				resultList.addItem(new ApiResponseSet("scan", map));
+				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
 			break;
@@ -904,7 +904,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				map.put("attackStrength", attackStrength == null ? "" : String.valueOf(attackStrength));
 				map.put("alertThreshold", alertThreshold == null ? "" : String.valueOf(alertThreshold));
 				map.put("enabled", String.valueOf(isPolicyEnabled(policy, categoryId)));
-				resultList.addItem(new ApiResponseSet("policy", map));
+				resultList.addItem(new ApiResponseSet<String>("policy", map));
 			}
 
 			result = resultList;
@@ -934,7 +934,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				Map<String, String> typeData = new HashMap<>();
 				typeData.put("id", Integer.toString(type.getKey()));
 				typeData.put("name", type.getValue());
-				resultList.addItem(new ApiResponseSet("type", typeData));
+				resultList.addItem(new ApiResponseSet<String>("type", typeData));
 			}
 			result = resultList;
 			break;
@@ -997,7 +997,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static class ExcludedParamApiResponse extends ApiResponse {
 
 		private final Map<String, String> excludedParamData;
-		private final ApiResponseSet type;
+		private final ApiResponseSet<String> type;
 		private final Map<String, String> typeData;
 
 		public ExcludedParamApiResponse(ScannerParamFilter param, int idx) {
@@ -1011,7 +1011,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			typeData = new HashMap<>();
 			typeData.put("id", Integer.toString(param.getType()));
 			typeData.put("name", param.getTypeString());
-			type = new ApiResponseSet("type", typeData);
+			type = new ApiResponseSet<String>("type", typeData);
 		}
 
 		@Override
