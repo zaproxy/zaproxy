@@ -63,7 +63,7 @@ public class GenericAuthenticationCredentials implements AuthenticationCredentia
 	public ApiResponse getApiResponseRepresentation() {
 		Map<String, String> values = new HashMap<>(paramValues);
 		values.put("type", API_NAME);
-		return new ApiResponseSet("credentials", values);
+		return new ApiResponseSet<String>("credentials", values);
 	}
 
 	/**

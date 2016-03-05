@@ -47,11 +47,11 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
 		return configParams;
 	}
 
-	private static ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
+	private static ApiResponseSet<String> buildParamMap(String paramName, boolean mandatory) {
 		Map<String, String> m = new HashMap<>();
 		m.put("name", paramName);
 		m.put("mandatory", mandatory ? "true" : "false");
-		return new ApiResponseSet("param", m);
+		return new ApiResponseSet<String>("param", m);
 	}
 
 }

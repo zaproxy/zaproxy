@@ -341,7 +341,7 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("postParameterParserClass", c.getPostParamParser().getClass().getCanonicalName());
 		fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 		
-		return new ApiResponseSet("context", fields);
+		return new ApiResponseSet<String>("context", fields);
 	}
 	
 	/**

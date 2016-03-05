@@ -311,7 +311,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 		return sessionResult;
 	}
 
-	private static class TokenValuesResponseSet extends ApiResponseSet {
+	private static class TokenValuesResponseSet extends ApiResponseSet<Cookie> {
 
 		private final List<List<Pair<String, String>>> xmlTokenElements;
 

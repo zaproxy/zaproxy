@@ -98,7 +98,7 @@ public class StatsAPI extends ApiImplementor {
 			for (Entry<String, Long> stat : memStats.getStats(this.getParam(params, PARAM_KEY_PREFIX, "")).entrySet()) {
 				map.put(stat.getKey(), stat.getValue().toString());
 			}
-			result = new ApiResponseSet(name, map);
+			result = new ApiResponseSet<String>(name, map);
 
 		} else if (VIEW_ALL_SITES_STATS.equals(name)) {
 			result = new ApiResponseList(name);
@@ -145,7 +145,7 @@ public class StatsAPI extends ApiImplementor {
 			for (Entry<String, Long> stat : this.stats.entrySet()) {
 				map.put(stat.getKey(), stat.getValue().toString());
 			}
-			this.addItem(new ApiResponseSet(site, map));
+			this.addItem(new ApiResponseSet<String>(site, map));
 		}
 		
 		@Override

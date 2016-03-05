@@ -600,7 +600,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				map.put("id", Integer.toString(scan.getScanId()));
 				map.put("progress", Integer.toString(scan.getProgress()));
 				map.put("state", ((ActiveScan)scan).getState().name());
-				resultList.addItem(new ApiResponseSet("scan", map));
+				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
 			break;
@@ -703,7 +703,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				map.put("attackStrength", attackStrength == null ? "" : String.valueOf(attackStrength));
 				map.put("alertThreshold", alertThreshold == null ? "" : String.valueOf(alertThreshold));
 				map.put("enabled", String.valueOf(isPolicyEnabled(policy, categoryId)));
-				resultList.addItem(new ApiResponseSet("policy", map));
+				resultList.addItem(new ApiResponseSet<String>("policy", map));
 			}
 
 			result = resultList;

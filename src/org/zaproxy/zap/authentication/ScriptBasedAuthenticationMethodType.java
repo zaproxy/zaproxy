@@ -268,7 +268,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 			values.put("methodName", API_METHOD_NAME);
 			values.put("scriptName", script.getName());
 			values.putAll(paramValues);
-			return new ApiResponseSet("method", values);
+			return new ApiResponseSet<String>("method", values);
 		}
 
 	}
