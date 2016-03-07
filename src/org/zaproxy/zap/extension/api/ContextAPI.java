@@ -260,7 +260,7 @@ public class ContextAPI extends ApiImplementor {
             result = new ApiResponseElement(name, contextNames.toString());
             break;
         case VIEW_CONTEXT:
-        	result = buildResponseFromContext(getContext(params));
+        	result = new ApiResponseElement(buildResponseFromContext(getContext(params)));
         	break;
         case VIEW_ALL_TECHS:
         	resultList = new ApiResponseList(name);
@@ -341,7 +341,7 @@ public class ContextAPI extends ApiImplementor {
 		fields.put("postParameterParserClass", c.getPostParamParser().getClass().getCanonicalName());
 		fields.put("postParameterParserConfig", c.getPostParamParser().getConfig());
 		
-		return new ApiResponseSet(c.getName(), fields);
+		return new ApiResponseSet("context", fields);
 	}
 	
 	/**
