@@ -1,7 +1,5 @@
 # [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/zap32x32.png) OWASP ZAP](https://www.owasp.org/index.php/ZAP)
-The OWASP Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing tool for finding vulnerabilities in web applications.
-
-It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing as well as being a useful addition to an experienced pen testers toolbox.
+The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools and is actively maintained by hundreds of international volunteers[*](#justification). It can help you automatically find security vulnerabilities in your web applications while you are developing and testing your applications. Its also a great tool for experienced pentesters to use for manual security testing.
 
 [![](https://raw.githubusercontent.com/wiki/zaproxy/zaproxy/images/ZAP-Download.png)](https://github.com/zaproxy/zaproxy/wiki/Downloads)
 
@@ -33,3 +31,15 @@ To learn more about ZAP development:
   * [Crowdin (User Guide)](https://crowdin.com/project/owasp-zap-help) - help translate the ZAP User Guide
   * [OpenHub](https://www.openhub.net/p/zaproxy)	- FOSS analytics
   * [BountySource](https://www.bountysource.com/teams/zap/issues)	- Vote on ZAP issues (you can also donate money here, but 10% taken out)
+
+#### Justification
+Popularity:
+  * ToolsWatch Annual Best Free/Open Source Security Tool Survey: 
+   * 2015 [1st](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
+   * 2014 [2nd](http://www.toolswatch.org/2015/01/2014-top-security-tools-as-voted-by-toolswatch-org-readers/)
+   * 2013 [1st] (http://www.toolswatch.org/2013/12/2013-top-security-tools-as-voted-by-toolswatch-org-readers/)
+
+Contributors:
+  * [Code Contributors](https://www.openhub.net/p/zaproxy)
+  * [ZAP core i18n Contributors](https://crowdin.com/project/owasp-zap)
+  * [ZAP help i18n Contributors](https://crowdin.com/project/owasp-zap-help)
