@@ -33,6 +33,8 @@ To learn more about ZAP development:
   * [BountySource](https://www.bountysource.com/teams/zap/issues)	- Vote on ZAP issues (you can also donate money here, but 10% taken out)
 
 #### Justification
+Justification for the statements made in the tagline at the top;)
+
 Popularity:
   * ToolsWatch Annual Best Free/Open Source Security Tool Survey: 
    * 2015 [1st](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
