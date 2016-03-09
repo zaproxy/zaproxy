@@ -30,6 +30,7 @@
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
+// ZAP: 2016/03/08 Issue 646: Outgoing proxy password as JPasswordField (pips) instead of ZapTextField
 
 package org.parosproxy.paros.extension.option;
 
@@ -50,6 +51,7 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.SortOrder;
 
@@ -82,7 +84,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapPortNumberSpinner spinnerProxyChainPort = null;
 	private ZapTextField txtProxyChainRealm = null;
 	private ZapTextField txtProxyChainUserName = null;
-	private ZapTextField txtProxyChainPassword = null;
+	private JPasswordField txtProxyChainPassword = null;
 	private JCheckBox chkProxyChainAuth = null;
 	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
@@ -493,7 +495,6 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
         if (!connectionParam.isProxyChainPrompt()) {
 	        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
-	        txtProxyChainPassword.discardAllEdits();
         }
 
         securityProtocolsPanel.setSecurityProtocolsEnabled(connectionParam.getSecurityProtocolsEnabled());
@@ -614,7 +615,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    	}
 	    	
 	    } else {
-		    connectionParam.setProxyChainPassword(txtProxyChainPassword.getText());
+		    connectionParam.setProxyChainPassword(new String(txtProxyChainPassword.getPassword()));
 	    }
 	    connectionParam.setTimeoutInSecs(timeout);
 	    connectionParam.setSingleCookieRequestHeader(checkBoxSingleCookieRequestHeader.isSelected());
@@ -654,9 +655,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 * 	
 	 * @return org.zaproxy.zap.utils.ZapTextField	
 	 */    
-	private ZapTextField getTxtProxyChainPassword() {
+	private JPasswordField getTxtProxyChainPassword() {
 		if (txtProxyChainPassword == null) {
-			txtProxyChainPassword = new ZapTextField();
+			txtProxyChainPassword = new JPasswordField();
 		}
 		return txtProxyChainPassword;
 	}
