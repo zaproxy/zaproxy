@@ -245,7 +245,7 @@ public class ConnectionParam extends AbstractParam {
                 if (excludedDomain.contains("*")) {
                     excludedDomain = excludedDomain.replace(".", "\\.").replace("*", ".*?");
                     try {
-                        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+                        Pattern pattern = Pattern.compile(excludedDomain, Pattern.CASE_INSENSITIVE);
                         excludedDomains.add(new ProxyExcludedDomainMatcher(pattern));
                     } catch (IllegalArgumentException e) {
                         log.error("Failed to migrate the excluded domain name: " + name, e);
