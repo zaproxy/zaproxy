@@ -166,6 +166,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void siteNodeChanged(final TreeNode node) {
+        if (getView() == null) {
+            return;
+        }
+
         if (EventQueue.isDispatchThread()) {
         	siteNodeChangedEventHandler(this.getModel().getSession().getSiteTree(), node);
         } else {
