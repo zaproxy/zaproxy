@@ -159,13 +159,14 @@ public class JCheckBoxTree extends JTree {
             if (cn == null) {
                 return this;
             }
+            String textRepresentation = obj != null ? obj.toString() : "";
             if (cn.isCheckBoxEnabled) {
 	            checkBox.setSelected(cn.isSelected);
 	            checkBox.setOpaque(cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected);
 	        	checkBox.setVisible(true);
 	        	checkBox.setEnabled(true);
 	        	// TODO nasty hack to prevent top level node text being truncated - need a better fix for this :/
-	        	altLabel.setText(obj.toString()+"          ");
+	        	textRepresentation += "          ";
 	        	/* Looks ok, but doesnt work correctly
 	            if (cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected) {
 	                checkBox.getModel().setPressed(true);
@@ -178,8 +179,8 @@ public class JCheckBoxTree extends JTree {
             } else {
             	checkBox.setVisible(false);
             	checkBox.setEnabled(false);
-            	altLabel.setText(obj.toString());
             }
+            altLabel.setText(textRepresentation);
 
             return this;
         }       
