@@ -173,7 +173,7 @@ public class API {
 		if (this.getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
 			// Insecure request with secure only set, always ignore
 			logger.debug("handleApiRequest rejecting insecure request");
-			return false;
+			return true;
 		}
 			
 		logger.debug("handleApiRequest " + url);
