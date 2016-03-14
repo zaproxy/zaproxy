@@ -33,12 +33,14 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -93,6 +95,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
 	private static final String ACTION_ADD_SCAN_POLICY = "addScanPolicy";
 	private static final String ACTION_REMOVE_SCAN_POLICY = "removeScanPolicy";
+	private static final String ACTION_UPDATE_SCAN_POLICY = "updateScanPolicy";
 
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_SCANS = "scans";
@@ -128,7 +131,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	public ActiveScanAPI (ExtensionActiveScan controller) {
 		this.controller = controller;
         this.addApiAction(new ApiAction(ACTION_SCAN,
-        		new String[] {PARAM_URL}, 
+        		new String[] {PARAM_URL},
         		new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA}));
 		this.addApiAction(new ApiAction(
 				ACTION_SCAN_AS_USER,
@@ -157,8 +160,11 @@ public class ActiveScanAPI extends ApiImplementor {
 				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD,
 				new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }, new String[] {PARAM_SCAN_POLICY_NAME}));
-		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
+				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_UPDATE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
+				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] { PARAM_SCAN_ID }));
@@ -323,7 +329,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			case ACTION_SET_POLICY_ATTACK_STRENGTH:
 				policyId = getPolicyIdFromParamId(params);
 				policy = getScanPolicyFromParams(params);
-				Plugin.AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
+				AttackStrength attackStrength = getAttackStrengthFromParamAttack(params);
 
 				for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 					if (scanner.getCategory() == policyId) {
@@ -366,6 +372,8 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				policy = controller.getPolicyManager().getTemplatePolicy();
 				policy.setName(newPolicyName);
+				setAlertThreshold(policy, params);
+				setAttackStrength(policy, params);
 				controller.getPolicyManager().savePolicy(policy);
 				break;
 			case ACTION_REMOVE_SCAN_POLICY:
@@ -377,6 +385,15 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				controller.getPolicyManager().deletePolicy(policy.getName());
 				break;
+			case ACTION_UPDATE_SCAN_POLICY:
+				policy = getScanPolicyFromParams(params);
+				if (!isParamsChanged(policy, params)) {
+					break;
+				}
+				updateAlertThreshold(policy, params);
+				updateAttackStrength(policy, params);
+				controller.getPolicyManager().savePolicy(policy);
+				break;
 			default:
 				throw new ApiException(ApiException.Type.BAD_ACTION);
 			}
@@ -384,6 +401,58 @@ public class ActiveScanAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private void setAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+		}
+	}
+
+	private void setAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+		}
+	}
+
+	private boolean isParamsChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		return isAlertThresholdChanged(policy, params) || isAttackStrengthChanged(policy, params);
+	}
+
+	private boolean isAlertThresholdChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (!isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+			return false;
+		}
+
+		AlertThreshold updatedAlertThreshold = getAlertThresholdFromParamAlertThreshold(params);
+		AlertThreshold currentThreshold = policy.getDefaultThreshold();
+		return !currentThreshold.equals(updatedAlertThreshold);
+	}
+
+	private boolean isAttackStrengthChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (!isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+			return false;
+		}
+
+		AttackStrength updatedAttackStrength = getAttackStrengthFromParamAttack(params);
+		AttackStrength currentAttackStrength = policy.getDefaultStrength();
+		return !currentAttackStrength.equals(updatedAttackStrength);
+	}
+
+	private void updateAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isAlertThresholdChanged(policy, params)) {
+			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+		}
+	}
+
+	private void updateAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isAttackStrengthChanged(policy, params)) {
+			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+		}
+	}
+
+	private boolean isParamExists(JSONObject params, String key) {
+		return params.has(key) && StringUtils.isNotBlank(params.getString(key));
 	}
 
 	private static URI getTargetUrl(String url) throws ApiException {
@@ -497,10 +566,10 @@ public class ActiveScanAPI extends ApiImplementor {
 		return id;
 	}
 
-	private Plugin.AttackStrength getAttackStrengthFromParamAttack(JSONObject params) throws ApiException {
+	private AttackStrength getAttackStrengthFromParamAttack(JSONObject params) throws ApiException {
 		final String paramAttackStrength = params.getString(PARAM_ATTACK_STRENGTH).trim().toUpperCase();
 		try {
-			return Plugin.AttackStrength.valueOf(paramAttackStrength);
+			return AttackStrength.valueOf(paramAttackStrength);
 		} catch (IllegalArgumentException e) {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_ATTACK_STRENGTH);
 		}
@@ -530,7 +599,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private int scanURL(URI url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
 		// Try to find node
 		StructuralNode node;
-		
+
 		try {
 			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), url, method, postData);
 			if (node == null) {
@@ -619,7 +688,7 @@ public class ActiveScanAPI extends ApiImplementor {
 						pList.addItem(new ApiResponseElement("status", "Complete"));
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
 						pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
-						pList.addItem(new ApiResponseElement("reqCount", 
+						pList.addItem(new ApiResponseElement("reqCount",
 								Integer.toString(hp.getPluginRequestCount(plugin.getId()))));
 						hpList.addItem(pList);
 			        }
@@ -637,7 +706,7 @@ public class ActiveScanAPI extends ApiImplementor {
 						pList.addItem(new ApiResponseElement("status", pc + "%"));
 						long timeTaken = new Date().getTime() - plugin.getTimeStarted().getTime();
 						pList.addItem(new ApiResponseElement("timeInMs", Long.toString(timeTaken)));
-						pList.addItem(new ApiResponseElement("reqCount", 
+						pList.addItem(new ApiResponseElement("reqCount",
 								Integer.toString(hp.getPluginRequestCount(plugin.getId()))));
 						hpList.addItem(pList);
 			        }
@@ -713,7 +782,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			resultList = new ApiResponseList(name);
 			for (String pluginName : policies) {
 				categoryId = Category.getCategory(pluginName);
-				Plugin.AttackStrength attackStrength = getPolicyAttackStrength(policy, categoryId);
+				AttackStrength attackStrength = getPolicyAttackStrength(policy, categoryId);
 				Plugin.AlertThreshold alertThreshold = getPolicyAlertThreshold(policy, categoryId);
 				Map<String, String> map = new HashMap<>();
 				map.put("id", String.valueOf(categoryId));
@@ -751,8 +820,8 @@ public class ActiveScanAPI extends ApiImplementor {
 		return true;
 	}
 
-	private Plugin.AttackStrength getPolicyAttackStrength(ScanPolicy policy, int categoryd) {
-		Plugin.AttackStrength attackStrength = null;
+	private AttackStrength getPolicyAttackStrength(ScanPolicy policy, int categoryd) {
+		AttackStrength attackStrength = null;
 		for (Plugin scanner : policy.getPluginFactory().getAllPlugin()) {
 			if (scanner.getCategory() == categoryd) {
 				if (attackStrength == null) {
