@@ -107,6 +107,7 @@ This list the alerts
 10103   Image Location Scanner - passive scanner finding
 10104   TestUserAgent
 10105   Weak Authentication Method
+10106   Http Only Site
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
