@@ -175,7 +175,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
 		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
-		this.addApiAction(new ApiAction(ACTION_CLEAR_STATS, new String[] {PARAM_KEY_PREFIX}));
+		this.addApiAction(new ApiAction(ACTION_CLEAR_STATS, null, new String[] {PARAM_KEY_PREFIX}));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
