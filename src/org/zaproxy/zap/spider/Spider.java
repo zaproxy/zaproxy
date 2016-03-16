@@ -18,6 +18,7 @@
 package org.zaproxy.zap.spider;
 
 import java.net.CookieManager;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -423,6 +424,8 @@ public class Spider {
 
 		log.info("Starting spider...");
 
+		fetchFilterSeeds();
+
 		// Check if seeds are available, otherwise the Spider will start, but will not have any
 		// seeds and will not stop.
 		if (seedList == null || seedList.isEmpty()) {
@@ -458,6 +461,34 @@ public class Spider {
 		}
 		// Mark the process as completely initialized
 		initialized = true;
+	}
+
+	/**
+	 * Filters the seed list using the current fetch filters, preventing any non-valid seed from being accessed.
+	 * 
+	 * @see #seedList
+	 * @see FetchFilter
+	 * @see SpiderController#getFetchFilters()
+	 * @since TODO add version
+	 */
+	private void fetchFilterSeeds() {
+		if (seedList == null || seedList.isEmpty()) {
+			return;
+		}
+
+		for (Iterator<URI> it = seedList.iterator(); it.hasNext();) {
+			URI seed = it.next();
+			for (FetchFilter filter : controller.getFetchFilters()) {
+				FetchStatus filterReason = filter.checkFilter(seed);
+				if (filterReason != FetchStatus.VALID) {
+					if (log.isDebugEnabled()) {
+						log.debug("Seed: " + seed + " was filtered with reason: " + filterReason);
+					}
+					it.remove();
+					break;
+				}
+			}
+		}
 	}
 
 	/**
