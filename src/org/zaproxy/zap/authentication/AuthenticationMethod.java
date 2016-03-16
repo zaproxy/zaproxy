@@ -21,14 +21,17 @@ package org.zaproxy.zap.authentication;
 
 import java.util.regex.Pattern;
 
+import org.apache.commons.httpclient.URIException;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.api.ApiResponse;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.session.SessionManagementMethod;
 import org.zaproxy.zap.session.WebSession;
 import org.zaproxy.zap.users.User;
+import org.zaproxy.zap.utils.Stats;
 
 /**
  * The AuthenticationMethod represents an authentication method that can be used to authenticate an
@@ -40,6 +43,11 @@ public abstract class AuthenticationMethod {
 	public static final String CONTEXT_CONFIG_AUTH_TYPE = CONTEXT_CONFIG_AUTH + ".type";
 	public static final String CONTEXT_CONFIG_AUTH_LOGGEDIN = CONTEXT_CONFIG_AUTH + ".loggedin";
 	public static final String CONTEXT_CONFIG_AUTH_LOGGEDOUT = CONTEXT_CONFIG_AUTH + ".loggedout";
+
+	public static final String AUTH_STATE_LOGGED_IN_STATS = "stats.auth.state.loggedin";
+	public static final String AUTH_STATE_LOGGED_OUT_STATS = "stats.auth.state.loggedout";
+	public static final String AUTH_STATE_NO_INDICATOR_STATS = "stats.auth.state.noindicator";
+	public static final String AUTH_STATE_UNKNOWN_STATS = "stats.auth.state.unknown";
 
 	/**
 	 * Checks if the authentication method is fully configured.
@@ -165,6 +173,11 @@ public abstract class AuthenticationMethod {
 		}
 		// Assume logged in if nothing was set up
 		if (loggedInIndicatorPattern == null && loggedOutIndicatorPattern == null) {
+			try {
+				Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_NO_INDICATOR_STATS);
+			} catch (URIException e) {
+				// Ignore
+			}
 			if (View.isInitialised()) {
 				// Let the user know this
 				View.getSingleton()
@@ -183,13 +196,29 @@ public abstract class AuthenticationMethod {
 				&& (loggedInIndicatorPattern.matcher(body).find() || loggedInIndicatorPattern.matcher(header)
 						.find())) {
 			// Looks like we're authenticated
+			try {
+				Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_LOGGED_IN_STATS);
+			} catch (URIException e) {
+				// Ignore
+			}
 			return true;
 		}
 
 		if (loggedOutIndicatorPattern != null && !loggedOutIndicatorPattern.matcher(body).find()
 				&& !loggedOutIndicatorPattern.matcher(header).find()) {
-			// Cant find the unauthenticated indicator, assume we're authenticated
+			// Cant find the unauthenticated indicator, assume we're authenticated but record as unknown
+			try {
+				Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_UNKNOWN_STATS);
+			} catch (URIException e) {
+				// Ignore
+			}
 			return true;
+		}
+		// Not looking good...
+		try {
+			Stats.incCounter(SessionStructure.getHostName(msg), AUTH_STATE_LOGGED_OUT_STATS);
+		} catch (URIException e) {
+			// Ignore
 		}
 		return false;
 	}

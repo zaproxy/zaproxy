@@ -247,8 +247,13 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 				return null;
 			}
 
-			// Let the user know it worked
-			AuthenticationHelper.notifyOutputAuthSuccessful();
+			if (this.isAuthenticated(msg)) {
+				// Let the user know it worked
+				AuthenticationHelper.notifyOutputAuthSuccessful(msg);
+			} else {
+				// Let the user know it failed
+				AuthenticationHelper.notifyOutputAuthFailure(msg);
+			}
 
 			// Add message to history
 			AuthenticationHelper.addAuthMessageToHistory(msg);
