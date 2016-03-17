@@ -57,6 +57,7 @@ import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -454,6 +455,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @return a {@code String} containing the display name, never {@code null}
 	 */
 	private String createDisplayName(Target target, Object[] customConfigurations) {
+		HttpPrefixFetchFilter subtreeFecthFilter = getUriPrefixFecthFilter(customConfigurations);
+		if (subtreeFecthFilter != null) {
+			return abbreviateDisplayName(subtreeFecthFilter.getNormalisedPrefix());
+		}
+
 		if (target.getContext() != null) {
 			return Constant.messages.getString("context.prefixName", target.getContext().getName());
 		} else if (target.isInScopeOnly()) {
@@ -469,6 +475,23 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 			return Constant.messages.getString("target.empty");
 		}
 		return abbreviateDisplayName(target.getStartNode().getHierarchicNodeName(false));
+	}
+
+	/**
+	 * Gets the {@code HttpPrefixFetchFilter} from the given {@code customConfigurations}.
+	 *
+	 * @param customConfigurations the custom configurations of the spider
+	 * @return the {@code HttpPrefixFetchFilter} found, {@code null} otherwise.
+	 */
+	private HttpPrefixFetchFilter getUriPrefixFecthFilter(Object[] customConfigurations) {
+		if (customConfigurations != null) {
+			for (Object customConfiguration : customConfigurations) {
+				if (customConfiguration instanceof HttpPrefixFetchFilter) {
+					return (HttpPrefixFetchFilter) customConfiguration;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

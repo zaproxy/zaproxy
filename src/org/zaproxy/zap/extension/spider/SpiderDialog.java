@@ -38,10 +38,12 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
 import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
+import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
@@ -51,6 +53,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_CONTEXT = "spider.custom.label.context";
     private static final String FIELD_USER = "spider.custom.label.user";
     private static final String FIELD_RECURSE = "spider.custom.label.recurse";
+    private static final String FIELD_SUBTREE_ONLY = "spider.custom.label.spiderSubtreeOnly"; 
     private static final String FIELD_ADVANCED = "spider.custom.label.adv"; 
     private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
     private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
@@ -72,6 +75,15 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     private ExtensionSpider extension = null;
 	private SpiderParam spiderParam = null;
+
+	/**
+	 * Flag that holds the previous checked state of the "Subtree Only" checkbox.
+	 * <p>
+	 * Used to restore the previous checked state between dialogue invocations.
+	 * 
+	 * @see #FIELD_SUBTREE_ONLY
+	 */
+	private boolean subtreeOnlyPreviousCheckedState;
     
     private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
 			.getExtension(ExtensionUserManagement.NAME);
@@ -103,6 +115,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
+        this.addCheckBoxField(0, FIELD_SUBTREE_ONLY, subtreeOnlyPreviousCheckedState);
         // This option is always read from the 'global' options
         this.addCheckBoxField(0, FIELD_ADVANCED, getSpiderParam().isShowAdvancedDialog());
         this.addPadding(0);
@@ -246,6 +259,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private void reset(boolean refreshUi) {
     	// Reset to the global options
 		spiderParam = null;
+		subtreeOnlyPreviousCheckedState = false;
     	
         if (refreshUi) {
             init(target);
@@ -319,6 +333,10 @@ public class SpiderDialog extends StandardFieldsDialog {
 
 		if (startUri != null) {
 			contextSpecificObjects.add(startUri);
+
+			if (getBoolValue(FIELD_SUBTREE_ONLY)) {
+				contextSpecificObjects.add(new HttpPrefixFetchFilter(startUri));
+			}
 		}
         
         if (target == null || ! this.getStringValue(FIELD_START).equals(getTargetText(target))) {
@@ -334,6 +352,8 @@ public class SpiderDialog extends StandardFieldsDialog {
         if (target.getContext() == null && getSelectedContext() != null) {
             target.setContext(getSelectedContext());
         }
+
+        subtreeOnlyPreviousCheckedState = getBoolValue(FIELD_SUBTREE_ONLY);
 
         this.extension.startScan(
                 target,
@@ -351,6 +371,8 @@ public class SpiderDialog extends StandardFieldsDialog {
     	if (this.isEmptyField(FIELD_START)) {
             return Constant.messages.getString("spider.custom.nostart.error");
     	}
+
+    	boolean noStartUri = true;
 		if (!getStringValue(FIELD_START).equals(getTargetText(target))) {
 			String url = this.getStringValue(FIELD_START);
 			try {
@@ -366,6 +388,7 @@ public class SpiderDialog extends StandardFieldsDialog {
                     return Constant.messages.getString("spider.custom.targetNotInScope.error", url);
                 }
             }
+            noStartUri = false;
 		}
 
     	if (this.target != null) {
@@ -379,6 +402,20 @@ public class SpiderDialog extends StandardFieldsDialog {
                     return Constant.messages.getString("spider.custom.targetNotInScope.error", uri);
                 }
             }
+
+            List<StructuralNode> nodes = target.getStartNodes();
+            if (nodes != null) {
+                for (StructuralNode node : nodes) {
+                    if (node instanceof StructuralSiteNode) {
+                        noStartUri = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (getBoolValue(FIELD_SUBTREE_ONLY) && noStartUri) {
+            return Constant.messages.getString("spider.custom.noStartSubtreeOnly.error");
         }
         
         return null;

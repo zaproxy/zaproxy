@@ -49,6 +49,7 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
 import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
+import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
@@ -97,6 +98,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String PARAM_RECURSE = "recurse";
 	private static final String PARAM_SCAN_ID = "scanId";
 	private static final String PARAM_MAX_CHILDREN = "maxChildren";
+	private static final String PARAM_SUBTREE_ONLY = "subtreeOnly";
 
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
@@ -115,10 +117,10 @@ public class SpiderAPI extends ApiImplementor {
 		this.extension = extension;
 		// Register the actions
 		this.addApiAction(new ApiAction(ACTION_START_SCAN, null,
-				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME }));
+				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME, PARAM_SUBTREE_ONLY }));
 		this.addApiAction(new ApiAction(ACTION_START_SCAN_AS_USER, 
 				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID },
-				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE }));
+				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_SUBTREE_ONLY }));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, null, new String[] { PARAM_SCAN_ID }));
@@ -171,7 +173,8 @@ public class SpiderAPI extends ApiImplementor {
 					context = ApiUtils.getContextByName(contextName);
 				}
 			}
-			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
+			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true), context,
+					getParam(params, PARAM_SUBTREE_ONLY, false));
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
 		case ACTION_START_SCAN_AS_USER:
@@ -198,7 +201,8 @@ public class SpiderAPI extends ApiImplementor {
 					}
 				}
 			}
-			scanId = scanURL(urlUserScan, user, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
+			scanId = scanURL(urlUserScan, user, maxChildren, this.getParam(params, PARAM_RECURSE, true), context,
+					getParam(params, PARAM_SUBTREE_ONLY, false));
 
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
@@ -305,12 +309,13 @@ public class SpiderAPI extends ApiImplementor {
 	 * @param maxChildren Max number of children to scan
 	 * @param recurse Whether or not to scan recursively
 	 * @param context the context that will be used during spider process, might be {@code null}
+	 * @param subtreeOnly if the scan should be done only under a site's subtree
 	 * @return the ID of the newly started scan
 	 * @throws ApiException if the {@code url} is not valid
 	 * @see #scanIdCounter
 	 * @see #spiderScans
 	 */
-	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context) throws ApiException {
+	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context, boolean subtreeOnly) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
 
 		boolean useUrl = true;
@@ -370,9 +375,12 @@ public class SpiderAPI extends ApiImplementor {
 			break;
 		}
 		
-		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
+		List<Object> objs = new ArrayList<>(4);
 		if (startURI != null) {
 			objs.add(startURI);
+			if (subtreeOnly) {
+				objs.add(new HttpPrefixFetchFilter(startURI));
+			}
 		}
 
 		if (maxChildren > 0) {
