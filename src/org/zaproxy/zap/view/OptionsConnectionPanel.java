@@ -23,6 +23,7 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 
+import javax.swing.JCheckBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
@@ -42,6 +43,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtProxyChainRealm = null;
 	private ZapTextField txtProxyChainUserName = null;
 	private JPasswordField txtProxyChainPassword = null;
+	private JCheckBox chkShowPassword = null;
 	private ProxyDialog proxyDialog = null;
 	private boolean prompting = false;
 	
@@ -67,6 +69,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelProxyAuth() {
 		if (panelProxyAuth == null) {
+			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
+
 			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 
 			java.awt.GridBagConstraints gridBagConstraints62 = new GridBagConstraints();
@@ -147,12 +151,20 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gridBagConstraints72.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints72.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints72.ipadx = 50;
+			gridBagConstraints82.gridx = 1;
+			gridBagConstraints82.gridy = 4;
+			gridBagConstraints82.weightx = 0.5D;
+			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints82.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints82.ipadx = 50;
 			panelProxyAuth.add(jLabel9, gridBagConstraints21);
 			panelProxyAuth.add(getTxtProxyChainRealm(), gridBagConstraints31);
 			panelProxyAuth.add(jLabel10, gridBagConstraints42);
 			panelProxyAuth.add(getTxtProxyChainUserName(), gridBagConstraints52);
 			panelProxyAuth.add(jLabel11, gridBagConstraints62);
 			panelProxyAuth.add(getTxtProxyChainPassword(), gridBagConstraints72);
+			panelProxyAuth.add(getChkShowPassword(), gridBagConstraints82);
 		}
 		return panelProxyAuth;
 	}
@@ -211,6 +223,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		txtProxyChainRealm.discardAllEdits();
 		txtProxyChainUserName.setText(connectionParam.getProxyChainUserName());
 		txtProxyChainUserName.discardAllEdits();
+        chkShowPassword.setSelected(false);//Default don't show (everytime)
+    	txtProxyChainPassword.setEchoChar('*');//Default mask (everytime)
+    	this.proxyDialog.pack();
 	}
 
 	@Override
@@ -253,6 +268,31 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			});
 		}
 		return txtProxyChainPassword;
+	}
+	
+	/**
+	 * This method initializes chkShowPassword	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */    
+	private JCheckBox getChkShowPassword() {
+		if (chkShowPassword == null) {
+			chkShowPassword = new JCheckBox();
+			chkShowPassword.setText(Constant.messages.getString("conn.options.proxy.auth.showpass"));
+			chkShowPassword.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					if (chkShowPassword.isSelected()) {
+						txtProxyChainPassword.setEchoChar((char) 0);
+			        } else {
+			        	txtProxyChainPassword.setEchoChar('*');
+			        }
+				}
+			});
+
+		}
+		return chkShowPassword;
 	}
 	
 	public void passwordFocus() {
