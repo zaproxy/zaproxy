@@ -31,6 +31,7 @@
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2016/03/08 Issue 646: Outgoing proxy password as JPasswordField (pips) instead of ZapTextField
+// ZAP: 2016/03/18 Add checkbox to allow showing of the password
 
 package org.parosproxy.paros.extension.option;
 
@@ -85,6 +86,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private ZapTextField txtProxyChainRealm = null;
 	private ZapTextField txtProxyChainUserName = null;
 	private JPasswordField txtProxyChainPassword = null;
+	private JCheckBox chkShowPassword = null;
 	private JCheckBox chkProxyChainAuth = null;
 	// ZAP: Added prompt option and timeout in secs
 	private JCheckBox chkProxyChainPrompt = null;
@@ -104,6 +106,31 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
  		initialize();
    }
 
+	/**
+	 * This method initializes chkShowPassword	
+	 * 	
+	 * @return javax.swing.JCheckBox	
+	 */    
+	private JCheckBox getChkShowPassword() {
+		if (chkShowPassword == null) {
+			chkShowPassword = new JCheckBox();
+			chkShowPassword.setText(Constant.messages.getString("conn.options.proxy.auth.showpass"));
+			chkShowPassword.addActionListener(new java.awt.event.ActionListener() { 
+
+				@Override
+				public void actionPerformed(java.awt.event.ActionEvent e) {    
+					if (chkShowPassword.isSelected()) {
+						txtProxyChainPassword.setEchoChar((char) 0);
+			        } else {
+			        	txtProxyChainPassword.setEchoChar('*');
+			        }
+				}
+			});
+
+		}
+		return chkShowPassword;
+	}
+    
 	/**
 	 * This method initializes chkUseProxyChain	
 	 * 	
@@ -227,6 +254,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	 */    
 	private JPanel getPanelProxyAuth() {
 		if (panelProxyAuth == null) {
+			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
+
 			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
 
 			java.awt.GridBagConstraints gridBagConstraints62 = new GridBagConstraints();
@@ -312,6 +341,13 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			gridBagConstraints72.insets = new java.awt.Insets(2,2,2,2);
 			gridBagConstraints72.anchor = java.awt.GridBagConstraints.WEST;
 			gridBagConstraints72.ipadx = 50;
+			gridBagConstraints82.gridx = 1;
+			gridBagConstraints82.gridy = 5;
+			gridBagConstraints82.weightx = 0.5D;
+			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
+			gridBagConstraints82.anchor = java.awt.GridBagConstraints.WEST;
+			gridBagConstraints82.ipadx = 50;
 			panelProxyAuth.add(getChkProxyChainAuth(), gridBagConstraints16);
 			panelProxyAuth.add(getChkProxyChainPrompt(), gridBagConstraints17);
 			panelProxyAuth.add(jLabel9, gridBagConstraints21);
@@ -320,6 +356,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelProxyAuth.add(getTxtProxyChainUserName(), gridBagConstraints52);
 			panelProxyAuth.add(jLabel11, gridBagConstraints62);
 			panelProxyAuth.add(getTxtProxyChainPassword(), gridBagConstraints72);
+			panelProxyAuth.add(getChkShowPassword(), gridBagConstraints82);
 		}
 		return panelProxyAuth;
 	}
@@ -490,6 +527,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         txtProxyChainUserName.discardAllEdits();
         
         chkProxyChainPrompt.setSelected(connectionParam.isProxyChainPrompt());
+        chkShowPassword.setSelected(false);//Default don't show (everytime)
+        txtProxyChainPassword.setEchoChar('*');//Default mask (everytime)
 
         setProxyChainEnabled(connectionParam.isUseProxyChain());
 
@@ -525,6 +564,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	    txtProxyChainPassword.setEnabled(isEnabled);
 	    // ZAP: Added prompt option
         chkProxyChainPrompt.setEnabled(isEnabled);
+        chkShowPassword.setEnabled(isEnabled);
 	    
         if (chkProxyChainPrompt.isSelected()) {
             setProxyChainPromptEnabled(true);
@@ -544,6 +584,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	private void setProxyChainPromptEnabled(boolean isEnabled) {
 
 	    txtProxyChainPassword.setEnabled(!isEnabled);
+	    chkShowPassword.setEnabled(!isEnabled);
 	    
 	    Color color = Color.WHITE;
 	    if (isEnabled) {
