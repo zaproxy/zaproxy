@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Cursor;
 import java.awt.Desktop;
@@ -32,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.PatternSyntaxException;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -44,7 +46,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.RowSorter;
 import javax.swing.SortOrder;
+import javax.swing.UIManager;
+import javax.swing.JTextField;
+import javax.swing.RowFilter;
 import javax.swing.border.TitledBorder;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.event.TableModelEvent;
@@ -90,7 +97,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JPanel browsePanel = null;
 	private JPanel corePanel = null;
 	private JPanel installedAddOnsPanel = null;
+	private JPanel installedAddOnsFilterPanel = null;
 	private JPanel uninstalledAddOnsPanel = null;
+	private JPanel uninstalledAddOnsFilterPanel = null;
 	private JPanel retrievePanel = null;
 	private JScrollPane marketPlaceScrollPane = null;
 
@@ -262,7 +271,10 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			scrollPane.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 			scrollPane.setViewportView(getInstalledAddOnsTable());
 
+			installedAddOnsFilterPanel = createFilterPanel(getInstalledAddOnsTable());
+
 			int row = 0;
+			installedAddOnsPanel.add(installedAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 5, 0.0D));
 			installedAddOnsPanel.add(scrollPane, LayoutHelper.getGBC(0, row++, 5, 1.0D, 1.0D));
 			installedAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			installedAddOnsPanel.add(getUninstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
@@ -286,15 +298,20 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 							FontUtils.getFont(FontUtils.Size.standard),
 							java.awt.Color.black));
 
+			uninstalledAddOnsFilterPanel = createFilterPanel(getUninstalledAddOnsTable());
+
 			if (latestInfo == null) {
 				// Not checked yet
 				getUninstalledAddOnsTable();	// To initialise the table and model
 				getMarketPlaceScrollPane().setViewportView(getRetrievePanel());
+				uninstalledAddOnsFilterPanel.setVisible(false);
 			} else {
 				getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
+				uninstalledAddOnsFilterPanel.setVisible(true);
 			}
 
 			int row = 0;
+			uninstalledAddOnsPanel.add(uninstalledAddOnsFilterPanel, LayoutHelper.getGBC(0, row++, 4, 0.0D));
 			uninstalledAddOnsPanel.add(getMarketPlaceScrollPane(), LayoutHelper.getGBC(0, row++, 4, 1.0D, 1.0D));
 			uninstalledAddOnsPanel.add(new JLabel(""), LayoutHelper.getGBC(0, row, 1, 1.0D));
 			uninstalledAddOnsPanel.add(getInstallButton(), LayoutHelper.getGBC(1, row, 1, 0.0D));
@@ -305,6 +322,56 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 		return uninstalledAddOnsPanel;
 	}
 	
+	private static JPanel createFilterPanel(final JXTable table) {
+		JPanel filterPanel = new JPanel();
+		filterPanel.setLayout(new GridBagLayout());
+
+		JLabel filterLabel = new JLabel(Constant.messages.getString("cfu.label.addons.filter"));
+		final JTextField filterTextField = new JTextField();
+
+		filterLabel.setLabelFor(filterTextField);
+		filterPanel.add(filterLabel, LayoutHelper.getGBC(0, 0, 1, 0.0D));
+		filterPanel.add(filterTextField, LayoutHelper.getGBC(1, 0, 1, 1.0D));
+
+		String tooltipText = Constant.messages.getString("cfu.label.addons.filter.tooltip");
+		filterLabel.setToolTipText(tooltipText);
+		filterTextField.setToolTipText(tooltipText);
+
+		// Set filter listener
+		filterTextField.getDocument().addDocumentListener(new DocumentListener() {
+			@Override
+			public void insertUpdate(DocumentEvent e) {
+				updateFilter();
+			}
+
+			@Override
+			public void removeUpdate(DocumentEvent e) {
+				updateFilter();
+			}
+
+			@Override
+			public void changedUpdate(DocumentEvent e) {
+				updateFilter();
+			}
+
+			public void updateFilter() {
+				String filterText = filterTextField.getText();
+				if (filterText.isEmpty()) {
+					table.setRowFilter(null);
+					filterTextField.setForeground(UIManager.getColor("TextField.foreground"));
+				} else {
+					try {
+						table.setRowFilter(RowFilter.regexFilter("(?i)" + filterText));
+						filterTextField.setForeground(UIManager.getColor("TextField.foreground"));
+					} catch (PatternSyntaxException e) {
+						filterTextField.setForeground(Color.RED);
+					}
+				}
+			}
+		});
+		return filterPanel;
+	}
+
 	private JScrollPane getMarketPlaceScrollPane () {
 		if (marketPlaceScrollPane == null) {
 			marketPlaceScrollPane = new JScrollPane();
@@ -352,6 +419,7 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			uninstalledAddOnsModel.setAddOns(addOnsNotInstalled, prevInfo);
 		}
 		getMarketPlaceScrollPane().setViewportView(getUninstalledAddOnsTable());
+		uninstalledAddOnsFilterPanel.setVisible(true);
 
 	}
 	
