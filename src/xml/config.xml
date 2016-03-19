@@ -188,6 +188,16 @@
 				<resBodyRegex>&lt;!--</resBodyRegex>
 				<enabled>true</enabled>
 			</scanner>
+			<scanner>
+				<name>response_json</name>
+				<type>TAG</type>
+				<config>JSON</config>
+				<reqUrlRegex/>
+				<reqHeadRegex/>
+				<resHeadRegex>type\s*:\s*application\/json</resHeadRegex>
+				<resBodyRegex/>
+				<enabled>true</enabled>
+			</scanner>
 		</autoTagScanners>
 	</pscans>
 	
