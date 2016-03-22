@@ -324,7 +324,7 @@ public class SpiderAPI extends ApiImplementor {
 				throw new ApiException(Type.MISSING_PARAMETER, PARAM_URL);
 			}
 			useUrl = false;
-		} else if (context != null && !context.isIncluded(url)) {
+		} else if (context != null && !context.isInContext(url)) {
 			throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_URL);
 		}
 
