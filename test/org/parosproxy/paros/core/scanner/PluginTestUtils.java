@@ -100,11 +100,6 @@ public class PluginTestUtils {
         }
 
         @Override
-        public String[] getDependency() {
-            return null;
-        }
-
-        @Override
         public String getDescription() {
             return null;
         }
@@ -122,10 +117,6 @@ public class PluginTestUtils {
         @Override
         public String getReference() {
             return null;
-        }
-
-        @Override
-        public void init() {
         }
 
         @Override
