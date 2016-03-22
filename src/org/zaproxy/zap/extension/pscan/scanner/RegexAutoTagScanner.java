@@ -311,7 +311,7 @@ public class RegexAutoTagScanner extends PluginPassiveScanner {
     }
     
 	private void matched(HttpMessage msg, int id) {
-		if (tagHistoryType(msg.getHistoryRef().getHistoryId())) {
+		if (tagHistoryType(msg.getHistoryRef().getHistoryType())) {
 			parent.addTag(id, this.getConf());
 		}
 		
