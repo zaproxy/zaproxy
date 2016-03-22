@@ -21,6 +21,7 @@ package org.parosproxy.paros.core.scanner;
 
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.emptyArray;
 import static org.junit.Assert.assertThat;
 
 import org.apache.commons.configuration.Configuration;
@@ -60,6 +61,14 @@ public class AbstractPluginUnitTest extends PluginTestUtils {
         AbstractPlugin plugin = createAbstractPlugin();
         // Then
         assertThat(plugin.getCodeName(), is(equalTo("PluginTestUtils$TestPlugin")));
+    }
+
+    @Test
+    public void shouldNotHaveDependenciesByDefault() {
+        // Given / When
+        AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.getDependency(), is(emptyArray()));
     }
 
     @Test
