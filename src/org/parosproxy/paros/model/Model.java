@@ -36,6 +36,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 321: Support multiple databases
 // ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
+// ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 
 package org.parosproxy.paros.model;
 
@@ -76,6 +77,8 @@ public class Model {
 	private Logger logger = Logger.getLogger(Model.class);
 	private List<SessionListener> sessionListeners = new ArrayList<>();
 	private List<ContextDataFactory> contextDataFactories = new ArrayList<>();
+
+	private boolean postInitialisation;
 
 	public Model() {
 		// make sure the variable here will not refer back to model itself.
@@ -440,6 +443,12 @@ public class Model {
 
 	public void addContextDataFactory(ContextDataFactory cdf) {
 		this.contextDataFactories.add(cdf);
+
+		if (postInitialisation) {
+			for (Context context : getSession().getContexts()) {
+				cdf.loadContextData(getSession(), context);
+			}
+		}
 	}
 
 	public void loadContext(Context ctx) {
@@ -475,6 +484,17 @@ public class Model {
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.exportContextData(ctx, config);
 		}
+	}
+
+	/**
+	 * Notifies the model that the initialisation has been done.
+	 * <p>
+	 * <strong>Note:</strong> Should be called only by "core" code after the initialisation.
+	 * 
+	 * @since TODO add version
+	 */
+	public void postInit() {
+		postInitialisation = true;
 	}
 
 }
