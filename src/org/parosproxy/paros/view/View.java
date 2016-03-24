@@ -63,6 +63,7 @@
 // ZAP: 2015/08/11 Fix the removal of context panels
 // ZAP: 2015/09/07 Start GUI on EDT
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
+// ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 
 package org.parosproxy.paros.view;
 
@@ -168,6 +169,8 @@ public class View implements ViewDelegate {
     // ZAP: splash screen
     private SplashScreen splashScreen = null;
 
+    private boolean postInitialisation;
+
     /**
      * @return Returns the mainFrame.
      */
@@ -271,6 +274,7 @@ public class View implements ViewDelegate {
         });
         mainFrame.getMainMenuBar().getMenuView().add(unpinAllMenu);
 
+        postInitialisation = true;
     }
 
     /**
@@ -675,51 +679,78 @@ public class View implements ViewDelegate {
     }
 
     public void addContext(Context c) {
+        String contextsNodeName = Constant.messages.getString("context.list");
         ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
         contextGenPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list")}, contextGenPanel, false);
+        getSessionDialog().addParamPanel(new String[]{ contextsNodeName }, contextGenPanel, false);
         this.contextPanels.add(contextGenPanel);
 
+        String[] contextPanelPath = new String[] { contextsNodeName, contextGenPanel.getName() };
         ContextIncludePanel contextIncPanel = new ContextIncludePanel(c);
         contextIncPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextIncPanel, false);
+        getSessionDialog().addParamPanel(contextPanelPath, contextIncPanel, false);
         this.contextPanels.add(contextIncPanel);
 
         ContextExcludePanel contextExcPanel = new ContextExcludePanel(c);
         contextExcPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextExcPanel, false);
+        getSessionDialog().addParamPanel(contextPanelPath, contextExcPanel, false);
         this.contextPanels.add(contextExcPanel);
 
         ContextStructurePanel contextStructPanel = new ContextStructurePanel(c);
         contextStructPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextStructPanel, false);
+        getSessionDialog().addParamPanel(contextPanelPath, contextStructPanel, false);
         this.contextPanels.add(contextStructPanel);
 
         ContextTechnologyPanel contextTechPanel = new ContextTechnologyPanel(c);
         contextTechPanel.setSessionDialog(getSessionDialog());
-        getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, contextTechPanel, false);
+        getSessionDialog().addParamPanel(contextPanelPath, contextTechPanel, false);
         this.contextPanels.add(contextTechPanel);
 
         for (ContextPanelFactory cpf : this.contextPanelFactories) {
-            AbstractContextPropertiesPanel panel = cpf.getContextPanel(c);
-            panel.setSessionDialog(getSessionDialog());
-            getSessionDialog().addParamPanel(new String[]{Constant.messages.getString("context.list"), contextGenPanel.getName()}, panel, false);
-            this.contextPanels.add(panel);
+            addPanelForContext(c, cpf, contextPanelPath);
         }
         this.getSiteTreePanel().reloadContextTree();
     }
 
+    /**
+     * Adds a custom context panel for the given context, created form the given context panel factory and placed under the
+     * given path.
+     *
+     * @param contextPanelFactory context panel factory used to create the panel, must not be {@code null}
+     * @param panelPath the path where to add the created panel, must not be {@code null}
+     * @param context the target context, must not be {@code null}
+     */
+    private void addPanelForContext(Context context, ContextPanelFactory contextPanelFactory, String[] panelPath) {
+        AbstractContextPropertiesPanel panel = contextPanelFactory.getContextPanel(context);
+        panel.setSessionDialog(getSessionDialog());
+        getSessionDialog().addParamPanel(panelPath, panel, false);
+        this.contextPanels.add(panel);
+    }
+
     public void renameContext(Context c) {
+        ContextGeneralPanel ctxPanel = getContextGeneralPanel(c);
+        if (ctxPanel != null) {
+            getSessionDialog().renamePanel(ctxPanel, c.getIndex() + ":" + c.getName());
+        }
+        this.getSiteTreePanel().reloadContextTree();
+    }
+
+    /**
+     * Gets the context general panel of the given {@code context}.
+     *
+     * @param context the context whose context general panel will be returned
+     * @return the {@code ContextGeneralPanel} of the given context, {@code null} if not found
+     */
+    private ContextGeneralPanel getContextGeneralPanel(Context context) {
         for (AbstractParamPanel panel : contextPanels) {
             if (panel instanceof ContextGeneralPanel) {
-                ContextGeneralPanel ctxPanel = (ContextGeneralPanel) panel;
-                if (ctxPanel.getContextIndex() == c.getIndex()) {
-                    getSessionDialog().renamePanel(ctxPanel, c.getIndex() + ":" + c.getName());
-                    break;
+                ContextGeneralPanel contextGeneralPanel = (ContextGeneralPanel) panel;
+                if (contextGeneralPanel.getContextIndex() == context.getIndex()) {
+                    return contextGeneralPanel;
                 }
             }
         }
-        this.getSiteTreePanel().reloadContextTree();
+        return null;
     }
 
     public void changeContext(Context c) {
@@ -729,6 +760,16 @@ public class View implements ViewDelegate {
     @Override
     public void addContextPanelFactory(ContextPanelFactory cpf) {
         this.contextPanelFactories.add(cpf);
+
+        if (postInitialisation) {
+            String contextsNodeName = Constant.messages.getString("context.list");
+            for (Context context : Model.getSingleton().getSession().getContexts()) {
+                ContextGeneralPanel contextGeneralPanel = getContextGeneralPanel(context);
+                if (contextGeneralPanel != null) {
+                    addPanelForContext(context, cpf, new String[] { contextsNodeName, contextGeneralPanel.getName() });
+                }
+            }
+        }
     }
 
     public void deleteContext(Context c) {
