@@ -46,6 +46,7 @@
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
 // ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/03/24 Do not access EDT in daemon mode
 
 package org.parosproxy.paros.model;
 
@@ -61,6 +62,7 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.SessionStructure;
 
 public class SiteNode extends DefaultMutableTreeNode {
@@ -291,7 +293,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     }    
     
     private void nodeChanged() {
-    	if (this.siteMap == null) {
+    	if (this.siteMap == null || !View.isInitialised()) {
     		return;
     	}
         if (EventQueue.isDispatchThread()) {
