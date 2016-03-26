@@ -64,6 +64,7 @@
 // ZAP: 2015/09/07 Start GUI on EDT
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 // ZAP: 2016/03/16 Add StatusUI handling
+// ZAP: 2016/03/22 Allow to remove ContextPanelFactory
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 
 package org.parosproxy.paros.view;
@@ -166,6 +167,13 @@ public class View implements ViewDelegate {
 
     private List<AbstractContextPropertiesPanel> contextPanels = new ArrayList<>();
     private List<ContextPanelFactory> contextPanelFactories = new ArrayList<>();
+    /**
+     * A map containing the {@link AbstractContextPropertiesPanel context panels} created by a {@link ContextPanelFactory
+     * context panel factory}, being the latter the key and the former the value (a {@code List} with the panels).
+     * <p>
+     * The map is used to remove the panels created when the factory is removed.
+     */
+    private Map<ContextPanelFactory, List<AbstractContextPropertiesPanel>> contextPanelFactoriesPanels = new HashMap<>();
 
     private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
 
@@ -753,6 +761,13 @@ public class View implements ViewDelegate {
         panel.setSessionDialog(getSessionDialog());
         getSessionDialog().addParamPanel(panelPath, panel, false);
         this.contextPanels.add(panel);
+
+        List<AbstractContextPropertiesPanel> panels = contextPanelFactoriesPanels.get(contextPanelFactory);
+        if (panels == null) {
+            panels = new ArrayList<>();
+            contextPanelFactoriesPanels.put(contextPanelFactory, panels);
+        }
+        panels.add(panel);
     }
 
     public void renameContext(Context c) {
@@ -786,30 +801,58 @@ public class View implements ViewDelegate {
     }
 
     @Override
-    public void addContextPanelFactory(ContextPanelFactory cpf) {
-        this.contextPanelFactories.add(cpf);
+    public void addContextPanelFactory(ContextPanelFactory contextPanelFactory) {
+        if (contextPanelFactory == null) {
+            throw new IllegalArgumentException("Parameter contextPanelFactory must not be null.");
+        }
+        this.contextPanelFactories.add(contextPanelFactory);
 
         if (postInitialisation) {
             String contextsNodeName = Constant.messages.getString("context.list");
             for (Context context : Model.getSingleton().getSession().getContexts()) {
                 ContextGeneralPanel contextGeneralPanel = getContextGeneralPanel(context);
                 if (contextGeneralPanel != null) {
-                    addPanelForContext(context, cpf, new String[] { contextsNodeName, contextGeneralPanel.getName() });
+                    addPanelForContext(context, contextPanelFactory, new String[] { contextsNodeName, contextGeneralPanel.getName() });
                 }
             }
         }
     }
 
+    @Override
+    public void removeContextPanelFactory(ContextPanelFactory contextPanelFactory) {
+        if (contextPanelFactory == null) {
+            throw new IllegalArgumentException("Parameter contextPanelFactory must not be null.");
+        }
+
+        if (contextPanelFactories.remove(contextPanelFactory)) {
+            contextPanelFactory.discardContexts();
+
+            List<AbstractContextPropertiesPanel> panels = contextPanelFactoriesPanels.remove(contextPanelFactory);
+            if (panels != null) {
+                for (AbstractContextPropertiesPanel panel : panels) {
+                    getSessionDialog().removeParamPanel(panel);
+                }
+                contextPanels.removeAll(panels);
+            }
+        }
+    }
+
     public void deleteContext(Context c) {
+        List<AbstractContextPropertiesPanel> removedPanels = new ArrayList<>();
         for (Iterator<AbstractContextPropertiesPanel> it = contextPanels.iterator(); it.hasNext();) {
             AbstractContextPropertiesPanel panel = it.next();
         	if (panel.getContextIndex() == c.getIndex()) {
                 getSessionDialog().removeParamPanel(panel);
                 it.remove();
+                removedPanels.add(panel);
         	}
         }
         for (ContextPanelFactory cpf : this.contextPanelFactories) {
             cpf.discardContext(c);
+            List<AbstractContextPropertiesPanel> panels = contextPanelFactoriesPanels.get(cpf);
+            if (panels != null) {
+                panels.removeAll(removedPanels);
+            }
         }
         this.getSiteTreePanel().reloadContextTree();
     }
@@ -820,6 +863,7 @@ public class View implements ViewDelegate {
         }
         for (ContextPanelFactory cpf : this.contextPanelFactories) {
             cpf.discardContexts();
+            contextPanelFactoriesPanels.remove(cpf);
         }
         contextPanels.clear();
         this.getSiteTreePanel().reloadContextTree();
