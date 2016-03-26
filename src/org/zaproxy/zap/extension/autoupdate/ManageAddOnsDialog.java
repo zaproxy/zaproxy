@@ -28,6 +28,7 @@ import java.awt.HeadlessException;
 import java.io.File;
 import java.net.URL;
 import java.text.MessageFormat;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -41,6 +42,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
+import javax.swing.RowSorter;
+import javax.swing.SortOrder;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -355,7 +358,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JXTable getInstalledAddOnsTable () {
 		if (installedAddOnsTable == null) {
 			installedAddOnsTable = new JXTable();
-			installedAddOnsTable.setSortable(false);
 			installedAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
 				public void tableChanged(TableModelEvent e) {
@@ -366,17 +368,21 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				}});
 
 			installedAddOnsTable.setModel(installedAddOnsModel);
-			installedAddOnsTable.getColumnModel().getColumn(0).setPreferredWidth(200);
-			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(400);
-			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(60);
-			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(40);
-			
-			installedAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);
-			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(200);
-			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(400);
-			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);
+			installedAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);//icon
+			installedAddOnsTable.getColumnExt(0).setSortable(false);//icon doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(200);//name
+			installedAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(400);//description
+			installedAddOnsTable.getColumnExt(2).setSortable(false);//description doesn't need to be sortable
+			installedAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(60);//update
+			installedAddOnsTable.getColumnExt(3).setSortable(false);//update doesn't need to be sortable
 			installedAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(40);
-
+			installedAddOnsTable.getColumnExt(4).setSortable(false);//checkbox doesn't need to be sortable
+          
+            //Default sort by name (column 1)
+            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(1);
+            sortKeys.add(new RowSorter.SortKey(1, SortOrder.ASCENDING));
+            installedAddOnsTable.getRowSorter().setSortKeys(sortKeys);
+			
 			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
 					AddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
 			for (int i = 1; i < installedAddOnsTable.getColumnCount(); i++) {
@@ -404,7 +410,6 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 	private JXTable getUninstalledAddOnsTable () {
 		if (uninstalledAddOnsTable == null) {
 			uninstalledAddOnsTable = new JXTable();
-			uninstalledAddOnsTable.setSortable(false);
 
 			uninstalledAddOnsModel.addTableModelListener(new TableModelListener() {
 				@Override
@@ -417,7 +422,8 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				public void valueChanged(ListSelectionEvent e) {
 					getAddOnInfoButton().setEnabled(false);
 					if (DesktopUtils.canOpenUrlInBrowser() && getUninstalledAddOnsTable ().getSelectedRowCount() == 1) {
-						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable ().getSelectedRow());
+						//convertRowIndexToModel in-case they sorted
+						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable().convertRowIndexToModel(getUninstalledAddOnsTable().getSelectedRow()));
 						if (ao != null && ao.getAddOn().getInfo() != null) {
 							getAddOnInfoButton().setEnabled(true);
 						}
@@ -425,13 +431,24 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 				}});
 			
 			uninstalledAddOnsTable.setModel(uninstalledAddOnsModel);
-			uninstalledAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);
-			uninstalledAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(50);
-			uninstalledAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(150);
-			uninstalledAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(300);
-			uninstalledAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(60);
-			uninstalledAddOnsTable.getColumnModel().getColumn(5).setPreferredWidth(40);
 
+			uninstalledAddOnsTable.getColumnModel().getColumn(0).setMaxWidth(20);//Icon
+			uninstalledAddOnsTable.getColumnExt(0).setSortable(false); //Icon doesn't need sorting
+			uninstalledAddOnsTable.getColumnModel().getColumn(1).setPreferredWidth(50);//Status
+			uninstalledAddOnsTable.getColumnModel().getColumn(2).setPreferredWidth(150);//Name
+			uninstalledAddOnsTable.getColumnModel().getColumn(3).setPreferredWidth(300);//Description
+			uninstalledAddOnsTable.getColumnExt(3).setSortable(false);//Description doesn't need sorting
+			uninstalledAddOnsTable.getColumnModel().getColumn(4).setPreferredWidth(60);//Update (version number)
+			uninstalledAddOnsTable.getColumnExt(4).setSortable(false);//Update doesn't need sorting
+			uninstalledAddOnsTable.getColumnModel().getColumn(5).setPreferredWidth(40);//Checkbox
+			uninstalledAddOnsTable.getColumnExt(5).setSortable(false);//Checkbox doesn't need sorting
+         
+            //Default sort by status (column 1) descending (Release, Beta, Alpha), and name (column 2) ascending 
+            List<RowSorter.SortKey> sortKeys = new ArrayList<RowSorter.SortKey>(2);
+            sortKeys.add(new RowSorter.SortKey(1, SortOrder.DESCENDING));
+            sortKeys.add(new RowSorter.SortKey(2, SortOrder.ASCENDING));
+            uninstalledAddOnsTable.getRowSorter().setSortKeys(sortKeys);
+                        
 			DefaultAddOnToolTipHighlighter toolTipHighlighter = new DefaultAddOnToolTipHighlighter(
 					UninstalledAddOnsTableModel.COLUMN_ADD_ON_WRAPPER);
 			for (int i = 1; i < uninstalledAddOnsTable.getColumnCount(); i++) {
@@ -912,8 +929,9 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
 			addOnInfoButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (getUninstalledAddOnsTable ().getSelectedRow() >= 0) {
-						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable ().getSelectedRow());
+					if (getUninstalledAddOnsTable().getSelectedRow() >= 0) {
+						//convertRowIndexToModel in-case they sorted
+						AddOnWrapper ao = uninstalledAddOnsModel.getAddOnWrapper(getUninstalledAddOnsTable().convertRowIndexToModel(getUninstalledAddOnsTable().getSelectedRow()));
 						if (ao != null && ao.getAddOn().getInfo() != null) {
 							DesktopUtils.openUrlInBrowser(ao.getAddOn().getInfo().toString());
 						}
