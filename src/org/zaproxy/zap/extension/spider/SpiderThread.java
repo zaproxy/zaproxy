@@ -33,6 +33,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
@@ -394,16 +395,31 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			final HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(),
 					HistoryReference.TYPE_SPIDER, msg);
 
-			EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-        			SessionStructure.addPath(Model.getSingleton().getSession(), historyRef, msg);
-                }
-            });
-			
+			addMessageToSitesTree(historyRef, msg);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Adds the given message to the sites tree.
+	 *
+	 * @param historyReference the history reference of the message, must not be {@code null}
+	 * @param message the actual message, must not be {@code null}
+	 */
+	private static void addMessageToSitesTree(final HistoryReference historyReference, final HttpMessage message) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					addMessageToSitesTree(historyReference, message);
+				}
+			});
+			return;
+		}
+
+		SessionStructure.addPath(Model.getSingleton().getSession(), historyReference, message);
 	}
 
 	@Override
