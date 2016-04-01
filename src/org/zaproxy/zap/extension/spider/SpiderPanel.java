@@ -28,6 +28,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -35,9 +36,14 @@ import javax.swing.JPopupMenu;
 import javax.swing.JScrollPane;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.renderer.DefaultTableRenderer;
+import org.jdesktop.swingx.renderer.IconValues;
+import org.jdesktop.swingx.renderer.MappedValue;
+import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.ScanController;
@@ -45,6 +51,7 @@ import org.zaproxy.zap.model.ScanListenner2;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.view.ScanPanel2;
 import org.zaproxy.zap.view.ZapTable;
+import org.zaproxy.zap.view.table.decorator.AbstractTableCellItemIconHighlighter;
 
 /**
  * The Class SpiderPanel implements the Panel that is shown to the users when selecting the Spider Scan Tab.
@@ -139,11 +146,16 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 			resultsTable.setRowSelectionAllowed(true);
 			resultsTable.setAutoCreateRowSorter(true);
 
+			resultsTable.setAutoCreateColumnsFromModel(false);
+			resultsTable.getColumnExt(0).setCellRenderer(
+					new DefaultTableRenderer(new MappedValue(StringValues.EMPTY, IconValues.NONE), JLabel.CENTER));
+			resultsTable.getColumnExt(0).setHighlighters(new ProcessedCellItemIconHighlighter(0));
+
 			this.setScanResultsTableColumnSizes();
 
 			resultsTable.setName(PANEL_NAME);
 			resultsTable.setDoubleBuffered(true);
-			resultsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+			resultsTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 			resultsTable.setComponentPopupMenu(new JPopupMenu() {
 
 				private static final long serialVersionUID = 6608291059686282641L;
@@ -247,5 +259,40 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	@Override
 	protected int getNumberOfScansToShow() {
 		return extension.getSpiderParam().getMaxScansInUI();
+	}
+
+	/**
+	 * A {@link org.jdesktop.swingx.decorator.Highlighter Highlighter} for a column that indicates, using icons, whether or not
+	 * an entry was processed, that is, is or not in scope.
+	 * <p>
+	 * The expected type/class of the cell values is {@code Boolean}.
+	 */
+	private static class ProcessedCellItemIconHighlighter extends AbstractTableCellItemIconHighlighter {
+
+		/** The icon that indicates the entry was processed. */
+		private static final ImageIcon PROCESSED_ICON = new ImageIcon(
+				SpiderPanelTableModel.class.getResource("/resource/icon/16/152.png"));
+
+		/** The icon that indicates the entry was not processed. */
+		private static final ImageIcon NOT_PROCESSED_ICON = new ImageIcon(
+				SpiderPanelTableModel.class.getResource("/resource/icon/16/149.png"));
+
+		public ProcessedCellItemIconHighlighter(final int columnIndex) {
+			super(columnIndex);
+		}
+
+		@Override
+		protected Icon getIcon(final Object cellItem) {
+			return getProcessedIcon(((Boolean) cellItem).booleanValue());
+		}
+
+		private static Icon getProcessedIcon(final boolean processed) {
+			return processed ? PROCESSED_ICON : NOT_PROCESSED_ICON;
+		}
+
+		@Override
+		protected boolean isHighlighted(final Object cellItem) {
+			return true;
+		}
 	}
 }
