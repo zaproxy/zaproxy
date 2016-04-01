@@ -28,6 +28,8 @@ import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
@@ -62,14 +64,49 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private BreakPanelToolbarFactory breakToolbarFactory;
 	private BreakpointsParam breakpointsParams;
 	
-	private JToggleButton mainReqButton = null;
-	private JToggleButton mainResButton = null;
-	private JToggleButton mainAllButton = null;
-	private JToggleButton panelReqButton = null;
-	private JToggleButton panelResButton = null;
-	private JToggleButton panelAllButton = null;
+	private final JToggleButton toolBarReqButton;
+	private final JToggleButton toolBarResButton;
+	private final JToggleButton toolBarAllButton;
+	private final JButton toolBarBtnStep;
+	private final JButton toolBarBtnContinue;
+	private final JButton toolBarBtnDrop;
+	private final JButton toolBarBtnBreakPoint;
 	
 	private boolean isAlwaysOnTop = false;
+
+	/**
+	 * The break buttons shown in the main panel of the Break tab.
+	 */
+	private final BreakButtonsUI mainBreakButtons;
+
+	/**
+	 * The break buttons shown in the request panel of the Break tab.
+	 */
+	private final BreakButtonsUI requestBreakButtons;
+
+	/**
+	 * The break buttons shown in the response panel of the Break tab.
+	 */
+	private final BreakButtonsUI responseBreakButtons;
+
+	/**
+	 * Flag that tells whether or not the main tool bar is hidden.
+	 */
+	private final boolean mainToolBarHidden;
+
+	/**
+	 * The current location of the break buttons.
+	 * 
+	 * @see #setButtonsLocation(int)
+	 */
+	private int currentButtonsLocation;
+
+	/**
+	 * The current button mode.
+	 * 
+	 * @see #setButtonMode(int)
+	 */
+	private int currentButtonMode;
 
 	public BreakPanel(ExtensionBreak extension, BreakpointsParam breakpointsParams) {
 		super();
@@ -96,33 +133,86 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		panelContent.add(requestPanel, REQUEST_PANEL);
 		panelContent.add(responsePanel, RESPONSE_PANEL);
 
-		switch(Model.getSingleton().getOptionsParam().getViewParam().getBrkPanelViewOption()) {
+		toolBarReqButton = breakToolbarFactory.getBtnBreakRequest();
+		View.getSingleton().addMainToolbarButton(toolBarReqButton);
+
+		toolBarResButton = breakToolbarFactory.getBtnBreakResponse();
+		View.getSingleton().addMainToolbarButton(toolBarResButton);
+
+		toolBarAllButton = breakToolbarFactory.getBtnBreakAll();
+		View.getSingleton().addMainToolbarButton(toolBarAllButton);
+
+		toolBarBtnStep = breakToolbarFactory.getBtnStep();
+		View.getSingleton().addMainToolbarButton(toolBarBtnStep);
+
+		toolBarBtnContinue = breakToolbarFactory.getBtnContinue();
+		View.getSingleton().addMainToolbarButton(toolBarBtnContinue);
+
+		toolBarBtnDrop = breakToolbarFactory.getBtnDrop();
+		View.getSingleton().addMainToolbarButton(toolBarBtnDrop);
+
+		toolBarBtnBreakPoint = breakToolbarFactory.getBtnBreakPoint();
+		View.getSingleton().addMainToolbarButton(toolBarBtnBreakPoint);
+
+		mainBreakButtons = new BreakButtonsUI("mainBreakButtons", breakToolbarFactory);
+		this.add(mainBreakButtons.getComponent(), BorderLayout.NORTH);
+
+		requestBreakButtons = new BreakButtonsUI("requestBreakButtons", breakToolbarFactory);
+		requestPanel.addOptions(requestBreakButtons.getComponent(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+
+		responseBreakButtons = new BreakButtonsUI("responseBreakButtons", breakToolbarFactory);
+		responsePanel.addOptions(responseBreakButtons.getComponent(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
+
+		currentButtonsLocation = -1;
+
+		mainToolBarHidden = extension.getModel().getOptionsParam().getViewParam().getShowMainToolbar() == 0;
+	}
+
+	/**
+	 * Sets the location of the break buttons.
+	 * <p>
+	 * If the location is already set no change is done.
+	 * 
+	 * @param location the location to set
+	 */
+	void setButtonsLocation(int location) {
+		if (currentButtonsLocation == location) {
+			return;
+		}
+		currentButtonsLocation = location;
+
+		switch (location) {
 		case 0:
+			requestBreakButtons.setVisible(false);
+			responseBreakButtons.setVisible(false);
+			setToolbarButtonsVisible(true);
+
 			// If the user decided to disable the main toolbar, the break
 			// buttons have to be force to be displayed in the break panel
-			if(Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 0) {
-				this.add(getPanelCommand(), BorderLayout.NORTH);
-			} else {
-				getPanelMainToolbarCommand();
-			}
+			mainBreakButtons.setVisible(isMainToolBarHidden());
 			break;
 		case 1:
-			requestPanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-			responsePanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-
-			break;
 		case 2:
-			requestPanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-			responsePanel.addOptions(getPanelCommand(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
-			getPanelMainToolbarCommand();
+			requestBreakButtons.setVisible(true);
+			responseBreakButtons.setVisible(true);
+			setToolbarButtonsVisible(location == 2);
+
+			mainBreakButtons.setVisible(false);
 			break;
 		default:
-			getPanelMainToolbarCommand();
+			setToolbarButtonsVisible(true);
 		}
-		
-		this.setButtonMode(breakpointsParams.getButtonMode());
 	}
 	
+	/**
+	 * Tells whether or not the main tool bar is hidden.
+	 *
+	 * @return {@code true} if the main tool bar is hidden, {@code false} otherwise
+	 */
+	private boolean isMainToolBarHidden() {
+		return mainToolBarHidden;
+	}
+
 	public boolean isBreakRequest() {
 		return breakToolbarFactory.isBreakRequest();
 	}
@@ -180,76 +270,16 @@ public class BreakPanel extends AbstractPanel implements Tab {
 			});
 		}
 	}
-	
-	private JToolBar getPanelCommand() {
-		JToolBar panelCommand = new JToolBar();
-		panelCommand.setFloatable(false);
-		panelCommand.setBorder(BorderFactory.createEmptyBorder());
-		panelCommand.setRollover(true);
-		
-		panelCommand.setName("Command");
 
-		panelCommand.add(getPanelReqButton());
-		panelCommand.add(getPanelResButton());
-		panelCommand.add(getPanelAllButton());
-		panelCommand.add(breakToolbarFactory.getBtnStep());
-		panelCommand.add(breakToolbarFactory.getBtnContinue());
-		panelCommand.add(breakToolbarFactory.getBtnDrop());
-		panelCommand.add(breakToolbarFactory.getBtnBreakPoint());
-
-		return panelCommand;
-	}
-
-	private void getPanelMainToolbarCommand() {
-		View.getSingleton().addMainToolbarButton(getMainReqButton());
-		View.getSingleton().addMainToolbarButton(getMainResButton());
-		View.getSingleton().addMainToolbarButton(getMainAllButton());
-		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnStep());
-		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnContinue());
-		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnDrop());
-		View.getSingleton().addMainToolbarButton(breakToolbarFactory.getBtnBreakPoint());
-	}
-	
-	private JToggleButton getMainReqButton() {
-		if (mainReqButton == null) {
-			mainReqButton = breakToolbarFactory.getBtnBreakRequest();
-		}
-		return mainReqButton;
-	}
-
-	private JToggleButton getMainResButton() {
-		if (mainResButton == null) {
-			mainResButton = breakToolbarFactory.getBtnBreakResponse();
-		}
-		return mainResButton;
-	}
-
-	private JToggleButton getMainAllButton() {
-		if (mainAllButton == null) {
-			mainAllButton = breakToolbarFactory.getBtnBreakAll();
-		}
-		return mainAllButton;
-	}
-
-	private JToggleButton getPanelReqButton() {
-		if (panelReqButton == null) {
-			panelReqButton = breakToolbarFactory.getBtnBreakRequest();
-		}
-		return panelReqButton;
-	}
-
-	private JToggleButton getPanelResButton() {
-		if (panelResButton == null) {
-			panelResButton = breakToolbarFactory.getBtnBreakResponse();
-		}
-		return panelResButton;
-	}
-
-	private JToggleButton getPanelAllButton() {
-		if (panelAllButton == null) {
-			panelAllButton = breakToolbarFactory.getBtnBreakAll();
-		}
-		return panelAllButton;
+	private void setToolbarButtonsVisible(boolean visible) {
+		boolean simple = currentButtonMode == BreakpointsParam.BUTTON_MODE_SIMPLE;
+		toolBarReqButton.setVisible(visible && !simple);
+		toolBarResButton.setVisible(visible && !simple);
+		toolBarAllButton.setVisible(visible && simple);
+		toolBarBtnStep.setVisible(visible);
+		toolBarBtnContinue.setVisible(visible);
+		toolBarBtnDrop.setVisible(visible);
+		toolBarBtnBreakPoint.setVisible(visible);
 	}
 	
 	public void setMessage(Message aMessage, boolean isRequest) {
@@ -349,20 +379,89 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	}
 
 	public void setButtonMode (int mode) {
+		if (currentButtonMode == mode) {
+			return;
+		}
+		currentButtonMode = mode;
+
 		this.breakToolbarFactory.setButtonMode(mode);
 		
-		switch (mode) {
-		case BreakpointsParam.BUTTON_MODE_SIMPLE:
-			getMainReqButton().setVisible(false);
-			getMainResButton().setVisible(false);
-			getMainAllButton().setVisible(true);
-			break;
-		case BreakpointsParam.BUTTON_MODE_DUAL:
-			getMainReqButton().setVisible(true);
-			getMainResButton().setVisible(true);
-			getMainAllButton().setVisible(false);
-			break;
+		if (currentButtonsLocation == 0 || currentButtonsLocation == 2) {
+			boolean simple = mode == BreakpointsParam.BUTTON_MODE_SIMPLE;
+			toolBarReqButton.setVisible(!simple);
+			toolBarResButton.setVisible(!simple);
+			toolBarAllButton.setVisible(simple);
 		}
 
+		mainBreakButtons.setButtonMode(mode);
+		requestBreakButtons.setButtonMode(mode);
+		responseBreakButtons.setButtonMode(mode);
+	}
+
+	/**
+	 * A wrapper of a view component with break related buttons/functionality.
+	 * 
+	 * @see #getComponent()
+	 */
+	private static class BreakButtonsUI {
+
+		private final JToolBar toolBar;
+
+		private final JToggleButton requestButton;
+		private final JToggleButton responseButton;
+		private final JToggleButton allButton;
+
+		public BreakButtonsUI(String name, BreakPanelToolbarFactory breakToolbarFactory) {
+			requestButton = breakToolbarFactory.getBtnBreakRequest();
+			responseButton = breakToolbarFactory.getBtnBreakResponse();
+			allButton = breakToolbarFactory.getBtnBreakAll();
+
+			toolBar = new JToolBar();
+			toolBar.setFloatable(false);
+			toolBar.setBorder(BorderFactory.createEmptyBorder());
+			toolBar.setRollover(true);
+
+			toolBar.setName(name);
+
+			toolBar.add(requestButton);
+			toolBar.add(responseButton);
+			toolBar.add(allButton);
+			toolBar.add(breakToolbarFactory.getBtnStep());
+			toolBar.add(breakToolbarFactory.getBtnContinue());
+			toolBar.add(breakToolbarFactory.getBtnDrop());
+			toolBar.add(breakToolbarFactory.getBtnBreakPoint());
+		}
+
+		/**
+		 * Sets whether or not the underlying view component is visible.
+		 *
+		 * @param visible {@code true} if the view component should be visible, {@code false} otherwise
+		 */
+		public void setVisible(boolean visible) {
+			toolBar.setVisible(visible);
+		}
+
+		/**
+		 * Sets the current button mode.
+		 *
+		 * @param mode the mode to be set
+		 * @see BreakpointsParam#BUTTON_MODE_SIMPLE
+		 * @see BreakpointsParam#BUTTON_MODE_DUAL
+		 */
+		public void setButtonMode(int mode) {
+			boolean simple = mode == BreakpointsParam.BUTTON_MODE_SIMPLE;
+			requestButton.setVisible(!simple);
+			responseButton.setVisible(!simple);
+			allButton.setVisible(simple);
+		}
+
+		/**
+		 * Gets the underlying view component, with the break buttons.
+		 *
+		 * @return the view component
+		 */
+		public JComponent getComponent() {
+			return toolBar;
+		}
 	}
 }

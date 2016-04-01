@@ -610,17 +610,29 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	@Override
 	public void optionsChanged(OptionsParam optionsParam) {
-		if (View.isInitialised()) {
-			this.getBreakPanel().setButtonMode(
-					optionsParam.getParamSet(BreakpointsParam.class).getButtonMode());
+		applyViewOptions(optionsParam);
+	}
+
+	/**
+	 * Applies the given (view) options to the break components, by setting the location of the break buttons and the break
+	 * buttons mode.
+	 * <p>
+	 * The call to this method has no effect if there's no view.
+	 *
+	 * @param options the current options
+	 */
+	private void applyViewOptions(OptionsParam options) {
+		if (getView() == null) {
+			return;
 		}
+
+		getBreakPanel().setButtonsLocation(options.getViewParam().getBrkPanelViewOption());
+		getBreakPanel().setButtonMode(options.getParamSet(BreakpointsParam.class).getButtonMode());
 	}
 
 	@Override
 	public void optionsLoaded() {
-		if (View.isInitialised()) {
-			this.getBreakPanel().setButtonMode(this.getOptionsParam().getButtonMode());
-		}
+		applyViewOptions(getModel().getOptionsParam());
 	}
 	
 	public boolean isInScopeOnly() {
