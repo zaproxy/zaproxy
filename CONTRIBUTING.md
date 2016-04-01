@@ -40,6 +40,11 @@ The source for the ZAP [User Guide](https://github.com/zaproxy/zap-core-help/wik
 
 The Java Help included with ZAP and the online version are both generated from these HTML pages. Send Pull Requests to help us improve it.
 
+If you have a GitHub account you can contribute to the ZAP wikis. 
+The following resources may assist you to that end:
+* [Editing wiki pages via the online interface](https://help.github.com/articles/editing-wiki-pages-via-the-online-interface/)
+* [Adding and editing wiki pages locally (via Git)](https://help.github.com/articles/adding-and-editing-wiki-pages-locally/)
+
 ## Coding
 
 There's always lots of coding to be done! So much so that we've split it into different categories.
