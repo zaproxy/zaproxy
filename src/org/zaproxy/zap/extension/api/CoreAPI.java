@@ -67,6 +67,7 @@ import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -79,6 +80,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Text;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
+import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.HarUtils;
@@ -113,6 +115,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
 	private static final String ACTION_CLEAR_STATS = "clearStats";
 	private static final String ACTION_SET_MODE = "setMode";
+	private static final String ACTION_DELETE_SITE_NODE = "deleteSiteNode";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -154,6 +157,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_KEY_PREFIX = "keyPrefix";
 	private static final String PARAM_MODE = "mode";
 	private static final String PARAM_SITE = "site";
+	private static final String PARAM_URL = "url";
+	private static final String PARAM_METHOD = "method";
+	private static final String PARAM_POST_DATA = "postData";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
@@ -176,6 +182,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
 		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
 		this.addApiAction(new ApiAction(ACTION_CLEAR_STATS, null, new String[] {PARAM_KEY_PREFIX}));
+		this.addApiAction(new ApiAction(ACTION_DELETE_SITE_NODE, new String[] {PARAM_URL}, new String[] {PARAM_METHOD, PARAM_POST_DATA}));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
@@ -453,6 +460,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			Stats.clear(this.getParam(params, PARAM_KEY_PREFIX, ""));
 			return ApiResponseElement.OK;
 			
+		} else if (ACTION_DELETE_SITE_NODE.equals(name)) {
+			try {
+				String url = params.getString(PARAM_URL);
+				String method = getParam(params, PARAM_METHOD, "GET");
+				String postData = getParam(params, PARAM_POST_DATA, "");
+				URI uri = new URI(url, true);
+				SiteMap siteMap = session.getSiteTree();
+				SiteNode siteNode = siteMap.findNode(uri, method, postData);
+				if(siteNode == null) {
+					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_URL);
+				}
+				PopupMenuPurgeSites.purge(siteMap, siteNode);
+				return ApiResponseElement.OK;
+			} catch (URIException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
+			}
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}

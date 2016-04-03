@@ -47,6 +47,7 @@
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
 // ZAP: 2015/11/05 Change findNode(..) methods to match top level nodes
 // ZAP: 2015/11/09 Fix NullPointerException when creating a HistoryReference with a request URI without path
+// ZAP: 2016/04/21 Issue 2342: Checks non-empty method for deletion of SiteNodes via API 
 
 package org.parosproxy.paros.model;
 
@@ -546,7 +547,7 @@ public class SiteMap extends DefaultTreeModel {
     private String getLeafName(String nodeName, URI uri, String method, String postData) {
         String leafName;
         
-        if (method != null) {
+        if (method != null && !method.isEmpty()) {
         	leafName = method + ":" + nodeName;
         } else {
         	leafName = nodeName;

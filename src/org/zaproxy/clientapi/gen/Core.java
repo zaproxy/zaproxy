@@ -532,6 +532,21 @@ public class Core {
 		return api.callApi("core", "action", "setOptionUseProxyChainAuth", map);
 	}
 
+	public ApiResponse deleteSiteNode(String apikey, String url, String method, String postData) throws ClientApiException {
+		Map<String, String> map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("url", url);
+		if (method != null) {
+			map.put("method", method);
+		}
+		if (postData != null) {
+			map.put("postData", postData);
+		}
+		return api.callApi("core", "action", "deleteSiteNode", map);
+	}
+
 	public byte[] proxypac(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
