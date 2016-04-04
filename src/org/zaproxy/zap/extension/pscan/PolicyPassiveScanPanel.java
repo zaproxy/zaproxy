@@ -42,6 +42,8 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -121,9 +123,10 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
         if (applyToThresholdTarget == null) {
             applyToThresholdTarget = new JComboBox<>();
             applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.all"));
-            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.release"));
-            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.beta"));
-            applyToThresholdTarget.addItem(Constant.messages.getString("ascan.policy.table.quality.alpha"));
+            View view = View.getSingleton();
+            applyToThresholdTarget.addItem(view.getStatusUI(AddOn.Status.release).toString());
+            applyToThresholdTarget.addItem(view.getStatusUI(AddOn.Status.beta).toString());
+            applyToThresholdTarget.addItem(view.getStatusUI(AddOn.Status.alpha).toString());
         }
         return applyToThresholdTarget;
     }
