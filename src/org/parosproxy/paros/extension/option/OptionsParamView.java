@@ -30,6 +30,7 @@
 // ZAP: 2014/10/09 Issue 1359: Options for splash screen
 // ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
 // ZAP: 2015/03/04 Added dev build warning option
+// ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 
 package org.parosproxy.paros.extension.option;
 
@@ -149,13 +150,43 @@ public class OptionsParamView extends AbstractParam {
 		return !(processImages == 0);
 	}
 	
+	/**
+	 * @deprecated (TODO add version) Use {@link #isShowMainToolbar()} instead. It will be removed in a future release.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	public int getShowMainToolbar() {
 		return showMainToolbar;
 	}
 	
+	/**
+	 * Tells whether or not the main tool bar should be shown.
+	 *
+	 * @return {@code true} if the main tool bar should be shown, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public boolean isShowMainToolbar() {
+		return showMainToolbar != 0;
+	}
+
+	/**
+	 * @deprecated (TODO add version) Use {@link #setShowMainToolbar(boolean)} instead. It will be removed in a future release.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	public void setShowMainToolbar(int showMainToolbar) {
-		this.showMainToolbar = showMainToolbar;
-		getConfig().setProperty(SHOW_MAIN_TOOLBAR_OPTION, Integer.toString(showMainToolbar));
+		setShowMainToolbar(showMainToolbar != 0);
+	}
+
+	/**
+	 * Sets whether or not the main tool bar should be shown.
+	 *
+	 * @param show {@code true} if the main tool bar should be shown, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public void setShowMainToolbar(boolean show) {
+		this.showMainToolbar = show ? 1 : 0;
+		getConfig().setProperty(SHOW_MAIN_TOOLBAR_OPTION, showMainToolbar);
 	}
 
 	

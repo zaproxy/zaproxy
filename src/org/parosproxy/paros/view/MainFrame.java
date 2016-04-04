@@ -25,6 +25,7 @@
 // "txtStatus".
 // ZAP: 2013/07/23 Issue 738: Options to hide tabs
 // ZAP: 2015/01/29 Issue 1489: Version number in window title
+// ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 
 package org.parosproxy.paros.view;
 
@@ -99,9 +100,7 @@ public class MainFrame extends AbstractFrame {
 			paneContent.setLayout(new BoxLayout(getPaneContent(), BoxLayout.Y_AXIS));
 			paneContent.setEnabled(true);
 
-			if (Model.getSingleton().getOptionsParam().getViewParam().getShowMainToolbar() == 1) {
-				paneContent.add(getMainToolbarPanel(), null);
-			}
+			paneContent.add(getMainToolbarPanel(), null);
 
 			paneContent.add(getPaneDisplay(), null);
 			paneContent.add(getMainFooterPanel(), null);
@@ -198,5 +197,15 @@ public class MainFrame extends AbstractFrame {
 		}
 		strBuilder.append(Constant.PROGRAM_NAME).append(' ').append(Constant.PROGRAM_VERSION);
 		super.setTitle(strBuilder.toString());
+	}
+
+	/**
+	 * Sets whether or not the main tool bar should be visible.
+	 *
+	 * @param visible {@code true} if the main tool bar should be visible, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public void setMainToolbarVisible(boolean visible) {
+		getMainToolbarPanel().setVisible(visible);
 	}
 }
