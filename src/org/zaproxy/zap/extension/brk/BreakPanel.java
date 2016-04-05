@@ -90,11 +90,6 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private final BreakButtonsUI responseBreakButtons;
 
 	/**
-	 * Flag that tells whether or not the main tool bar is hidden.
-	 */
-	private final boolean mainToolBarHidden;
-
-	/**
 	 * The current location of the break buttons.
 	 * 
 	 * @see #setButtonsLocation(int)
@@ -164,19 +159,18 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		responsePanel.addOptions(responseBreakButtons.getComponent(), HttpPanel.OptionsLocation.AFTER_COMPONENTS);
 
 		currentButtonsLocation = -1;
-
-		mainToolBarHidden = extension.getModel().getOptionsParam().getViewParam().getShowMainToolbar() == 0;
 	}
 
 	/**
 	 * Sets the location of the break buttons.
 	 * <p>
-	 * If the location is already set no change is done.
+	 * If the location is already set and the main tool bar visibility is the same, no change is done.
 	 * 
 	 * @param location the location to set
 	 */
 	void setButtonsLocation(int location) {
 		if (currentButtonsLocation == location) {
+			mainBreakButtons.setVisible(location == 0 && isMainToolBarHidden());
 			return;
 		}
 		currentButtonsLocation = location;
@@ -210,7 +204,7 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	 * @return {@code true} if the main tool bar is hidden, {@code false} otherwise
 	 */
 	private boolean isMainToolBarHidden() {
-		return mainToolBarHidden;
+		return !extension.getModel().getOptionsParam().getViewParam().isShowMainToolbar();
 	}
 
 	public boolean isBreakRequest() {

@@ -25,6 +25,7 @@
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 // ZAP: 2014/10/09 Issue 1359: Options for splash screen
 // ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
+// ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 
 package org.parosproxy.paros.extension.option;
 
@@ -490,7 +491,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
-	    getChkShowMainToolbar().setSelected(options.getViewParam().getShowMainToolbar() > 0);
+	    getChkShowMainToolbar().setSelected(options.getViewParam().isShowMainToolbar());
 	    chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
 	    chkAskOnExit.setSelected(options.getViewParam().getAskOnExitOption() > 0);
 	    chkWmUiHandling.setSelected(options.getViewParam().getWmUiHandlingOption() > 0);
@@ -516,7 +517,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
-	    options.getViewParam().setShowMainToolbar((getChkShowMainToolbar().isSelected()) ? 1 : 0);
+	    options.getViewParam().setShowMainToolbar(getChkShowMainToolbar().isSelected());
 	    options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);
 	    options.getViewParam().setAskOnExitOption(getChkAskOnExit().isSelected() ? 1 : 0);
 	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);

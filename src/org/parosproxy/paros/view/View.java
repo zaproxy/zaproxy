@@ -66,6 +66,7 @@
 // ZAP: 2016/03/16 Add StatusUI handling
 // ZAP: 2016/03/22 Allow to remove ContextPanelFactory
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
+// ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 
 package org.parosproxy.paros.view;
 
@@ -259,6 +260,8 @@ public class View implements ViewDelegate {
         	}
         	statusMap.put(status, new StatusUI(status, statusString));
         }
+
+        setMainToolbarVisible(Model.getSingleton().getOptionsParam().getViewParam().isShowMainToolbar());
     }
 
     public void postInit() {
@@ -999,5 +1002,15 @@ public class View implements ViewDelegate {
      */
     public StatusUI getStatusUI(AddOn.Status status) {
     	return statusMap.get(status);
+    }
+
+    /**
+     * Sets whether or not the main tool bar should be visible.
+     *
+     * @param visible {@code true} if the main tool bar should be visible, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public void setMainToolbarVisible(boolean visible) {
+        getMainFrame().setMainToolbarVisible(visible);
     }
 }
