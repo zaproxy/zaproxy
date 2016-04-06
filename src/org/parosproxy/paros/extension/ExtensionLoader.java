@@ -60,6 +60,7 @@
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/09 Generify Extension.getExtension(Class) to avoid unnecessary casts
 // ZAP: 2015/09/07 Start GUI on EDT
+// ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
 
 package org.parosproxy.paros.extension;
@@ -96,12 +97,12 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.MainMenuBar;
 import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.SiteMapListener;
-import org.zaproxy.zap.view.TabbedPanel2;
 
 public class ExtensionLoader {
 
@@ -623,39 +624,6 @@ public class ExtensionLoader {
         dialog.revalidate();
     }
 
-    /**
-     * Add every panel from panelList to the TabbedPanel2 tab.
-     *
-     * @param panelList
-     * @param tab
-     */
-    private void addTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        for (AbstractPanel panel : panelList) {
-            try {
-                tab.addTab(panel);
-                if (panel.getTabIndex() == 0 && tab.indexOfComponent(panel) != -1) {
-                    // Its now the first one, give it focus
-                    tab.setSelectedComponent(panel);
-                }
-                
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-    }
-
-    private void removeTabPanel(List<AbstractPanel> panelList, TabbedPanel2 tab) {
-        for (AbstractPanel panel : panelList) {
-            try {
-                tab.removeTab(panel);
-                
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-        tab.revalidate();
-    }
-
     private void hookAllExtension(double progressFactor) {
         final double factorPerc = progressFactor / getExtensionCount();
         
@@ -909,27 +877,9 @@ public class ExtensionLoader {
             }
         }
 
-        // Add the three panels to the current window/workbench: add extension tabs to the Full layout
-        // when chosen, otherwise they are as before.
-        int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
-        addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-        addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-        addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-
-        // remember the position of tabs in status position
-        if (displayOption == View.DISPLAY_OPTION_TOP_FULL) {
-            // save the current normal instances to old instance variables, so they are both
-            // referencing the same TabbedPanel2 instances. Used when going into 'Full Layout'
-            // so the state is preserved.
-            view.getWorkbench().setTabbedOldWork(view.getWorkbench().getTabbedWork());
-            view.getWorkbench().setTabbedOldSelect(view.getWorkbench().getTabbedSelect());
-            view.getWorkbench().setTabbedOldStatus(view.getWorkbench().getTabbedStatus());
-
-            // switch the layout to Full Layout
-            addTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
-            addTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
-            addTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-        }
+        view.getWorkbench().addPanels(pv.getSelectPanel(), WorkbenchPanel.PanelType.SELECT);
+        view.getWorkbench().addPanels(pv.getWorkPanel(), WorkbenchPanel.PanelType.WORK);
+        view.getWorkbench().addPanels(pv.getStatusPanel(), WorkbenchPanel.PanelType.STATUS);
 
         addParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
@@ -953,23 +903,9 @@ public class ExtensionLoader {
             }
         }
 
-        // Remote the three panels to the current window/workbench: remove extension tabs
-        // from the Full layout when chosen.
-        int displayOption = Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption();
-        switch (displayOption) {
-            case View.DISPLAY_OPTION_TOP_FULL:
-                removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedStatus());
-                removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedStatus());
-                removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-                break;
-                
-            case View.DISPLAY_OPTION_LEFT_FULL:
-            case View.DISPLAY_OPTION_BOTTOM_FULL:
-            default:
-                removeTabPanel(pv.getSelectPanel(), view.getWorkbench().getTabbedSelect());
-                removeTabPanel(pv.getWorkPanel(), view.getWorkbench().getTabbedWork());
-                removeTabPanel(pv.getStatusPanel(), view.getWorkbench().getTabbedStatus());
-        }
+        view.getWorkbench().removePanels(pv.getSelectPanel(), WorkbenchPanel.PanelType.SELECT);
+        view.getWorkbench().removePanels(pv.getWorkPanel(), WorkbenchPanel.PanelType.WORK);
+        view.getWorkbench().removePanels(pv.getStatusPanel(), WorkbenchPanel.PanelType.STATUS);
 
         removeParamPanel(pv.getSessionPanel(), view.getSessionDialog());
         removeParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
@@ -980,7 +916,7 @@ public class ExtensionLoader {
             return;
         }
         
-        View.getSingleton().getWorkbench().getTabbedStatus().remove(panel);
+        View.getSingleton().getWorkbench().removePanel(panel, WorkbenchPanel.PanelType.STATUS);
     }
 
     public void removeOptionsPanel(AbstractParamPanel panel) {
@@ -1000,7 +936,7 @@ public class ExtensionLoader {
             return;
         }
         
-        View.getSingleton().getWorkbench().getTabbedWork().remove(panel);
+        View.getSingleton().getWorkbench().removePanel(panel, WorkbenchPanel.PanelType.WORK);
     }
 
     public void removePopupMenuItem(ExtensionPopupMenuItem popupMenuItem) {

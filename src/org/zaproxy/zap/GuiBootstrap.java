@@ -128,8 +128,6 @@ public class GuiBootstrap extends ZapBootstrap {
 
         FontUtils.setDefaultFont(viewParam.getFontName(), viewParam.getFontSize());
 
-        View.setDisplayOption(viewParam.getDisplayOption());
-
         setupLocale(options);
 
         View.getSingleton().showSplashScreen();

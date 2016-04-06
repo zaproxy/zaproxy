@@ -67,6 +67,7 @@
 // ZAP: 2016/03/22 Allow to remove ContextPanelFactory
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
+// ZAP: 2016/04/06 Fix layouts' issues
 
 package org.parosproxy.paros.view;
 
@@ -107,6 +108,7 @@ import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.Status;
@@ -124,13 +126,11 @@ import org.zaproxy.zap.view.ContextListPanel;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.ContextStructurePanel;
 import org.zaproxy.zap.view.ContextTechnologyPanel;
-import org.zaproxy.zap.view.MessagePanelsPositionController;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.SessionExcludeFromScanPanel;
 import org.zaproxy.zap.view.SessionExcludeFromSpiderPanel;
 import org.zaproxy.zap.view.SplashScreen;
 import org.zaproxy.zap.view.StatusUI;
-import org.zaproxy.zap.view.TabbedPanel2;
 import org.zaproxy.zap.view.ZapMenuItem;
 import org.zaproxy.zap.view.messagelocation.MessageLocationHighlightRenderersEditors;
 import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlight;
@@ -139,8 +139,26 @@ import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightRenderer
 
 public class View implements ViewDelegate {
 
+    /**
+     * @deprecated (TODO add version) Use {@link WorkbenchPanel.Layout#EXPAND_SELECT} instead.
+     * @see #getMainFrame()
+     * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
+     */
+    @Deprecated
     public static final int DISPLAY_OPTION_LEFT_FULL = 0;
+    /**
+     * @deprecated (TODO add version) Use {@link WorkbenchPanel.Layout#EXPAND_STATUS} instead.
+     * @see #getMainFrame()
+     * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
+     */
+    @Deprecated
     public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
+    /**
+     * @deprecated (TODO add version) Use {@link WorkbenchPanel.Layout#FULL} instead.
+     * @see #getMainFrame()
+     * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
+     */
+    @Deprecated
     public static final int DISPLAY_OPTION_TOP_FULL = 2;
 
     public static final int DISPLAY_OPTION_ICONNAMES = 0;
@@ -176,11 +194,7 @@ public class View implements ViewDelegate {
      */
     private Map<ContextPanelFactory, List<AbstractContextPropertiesPanel>> contextPanelFactoriesPanels = new HashMap<>();
 
-    private static int displayOption = DISPLAY_OPTION_BOTTOM_FULL;
-
     private static final Logger logger = Logger.getLogger(View.class);
-
-    private MessagePanelsPositionController messagePanelsPositionController;
 
     // ZAP: splash screen
     private SplashScreen splashScreen = null;
@@ -209,23 +223,33 @@ public class View implements ViewDelegate {
     //	return responsePanel;
     //}
 
+
     /**
-     * Sets the displayOption.
+     * @deprecated (TODO add version) Use {@link MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)}
+     *             instead.
+     * @see #getMainFrame()
      */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public static void setDisplayOption(int displayOption) {
-        View.displayOption = displayOption;
+        View.getSingleton().getMainFrame().setWorkbenchLayout(WorkbenchPanel.Layout.getLayout(displayOption));
     }
 
     /**
-     * Return the current displayOption.
+     * @deprecated (TODO add version) Use {@link MainFrame#getWorkbenchLayout()} instead.
+     * @see #getMainFrame()
      */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public static int getDisplayOption() {
-        return View.displayOption;
+        return View.getSingleton().getMainFrame().getWorkbenchLayout().getId();
     }
 
 //  ZAP: Removed method changeDisplayOption(int)
     public void init() {
-        mainFrame = new MainFrame(displayOption);
+        OptionsParam options = Model.getSingleton().getOptionsParam();
+        mainFrame = new MainFrame(options, getRequestPanel(), getResponsePanel());
+        mainFrame.getWorkbench().addPanel(View.getSingleton().getSiteTreePanel(), WorkbenchPanel.PanelType.SELECT);
 
         // Install default editor and renderer for TextMessageLocationHighlight
         MessageLocationHighlightRenderersEditors.getInstance().addEditor(
@@ -234,13 +258,6 @@ public class View implements ViewDelegate {
         MessageLocationHighlightRenderersEditors.getInstance().addRenderer(
                 TextMessageLocationHighlight.class,
                 new TextMessageLocationHighlightRenderer());
-
-        getWorkbench().getTabbedWork().setAlternativeParent(mainFrame.getPaneDisplay());
-        getWorkbench().getTabbedStatus().setAlternativeParent(mainFrame.getPaneDisplay());
-        getWorkbench().getTabbedSelect().setAlternativeParent(mainFrame.getPaneDisplay());
-
-        // adds the Request/Response representation buttons in ZAP toolbar
-        getMessagePanelsPositionController().restoreState();
         
         String statusString;
         for(Status status : AddOn.Status.values()) {     	
@@ -260,18 +277,10 @@ public class View implements ViewDelegate {
         	}
         	statusMap.put(status, new StatusUI(status, statusString));
         }
-
-        setMainToolbarVisible(Model.getSingleton().getOptionsParam().getViewParam().isShowMainToolbar());
     }
 
     public void postInit() {
-      // Note: addTab function calls have been moved to WorkbenchPanel.java because
-        // of the Full Layout support, but this line is still needed for the 'History'
-        // tab to be the currently selected tab; otherwise it's the 'Output' tab.
-        getWorkbench().getTabbedStatus().addTab(getOutputPanel().getName(), getOutputPanel().getIcon(), getOutputPanel());
-
-        // restore the state of Request/Response layout: side by side or above each other.
-        getMessagePanelsPositionController().restoreState();
+        mainFrame.getWorkbench().addPanel(getOutputPanel(), WorkbenchPanel.PanelType.STATUS);
 
         refreshTabViewMenus();
 
@@ -317,19 +326,16 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * Return the MessagePanelsPositionController so other classes can also
-     * restore state of the Request/Response layout.
-     * @return the controller 
+     * @deprecated (TODO add version) No longer in use/working, use
+     *             {@link MainFrame#setResponsePanelPosition(org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition)}
+     *             instead.
+     * @since 2.1.0
+     * @see #getMainFrame()
      */
-    public MessagePanelsPositionController getMessagePanelsPositionController() {
-        if (messagePanelsPositionController == null) {
-            messagePanelsPositionController = new MessagePanelsPositionController(
-                    getRequestPanel(),
-                    getResponsePanel(),
-                    mainFrame,
-                    getWorkbench());
-        }
-        return messagePanelsPositionController;
+    @Deprecated
+    @SuppressWarnings("javadoc")
+    public org.zaproxy.zap.view.MessagePanelsPositionController getMessagePanelsPositionController() {
+        return new org.zaproxy.zap.view.MessagePanelsPositionController(null, null, null, null);
     }
 
     public void refreshTabViewMenus() {
@@ -342,88 +348,54 @@ public class View implements ViewDelegate {
 
         ExtensionKeyboard extKey = (ExtensionKeyboard) Control.getSingleton().getExtensionLoader().getExtension(ExtensionKeyboard.NAME);
 
-        for (Component tab : getWorkbench().getTabbedSelect().getSortedTabList()) {
-            registerMenu(extKey, getWorkbench().getTabbedSelect(), tab);
+        for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.SELECT)) {
+            registerMenu(extKey, panel);
         }
         menuShowTabs.addSeparator();
-        for (Component tab : getWorkbench().getTabbedWork().getSortedTabList()) {
-            registerMenu(extKey, getWorkbench().getTabbedWork(), tab);
+        for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.WORK)) {
+            registerMenu(extKey, panel);
         }
         menuShowTabs.addSeparator();
-        for (Component tab : getWorkbench().getTabbedStatus().getSortedTabList()) {
-            registerMenu(extKey, getWorkbench().getTabbedStatus(), tab);
+        for (AbstractPanel panel : getWorkbench().getSortedPanels(WorkbenchPanel.PanelType.STATUS)) {
+            registerMenu(extKey, panel);
         }
     }
 
-    private void registerMenu(ExtensionKeyboard extKey, final TabbedPanel2 parent, final Component tab) {
-        if (tab instanceof AbstractPanel) {
-            final AbstractPanel ap = (AbstractPanel) tab;
-            ZapMenuItem tabMenu = new ZapMenuItem(
-                    tab.getClass().getName(), MessageFormat.format(Constant.messages.getString("menu.view.tab"), tab.getName()),
-                    ap.getDefaultAccelerator());
-            tabMenu.setMnemonic(ap.getMnemonic());
-            if (ap.getIcon() != null) {
-                tabMenu.setIcon(ap.getIcon());
+    private void registerMenu(ExtensionKeyboard extKey, final AbstractPanel ap) {
+        ZapMenuItem tabMenu = new ZapMenuItem(
+                ap.getClass().getName(), MessageFormat.format(Constant.messages.getString("menu.view.tab"), ap.getName()),
+                ap.getDefaultAccelerator());
+        tabMenu.setMnemonic(ap.getMnemonic());
+        if (ap.getIcon() != null) {
+            tabMenu.setIcon(ap.getIcon());
+        }
+        tabMenu.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                getWorkbench().showPanel(ap);
             }
-            tabMenu.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    parent.setVisible(tab, true);
-                    ap.setTabFocus();
-                }
-            });
+        });
 
-            menuShowTabs.add(tabMenu);
-            if (extKey != null) {
-                extKey.registerMenuItem(tabMenu);
-            }
-
+        menuShowTabs.add(tabMenu);
+        if (extKey != null) {
+            extKey.registerMenuItem(tabMenu);
         }
     }
 
     public void showAllTabs() {
-        for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
-            setTabVisible(getWorkbench().getTabbedSelect(), tab, true);
-        }
-        for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
-            setTabVisible(getWorkbench().getTabbedWork(), tab, true);
-        }
-        for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
-            setTabVisible(getWorkbench().getTabbedStatus(), tab, true);
-        }
+        getWorkbench().setPanelsVisible(true);
     }
 
     public void hideAllTabs() {
-        for (Component tab : getWorkbench().getTabbedSelect().getTabList()) {
-            setTabVisible(getWorkbench().getTabbedSelect(), tab, false);
-        }
-        for (Component tab : getWorkbench().getTabbedWork().getTabList()) {
-            setTabVisible(getWorkbench().getTabbedWork(), tab, false);
-        }
-        for (Component tab : getWorkbench().getTabbedStatus().getTabList()) {
-            setTabVisible(getWorkbench().getTabbedStatus(), tab, false);
-        }
+        getWorkbench().setPanelsVisible(false);
     }
 
     public void pinAllTabs() {
-        getWorkbench().getTabbedSelect().pinVisibleTabs();
-        getWorkbench().getTabbedWork().pinVisibleTabs();
-        getWorkbench().getTabbedStatus().pinVisibleTabs();
+        getWorkbench().pinVisiblePanels();
     }
 
     public void unpinAllTabs() {
-        getWorkbench().getTabbedSelect().unpinTabs();
-        getWorkbench().getTabbedWork().unpinTabs();
-        getWorkbench().getTabbedStatus().unpinTabs();
-    }
-
-    private void setTabVisible(final TabbedPanel2 parent, Component tab, boolean tabVisible) {
-        if (tab instanceof AbstractPanel) {
-            AbstractPanel ap = (AbstractPanel) tab;
-            if (ap.isHideable() && !ap.isPinned()) {
-                parent.setVisible(tab, tabVisible);
-            }
-        }
+        getWorkbench().unpinVisiblePanels();
     }
 
     /**
