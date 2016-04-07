@@ -1,6 +1,7 @@
 package org.zaproxy.zap.view.widgets;
 
 import java.io.File;
+import java.nio.file.Files;
 import java.text.MessageFormat;
 
 import javax.swing.JFileChooser;
@@ -25,15 +26,16 @@ public class WritableFileChooser extends JFileChooser {
 	public void approveSelection() {
 		File selectedFile = getSelectedFile();
 
-		if (!java.nio.file.Files.isWritable(selectedFile.getParentFile().toPath())) {
-			JOptionPane.showMessageDialog(this,
-					MessageFormat.format(Constant.messages.getString("report.write.permission.dialog.message"),
-		                	selectedFile.getAbsolutePath()),
-					Constant.messages.getString("report.write.permission.dialog.title"),
-					JOptionPane.ERROR_MESSAGE);
+		if (!Files.isWritable(selectedFile.getParentFile().toPath())) {
+			warnNotWritable("report.write.permission.dir.dialog.message", selectedFile.getParentFile().getAbsolutePath());
 			return;
 		}
 		if (selectedFile.exists()) {
+			if (!Files.isWritable(selectedFile.toPath())) {
+				warnNotWritable("report.write.permission.file.dialog.message", selectedFile.getAbsolutePath());
+				return;
+			}
+
 			int result = JOptionPane.showConfirmDialog(this,
 					Constant.messages.getString("report.write.overwrite.dialog.message"),
 					Constant.messages.getString("report.write.overwrite.dialog.title"),
@@ -50,5 +52,12 @@ public class WritableFileChooser extends JFileChooser {
 		// Store the user directory as the currently selected one
 		Model.getSingleton().getOptionsParam().setUserDirectory(getCurrentDirectory());
 		super.approveSelection();
+	}
+
+	private void warnNotWritable(String i18nKeyMessage, String path) {
+		JOptionPane.showMessageDialog(this,
+				MessageFormat.format(Constant.messages.getString(i18nKeyMessage), path),
+				Constant.messages.getString("report.write.permission.dialog.title"),
+				JOptionPane.ERROR_MESSAGE);
 	}
 }
