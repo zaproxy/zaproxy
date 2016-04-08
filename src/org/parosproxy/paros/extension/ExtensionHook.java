@@ -25,10 +25,12 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions. 
+// ZAP: 2016/04/08 Allow to add ContextDataFactory
 
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
@@ -39,6 +41,7 @@ import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
@@ -59,6 +62,16 @@ public class ExtensionHook {
     private Vector<ScannerHook> scannerHookList = new Vector<>();
     private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
     private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<>(); 
+
+    /**
+     * The {@link ContextDataFactory}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addContextDataFactory(ContextDataFactory)
+     * @see #getContextDataFactories()
+     */
+    private List<ContextDataFactory> contextDataFactories;
     
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -188,5 +201,33 @@ public class ExtensionHook {
 
     public List<OverrideMessageProxyListener> getOverrideMessageProxyListenerList() {
         return overrideMessageProxyListenersList;
+    }
+
+    /**
+     * Adds the given {@link ContextDataFactory} to the extension hook, to be later added to the {@link Model}.
+     * <p>
+     * By default, the {@code ContextDataFactory}s added are removed from the {@code Model} when the extension is unloaded.
+     *
+     * @param contextDataFactory the {@code ContextDataFactory} that will be added to the {@code Model}
+     * @since TODO add version
+     */
+    public void addContextDataFactory(ContextDataFactory contextDataFactory) {
+        if (contextDataFactories == null) {
+            contextDataFactories = new ArrayList<>();
+        }
+        contextDataFactories.add(contextDataFactory);
+    }
+
+    /**
+     * Gets the {@link ContextDataFactory}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ContextDataFactory}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<ContextDataFactory> getContextDataFactories() {
+        if (contextDataFactories == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(contextDataFactories);
     }
 }

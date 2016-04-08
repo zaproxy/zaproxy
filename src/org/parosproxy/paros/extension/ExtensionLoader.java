@@ -60,6 +60,7 @@
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/04/09 Generify Extension.getExtension(Class) to avoid unnecessary casts
 // ZAP: 2015/09/07 Start GUI on EDT
+// ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
 
 package org.parosproxy.paros.extension;
 
@@ -97,6 +98,8 @@ import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.model.ContextDataFactory;
+import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.SiteMapListener;
 import org.zaproxy.zap.view.TabbedPanel2;
 
@@ -556,9 +559,11 @@ public class ExtensionLoader {
             ext.hook(extHook);
             extensionHooks.put(ext, extHook);
 
+            hookContextDataFactories(ext, extHook);
+
             if (view != null) {
                 // no need to hook view if no GUI
-                hookView(view, extHook);
+                hookView(ext, view, extHook);
                 hookMenu(view, extHook);
             }
             
@@ -656,11 +661,13 @@ public class ExtensionLoader {
         
         for (int i = 0; i < getExtensionCount(); i++) {
             try {
-                Extension ext = getExtension(i);
+                final Extension ext = getExtension(i);
                 logger.info("Initializing " + ext.getDescription());
                 final ExtensionHook extHook = new ExtensionHook(model, view);
                 ext.hook(extHook);
                 extensionHooks.put(ext, extHook);
+
+                hookContextDataFactories(ext, extHook);
 
                 if (view != null) {
                     EventQueue.invokeAndWait(new Runnable() {
@@ -668,7 +675,7 @@ public class ExtensionLoader {
                         @Override
                         public void run() {
                             // no need to hook view if no GUI
-                            hookView(view, extHook);
+                            hookView(ext, view, extHook);
                             hookMenu(view, extHook);
                             view.addSplashScreenLoadingCompletion(factorPerc);
                         }
@@ -696,6 +703,16 @@ public class ExtensionLoader {
         if (view != null) {
             view.getMainFrame().getMainMenuBar().validate();
             view.getMainFrame().validate();
+        }
+    }
+
+    private void hookContextDataFactories(Extension extension, ExtensionHook extHook) {
+        for (ContextDataFactory contextDataFactory : extHook.getContextDataFactories()) {
+            try {
+                model.addContextDataFactory(contextDataFactory);
+            } catch (Exception e) {
+                logger.error("Error while adding a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+            }
         }
     }
 
@@ -874,7 +891,7 @@ public class ExtensionLoader {
         }
     }
 
-    private void hookView(View view, ExtensionHook hook) {
+    private void hookView(Extension extension, View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
@@ -882,6 +899,14 @@ public class ExtensionLoader {
         ExtensionHookView pv = hook.getHookView();
         if (pv == null) {
             return;
+        }
+
+        for (ContextPanelFactory contextPanelFactory : pv.getContextPanelFactories()) {
+            try {
+                view.addContextPanelFactory(contextPanelFactory);
+            } catch (Exception e) {
+                logger.error("Error while adding a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+            }
         }
 
         // Add the three panels to the current window/workbench: add extension tabs to the Full layout
@@ -910,7 +935,7 @@ public class ExtensionLoader {
         addParamPanel(pv.getOptionsPanel(), view.getOptionsDialog(""));
     }
 
-    private void removeView(View view, ExtensionHook hook) {
+    private void removeView(Extension extension, View view, ExtensionHook hook) {
         if (view == null) {
             return;
         }
@@ -918,6 +943,14 @@ public class ExtensionLoader {
         ExtensionHookView pv = hook.getHookView();
         if (pv == null) {
             return;
+        }
+
+        for (ContextPanelFactory contextPanelFactory : pv.getContextPanelFactories()) {
+            try {
+                view.removeContextPanelFactory(contextPanelFactory);
+            } catch (Exception e) {
+                logger.error("Error while removing a ContextPanelFactory from " + extension.getClass().getCanonicalName(), e);
+            }
         }
 
         // Remote the three panels to the current window/workbench: remove extension tabs
@@ -1144,23 +1177,31 @@ public class ExtensionLoader {
 
         removeSiteMapListener(hook);
 
-        removeViewInEDT(hook);
+        for (ContextDataFactory contextDataFactory : hook.getContextDataFactories()) {
+            try {
+                model.removeContextDataFactory(contextDataFactory);
+            } catch (Exception e) {
+                logger.error("Error while removing a ContextDataFactory from " + extension.getClass().getCanonicalName(), e);
+            }
+        }
+
+        removeViewInEDT(extension, hook);
     }
 
-    private void removeViewInEDT(final ExtensionHook hook) {
+    private void removeViewInEDT(final Extension extension, final ExtensionHook hook) {
         if (view == null) {
             return;
         }
 
         if (EventQueue.isDispatchThread()) {
-            removeView(view, hook);
+            removeView(extension, view, hook);
             removeMenu(view, hook);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    removeViewInEDT(hook);
+                    removeViewInEDT(extension, hook);
                 }
             });
         }
