@@ -26,6 +26,7 @@ import org.zaproxy.zap.extension.anticsrf.AntiCsrfAPI;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfParam;
 import org.zaproxy.zap.extension.ascan.ActiveScanAPI;
 import org.zaproxy.zap.extension.authentication.AuthenticationAPI;
+import org.zaproxy.zap.extension.authorization.AuthorizationAPI;
 import org.zaproxy.zap.extension.autoupdate.AutoUpdateAPI;
 import org.zaproxy.zap.extension.autoupdate.OptionsParamCheckForUpdates;
 import org.zaproxy.zap.extension.brk.BreakAPI;
@@ -90,6 +91,8 @@ public class ApiGeneratorUtils {
 		
 		imps.add(new AuthenticationAPI(null));
 		
+		imps.add(new AuthorizationAPI());
+
 		imps.add(new SessionManagementAPI(null));
 		
 		imps.add(new UsersAPI(null));
