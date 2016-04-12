@@ -115,13 +115,13 @@
 		<!-- Compile the java test code from ${test.src} into ${test.build} -->
 		<javac srcdir="${test.src}" destdir="${test.build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
 			<classpath>
+				<pathelement location="${build}" />
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
 				</fileset>
 				<fileset dir="${test.lib}">
 					<include name="**/*.jar" />
 				</fileset>
-				<pathelement location="${build}" />
 			</classpath>
 		</javac>
 
@@ -403,25 +403,15 @@
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
-        		<fileset dir="../lib">
+                <pathelement location="${build}"/>
+                <pathelement location="${test.build}"/>
+        		<fileset dir="${dist.lib.dir}">
         			<include name="*.jar" />
-        		</fileset>
-        		<fileset dir="lib">
-        			<include name="*.jar" />
-        			<exclude name="ant*.jar" />
-        			<exclude name="junit*.jar" />
-        		</fileset>
-        		<fileset dir="zap">
-        			<include name="zap.jar" />
         			<exclude name="ant*.jar" />
         		</fileset>
         		<fileset dir="../testlib">
         			<include name="*.jar" />
         		</fileset>
-            	
-        		<!--pathelement location="bin"/-->		<!-- When running in Eclipse -->
-        		<pathelement location="${build}"/>		<!-- When running on build server -->
-        		<pathelement location="${test.build}"/>
             </classpath>
             <formatter type="plain"/>
             <formatter type="xml"/>
