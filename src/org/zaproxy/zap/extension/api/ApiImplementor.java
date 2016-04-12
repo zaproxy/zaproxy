@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.api;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
@@ -156,15 +157,15 @@ public abstract class ApiImplementor {
 	/**
 	 * Tells whether or not the given {@code method} should be ignored, thus not included in the ZAP API.
 	 * <p>
-	 * This method checks if the given {@code method} has been annotated with {@code ZapApiIgnore}.
-	 * </p>
+	 * Checks if the given {@code method} has been annotated with {@code ZapApiIgnore} or if it's not public, if any of the
+	 * conditions is {@code true} the {@code method} is ignored.
 	 * 
 	 * @param method the method that will be checked
 	 * @return {@code true} if the method should be ignored, {@code false} otherwise.
 	 * @see ZapApiIgnore
 	 */
 	private static boolean isIgnored(Method method) {
-		return (method.getAnnotation(ZapApiIgnore.class) != null);
+		return method.getAnnotation(ZapApiIgnore.class) != null || !Modifier.isPublic(method.getModifiers());
 	}
 
 	public ApiResponse handleApiOptionView(String name, JSONObject params) throws ApiException {
