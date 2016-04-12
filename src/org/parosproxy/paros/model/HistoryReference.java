@@ -39,6 +39,7 @@
 // ZAP: 2014/08/14 Issue 1311: Differentiate temporary internal messages from temporary scanner messages
 // ZAP: 2014/12/11 Update the flag webSocketUpgrade sooner to avoid re-reading the message from database
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2016/04/12 Update the SiteNode when deleting alerts
 
 package org.parosproxy.paros.model;
 
@@ -436,6 +437,9 @@ public class HistoryReference {
    public synchronized void deleteAlert(Alert alert) {
 	   if (alerts != null) {
 		   alerts.remove(alert);
+		   if (siteNode != null) {
+		       siteNode.deleteAlert(alert);
+		   }
 	   }
    }
    

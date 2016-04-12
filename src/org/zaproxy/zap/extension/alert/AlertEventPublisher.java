@@ -27,10 +27,20 @@ public class AlertEventPublisher implements EventPublisher {
 	
 	private static AlertEventPublisher publisher = null;
 	public static final String ALERT_ADDED_EVENT	= "alert.added";
+	public static final String ALERT_CHANGED_EVENT = "alert.changed";
 	public static final String ALERT_REMOVED_EVENT	= "alert.removed";
 	public static final String ALL_ALERTS_REMOVED_EVENT	= "alert.all.removed";
 	
     public static final String ALERT_ID = "alertId";
+	/**
+	 * Indicates the {@code HistoryReference} ID of the alert.
+	 * <p>
+	 * The field is available in the events {@link #ALERT_ADDED_EVENT}, {@link #ALERT_CHANGED_EVENT} and
+	 * {@link #ALERT_REMOVED_EVENT}.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final String HISTORY_REFERENCE_ID = "historyId";
 
 	@Override
 	public String getPublisherName() {
@@ -41,7 +51,7 @@ public class AlertEventPublisher implements EventPublisher {
 		if (publisher == null) {
 			publisher = new AlertEventPublisher(); 
 	        ZAP.getEventBus().registerPublisher(publisher, 
-	        		new String[] {ALERT_ADDED_EVENT, ALERT_REMOVED_EVENT, ALL_ALERTS_REMOVED_EVENT});
+	        		new String[] {ALERT_ADDED_EVENT, ALERT_CHANGED_EVENT, ALERT_REMOVED_EVENT, ALL_ALERTS_REMOVED_EVENT});
 
 		}
 		return publisher;

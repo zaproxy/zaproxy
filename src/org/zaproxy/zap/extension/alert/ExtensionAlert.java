@@ -30,8 +30,6 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
 
-import javax.swing.tree.TreeNode;
-
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -47,6 +45,7 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -58,6 +57,7 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.extension.XmlReporterExtension;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
+import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
 
 public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
@@ -143,65 +143,69 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 alert.setHistoryRef(ref);
             }
 
+            alert.setSourceHistoryId(ref.getHistoryId());
+
             hrefs.put(Integer.valueOf(ref.getHistoryId()), ref);
 
             writeAlertToDB(alert, ref);
-            addAlertToTree(alert, ref, alert.getMessage());
 
-            // The node node may have a new alert flag...
-            this.siteNodeChanged(ref.getSiteNode());
+            try {
+                if (getView() == null) {
+                    SessionStructure.addPath(Model.getSingleton().getSession(), ref, alert.getMessage());
+                } else {
+                    final HistoryReference fRef = ref;
+                    final HttpMessage fMsg = alert.getMessage();
+                    EventQueue.invokeAndWait(new Runnable() {
+
+                        @Override
+                        public void run() {
+                            SessionStructure.addPath(Model.getSingleton().getSession(), fRef, fMsg);
+                        }
+                    });
+                }
+
+                ref.addAlert(alert);
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            addAlertToTree(alert);
 
             // Clear the message so that it can be GC'ed
             alert.setMessage(null);
 
-            Map<String, String> map = new HashMap<String, String>();
-            map.put(AlertEventPublisher.ALERT_ID, Integer.toString(alert.getAlertId()));
-            ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
-            		new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALERT_ADDED_EVENT, 
-            				new Target(ref.getSiteNode()), map));
+            publishAlertEvent(alert, AlertEventPublisher.ALERT_ADDED_EVENT);
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    private void siteNodeChanged(final TreeNode node) {
-        if (getView() == null) {
-            return;
+    private void publishAlertEvent(Alert alert, String event) {
+        HistoryReference historyReference = hrefs.get(alert.getSourceHistoryId());
+        if (historyReference == null) {
+            historyReference = Control.getSingleton()
+                    .getExtensionLoader()
+                    .getExtension(ExtensionHistory.class)
+                    .getHistoryReference(alert.getSourceHistoryId());
         }
 
-        if (EventQueue.isDispatchThread()) {
-        	siteNodeChangedEventHandler(this.getModel().getSession().getSiteTree(), node);
-        } else {
-            try {
-                EventQueue.invokeLater(new Runnable() {
-                    @Override
-                    public void run() {
-                    	siteNodeChangedEventHandler(getModel().getSession().getSiteTree(), node);
-                    }
-                });
-            } catch (Exception e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
+        Map<String, String> map = new HashMap<>();
+        map.put(AlertEventPublisher.ALERT_ID, Integer.toString(alert.getAlertId()));
+        map.put(AlertEventPublisher.HISTORY_REFERENCE_ID, Integer.toString(alert.getSourceHistoryId()));
+        ZAP.getEventBus().publishSyncEvent(
+                AlertEventPublisher.getPublisher(),
+                new Event(AlertEventPublisher.getPublisher(), event, new Target(historyReference.getSiteNode()), map));
     }
 
-    private void siteNodeChangedEventHandler(SiteMap siteTree, TreeNode node) {
-        if (node == null) {
-            return;
-        }
-        siteTree.nodeChanged(node);
-        siteNodeChangedEventHandler(siteTree, node.getParent());
-    }
-
-    private void addAlertToTree(final Alert alert, final HistoryReference ref, final HttpMessage msg) {
+    private void addAlertToTree(final Alert alert) {
     	
         if (Constant.isLowMemoryOptionSet()) {
         	return;
         }
     	
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            addAlertToTreeEventHandler(alert, ref, msg);
+            addAlertToTreeEventHandler(alert);
 
         } else {
 
@@ -213,7 +217,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
                     @Override
                     public void run() {
-                        addAlertToTreeEventHandler(alert, ref, msg);
+                        addAlertToTreeEventHandler(alert);
                     }
                 });
             } catch (Exception e) {
@@ -227,7 +231,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     	return this.getModel().getSession().isInScope(alert.getHistoryRef());
     }
 
-    private void addAlertToTreeEventHandler(Alert alert, HistoryReference ref, HttpMessage msg) {
+    private void addAlertToTreeEventHandler(Alert alert) {
 
         synchronized (this.getTreeModel()) {
         	this.getTreeModel().addPath(alert);
@@ -238,19 +242,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 getAlertPanel().expandRoot();
                 this.recalcAlerts();
             }
-        }
-
-        SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
-        if (ref != null && (node == null || !node.hasAlert(alert))) {
-            // Add new alerts to the site tree
-        	if (msg != null) {
-        		// Saves a db read, which is always well worth it!
-        		siteTree.addPath(ref, msg);
-        	} else {
-        		siteTree.addPath(ref);
-        	}
-            ref.addAlert(alert);
         }
     }
 
@@ -310,9 +301,12 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
     public void updateAlert(Alert alert) throws HttpMalformedHeaderException, DatabaseException {
         logger.debug("updateAlert " + alert.getName() + " " + alert.getUri());
-        updateAlertInDB(alert);
-        if (alert.getHistoryRef() != null) {
-            this.siteNodeChanged(alert.getHistoryRef().getSiteNode());
+        HistoryReference hRef = hrefs.get(alert.getSourceHistoryId());
+        if (hRef != null) {
+            updateAlertInDB(alert);
+            hRef.updateAlert(alert);
+            publishAlertEvent(alert, AlertEventPublisher.ALERT_CHANGED_EVENT);
+            updateAlertInTree(alert, alert);
         }
     }
 
@@ -331,6 +325,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     public void updateAlertInTree(Alert originalAlert, Alert alert) {
+        if (Constant.isLowMemoryOptionSet()) {
+            return;
+        }
         this.getTreeModel().updatePath(originalAlert, alert);
     	if (isInFilter(alert)) {
     		this.getFilteredTreeModel().updatePath(originalAlert, alert);
@@ -414,7 +411,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             historyReference = alert.getHistoryRef();
             if (historyReference != null) {
                 // The ref can be null if hrefs are purged
-                addAlertToTree(alert, historyReference, null);
+                addAlertToTree(alert);
                 Integer key = Integer.valueOf(historyId);
                 if (!hrefs.containsKey(key)) {
                     this.hrefs.put(key, alert.getHistoryRef());
@@ -465,19 +462,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         }
 
         deleteAlertFromDisplay(alert);
-
-        Map<String, String> map = new HashMap<String, String>();
-        map.put(AlertEventPublisher.ALERT_ID, Integer.toString(alert.getAlertId()));
-
-        if (alert.getHistoryRef() != null) {
-        	ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
-        			new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALERT_REMOVED_EVENT, 
-        					new Target(alert.getHistoryRef().getSiteNode()), map));
-        } else {
-            ZAP.getEventBus().publishSyncEvent(AlertEventPublisher.getPublisher(), 
-            		new Event(AlertEventPublisher.getPublisher(), AlertEventPublisher.ALERT_REMOVED_EVENT, null, map));
-        }
-
+        publishAlertEvent(alert, AlertEventPublisher.ALERT_REMOVED_EVENT);
     }
 
     public void deleteAllAlerts() {
@@ -529,14 +514,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     }
 
     private void deleteAlertFromDisplayEventHandler(Alert alert) {
-        // Note - tried doing this in a SwingWorker but it too a LOT longer to run
-        SiteMap siteTree = this.getModel().getSession().getSiteTree();
-        SiteNode node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
-        if (node != null && node.hasAlert(alert)) {
-            node.deleteAlert(alert);
-            siteNodeChanged(node);
-        }
-
         synchronized (this.getTreeModel()) {
         	this.getTreeModel().deletePath(alert);
         	this.getFilteredTreeModel().deletePath(alert);
@@ -544,11 +521,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             for (HistoryReference href : hrefs.values()) {
                 if (href.getAlerts().contains(alert)) {
                     href.deleteAlert(alert);
-                    node = siteTree.findNode(alert.getMsgUri(), alert.getMethod(), alert.getPostData());
-                    if (node != null) {
-                        node.deleteAlert(alert);
-                        siteNodeChanged(node);
-                    }
                     if (href.getAlerts().size() == 0) {
                         toDelete.add(href);
                     }
