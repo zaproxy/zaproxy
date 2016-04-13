@@ -56,6 +56,7 @@
 // ZAP: 2015/02/24 Issue 1540: Allow proxy scripts to fake responses
 // ZAP: 2015/07/17 Show stack trace of the exceptions on proxy errors
 // ZAP: 2016/03/18 Issue 2318: ZAP Error [java.net.SocketTimeoutException]: Read timed out when running on AWS EC2 instance
+// ZAP: 2016/04/13 Notify of timeouts when reading a response
 
 package org.parosproxy.paros.core.proxy;
 
@@ -396,6 +397,7 @@ class ProxyThread implements Runnable {
 			    } catch (SocketTimeoutException e) {
 			        setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, e);
 
+			        notifyListenerResponseReceive(msg);
 			        writeHttpResponse(msg, httpOut);
 			    } catch (IOException e) {
 			    	setErrorResponse(msg, BAD_GATEWAY_RESPONSE_STATUS, e);
