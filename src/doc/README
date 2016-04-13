@@ -30,3 +30,11 @@ Generally, most user's tend to use the Mac OS build, which is a ordinary Mac OS
 app that can be started as any other app: Double-Click on the app to start it. 
 You can use the 'zap.sh' script, as per linux.
 
+Headless Environment
+--------------------
+
+By default ZAP will be started with a GUI which is not supported in headless
+environments, in those cases ZAP needs to be started inline, using the command
+line argument '-cmd', or in daemon mode, using '-daemon'.
+For more information about the command line arguments use '-help'.
+ZAP will show an information message and exit, if still started with GUI.
