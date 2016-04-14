@@ -19,8 +19,10 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.log4j.Logger;
@@ -38,6 +40,14 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 	private ExtensionScript extension = null;
 
     private static Logger logger = Logger.getLogger(ScriptsActiveScanner.class);
+    /**
+     * A {@code Set} containing the scripts that do not implement {@code ActiveScript2}, to show an error if those scripts do
+     * not implement {@code ActiveScript} (thus not implementing any of the required interfaces).
+     * 
+     * @see #scan()
+     * @see #scan(HttpMessage, String, String)
+     */
+    private Set<ScriptWrapper> scriptsNoInterface = new HashSet<>();
 	
     @Override
     public int getId() {
@@ -138,13 +148,14 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 			ScriptWrapper script = it.next();
 			try {
 				if (script.isEnabled()) {
-					// Note that 'old' scripts may not implement the scan() method, so just ignore them
 					ActiveScript2 s = extension.getInterface(script, ActiveScript2.class);
 					
 					if (s != null) {
 						HttpMessage msg = this.getNewMsg();
 						logger.debug("Calling script " + script.getName() + " scanNode for " + msg.getRequestHeader().getURI());
 						s.scanNode(this, msg);
+					} else {
+						scriptsNoInterface.add(script);
 					}
 				}
 				
@@ -156,6 +167,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 		if (!isStop()) {
 			super.scan();
 		}
+		scriptsNoInterface.clear();
     }
 
     @Override
@@ -173,7 +185,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 								"param=" + param + " value=" + value);
 						s.scan(this, msg, param, value);
 						
-					} else {
+					} else if (scriptsNoInterface.contains(script)) {
 						extension.handleFailedScriptInterface(
 								script,
 								Constant.messages.getString("ascan.scripts.interface.active.error", script.getName()));
