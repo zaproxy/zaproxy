@@ -29,3 +29,12 @@ On Windows use the 'zap.bat' file
 On Linux and Mac OS use the 'zap.sh' file
 
 Both of these files are in the installation directory. 
+
+Headless Environment
+--------------------
+
+By default ZAP will be started with a GUI which is not supported in headless
+environments, in those cases ZAP needs to be started inline, using the command
+line argument '-cmd', or in daemon mode, using '-daemon'.
+For more information about the command line arguments use '-help'.
+ZAP will show an information message and exit, if still started with GUI.
