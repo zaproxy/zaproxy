@@ -63,6 +63,7 @@
 // ZAP: 2015/09/16 Issue 1890: ZAP can't completely scan OWASP Benchmark
 // ZAP: 2016/01/26 Fixed findbugs warning
 // ZAP: 2016/04/12 Listen to alert events to update the table model entries
+// ZAP: 2016/04/14 Use View to display the HTTP messages
 
 package org.parosproxy.paros.extension.history;
 
@@ -174,7 +175,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	private LogPanel getLogPanel() {
 		if (logPanel == null) {
-			logPanel = new LogPanel();
+			logPanel = new LogPanel(getView());
 			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
 			// ZAP: Added History (calendar) icon
 			logPanel.setIcon(new ImageIcon(ExtensionHistory.class.getResource("/resource/icon/16/025.png")));	// 'calendar' icon
@@ -216,7 +217,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    if (getView() != null) {
 		    ExtensionHookView pv = extensionHook.getHookView();
 		    pv.addStatusPanel(getLogPanel());
-		    getLogPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 		    
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
@@ -674,8 +674,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 			historyIdToRef.clear();
 
 			if (getView() != null) { 
-				getView().getRequestPanel().clearView(true);
-				getView().getResponsePanel().clearView(false);
+				getView().displayMessage(null);
 			}
 		} else {
 			try {

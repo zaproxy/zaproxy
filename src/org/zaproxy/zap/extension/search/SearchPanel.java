@@ -42,6 +42,7 @@ import javax.swing.event.ListSelectionListener;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.AbstractPanel;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -89,17 +90,23 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	private SearchResultsTable resultsTable;
 	private SearchResultsTableModel resultsModel;
 
-	private HttpPanelRequest requestPanel = null;
-	private HttpPanelResponse responsePanel = null;
+	private final ViewDelegate view;
 
     //private static Logger log = Logger.getLogger(SearchPanel.class);
 
     /**
-     * 
+     * @deprecated (TODO add version) Use {@link #SearchPanel(ViewDelegate)} instead.
      */
+    @Deprecated
     public SearchPanel() {
-        super();
+		this(View.getSingleton());
  		initialize();
+    }
+
+    public SearchPanel(ViewDelegate view) {
+        super();
+        this.view = view;
+        initialize();
     }
 
 	public ExtensionSearch getExtension() {
@@ -410,9 +417,12 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		}
 	}
 
+    /**
+     * @deprecated (TODO add version) No longer used/needed.
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public void setDisplayPanel(HttpPanelRequest requestPanel, HttpPanelResponse responsePanel) {
-        this.requestPanel = requestPanel;
-        this.responsePanel = responsePanel;
     }
     
     private void doSearch() {
@@ -480,21 +490,12 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     
     private void displayMessage(SearchResult sr) {
         HttpMessage msg = sr.getMessage();
+        view.displayMessage(msg);
+
         if (msg == null) {
             return;
         }
 
-        if (msg.getRequestHeader().isEmpty()) {
-            requestPanel.clearView(true);
-        } else {
-            requestPanel.setMessage(msg);
-        }
-        
-        if (msg.getResponseHeader().isEmpty()) {
-            responsePanel.clearView(false);
-        } else {
-            responsePanel.setMessage(msg, true);
-        }
         highlightFirstResult(sr);
     }
     
@@ -505,31 +506,31 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     	
     	switch (sm.getLocation()) {
     	case REQUEST_HEAD:
-    		requestPanel.highlightHeader(sm);
-    		requestPanel.setTabFocus();
-    		requestPanel.requestFocus(); 
+    		view.getRequestPanel().highlightHeader(sm);
+    		view.getRequestPanel().setTabFocus();
+    		view.getRequestPanel().requestFocus(); 
     		break;
     	case REQUEST_BODY:	
-    		requestPanel.highlightBody(sm);
-    		requestPanel.setTabFocus();
-    		requestPanel.requestFocus(); 
+    		view.getRequestPanel().highlightBody(sm);
+    		view.getRequestPanel().setTabFocus();
+    		view.getRequestPanel().requestFocus(); 
     		break;
     	case RESPONSE_HEAD:	
-    		responsePanel.highlightHeader(sm);
-    		responsePanel.setTabFocus();
-    		responsePanel.requestFocus(); 
+    		view.getResponsePanel().highlightHeader(sm);
+    		view.getResponsePanel().setTabFocus();
+    		view.getResponsePanel().requestFocus(); 
     		break;
     	case RESPONSE_BODY:
-    		responsePanel.highlightBody(sm);
-    		responsePanel.setTabFocus();
-    		responsePanel.requestFocus(); 
+    		view.getResponsePanel().highlightBody(sm);
+    		view.getResponsePanel().setTabFocus();
+    		view.getResponsePanel().requestFocus(); 
     		break;
     	}
 
     }
     
     private void highlightFirstResult (SearchResult sr) {
-    	highlightMatch(sr.getFirstMatch(requestPanel, responsePanel));
+    	highlightMatch(sr.getFirstMatch(view.getRequestPanel(), view.getResponsePanel()));
     }
     
     protected void highlightFirstResult() {
@@ -563,7 +564,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     }
 
     private void highlightLastResult (SearchResult sr) {
-    	highlightMatch(sr.getLastMatch(requestPanel, responsePanel));
+    	highlightMatch(sr.getLastMatch(view.getRequestPanel(), view.getResponsePanel()));
     }
 
     protected void highlightPrevResult () {

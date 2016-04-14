@@ -24,6 +24,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2013/05/02 Removed redundant public modifiers from interface method declarations
 // ZAP: 2016/03/22 Allow to remove ContextPanelFactory
+// ZAP: 2016/04/14 Allow to display a message
 
 package org.parosproxy.paros.extension;
 
@@ -35,6 +36,7 @@ import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.WaitMessageDialog;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.view.ContextPanelFactory;
 
 public interface ViewDelegate {
@@ -87,5 +89,17 @@ public interface ViewDelegate {
      * @see #addContextPanelFactory(ContextPanelFactory)
      */
     void removeContextPanelFactory(ContextPanelFactory contextPanelFactory);
+
+    /**
+     * Displays the given {@code message} in the main message panels (Request/Response).
+     * <p>
+     * If the given {@code message} is {@code null} the panels are cleared.
+     *
+     * @param message the message to display
+     * @since TODO add version
+     * @see #getRequestPanel()
+     * @see #getResponsePanel()
+     */
+    void displayMessage(Message message);
 
 }
