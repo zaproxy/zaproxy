@@ -239,10 +239,15 @@ public class HistoryReferencesTable extends ZapTable {
                     return;
                 }
 
+                boolean focusOwner = isFocusOwner();
                 try {
                     displayMessage(hRef.getHttpMessage());
                 } catch (HttpMalformedHeaderException | DatabaseException e) {
                     LOGGER.error(e.getMessage(), e);
+                } finally {
+                    if (focusOwner) {
+                        requestFocusInWindow();
+                    }
                 }
             }
         }
