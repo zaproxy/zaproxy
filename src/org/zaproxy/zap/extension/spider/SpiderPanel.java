@@ -21,7 +21,6 @@ package org.zaproxy.zap.extension.spider;
 import java.awt.Component;
 import java.awt.Event;
 import java.awt.EventQueue;
-import java.awt.Insets;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -63,6 +62,8 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(SpiderPanel.class);
+
+	private static final String ZERO_REQUESTS_LABEL_TEXT = "0";
 
 	private static final SpiderPanelTableModel EMPTY_RESULTS_MODEL = new SpiderPanelTableModel();
 
@@ -190,7 +191,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	private JLabel getFoundCountValueLabel() {
 		if (foundCountValueLabel == null) {
 			foundCountValueLabel = new javax.swing.JLabel();
-			foundCountValueLabel.setText("0");
+			foundCountValueLabel.setText(ZERO_REQUESTS_LABEL_TEXT);
 		}
 		return foundCountValueLabel;
 	}
@@ -198,7 +199,8 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	@Override
 	protected int addToolBarElements(JToolBar toolBar, Location location, int gridX) {
 		if (ScanPanel2.Location.afterProgressBar == location) {
-			toolBar.add(getFoundCountNameLabel(), getGBC(gridX++, 0, 0, new Insets(0, 5, 0, 0)));
+			toolBar.add(new JToolBar.Separator(), getGBC(gridX++, 0));
+			toolBar.add(getFoundCountNameLabel(), getGBC(gridX++, 0));
 			toolBar.add(getFoundCountValueLabel(), getGBC(gridX++, 0));
 		}
 		return gridX;
@@ -212,7 +214,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 		if (sc != null) {
 			this.getFoundCountValueLabel().setText(Integer.toString(sc.getNumberOfURIsFound()));
 		} else {
-			this.getFoundCountValueLabel().setText("");
+			this.getFoundCountValueLabel().setText(ZERO_REQUESTS_LABEL_TEXT);
 		}
 	}
 
