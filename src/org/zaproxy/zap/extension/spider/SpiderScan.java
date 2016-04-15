@@ -20,6 +20,7 @@
  */
 package org.zaproxy.zap.extension.spider;
 
+import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
@@ -37,6 +38,7 @@ import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanListenner2;
@@ -94,6 +96,16 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	private int progress;
 	
 	private ScanListenner2 listener = null;
+
+	/**
+	 * The table model of the messages sent.
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #getMessagesTableModel()
+	 * @see #readURI(HttpMessage)
+	 */
+	private SpiderMessagesTableModel messagesTableModel;
 
 	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId) {
 		lock = new ReentrantLock();
@@ -278,6 +290,28 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 				requestHeader.getURI().toString(),
 				responseHeader.getStatusCode(),
 				responseHeader.getReasonPhrase()));
+
+		if (View.isInitialised()) {
+			addMessageToMessagesTableModel(msg);
+		}
+	}
+
+	private void addMessageToMessagesTableModel(final HttpMessage msg) {
+		if (EventQueue.isDispatchThread()) {
+			if (messagesTableModel == null) {
+				messagesTableModel = new SpiderMessagesTableModel();
+			}
+			messagesTableModel.addHistoryReference(msg.getHistoryRef());
+			return;
+		}
+
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				addMessageToMessagesTableModel(msg);
+			}
+		});
 	}
 
 	@Override
@@ -374,6 +408,19 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		return this.spiderThread.getResultsTableModel();
 	}
 
+	/**
+	 * Gets the {@code TableModel} of the messages sent during the spidering process.
+	 *
+	 * @return a {@code TableModel} with the messages sent
+	 * @since TODO add version
+	 */
+	TableModel getMessagesTableModel() {
+		if (messagesTableModel == null) {
+			messagesTableModel = new SpiderMessagesTableModel();
+		}
+		return messagesTableModel;
+	}
+
 	public void setListener(ScanListenner2 listener) {
 		this.listener = listener;
 	}
@@ -390,5 +437,17 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 		spiderThread.setCustomParseFilters(customParseFilters);
 	}
 
+	/**
+	 * Clears the table model of the HTTP messages sent.
+	 * 
+	 * @since TODO add version
+	 * @see #getMessagesTableModel()
+	 */
+	void clear() {
+		if (messagesTableModel != null) {
+			messagesTableModel.clear();
+			messagesTableModel = null;
+		}
+	}
 	
 }
