@@ -48,6 +48,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 	public boolean isEnableForInvoker(Invoker invoker, HttpMessageContainer httpMessageContainer) {
 		switch (invoker) {
 		case SITES_PANEL:
+		case SPIDER_PANEL:
 		case HISTORY_PANEL:
 			return true;
 		default:

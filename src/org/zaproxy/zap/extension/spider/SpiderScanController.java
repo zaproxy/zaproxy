@@ -196,6 +196,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 				return null;
 			}
 			ascan.stopScan();
+			ascan.clear();
 			spiderScanMap.remove(id);
 			spiderScanList.remove(ascan);
 			return ascan;
@@ -252,6 +253,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 			for (Iterator<SpiderScan> it = spiderScanMap.values().iterator(); it.hasNext();) {
 				SpiderScan ascan = it.next();
 				ascan.stopScan();
+				ascan.clear();
 				it.remove();
 				spiderScanList.remove(ascan);
 				count++;
@@ -271,6 +273,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 				SpiderScan scan = it.next();
 				if (scan.isStopped()) {
 					scan.stopScan();
+					scan.clear();
 					it.remove();
 					spiderScanList.remove(scan);
 					count ++;

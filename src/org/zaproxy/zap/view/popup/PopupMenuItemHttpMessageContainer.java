@@ -32,6 +32,7 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.alert.AlertPanel;
 import org.zaproxy.zap.extension.ascan.ActiveScanPanel;
 import org.zaproxy.zap.extension.search.SearchPanel;
+import org.zaproxy.zap.extension.spider.SpiderPanel;
 import org.zaproxy.zap.view.messagecontainer.MessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.messagecontainer.http.SelectableHttpMessagesContainer;
@@ -60,6 +61,12 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
         ALERTS_PANEL,
         ACTIVE_SCANNER_PANEL,
         SEARCH_PANEL,
+        /**
+         * The panel where spiders' HTTP messages are shown.
+         * 
+         * @since TODO add version
+         */
+        SPIDER_PANEL,
         FUZZER_PANEL,
         FORCED_BROWSE_PANEL,
         UNKNOWN
@@ -274,6 +281,9 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
             break;
         case SearchPanel.HTTP_MESSAGE_CONTAINER_NAME:
             invoker = Invoker.SEARCH_PANEL;
+            break;
+        case SpiderPanel.HTTP_MESSAGE_CONTAINER_NAME:
+            invoker = Invoker.SPIDER_PANEL;
             break;
         case ActiveScanPanel.MESSAGE_CONTAINER_NAME:
             invoker = Invoker.ACTIVE_SCANNER_PANEL;
