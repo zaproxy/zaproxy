@@ -146,26 +146,7 @@ public class HistoryReferenceTable extends JTable {
 	}
 	
     private void displayMessage(HttpMessage msg) {
-    	if (msg == null) {
-    		return;
-    	}
-    	if (msg.getRequestHeader() != null) {
-    		logger.debug("displayMessage " + msg.getRequestHeader().getURI());
-    	} else {
-    		logger.debug("displayMessage null header");
-    	}
-    	
-        if (msg.getRequestHeader() != null && msg.getRequestHeader().isEmpty()) {
-            View.getSingleton().getRequestPanel().clearView(true);
-        } else {
-        	View.getSingleton().getRequestPanel().setMessage(msg);
-        }
-        
-        if (msg.getResponseHeader() != null && msg.getResponseHeader().isEmpty()) {
-        	View.getSingleton().getResponsePanel().clearView(false);
-        } else {
-        	View.getSingleton().getResponsePanel().setMessage(msg, true);
-        }
+        View.getSingleton().displayMessage(msg);
     }
 
 	public HistoryReference getSelectedValue() {

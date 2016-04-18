@@ -605,23 +605,14 @@ public class AlertPanel extends AbstractPanel {
     }
 
 	private void setMessage(HttpMessage msg, String highlight) {
+        getView().displayMessage(msg);
         if (msg == null) {
             return;
         }
 
-	    HttpPanel requestPanel = getView().getRequestPanel();
-	    HttpPanel responsePanel = getView().getResponsePanel();
-	    
-	    if (msg.getRequestHeader().isEmpty()) {
-	    	requestPanel.clearView(true);
-	    } else {
-	        requestPanel.setMessage(msg);
-	    }
-
-	    if (msg.getResponseHeader().isEmpty()) {
-	    	responsePanel.clearView(false);
-	    } else {
-	        responsePanel.setMessage(msg, true);
+	    if (!msg.getResponseHeader().isEmpty()) {
+	        HttpPanel requestPanel = getView().getRequestPanel();
+	        HttpPanel responsePanel = getView().getResponsePanel();
 
 	        SearchMatch sm = null;
 	        int start;

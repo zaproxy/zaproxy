@@ -68,6 +68,7 @@
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2016/04/14 Allow to display a message
 
 package org.parosproxy.paros.view;
 
@@ -110,12 +111,14 @@ import org.parosproxy.paros.extension.option.OptionsParamView;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOn.Status;
 import org.zaproxy.zap.extension.ExtensionPopupMenu;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
+import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.keyboard.ExtensionKeyboard;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.AbstractContextPropertiesPanel;
@@ -984,5 +987,38 @@ public class View implements ViewDelegate {
      */
     public void setMainToolbarVisible(boolean visible) {
         getMainFrame().setMainToolbarVisible(visible);
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * <strong>Note:</strong> Current implementation just supports {@link HttpMessage HTTP messages}. Attempting to display
+     * other message types has no effect.
+     */
+    @Override
+    public void displayMessage(Message message) {
+        if (message == null) {
+            getRequestPanel().clearView(true);
+            getResponsePanel().clearView(false);
+            return;
+        }
+
+        if (!(message instanceof HttpMessage)) {
+            logger.warn("Unable to display message: " + message.getClass().getCanonicalName());
+            return;
+        }
+
+        HttpMessage httpMessage = (HttpMessage) message;
+        if (httpMessage.getRequestHeader().isEmpty()) {
+            getRequestPanel().clearView(true);
+        } else {
+            getRequestPanel().setMessage(httpMessage);
+        }
+
+        if (httpMessage.getResponseHeader().isEmpty()) {
+            getResponsePanel().clearView(false);
+        } else {
+            getResponsePanel().setMessage(httpMessage, true);
+        }
     }
 }
