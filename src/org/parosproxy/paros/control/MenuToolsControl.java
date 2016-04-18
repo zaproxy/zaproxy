@@ -23,6 +23,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
+// ZAP: 2016/04/06 Fix layouts' issues
 package org.parosproxy.paros.control;
 
 import javax.swing.JOptionPane;
@@ -79,7 +80,7 @@ public class MenuToolsControl {
 		    // ZAP: Notify all OptionsChangedListener.
 		    control.getExtensionLoader().optionsChangedAllPlugin(model.getOptionsParam());
 		    
-		    view.setMainToolbarVisible(model.getOptionsParam().getViewParam().isShowMainToolbar());
+		    view.getMainFrame().applyViewOptions();
 
 		    control.getProxy().stopServer();
 		    control.getProxy().startServer();

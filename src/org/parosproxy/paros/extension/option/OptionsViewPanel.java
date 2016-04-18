@@ -26,6 +26,7 @@
 // ZAP: 2014/10/09 Issue 1359: Options for splash screen
 // ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
+// ZAP: 2016/04/06 Fix layouts' issues
 
 package org.parosproxy.paros.extension.option;
 
@@ -54,6 +55,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 import org.zaproxy.zap.utils.FontUtils;
@@ -86,6 +88,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	
 	private JComboBox<String> brkPanelViewSelect = null;
 	private JComboBox<String> displaySelect = null;
+	private JComboBox<ResponsePanelPositionUI> responsePanelPositionComboBox;
 	private JComboBox<String> timeStampsFormatSelect = null; 
 	private JComboBox<String> fontName = null;
 	
@@ -153,120 +156,140 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			outputTabTimeStampExampleLabel = new JLabel(TimeStampUtils.currentDefaultFormattedTimeStamp());
 			showSplashScreenLabel = new JLabel(Constant.messages.getString("view.options.label.showSplashScreen"));
 			
+			int row = 0;
 			displayLabel.setLabelFor(getDisplaySelect());
 			panelMisc.add(displayLabel, 
-					LayoutHelper.getGBC(0, 0, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getDisplaySelect(), 
-					LayoutHelper.getGBC(1, 0, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			row++;
+			JLabel responsePanelPositionLabel = new JLabel(Constant.messages.getString("view.options.label.responsepanelpos"));
+			panelMisc.add(responsePanelPositionLabel, 
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+			panelMisc.add(getResponsePanelPositionComboBox(), 
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+
+			row++;
 			brkPanelViewLabel.setLabelFor(getBrkPanelViewSelect());
 			panelMisc.add(brkPanelViewLabel, 
-					LayoutHelper.getGBC(0, 1, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getBrkPanelViewSelect(), 
-					LayoutHelper.getGBC(1, 1, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
-			
+			row++;
 			largeRequestLabel.setLabelFor(getLargeRequestSize());
 			panelMisc.add(largeRequestLabel, 
-					LayoutHelper.getGBC(0, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getLargeRequestSize(), 
-					LayoutHelper.getGBC(1, 2, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			row++;
 			largeResponseLabel.setLabelFor(getLargeResponseSize());
 			panelMisc.add(largeResponseLabel, 
-					LayoutHelper.getGBC(0, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getLargeResponseSize(), 
-					LayoutHelper.getGBC(1, 3, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
 			
-			
+			row++;
 			advancedViewLabel.setLabelFor(getChkAdvancedView());
 			panelMisc.add(advancedViewLabel, 
-					LayoutHelper.getGBC(0, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkAdvancedView(), 
-					LayoutHelper.getGBC(1, 4, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			wmUiHandlingLabel.setLabelFor(getChkWmUiHandling());
 			panelMisc.add(wmUiHandlingLabel,  
-					LayoutHelper.getGBC(0, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkWmUiHandling(),  
-					LayoutHelper.getGBC(1, 5, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			row++;
 			askOnExitLabel.setLabelFor(getChkAskOnExit());
 			panelMisc.add(askOnExitLabel,  
-					LayoutHelper.getGBC(0, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkAskOnExit(),  
-					LayoutHelper.getGBC(1, 6, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			showMainToolbarLabel.setLabelFor(getChkShowMainToolbar());
 			panelMisc.add(showMainToolbarLabel,  
-					LayoutHelper.getGBC(0, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkShowMainToolbar(),  
-					LayoutHelper.getGBC(1, 7, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			processImagesLabel.setLabelFor(getChkProcessImages());
 			panelMisc.add(processImagesLabel,  
-					LayoutHelper.getGBC(0, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkProcessImages(),  
-					LayoutHelper.getGBC(1, 8, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			row++;
 			showTabNamesLabel.setLabelFor(getShowTabNames());
 			panelMisc.add(showTabNamesLabel,  
-					LayoutHelper.getGBC(0, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getShowTabNames(),  
-					LayoutHelper.getGBC(1, 9, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			showSplashScreenLabel.setLabelFor(getShowSplashScreen());
 			panelMisc.add(showSplashScreenLabel,  
-					LayoutHelper.getGBC(0, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getShowSplashScreen(),  
-					LayoutHelper.getGBC(1, 10, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			outputTabTimeStampLabel.setLabelFor(getChkOutputTabTimeStamps());
 			panelMisc.add(outputTabTimeStampLabel,   
-					LayoutHelper.getGBC(0, 11, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkOutputTabTimeStamps(),   
-					LayoutHelper.getGBC(1, 11, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			outputTabTimeStampExampleLabel.setLabelFor(getTimeStampsFormatSelect());
 			panelMisc.add(getTimeStampsFormatSelect(),   
-					LayoutHelper.getGBC(0, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(outputTabTimeStampExampleLabel,   
-					LayoutHelper.getGBC(1, 12, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			row++;
 			JLabel fontNameLabel = new JLabel(Constant.messages.getString("view.options.label.fontName")); 
 			fontNameLabel.setLabelFor(getFontName());
 			panelMisc.add(fontNameLabel,   
-					LayoutHelper.getGBC(0, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getFontName(),   
-					LayoutHelper.getGBC(1, 13, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 
+			row++;
 			JLabel fontSizeLabel = new JLabel(Constant.messages.getString("view.options.label.fontSize")); 
 			fontSizeLabel.setLabelFor(getFontSize());
 			panelMisc.add(fontSizeLabel,   
-					LayoutHelper.getGBC(0, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getFontSize(),   
-					LayoutHelper.getGBC(1, 14, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			JLabel fontExampleLabel = new JLabel(Constant.messages.getString("view.options.label.fontExample")); 
 			fontExampleLabel.setLabelFor(getFontExampleLabel());
 			panelMisc.add(fontExampleLabel,   
-					LayoutHelper.getGBC(0, 15, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getFontExampleLabel(),   
-					LayoutHelper.getGBC(1, 15, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
-			panelMisc.add(new JLabel(""),   
-					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
-
+			row++;
 			JLabel scaleImagesLabel = new JLabel(Constant.messages.getString("view.options.label.scaleImages")); 
 			fontExampleLabel.setLabelFor(getScaleImages());
 			panelMisc.add(scaleImagesLabel,   
-					LayoutHelper.getGBC(0, 16, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getScaleImages(),   
-					LayoutHelper.getGBC(1, 16, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			
+			row++;
 			panelMisc.add(new JLabel(""),   
-					LayoutHelper.getGBC(0, 20, 1, 1.0D, 1.0D));
+					LayoutHelper.getGBC(0, row, 1, 1.0D, 1.0D));
 
 		}
 		return panelMisc;
@@ -334,6 +357,25 @@ public class OptionsViewPanel extends AbstractParamPanel {
 			displaySelect.addItem(Constant.messages.getString("view.options.label.display.full"));
 		}
 		return displaySelect;
+	}
+
+	private JComboBox<ResponsePanelPositionUI> getResponsePanelPositionComboBox() {
+		if (responsePanelPositionComboBox == null) {
+			responsePanelPositionComboBox = new JComboBox<>();
+			responsePanelPositionComboBox.addItem(
+					new ResponsePanelPositionUI(
+							Constant.messages.getString("view.options.label.responsepanelpos.tabs"),
+							WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE));
+			responsePanelPositionComboBox.addItem(
+					new ResponsePanelPositionUI(
+							Constant.messages.getString("view.options.label.responsepanelpos.sideBySide"),
+							WorkbenchPanel.ResponsePanelPosition.PANELS_SIDE_BY_SIDE));
+			responsePanelPositionComboBox.addItem(
+					new ResponsePanelPositionUI(
+							Constant.messages.getString("view.options.label.responsepanelpos.above"),
+							WorkbenchPanel.ResponsePanelPosition.PANEL_ABOVE));
+		}
+		return responsePanelPositionComboBox;
 	}
 	
 	private JComboBox<String> getBrkPanelViewSelect() {
@@ -490,6 +532,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    getShowSplashScreen().setSelected(options.getViewParam().isShowSplashScreen());
 	    getChkProcessImages().setSelected(options.getViewParam().getProcessImages() > 0);
 	    displaySelect.setSelectedIndex(options.getViewParam().getDisplayOption());
+	    selectResponstPanelPosition(options.getViewParam().getResponsePanelPosition());
 	    brkPanelViewSelect.setSelectedIndex(options.getViewParam().getBrkPanelViewOption());
 	    getChkShowMainToolbar().setSelected(options.getViewParam().isShowMainToolbar());
 	    chkAdvancedView.setSelected(options.getViewParam().getAdvancedViewOption() > 0);
@@ -504,6 +547,20 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    getScaleImages().setSelected(options.getViewParam().isScaleImages());
 	}
 	
+	private void selectResponstPanelPosition(String positionName) {
+		for (int i = 0; i < getResponsePanelPositionComboBox().getItemCount(); i++) {
+			ResponsePanelPositionUI item = getResponsePanelPositionComboBox().getItemAt(i);
+			if (item.getPosition().name().equals(positionName)) {
+				getResponsePanelPositionComboBox().setSelectedIndex(i);
+				break;
+			}
+		}
+
+		if (getResponsePanelPositionComboBox().getSelectedIndex() == -1) {
+			getResponsePanelPositionComboBox().setSelectedIndex(0);
+		}
+	}
+
 	@Override
 	public void validateParam(Object obj) {
 	    // no validation needed
@@ -516,6 +573,8 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setShowSplashScreen(getShowSplashScreen().isSelected());
 	    options.getViewParam().setProcessImages((getChkProcessImages().isSelected()) ? 1 : 0);
 	    options.getViewParam().setDisplayOption(displaySelect.getSelectedIndex());
+	    ResponsePanelPositionUI selectedItem = (ResponsePanelPositionUI) getResponsePanelPositionComboBox().getSelectedItem();
+	    options.getViewParam().setResponsePanelPosition(selectedItem.getPosition().name());
 	    options.getViewParam().setBrkPanelViewOption(brkPanelViewSelect.getSelectedIndex());
 	    options.getViewParam().setShowMainToolbar(getChkShowMainToolbar().isSelected());
 	    options.getViewParam().setAdvancedViewOption(getChkAdvancedView().isSelected() ? 1 : 0);
@@ -552,5 +611,25 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	        }
 	        return renderer;
 	    }
+	}
+
+	private static class ResponsePanelPositionUI {
+
+		private final String name;
+		private final WorkbenchPanel.ResponsePanelPosition position;
+
+		public ResponsePanelPositionUI(String name, WorkbenchPanel.ResponsePanelPosition position) {
+			this.name = name;
+			this.position = position;
+		}
+
+		public WorkbenchPanel.ResponsePanelPosition getPosition() {
+			return position;
+		}
+
+		@Override
+		public String toString() {
+			return name;
+		}
 	}
 }

@@ -31,6 +31,7 @@
 // ZAP: 2014/12/16 Issue 1466: Config option for 'large display' size
 // ZAP: 2015/03/04 Added dev build warning option
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
+// ZAP: 2016/04/06 Fix layouts' issues
 
 package org.parosproxy.paros.extension.option;
 
@@ -39,7 +40,7 @@ import java.util.Locale;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.view.View;
+import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.extension.httppanel.view.largerequest.LargeRequestUtil;
 import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 
@@ -56,6 +57,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String LOCALE = "view.locale";
 	public static final String LOCALES = "view.locales";
 	public static final String DISPLAY_OPTION = "view.displayOption";
+	private static final String RESPONSE_PANEL_POS_KEY = BASE_VIEW_KEY + ".messagePanelsPosition.lastSelectedPosition";
 	public static final String BRK_PANEL_VIEW_OPTION = "view.brkPanelView";
 	public static final String SHOW_MAIN_TOOLBAR_OPTION = "view.showMainToolbar";
 	public static final String DEFAULT_LOCALE = "en_GB";
@@ -81,6 +83,7 @@ public class OptionsParamView extends AbstractParam {
 	private String configLocale = "";
 	private String locale = "";
 	private int displayOption = 0;
+	private String responsePanelPosition;
 	private int brkPanelViewOption = 0;
 	private int askOnExitEnabled = 1;
 	private int wmUiHandlingEnabled = 0;
@@ -108,6 +111,8 @@ public class OptionsParamView extends AbstractParam {
 	    configLocale = getConfig().getString(LOCALE, null);	// No default
 	    locale = getConfig().getString(LOCALE, DEFAULT_LOCALE);
 	    displayOption = getConfig().getInt(DISPLAY_OPTION, 0);
+        responsePanelPosition = getConfig()
+                .getString(RESPONSE_PANEL_POS_KEY, WorkbenchPanel.ResponsePanelPosition.TABS_SIDE_BY_SIDE.name());
 	    brkPanelViewOption = getConfig().getInt(BRK_PANEL_VIEW_OPTION, 0);
 	    showMainToolbar = getConfig().getInt(SHOW_MAIN_TOOLBAR_OPTION, 1);
 	    advancedViewEnabled = getConfig().getInt(ADVANCEDUI_OPTION, 0);
@@ -232,10 +237,6 @@ public class OptionsParamView extends AbstractParam {
 	
 	public void setShowTabNames(boolean showTabNames) {
 		this.showTabNames = showTabNames;
-
-    	// toggle between shown/hidden tab names 
-    	View.getSingleton().getWorkbench().toggleTabNames(showTabNames);
-
 		getConfig().setProperty(SHOW_TEXT_ICONS, showTabNames);
 	}
 
@@ -255,6 +256,28 @@ public class OptionsParamView extends AbstractParam {
 	public void setDisplayOption(int displayOption) {
 		this.displayOption = displayOption;
 		getConfig().setProperty(DISPLAY_OPTION, Integer.toString(displayOption));
+	}
+
+	/**
+	 * Gets the name of the current response panel position.
+	 *
+	 * @return the name of the current position
+	 * @since TODO add version
+	 * @see org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition
+	 */
+	public String getResponsePanelPosition() {
+		return responsePanelPosition;
+	}
+
+	/**
+	 * Sets the name of the current response panel position.
+	 * 
+	 * @param position the name of the position
+	 * @since TODO add version
+	 */
+	public void setResponsePanelPosition(String position) {
+		this.responsePanelPosition = position;
+		getConfig().setProperty(RESPONSE_PANEL_POS_KEY, position);
 	}
 	
 	public int getAdvancedViewOption() {
