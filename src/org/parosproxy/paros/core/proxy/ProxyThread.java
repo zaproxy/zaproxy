@@ -57,6 +57,7 @@
 // ZAP: 2015/07/17 Show stack trace of the exceptions on proxy errors
 // ZAP: 2016/03/18 Issue 2318: ZAP Error [java.net.SocketTimeoutException]: Read timed out when running on AWS EC2 instance
 // ZAP: 2016/04/13 Notify of timeouts when reading a response
+// ZAP: 2016/04/14 Delay the write of response to not attempt to write a response again when handling IOException
 
 package org.parosproxy.paros.core.proxy;
 
@@ -388,7 +389,6 @@ class ProxyThread implements Runnable {
                         }
 			        }
 		        
-			        writeHttpResponse(msg, httpOut);
 			        
 //			        notifyWrittenToForwardProxy();
 			    } catch (HttpException e) {
@@ -398,16 +398,26 @@ class ProxyThread implements Runnable {
 			        setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, e);
 
 			        notifyListenerResponseReceive(msg);
-			        writeHttpResponse(msg, httpOut);
 			    } catch (IOException e) {
 			    	setErrorResponse(msg, BAD_GATEWAY_RESPONSE_STATUS, e);
 			    	
 			        notifyListenerResponseReceive(msg);
 
-			        writeHttpResponse(msg, httpOut);
 
 			        //throw e;
 			    }
+
+				try {
+					writeHttpResponse(msg, httpOut);
+				} catch (IOException e) {
+					StringBuilder strBuilder = new StringBuilder(200);
+					strBuilder.append("Failed to write/forward the HTTP response to the client: ");
+					strBuilder.append(e.getClass().getName());
+					if (e.getMessage() != null) {
+						strBuilder.append(": ").append(e.getMessage());
+					}
+					log.warn(strBuilder.toString());
+				}
 			}	// release semaphore
 			
 			ZapGetMethod method = (ZapGetMethod) msg.getUserObject();			
