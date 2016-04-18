@@ -150,7 +150,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             writeAlertToDB(alert, ref);
 
             try {
-                if (getView() == null) {
+                if (getView() == null || EventQueue.isDispatchThread()) {
                     SessionStructure.addPath(Model.getSingleton().getSession(), ref, alert.getMessage());
                 } else {
                     final HistoryReference fRef = ref;
