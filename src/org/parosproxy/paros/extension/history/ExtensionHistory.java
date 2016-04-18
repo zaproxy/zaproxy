@@ -62,6 +62,7 @@
 // ZAP: 2015/07/16 Issue 1617: ZAP 2.4.0 throws HeadlessExceptions when running in daemon mode on headless machine
 // ZAP: 2015/09/16 Issue 1890: ZAP can't completely scan OWASP Benchmark
 // ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/04/12 Listen to alert events to update the table model entries
 
 package org.parosproxy.paros.extension.history;
 
@@ -89,6 +90,10 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.eventBus.EventConsumer;
+import org.zaproxy.zap.extension.alert.AlertEventPublisher;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
@@ -199,6 +204,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		super.init();
 
 		historyTableModel = new DefaultHistoryReferencesTableModel();
+		ZAP.getEventBus().registerConsumer(new AlertEventConsumer(), AlertEventPublisher.getPublisher().getPublisherName());
 	}
 
 	@Override
@@ -259,19 +265,37 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
 	}
 	
-    public void notifyHistoryItemChanged(final HistoryReference href) {
+    public void notifyHistoryItemChanged(HistoryReference href) {
+        notifyHistoryItemChanged(href.getHistoryId());
+    }
+
+    private void notifyHistoryItemChanged(final int historyId) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            this.historyTableModel.refreshEntryRow(href.getHistoryId());
+            this.historyTableModel.refreshEntryRow(historyId);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    notifyHistoryItemChanged(href);
+                    notifyHistoryItemChanged(historyId);
                 }
             });
         }
 	}
+
+    private void notifyHistoryItemsChanged() {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+            this.historyTableModel.refreshEntryRows();
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    notifyHistoryItemsChanged();
+                }
+            });
+        }
+    }
     
     public void delete(HistoryReference href) {
     	if (href != null) {
@@ -725,5 +749,23 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     @Override
     public boolean supportsDb(String type) {
     	return true;
+    }
+
+    private class AlertEventConsumer implements EventConsumer {
+
+        @Override
+        public void eventReceived(Event event) {
+            switch (event.getEventType()) {
+            case AlertEventPublisher.ALERT_ADDED_EVENT:
+            case AlertEventPublisher.ALERT_CHANGED_EVENT:
+            case AlertEventPublisher.ALERT_REMOVED_EVENT:
+                notifyHistoryItemChanged(Integer.valueOf(event.getParameters().get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
+                break;
+            case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
+            default:
+                notifyHistoryItemsChanged();
+                break;
+            }
+        }
     }
 }

@@ -99,7 +99,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     void updatePath(final Alert originalAlert, final Alert alert) {
-        if (EventQueue.isDispatchThread()) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	updatePathEventHandler(originalAlert, alert);
         } else {
             try {

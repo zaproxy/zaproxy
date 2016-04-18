@@ -47,6 +47,7 @@
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
 // ZAP: 2016/01/26 Fixed findbugs warning
 // ZAP: 2016/03/24 Do not access EDT in daemon mode
+// ZAP: 2016/04/12 Notify of changes when an alert is updated
 
 package org.parosproxy.paros.model;
 
@@ -373,7 +374,7 @@ public class SiteNode extends DefaultMutableTreeNode {
 	    		// Updating an alert might affect the nodes visibility in a filtered tree
 	    		siteMap.applyFilter(this);
 	    	}
-		
+	    	this.nodeChanged();
 		}
     }
     
