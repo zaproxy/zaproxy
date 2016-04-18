@@ -70,6 +70,8 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	 */
 	public static final String MESSAGE_CONTAINER_NAME = "ActiveScanMessageContainer";
 
+	private static final String ZERO_REQUESTS_LABEL_TEXT = "0";
+
     private static final ActiveScanTableModel EMPTY_RESULTS_MODEL = new ActiveScanTableModel();
 	
     private ExtensionActiveScan extension;
@@ -103,6 +105,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			panelToolbar.add(getProgressButton(), getGBC(x++,0));
 		}
 		if (Location.afterProgressBar.equals(loc)) {
+			panelToolbar.add(new JToolBar.Separator(), getGBC(x++, 0));
 			panelToolbar.add(new JLabel(Constant.messages.getString("ascan.toolbar.requests.label")), getGBC(x++,0));
 			panelToolbar.add(getNumRequests(), getGBC(x++,0));
 		}
@@ -157,7 +160,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	
 	private JLabel getNumRequests() {
 		if (numRequests == null) {
-			numRequests = new JLabel();
+			numRequests = new JLabel(ZERO_REQUESTS_LABEL_TEXT);
 		}
 		return numRequests;
 	}
@@ -242,7 +245,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 			}
 		} else {
 			resetMessagesTable();
-		    this.getNumRequests().setText("");
+		    this.getNumRequests().setText(ZERO_REQUESTS_LABEL_TEXT);
 		    this.getProgressButton().setEnabled(false);
 		}
 	}
