@@ -116,6 +116,9 @@ public class Spider {
 
 	/** The scan user. */
 	private User scanUser;
+	
+	/** The time the scan was started */
+	private long timeStarted;
 
 	/**
 	 * The initialized marks if the spidering process is completely started. It solves the problem
@@ -423,6 +426,8 @@ public class Spider {
 	public void start() {
 
 		log.info("Starting spider...");
+		
+		this.timeStarted = System.currentTimeMillis();
 
 		fetchFilterSeeds();
 
@@ -672,6 +677,14 @@ public class Spider {
 	 * @return true, if is stopped
 	 */
 	public boolean isStopped() {
+		if (! stopped && this.spiderParam.getMaxDuration() > 0) {
+			// Check to see if the scan has exceeded the specified maxDuration
+			if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - this.timeStarted) > 
+					this.spiderParam.getMaxDuration()) {
+				log.info("Spidering process has exceeded maxDuration of " + this.spiderParam.getMaxDuration() + " minute(s)");
+				this.complete();
+			}
+		}
 		return stopped;
 	}
 
