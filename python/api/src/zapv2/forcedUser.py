@@ -15,38 +15,42 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 This file was automatically generated.
 """
 
+import six
+
+
 class forcedUser(object):
+	def __init__(self, zap):
+		self.zap = zap
 
-    def __init__(self, zap):
-        self.zap = zap
+	@property
+	def is_forced_user_mode_enabled(self):
+		"""
+		Returns 'true' if 'forced user' mode is enabled, 'false' otherwise
+		"""
+		return next(six.itervalues(self.zap._request(self.zap.base + 'forcedUser/view/isForcedUserModeEnabled/')))
 
-    @property
-    def is_forced_user_mode_enabled(self):
-        """
-        Returns 'true' if 'forced user' mode is enabled, 'false' otherwise
-        """
-        return next(self.zap._request(self.zap.base + 'forcedUser/view/isForcedUserModeEnabled/').itervalues())
+	def get_forced_user(self, contextid):
+		"""
+		Gets the user (ID) set as 'forced user' for the given context (ID)
+		"""
+		return next(six.itervalues(
+			self.zap._request(self.zap.base + 'forcedUser/view/getForcedUser/', {'contextId': contextid})))
 
-    def get_forced_user(self, contextid):
-        """
-        Gets the user (ID) set as 'forced user' for the given context (ID)
-        """
-        return next(self.zap._request(self.zap.base + 'forcedUser/view/getForcedUser/', {'contextId' : contextid}).itervalues())
+	def set_forced_user(self, contextid, userid, apikey=''):
+		"""
+		Sets the user (ID) that should be used in 'forced user' mode for the given context (ID)
+		"""
+		return next(six.itervalues(self.zap._request(self.zap.base + 'forcedUser/action/setForcedUser/',
+		                                             {'contextId': contextid, 'userId': userid, 'apikey': apikey})))
 
-    def set_forced_user(self, contextid, userid, apikey=''):
-        """
-        Sets the user (ID) that should be used in 'forced user' mode for the given context (ID)
-        """
-        return next(self.zap._request(self.zap.base + 'forcedUser/action/setForcedUser/', {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}).itervalues())
-
-    def set_forced_user_mode_enabled(self, boolean, apikey=''):
-        """
-        Sets if 'forced user' mode should be enabled or not
-        """
-        return next(self.zap._request(self.zap.base + 'forcedUser/action/setForcedUserModeEnabled/', {'boolean' : boolean, 'apikey' : apikey}).itervalues())
-
-
+	def set_forced_user_mode_enabled(self, boolean, apikey=''):
+		"""
+		Sets if 'forced user' mode should be enabled or not
+		"""
+		return next(six.itervalues(self.zap._request(self.zap.base + 'forcedUser/action/setForcedUserModeEnabled/',
+		                                             {'boolean': boolean, 'apikey': apikey})))

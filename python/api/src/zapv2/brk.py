@@ -15,22 +15,30 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 This file was automatically generated.
 """
 
+import six
+
+
 class brk(object):
+	def __init__(self, zap):
+		self.zap = zap
 
-    def __init__(self, zap):
-        self.zap = zap
+	def brk(self, type, scope, state, apikey=''):
+		return next(six.itervalues(self.zap._request(self.zap.base + 'break/action/break/',
+		                                             {'type': type, 'scope': scope, 'state': state, 'apikey':
+			                                             apikey})))
 
-    def brk(self, type, scope, state, apikey=''):
-        return next(self.zap._request(self.zap.base + 'break/action/break/', {'type' : type, 'scope' : scope, 'state' : state, 'apikey' : apikey}).itervalues())
+	def add_http_breakpoint(self, string, location, match, inverse, ignorecase, apikey=''):
+		return next(six.itervalues(self.zap._request(self.zap.base + 'break/action/addHttpBreakpoint/',
+		                                             {'string' : string, 'location': location, 'match': match,
+		                                              'inverse': inverse, 'ignorecase': ignorecase, 'apikey':
+			                                              apikey})))
 
-    def add_http_breakpoint(self, string, location, match, inverse, ignorecase, apikey=''):
-        return next(self.zap._request(self.zap.base + 'break/action/addHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase, 'apikey' : apikey}).itervalues())
-
-    def remove_http_breakpoint(self, string, location, match, inverse, ignorecase, apikey=''):
-        return next(self.zap._request(self.zap.base + 'break/action/removeHttpBreakpoint/', {'string' : string, 'location' : location, 'match' : match, 'inverse' : inverse, 'ignorecase' : ignorecase, 'apikey' : apikey}).itervalues())
-
-
+	def remove_http_breakpoint(self, string, location, match, inverse, ignorecase, apikey=''):
+		return next(six.itervalues(self.zap._request(self.zap.base + 'break/action/removeHttpBreakpoint/',
+		                                             {'string' : string, 'location': location, 'match': match,
+		                                              'inverse': inverse, 'ignorecase': ignorecase, 'apikey': apikey})))

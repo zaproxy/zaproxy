@@ -15,26 +15,28 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 This file was automatically generated.
 """
 
+import six
+
+
 class reveal(object):
+	def __init__(self, zap):
+		self.zap = zap
 
-    def __init__(self, zap):
-        self.zap = zap
+	@property
+	def reveal(self):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return next(six.itervalues(self.zap._request(self.zap.base + 'reveal/view/reveal/')))
 
-    @property
-    def reveal(self):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return next(self.zap._request(self.zap.base + 'reveal/view/reveal/').itervalues())
-
-    def set_reveal(self, reveal, apikey=''):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return next(self.zap._request(self.zap.base + 'reveal/action/setReveal/', {'reveal' : reveal, 'apikey' : apikey}).itervalues())
-
-
+	def set_reveal(self, reveal, apikey=''):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return next(six.itervalues(
+			self.zap._request(self.zap.base + 'reveal/action/setReveal/', {'reveal': reveal, 'apikey': apikey})))

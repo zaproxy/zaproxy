@@ -15,43 +15,52 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 This file was automatically generated.
 """
 
+import six
+
+
 class importLogFiles(object):
+	def __init__(self, zap):
+		self.zap = zap
 
-    def __init__(self, zap):
-        self.zap = zap
+	def import_zap_log_from_file(self, filepath):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return next(six.itervalues(
+			self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPLogFromFile/', {'FilePath': filepath})))
 
-    def import_zap_log_from_file(self, filepath):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPLogFromFile/', {'FilePath' : filepath}).itervalues())
+	def import_mod_security_log_from_file(self, filepath):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return next(six.itervalues(
+			self.zap._request(self.zap.base + 'importLogFiles/view/ImportModSecurityLogFromFile/',
+			                  {'FilePath': filepath})))
 
-    def import_mod_security_log_from_file(self, filepath):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportModSecurityLogFromFile/', {'FilePath' : filepath}).itervalues())
+	def import_zap_http_request_response_pair(self, httprequest, httpresponse):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return next(six.itervalues(
+			self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPHttpRequestResponsePair/',
+			                  {'HTTPRequest': httprequest, 'HTTPResponse': httpresponse})))
 
-    def import_zap_http_request_response_pair(self, httprequest, httpresponse):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPHttpRequestResponsePair/', {'HTTPRequest' : httprequest, 'HTTPResponse' : httpresponse}).itervalues())
+	def post_mod_security_audit_event(self, auditeventstring='', apikey=''):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return next(six.itervalues(self.zap._request(self.zap.base +
+		                                             'importLogFiles/action/PostModSecurityAuditEvent/',
+		                                             {'AuditEventString': auditeventstring, 'apikey': apikey})))
 
-    def post_mod_security_audit_event(self, auditeventstring='', apikey=''):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return next(self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}).itervalues())
-
-    def other_post_mod_security_audit_event(self, auditeventstring, apikey=''):
-        """
-        This component is optional and therefore the API will only work if it is installed
-        """
-        return (self.zap._request_other(self.zap.base_other + 'importLogFiles/other/OtherPostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}))
-
-
+	def other_post_mod_security_audit_event(self, auditeventstring, apikey=''):
+		"""
+		This component is optional and therefore the API will only work if it is installed
+		"""
+		return self.zap._request_other(self.zap.base_other + 'importLogFiles/other/OtherPostModSecurityAuditEvent/',
+		                               {'AuditEventString': auditeventstring, 'apikey': apikey})
