@@ -607,7 +607,6 @@ public class ActiveScanAPI extends ApiImplementor {
 			resultList = new ApiResponseList(name);
 			activeScan = getActiveScan(params);
 			if (activeScan != null) {
-				activeScan.updatePluginRequestCounts();
 				for (HostProcess hp : activeScan.getHostProcesses()) {
 					ApiResponseList hpList = new ApiResponseList("HostProcess");
 					resultList.addItem(new ApiResponseElement("id", XMLStringUtil.escapeControlChrs(hp.getHostAndPort())));

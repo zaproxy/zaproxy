@@ -238,7 +238,6 @@ public class ScanProgressTableModel extends AbstractTableModel {
      */
     public void updateValues(ActiveScan scan, HostProcess hp) {
         values.clear();
-        scan.updatePluginRequestCounts();
         
         // Iterate all Plugins
         for (Plugin plugin : hp.getCompleted()) {

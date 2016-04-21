@@ -55,6 +55,7 @@
 // ZAP: 2015/11/27 Issue 2086: Report request counts per plugin
 // ZAP: 2015/12/16 Prevent HostProcess (and plugins run) from becoming in undefined state
 // ZAP: 2016/01/27 Prevent HostProcess from reporting progress higher than 100%
+// ZAP: 2016/04/21 Allow scanners to notify of messages sent (and tweak the progress and request count of each plugin)
 
 package org.parosproxy.paros.core.scanner;
 
@@ -98,16 +99,17 @@ public class HostProcess implements Runnable {
     private User user = null;
     private TechSet techSet = null;
 
-    // time related 
-    // ZAP: changed to Integer because the pluginId is int
-    private final Map<Integer, Long> mapPluginStartTime = new HashMap<>();
+    /**
+     * A {@code Map} from plugin IDs to corresponding {@link PluginStats}.
+     * 
+     * @see #processPlugin(Plugin)
+     */
+    private final Map<Integer, PluginStats> mapPluginStats = new HashMap<>();
     private final Set<Integer> listPluginIdSkipped = new HashSet<>();
     private long hostProcessStartTime = 0;
 
     // ZAP: progress related
     private int nodeInScopeCount = 0;
-    private final Map<Integer, Integer> mapPluginProgress = new HashMap<>();
-    private final Map<Integer, Integer> mapPluginReqCounts = new HashMap<>();
     private int percentage = 0;
     
     /**
@@ -217,8 +219,9 @@ public class HostProcess implements Runnable {
     }
 
     private void processPlugin(final Plugin plugin) {
-        mapPluginStartTime.put(plugin.getId(), System.currentTimeMillis());
-        mapPluginProgress.put(plugin.getId(), 0);
+        synchronized (mapPluginStats) {
+            mapPluginStats.put(plugin.getId(), new PluginStats());
+        }
 
         if (techSet != null && !plugin.targets(techSet)) {
             listPluginIdSkipped.add(plugin.getId());
@@ -387,6 +390,7 @@ public class HostProcess implements Runnable {
             
         } while (thread == null);
 
+        mapPluginStats.get(plugin.getId()).incProgress();
         return true;
     }
 
@@ -404,16 +408,21 @@ public class HostProcess implements Runnable {
      * @return the current managed test count
      */
     public int getTestCurrentCount(Plugin plugin) {
-        return mapPluginProgress.get(plugin.getId());
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            return 0;
+        }
+        return pluginStats.getProgress();
     }
 
     /**
-     * ZAP: method to set the current progress status for a specific plugin
-     * @param plugin the plugin we're setting the progress
-     * @param value the value that need to be set
+     * @deprecated (TODO add version) No longer used/needed, Plugin's progress is automatically updated/maintained by
+     *             {@code HostProcess}.
      */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public void setTestCurrentCount(Plugin plugin, int value) {        
-        mapPluginProgress.put(plugin.getId(), value);
+        // No longer used.
     }
     
     /**
@@ -477,9 +486,52 @@ public class HostProcess implements Runnable {
         parentScanner.notifyHostComplete(hostAndPort);
     }
 
-    // ZAP: notify parent
+    /**
+     * Notifies interested parties that a new message was sent (and received).
+     * <p>
+     * {@link Plugin Plugins} should call {@link #notifyNewMessage(Plugin)} or {@link #notifyNewMessage(Plugin, HttpMessage)},
+     * instead.
+     * 
+     * @param msg the new HTTP message
+     * @since 1.2.0
+     */
     public void notifyNewMessage(HttpMessage msg) {
         parentScanner.notifyNewMessage(msg);
+    }
+
+    /**
+     * Notifies that the given {@code plugin} sent (and received) the given HTTP message.
+     *
+     * @param plugin the plugin that sent the message
+     * @param message the message sent
+     * @throws IllegalArgumentException if the given {@code plugin} is {@code null}.
+     * @since TODO add version
+     * @see #notifyNewMessage(Plugin)
+     */
+    public void notifyNewMessage(Plugin plugin, HttpMessage message) {
+        parentScanner.notifyNewMessage(message);
+        notifyNewMessage(plugin);
+    }
+
+    /**
+     * Notifies that the given {@code plugin} sent (and received) a non-HTTP message.
+     * <p>
+     * The call to this method has no effect if there's no {@code Plugin} with the given ID (or, it was not yet started).
+     *
+     * @param plugin the plugin that sent a non-HTTP message
+     * @throws IllegalArgumentException if the given parameter is {@code null}.
+     * @since TODO add version
+     * @see #notifyNewMessage(Plugin, HttpMessage)
+     */
+    public void notifyNewMessage(Plugin plugin) {
+        if (plugin == null) {
+            throw new IllegalArgumentException("Parameter plugin must not be null.");
+        }
+
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats != null) {
+            pluginStats.incMessageCount();
+        }
     }
 
     public void alertFound(Alert alert) {
@@ -526,7 +578,12 @@ public class HostProcess implements Runnable {
      * @param plugin the plugin that need to be marked as completed
      */
     void pluginCompleted(Plugin plugin) {
-        Object obj = mapPluginStartTime.get(plugin.getId());
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            // Plugin was not processed
+            return;
+        }
+
         StringBuilder sb = new StringBuilder();
         if (isStop()) {
             sb.append("stopped host/plugin ");
@@ -540,12 +597,10 @@ public class HostProcess implements Runnable {
         }
         
         sb.append(hostAndPort).append(" | ").append(plugin.getCodeName());
-        if (obj != null) {
-            long startTimeMillis = (Long)obj;
-            long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
-            String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
-            sb.append(" in ").append(diffTimeString);
-        }
+        long startTimeMillis = pluginStats.getStartTime();
+        long diffTimeMillis = System.currentTimeMillis() - startTimeMillis;
+        String diffTimeString = decimalFormat.format(diffTimeMillis / 1000.0) + "s";
+        sb.append(" in ").append(diffTimeString);
 
         // Probably too verbose evaluate 4 the future
         log.info(sb.toString());
@@ -554,7 +609,7 @@ public class HostProcess implements Runnable {
         notifyHostProgress(null);
                 
         // ZAP: update progress as finished
-        mapPluginProgress.put(plugin.getId(), nodeInScopeCount);
+        pluginStats.setProgress(nodeInScopeCount);
     }
 
     /**
@@ -646,16 +701,48 @@ public class HostProcess implements Runnable {
 		return this.hostAndPort;
 	}
 	
+	/**
+	 * @deprecated (TODO add version) No longer used/needed, Plugin's request count is automatically updated/maintained by
+	 *             {@code HostProcess}.
+	 */
+	@Deprecated
 	public void setPluginRequestCount(int pluginId, int reqCount) {
-		this.mapPluginReqCounts.put(pluginId, reqCount);
+		// No longer used.
 	}
 	
+	/**
+	 * Gets the request count of the plugin with the give ID.
+	 *
+	 * @param pluginId the ID of the plugin
+	 * @return the request count
+	 * @since 2.4.3
+	 * @see #getRequestCount()
+	 */
 	public int getPluginRequestCount(int pluginId) {
-		if (this.mapPluginReqCounts.containsKey(pluginId)) {
-			return this.mapPluginReqCounts.get(pluginId);
+		PluginStats pluginStats = mapPluginStats.get(pluginId);
+		if (pluginStats != null) {
+			return pluginStats.getMessageCount();
 		}
 		return 0;
 	}
+
+    /**
+     * Gets the count of requests sent (and received) by all {@code Plugin}s and the {@code Analyser}.
+     *
+     * @return the count of request sent
+     * @since TODO add version
+     * @see #getPluginRequestCount(int)
+     * @see #getAnalyser()
+     */
+    public int getRequestCount() {
+        synchronized (mapPluginStats) {
+            int count = getAnalyser().getRequestCount();
+            for (PluginStats stats : mapPluginStats.values()) {
+                count += stats.getMessageCount();
+            }
+            return count;
+        }
+    }
 
     /**
      * An action to be executed for each node traversed during the scan.
@@ -706,6 +793,78 @@ public class HostProcess implements Runnable {
         @Override
         public boolean isStopTraversing() {
             return false;
+        }
+    }
+
+    /**
+     * The stats of a {@link Plugin}, when the {@code Plugin} was started, how many messages were sent and its scan progress.
+     */
+    private static class PluginStats {
+
+        private final long startTime;
+        private int messageCount;
+        private int progress;
+
+        /**
+         * Constructs a {@code PluginStats}, initialising the starting time of the plugin.
+         */
+        public PluginStats() {
+            startTime = System.currentTimeMillis();
+        }
+
+        /**
+         * Gets the time when the plugin was started, in milliseconds.
+         *
+         * @return time when the plugin was started
+         * @see System#currentTimeMillis()
+         */
+        public long getStartTime() {
+            return startTime;
+        }
+
+        /**
+         * Gets the count of messages sent by the plugin.
+         *
+         * @return the count of messages sent
+         */
+        public int getMessageCount() {
+            return messageCount;
+        }
+
+        /**
+         * Increments the count of messages sent by the plugin.
+         * <p>
+         * Should be called when the plugin notifies that a message was sent.
+         */
+        public void incMessageCount() {
+            messageCount++;
+        }
+
+        /**
+         * Gets the scan progress of the plugin.
+         *
+         * @return the scan progress
+         */
+        public int getProgress() {
+            return progress;
+        }
+
+        /**
+         * Increments the scan progress of the plugin.
+         * <p>
+         * Should be called after scanning a message.
+         */
+        public void incProgress() {
+            this.progress++;
+        }
+
+        /**
+         * Sets the scan progress of the plugin.
+         *
+         * @param progress the progress to set
+         */
+        public void setProgress(int progress) {
+            this.progress = progress;
         }
     }
 
