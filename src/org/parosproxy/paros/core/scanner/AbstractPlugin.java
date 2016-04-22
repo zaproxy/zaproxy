@@ -48,6 +48,7 @@
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
 // ZAP: 2016/03/22 Implement init() and getDependency() by default, most plugins do not use them
+// ZAP: 2016/04/21 Include Plugin itself when notifying of a new message sent
 
 package org.parosproxy.paros.core.scanner;
 
@@ -258,7 +259,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
         
         // ZAP: Notify parent
-        parent.notifyNewMessage(msg);
+        parent.notifyNewMessage(this, msg);
         
         //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(msg, this);

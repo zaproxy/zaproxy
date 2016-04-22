@@ -21,6 +21,7 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/06/26 Added the possibility to evaluate the current plugin/process progress
+// ZAP: 2016/04/21 Remove manual progress change, HostProcess takes care of that
 
 package org.parosproxy.paros.core.scanner;
 
@@ -39,8 +40,5 @@ public abstract class AbstractAppPlugin extends AbstractPlugin {
         /*	no need to notify parent this plugin is completed.  HostProcess will wait each
          	AbstractAppPlugin to finish.
          */
-
-        // ZAP: set the progress in the HostProcess
-        parent.setTestCurrentCount(this, parent.getTestCurrentCount(this) + 1);
     }
 }
