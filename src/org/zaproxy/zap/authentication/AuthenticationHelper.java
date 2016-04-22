@@ -1,5 +1,6 @@
 package org.zaproxy.zap.authentication;
 
+import java.awt.EventQueue;
 import java.io.IOException;
 
 import org.apache.commons.httpclient.HttpState;
@@ -57,7 +58,7 @@ public class AuthenticationHelper {
 		// Let the user know it worked
 		if (View.isInitialised()) {
 			View.getSingleton().getOutputPanel()
-					.append(Constant.messages.getString("authentication.output.success") + "\n");
+					.appendAsync(Constant.messages.getString("authentication.output.success") + "\n");
 		}
 	}
 
@@ -71,7 +72,7 @@ public class AuthenticationHelper {
 		// Let the user know it failed
 		if (View.isInitialised()) {
 			View.getSingleton().getOutputPanel()
-					.append(Constant.messages.getString("authentication.output.failure") + "\n");
+					.appendAsync(Constant.messages.getString("authentication.output.failure") + "\n");
 		}
 	}
 
@@ -84,13 +85,22 @@ public class AuthenticationHelper {
 	public static void addAuthMessageToHistory(HttpMessage msg) {
 		// Add message to history
 		try {
-			HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(),
+			final HistoryReference ref = new HistoryReference(Model.getSingleton().getSession(),
 					HistoryReference.TYPE_AUTHENTICATION, msg);
 			ref.addTag(HISTORY_TAG_AUTHENTICATION);
-			ExtensionHistory extHistory = Control.getSingleton().getExtensionLoader()
-					.getExtension(ExtensionHistory.class);
-			if (extHistory != null) {
-				extHistory.addHistory(ref);
+			if (View.isInitialised()) {
+				final ExtensionHistory extHistory = Control.getSingleton()
+						.getExtensionLoader()
+						.getExtension(ExtensionHistory.class);
+				if (extHistory != null) {
+					EventQueue.invokeLater(new Runnable() {
+
+						@Override
+						public void run() {
+							extHistory.addHistory(ref);
+						}
+					});
+				}
 			}
 		} catch (Exception ex) {
 			log.error("Cannot add authentication message to History tab.", ex);
