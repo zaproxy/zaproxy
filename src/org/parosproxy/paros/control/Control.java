@@ -58,6 +58,7 @@
 // ZAP: 2015/09/17 Issue 1914: Support multiple add-on directories
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
+// ZAP: 2016/04/22 Issue 2428: Memory leak on session creation/loading
 
 package org.parosproxy.paros.control;
 
@@ -327,8 +328,8 @@ public class Control extends AbstractControl implements SessionListener {
 		}
 
 	    log.info("New session file created");
-		control.getExtensionLoader().sessionChangedAllPlugin(session);
 		control.getExtensionLoader().databaseOpen(model.getDb());
+		control.getExtensionLoader().sessionChangedAllPlugin(session);
 	}
     
     public void runCommandLineOpenSession(String fileName) throws Exception {
@@ -338,8 +339,8 @@ public class Control extends AbstractControl implements SessionListener {
     	Session session = Model.getSingleton().getSession();
     	Model.getSingleton().openSession(fileName);
 	    log.info("Session file opened");
-		control.getExtensionLoader().sessionChangedAllPlugin(session);
 		control.getExtensionLoader().databaseOpen(model.getDb());
+		control.getExtensionLoader().sessionChangedAllPlugin(session);
     }
 
     public void setExcludeFromProxyUrls(List<String> urls) {
@@ -366,8 +367,8 @@ public class Control extends AbstractControl implements SessionListener {
 	    log.info("New Session");
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		final Session session = model.newSession();
-		getExtensionLoader().sessionChangedAllPlugin(session);
 		getExtensionLoader().databaseOpen(model.getDb());
+		getExtensionLoader().sessionChangedAllPlugin(session);
 
 		if (View.isInitialised()) {
 			SwingUtilities.invokeLater(new Runnable() {
@@ -431,14 +432,14 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
 		model.closeSession();
 		model.createAndOpenUntitledDb();
-		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 		getExtensionLoader().databaseOpen(model.getDb());
+		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 	}
 
 	@Override
 	public void sessionOpened(File file, Exception e) {
-		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 		getExtensionLoader().databaseOpen(model.getDb());
+		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 		if (lastCallback != null) {
 			lastCallback.sessionOpened(file, e);
 			lastCallback = null;
@@ -448,8 +449,8 @@ public class Control extends AbstractControl implements SessionListener {
 
 	@Override
 	public void sessionSaved(Exception e) {
-		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 		getExtensionLoader().databaseOpen(model.getDb());
+		getExtensionLoader().sessionChangedAllPlugin(model.getSession());
 		if (lastCallback != null) {
 			lastCallback.sessionSaved(e);
 			lastCallback = null;
