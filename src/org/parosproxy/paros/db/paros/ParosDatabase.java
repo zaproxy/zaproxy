@@ -35,19 +35,19 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
+// ZAP: 2016/04/22 Issue 2428: Memory leak on session creation/loading
 
 package org.parosproxy.paros.db.paros;
 
 import java.io.File;
 import java.sql.SQLException;
-import java.util.Vector;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.parosproxy.paros.db.AbstractDatabase;
 import org.parosproxy.paros.db.Database;
-import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
-import org.parosproxy.paros.db.DatabaseUnsupportedException;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.db.TableContext;
 import org.parosproxy.paros.db.TableHistory;
@@ -61,7 +61,7 @@ import org.parosproxy.paros.extension.option.DatabaseParam;
 
 
 
-public class ParosDatabase implements Database {
+public class ParosDatabase extends AbstractDatabase {
 	
 	private ParosDatabaseServer databaseServer = null;
 	private TableHistory tableHistory = null;
@@ -76,11 +76,14 @@ public class ParosDatabase implements Database {
 	private TableParam tableParam = null;
 	private TableContext tableContext = null;
 	private TableStructure tableStructure = null;
-	// ZAP: Added Logger.
-    private static final Logger log = Logger.getLogger(ParosDatabase.class);
 
-	// ZAP: Added type arguments.
-	private Vector<DatabaseListener> listenerList = new Vector<>();
+	/**
+	 * {@code DatabaseListener}s added internally when the {@code SqlDatabase} is constructed.
+	 * <p>
+	 * These listeners are kept during the lifetime of the database, while dynamically added listeners are removed once the
+	 * database is closed.
+	 */
+	private List<DatabaseListener> internalDatabaseListeners = new ArrayList<>();
 
 	private DatabaseParam databaseOptions;
 
@@ -98,18 +101,15 @@ public class ParosDatabase implements Database {
 	    tableContext = new ParosTableContext();
 	    tableStructure = new ParosTableStructure();
 	    
-	    addDatabaseListener(tableHistory);
-	    addDatabaseListener(tableSession);
-	    addDatabaseListener(tableAlert);
-	    addDatabaseListener(tableScan);
-	    // ZAP: Added statement.
-	    addDatabaseListener(tableTag);
-	    // ZAP: Added statement.
-	    addDatabaseListener(tableSessionUrl);
-	    // ZAP: Added statement.
-	    addDatabaseListener(tableParam);
-	    addDatabaseListener(tableContext);
-	    addDatabaseListener(tableStructure);
+	    internalDatabaseListeners.add(tableHistory);
+	    internalDatabaseListeners.add(tableSession);
+	    internalDatabaseListeners.add(tableAlert);
+	    internalDatabaseListeners.add(tableScan);
+	    internalDatabaseListeners.add(tableTag);
+	    internalDatabaseListeners.add(tableSessionUrl);
+	    internalDatabaseListeners.add(tableParam);
+	    internalDatabaseListeners.add(tableContext);
+	    internalDatabaseListeners.add(tableStructure);
 
 	}
 	
@@ -144,74 +144,33 @@ public class ParosDatabase implements Database {
 	public TableSession getTableSession() {
         return tableSession;
     }
-    
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.DatabaseIF#addDatabaseListener(org.parosproxy.paros.db.DatabaseListener)
-	 */
-	@Override
-	public void addDatabaseListener(DatabaseListener listener) {
-		listenerList.add(listener);
-		
-	}
 	
-	// ZAP: Changed parameter's type from SpiderListener to DatabaseListener.
-	/* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.DatabaseIF#removeDatabaseListener(org.parosproxy.paros.db.DatabaseListener)
-	 */
-	@Override
-	public void removeDatabaseListener(DatabaseListener listener) {
-		listenerList.remove(listener);
-	}
-	
-	private void notifyListenerDatabaseOpen() throws DatabaseException {
-	    DatabaseListener listener = null;
-	    
-	    for (int i=0;i<listenerList.size();i++) {
-	        // ZAP: Removed unnecessary cast.
-	        listener = listenerList.get(i);
-	        try {
-				listener.databaseOpen(getDatabaseServer());
-			} catch (DatabaseUnsupportedException e) {
-				log.error(e.getMessage(), e);
-			}
-	    }
-	}
-
 	/* (non-Javadoc)
 	 * @see org.parosproxy.paros.db.DatabaseIF#open(java.lang.String)
 	 */
 	@Override
 	public void open(String path) throws ClassNotFoundException, Exception {
 	    // ZAP: Added log statement.
-		log.debug("open " + path);
+		logger.debug("open " + path);
 	    setDatabaseServer(new ParosDatabaseServer(path, databaseOptions));
-	    notifyListenerDatabaseOpen();
+
+        notifyListenersDatabaseOpen(internalDatabaseListeners, getDatabaseServer());
+        notifyListenersDatabaseOpen(getDatabaseServer());
 	}
-	
-    /* (non-Javadoc)
-	 * @see org.parosproxy.paros.db.DatabaseIF#close(boolean)
-	 */
-    // ZAP: Added JavaDoc.
-    @Override
-	public void close(boolean compact) {
-        // ZAP: Moved the content of this method to the method close(boolean,
-        // boolean) and changed to call that method instead.
-        close(compact, true);
-    }
 
     /* (non-Javadoc)
 	 * @see org.parosproxy.paros.db.DatabaseIF#deleteSession(java.lang.String)
 	 */
     @Override
 	public void deleteSession(String sessionName) {
-		log.debug("deleteSession " + sessionName);
+		logger.debug("deleteSession " + sessionName);
 	    if (databaseServer == null) {
 	    	return;
 	    }
         try {
 			databaseServer.shutdown(false);
 		} catch (SQLException e) {
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
 		}
 		
         deleteDbFile(new File(sessionName));
@@ -225,10 +184,10 @@ public class ParosDatabase implements Database {
     }
     
     private void deleteDbFile (File file) {
-    	log.debug("Deleting " + file.getAbsolutePath());
+    	logger.debug("Deleting " + file.getAbsolutePath());
 		if (file.exists()) {
 			if (! file.delete()) {
-	            log.error("Failed to delete " + file.getAbsolutePath());
+	            logger.error("Failed to delete " + file.getAbsolutePath());
 			}
 		}
     }
@@ -241,8 +200,10 @@ public class ParosDatabase implements Database {
 	@Override
 	public void close(boolean compact, boolean cleanup) {
 		// ZAP: Added statement.
-		log.debug("close");
+		logger.debug("close");
 	    if (databaseServer == null) return;
+
+	    super.close(compact, cleanup);
 	    
 	    try {
 	        // ZAP: Added if block.
@@ -256,7 +217,7 @@ public class ParosDatabase implements Database {
 	        // ZAP: Changed to catch SQLException instead of Exception.
         } catch (Exception e) {
 	        // ZAP: Changed to log the exception.
-            log.error(e.getMessage(), e);
+            logger.error(e.getMessage(), e);
         }
 	}
 	
