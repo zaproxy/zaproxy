@@ -214,4 +214,21 @@ public class OutputPanel extends AbstractPanel {
 			getTxtOutput().append(message);
 	}
 	
+	/**
+	 * Appends the given {@code message} to the panel, asynchronously in the EDT.
+	 *
+	 * @param message the message to append to the output panel
+	 * @since TODO add version
+	 * @see EventQueue#invokeLater(Runnable)
+	 */
+	public void appendAsync(final String message) {
+		EventQueue.invokeLater(new Runnable() {
+
+			@Override
+			public void run() {
+				doAppend(message);
+			}
+		});
+	}
+
   }  //  @jve:decl-index=0:visual-constraint="10,10"
