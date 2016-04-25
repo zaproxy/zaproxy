@@ -516,7 +516,9 @@ public class Spider {
 		try {
 			if (!this.threadPool.awaitTermination(2, TimeUnit.SECONDS)) {
 				log.warn("Failed to await for all spider threads to stop in the given time (2s)...");
-				this.threadPool.shutdownNow();
+				for (Runnable task : this.threadPool.shutdownNow()) {
+					((SpiderTask) task).cleanup();
+				}
 			}
 		} catch (InterruptedException ignore) {
 			log.warn("Interrupted while awaiting for all spider threads to stop...");
