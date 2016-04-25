@@ -210,6 +210,7 @@ public final class AddOnInstaller {
 
         callback.extensionsWillBeRemoved(addOn.getLoadedExtensions().size());
         List<Extension> extensions = new ArrayList<>(addOn.getLoadedExtensions());
+        Collections.reverse(extensions);
         for (Extension ext : extensions) {
             uninstalledWithoutErrors &= uninstallAddOnExtension(addOn, ext, callback);
         }
