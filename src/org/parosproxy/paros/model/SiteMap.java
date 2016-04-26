@@ -48,6 +48,7 @@
 // ZAP: 2015/11/05 Change findNode(..) methods to match top level nodes
 // ZAP: 2015/11/09 Fix NullPointerException when creating a HistoryReference with a request URI without path
 // ZAP: 2016/04/21 Issue 2342: Checks non-empty method for deletion of SiteNodes via API 
+// ZAP: 2016/04/28 Issue 1171: Raise site and node add or remove events
 
 package org.parosproxy.paros.model;
 
@@ -62,6 +63,7 @@ import java.util.SortedSet;
 import java.util.TreeSet;
 
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.MutableTreeNode;
 import javax.swing.tree.TreeNode;
 
 import org.apache.commons.httpclient.URI;
@@ -84,6 +86,8 @@ import org.zaproxy.zap.view.SiteTreeFilter;
 public class SiteMap extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 2311091007687218751L;
+	
+	private enum EventType {ADD, REMOVE};
 	
 	private static Map<Integer, SiteNode> hrefMap = new HashMap<>();
 
@@ -441,9 +445,7 @@ public class SiteMap extends DefaultTreeModel {
             hrefMap.put(result.getHistoryReference().getHistoryId(), result);
 
             applyFilter(newNode);
-
-            ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
-            		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(result)));
+            handleEvent(parent, result, EventType.ADD);
 
         }
         // ZAP: Cope with getSiteNode() returning null
@@ -503,8 +505,7 @@ public class SiteMap extends DefaultTreeModel {
 
             this.applyFilter(node);
 
-            ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), 
-            		new Event(SiteMapEventPublisher.getPublisher(), SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, new Target(node)));
+            handleEvent(parent, node, EventType.ADD);            
         } else {
            
             // do not replace if
@@ -745,5 +746,48 @@ public class SiteMap extends DefaultTreeModel {
 			clearParentFilter(parent.getParent());
 		}
 	}
+	
+	@Override
+	public void removeNodeFromParent(MutableTreeNode node) {
+		SiteNode parent=(SiteNode)node.getParent();
+		super.removeNodeFromParent(node);
+		handleEvent(parent, (SiteNode)node, EventType.REMOVE);
+	}
 
+	/**
+	 * Handles the publishing of the add or remove event. Node events are always published.
+	 * Site events are only published when the parent of the node is the root of the tree.
+	 * 
+	 * @param parent relevant parent node
+	 * @param node the site node the action is being carried out for
+	 * @param eventType the type of event occurring (ADD or REMOVE)
+	 * @see EventType
+	 * @since TODO add version
+	 */
+	private void handleEvent(SiteNode parent, SiteNode node, EventType eventType) {
+		switch (eventType) {
+		case ADD:
+			publishEvent(SiteMapEventPublisher.SITE_NODE_ADDED_EVENT, node);
+			if (parent == getRoot()) {
+				publishEvent(SiteMapEventPublisher.SITE_ADDED_EVENT, node);
+			}
+			break;
+		case REMOVE:
+			publishEvent(SiteMapEventPublisher.SITE_NODE_REMOVED_EVENT, node);
+			if(parent == getRoot()) {
+				publishEvent(SiteMapEventPublisher.SITE_REMOVED_EVENT, node);
+			}
+		}
+	}
+	
+	/**
+	 * Publish the event being carried out.
+	 * 
+	 * @param event the event that is happening
+	 * @param node the node being acted upon
+	 * @since TODO add version
+	 */
+	private static void publishEvent(String event, SiteNode node) {
+		ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), new Event(SiteMapEventPublisher.getPublisher(), event, new Target(node)));
+	}
 }
