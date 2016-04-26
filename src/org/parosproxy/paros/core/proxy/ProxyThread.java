@@ -81,6 +81,7 @@ import java.util.zip.InflaterInputStream;
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.RecordHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.ConnectionParam;
@@ -271,8 +272,6 @@ class ProxyThread implements Runnable {
 
     private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause, String errorType)
             throws HttpMalformedHeaderException {
-        msg.setResponseHeader("HTTP/1.1 " + responseStatus);
-
         StringBuilder strBuilder = new StringBuilder();
         strBuilder.append(errorType)
                 .append(" [")
@@ -284,11 +283,18 @@ class ProxyThread implements Runnable {
             strBuilder.append(stackTraceFrame).append('\n');
         }
 
+        setErrorResponse(msg, responseStatus, strBuilder.toString());
+    }
+
+    private static void setErrorResponse(HttpMessage msg, String responseStatus, String message)
+            throws HttpMalformedHeaderException {
+        msg.setResponseHeader("HTTP/1.1 " + responseStatus);
+
         if (!HttpRequestHeader.HEAD.equals(msg.getRequestHeader().getMethod())) {
-            msg.setResponseBody(strBuilder.toString());
+            msg.setResponseBody(message);
         }
 
-        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(strBuilder.length()));
+        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(message.length()));
         msg.getResponseHeader().addHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
     }
 
@@ -395,7 +401,11 @@ class ProxyThread implements Runnable {
 //			    	System.out.println("HttpException");
 			    	throw e;
 			    } catch (SocketTimeoutException e) {
-			        setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, e);
+					setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS,
+							Constant.messages.getString(
+									"proxy.error.readtimeout",
+									msg.getRequestHeader().getURI(),
+									connectionParam.getTimeoutInSecs()));
 
 			        notifyListenerResponseReceive(msg);
 			    } catch (IOException e) {
