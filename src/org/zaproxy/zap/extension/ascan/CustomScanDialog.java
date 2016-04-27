@@ -54,8 +54,6 @@ import javax.swing.text.Highlighter.Highlight;
 import javax.swing.text.Highlighter.HighlightPainter;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -64,7 +62,6 @@ import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -116,7 +113,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private Target target = null;
 
     private ScannerParam scannerParam = null;
-    private OptionsParam optionsParam = null;
 
     private JPanel customPanel = null;
     private JPanel techPanel = null;
@@ -694,20 +690,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     private void reset(boolean refreshUi) {
-        
-        // From Apache Commons source code:
-        // Note: This method won't work well on hierarchical configurations because it is not able to 
-        // copy information about the properties' structure. 
-        // So when dealing with hierarchical configuration objects their clone() methods should be used.        
-        //FileConfiguration fileConfig = new XMLConfiguration();
-        //ConfigurationUtils.copy(extension.getScannerParam().getConfig(), fileConfig);
-        XMLConfiguration fileConfig = (XMLConfiguration)ConfigurationUtils.cloneConfiguration(extension.getScannerParam().getConfig());
-
-        scannerParam = new ScannerParam();
-        scannerParam.load(fileConfig);
-
-        optionsParam = new OptionsParam();
-        optionsParam.load(fileConfig);
+        scannerParam = (ScannerParam) extension.getScannerParam().clone();
 
         if (refreshUi) {
             init(target);
