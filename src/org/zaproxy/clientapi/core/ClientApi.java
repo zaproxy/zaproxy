@@ -48,6 +48,7 @@ import org.zaproxy.clientapi.gen.Acsrf;
 import org.zaproxy.clientapi.gen.AjaxSpider;
 import org.zaproxy.clientapi.gen.Ascan;
 import org.zaproxy.clientapi.gen.Authentication;
+import org.zaproxy.clientapi.gen.Authorization;
 import org.zaproxy.clientapi.gen.Autoupdate;
 import org.zaproxy.clientapi.gen.Break;
 import org.zaproxy.clientapi.gen.Context;
@@ -76,6 +77,7 @@ public class ClientApi {
 	public AjaxSpider ajaxSpider = new AjaxSpider(this);
 	public Ascan ascan = new Ascan(this);
 	public Authentication authentication = new Authentication(this);
+	public Authorization authorization = new Authorization(this);
 	public Autoupdate autoupdate = new Autoupdate(this);
 	public Break brk = new Break(this);
 	public Context context = new Context(this);
