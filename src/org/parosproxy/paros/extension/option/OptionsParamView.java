@@ -32,6 +32,7 @@
 // ZAP: 2015/03/04 Added dev build warning option
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
+// ZAP: 2016/04/27 Save, always, the Locale as String
 
 package org.parosproxy.paros.extension.option;
 
@@ -218,8 +219,7 @@ public class OptionsParamView extends AbstractParam {
 			sb.append(locale.getLanguage());
 			if (locale.getCountry().length() > 0) sb.append("_").append(locale.getCountry());
 			if (locale.getVariant().length() > 0) sb.append("_").append(locale.getVariant());
-			this.locale = sb.toString();
-			getConfig().setProperty(LOCALE, locale);
+			setLocale(sb.toString());
 		}
 	}
 
