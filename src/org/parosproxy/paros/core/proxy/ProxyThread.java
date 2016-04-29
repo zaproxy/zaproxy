@@ -58,6 +58,7 @@
 // ZAP: 2016/03/18 Issue 2318: ZAP Error [java.net.SocketTimeoutException]: Read timed out when running on AWS EC2 instance
 // ZAP: 2016/04/13 Notify of timeouts when reading a response
 // ZAP: 2016/04/14 Delay the write of response to not attempt to write a response again when handling IOException
+// ZAP: 2016/04/29 Adjust exception logging levels and log when timeouts happen
 
 package org.parosproxy.paros.core.proxy;
 
@@ -401,11 +402,12 @@ class ProxyThread implements Runnable {
 //			    	System.out.println("HttpException");
 			    	throw e;
 			    } catch (SocketTimeoutException e) {
-					setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS,
-							Constant.messages.getString(
-									"proxy.error.readtimeout",
-									msg.getRequestHeader().getURI(),
-									connectionParam.getTimeoutInSecs()));
+					String message = Constant.messages.getString(
+							"proxy.error.readtimeout",
+							msg.getRequestHeader().getURI(),
+							connectionParam.getTimeoutInSecs());
+					log.warn(message);
+					setErrorResponse(msg, GATEWAY_TIMEOUT_RESPONSE_STATUS, message);
 
 			        notifyListenerResponseReceive(msg);
 			    } catch (IOException e) {
@@ -506,8 +508,9 @@ class ProxyThread implements Runnable {
                 httpIn.close();
             }
         } catch (Exception e) {
-			// ZAP: Log exceptions
-			log.warn(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
         }
         
         try {
@@ -515,8 +518,9 @@ class ProxyThread implements Runnable {
                 httpOut.close();
             }
         } catch (Exception e) {
-			// ZAP: Log exceptions
-			log.warn(e.getMessage(), e);
+            if (log.isDebugEnabled()) {
+                log.debug(e.getMessage(), e);
+            }
         }
 
     	HttpUtil.closeSocket(inSocket);
@@ -545,8 +549,7 @@ class ProxyThread implements Runnable {
 			    	return false;
 			    }
 			} catch (Exception e) {
-				// ZAP: Log exceptions
-				log.warn(e.getMessage(), e);
+				log.error("An error occurred while notifying listener:", e);
 			}
 		}
 		return true;
@@ -570,8 +573,7 @@ class ProxyThread implements Runnable {
 			    	return false;
 			    }
 			} catch (Exception e) {
-				// ZAP: Log exceptions
-				log.warn(e.getMessage(), e);
+				log.error("An error occurred while notifying listener:", e);
 			}
 		}
 		return true;
@@ -584,7 +586,7 @@ class ProxyThread implements Runnable {
                     return true;
                 }
             } catch (Exception e) {
-                log.warn(e.getMessage(), e);
+                log.error("An error occurred while notifying listener:", e);
             }
         }
         return false;
@@ -597,7 +599,7 @@ class ProxyThread implements Runnable {
                     return true;
                 }
             } catch (Exception e) {
-                log.warn(e.getMessage(), e);
+                log.error("An error occurred while notifying listener:", e);
             }
         }
         return false;
@@ -626,8 +628,7 @@ class ProxyThread implements Runnable {
 			    	break;
 			    }
 			} catch (Exception e) {
-				// ZAP: Log exceptions
-				log.warn(e.getMessage(), e);
+				log.error("An error occurred while notifying listener:", e);
 			}
 		}
 		return keepSocketOpen;
