@@ -345,12 +345,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				// Create a new 'unnamed' session
 				Control.getSingleton().discardSession();
 				try {
-					Control.getSingleton().createAndOpenUntitledDb();
+					Control.getSingleton().newSession();
 				} catch (Exception e) {
 					throw new ApiException(ApiException.Type.INTERNAL_ERROR,
 							e.getMessage());
 				}
-				Control.getSingleton().newSession();
 			} else {
 				Path sessionPath = SessionUtils.getSessionPath(sessionName);
 				String filename = sessionPath.toAbsolutePath().toString();

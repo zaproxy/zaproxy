@@ -363,9 +363,9 @@ public class Control extends AbstractControl implements SessionListener {
 		// The session is opened in a thread, so notify the listeners via the callback
     }
 
-	public Session newSession() {
+	public Session newSession() throws Exception {
 	    log.info("New Session");
-		getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+		closeSessionAndCreateAndOpenUntitledDb();
 		final Session session = model.newSession();
 		getExtensionLoader().databaseOpen(model.getDb());
 		getExtensionLoader().sessionChangedAllPlugin(session);
@@ -393,12 +393,31 @@ public class Control extends AbstractControl implements SessionListener {
 		return session;
 	}
 
+    /**
+     * Closes the old session and creates and opens an untitled database.
+     * 
+     * @throws Exception if an error occurred while creating or opening the database.
+     */
+    private void closeSessionAndCreateAndOpenUntitledDb() throws Exception {
+        getExtensionLoader().sessionAboutToChangeAllPlugin(null);
+        model.closeSession();
+        log.info("Create and Open Untitled Db");
+        model.createAndOpenUntitledDb();
+    }
+
     public void newSession(String fileName, final SessionListener callback) {
         log.info("New Session");
-        getExtensionLoader().sessionAboutToChangeAllPlugin(null);
-        lastCallback = callback;
-        model.newSession();
-        model.saveSession(fileName, this);
+        try {
+            closeSessionAndCreateAndOpenUntitledDb();
+            lastCallback = callback;
+            model.newSession();
+            model.saveSession(fileName, this);
+        } catch (Exception e) {
+            if (lastCallback != null) {
+                lastCallback.sessionSaved(e);
+                lastCallback = null;
+            }
+        }
     }
 	
     public void saveSession(final String fileName) {
@@ -427,6 +446,12 @@ public class Control extends AbstractControl implements SessionListener {
 		getExtensionLoader().sessionChangedAllPlugin(null);
 	}
 
+	/**
+	 * @deprecated (TODO add version) Use just {@link #newSession()} (or {@link #newSession(String, SessionListener)}) instead,
+	 *             which already takes care to create and open an untitled database.
+	 */
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
 	    log.info("Create and Open Untitled Db");
 		getExtensionLoader().sessionAboutToChangeAllPlugin(null);

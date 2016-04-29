@@ -106,7 +106,6 @@ public class MenuFileControl implements SessionListener {
 		    } else if (view.showConfirmDialog(Constant.messages.getString("menu.file.closeSession")) != JOptionPane.OK_OPTION) {
 				return;
 			}
-			control.createAndOpenUntitledDb();
 		}
 		
 		int newSessionOption = model.getOptionsParam().getDatabaseParam().getNewSessionOption();
