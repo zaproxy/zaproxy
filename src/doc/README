@@ -38,3 +38,6 @@ environments, in those cases ZAP needs to be started inline, using the command
 line argument '-cmd', or in daemon mode, using '-daemon'.
 For more information about the command line arguments use '-help'.
 ZAP will show an information message and exit, if still started with GUI.
+
+Note, some of the ZAP features that require a display, for example, running AJAX
+Spider with Firefox, might still be run with the help of applications like Xvfb.
