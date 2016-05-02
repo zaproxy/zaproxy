@@ -160,4 +160,9 @@ public class ScanProgressItem {
 	public int getReqCount() {
 		return hProcess.getPluginRequestCount(plugin.getId());
 	}
+
+	@Override
+	public String toString() {
+		return Integer.toString(getProgressPercentage());
+	}
 }

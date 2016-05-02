@@ -22,8 +22,11 @@ package org.zaproxy.zap.extension.ascan;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagLayout;
+import java.awt.Toolkit;
+import java.awt.datatransfer.Transferable;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
@@ -50,8 +53,10 @@ import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
+import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.plaf.basic.core.BasicTransferable;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -69,6 +74,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.extension.AbstractDialog;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.view.LayoutHelper;
 
@@ -90,6 +96,7 @@ public class ScanProgressDialog extends AbstractDialog {
     private JTable table;
     private ScanProgressTableModel model;
     private JButton closeButton = null;
+    private JButton copyToClipboardButton;
     private JComboBox<String> hostSelect = null;
     
     private String site = null;
@@ -142,10 +149,10 @@ public class ScanProgressDialog extends AbstractDialog {
         tab1.add(hostPanel, LayoutHelper.getGBC(0, 0, 3, 1.0D, 0.0D));
         
         tab1.add(getJScrollPane(), LayoutHelper.getGBC(0, 1, 3, 1.0D, 1.0D));
-        
-        tab1.add(new JLabel(), LayoutHelper.getGBC(0, 1, 1, 1.0D, 0.0D));	// spacer
-        tab1.add(getCloseButton(), LayoutHelper.getGBC(1, 2, 1, 0.0D, 0.0D));
-        tab1.add(new JLabel(), LayoutHelper.getGBC(2, 1, 1, 1.0D, 0.0D));	// spacer
+        JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 5, 0));
+        buttonsPanel.add(getCopyToClipboardButton());
+        buttonsPanel.add(getCloseButton());
+        tab1.add(buttonsPanel, LayoutHelper.getGBC(0, 2, 3, 1.0D));
         
         tabbedPane.insertTab(Constant.messages.getString("ascan.progress.tab.progress"), null, tab1, null, 0);
         this.add(tabbedPane);
@@ -250,6 +257,60 @@ public class ScanProgressDialog extends AbstractDialog {
 				}});
     	}
     	return closeButton;
+    }
+
+    private JButton getCopyToClipboardButton() {
+        if (copyToClipboardButton == null) {
+            copyToClipboardButton = new JButton(Constant.messages.getString("ascan.progress.copyclipboard.button.label"));
+            copyToClipboardButton.setToolTipText(Constant.messages.getString("ascan.progress.copyclipboard.button.tooltip"));
+            copyToClipboardButton.addActionListener(new ActionListener() {
+
+                @Override
+                public void actionPerformed(ActionEvent evt) {
+                    // Mimics the implementation of BasicTableUI.TableTransferHandler.createTransferable(JComponent) but copies
+                    // all rows (including column names), not just selected rows/columns (which are none in this case).
+                    StringBuilder plainContent = new StringBuilder();
+                    StringBuilder htmlContent = new StringBuilder();
+
+                    htmlContent.append("<html>\n<body>\n<table>\n");
+
+                    TableModel tableModel = getMainPanel().getModel();
+                    htmlContent.append("<tr>\n");
+                    for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                        String val = tableModel.getColumnName(col);
+                        plainContent.append(val).append('\t');
+                        htmlContent.append("  <td>").append(val).append("</td>\n");
+                    }
+                    plainContent.deleteCharAt(plainContent.length() - 1).append("\n");
+                    htmlContent.append("</tr>\n");
+
+                    for (int row = 0; row < tableModel.getRowCount(); row++) {
+                        htmlContent.append("<tr>\n");
+                        for (int col = 0; col < tableModel.getColumnCount(); col++) {
+                            Object obj = tableModel.getValueAt(row, col);
+                            String val = (obj == null) ? "" : obj.toString();
+                            plainContent.append(val).append('\t');
+                            htmlContent.append("  <td>").append(val).append("</td>\n");
+                        }
+                        plainContent.deleteCharAt(plainContent.length() - 1).append("\n");
+                        htmlContent.append("</tr>\n");
+                    }
+                    plainContent.deleteCharAt(plainContent.length() - 1);
+                    htmlContent.append("</table>\n</body>\n</html>");
+
+                    Transferable transferable = new BasicTransferable(plainContent.toString(), htmlContent.toString());
+                    try {
+                        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(transferable, null);
+                    } catch (IllegalStateException e) {
+                        View.getSingleton().showWarningDialog(
+                                ScanProgressDialog.this,
+                                Constant.messages.getString("ascan.progress.copyclipboard.error"));
+                        log.warn("Failed to copy the contents to clipboard:", e);
+                    }
+                }
+            });
+        }
+        return copyToClipboardButton;
     }
 
     /**

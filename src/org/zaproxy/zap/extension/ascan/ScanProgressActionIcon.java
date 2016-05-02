@@ -141,4 +141,12 @@ public class ScanProgressActionIcon extends JLabel {
         state = STATE_NORMAL;
         changeIcon();
     }
+
+    @Override
+    public String toString() {
+        if (item.isSkipped()) {
+            return Constant.messages.getString("ascan.progress.label.skipped");
+        }
+        return item.getStatusLabel();
+    }
 }
