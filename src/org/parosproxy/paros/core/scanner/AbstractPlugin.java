@@ -49,6 +49,7 @@
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
 // ZAP: 2016/03/22 Implement init() and getDependency() by default, most plugins do not use them
 // ZAP: 2016/04/21 Include Plugin itself when notifying of a new message sent
+// ZAP: 2016/05/03 Remove exceptions' stack trace prints
 
 package org.parosproxy.paros.core.scanner;
 
@@ -745,8 +746,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             result = URLEncoder.encode(msg, "UTF8");
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
@@ -757,8 +758,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             result = URLDecoder.decode(msg, "UTF8");
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
