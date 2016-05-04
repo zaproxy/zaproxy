@@ -38,6 +38,8 @@ import org.zaproxy.zap.extension.script.ScriptAPI;
 import org.zaproxy.zap.extension.search.SearchAPI;
 import org.zaproxy.zap.extension.sessions.SessionManagementAPI;
 import org.zaproxy.zap.extension.spider.SpiderAPI;
+import org.zaproxy.zap.extension.stats.StatsAPI;
+import org.zaproxy.zap.extension.stats.StatsParam;
 import org.zaproxy.zap.extension.users.UsersAPI;
 import org.zaproxy.zap.spider.SpiderParam;
 
@@ -100,6 +102,10 @@ public class ApiGeneratorUtils {
 		imps.add(new ForcedUserAPI(null));
 
 		imps.add(new ScriptAPI(null));
+
+		api = new StatsAPI(null);
+		api.addApiOptions(new StatsParam());
+		imps.add(api);
 
 		return imps;
 	}

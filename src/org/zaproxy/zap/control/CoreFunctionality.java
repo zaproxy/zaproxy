@@ -106,6 +106,7 @@ public final class CoreFunctionality {
 			extensions.add(new org.zaproxy.zap.extension.sessions.ExtensionSessionManagement());
 			extensions.add(new org.zaproxy.zap.extension.siterefresh.ExtensionSitesRefresh());
 			extensions.add(new org.zaproxy.zap.extension.spider.ExtensionSpider());
+			extensions.add(new org.zaproxy.zap.extension.stats.ExtensionStats());
 			extensions.add(new org.zaproxy.zap.extension.stdmenus.ExtensionStdMenus());
 			extensions.add(new org.zaproxy.zap.extension.uiutils.ExtensionUiUtils());
 			extensions.add(new org.zaproxy.zap.extension.users.ExtensionUserManagement());

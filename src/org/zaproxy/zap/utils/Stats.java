@@ -20,134 +20,184 @@
 package org.zaproxy.zap.utils;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
-public class Stats {
+import org.apache.log4j.Logger;
 
-	private static Statistics stats = new Statistics();
-	private static Map<String, Statistics> siteStats = new HashMap<String, Statistics>();
-	
-	private static Statistics getStatistics(String site) {
-		if (site == null) {
-			// Its a global stat
-			return stats;
-		}
-		if (! siteStats.containsKey(site)) {
-			synchronized (siteStats) {
-				if (! siteStats.containsKey(site)) {
-					siteStats.put(site, new Statistics());
-				}
+public final class Stats {
+
+	private static final List<StatsListener> listeners = new ArrayList<StatsListener>();
+
+    private static final Logger logger = Logger.getLogger(Stats.class);
+    
+    private Stats() {
+    }
+
+	public static void incCounter(String key) {
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterInc(key);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
 			}
 		}
-		return siteStats.get(site);
-	}
-	
-	public static void incCounter(String key) {
-		incCounter (null, key);
 	}
 	
 	public static void incCounter(String site, String key) {
-		getStatistics(site).incCounter(key);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterInc(site, key);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	public static void incCounter(String key, long inc) {
-		incCounter(null, key, inc);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterInc(key, inc);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	public static void incCounter(String site, String key, long inc) {
-		getStatistics(site).incCounter(key, inc);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterInc(site, key, inc);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	public static void decCounter(String key) {
-		decCounter(null, key);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterDec(key);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void decCounter(String site, String key) {
-		getStatistics(site).decCounter(key);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterDec(site, key);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void decCounter(String key, long dec) {
-		decCounter(null, key, dec);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterDec(key, dec);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void decCounter(String site, String key, long dec) {
-		getStatistics(site).decCounter(key, dec);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.counterDec(site, key, dec);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void setHighwaterMark(String key, long value) {
+		for (StatsListener listener : listeners) {
+			try {
+				listener.highwaterMarkSet(key, value);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void setHighwaterMark(String site, String key, long value) {
-		getStatistics(site).setHighwaterMark(key, value);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.highwaterMarkSet(site, key, value);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void setLowwaterMark(String key, long value) {
+		for (StatsListener listener : listeners) {
+			try {
+				listener.lowwaterMarkSet(key, value);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 	
 	public static void setLowwaterMark(String site, String key, long value) {
-		getStatistics(site).setLowwaterMark(key, value);
-	}
-	
-	public static Long getStat(String key) {
-		return stats.getStat(key);
-	}
-	
-	public static Long getStat(String site, String key) {
-		if (site == null || siteStats.containsKey(site)) {
-			return getStatistics(site).getStat(key);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.lowwaterMarkSet(site, key, value);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
-		return null;
-	}
-	
-	public static Map<String, Long> getStats(String keyPrefix) {
-		return stats.getStats(keyPrefix);
-	}
-	
-	public static Map<String, Map<String, Long>> getAllSiteStats(String keyPrefix) {
-		Map<String, Map<String, Long>> allStats = new HashMap<String, Map<String, Long>>();
-		for (Entry<String, Statistics> st : siteStats.entrySet()) {
-			allStats.put(st.getKey(), st.getValue().getStats(keyPrefix));
-		}
-		return allStats;
-	}
-	
-	public static Map<String, Long> getSiteStats(String site, String keyPrefix) {
-		if (siteStats.containsKey(site)) {
-			return getStatistics(site).getStats(keyPrefix);
-		}
-		return new HashMap<String, Long>();
-	}
-	
-	public static List<String> getSites() {
-		List<String> sites = new ArrayList<String>(siteStats.keySet());
-		Collections.sort(sites);
-		return sites;
 	}
 	
 	public static void clearAll() {
-		stats.clearAll();
-		for (Statistics st : siteStats.values()) {
-			st.clearAll();
+		for (StatsListener listener : listeners) {
+			try {
+				listener.allCleared();
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
-		siteStats.clear();
 	}
 
 	public static void clearAll(String site) {
-		getStatistics(site).clearAll();
+		for (StatsListener listener : listeners) {
+			try {
+				listener.allCleared(site);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
 	}
 
 	public static void clear(String keyPrefix) {
-		stats.clear(keyPrefix);
-		for (Statistics st : siteStats.values()) {
-			st.clear(keyPrefix);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.cleared(keyPrefix);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
 		}
 	}
 	
 	public static void clear(String site, String keyPrefix) {
-		getStatistics(site).clear(keyPrefix);
+		for (StatsListener listener : listeners) {
+			try {
+				listener.cleared(site, keyPrefix);
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+	}
+	
+	public static void addListener(StatsListener listener) {
+		listeners.add(listener);
+	}
+	
+	public static void removeListener(StatsListener listener) {
+		listeners.remove(listener);
 	}
 }
