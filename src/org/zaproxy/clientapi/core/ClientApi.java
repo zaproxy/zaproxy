@@ -65,6 +65,7 @@ import org.zaproxy.clientapi.gen.Search;
 import org.zaproxy.clientapi.gen.Selenium;
 import org.zaproxy.clientapi.gen.SessionManagement;
 import org.zaproxy.clientapi.gen.Spider;
+import org.zaproxy.clientapi.gen.Stats;
 import org.zaproxy.clientapi.gen.Users;
 
 public class ClientApi {
@@ -94,6 +95,7 @@ public class ClientApi {
 	public Selenium selenium = new Selenium(this);
 	public SessionManagement sessionManagement = new SessionManagement(this);
 	public Spider spider = new Spider(this);
+	public Stats stats = new Stats(this);
 	public Users users = new Users(this);
 
 	public ClientApi (String zapAddress, int zapPort) {
