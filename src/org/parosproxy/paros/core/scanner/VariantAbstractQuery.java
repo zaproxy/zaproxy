@@ -27,9 +27,11 @@
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
-//
+// ZAP: 2016/05/04 Changes to address issues related to ParameterParser
+
 package org.parosproxy.paros.core.scanner;
 
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -65,6 +67,21 @@ public abstract class VariantAbstractQuery implements Variant {
     protected abstract String getEscapedValue(HttpMessage msg, String value);
 
     /**
+     * Gets parameter's name in encoded/escaped form.
+     * <p>
+     * Default implementation is to URL encode the name.
+     *
+     * @param msg the message that contains the parameter
+     * @param name the name to escape
+     * @return the escaped name
+     * @since TODO Add version
+     * @see URLEncoder#encode(String, String)
+     */
+    protected String getEscapedName(HttpMessage msg, String name) {
+        return name != null ? AbstractPlugin.getURLEncode(name) : "";
+    }
+
+    /**
      * Return unescaped mutate of the value. To be overridden by subclass.
      * 
      * @param value
@@ -73,9 +90,10 @@ public abstract class VariantAbstractQuery implements Variant {
     protected abstract String getUnescapedValue(String value);
 
     /**
-     * 
-     * @param params 
+     * @deprecated (TODO add version) use {@link #setParameters(int, List)} instead.
      */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     protected void setParams(int type, Map<String, String> params) {
         int i = 0;
         for (Entry<String, String> param : params.entrySet()) {
@@ -85,9 +103,27 @@ public abstract class VariantAbstractQuery implements Variant {
     }
 
     /**
+     * Sets the given {@code parameters} of the given {@code type} as the list of parameters handled by this variant.
+     * <p>
+     * The names and values of the parameters are expected to be in decoded form.
      *
-     * @return
+     * @param type the type of parameters
+     * @param parameters the actual parameters to add
+     * @since TODO add version
+     * @see #getParamList()
+     * @see NameValuePair#TYPE_QUERY_STRING
+     * @see NameValuePair#TYPE_POST_DATA
      */
+    protected void setParameters(int type, List<org.zaproxy.zap.model.NameValuePair> parameters) {
+        listParam.clear();
+
+        int i = 0;
+        for (org.zaproxy.zap.model.NameValuePair parameter : parameters) {
+            listParam.add(new NameValuePair(type, parameter.getName(), parameter.getValue(), i));
+            i++;
+        }
+    }
+
     @Override
     public List<NameValuePair> getParamList() {
         return listParam;
@@ -124,10 +160,10 @@ public abstract class VariantAbstractQuery implements Variant {
         for (int i = 0; i < getParamList().size(); i++) {
             pair = getParamList().get(i);
             if (i == originalPair.getPosition()) {
-                isAppended = paramAppend(sb, name, encodedValue, parser);
+                isAppended = paramAppend(sb, getEscapedName(msg, name), encodedValue, parser);
 
             } else {
-                isAppended = paramAppend(sb, pair.getName(), getEscapedValue(msg, pair.getValue()), parser);
+                isAppended = paramAppend(sb, getEscapedName(msg, pair.getName()), getEscapedValue(msg, pair.getValue()), parser);
             }
 
             if (isAppended && i < getParamList().size() - 1) {

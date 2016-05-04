@@ -56,6 +56,7 @@
 // ZAP: 2015/12/14 Issue 2119: Context's description not imported
 // ZAP: 2016/02/26 Issue 2273: Clear stats on session init
 // ZAP: 2016/05/02 Issue 2451: Only a single Data Driven Node can be saved in a context
+// ZAP: 2016/05/04 Changes to address issues related to ParameterParser
 
 package org.parosproxy.paros.model;
 
@@ -66,6 +67,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -90,6 +92,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
@@ -1390,6 +1393,38 @@ public class Session {
 	}
 
 	/**
+	 * Gets the parameters of the given {@code type} from the given {@code message}.
+	 * <p>
+	 * Parameters' names and values are in decoded form.
+	 *
+	 * @param msg the message whose parameters will be extracted from
+	 * @param type the type of parameters to extract
+	 * @return a {@code List} containing the parameters
+	 * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given {@code type} is not
+	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
+	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
+	 * @since TODO add version
+	 * @see StandardParameterParser#getParameters(HttpMessage, org.parosproxy.paros.network.HtmlParameter.Type)
+	 */
+	public List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type) {
+		if (msg == null) {
+			throw new IllegalArgumentException("Parameter msg must not be null.");
+		}
+		if (type == null) {
+			throw new IllegalArgumentException("Parameter type must not be null.");
+		}
+
+		switch (type) {
+		case form:
+			return this.getFormParamParser(msg.getRequestHeader().getURI().toString()).getParameters(msg, type);
+		case url:
+			return this.getUrlParamParser(msg.getRequestHeader().getURI().toString()).getParameters(msg, type);
+		default:
+			throw new IllegalArgumentException("The provided type is not supported: " + type);
+		}
+	}
+
+	/**
 	 * Returns the URL parameters for the given URL based on the parser associated with the
 	 * first context found that includes the URL, or the default parser if it is not
 	 * in a context
@@ -1398,7 +1433,11 @@ public class Session {
 	 * @throws URIException
 	 */
 	public Map<String, String> getUrlParams(URI uri) throws URIException {
-		return this.getUrlParamParser(uri.toString()).parse(uri.getQuery());
+		Map<String, String> map = new HashMap<>();
+		for (NameValuePair parameter : getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
+			map.put(parameter.getName(), parameter.getValue());
+		}
+		return map;
 	}
 
 	/**
