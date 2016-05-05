@@ -1297,6 +1297,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * 
      * @return cookie spec
      */
+    @SuppressWarnings("deprecation")
     private CookieSpec getCookieSpec(final HttpState state) {
     	if (this.cookiespec == null) {
     		int i = state.getCookiePolicy();

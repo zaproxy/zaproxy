@@ -31,6 +31,7 @@ import org.zaproxy.zap.ZAP;
  */
 public class ScanProgressActionIcon extends JLabel {
 
+    private static final long serialVersionUID = 1L;
     private static final ImageIcon completedIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/10/102.png"));
     private static final ImageIcon skippedIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/10/150.png"));
     private static final ImageIcon skipIcon = new ImageIcon(ZAP.class.getResource("/resource/icon/16/skip1_16.png"));

@@ -65,7 +65,6 @@ import javax.net.ssl.X509TrustManager;
 import org.apache.log4j.Logger;
 
 import ch.csnc.extension.util.Encoding;
-import ch.csnc.extension.util.NullComparator;
 
 public class SSLContextManager {
 
@@ -100,10 +99,10 @@ public class SSLContextManager {
 	 */
 	private static final String IBM_PKCS11_KEYSTORE_TYPE = "PKCS11IMPLKS";
 
-	private Map<String, SSLContext> _contextMaps = new TreeMap<String, SSLContext>(new NullComparator());
+	private Map<String, SSLContext> _contextMaps = new TreeMap<String, SSLContext>();
 	private SSLContext _noClientCertContext;
 	private String _defaultKey = null;
-	private Map _aliasPasswords = new HashMap();
+	private Map<String, Map<?, ?>> _aliasPasswords = new HashMap<String, Map<?, ?>>();
 	private List<KeyStore> _keyStores = new ArrayList<KeyStore>();
 	private Map<KeyStore, String> _keyStoreDescriptions = new HashMap<KeyStore, String>();
 	private Map<KeyStore, String> _keyStorePasswords = new HashMap<KeyStore, String>();
@@ -164,9 +163,6 @@ public class SSLContextManager {
 		return false;
 	}
 
-	private boolean isProviderLoaded(String keyStoreType) {
-		return Security.getProvider(keyStoreType) != null ? true : false;
-	}
 
 	private int addKeyStore(KeyStore ks, String description, String password) {
 		int index = _keyStores.indexOf(ks);
@@ -181,7 +177,7 @@ public class SSLContextManager {
 
 	public boolean removeKeyStore(int keystoreIndex) {
 		boolean isDefaultKeyStore = (keystoreIndex == _defaultKeystoreIndex);
-		KeyStore ks = (KeyStore) _keyStores.get(keystoreIndex);
+		KeyStore ks = _keyStores.get(keystoreIndex);
 
 		_keyStores.remove(ks);
 		_keyStoreDescriptions.remove(ks);
@@ -199,19 +195,19 @@ public class SSLContextManager {
 	}
 
 	public String getKeyStoreDescription(int keystoreIndex) {
-		return (String) _keyStoreDescriptions.get(_keyStores.get(keystoreIndex));
+		return _keyStoreDescriptions.get(_keyStores.get(keystoreIndex));
 	}
 
 	public String getKeyStorePassword(int keystoreIndex) {
-		return (String) _keyStorePasswords.get(_keyStores.get(keystoreIndex));
+		return _keyStorePasswords.get(_keyStores.get(keystoreIndex));
 	}
 
 	public int getAliasCount(int keystoreIndex) {
-		return getAliases((KeyStore) _keyStores.get(keystoreIndex)).size();
+		return getAliases(_keyStores.get(keystoreIndex)).size();
 	}
 
 	public String getAliasAt(int keystoreIndex, int aliasIndex) {
-		return getAliases((KeyStore) _keyStores.get(keystoreIndex)).get(aliasIndex).getAlias();
+		return getAliases(_keyStores.get(keystoreIndex)).get(aliasIndex).getAlias();
 	}
 
 	private List<AliasCertificate> getAliases(KeyStore ks) {
@@ -240,12 +236,12 @@ public class SSLContextManager {
 	}
 
 	public List<AliasCertificate> getAliases(int ks) {
-		return getAliases((KeyStore) _keyStores.get(ks));
+		return getAliases(_keyStores.get(ks));
 	}
 
 	public Certificate getCertificate(int keystoreIndex, int aliasIndex) {
 		try {
-			KeyStore ks = (KeyStore) _keyStores.get(keystoreIndex);
+			KeyStore ks = _keyStores.get(keystoreIndex);
 			String alias = getAliasAt(keystoreIndex, aliasIndex);
 			return ks.getCertificate(alias);
 		} catch (Exception e) {
@@ -279,10 +275,10 @@ public class SSLContextManager {
 	}
 
 	public boolean isKeyUnlocked(int keystoreIndex, int aliasIndex) {
-		KeyStore ks = (KeyStore) _keyStores.get(keystoreIndex);
+		KeyStore ks = _keyStores.get(keystoreIndex);
 		String alias = getAliasAt(keystoreIndex, aliasIndex);
 
-		Map pwmap = (Map) _aliasPasswords.get(ks);
+		Map<?, ?> pwmap = _aliasPasswords.get(ks);
 		if (pwmap == null) {
 			return false;
 		}
@@ -367,19 +363,19 @@ public class SSLContextManager {
 			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		Provider pkcs11 = null;
 		if (isSunPKCS11Provider()) {
-			pkcs11 = (Provider) createInstance(SUN_PKCS11_CANONICAL_CLASS_NAME, InputStream.class, configuration.toInpuStream());
+			pkcs11 = createInstance(SUN_PKCS11_CANONICAL_CLASS_NAME, InputStream.class, configuration.toInpuStream());
 		} else if (isIbmPKCS11Provider()) {
-			pkcs11 = (Provider) createInstance(IBM_PKCS11_CONONICAL_CLASS_NAME, BufferedReader.class, new BufferedReader(
+			pkcs11 = createInstance(IBM_PKCS11_CONONICAL_CLASS_NAME, BufferedReader.class, new BufferedReader(
 					new InputStreamReader(configuration.toInpuStream())));
 		}
 		return pkcs11;
 	}
 
-	private static Object createInstance(String name, Class<?> paramClass, Object param) throws ClassNotFoundException,
+	private static Provider createInstance(String name, Class<?> paramClass, Object param) throws ClassNotFoundException,
 			NoSuchMethodException, InstantiationException, IllegalAccessException, InvocationTargetException {
 		Class<?> instanceClass = Class.forName(name);
-		Constructor<?> c = instanceClass.getConstructor(new Class[] { paramClass });
-		return c.newInstance(new Object[] { param });
+		Constructor<?> c = instanceClass.getConstructor(new Class<?>[] { paramClass });
+		return (Provider) c.newInstance(new Object[] { param });
 	}
 
 	private static boolean isSunPKCS11Provider() {
@@ -411,15 +407,15 @@ public class SSLContextManager {
 	public int loadPKCS12Certificate(String filename, String ksPassword)
 		throws IOException, KeyStoreException, CertificateException, NoSuchAlgorithmException {
 		
-		// Open the file
-		InputStream is = new FileInputStream(filename);
-		if (is == null) {
-			throw new FileNotFoundException(filename + " could not be found");
-		}
-
 		// Get Filename
 		File file = new File(filename);
+		if (!file.exists()) {
+			throw new FileNotFoundException(filename + " could not be found");
+		}
 		String name = file.getName();
+
+		// Open the file
+		InputStream is = new FileInputStream(file);
 
 		// create the keystore
 		KeyStore ks = KeyStore.getInstance("PKCS12");
@@ -437,7 +433,7 @@ public class SSLContextManager {
 	public boolean unlockKey(int keystoreIndex, int aliasIndex, String keyPassword)
 	throws KeyStoreException, KeyManagementException {
 		
-		KeyStore ks = (KeyStore) _keyStores.get(keystoreIndex);
+		KeyStore ks = _keyStores.get(keystoreIndex);
 		String alias = getAliasAt(keystoreIndex, aliasIndex);
 
 		AliasKeyManager akm = new AliasKeyManager(ks, alias, keyPassword);
@@ -481,7 +477,7 @@ public class SSLContextManager {
 		invalidateSession(_noClientCertContext);
 		Iterator<String> it = _contextMaps.keySet().iterator();
 		while (it.hasNext()) {
-			invalidateSession((SSLContext) _contextMaps.get(it.next()));
+			invalidateSession(_contextMaps.get(it.next()));
 		}
 	}
 
@@ -513,7 +509,6 @@ public class SSLContextManager {
 			fingerprint = fingerprint.substring(0, fingerprint.indexOf(" "));
 		}
 		
-		return (SSLContext) _contextMaps.get(fingerprint);
+		return _contextMaps.get(fingerprint);
 	}
-
 }

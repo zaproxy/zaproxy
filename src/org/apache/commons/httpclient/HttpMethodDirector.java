@@ -75,6 +75,7 @@ import org.apache.commons.logging.LogFactory;
  * 
  * @since 3.0
  */
+@SuppressWarnings("deprecation")
 public class HttpMethodDirector {
 
     /**
@@ -114,7 +115,7 @@ public class HttpMethodDirector {
     /** Authentication processor */
     private AuthChallengeProcessor authProcessor = null;
 
-    private Set redirectLocations = null; 
+    private Set<URI> redirectLocations = null; 
     
     public HttpMethodDirector(
         final HttpConnectionManager connectionManager,
@@ -147,10 +148,10 @@ public class HttpMethodDirector {
         method.getParams().setDefaults(this.hostConfiguration.getParams());
         
         // Generate default request headers
-        Collection defaults = (Collection)this.hostConfiguration.getParams().
+        Collection<?> defaults = (Collection<?>)this.hostConfiguration.getParams().
 			getParameter(HostParams.DEFAULT_HEADERS);
         if (defaults != null) {
-        	Iterator i = defaults.iterator();
+        	Iterator<?> i = defaults.iterator();
         	while (i.hasNext()) {
         		method.addRequestHeader((Header)i.next());
         	}
@@ -674,7 +675,7 @@ public class HttpMethodDirector {
 
         if (this.params.isParameterFalse(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS)) {
             if (this.redirectLocations == null) {
-                this.redirectLocations = new HashSet();
+                this.redirectLocations = new HashSet<URI>();
             }
             this.redirectLocations.add(currentUri);
             try {
@@ -736,7 +737,7 @@ public class HttpMethodDirector {
         throws MalformedChallengeException, AuthenticationException  
     {
         AuthState authstate = method.getHostAuthState();
-        Map challenges = AuthChallengeParser.parseChallenges(
+        Map<?, ?> challenges = AuthChallengeParser.parseChallenges(
             method.getResponseHeaders(WWW_AUTH_CHALLENGE));
         if (challenges.isEmpty()) {
             LOG.debug("Authentication challenge(s) not found");
@@ -800,7 +801,7 @@ public class HttpMethodDirector {
         throws MalformedChallengeException, AuthenticationException
     {  
         AuthState authstate = method.getProxyAuthState();
-        Map proxyChallenges = AuthChallengeParser.parseChallenges(
+        Map<?, ?> proxyChallenges = AuthChallengeParser.parseChallenges(
             method.getResponseHeaders(PROXY_AUTH_CHALLENGE));
         if (proxyChallenges.isEmpty()) {
             LOG.debug("Proxy authentication challenge(s) not found");

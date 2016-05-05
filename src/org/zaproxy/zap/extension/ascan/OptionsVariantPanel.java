@@ -476,6 +476,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
      */
     private static class ExcludedParameterPanel extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
 
+        private static final long serialVersionUID = 1L;
         private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.title");
         private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.text");
 

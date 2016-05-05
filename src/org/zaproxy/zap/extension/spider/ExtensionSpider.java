@@ -518,6 +518,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
 	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
 	 */
+	@SuppressWarnings({"fallthrough"})
 	@Override
 	public int startScan(String displayName, Target target, User user, Object[] customConfigurations) {
 		switch (Control.getSingleton().getMode()) {

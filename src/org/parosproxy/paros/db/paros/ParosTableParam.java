@@ -92,7 +92,6 @@ public class ParosTableParam extends ParosAbstractTable implements TableParam {
 			
 			try (ResultSet rs = psRead.executeQuery()) {
 				RecordParam result = build(rs);
-				rs.close();
 				return result;
 			}
 		} catch (SQLException e) {

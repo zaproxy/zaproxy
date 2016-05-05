@@ -78,6 +78,7 @@ public class StructuralNodeModifiersTableModel extends AbstractMultipleOptionsTa
 			case StructuralParameter:	return Constant.messages.getString("context.ddn.table.type.struct");
 			case DataDrivenNode:		return Constant.messages.getString("context.ddn.table.type.data");
 			}
+			return null;
 		case 1:
 			return snms.get(rowIndex).getName();
 		case 2:

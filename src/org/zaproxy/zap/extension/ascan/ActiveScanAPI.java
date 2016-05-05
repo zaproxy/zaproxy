@@ -178,6 +178,7 @@ public class ActiveScanAPI extends ApiImplementor {
 		return PREFIX;
 	}
 
+	@SuppressWarnings({"fallthrough"})
 	@Override
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		log.debug("handleApiAction " + name + " " + params.toString());
@@ -618,7 +619,7 @@ public class ActiveScanAPI extends ApiImplementor {
 			        }
 
 			        for (Plugin plugin : hp.getRunning()) {
-						int pc = (int)(hp.getTestCurrentCount(plugin) * 100 / hp.getTestTotalCount());
+						int pc = hp.getTestCurrentCount(plugin) * 100 / hp.getTestTotalCount();
 						// Make sure not return 100 (or more) if still running...
 						// That might happen if more nodes are being scanned that the ones enumerated at the beginning.
 						if (pc >= 100) {

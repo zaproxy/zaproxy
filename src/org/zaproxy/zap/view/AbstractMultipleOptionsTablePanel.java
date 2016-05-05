@@ -30,6 +30,7 @@ import org.zaproxy.zap.utils.Enableable;
 
 public abstract class AbstractMultipleOptionsTablePanel<E extends Enableable> extends AbstractMultipleOptionsBaseTablePanel<E> {
     
+    private static final long serialVersionUID = 1L;
     private static final String ENABLE_ALL_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.enableAll.button.label");
     private static final String DISABLE_ALL_BUTTON_LABEL = Constant.messages.getString("multiple.options.panel.disableAll.button.label");
     
@@ -47,7 +48,7 @@ public abstract class AbstractMultipleOptionsTablePanel<E extends Enableable> ex
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((AbstractMultipleOptionsTableModel)getMultipleOptionsModel()).setAllEnabled(true);
+                ((AbstractMultipleOptionsTableModel<?>)getMultipleOptionsModel()).setAllEnabled(true);
             }
         });
         
@@ -57,7 +58,7 @@ public abstract class AbstractMultipleOptionsTablePanel<E extends Enableable> ex
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                ((AbstractMultipleOptionsTableModel)getMultipleOptionsModel()).setAllEnabled(false);
+                ((AbstractMultipleOptionsTableModel<?>)getMultipleOptionsModel()).setAllEnabled(false);
             }
         });
         
