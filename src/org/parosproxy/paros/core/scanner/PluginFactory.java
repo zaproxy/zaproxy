@@ -42,6 +42,7 @@
 // ZAP: 2015/11/02 Issue 1969: Issues with installation of scanners
 // ZAP: 2015/12/21 Issue 2112: Wrong policy on active Scan
 // ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/05/04 Use existing Plugin instances when setting them as completed
 
 package org.parosproxy.paros.core.scanner;
 
@@ -637,9 +638,11 @@ public class PluginFactory {
     }
 
     synchronized void setRunningPluginCompleted(Plugin plugin) {
-        listRunning.remove(plugin);
-        listCompleted.add(plugin);
-        plugin.setTimeFinished();
+        if (listRunning.remove(plugin)) {
+            Plugin completedPlugin = mapAllPlugin.get(plugin.getId());
+            listCompleted.add(completedPlugin);
+            completedPlugin.setTimeFinished();
+        }
     }
 
     boolean isRunning(Plugin plugin) {
