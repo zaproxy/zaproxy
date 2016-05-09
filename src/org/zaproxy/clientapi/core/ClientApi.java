@@ -31,12 +31,15 @@ import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Proxy;
+import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -69,9 +72,15 @@ import org.zaproxy.clientapi.gen.Stats;
 import org.zaproxy.clientapi.gen.Users;
 
 public class ClientApi {
+
+	private static final int DEFAULT_CONNECTION_POOLING_IN_MS = 1000;
+
 	private Proxy proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress("localhost", 8090));
 	private boolean debug = false;
 	private PrintStream debugStream = System.out;
+
+	private final String zapAddress;
+	private final int zapPort;
 
 	// Note that any new API implementations added have to be added here manually
 	public Acsrf acsrf = new Acsrf(this);
@@ -105,6 +114,8 @@ public class ClientApi {
 	public ClientApi (String zapAddress, int zapPort, boolean debug) {
 		proxy = new Proxy(Proxy.Type.HTTP, new InetSocketAddress(zapAddress, zapPort));
 		this.debug = debug;
+		this.zapAddress = zapAddress;
+		this.zapPort = zapPort;
 	}
 	
 	public void setDebugStream(PrintStream debugStream) {
@@ -427,5 +438,70 @@ public class ClientApi {
                 // Ignore
             }
         }
+    }
+
+    /**
+     * Convenience method to wait for ZAP to be ready to receive API calls, when started programmatically.
+     * <p>
+     * It attempts to establish a connection to ZAP's proxy, in the given time, throwing an exception if the connection is not
+     * successful. The connection attempts might be polled in one second interval.
+     *
+     * @param timeoutInSeconds the (maximum) number of seconds to wait for ZAP to start
+     * @throws ClientApiException if the timeout was reached or if the thread was interrupted while waiting
+     * @see #waitForSuccessfulConnectionToZap(int, int)
+     */
+    public void waitForSuccessfulConnectionToZap(int timeoutInSeconds) throws ClientApiException {
+        waitForSuccessfulConnectionToZap(timeoutInSeconds, DEFAULT_CONNECTION_POOLING_IN_MS);
+    }
+
+    /**
+     * Convenience method to wait for ZAP to be ready to receive API calls, when started programmatically.
+     * <p>
+     * It attempts to establish a connection to ZAP's proxy, in the given time, throwing an exception if the connection is not
+     * successful. The connection attempts are done with the given polling interval.
+     *
+     * @param timeoutInSeconds the (maximum) number of seconds to wait for ZAP to start
+     * @param pollingIntervalInMs the interval, in milliseconds, for connection polling
+     * @throws ClientApiException if the timeout was reached or if the thread was interrupted while waiting.
+     * @throws IllegalArgumentException if the interval for connection polling is negative.
+     * @see #waitForSuccessfulConnectionToZap(int)
+     */
+    public void waitForSuccessfulConnectionToZap(int timeoutInSeconds, int pollingIntervalInMs) throws ClientApiException {
+        int timeoutInMs = (int) TimeUnit.SECONDS.toMillis(timeoutInSeconds);
+        int connectionTimeoutInMs = timeoutInMs;
+        boolean connectionSuccessful = false;
+        long startTime = System.currentTimeMillis();
+        do {
+            try (Socket socket = new Socket()) {
+                try {
+                    socket.connect(new InetSocketAddress(zapAddress, zapPort), connectionTimeoutInMs);
+                    connectionSuccessful = true;
+                } catch (SocketTimeoutException ignore) {
+                    throw newTimeoutConnectionToZap(timeoutInSeconds);
+                } catch (IOException ignore) {
+                    // and keep trying but wait some time first...
+                    try {
+                        Thread.sleep(pollingIntervalInMs);
+                    } catch (InterruptedException e) {
+                        Thread.currentThread().interrupt();
+                        throw new ClientApiException(
+                                "The ClientApi was interrupted while sleeping between connection polling.",
+                                e);
+                    }
+
+                    long ellapsedTime = System.currentTimeMillis() - startTime;
+                    if (ellapsedTime >= timeoutInMs) {
+                        throw newTimeoutConnectionToZap(timeoutInSeconds);
+                    }
+                    connectionTimeoutInMs = (int) (timeoutInMs - ellapsedTime);
+                }
+            } catch (IOException ignore) {
+                // the closing state doesn't matter.
+            }
+        } while (!connectionSuccessful);
+    }
+
+    private static ClientApiException newTimeoutConnectionToZap(int timeoutInSeconds) {
+        return new ClientApiException("Unable to connect to ZAP's proxy after " + timeoutInSeconds + " seconds.");
     }
 }

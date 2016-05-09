@@ -39,6 +39,12 @@ public class ClientApiException extends Exception {
 		this.detail = null;
 	}
 
+	public ClientApiException(String message, Exception cause) {
+		super(message, cause);
+		this.code = null;
+		this.detail = null;
+	}
+
 	public ClientApiException(String message, String code, String detail) {
 		super(message);
 		this.code = code;
