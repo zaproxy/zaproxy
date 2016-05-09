@@ -31,7 +31,41 @@ public interface ParameterParser {
 
 	Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type);
 
+	/**
+	 * Gets the parameters of the given {@code type} from the given {@code message}.
+	 * <p>
+	 * The parameters are split using the key value pair separator(s) and each resulting parameter is split into name/value
+	 * pairs using key value separator(s).
+	 * <p>
+	 * Parameters' names and values are in decoded form.
+	 *
+	 * @param msg the message whose parameters will be extracted from
+	 * @param type the type of parameters to extract
+	 * @return a {@code List} containing the parameters
+	 * @throws IllegalArgumentException if the {@code msg} or {@code type} is {@code null}.
+	 * @since TODO add version
+	 * @see #getDefaultKeyValuePairSeparator()
+	 * @see #getDefaultKeyValueSeparator()
+	 */
+	List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type);
+
 	Map<String, String> parse(String paramStr);
+
+	/**
+	 * Parses the given {@code parameters} into a list of {@link NameValuePair}.
+	 * <p>
+	 * The parameters are split using the key value pair separator(s) and each resulting parameter is split into name/value
+	 * pairs using key value separator(s).
+	 * <p>
+	 * Parameters' names and values are in decoded form.
+	 *
+	 * @param parameters the String of parameters to parse, might be {@code null}
+	 * @return a {@code List} containing the parameters parsed
+	 * @since TODO add version
+	 * @see #getDefaultKeyValuePairSeparator()
+	 * @see #getDefaultKeyValueSeparator()
+	 */
+	List<NameValuePair> parseParameters(String parameters);
 
 	List<String> getTreePath(URI uri) throws URIException;
 	

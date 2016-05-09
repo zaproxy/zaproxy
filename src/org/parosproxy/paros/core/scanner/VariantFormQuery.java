@@ -26,7 +26,8 @@
 // ZAP: 2013/12/09 Solved NullPointerException when the request header doesn't contain "Content-Type" header field
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
-//
+// ZAP: 2016/05/04 Changed to use setParameters(int, List<NameValuePair>)
+
 package org.parosproxy.paros.core.scanner;
 
 import org.parosproxy.paros.model.Model;
@@ -48,7 +49,7 @@ public class VariantFormQuery extends VariantAbstractQuery {
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         // ZAP: added control for null contentType
         if (contentType != null && contentType.startsWith(WWW_APP_URL_ENCODED)) {
-        	this.setParams(NameValuePair.TYPE_POST_DATA, Model.getSingleton().getSession().getParams(msg, Type.form));
+        	this.setParameters(NameValuePair.TYPE_POST_DATA, Model.getSingleton().getSession().getParameters(msg, Type.form));
         }
     }
             
