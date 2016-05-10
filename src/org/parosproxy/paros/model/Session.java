@@ -57,6 +57,7 @@
 // ZAP: 2016/02/26 Issue 2273: Clear stats on session init
 // ZAP: 2016/05/02 Issue 2451: Only a single Data Driven Node can be saved in a context
 // ZAP: 2016/05/04 Changes to address issues related to ParameterParser
+// ZAP: 2016/05/10 Use empty String for (URL) parameters with no value
 
 package org.parosproxy.paros.model;
 
@@ -1435,7 +1436,11 @@ public class Session {
 	public Map<String, String> getUrlParams(URI uri) throws URIException {
 		Map<String, String> map = new HashMap<>();
 		for (NameValuePair parameter : getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
-			map.put(parameter.getName(), parameter.getValue());
+			String value = parameter.getValue();
+			if (value == null) {
+				value = "";
+			}
+			map.put(parameter.getName(), value);
 		}
 		return map;
 	}
