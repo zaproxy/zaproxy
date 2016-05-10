@@ -96,6 +96,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_SAVE_SESSION = "saveSession";
 	private static final String ACTION_SNAPSHOT_SESSION = "snapshotSession";
 	
+	private static final String ACTION_ACCESS_URL = "accessUrl";
 	private static final String ACTION_SHUTDOWN = "shutdown";
 	private static final String ACTION_EXCLUDE_FROM_PROXY = "excludeFromProxy";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_PROXY = "clearExcludedFromProxy";
@@ -150,6 +151,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private boolean savingSession = false;
 
 	public CoreAPI() {
+		this.addApiAction(
+				new ApiAction(ACTION_ACCESS_URL, new String[] { PARAM_URL }, new String[] { PARAM_FOLLOW_REDIRECTS }));
 		this.addApiAction(new ApiAction(ACTION_SHUTDOWN));
 		this.addApiAction(new ApiAction(ACTION_NEW_SESSION, null, new String[] {PARAM_SESSION, PARAM_OVERWRITE_SESSION}));
 		this.addApiAction(new ApiAction(ACTION_LOAD_SESSION, new String[] {PARAM_SESSION}));
@@ -213,7 +216,26 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		Session session = Model.getSingleton().getSession();
 
-		if (ACTION_SHUTDOWN.equals(name)) {
+		if (ACTION_ACCESS_URL.equals(name)) {
+			URI uri;
+			try {
+				uri = new URI(params.getString(PARAM_URL), true);
+			} catch (URIException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
+			}
+			HttpMessage request;
+			try {
+				request = new HttpMessage(
+						new HttpRequestHeader(
+								HttpRequestHeader.GET,
+								uri,
+								HttpHeader.HTTP11,
+								Model.getSingleton().getOptionsParam().getConnectionParam()));
+			} catch (HttpMalformedHeaderException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
+			}
+			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
+		} else if (ACTION_SHUTDOWN.equals(name)) {
 			Thread thread = new Thread() {
 				@Override
 				public void run() {
@@ -398,22 +420,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			} catch (HttpMalformedHeaderException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
 			}
-			boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
-			final ApiResponseList resultList = new ApiResponseList(name);
-			try {
-				sendRequest(request, followRedirects, new Processor<HttpMessage>() {
-
-					@Override
-					public void process(HttpMessage msg) {
-						int id = msg.getHistoryRef() != null ? msg.getHistoryRef().getHistoryId() : -1;
-						resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(id, msg));
-					}
-				});
-
-				return resultList;
-			} catch (Exception e) {
-				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
-			}
+			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
 		} else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
             final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
                     .getExtensionLoader()
@@ -456,6 +463,25 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private ApiResponse sendHttpMessage(HttpMessage request, boolean followRedirects, String apiResponseName)
+			throws ApiException {
+		final ApiResponseList resultList = new ApiResponseList(apiResponseName);
+		try {
+			sendRequest(request, followRedirects, new Processor<HttpMessage>() {
+
+				@Override
+				public void process(HttpMessage msg) {
+					int id = msg.getHistoryRef() != null ? msg.getHistoryRef().getHistoryId() : -1;
+					resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(id, msg));
+				}
+			});
+
+			return resultList;
+		} catch (Exception e) {
+			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+		}
 	}
 
 	private static HttpMessage createRequest(String request) throws HttpMalformedHeaderException {
