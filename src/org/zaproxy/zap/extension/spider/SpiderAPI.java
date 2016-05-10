@@ -406,7 +406,11 @@ public class SpiderAPI extends ApiImplementor {
 			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
 			int progress = 0;
 			if (scan != null) {
-				progress = scan.getProgress();
+				if (scan.isStopped()) {
+					progress = 100;
+				} else {
+					progress = scan.getProgress();
+				}
 			}
 			result = new ApiResponseElement(name, Integer.toString(progress));
 		} else if (VIEW_RESULTS.equals(name)) {
