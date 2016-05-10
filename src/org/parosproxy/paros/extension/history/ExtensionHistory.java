@@ -64,6 +64,7 @@
 // ZAP: 2016/01/26 Fixed findbugs warning
 // ZAP: 2016/04/12 Listen to alert events to update the table model entries
 // ZAP: 2016/04/14 Use View to display the HTTP messages
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 
 package org.parosproxy.paros.extension.history;
 
@@ -208,6 +209,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		ZAP.getEventBus().registerConsumer(new AlertEventConsumer(), AlertEventPublisher.getPublisher().getPublisherName());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

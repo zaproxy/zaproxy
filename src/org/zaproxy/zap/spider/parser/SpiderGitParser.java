@@ -137,12 +137,12 @@ public class SpiderGitParser extends SpiderParser {
 				if ( log.isDebugEnabled() ) log.debug ("Entry "+ entryIndex + " has flags " + indexEntryFlags);
 
 				//mask off all but the least significant 12 bits of the index entry flags to get the length of the name in bytes 
-				int indexEntryNameByteLength = indexEntryFlags & (int)4095;						
+				int indexEntryNameByteLength = indexEntryFlags & 4095;						
 				if ( log.isDebugEnabled() ) log.debug ("Entry "+ entryIndex + " has a name of length " + indexEntryNameByteLength);
 
 				//mask off all but the second most significant 12 bit of the index entry flags to get the extended flag for the entry 
 				//int indexEntryExtendedFlag = indexEntryFlags & (int)16384;
-				int indexEntryExtendedFlag = ((indexEntryFlags & (int)(1<<14) )>>14);
+				int indexEntryExtendedFlag = ((indexEntryFlags & (1<<14) )>>14);
 				if ( log.isDebugEnabled() ) log.debug ("Entry "+ entryIndex + " has an extended flag of " + indexEntryExtendedFlag);
 
 				//check that we parsed out the index entry extended flag correctly.

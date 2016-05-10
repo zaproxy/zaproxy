@@ -170,7 +170,7 @@ public class API {
 		if (shortcutImpl == null && callbackImpl == null && ! url.startsWith(API_URL) && ! url.startsWith(API_URL_S) && ! force) {
 			return false;
 		}
-		if (this.getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
+		if (getOptionsParamApi().isSecureOnly() && ! requestHeader.isSecure()) {
 			// Insecure request with secure only set, always ignore
 			logger.debug("handleApiRequest rejecting insecure request");
 			return true;
@@ -431,12 +431,12 @@ public class API {
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String key = this.getApiKey();
 		String base = API_URL;
-		if (this.getOptionsParamApi().isSecureOnly()) {
+		if (getOptionsParamApi().isSecureOnly()) {
 			base = API_URL_S;
 		}
 		if (!proxy) {
 			ProxyParam proxyParam = Model.getSingleton().getOptionsParam().getProxyParam();
-			if (this.getOptionsParamApi().isSecureOnly()) {
+			if (getOptionsParamApi().isSecureOnly()) {
 				base = "https://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";
 			} else {
 				base = "http://" + proxyParam.getProxyIp() + ":" + proxyParam.getProxyPort() + "/";

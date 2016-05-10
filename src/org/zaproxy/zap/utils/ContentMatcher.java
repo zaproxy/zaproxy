@@ -93,8 +93,8 @@ public class ContentMatcher {
      * a Regex formatted pattern or "string" for an exact matching pattern.
      */
     protected void loadXMLPatternDefinitions(InputStream xmlInputStream) throws JDOMException, IOException {
-        strings = new ArrayList();
-        patterns = new ArrayList();
+        strings = new ArrayList<BoyerMooreMatcher>();
+        patterns = new ArrayList<Pattern>();
         
         SAXBuilder builder = new SAXBuilder();
         Document doc = builder.build(xmlInputStream);
@@ -155,7 +155,7 @@ public class ContentMatcher {
      */
     public List<String> findAllInContent(String content) {
         
-        List<String> results = new LinkedList();
+        List<String> results = new LinkedList<String>();
         
         // First check for all simple exact occurrences
         for (BoyerMooreMatcher matcher : strings) {

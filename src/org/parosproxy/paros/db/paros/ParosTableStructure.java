@@ -100,7 +100,6 @@ public class ParosTableStructure extends ParosAbstractTable implements TableStru
 			
 			try (ResultSet rs = psRead.executeQuery()) {
 				RecordStructure result = build(rs);
-				rs.close();
 				return result;
 			}
 		} catch (SQLException e) {

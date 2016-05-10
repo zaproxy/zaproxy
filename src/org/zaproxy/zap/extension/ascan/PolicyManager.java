@@ -54,10 +54,13 @@ public class PolicyManager {
 	public synchronized List<String> getAllPolicyNames() {
 		if (allPolicyNames == null) {
 			allPolicyNames = new ArrayList<String>();
-			for (String file : Constant.getPoliciesDir().list()) {
-				if (file.endsWith(POLICY_EXTENSION)) {
-					logger.debug("Found policy file " + file);
-					allPolicyNames.add(file.substring(0, file.lastIndexOf(POLICY_EXTENSION)));
+			String[] files = Constant.getPoliciesDir().list();
+			if (files != null) {
+				for (String file : files) {
+					if (file.endsWith(POLICY_EXTENSION)) {
+						logger.debug("Found policy file " + file);
+						allPolicyNames.add(file.substring(0, file.lastIndexOf(POLICY_EXTENSION)));
+					}
 				}
 			}
 			if (allPolicyNames.size() == 0) {
@@ -182,13 +185,13 @@ public class PolicyManager {
 	public ScanPolicy getDefaultScanPolicy() {
 		try {
 			String policyName = extension.getScannerParam().getDefaultPolicy();
-			if (this.policyExists(policyName)) {
+			if (policyExists(policyName)) {
 				logger.debug("getDefaultScanPolicy: " + policyName);
 				return this.loadPolicy(policyName);
 			}
 			// No good, try the default name
 			policyName = DEFAULT_POLICY_NAME;
-			if (this.policyExists(policyName)) {
+			if (policyExists(policyName)) {
 				logger.debug("getDefaultScanPolicy (default name): " + policyName);
 				return this.loadPolicy(policyName);
 			}
@@ -209,12 +212,12 @@ public class PolicyManager {
 	public ScanPolicy getAttackScanPolicy() {
 		try {
 			String policyName = extension.getScannerParam().getAttackPolicy();
-			if (this.policyExists(policyName)) {
+			if (policyExists(policyName)) {
 				return this.loadPolicy(policyName);
 			}
 			// No good, try the default name
 			policyName = DEFAULT_POLICY_NAME;
-			if (this.policyExists(policyName)) {
+			if (policyExists(policyName)) {
 				return this.loadPolicy(policyName);
 			}
 			if (this.allPolicyNames.size() > 0) {

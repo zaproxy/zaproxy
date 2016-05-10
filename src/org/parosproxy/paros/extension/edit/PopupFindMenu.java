@@ -23,6 +23,8 @@
 // ZAP: 2012/04/25 Added @Override annotation to the appropriate method.
 // ZAP: 2012/10/23 Changed to prevent a NullPointerException when there's no
 // parent JFrame (changed to use SwingUtilities.getAncestorOfClass(...)).
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+
 package org.parosproxy.paros.extension.edit;
 
 import java.awt.Component;
@@ -35,6 +37,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionPopupMenuItem;
 
 public class PopupFindMenu extends ExtensionPopupMenuItem {
+    private static final long serialVersionUID = 1L;
     private JTextComponent lastInvoker = null;
     private JFrame parentFrame = null;
     
