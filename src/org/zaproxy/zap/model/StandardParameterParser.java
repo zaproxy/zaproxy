@@ -103,20 +103,37 @@ public class StandardParameterParser implements ParameterParser {
 		
 	@Override
 	public Map<String, String> getParams(HttpMessage msg, HtmlParameter.Type type) {
-		Map<String, String> map = new HashMap<String, String>();
 	    if (msg == null) {
-	    	return map;
+	    	return new HashMap<>();
 	    }
 		switch (type) {
 		case form:	return this.parse(msg.getRequestBody().toString());
 		case url:
-			for (NameValuePair parameter : parseParameters(msg.getRequestHeader().getURI().getEscapedQuery())) {
-				map.put(parameter.getName(), parameter.getValue());
-			}
-			return map;
+			return convertParametersList(parseParameters(msg.getRequestHeader().getURI().getEscapedQuery()));
 		default:
 					throw new InvalidParameterException("Type not supported: " + type);
 		}
+	}
+
+	/**
+	 * Converts the given {@code List} of parameters to a {@code Map}.
+	 * <p>
+	 * The names of parameters are used as keys (mapping to corresponding value) thus removing any duplicated parameters. It is
+	 * used an empty {@code String} for the mapping, if the parameter has no value ({@code null}).
+	 *
+	 * @param parameters the {@code List} to be converted, must not be {@code null}
+	 * @return a {@code Map} containing the parameters
+	 */
+	private static Map<String, String> convertParametersList(List<NameValuePair> parameters) {
+		Map<String, String> map = new HashMap<>();
+		for (NameValuePair parameter : parameters) {
+			String value = parameter.getValue();
+			if (value == null) {
+				value = "";
+			}
+			map.put(parameter.getName(), value);
+		}
+		return map;
 	}
 
 	/**
@@ -308,10 +325,7 @@ public class StandardParameterParser implements ParameterParser {
 		}
 		if (incStructParams) {
 			// Add any structural params (url param) in key order
-			Map<String, String> urlParams = new HashMap<>();
-			for (NameValuePair parameter : parseParameters(uri.getEscapedQuery())) {
-				urlParams.put(parameter.getName(), parameter.getValue());
-			}
+			Map<String, String> urlParams = convertParametersList(parseParameters(uri.getEscapedQuery()));
 			List<String> keys = new ArrayList<String>(urlParams.keySet());
 			Collections.sort(keys);
 			for (String key: keys) {
@@ -372,10 +386,7 @@ public class StandardParameterParser implements ParameterParser {
 
 		// Add the 'structural params' path elements
 		boolean firstElement = true;
-		Map<String, String> urlParams = new HashMap<>();
-		for (NameValuePair parameter : parseParameters(uri.getEscapedQuery())) {
-			urlParams.put(parameter.getName(), parameter.getValue());
-		}
+		Map<String, String> urlParams = convertParametersList(parseParameters(uri.getEscapedQuery()));
 		for (Entry<String, String> param : urlParams.entrySet()) {
 			if (this.structuralParameters.contains(param.getKey())) {
 				if (firstElement) {
