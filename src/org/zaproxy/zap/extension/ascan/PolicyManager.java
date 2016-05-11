@@ -130,10 +130,19 @@ public class PolicyManager {
 	}
 	
 	private ScanPolicy loadPolicy (File file) throws ConfigurationException {
-		ScanPolicy policy = new ScanPolicy(new ZapXmlConfiguration(file));
-		if (! file.getName().equals(policy.getName() + POLICY_EXTENSION)) {
+		File policyFile;
+		try {
+			// Obtain the name of the file in correct case, for DEFAULT_POLICY_NAME it might not be exactly the same if the file
+			// system is case insensitive, thus not matching with the name read directly from the file system (method
+			// getAllPolicyNames()).
+			policyFile = file.toPath().toRealPath().toFile();
+		} catch (IOException e) {
+			throw new ConfigurationException("Failed to obtain the real path of the policy file:", e);
+		}
+		ScanPolicy policy = new ScanPolicy(new ZapXmlConfiguration(policyFile));
+		if (! policyFile.getName().equals(policy.getName() + POLICY_EXTENSION)) {
 			// The file name takes precedence in case theres another policy with the same name
-			policy.setName(file.getName().substring(0, file.getName().indexOf(POLICY_EXTENSION)));
+			policy.setName(policyFile.getName().substring(0, policyFile.getName().indexOf(POLICY_EXTENSION)));
 		}
 		
 		return policy;
