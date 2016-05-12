@@ -31,11 +31,13 @@ import javax.help.SwingHelpUtilities;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -78,11 +80,12 @@ public class ExtensionHelp extends ExtensionAdaptor {
         this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	
- 	@Override
-	public void init() {
-		super.init();
+	@Override
+	public void initView(ViewDelegate view) {
+		super.initView(view);
 
 		SwingHelpUtilities.setContentViewerUI(BasicOnlineContentViewerUI.class.getCanonicalName());
+		UIManager.getDefaults().put("ZapHelpSearchNavigatorUI", ZapBasicSearchNavigatorUI.class.getCanonicalName());
 	}
 
 	@Override
