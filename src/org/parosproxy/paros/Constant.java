@@ -61,6 +61,7 @@
 // ZAP: 2015/11/11 Issue 2045: Dont copy old configs if -dir option used 
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 // ZAP: 2016/02/17 Convert extensions' options to not use extensions' names as XML element names
+// ZAP: 2016/05/12 Use dev/weekly dir for plugin downloads when copying the existing 'release' config file
 
 package org.parosproxy.paros;
 
@@ -397,6 +398,11 @@ public final class Constant {
             		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
             		copier.copy(oldf,f);
             		
+            		if (isDevBuild() || isDailyBuild()) {
+            		    ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
+            		    newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
+            		    newConfig.save();
+            		}
             	} else {
             		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
             		copier.copy(getPathDefaultConfigFile().toFile(),f);
