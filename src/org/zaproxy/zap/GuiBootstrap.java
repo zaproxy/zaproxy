@@ -21,8 +21,10 @@ package org.zaproxy.zap;
 
 import java.awt.EventQueue;
 import java.awt.GraphicsEnvironment;
+import java.awt.Toolkit;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -102,6 +104,7 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     private void startImpl() {
+        setX11AwtAppClassName();
         setDefaultViewLocale(Constant.getLocale());
         setupLookAndFeel();
 
@@ -109,6 +112,23 @@ public class GuiBootstrap extends ZapBootstrap {
             showLicense();
         } else {
             init(false);
+        }
+    }
+
+    private void setX11AwtAppClassName() {
+        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+        // See JDK-6528430 : need system property to override default WM_CLASS
+        //     http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6528430
+        // Based on NetBeans workaround linked from the issue:
+        Class<?> toolkitClass = defaultToolkit.getClass();
+        if ("sun.awt.X11.XToolkit".equals(toolkitClass.getName())) {
+            try {
+                Field awtAppClassName = toolkitClass.getDeclaredField("awtAppClassName");
+                awtAppClassName.setAccessible(true);
+                awtAppClassName.set(null, Constant.PROGRAM_NAME);
+            } catch (Exception e) {
+                logger.warn("Failed to set awt app class name: " + e.getMessage());
+            }
         }
     }
 
