@@ -56,11 +56,14 @@ import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
@@ -162,6 +165,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 				new String[] {ScriptType.CAPABILITY_APPEND}));
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
 		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", HTTP_SENDER_ICON, true));
+
+		extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
 
 		extensionHook.addProxyListener(this.getProxyListener());
 		HttpSender.addListener(getHttpSenderScriptListener());
@@ -1528,5 +1533,26 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	@Override
 	public boolean supportsDb(String type) {
 		return true;
+	}
+
+	private static class ClearScriptVarsOnSessionChange implements SessionChangedListener {
+
+		@Override
+		public void sessionChanged(Session session) {
+		}
+
+		@Override
+		public void sessionAboutToChange(Session session) {
+			ScriptVars.clear();
+		}
+
+		@Override
+		public void sessionScopeChanged(Session session) {
+		}
+
+		@Override
+		public void sessionModeChanged(Mode mode) {
+		}
+
 	}
 }
