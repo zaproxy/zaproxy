@@ -15,7 +15,10 @@ WORKDIR /zap
 RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
 # mv fails on some systems (https://github.com/docker/docker/issues/4570)
 RUN cp -R ZAP*/* . && rm -R ZAP*
-RUN rm *.tar.gz
+
+# Download and expand WebSwing
+RUN curl -s -L https://bitbucket.org/meszarv/webswing/downloads/webswing-2.3-distribution.zip > webswing.zip
+RUN unzip *.zip && rm *.zip
 
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd
@@ -32,6 +35,8 @@ ENV HOME /home/zap/
 
 COPY zap-x.sh /zap/ 
 COPY zap-baseline.py /zap/ 
+COPY zap-webswing.sh /zap/ 
+COPY webswing.config /zap/webswing-2.3/ 
 
 COPY .xinitrc /home/zap/ 
 RUN chmod a+x /home/zap/.xinitrc
