@@ -30,9 +30,9 @@
 	<property name="app.bundle" value="${dist-mac}/${app.name}" />
 	<property name="app.executable" value="${app.bundle}/Contents/MacOS/OWASP ZAP.sh" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
-	<!--This version downloaded from  http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html -->
-	<property name="app.jrearchive" value="jre-7u79-macosx-x64.tar.gz" />
-	<property name="app.jredir" value="jre1.7.0_79.jre" />
+	<!--This version downloaded from http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html -->
+	<property name="app.jrearchive" value="jre-8u92-macosx-x64.tar.gz" />
+	<property name="app.jredir" value="jre1.8.0_92.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
