@@ -65,6 +65,7 @@
 // ZAP: 2016/04/12 Listen to alert events to update the table model entries
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2016/05/20 Moved purge method to here from PopupMenuPurgeSites
 
 package org.parosproxy.paros.extension.history;
 
@@ -77,6 +78,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
@@ -89,6 +91,7 @@ import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestE
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
@@ -96,6 +99,7 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.alert.AlertEventPublisher;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
@@ -710,6 +714,64 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		// Refresh with the next option
 	    searchHistory(getFilterPlusDialog().getFilter());
 	}
+	
+    public void purge(SiteMap map, SiteNode node) {
+        SiteNode child = null;
+        synchronized (map) {
+            while (node.getChildCount() > 0) {
+                try {
+                    child = (SiteNode) node.getChildAt(0);
+                    purge(map, child);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+
+            if (node.isRoot()) {
+                return;
+            }
+
+            // delete reference in node
+            removeFromHistoryList(node.getHistoryReference());
+            if (View.isInitialised()) {
+                clearLogPanelDisplayQueue();
+            }
+
+            ExtensionAlert extAlert =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+
+            if (node.getHistoryReference() != null) {
+                deleteAlertsFromExtensionAlert(extAlert, node.getHistoryReference());
+                node.getHistoryReference().delete();
+                map.removeHistoryReference(node.getHistoryReference().getHistoryId());
+            }
+
+            // delete past reference in node
+            while (node.getPastHistoryReference().size() > 0) {
+                HistoryReference ref = node.getPastHistoryReference().get(0);
+                deleteAlertsFromExtensionAlert(extAlert, ref);
+                removeFromHistoryList(ref);
+                if (View.isInitialised()) {
+                    clearLogPanelDisplayQueue();
+                }
+                delete(ref);
+                node.getPastHistoryReference().remove(0);
+                map.removeHistoryReference(ref.getHistoryId());
+            }
+
+            map.removeNodeFromParent(node);
+        }
+
+    }
+
+    private static void deleteAlertsFromExtensionAlert(ExtensionAlert extAlert, HistoryReference historyReference) {
+        if (extAlert == null) {
+            return;
+        }
+
+        extAlert.deleteHistoryReferenceAlerts(historyReference);
+    }
+
 
 	void setLinkWithSitesTree(boolean linkWithSitesTree, String baseUri) {
 		this.linkWithSitesTree = linkWithSitesTree;
