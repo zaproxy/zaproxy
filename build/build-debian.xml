@@ -33,6 +33,12 @@
 			<data src="debian/zap" type="file">
 				<mapper type="perm" strip="1" prefix="/usr/bin" filemode="755"/>
 			</data>
+			<data src="debian/owasp-zap.desktop" type="file">
+				<mapper type="perm" strip="1" prefix="/usr/share/applications" filemode="755"/>
+			</data>
+			<data src="debian/zapicon.png" type="file">
+				<mapper type="perm" strip="1" prefix="/usr/share/icons/" filemode="755"/>
+			</data>
 		</deb>
 	</target>
 
