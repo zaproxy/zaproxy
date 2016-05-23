@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,11 @@ function HttpSessions(clientApi) {
  * Gets the sessions of the given site. Optionally returning just the session with the given name.
  **/
 HttpSessions.prototype.sessions = function (site, session, callback) {
-  this.api.request('/httpSessions/view/sessions/', {'site' : site, 'session' : session}, callback);
+  var params = {'site' : site};
+  if (session && session !== null) {
+    params['session'] = session;
+  }
+  this.api.request('/httpSessions/view/sessions/', params, callback);
 };
 
 /**
@@ -56,7 +60,11 @@ HttpSessions.prototype.createEmptySession = function (site, session, apikey, cal
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/httpSessions/action/createEmptySession/', {'site' : site, 'session' : session, 'apikey' : apikey}, callback);
+  var params = {'site' : site, 'apikey' : apikey};
+  if (session && session !== null) {
+    params['session'] = session;
+  }
+  this.api.request('/httpSessions/action/createEmptySession/', params, callback);
 };
 
 /**

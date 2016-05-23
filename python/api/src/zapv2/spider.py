@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -62,6 +62,10 @@ class spider(object):
     @property
     def option_max_depth(self):
         return next(self.zap._request(self.zap.base + 'spider/view/optionMaxDepth/').itervalues())
+
+    @property
+    def option_max_duration(self):
+        return next(self.zap._request(self.zap.base + 'spider/view/optionMaxDuration/').itervalues())
 
     @property
     def option_max_scans_in_ui(self):
@@ -134,28 +138,36 @@ class spider(object):
     def option_show_advanced_dialog(self):
         return next(self.zap._request(self.zap.base + 'spider/view/optionShowAdvancedDialog/').itervalues())
 
-    def scan(self, url, maxchildren=None, recurse=None, contextname=None, apikey=''):
+    def scan(self, url=None, maxchildren=None, recurse=None, contextname=None, subtreeonly=None, apikey=''):
         """
-        Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively and the parameter 'contextName' can be used to constrain the scan to a Context.
+        Runs the spider against the given URL (or context). Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively, the parameter 'contextName' can be used to constrain the scan to a Context and the parameter 'subtreeOnly' allows to restrict the spider under a site's subtree (using the specified 'url').
         """
-        params = {'url' : url, 'apikey' : apikey}
+        params = {'apikey' : apikey}
+        if url is not None:
+            params['url'] = url
         if maxchildren is not None:
             params['maxChildren'] = maxchildren
         if recurse is not None:
             params['recurse'] = recurse
         if contextname is not None:
             params['contextName'] = contextname
+        if subtreeonly is not None:
+            params['subtreeOnly'] = subtreeonly
         return next(self.zap._request(self.zap.base + 'spider/action/scan/', params).itervalues())
 
-    def scan_as_user(self, url, contextid, userid, maxchildren=None, recurse=None, apikey=''):
+    def scan_as_user(self, contextid, userid, url=None, maxchildren=None, recurse=None, subtreeonly=None, apikey=''):
         """
         Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
         """
-        params = {'url' : url, 'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}
+        params = {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}
+        if url is not None:
+            params['url'] = url
         if maxchildren is not None:
             params['maxChildren'] = maxchildren
         if recurse is not None:
             params['recurse'] = recurse
+        if subtreeonly is not None:
+            params['subtreeOnly'] = subtreeonly
         return next(self.zap._request(self.zap.base + 'spider/action/scanAsUser/', params).itervalues())
 
     def pause(self, scanid, apikey=''):
@@ -208,6 +220,9 @@ class spider(object):
 
     def set_option_max_depth(self, integer, apikey=''):
         return next(self.zap._request(self.zap.base + 'spider/action/setOptionMaxDepth/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
+
+    def set_option_max_duration(self, integer, apikey=''):
+        return next(self.zap._request(self.zap.base + 'spider/action/setOptionMaxDuration/', {'Integer' : integer, 'apikey' : apikey}).itervalues())
 
     def set_option_max_scans_in_ui(self, integer, apikey=''):
         return next(self.zap._request(self.zap.base + 'spider/action/setOptionMaxScansInUI/', {'Integer' : integer, 'apikey' : apikey}).itervalues())

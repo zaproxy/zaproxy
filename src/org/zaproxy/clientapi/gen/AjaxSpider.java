@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,12 @@ public class AjaxSpider {
 	public ApiResponse results(String start, String count) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
-		map.put("start", start);
-		map.put("count", count);
+		if (start != null) {
+			map.put("start", start);
+		}
+		if (count != null) {
+			map.put("count", count);
+		}
 		return api.callApi("ajaxSpider", "view", "results", map);
 	}
 
@@ -71,38 +75,6 @@ public class AjaxSpider {
 	public ApiResponse optionBrowserId() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ajaxSpider", "view", "optionBrowserId", map);
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public ApiResponse optionConfigVersionKey() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ajaxSpider", "view", "optionConfigVersionKey", map);
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public ApiResponse optionCurrentVersion() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ajaxSpider", "view", "optionCurrentVersion", map);
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public ApiResponse optionElems() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ajaxSpider", "view", "optionElems", map);
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public ApiResponse optionElemsNames() throws ClientApiException {
-		Map<String, String> map = null;
-		return api.callApi("ajaxSpider", "view", "optionElemsNames", map);
 	}
 
 	/**
@@ -187,7 +159,9 @@ public class AjaxSpider {
 			map.put("apikey", apikey);
 		}
 		map.put("url", url);
-		map.put("inScope", inscope);
+		if (inscope != null) {
+			map.put("inScope", inscope);
+		}
 		return api.callApi("ajaxSpider", "action", "scan", map);
 	}
 

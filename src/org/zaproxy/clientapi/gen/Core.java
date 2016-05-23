@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,6 +143,14 @@ public class Core {
 	}
 
 	/**
+	 * Gets the mode
+	 */
+	public ApiResponse mode() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("core", "view", "mode", map);
+	}
+
+	/**
 	 * Gets ZAP version
 	 */
 	public ApiResponse version() throws ClientApiException {
@@ -161,15 +169,6 @@ public class Core {
 	public ApiResponse homeDirectory() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "homeDirectory", map);
-	}
-
-	public ApiResponse stats(String keyprefix) throws ClientApiException {
-		Map<String, String> map = null;
-		map = new HashMap<String, String>();
-		if (keyprefix != null) {
-			map.put("keyPrefix", keyprefix);
-		}
-		return api.callApi("core", "view", "stats", map);
 	}
 
 	public ApiResponse optionDefaultUserAgent() throws ClientApiException {
@@ -250,6 +249,22 @@ public class Core {
 	public ApiResponse optionUseProxyChainAuth() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("core", "view", "optionUseProxyChainAuth", map);
+	}
+
+	/**
+	 * Convenient and simple action to access a URL, optionally following redirections. Returns the request sent and response received and followed redirections, if any. Other actions are available which offer more control on what is sent, like, 'sendRequest' or 'sendHarRequest'.
+	 */
+	public ApiResponse accessUrl(String apikey, String url, String followredirects) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("url", url);
+		if (followredirects != null) {
+			map.put("followRedirects", followredirects);
+		}
+		return api.callApi("core", "action", "accessUrl", map);
 	}
 
 	/**
@@ -349,6 +364,19 @@ public class Core {
 		return api.callApi("core", "action", "setHomeDirectory", map);
 	}
 
+	/**
+	 * Sets the mode, which may be one of [safe, protect, standard, attack]
+	 */
+	public ApiResponse setMode(String apikey, String mode) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("mode", mode);
+		return api.callApi("core", "action", "setMode", map);
+	}
+
 	public ApiResponse generateRootCA(String apikey) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
@@ -392,14 +420,23 @@ public class Core {
 		return api.callApi("core", "action", "runGarbageCollection", map);
 	}
 
-	public ApiResponse clearStats(String apikey, String keyprefix) throws ClientApiException {
+	/**
+	 * Deletes the site node found in the Sites Tree on the basis of the URL, HTTP method, and post data (if applicable and specified). 
+	 */
+	public ApiResponse deleteSiteNode(String apikey, String url, String method, String postdata) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("keyPrefix", keyprefix);
-		return api.callApi("core", "action", "clearStats", map);
+		map.put("url", url);
+		if (method != null) {
+			map.put("method", method);
+		}
+		if (postdata != null) {
+			map.put("postData", postdata);
+		}
+		return api.callApi("core", "action", "deleteSiteNode", map);
 	}
 
 	public ApiResponse setOptionDefaultUserAgent(String apikey, String string) throws ClientApiException {
@@ -530,21 +567,6 @@ public class Core {
 		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("core", "action", "setOptionUseProxyChainAuth", map);
-	}
-
-	public ApiResponse deleteSiteNode(String apikey, String url, String method, String postData) throws ClientApiException {
-		Map<String, String> map = new HashMap<String, String>();
-		if (apikey != null) {
-			map.put("apikey", apikey);
-		}
-		map.put("url", url);
-		if (method != null) {
-			map.put("method", method);
-		}
-		if (postData != null) {
-			map.put("postData", postData);
-		}
-		return api.callApi("core", "action", "deleteSiteNode", map);
 	}
 
 	public byte[] proxypac(String apikey) throws ClientApiException {

@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -143,6 +143,13 @@ class ascan(object):
         return next(self.zap._request(self.zap.base + 'ascan/view/optionRescanInAttackMode/').itervalues())
 
     @property
+    def option_scan_headers_all_requests(self):
+        """
+        Tells whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+        """
+        return next(self.zap._request(self.zap.base + 'ascan/view/optionScanHeadersAllRequests/').itervalues())
+
+    @property
     def option_show_advanced_dialog(self):
         return next(self.zap._request(self.zap.base + 'ascan/view/optionShowAdvancedDialog/').itervalues())
 
@@ -217,14 +224,23 @@ class ascan(object):
             params['scanPolicyName'] = scanpolicyname
         return next(self.zap._request(self.zap.base + 'ascan/action/disableAllScanners/', params).itervalues())
 
-    def enable_scanners(self, ids, apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey}).itervalues())
+    def enable_scanners(self, ids, scanpolicyname=None, apikey=''):
+        params = {'ids' : ids, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/enableScanners/', params).itervalues())
 
-    def disable_scanners(self, ids, apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey}).itervalues())
+    def disable_scanners(self, ids, scanpolicyname=None, apikey=''):
+        params = {'ids' : ids, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/disableScanners/', params).itervalues())
 
-    def set_enabled_policies(self, ids, apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/setEnabledPolicies/', {'ids' : ids, 'apikey' : apikey}).itervalues())
+    def set_enabled_policies(self, ids, scanpolicyname=None, apikey=''):
+        params = {'ids' : ids, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/setEnabledPolicies/', params).itervalues())
 
     def set_policy_attack_strength(self, id, attackstrength, scanpolicyname=None, apikey=''):
         params = {'id' : id, 'attackStrength' : attackstrength, 'apikey' : apikey}
@@ -294,6 +310,12 @@ class ascan(object):
 
     def set_option_rescan_in_attack_mode(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/setOptionRescanInAttackMode/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
+
+    def set_option_scan_headers_all_requests(self, boolean, apikey=''):
+        """
+        Sets whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+        """
+        return next(self.zap._request(self.zap.base + 'ascan/action/setOptionScanHeadersAllRequests/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_show_advanced_dialog(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/setOptionShowAdvancedDialog/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())

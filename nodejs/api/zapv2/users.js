@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,22 @@ function Users(clientApi) {
 }
 
 Users.prototype.usersList = function (contextid, callback) {
-  this.api.request('/users/view/usersList/', {'contextId' : contextid}, callback);
+  var params = {};
+  if (contextid && contextid !== null) {
+    params['contextId'] = contextid;
+  }
+  this.api.request('/users/view/usersList/', params, callback);
 };
 
 Users.prototype.getUserById = function (contextid, userid, callback) {
-  this.api.request('/users/view/getUserById/', {'contextId' : contextid, 'userId' : userid}, callback);
+  var params = {};
+  if (contextid && contextid !== null) {
+    params['contextId'] = contextid;
+  }
+  if (userid && userid !== null) {
+    params['userId'] = userid;
+  }
+  this.api.request('/users/view/getUserById/', params, callback);
 };
 
 Users.prototype.getAuthenticationCredentialsConfigParams = function (contextid, callback) {
@@ -80,7 +91,11 @@ Users.prototype.setAuthenticationCredentials = function (contextid, userid, auth
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams, 'apikey' : apikey}, callback);
+  var params = {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey};
+  if (authcredentialsconfigparams && authcredentialsconfigparams !== null) {
+    params['authCredentialsConfigParams'] = authcredentialsconfigparams;
+  }
+  this.api.request('/users/action/setAuthenticationCredentials/', params, callback);
 };
 
 module.exports = Users;

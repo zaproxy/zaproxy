@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -199,6 +199,14 @@ public class Ascan {
 		return api.callApi("ascan", "view", "optionRescanInAttackMode", map);
 	}
 
+	/**
+	 * Tells whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+	 */
+	public ApiResponse optionScanHeadersAllRequests() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("ascan", "view", "optionScanHeadersAllRequests", map);
+	}
+
 	public ApiResponse optionShowAdvancedDialog() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("ascan", "view", "optionShowAdvancedDialog", map);
@@ -375,33 +383,42 @@ public class Ascan {
 		return api.callApi("ascan", "action", "disableAllScanners", map);
 	}
 
-	public ApiResponse enableScanners(String apikey, String ids) throws ClientApiException {
+	public ApiResponse enableScanners(String apikey, String ids, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("ids", ids);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "enableScanners", map);
 	}
 
-	public ApiResponse disableScanners(String apikey, String ids) throws ClientApiException {
+	public ApiResponse disableScanners(String apikey, String ids, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("ids", ids);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "disableScanners", map);
 	}
 
-	public ApiResponse setEnabledPolicies(String apikey, String ids) throws ClientApiException {
+	public ApiResponse setEnabledPolicies(String apikey, String ids, String scanpolicyname) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
 		map.put("ids", ids);
+		if (scanpolicyname != null) {
+			map.put("scanPolicyName", scanpolicyname);
+		}
 		return api.callApi("ascan", "action", "setEnabledPolicies", map);
 	}
 
@@ -609,6 +626,19 @@ public class Ascan {
 		}
 		map.put("Boolean", Boolean.toString(bool));
 		return api.callApi("ascan", "action", "setOptionRescanInAttackMode", map);
+	}
+
+	/**
+	 * Sets whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+	 */
+	public ApiResponse setOptionScanHeadersAllRequests(String apikey, boolean bool) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Boolean", Boolean.toString(bool));
+		return api.callApi("ascan", "action", "setOptionScanHeadersAllRequests", map);
 	}
 
 	public ApiResponse setOptionShowAdvancedDialog(String apikey, boolean bool) throws ClientApiException {
