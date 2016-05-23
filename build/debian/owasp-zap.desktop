@@ -1,0 +1,10 @@
+#!/usr/bin/env xdg-open
+[Desktop Entry]
+Version=1.0
+Type=Application
+Terminal=false
+TryExec=/usr/bin/zap
+Exec=/usr/bin/zap
+Name=OWASP ZAP
+Icon=owasp-zap
+Categories=Network
