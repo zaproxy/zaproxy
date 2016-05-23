@@ -6,5 +6,5 @@ Terminal=false
 TryExec=/usr/bin/zap
 Exec=/usr/bin/zap
 Name=OWASP ZAP
-Icon=owasp-zap
+Icon=/usr/share/icon/zapicon.png
 Categories=Network
