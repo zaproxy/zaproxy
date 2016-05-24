@@ -69,6 +69,7 @@ import org.apache.commons.logging.LogFactory;
  *  valid) are reused/resent in some ZAP components (e.g. active scanner, fuzzer, ...);
  *  - Added constant PARAM_REMOVE_USER_DEFINED_AUTH_HEADERS;
  *  - Added the public modifier to the class.
+ *  - Establish a tunnel if the request has a connection upgrade.
  */
 /**
  * Handles the process of executing a method including authentication, redirection and retries.
@@ -438,9 +439,11 @@ public class HttpMethodDirector {
                         // this connection must be opened before it can be used
                         // This has nothing to do with opening a secure tunnel
                         this.conn.open();
-                        if (this.conn.isProxied() && this.conn.isSecure() 
+                        boolean upgrade = isConnectionUpgrade(method);
+                        if ((this.conn.isProxied() && (this.conn.isSecure() || upgrade))
                         && !(method instanceof ConnectMethod)) {
-                            // we need to create a secure tunnel before we can execute the real method
+                            this.conn.setTunnelRequested(upgrade);
+                            // we need to create a tunnel before we can execute the real method
                             if (!executeConnect()) {
                                 // abort, the connect method failed
                                 return;
@@ -515,6 +518,20 @@ public class HttpMethodDirector {
         }
     }
     
+    /**
+     * Tells whether or not the given {@code method} has a {@code Connection} request header with {@code Upgrade} value.
+     *
+     * @param method the method that will be checked
+     * @return {@code true} if the {@code method} has a connection upgrade, {@code false} otherwise
+     */
+    private static boolean isConnectionUpgrade(HttpMethod method) {
+        Header connectionHeader = method.getRequestHeader("connection");
+        if (connectionHeader == null) {
+            return false;
+        }
+        return connectionHeader.getValue().toLowerCase().contains("upgrade");
+    }
+
     /**
      * Executes a ConnectMethod to establish a tunneled connection.
      * 
