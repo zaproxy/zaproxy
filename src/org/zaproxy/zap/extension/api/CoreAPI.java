@@ -63,8 +63,8 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
-import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.model.SiteMap;
+import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -74,7 +74,6 @@ import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
-import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 import org.zaproxy.zap.model.SessionUtils;
 import org.zaproxy.zap.utils.HarUtils;
 
@@ -149,6 +148,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
+    private static ExtensionHistory extHistory;
+
 
 	public CoreAPI() {
 		this.addApiAction(
@@ -454,7 +455,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				if(siteNode == null) {
 					throw new ApiException(ApiException.Type.DOES_NOT_EXIST, PARAM_URL);
 				}
-				PopupMenuPurgeSites.purge(siteMap, siteNode);
+				if (getExtHistory() != null) {
+				    getExtHistory().purge(siteMap, siteNode);
+				}
 				return ApiResponseElement.OK;
 			} catch (URIException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
@@ -484,6 +487,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		}
 	}
 
+	private static ExtensionHistory getExtHistory() {
+	    if (extHistory == null) {
+	        extHistory = Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
+	    }
+	    return extHistory;
+    }
+
+	
 	private static HttpMessage createRequest(String request) throws HttpMalformedHeaderException {
 		HttpMessage requestMsg = new HttpMessage();
 		String[] parts = request.split(Pattern.quote(HttpHeader.CRLF + HttpHeader.CRLF), 2);
@@ -549,15 +560,12 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			return;
 		}
 
-		final ExtensionHistory extHistory = (ExtensionHistory) Control.getSingleton()
-				.getExtensionLoader()
-				.getExtension(ExtensionHistory.NAME);
-		if (extHistory != null) {
+		if (getExtHistory() != null) {
 			EventQueue.invokeLater(new Runnable() {
 
 				@Override
 				public void run() {
-					extHistory.addHistory(historyRef);
+				    getExtHistory().addHistory(historyRef);
 					Model.getSingleton().getSession().getSiteTree().addPath(historyRef, message);
 				}
 			});

@@ -22,14 +22,15 @@ package org.zaproxy.zap.extension.stdmenus;
 import java.util.List;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.history.PopupMenuPurgeSites;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.SessionExcludeFromProxyPanel;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
@@ -68,7 +69,14 @@ public class PopupExcludeFromProxyMenu extends PopupMenuItemSiteNodeContainer {
 			session.getExcludeFromProxyRegexs().add(new StructuralSiteNode(sn).getRegexPattern());
 			SiteMap map = (SiteMap) View.getSingleton().getSiteTreePanel().getTreeSite().getModel();
 
-			PopupMenuPurgeSites.purge(map, sn);
+            ExtensionHistory extHistory =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.class);
+
+            if (extHistory != null) {
+                extHistory.purge(map, sn);
+            }
+
+			
 		} catch (DatabaseException e) {
 			// Ignore
 		}

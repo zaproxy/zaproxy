@@ -97,7 +97,8 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
 
         if (node.getHistoryReference() == ref) {
             // same active Node
-            PopupMenuPurgeSites.purge(map, node);
+            extension.purge(map, node);
+
         } else {
             node.getPastHistoryReference().remove(ref);
             map.removeHistoryReference(ref.getHistoryId());
