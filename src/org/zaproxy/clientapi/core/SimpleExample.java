@@ -41,7 +41,7 @@ public class SimpleExample {
 			
 			// Start spidering the target
 			System.out.println("Spider : " + target);
-			ApiResponse resp = api.spider.scan(apikey, target, null, null, null);
+			ApiResponse resp = api.spider.scan(apikey, target, null, null, null, null);
 			String scanid;
 			int progress;
 			

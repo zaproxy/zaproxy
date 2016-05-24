@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -102,6 +102,13 @@ class core(object):
         return next(self.zap._request(self.zap.base + 'core/view/numberOfMessages/', params).itervalues())
 
     @property
+    def mode(self):
+        """
+        Gets the mode
+        """
+        return next(self.zap._request(self.zap.base + 'core/view/mode/').itervalues())
+
+    @property
     def version(self):
         """
         Gets ZAP version
@@ -118,12 +125,6 @@ class core(object):
     @property
     def home_directory(self):
         return next(self.zap._request(self.zap.base + 'core/view/homeDirectory/').itervalues())
-
-    def stats(self, keyprefix=None):
-        params = {}
-        if keyprefix is not None:
-            params['keyPrefix'] = keyprefix
-        return next(self.zap._request(self.zap.base + 'core/view/stats/', params).itervalues())
 
     @property
     def option_default_user_agent(self):
@@ -189,6 +190,15 @@ class core(object):
     def option_use_proxy_chain_auth(self):
         return next(self.zap._request(self.zap.base + 'core/view/optionUseProxyChainAuth/').itervalues())
 
+    def access_url(self, url, followredirects=None, apikey=''):
+        """
+        Convenient and simple action to access a URL, optionally following redirections. Returns the request sent and response received and followed redirections, if any. Other actions are available which offer more control on what is sent, like, 'sendRequest' or 'sendHarRequest'.
+        """
+        params = {'url' : url, 'apikey' : apikey}
+        if followredirects is not None:
+            params['followRedirects'] = followredirects
+        return next(self.zap._request(self.zap.base + 'core/action/accessUrl/', params).itervalues())
+
     def shutdown(self, apikey=''):
         """
         Shuts down ZAP
@@ -233,6 +243,12 @@ class core(object):
     def set_home_directory(self, dir, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setHomeDirectory/', {'dir' : dir, 'apikey' : apikey}).itervalues())
 
+    def set_mode(self, mode, apikey=''):
+        """
+        Sets the mode, which may be one of [safe, protect, standard, attack]
+        """
+        return next(self.zap._request(self.zap.base + 'core/action/setMode/', {'mode' : mode, 'apikey' : apikey}).itervalues())
+
     def generate_root_ca(self, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/generateRootCA/', {'apikey' : apikey}).itervalues())
 
@@ -251,8 +267,16 @@ class core(object):
     def run_garbage_collection(self, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/runGarbageCollection/', {'apikey' : apikey}).itervalues())
 
-    def clear_stats(self, keyprefix, apikey=''):
-        return next(self.zap._request(self.zap.base + 'core/action/clearStats/', {'keyPrefix' : keyprefix, 'apikey' : apikey}).itervalues())
+    def delete_site_node(self, url, method=None, postdata=None, apikey=''):
+        """
+        Deletes the site node found in the Sites Tree on the basis of the URL, HTTP method, and post data (if applicable and specified). 
+        """
+        params = {'url' : url, 'apikey' : apikey}
+        if method is not None:
+            params['method'] = method
+        if postdata is not None:
+            params['postData'] = postdata
+        return next(self.zap._request(self.zap.base + 'core/action/deleteSiteNode/', params).itervalues())
 
     def set_option_default_user_agent(self, string, apikey=''):
         return next(self.zap._request(self.zap.base + 'core/action/setOptionDefaultUserAgent/', {'String' : string, 'apikey' : apikey}).itervalues())

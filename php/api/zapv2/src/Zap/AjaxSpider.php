@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -65,34 +65,6 @@ class AjaxSpider {
 	 */
 	public function optionBrowserId() {
 		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionBrowserId/')->{'BrowserId'};
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public function optionConfigVersionKey() {
-		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionConfigVersionKey/')->{'ConfigVersionKey'};
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public function optionCurrentVersion() {
-		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionCurrentVersion/')->{'CurrentVersion'};
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public function optionElems() {
-		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionElems/')->{'Elems'};
-	}
-
-	/**
-	 * This component is optional and therefore the API will only work if it is installed
-	 */
-	public function optionElemsNames() {
-		return $this->zap->request($this->zap->base . 'ajaxSpider/view/optionElemsNames/')->{'ElemsNames'};
 	}
 
 	/**

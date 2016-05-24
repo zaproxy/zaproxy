@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,19 @@ function Spider(clientApi) {
 }
 
 Spider.prototype.status = function (scanid, callback) {
-  this.api.request('/spider/view/status/', {'scanId' : scanid}, callback);
+  var params = {};
+  if (scanid && scanid !== null) {
+    params['scanId'] = scanid;
+  }
+  this.api.request('/spider/view/status/', params, callback);
 };
 
 Spider.prototype.results = function (scanid, callback) {
-  this.api.request('/spider/view/results/', {'scanId' : scanid}, callback);
+  var params = {};
+  if (scanid && scanid !== null) {
+    params['scanId'] = scanid;
+  }
+  this.api.request('/spider/view/results/', params, callback);
 };
 
 Spider.prototype.fullResults = function (scanid, callback) {
@@ -61,6 +69,10 @@ Spider.prototype.optionHandleParameters = function (callback) {
 
 Spider.prototype.optionMaxDepth = function (callback) {
   this.api.request('/spider/view/optionMaxDepth/', callback);
+};
+
+Spider.prototype.optionMaxDuration = function (callback) {
+  this.api.request('/spider/view/optionMaxDuration/', callback);
 };
 
 Spider.prototype.optionMaxScansInUI = function (callback) {
@@ -135,25 +147,54 @@ Spider.prototype.optionShowAdvancedDialog = function (callback) {
 };
 
 /**
- * Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively and the parameter 'contextName' can be used to constrain the scan to a Context.
+ * Runs the spider against the given URL (or context). Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively, the parameter 'contextName' can be used to constrain the scan to a Context and the parameter 'subtreeOnly' allows to restrict the spider under a site's subtree (using the specified 'url').
  **/
-Spider.prototype.scan = function (url, maxchildren, recurse, contextname, apikey, callback) {
+Spider.prototype.scan = function (url, maxchildren, recurse, contextname, subtreeonly, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/scan/', {'url' : url, 'maxChildren' : maxchildren, 'recurse' : recurse, 'contextName' : contextname, 'apikey' : apikey}, callback);
+  var params = {'apikey' : apikey};
+  if (url && url !== null) {
+    params['url'] = url;
+  }
+  if (maxchildren && maxchildren !== null) {
+    params['maxChildren'] = maxchildren;
+  }
+  if (recurse && recurse !== null) {
+    params['recurse'] = recurse;
+  }
+  if (contextname && contextname !== null) {
+    params['contextName'] = contextname;
+  }
+  if (subtreeonly && subtreeonly !== null) {
+    params['subtreeOnly'] = subtreeonly;
+  }
+  this.api.request('/spider/action/scan/', params, callback);
 };
 
 /**
  * Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
  **/
-Spider.prototype.scanAsUser = function (url, contextid, userid, maxchildren, recurse, apikey, callback) {
+Spider.prototype.scanAsUser = function (contextid, userid, url, maxchildren, recurse, subtreeonly, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'maxChildren' : maxchildren, 'recurse' : recurse, 'apikey' : apikey}, callback);
+  var params = {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey};
+  if (url && url !== null) {
+    params['url'] = url;
+  }
+  if (maxchildren && maxchildren !== null) {
+    params['maxChildren'] = maxchildren;
+  }
+  if (recurse && recurse !== null) {
+    params['recurse'] = recurse;
+  }
+  if (subtreeonly && subtreeonly !== null) {
+    params['subtreeOnly'] = subtreeonly;
+  }
+  this.api.request('/spider/action/scanAsUser/', params, callback);
 };
 
 Spider.prototype.pause = function (scanid, apikey, callback) {
@@ -177,7 +218,11 @@ Spider.prototype.stop = function (scanid, apikey, callback) {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/spider/action/stop/', {'scanId' : scanid, 'apikey' : apikey}, callback);
+  var params = {'apikey' : apikey};
+  if (scanid && scanid !== null) {
+    params['scanId'] = scanid;
+  }
+  this.api.request('/spider/action/stop/', params, callback);
 };
 
 Spider.prototype.removeScan = function (scanid, apikey, callback) {
@@ -282,6 +327,14 @@ Spider.prototype.setOptionMaxDepth = function (integer, apikey, callback) {
     apikey = null;
   }
   this.api.request('/spider/action/setOptionMaxDepth/', {'Integer' : integer, 'apikey' : apikey}, callback);
+};
+
+Spider.prototype.setOptionMaxDuration = function (integer, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/spider/action/setOptionMaxDuration/', {'Integer' : integer, 'apikey' : apikey}, callback);
 };
 
 Spider.prototype.setOptionMaxScansInUI = function (integer, apikey, callback) {

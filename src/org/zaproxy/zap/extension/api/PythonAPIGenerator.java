@@ -39,7 +39,7 @@ public class PythonAPIGenerator {
 			"#\n" +
 			"# ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			"#\n" +
-			"# Copyright 2015 the ZAP development team\n" +
+			"# Copyright 2016 the ZAP development team\n" +
 			"#\n" +
 			"# Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			"# you may not use this file except in compliance with the License.\n" +

@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -91,6 +91,11 @@ public class Spider {
 	public ApiResponse optionMaxDepth() throws ClientApiException {
 		Map<String, String> map = null;
 		return api.callApi("spider", "view", "optionMaxDepth", map);
+	}
+
+	public ApiResponse optionMaxDuration() throws ClientApiException {
+		Map<String, String> map = null;
+		return api.callApi("spider", "view", "optionMaxDuration", map);
 	}
 
 	public ApiResponse optionMaxScansInUI() throws ClientApiException {
@@ -182,15 +187,17 @@ public class Spider {
 	}
 
 	/**
-	 * Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively and the parameter 'contextName' can be used to constrain the scan to a Context.
+	 * Runs the spider against the given URL (or context). Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively, the parameter 'contextName' can be used to constrain the scan to a Context and the parameter 'subtreeOnly' allows to restrict the spider under a site's subtree (using the specified 'url').
 	 */
-	public ApiResponse scan(String apikey, String url, String maxchildren, String recurse, String contextname) throws ClientApiException {
+	public ApiResponse scan(String apikey, String url, String maxchildren, String recurse, String contextname, String subtreeonly) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("url", url);
+		if (url != null) {
+			map.put("url", url);
+		}
 		if (maxchildren != null) {
 			map.put("maxChildren", maxchildren);
 		}
@@ -200,26 +207,34 @@ public class Spider {
 		if (contextname != null) {
 			map.put("contextName", contextname);
 		}
+		if (subtreeonly != null) {
+			map.put("subtreeOnly", subtreeonly);
+		}
 		return api.callApi("spider", "action", "scan", map);
 	}
 
 	/**
 	 * Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
 	 */
-	public ApiResponse scanAsUser(String apikey, String url, String contextid, String userid, String maxchildren, String recurse) throws ClientApiException {
+	public ApiResponse scanAsUser(String apikey, String contextid, String userid, String url, String maxchildren, String recurse, String subtreeonly) throws ClientApiException {
 		Map<String, String> map = null;
 		map = new HashMap<String, String>();
 		if (apikey != null) {
 			map.put("apikey", apikey);
 		}
-		map.put("url", url);
 		map.put("contextId", contextid);
 		map.put("userId", userid);
+		if (url != null) {
+			map.put("url", url);
+		}
 		if (maxchildren != null) {
 			map.put("maxChildren", maxchildren);
 		}
 		if (recurse != null) {
 			map.put("recurse", recurse);
+		}
+		if (subtreeonly != null) {
+			map.put("subtreeOnly", subtreeonly);
 		}
 		return api.callApi("spider", "action", "scanAsUser", map);
 	}
@@ -379,6 +394,16 @@ public class Spider {
 		}
 		map.put("Integer", Integer.toString(i));
 		return api.callApi("spider", "action", "setOptionMaxDepth", map);
+	}
+
+	public ApiResponse setOptionMaxDuration(String apikey, int i) throws ClientApiException {
+		Map<String, String> map = null;
+		map = new HashMap<String, String>();
+		if (apikey != null) {
+			map.put("apikey", apikey);
+		}
+		map.put("Integer", Integer.toString(i));
+		return api.callApi("spider", "action", "setOptionMaxDuration", map);
 	}
 
 	public ApiResponse setOptionMaxScansInUI(String apikey, int i) throws ClientApiException {

@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,14 +38,28 @@ Core.prototype.alert = function (id, callback) {
  * Gets the alerts raised by ZAP, optionally filtering by URL and paginating with 'start' position and 'count' of alerts
  **/
 Core.prototype.alerts = function (baseurl, start, count, callback) {
-  this.api.request('/core/view/alerts/', {'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
+  var params = {};
+  if (baseurl && baseurl !== null) {
+    params['baseurl'] = baseurl;
+  }
+  if (start && start !== null) {
+    params['start'] = start;
+  }
+  if (count && count !== null) {
+    params['count'] = count;
+  }
+  this.api.request('/core/view/alerts/', params, callback);
 };
 
 /**
  * Gets the number of alerts, optionally filtering by URL
  **/
 Core.prototype.numberOfAlerts = function (baseurl, callback) {
-  this.api.request('/core/view/numberOfAlerts/', {'baseurl' : baseurl}, callback);
+  var params = {};
+  if (baseurl && baseurl !== null) {
+    params['baseurl'] = baseurl;
+  }
+  this.api.request('/core/view/numberOfAlerts/', params, callback);
 };
 
 /**
@@ -80,14 +94,35 @@ Core.prototype.message = function (id, callback) {
  * Gets the HTTP messages sent by ZAP, request and response, optionally filtered by URL and paginated with 'start' position and 'count' of messages
  **/
 Core.prototype.messages = function (baseurl, start, count, callback) {
-  this.api.request('/core/view/messages/', {'baseurl' : baseurl, 'start' : start, 'count' : count}, callback);
+  var params = {};
+  if (baseurl && baseurl !== null) {
+    params['baseurl'] = baseurl;
+  }
+  if (start && start !== null) {
+    params['start'] = start;
+  }
+  if (count && count !== null) {
+    params['count'] = count;
+  }
+  this.api.request('/core/view/messages/', params, callback);
 };
 
 /**
  * Gets the number of messages, optionally filtering by URL
  **/
 Core.prototype.numberOfMessages = function (baseurl, callback) {
-  this.api.request('/core/view/numberOfMessages/', {'baseurl' : baseurl}, callback);
+  var params = {};
+  if (baseurl && baseurl !== null) {
+    params['baseurl'] = baseurl;
+  }
+  this.api.request('/core/view/numberOfMessages/', params, callback);
+};
+
+/**
+ * Gets the mode
+ **/
+Core.prototype.mode = function (callback) {
+  this.api.request('/core/view/mode/', callback);
 };
 
 /**
@@ -106,10 +141,6 @@ Core.prototype.excludedFromProxy = function (callback) {
 
 Core.prototype.homeDirectory = function (callback) {
   this.api.request('/core/view/homeDirectory/', callback);
-};
-
-Core.prototype.stats = function (keyprefix, callback) {
-  this.api.request('/core/view/stats/', {'keyPrefix' : keyprefix}, callback);
 };
 
 Core.prototype.optionDefaultUserAgent = function (callback) {
@@ -177,6 +208,21 @@ Core.prototype.optionUseProxyChainAuth = function (callback) {
 };
 
 /**
+ * Convenient and simple action to access a URL, optionally following redirections. Returns the request sent and response received and followed redirections, if any. Other actions are available which offer more control on what is sent, like, 'sendRequest' or 'sendHarRequest'.
+ **/
+Core.prototype.accessUrl = function (url, followredirects, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  var params = {'url' : url, 'apikey' : apikey};
+  if (followredirects && followredirects !== null) {
+    params['followRedirects'] = followredirects;
+  }
+  this.api.request('/core/action/accessUrl/', params, callback);
+};
+
+/**
  * Shuts down ZAP
  **/
 Core.prototype.shutdown = function (apikey, callback) {
@@ -195,7 +241,14 @@ Core.prototype.newSession = function (name, overwrite, apikey, callback) {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/core/action/newSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}, callback);
+  var params = {'apikey' : apikey};
+  if (name && name !== null) {
+    params['name'] = name;
+  }
+  if (overwrite && overwrite !== null) {
+    params['overwrite'] = overwrite;
+  }
+  this.api.request('/core/action/newSession/', params, callback);
 };
 
 /**
@@ -217,7 +270,11 @@ Core.prototype.saveSession = function (name, overwrite, apikey, callback) {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/core/action/saveSession/', {'name' : name, 'overwrite' : overwrite, 'apikey' : apikey}, callback);
+  var params = {'name' : name, 'apikey' : apikey};
+  if (overwrite && overwrite !== null) {
+    params['overwrite'] = overwrite;
+  }
+  this.api.request('/core/action/saveSession/', params, callback);
 };
 
 Core.prototype.snapshotSession = function (apikey, callback) {
@@ -252,6 +309,17 @@ Core.prototype.setHomeDirectory = function (dir, apikey, callback) {
   this.api.request('/core/action/setHomeDirectory/', {'dir' : dir, 'apikey' : apikey}, callback);
 };
 
+/**
+ * Sets the mode, which may be one of [safe, protect, standard, attack]
+ **/
+Core.prototype.setMode = function (mode, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/core/action/setMode/', {'mode' : mode, 'apikey' : apikey}, callback);
+};
+
 Core.prototype.generateRootCA = function (apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
@@ -268,7 +336,11 @@ Core.prototype.sendRequest = function (request, followredirects, apikey, callbac
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/core/action/sendRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey}, callback);
+  var params = {'request' : request, 'apikey' : apikey};
+  if (followredirects && followredirects !== null) {
+    params['followRedirects'] = followredirects;
+  }
+  this.api.request('/core/action/sendRequest/', params, callback);
 };
 
 Core.prototype.deleteAllAlerts = function (apikey, callback) {
@@ -287,12 +359,22 @@ Core.prototype.runGarbageCollection = function (apikey, callback) {
   this.api.request('/core/action/runGarbageCollection/', {'apikey' : apikey}, callback);
 };
 
-Core.prototype.clearStats = function (keyprefix, apikey, callback) {
+/**
+ * Deletes the site node found in the Sites Tree on the basis of the URL, HTTP method, and post data (if applicable and specified). 
+ **/
+Core.prototype.deleteSiteNode = function (url, method, postdata, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/core/action/clearStats/', {'keyPrefix' : keyprefix, 'apikey' : apikey}, callback);
+  var params = {'url' : url, 'apikey' : apikey};
+  if (method && method !== null) {
+    params['method'] = method;
+  }
+  if (postdata && postdata !== null) {
+    params['postData'] = postdata;
+  }
+  this.api.request('/core/action/deleteSiteNode/', params, callback);
 };
 
 Core.prototype.setOptionDefaultUserAgent = function (string, apikey, callback) {
@@ -464,7 +546,17 @@ Core.prototype.messagesHar = function (baseurl, start, count, apikey, callback) 
     callback = apikey;
     apikey = null;
   }
-  this.api.requestOther('/core/other/messagesHar/', {'baseurl' : baseurl, 'start' : start, 'count' : count, 'apikey' : apikey}, callback);
+  var params = {'apikey' : apikey};
+  if (baseurl && baseurl !== null) {
+    params['baseurl'] = baseurl;
+  }
+  if (start && start !== null) {
+    params['start'] = start;
+  }
+  if (count && count !== null) {
+    params['count'] = count;
+  }
+  this.api.requestOther('/core/other/messagesHar/', params, callback);
 };
 
 /**
@@ -475,7 +567,11 @@ Core.prototype.sendHarRequest = function (request, followredirects, apikey, call
     callback = apikey;
     apikey = null;
   }
-  this.api.requestOther('/core/other/sendHarRequest/', {'request' : request, 'followRedirects' : followredirects, 'apikey' : apikey}, callback);
+  var params = {'request' : request, 'apikey' : apikey};
+  if (followredirects && followredirects !== null) {
+    params['followRedirects'] = followredirects;
+  }
+  this.api.requestOther('/core/other/sendHarRequest/', params, callback);
 };
 
 module.exports = Core;

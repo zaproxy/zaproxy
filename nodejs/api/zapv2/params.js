@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -31,7 +31,11 @@ function Params(clientApi) {
  * Shows the parameters for the specified site, or for all sites if the site is not specified
  **/
 Params.prototype.params = function (site, callback) {
-  this.api.request('/params/view/params/', {'site' : site}, callback);
+  var params = {};
+  if (site && site !== null) {
+    params['site'] = site;
+  }
+  this.api.request('/params/view/params/', params, callback);
 };
 
 module.exports = Params;

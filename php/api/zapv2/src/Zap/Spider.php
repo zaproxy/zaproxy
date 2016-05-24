@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -74,6 +74,10 @@ class Spider {
 
 	public function optionMaxDepth() {
 		return $this->zap->request($this->zap->base . 'spider/view/optionMaxDepth/')->{'MaxDepth'};
+	}
+
+	public function optionMaxDuration() {
+		return $this->zap->request($this->zap->base . 'spider/view/optionMaxDuration/')->{'MaxDuration'};
 	}
 
 	public function optionMaxScansInUI() {
@@ -148,10 +152,13 @@ class Spider {
 	}
 
 	/**
-	 * Runs the spider against the given URL. Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively and the parameter 'contextName' can be used to constrain the scan to a Context.
+	 * Runs the spider against the given URL (or context). Optionally, the 'maxChildren' parameter can be set to limit the number of children scanned, the 'recurse' parameter can be used to prevent the spider from seeding recursively, the parameter 'contextName' can be used to constrain the scan to a Context and the parameter 'subtreeOnly' allows to restrict the spider under a site's subtree (using the specified 'url').
 	 */
-	public function scan($url, $maxchildren=NULL, $recurse=NULL, $contextname=NULL, $apikey='') {
-		$params = array('url' => $url, 'apikey' => $apikey);
+	public function scan($url=NULL, $maxchildren=NULL, $recurse=NULL, $contextname=NULL, $subtreeonly=NULL, $apikey='') {
+		$params = array('apikey' => $apikey);
+		if ($url !== NULL) {
+			$params['url'] = $url;
+		}
 		if ($maxchildren !== NULL) {
 			$params['maxChildren'] = $maxchildren;
 		}
@@ -161,19 +168,28 @@ class Spider {
 		if ($contextname !== NULL) {
 			$params['contextName'] = $contextname;
 		}
+		if ($subtreeonly !== NULL) {
+			$params['subtreeOnly'] = $subtreeonly;
+		}
 		return $this->zap->request($this->zap->base . 'spider/action/scan/', $params);
 	}
 
 	/**
 	 * Runs the spider from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
 	 */
-	public function scanAsUser($url, $contextid, $userid, $maxchildren=NULL, $recurse=NULL, $apikey='') {
-		$params = array('url' => $url, 'contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey);
+	public function scanAsUser($contextid, $userid, $url=NULL, $maxchildren=NULL, $recurse=NULL, $subtreeonly=NULL, $apikey='') {
+		$params = array('contextId' => $contextid, 'userId' => $userid, 'apikey' => $apikey);
+		if ($url !== NULL) {
+			$params['url'] = $url;
+		}
 		if ($maxchildren !== NULL) {
 			$params['maxChildren'] = $maxchildren;
 		}
 		if ($recurse !== NULL) {
 			$params['recurse'] = $recurse;
+		}
+		if ($subtreeonly !== NULL) {
+			$params['subtreeOnly'] = $subtreeonly;
 		}
 		return $this->zap->request($this->zap->base . 'spider/action/scanAsUser/', $params);
 	}
@@ -244,6 +260,10 @@ class Spider {
 
 	public function setOptionMaxDepth($integer, $apikey='') {
 		return $this->zap->request($this->zap->base . 'spider/action/setOptionMaxDepth/', array('Integer' => $integer, 'apikey' => $apikey));
+	}
+
+	public function setOptionMaxDuration($integer, $apikey='') {
+		return $this->zap->request($this->zap->base . 'spider/action/setOptionMaxDuration/', array('Integer' => $integer, 'apikey' => $apikey));
 	}
 
 	public function setOptionMaxScansInUI($integer, $apikey='') {

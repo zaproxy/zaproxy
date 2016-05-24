@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -162,6 +162,13 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionRescanInAttackMode/')->{'RescanInAttackMode'};
 	}
 
+	/**
+	 * Tells whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+	 */
+	public function optionScanHeadersAllRequests() {
+		return $this->zap->request($this->zap->base . 'ascan/view/optionScanHeadersAllRequests/')->{'ScanHeadersAllRequests'};
+	}
+
 	public function optionShowAdvancedDialog() {
 		return $this->zap->request($this->zap->base . 'ascan/view/optionShowAdvancedDialog/')->{'ShowAdvancedDialog'};
 	}
@@ -262,16 +269,28 @@ class Ascan {
 		return $this->zap->request($this->zap->base . 'ascan/action/disableAllScanners/', $params);
 	}
 
-	public function enableScanners($ids, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/enableScanners/', array('ids' => $ids, 'apikey' => $apikey));
+	public function enableScanners($ids, $scanpolicyname=NULL, $apikey='') {
+		$params = array('ids' => $ids, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/enableScanners/', $params);
 	}
 
-	public function disableScanners($ids, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/disableScanners/', array('ids' => $ids, 'apikey' => $apikey));
+	public function disableScanners($ids, $scanpolicyname=NULL, $apikey='') {
+		$params = array('ids' => $ids, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/disableScanners/', $params);
 	}
 
-	public function setEnabledPolicies($ids, $apikey='') {
-		return $this->zap->request($this->zap->base . 'ascan/action/setEnabledPolicies/', array('ids' => $ids, 'apikey' => $apikey));
+	public function setEnabledPolicies($ids, $scanpolicyname=NULL, $apikey='') {
+		$params = array('ids' => $ids, 'apikey' => $apikey);
+		if ($scanpolicyname !== NULL) {
+			$params['scanPolicyName'] = $scanpolicyname;
+		}
+		return $this->zap->request($this->zap->base . 'ascan/action/setEnabledPolicies/', $params);
 	}
 
 	public function setPolicyAttackStrength($id, $attackstrength, $scanpolicyname=NULL, $apikey='') {
@@ -364,6 +383,13 @@ class Ascan {
 
 	public function setOptionRescanInAttackMode($boolean, $apikey='') {
 		return $this->zap->request($this->zap->base . 'ascan/action/setOptionRescanInAttackMode/', array('Boolean' => $boolean, 'apikey' => $apikey));
+	}
+
+	/**
+	 * Sets whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+	 */
+	public function setOptionScanHeadersAllRequests($boolean, $apikey='') {
+		return $this->zap->request($this->zap->base . 'ascan/action/setOptionScanHeadersAllRequests/', array('Boolean' => $boolean, 'apikey' => $apikey));
 	}
 
 	public function setOptionShowAdvancedDialog($boolean, $apikey='') {

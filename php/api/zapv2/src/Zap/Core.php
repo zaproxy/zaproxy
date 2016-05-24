@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -124,6 +124,13 @@ class Core {
 	}
 
 	/**
+	 * Gets the mode
+	 */
+	public function mode() {
+		return $this->zap->request($this->zap->base . 'core/view/mode/')->{'mode'};
+	}
+
+	/**
 	 * Gets ZAP version
 	 */
 	public function version() {
@@ -139,14 +146,6 @@ class Core {
 
 	public function homeDirectory() {
 		return $this->zap->request($this->zap->base . 'core/view/homeDirectory/')->{'homeDirectory'};
-	}
-
-	public function stats($keyprefix=NULL) {
-		$params = array();
-		if ($keyprefix !== NULL) {
-			$params['keyPrefix'] = $keyprefix;
-		}
-		return $this->zap->request($this->zap->base . 'core/view/stats/', $params)->{'stats'};
 	}
 
 	public function optionDefaultUserAgent() {
@@ -214,6 +213,17 @@ class Core {
 	}
 
 	/**
+	 * Convenient and simple action to access a URL, optionally following redirections. Returns the request sent and response received and followed redirections, if any. Other actions are available which offer more control on what is sent, like, 'sendRequest' or 'sendHarRequest'.
+	 */
+	public function accessUrl($url, $followredirects=NULL, $apikey='') {
+		$params = array('url' => $url, 'apikey' => $apikey);
+		if ($followredirects !== NULL) {
+			$params['followRedirects'] = $followredirects;
+		}
+		return $this->zap->request($this->zap->base . 'core/action/accessUrl/', $params);
+	}
+
+	/**
 	 * Shuts down ZAP
 	 */
 	public function shutdown($apikey='') {
@@ -268,6 +278,13 @@ class Core {
 		return $this->zap->request($this->zap->base . 'core/action/setHomeDirectory/', array('dir' => $dir, 'apikey' => $apikey));
 	}
 
+	/**
+	 * Sets the mode, which may be one of [safe, protect, standard, attack]
+	 */
+	public function setMode($mode, $apikey='') {
+		return $this->zap->request($this->zap->base . 'core/action/setMode/', array('mode' => $mode, 'apikey' => $apikey));
+	}
+
 	public function generateRootCA($apikey='') {
 		return $this->zap->request($this->zap->base . 'core/action/generateRootCA/', array('apikey' => $apikey));
 	}
@@ -291,8 +308,18 @@ class Core {
 		return $this->zap->request($this->zap->base . 'core/action/runGarbageCollection/', array('apikey' => $apikey));
 	}
 
-	public function clearStats($keyprefix, $apikey='') {
-		return $this->zap->request($this->zap->base . 'core/action/clearStats/', array('keyPrefix' => $keyprefix, 'apikey' => $apikey));
+	/**
+	 * Deletes the site node found in the Sites Tree on the basis of the URL, HTTP method, and post data (if applicable and specified). 
+	 */
+	public function deleteSiteNode($url, $method=NULL, $postdata=NULL, $apikey='') {
+		$params = array('url' => $url, 'apikey' => $apikey);
+		if ($method !== NULL) {
+			$params['method'] = $method;
+		}
+		if ($postdata !== NULL) {
+			$params['postData'] = $postdata;
+		}
+		return $this->zap->request($this->zap->base . 'core/action/deleteSiteNode/', $params);
 	}
 
 	public function setOptionDefaultUserAgent($string, $apikey='') {
