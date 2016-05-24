@@ -42,6 +42,8 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
 
     public HeadlessBootstrap(CommandLine args) {
         super(args);
+
+        System.setProperty("java.awt.headless", "true");
     }
 
     /**
