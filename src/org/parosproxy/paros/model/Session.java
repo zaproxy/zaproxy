@@ -58,6 +58,7 @@
 // ZAP: 2016/05/02 Issue 2451: Only a single Data Driven Node can be saved in a context
 // ZAP: 2016/05/04 Changes to address issues related to ParameterParser
 // ZAP: 2016/05/10 Use empty String for (URL) parameters with no value
+// ZAP: 2016/05/24 Call Database.discardSession(long) in Session.discard()
 
 package org.parosproxy.paros.model;
 
@@ -176,7 +177,7 @@ public class Session {
 
 	protected void discard() {
 	    try {
-	        model.getDb().getTableHistory().deleteHistorySession(getSessionId());
+	        model.getDb().discardSession(getSessionId());
         } catch (DatabaseException e) {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);

@@ -36,6 +36,7 @@
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 // ZAP: 2016/04/22 Issue 2428: Memory leak on session creation/loading
+// ZAP: 2016/05/24 Add implementation of Database.discardSession(long)
 
 package org.parosproxy.paros.db.paros;
 
@@ -46,6 +47,7 @@ import java.util.List;
 
 import org.parosproxy.paros.db.AbstractDatabase;
 import org.parosproxy.paros.db.Database;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.TableAlert;
@@ -323,5 +325,11 @@ public class ParosDatabase extends AbstractDatabase {
 			throw new IllegalArgumentException("Parameter databaseOptions must not be null.");
 		}
 		this.databaseOptions = databaseOptions;
+	}
+
+	@Override
+	public void discardSession(long sessionId) throws DatabaseException {
+		// Do nothing, the database files are going to be deleted anyway.
+		// getTableHistory().deleteHistorySession(sessionId);
 	}
 }
