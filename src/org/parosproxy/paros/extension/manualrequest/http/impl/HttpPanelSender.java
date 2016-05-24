@@ -34,6 +34,7 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
@@ -43,6 +44,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
+import org.zaproxy.zap.model.SessionStructure;
 
 /**
  * Knows how to send {@link HttpMessage} objects.
@@ -89,17 +91,17 @@ public class HttpPanelSender implements MessageSender {
                         // Indicate UI new response arrived
                         responsePanel.updateContent();
 
-                        final int finalType = HistoryReference.TYPE_ZAP_USER;
-                        final Thread t = new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                final ExtensionHistory extHistory = getHistoryExtension();
-                                if (extHistory != null) {
-                                    extHistory.addHistory(httpMessage, finalType);
-                                }
+                        try {
+                            Session session = Model.getSingleton().getSession();
+                            HistoryReference ref = new HistoryReference(session, HistoryReference.TYPE_ZAP_USER, httpMessage);
+                            final ExtensionHistory extHistory = getHistoryExtension();
+                            if (extHistory != null) {
+                                extHistory.addHistory(ref);
                             }
-                        });
-                        t.start();
+                            SessionStructure.addPath(session, ref, httpMessage);
+                        } catch (final Exception e) {
+                            logger.error(e.getMessage(), e);
+                        }
                     }
                 }
             });
