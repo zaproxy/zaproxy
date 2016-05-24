@@ -15,9 +15,13 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 This file was automatically generated.
 """
+
+import six
+
 
 class selenium(object):
 
@@ -29,38 +33,41 @@ class selenium(object):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'selenium/view/optionChromeDriverPath/').itervalues())
+        return next(six.itervalues(self.zap._request(self.zap.base + 'selenium/view/optionChromeDriverPath/')))
 
     @property
     def option_ie_driver_path(self):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'selenium/view/optionIeDriverPath/').itervalues())
+        return next(six.itervalues(self.zap._request(self.zap.base + 'selenium/view/optionIeDriverPath/')))
 
     @property
     def option_phantom_js_binary_path(self):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'selenium/view/optionPhantomJsBinaryPath/').itervalues())
+        return next(six.itervalues(self.zap._request(self.zap.base + 'selenium/view/optionPhantomJsBinaryPath/')))
 
     def set_option_chrome_driver_path(self, string, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'selenium/action/setOptionChromeDriverPath/', {'String' : string, 'apikey' : apikey}).itervalues())
+        return next(six.itervalues(self.zap._request(self.zap.base + 'selenium/action/setOptionChromeDriverPath/',
+                                                     {'String' : string, 'apikey' : apikey})))
 
     def set_option_ie_driver_path(self, string, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'selenium/action/setOptionIeDriverPath/', {'String' : string, 'apikey' : apikey}).itervalues())
+        return next(six.itervalues(self.zap._request(self.zap.base + 'selenium/action/setOptionIeDriverPath/',
+                                                     {'String' : string, 'apikey' : apikey})))
 
     def set_option_phantom_js_binary_path(self, string, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'selenium/action/setOptionPhantomJsBinaryPath/', {'String' : string, 'apikey' : apikey}).itervalues())
+        return next(six.itervalues(self.zap._request(self.zap.base + 'selenium/action/setOptionPhantomJsBinaryPath/',
+                                                     {'String' : string, 'apikey' : apikey})))
 
 

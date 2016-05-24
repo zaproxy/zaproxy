@@ -15,35 +15,55 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 Client implementation for using the ZAP pentesting proxy remotely.
 """
 
+try:
+    # High performan json library
+    import ujson as json
+except ImportError:
+    import json
+
+import os
+import six
+import requests
+import requests_cache
+requests_cache.install_cache('zap_cache', backend="memory")
+
+if six.PY2:
+    from urllib import urlencode, urlopen
+    from urlparse import urlparse, urljoin
+
+else:
+    from urllib.parse import urlparse, urlencode, urljoin
+    from urllib.request import urlopen
+
+from .acsrf import acsrf
+from .ascan import ascan
+from .ajaxSpider import ajaxSpider
+from .authentication import authentication
+from .autoupdate import autoupdate
+from .brk import brk
+from .context import context
+from .core import core
+from .forcedUser import forcedUser
+from .httpSessions import httpSessions
+from .importLogFiles import importLogFiles
+from .params import params
+from .pnh import pnh
+from .pscan import pscan
+from .reveal import reveal
+from .script import script
+from .search import search
+from .selenium import selenium
+from .sessionManagement import sessionManagement
+from .spider import spider
+from .users import users
+
 __docformat__ = 'restructuredtext'
 
-import json
-import urllib
-from acsrf import acsrf
-from ascan import ascan
-from ajaxSpider import ajaxSpider
-from authentication import authentication
-from autoupdate import autoupdate
-from brk import brk
-from context import context
-from core import core
-from forcedUser import forcedUser
-from httpSessions import httpSessions
-from importLogFiles import importLogFiles
-from params import params
-from pnh import pnh
-from pscan import pscan
-from reveal import reveal
-from script import script
-from search import search
-from selenium import selenium
-from sessionManagement import sessionManagement
-from spider import spider
-from users import users
 
 class ZapError(Exception):
     """
@@ -62,19 +82,27 @@ class ZAPv2(object):
     # base OTHER api url
     base_other = 'http://zap/OTHER/'
 
-    def __init__(self, proxies={'http': 'http://127.0.0.1:8080',
-        'https': 'http://127.0.0.1:8080'}):
+    def __init__(self, proxies=None):
         """
         Creates an instance of the ZAP api client.
 
         :Parameters:
            - `proxies`: dictionary of ZAP proxies to use.
-           
+
         Note that all of the other classes in this directory are generated
         new ones will need to be manually added to this file
         """
+        if proxies is None:
+            # Set default
+            proxies = {'http': 'http://127.0.0.1:8080',
+                       'https': 'http://127.0.0.1:8080'}
         self.__proxies = proxies
-        
+
+        # Set environment proxy vars to automatically set the proxy to Python libs
+        for p, url in six.iteritems(self.__proxies):
+            # os.putenv("proxy_%s" % p, url)
+            os.environ["proxy_%s" % p] =  url
+
         self.acsrf = acsrf(self)
         self.ajaxSpider = ajaxSpider(self)
         self.ascan = ascan(self)
@@ -116,19 +144,19 @@ class ZAPv2(object):
            - `args`:  all non-keyword arguments.
            - `kwargs`: all other keyword arguments.
         """
-        kwargs['proxies'] = self.__proxies
-        return urllib.urlopen(*args, **kwargs).read()
+        # return urlopen(*args, **kwargs).read()
+        return requests.get(*args, proxies=self.__proxies).text
 
     def status_code(self, *args, **kwargs):
-      """
-      Open a url forcing the proxies to be used.
+        """
+		Open a url forcing the proxies to be used.
 
-      :Parameters:
-         - `args`: all non-keyword arguments.
-         - `kwargs`: all other keyword arguments.
-      """
-      kwargs['proxies'] = self.__proxies
-      return urllib.urlopen(*args, **kwargs).getcode()
+		:Parameters:
+		   - `args`: all non-keyword arguments.
+		   - `kwargs`: all other keyword arguments.
+		"""
+        # return urlopen(*args, **kwargs).getcode()
+        return requests.get(*args, proxies=self.__proxies).status_code
 
     def _request(self, url, get={}):
         """
@@ -138,7 +166,7 @@ class ZAPv2(object):
            - `url`: the url to GET at.
            - `get`: the disctionary to turn into GET variables.
         """
-        return json.loads(self.urlopen(url + '?' + urllib.urlencode(get)))
+        return json.loads(self.urlopen("%s?%s" % (url, urlencode(get))))
 
     def _request_other(self, url, get={}):
         """
@@ -148,4 +176,4 @@ class ZAPv2(object):
            - `url`: the url to GET at.
            - `get`: the disctionary to turn into GET variables.
         """
-        return self.urlopen(url + '?' + urllib.urlencode(get))
+        return self.urlopen("%s?%s" % (url, urlencode(get)))

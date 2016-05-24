@@ -1,0 +1,15 @@
+include LICENSE requirements.txt
+
+recursive-exclude * __pycache__
+recursive-exclude * *.pyc
+recursive-exclude * *.pyo
+recursive-exclude * *.orig
+recursive-exclude * .DS_Store
+global-exclude __pycache__/*
+global-exclude .deps/*
+global-exclude *.so
+global-exclude *.pyd
+global-exclude *.pyc
+global-exclude .git*
+global-exclude .DS_Store
+global-exclude .mailmap

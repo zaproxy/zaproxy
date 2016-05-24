@@ -1,0 +1,4 @@
+six
+ujson
+requests
+requests-cache

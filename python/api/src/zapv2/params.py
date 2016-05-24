@@ -15,9 +15,14 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
 """
 This file was automatically generated.
 """
+
+
+import six
+
 
 class params(object):
 
@@ -28,9 +33,9 @@ class params(object):
         """
         Shows the parameters for the specified site, or for all sites if the site is not specified
         """
-        params = {}
+        _params = {}
         if site is not None:
-            params['site'] = site
-        return next(self.zap._request(self.zap.base + 'params/view/params/', params).itervalues())
+            _params['site'] = site
+        return next(six.itervalues(self.zap._request(self.zap.base + '_params/view/_params/', _params)))
 
 
