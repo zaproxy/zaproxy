@@ -138,4 +138,17 @@ public interface Database {
 	 */
 	String getType();
 
+	/**
+	 * Discards the history associated with the given session ID, called when a session is not to be saved (and a new one is
+	 * about to be created).
+	 * <p>
+	 * Implementations might opt to do nothing, for example, if the database is file based (HSQLDB) and those files are deleted
+	 * if the session is not saved.
+	 *
+	 * @param sessionId the ID of the session
+	 * @throws DatabaseException If an error occurred while discarding the history of the session.
+	 * @since TODO add version
+	 */
+	void discardSession(long sessionId) throws DatabaseException;
+
 }

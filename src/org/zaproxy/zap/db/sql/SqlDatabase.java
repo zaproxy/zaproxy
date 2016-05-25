@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.parosproxy.paros.db.AbstractDatabase;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseListener;
 import org.parosproxy.paros.db.DatabaseServer;
 import org.parosproxy.paros.db.TableAlert;
@@ -273,4 +274,10 @@ public class SqlDatabase extends AbstractDatabase {
 		return DbSQL.getDbType();
 	}
 
+	@Override
+	public void discardSession(long sessionId) throws DatabaseException {
+		if (!isFileBased()) {
+			getTableHistory().deleteHistorySession(sessionId);
+		}
+	}
 }
