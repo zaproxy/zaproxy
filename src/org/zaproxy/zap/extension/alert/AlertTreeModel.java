@@ -215,31 +215,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
         @Override
         public int compare(AlertNode alertNode, AlertNode anotherAlertNode) {
-            int result = alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
-            if (result != 0) {
-                return result;
-            }
-
-            Alert alert = alertNode.getUserObject();
-            Alert anotherAlert = anotherAlertNode.getUserObject();
-
-            result = alert.getParam().compareTo(anotherAlert.getParam());
-            if (result != 0) {
-                return result;
-            }
-
-            if (alert.getAttack() == null) {
-                if (anotherAlert.getAttack() == null) {
-                    return 0;
-                }
-                return -1;
-            }
-
-            if (anotherAlert.getAttack() == null) {
-                return 1;
-            }
-
-            return alert.getAttack().compareTo(anotherAlert.getAttack());
+            return alertNode.getUserObject().compareTo(anotherAlertNode.getUserObject());
         }
     }
 }
