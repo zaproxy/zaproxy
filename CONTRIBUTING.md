@@ -71,4 +71,4 @@ Add-ons are a great way to extend ZAP and can be ideal for student projects - ma
 ### Improve the ZAP Core
 The ZAP 'core' underpins all of the other ZAP features, and so ensuring it is as robust as possible is very important.
 
-Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable and there are always many core improvements we want to make.
+Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (ones flagged as [IdealFirstBug](https://github.com/zaproxy/zaproxy/issues?q=is%3Aopen+is%3Aissue+label%3AIdealFirstBug) are good ones to start on) and there are always many core improvements we want to make.
