@@ -41,6 +41,7 @@
 // ZAP: 2015/08/24 Issue 1849: Option to merge related issues in reports
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/02/26 Deprecate alert as an element of Alert in favour of name
+// ZAP: 2016/05/25 Normalise equals/hashCode/compareTo
 
 package org.parosproxy.paros.core.scanner;
 
@@ -57,7 +58,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-public class Alert implements Comparable<Object>  {
+public class Alert implements Comparable<Alert>  {
 
 	public static final int RISK_INFO 	= 0;
 	public static final int RISK_LOW 	= 1;
@@ -300,9 +301,7 @@ public class Alert implements Comparable<Object>  {
 	}
 	
 	@Override
-	public int compareTo(Object o2) throws ClassCastException {
-		Alert alert2 = (Alert) o2;
-		
+	public int compareTo(Alert alert2) {
 		if (risk < alert2.risk) {
 			return -1;
 		} else if (risk > alert2.risk) {
@@ -315,6 +314,12 @@ public class Alert implements Comparable<Object>  {
 			return 1;
 		}
 		
+		if (pluginId < alert2.pluginId) {
+			return -1;
+		} else if (pluginId > alert2.pluginId) {
+			return 1;
+		}
+
 		int result = name.compareToIgnoreCase(alert2.name);
 		if (result != 0) {
 			return result;
@@ -332,8 +337,30 @@ public class Alert implements Comparable<Object>  {
 			return result;
 		}
 		
-		return otherInfo.compareToIgnoreCase(alert2.otherInfo);
-	} 
+		result = otherInfo.compareToIgnoreCase(alert2.otherInfo);
+		if (result != 0) {
+			return result;
+		}
+
+		result = compareStrings(evidence, alert2.evidence);
+		if (result != 0) {
+			return result;
+		}
+
+		return compareStrings(attack, alert2.attack);
+	}
+
+	private int compareStrings(String string, String otherString) {
+		if (string == null) {
+			if (otherString == null) {
+				return 0;
+			}
+			return -1;
+		} else if (otherString == null) {
+			return 1;
+		}
+		return string.compareTo(otherString);
+	}
 
 
 	/**
@@ -341,17 +368,71 @@ public class Alert implements Comparable<Object>  {
 	*/
 	@Override
 	public boolean equals(Object obj) {
-		Alert item = null;
-		if (obj instanceof Alert) {
-			item = (Alert) obj;
-			if ((pluginId == item.pluginId) && name.equals(item.name) && uri.equalsIgnoreCase(item.uri)
-				&& param.equalsIgnoreCase(item.param) && otherInfo.equalsIgnoreCase(item.otherInfo)) {
-				return true;
-			}
+		if (this == obj) {
+			return true;
 		}
-		return false;
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		Alert item = (Alert) obj;
+		if (risk != item.risk) {
+			return false;
+		}
+		if (confidence != item.confidence) {
+			return false;
+		}
+		if (pluginId != item.pluginId) {
+			return false;
+		}
+		if (!name.equals(item.name)) {
+			return false;
+		}
+		if (!uri.equalsIgnoreCase(item.uri)) {
+			return false;
+		}
+		if (!param.equalsIgnoreCase(item.param)) {
+			return false;
+		}
+		if (!otherInfo.equalsIgnoreCase(item.otherInfo)) {
+			return false;
+		}
+		if (evidence == null) {
+			if (item.evidence != null) {
+				return false;
+			}
+		} else if (!evidence.equals(item.evidence)) {
+			return false;
+		}
+		if (attack == null) {
+			if (item.attack != null) {
+				return false;
+			}
+		} else if (!attack.equals(item.attack)) {
+			return false;
+		}
+		return true;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + risk;
+		result = prime * result + confidence;
+		result = prime * result + ((evidence == null) ? 0 : evidence.hashCode());
+		result = prime * result + name.hashCode();
+		result = prime * result + otherInfo.hashCode();
+		result = prime * result + param.hashCode();
+		result = prime * result + pluginId;
+		result = prime * result + uri.hashCode();
+		result = prime * result + ((attack == null) ? 0 : attack.hashCode());
+		return result;
+	}
+
 	/**
 	Create a new instance of AlertItem with same members.
 	*/
