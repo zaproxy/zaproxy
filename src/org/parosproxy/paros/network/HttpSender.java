@@ -55,6 +55,7 @@
 // ZAP: 2015/04/09 Allow to specify the maximum number of redirects.
 // ZAP: 2015/04/09 Allow to specify if circular redirects are allowed.
 // ZAP: 2015/06/12 Issue 1459: Add an HTTP sender listener script
+// ZAP: 2016/05/24 Issue 2463: Websocket not proxied when outgoing proxy is set
 
 package org.parosproxy.paros.network;
 
@@ -254,22 +255,18 @@ public class HttpSender {
         HostConfiguration hc = null;
 
 		HttpClient requestClient;
-		if (param.isUseProxy(hostName)) {
-			requestClient = clientViaProxy;
-
-		} else {
-			// ZAP: use custom client on upgrade connection and on event-source data type
-			Header connectionHeader = method.getRequestHeader("connection");
-			boolean isUpgrade = connectionHeader != null
-					&& connectionHeader.getValue().toLowerCase().contains("upgrade");
-
-			// ZAP: try to apply original handling of ParosProxy
-			requestClient = client;
-			if (isUpgrade) {
-				// Unless upgrade, when using another client that allows us to expose the socket
-				// connection.
-				requestClient = new HttpClient(new ZapHttpConnectionManager());
+		if (isConnectionUpgrade(method)) {
+			requestClient = new HttpClient(new ZapHttpConnectionManager());
+			if (param.isUseProxy(hostName)) {
+				requestClient.getHostConfiguration().setProxy(param.getProxyChainName(), param.getProxyChainPort());
+				if (param.isUseProxyChainAuth()) {
+					requestClient.getState().setProxyCredentials(getAuthScope(param), getNTCredentials(param));
+				}
 			}
+		} else if (param.isUseProxy(hostName)) {
+			requestClient = clientViaProxy;
+		} else {
+			requestClient = client;
 		}
 
 		if (this.initiator == CHECK_FOR_UPDATES_INITIATOR) {
@@ -307,6 +304,20 @@ public class HttpSender {
 		responseCode = requestClient.executeMethod(hc, method, state);
 
 		return responseCode;
+	}
+
+	/**
+	 * Tells whether or not the given {@code method} has a {@code Connection} request header with {@code Upgrade} value.
+	 *
+	 * @param method the method that will be checked
+	 * @return {@code true} if the {@code method} has a connection upgrade, {@code false} otherwise
+	 */
+	private static boolean isConnectionUpgrade(HttpMethod method) {
+		Header connectionHeader = method.getRequestHeader("connection");
+		if (connectionHeader == null) {
+			return false;
+		}
+		return connectionHeader.getValue().toLowerCase().contains("upgrade");
 	}
 
 	public void shutdown() {
