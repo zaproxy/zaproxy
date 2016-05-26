@@ -33,11 +33,14 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/27 Save, always, the Locale as String
+// ZAP: 2016/05/13 Add options to confirm removal of exclude from proxy, scanner and spider regexes
 
 package org.parosproxy.paros.extension.option;
 
 import java.util.Locale;
 
+import org.apache.commons.configuration.ConversionException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control.Mode;
@@ -49,6 +52,8 @@ import org.zaproxy.zap.extension.httppanel.view.largeresponse.LargeResponseUtil;
 
 public class OptionsParamView extends AbstractParam {
 	
+	private static final Logger LOGGER = Logger.getLogger(OptionsParamView.class);
+
 	private static final String DEFAULT_TIME_STAMP_FORMAT =  Constant.messages.getString("timestamp.format.default");
 	
 	public static final String BASE_VIEW_KEY = "view";
@@ -78,6 +83,10 @@ public class OptionsParamView extends AbstractParam {
 	public static final String SCALE_IMAGES = "view.scaleImages";
 	public static final String SHOW_DEV_WARNING = "view.showDevWarning";
 
+    private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
+    private static final String CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY = "view.confirmRemoveScannerExcludeRegex";
+    private static final String CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY = "view.confirmRemoveSpiderExcludeRegex";
+
 	private int advancedViewEnabled = 0;
 	private int processImages = 0;
 	private int showMainToolbar = 1;
@@ -100,6 +109,10 @@ public class OptionsParamView extends AbstractParam {
     private String fontName = "";
     private boolean scaleImages = true;
     private boolean showDevWarning = true;
+
+    private boolean confirmRemoveProxyExcludeRegex;
+    private boolean confirmRemoveScannerExcludeRegex;
+    private boolean confirmRemoveSpiderExcludeRegex;
 	
     public OptionsParamView() {
     }
@@ -134,6 +147,24 @@ public class OptionsParamView extends AbstractParam {
 	    // Special cases - set via static methods
 	    LargeRequestUtil.setMinContentLength(largeRequestSize);
 	    LargeResponseUtil.setMinContentLength(largeResponseSize);
+
+        try {
+            this.confirmRemoveProxyExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY, false);
+        } catch (ConversionException e) {
+            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
+        }
+
+        try {
+            this.confirmRemoveScannerExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY, false);
+        } catch (ConversionException e) {
+            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
+        }
+
+        try {
+            this.confirmRemoveSpiderExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY, false);
+        } catch (ConversionException e) {
+            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
+        }
     }
 
 	/**
@@ -408,4 +439,30 @@ public class OptionsParamView extends AbstractParam {
 		getConfig().setProperty(SHOW_DEV_WARNING, showDevWarning);
 	}
 	
+    public boolean isConfirmRemoveProxyExcludeRegex() {
+        return this.confirmRemoveProxyExcludeRegex;
+    }
+
+    public void setConfirmRemoveProxyExcludeRegex(boolean confirmRemove) {
+        this.confirmRemoveProxyExcludeRegex = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY, Boolean.valueOf(confirmRemove));
+    }
+
+    public boolean isConfirmRemoveScannerExcludeRegex() {
+        return this.confirmRemoveScannerExcludeRegex;
+    }
+
+    public void setConfirmRemoveScannerExcludeRegex(boolean confirmRemove) {
+        this.confirmRemoveScannerExcludeRegex = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY, Boolean.valueOf(confirmRemove));
+    }
+
+    public boolean isConfirmRemoveSpiderExcludeRegex() {
+        return this.confirmRemoveSpiderExcludeRegex;
+    }
+
+    public void setConfirmRemoveSpiderExcludeRegex(boolean confirmRemove) {
+        this.confirmRemoveSpiderExcludeRegex = confirmRemove;
+        getConfig().setProperty(CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY, Boolean.valueOf(confirmRemove));
+    }
 }
