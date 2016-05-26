@@ -467,7 +467,7 @@ public class Model {
 	 *
 	 * @param contextDataFactory the context data factory that will be removed.
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #addContextDataFactory(ContextDataFactory)
 	 */
 	public void removeContextDataFactory(ContextDataFactory contextDataFactory) {
@@ -517,7 +517,7 @@ public class Model {
 	 * <p>
 	 * <strong>Note:</strong> Should be called only by "core" code after the initialisation.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void postInit() {
 		postInitialisation = true;

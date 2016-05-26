@@ -24,7 +24,7 @@ import org.zaproxy.zap.view.popup.PopupMenuItemHistoryReferenceContainer;
 
 
 /**
- * @deprecated (TODO add version) No longer used, replaced by {@link org.zaproxy.zap.extension.stdmenus.PopupMenuShowInHistory}.
+ * @deprecated (2.5.0) No longer used, replaced by {@link org.zaproxy.zap.extension.stdmenus.PopupMenuShowInHistory}.
  */
 @Deprecated
 public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContainer {

@@ -26,7 +26,7 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
 import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 
 /**
- * @deprecated (TODO Add version) No longer used/needed. {@link WorkbenchPanel} now manages the position of the message panels.
+ * @deprecated (2.5.0) No longer used/needed. {@link WorkbenchPanel} now manages the position of the message panels.
  */
 @Deprecated
 @SuppressWarnings("javadoc")

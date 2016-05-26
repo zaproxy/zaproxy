@@ -458,7 +458,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	 *
 	 * @param site the site that will be checked
 	 * @return {@code true} if the given {@code site} was already seen, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #hasParameters(String)
 	 */
 	public boolean hasSite(String site) {
@@ -470,7 +470,7 @@ public class ExtensionParams extends ExtensionAdaptor
 	 *
 	 * @param site the site that will be checked
 	 * @return {@code true} if the given {@code site} has parameters, {@code false} if not, or was not yet seen.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #hasSite(String)
 	 */
 	public boolean hasParameters(String site) {

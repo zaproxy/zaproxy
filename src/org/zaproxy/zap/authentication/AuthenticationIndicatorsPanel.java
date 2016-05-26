@@ -23,7 +23,7 @@ package org.zaproxy.zap.authentication;
  * An interface that allows to manipulate the state (content, enabled and tool tip) of fields showing the logged in/out
  * indicators.
  * 
- * @since TODO add version
+ * @since 2.5.0
  */
 public interface AuthenticationIndicatorsPanel {
 

@@ -25,7 +25,7 @@ import org.parosproxy.paros.common.AbstractParam;
 /**
  * Manages the stats configurations saved in the configuration file.
  *
- * @since TODO add version
+ * @since 2.5.0
  */
 public class StatsParam extends AbstractParam {
 

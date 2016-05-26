@@ -103,7 +103,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 	private final ViewDelegate view;
 	
 	/**
-	 * @deprecated (TODO add version) Use {@link #LogPanel(ViewDelegate)} instead.
+	 * @deprecated (2.5.0) Use {@link #LogPanel(ViewDelegate)} instead.
 	 */
 	@Deprecated
 	public LogPanel() {
@@ -423,7 +423,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
     
     
     /**
-     * @deprecated (TODO add version) No longer used/needed.
+     * @deprecated (2.5.0) No longer used/needed.
      */
     @Deprecated
     @SuppressWarnings("javadoc")

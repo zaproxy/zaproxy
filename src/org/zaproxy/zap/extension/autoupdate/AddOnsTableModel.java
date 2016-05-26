@@ -64,7 +64,7 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     private AddOnSearcher addOnSeacher;
 
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #AddOnsTableModel(AddOnCollection, int)}. It will be removed in a future release.
+	 * @deprecated (2.5.0) Replaced by {@link #AddOnsTableModel(AddOnCollection, int)}. It will be removed in a future release.
 	 */
     @Deprecated
     public AddOnsTableModel(Comparator<AddOnWrapper> comparator, AddOnCollection addOnCollection, int progressColumn) {

@@ -428,7 +428,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     /**
      * Resets the spider dialogue to its default state.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      */
     void reset() {
         target = null;

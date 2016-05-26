@@ -1077,7 +1077,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 *
 	 * @param script the script that resulted in an exception, must not be {@code null}
 	 * @param exception the exception thrown , must not be {@code null}
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #setEnabled(ScriptWrapper, boolean)
 	 * @see #setError(ScriptWrapper, Exception)
 	 * @see #handleFailedScriptInterface(ScriptWrapper, String)
@@ -1159,7 +1159,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 *
 	 * @param script the script that resulted in an exception, must not be {@code null}
 	 * @param errorMessage the message that will be written to the writer(s)
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #setEnabled(ScriptWrapper, boolean)
 	 * @see #setError(ScriptWrapper, Exception)
 	 * @see #handleScriptException(ScriptWrapper, Exception)

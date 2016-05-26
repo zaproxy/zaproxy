@@ -245,7 +245,7 @@ public class DatabaseParam extends AbstractParam {
 	 * 
 	 * @return {@code true} if database's recovery log is enabled, {@code false} otherwise
 	 * @see #setRecoveryLogEnabled(boolean)
-	 * @version TODO add version
+	 * @version 2.5.0
 	 */
 	public boolean isRecoveryLogEnabled() {
 		return recoveryLogEnabled;
@@ -256,7 +256,7 @@ public class DatabaseParam extends AbstractParam {
 	 * 
 	 * @param enabled {@code true} if database's recovery log should be enabled, {@code false} otherwise
 	 * @see #isRecoveryLogEnabled()
-	 * @version TODO add version
+	 * @version 2.5.0
 	 */
 	public void setRecoveryLogEnabled(boolean enabled) {
 		this.recoveryLogEnabled = enabled;

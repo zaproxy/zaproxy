@@ -188,7 +188,7 @@ public class OptionsParamView extends AbstractParam {
 	}
 	
 	/**
-	 * @deprecated (TODO add version) Use {@link #isShowMainToolbar()} instead. It will be removed in a future release.
+	 * @deprecated (2.5.0) Use {@link #isShowMainToolbar()} instead. It will be removed in a future release.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -200,14 +200,14 @@ public class OptionsParamView extends AbstractParam {
 	 * Tells whether or not the main tool bar should be shown.
 	 *
 	 * @return {@code true} if the main tool bar should be shown, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public boolean isShowMainToolbar() {
 		return showMainToolbar != 0;
 	}
 
 	/**
-	 * @deprecated (TODO add version) Use {@link #setShowMainToolbar(boolean)} instead. It will be removed in a future release.
+	 * @deprecated (2.5.0) Use {@link #setShowMainToolbar(boolean)} instead. It will be removed in a future release.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -219,7 +219,7 @@ public class OptionsParamView extends AbstractParam {
 	 * Sets whether or not the main tool bar should be shown.
 	 *
 	 * @param show {@code true} if the main tool bar should be shown, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setShowMainToolbar(boolean show) {
 		this.showMainToolbar = show ? 1 : 0;
@@ -293,7 +293,7 @@ public class OptionsParamView extends AbstractParam {
 	 * Gets the name of the current response panel position.
 	 *
 	 * @return the name of the current position
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition
 	 */
 	public String getResponsePanelPosition() {
@@ -304,7 +304,7 @@ public class OptionsParamView extends AbstractParam {
 	 * Sets the name of the current response panel position.
 	 * 
 	 * @param position the name of the position
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setResponsePanelPosition(String position) {
 		this.responsePanelPosition = position;

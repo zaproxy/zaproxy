@@ -101,7 +101,7 @@ public class ExtensionHookView {
      * By default, the {@code ContextPanelFactory}s added are removed from the {@code View} when the extension is unloaded.
      *
      * @param contextPanelFactory the {@code ContextPanelFactory} that will be added to the {@code View}
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addContextPanelFactory(ContextPanelFactory contextPanelFactory) {
         if (contextPanelFactories == null) {
@@ -114,7 +114,7 @@ public class ExtensionHookView {
      * Gets the {@link ContextPanelFactory}s added to this hook.
      *
      * @return an unmodifiable {@code List} containing the added {@code ContextPanelFactory}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     List<ContextPanelFactory> getContextPanelFactories() {
         if (contextPanelFactories == null) {

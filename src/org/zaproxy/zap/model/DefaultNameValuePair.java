@@ -24,7 +24,7 @@ package org.zaproxy.zap.model;
  * <p>
  * The implementation is immutable thus thread safe.
  *
- * @since TODO add version
+ * @since 2.5.0
  */
 public final class DefaultNameValuePair implements NameValuePair, Comparable<DefaultNameValuePair> {
 

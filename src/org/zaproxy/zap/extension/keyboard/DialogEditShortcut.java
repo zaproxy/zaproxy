@@ -51,7 +51,7 @@ public class DialogEditShortcut extends StandardFieldsDialog {
 	 * Constructs a modal {@code DialogEditShortcut}, with the given {@code Window} as its owner.
 	 *
 	 * @param owner the owner of the dialogue
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public DialogEditShortcut(Window owner) {
 		super(owner, "keyboard.dialog.title", new Dimension(300, 200), true);

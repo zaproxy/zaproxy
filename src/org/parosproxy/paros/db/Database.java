@@ -147,7 +147,7 @@ public interface Database {
 	 *
 	 * @param sessionId the ID of the session
 	 * @throws DatabaseException If an error occurred while discarding the history of the session.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	void discardSession(long sessionId) throws DatabaseException;
 

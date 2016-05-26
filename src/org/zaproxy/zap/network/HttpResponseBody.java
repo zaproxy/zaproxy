@@ -75,7 +75,7 @@ public class HttpResponseBody extends HttpBody {
 	 * If the given {@code contents} are {@code null} the {@code HttpResponseBody} will have no content.
 	 * 
 	 * @param contents the contents of the body, might be {@code null}
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public HttpResponseBody(byte[] contents) {
 		super(contents);

@@ -25,7 +25,7 @@ package org.zaproxy.zap.model;
  * How {@code null} name and/or value are handled is at the discretion of implementations, for example, some implementations
  * might choose to require a name, but not a value (thus being {@code null}).
  *
- * @since TODO add version
+ * @since 2.5.0
  */
 public interface NameValuePair {
 

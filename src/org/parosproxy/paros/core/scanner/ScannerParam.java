@@ -89,7 +89,7 @@ public class ScannerParam extends AbstractParam {
     /**
      * Configuration key to write/read the {@code scanHeadersAllRequests} flag.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      * @see #scanHeadersAllRequests
      */
     private static final String SCAN_HEADERS_ALL_REQUESTS = ACTIVE_SCAN_BASE_KEY + ".scanHeadersAllRequests";
@@ -142,7 +142,7 @@ public class ScannerParam extends AbstractParam {
      * <p>
      * Default value is {@code false}.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      * @see #SCAN_HEADERS_ALL_REQUESTS
      * @see #isScanHeadersAllRequests()
      * @see #setScanHeadersAllRequests(boolean)
@@ -578,7 +578,7 @@ public class ScannerParam extends AbstractParam {
      * the query or request body.
      *
      * @return {@code true} if the HTTP Headers of all requests should be scanned, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.5.0
      * @see #setScanHeadersAllRequests(boolean)
      */
     public boolean isScanHeadersAllRequests() {
@@ -590,7 +590,7 @@ public class ScannerParam extends AbstractParam {
      * the query or request body.
      *
      * @param scanAllRequests {@code true} if the HTTP Headers of all requests should be scanned, {@code false} otherwise
-     * @since TODO add version
+     * @since 2.5.0
      * @see #isScanHeadersAllRequests()
      */
     public void setScanHeadersAllRequests(boolean scanAllRequests) {

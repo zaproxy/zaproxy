@@ -328,7 +328,7 @@ public class MainToolbarPanel extends JPanel {
 	}
 
 	/**
-	 * @deprecated (TODO add version) No longer in use, the tool bar buttons are updated at the same time as the layout.
+	 * @deprecated (2.5.0) No longer in use, the tool bar buttons are updated at the same time as the layout.
 	 * @see org.parosproxy.paros.view.MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
 	 */
 	@Deprecated

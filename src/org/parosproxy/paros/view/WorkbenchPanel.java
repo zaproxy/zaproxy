@@ -75,7 +75,7 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * The layouts available to a {@code WorkbenchPanel}.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see ResponsePanelPosition
 	 */
 	public enum Layout {
@@ -157,7 +157,7 @@ public class WorkbenchPanel extends JPanel {
 	 * The position of the response panel can be changed dynamically but might not be used by all layouts, for example, the Full
 	 * Layout.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see Layout
 	 */
 	public enum ResponsePanelPosition {
@@ -183,7 +183,7 @@ public class WorkbenchPanel extends JPanel {
 	 * Panels of the same type might be shown in the same area of the workbench panel. Some layouts, like {@link Layout#FULL},
 	 * might choose to ignore the type of the panels.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public enum PanelType {
 		/**
@@ -337,7 +337,7 @@ public class WorkbenchPanel extends JPanel {
 	private boolean showTabNames;
 
 	/**
-	 * @deprecated (TODO add version) Use
+	 * @deprecated (2.5.0) Use
 	 *			 {@link WorkbenchPanel#WorkbenchPanel(OptionsParam, AbstractPanel, AbstractPanel, MainToolbarPanel)} instead.
 	 */
 	@Deprecated
@@ -356,7 +356,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param requestPanel the request panel
 	 * @param responsePanel the response panel
 	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public WorkbenchPanel(OptionsParamView viewOptions, AbstractPanel requestPanel, AbstractPanel responsePanel) {
 		super(new BorderLayout());
@@ -407,7 +407,7 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Use {@link #setWorkbenchLayout(Layout)} instead.
+	 * @deprecated (2.5.0) Use {@link #setWorkbenchLayout(Layout)} instead.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -419,7 +419,7 @@ public class WorkbenchPanel extends JPanel {
 	 * Gets the layout of the workbench panel.
 	 *
 	 * @return the layout, never {@code null}
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public Layout getWorkbenchLayout() {
 		return layout;
@@ -430,7 +430,7 @@ public class WorkbenchPanel extends JPanel {
 	 *
 	 * @param layout the layout to set
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	void setWorkbenchLayout(Layout layout) {
 		validateNotNull(layout, "layout");
@@ -604,7 +604,7 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	/**
-	 * @deprecated (TODO add version) No longer in use, it does nothing.
+	 * @deprecated (2.5.0) No longer in use, it does nothing.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -612,7 +612,7 @@ public class WorkbenchPanel extends JPanel {
 	}
 	
 	/**
-	 * @deprecated (TODO add version) No longer in use, it does nothing.
+	 * @deprecated (2.5.0) No longer in use, it does nothing.
 	 */
 	@Deprecated
 	public void removeSplitPaneWork() {
@@ -640,7 +640,7 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	/**
-	 * @deprecated (TODO add version) No longer in use, it returns a new {@code TabbedPanel2}.
+	 * @deprecated (2.5.0) No longer in use, it returns a new {@code TabbedPanel2}.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -668,7 +668,7 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	/**
-	 * @deprecated (TODO add version) No longer in use, it returns a new {@code TabbedPanel2}.
+	 * @deprecated (2.5.0) No longer in use, it returns a new {@code TabbedPanel2}.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -677,21 +677,21 @@ public class WorkbenchPanel extends JPanel {
 	}
 
   /**
-   * @deprecated (TODO add version) No longer in use, it does nothing.
+   * @deprecated (2.5.0) No longer in use, it does nothing.
    */
   @Deprecated
   @SuppressWarnings("javadoc")
   public void setTabbedOldWork(TabbedPanel2 t) {
   }
   /**
-   * @deprecated (TODO add version) No longer in use, it does nothing.
+   * @deprecated (2.5.0) No longer in use, it does nothing.
    */
   @Deprecated
   @SuppressWarnings("javadoc")
   public void setTabbedOldStatus(TabbedPanel2 t) {
   }
   /**
-   * @deprecated (TODO add version) No longer in use, it does nothing.
+   * @deprecated (2.5.0) No longer in use, it does nothing.
    */
   @Deprecated
   @SuppressWarnings("javadoc")
@@ -745,7 +745,7 @@ public class WorkbenchPanel extends JPanel {
 	}
 
 	/**
-	 * @deprecated (TODO add version) No longer in use, it returns a new {@code TabbedPanel2}.
+	 * @deprecated (2.5.0) No longer in use, it returns a new {@code TabbedPanel2}.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -759,7 +759,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param panels the panels to add to the workbench
 	 * @param panelType the type of the panels
 	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #removePanels(List, PanelType)
 	 * @see #addPanel(AbstractPanel, PanelType)
 	 */
@@ -823,7 +823,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param panel the panel to add to the workbench
 	 * @param panelType the type of the panel
 	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #removePanel(AbstractPanel, PanelType)
 	 * @see #addPanels(List, PanelType)
 	 */
@@ -862,7 +862,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param panels the panels to remove from the workbench panel
 	 * @param panelType the type of the panels
 	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #addPanels(List, PanelType)
 	 * @see #removePanel(AbstractPanel, PanelType)
 	 */
@@ -921,7 +921,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param panel the panel to remove from the workbench panel
 	 * @param panelType the type of the panel
 	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #addPanel(AbstractPanel, PanelType)
 	 * @see #removePanels(List, PanelType)
 	 */
@@ -956,7 +956,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param panelType the type of the panel
 	 * @return a {@code List} with the panels of the given type
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public List<AbstractPanel> getPanels(PanelType panelType) {
 		validateNotNull(panelType, "panelType");
@@ -984,7 +984,7 @@ public class WorkbenchPanel extends JPanel {
 	 * @param panelType the type of the panel
 	 * @return a {@code List} with the sorted panels of the given type
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public SortedSet<AbstractPanel> getSortedPanels(PanelType panelType) {
 		validateNotNull(panelType, "panelType");
@@ -1018,7 +1018,7 @@ public class WorkbenchPanel extends JPanel {
 	 * this call, when set to not be visible.
 	 *
 	 * @param visible {@code true} if all panels should be visible, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setPanelsVisible(boolean visible) {
 		if (layout == Layout.FULL) {
@@ -1033,7 +1033,7 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * Pins all visible panels.
 	 *
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #unpinVisiblePanels()
 	 * @see AbstractPanel#setPinned(boolean)
 	 */
@@ -1050,7 +1050,7 @@ public class WorkbenchPanel extends JPanel {
 	/**
 	 * Unpins all visible panels.
 	 *
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #pinVisiblePanels()
 	 * @see AbstractPanel#setPinned(boolean)
 	 */
@@ -1071,7 +1071,7 @@ public class WorkbenchPanel extends JPanel {
 	 *
 	 * @param panel the panel to be shown
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #addPanel(AbstractPanel, PanelType)
 	 */
 	public void showPanel(AbstractPanel panel) {
@@ -1092,7 +1092,7 @@ public class WorkbenchPanel extends JPanel {
 	 *
 	 * @param position the position of the response panel
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	void setResponsePanelPosition(ResponsePanelPosition position) {
 		validateNotNull(position, "position");

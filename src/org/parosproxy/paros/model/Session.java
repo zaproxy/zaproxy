@@ -1405,7 +1405,7 @@ public class Session {
 	 * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given {@code type} is not
 	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
 	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see StandardParameterParser#getParameters(HttpMessage, org.parosproxy.paros.network.HtmlParameter.Type)
 	 */
 	public List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type) {

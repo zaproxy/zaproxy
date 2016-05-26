@@ -412,7 +412,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * Gets the {@code TableModel} of the messages sent during the spidering process.
 	 *
 	 * @return a {@code TableModel} with the messages sent
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	TableModel getMessagesTableModel() {
 		if (messagesTableModel == null) {
@@ -440,7 +440,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	/**
 	 * Clears the table model of the HTTP messages sent.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getMessagesTableModel()
 	 */
 	void clear() {

@@ -498,7 +498,7 @@ public class Analyser {
      * Gets the request count, sent (and received) during the analysis.
      *
      * @return the request count
-     * @since TODO add version
+     * @since 2.5.0
      */
     public int getRequestCount() {
         return requestCount;

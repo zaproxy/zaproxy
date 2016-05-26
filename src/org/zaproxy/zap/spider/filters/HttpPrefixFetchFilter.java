@@ -31,7 +31,7 @@ import org.apache.log4j.Logger;
  * <p>
  * The filtered {@code URI}s are required to start with the {@code URI} (the prefix) to be considered valid.
  * 
- * @since TODO add version
+ * @since 2.5.0
  * @see #checkFilter(URI)
  */
 public class HttpPrefixFetchFilter extends FetchFilter {

@@ -318,7 +318,7 @@ public class ParosDatabase extends AbstractDatabase {
 	 *
 	 * @param databaseOptions the object that holds the database options, must not be {@code null}
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setDatabaseParam(DatabaseParam databaseOptions) {
 		if (databaseOptions == null) {

@@ -104,7 +104,7 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 	
 	/**
-	 * @deprecated (TODO add version) The implementation is not correct, not all state is correctly cloned.
+	 * @deprecated (2.5.0) The implementation is not correct, not all state is correctly cloned.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -413,7 +413,7 @@ public class TabbedPanel2 extends TabbedPanel {
      * Gets all the {@code AbstractPanel}s.
      *
      * @return a {@code List} containing all the panels
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getVisiblePanels()
      */
     public List<AbstractPanel> getPanels() {
@@ -430,7 +430,7 @@ public class TabbedPanel2 extends TabbedPanel {
      * Gets all the {@code AbstractPanel}s that are currently visible.
      *
      * @return a {@code List} containing all the visible panels
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getPanels()
      */
     public List<AbstractPanel> getVisiblePanels() {
@@ -451,7 +451,7 @@ public class TabbedPanel2 extends TabbedPanel {
      * this tabbed panel are ignored.
      *
      * @param panels the panels that should be visible
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getVisiblePanels()
      */
     public void setVisiblePanels(List<AbstractPanel> panels) {
@@ -480,7 +480,7 @@ public class TabbedPanel2 extends TabbedPanel {
      * this call, when set to not be visible.
      *
      * @param visible {@code true} if all panels should be visible, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getVisiblePanels()
      */
     public void setPanelsVisible(boolean visible) {

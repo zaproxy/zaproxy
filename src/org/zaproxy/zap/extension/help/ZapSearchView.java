@@ -31,7 +31,7 @@ import javax.help.SearchView;
 /**
  * A {@code SearchView} that uses a {@link ZapBasicSearchNavigatorUI} for its {@code JHelpSearchNavigator}.
  * 
- * @since TODO add version
+ * @since 2.5.0
  */
 public class ZapSearchView extends SearchView {
 

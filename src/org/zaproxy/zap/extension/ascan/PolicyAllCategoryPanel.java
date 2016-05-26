@@ -241,7 +241,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      * name.
      * 
      * @param scanPolicyName the name of the policy that should be selected
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void reloadPolicies(String scanPolicyName) {
         DefaultComboBoxModel<String> policies = new DefaultComboBoxModel<>();
@@ -593,7 +593,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      * Adds the given {@code listener} to the list that's notified of each change in the selected scan policy.
      *
      * @param listener the listener that will be added
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addScanPolicyChangedEventListener(ScanPolicyChangedEventListener listener) {
         listenerList.add(ScanPolicyChangedEventListener.class, listener);
@@ -603,7 +603,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
      * Removes the given {@code listener} from the list that's notified of each change in the selected scan policy.
      *
      * @param listener the listener that will be removed
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void removeScanPolicyChangedEventListener(ScanPolicyChangedEventListener listener) {
         listenerList.remove(ScanPolicyChangedEventListener.class, listener);
@@ -621,7 +621,7 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     /**
      * The listener interface for receiving notifications of changes in the selected scan policy.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      * @see PolicyAllCategoryPanel#addScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
      * @see PolicyAllCategoryPanel#removeScanPolicyChangedEventListener(ScanPolicyChangedEventListener)
      */

@@ -209,7 +209,7 @@ public class ExtensionHook {
      * By default, the {@code ContextDataFactory}s added are removed from the {@code Model} when the extension is unloaded.
      *
      * @param contextDataFactory the {@code ContextDataFactory} that will be added to the {@code Model}
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addContextDataFactory(ContextDataFactory contextDataFactory) {
         if (contextDataFactories == null) {
@@ -222,7 +222,7 @@ public class ExtensionHook {
      * Gets the {@link ContextDataFactory}s added to this hook.
      *
      * @return an unmodifiable {@code List} containing the added {@code ContextDataFactory}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     List<ContextDataFactory> getContextDataFactories() {
         if (contextDataFactories == null) {

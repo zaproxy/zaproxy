@@ -43,7 +43,7 @@ import org.zaproxy.zap.utils.ZapTextField;
 /**
  * A {@code MultipleOptionsTablePanel} to manage regular expressions.
  *
- * @since TODO add version
+ * @since 2.5.0
  */
 public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTablePanel<String> {
 

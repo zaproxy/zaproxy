@@ -179,7 +179,7 @@ public class MainFrame extends AbstractFrame {
 	private ZapToggleButton panelsResponsePanelPositionButton;
 
 	/**
-	 * @deprecated (TODO add version) Use {@link #MainFrame(OptionsParam, HttpPanelRequest, HttpPanelResponse)} instead.
+	 * @deprecated (2.5.0) Use {@link #MainFrame(OptionsParam, HttpPanelRequest, HttpPanelResponse)} instead.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -198,7 +198,7 @@ public class MainFrame extends AbstractFrame {
 	 * @param requestPanel the main request panel
 	 * @param responsePanel the main response panel
 	 * @throws IllegalArgumentException if any of the parameters is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public MainFrame(OptionsParam options, AbstractPanel requestPanel, AbstractPanel responsePanel) {
 		super();
@@ -478,7 +478,7 @@ public class MainFrame extends AbstractFrame {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Use {@link #setWorkbenchLayout(WorkbenchPanel.Layout)} instead.
+	 * @deprecated (2.5.0) Use {@link #setWorkbenchLayout(WorkbenchPanel.Layout)} instead.
 	 */
 	@Deprecated
 	@SuppressWarnings("javadoc")
@@ -492,7 +492,7 @@ public class MainFrame extends AbstractFrame {
 	 * It controls the visibility of the main tool bar, the layout and response panel position of the workbench panel and if the
 	 * tabs should display the panels' names.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #setMainToolbarVisible(boolean)
 	 * @see #setWorkbenchLayout(WorkbenchPanel.Layout)
 	 * @see #setResponsePanelPosition(WorkbenchPanel.ResponsePanelPosition)
@@ -523,7 +523,7 @@ public class MainFrame extends AbstractFrame {
 	 *
 	 * @param layout the new layout of the workbench panel
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getWorkbenchLayout()
 	 * @see #setResponsePanelPosition(WorkbenchPanel.ResponsePanelPosition)
 	 */
@@ -573,7 +573,7 @@ public class MainFrame extends AbstractFrame {
 	 * Gets the workbench layout.
 	 *
 	 * @return the workbench layout, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #setWorkbenchLayout(WorkbenchPanel.Layout)
 	 */
 	public WorkbenchPanel.Layout getWorkbenchLayout() {
@@ -588,7 +588,7 @@ public class MainFrame extends AbstractFrame {
 	 *
 	 * @param position the new position of the response panel
 	 * @throws IllegalArgumentException if the given parameter is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getResponsePanelPosition()
 	 * @see #setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
 	 */
@@ -623,7 +623,7 @@ public class MainFrame extends AbstractFrame {
 	 * Gets the response panel position.
 	 *
 	 * @return the response panel position, never {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #setResponsePanelPosition(WorkbenchPanel.ResponsePanelPosition)
 	 */
 	public WorkbenchPanel.ResponsePanelPosition getResponsePanelPosition() {
@@ -634,7 +634,7 @@ public class MainFrame extends AbstractFrame {
 	 * Sets whether or not the tabs should display the name of the panels.
 	 * 
 	 * @param showTabNames {@code true} if the names should be shown, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setShowTabNames(boolean showTabNames) {
 		getWorkbench().toggleTabNames(showTabNames);
@@ -664,7 +664,7 @@ public class MainFrame extends AbstractFrame {
 	 * Sets whether or not the main tool bar should be visible.
 	 *
 	 * @param visible {@code true} if the main tool bar should be visible, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setMainToolbarVisible(boolean visible) {
 		getMainToolbarPanel().setVisible(visible);

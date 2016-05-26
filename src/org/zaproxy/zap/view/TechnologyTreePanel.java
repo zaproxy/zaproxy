@@ -47,7 +47,7 @@ import org.zaproxy.zap.model.TechSet;
  * @see Tech
  * @see TechSet
  * @see JCheckBoxTree
- * @since TODO add version
+ * @since 2.5.0
  */
 public class TechnologyTreePanel extends JPanel {
 

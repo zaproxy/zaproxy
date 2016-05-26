@@ -29,7 +29,7 @@ import java.awt.Container;
  * container is preserved internally by this class, any changes done to the container should be done only after unmaximising the
  * component.
  *
- * @since TODO add version
+ * @since 2.5.0
  * @see #maximiseComponent(Component)
  * @see ComponentMaximiserMouseListener
  */

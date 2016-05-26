@@ -225,7 +225,7 @@ public class Context {
 	 * Tells whether or not there's at least one node from the sites tree in context.
 	 * 
 	 * @return {@code true} if the context has at least one node from the sites tree in context, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getNodesInContextFromSiteTree()
 	 */
 	public boolean hasNodesInContextFromSiteTree() {

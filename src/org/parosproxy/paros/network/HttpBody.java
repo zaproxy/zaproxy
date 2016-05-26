@@ -85,7 +85,7 @@ public abstract class HttpBody {
 	 * If the given {@code contents} are {@code null} the {@code HttpBody} will have no content.
 	 * 
 	 * @param contents the contents of the body, might be {@code null}
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public HttpBody(byte[] contents) {
 		if (contents != null) {
@@ -255,7 +255,7 @@ public abstract class HttpBody {
 	 *
 	 * @param charset the current {@code Charset} set, {@code null} if none
 	 * @return the {@code String} representation of the body
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getBytes()
 	 */
 	protected String createString(Charset charset) {
@@ -268,7 +268,7 @@ public abstract class HttpBody {
 	 * the actual contents, set so far.
 	 * 
 	 * @return the end position of the contents in the byte array
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getBytes()
 	 * @see #createString(Charset)
 	 */
