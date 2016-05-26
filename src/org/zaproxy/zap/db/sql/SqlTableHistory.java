@@ -68,13 +68,15 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     /**
      * The {@code Set} of history types marked as temporary.
      * <p>
-     * By default the only temporary history type is {@code HistoryReference#TYPE_TEMPORARY}.
+     * By default the only temporary history types are {@code HistoryReference#TYPE_TEMPORARY} and
+     * {@code HistoryReference#TYPE_SCANNER_TEMPORARY}.
      * <p>
      * Iterations must be done in a {@code synchronized} block with {@code temporaryHistoryTypes}.
      * 
      * @since 2.4
      * @see #setHistoryTypeAsTemporary(int)
      * @see HistoryReference#TYPE_TEMPORARY
+     * @see HistoryReference#TYPE_SCANNER_TEMPORARY
      * @see Collections#synchronizedSet(Set)
      */
     private static Set<Integer> temporaryHistoryTypes = Collections.synchronizedSet(new HashSet<Integer>());
@@ -621,7 +623,9 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
     /**
      * Unsets the given {@code historyType} as temporary.
      * <p>
-     * Attempting to remove the default temporary history type ({@code HistoryReference#TYPE_TEMPORARY}) has no effect.
+     * Attempting to remove a default temporary history type (
+     * {@code HistoryReference#TYPE_TEMPORARY} or {@code HistoryReference#TYPE_SCANNER_TEMPORARY})
+     * has no effect.
      *
      * @since 2.4
      * @param historyType the history type that will be marked as temporary
@@ -629,7 +633,8 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
      * @see #deleteTemporary()
      */
     public static void unsetHistoryTypeAsTemporary(int historyType) {
-        if (HistoryReference.TYPE_TEMPORARY == historyType) {
+        if (HistoryReference.TYPE_TEMPORARY == historyType
+                || HistoryReference.TYPE_SCANNER_TEMPORARY == historyType) {
             return;
         }
         temporaryHistoryTypes.remove(Integer.valueOf(historyType));
