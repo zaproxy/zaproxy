@@ -28,6 +28,7 @@
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
 // ZAP: 2016/05/04 Changes to address issues related to ParameterParser
+// ZAP: 2016/05/26 Use non-null String for names and values of parameters, scanners might not handle null names/values well
 
 package org.parosproxy.paros.core.scanner;
 
@@ -119,9 +120,16 @@ public abstract class VariantAbstractQuery implements Variant {
 
         int i = 0;
         for (org.zaproxy.zap.model.NameValuePair parameter : parameters) {
-            listParam.add(new NameValuePair(type, parameter.getName(), parameter.getValue(), i));
+            listParam.add(new NameValuePair(type, nonNullString(parameter.getName()), nonNullString(parameter.getValue()), i));
             i++;
         }
+    }
+
+    private static String nonNullString(String string) {
+        if (string == null) {
+            return "";
+        }
+        return string;
     }
 
     @Override
