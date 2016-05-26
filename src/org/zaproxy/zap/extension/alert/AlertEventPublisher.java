@@ -38,7 +38,7 @@ public class AlertEventPublisher implements EventPublisher {
 	 * The field is available in the events {@link #ALERT_ADDED_EVENT}, {@link #ALERT_CHANGED_EVENT} and
 	 * {@link #ALERT_REMOVED_EVENT}.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public static final String HISTORY_REFERENCE_ID = "historyId";
 

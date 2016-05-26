@@ -438,7 +438,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param user the user that will be used to spider, might be {@code null}
 	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
 	 * @return the ID of the spider scan
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #startScan(String, Target, User, Object[])
 	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
 	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
@@ -552,7 +552,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 *
 	 * @param target the target that will be checked
 	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see Session#isInScope(String)
 	 */
 	protected String getTargetUriOutOfScope(Target target) {
@@ -565,7 +565,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param target the target that will be checked
 	 * @param contextSpecificObjects other {@code Objects} used to enhance the target
 	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see Session#isInScope(String)
 	 */
 	protected String getTargetUriOutOfScope(Target target, Object[] contextSpecificObjects) {
@@ -606,7 +606,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 *
 	 * @param uri the uri that will be checked
 	 * @return {@code true} if the {@code uri} is in scope, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see Session#isInScope(String)
 	 */
 	protected boolean isTargetUriInScope(String uri) {

@@ -188,7 +188,7 @@ public class Alert implements Comparable<Alert>  {
 		this.confidence = confidence;
 	}
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #setName}.
+	 * @deprecated (2.5.0) Replaced by {@link #setName}.
 	 * Use of alert has been deprecated in favour of using name.
 	 */
 	@Deprecated
@@ -198,7 +198,7 @@ public class Alert implements Comparable<Alert>  {
 	/**
 	 * Sets the name of the alert to name
 	 * @param name the name to set for the alert
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public void setName(String name) {
 	    if (name == null) return;
@@ -448,7 +448,7 @@ public class Alert implements Comparable<Alert>  {
 		StringBuilder sb = new StringBuilder(150); // ZAP: Changed the type to StringBuilder.
 		sb.append("<alertitem>\r\n");
 		sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
-		sb.append("  <alert>").append(replaceEntity(name)).append("</alert>\r\n"); //Deprecated in TODO add version, maintain for compatibility with custom code
+		sb.append("  <alert>").append(replaceEntity(name)).append("</alert>\r\n"); //Deprecated in 2.5.0, maintain for compatibility with custom code
 		sb.append("  <name>").append(replaceEntity(name)).append("</name>\r\n");
 		sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
 		sb.append("  <confidence>").append(confidence).append("</confidence>\r\n");
@@ -486,7 +486,7 @@ public class Alert implements Comparable<Alert>  {
 		return "<p>" + text.replaceAll("\\r\\n","</p><p>").replaceAll("\\n","</p><p>") + "</p>";
 	}
 	/**
-	 * @deprecated (TODO add version) Replaced by {@link #getName}.
+	 * @deprecated (2.5.0) Replaced by {@link #getName}.
 	 * Use of alert has been deprecated in favour of using name.
 	 * @return Returns the alert.
 	 */
@@ -496,7 +496,7 @@ public class Alert implements Comparable<Alert>  {
     }
 	/**
 	 * @return Returns the name of the alert.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
     public String getName() {
         return name;

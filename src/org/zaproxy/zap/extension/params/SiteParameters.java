@@ -57,7 +57,7 @@ public class SiteParameters {
 	 * Tells whether or not this site has any parameters (cookies, query or form parameters).
 	 *
 	 * @return {@code true} if this site has parameters, {@code false} otherwise.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public boolean hasParams() {
 		return !cookieParams.isEmpty() || !urlParams.isEmpty() || !formParams.isEmpty();

@@ -24,7 +24,7 @@ import org.zaproxy.zap.control.AddOn;
 /**
  * A utility class for handling various UI elements related to status/quality
  * related to extensions and extension components
- * @since TODO add version
+ * @since 2.5.0
  */
 public class StatusUI implements Comparable<StatusUI> {
 

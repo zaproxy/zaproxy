@@ -380,7 +380,7 @@ public class SpiderTask implements Runnable {
 	 * <p>
 	 * Should be called if the task was not executed.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	void cleanup() {
 		deleteHistoryReference();

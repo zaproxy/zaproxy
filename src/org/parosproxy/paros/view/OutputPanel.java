@@ -218,7 +218,7 @@ public class OutputPanel extends AbstractPanel {
 	 * Appends the given {@code message} to the panel, asynchronously in the EDT.
 	 *
 	 * @param message the message to append to the output panel
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see EventQueue#invokeLater(Runnable)
 	 */
 	public void appendAsync(final String message) {

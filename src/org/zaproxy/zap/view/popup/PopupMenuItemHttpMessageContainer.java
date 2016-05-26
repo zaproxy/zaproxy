@@ -64,7 +64,7 @@ public abstract class PopupMenuItemHttpMessageContainer extends ExtensionPopupMe
         /**
          * The panel where spiders' HTTP messages are shown.
          * 
-         * @since TODO add version
+         * @since 2.5.0
          */
         SPIDER_PANEL,
         FUZZER_PANEL,

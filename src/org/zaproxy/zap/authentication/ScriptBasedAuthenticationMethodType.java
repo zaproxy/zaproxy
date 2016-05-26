@@ -693,7 +693,7 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 	/**
 	 * An {@code AuthenticationScript} that allows to specify the logged in/out indicators.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public interface AuthenticationScriptV2 extends AuthenticationScript {
 

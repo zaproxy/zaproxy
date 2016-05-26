@@ -143,21 +143,21 @@ import org.zaproxy.zap.view.messagelocation.TextMessageLocationHighlightRenderer
 public class View implements ViewDelegate {
 
     /**
-     * @deprecated (TODO add version) Use {@link WorkbenchPanel.Layout#EXPAND_SELECT} instead.
+     * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#EXPAND_SELECT} instead.
      * @see #getMainFrame()
      * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
      */
     @Deprecated
     public static final int DISPLAY_OPTION_LEFT_FULL = 0;
     /**
-     * @deprecated (TODO add version) Use {@link WorkbenchPanel.Layout#EXPAND_STATUS} instead.
+     * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#EXPAND_STATUS} instead.
      * @see #getMainFrame()
      * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
      */
     @Deprecated
     public static final int DISPLAY_OPTION_BOTTOM_FULL = 1;
     /**
-     * @deprecated (TODO add version) Use {@link WorkbenchPanel.Layout#FULL} instead.
+     * @deprecated (2.5.0) Use {@link WorkbenchPanel.Layout#FULL} instead.
      * @see #getMainFrame()
      * @see MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
      */
@@ -228,7 +228,7 @@ public class View implements ViewDelegate {
 
 
     /**
-     * @deprecated (TODO add version) Use {@link MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)}
+     * @deprecated (2.5.0) Use {@link MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)}
      *             instead.
      * @see #getMainFrame()
      */
@@ -239,7 +239,7 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * @deprecated (TODO add version) Use {@link MainFrame#getWorkbenchLayout()} instead.
+     * @deprecated (2.5.0) Use {@link MainFrame#getWorkbenchLayout()} instead.
      * @see #getMainFrame()
      */
     @Deprecated
@@ -329,7 +329,7 @@ public class View implements ViewDelegate {
     }
 
     /**
-     * @deprecated (TODO add version) No longer in use/working, use
+     * @deprecated (2.5.0) No longer in use/working, use
      *             {@link MainFrame#setResponsePanelPosition(org.parosproxy.paros.view.WorkbenchPanel.ResponsePanelPosition)}
      *             instead.
      * @since 2.1.0
@@ -973,7 +973,7 @@ public class View implements ViewDelegate {
      * Returns a StatusUI for the given AddOn.Status
      * @param status the Status for which a StatusUI is wanted
      * @return a StatusUI
-     * @since TODO add version
+     * @since 2.5.0
      */
     public StatusUI getStatusUI(AddOn.Status status) {
     	return statusMap.get(status);
@@ -983,7 +983,7 @@ public class View implements ViewDelegate {
      * Sets whether or not the main tool bar should be visible.
      *
      * @param visible {@code true} if the main tool bar should be visible, {@code false} otherwise.
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void setMainToolbarVisible(boolean visible) {
         getMainFrame().setMainToolbarVisible(visible);

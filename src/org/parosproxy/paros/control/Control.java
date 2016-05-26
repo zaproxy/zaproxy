@@ -447,7 +447,7 @@ public class Control extends AbstractControl implements SessionListener {
 	}
 
 	/**
-	 * @deprecated (TODO add version) Use just {@link #newSession()} (or {@link #newSession(String, SessionListener)}) instead,
+	 * @deprecated (2.5.0) Use just {@link #newSession()} (or {@link #newSession(String, SessionListener)}) instead,
 	 *             which already takes care to create and open an untitled database.
 	 */
 	@Deprecated

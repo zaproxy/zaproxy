@@ -416,7 +416,7 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * @deprecated (TODO add version) No longer used/needed, Plugin's progress is automatically updated/maintained by
+     * @deprecated (2.5.0) No longer used/needed, Plugin's progress is automatically updated/maintained by
      *             {@code HostProcess}.
      */
     @Deprecated
@@ -505,7 +505,7 @@ public class HostProcess implements Runnable {
      * @param plugin the plugin that sent the message
      * @param message the message sent
      * @throws IllegalArgumentException if the given {@code plugin} is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      * @see #notifyNewMessage(Plugin)
      */
     public void notifyNewMessage(Plugin plugin, HttpMessage message) {
@@ -520,7 +520,7 @@ public class HostProcess implements Runnable {
      *
      * @param plugin the plugin that sent a non-HTTP message
      * @throws IllegalArgumentException if the given parameter is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      * @see #notifyNewMessage(Plugin, HttpMessage)
      */
     public void notifyNewMessage(Plugin plugin) {
@@ -702,7 +702,7 @@ public class HostProcess implements Runnable {
 	}
 	
 	/**
-	 * @deprecated (TODO add version) No longer used/needed, Plugin's request count is automatically updated/maintained by
+	 * @deprecated (2.5.0) No longer used/needed, Plugin's request count is automatically updated/maintained by
 	 *             {@code HostProcess}.
 	 */
 	@Deprecated
@@ -730,7 +730,7 @@ public class HostProcess implements Runnable {
      * Gets the count of requests sent (and received) by all {@code Plugin}s and the {@code Analyser}.
      *
      * @return the count of request sent
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getPluginRequestCount(int)
      * @see #getAnalyser()
      */

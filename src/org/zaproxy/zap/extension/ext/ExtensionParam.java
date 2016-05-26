@@ -33,7 +33,7 @@ import org.parosproxy.paros.common.AbstractParam;
  * <p>
  * It allows to change, programmatically, the extensions' enabled state.
  *
- * @since TODO add version
+ * @since 2.5.0
  */
 public class ExtensionParam extends AbstractParam {
 

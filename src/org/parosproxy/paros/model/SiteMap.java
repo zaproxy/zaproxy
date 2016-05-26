@@ -762,7 +762,7 @@ public class SiteMap extends DefaultTreeModel {
 	 * @param node the site node the action is being carried out for
 	 * @param eventType the type of event occurring (ADD or REMOVE)
 	 * @see EventType
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	private void handleEvent(SiteNode parent, SiteNode node, EventType eventType) {
 		switch (eventType) {
@@ -785,7 +785,7 @@ public class SiteMap extends DefaultTreeModel {
 	 * 
 	 * @param event the event that is happening
 	 * @param node the node being acted upon
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	private static void publishEvent(String event, SiteNode node) {
 		ZAP.getEventBus().publishSyncEvent(SiteMapEventPublisher.getPublisher(), new Event(SiteMapEventPublisher.getPublisher(), event, new Target(node)));

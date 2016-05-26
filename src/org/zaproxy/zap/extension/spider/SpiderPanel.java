@@ -66,7 +66,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	/**
 	 * The name of the spider's HTTP messages container.
 	 * 
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer
 	 */
 	public static final String HTTP_MESSAGE_CONTAINER_NAME = "SpiderHttpMessageContainer";

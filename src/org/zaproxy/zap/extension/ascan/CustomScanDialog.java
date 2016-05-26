@@ -937,7 +937,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     /**
      * Resets the active scan dialogue to its default state.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      */
     void reset() {
         target = null;

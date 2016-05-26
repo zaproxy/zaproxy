@@ -34,7 +34,7 @@ import org.parosproxy.paros.view.View;
 /**
  * A {@code MouseListener} that (un)maximises a component, when clicked twice, using a {@link ComponentMaximiser}.
  *
- * @since TODO add version
+ * @since 2.5.0
  * @see #triggerMaximisation(Component)
  */
 public class ComponentMaximiserMouseListener extends MouseAdapter {

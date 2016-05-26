@@ -211,7 +211,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	}
 	
 	/**
-	 * @deprecated (TODO Add version) No longer used/needed, the request count is automatically updated/maintained by
+	 * @deprecated (2.5.0) No longer used/needed, the request count is automatically updated/maintained by
 	 *             {@link HostProcess}.
 	 */
 	@Deprecated

@@ -74,7 +74,7 @@ public abstract class VariantAbstractQuery implements Variant {
      * @param msg the message that contains the parameter
      * @param name the name to escape
      * @return the escaped name
-     * @since TODO Add version
+     * @since 2.5.0
      * @see URLEncoder#encode(String, String)
      */
     protected String getEscapedName(HttpMessage msg, String name) {
@@ -90,7 +90,7 @@ public abstract class VariantAbstractQuery implements Variant {
     protected abstract String getUnescapedValue(String value);
 
     /**
-     * @deprecated (TODO add version) use {@link #setParameters(int, List)} instead.
+     * @deprecated (2.5.0) use {@link #setParameters(int, List)} instead.
      */
     @Deprecated
     @SuppressWarnings("javadoc")
@@ -109,7 +109,7 @@ public abstract class VariantAbstractQuery implements Variant {
      *
      * @param type the type of parameters
      * @param parameters the actual parameters to add
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getParamList()
      * @see NameValuePair#TYPE_QUERY_STRING
      * @see NameValuePair#TYPE_POST_DATA

@@ -33,7 +33,7 @@ import org.apache.log4j.Logger;
 /**
  * A {@code BasicSearchNavigatorUI} that keeps merging views even if one of them is invalid.
  *
- * @since TODO add version
+ * @since 2.5.0
  */
 public class ZapBasicSearchNavigatorUI extends BasicSearchNavigatorUI {
 

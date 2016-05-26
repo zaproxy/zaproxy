@@ -131,7 +131,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * Returns no dependencies by default.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      * @return an empty array (that is, no dependencies)
      */
     @Override
@@ -166,7 +166,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * <p>
      * Called after the plugin has been initialised with the message being scanned. By default it does nothing.
      * <p>
-     * Since TODO add version it is no longer abstract.
+     * Since 2.5.0 it is no longer abstract.
      * 
      * @see #init(HttpMessage, HostProcess)
      */

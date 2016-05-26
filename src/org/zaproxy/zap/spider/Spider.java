@@ -474,7 +474,7 @@ public class Spider {
 	 * @see #seedList
 	 * @see FetchFilter
 	 * @see SpiderController#getFetchFilters()
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	private void fetchFilterSeeds() {
 		if (seedList == null || seedList.isEmpty()) {

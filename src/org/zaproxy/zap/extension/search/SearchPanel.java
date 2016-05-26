@@ -95,7 +95,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
     //private static Logger log = Logger.getLogger(SearchPanel.class);
 
     /**
-     * @deprecated (TODO add version) Use {@link #SearchPanel(ViewDelegate)} instead.
+     * @deprecated (2.5.0) Use {@link #SearchPanel(ViewDelegate)} instead.
      */
     @Deprecated
     public SearchPanel() {
@@ -418,7 +418,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	}
 
     /**
-     * @deprecated (TODO add version) No longer used/needed.
+     * @deprecated (2.5.0) No longer used/needed.
      */
     @Deprecated
     @SuppressWarnings("javadoc")

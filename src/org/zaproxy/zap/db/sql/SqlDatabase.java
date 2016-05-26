@@ -136,7 +136,7 @@ public class SqlDatabase extends AbstractDatabase {
 	 * @param path the location of the database server
 	 * @return a {@code SqlDatabaseServer} to be used by this database
 	 * @throws Exception if an error occurred while creating the {@code SqlDatabaseServer}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #open(String)
 	 */
 	protected SqlDatabaseServer createDatabaseServer(String path) throws Exception {

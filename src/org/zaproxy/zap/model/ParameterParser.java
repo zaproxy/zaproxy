@@ -43,7 +43,7 @@ public interface ParameterParser {
 	 * @param type the type of parameters to extract
 	 * @return a {@code List} containing the parameters
 	 * @throws IllegalArgumentException if the {@code msg} or {@code type} is {@code null}.
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getDefaultKeyValuePairSeparator()
 	 * @see #getDefaultKeyValueSeparator()
 	 */
@@ -61,7 +61,7 @@ public interface ParameterParser {
 	 *
 	 * @param parameters the String of parameters to parse, might be {@code null}
 	 * @return a {@code List} containing the parameters parsed
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #getDefaultKeyValuePairSeparator()
 	 * @see #getDefaultKeyValueSeparator()
 	 */

@@ -85,7 +85,7 @@ public interface ViewDelegate {
      *
      * @param contextPanelFactory the context panel factory that should be removed
      * @throws IllegalArgumentException if the context panel factory is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      * @see #addContextPanelFactory(ContextPanelFactory)
      */
     void removeContextPanelFactory(ContextPanelFactory contextPanelFactory);
@@ -96,7 +96,7 @@ public interface ViewDelegate {
      * If the given {@code message} is {@code null} the panels are cleared.
      *
      * @param message the message to display
-     * @since TODO add version
+     * @since 2.5.0
      * @see #getRequestPanel()
      * @see #getResponsePanel()
      */

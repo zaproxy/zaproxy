@@ -28,7 +28,7 @@ import org.apache.log4j.Logger;
 /**
  * An abstract implementation of {@link Database}, it allows to manage {@link DatabaseListener DatabaseListeners}.
  * 
- * @since TODO add version
+ * @since 2.5.0
  */
 public abstract class AbstractDatabase implements Database {
 

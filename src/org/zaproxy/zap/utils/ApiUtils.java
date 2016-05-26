@@ -177,7 +177,7 @@ public final class ApiUtils {
 	 * 
 	 * @param site the site whose authority will be extracted
 	 * @return the authority of the site
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public static String getAuthority(String site) {
 		String authority = site;
