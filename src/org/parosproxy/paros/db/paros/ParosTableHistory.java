@@ -34,6 +34,7 @@
 // ZAP: 2014/08/14 Issue 1310: Allow to set history types as temporary
 // ZAP: 2014/12/11 Replaced calls to Charset.forName(String) with StandardCharsets
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2016/05/26 Delete temporary history types sequentially
 
 package org.parosproxy.paros.db.paros;
 
@@ -154,7 +155,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			// updatable recordset does not work in hsqldb jdbc impelementation!
 			//psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");
-			psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " IN ( UNNEST(?) )");
+			psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " = ?");
 			psContainsURI = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
 
 			
@@ -740,11 +741,10 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     @Override
     public void deleteTemporary() throws DatabaseException {
         try {
-			Integer[] ids = new Integer[temporaryHistoryTypes.size()];
-			ids = temporaryHistoryTypes.toArray(ids);
-			Array arrayHistTypes = getConnection().createArrayOf("INTEGER", ArrayUtils.toObject(ArrayUtils.toPrimitive(ids)));
-			psDeleteTemp.setArray(1, arrayHistTypes);
-			psDeleteTemp.execute();
+            for (Integer type : temporaryHistoryTypes) {
+                psDeleteTemp.setInt(1, type);
+                psDeleteTemp.execute();
+            }
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
