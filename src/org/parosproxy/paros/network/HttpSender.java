@@ -56,6 +56,7 @@
 // ZAP: 2015/04/09 Allow to specify if circular redirects are allowed.
 // ZAP: 2015/06/12 Issue 1459: Add an HTTP sender listener script
 // ZAP: 2016/05/24 Issue 2463: Websocket not proxied when outgoing proxy is set
+// ZAP: 2016/05/27 Issue 2484: Circular Redirects
 
 package org.parosproxy.paros.network;
 
@@ -174,6 +175,7 @@ public class HttpSender {
 
 		client = createHttpClient();
 		clientViaProxy = createHttpClientViaProxy();
+		setAllowCircularRedirects(true);
 		
 		// Set how cookie headers are sent no matter of the "allowState", in case a state is forced by
 		// other extensions (e.g. Authentication)
@@ -800,7 +802,7 @@ public class HttpSender {
      * Circular redirects happen when a request redirects to itself, or when a same request was already accessed in a chain of
      * redirects.
      * <p>
-     * The default is to <strong>not</strong> allow circular redirects.
+     * Since 2.5.0, the default is to allow circular redirects.
      *
      * @param allow {@code true} if circular redirects should be allowed, {@code false} otherwise
      * @since 2.4.0
