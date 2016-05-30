@@ -41,6 +41,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2016/04/12 Update the SiteNode when deleting alerts
 // ZAP: 2016/05/27 Moved the temporary types to this class
+// ZAP: 2016/05/30 Add new type for CONNECT requests received by the proxy
 
 package org.parosproxy.paros.model;
 
@@ -158,6 +159,13 @@ public class HistoryReference {
      * @see #getTemporaryTypes()
      */
     public static final Set<Integer> DEFAULT_TEMPORARY_HISTORY_TYPES;
+
+    /**
+     * A HTTP CONNECT request received (and processed) by the local proxy.
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_PROXY_CONNECT = 16;
 
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;

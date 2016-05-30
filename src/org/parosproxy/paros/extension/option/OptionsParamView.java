@@ -75,6 +75,12 @@ public class OptionsParamView extends AbstractParam {
 	public static final String TAB_PIN_OPTION = "view.tab.pin";
 	public static final String OUTPUT_TAB_TIMESTAMPING_OPTION = "view.outputTabsTimeStampsOption"; 
 	public static final String OUTPUT_TAB_TIMESTAMP_FORMAT = "view.outputTabsTimeStampsFormat"; 
+
+	/**
+	 * The configuration key used to save/load the option {@link #showLocalConnectRequests}.
+	 */
+	private static final String SHOW_LOCAL_CONNECT_REQUESTS = "view.showLocalConnectRequests";
+
 	public static final String SPLASHSCREEN_OPTION = "view.splashScreen";
 	public static final String LARGE_REQUEST_SIZE = "view.largeRequest";
 	public static final String LARGE_RESPONSE_SIZE = "view.largeResponse";
@@ -102,6 +108,16 @@ public class OptionsParamView extends AbstractParam {
 	private String mode = Mode.standard.name();
 	private boolean outputTabTimeStampingEnabled = false; 
 	private String outputTabTimeStampFormat = DEFAULT_TIME_STAMP_FORMAT; 
+
+	/**
+	 * Flag that indicates if the HTTP CONNECT requests received by the local proxy should be (persisted and) shown in the UI.
+	 * 
+	 * @see #SHOW_LOCAL_CONNECT_REQUESTS
+	 * @see #isShowLocalConnectRequests()
+	 * @see #setShowLocalConnectRequests(boolean)
+	 */
+	private boolean showLocalConnectRequests;
+	
     private boolean showSplashScreen = true;
     private int largeRequestSize = LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH;
     private int largeResponseSize = LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH;
@@ -136,6 +152,13 @@ public class OptionsParamView extends AbstractParam {
 	    mode = getConfig().getString(MODE_OPTION, Mode.standard.name());
 	    outputTabTimeStampingEnabled = getConfig().getBoolean(OUTPUT_TAB_TIMESTAMPING_OPTION, false); 
 	    outputTabTimeStampFormat = getConfig().getString(OUTPUT_TAB_TIMESTAMP_FORMAT, DEFAULT_TIME_STAMP_FORMAT);
+
+        try {
+            showLocalConnectRequests = getConfig().getBoolean(SHOW_LOCAL_CONNECT_REQUESTS, false);
+        } catch (ConversionException e) {
+            LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
+        }
+
 	    showSplashScreen = getConfig().getBoolean(SPLASHSCREEN_OPTION, true);
 	    largeRequestSize = getConfig().getInteger(LARGE_REQUEST_SIZE, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH);
 	    largeResponseSize = getConfig().getInteger(LARGE_RESPONSE_SIZE, LargeResponseUtil.DEFAULT_MIN_CONTENT_LENGTH);
@@ -372,6 +395,33 @@ public class OptionsParamView extends AbstractParam {
 
 	public String getOutputTabTimeStampsFormat() {
 		return outputTabTimeStampFormat;
+	}
+
+	/**
+	 * Sets whether or not the HTTP CONNECT requests received by the local proxy should be (persisted and) shown in the UI.
+	 *
+	 * @param showConnectRequests {@code true} if the HTTP CONNECT requests should be shown, {@code false} otherwise
+	 * @since TODO add version
+	 * @see #isShowLocalConnectRequests()
+	 */
+	public void setShowLocalConnectRequests(boolean showConnectRequests) {
+		if (showLocalConnectRequests != showConnectRequests) {
+			showLocalConnectRequests = showConnectRequests;
+			getConfig().setProperty(SHOW_LOCAL_CONNECT_REQUESTS, showConnectRequests);
+		}
+	}
+
+	/**
+	 * Tells whether or not the HTTP CONNECT requests received by the local proxy should be (persisted and) shown in the UI.
+	 * <p>
+	 * The default is to not show the HTTP CONNECT requests.
+	 *
+	 * @return {@code true} if the HTTP CONNECT requests should be shown, {@code false} otherwise
+	 * @since TODO add version
+	 * @see #setShowLocalConnectRequests(boolean)
+	 */
+	public boolean isShowLocalConnectRequests() {
+		return showLocalConnectRequests;
 	}
 
 	public boolean isShowSplashScreen() {

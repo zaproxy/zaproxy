@@ -27,6 +27,7 @@
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions. 
 // ZAP: 2016/04/08 Allow to add ContextDataFactory
 // ZAP: 2016/05/30 Allow to add AddOnInstallationStatusListener
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.extension;
 
@@ -36,6 +37,7 @@ import java.util.List;
 import java.util.Vector;
 
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.ScannerHook;
@@ -56,6 +58,16 @@ public class ExtensionHook {
 
     private Vector<ProxyListener> proxyListenerList = new Vector<>();
     private List<OverrideMessageProxyListener> overrideMessageProxyListenersList = new ArrayList<>();
+
+    /**
+     * The {@link ConnectRequestProxyListener}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addConnectionRequestProxyListener(ConnectRequestProxyListener)
+     * @see #getConnectRequestProxyListeners()
+     */
+    private List<ConnectRequestProxyListener> connectRequestProxyListeners;
     private Vector<SessionChangedListener> sessionListenerList = new Vector<>();
     private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
@@ -103,6 +115,41 @@ public class ExtensionHook {
 
     public void addProxyListener(ProxyListener listener) {
         proxyListenerList.add(listener);
+    }
+
+    /**
+     * Adds the given {@link ConnectRequestProxyListener} to the extension hook, to be later notified of CONNECT requests
+     * received by the local proxy.
+     * <p>
+     * By default, the {@code ConnectRequestProxyListener}s added are removed from the local proxy when the extension is
+     * unloaded.
+     *
+     * @param listener the {@code ConnectRequestProxyListener} that will be added and then notified
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since TODO add version
+     */
+    public void addConnectionRequestProxyListener(ConnectRequestProxyListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Parameter listener must not be null.");
+        }
+
+        if (connectRequestProxyListeners == null) {
+            connectRequestProxyListeners = new ArrayList<>();
+        }
+        connectRequestProxyListeners.add(listener);
+    }
+
+    /**
+     * Gets the {@link ConnectRequestProxyListener}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ConnectRequestProxyListener}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<ConnectRequestProxyListener> getConnectRequestProxyListeners() {
+        if (connectRequestProxyListeners == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(connectRequestProxyListeners);
     }
     
     public void addSessionListener(SessionChangedListener listener) {

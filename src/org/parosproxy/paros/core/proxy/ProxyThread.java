@@ -59,6 +59,7 @@
 // ZAP: 2016/04/13 Notify of timeouts when reading a response
 // ZAP: 2016/04/14 Delay the write of response to not attempt to write a response again when handling IOException
 // ZAP: 2016/04/29 Adjust exception logging levels and log when timeouts happen
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.core.proxy;
 
@@ -209,12 +210,14 @@ class ProxyThread implements Runnable {
 			firstHeader = httpIn.readRequestHeader(isSecure);
             
 			if (firstHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.CONNECT)) {
-				
-				// ZAP: added host name variable
-                String hostName = firstHeader.getHostName();
+				HttpMessage connectMsg = new HttpMessage(firstHeader);
+				connectMsg.setTimeSentMillis(System.currentTimeMillis());
 				try {
 					httpOut.write(CONNECT_HTTP_200);
 					httpOut.flush();
+					connectMsg.setResponseHeader(CONNECT_HTTP_200);
+					connectMsg.setTimeElapsedMillis((int) (System.currentTimeMillis() - connectMsg.getTimeSentMillis()));
+					notifyConnectMessage(connectMsg);
 					
 					byte[] bytes = new byte[3];
 					bufferedInputStream.mark(3);
@@ -223,7 +226,7 @@ class ProxyThread implements Runnable {
 					
 					if (isSslTlsHandshake(bytes)) {
 				        isSecure = true;
-						beginSSL(hostName);
+						beginSSL(firstHeader.getHostName());
 					}
 			        
 			        firstHeader = httpIn.readRequestHeader(isSecure);
@@ -265,6 +268,21 @@ class ProxyThread implements Runnable {
     		}
 		}
 	}
+
+    /**
+     * Notifies the {@code ConnectRequestProxyListener}s that a HTTP CONNECT request was received from a client.
+     * 
+     * @param connectMessage the HTTP CONNECT request received from a client
+     */
+    private void notifyConnectMessage(HttpMessage connectMessage) {
+        for (ConnectRequestProxyListener listener : parentServer.getConnectRequestProxyListeners()) {
+            try {
+                listener.receivedConnectRequest(connectMessage);
+            } catch (Exception e) {
+                log.error("An error occurred while notifying listener:", e);
+            }
+        }
+    }
 
     private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause)
             throws HttpMalformedHeaderException {

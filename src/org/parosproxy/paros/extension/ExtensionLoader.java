@@ -63,6 +63,7 @@
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
 // ZAP: 2016/05/30 Notification of installation status of the add-ons
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.extension;
 
@@ -83,6 +84,7 @@ import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.control.Proxy;
+import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.Scanner;
@@ -275,6 +277,34 @@ public class ExtensionLoader {
             } catch (Exception e) {
                 logger.error(e.getMessage(), e);
             }
+        }
+    }
+
+    /**
+     * Hooks (adds) the {@code ConnectRequestProxyListener}s of the loaded extensions to the given {@code proxy}.
+     * <p>
+     * <strong>Note:</strong> even if public this method is expected to be called only by core classes (for example,
+     * {@code Control}).
+     *
+     * @param proxy the local proxy
+     * @since TODO add version
+     */
+    public void hookConnectRequestProxyListeners(Proxy proxy) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            hookConnectRequestProxyListeners(proxy, hook.getConnectRequestProxyListeners());
+        }
+    }
+
+    private static void hookConnectRequestProxyListeners(Proxy proxy, List<ConnectRequestProxyListener> listeners) {
+        for (ConnectRequestProxyListener listener : listeners) {
+            proxy.addConnectRequestProxyListener(listener);
+        }
+    }
+
+    private void removeConnectRequestProxyListener(ExtensionHook hook) {
+        Proxy proxy = Control.getSingleton().getProxy();
+        for (ConnectRequestProxyListener listener : hook.getConnectRequestProxyListeners()) {
+            proxy.removeConnectRequestProxyListener(listener);
         }
     }
 
@@ -639,6 +669,7 @@ public class ExtensionLoader {
         hookProxyListeners(proxy, extHook.getProxyListenerList());
 
         hookPersistentConnectionListeners(proxy, extHook.getPersistentConnectionListener());
+        hookConnectRequestProxyListeners(proxy, extHook.getConnectRequestProxyListeners());
 
         if (view != null) {
             hookSiteMapListeners(view.getSiteTreePanel(), extHook.getSiteMapListenerList());
@@ -1169,6 +1200,8 @@ public class ExtensionLoader {
         removeProxyListener(hook);
 
         removeOverrideMessageProxyListener(hook);
+
+        removeConnectRequestProxyListener(hook);
 
         removeSiteMapListener(hook);
 

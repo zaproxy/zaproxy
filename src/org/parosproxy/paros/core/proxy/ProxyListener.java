@@ -31,6 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * to the server and when a new response is ready to be forwarded to the client.
  * 
  * @see OverrideMessageProxyListener
+ * @see ConnectRequestProxyListener
  */
 // ZAP: Changed the JavaDoc.
 public interface ProxyListener extends ArrangeableProxyListener {

@@ -59,6 +59,7 @@
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 // ZAP: 2016/04/22 Issue 2428: Memory leak on session creation/loading
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.control;
 
@@ -119,6 +120,7 @@ public class Control extends AbstractControl implements SessionListener {
 	    Proxy proxy = getProxy(overrides);
 	    getExtensionLoader().hookProxyListener(proxy);
 	    getExtensionLoader().hookPersistentConnectionListener(proxy);
+	    getExtensionLoader().hookConnectRequestProxyListeners(proxy);
 		
 		if (view != null) {
 		    // ZAP: Add site map listeners

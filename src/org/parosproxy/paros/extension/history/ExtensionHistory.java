@@ -66,6 +66,7 @@
 // ZAP: 2016/04/14 Use View to display the HTTP messages
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 // ZAP: 2016/05/20 Moved purge method to here from PopupMenuPurgeSites
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.extension.history;
 
@@ -219,6 +220,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	    super.hook(extensionHook);
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(getProxyListenerLog());
+        extensionHook.addConnectionRequestProxyListener(getProxyListenerLog());
 
 	    if (getView() != null) {
 		    ExtensionHookView pv = extensionHook.getHookView();
@@ -352,9 +354,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	}
         try {
             synchronized (historyTableModel) {
-                final int historyType = historyRef.getHistoryType();
-                if (historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
-                        || historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
+                if (isHistoryTypeToShow(historyRef.getHistoryType())) {
                     final String uri = historyRef.getURI().toString();
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
 	            		// Not in scope
@@ -385,6 +385,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
     }
 
+    /**
+     * Tells whether or not the messages with the given history type should be shown in the History tab.
+     *
+     * @param historyType the history type that will be checked
+     * @return {@code true} if it should be shown, {@code false} otherwise
+     */
+    private static boolean isHistoryTypeToShow(int historyType) {
+        return historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
+                || historyType == HistoryReference.TYPE_AUTHENTICATION || historyType == HistoryReference.TYPE_PROXY_CONNECT;
+    }
+
     private void addHistoryInEventQueue(final HistoryReference ref) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             historyTableModel.addHistoryReference(ref);
@@ -410,7 +421,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        try {
 	            // ZAP: Added type argument.
 	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
-						session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
+						session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER,
+						HistoryReference.TYPE_PROXY_CONNECT);
 	            
 	            buildHistory(list, historyFilter);
 	        } catch (DatabaseException e) {
