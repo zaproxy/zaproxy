@@ -26,6 +26,7 @@
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions. 
 // ZAP: 2016/04/08 Allow to add ContextDataFactory
+// ZAP: 2016/05/30 Allow to add AddOnInstallationStatusListener
 
 package org.parosproxy.paros.extension;
 
@@ -41,6 +42,7 @@ import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.SiteMapListener;
 
@@ -72,6 +74,16 @@ public class ExtensionHook {
      * @see #getContextDataFactories()
      */
     private List<ContextDataFactory> contextDataFactories;
+
+    /**
+     * The {@link AddOnInstallationStatusListener}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addAddOnInstallationStatusListener(AddOnInstallationStatusListener)
+     * @see #getAddOnInstallationStatusListeners()
+     */
+    private List<AddOnInstallationStatusListener> addOnInstallationStatusListeners;
     
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -125,6 +137,38 @@ public class ExtensionHook {
     
     public void addAddonFilesChangedListener(AddonFilesChangedListener listener) {
     	addonFilesChangedListenerList.add(listener);
+    }
+
+    /**
+     * Adds the given {@code listener} to the extension hook, to be later notified of changes in the installation status of the
+     * add-ons.
+     *
+     * @param listener the listener that will be added and then notified
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since TODO add version
+     */
+    public void addAddOnInstallationStatusListener(AddOnInstallationStatusListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Parameter listener must not be null.");
+        }
+
+        if (addOnInstallationStatusListeners == null) {
+            addOnInstallationStatusListeners = new ArrayList<>();
+        }
+        addOnInstallationStatusListeners.add(listener);
+    }
+
+    /**
+     * Gets the {@link AddOnInstallationStatusListener}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code AddOnInstallationStatusListener}s, never {@code null}.
+     * @since TODO add version
+     */
+    List<AddOnInstallationStatusListener> getAddOnInstallationStatusListeners() {
+        if (addOnInstallationStatusListeners == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(addOnInstallationStatusListeners);
     }
 
     /**
