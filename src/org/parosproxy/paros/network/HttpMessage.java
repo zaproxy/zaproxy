@@ -44,6 +44,7 @@
 // ZAP: 2015/02/09 Fix NullPointerException in equals(Object) when comparing with empty messages
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2015/08/19 Deprecate/change methods with unused parameters 
+// ZAP: 2016/05/31 Implement hashCode()
 
 package org.parosproxy.paros.network;
 
@@ -51,6 +52,7 @@ import java.net.HttpCookie;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.SortedSet;
@@ -392,6 +394,30 @@ public class HttpMessage implements Message {
         }
 
         return result;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + getRequestHeader().getMethod().toLowerCase(Locale.ROOT).hashCode();
+		URI uri = getRequestHeader().getURI();
+		if (uri != null) {
+			result = prime * result + uri.getPort();
+			try {
+				result = prime * result + (uri.getRawHost() == null ? 0 : uri.getHost().toLowerCase(Locale.ROOT).hashCode());
+			} catch (URIException e) {
+				log.error("Failed to obtain the host for hashCode calculation: " + uri.toString(), e);
+			}
+			result = prime * result
+					+ ((uri.getRawPathQuery() == null) ? 0 : uri.getEscapedPathQuery().toLowerCase(Locale.ROOT).hashCode());
+		}
+
+		if (getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+			result = prime * result + getRequestBody().hashCode();
+		}
+
+		return result;
 	}
 
 	/**
