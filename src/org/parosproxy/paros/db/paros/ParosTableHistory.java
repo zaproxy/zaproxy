@@ -35,6 +35,7 @@
 // ZAP: 2014/12/11 Replaced calls to Charset.forName(String) with StandardCharsets
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2016/05/26 Delete temporary history types sequentially
+// ZAP: 2016/05/27 Change to use HistoryReference to obtain the temporary types
 
 package org.parosproxy.paros.db.paros;
 
@@ -48,9 +49,7 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.Vector;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -90,22 +89,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     private static final String NOTE        = "NOTE";
     private static final String RESPONSE_FROM_TARGET_HOST = "RESPONSEFROMTARGETHOST";
 
-    /**
-     * The {@code Set} of history types marked as temporary.
-     * <p>
-     * By default the only temporary history types are {@code HistoryReference#TYPE_TEMPORARY} and
-     * {@code HistoryReference#TYPE_SCANNER_TEMPORARY}.
-     * <p>
-     * Iterations must be done in a {@code synchronized} block with {@code temporaryHistoryTypes}.
-     * 
-     * @since 2.4
-     * @see #setHistoryTypeAsTemporary(int)
-     * @see HistoryReference#TYPE_TEMPORARY
-     * @see HistoryReference#TYPE_SCANNER_TEMPORARY
-     * @see Collections#synchronizedSet(Set)
-     */
-    private static Set<Integer> temporaryHistoryTypes = Collections.synchronizedSet(new HashSet<Integer>());
-
     private PreparedStatement psRead = null;
     private PreparedStatement psInsert = null;
     private CallableStatement psGetIdLastInsert = null;
@@ -124,11 +107,6 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     private static final Logger log = Logger.getLogger(ParosTableHistory.class);
 
     private boolean bodiesAsBytes; 
-
-    static {
-        temporaryHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_TEMPORARY));
-        temporaryHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SCANNER_TEMPORARY));
-    }
 
     public ParosTableHistory() {
     }
@@ -703,35 +681,25 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     }
 
     /**
-     * Sets the given {@code historyType} as temporary.
-     *
+     * @deprecated (2.5.0) Use {@link HistoryReference#addTemporaryType(int)} instead.
      * @since 2.4
      * @param historyType the history type that will be set as temporary
-     * @see #unsetHistoryTypeAsTemporary(int)
      * @see #deleteTemporary()
      */
+    @Deprecated
     public static void setHistoryTypeAsTemporary(int historyType) {
-        temporaryHistoryTypes.add(Integer.valueOf(historyType));
+        HistoryReference.addTemporaryType(historyType);
     }
 
     /**
-     * Unsets the given {@code historyType} as temporary.
-     * <p>
-     * Attempting to remove a default temporary history type (
-     * {@code HistoryReference#TYPE_TEMPORARY} or {@code HistoryReference#TYPE_SCANNER_TEMPORARY})
-     * has no effect.
-     * 
+     * @deprecated (2.5.0) Use {@link HistoryReference#removeTemporaryType(int)} instead.
      * @since 2.4
      * @param historyType the history type that will be marked as temporary
-     * @see #setHistoryTypeAsTemporary(int)
      * @see #deleteTemporary()
      */
+    @Deprecated
     public static void unsetHistoryTypeAsTemporary(int historyType) {
-        if (HistoryReference.TYPE_TEMPORARY == historyType
-                || HistoryReference.TYPE_SCANNER_TEMPORARY == historyType) {
-            return;
-        }
-        temporaryHistoryTypes.remove(Integer.valueOf(historyType));
+        HistoryReference.removeTemporaryType(historyType);
     }
 
     /**
@@ -742,15 +710,12 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
      * </p>
      *
      * @throws DatabaseException if an error occurred while deleting the temporary history records
-     * @see #setHistoryTypeAsTemporary(int)
-     * @see #unsetHistoryTypeAsTemporary(int)
-     * @see HistoryReference#TYPE_TEMPORARY
-     * @see HistoryReference#TYPE_SCANNER_TEMPORARY
+     * @see HistoryReference#getTemporaryTypes()
      */
     @Override
     public void deleteTemporary() throws DatabaseException {
         try {
-            for (Integer type : temporaryHistoryTypes) {
+            for (Integer type : HistoryReference.getTemporaryTypes()) {
                 psDeleteTemp.setInt(1, type);
                 psDeleteTemp.execute();
             }
