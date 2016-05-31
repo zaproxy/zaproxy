@@ -173,23 +173,23 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     }
 
     @Test
-    public void shouldIgnoreNullCharset() {
+    public void shouldResetCharsetWithNullCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
-        String charset = null;
+        httpBody.setCharset(UTF_8_NAME);
         // When
-        httpBody.setCharset(charset);
+        httpBody.setCharset(null);
         // Then
         assertThat(httpBody.getCharset(), is(equalTo(DEFAULT_CHARSET_NAME)));
     }
 
     @Test
-    public void shouldIgnoreEmptyCharset() {
+    public void shouldResetCharsetWithEmptyCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
-        String charset = "";
+        httpBody.setCharset(UTF_8_NAME);
         // When
-        httpBody.setCharset(charset);
+        httpBody.setCharset("");
         // Then
         assertThat(httpBody.getCharset(), is(equalTo(DEFAULT_CHARSET_NAME)));
     }
@@ -198,22 +198,22 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
     public void shouldIgnoreInvalidCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
-        String charset = "$_NotACharsetName";
+        httpBody.setCharset(UTF_8_NAME);
         // When
-        httpBody.setCharset(charset);
+        httpBody.setCharset("$_NotACharsetName");
         // Then
-        assertThat(httpBody.getCharset(), is(equalTo(DEFAULT_CHARSET_NAME)));
+        assertThat(httpBody.getCharset(), is(equalTo(UTF_8_NAME)));
     }
 
     @Test
     public void shouldIgnoreUnsupportedCharset() {
         // Given
         HttpBody httpBody = new HttpBodyImpl();
-        String charset = "UnsupportedCharset-12345";
+        httpBody.setCharset(UTF_8_NAME);
         // When
-        httpBody.setCharset(charset);
+        httpBody.setCharset("UnsupportedCharset-12345");
         // Then
-        assertThat(httpBody.getCharset(), is(equalTo(DEFAULT_CHARSET_NAME)));
+        assertThat(httpBody.getCharset(), is(equalTo(UTF_8_NAME)));
     }
 
     @Test

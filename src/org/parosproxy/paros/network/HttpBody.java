@@ -340,7 +340,10 @@ public abstract class HttpBody {
      * Sets the charset used for {@code String} related operations, for example, {@link #append(String)},
      * {@link #setBody(String)}, or {@link #toString()}.
      * <p>
-     * The charset is ignored if {@code null}, empty, or not valid (either the name is not valid or is unsupported).
+     * The charset is reset if {@code null} or empty (that is, it will use default charset or the charset determined internally
+     * by {@code HttpBody} implementations). The charset is ignored if not valid (either the name is not valid or is
+     * unsupported).
+     * <p>
      * 
      * @param charsetName the name of the charset to set
      * @see #getCharset()
@@ -348,6 +351,7 @@ public abstract class HttpBody {
      */
     public void setCharset(String charsetName) {
         if (StringUtils.isEmpty(charsetName)) {
+            setCharsetImpl(null);
             return;
         }
 
@@ -355,12 +359,23 @@ public abstract class HttpBody {
         try {
             newCharset = Charset.forName(charsetName);
             if (newCharset != charset) {
-                this.charset = newCharset;
-                this.cachedString = null;
+                setCharsetImpl(newCharset);
             }
         } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
             log.error("Failed to set charset: " + charsetName, e);
         }
+    }
+
+    /**
+     * Sets the charset to the given value and resets the cached string (that is, is set to {@code null}).
+     *
+     * @param newCharset the new charset to set, might be {@code null}
+     * @see #charset
+     * @see #cachedString
+     */
+    private void setCharsetImpl(Charset newCharset) {
+        this.charset = newCharset;
+        this.cachedString = null;
     }
     
 	@Override
