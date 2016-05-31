@@ -36,6 +36,7 @@ import java.awt.Component;
 import java.awt.Font;
 import java.awt.GraphicsEnvironment;
 import java.awt.GridBagLayout;
+import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
@@ -85,6 +86,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	private JCheckBox chkOutputTabTimeStamping = null; 
 	private JCheckBox chkShowSplashScreen = null;
 	private JCheckBox scaleImages = null;
+	private JCheckBox showLocalConnectRequestsCheckbox;
 	
 	private JComboBox<String> brkPanelViewSelect = null;
 	private JComboBox<String> displaySelect = null;
@@ -226,6 +228,14 @@ public class OptionsViewPanel extends AbstractParamPanel {
 					LayoutHelper.getGBC(0, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
 			panelMisc.add(getChkProcessImages(),  
 					LayoutHelper.getGBC(1, row, 1, 1.0D, new java.awt.Insets(2,2,2,2)));
+
+			row++;
+			Insets insets = new Insets(2, 2, 2, 2);
+			String labelText = Constant.messages.getString("view.options.label.showlocalconnectrequests");
+			JLabel showConnectRequestLabel = new JLabel(labelText);
+			showConnectRequestLabel.setLabelFor(getShowLocalConnectRequestsCheckbox());
+			panelMisc.add(showConnectRequestLabel, LayoutHelper.getGBC(0, row, 1, 1.0D, insets));
+			panelMisc.add(getShowLocalConnectRequestsCheckbox(), LayoutHelper.getGBC(1, row, 1, 1.0D, insets));
 
 			row++;
 			showTabNamesLabel.setLabelFor(getShowTabNames());
@@ -437,6 +447,13 @@ public class OptionsViewPanel extends AbstractParamPanel {
 		return timeStampsFormatSelect; 
 	}
 	
+	private JCheckBox getShowLocalConnectRequestsCheckbox() {
+		if (showLocalConnectRequestsCheckbox == null) {
+			showLocalConnectRequestsCheckbox = new JCheckBox();
+		}
+		return showLocalConnectRequestsCheckbox;
+	}
+
 	private ZapNumberSpinner getLargeRequestSize() {
 		if (largeRequestSize == null) {
 			largeRequestSize = new ZapNumberSpinner(-1, LargeRequestUtil.DEFAULT_MIN_CONTENT_LENGTH, Integer.MAX_VALUE);
@@ -540,6 +557,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    chkWmUiHandling.setSelected(options.getViewParam().getWmUiHandlingOption() > 0);
 	    getChkOutputTabTimeStamps().setSelected(options.getViewParam().isOutputTabTimeStampingEnabled()); 
 	    timeStampsFormatSelect.setSelectedItem(options.getViewParam().getOutputTabTimeStampsFormat());
+	    getShowLocalConnectRequestsCheckbox().setSelected(options.getViewParam().isShowLocalConnectRequests());
 	    largeRequestSize.setValue(options.getViewParam().getLargeRequestSize());
 	    largeResponseSize.setValue(options.getViewParam().getLargeResponseSize());
 	    getFontSize().setValue(options.getViewParam().getFontSize());
@@ -582,6 +600,7 @@ public class OptionsViewPanel extends AbstractParamPanel {
 	    options.getViewParam().setWmUiHandlingOption(getChkWmUiHandling().isSelected() ? 1 : 0);
 	    options.getViewParam().setOutputTabTimeStampingEnabled(getChkOutputTabTimeStamps().isSelected()); 
 	    options.getViewParam().setOutputTabTimeStampsFormat((String) getTimeStampsFormatSelect().getSelectedItem()); 
+	    options.getViewParam().setShowLocalConnectRequests(getShowLocalConnectRequestsCheckbox().isSelected());
 	    options.getViewParam().setLargeRequestSize(getLargeRequestSize().getValue());
 	    options.getViewParam().setLargeResponseSize(getLargeResponseSize().getValue());
 	    options.getViewParam().setFontSize(getFontSize().getValue());
