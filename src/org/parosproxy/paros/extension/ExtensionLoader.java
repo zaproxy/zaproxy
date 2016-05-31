@@ -62,6 +62,7 @@
 // ZAP: 2015/09/07 Start GUI on EDT
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/08 Hook ContextDataFactory/ContextPanelFactory 
+// ZAP: 2016/05/30 Notification of installation status of the add-ons
 
 package org.parosproxy.paros.extension;
 
@@ -99,7 +100,9 @@ import org.parosproxy.paros.view.SiteMapPanel;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WorkbenchPanel;
 import org.zaproxy.zap.PersistentConnectionListener;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.ContextPanelFactory;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -495,6 +498,62 @@ public class ExtensionLoader {
                     
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
+                }
+            }
+        }
+    }
+    
+    /**
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was installed.
+     *
+     * @param addOn the add-on that was installed, must not be {@code null}
+     * @since TODO add version
+     */
+    public void addOnInstalled(AddOn addOn) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.addOnInstalled(addOn);
+                } catch (Exception e) {
+                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was soft uninstalled.
+     *
+     * @param addOn the add-on that was soft uninstalled, must not be {@code null}
+     * @param successfully if the soft uninstallation was successful, that is, no errors occurred while uninstalling it
+     * @since TODO add version
+     */
+    public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.addOnSoftUninstalled(addOn, successfully);
+                } catch (Exception e) {
+                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was uninstalled.
+     *
+     * @param addOn the add-on that was uninstalled, must not be {@code null}
+     * @param successfully if the uninstallation was successful, that is, no errors occurred while uninstalling it
+     * @since TODO add version
+     */
+    public void addOnUninstalled(AddOn addOn, boolean successfully) {
+        for (ExtensionHook hook : extensionHooks.values()) {
+            for (AddOnInstallationStatusListener listener : hook.getAddOnInstallationStatusListeners()) {
+                try {
+                    listener.addOnUninstalled(addOn, successfully);
+                } catch (Exception e) {
+                    logger.error("An error occurred while notifying: " + listener.getClass().getCanonicalName(), e);
                 }
             }
         }
