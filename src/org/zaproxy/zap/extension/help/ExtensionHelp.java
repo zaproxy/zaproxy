@@ -150,7 +150,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	 * The help is available when the help add-on for the currently set {@code Locale} is installed.
 	 *
 	 * @return {@code true} if the help is available, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.5.0
 	 */
 	public boolean isHelpAvailable() {
 		return hb != null;

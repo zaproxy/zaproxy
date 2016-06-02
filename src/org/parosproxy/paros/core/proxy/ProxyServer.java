@@ -322,7 +322,7 @@ public class ProxyServer implements Runnable {
      *
      * @param listener the listener that will be added
      * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addConnectRequestProxyListener(ConnectRequestProxyListener listener) {
         connectRequestProxyListeners.add(listener);
@@ -345,7 +345,7 @@ public class ProxyServer implements Runnable {
      *
      * @param listener the listener that should be removed
      * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void removeConnectRequestProxyListener(ConnectRequestProxyListener listener) {
         validateListenerNotNull(listener);
@@ -356,7 +356,7 @@ public class ProxyServer implements Runnable {
      * Gets the {@code ConnectRequestProxyListener}s added.
      *
      * @return an unmodifiable {@code List} with the {@code ConnectRequestProxyListener}s, never {@code null}
-     * @since TODO add version
+     * @since 2.5.0
      */
     List<ConnectRequestProxyListener> getConnectRequestProxyListeners() {
         return Collections.unmodifiableList(connectRequestProxyListeners);

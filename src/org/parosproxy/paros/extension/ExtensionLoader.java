@@ -287,7 +287,7 @@ public class ExtensionLoader {
      * {@code Control}).
      *
      * @param proxy the local proxy
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void hookConnectRequestProxyListeners(Proxy proxy) {
         for (ExtensionHook hook : extensionHooks.values()) {
@@ -537,7 +537,7 @@ public class ExtensionLoader {
      * Notifies {@code Extension}s' {@code AddOnInstallationStatusListener}s that the given add-on was installed.
      *
      * @param addOn the add-on that was installed, must not be {@code null}
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addOnInstalled(AddOn addOn) {
         for (ExtensionHook hook : extensionHooks.values()) {
@@ -556,7 +556,7 @@ public class ExtensionLoader {
      *
      * @param addOn the add-on that was soft uninstalled, must not be {@code null}
      * @param successfully if the soft uninstallation was successful, that is, no errors occurred while uninstalling it
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {
@@ -575,7 +575,7 @@ public class ExtensionLoader {
      *
      * @param addOn the add-on that was uninstalled, must not be {@code null}
      * @param successfully if the uninstallation was successful, that is, no errors occurred while uninstalling it
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addOnUninstalled(AddOn addOn, boolean successfully) {
         for (ExtensionHook hook : extensionHooks.values()) {

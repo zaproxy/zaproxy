@@ -24,7 +24,7 @@ import org.parosproxy.paros.network.HttpMessage;
 /**
  * A listener that will be notified when a HTTP CONNECT request is received from a client.
  * 
- * @since TODO add version
+ * @since 2.5.0
  * @see ProxyListener
  * @see OverrideMessageProxyListener
  */

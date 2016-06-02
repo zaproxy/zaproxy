@@ -126,7 +126,7 @@ public class ExtensionHook {
      *
      * @param listener the {@code ConnectRequestProxyListener} that will be added and then notified
      * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addConnectionRequestProxyListener(ConnectRequestProxyListener listener) {
         if (listener == null) {
@@ -143,7 +143,7 @@ public class ExtensionHook {
      * Gets the {@link ConnectRequestProxyListener}s added to this hook.
      *
      * @return an unmodifiable {@code List} containing the added {@code ConnectRequestProxyListener}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     List<ConnectRequestProxyListener> getConnectRequestProxyListeners() {
         if (connectRequestProxyListeners == null) {
@@ -192,7 +192,7 @@ public class ExtensionHook {
      *
      * @param listener the listener that will be added and then notified
      * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     public void addAddOnInstallationStatusListener(AddOnInstallationStatusListener listener) {
         if (listener == null) {
@@ -209,7 +209,7 @@ public class ExtensionHook {
      * Gets the {@link AddOnInstallationStatusListener}s added to this hook.
      *
      * @return an unmodifiable {@code List} containing the added {@code AddOnInstallationStatusListener}s, never {@code null}.
-     * @since TODO add version
+     * @since 2.5.0
      */
     List<AddOnInstallationStatusListener> getAddOnInstallationStatusListeners() {
         if (addOnInstallationStatusListeners == null) {

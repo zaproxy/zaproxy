@@ -24,7 +24,7 @@ import org.zaproxy.zap.control.AddOn;
 /**
  * A listener that will be notified when the installation status of the add-ons changes.
  * 
- * @since TODO add version
+ * @since 2.5.0
  */
 public interface AddOnInstallationStatusListener {
 
