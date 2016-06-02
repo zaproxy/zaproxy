@@ -97,9 +97,13 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	
 	// The short URL means that the number of checkForUpdates can be tracked - see https://bitly.com/u/psiinon
 	// Note that URLs must now use https (unless you change the code;)
+    
+    private static final String ZAP_VERSIONS_REL_XML_SHORT = "https://bit.ly/owaspzap-2-5-0";
+    private static final String ZAP_VERSIONS_REL_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.5.xml";
+    
     private static final String ZAP_VERSIONS_DEV_XML_SHORT = "https://bit.ly/owaspzap-dev";
     private static final String ZAP_VERSIONS_DEV_XML_FULL = "https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-dev.xml";
-    private static final String ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT = "https://bit.ly/owaspzap-devw";
+    private static final String ZAP_VERSIONS_WEEKLY_XML_SHORT = "https://bit.ly/owaspzap-devw";
 
 	// URLs for use when testing locally ;)
 	//private static final String ZAP_VERSIONS_XML_SHORT = "https://localhost:8080/zapcfu/ZapVersions.xml";
@@ -899,29 +903,36 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	    				// Using a thread as the first call could timeout
 	    				// and we dont want the ui to hang in the meantime
 	    				this.setName("ZAP-cfu");
-						String url = ZAP_VERSIONS_DEV_XML_SHORT;
-						if (Constant.isDailyBuild()) {
-							url = ZAP_VERSIONS_DEV_XML_WEEKLY_SHORT;
+						String shortUrl;
+						String longUrl;
+						if (Constant.isDevBuild()) {
+							shortUrl = ZAP_VERSIONS_DEV_XML_SHORT;
+							longUrl = ZAP_VERSIONS_DEV_XML_FULL;
+						} else if (Constant.isDailyBuild()) {
+							shortUrl = ZAP_VERSIONS_WEEKLY_XML_SHORT;
+							longUrl = ZAP_VERSIONS_DEV_XML_FULL;
+						} else {
+							shortUrl = ZAP_VERSIONS_REL_XML_SHORT;
+							longUrl = ZAP_VERSIONS_REL_XML_FULL;
 						}
-						logger.debug("Getting latest version info from " + url);
+						logger.debug("Getting latest version info from " + shortUrl);
 			    		try {
-							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(url), getPlatform(), false);
+							latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(shortUrl), getPlatform(), false);
 						} catch (Exception e1) {
-							logger.debug("Failed to access " + url, e1);
-							logger.debug("Getting latest version info from " + ZAP_VERSIONS_DEV_XML_FULL);
-							url = ZAP_VERSIONS_DEV_XML_FULL;
+							logger.debug("Failed to access " + shortUrl, e1);
+							logger.debug("Getting latest version info from " + longUrl);
 				    		try {
-				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(url), getPlatform(), false);
+				    			latestVersionInfo = new AddOnCollection(getRemoteConfigurationUrl(longUrl), getPlatform(), false);
 				    		} catch (SSLHandshakeException e2) {
 					    		if (callback != null) {
-					    			callback.insecureUrl(url, e2);
+					    			callback.insecureUrl(longUrl, e2);
 					    		}
 							} catch (InvalidCfuUrlException e2) {
 					    		if (callback != null) {
-					    			callback.insecureUrl(url, e2);
+					    			callback.insecureUrl(longUrl, e2);
 					    		}
 							} catch (Exception e2) {
-								logger.debug("Failed to access " + ZAP_VERSIONS_DEV_XML_FULL, e2);
+								logger.debug("Failed to access " + longUrl, e2);
 							}
 						}
 			    		if (callback != null && latestVersionInfo != null) {
