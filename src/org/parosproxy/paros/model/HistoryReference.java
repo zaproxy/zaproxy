@@ -163,7 +163,7 @@ public class HistoryReference {
     /**
      * A HTTP CONNECT request received (and processed) by the local proxy.
      * 
-     * @since TODO add version
+     * @since 2.5.0
      */
     public static final int TYPE_PROXY_CONNECT = 16;
 

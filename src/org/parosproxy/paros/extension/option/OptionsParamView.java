@@ -401,7 +401,7 @@ public class OptionsParamView extends AbstractParam {
 	 * Sets whether or not the HTTP CONNECT requests received by the local proxy should be (persisted and) shown in the UI.
 	 *
 	 * @param showConnectRequests {@code true} if the HTTP CONNECT requests should be shown, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #isShowLocalConnectRequests()
 	 */
 	public void setShowLocalConnectRequests(boolean showConnectRequests) {
@@ -417,7 +417,7 @@ public class OptionsParamView extends AbstractParam {
 	 * The default is to not show the HTTP CONNECT requests.
 	 *
 	 * @return {@code true} if the HTTP CONNECT requests should be shown, {@code false} otherwise
-	 * @since TODO add version
+	 * @since 2.5.0
 	 * @see #setShowLocalConnectRequests(boolean)
 	 */
 	public boolean isShowLocalConnectRequests() {
