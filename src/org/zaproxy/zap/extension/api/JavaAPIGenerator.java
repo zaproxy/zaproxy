@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,17 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class JavaAPIGenerator {
+
+	/**
+	 * The path of the package where the generated classes are deployed.
+	 */
+	private static final String TARGET_PACKAGE = "org/zaproxy/clientapi/gen";
+
+	/**
+	 * Default output directory is the "gen" package of subproject zap-clientapi (of zap-api-java project).
+	 */
+	private static final String DEFAULT_OUTPUT_DIR = "../zap-api-java/subprojects/zap-clientapi/src/main/java/" + TARGET_PACKAGE;
+
 	private File dir; 
 	private boolean optional = false;
 	
@@ -71,7 +84,7 @@ public class JavaAPIGenerator {
     }
     
     public JavaAPIGenerator() {
-    	dir = new File("src/org/zaproxy/clientapi/gen"); 
+    	dir = new File(DEFAULT_OUTPUT_DIR); 
     }
 
     public JavaAPIGenerator(String path, boolean optional) {
@@ -271,6 +284,11 @@ public class JavaAPIGenerator {
 	public static void main(String[] args) throws Exception {
 		// Command for generating a java version of the ZAP API
 		
+		if (!Files.exists(Paths.get(DEFAULT_OUTPUT_DIR))) {
+			System.err.println("The directory does not exist: " + Paths.get(DEFAULT_OUTPUT_DIR).toAbsolutePath());
+			System.exit(1);
+		}
+
 		JavaAPIGenerator wapi = new JavaAPIGenerator();
 		wapi.generateJavaFiles(ApiGeneratorUtils.getAllImplementors());
 		
