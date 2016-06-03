@@ -244,7 +244,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.loadTemplates(wrapper);
 
 		if (scriptUI != null) {
-			scriptUI.engineAdded(wrapper);
+			try {
+				scriptUI.engineAdded(wrapper);
+			} catch (Exception e) {
+				logger.error("An error occurred while notifying ScriptUI:", e);
+			}
 		}
 	}
 	
@@ -351,7 +355,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		logger.debug("Removing script engine: " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		if (this.engineWrappers.remove(wrapper)) {
 			if (scriptUI != null) {
-				scriptUI.engineRemoved(wrapper);
+				try {
+					scriptUI.engineRemoved(wrapper);
+				} catch (Exception e) {
+					logger.error("An error occurred while notifying ScriptUI:", e);
+				}
 			}
 
 			setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, null);
