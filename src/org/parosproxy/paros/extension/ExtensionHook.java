@@ -25,20 +25,27 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/10/25 Issue 1062: Added scannerhook to be added by extensions. 
+// ZAP: 2016/04/08 Allow to add ContextDataFactory
+// ZAP: 2016/05/30 Allow to add AddOnInstallationStatusListener
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.extension;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
 import org.parosproxy.paros.common.AbstractParam;
+import org.parosproxy.paros.core.proxy.ConnectRequestProxyListener;
 import org.parosproxy.paros.core.proxy.OverrideMessageProxyListener;
 import org.parosproxy.paros.core.proxy.ProxyListener;
 import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
+import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.SiteMapListener;
 
 
@@ -51,6 +58,16 @@ public class ExtensionHook {
 
     private Vector<ProxyListener> proxyListenerList = new Vector<>();
     private List<OverrideMessageProxyListener> overrideMessageProxyListenersList = new ArrayList<>();
+
+    /**
+     * The {@link ConnectRequestProxyListener}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addConnectionRequestProxyListener(ConnectRequestProxyListener)
+     * @see #getConnectRequestProxyListeners()
+     */
+    private List<ConnectRequestProxyListener> connectRequestProxyListeners;
     private Vector<SessionChangedListener> sessionListenerList = new Vector<>();
     private Vector<AbstractParam> optionsParamSetList = new Vector<>();
     // ZAP: Added support for site map listeners
@@ -59,6 +76,26 @@ public class ExtensionHook {
     private Vector<ScannerHook> scannerHookList = new Vector<>();
     private Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
     private List<AddonFilesChangedListener> addonFilesChangedListenerList = new ArrayList<>(); 
+
+    /**
+     * The {@link ContextDataFactory}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addContextDataFactory(ContextDataFactory)
+     * @see #getContextDataFactories()
+     */
+    private List<ContextDataFactory> contextDataFactories;
+
+    /**
+     * The {@link AddOnInstallationStatusListener}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addAddOnInstallationStatusListener(AddOnInstallationStatusListener)
+     * @see #getAddOnInstallationStatusListeners()
+     */
+    private List<AddOnInstallationStatusListener> addOnInstallationStatusListeners;
     
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -78,6 +115,41 @@ public class ExtensionHook {
 
     public void addProxyListener(ProxyListener listener) {
         proxyListenerList.add(listener);
+    }
+
+    /**
+     * Adds the given {@link ConnectRequestProxyListener} to the extension hook, to be later notified of CONNECT requests
+     * received by the local proxy.
+     * <p>
+     * By default, the {@code ConnectRequestProxyListener}s added are removed from the local proxy when the extension is
+     * unloaded.
+     *
+     * @param listener the {@code ConnectRequestProxyListener} that will be added and then notified
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since 2.5.0
+     */
+    public void addConnectionRequestProxyListener(ConnectRequestProxyListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Parameter listener must not be null.");
+        }
+
+        if (connectRequestProxyListeners == null) {
+            connectRequestProxyListeners = new ArrayList<>();
+        }
+        connectRequestProxyListeners.add(listener);
+    }
+
+    /**
+     * Gets the {@link ConnectRequestProxyListener}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ConnectRequestProxyListener}s, never {@code null}.
+     * @since 2.5.0
+     */
+    List<ConnectRequestProxyListener> getConnectRequestProxyListeners() {
+        if (connectRequestProxyListeners == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(connectRequestProxyListeners);
     }
     
     public void addSessionListener(SessionChangedListener listener) {
@@ -112,6 +184,38 @@ public class ExtensionHook {
     
     public void addAddonFilesChangedListener(AddonFilesChangedListener listener) {
     	addonFilesChangedListenerList.add(listener);
+    }
+
+    /**
+     * Adds the given {@code listener} to the extension hook, to be later notified of changes in the installation status of the
+     * add-ons.
+     *
+     * @param listener the listener that will be added and then notified
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since 2.5.0
+     */
+    public void addAddOnInstallationStatusListener(AddOnInstallationStatusListener listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Parameter listener must not be null.");
+        }
+
+        if (addOnInstallationStatusListeners == null) {
+            addOnInstallationStatusListeners = new ArrayList<>();
+        }
+        addOnInstallationStatusListeners.add(listener);
+    }
+
+    /**
+     * Gets the {@link AddOnInstallationStatusListener}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code AddOnInstallationStatusListener}s, never {@code null}.
+     * @since 2.5.0
+     */
+    List<AddOnInstallationStatusListener> getAddOnInstallationStatusListeners() {
+        if (addOnInstallationStatusListeners == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(addOnInstallationStatusListeners);
     }
 
     /**
@@ -188,5 +292,33 @@ public class ExtensionHook {
 
     public List<OverrideMessageProxyListener> getOverrideMessageProxyListenerList() {
         return overrideMessageProxyListenersList;
+    }
+
+    /**
+     * Adds the given {@link ContextDataFactory} to the extension hook, to be later added to the {@link Model}.
+     * <p>
+     * By default, the {@code ContextDataFactory}s added are removed from the {@code Model} when the extension is unloaded.
+     *
+     * @param contextDataFactory the {@code ContextDataFactory} that will be added to the {@code Model}
+     * @since 2.5.0
+     */
+    public void addContextDataFactory(ContextDataFactory contextDataFactory) {
+        if (contextDataFactories == null) {
+            contextDataFactories = new ArrayList<>();
+        }
+        contextDataFactories.add(contextDataFactory);
+    }
+
+    /**
+     * Gets the {@link ContextDataFactory}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ContextDataFactory}s, never {@code null}.
+     * @since 2.5.0
+     */
+    List<ContextDataFactory> getContextDataFactories() {
+        if (contextDataFactories == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(contextDataFactories);
     }
 }

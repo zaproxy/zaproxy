@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,7 +52,11 @@ Authentication.prototype.setAuthenticationMethod = function (contextid, authmeth
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams, 'apikey' : apikey}, callback);
+  var params = {'contextId' : contextid, 'authMethodName' : authmethodname, 'apikey' : apikey};
+  if (authmethodconfigparams && authmethodconfigparams !== null) {
+    params['authMethodConfigParams'] = authmethodconfigparams;
+  }
+  this.api.request('/authentication/action/setAuthenticationMethod/', params, callback);
 };
 
 Authentication.prototype.setLoggedInIndicator = function (contextid, loggedinindicatorregex, apikey, callback) {

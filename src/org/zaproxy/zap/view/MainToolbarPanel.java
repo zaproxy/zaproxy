@@ -23,20 +23,17 @@ package org.zaproxy.zap.view;
 import java.awt.GridBagConstraints;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
 
-import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.ButtonGroup;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JPanel;
 import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.ToolTipManager;
 
-import org.apache.commons.configuration.ConfigurationException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -61,16 +58,6 @@ public class MainToolbarPanel extends JPanel {
 	private JButton btnSession = null;
 	private JButton btnOptions = null;
 
-	private ButtonGroup expandButtons;
-	private JToggleButton btnExpandSites = null;
-	private JToggleButton btnExpandReports = null;
-	private JToggleButton btnExpandFull = null;
-
-	private boolean showtabiconnames = false;
-  	private ZapToggleButton btnShowTabIconNames = null;
-  	private JButton btnShowAllTabs = null;
-  	private JButton btnHideAllTabs = null;
-
 	public MainToolbarPanel () {
 		super();
 		initialise();
@@ -81,8 +68,6 @@ public class MainToolbarPanel extends JPanel {
 		setPreferredSize(DisplayUtils.getScaledDimension(getMaximumSize().width, 25));
 		setMaximumSize(DisplayUtils.getScaledDimension(getMaximumSize().width, 25));
 		this.setBorder(BorderFactory.createEtchedBorder());
-
-		expandButtons = new ButtonGroup();
 
 		GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 		GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -113,16 +98,6 @@ public class MainToolbarPanel extends JPanel {
 		toolbar.add(getBtnSnapshot());
 		toolbar.add(getBtnSession());
 		toolbar.add(getBtnOptions());
-		
-		toolbar.addSeparator();
-		toolbar.add(getShowAllTabs());
-		toolbar.add(getHideAllTabs());
-		toolbar.add(getShowTabIconNames());
-		toolbar.addSeparator();
-
-		toolbar.add(getBtnExpandSites());
-		toolbar.add(getBtnExpandReports());
-		toolbar.add(getBtnExpandFull());
 		
 		toolbar.addSeparator();
 	}
@@ -209,8 +184,13 @@ public class MainToolbarPanel extends JPanel {
 		return modeSelect;
 	}
 	
-	public void setMode (Mode mode) {
-		this.getModeSelect().setSelectedItem(Constant.messages.getString("view.toolbar.mode." + mode.name() + ".select"));
+	public void setMode (final Mode mode) {
+		SwingUtilities.invokeLater(new Runnable() {
+			@Override
+			public void run() {
+				getModeSelect().setSelectedItem(
+						Constant.messages.getString("view.toolbar.mode." + mode.name() + ".select"));
+			}});
 	}
 
 	private JButton getBtnNew() {
@@ -347,119 +327,13 @@ public class MainToolbarPanel extends JPanel {
 		return btnOptions;
 	}
 
-	private JToggleButton getBtnExpandSites() {
-		if (btnExpandSites == null) {
-			btnExpandSites = new JToggleButton(new ChangeDisplayOptionAction(
-					MainToolbarPanel.class.getResource("/resource/icon/expand_sites.png"),
-					View.DISPLAY_OPTION_LEFT_FULL));
-			btnExpandSites.setToolTipText(Constant.messages.getString("view.toolbar.expandSites"));
-			
-			expandButtons.add(btnExpandSites);
-		}
-		return btnExpandSites;
-	}
-
-	private JToggleButton getBtnExpandReports() {
-		if (btnExpandReports == null) {
-			btnExpandReports = new JToggleButton(new ChangeDisplayOptionAction(
-					MainToolbarPanel.class.getResource("/resource/icon/expand_info.png"),
-					View.DISPLAY_OPTION_BOTTOM_FULL));
-			btnExpandReports.setToolTipText(Constant.messages.getString("view.toolbar.expandInfo"));
-
-			expandButtons.add(btnExpandReports);
-		}
-		return btnExpandReports;
-	}
-
-	private JToggleButton getBtnExpandFull() {
-		if (btnExpandFull == null) {
-			btnExpandFull = new JToggleButton(new ChangeDisplayOptionAction(
-					MainToolbarPanel.class.getResource("/resource/icon/expand_full.png"),
-					View.DISPLAY_OPTION_TOP_FULL));
-			btnExpandFull.setToolTipText(Constant.messages.getString("view.toolbar.expandFull"));
-
-			expandButtons.add(btnExpandFull);
-		}
-		return btnExpandFull;
-	}
-
-
-	private void setShowTabIconNames(boolean showtabiconnames) {
-		this.showtabiconnames = showtabiconnames; 
-		btnShowTabIconNames.setSelected(showtabiconnames);
-	}
-
-	/*
-	 * Button for showing/hiding names and icons in tabs.
+	/**
+	 * @deprecated (2.5.0) No longer in use, the tool bar buttons are updated at the same time as the layout.
+	 * @see org.parosproxy.paros.view.MainFrame#setWorkbenchLayout(org.parosproxy.paros.view.WorkbenchPanel.Layout)
 	 */
-	private JToggleButton getShowTabIconNames() {
-		if (btnShowTabIconNames == null) {
-			btnShowTabIconNames = new ZapToggleButton();
-			btnShowTabIconNames.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_icon.png")));
-			btnShowTabIconNames.setToolTipText(Constant.messages.getString("view.toolbar.showNames"));
-			btnShowTabIconNames.setSelectedIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/ui_tab_text.png")));
-			btnShowTabIconNames.setSelectedToolTipText(Constant.messages.getString("view.toolbar.showIcons"));
-		  	setShowTabIconNames(Model.getSingleton().getOptionsParam().getViewParam().getShowTabNames());
-			DisplayUtils.scaleIcon(btnShowTabIconNames);
-
-			btnShowTabIconNames.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-				    setShowTabIconNames(getShowTabIconNames().isSelected());
-					Model.getSingleton().getOptionsParam().getViewParam().setShowTabNames(showtabiconnames);
-					try {
-						Model.getSingleton().getOptionsParam().getViewParam().getConfig().save();
-					} catch (ConfigurationException e1) {
-						logger.error(e1.getMessage(), e1);
-					}
-				}
-			});
-		}
-		return btnShowTabIconNames;
-	}
-	
-	private JButton getShowAllTabs() {
-		if (btnShowAllTabs == null) {
-			btnShowAllTabs = new JButton();
-			btnShowAllTabs.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/ui-tab-show.png")));
-			btnShowAllTabs.setToolTipText(Constant.messages.getString("menu.view.tabs.show"));
-			DisplayUtils.scaleIcon(btnShowAllTabs);
-
-			btnShowAllTabs.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					View.getSingleton().showAllTabs();
-				}
-			});
-		}
-		return btnShowAllTabs;
-	}
-
-	private JButton getHideAllTabs() {
-		if (btnHideAllTabs == null) {
-			btnHideAllTabs = new JButton();
-			btnHideAllTabs.setIcon(new ImageIcon(MainToolbarPanel.class.getResource("/resource/icon/fugue/ui-tab-hide.png")));
-			btnHideAllTabs.setToolTipText(Constant.messages.getString("menu.view.tabs.hide"));
-			DisplayUtils.scaleIcon(btnHideAllTabs);
-			
-			btnHideAllTabs.addActionListener(new java.awt.event.ActionListener() {
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					View.getSingleton().hideAllTabs();
-				}
-			});
-		}
-		return btnHideAllTabs;
-	}
-
+	@Deprecated
+	@SuppressWarnings("javadoc")
 	public void setDisplayOption(int option) {
-		if (option == View.DISPLAY_OPTION_BOTTOM_FULL) {
-			btnExpandReports.setSelected(true);
-    	} else if (option == View.DISPLAY_OPTION_LEFT_FULL) {
-      		btnExpandSites.setSelected(true);
-    	} else if (option == View.DISPLAY_OPTION_TOP_FULL) {
-      		btnExpandFull.setSelected(true);
-    	}
 	}
 
 	public void sessionChanged(Session session) {
@@ -468,30 +342,5 @@ public class MainToolbarPanel extends JPanel {
 			this.getBtnSnapshot().setEnabled(!session.isNewState());
 		}
 	}
-
-    private static class ChangeDisplayOptionAction extends AbstractAction {
-
-        private static final long serialVersionUID = 8323387638733162321L;
-
-        private final int displayOption;
-
-        public ChangeDisplayOptionAction(URL iconURL, int displayOption) {
-            super("", DisplayUtils.getScaledIcon(new ImageIcon(iconURL)));
-
-            this.displayOption = displayOption;
-        }
-
-        @Override
-        public void actionPerformed(ActionEvent evt) {
-            if (Model.getSingleton().getOptionsParam().getViewParam().getDisplayOption() != displayOption) {
-                View.getSingleton().getMainFrame().changeDisplayOption(displayOption);
-                try {
-                    Model.getSingleton().getOptionsParam().getConfig().save();
-                } catch (ConfigurationException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        }
-    }
 
 }

@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -52,8 +52,12 @@ class Authentication {
 		return $this->zap->request($this->zap->base . 'authentication/view/getLoggedOutIndicator/', array('contextId' => $contextid))->{'getLoggedOutIndicator'};
 	}
 
-	public function setAuthenticationMethod($contextid, $authmethodname, $authmethodconfigparams='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'authentication/action/setAuthenticationMethod/', array('contextId' => $contextid, 'authMethodName' => $authmethodname, 'authMethodConfigParams' => $authmethodconfigparams, 'apikey' => $apikey));
+	public function setAuthenticationMethod($contextid, $authmethodname, $authmethodconfigparams=NULL, $apikey='') {
+		$params = array('contextId' => $contextid, 'authMethodName' => $authmethodname, 'apikey' => $apikey);
+		if ($authmethodconfigparams !== NULL) {
+			$params['authMethodConfigParams'] = $authmethodconfigparams;
+		}
+		return $this->zap->request($this->zap->base . 'authentication/action/setAuthenticationMethod/', $params);
 	}
 
 	public function setLoggedInIndicator($contextid, $loggedinindicatorregex, $apikey='') {

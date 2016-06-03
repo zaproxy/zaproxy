@@ -60,6 +60,8 @@
 // ZAP: 2015/08/01 Remove code duplication in catch of exceptions, use installation directory in default config file
 // ZAP: 2015/11/11 Issue 2045: Dont copy old configs if -dir option used 
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
+// ZAP: 2016/02/17 Convert extensions' options to not use extensions' names as XML element names
+// ZAP: 2016/05/12 Use dev/weekly dir for plugin downloads when copying the existing 'release' config file
 
 package org.parosproxy.paros;
 
@@ -118,9 +120,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2004002;
+    private static final long VERSION_TAG = 2004003;
     
     // Old version numbers - for upgrade
+    private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
     private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
@@ -395,6 +398,11 @@ public final class Constant {
             		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
             		copier.copy(oldf,f);
             		
+            		if (isDevBuild() || isDailyBuild()) {
+            		    ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
+            		    newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
+            		    newConfig.save();
+            		}
             	} else {
             		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
             		copier.copy(getPathDefaultConfigFile().toFile(),f);
@@ -505,6 +513,9 @@ public final class Constant {
 	            	if (ver <= V_2_3_1_TAG) {
 	            		upgradeFrom2_3_1(config);
 	            	}
+                    if (ver <= V_2_4_3_TAG) {
+                        upgradeFrom2_4_3(config);
+                    }
 	            	log.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -763,6 +774,28 @@ public final class Constant {
         // Remove old authentication options no longer used
         config.clearProperty("connection.confirmRemoveAuth");
         config.clearTree("options.auth");
+    }
+
+    private void upgradeFrom2_4_3(XMLConfiguration config) {
+        List<Object[]> oldData = new ArrayList<>();
+        // Convert extensions' options to not use extensions' names as XML element names
+        for (Iterator<String> it = config.getKeys("ext"); it.hasNext();) {
+            String key = it.next();
+
+            Object[] data = new Object[2];
+            data[0] = key.substring(4);
+            data[1] = config.getBoolean(key);
+            oldData.add(data);
+        }
+        config.clearTree("ext");
+
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "extensions.extension(" + i + ").";
+            Object[] data = oldData.get(i);
+
+            config.setProperty(elementBaseKey + "name", data[0]);
+            config.setProperty(elementBaseKey + "enabled", data[1]);
+        }
     }
 
 	public static void setLocale (String loc) {

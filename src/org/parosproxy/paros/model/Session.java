@@ -53,6 +53,12 @@
 // ZAP: 2015/08/19 Change to use ZapXmlConfiguration instead of extending FileXML
 // ZAP: 2015/08/19 Issue 1789: Forced Browse/AJAX Spider messages not restored to Sites tab
 // ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2015/12/14 Issue 2119: Context's description not imported
+// ZAP: 2016/02/26 Issue 2273: Clear stats on session init
+// ZAP: 2016/05/02 Issue 2451: Only a single Data Driven Node can be saved in a context
+// ZAP: 2016/05/04 Changes to address issues related to ParameterParser
+// ZAP: 2016/05/10 Use empty String for (URL) parameters with no value
+// ZAP: 2016/05/24 Call Database.discardSession(long) in Session.discard()
 
 package org.parosproxy.paros.model;
 
@@ -63,6 +69,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -87,11 +94,13 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
 import org.zaproxy.zap.model.StructuralNodeModifier;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
+import org.zaproxy.zap.utils.Stats;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 
@@ -151,6 +160,8 @@ public class Session {
 		discardContexts();
 		// Always start with one context
 	    getNewContext(Constant.messages.getString("context.default.name"));
+	    
+	    Stats.clearAll();
 
 	}
 	
@@ -166,7 +177,7 @@ public class Session {
 
 	protected void discard() {
 	    try {
-	        model.getDb().getTableHistory().deleteHistorySession(getSessionId());
+	        model.getDb().discardSession(getSessionId());
         } catch (DatabaseException e) {
         	// ZAP: Log exceptions
         	log.warn(e.getMessage(), e);
@@ -454,6 +465,7 @@ public class Session {
 		    View.getSingleton().getSiteTreePanel().expandRoot();
 		}
 	    this.refreshScope();
+	    Stats.clearAll();
 
 		System.gc();
 	}
@@ -1249,7 +1261,7 @@ public class Session {
 		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CLASS, c.getPostParamParser().getClass().getCanonicalName());
 		config.setProperty(Context.CONTEXT_CONFIG_POSTPARSER_CONFIG, c.getPostParamParser().getConfig());
 		for (StructuralNodeModifier snm : c.getDataDrivenNodes()) {
-			config.setProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
+			config.addProperty(Context.CONTEXT_CONFIG_DATA_DRIVEN_NODES, snm.getConfig());
 		}
 		
 		model.exportContext(c, config);
@@ -1274,7 +1286,7 @@ public class Session {
 		
 		Context c = this.getNewContext(config.getString(Context.CONTEXT_CONFIG_NAME));
 
-		c.setDescription(Context.CONTEXT_CONFIG_DESC);
+		c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
 		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
 		for (Object obj : config.getList(Context.CONTEXT_CONFIG_INC_REGEXES)) {
 			c.addIncludeInContextRegex(obj.toString());
@@ -1383,6 +1395,38 @@ public class Session {
 	}
 
 	/**
+	 * Gets the parameters of the given {@code type} from the given {@code message}.
+	 * <p>
+	 * Parameters' names and values are in decoded form.
+	 *
+	 * @param msg the message whose parameters will be extracted from
+	 * @param type the type of parameters to extract
+	 * @return a {@code List} containing the parameters
+	 * @throws IllegalArgumentException if any of the parameters is {@code null} or if the given {@code type} is not
+	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#url url} or
+	 *			 {@link org.parosproxy.paros.network.HtmlParameter.Type#form form}.
+	 * @since 2.5.0
+	 * @see StandardParameterParser#getParameters(HttpMessage, org.parosproxy.paros.network.HtmlParameter.Type)
+	 */
+	public List<NameValuePair> getParameters(HttpMessage msg, HtmlParameter.Type type) {
+		if (msg == null) {
+			throw new IllegalArgumentException("Parameter msg must not be null.");
+		}
+		if (type == null) {
+			throw new IllegalArgumentException("Parameter type must not be null.");
+		}
+
+		switch (type) {
+		case form:
+			return this.getFormParamParser(msg.getRequestHeader().getURI().toString()).getParameters(msg, type);
+		case url:
+			return this.getUrlParamParser(msg.getRequestHeader().getURI().toString()).getParameters(msg, type);
+		default:
+			throw new IllegalArgumentException("The provided type is not supported: " + type);
+		}
+	}
+
+	/**
 	 * Returns the URL parameters for the given URL based on the parser associated with the
 	 * first context found that includes the URL, or the default parser if it is not
 	 * in a context
@@ -1391,7 +1435,15 @@ public class Session {
 	 * @throws URIException
 	 */
 	public Map<String, String> getUrlParams(URI uri) throws URIException {
-		return this.getUrlParamParser(uri.toString()).parse(uri.getQuery());
+		Map<String, String> map = new HashMap<>();
+		for (NameValuePair parameter : getUrlParamParser(uri.toString()).parseParameters(uri.getEscapedQuery())) {
+			String value = parameter.getValue();
+			if (value == null) {
+				value = "";
+			}
+			map.put(parameter.getName(), value);
+		}
+		return map;
 	}
 
 	/**

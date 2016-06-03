@@ -24,7 +24,8 @@
 // ZAP: 2013/08/21 Added a new encoding/decoding model for a correct parameter value interpretation
 // ZAP: 2014/01/06 Issue 965: Support 'single page' apps and 'non standard' parameter separators
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
-//
+// ZAP: 2016/05/04 Changed to use setParameters(int, List<NameValuePair>)
+
 package org.parosproxy.paros.core.scanner;
 
 import org.apache.commons.httpclient.URIException;
@@ -65,7 +66,7 @@ public class VariantURLQuery extends VariantAbstractQuery {
 
     @Override
     public void setMessage(HttpMessage msg) {
-       	this.setParams(NameValuePair.TYPE_QUERY_STRING, Model.getSingleton().getSession().getParams(msg, Type.url));
+       	this.setParameters(NameValuePair.TYPE_QUERY_STRING, Model.getSingleton().getSession().getParameters(msg, Type.url));
     }
 
     @Override

@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -44,7 +44,11 @@ SessionManagement.prototype.setSessionManagementMethod = function (contextid, me
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/sessionManagement/action/setSessionManagementMethod/', {'contextId' : contextid, 'methodName' : methodname, 'methodConfigParams' : methodconfigparams, 'apikey' : apikey}, callback);
+  var params = {'contextId' : contextid, 'methodName' : methodname, 'apikey' : apikey};
+  if (methodconfigparams && methodconfigparams !== null) {
+    params['methodConfigParams'] = methodconfigparams;
+  }
+  this.api.request('/sessionManagement/action/setSessionManagementMethod/', params, callback);
 };
 
 module.exports = SessionManagement;

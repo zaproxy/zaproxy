@@ -29,6 +29,7 @@ import org.parosproxy.paros.common.AbstractParam;
  * <li>Compact - allows the database to be compacted on exit.</li>
  * <li>Request Body Size - the size of the request body in the 'History' database table.</li>
  * <li>Response Body Size - the size of the response body in the 'History' database table.</li>
+ * <li>Recovery Log - if the recovery log should be enabled (HSQLDB option only).</li>
  * </ul>
  * </p>
  */
@@ -71,6 +72,11 @@ public class DatabaseParam extends AbstractParam {
     private static final String PARAM_NEW_SESSION_PROMPT = PARAM_BASE_KEY + ".newsessionprompt";
 
     /**
+     * The configuration key for database's recovery log option.
+     */
+    private static final String PARAM_RECOVERY_LOG_ENABLED = PARAM_BASE_KEY + ".recoverylog";
+
+    /**
      * The compact option, whether the database should be compacted on exit.
      * Default is {@code false}.
      * 
@@ -102,6 +108,15 @@ public class DatabaseParam extends AbstractParam {
     private int newSessionOption;
     
     private boolean newSessionPrompt;
+
+    /**
+     * Flag used to indicate whether or not database's recovery log is enabled.
+     * <p>
+     * Default is {@code true}.
+     * 
+     * @see #isRecoveryLogEnabled()
+     */
+    private boolean recoveryLogEnabled;
     
     public DatabaseParam() {
         super();
@@ -111,6 +126,7 @@ public class DatabaseParam extends AbstractParam {
 		responsebodysize = 16777216;
 		newSessionOption = NEW_SESSION_NOT_SPECIFIED;
 		newSessionPrompt = true;
+		recoveryLogEnabled = true;
     }
 
     /**
@@ -121,6 +137,7 @@ public class DatabaseParam extends AbstractParam {
      * <li>Compact - allows the database to be compacted on exit.</li>
      * <li>Request Body Size - the size of the request body in the 'History' database table.</li>
      * <li>Response Body Size - the size of the response body in the 'History' database table.</li>
+     * <li>Recovery Log - if the recovery log should be enabled (HSQLDB option only).</li>
      * </ul>
      * </p>
      */
@@ -131,6 +148,7 @@ public class DatabaseParam extends AbstractParam {
         responsebodysize = getConfig().getInt(PARAM_RESPONSE_BODY_SIZE, responsebodysize);
 		newSessionOption = getConfig().getInt(PARAM_NEW_SESSION_OPTION, newSessionOption);
 		newSessionPrompt = getConfig().getBoolean(PARAM_NEW_SESSION_PROMPT, newSessionPrompt);
+		recoveryLogEnabled = getConfig().getBoolean(PARAM_RECOVERY_LOG_ENABLED, recoveryLogEnabled);
     }
 
     /**
@@ -220,6 +238,29 @@ public class DatabaseParam extends AbstractParam {
 	public void setNewSessionPrompt(boolean newSessionPrompt) {
 		this.newSessionPrompt = newSessionPrompt;
 		getConfig().setProperty(PARAM_NEW_SESSION_PROMPT, newSessionPrompt);
+	}
+
+	/**
+	 * Tells whether or not database's recovery log is enabled.
+	 * 
+	 * @return {@code true} if database's recovery log is enabled, {@code false} otherwise
+	 * @see #setRecoveryLogEnabled(boolean)
+	 * @version 2.5.0
+	 */
+	public boolean isRecoveryLogEnabled() {
+		return recoveryLogEnabled;
+	}
+
+	/**
+	 * Sets whether or not database's recovery log is enabled.
+	 * 
+	 * @param enabled {@code true} if database's recovery log should be enabled, {@code false} otherwise
+	 * @see #isRecoveryLogEnabled()
+	 * @version 2.5.0
+	 */
+	public void setRecoveryLogEnabled(boolean enabled) {
+		this.recoveryLogEnabled = enabled;
+		getConfig().setProperty(PARAM_RECOVERY_LOG_ENABLED, Boolean.valueOf(recoveryLogEnabled));
 	}
 
 }

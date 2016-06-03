@@ -18,6 +18,7 @@
 package org.zaproxy.zap.extension.httppanel;
 
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.component.split.response.ResponseSplitComponent;
 import org.zaproxy.zap.view.HttpPanelManager;
 
@@ -35,7 +36,7 @@ public class HttpPanelResponse extends HttpPanel  {
 
 	@Override
 	protected void initComponents() {
-		addComponent(new ResponseSplitComponent(), Model.getSingleton().getOptionsParam().getConfig());
+		addComponent(new ResponseSplitComponent<HttpMessage>(), Model.getSingleton().getOptionsParam().getConfig());
 	}
 
 	@Override

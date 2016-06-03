@@ -99,8 +99,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	        extensionHook.getHookMenu().addEditMenuItem(getMenuNext());
 	        extensionHook.getHookMenu().addEditMenuItem(getMenuPrev());
 	        
-	        getSearchPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
-
 	        ExtensionHelp.enableHelpKey(getSearchPanel(), "ui.tabs.search");
 	    }
         API.getInstance().registerApiImplementor(new SearchAPI(this));
@@ -122,7 +120,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
 	private SearchPanel getSearchPanel() {
 		if (searchPanel == null) {
-			searchPanel = new SearchPanel();
+			searchPanel = new SearchPanel(getView());
 			searchPanel.setExtension(this);
 		}
 		return searchPanel;

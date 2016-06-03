@@ -63,6 +63,10 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
 
     private AddOnSearcher addOnSeacher;
 
+	/**
+	 * @deprecated (2.5.0) Replaced by {@link #AddOnsTableModel(AddOnCollection, int)}. It will be removed in a future release.
+	 */
+    @Deprecated
     public AddOnsTableModel(Comparator<AddOnWrapper> comparator, AddOnCollection addOnCollection, int progressColumn) {
         super();
 
@@ -73,6 +77,16 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
         this.addOnCollection = addOnCollection;
     }
 
+    public AddOnsTableModel(AddOnCollection addOnCollection, int progressColumn) {
+        super();
+
+        this.comparator = null;
+        this.wrappers = new ArrayList<>();
+        this.progressColumn = progressColumn;
+
+        this.addOnCollection = addOnCollection;
+    }
+    
     public void setAddOnCollection(AddOnCollection addOnCollection) {
         this.addOnCollection = addOnCollection;
     }
@@ -109,13 +123,18 @@ public abstract class AddOnsTableModel extends AbstractTableModel {
     protected void addAddOnWrapper(AddOn addOn, AddOnWrapper.Status status) {
         AddOnWrapper aow = createAddOnWrapper(addOn, status);
         int idx = 0;
-        for (; idx < getAddOnWrappers().size(); idx++) {
-            if (comparator.compare(aow, getAddOnWrappers().get(idx)) < 0) {
-                break;
-            }
+    	if (comparator != null) {
+    		for (; idx < getAddOnWrappers().size(); idx++) {
+        		if (comparator.compare(aow, getAddOnWrappers().get(idx)) < 0) {
+        			break;
+        		}
+                getAddOnWrappers().add(idx, aow);
+        	}
+        } else {
+        	idx = getAddOnWrappers().size();
+        	getAddOnWrappers().add(aow);
         }
 
-        getAddOnWrappers().add(idx, aow);
         fireTableRowsInserted(idx, idx);
 
         refreshEntries();

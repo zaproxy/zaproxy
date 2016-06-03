@@ -18,7 +18,8 @@
 package org.zaproxy.zap.spider;
 
 import java.net.CookieManager;
-import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
@@ -90,7 +91,7 @@ public class Spider {
 	private DefaultFetchFilter defaultFetchFilter;
 	
 	/** The seed list. */
-	private List<URI> seedList;
+	private LinkedHashSet<URI> seedList;
 	
 	/** The extension. */
 	private ExtensionSpider extension;
@@ -115,6 +116,9 @@ public class Spider {
 
 	/** The scan user. */
 	private User scanUser;
+	
+	/** The time the scan was started */
+	private long timeStarted;
 
 	/**
 	 * The initialized marks if the spidering process is completely started. It solves the problem
@@ -147,7 +151,7 @@ public class Spider {
 		this.model = model;
 		this.controller = new SpiderController(this, extension.getCustomParsers());
 		this.listeners = new LinkedList<>();
-		this.seedList = new ArrayList<>();
+		this.seedList = new LinkedHashSet<>();
 		this.cookieManager = new CookieManager();
 		this.scanContext = scanContext;
 		this.extension = extension;
@@ -422,6 +426,10 @@ public class Spider {
 	public void start() {
 
 		log.info("Starting spider...");
+		
+		this.timeStarted = System.currentTimeMillis();
+
+		fetchFilterSeeds();
 
 		// Check if seeds are available, otherwise the Spider will start, but will not have any
 		// seeds and will not stop.
@@ -451,13 +459,41 @@ public class Spider {
 
 		// Add the seeds
 		for (URI uri : seedList) {
-			if (log.isInfoEnabled()) {
-				log.info("Adding seed for spider: " + uri);
+			if (log.isDebugEnabled()) {
+				log.debug("Adding seed for spider: " + uri);
 			}
 			controller.addSeed(uri, HttpRequestHeader.GET);
 		}
 		// Mark the process as completely initialized
 		initialized = true;
+	}
+
+	/**
+	 * Filters the seed list using the current fetch filters, preventing any non-valid seed from being accessed.
+	 * 
+	 * @see #seedList
+	 * @see FetchFilter
+	 * @see SpiderController#getFetchFilters()
+	 * @since 2.5.0
+	 */
+	private void fetchFilterSeeds() {
+		if (seedList == null || seedList.isEmpty()) {
+			return;
+		}
+
+		for (Iterator<URI> it = seedList.iterator(); it.hasNext();) {
+			URI seed = it.next();
+			for (FetchFilter filter : controller.getFetchFilters()) {
+				FetchStatus filterReason = filter.checkFilter(seed);
+				if (filterReason != FetchStatus.VALID) {
+					if (log.isDebugEnabled()) {
+						log.debug("Seed: " + seed + " was filtered with reason: " + filterReason);
+					}
+					it.remove();
+					break;
+				}
+			}
+		}
 	}
 
 	/**
@@ -476,10 +512,13 @@ public class Spider {
 		}
 		
 		// Issue the shutdown command
-		this.threadPool.shutdownNow();
+		this.threadPool.shutdown();
 		try {
 			if (!this.threadPool.awaitTermination(2, TimeUnit.SECONDS)) {
 				log.warn("Failed to await for all spider threads to stop in the given time (2s)...");
+				for (Runnable task : this.threadPool.shutdownNow()) {
+					((SpiderTask) task).cleanup();
+				}
 			}
 		} catch (InterruptedException ignore) {
 			log.warn("Interrupted while awaiting for all spider threads to stop...");
@@ -501,6 +540,10 @@ public class Spider {
 	 * The Spidering process is complete.
 	 */
 	private void complete() {
+		if (stopped) {
+			return;
+		}
+
 		log.info("Spidering process is complete. Shutting down...");
 		this.stopped = true;
 		if (httpSender != null) {
@@ -517,7 +560,7 @@ public class Spider {
 			@Override
 			public void run() {
 				if (threadPool != null) {
-					threadPool.shutdownNow();
+					threadPool.shutdown();
 				}
 				// Notify the listeners -- in the meanwhile
 				notifyListenersSpiderComplete(true);
@@ -604,6 +647,11 @@ public class Spider {
 	 * SpiderTask.
 	 */
 	protected synchronized void postTaskExecution() {
+		if (stopped) {
+			// Stopped, so don't count the task(s) as done.
+			// (worker threads call this method even if the task was not really executed.)
+			return;
+		}
 		tasksDoneCount++;
 		int percentageComplete = tasksDoneCount * 100 / tasksTotalCount;
 
@@ -631,6 +679,14 @@ public class Spider {
 	 * @return true, if is stopped
 	 */
 	public boolean isStopped() {
+		if (! stopped && this.spiderParam.getMaxDuration() > 0) {
+			// Check to see if the scan has exceeded the specified maxDuration
+			if (TimeUnit.MILLISECONDS.toMinutes(System.currentTimeMillis() - this.timeStarted) > 
+					this.spiderParam.getMaxDuration()) {
+				log.info("Spidering process has exceeded maxDuration of " + this.spiderParam.getMaxDuration() + " minute(s)");
+				this.complete();
+			}
+		}
 		return stopped;
 	}
 

@@ -400,8 +400,8 @@ public class AlertViewPanel extends AbstractPanel {
 		alertUrl.setText(alert.getUri());
 		
 		if (editable) {
-			nameListModel.addElement(alert.getAlert());
-			alertEditName.setSelectedItem(alert.getAlert());
+			nameListModel.addElement(alert.getName());
+			alertEditName.setSelectedItem(alert.getName());
 			alertEditRisk.setSelectedItem(Alert.MSG_RISK[alert.getRisk()]);
 			alertEditConfidence.setSelectedItem(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 			alertEditParam.setSelectedItem(alert.getParam());
@@ -413,7 +413,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertEditWascId.setValue(alert.getWascId());
 			
 		} else {
-			alertName.setText(alert.getAlert());
+			alertName.setText(alert.getName());
 	
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
 	    	if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
@@ -526,7 +526,7 @@ public class AlertViewPanel extends AbstractPanel {
 		if (! editable && originalAlert != null) {
 			Alert alert = originalAlert.newInstance();
 			alert.setAlertId(originalAlert.getAlertId());
-			alert.setAlert((String)alertEditName.getSelectedItem());
+			alert.setName((String)alertEditName.getSelectedItem());
 			alert.setParam((String)alertEditParam.getSelectedItem());
 			alert.setRiskConfidence(alertEditRisk.getSelectedIndex(), 
 					alertEditConfidence.getSelectedIndex());

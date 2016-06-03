@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -63,8 +63,12 @@ class Script {
 	/**
 	 * Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
 	 */
-	public function load($scriptname, $scripttype, $scriptengine, $filename, $scriptdescription='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'script/action/load/', array('scriptName' => $scriptname, 'scriptType' => $scripttype, 'scriptEngine' => $scriptengine, 'fileName' => $filename, 'scriptDescription' => $scriptdescription, 'apikey' => $apikey));
+	public function load($scriptname, $scripttype, $scriptengine, $filename, $scriptdescription=NULL, $apikey='') {
+		$params = array('scriptName' => $scriptname, 'scriptType' => $scripttype, 'scriptEngine' => $scriptengine, 'fileName' => $filename, 'apikey' => $apikey);
+		if ($scriptdescription !== NULL) {
+			$params['scriptDescription'] = $scriptdescription;
+		}
+		return $this->zap->request($this->zap->base . 'script/action/load/', $params);
 	}
 
 	/**

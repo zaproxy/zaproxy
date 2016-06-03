@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -40,8 +40,11 @@ class authentication(object):
     def get_logged_out_indicator(self, contextid):
         return next(self.zap._request(self.zap.base + 'authentication/view/getLoggedOutIndicator/', {'contextId' : contextid}).itervalues())
 
-    def set_authentication_method(self, contextid, authmethodname, authmethodconfigparams='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', {'contextId' : contextid, 'authMethodName' : authmethodname, 'authMethodConfigParams' : authmethodconfigparams, 'apikey' : apikey}).itervalues())
+    def set_authentication_method(self, contextid, authmethodname, authmethodconfigparams=None, apikey=''):
+        params = {'contextId' : contextid, 'authMethodName' : authmethodname, 'apikey' : apikey}
+        if authmethodconfigparams is not None:
+            params['authMethodConfigParams'] = authmethodconfigparams
+        return next(self.zap._request(self.zap.base + 'authentication/action/setAuthenticationMethod/', params).itervalues())
 
     def set_logged_in_indicator(self, contextid, loggedinindicatorregex, apikey=''):
         return next(self.zap._request(self.zap.base + 'authentication/action/setLoggedInIndicator/', {'contextId' : contextid, 'loggedInIndicatorRegex' : loggedinindicatorregex, 'apikey' : apikey}).itervalues())

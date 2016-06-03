@@ -40,6 +40,8 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/08/24 Issue 1849: Option to merge related issues in reports
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
+// ZAP: 2016/02/26 Deprecate alert as an element of Alert in favour of name
+// ZAP: 2016/05/25 Normalise equals/hashCode/compareTo
 
 package org.parosproxy.paros.core.scanner;
 
@@ -56,7 +58,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 
 
-public class Alert implements Comparable<Object>  {
+public class Alert implements Comparable<Alert>  {
 
 	public static final int RISK_INFO 	= 0;
 	public static final int RISK_LOW 	= 1;
@@ -95,7 +97,7 @@ public class Alert implements Comparable<Object>  {
 	
 	private int		alertId = -1;	// ZAP: Changed default alertId
 	private int		pluginId = 0;
-	private String 	alert = "";
+	private String name = "";
 	private int risk = RISK_INFO;
 	/**
 	 * @deprecated
@@ -131,10 +133,10 @@ public class Alert implements Comparable<Object>  {
 		
 	}
 	
-	public Alert(int pluginId, int risk, int confidence, String alert) {
+	public Alert(int pluginId, int risk, int confidence, String name) {
 		this(pluginId);
 		setRiskConfidence(risk, confidence);
-		setAlert(alert);
+		setName(name);
 	}
 
 	public Alert(RecordAlert recordAlert) {
@@ -185,13 +187,23 @@ public class Alert implements Comparable<Object>  {
 		this.risk = risk;
 		this.confidence = confidence;
 	}
-	
+	/**
+	 * @deprecated (2.5.0) Replaced by {@link #setName}.
+	 * Use of alert has been deprecated in favour of using name.
+	 */
+	@Deprecated
 	public void setAlert(String alert) {
-	    if (alert == null) return;
-	    // ZAP: Changed to not create a new String.
-	    this.alert = alert;
+	    setName(alert);
 	}
-	
+	/**
+	 * Sets the name of the alert to name
+	 * @param name the name to set for the alert
+	 * @since 2.5.0
+	 */
+	public void setName(String name) {
+	    if (name == null) return;
+	    this.name = name;
+	}
 	
 	/**
 	 * @deprecated (2.2.0) Replaced by
@@ -289,9 +301,7 @@ public class Alert implements Comparable<Object>  {
 	}
 	
 	@Override
-	public int compareTo(Object o2) throws ClassCastException {
-		Alert alert2 = (Alert) o2;
-		
+	public int compareTo(Alert alert2) {
 		if (risk < alert2.risk) {
 			return -1;
 		} else if (risk > alert2.risk) {
@@ -304,7 +314,13 @@ public class Alert implements Comparable<Object>  {
 			return 1;
 		}
 		
-		int result = alert.compareToIgnoreCase(alert2.alert);
+		if (pluginId < alert2.pluginId) {
+			return -1;
+		} else if (pluginId > alert2.pluginId) {
+			return 1;
+		}
+
+		int result = name.compareToIgnoreCase(alert2.name);
 		if (result != 0) {
 			return result;
 		}
@@ -321,8 +337,30 @@ public class Alert implements Comparable<Object>  {
 			return result;
 		}
 		
-		return otherInfo.compareToIgnoreCase(alert2.otherInfo);
-	} 
+		result = otherInfo.compareToIgnoreCase(alert2.otherInfo);
+		if (result != 0) {
+			return result;
+		}
+
+		result = compareStrings(evidence, alert2.evidence);
+		if (result != 0) {
+			return result;
+		}
+
+		return compareStrings(attack, alert2.attack);
+	}
+
+	private int compareStrings(String string, String otherString) {
+		if (string == null) {
+			if (otherString == null) {
+				return 0;
+			}
+			return -1;
+		} else if (otherString == null) {
+			return 1;
+		}
+		return string.compareTo(otherString);
+	}
 
 
 	/**
@@ -330,24 +368,78 @@ public class Alert implements Comparable<Object>  {
 	*/
 	@Override
 	public boolean equals(Object obj) {
-		Alert item = null;
-		if (obj instanceof Alert) {
-			item = (Alert) obj;
-			if ((pluginId == item.pluginId) && alert.equals(item.alert) && uri.equalsIgnoreCase(item.uri)
-				&& param.equalsIgnoreCase(item.param) && otherInfo.equalsIgnoreCase(item.otherInfo)) {
-				return true;
-			}
+		if (this == obj) {
+			return true;
 		}
-		return false;
+		if (obj == null) {
+			return false;
+		}
+		if (getClass() != obj.getClass()) {
+			return false;
+		}
+
+		Alert item = (Alert) obj;
+		if (risk != item.risk) {
+			return false;
+		}
+		if (confidence != item.confidence) {
+			return false;
+		}
+		if (pluginId != item.pluginId) {
+			return false;
+		}
+		if (!name.equals(item.name)) {
+			return false;
+		}
+		if (!uri.equalsIgnoreCase(item.uri)) {
+			return false;
+		}
+		if (!param.equalsIgnoreCase(item.param)) {
+			return false;
+		}
+		if (!otherInfo.equalsIgnoreCase(item.otherInfo)) {
+			return false;
+		}
+		if (evidence == null) {
+			if (item.evidence != null) {
+				return false;
+			}
+		} else if (!evidence.equals(item.evidence)) {
+			return false;
+		}
+		if (attack == null) {
+			if (item.attack != null) {
+				return false;
+			}
+		} else if (!attack.equals(item.attack)) {
+			return false;
+		}
+		return true;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + risk;
+		result = prime * result + confidence;
+		result = prime * result + ((evidence == null) ? 0 : evidence.hashCode());
+		result = prime * result + name.hashCode();
+		result = prime * result + otherInfo.hashCode();
+		result = prime * result + param.hashCode();
+		result = prime * result + pluginId;
+		result = prime * result + uri.hashCode();
+		result = prime * result + ((attack == null) ? 0 : attack.hashCode());
+		return result;
+	}
+
 	/**
 	Create a new instance of AlertItem with same members.
 	*/
 	public Alert newInstance() {
 		Alert item = new Alert(this.pluginId);
 		item.setRiskConfidence(this.risk, this.confidence);
-		item.setAlert(this.alert);
+		item.setName(this.name);
 		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.historyRef);
 		return item;
 	}
@@ -356,7 +448,8 @@ public class Alert implements Comparable<Object>  {
 		StringBuilder sb = new StringBuilder(150); // ZAP: Changed the type to StringBuilder.
 		sb.append("<alertitem>\r\n");
 		sb.append("  <pluginid>").append(pluginId).append("</pluginid>\r\n");
-		sb.append("  <alert>").append(replaceEntity(alert)).append("</alert>\r\n");
+		sb.append("  <alert>").append(replaceEntity(name)).append("</alert>\r\n"); //Deprecated in 2.5.0, maintain for compatibility with custom code
+		sb.append("  <name>").append(replaceEntity(name)).append("</name>\r\n");
 		sb.append("  <riskcode>").append(risk).append("</riskcode>\r\n");
 		sb.append("  <confidence>").append(confidence).append("</confidence>\r\n");
 		sb.append("  <riskdesc>").append(replaceEntity(MSG_RISK[risk] + " (" + MSG_CONFIDENCE[confidence] + ")")).append("</riskdesc>\r\n");
@@ -392,12 +485,21 @@ public class Alert implements Comparable<Object>  {
 	public String paragraph(String text) {
 		return "<p>" + text.replaceAll("\\r\\n","</p><p>").replaceAll("\\n","</p><p>") + "</p>";
 	}
-    
-    /**
-     * @return Returns the alert.
-     */
+	/**
+	 * @deprecated (2.5.0) Replaced by {@link #getName}.
+	 * Use of alert has been deprecated in favour of using name.
+	 * @return Returns the alert.
+	 */
+	@Deprecated
     public String getAlert() {
-        return alert;
+        return name;
+    }
+	/**
+	 * @return Returns the name of the alert.
+	 * @since 2.5.0
+	 */
+    public String getName() {
+        return name;
     }
     /**
      * @return Returns the description.

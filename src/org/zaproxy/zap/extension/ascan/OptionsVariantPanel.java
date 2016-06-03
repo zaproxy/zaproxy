@@ -23,6 +23,8 @@ import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ItemEvent;
+import java.awt.event.ItemListener;
 
 import javax.swing.JCheckBox;
 import javax.swing.JLabel;
@@ -55,6 +57,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     private JCheckBox chkInjectableUrlPath = null;
     private JCheckBox chkInjectablePostData = null;
     private JCheckBox chkInjectableHeaders = null;
+    private JCheckBox chkInjectableHeadersAllRequests;
     private JCheckBox chkInjectableCookie = null;
     
     // Checkbox for RPC to be enabled definitions
@@ -115,8 +118,11 @@ public class OptionsVariantPanel extends AbstractParamPanel {
                     this.getChkInjectableHeaders(),
                     LayoutHelper.getGBC(0, 4, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
             panelInjectable.add(
+                    this.getChkInjectableHeadersAllRequests(),
+                    LayoutHelper.getGBC(0, 5, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 32, 2, 2)));
+            panelInjectable.add(
                     this.getChkInjectableCookie(),
-                    LayoutHelper.getGBC(0, 5, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
+                    LayoutHelper.getGBC(0, 6, 1, 1.0D, 0, GridBagConstraints.HORIZONTAL, new Insets(2, 8, 2, 2)));
             
             panelVariant.add(
                     new JLabel(Constant.messages.getString("variant.options.injectable.label")),
@@ -200,6 +206,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkInjectableUrlPath().setSelected((targets & ScannerParam.TARGET_URLPATH) != 0);
         this.getChkInjectablePostData().setSelected((targets & ScannerParam.TARGET_POSTDATA) != 0);
         this.getChkInjectableHeaders().setSelected((targets & ScannerParam.TARGET_HTTPHEADERS) != 0);
+        this.getChkInjectableHeadersAllRequests().setSelected(param.isScanHeadersAllRequests());
+        this.getChkInjectableHeadersAllRequests().setEnabled(getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setSelected((targets & ScannerParam.TARGET_COOKIE) != 0);
 
         int rpcEnabled = param.getTargetParamsEnabledRPC();
@@ -262,6 +270,8 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             targets |= ScannerParam.TARGET_HTTPHEADERS;
         }
         
+        param.setScanHeadersAllRequests(getChkInjectableHeadersAllRequests().isSelected());
+
         if (this.getChkInjectableCookie().isSelected()) {
             targets |= ScannerParam.TARGET_COOKIE;
         }
@@ -313,6 +323,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getChkInjectableUrlPath().setEnabled(enabled);
         this.getChkInjectablePostData().setEnabled(enabled);
         this.getChkInjectableHeaders().setEnabled(enabled);
+        this.getChkInjectableHeadersAllRequests().setEnabled(enabled && getChkInjectableHeaders().isSelected());
         this.getChkInjectableCookie().setEnabled(enabled);
          
         this.getChkRPCMultipart().setEnabled(enabled);
@@ -373,8 +384,27 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         if (chkInjectableHeaders == null) {
             chkInjectableHeaders = new JCheckBox();
             chkInjectableHeaders.setText(Constant.messages.getString("variant.options.injectable.headers.label"));
+            chkInjectableHeaders.addItemListener(new ItemListener() {
+
+                @Override
+                public void itemStateChanged(ItemEvent e) {
+                    getChkInjectableHeadersAllRequests().setEnabled(e.getStateChange() == ItemEvent.SELECTED);
+
+                }
+            });
         }
         return chkInjectableHeaders;
+    }
+
+    private JCheckBox getChkInjectableHeadersAllRequests() {
+        if (chkInjectableHeadersAllRequests == null) {
+            chkInjectableHeadersAllRequests = new JCheckBox();
+            chkInjectableHeadersAllRequests
+                    .setText(Constant.messages.getString("variant.options.injectable.headersAllRequests.label"));
+            chkInjectableHeadersAllRequests
+                    .setToolTipText(Constant.messages.getString("variant.options.injectable.headersAllRequests.toolTip"));
+        }
+        return chkInjectableHeadersAllRequests;
     }
 
     private JCheckBox getChkInjectableCookie() {
@@ -446,6 +476,7 @@ public class OptionsVariantPanel extends AbstractParamPanel {
      */
     private static class ExcludedParameterPanel extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
 
+        private static final long serialVersionUID = 1L;
         private static final String REMOVE_DIALOG_TITLE = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.title");
         private static final String REMOVE_DIALOG_TEXT = Constant.messages.getString("variant.options.excludedparam.dialog.token.remove.text");
 

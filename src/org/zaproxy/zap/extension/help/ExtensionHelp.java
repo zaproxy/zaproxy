@@ -20,9 +20,12 @@
 package org.zaproxy.zap.extension.help;
 
 import java.awt.Component;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.Map.Entry;
+import java.util.WeakHashMap;
 
 import javax.help.CSH;
 import javax.help.HelpBroker;
@@ -30,14 +33,20 @@ import javax.help.HelpSet;
 import javax.help.SwingHelpUtilities;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JRootPane;
 import javax.swing.KeyStroke;
+import javax.swing.UIManager;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.ExtensionFactory;
+import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -45,6 +54,16 @@ import org.zaproxy.zap.view.ZapMenuItem;
  * Loads the core help files and provides GUI elements to access them.
  */
 public class ExtensionHelp extends ExtensionAdaptor {
+
+	/**
+	 * The name of the property that has the {@code HelpSet}, assigned to a {@code JComponent}.
+	 */
+	private static final String HELP_SET_PROPERTY = "HelpSet";
+
+	/**
+	 * The name of the property that has the ID of the help page, assigned to a {@code JComponent}.
+	 */
+	private static final String HELP_ID_PROPERTY = "HelpID";
 
 	private static final String HELP_SET_FILE_NAME = "helpset";
 	public static final ImageIcon HELP_ICON = DisplayUtils.getScaledIcon(
@@ -55,6 +74,24 @@ public class ExtensionHelp extends ExtensionAdaptor {
 
 	private static HelpSet hs = null;
 	private static HelpBroker hb = null;
+
+	/**
+	 * The {@code ActionListener} to show the help dialogue (with contents matching the focused UI component, if available).
+	 * <p>
+	 * Lazily initialised.
+	 * 
+	 * @see #createHelpBroker()
+	 */
+	private static ActionListener showHelpActionListener;
+
+	/**
+	 * A {@code WeakHashMap} of {@code JComponent}s to the ID of the help page assigned to them.
+	 * <p>
+	 * Used to add/remove the help page from the components when the help add-on is installed/uninstalled.
+	 * 
+	 * @see #setHelpEnabled(boolean)
+	 */
+	private static WeakHashMap<JComponent, String> componentsWithHelp;
 
 	private static final Logger logger = Logger.getLogger(ExtensionHelp.class);
 	
@@ -78,11 +115,12 @@ public class ExtensionHelp extends ExtensionAdaptor {
         this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	
- 	@Override
-	public void init() {
-		super.init();
+	@Override
+	public void initView(ViewDelegate view) {
+		super.initView(view);
 
 		SwingHelpUtilities.setContentViewerUI(BasicOnlineContentViewerUI.class.getCanonicalName());
+		UIManager.getDefaults().put("ZapHelpSearchNavigatorUI", ZapBasicSearchNavigatorUI.class.getCanonicalName());
 	}
 
 	@Override
@@ -95,10 +133,95 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	        View.getSingleton().addMainToolbarSeparator();
 	        View.getSingleton().addMainToolbarButton(this.getHelpButton());
 
+            enableHelpKey(this.getView().getSiteTreePanel(), "ui.tabs.sites");
+            enableHelpKey(this.getView().getRequestPanel(), "ui.tabs.request");
+            enableHelpKey(this.getView().getResponsePanel(), "ui.tabs.response");
+
+            setHelpEnabled(getHelpBroker() != null);
+
+            extensionHook.addAddOnInstallationStatusListener(new AddOnInstallationStatusListenerImpl());
 	    }
 
 	}
 	
+	/**
+	 * Tells whether or not the help is available.
+	 * <p>
+	 * The help is available when the help add-on for the currently set {@code Locale} is installed.
+	 *
+	 * @return {@code true} if the help is available, {@code false} otherwise
+	 * @since 2.5.0
+	 */
+	public boolean isHelpAvailable() {
+		return hb != null;
+	}
+
+	/**
+	 * Sets whether or not the help is enabled (menu item, buttons and help for the components).
+	 * <p>
+	 * The call to this method has no effect if the view is not initialised.
+	 * 
+	 * @param enabled {@code true} if the help should be enabled, {@code false} otherwise
+	 * @see #findHelpSetUrl()
+	 */
+	private void setHelpEnabled(boolean enabled) {
+		if (getView() == null) {
+			return;
+		}
+
+		JRootPane rootPane = getView().getMainFrame().getRootPane();
+		if (enabled && findHelpSetUrl() != null) {
+			createHelpBroker();
+
+			getMenuHelpZapUserGuide().addActionListener(showHelpActionListener);
+			getMenuHelpZapUserGuide().setToolTipText(null);
+			getMenuHelpZapUserGuide().setEnabled(true);
+
+			// Enable the top level F1 help key
+			hb.enableHelpKey(rootPane, "zap.intro", hs, "javax.help.SecondaryWindow", null);
+
+			for (Entry<JComponent, String> entry : componentsWithHelp.entrySet()) {
+				hb.enableHelp(entry.getKey(), entry.getValue(), hs);
+			}
+
+			getHelpButton().setToolTipText(Constant.messages.getString("help.button.tooltip"));
+			getHelpButton().setEnabled(true);
+
+		} else {
+			String toolTipNoHelp = Constant.messages.getString("help.error.nohelp");
+			getMenuHelpZapUserGuide().setEnabled(false);
+			getMenuHelpZapUserGuide().setToolTipText(toolTipNoHelp);
+			getMenuHelpZapUserGuide().removeActionListener(showHelpActionListener);
+
+			rootPane.unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_HELP, 0));
+			rootPane.unregisterKeyboardAction(KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0));
+			removeHelpProperties(rootPane);
+
+			for (JComponent component : componentsWithHelp.keySet()) {
+				removeHelpProperties(component);
+			}
+
+			getHelpButton().setEnabled(false);
+			getHelpButton().setToolTipText(toolTipNoHelp);
+
+			hb = null;
+			hs = null;
+			showHelpActionListener = null;
+		}
+	}
+
+	/**
+	 * Removes the help properties from the given component.
+	 *
+	 * @param component the component whose help properties will be removed, must not be {@code null}
+	 * @see #HELP_ID_PROPERTY
+	 * @see #HELP_SET_PROPERTY
+	 */
+	private void removeHelpProperties(JComponent component) {
+		component.putClientProperty(HELP_ID_PROPERTY, null);
+		component.putClientProperty(HELP_SET_PROPERTY, null);
+	}
+
 	public static HelpBroker getHelpBroker() {
 		if (hb == null) {
 			createHelpBroker();
@@ -109,21 +232,50 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static synchronized void createHelpBroker() {
 		if (hb == null) {
 			try {
-				ClassLoader cl = ExtensionFactory.getAddOnLoader();  
-				URL hsUrl = HelpSet.findHelpSet( cl, HELP_SET_FILE_NAME, Constant.getLocale());
+				URL hsUrl = findHelpSetUrl();
 				if (hsUrl != null) {
-					hs = new HelpSet(cl, hsUrl);
+					hs = new HelpSet(ExtensionFactory.getAddOnLoader(), hsUrl);
 					hb = hs.createHelpBroker();
+					showHelpActionListener = new CSH.DisplayHelpFromFocus(hb);
 				}
 			} catch (Exception e) {
 				logger.error(e.getMessage(), e);
 			}
 		}
 	}
+
+	/**
+	 * Finds and returns the {@code URL} to the {@code HelpSet} that matches the currently set {@code Locale}.
+	 * <p>
+	 * The name of the {@code HelpSet} searched is {@value #HELP_SET_FILE_NAME}.
+	 *
+	 * @return the {@code URL} to the {@code HelpSet}, {@code null} if not found
+	 * @see Constant#getLocale()
+	 * @see HelpSet
+	 */
+	private static URL findHelpSetUrl() {
+		return HelpSet.findHelpSet(ExtensionFactory.getAddOnLoader(), HELP_SET_FILE_NAME, Constant.getLocale());
+	}
 	
-	public static void enableHelpKey (Component component, String key) {
-		if (getHelpBroker() != null) {
-			hb.enableHelp(component, key, hs);
+	/**
+	 * Enables the help for the given component using the given help page ID.
+	 * <p>
+	 * The help page is shown when the help keyboard shortcut (F1) is pressed, while the component is focused.
+	 *
+	 * @param component the component that will have a help page assigned
+	 * @param id the ID of the help page
+	 */
+	public static void enableHelpKey (Component component, String id) {
+		if (component instanceof JComponent) {
+			JComponent jComponent = (JComponent) component;
+			if (componentsWithHelp == null) {
+				componentsWithHelp = new WeakHashMap<>();
+			}
+			componentsWithHelp.put(jComponent, id);
+		}
+
+		if (hb != null) {
+			hb.enableHelp(component, id, hs);
 		}
 	}
 
@@ -166,32 +318,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		if (menuHelpZap == null) {
 			menuHelpZap = new ZapMenuItem("help.menu.guide",
 					KeyStroke.getKeyStroke(KeyEvent.VK_F1, 0, false));
-			
-			if (getHelpBroker() != null) {
-
-				// Set up the help menu item
-				menuHelpZap.addActionListener(
-						new CSH.DisplayHelpFromFocus(hb));
-
-				// Enable the top level F1 help key
-				hb.enableHelpKey(this.getView().getMainFrame().getRootPane(), 
-						"zap.intro", hs, "javax.help.SecondaryWindow", null);
-
-				// Register all of the main tabs
-
-				hb.enableHelp(this.getView().getSiteTreePanel(), 
-						"ui.tabs.sites", hs);
-				
-				hb.enableHelp(this.getView().getRequestPanel(), 
-						"ui.tabs.request", hs);
-				hb.enableHelp(this.getView().getResponsePanel(), 
-						"ui.tabs.response", hs);
-
-			} else {
-				logger.debug("Failed to get helpset url");
-				menuHelpZap.setEnabled(false);
-				menuHelpZap.setToolTipText(Constant.messages.getString("help.error.nohelp"));
-			}
 		}
 		return menuHelpZap;
 	}
@@ -200,12 +326,6 @@ public class ExtensionHelp extends ExtensionAdaptor {
 		if (helpButton == null) {
 			helpButton = new JButton();
 			helpButton.setIcon(new ImageIcon(ExtensionHelp.class.getResource("/resource/icon/16/201.png")));
-			helpButton.setToolTipText(Constant.messages.getString("help.button.tooltip"));
-			
-			if (getHelpBroker() == null) {
-				helpButton.setEnabled(false);
-				helpButton.setToolTipText(Constant.messages.getString("help.error.nohelp"));
-			}
 			
 			helpButton.addActionListener(new java.awt.event.ActionListener() { 
 				@Override
@@ -243,4 +363,31 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	public boolean supportsDb(String type) {
     	return true;
     }
+
+    /**
+     * An {@code AddOnInstallationStatusListener} responsible to enabled/disable help UI components when the help add-on is
+     * installed/uninstalled.
+     */
+    private class AddOnInstallationStatusListenerImpl implements AddOnInstallationStatusListener {
+
+        @Override
+        public void addOnInstalled(AddOn addOn) {
+            if (hb == null && findHelpSetUrl() != null) {
+                setHelpEnabled(true);
+            }
+        }
+
+        @Override
+        public void addOnSoftUninstalled(AddOn addOn, boolean successfully) {
+            addOnUninstalled(addOn, successfully);
+        }
+
+        @Override
+        public void addOnUninstalled(AddOn addOn, boolean successfully) {
+            if (hb != null && findHelpSetUrl() == null) {
+                setHelpEnabled(false);
+            }
+        }
+    }
+
 }

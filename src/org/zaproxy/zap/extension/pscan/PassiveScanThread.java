@@ -100,13 +100,8 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					logger.error("Failed to read record " + currentId + " from History table", e);
 				}
 
-				if (href != null && 
-						(href.getHistoryType() == HistoryReference.TYPE_PROXIED ||
-						href.getHistoryType() == HistoryReference.TYPE_ZAP_USER ||
-						href.getHistoryType() == HistoryReference.TYPE_SPIDER ||
-						href.getHistoryType() == HistoryReference.TYPE_SPIDER_AJAX)) {
+				if (href != null) {
 					try {
-						// Note that scanning TYPE_SCANNER records will result in a loop ;)
 						// Parse the record
 						HttpMessage msg = href.getHttpMessage();
 						String response = msg.getResponseHeader().toString() + msg.getResponseBody().toString();
@@ -117,7 +112,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 								if (shutDown) {
 									return;
 								}
-								if (scanner.isEnabled()) {
+								if (scanner.isEnabled() && scanner.appliesToHistoryType(href.getHistoryType())) {
 									scanner.setParent(this);
 									scanner.scanHttpRequestSend(msg, href.getHistoryId());
 									if (msg.isResponseFromTargetHost()) {
@@ -182,14 +177,6 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 		if (currentId != id) {
 			logger.error("Alert id != currentId! " + id + " " + currentId);
-		}
-		alert.setSourceHistoryId(href.getHistoryId());
-		
-		try {
-			href.addAlert(alert);
-			notifyHistoryItemChanged(href);
-		} catch (Exception e) {
-			logger.error(e.getMessage(), e);
 		}
 	    // Raise the alert
 		extAlert.alertFound(alert, href);

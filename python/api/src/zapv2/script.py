@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -50,11 +50,14 @@ class script(object):
         """
         return next(self.zap._request(self.zap.base + 'script/action/disable/', {'scriptName' : scriptname, 'apikey' : apikey}).itervalues())
 
-    def load(self, scriptname, scripttype, scriptengine, filename, scriptdescription='', apikey=''):
+    def load(self, scriptname, scripttype, scriptengine, filename, scriptdescription=None, apikey=''):
         """
         Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
         """
-        return next(self.zap._request(self.zap.base + 'script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}).itervalues())
+        params = {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'apikey' : apikey}
+        if scriptdescription is not None:
+            params['scriptDescription'] = scriptdescription
+        return next(self.zap._request(self.zap.base + 'script/action/load/', params).itervalues())
 
     def remove(self, scriptname, apikey=''):
         """

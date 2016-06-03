@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -42,11 +42,14 @@ class importLogFiles(object):
         """
         return next(self.zap._request(self.zap.base + 'importLogFiles/view/ImportZAPHttpRequestResponsePair/', {'HTTPRequest' : httprequest, 'HTTPResponse' : httpresponse}).itervalues())
 
-    def post_mod_security_audit_event(self, auditeventstring='', apikey=''):
+    def post_mod_security_audit_event(self, auditeventstring=None, apikey=''):
         """
         This component is optional and therefore the API will only work if it is installed
         """
-        return next(self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', {'AuditEventString' : auditeventstring, 'apikey' : apikey}).itervalues())
+        params = {'apikey' : apikey}
+        if auditeventstring is not None:
+            params['AuditEventString'] = auditeventstring
+        return next(self.zap._request(self.zap.base + 'importLogFiles/action/PostModSecurityAuditEvent/', params).itervalues())
 
     def other_post_mod_security_audit_event(self, auditeventstring, apikey=''):
         """

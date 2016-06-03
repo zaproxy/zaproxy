@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,11 +28,19 @@ function Ascan(clientApi) {
 }
 
 Ascan.prototype.status = function (scanid, callback) {
-  this.api.request('/ascan/view/status/', {'scanId' : scanid}, callback);
+  var params = {};
+  if (scanid && scanid !== null) {
+    params['scanId'] = scanid;
+  }
+  this.api.request('/ascan/view/status/', params, callback);
 };
 
 Ascan.prototype.scanProgress = function (scanid, callback) {
-  this.api.request('/ascan/view/scanProgress/', {'scanId' : scanid}, callback);
+  var params = {};
+  if (scanid && scanid !== null) {
+    params['scanId'] = scanid;
+  }
+  this.api.request('/ascan/view/scanProgress/', params, callback);
 };
 
 Ascan.prototype.messagesIds = function (scanid, callback) {
@@ -56,11 +64,25 @@ Ascan.prototype.excludedFromScan = function (callback) {
 };
 
 Ascan.prototype.scanners = function (scanpolicyname, policyid, callback) {
-  this.api.request('/ascan/view/scanners/', {'scanPolicyName' : scanpolicyname, 'policyId' : policyid}, callback);
+  var params = {};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  if (policyid && policyid !== null) {
+    params['policyId'] = policyid;
+  }
+  this.api.request('/ascan/view/scanners/', params, callback);
 };
 
 Ascan.prototype.policies = function (scanpolicyname, policyid, callback) {
-  this.api.request('/ascan/view/policies/', {'scanPolicyName' : scanpolicyname, 'policyId' : policyid}, callback);
+  var params = {};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  if (policyid && policyid !== null) {
+    params['policyId'] = policyid;
+  }
+  this.api.request('/ascan/view/policies/', params, callback);
 };
 
 Ascan.prototype.attackModeQueue = function (callback) {
@@ -135,6 +157,13 @@ Ascan.prototype.optionRescanInAttackMode = function (callback) {
   this.api.request('/ascan/view/optionRescanInAttackMode/', callback);
 };
 
+/**
+ * Tells whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+ **/
+Ascan.prototype.optionScanHeadersAllRequests = function (callback) {
+  this.api.request('/ascan/view/optionScanHeadersAllRequests/', callback);
+};
+
 Ascan.prototype.optionShowAdvancedDialog = function (callback) {
   this.api.request('/ascan/view/optionShowAdvancedDialog/', callback);
 };
@@ -144,7 +173,23 @@ Ascan.prototype.scan = function (url, recurse, inscopeonly, scanpolicyname, meth
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey}, callback);
+  var params = {'url' : url, 'apikey' : apikey};
+  if (recurse && recurse !== null) {
+    params['recurse'] = recurse;
+  }
+  if (inscopeonly && inscopeonly !== null) {
+    params['inScopeOnly'] = inscopeonly;
+  }
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  if (method && method !== null) {
+    params['method'] = method;
+  }
+  if (postdata && postdata !== null) {
+    params['postData'] = postdata;
+  }
+  this.api.request('/ascan/action/scan/', params, callback);
 };
 
 /**
@@ -155,7 +200,20 @@ Ascan.prototype.scanAsUser = function (url, contextid, userid, recurse, scanpoli
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'recurse' : recurse, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey}, callback);
+  var params = {'url' : url, 'contextId' : contextid, 'userId' : userid, 'apikey' : apikey};
+  if (recurse && recurse !== null) {
+    params['recurse'] = recurse;
+  }
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  if (method && method !== null) {
+    params['method'] = method;
+  }
+  if (postdata && postdata !== null) {
+    params['postData'] = postdata;
+  }
+  this.api.request('/ascan/action/scanAsUser/', params, callback);
 };
 
 Ascan.prototype.pause = function (scanid, apikey, callback) {
@@ -243,7 +301,11 @@ Ascan.prototype.enableAllScanners = function (scanpolicyname, apikey, callback) 
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/enableAllScanners/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  var params = {'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/enableAllScanners/', params, callback);
 };
 
 Ascan.prototype.disableAllScanners = function (scanpolicyname, apikey, callback) {
@@ -251,31 +313,47 @@ Ascan.prototype.disableAllScanners = function (scanpolicyname, apikey, callback)
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/disableAllScanners/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  var params = {'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/disableAllScanners/', params, callback);
 };
 
-Ascan.prototype.enableScanners = function (ids, apikey, callback) {
+Ascan.prototype.enableScanners = function (ids, scanpolicyname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey}, callback);
+  var params = {'ids' : ids, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/enableScanners/', params, callback);
 };
 
-Ascan.prototype.disableScanners = function (ids, apikey, callback) {
+Ascan.prototype.disableScanners = function (ids, scanpolicyname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey}, callback);
+  var params = {'ids' : ids, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/disableScanners/', params, callback);
 };
 
-Ascan.prototype.setEnabledPolicies = function (ids, apikey, callback) {
+Ascan.prototype.setEnabledPolicies = function (ids, scanpolicyname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setEnabledPolicies/', {'ids' : ids, 'apikey' : apikey}, callback);
+  var params = {'ids' : ids, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/setEnabledPolicies/', params, callback);
 };
 
 Ascan.prototype.setPolicyAttackStrength = function (id, attackstrength, scanpolicyname, apikey, callback) {
@@ -283,7 +361,11 @@ Ascan.prototype.setPolicyAttackStrength = function (id, attackstrength, scanpoli
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setPolicyAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  var params = {'id' : id, 'attackStrength' : attackstrength, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/setPolicyAttackStrength/', params, callback);
 };
 
 Ascan.prototype.setPolicyAlertThreshold = function (id, alertthreshold, scanpolicyname, apikey, callback) {
@@ -291,7 +373,11 @@ Ascan.prototype.setPolicyAlertThreshold = function (id, alertthreshold, scanpoli
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setPolicyAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  var params = {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/setPolicyAlertThreshold/', params, callback);
 };
 
 Ascan.prototype.setScannerAttackStrength = function (id, attackstrength, scanpolicyname, apikey, callback) {
@@ -299,7 +385,11 @@ Ascan.prototype.setScannerAttackStrength = function (id, attackstrength, scanpol
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setScannerAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  var params = {'id' : id, 'attackStrength' : attackstrength, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/setScannerAttackStrength/', params, callback);
 };
 
 Ascan.prototype.setScannerAlertThreshold = function (id, alertthreshold, scanpolicyname, apikey, callback) {
@@ -307,7 +397,11 @@ Ascan.prototype.setScannerAlertThreshold = function (id, alertthreshold, scanpol
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/ascan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}, callback);
+  var params = {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey};
+  if (scanpolicyname && scanpolicyname !== null) {
+    params['scanPolicyName'] = scanpolicyname;
+  }
+  this.api.request('/ascan/action/setScannerAlertThreshold/', params, callback);
 };
 
 Ascan.prototype.addScanPolicy = function (scanpolicyname, apikey, callback) {
@@ -428,6 +522,17 @@ Ascan.prototype.setOptionRescanInAttackMode = function (bool, apikey, callback) 
     apikey = null;
   }
   this.api.request('/ascan/action/setOptionRescanInAttackMode/', {'Boolean' : bool, 'apikey' : apikey}, callback);
+};
+
+/**
+ * Sets whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+ **/
+Ascan.prototype.setOptionScanHeadersAllRequests = function (bool, apikey, callback) {
+  if (!callback && typeof(apikey) === 'function') {
+    callback = apikey;
+    apikey = null;
+  }
+  this.api.request('/ascan/action/setOptionScanHeadersAllRequests/', {'Boolean' : bool, 'apikey' : apikey}, callback);
 };
 
 Ascan.prototype.setOptionShowAdvancedDialog = function (bool, apikey, callback) {

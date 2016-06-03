@@ -55,6 +55,8 @@
 // ZAP: 2015/04/09 Allow to specify the maximum number of redirects.
 // ZAP: 2015/04/09 Allow to specify if circular redirects are allowed.
 // ZAP: 2015/06/12 Issue 1459: Add an HTTP sender listener script
+// ZAP: 2016/05/24 Issue 2463: Websocket not proxied when outgoing proxy is set
+// ZAP: 2016/05/27 Issue 2484: Circular Redirects
 
 package org.parosproxy.paros.network;
 
@@ -173,6 +175,7 @@ public class HttpSender {
 
 		client = createHttpClient();
 		clientViaProxy = createHttpClientViaProxy();
+		setAllowCircularRedirects(true);
 		
 		// Set how cookie headers are sent no matter of the "allowState", in case a state is forced by
 		// other extensions (e.g. Authentication)
@@ -254,22 +257,18 @@ public class HttpSender {
         HostConfiguration hc = null;
 
 		HttpClient requestClient;
-		if (param.isUseProxy(hostName)) {
-			requestClient = clientViaProxy;
-
-		} else {
-			// ZAP: use custom client on upgrade connection and on event-source data type
-			Header connectionHeader = method.getRequestHeader("connection");
-			boolean isUpgrade = connectionHeader != null
-					&& connectionHeader.getValue().toLowerCase().contains("upgrade");
-
-			// ZAP: try to apply original handling of ParosProxy
-			requestClient = client;
-			if (isUpgrade) {
-				// Unless upgrade, when using another client that allows us to expose the socket
-				// connection.
-				requestClient = new HttpClient(new ZapHttpConnectionManager());
+		if (isConnectionUpgrade(method)) {
+			requestClient = new HttpClient(new ZapHttpConnectionManager());
+			if (param.isUseProxy(hostName)) {
+				requestClient.getHostConfiguration().setProxy(param.getProxyChainName(), param.getProxyChainPort());
+				if (param.isUseProxyChainAuth()) {
+					requestClient.getState().setProxyCredentials(getAuthScope(param), getNTCredentials(param));
+				}
 			}
+		} else if (param.isUseProxy(hostName)) {
+			requestClient = clientViaProxy;
+		} else {
+			requestClient = client;
 		}
 
 		if (this.initiator == CHECK_FOR_UPDATES_INITIATOR) {
@@ -307,6 +306,20 @@ public class HttpSender {
 		responseCode = requestClient.executeMethod(hc, method, state);
 
 		return responseCode;
+	}
+
+	/**
+	 * Tells whether or not the given {@code method} has a {@code Connection} request header with {@code Upgrade} value.
+	 *
+	 * @param method the method that will be checked
+	 * @return {@code true} if the {@code method} has a connection upgrade, {@code false} otherwise
+	 */
+	private static boolean isConnectionUpgrade(HttpMethod method) {
+		Header connectionHeader = method.getRequestHeader("connection");
+		if (connectionHeader == null) {
+			return false;
+		}
+		return connectionHeader.getValue().toLowerCase().contains("upgrade");
 	}
 
 	public void shutdown() {
@@ -458,7 +471,7 @@ public class HttpSender {
 		// If there's a 'Requesting User', make sure the response corresponds to an authenticated
 		// session and, if not, attempt a reauthentication and try again
 		if (initiator != AUTHENTICATION_INITIATOR && forceUser != null
-				&& msg.getResponseBody() != null && !msg.getRequestHeader().isImage()
+				&& !msg.getRequestHeader().isImage()
 				&& !forceUser.isAuthenticated(msg)) {
 			log.debug("First try to send authenticated message failed for " + msg.getRequestHeader().getURI()
 					+ ". Authenticating and trying again...");
@@ -789,7 +802,7 @@ public class HttpSender {
      * Circular redirects happen when a request redirects to itself, or when a same request was already accessed in a chain of
      * redirects.
      * <p>
-     * The default is to <strong>not</strong> allow circular redirects.
+     * Since 2.5.0, the default is to allow circular redirects.
      *
      * @param allow {@code true} if circular redirects should be allowed, {@code false} otherwise
      * @since 2.4.0

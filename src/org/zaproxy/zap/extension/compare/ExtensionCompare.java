@@ -85,6 +85,7 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
         this.setOrder(44);
 	}
 	
+	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

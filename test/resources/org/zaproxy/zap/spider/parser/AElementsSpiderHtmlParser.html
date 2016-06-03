@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>A Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<a href="//a.example.com/base/scheme">sub-domain using base scheme</a><br />
+<a href="http://a.example.com:8000/b">sub-domain (http)</a><br />
+<a href="https://a.example.com/c?a=b#fragment">sub-domain (https)</a><br />
+<a href="a/relative">relative</a><br />
+<a href="">relative (same page)</a><br />
+<a href="/a/absolute">absolute</a><br />
+<a href="ftp://a.example.com/">ftp</a><br />
+
+Ignored:<br />
+<a>no href</a><br />
+<a href="mailto:a@example.com">mailto:</a><br />
+<a href="javascript:hello();">javascript:</a><br />
+<a href="scheme://a.example.com/invalid">scheme:</a>
+
+</body>
+</html>

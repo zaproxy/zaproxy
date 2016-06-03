@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -35,8 +35,12 @@ class HttpSessions {
 	/**
 	 * Gets the sessions of the given site. Optionally returning just the session with the given name.
 	 */
-	public function sessions($site, $session='') {
-		return $this->zap->request($this->zap->base . 'httpSessions/view/sessions/', array('site' => $site, 'session' => $session))->{'sessions'};
+	public function sessions($site, $session=NULL) {
+		$params = array('site' => $site);
+		if ($session !== NULL) {
+			$params['session'] = $session;
+		}
+		return $this->zap->request($this->zap->base . 'httpSessions/view/sessions/', $params)->{'sessions'};
 	}
 
 	/**
@@ -56,8 +60,12 @@ class HttpSessions {
 	/**
 	 * Creates an empty session for the given site. Optionally with the given name.
 	 */
-	public function createEmptySession($site, $session='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'httpSessions/action/createEmptySession/', array('site' => $site, 'session' => $session, 'apikey' => $apikey));
+	public function createEmptySession($site, $session=NULL, $apikey='') {
+		$params = array('site' => $site, 'apikey' => $apikey);
+		if ($session !== NULL) {
+			$params['session'] = $session;
+		}
+		return $this->zap->request($this->zap->base . 'httpSessions/action/createEmptySession/', $params);
 	}
 
 	/**

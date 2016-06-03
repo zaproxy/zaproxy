@@ -1,7 +1,12 @@
 Welcome to the OWASP Zed Attack Proxy
 =====================================
-The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing 
-tool for finding vulnerabilities in web applications.
+The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free 
+security tools and is actively maintained by hundreds of international 
+volunteers. 
+It can help you automatically find security vulnerabilities in your web 
+applications while you are developing and testing your applications. 
+Its also a great tool for experienced pentesters to use for manual security 
+testing.
 
 For more details on ZAP please goto the home page:
 	https://www.owasp.org/index.php/ZAP
@@ -29,4 +34,35 @@ Mac OS
 Generally, most user's tend to use the Mac OS build, which is a ordinary Mac OS
 app that can be started as any other app: Double-Click on the app to start it. 
 You can use the 'zap.sh' script, as per linux.
+
+Docker
+
+ZAP is available on https://hub.docker.com/r/owasp/zap2docker-stable/
+For more details of how you can use it see 
+https://github.com/zaproxy/zaproxy/wiki/Docker  
+
+Headless Environment
+--------------------
+
+By default ZAP will be started with a GUI which is not supported in headless
+environments, in those cases ZAP needs to be started inline, using the command
+line argument '-cmd', or in daemon mode, using '-daemon'.
+For more information about the command line arguments use '-help'.
+ZAP will show an information message and exit, if still started with GUI.
+
+Note, some of the ZAP features that require a display, for example, running AJAX
+Spider with Firefox, might still be run with the help of applications like Xvfb.
+
+Java API
+--------
+
+The Java API is no longer packaged with this release.
+
+You can download the latest version from:
+https://github.com/zaproxy/zap-api-java/releases
+ 
+It is also available on Maven Central:
+ - GroupId: 'org.zaproxy'
+ - ArtifactId: 'zap-clientapi'
+ - Version: '1.0.0'
 

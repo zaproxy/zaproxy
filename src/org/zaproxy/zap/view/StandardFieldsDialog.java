@@ -125,7 +125,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	}
 	
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels) {
-		this((Window)owner, titleLabel, dim, tabLabels, false);
+		this(owner, titleLabel, dim, tabLabels, false);
 	}
 
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels, boolean modal) {

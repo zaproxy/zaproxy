@@ -35,8 +35,11 @@ import java.util.List;
 
 import javax.swing.KeyStroke;
 
+import org.apache.commons.httpclient.URI;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
@@ -48,10 +51,13 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.FetchFilter;
 import org.zaproxy.zap.spider.filters.ParseFilter;
+import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.spider.parser.SpiderParser;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.ZapMenuItem;
@@ -192,6 +198,9 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.scanController.reset();
 		if (View.isInitialised()) {
 			this.getSpiderPanel().reset();
+			if (spiderDialog != null) {
+				spiderDialog.reset();
+			}
 		}
 	}
 
@@ -290,6 +299,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void sessionModeChanged(Mode mode) {
 		if (View.isInitialised()) {
 			this.getSpiderPanel().sessionModeChanged(mode);
+			getMenuItemCustomScan().setEnabled( ! Mode.safe.equals(mode));
 		}
 	}
 
@@ -301,7 +311,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanNode(SiteNode node) {
 		Target target = new Target(node);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, null, null);
+		this.startScan(target, null, null);
 	}
 	
 	/**
@@ -312,7 +322,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanNode(SiteNode node, User user) {
 		Target target = new Target(node);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, user, null);
+		this.startScan(target, user, null);
 	}
 
 	/**
@@ -321,7 +331,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanAllInScope() {
 		Target target = new Target(true);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, null, null);
+		this.startScan(target, null, null);
 	}
 
 	/**
@@ -332,7 +342,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScan(SiteNode startNode) {
 		Target target = new Target(startNode);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, null, null);
+		this.startScan(target, null, null);
 	}
 
 	/**
@@ -341,7 +351,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	public void startScanAllInContext(Context context, User user) {
 		Target target = new Target(context);
 		target.setRecurse(true);
-		this.startScan(target.getDisplayName(), target, user, null);
+		this.startScan(target, user, null);
 	}
 	
 	
@@ -418,10 +428,115 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		this.customParseFilters.add(filter);
 	}
 
+	/**
+	 * Starts a new spider scan using the given target and, optionally, spidering from the perspective of a user and with custom
+	 * configurations.
+	 * <p>
+	 * The spider scan will use the most appropriate display name created from the given target, user and custom configurations.
+	 *
+	 * @param target the target that will be spidered
+	 * @param user the user that will be used to spider, might be {@code null}
+	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
+	 * @return the ID of the spider scan
+	 * @since 2.5.0
+	 * @see #startScan(String, Target, User, Object[])
+	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
+	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
+	 */
+	public int startScan(Target target, User user, Object[] customConfigurations) {
+		return startScan(createDisplayName(target, customConfigurations), target, user, customConfigurations);
+	}
+
+	/**
+	 * Creates the display name for the given target and, optionally, the given custom configurations.
+	 *
+	 * @param target the target that will be spidered
+	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
+	 * @return a {@code String} containing the display name, never {@code null}
+	 */
+	private String createDisplayName(Target target, Object[] customConfigurations) {
+		HttpPrefixFetchFilter subtreeFecthFilter = getUriPrefixFecthFilter(customConfigurations);
+		if (subtreeFecthFilter != null) {
+			return abbreviateDisplayName(subtreeFecthFilter.getNormalisedPrefix());
+		}
+
+		if (target.getContext() != null) {
+			return Constant.messages.getString("context.prefixName", target.getContext().getName());
+		} else if (target.isInScopeOnly()) {
+			return Constant.messages.getString("target.allInScope");
+		} else if (target.getStartNode() == null) {
+			if (customConfigurations != null) {
+				for (Object customConfiguration : customConfigurations) {
+					if (customConfiguration instanceof URI) {
+						return abbreviateDisplayName(((URI) customConfiguration).toString());
+					}
+				}
+			}
+			return Constant.messages.getString("target.empty");
+		}
+		return abbreviateDisplayName(target.getStartNode().getHierarchicNodeName(false));
+	}
+
+	/**
+	 * Gets the {@code HttpPrefixFetchFilter} from the given {@code customConfigurations}.
+	 *
+	 * @param customConfigurations the custom configurations of the spider
+	 * @return the {@code HttpPrefixFetchFilter} found, {@code null} otherwise.
+	 */
+	private HttpPrefixFetchFilter getUriPrefixFecthFilter(Object[] customConfigurations) {
+		if (customConfigurations != null) {
+			for (Object customConfiguration : customConfigurations) {
+				if (customConfiguration instanceof HttpPrefixFetchFilter) {
+					return (HttpPrefixFetchFilter) customConfiguration;
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Abbreviates (the middle of) the given display name if greater than 30 characters.
+	 *
+	 * @param displayName the display name that might be abbreviated
+	 * @return the, possibly, abbreviated display name
+	 */
+	private static String abbreviateDisplayName(String displayName) {
+		return StringUtils.abbreviateMiddle(displayName, "..", 30);
+	}
+
+	/**
+	 * Starts a new spider scan, with the given display name, using the given target and, optionally, spidering from the
+	 * perspective of a user and with custom configurations.
+	 * <p>
+	 * <strong>Note:</strong> The preferred method to start the scan is with {@link #startScan(Target, User, Object[])}, unless
+	 * a custom display name is really needed.
+	 * 
+	 * @param target the target that will be spidered
+	 * @param user the user that will be used to spider, might be {@code null}
+	 * @param customConfigurations other custom configurations for the spider, might be {@code null}
+	 * @return the ID of the spider scan
+	 * @throws IllegalStateException if the target or custom configurations are not allowed in the current
+	 *             {@link org.parosproxy.paros.control.Control.Mode mode}.
+	 */
+	@SuppressWarnings({"fallthrough"})
 	@Override
-	public int startScan(String displayName, Target target, User user,
-			Object[] contextSpecificObjects) {
-		int id = this.scanController.startScan(displayName, target, user, contextSpecificObjects);
+	public int startScan(String displayName, Target target, User user, Object[] customConfigurations) {
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			throw new IllegalStateException("Scans are not allowed in Safe mode");
+		case protect:
+			String uri = getTargetUriOutOfScope(target, customConfigurations);
+			if (uri != null) {
+				throw new IllegalStateException("Scans are not allowed on targets not in scope when in Protected mode: " + uri);
+			}
+			//$FALL-THROUGH$
+		case standard:
+		case attack:
+			// No problem
+			break;
+		}
+
+		int id = this.scanController.startScan(displayName, target, user, customConfigurations);
     	if (View.isInitialised()) {
     		SpiderScan scanner = this.scanController.getScan(id);
 			this.getSpiderPanel().scannerStarted(scanner);
@@ -430,6 +545,75 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
     		this.getSpiderPanel().setTabFocus();
     	}
     	return id;
+	}
+
+	/**
+	 * Returns the first URI that is out of scope in the given {@code target}.
+	 *
+	 * @param target the target that will be checked
+	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
+	 * @since 2.5.0
+	 * @see Session#isInScope(String)
+	 */
+	protected String getTargetUriOutOfScope(Target target) {
+		return getTargetUriOutOfScope(target, null);
+	}
+
+	/**
+	 * Returns the first URI that is out of scope in the given {@code target} or {@code contextSpecificObjects}.
+	 *
+	 * @param target the target that will be checked
+	 * @param contextSpecificObjects other {@code Objects} used to enhance the target
+	 * @return a {@code String} with the first URI out of scope, {@code null} if none found
+	 * @since 2.5.0
+	 * @see Session#isInScope(String)
+	 */
+	protected String getTargetUriOutOfScope(Target target, Object[] contextSpecificObjects) {
+		List<StructuralNode> nodes = target.getStartNodes();
+		if (nodes != null) {
+			for (StructuralNode node : nodes) {
+				if (node == null) {
+					continue;
+				}
+				if (node instanceof StructuralSiteNode) {
+					SiteNode siteNode = ((StructuralSiteNode) node).getSiteNode();
+					if (!siteNode.isIncludedInScope()) {
+						return node.getURI().toString();
+					}
+				} else {
+					String uri = node.getURI().toString();
+					if (!isTargetUriInScope(uri)) {
+						return uri;
+					}
+				}
+			}
+		}
+		if (contextSpecificObjects != null) {
+			for (Object obj : contextSpecificObjects) {
+				if (obj instanceof URI) {
+					String uri = ((URI) obj).toString();
+					if (!isTargetUriInScope(uri)) {
+						return uri;
+					}
+				}
+			}
+		}
+		return null;
+	}
+
+	/**
+	 * Tells whether or not the given {@code uri} is in scope.
+	 *
+	 * @param uri the uri that will be checked
+	 * @return {@code true} if the {@code uri} is in scope, {@code false} otherwise
+	 * @since 2.5.0
+	 * @see Session#isInScope(String)
+	 */
+	protected boolean isTargetUriInScope(String uri) {
+		if (uri == null) {
+			return false;
+		}
+		return getModel().getSession().isInScope(uri);
 	}
 
 	@Override

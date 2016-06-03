@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.keyboard;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.InputEvent;
@@ -45,6 +46,16 @@ public class DialogEditShortcut extends StandardFieldsDialog {
 
 	private KeyboardShortcut shortcut;
 	private KeyboardShortcutTableModel model;
+
+	/**
+	 * Constructs a modal {@code DialogEditShortcut}, with the given {@code Window} as its owner.
+	 *
+	 * @param owner the owner of the dialogue
+	 * @since 2.5.0
+	 */
+	public DialogEditShortcut(Window owner) {
+		super(owner, "keyboard.dialog.title", new Dimension(300, 200), true);
+	}
 
 	public DialogEditShortcut(Frame owner) {
 		super(owner, "keyboard.dialog.title", new Dimension(300, 200));

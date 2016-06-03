@@ -93,6 +93,11 @@ public class PluginPassiveScannerUnitTest {
 		public String getName() {
 			return null;
 		}
+
+		@Override
+		public boolean appliesToHistoryType(int historyType) {
+			return true;
+		}
 	}
 
 }

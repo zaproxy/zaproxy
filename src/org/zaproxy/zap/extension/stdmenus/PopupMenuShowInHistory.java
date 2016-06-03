@@ -48,12 +48,24 @@ public class PopupMenuShowInHistory extends PopupMenuItemHistoryReferenceContain
 		case FORCED_BROWSE_PANEL:
 		case FUZZER_PANEL:
 		case HISTORY_PANEL:
+		case SPIDER_PANEL:
 			return false;
 		case ALERTS_PANEL:
 		case SITES_PANEL:
 		case SEARCH_PANEL:
 		default:
 			return true;
+		}
+	}
+
+	@Override
+	protected boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
+		switch (historyReference.getHistoryType()) {
+		case HistoryReference.TYPE_ZAP_USER:
+		case HistoryReference.TYPE_PROXIED:
+			return true;
+		default:
+			return false;
 		}
 	}
 	

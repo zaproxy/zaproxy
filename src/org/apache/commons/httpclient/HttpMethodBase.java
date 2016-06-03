@@ -35,7 +35,11 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Locale;
 
 import org.apache.commons.httpclient.auth.AuthState;
@@ -47,8 +51,10 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.protocol.Protocol;
 import org.apache.commons.httpclient.util.EncodingUtil;
 import org.apache.commons.httpclient.util.ExceptionUtil;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.network.HttpHeader;
 
 /*
  * Forked class... (previously needed only by the (forked) HttpMethodDirector class).
@@ -57,6 +63,7 @@ import org.apache.commons.logging.LogFactory;
  *  - Removed the characters "$" from the previous SVN keywords (HeadURL, Revision and Date) to avoid accidental expansions.
  *  - Always add the "?" character to the request URI (Issue 1180) in the method #generateRequestLine(HttpConnection, String, 
  *  String, String, String) to preserve the intended request URI.
+ *  - Change the way cookie headers are handled when using forced user mode, put all the headers in a single line see ISSUE 1874
  * 
  */
 /**
@@ -1290,6 +1297,7 @@ public abstract class HttpMethodBase implements HttpMethod {
      * 
      * @return cookie spec
      */
+    @SuppressWarnings("deprecation")
     private CookieSpec getCookieSpec(final HttpState state) {
     	if (this.cookiespec == null) {
     		int i = state.getCookiePolicy();
@@ -1341,13 +1349,12 @@ public abstract class HttpMethodBase implements HttpMethod {
         if ((cookies != null) && (cookies.length > 0)) {
             if (getParams().isParameterTrue(HttpMethodParams.SINGLE_COOKIE_HEADER)) {
                 // In strict mode put all cookies on the same header
-                String s = matcher.formatCookies(cookies);
-                getRequestHeaderGroup().addHeader(new Header("Cookie", s, true));
+                putAllCookiesInASingleHeader(host, matcher, cookies);
             } else {
                 // In non-strict mode put each cookie on a separate header
                 for (int i = 0; i < cookies.length; i++) {
                     String s = matcher.formatCookie(cookies[i]);
-                    getRequestHeaderGroup().addHeader(new Header("Cookie", s, true));
+                    getRequestHeaderGroup().addHeader(new Header(HttpHeader.COOKIE, s, true));
                 }
             }
             if (matcher instanceof CookieVersionSupport) {
@@ -1366,6 +1373,75 @@ public abstract class HttpMethodBase implements HttpMethod {
             }
         }
     }
+
+    /**
+     * Put all the cookies in a single header line. 
+     * 
+     * Merge the cookies already present in the request 
+     * with the cookies coming from the state. 
+     * 
+     * @param host the host used with this cookies
+     * @param matcher the {@link CookieSpec matcher} used in this context
+     * @param cookies associated with the {@link HttpState state}
+     * 
+     */
+    private void putAllCookiesInASingleHeader(String host, CookieSpec matcher,
+            Cookie[] cookies) {
+    	
+    	LOG.trace("enter putAllCookiesInASingleHeader(String host, CookieSpec matcher, Cookie[] cookies)" );
+    	
+        //use a map to make sure we only have one cookie per name
+        HashMap<String, Cookie> mergedCookies = new HashMap<String, Cookie>();
+        Header[] cookieLineHeaders = getRequestHeaderGroup().getHeaders(HttpHeader.COOKIE);
+        for (Header cookieLineHeader : cookieLineHeaders) {
+            List<Cookie> cookiesHeader = parseCookieHeader(host, cookieLineHeader.getValue());
+            for (Cookie cookieHeader: cookiesHeader){
+                mergedCookies.put(cookieHeader.getName(),cookieHeader);
+            }
+            // clean the header
+            getRequestHeaderGroup().removeHeader(cookieLineHeader);
+        }
+        //add the cookies coming from the state 
+        for (Cookie cookie : cookies) {
+            mergedCookies.put(cookie.getName(),cookie);
+        }
+        cookies = mergedCookies.values().toArray(new Cookie[mergedCookies.size()]);
+        String s = matcher.formatCookies(cookies);
+        getRequestHeaderGroup()
+                .addHeader(new Header(HttpHeader.COOKIE, s, true));
+    }
+    
+    /**
+     * Parse a cookie header to return a list of cookies.
+     * 
+     * Unfortunatly the method Header.getElements() is not working properly.
+     * On a line like Cookie: has-js=1; drupal-toolbar=off it only returns the 
+     * first element has-js=1. So we rework this one. 
+     *
+     * This is a "won't fix" known issue as the project ended.
+     * https://issues.apache.org/jira/browse/HTTPCLIENT-1356
+     *
+     * @param host the host used to build the query, functionally not useful as we are on the client side of the proxy but the host is required by the constructor of the Cookie object
+     * @param cookieHeaderValue the string value of the cookie header, the part of the string after "Cookie: "
+     * @return a list of cookies corresponding to the list of name/value found in cookieHeaderValue
+     */
+     static List<Cookie> parseCookieHeader(String host, String cookieHeaderValue) {
+        if (StringUtils.isEmpty(cookieHeaderValue)){
+            return Collections.emptyList();
+        }
+        String[] cookies = cookieHeaderValue.split(";");
+        List<Cookie> cookiesList = new ArrayList<Cookie>();
+        for (String cookie : cookies){
+            String[] parts = cookie.split("=");
+            //manage empty value
+            if (parts.length==1) {
+                cookiesList.add(new Cookie(host,parts[0].trim(),""));
+            }else{
+                cookiesList.add(new Cookie(host,parts[0].trim(),parts[1].trim()));
+            }
+        }
+        return cookiesList;
+     }    
 
     /**
      * Generates <tt>Host</tt> request header, as long as no <tt>Host</tt> request

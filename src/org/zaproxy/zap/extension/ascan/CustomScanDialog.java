@@ -26,16 +26,14 @@ import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
@@ -54,15 +52,8 @@ import javax.swing.text.DefaultHighlighter;
 import javax.swing.text.Highlighter;
 import javax.swing.text.Highlighter.Highlight;
 import javax.swing.text.Highlighter.HighlightPainter;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
 import org.apache.commons.configuration.ConfigurationException;
-import org.apache.commons.configuration.ConfigurationUtils;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -71,24 +62,22 @@ import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.core.scanner.VariantUserDefined;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
-import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractParamContainerPanel;
+import org.zaproxy.zap.extension.ascan.PolicyAllCategoryPanel.ScanPolicyChangedEventListener;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
-import org.zaproxy.zap.model.Tech;
-import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ZapTextArea;
-import org.zaproxy.zap.view.JCheckBoxTree;
 import org.zaproxy.zap.view.LayoutHelper;
 import org.zaproxy.zap.view.StandardFieldsDialog;
+import org.zaproxy.zap.view.TechnologyTreePanel;
 
 public class CustomScanDialog extends StandardFieldsDialog {
 	
@@ -124,7 +113,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private Target target = null;
 
     private ScannerParam scannerParam = null;
-    private OptionsParam optionsParam = null;
 
     private JPanel customPanel = null;
     private JPanel techPanel = null;
@@ -135,22 +123,24 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private final DefaultListModel<Highlight> injectionPointModel = new DefaultListModel<>();
     private final JLabel customPanelStatus = new JLabel();
     private JCheckBox disableNonCustomVectors = null;
-    private JCheckBoxTree techTree = null;
-    private final HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
-    private TreeModel techModel = null;
+    private TechnologyTreePanel techTree;
     private String scanPolicyName;
     private ScanPolicy scanPolicy = null;
-    private PolicyAllCategoryPanel policyAllCategoryPanel = null;
     private OptionsVariantPanel variantPanel = null;
-    private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
     private List<CustomScanPanel> customPanels = null;
     private boolean showingAdvTabs = true;
+    private ScanPolicyPanel policyPanel;
 
     public CustomScanDialog(ExtensionActiveScan ext, String[] tabLabels, List<CustomScanPanel> customPanels, Frame owner, Dimension dim) {
         super(owner, "ascan.custom.title", dim, tabLabels);
         
         this.extension = ext;
         this.customPanels = customPanels;
+        this.policyPanel = new ScanPolicyPanel(
+                this,
+                extension,
+                Constant.messages.getString("ascan.custom.tab.policy"),
+                new ScanPolicy());
 
         addWindowListener(new WindowAdapter() {
 
@@ -244,23 +234,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
         this.setCustomTabPanel(3, getTechPanel());
 
         // Policy panel
-        AbstractParamContainerPanel policyPanel
-                = new AbstractParamContainerPanel(Constant.messages.getString("ascan.custom.tab.policy"));
-
-        String[] ROOT = {};
-
-        policyPanel.addParamPanel(null, getPolicyAllCategoryPanel(true), false);
-
-        categoryPanels = new ArrayList<>(Category.getAllNames().length);
-        for (int i = 0; i < Category.getAllNames().length; i++) {
-            PolicyCategoryPanel panel
-                    = new PolicyCategoryPanel(i, this.scanPolicy.getPluginFactory(),
-                            scanPolicy.getDefaultThreshold());
-            policyPanel.addParamPanel(ROOT, Category.getName(i), panel, true);
-            this.categoryPanels.add(panel);
-        }
-
-        policyPanel.showDialog(true);
+        policyPanel.resetAndSetPolicy(scanPolicy.getName());
 
         this.setCustomTabPanel(4, policyPanel);
         
@@ -291,24 +265,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
     	return "ui.dialogs.advascan";
     }
 
-    private PolicyAllCategoryPanel getPolicyAllCategoryPanel(boolean reinit) {
-        if (policyAllCategoryPanel == null) {
-            policyAllCategoryPanel = new PolicyAllCategoryPanel(this, extension, scanPolicy, true);
-            policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
-        } else if (reinit) {
-        	policyAllCategoryPanel.reloadPolicies();
-        }
-        return policyAllCategoryPanel;
-    }
-
     private void policySelected() {
         String policyName = getStringValue(FIELD_POLICY);
         try {
             scanPolicy = extension.getPolicyManager().getPolicy(policyName);
-            getPolicyAllCategoryPanel(false).setScanPolicy(scanPolicy);
-            for (PolicyCategoryPanel panel : this.categoryPanels) {
-                panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
-            }
+            policyPanel.setScanPolicy(scanPolicy);
 
             scanPolicyName = policyName;
         } catch (ConfigurationException e) {
@@ -445,61 +406,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
     private void setTech() {
         Context context = this.getSelectedContext();
 
-        TechSet ts = new TechSet(Tech.builtInTech);
-        Iterator<Tech> iter = ts.getIncludeTech().iterator();
-
-        DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("ascan.custom.tab.tech.node"));
-        Tech tech;
-        DefaultMutableTreeNode parent;
-        DefaultMutableTreeNode node;
-        while (iter.hasNext()) {
-            tech = iter.next();
-            if (tech.getParent() != null) {
-                parent = techToNodeMap.get(tech.getParent());
-            } else {
-                parent = null;
-            }
-            if (parent == null) {
-                parent = root;
-            }
-            node = new DefaultMutableTreeNode(tech.getUiName());
-            parent.add(node);
-            techToNodeMap.put(tech, node);
-        }
-
-        techModel = new DefaultTreeModel(root);
-        techTree.setModel(techModel);
-        techTree.expandAll();
-        // Default to everything set
-        TreePath rootTp = new TreePath(root);
-        techTree.checkSubTree(rootTp, true);
-        techTree.setCheckBoxEnabled(rootTp, false);
-
         if (context != null) {
-            TechSet techSet = context.getTechSet();
-            Iterator<Entry<Tech, DefaultMutableTreeNode>> iter2 = techToNodeMap.entrySet().iterator();
-            while (iter.hasNext()) {
-                Entry<Tech, DefaultMutableTreeNode> nodeEntry = iter2.next();
-                TreePath tp = this.getTechPath(nodeEntry.getValue());
-                if (techSet.includes(nodeEntry.getKey())) {
-                    this.getTechTree().check(tp, true);
-                }
-            }
+            techTree.setTechSet(context.getTechSet());
+        } else {
+            techTree.reset();
         }
-    }
-
-    private TreePath getTechPath(TreeNode node) {
-        List<TreeNode> list = new ArrayList<>();
-
-        // Add all nodes to list
-        while (node != null) {
-            list.add(node);
-            node = node.getParent();
-        }
-        Collections.reverse(list);
-
-        // Convert array of nodes to TreePath
-        return new TreePath(list.toArray());
     }
 
     private ZapTextArea getRequestField() {
@@ -678,21 +589,9 @@ public class CustomScanDialog extends StandardFieldsDialog {
         return techPanel;
     }
 
-    private JCheckBoxTree getTechTree() {
+    private TechnologyTreePanel getTechTree() {
         if (techTree == null) {
-            techTree = new JCheckBoxTree() {
-                private static final long serialVersionUID = 1L;
-
-                @Override
-                protected void setExpandedState(TreePath path, boolean state) {
-                    // Ignore all collapse requests; collapse events will not be fired
-                    if (state) {
-                        super.setExpandedState(path, state);
-                    }
-                }
-            };
-            this.setTech();
-
+            techTree = new TechnologyTreePanel(Constant.messages.getString("ascan.custom.tab.tech.node"));
         }
         return techTree;
     }
@@ -740,24 +639,6 @@ public class CustomScanDialog extends StandardFieldsDialog {
         }
 
         getRequestField().getCaret().setVisible(true);
-    }
-
-    private TechSet getTechSet() {
-        TechSet techSet = new TechSet();
-
-        Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-        while (iter.hasNext()) {
-            Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-            TreePath tp = this.getTechPath(node.getValue());
-            Tech tech = node.getKey();
-            if (this.getTechTree().isSelectedFully(tp)) {
-                techSet.include(tech);
-                
-            } else {
-                techSet.exclude(tech);
-            }
-        }
-        return techSet;
     }
 
     private JList<Highlight> getInjectionPointList() {
@@ -809,20 +690,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
     }
 
     private void reset(boolean refreshUi) {
-        
-        // From Apache Commons source code:
-        // Note: This method won't work well on hierarchical configurations because it is not able to 
-        // copy information about the properties' structure. 
-        // So when dealing with hierarchical configuration objects their clone() methods should be used.        
-        //FileConfiguration fileConfig = new XMLConfiguration();
-        //ConfigurationUtils.copy(extension.getScannerParam().getConfig(), fileConfig);
-        XMLConfiguration fileConfig = (XMLConfiguration)ConfigurationUtils.cloneConfiguration(extension.getScannerParam().getConfig());
-
-        scannerParam = new ScannerParam();
-        scannerParam.load(fileConfig);
-
-        optionsParam = new OptionsParam();
-        optionsParam.load(fileConfig);
+        scannerParam = (ScannerParam) extension.getScannerParam().clone();
 
         if (refreshUi) {
             init(target);
@@ -858,9 +726,11 @@ public class CustomScanDialog extends StandardFieldsDialog {
     @Override
     public void save() {
         List<Object> contextSpecificObjects = new ArrayList<Object>();
-        contextSpecificObjects.add(scanPolicy);
 
-        if (this.getBoolValue(FIELD_ADVANCED)) {
+        if (!this.getBoolValue(FIELD_ADVANCED)) {
+            contextSpecificObjects.add(scanPolicy);
+        } else {
+            contextSpecificObjects.add(policyPanel.getScanPolicy());
         	
         	if (target == null && this.customPanels != null) {
         		// One of the custom scan panels must have specified a target 
@@ -912,7 +782,7 @@ public class CustomScanDialog extends StandardFieldsDialog {
 
 
             contextSpecificObjects.add(scannerParam);
-            contextSpecificObjects.add(this.getTechSet());
+            contextSpecificObjects.add(getTechTree().getTechSet());
             
             if (this.customPanels != null) {
             	for (CustomScanPanel customPanel : this.customPanels) {
@@ -1006,5 +876,71 @@ public class CustomScanDialog extends StandardFieldsDialog {
         int enabledRpc = scannerParam.getTargetParamsEnabledRPC();
         enabledRpc |= ScannerParam.RPC_USERDEF;
         scannerParam.setTargetParamsEnabledRPC(enabledRpc);
+    }
+
+    /**
+     * An {@code AbstractParamContainerPanel} that allows to configure {@link ScanPolicy scan policies}.
+     */
+    private static class ScanPolicyPanel extends AbstractParamContainerPanel {
+
+        private static final long serialVersionUID = -7997974525786756431L;
+
+        private PolicyAllCategoryPanel policyAllCategoryPanel = null;
+        private List<PolicyCategoryPanel> categoryPanels = Collections.emptyList();
+        private ScanPolicy scanPolicy;
+
+        public ScanPolicyPanel(Window parent, ExtensionActiveScan extension, String rootName, ScanPolicy scanPolicy) {
+            super(rootName);
+
+            this.scanPolicy = scanPolicy;
+            String[] ROOT = {};
+
+            policyAllCategoryPanel = new PolicyAllCategoryPanel(parent, extension, scanPolicy, true);
+            policyAllCategoryPanel.setName(Constant.messages.getString("ascan.custom.tab.policy"));
+            policyAllCategoryPanel.addScanPolicyChangedEventListener(new ScanPolicyChangedEventListener() {
+
+                @Override
+                public void scanPolicyChanged(ScanPolicy scanPolicy) {
+                    ScanPolicyPanel.this.scanPolicy = scanPolicy;
+                    for (PolicyCategoryPanel panel : categoryPanels) {
+                        panel.setPluginFactory(scanPolicy.getPluginFactory(), scanPolicy.getDefaultThreshold());
+                    }
+                }
+            });
+            addParamPanel(null, policyAllCategoryPanel, false);
+
+            categoryPanels = new ArrayList<>(Category.getAllNames().length);
+            for (int i = 0; i < Category.getAllNames().length; i++) {
+                PolicyCategoryPanel panel = new PolicyCategoryPanel(
+                        i,
+                        this.scanPolicy.getPluginFactory(),
+                        scanPolicy.getDefaultThreshold());
+                addParamPanel(ROOT, Category.getName(i), panel, true);
+                this.categoryPanels.add(panel);
+            }
+            showDialog(true);
+        }
+
+        public void resetAndSetPolicy(String scanPolicyName) {
+            policyAllCategoryPanel.reloadPolicies(scanPolicyName);
+        }
+
+        public void setScanPolicy(ScanPolicy scanPolicy) {
+            policyAllCategoryPanel.setScanPolicy(scanPolicy);
+        }
+
+        public ScanPolicy getScanPolicy() {
+            return scanPolicy;
+        }
+    }
+
+    /**
+     * Resets the active scan dialogue to its default state.
+     * 
+     * @since 2.5.0
+     */
+    void reset() {
+        target = null;
+        reset(true);
     }
 }

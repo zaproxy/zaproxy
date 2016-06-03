@@ -54,7 +54,7 @@ public class DisplayUtils {
 			// dont need to scale
 			return icon;
 		}
-		return new ImageIcon(((ImageIcon)icon).getImage().getScaledInstance(
+		return new ImageIcon((icon).getImage().getScaledInstance(
 				(int)(icon.getIconWidth() * FontUtils.getScale()), (int)(icon.getIconHeight() * FontUtils.getScale()), Image.SCALE_SMOOTH));
 	}
 	

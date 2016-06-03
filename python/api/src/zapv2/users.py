@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,11 +24,19 @@ class users(object):
     def __init__(self, zap):
         self.zap = zap
 
-    def users_list(self, contextid=''):
-        return next(self.zap._request(self.zap.base + 'users/view/usersList/', {'contextId' : contextid}).itervalues())
+    def users_list(self, contextid=None):
+        params = {}
+        if contextid is not None:
+            params['contextId'] = contextid
+        return next(self.zap._request(self.zap.base + 'users/view/usersList/', params).itervalues())
 
-    def get_user_by_id(self, contextid='', userid=''):
-        return next(self.zap._request(self.zap.base + 'users/view/getUserById/', {'contextId' : contextid, 'userId' : userid}).itervalues())
+    def get_user_by_id(self, contextid=None, userid=None):
+        params = {}
+        if contextid is not None:
+            params['contextId'] = contextid
+        if userid is not None:
+            params['userId'] = userid
+        return next(self.zap._request(self.zap.base + 'users/view/getUserById/', params).itervalues())
 
     def get_authentication_credentials_config_params(self, contextid):
         return next(self.zap._request(self.zap.base + 'users/view/getAuthenticationCredentialsConfigParams/', {'contextId' : contextid}).itervalues())
@@ -48,7 +56,10 @@ class users(object):
     def set_user_name(self, contextid, userid, name, apikey=''):
         return next(self.zap._request(self.zap.base + 'users/action/setUserName/', {'contextId' : contextid, 'userId' : userid, 'name' : name, 'apikey' : apikey}).itervalues())
 
-    def set_authentication_credentials(self, contextid, userid, authcredentialsconfigparams='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', {'contextId' : contextid, 'userId' : userid, 'authCredentialsConfigParams' : authcredentialsconfigparams, 'apikey' : apikey}).itervalues())
+    def set_authentication_credentials(self, contextid, userid, authcredentialsconfigparams=None, apikey=''):
+        params = {'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}
+        if authcredentialsconfigparams is not None:
+            params['authCredentialsConfigParams'] = authcredentialsconfigparams
+        return next(self.zap._request(self.zap.base + 'users/action/setAuthenticationCredentials/', params).itervalues())
 
 

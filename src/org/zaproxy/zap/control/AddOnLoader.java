@@ -49,6 +49,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.AbstractPlugin;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.model.Model;
@@ -367,6 +368,7 @@ public class AddOnLoader extends URLClassLoader {
 
 		AddOnInstaller.install(createAndAddAddOnClassLoader(ao), ao);
 		ao.setInstallationStatus(AddOn.InstallationStatus.INSTALLED);
+		Control.getSingleton().getExtensionLoader().addOnInstalled(ao);
 
         if (runnableAddOns.get(ao) == null) {
             runnableAddOns.put(ao, getRunnableExtensionsWithDeps(reqs));
@@ -491,6 +493,7 @@ public class AddOnLoader extends URLClassLoader {
 			removeAddOnClassLoader(ao);
 			deleteAddOnFile(ao, upgrading);
 			ao.setInstallationStatus(AddOn.InstallationStatus.UNINSTALLATION_FAILED);
+			Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, false);
 			return false;
 		}
 
@@ -532,6 +535,7 @@ public class AddOnLoader extends URLClassLoader {
 				? AddOn.InstallationStatus.AVAILABLE
 				: AddOn.InstallationStatus.UNINSTALLATION_FAILED);
 
+		Control.getSingleton().getExtensionLoader().addOnUninstalled(ao, uninstalledWithoutErrors);
 		return uninstalledWithoutErrors;
 	}
 	
@@ -610,6 +614,9 @@ public class AddOnLoader extends URLClassLoader {
         }
 
         addOn.setInstallationStatus(status);
+        Control.getSingleton()
+                .getExtensionLoader()
+                .addOnSoftUninstalled(addOn, status == AddOn.InstallationStatus.NOT_INSTALLED);
     }
 
 	private void loadBlockList() {

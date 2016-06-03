@@ -53,6 +53,16 @@ public class SiteParameters {
 		this.site = site;
 	}
 
+	/**
+	 * Tells whether or not this site has any parameters (cookies, query or form parameters).
+	 *
+	 * @return {@code true} if this site has parameters, {@code false} otherwise.
+	 * @since 2.5.0
+	 */
+	public boolean hasParams() {
+		return !cookieParams.isEmpty() || !urlParams.isEmpty() || !formParams.isEmpty();
+	}
+
 	public HtmlParameterStats getParam(HtmlParameter.Type type, String name) {
 		switch (type) {
 		case cookie:

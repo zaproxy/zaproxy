@@ -27,6 +27,7 @@
 // ZAP: 2012/11/01 Changed to load the HttpMessage from the database only once.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Changed to a JMenuItem.
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 
 package org.parosproxy.paros.extension.history;
 
@@ -49,7 +50,8 @@ import org.parosproxy.paros.network.HttpMessage;
 
 public class PopupMenuExportMessage extends JMenuItem {
 
-    // ZAP: Added logger
+    private static final long serialVersionUID = 1L;
+
     private static final Logger log = Logger.getLogger(PopupMenuExportMessage.class);
 
     private static final String CRLF = "\r\n";

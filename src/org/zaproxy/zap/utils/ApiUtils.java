@@ -21,6 +21,8 @@ package org.zaproxy.zap.utils;
 
 import net.sf.json.JSONObject;
 
+import java.util.Locale;
+
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -159,6 +161,46 @@ public final class ApiUtils {
 			throw new ApiException(ApiException.Type.DOES_NOT_EXIST, contextName);
 		}
 		return context;
+	}
+
+	/**
+	 * Returns the authority of the given {@code site} (i.e. host ":" port ).
+	 * <p>
+	 * For example, the result of returning the authority from:
+	 * <blockquote><pre>http://example.com:8080/some/path?a=b#c</pre></blockquote> is:
+	 * <blockquote><pre>example.com:8080</pre></blockquote>
+	 * <p>
+	 * If the provided site does not have a port, it's added the default of the used scheme.
+	 * <p>
+	 * <strong>Note:</strong> The implementation is optimised to handle only HTTP and HTTPS schemes, the behaviour is undefined
+	 * for other schemes.
+	 * 
+	 * @param site the site whose authority will be extracted
+	 * @return the authority of the site
+	 * @since 2.5.0
+	 */
+	public static String getAuthority(String site) {
+		String authority = site;
+		boolean isSecure = false;
+		// Remove http(s)://
+		if (authority.toLowerCase(Locale.ROOT).startsWith("http://")) {
+			authority = authority.substring(7);
+		} else if (authority.toLowerCase(Locale.ROOT).startsWith("https://")) {
+			authority = authority.substring(8);
+			isSecure = true;
+		}
+		// Remove trailing chrs
+		int idx = authority.indexOf('/');
+		if (idx > 0) {
+			authority = authority.substring(0, idx);
+		}
+		if (!authority.isEmpty() && authority.indexOf(':') == -1) {
+			if (isSecure) {
+				return authority + ":443";
+			}
+			return authority + ":80";
+		}
+		return authority;
 	}
 
 	private ApiUtils() {

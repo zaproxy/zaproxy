@@ -210,6 +210,7 @@ public final class AddOnInstaller {
 
         callback.extensionsWillBeRemoved(addOn.getLoadedExtensions().size());
         List<Extension> extensions = new ArrayList<>(addOn.getLoadedExtensions());
+        Collections.reverse(extensions);
         for (Extension ext : extensions) {
             uninstalledWithoutErrors &= uninstallAddOnExtension(addOn, ext, callback);
         }
@@ -232,6 +233,7 @@ public final class AddOnInstaller {
             AddOnUninstallationProgressCallback callback) {
         boolean uninstalledWithoutErrors = true;
         if (extension.isEnabled()) {
+            String extUiName = extension.getUIName();
             if (extension.canUnload()) {
                 logger.debug("Unloading ext: " + extension.getName());
                 try {
@@ -246,7 +248,7 @@ public final class AddOnInstaller {
                 logger.debug("Cant dynamically unload ext: " + extension.getName());
                 uninstalledWithoutErrors = false;
             }
-            callback.extensionRemoved(extension.getUIName());
+            callback.extensionRemoved(extUiName);
         }
         addOn.removeLoadedExtension(extension);
 

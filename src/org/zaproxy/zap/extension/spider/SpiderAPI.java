@@ -49,6 +49,7 @@ import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
 import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
+import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.utils.ApiUtils;
 
@@ -97,6 +98,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String PARAM_RECURSE = "recurse";
 	private static final String PARAM_SCAN_ID = "scanId";
 	private static final String PARAM_MAX_CHILDREN = "maxChildren";
+	private static final String PARAM_SUBTREE_ONLY = "subtreeOnly";
 
 	private static final String ACTION_EXCLUDE_FROM_SCAN = "excludeFromScan";
 	private static final String ACTION_CLEAR_EXCLUDED_FROM_SCAN = "clearExcludedFromScan";
@@ -114,11 +116,11 @@ public class SpiderAPI extends ApiImplementor {
 	public SpiderAPI(ExtensionSpider extension) {
 		this.extension = extension;
 		// Register the actions
-		this.addApiAction(new ApiAction(ACTION_START_SCAN, new String[] { PARAM_URL },
-				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME }));
+		this.addApiAction(new ApiAction(ACTION_START_SCAN, null,
+				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_CONTEXT_NAME, PARAM_SUBTREE_ONLY }));
 		this.addApiAction(new ApiAction(ACTION_START_SCAN_AS_USER, 
-				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID },
-				new String[] { PARAM_MAX_CHILDREN, PARAM_RECURSE }));
+				new String[] { PARAM_CONTEXT_ID, PARAM_USER_ID },
+				new String[] { PARAM_URL, PARAM_MAX_CHILDREN, PARAM_RECURSE, PARAM_SUBTREE_ONLY }));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, null, new String[] { PARAM_SCAN_ID }));
@@ -154,7 +156,7 @@ public class SpiderAPI extends ApiImplementor {
 		switch (name) {
 		case ACTION_START_SCAN:
 			// The action is to start a new Scan
-			String url = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
+			String url = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 			if (params.containsKey(PARAM_MAX_CHILDREN)) {
 				String maxChildrenStr = params.getString(PARAM_MAX_CHILDREN);
 				if (maxChildrenStr != null && maxChildrenStr.length() > 0) {
@@ -166,14 +168,18 @@ public class SpiderAPI extends ApiImplementor {
 				}
 			}
 			if (params.containsKey(PARAM_CONTEXT_NAME)) {
-				context = ApiUtils.getContextByName(params, PARAM_CONTEXT_NAME);
+				String contextName = params.getString(PARAM_CONTEXT_NAME);
+				if (!contextName.isEmpty()) {
+					context = ApiUtils.getContextByName(contextName);
+				}
 			}
-			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
+			int scanId = scanURL(url, null, maxChildren, this.getParam(params, PARAM_RECURSE, true), context,
+					getParam(params, PARAM_SUBTREE_ONLY, false));
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
 		case ACTION_START_SCAN_AS_USER:
 			// The action is to start a new Scan from the perspective of a user
-			String urlUserScan = ApiUtils.getNonEmptyStringParam(params, PARAM_URL);
+			String urlUserScan = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 			int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
 			ExtensionUserManagement usersExtension = (ExtensionUserManagement) Control.getSingleton()
 					.getExtensionLoader().getExtension(ExtensionUserManagement.NAME);
@@ -181,9 +187,6 @@ public class SpiderAPI extends ApiImplementor {
 				throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 			}
 			context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
-			if (!context.isIncluded(urlUserScan)) {
-				throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
-			}
 			User user = usersExtension.getContextUserAuthManager(context.getIndex()).getUserById(userID);
 			if (user == null) {
 				throw new ApiException(Type.USER_NOT_FOUND, PARAM_USER_ID);
@@ -198,7 +201,8 @@ public class SpiderAPI extends ApiImplementor {
 					}
 				}
 			}
-			scanId = scanURL(urlUserScan, user, maxChildren, this.getParam(params, PARAM_RECURSE, true), context);
+			scanId = scanURL(urlUserScan, user, maxChildren, this.getParam(params, PARAM_RECURSE, true), context,
+					getParam(params, PARAM_SUBTREE_ONLY, false));
 
 			return new ApiResponseElement(name, Integer.toString(scanId));
 
@@ -305,40 +309,80 @@ public class SpiderAPI extends ApiImplementor {
 	 * @param maxChildren Max number of children to scan
 	 * @param recurse Whether or not to scan recursively
 	 * @param context the context that will be used during spider process, might be {@code null}
+	 * @param subtreeOnly if the scan should be done only under a site's subtree
 	 * @return the ID of the newly started scan
 	 * @throws ApiException if the {@code url} is not valid
 	 * @see #scanIdCounter
 	 * @see #spiderScans
 	 */
-	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context) throws ApiException {
+	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context, boolean subtreeOnly) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
 
-		URI startURI;
-		try {
-			// Try to build uri
-			startURI = new URI(url, true);
-		} catch (URIException e) {
-			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
-		}
-		String scheme = startURI.getScheme();
-		if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
-			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+		boolean useUrl = true;
+		if (url == null || url.isEmpty()) {
+			if (context == null || !context.hasNodesInContextFromSiteTree()) {
+				throw new ApiException(Type.MISSING_PARAMETER, PARAM_URL);
+			}
+			useUrl = false;
+		} else if (context != null && !context.isInContext(url)) {
+			throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_URL);
 		}
 
 		StructuralNode node = null;
-		try {
-			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), "GET", "");
-		} catch (Exception e) {
-			throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+		URI startURI = null;
+		if (useUrl) {
+			try {
+				// Try to build uri
+				startURI = new URI(url, true);
+			} catch (URIException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+			String scheme = startURI.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+
+			try {
+				node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), "GET", "");
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+			}
 		}
-		Target target = new Target(node);
-		target.setRecurse(recurse);
-		if (context != null) {
+		Target target;
+		if (useUrl) {
+			target = new Target(node);
 			target.setContext(context);
+		} else {
+			target = new Target(context);
+		}
+		target.setRecurse(recurse);
+		
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			throw new ApiException(ApiException.Type.MODE_VIOLATION);
+		case protect:
+			if ((useUrl && !Model.getSingleton().getSession().isInScope(url))
+					|| (context != null && !context.isInScope())) {
+				throw new ApiException(ApiException.Type.MODE_VIOLATION);
+			}
+			// No problem
+			break;
+		case standard:
+			// No problem
+			break;
+		case attack:
+			// No problem
+			break;
 		}
 		
-		List<Object> objs = new ArrayList<>(maxChildren > 0 ? 3 : 1);
-		objs.add(startURI);
+		List<Object> objs = new ArrayList<>(4);
+		if (startURI != null) {
+			objs.add(startURI);
+			if (subtreeOnly) {
+				objs.add(new HttpPrefixFetchFilter(startURI));
+			}
+		}
+
 		if (maxChildren > 0) {
     		// Add the filters to filter on maximum number of children
     		MaxChildrenFetchFilter maxChildrenFetchFilter = new MaxChildrenFetchFilter();
@@ -352,7 +396,7 @@ public class SpiderAPI extends ApiImplementor {
 			objs.add(maxChildrenParseFilter);
 		}
 		
-		return extension.startScan(target.getDisplayName(), target, user, objs.toArray(new Object[objs.size()]));
+		return extension.startScan(target, user, objs.toArray(new Object[objs.size()]));
 	}
 
 	@Override
@@ -362,7 +406,11 @@ public class SpiderAPI extends ApiImplementor {
 			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
 			int progress = 0;
 			if (scan != null) {
-				progress = scan.getProgress();
+				if (scan.isStopped()) {
+					progress = 100;
+				} else {
+					progress = scan.getProgress();
+				}
 			}
 			result = new ApiResponseElement(name, Integer.toString(progress));
 		} else if (VIEW_RESULTS.equals(name)) {
@@ -379,7 +427,7 @@ public class SpiderAPI extends ApiImplementor {
 			ApiResponseList resultUrls = new ApiResponseList(name);
 			SpiderScan scan = (SpiderScan) this.getSpiderScan(params);
 			ApiResponseList resultList = new ApiResponseList("urlsInScope");
-			synchronized (scan.getResults()) {
+			synchronized (scan.getResourcesFound()) {
 				for (SpiderResource sr : scan.getResourcesFound()) {
 					Map<String, String> map = new HashMap<>();
 					map.put("messageId", Integer.toString(sr.getHistoryId()));

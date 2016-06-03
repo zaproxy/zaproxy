@@ -25,17 +25,15 @@ package org.zaproxy.zap.view;
 import java.awt.CardLayout;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
-import java.util.regex.Pattern;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.AbstractParamPanel;
-import org.zaproxy.zap.utils.DisplayUtils;
+import org.parosproxy.paros.view.View;
 
 public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 
@@ -43,9 +41,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = -8337361808959321380L;
 	
 	private JPanel panelSession = null;
-	private JTable tableIgnore = null;
-	private JScrollPane jScrollPane = null;
-	private SingleColumnTableModel model = null;
+	private MultipleRegexesOptionsPanel regexesPanel;
 	
     public SessionExcludeFromProxyPanel() {
         super();
@@ -58,6 +54,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	private void initialize() {
         this.setLayout(new CardLayout());
         this.setName(PANEL_NAME);
+        regexesPanel = new MultipleRegexesOptionsPanel(View.getSingleton().getSessionDialog());
         this.add(getPanelSession(), getPanelSession().getName());
 	}
 	
@@ -111,7 +108,7 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	        gridBagConstraints3.anchor = java.awt.GridBagConstraints.SOUTH;
 
 	        panelSession.add(jLabel, gridBagConstraints1);
-	        panelSession.add(getJScrollPane(), gridBagConstraints2);
+	        panelSession.add(regexesPanel, gridBagConstraints2);
 	        panelSession.add(noteLabel, gridBagConstraints3);
 		}
 		return panelSession;
@@ -120,51 +117,21 @@ public class SessionExcludeFromProxyPanel extends AbstractParamPanel {
 	@Override
 	public void initParam(Object obj) {
 	    Session session = (Session) obj;
-	    getModel().setLines(session.getExcludeFromProxyRegexs());
+	    regexesPanel.setRegexes(session.getExcludeFromProxyRegexs());
+	    regexesPanel.setRemoveWithoutConfirmation(
+	            !Model.getSingleton().getOptionsParam().getViewParam().isConfirmRemoveProxyExcludeRegex());
 	}
 	
 	@Override
 	public void validateParam(Object obj) {
-	    // Check for valid regexs
-		for (String regex : getModel().getLines()) {
-			if (regex.trim().length() > 0) {
-				Pattern.compile(regex.trim(), Pattern.CASE_INSENSITIVE);
-			}
-		}
 	}
 	
 	@Override
 	public void saveParam (Object obj) throws Exception {
 	    Session session = (Session) obj;
-	    session.setExcludeFromProxyRegexs(getModel().getLines());
-	}
-	
-	private JTable getTableIgnore() {
-		if (tableIgnore == null) {
-			tableIgnore = new JTable();
-			tableIgnore.setModel(getModel());
-			tableIgnore.setRowHeight(DisplayUtils.getScaledSize(18));
-			// Issue 954: Force the JTable cell to auto-save when the focus changes.
-			// Example, edit cell, click OK for a panel dialog box, the data will get saved.
-			tableIgnore.putClientProperty("terminateEditOnFocusLost", Boolean.TRUE);
-		}
-		return tableIgnore;
-	}
-	
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTableIgnore());
-			jScrollPane.setBorder(javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-		}
-		return jScrollPane;
-	}
-	
-	private SingleColumnTableModel getModel() {
-		if (model == null) {
-			model = new SingleColumnTableModel(Constant.messages.getString("session.proxy.table.header.ignore"));
-		}
-		return model;
+	    session.setExcludeFromProxyRegexs(regexesPanel.getRegexes());
+	    Model.getSingleton().getOptionsParam().getViewParam().setConfirmRemoveProxyExcludeRegex(
+	            !regexesPanel.isRemoveWithoutConfirmation());
 	}
 	
 	@Override

@@ -35,6 +35,9 @@
 // ZAP: 2014/07/15 Issue 1265: Context import and export
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/04/02 Issue 321: Support multiple databases
+// ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
+// ZAP: 2016/03/22 Allow to remove ContextDataFactory
+// ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 
 package org.parosproxy.paros.model;
 
@@ -75,6 +78,8 @@ public class Model {
 	private Logger logger = Logger.getLogger(Model.class);
 	private List<SessionListener> sessionListeners = new ArrayList<>();
 	private List<ContextDataFactory> contextDataFactories = new ArrayList<>();
+
+	private boolean postInitialisation;
 
 	public Model() {
 		// make sure the variable here will not refer back to model itself.
@@ -176,11 +181,15 @@ public class Model {
 	}
 
 	public void init(ControlOverrides overrides) throws SAXException, IOException, Exception {
+		getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
+
 		if (overrides.isExperimentalDb()) {
 			logger.info("Using experimental database :/");
 			db = DbSQL.getSingleton().initDatabase();
 		} else {
-			db = new ParosDatabase();
+			ParosDatabase parosDb = new ParosDatabase();
+			parosDb.setDatabaseParam(getOptionsParam().getDatabaseParam());
+			db = parosDb;
 		}
 
 		createAndOpenUntitledDb();
@@ -188,7 +197,6 @@ public class Model {
 		HistoryReference.setTableHistory(getDb().getTableHistory());
 		HistoryReference.setTableTag(getDb().getTableTag());
 		HistoryReference.setTableAlert(getDb().getTableAlert());
-		getOptionsParam().load(Constant.getInstance().FILE_CONFIG, overrides);
 	}
 
 	public static Model getSingleton() {
@@ -434,8 +442,39 @@ public class Model {
 		this.sessionListeners.add(listener);
 	}
 
-	public void addContextDataFactory(ContextDataFactory cdf) {
-		this.contextDataFactories.add(cdf);
+	/**
+	 * Adds the given context data factory to the model.
+	 *
+	 * @param contextDataFactory the context data factory that will be added.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @see #removeContextDataFactory(ContextDataFactory)
+	 */
+	public void addContextDataFactory(ContextDataFactory contextDataFactory) {
+		if (contextDataFactory == null) {
+			throw new IllegalArgumentException("Parameter contextDataFactory must not be null.");
+		}
+		this.contextDataFactories.add(contextDataFactory);
+
+		if (postInitialisation) {
+			for (Context context : getSession().getContexts()) {
+				contextDataFactory.loadContextData(getSession(), context);
+			}
+		}
+	}
+
+	/**
+	 * Removes the given context data factory from the model.
+	 *
+	 * @param contextDataFactory the context data factory that will be removed.
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since 2.5.0
+	 * @see #addContextDataFactory(ContextDataFactory)
+	 */
+	public void removeContextDataFactory(ContextDataFactory contextDataFactory) {
+		if (contextDataFactory == null) {
+			throw new IllegalArgumentException("Parameter contextDataFactory must not be null.");
+		}
+		contextDataFactories.remove(contextDataFactory);
 	}
 
 	public void loadContext(Context ctx) {
@@ -471,6 +510,17 @@ public class Model {
 		for (ContextDataFactory cdf : this.contextDataFactories) {
 			cdf.exportContextData(ctx, config);
 		}
+	}
+
+	/**
+	 * Notifies the model that the initialisation has been done.
+	 * <p>
+	 * <strong>Note:</strong> Should be called only by "core" code after the initialisation.
+	 * 
+	 * @since 2.5.0
+	 */
+	public void postInit() {
+		postInitialisation = true;
 	}
 
 }

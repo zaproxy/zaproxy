@@ -75,13 +75,11 @@ public class DesktopUtils {
 	public static boolean canOpenUrlInBrowser () {
 		switch (getInvoker()) {
 		case desktop:
-        	if (! Desktop.isDesktopSupported()) {
-        		return false;
-        	}
-
+        		return Desktop.isDesktopSupported();
 		case browserlauncher:
 				return true;
 		case none:
+				return false;
 		default:
 				return false;
 		}

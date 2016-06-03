@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ class Acsrf {
 	 * Generate a form for testing lack of anti CSRF tokens - typically invoked via ZAP
 	 */
 	public function genForm($hrefid, $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'acsrf/other/genForm/', array('hrefId' => $hrefid, 'apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'acsrf/other/genForm/', array('hrefId' => $hrefid, 'apikey' => $apikey));
 	}
 
 }

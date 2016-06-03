@@ -61,6 +61,12 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/07/16 Issue 1617: ZAP 2.4.0 throws HeadlessExceptions when running in daemon mode on headless machine
 // ZAP: 2015/09/16 Issue 1890: ZAP can't completely scan OWASP Benchmark
+// ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/04/12 Listen to alert events to update the table model entries
+// ZAP: 2016/04/14 Use View to display the HTTP messages
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2016/05/20 Moved purge method to here from PopupMenuPurgeSites
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 
 package org.parosproxy.paros.extension.history;
 
@@ -73,6 +79,7 @@ import javax.swing.JOptionPane;
 import org.apache.commons.collections.map.ReferenceMap;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.db.DatabaseException;
@@ -85,9 +92,15 @@ import org.parosproxy.paros.extension.manualrequest.http.impl.ManualHttpRequestE
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.ZAP;
+import org.zaproxy.zap.eventBus.Event;
+import org.zaproxy.zap.eventBus.EventConsumer;
+import org.zaproxy.zap.extension.alert.AlertEventPublisher;
+import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.history.AlertAddDialog;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
@@ -168,7 +181,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	 */    
 	private LogPanel getLogPanel() {
 		if (logPanel == null) {
-			logPanel = new LogPanel();
+			logPanel = new LogPanel(getView());
 			logPanel.setName(Constant.messages.getString("history.panel.title"));	// ZAP: i18n
 			// ZAP: Added History (calendar) icon
 			logPanel.setIcon(new ImageIcon(ExtensionHistory.class.getResource("/resource/icon/16/025.png")));	// 'calendar' icon
@@ -198,18 +211,20 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		super.init();
 
 		historyTableModel = new DefaultHistoryReferencesTableModel();
+		ZAP.getEventBus().registerConsumer(new AlertEventConsumer(), AlertEventPublisher.getPublisher().getPublisherName());
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
         extensionHook.addSessionListener(this);
         extensionHook.addProxyListener(getProxyListenerLog());
+        extensionHook.addConnectionRequestProxyListener(getProxyListenerLog());
 
 	    if (getView() != null) {
 		    ExtensionHookView pv = extensionHook.getHookView();
 		    pv.addStatusPanel(getLogPanel());
-		    getLogPanel().setDisplayPanel(getView().getRequestPanel(), getView().getResponsePanel());
 		    
             extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuTag());
             // ZAP: Added history notes
@@ -258,19 +273,37 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
 	}
 	
-    public void notifyHistoryItemChanged(final HistoryReference href) {
+    public void notifyHistoryItemChanged(HistoryReference href) {
+        notifyHistoryItemChanged(href.getHistoryId());
+    }
+
+    private void notifyHistoryItemChanged(final int historyId) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
-            this.historyTableModel.refreshEntryRow(href.getHistoryId());
+            this.historyTableModel.refreshEntryRow(historyId);
         } else {
             EventQueue.invokeLater(new Runnable() {
 
                 @Override
                 public void run() {
-                    notifyHistoryItemChanged(href);
+                    notifyHistoryItemChanged(historyId);
                 }
             });
         }
 	}
+
+    private void notifyHistoryItemsChanged() {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
+            this.historyTableModel.refreshEntryRows();
+        } else {
+            EventQueue.invokeLater(new Runnable() {
+
+                @Override
+                public void run() {
+                    notifyHistoryItemsChanged();
+                }
+            });
+        }
+    }
     
     public void delete(HistoryReference href) {
     	if (href != null) {
@@ -321,9 +354,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     	}
         try {
             synchronized (historyTableModel) {
-                final int historyType = historyRef.getHistoryType();
-                if (historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
-                        || historyRef.getHistoryType()==HistoryReference.TYPE_AUTHENTICATION) {
+                if (isHistoryTypeToShow(historyRef.getHistoryType())) {
                     final String uri = historyRef.getURI().toString();
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
 	            		// Not in scope
@@ -354,6 +385,17 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
         }
     }
 
+    /**
+     * Tells whether or not the messages with the given history type should be shown in the History tab.
+     *
+     * @param historyType the history type that will be checked
+     * @return {@code true} if it should be shown, {@code false} otherwise
+     */
+    private static boolean isHistoryTypeToShow(int historyType) {
+        return historyType == HistoryReference.TYPE_PROXIED || historyType == HistoryReference.TYPE_ZAP_USER
+                || historyType == HistoryReference.TYPE_AUTHENTICATION || historyType == HistoryReference.TYPE_PROXY_CONNECT;
+    }
+
     private void addHistoryInEventQueue(final HistoryReference ref) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
             historyTableModel.addHistoryReference(ref);
@@ -379,7 +421,8 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	        try {
 	            // ZAP: Added type argument.
 	            List<Integer> list = getModel().getDb().getTableHistory().getHistoryIdsOfHistType(
-						session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER);
+						session.getSessionId(), HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER,
+						HistoryReference.TYPE_PROXY_CONNECT);
 	            
 	            buildHistory(list, historyFilter);
 	        } catch (DatabaseException e) {
@@ -406,7 +449,9 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	            		historyRef = sn.getHistoryReference();
 	            	} else {
 	                    historyRef = getHistoryReference(historyId);
-	                    sn.setHistoryReference(historyRef);
+	                    if (sn != null) {
+	                    	sn.setHistoryReference(historyRef);
+	                    }
 	            	}
 	            	final String uri = historyRef.getURI().toString();
 	            	if (this.showJustInScope && ! getModel().getSession().isInScope(uri)) {
@@ -647,8 +692,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 			historyIdToRef.clear();
 
 			if (getView() != null) { 
-				getView().getRequestPanel().clearView(true);
-				getView().getResponsePanel().clearView(false);
+				getView().displayMessage(null);
 			}
 		} else {
 			try {
@@ -682,6 +726,64 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		// Refresh with the next option
 	    searchHistory(getFilterPlusDialog().getFilter());
 	}
+	
+    public void purge(SiteMap map, SiteNode node) {
+        SiteNode child = null;
+        synchronized (map) {
+            while (node.getChildCount() > 0) {
+                try {
+                    child = (SiteNode) node.getChildAt(0);
+                    purge(map, child);
+                } catch (Exception e) {
+                    logger.error(e.getMessage(), e);
+                }
+            }
+
+            if (node.isRoot()) {
+                return;
+            }
+
+            // delete reference in node
+            removeFromHistoryList(node.getHistoryReference());
+            if (View.isInitialised()) {
+                clearLogPanelDisplayQueue();
+            }
+
+            ExtensionAlert extAlert =
+                    Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
+
+            if (node.getHistoryReference() != null) {
+                deleteAlertsFromExtensionAlert(extAlert, node.getHistoryReference());
+                node.getHistoryReference().delete();
+                map.removeHistoryReference(node.getHistoryReference().getHistoryId());
+            }
+
+            // delete past reference in node
+            while (node.getPastHistoryReference().size() > 0) {
+                HistoryReference ref = node.getPastHistoryReference().get(0);
+                deleteAlertsFromExtensionAlert(extAlert, ref);
+                removeFromHistoryList(ref);
+                if (View.isInitialised()) {
+                    clearLogPanelDisplayQueue();
+                }
+                delete(ref);
+                node.getPastHistoryReference().remove(0);
+                map.removeHistoryReference(ref.getHistoryId());
+            }
+
+            map.removeNodeFromParent(node);
+        }
+
+    }
+
+    private static void deleteAlertsFromExtensionAlert(ExtensionAlert extAlert, HistoryReference historyReference) {
+        if (extAlert == null) {
+            return;
+        }
+
+        extAlert.deleteHistoryReferenceAlerts(historyReference);
+    }
+
 
 	void setLinkWithSitesTree(boolean linkWithSitesTree, String baseUri) {
 		this.linkWithSitesTree = linkWithSitesTree;
@@ -722,5 +824,23 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
     @Override
     public boolean supportsDb(String type) {
     	return true;
+    }
+
+    private class AlertEventConsumer implements EventConsumer {
+
+        @Override
+        public void eventReceived(Event event) {
+            switch (event.getEventType()) {
+            case AlertEventPublisher.ALERT_ADDED_EVENT:
+            case AlertEventPublisher.ALERT_CHANGED_EVENT:
+            case AlertEventPublisher.ALERT_REMOVED_EVENT:
+                notifyHistoryItemChanged(Integer.valueOf(event.getParameters().get(AlertEventPublisher.HISTORY_REFERENCE_ID)));
+                break;
+            case AlertEventPublisher.ALL_ALERTS_REMOVED_EVENT:
+            default:
+                notifyHistoryItemsChanged();
+                break;
+            }
+        }
     }
 }

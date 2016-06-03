@@ -47,6 +47,9 @@
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
+// ZAP: 2016/03/22 Implement init() and getDependency() by default, most plugins do not use them
+// ZAP: 2016/04/21 Include Plugin itself when notifying of a new message sent
+// ZAP: 2016/05/03 Remove exceptions' stack trace prints
 
 package org.parosproxy.paros.core.scanner;
 
@@ -74,6 +77,8 @@ import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
 public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
+
+    private static final String[] NO_DEPENDENCIES = {};
 
     /**
      * Default pattern used in pattern check for most plugins.
@@ -123,8 +128,16 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return result;
     }
 
+    /**
+     * Returns no dependencies by default.
+     * 
+     * @since 2.5.0
+     * @return an empty array (that is, no dependencies)
+     */
     @Override
-    public abstract String[] getDependency();
+    public String[] getDependency() {
+        return NO_DEPENDENCIES;
+    }
 
     @Override
     public abstract String getDescription();
@@ -148,7 +161,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         init();
     }
 
-    public abstract void init();
+    /**
+     * Finishes the initialisation of the plugin, subclasses should add any initialisation logic/code to this method.
+     * <p>
+     * Called after the plugin has been initialised with the message being scanned. By default it does nothing.
+     * <p>
+     * Since 2.5.0 it is no longer abstract.
+     * 
+     * @see #init(HttpMessage, HostProcess)
+     */
+    public void init() {
+    }
 
     /**
      * Obtain a new HttpMessage with the same request as the base. The response
@@ -237,7 +260,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
         
         // ZAP: Notify parent
-        parent.notifyNewMessage(msg);
+        parent.notifyNewMessage(this, msg);
         
         //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(msg, this);
@@ -723,8 +746,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             result = URLEncoder.encode(msg, "UTF8");
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
@@ -735,8 +758,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             result = URLDecoder.decode(msg, "UTF8");
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;

@@ -19,12 +19,14 @@
  */
 package org.zaproxy.zap.view.popup;
 
+import java.util.List;
+
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.view.SessionDialog;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.view.ContextExcludePanel;
@@ -57,23 +59,26 @@ public class PopupMenuItemExcludeFromContext extends PopupMenuItemSiteNodeContai
 
     @Override
     public void performAction(SiteNode sn) {
-
-        Session session = Model.getSingleton().getSession();
-
-        // Manually create the UI shared contexts so any modifications are done
-        // on an UI shared Context, so changes can be undone by pressing Cancel
-        SessionDialog sessionDialog = View.getSingleton().getSessionDialog();
-        sessionDialog.recreateUISharedContexts(session);
-        Context uiSharedContext = sessionDialog.getUISharedContext(context.getIndex());
+        Context uiSharedContext = View.getSingleton().getSessionDialog().getUISharedContext(context.getIndex());
 
         try {
             uiSharedContext.excludeFromContext(sn, !sn.isLeaf());
-
-            // Show the session dialog without recreating UI Shared contexts
-            View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()), false);
         } catch (Exception e) {
             LOGGER.error("Failed to execute action exclude from context: " + e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void performHistoryReferenceActions(List<HistoryReference> hrefs) {
+        Session session = Model.getSingleton().getSession();
+        // Manually create the UI shared contexts so any modifications are done
+        // on an UI shared Context, so changes can be undone by pressing Cancel
+        View.getSingleton().getSessionDialog().recreateUISharedContexts(session);
+
+        super.performHistoryReferenceActions(hrefs);
+
+        // Show the session dialog without recreating UI Shared contexts
+        View.getSingleton().showSessionDialog(session, ContextExcludePanel.getPanelName(context.getIndex()), false);
     }
 
     @Override

@@ -7,18 +7,16 @@
 	<property name="build.lib.dir" location="lib" />
 	<property name="dist" location="zap" />
 	<property name="dist.lib.dir" location="../lib" />
-	<property name="dist.lib.license.dir" location="../license" />
-	<property name="dist.lib.exploded.dir" location="api-libs-exploded" />
 	<property name="javadocs.dir" location="../javadocs" />
 	<property name="lang.dir" value="${src}/lang" />
 	<property name="help.dir" value="../../zap-core-help/src/help" />
 	<property name="test.lib" location="../testlib" />
 	<property name="test.src" location="../test" />
+	<property name="test.build" location="buildtest" />
 	<property name="zap.extensions.alpha.dir" location="../../zap-extensions_alpha/" />
 	<property name="zap.extensions.beta.dir" location="../../zap-extensions_beta/" />
 	<property name="zap.extensions.trunk.dir" location="../../zap-extensions/" />
 	<property name="zap.test.trunk.dir" location="../../zaproxy-test/" />
-	<property name="zap.java.api.version" value="7" />
 	<property name="package" value="zaproxy" />
 
 	<!-- mac specific properties -->
@@ -29,9 +27,9 @@
 	<property name="app.bundle" value="${dist-mac}/${app.name}" />
 	<property name="app.executable" value="${app.bundle}/Contents/MacOS/OWASP ZAP.sh" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
-	<!--This version downloaded from  http://www.oracle.com/technetwork/java/javase/downloads/jre7-downloads-1880261.html -->
-	<property name="app.jrearchive" value="jre-7u79-macosx-x64.tar.gz" />
-	<property name="app.jredir" value="jre1.7.0_79.jre" />
+	<!--This version downloaded from http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html -->
+	<property name="app.jrearchive" value="jre-8u92-macosx-x64.tar.gz" />
+	<property name="app.jredir" value="jre1.8.0_92.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
@@ -71,9 +69,10 @@
 
 		<delete dir="${dist}" includeEmptyDirs="true" />
 		<delete dir="${build}" includeEmptyDirs="true" />
-		<delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
+		<delete dir="${test.build}" includeEmptyDirs="true" />
 
 		<mkdir dir="${build}" />
+		<mkdir dir="${test.build}" />
 		<mkdir dir="results" />
 	</target>
 
@@ -86,6 +85,8 @@
 		</delete>
 		<delete dir="${app.name}" />      <!-- if you've unzipped the Mac version, for testing -->
 		<delete dir="ZAP_${version}" />   <!-- if you've untarred the Linux version, for testing -->
+		<delete dir="${test.build}" includeEmptyDirs="true" />
+		<delete dir="results"  includeEmptyDirs="true" />
 	</target>
 
 	<target name="compile" depends="init" description="Compile the source ">
@@ -100,6 +101,9 @@
 		<!-- Compile the java code from ${src} into ${build} -->
 		<!--javac srcdir="${src}" destdir="${build}" classpath="zap.jar"/-->
 		<javac srcdir="${src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+			<compilerarg value="-Xlint:all"/>
+			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
+			<compilerarg value="-Werror"/>
 			<classpath>
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
@@ -107,9 +111,13 @@
 			</classpath>
 		</javac>
 
-		<!-- Compile the java test code from ${test-src} into ${build} -->
-		<javac srcdir="${test.src}" destdir="${build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+		<!-- Compile the java test code from ${test.src} into ${test.build} -->
+		<javac srcdir="${test.src}" destdir="${test.build}" source="${src.version}" target="${src.version}" includeantruntime="false" debug="${debug}" encoding="UTF-8">
+			<compilerarg value="-Xlint:all"/>
+			<compilerarg value="-Xlint:-options"/> <!-- Otherwise fails with Java 8 -->
+			<compilerarg value="-Werror"/>
 			<classpath>
+				<pathelement location="${build}" />
 				<fileset dir="${dist.lib.dir}">
 					<include name="**/*.jar" />
 				</fileset>
@@ -234,46 +242,10 @@
 			</manifest>
 		</jar>
 
-		<unjar dest="${dist.lib.exploded.dir}">
-			<fileset dir="${dist.lib.dir}" casesensitive="yes">
-				<include name="**/ant.jar" />
-				<include name="**/jdom.jar" />
-				<include name="**/commons-beanutils-1.8.3.jar" />
-				<include name="**/commons-collections-3.2.1.jar" />
-				<include name="**/commons-lang-2.6.jar" />
-				<include name="**/commons-logging-1.1.1.jar" />
-				<include name="**/ezmorph-1.0.6.jar" />
-				<!--
-                    NOTE: If you're adding a jar to this list, ensure you add the license to ../license
-                    so it is brought into zap-api.jar
-                -->
-			</fileset>
-		</unjar>
-
-		<!-- Need to manually increment the API jar version ${zap.java.api.version} (at the start) before uploading a new one -->
-		<jar jarfile="${dist}/zap-api-2.4-v${zap.java.api.version}.jar" update="true" compress="false">
-			<zipfileset dir="${build}" prefix="">
-				<include name="org/zaproxy/clientapi/**"/>
-			</zipfileset>
-			<zipfileset dir="${dist.lib.exploded.dir}" prefix="">
-				<include name="**/*.class"/>
-				<exclude name="**/*LICENSE*"/>
-				<exclude name="**/*NOTICE*"/>
-			</zipfileset>
-			<zipfileset dir="${dist.lib.license.dir}" prefix="META-INF/license"/>
-			<manifest>
-				<attribute name="Implementation-Version" value="${zap.java.api.version}" />
-				<attribute name="Main-Class" value="org.zaproxy.clientapi.core.ClientApiMain" />
-				<attribute name="Create-Date" value="${yyyymmdd}" />
-			</manifest>
-		</jar>
-
 		<!-- Correct the ZAP jar name -->
 		<replace file="${dist}/zap.bat" token="zap-dev.jar" value="${zap.jar}"/>
 		<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
 
-		<!-- Delete the libraries files, "unjared" previously, as they are no longer needed. -->
-		<delete dir="${dist.lib.exploded.dir}" includeEmptyDirs="true" />
 	</target>
 
 	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
@@ -397,34 +369,27 @@
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
-        		<fileset dir="../lib">
+                <pathelement location="${build}"/>
+                <pathelement location="${test.build}"/>
+        		<fileset dir="${dist.lib.dir}">
         			<include name="*.jar" />
-        		</fileset>
-        		<fileset dir="lib">
-        			<include name="*.jar" />
-        			<exclude name="ant*.jar" />
-        			<exclude name="junit*.jar" />
-        		</fileset>
-        		<fileset dir="zap">
-        			<include name="zap.jar" />
         			<exclude name="ant*.jar" />
         		</fileset>
         		<fileset dir="../testlib">
         			<include name="*.jar" />
         		</fileset>
-            	
-        		<!--pathelement location="bin"/-->		<!-- When running in Eclipse -->
-        		<pathelement location="build"/>		<!-- When running on build server -->
             </classpath>
             <formatter type="plain"/>
             <formatter type="xml"/>
             <batchtest fork="yes" todir="results">
-                <fileset dir="build">
+                <fileset dir="${test.build}">
                     <include name="**/*UnitTest.class"/>
                     <exclude name="**/Abstract*Test.class"/>
                 </fileset>
-                <fileset dir="build">
+                <fileset dir="${test.build}">
                     <include name="**/AbstractPluginUnitTest.class"/>
+                    <include name="**/AbstractParamUnitTest.class"/>
+                    <include name="**/AbstractMultipleOptionsBaseTableModelUnitTest.class"/>
                 </fileset>
             </batchtest>
 		</junit>

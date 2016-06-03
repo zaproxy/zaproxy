@@ -65,7 +65,7 @@ public class AliasTableModel extends AbstractTableModel {
     
     
     public String getAlias(int row) {
-        return (String) _aliases.get(row).getAlias();
+        return _aliases.get(row).getAlias();
     }
     
     public int getColumnCount() {

@@ -2,7 +2,7 @@
 #
 # ZAP is an HTTP/HTTPS proxy for assessing web application security.
 #
-# Copyright 2015 the ZAP development team
+# Copyright 2016 the ZAP development team
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,11 +24,17 @@ class ascan(object):
     def __init__(self, zap):
         self.zap = zap
 
-    def status(self, scanid=''):
-        return next(self.zap._request(self.zap.base + 'ascan/view/status/', {'scanId' : scanid}).itervalues())
+    def status(self, scanid=None):
+        params = {}
+        if scanid is not None:
+            params['scanId'] = scanid
+        return next(self.zap._request(self.zap.base + 'ascan/view/status/', params).itervalues())
 
-    def scan_progress(self, scanid=''):
-        return next(self.zap._request(self.zap.base + 'ascan/view/scanProgress/', {'scanId' : scanid}).itervalues())
+    def scan_progress(self, scanid=None):
+        params = {}
+        if scanid is not None:
+            params['scanId'] = scanid
+        return next(self.zap._request(self.zap.base + 'ascan/view/scanProgress/', params).itervalues())
 
     def messages_ids(self, scanid):
         return next(self.zap._request(self.zap.base + 'ascan/view/messagesIds/', {'scanId' : scanid}).itervalues())
@@ -48,11 +54,21 @@ class ascan(object):
     def excluded_from_scan(self):
         return next(self.zap._request(self.zap.base + 'ascan/view/excludedFromScan/').itervalues())
 
-    def scanners(self, scanpolicyname='', policyid=''):
-        return next(self.zap._request(self.zap.base + 'ascan/view/scanners/', {'scanPolicyName' : scanpolicyname, 'policyId' : policyid}).itervalues())
+    def scanners(self, scanpolicyname=None, policyid=None):
+        params = {}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        if policyid is not None:
+            params['policyId'] = policyid
+        return next(self.zap._request(self.zap.base + 'ascan/view/scanners/', params).itervalues())
 
-    def policies(self, scanpolicyname='', policyid=''):
-        return next(self.zap._request(self.zap.base + 'ascan/view/policies/', {'scanPolicyName' : scanpolicyname, 'policyId' : policyid}).itervalues())
+    def policies(self, scanpolicyname=None, policyid=None):
+        params = {}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        if policyid is not None:
+            params['policyId'] = policyid
+        return next(self.zap._request(self.zap.base + 'ascan/view/policies/', params).itervalues())
 
     @property
     def attack_mode_queue(self):
@@ -127,17 +143,44 @@ class ascan(object):
         return next(self.zap._request(self.zap.base + 'ascan/view/optionRescanInAttackMode/').itervalues())
 
     @property
+    def option_scan_headers_all_requests(self):
+        """
+        Tells whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+        """
+        return next(self.zap._request(self.zap.base + 'ascan/view/optionScanHeadersAllRequests/').itervalues())
+
+    @property
     def option_show_advanced_dialog(self):
         return next(self.zap._request(self.zap.base + 'ascan/view/optionShowAdvancedDialog/').itervalues())
 
-    def scan(self, url, recurse='', inscopeonly='', scanpolicyname='', method='', postdata='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/scan/', {'url' : url, 'recurse' : recurse, 'inScopeOnly' : inscopeonly, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey}).itervalues())
+    def scan(self, url, recurse=None, inscopeonly=None, scanpolicyname=None, method=None, postdata=None, apikey=''):
+        params = {'url' : url, 'apikey' : apikey}
+        if recurse is not None:
+            params['recurse'] = recurse
+        if inscopeonly is not None:
+            params['inScopeOnly'] = inscopeonly
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        if method is not None:
+            params['method'] = method
+        if postdata is not None:
+            params['postData'] = postdata
+        return next(self.zap._request(self.zap.base + 'ascan/action/scan/', params).itervalues())
 
-    def scan_as_user(self, url, contextid, userid, recurse='', scanpolicyname='', method='', postdata='', apikey=''):
+    def scan_as_user(self, url, contextid, userid, recurse=None, scanpolicyname=None, method=None, postdata=None, apikey=''):
         """
         Active Scans from the perspective of a User, obtained using the given Context ID and User ID. See 'scan' action for more details.
         """
-        return next(self.zap._request(self.zap.base + 'ascan/action/scanAsUser/', {'url' : url, 'contextId' : contextid, 'userId' : userid, 'recurse' : recurse, 'scanPolicyName' : scanpolicyname, 'method' : method, 'postData' : postdata, 'apikey' : apikey}).itervalues())
+        params = {'url' : url, 'contextId' : contextid, 'userId' : userid, 'apikey' : apikey}
+        if recurse is not None:
+            params['recurse'] = recurse
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        if method is not None:
+            params['method'] = method
+        if postdata is not None:
+            params['postData'] = postdata
+        return next(self.zap._request(self.zap.base + 'ascan/action/scanAsUser/', params).itervalues())
 
     def pause(self, scanid, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/pause/', {'scanId' : scanid, 'apikey' : apikey}).itervalues())
@@ -169,32 +212,59 @@ class ascan(object):
     def exclude_from_scan(self, regex, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/excludeFromScan/', {'regex' : regex, 'apikey' : apikey}).itervalues())
 
-    def enable_all_scanners(self, scanpolicyname='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/enableAllScanners/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
+    def enable_all_scanners(self, scanpolicyname=None, apikey=''):
+        params = {'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/enableAllScanners/', params).itervalues())
 
-    def disable_all_scanners(self, scanpolicyname='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/disableAllScanners/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
+    def disable_all_scanners(self, scanpolicyname=None, apikey=''):
+        params = {'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/disableAllScanners/', params).itervalues())
 
-    def enable_scanners(self, ids, apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/enableScanners/', {'ids' : ids, 'apikey' : apikey}).itervalues())
+    def enable_scanners(self, ids, scanpolicyname=None, apikey=''):
+        params = {'ids' : ids, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/enableScanners/', params).itervalues())
 
-    def disable_scanners(self, ids, apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/disableScanners/', {'ids' : ids, 'apikey' : apikey}).itervalues())
+    def disable_scanners(self, ids, scanpolicyname=None, apikey=''):
+        params = {'ids' : ids, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/disableScanners/', params).itervalues())
 
-    def set_enabled_policies(self, ids, apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/setEnabledPolicies/', {'ids' : ids, 'apikey' : apikey}).itervalues())
+    def set_enabled_policies(self, ids, scanpolicyname=None, apikey=''):
+        params = {'ids' : ids, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/setEnabledPolicies/', params).itervalues())
 
-    def set_policy_attack_strength(self, id, attackstrength, scanpolicyname='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/setPolicyAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
+    def set_policy_attack_strength(self, id, attackstrength, scanpolicyname=None, apikey=''):
+        params = {'id' : id, 'attackStrength' : attackstrength, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/setPolicyAttackStrength/', params).itervalues())
 
-    def set_policy_alert_threshold(self, id, alertthreshold, scanpolicyname='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/setPolicyAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
+    def set_policy_alert_threshold(self, id, alertthreshold, scanpolicyname=None, apikey=''):
+        params = {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/setPolicyAlertThreshold/', params).itervalues())
 
-    def set_scanner_attack_strength(self, id, attackstrength, scanpolicyname='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/setScannerAttackStrength/', {'id' : id, 'attackStrength' : attackstrength, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
+    def set_scanner_attack_strength(self, id, attackstrength, scanpolicyname=None, apikey=''):
+        params = {'id' : id, 'attackStrength' : attackstrength, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/setScannerAttackStrength/', params).itervalues())
 
-    def set_scanner_alert_threshold(self, id, alertthreshold, scanpolicyname='', apikey=''):
-        return next(self.zap._request(self.zap.base + 'ascan/action/setScannerAlertThreshold/', {'id' : id, 'alertThreshold' : alertthreshold, 'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
+    def set_scanner_alert_threshold(self, id, alertthreshold, scanpolicyname=None, apikey=''):
+        params = {'id' : id, 'alertThreshold' : alertthreshold, 'apikey' : apikey}
+        if scanpolicyname is not None:
+            params['scanPolicyName'] = scanpolicyname
+        return next(self.zap._request(self.zap.base + 'ascan/action/setScannerAlertThreshold/', params).itervalues())
 
     def add_scan_policy(self, scanpolicyname, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/addScanPolicy/', {'scanPolicyName' : scanpolicyname, 'apikey' : apikey}).itervalues())
@@ -240,6 +310,12 @@ class ascan(object):
 
     def set_option_rescan_in_attack_mode(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/setOptionRescanInAttackMode/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
+
+    def set_option_scan_headers_all_requests(self, boolean, apikey=''):
+        """
+        Sets whether or not the HTTP Headers of all requests should be scanned. Not just requests that send parameters, through the query or request body.
+        """
+        return next(self.zap._request(self.zap.base + 'ascan/action/setOptionScanHeadersAllRequests/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())
 
     def set_option_show_advanced_dialog(self, boolean, apikey=''):
         return next(self.zap._request(self.zap.base + 'ascan/action/setOptionShowAdvancedDialog/', {'Boolean' : boolean, 'apikey' : apikey}).itervalues())

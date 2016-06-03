@@ -41,7 +41,7 @@ public class PhpAPIGenerator {
 			" *\n" +
 			" * ZAP is an HTTP/HTTPS proxy for assessing web application security.\n" +
 			" *\n" +
-			" * Copyright the ZAP development team\n" +
+			" * Copyright 2016 the ZAP development team\n" +
 			" *\n" +
 			" * Licensed under the Apache License, Version 2.0 (the \"License\");\n" +
 			" * you may not use this file except in compliance with the License.\n" +
@@ -139,7 +139,7 @@ public class PhpAPIGenerator {
 			    if (paramMan != "" || paramOpt != "") {
 			        paramOpt += ", ";
 			    }
-				paramOpt += "$" + param.toLowerCase() + "=''";
+				paramOpt += "$" + param.toLowerCase() + "=NULL";
 			}
 			out.write(paramOpt);
 		}
@@ -155,49 +155,57 @@ public class PhpAPIGenerator {
 
 		out.write(") {\n");
 
-		String method = "request";
-		String baseUrl = "base";
-		if (type.equals("other")) {
-			method += "other";
-			baseUrl += "other";
-		}
-
-		out.write("\t\treturn $this->zap->" + method + "($this->zap->" + baseUrl + " . '" +
-				component + "/" + type + "/" + element.getName() + "/'");
-
+		StringBuilder reqParams = new StringBuilder();
 		if (hasParams) {
-			out.write(", array(");
+			reqParams.append("array(");
 			boolean first = true;
 			if (element.getMandatoryParamNames() != null) {
 				for (String param : element.getMandatoryParamNames()) {
 					if (first) {
 						first = false;
 					} else {
-						out.write(", ");
+						reqParams.append(", ");
 					}
-					out.write("'" + param + "' => $" + param.toLowerCase());
-				}
-			}
-			if (element.getOptionalParamNames() != null) {
-				for (String param : element.getOptionalParamNames()) {
-					if (first) {
-						first = false;
-					} else {
-						out.write(", ");
-					}
-					out.write("'" + param + "' => $" + param.toLowerCase());
+					reqParams.append("'" + param + "' => $" + param.toLowerCase());
 				}
 			}
 			if (type.equals("action") || type.equals("other")) {
-					// Always add the API key - we've no way of knowing if it will be required or not
-					if (first) {
-						first = false;
-					} else {
-						out.write(", ");
-					}
-					out.write("'" + API.API_KEY_PARAM + "' => $" + API.API_KEY_PARAM);
+				// Always add the API key - we've no way of knowing if it will be required or not
+				if (!first) {
+					reqParams.append(", ");
+				}
+				reqParams.append("'").append(API.API_KEY_PARAM).append("' => $").append(API.API_KEY_PARAM);
 			}
-			out.write("))");
+			reqParams.append(")");
+
+			if (element.getOptionalParamNames() != null && !element.getOptionalParamNames().isEmpty()) {
+				out.write("\t\t$params = ");
+				out.write(reqParams.toString());
+				out.write(";\n");
+				reqParams.replace(0, reqParams.length(), "$params");
+
+				for (String param : element.getOptionalParamNames()) {
+					out.write("\t\tif ($" + param.toLowerCase() + " !== NULL) {\n");
+					out.write("\t\t\t$params['" + param + "'] = $" + param.toLowerCase() + ";\n");
+					out.write("\t\t}\n");
+				}
+			}
+		}
+
+		String method = "request";
+		String baseUrl = "base";
+		if (type.equals("other")) {
+			method += "other";
+			baseUrl += "_other";
+		}
+
+		out.write("\t\treturn $this->zap->" + method + "($this->zap->" + baseUrl + " . '" +
+				component + "/" + type + "/" + element.getName() + "/'");
+
+		if (hasParams) {
+			out.write(", ");
+			out.write(reqParams.toString());
+			out.write(")");
 			if (type.equals("view")) {
 				out.write("->{'" + element.getName() + "'};\n");
 			} else {

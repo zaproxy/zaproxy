@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -56,15 +56,19 @@ class ImportLogFiles {
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
-	public function PostModSecurityAuditEvent($auditeventstring='', $apikey='') {
-		return $this->zap->request($this->zap->base . 'importLogFiles/action/PostModSecurityAuditEvent/', array('AuditEventString' => $auditeventstring, 'apikey' => $apikey));
+	public function PostModSecurityAuditEvent($auditeventstring=NULL, $apikey='') {
+		$params = array('apikey' => $apikey);
+		if ($auditeventstring !== NULL) {
+			$params['AuditEventString'] = $auditeventstring;
+		}
+		return $this->zap->request($this->zap->base . 'importLogFiles/action/PostModSecurityAuditEvent/', $params);
 	}
 
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
 	public function OtherPostModSecurityAuditEvent($auditeventstring, $apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'importLogFiles/other/OtherPostModSecurityAuditEvent/', array('AuditEventString' => $auditeventstring, 'apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'importLogFiles/other/OtherPostModSecurityAuditEvent/', array('AuditEventString' => $auditeventstring, 'apikey' => $apikey));
 	}
 
 }

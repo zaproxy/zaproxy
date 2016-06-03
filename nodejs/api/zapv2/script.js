@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -71,7 +71,11 @@ Script.prototype.load = function (scriptname, scripttype, scriptengine, filename
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}, callback);
+  var params = {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'apikey' : apikey};
+  if (scriptdescription && scriptdescription !== null) {
+    params['scriptDescription'] = scriptdescription;
+  }
+  this.api.request('/script/action/load/', params, callback);
 };
 
 /**

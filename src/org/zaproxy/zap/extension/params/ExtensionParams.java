@@ -453,6 +453,34 @@ public class ExtensionParams extends ExtensionAdaptor
 		}
 	}
 
+	/**
+	 * Tells whether or not the given {@code site} was already seen.
+	 *
+	 * @param site the site that will be checked
+	 * @return {@code true} if the given {@code site} was already seen, {@code false} otherwise.
+	 * @since 2.5.0
+	 * @see #hasParameters(String)
+	 */
+	public boolean hasSite(String site) {
+		return siteParamsMap.containsKey(site);
+	}
+
+	/**
+	 * Tells whether or not the given {@code site} has parameters.
+	 *
+	 * @param site the site that will be checked
+	 * @return {@code true} if the given {@code site} has parameters, {@code false} if not, or was not yet seen.
+	 * @since 2.5.0
+	 * @see #hasSite(String)
+	 */
+	public boolean hasParameters(String site) {
+		SiteParameters siteParameters = siteParamsMap.get(site);
+		if (siteParameters == null) {
+			return false;
+		}
+		return siteParameters.hasParams();
+	}
+
 	public SiteParameters getSiteParameters(String site) {
 		SiteParameters sps = this.siteParamsMap.get(site);
 		if (sps == null) {

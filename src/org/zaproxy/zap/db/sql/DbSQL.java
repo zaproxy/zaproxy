@@ -94,11 +94,10 @@ public class DbSQL implements DatabaseListener {
 		return dbType;
 	}
 	
-	public Database initDatabase() throws IllegalStateException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
+	public synchronized Database initDatabase() throws IllegalStateException, IOException, ClassNotFoundException, InstantiationException, IllegalAccessException {
 		if (dbProperties != null) {
 			throw new IllegalStateException("Database already initialised");
 		}
-		
 		File file = new File (Constant.getZapHome() + File.separator + "db", "db.properties");
 		if (! file.exists()) {
 			file = new File (Constant.getZapInstall() + File.separator + "db", "db.properties");

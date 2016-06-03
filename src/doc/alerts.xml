@@ -93,6 +93,7 @@ This list the alerts
 10049   Cacheability and Retrievability Content
 10050   Retrieved from Cache
 10051   Relative Path Confusion
+10052	X-ChromeLogger-Data Header Information Leak
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure
@@ -106,6 +107,10 @@ This list the alerts
 10103   Image Location Scanner - passive scanner finding
 10104   TestUserAgent
 10105   Weak Authentication Method
+10106   Http Only Site
+
+10200	Beast (via HTTPS Info Extension)
+10201	Crime (via HTTPS Info Extension)
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
@@ -158,6 +163,7 @@ This list the alerts
 50000	Active Scan scripts
 50001	Passive Scan scripts
 50002	Fuzzer HTTP Processor scripts
+50003	Stats passive scan rule
 
 60000	Example simple passive rule 
 60001	Example file passive rule 

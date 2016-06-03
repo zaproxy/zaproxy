@@ -20,12 +20,16 @@
  */
  // ZAP: 2012/04/25 Changed the type of the parameter "panel" of the method
  // addSessionPanel.
+// ZAP: 2016/04/08 Allow to add ContextPanelFactory
 package org.parosproxy.paros.extension;
 
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Vector;
 
 import org.parosproxy.paros.view.AbstractParamPanel;
+import org.zaproxy.zap.view.ContextPanelFactory;
 
 public class ExtensionHookView {
 
@@ -35,6 +39,16 @@ public class ExtensionHookView {
     private Vector<AbstractParamPanel> sessionPanelList = new Vector<>();
     private Vector<AbstractParamPanel> optionPanelList = new Vector<>();
     
+    /**
+     * The {@link ContextPanelFactory}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addContextPanelFactory(ContextPanelFactory)
+     * @see #getContextPanelFactories()
+     */
+    private List<ContextPanelFactory> contextPanelFactories;
+
     public ExtensionHookView() {
     }
     
@@ -80,4 +94,32 @@ public class ExtensionHookView {
         return optionPanelList;
     }
     
+    /**
+     * Adds the given {@link ContextPanelFactory} to the view hook, to be later added to the
+     * {@link org.parosproxy.paros.view.View View}.
+     * <p>
+     * By default, the {@code ContextPanelFactory}s added are removed from the {@code View} when the extension is unloaded.
+     *
+     * @param contextPanelFactory the {@code ContextPanelFactory} that will be added to the {@code View}
+     * @since 2.5.0
+     */
+    public void addContextPanelFactory(ContextPanelFactory contextPanelFactory) {
+        if (contextPanelFactories == null) {
+            contextPanelFactories = new ArrayList<>();
+        }
+        contextPanelFactories.add(contextPanelFactory);
+    }
+
+    /**
+     * Gets the {@link ContextPanelFactory}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ContextPanelFactory}s, never {@code null}.
+     * @since 2.5.0
+     */
+    List<ContextPanelFactory> getContextPanelFactories() {
+        if (contextPanelFactories == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(contextPanelFactories);
+    }
 }

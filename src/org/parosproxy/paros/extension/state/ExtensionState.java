@@ -30,6 +30,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 
 package org.parosproxy.paros.extension.state;
 
@@ -74,6 +75,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	}
 	
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
