@@ -12,7 +12,7 @@ RUN pip install zapcli
 RUN mkdir /zap 
 WORKDIR /zap
 # Download and expand the latest stable release 
-RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.4.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
+RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersions-2.5.xml | xmlstarlet sel -t -v //url |grep -i linux | wget --content-disposition -i - -O - | tar zxv 
 # mv fails on some systems (https://github.com/docker/docker/issues/4570)
 RUN cp -R ZAP*/* . && rm -R ZAP*
 
