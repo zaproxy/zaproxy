@@ -24,9 +24,11 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/01/25 Removed the "(non-Javadoc)" comments.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2016/06/07 Use Constant.FOLDER_FILTER
 
 package org.parosproxy.paros.extension.filter;
 
+import java.nio.file.Paths;
 import java.util.Hashtable;
 
 import org.apache.commons.httpclient.URI;
@@ -38,6 +40,7 @@ import org.parosproxy.paros.network.HttpRequestHeader;
 
 public class FilterLogPostQuery extends FilterLogGetQuery {
 
+    private static final String LOG_FILE = Paths.get(Constant.FOLDER_FILTER, "post.xls").toString();
     private static final Logger logger = Logger.getLogger(FilterLogPostQuery.class);
 
     @Override
@@ -53,7 +56,7 @@ public class FilterLogPostQuery extends FilterLogGetQuery {
 
     @Override
     protected String getLogFileName() {
-        return "filter/post.xls";
+        return LOG_FILE;
     }
     
     @Override
