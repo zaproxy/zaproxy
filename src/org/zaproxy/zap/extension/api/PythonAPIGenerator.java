@@ -21,6 +21,8 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -31,6 +33,12 @@ import java.util.ResourceBundle;
 import org.parosproxy.paros.Constant;
 
 public class PythonAPIGenerator {
+
+	/**
+	 * Default output directory in zap-api-python project.
+	 */
+	private static final String DEFAULT_OUTPUT_DIR = "../zap-api-python/src/zapv2/";
+
 	private File dir; 
 	private boolean optional = false;
 	
@@ -72,7 +80,7 @@ public class PythonAPIGenerator {
     }
 
     public PythonAPIGenerator() {
-    	dir = new File("python/api/src/zapv2"); 
+    	dir = new File(DEFAULT_OUTPUT_DIR); 
     }
 
     public PythonAPIGenerator(String path, boolean optional) {
@@ -266,6 +274,11 @@ public class PythonAPIGenerator {
 
 	public static void main(String[] args) throws Exception {
 		// Command for generating a python version of the ZAP API
+
+		if (!Files.exists(Paths.get(DEFAULT_OUTPUT_DIR))) {
+			System.err.println("The directory does not exist: " + Paths.get(DEFAULT_OUTPUT_DIR).toAbsolutePath());
+			System.exit(1);
+		}
 		
 		PythonAPIGenerator wapi = new PythonAPIGenerator();
 		wapi.generatePythonFiles(ApiGeneratorUtils.getAllImplementors());
