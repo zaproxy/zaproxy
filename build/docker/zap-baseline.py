@@ -31,10 +31,13 @@
 #	2:	At least one WARN and no FAILs
 #	3:	Any other failure
 # By default all alerts found by ZAP will be treated as WARNings.
-# You can use the -c parameter to specify a configuration file to override this.
+# You can use the -c or -u parameters to specify a configuration file to override
+# this.
 # You can generate a template configuration file using the -g parameter. You will
-# then need to change 'WARN' to 'FAIL' or 'IGNORE' for the rules you want to be
-# handled differently.
+# then need to change 'WARN' to 'FAIL', 'INFO' or 'IGNORE' for the rules you want
+# to be handled differently.
+# You can also add your own messages for the rules by appending them after a tab
+# at the end of each line.
 
 import getopt
 import json
@@ -45,6 +48,7 @@ import subprocess
 import sys
 import time
 import traceback
+import urllib2
 from datetime import datetime
 from random import randint
 from zapv2 import ZAPv2
@@ -60,33 +64,38 @@ def usage():
     print ('Usage: zap-baseline.py -t <target> [options]')
     print ('    -t target         target URL including the protocol, eg https://www.example.com')
     print ('Options:')
-    print ('    -c config_file    config file to use to IGNORE or FAIL warnings')
+    print ('    -c config_file    config file to use to INFO, IGNORE or FAIL warnings')
+    print ('    -u config_url     URL of config file to use to INFO, IGNORE or FAIL warnings')
     print ('    -g gen_file       generate default config file (all rules set to WARN)')
     print ('    -m mins           the number of minutes to spider for (default 1)')
-    print ('    -r report         file to write the full ZAP HTML report')
+    print ('    -r report_html    file to write the full ZAP HTML report')
+    print ('    -x report_xml     file to write the full ZAP XML report')
     print ('    -a                include the alpha passive scan rules as well')
     print ('    -d                show debug messages')
+    print ('    -i                default rules not in the config file to INFO')
     print ('    -s                short output format - dont show PASSes or example URLs')
-    print ('If any files are specified then they MUST be in a directory mounted to /zap/wrk/')
-    print ('eg using the \'docker run\' option like: \'-v $(pwd):/zap/wrk/:rw\' for mounting the cwd.')
 
 def main(argv):
-  config = ''
+  config_file = ''
+  config_url = ''
   generate = ''
   mins = 1
   port = 0
   detailed_output = True
-  report = ''
+  report_html = ''
+  report_xml = ''
   target = ''
   zap_alpha = False
+  info_unspecified = False
 
   pass_count = 0
   warn_count = 0
   fail_count = 0
+  info_count = 0
   ignore_count = 0
 
   try:
-    opts, args = getopt.getopt(argv,"t:c:g:m:r:das")
+    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:dais")
   except getopt.GetoptError:
     usage()
     sys.exit(3)
@@ -96,7 +105,9 @@ def main(argv):
       target = arg
       logging.debug ('Target: ' + target)
     elif opt == '-c':
-      config = arg
+      config_file = arg
+    elif opt == '-u':
+      config_url = arg
     elif opt == '-g':
       generate = arg
     elif opt == '-d':
@@ -104,9 +115,13 @@ def main(argv):
     elif opt == '-m':
       mins = int(arg)
     elif opt == '-r':
-      report = arg
+      report_html = arg
+    elif opt == '-x':
+      report_xml = arg
     elif opt == '-a':
       zap_alpha = True
+    elif opt == '-i':
+      info_unspecified = True
     elif opt == '-s':
       detailed_output = False
 
@@ -120,7 +135,7 @@ def main(argv):
     usage()
     sys.exit(3)
     
-  if len(config) > 0 or len(generate) > 0 or len(report) > 0:
+  if len(config_file) > 0 or len(generate) > 0 or len(report_html) > 0 or len(report_xml) > 0:
     # Check directory has been mounted
     if not os.path.exists('/zap/wrk/'): 
       logging.warning ('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
@@ -138,13 +153,34 @@ def main(argv):
   logging.debug ('Using port: ' + str(port))
 
   config_dict = {}
-  if len(config) > 0:
-    # load config file
-    with open('/zap/wrk/' + config) as f:
+  config_msg = {}
+  if len(config_file) > 0:
+    # load config file from filestore
+    with open('/zap/wrk/' + config_file) as f:
       for line in f:
         if not line.startswith('#') and len(line) > 1:
-          (key, val, ignore) = line.split('\t')
+          (key, val, optional) = line.split('\t', 2)
           config_dict[key] = val
+          if '\t' in optional:
+            (ignore, usermsg) = optional.rstrip().split('\t')
+            config_msg[key] = usermsg
+          else:
+            config_msg[key] = ''
+  elif len(config_url) > 0:
+    # load config file from url
+    try:
+      for line in urllib2.urlopen(config_url):
+        if not line.startswith('#') and len(line) > 1:
+          (key, val, optional) = line.split('\t', 2)
+          config_dict[key] = val
+          if '\t' in optional:
+            (ignore, usermsg) = optional.rstrip().split('\t')
+            config_msg[key] = usermsg
+          else:
+            config_msg[key] = ''
+    except:
+      logging.warning ('Failed to read configs from ' + config_url)
+      sys.exit(3)
 
   try:
     logging.debug ('Starting ZAP')
@@ -232,8 +268,9 @@ def main(argv):
         # Create the config file
         with open('/zap/wrk/' + generate, 'w') as f:
           f.write ('# zap-baseline rule configuraion file\n')
-          f.write ('# change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
-          f.write ('# only the rule identifiers are used - the names are just for info\n')
+          f.write ('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
+          f.write ('# Only the rule identifiers are used - the names are just for info\n')
+          f.write ('# You can add your own messages to each rule by appending them after a tab on each line.\n')
           for key, rule in sorted(all_dict.iteritems()):
             f.write (key + '\tWARN\t(' + rule + ')\n')
 
@@ -260,6 +297,9 @@ def main(argv):
         elif config_dict.has_key(key) and config_dict[key] == 'FAIL':
           action = 'FAIL'
           fail_count += 1
+        elif info_unspecified or (config_dict.has_key(key) and config_dict[key] == 'INFO'):
+          action = 'INFO'
+          info_count += 1
         else:
           action = 'WARN'
           warn_count += 1
@@ -270,12 +310,18 @@ def main(argv):
           for alert in alert_list[0:5]:
             print ('\t' + alert.get('url'))
 
-      if len(report) > 0:
-        # Save the report
-        with open('/zap/wrk/' + report, 'w') as f:
+      if len(report_html) > 0:
+        # Save the HTML report
+        with open('/zap/wrk/' + report_html, 'w') as f:
           f.write (zap.core.htmlreport())
 
-      print ('FAIL: ' + str(fail_count) + '\tWARN: ' + str(warn_count) + '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
+      if len(report_xml) > 0:
+        # Save the XML report
+        with open('/zap/wrk/' + report_xml, 'w') as f:
+          f.write (zap.core.xmlreport())
+
+      print ('FAIL: ' + str(fail_count) + '\tWARN: ' + str(warn_count) + '\tINFO: ' + str(info_count) +  
+        '\tIGNORE: ' + str(ignore_count) + '\tPASS: ' + str(pass_count))
 
     # Stop ZAP
     zap.core.shutdown()
