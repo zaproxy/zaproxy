@@ -62,6 +62,7 @@
 // ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
 // ZAP: 2016/02/17 Convert extensions' options to not use extensions' names as XML element names
 // ZAP: 2016/05/12 Use dev/weekly dir for plugin downloads when copying the existing 'release' config file
+// ZAP: 2016/06/07 Remove commented constants and statement that had no (actual) effect, add doc to a constant and init other
 
 package org.parosproxy.paros;
 
@@ -147,13 +148,6 @@ public final class Constant {
     
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
     
-//  public static final String FILE_CONFIG = "xml/config.xml";
-//  public static final String FOLDER_PLUGIN = "plugin";
-//  public static final String FOLDER_FILTER = "filter";
-//  public static final String FOLDER_SESSION = "session";
-//  public static final String DBNAME_TEMPLATE = "db/parosdb";
-//  public static final String DBNAME_UNTITLED = FOLDER_SESSION + "/untitled";
-
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
     /**
@@ -165,6 +159,12 @@ public final class Constant {
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
     public static final String FOLDER_FILTER = "filter";
+
+    /**
+     * The name of the directory where the (file) sessions are saved by default.
+     * 
+     * @since 1.0.0
+     */
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
 
@@ -186,7 +186,7 @@ public final class Constant {
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 
     public String FILE_CONFIG = FILE_CONFIG_NAME;
-    public String FOLDER_SESSION = "session";
+    public String FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
     public String DBNAME_UNTITLED = FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
     public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
     public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
@@ -340,9 +340,6 @@ public final class Constant {
     	FileCopier copier = new FileCopier();
         File f = null;
         Logger log = null;
-
-        // default to use application directory 'log'
-        System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
 
         // Set up the version from the manifest
         PROGRAM_VERSION = getVersionFromManifest();

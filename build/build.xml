@@ -157,9 +157,6 @@
 		<copy todir="${dist}/scripts">
 			<fileset dir="${src}/scripts" excludes="**/.svn/** **/_svn/**" />
 		</copy>
-		<copy todir="${dist}/session">
-			<fileset dir="${src}/session" excludes="**/.svn/** **/_svn/**" />
-		</copy>
 		<copy todir="${dist}/lang">
 			<fileset dir="${src}/lang" excludes="**/.svn/** **/_svn/**" />
 		</copy>
@@ -170,9 +167,6 @@
 				<exclude name="**/_svn/**" />
 				<exclude name="OrangeExtensions.License.txt" />
 			</fileset>
-		</copy>
-		<copy todir="${dist}/log">
-			<fileset dir="${src}/log" excludes="**/.svn/** **/_svn/**" />
 		</copy>
 		<copy todir="${dist}/lib">
 			<fileset dir="${dist.lib.dir}">
