@@ -57,6 +57,7 @@
 // ZAP: 2015/06/12 Issue 1459: Add an HTTP sender listener script
 // ZAP: 2016/05/24 Issue 2463: Websocket not proxied when outgoing proxy is set
 // ZAP: 2016/05/27 Issue 2484: Circular Redirects
+// ZAP: 2016/06/08 Set User-Agent header defined in options as default for (internal) CONNECT requests
 
 package org.parosproxy.paros.network;
 
@@ -184,6 +185,9 @@ public class HttpSender {
 				singleCookieRequestHeader);
 		clientViaProxy.getParams().setBooleanParameter(HttpMethodParams.SINGLE_COOKIE_HEADER,
 				singleCookieRequestHeader);
+		String defaultUserAgent = param.getDefaultUserAgent();
+		client.getParams().setParameter(HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS, defaultUserAgent);
+		clientViaProxy.getParams().setParameter(HttpMethodDirector.PARAM_DEFAULT_USER_AGENT_CONNECT_REQUESTS, defaultUserAgent);
 
 		if (useGlobalState) {
 			checkState();
