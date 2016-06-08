@@ -164,7 +164,7 @@ public class ActiveScan extends org.parosproxy.paros.core.scanner.Scanner implem
 	            	rcLastSnapshot = currentSnapshot;
 	            }
 	        };
-	        schedHandle = scheduler.scheduleAtFixedRate(requestCounter, period, period, TimeUnit.SECONDS);
+	        schedHandle = scheduler.scheduleWithFixedDelay(requestCounter, period, period, TimeUnit.SECONDS);
 		}
 	}
 

@@ -427,6 +427,7 @@ public class ScanProgressDialog extends AbstractDialog {
 			            }
 					} catch (Exception e) {
 						log.error(e.getMessage(), e);
+						snapshot = null;
 					}
 	            }
             }
