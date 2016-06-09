@@ -311,9 +311,7 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 				logger.error("Error importing foreign Root CA!", e);
 				// Constant.messages.getString("dynssl.label.rootca")
 				JOptionPane.showMessageDialog(this,
-						Constant.messages.getString("dynssl.message1.filecouldnloaded")
-						+ "\n"
-						+ Constant.messages.getString("dynssl.message1.seelogfiles"),
+						Constant.messages.getString("dynssl.message1.filecouldnloaded"),
 						Constant.messages.getString("dynssl.message1.title"),
 						JOptionPane.ERROR_MESSAGE);
 			}
