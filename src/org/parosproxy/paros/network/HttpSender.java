@@ -58,6 +58,7 @@
 // ZAP: 2016/05/24 Issue 2463: Websocket not proxied when outgoing proxy is set
 // ZAP: 2016/05/27 Issue 2484: Circular Redirects
 // ZAP: 2016/06/08 Set User-Agent header defined in options as default for (internal) CONNECT requests
+// ZAP: 2016/06/10 Allow to validate the URI of the redirections before being followed
 
 package org.parosproxy.paros.network;
 
@@ -77,6 +78,7 @@ import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.commons.httpclient.HttpMethodRetryHandler;
 import org.apache.commons.httpclient.HttpState;
+import org.apache.commons.httpclient.InvalidRedirectLocationException;
 import org.apache.commons.httpclient.MultiThreadedHttpConnectionManager;
 import org.apache.commons.httpclient.NTCredentials;
 import org.apache.commons.httpclient.ProxyHost;
@@ -365,6 +367,7 @@ public class HttpSender {
 	 * @param isFollowRedirect
 	 * @throws HttpException
 	 * @throws IOException
+	 * @see #sendAndReceive(HttpMessage, RedirectionValidator)
 	 */
 	public void sendAndReceive(HttpMessage msg, boolean isFollowRedirect) throws IOException {
 
@@ -814,5 +817,161 @@ public class HttpSender {
     public void setAllowCircularRedirects(boolean allow) {
         client.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
         clientViaProxy.getParams().setBooleanParameter(HttpClientParams.ALLOW_CIRCULAR_REDIRECTS, allow);
+    }
+
+    /**
+     * Sends the request of given HTTP {@code message}, following redirections per rules defined by the given {@code validator}.
+     * After the call to this method the given {@code message} will have the contents of the last response received (possibly
+     * the response of a redirection).
+     * <p>
+     * The validator is notified of each message sent and received (first message and redirections followed, if any).
+     *
+     * @param message the message that will be sent
+     * @param validator the validator responsible for validation of redirections
+     * @throws IllegalArgumentException if any of the parameters is {@code null}
+     * @throws IOException if an error occurred while sending the message or following the redirections
+     * @since TODO add version
+     * @see #sendAndReceive(HttpMessage, boolean)
+     */
+    public void sendAndReceive(HttpMessage message, RedirectionValidator validator) throws IOException {
+        if (message == null) {
+            throw new IllegalArgumentException("Parameter message must not be null.");
+        }
+        if (validator == null) {
+            throw new IllegalArgumentException("Parameter validator must not be null.");
+        }
+
+        sendAndReceive(message, false);
+        validator.notifyMessageReceived(message);
+
+        followRedirections(message, validator);
+    }
+
+    /**
+     * Follows redirections using the response of the given {@code message}. The given {@code validator} will be called for each
+     * redirection received. After the call to this method the given {@code message} will have the contents of the last response
+     * received (possibly the response of a redirection).
+     * <p>
+     * The validator is notified of each message sent and received (first message and redirections followed, if any).
+     *
+     * @param message the message that will be sent, must not be {@code null}
+     * @param validator the validator responsible for validation of redirections, must not be {@code null}
+     * @throws IOException if an error occurred while sending the message or following the redirections
+     * @see #isRedirectionNeeded(int)
+     */
+    private void followRedirections(HttpMessage message, RedirectionValidator validator) throws IOException {
+        HttpMessage redirectMessage = message;
+        int maxRedirections = client.getParams().getIntParameter(HttpClientParams.MAX_REDIRECTS, 100);
+        for (int i = 0; i < maxRedirections && isRedirectionNeeded(redirectMessage.getResponseHeader().getStatusCode()); i++) {
+            URI newLocation = extractRedirectLocation(redirectMessage);
+            if (newLocation == null || !validator.isValid(newLocation)) {
+                return;
+            }
+
+            redirectMessage = redirectMessage.cloneAll();
+            redirectMessage.getRequestHeader().setURI(newLocation);
+
+            if (isRequestRewriteNeeded(redirectMessage.getResponseHeader().getStatusCode())) {
+                redirectMessage.getRequestHeader().setMethod(HttpRequestHeader.GET);
+                redirectMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_TYPE, null);
+                redirectMessage.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
+                redirectMessage.setRequestBody("");
+            }
+
+            sendAndReceive(redirectMessage, false);
+            validator.notifyMessageReceived(redirectMessage);
+
+            // Update the response of the (original) message
+            message.setResponseHeader(redirectMessage.getResponseHeader());
+            message.setResponseBody(redirectMessage.getResponseBody());
+        }
+    }
+
+    /**
+     * Tells whether or not a redirection is needed based on the given status code.
+     * <p>
+     * A redirection is needed if the status code is 301, 302, 303, 307 or 308.
+     *
+     * @param statusCode the status code that will be checked
+     * @return {@code true} if a redirection is needed, {@code false} otherwise
+     * @see #isRequestRewriteNeeded(int)
+     */
+    private static boolean isRedirectionNeeded(int statusCode) {
+        switch (statusCode) {
+        case 301:
+        case 302:
+        case 303:
+        case 307:
+        case 308:
+            return true;
+        default:
+            return false;
+        }
+    }
+
+    /**
+     * Tells whether or not the (original) request of the redirection with the given status code, should be rewritten.
+     * <p>
+     * For status codes 301, 302 and 303 the request should be changed from POST to GET when following redirections (mimicking
+     * the behaviour of browsers, which per <a href="https://tools.ietf.org/html/rfc7231#section-6.4">RFC 7231, Section 6.4</a>
+     * is now OK).
+     *
+     * @param statusCode the status code that will be checked
+     * @return {@code true} if the request should be rewritten, {@code false} otherwise
+     * @see #isRedirectionNeeded(int)
+     */
+    private static boolean isRequestRewriteNeeded(int statusCode) {
+        return statusCode == 301 || statusCode == 302 || statusCode == 303;
+    }
+
+    /**
+     * Extracts a {@code URI} from the {@code Location} header of the given HTTP {@code message}.
+     * <p>
+     * If there's no {@code Location} header this method returns {@code null}.
+     * 
+     * @param message the HTTP message that will processed
+     * @return the {@code URI} created from the value of the {@code Location} header, might be {@code null}
+     * @throws InvalidRedirectLocationException if the value of {@code Location} header is not a valid {@code URI}
+     */
+    private static URI extractRedirectLocation(HttpMessage message) throws InvalidRedirectLocationException {
+        String location = message.getResponseHeader().getHeader(HttpHeader.LOCATION);
+        if (location == null) {
+            if (log.isDebugEnabled()) {
+                log.debug("No Location header found: " + message.getResponseHeader());
+            }
+            return null;
+        }
+
+        try {
+            return new URI(message.getRequestHeader().getURI(), location, true);
+        } catch (URIException ex) {
+            throw new InvalidRedirectLocationException("Invalid redirect location: " + location, location, ex);
+        }
+    }
+
+    /**
+     * A validator of redirections.
+     * <p>
+     * As convenience the validator will also be notified of the HTTP messages sent and received (first message and followed
+     * redirections, if any).
+     * 
+     * @since TODO add version
+     */
+    public interface RedirectionValidator {
+
+        /**
+         * Tells whether or not the given {@code redirection} is valid, to be followed.
+         *
+         * @param redirection the redirection being checked, never {@code null}
+         * @return {@code true} if the redirection is valid, {@code false} otherwise
+         */
+        boolean isValid(URI redirection);
+
+        /**
+         * Notifies that a new message was sent and received (called for the first message and followed redirections, if any).
+         *
+         * @param message the HTTP message that was received, never {@code null}
+         */
+        void notifyMessageReceived(HttpMessage message);
     }
 }
