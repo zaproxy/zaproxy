@@ -59,6 +59,7 @@
 // ZAP: 2016/05/04 Changes to address issues related to ParameterParser
 // ZAP: 2016/05/10 Use empty String for (URL) parameters with no value
 // ZAP: 2016/05/24 Call Database.discardSession(long) in Session.discard()
+// ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
 
 package org.parosproxy.paros.model;
 
@@ -278,7 +279,7 @@ public class Session {
 		} else {
 			this.setSessionId(Long.parseLong(fileName));
 		}
-		model.getDb().close(false);
+		model.getDb().close(false, isCleanUpRequired());
 		model.getDb().open(fileName);
 		this.fileName = fileName;
 		
@@ -470,6 +471,25 @@ public class Session {
 		System.gc();
 	}
 	
+	/**
+	 * Tells whether or not the session requires a clean up (for example, to remove temporary messages).
+	 * <p>
+	 * The session requires a clean up if it's not a new session or, if it is, the database used is not HSQLDB (file based).
+	 *
+	 * @return {@code true} if a clean up is required, {@code false} otherwise.
+	 */
+	boolean isCleanUpRequired() {
+		if (!isNewState()) {
+			return true;
+		}
+
+		if (Database.DB_TYPE_HSQLDB.equals(model.getDb().getType())) {
+			return false;
+		}
+
+		return true;
+	}
+
 	private List<String> sessionUrlListToStingList(List<RecordSessionUrl> rsuList) {
 	    List<String> urlList = new ArrayList<>(rsuList.size());
 	    for (RecordSessionUrl url : rsuList) {
