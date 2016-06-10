@@ -38,6 +38,7 @@
 // ZAP: 2016/02/10 Issue 1958: Allow to disable database (HSQLDB) log
 // ZAP: 2016/03/22 Allow to remove ContextDataFactory
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
+// ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
 
 package org.parosproxy.paros.model;
 
@@ -359,7 +360,7 @@ public class Model {
 	// TODO disable for non file based sessions
 	public void createAndOpenUntitledDb() throws ClassNotFoundException, Exception {
 
-		getDb().close(false);
+		getDb().close(false, session.isCleanUpRequired());
 
 		// delete all untitled session db in "session" directory
 		File dir = new File(getSession().getSessionFolder());
