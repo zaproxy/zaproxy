@@ -24,17 +24,18 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // ZAP: 2015/08/19 Issue 1804: Disable processing of XML external entities by default
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/04/18 Issue 2127: Added return statements & GUI dialogs after IOExceptions
+// ZAP: 2016/06/25 pull 2561: It specifies the Charset of stringToHtml to UTF-8
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.StringReader;
 import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -103,7 +104,7 @@ public class ReportGenerator {
 			File stylesheet = null;
 			File outfile = null;
 			StringReader inReader = new StringReader(inxml);
-			String tempOutfilename = outfilename + ".temp"; 
+			String tempOutfilename = outfilename + ".temp";
 	
 			try {
 				stylesheet = new File(infilexsl);
@@ -127,7 +128,7 @@ public class ReportGenerator {
 				BufferedWriter bw = null;
 				showDialogForGUI();
 				try {
-					bw = new BufferedWriter(new FileWriter(outfilename + "-orig.xml"));
+					bw = Files.newBufferedWriter(new File(outfilename + "-orig.xml").toPath(), StandardCharsets.UTF_8);
 					bw.write(inxml);
 				} catch (IOException e2) {
 					logger.error("Failed to write debug XML file", e);
@@ -152,8 +153,8 @@ public class ReportGenerator {
 			String line;
 	
 			try {
-				br = new BufferedReader(new FileReader(tempOutfilename));
-				bw = new BufferedWriter(new FileWriter(outfilename));
+				br = Files.newBufferedReader(new File(tempOutfilename).toPath(), StandardCharsets.UTF_8);
+				bw = Files.newBufferedWriter(new File(outfilename).toPath(), StandardCharsets.UTF_8);
 	
 				while ((line = br.readLine()) != null) {
 					bw.write(line.
@@ -183,7 +184,7 @@ public class ReportGenerator {
 			BufferedWriter bw = null;
 			
 			try {
-				bw = new BufferedWriter(new FileWriter(outfilename));
+				bw = Files.newBufferedWriter(new File(outfilename).toPath(), StandardCharsets.UTF_8);
 				bw.write(inxml);
 			} catch (IOException e2) {
 				showDialogForGUI();
