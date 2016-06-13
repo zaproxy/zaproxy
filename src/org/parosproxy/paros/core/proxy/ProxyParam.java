@@ -30,6 +30,7 @@
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2014/03/23 Issue 1017: Proxy set to 0.0.0.0 causes incorrect PAC file to be generated
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
+// ZAP: 2016/06/13 Change option "Accept-Encoding" request-header to Remove Unsupported Encodings
 
 package org.parosproxy.paros.core.proxy;
 
@@ -69,10 +70,9 @@ public class ProxyParam extends AbstractParam {
     private static final String ALL_SECURITY_PROTOCOLS_ENABLED_KEY = SECURITY_PROTOCOLS_ENABLED + ".protocol";
 
     /**
-     * The configuration key for the option that controls whether the proxy
-     * should modify/remove the "Accept-Encoding" request-header field or not.
+     * The configuration key to save/load the option {@link #removeUnsupportedEncodings}.
      */
-    private static final String MODIFY_ACCEPT_ENCODING_HEADER = "proxy.modifyAcceptEncoding";
+    private static final String REMOVE_UNSUPPORTED_ENCODINGS = "proxy.removeUnsupportedEncodings";
 
     /**
      * The configuration key for the option that controls whether the proxy
@@ -96,10 +96,15 @@ public class ProxyParam extends AbstractParam {
     private boolean proxyIpAnyLocalAddress;
 
     /**
-     * The option that controls whether the proxy should modify/remove the
-     * "Accept-Encoding" request-header field or not.
+     * Flag that controls whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding"
+     * request-header field.
+     * <p>
+     * Default is {@code true}.
+     * 
+     * @see #REMOVE_UNSUPPORTED_ENCODINGS
+     * @see #setRemoveUnsupportedEncodings(boolean)
      */
-    private boolean modifyAcceptEncodingHeader = true;
+    private boolean removeUnsupportedEncodings = true;
     /**
      * The option that controls whether the proxy should always decode gzipped content or not.
      */
@@ -140,7 +145,7 @@ public class ProxyParam extends AbstractParam {
         reverseProxyHttpsPort = getConfig().getInt(REVERSE_PROXY_HTTPS_PORT, 443);
         useReverseProxy = getConfig().getInt(USE_REVERSE_PROXY, 0);
 
-        modifyAcceptEncodingHeader = getConfig().getBoolean(MODIFY_ACCEPT_ENCODING_HEADER, true);
+        removeUnsupportedEncodings = getConfig().getBoolean(REMOVE_UNSUPPORTED_ENCODINGS, true);
         alwaysDecodeGzip = getConfig().getBoolean(ALWAYS_DECODE_GZIP, true);
 
         loadSecurityProtocolsEnabled();
@@ -246,10 +251,12 @@ public class ProxyParam extends AbstractParam {
      * @param modifyAcceptEncodingHeader {@code true} if the proxy should
      * modify/remove the "Accept-Encoding" request-header field, {@code false}
      * otherwise
+     * @deprecated (TODO add version) Use {@link #setRemoveUnsupportedEncodings(boolean)} instead.
+     * @since 2.0.0
      */
+    @Deprecated
     public void setModifyAcceptEncodingHeader(boolean modifyAcceptEncodingHeader) {
-        this.modifyAcceptEncodingHeader = modifyAcceptEncodingHeader;
-        getConfig().setProperty(MODIFY_ACCEPT_ENCODING_HEADER, Boolean.valueOf(modifyAcceptEncodingHeader));
+        setRemoveUnsupportedEncodings(modifyAcceptEncodingHeader);
     }
 
     /**
@@ -258,9 +265,41 @@ public class ProxyParam extends AbstractParam {
      *
      * @return {@code true} if the proxy should modify/remove the
      * "Accept-Encoding" request-header field, {@code false} otherwise
+     * @deprecated (TODO add version) Use {@link #isRemoveUnsupportedEncodings()} instead.
+     * @since 2.0.0
      */
+    @Deprecated
     public boolean isModifyAcceptEncodingHeader() {
-        return modifyAcceptEncodingHeader;
+        return isRemoveUnsupportedEncodings();
+    }
+
+    /**
+     * Sets whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding" request-header field.
+     * <p>
+     * The whole header is removed if empty after the removal of unsupported encodings.
+     *
+     * @param remove {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
+     * @since TODO add version
+     * @see #isRemoveUnsupportedEncodings()
+     */
+    public void setRemoveUnsupportedEncodings(boolean remove) {
+        if (removeUnsupportedEncodings != remove) {
+            this.removeUnsupportedEncodings = remove;
+            getConfig().setProperty(REMOVE_UNSUPPORTED_ENCODINGS, Boolean.valueOf(removeUnsupportedEncodings));
+        }
+    }
+
+    /**
+     * Tells whether or not the local proxy should remove unsupported encodings from the "Accept-Encoding" request-header field.
+     * <p>
+     * The whole header is removed if empty after the removal of unsupported encodings.
+     *
+     * @return {@code true} if the local proxy should remove unsupported encodings, {@code false} otherwise
+     * @since TODO add version
+     * @see #setRemoveUnsupportedEncodings(boolean)
+     */
+    public boolean isRemoveUnsupportedEncodings() {
+        return removeUnsupportedEncodings;
     }
 
     /**

@@ -27,6 +27,7 @@
 // ZAP: 2014/03/06 Issue 1063: Add option to decode all gzipped content
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2016/06/13 Change option "Modify/Remove Accept-Encoding" to "Remove Unsupported Encodings"
 
 package org.parosproxy.paros.extension.option;
 
@@ -61,7 +62,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
     private ZapTextField txtProxyIp = null;
     private ZapTextField txtReverseProxyIp = null;
 
-    private JCheckBox chkModifyAcceptEncodingHeader = null;
+    private JCheckBox chkRemoveUnsupportedEncodings = null;
     private JCheckBox chkAlwaysDecodeGzip = null;
 
     private SecurityProtocolsPanel securityProtocolsPanel;
@@ -165,7 +166,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
             gbc.weightx = 1.0D;
             gbc.gridwidth = java.awt.GridBagConstraints.REMAINDER;
             gbc.anchor = java.awt.GridBagConstraints.PAGE_START;
-            panelLocalProxy.add(getChkModifyAcceptEncodingHeader(), gbc);
+            panelLocalProxy.add(getChkRemoveUnsupportedEncodings(), gbc);
 
             // TODO hacking
             panelLocalProxy.add(this.getChkAlwaysDecodeGzip(), 
@@ -404,12 +405,12 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         return txtReverseProxyIp;
     }
 
-    public JCheckBox getChkModifyAcceptEncodingHeader() {
-        if (chkModifyAcceptEncodingHeader == null) {
-            chkModifyAcceptEncodingHeader = new JCheckBox(Constant.messages.getString("options.proxy.local.label.modifyAcceptHeader"));
-            chkModifyAcceptEncodingHeader.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.modifyAccepHeader"));
+    public JCheckBox getChkRemoveUnsupportedEncodings() {
+        if (chkRemoveUnsupportedEncodings == null) {
+            chkRemoveUnsupportedEncodings = new JCheckBox(Constant.messages.getString("options.proxy.local.label.removeUnsupportedEncodings"));
+            chkRemoveUnsupportedEncodings.setToolTipText(Constant.messages.getString("options.proxy.local.tooltip.removeUnsupportedEncodings"));
         }
-        return chkModifyAcceptEncodingHeader;
+        return chkRemoveUnsupportedEncodings;
     }
     
     private JCheckBox getChkAlwaysDecodeGzip() {
@@ -479,7 +480,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         // ZAP: Do not allow invalid port numbers
         spinnerProxyPort.setValue(proxyParam.getProxyPort());
 
-        chkModifyAcceptEncodingHeader.setSelected(proxyParam.isModifyAcceptEncodingHeader());
+        chkRemoveUnsupportedEncodings.setSelected(proxyParam.isRemoveUnsupportedEncodings());
         chkAlwaysDecodeGzip.setSelected(proxyParam.isAlwaysDecodeGzip());
 
         // set reverse proxy param
@@ -510,7 +511,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
         // ZAP: Do not allow invalid port numbers
         proxyParam.setProxyPort(spinnerProxyPort.getValue());
 
-        proxyParam.setModifyAcceptEncodingHeader(getChkModifyAcceptEncodingHeader().isSelected());
+        proxyParam.setRemoveUnsupportedEncodings(getChkRemoveUnsupportedEncodings().isSelected());
         // TODO hacking
         proxyParam.setAlwaysDecodeGzip(getChkAlwaysDecodeGzip().isSelected());
 
