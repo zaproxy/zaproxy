@@ -70,7 +70,6 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpSender;
-import org.parosproxy.paros.network.HttpStatusCode;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
@@ -421,6 +420,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			} catch (HttpMalformedHeaderException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
 			}
+			validateForCurrentMode(request);
 			return sendHttpMessage(request, getParam(params, PARAM_FOLLOW_REDIRECTS, false), name);
 		} else if (ACTION_DELETE_ALL_ALERTS.equals(name)) {
             final ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
@@ -468,6 +468,38 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		return ApiResponseElement.OK;
 	}
 
+	/**
+	 * Validates that the given request is valid for the current {@link Mode}.
+	 *
+	 * @param request the request that will be validated
+	 * @throws ApiException if the request is not valid for the current {@code Mode}.
+	 * @see #isValidForCurrentMode(URI)
+	 */
+	private static void validateForCurrentMode(HttpMessage request) throws ApiException {
+		if (!isValidForCurrentMode(request.getRequestHeader().getURI())) {
+			throw new ApiException(ApiException.Type.MODE_VIOLATION);
+		}
+	}
+
+	/**
+	 * Tells whether or not the given {@code uri} is valid for the current {@link Mode}.
+	 * <p>
+	 * The {@code uri} is not valid if the mode is {@code safe} or if in {@code protect} mode is not in scope.
+	 *
+	 * @param uri the {@code URI} that will be validated
+	 * @return {@code true} if the given {@code uri} is valid, {@code false} otherwise.
+	 */
+	private static boolean isValidForCurrentMode(URI uri) {
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			return false;
+		case protect:
+			return Model.getSingleton().getSession().isInScope(uri.toString());
+		default:
+			return true;
+		}
+	}
+
 	private ApiResponse sendHttpMessage(HttpMessage request, boolean followRedirects, String apiResponseName)
 			throws ApiException {
 		final ApiResponseList resultList = new ApiResponseList(apiResponseName);
@@ -482,6 +514,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			});
 
 			return resultList;
+		} catch (ApiException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 		}
@@ -510,31 +544,22 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	}
 
 	private static void sendRequest(HttpMessage request, boolean followRedirects, Processor<HttpMessage> processor)
-			throws IOException {
+			throws IOException, ApiException {
 		HttpSender sender = null;
 		try {
 			sender = createHttpSender();
-			sender.sendAndReceive(request);
-			persistMessage(request);
-			processor.process(request);
 
 			if (followRedirects) {
-				HttpMessage tempReq = request;
-				for (int i = 0; i < 10 && HttpStatusCode.isRedirection(tempReq.getResponseHeader().getStatusCode()); i++) {
-					tempReq = tempReq.cloneAll();
+				ModeRedirectionValidator redirector = new ModeRedirectionValidator(processor);
+				sender.sendAndReceive(request, redirector);
 
-					String location = tempReq.getResponseHeader().getHeader(HttpHeader.LOCATION);
-					URI baseUri = tempReq.getRequestHeader().getURI();
-					URI newLocation = new URI(baseUri, location, false);
-					tempReq.getRequestHeader().setURI(newLocation);
-
-					tempReq.getRequestHeader().setMethod(HttpRequestHeader.GET);
-					tempReq.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
-
-					sender.sendAndReceive(tempReq);
-					persistMessage(tempReq);
-					processor.process(tempReq);
+				if (!redirector.isRequestValid()) {
+					throw new ApiException(ApiException.Type.MODE_VIOLATION);
 				}
+			} else {
+				sender.sendAndReceive(request, false);
+				persistMessage(request);
+				processor.process(request);
 			}
 		} finally {
 			if (sender != null) {
@@ -897,31 +922,37 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			} catch (IOException e) {
 				ApiException apiException = new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_REQUEST, e);
 				responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
-				
-				msg.setResponseBody(responseBody);
 			}
 
 			if (request != null) {
-				boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
-				try {
-					final HarEntries entries = new HarEntries();
-					sendRequest(request, followRedirects, new Processor<HttpMessage>() {
-	
-						@Override
-						public void process(HttpMessage msg) {
-							entries.addEntry(HarUtils.createHarEntry(msg));
-						}
-					});
-	
-					HarLog harLog = HarUtils.createZapHarLog();
-					harLog.setEntries(entries);
-	
-					responseBody = HarUtils.harLogToByteArray(harLog);
-				} catch (Exception e) {
-					logger.error(e.getMessage(), e);
-	
-					ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				if (!isValidForCurrentMode(request.getRequestHeader().getURI())) {
+					ApiException apiException = new ApiException(ApiException.Type.MODE_VIOLATION);
 					responseBody = apiException.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
+				} else {
+					boolean followRedirects = getParam(params, PARAM_FOLLOW_REDIRECTS, false);
+					try {
+						final HarEntries entries = new HarEntries();
+						sendRequest(request, followRedirects, new Processor<HttpMessage>() {
+
+							@Override
+							public void process(HttpMessage msg) {
+								entries.addEntry(HarUtils.createHarEntry(msg));
+							}
+						});
+
+						HarLog harLog = HarUtils.createZapHarLog();
+						harLog.setEntries(entries);
+
+						responseBody = HarUtils.harLogToByteArray(harLog);
+					} catch(ApiException e) {
+						responseBody = e.toString(API.Format.JSON, incErrorDetails()).getBytes(StandardCharsets.UTF_8);
+					} catch (Exception e) {
+						logger.error(e.getMessage(), e);
+
+						ApiException apiException = new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+						responseBody = apiException.toString(API.Format.JSON, incErrorDetails())
+								.getBytes(StandardCharsets.UTF_8);
+					}
 				}
 			}
 
@@ -1198,6 +1229,42 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 		public boolean hasPageEnded() {
 			return pageEnded;
+		}
+	}
+
+	/**
+	 * A {@code RedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
+	 *
+	 * @see #isRequestValid()
+	 */
+	private static class ModeRedirectionValidator implements HttpSender.RedirectionValidator {
+
+		private final Processor<HttpMessage> processor;
+		private boolean isRequestValid;
+
+		public ModeRedirectionValidator(Processor<HttpMessage> processor) {
+			this.processor = processor;
+		}
+
+		@Override
+		public void notifyMessageReceived(HttpMessage message) {
+			persistMessage(message);
+			processor.process(message);
+		}
+
+		@Override
+		public boolean isValid(URI redirection) {
+			isRequestValid = isValidForCurrentMode(redirection);
+			return isRequestValid;
+		}
+
+		/**
+		 * Tells whether or not the request is valid, that is, all redirections were valid for the current {@link Mode}.
+		 *
+		 * @return {@code true} is the request is valid, {@code false} otherwise.
+		 */
+		public boolean isRequestValid() {
+			return isRequestValid;
 		}
 	}
 }

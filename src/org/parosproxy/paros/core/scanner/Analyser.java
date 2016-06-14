@@ -33,6 +33,7 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2016/01/26 Fixed findbugs warning
 // ZAP: 2016/04/21 Allow to obtain the number of requests sent during the analysis
+// ZAP: 2016/06/10 Honour scan's scope when following redirections
 
 package org.parosproxy.paros.core.scanner;
 
@@ -477,7 +478,24 @@ public class Analyser {
             }
         }
 
-        httpSender.sendAndReceive(msg, true);
+        httpSender.sendAndReceive(msg, new HttpSender.RedirectionValidator() {
+
+            @Override
+            public boolean isValid(URI redirection) {
+                if (!parent.nodeInScope(redirection.getEscapedURI())) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("Skipping redirection out of scan's scope: " + redirection);
+                    }
+                    return false;
+                }
+                return true;
+            }
+
+            @Override
+            public void notifyMessageReceived(HttpMessage message) {
+                // Nothing to do with the message.
+            }
+        });
         requestCount++;
 
         // ZAP: Notify parent

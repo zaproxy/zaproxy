@@ -50,6 +50,7 @@
 // ZAP: 2016/03/22 Implement init() and getDependency() by default, most plugins do not use them
 // ZAP: 2016/04/21 Include Plugin itself when notifying of a new message sent
 // ZAP: 2016/05/03 Remove exceptions' stack trace prints
+// ZAP: 2016/06/10 Honour scan's scope when following redirections
 
 package org.parosproxy.paros.core.scanner;
 
@@ -65,11 +66,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
@@ -105,6 +108,15 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private Date started = null;
     private Date finished = null;
     private AddOn.Status status = AddOn.Status.unknown;
+
+    /**
+     * The redirection validator that ensures the followed redirections are in scan's scope.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getRedirectionValidator()
+     */
+    private HttpSender.RedirectionValidator redirectionValidator;
 
     /**
      * Default Constructor
@@ -257,13 +269,46 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         //ZAP: Runs the "beforeScan" methods of any ScannerHooks
         parent.performScannerHookBeforeScan(msg, this);
 
-        parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
+        if (isFollowRedirect) {
+            parent.getHttpSender().sendAndReceive(msg, getRedirectionValidator());
+        } else {
+            parent.getHttpSender().sendAndReceive(msg, false);
+        }
         
         // ZAP: Notify parent
         parent.notifyNewMessage(this, msg);
         
         //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(msg, this);
+    }
+
+    /**
+     * Gets the redirection validator, that ensures the followed redirections are in scan's scope.
+     *
+     * @return scan's scope redirection validator, never {@code null}
+     */
+    private HttpSender.RedirectionValidator getRedirectionValidator() {
+        if (redirectionValidator == null) {
+            redirectionValidator = new HttpSender.RedirectionValidator() {
+
+                @Override
+                public boolean isValid(URI redirection) {
+                    if (!getParent().nodeInScope(redirection.getEscapedURI())) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Skipping redirection out of scan's scope: " + redirection);
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void notifyMessageReceived(HttpMessage message) {
+                    // Nothing to do with the message.
+                }
+            };
+        }
+        return redirectionValidator;
     }
 
     private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
