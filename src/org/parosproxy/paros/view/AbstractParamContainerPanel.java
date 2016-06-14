@@ -20,6 +20,7 @@
  */
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog - moved code from AbstractParamDialog
 // ZAP: 2015/02/16 Issue 1528: Support user defined font size
+// ZAP: 2016/06/14 Issue 2578: Must click on text in Options column to select row
 
 package org.parosproxy.paros.view;
 
@@ -32,6 +33,8 @@ import java.awt.HeadlessException;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Collection;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -190,6 +193,16 @@ public class AbstractParamContainerPanel extends JSplitPane {
             treeParam.setCellRenderer(renderer);
 
             treeParam.setRowHeight(DisplayUtils.getScaledSize(18));
+            treeParam.addMouseListener(new MouseAdapter() {
+
+                @Override
+                public void mousePressed(MouseEvent e) {
+                    TreePath path = treeParam.getClosestPathForLocation(e.getX(), e.getY());
+                    if (path != null && !treeParam.isPathSelected(path)) {
+                        treeParam.setSelectionPath(path);
+                    }
+                }
+            });
         }
         
         return treeParam;
