@@ -28,6 +28,7 @@
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2016/06/13 Change option "Modify/Remove Accept-Encoding" to "Remove Unsupported Encodings"
+// ZAP: 2016/06/13 Internationalise string and remove unused instance variable
 
 package org.parosproxy.paros.extension.option;
 
@@ -54,7 +55,6 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
 
     private static final long serialVersionUID = -1350537974139536669L;
 
-    private OptionsParam optionsParam = null;
     private JPanel panelLocalProxy = null;
     private JPanel panelReverseProxy = null;  //  @jve:decl-index=0:visual-constraint="520,10"
 
@@ -104,7 +104,7 @@ public class OptionsLocalProxyPanel extends AbstractParamPanel {
                     null, Constant.messages.getString("options.proxy.local.title"), javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
                     javax.swing.border.TitledBorder.DEFAULT_POSITION, FontUtils.getFont(FontUtils.Size.standard), java.awt.Color.black));	// ZAP: i18n
 
-            jLabel.setText("Address (eg localhost, 127.0.0.1)");
+            jLabel.setText(Constant.messages.getString("options.proxy.local.label.address"));
             
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.gridy = 0;
