@@ -31,6 +31,7 @@
 // ZAP: 2014/02/07 Issue 1018: Give AbstractAppParamPlugin implementations access to the parameter type
 // ZAP: 2014/02/09 Add custom input vector scripting capabilities
 // ZAP: 2014/08/14 Issue 1279: Active scanner excluded parameters not working when "Where" is "Any"
+// ZAP: 2016/06/15 Add VariantHeader based on the current scan options
 package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
@@ -54,8 +55,9 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
 
     @Override
     public void scan() {
-        int targets = this.getParent().getScannerParam().getTargetParamsInjectable();
-        int enabledRPC = this.getParent().getScannerParam().getTargetParamsEnabledRPC();        
+        ScannerParam scanOptions = this.getParent().getScannerParam();
+        int targets = scanOptions.getTargetParamsInjectable();
+        int enabledRPC = scanOptions.getTargetParamsEnabledRPC();        
 
         // First check URL query-string target configuration
         if ((targets & ScannerParam.TARGET_QUERYSTRING) != 0) {
@@ -100,7 +102,17 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
         }
 
         if ((targets & ScannerParam.TARGET_HTTPHEADERS) != 0) {
-            listVariant.add(new VariantHeader());
+            boolean addVariant = scanOptions.isScanHeadersAllRequests();
+            if (!addVariant) {
+                // If not scanning all requests check if it looks like a dynamic or static page (based on query/post parameters)
+                HttpMessage message = getBaseMsg();
+                char[] query = message.getRequestHeader().getURI().getRawQuery();
+                addVariant = (query != null && query.length != 0) || message.getRequestBody().length() != 0;
+            }
+
+            if (addVariant) {
+                listVariant.add(new VariantHeader());
+            }
         }
 
         if ((targets & ScannerParam.TARGET_URLPATH) != 0) {
