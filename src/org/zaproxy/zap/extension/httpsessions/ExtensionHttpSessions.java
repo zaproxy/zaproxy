@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -28,6 +29,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
@@ -626,8 +628,10 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 			return;
 		}
 
-		// Check for default tokens set in response messages
-		List<HttpCookie> responseCookies = msg.getResponseHeader().getHttpCookies(msg.getRequestHeader().getHostName());
+		// Check for cookies set during redirects and set in response messages
+		ArrayList<HttpCookie> responseCookies = new ArrayList<>(HttpMethodDirector.getRedirectCookies());
+		responseCookies.addAll(msg.getResponseHeader().getHttpCookies(msg.getRequestHeader().getHostName()));
+
 		for (HttpCookie cookie : responseCookies) {
 			// If it's a default session token and it is not already marked as session token and was
 			// not previously removed by the user

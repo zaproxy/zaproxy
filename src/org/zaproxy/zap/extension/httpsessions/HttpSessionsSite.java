@@ -32,6 +32,7 @@ import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.httpclient.Cookie;
+import org.apache.commons.httpclient.HttpMethodDirector;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.network.HttpMessage;
@@ -382,9 +383,13 @@ public class HttpSessionsSite {
 		// Create an auxiliary map of token values and insert keys for every token
 		Map<String, Cookie> tokenValues = new HashMap<>();
 
-		// Get new values that were set for tokens (e.g. using SET-COOKIE headers), if any
-		
-		List<HttpCookie> cookiesToSet = message.getResponseHeader().getHttpCookies(message.getRequestHeader().getHostName());
+		// Retrieve cookies in the redirect list, if any
+		ArrayList<HttpCookie> cookiesToSet = new ArrayList<>(HttpMethodDirector.getRedirectCookies());
+		// Clear the static list of redirect cookies in order to put it in a clean state for the next time
+		HttpMethodDirector.emptyRedirectCookies();
+		// Retrieve cookies set in response messages (using SET-COOKIE headers), if any
+		cookiesToSet.addAll(message.getResponseHeader().getHttpCookies(message.getRequestHeader().getHostName()));
+
 		for (HttpCookie cookie : cookiesToSet) {
 			String lcCookieName = cookie.getName();
 			if (siteTokensSet.isSessionToken(lcCookieName)) {

@@ -59,6 +59,7 @@
 // ZAP: 2016/05/27 Issue 2484: Circular Redirects
 // ZAP: 2016/06/08 Set User-Agent header defined in options as default for (internal) CONNECT requests
 // ZAP: 2016/06/10 Allow to validate the URI of the redirections before being followed
+// ZAP: 2016/06/15 Update session and Cookie header if a Set-Header header has been received in a redirect after a POST
 
 package org.parosproxy.paros.network;
 
@@ -95,6 +96,7 @@ import org.apache.commons.httpclient.protocol.ProtocolSocketFactory;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.ZapHttpConnectionManager;
+import org.zaproxy.zap.extension.httpsessions.HttpSession;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.network.ZapNTLMScheme;
 import org.zaproxy.zap.users.User;
@@ -384,24 +386,35 @@ public class HttpSender {
 				sendAuthenticated(msg, isFollowRedirect);
 				return;
 			}
+			// POST/PUT method cannot be redirected by library. Need to follow by code
 
 			// ZAP: Reauthentication when sending a message from the perspective of a User
 			sendAuthenticated(msg, false);
 
+			// Update session and Cookie header if a Set-Cookie header has been received
+			notifyResponseListeners(msg);
+			HttpSession session = msg.getHttpSession();
+			if (session != null) {
+				String tokenValues = session.getTokenValuesString();
+				if (!tokenValues.isEmpty())
+					msg.setCookieParamsAsString(tokenValues);
+			}
+
 			HttpMessage temp = msg.cloneAll();
-			// POST/PUT method cannot be redirected by library. Need to follow by code
+			HttpResponseHeader responseHeader = temp.getResponseHeader();
+			HttpRequestHeader requestHeader = temp.getRequestHeader();
 
 			// loop 1 time only because httpclient can handle redirect itself after first GET.
 			for (int i = 0; i < 1
 					&& (HttpStatusCode.isRedirection(temp.getResponseHeader().getStatusCode()) && temp
 							.getResponseHeader().getStatusCode() != HttpStatusCode.NOT_MODIFIED); i++) {
-				String location = temp.getResponseHeader().getHeader(HttpHeader.LOCATION);
-				URI baseUri = temp.getRequestHeader().getURI();
-				URI newLocation = new URI(baseUri, location, false);
-				temp.getRequestHeader().setURI(newLocation);
 
-				temp.getRequestHeader().setMethod(HttpRequestHeader.GET);
-				temp.getRequestHeader().setHeader(HttpHeader.CONTENT_LENGTH, null);
+				URI baseUri = requestHeader.getURI();
+				URI newLocation = new URI(baseUri, responseHeader.getHeader(HttpHeader.LOCATION), false);
+				requestHeader.setURI(newLocation);
+
+				requestHeader.setMethod(HttpRequestHeader.GET);
+				requestHeader.setHeader(HttpHeader.CONTENT_LENGTH, null);
 				// ZAP: Reauthentication when sending a message from the perspective of a User
 				sendAuthenticated(temp, true);
 			}

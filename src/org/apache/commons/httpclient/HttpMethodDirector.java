@@ -31,9 +31,12 @@
 package org.apache.commons.httpclient;
 
 import java.io.IOException;
+import java.net.HttpCookie;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -54,6 +57,7 @@ import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.httpclient.params.HttpParams;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.parosproxy.paros.network.HttpHeader;
 
 /*
  * Forked class...
@@ -104,6 +108,8 @@ public class HttpMethodDirector {
 
     private static final Log LOG = LogFactory.getLog(HttpMethodDirector.class);
 
+    private static List<HttpCookie> redirectCookies = new ArrayList<>();
+
     private ConnectMethod connectMethod;
     
     private HttpState state;
@@ -137,8 +143,7 @@ public class HttpMethodDirector {
         this.state = state;
         this.authProcessor = new AuthChallengeProcessor(this.params);
     }
-    
-	
+
     /**
      * Executes the method associated with this method director.
      * 
@@ -201,7 +206,6 @@ public class HttpMethodDirector {
                     fakeResponse(method);
                     break;
                 }
-                
                 boolean retry = false;
                 if (isRedirectNeeded(method)) {
                     if (processRedirectResponse(method)) {
@@ -253,6 +257,66 @@ public class HttpMethodDirector {
 
     }
 
+    public static List<HttpCookie> getRedirectCookies () {
+        return redirectCookies;
+    }
+
+    public static void emptyRedirectCookies() {
+        redirectCookies.clear();
+    }
+
+    private void setRedirectCookies(HttpMethod method) {
+        // This function does not set the session. It saves cookies received from the Set-Cookie headers in the static
+        // redirect cookie list and creates a new Cookie header. These cookies are then correctly processed in the
+        // HttpSender code. This should fix the problem of Set-Cookie headers received during redirects in most of cases
+
+        // Retrieve cookies from Set-Cookie headers
+        ArrayList<HttpCookie> cookiesToSet = new ArrayList<>();
+        Header[] setCookieHeaders = method.getResponseHeaders(HttpHeader.SET_COOKIE);
+        for (Header setCookieHeader : setCookieHeaders) {
+            try {
+                cookiesToSet.addAll(HttpCookie.parse(setCookieHeader.getValue()));
+            } catch (Exception e) {
+                if (LOG.isDebugEnabled())
+                    LOG.debug("Set-Cookie header: \" " + setCookieHeader.getValue() + " \" is malformed ");
+            }
+        }
+
+        // No need to continue processing this function if there is no new cookie to set
+        if (cookiesToSet.isEmpty())
+            return;
+
+        // Add new cookies in the static redirect cookie list
+        redirectCookies.addAll(cookiesToSet);
+
+        // Retrieve new cookie names
+        ArrayList<String> cookieNames = new ArrayList<>();
+        for (HttpCookie cookie : cookiesToSet) {
+            cookieNames.add(cookie.getName());
+        }
+
+        // Add cookies from the request Cookie header in the list if their name is not already present
+        Header cookieHeader = method.getRequestHeader(HttpHeader.COOKIE);
+        if (cookieHeader != null) {
+            HeaderElement[] cookieElements = cookieHeader.getElements();
+            for (HeaderElement cookieElement : cookieElements) {
+                String cookieName = cookieElement.getName();
+                if (!cookieNames.contains(cookieName))
+                    cookiesToSet.add(new HttpCookie(cookieName, cookieElement.getValue()));
+            }
+        }
+
+        // Construct the Cookie header value
+        String cookieHeaderValue = "";
+        for (HttpCookie cookie : cookiesToSet) {
+            cookieHeaderValue += cookie.toString() + "; ";
+        }
+        if (cookieHeaderValue.length() > 2) {
+            cookieHeaderValue = cookieHeaderValue.substring(0, cookieHeaderValue.length() - 2);
+            // Set the new Cookie header in the request
+            method.setRequestHeader(HttpHeader.COOKIE, cookieHeaderValue);
+        }
+    }
     
     private void authenticate(final HttpMethod method) {
         try {
@@ -694,6 +758,10 @@ public class HttpMethodDirector {
                 method.getParams().setDefaults(this.params);
             }
             method.setURI(redirectUri);
+
+            // Set the cookies from the Set-Cookie headers in the new request
+            setRedirectCookies(method);
+
             hostConfiguration.setHost(redirectUri);
 		} catch (URIException ex) {
             throw new InvalidRedirectLocationException(
