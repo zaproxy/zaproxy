@@ -33,6 +33,7 @@
 // the request body is not "x-www-form-urlencoded"
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2016/06/17 Be lenient when parsing charset and accept single quote chars around the value
+// ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 
 package org.parosproxy.paros.network;
 
@@ -105,13 +106,13 @@ public abstract class HttpHeader implements java.io.Serializable {
     protected static final String p_VERSION = "(HTTP/\\d+\\.\\d+)";
     protected static final String p_STATUS_CODE = "(\\d{3})";
     protected static final String p_REASON_PHRASE = "(" + p_TEXT + ")";
-    protected String mStartLine = "";
-    protected String mMsgHeader = "";
-    protected boolean mMalformedHeader = false;
-    protected Hashtable<String, Vector<String>> mHeaderFields = new Hashtable<>();
-    protected int mContentLength = -1;
-    protected String mLineDelimiter = CRLF;
-    protected String mVersion = HttpHeader.HTTP10;
+    protected String mStartLine;
+    protected String mMsgHeader;
+    protected boolean mMalformedHeader;
+    protected Hashtable<String, Vector<String>> mHeaderFields;
+    protected int mContentLength;
+    protected String mLineDelimiter;
+    protected String mVersion;
     // ZAP: added CORS headers
     public static final String ACCESS_CONTROL_ALLOW_ORIGIN = "Access-Control-Allow-Origin";
 	public static final String ACCESS_CONTROL_ALLOW_HEADERS = "Access-Control-Allow-Headers";
@@ -138,7 +139,6 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @throws HttpMalformedHeaderException
      */
     public HttpHeader(String data) throws HttpMalformedHeaderException {
-        this();
         setMessage(data);
     }
 
@@ -162,9 +162,7 @@ public abstract class HttpHeader implements java.io.Serializable {
      * @throws HttpMalformedHeaderException
      */
     public void setMessage(String data) throws HttpMalformedHeaderException {
-        init();
-
-        mMsgHeader = data;
+        clear();
         try {
             if (!this.parse(data)) {
                 mMalformedHeader = true;
