@@ -32,6 +32,7 @@
 // ZAP: 2013/11/16 Issue 867: HttpMessage#getFormParams should return an empty TreeSet if
 // the request body is not "x-www-form-urlencoded"
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
+// ZAP: 2016/06/17 Be lenient when parsing charset and accept single quote chars around the value
 
 package org.parosproxy.paros.network;
 
@@ -94,7 +95,7 @@ public abstract class HttpHeader implements java.io.Serializable {
     public static final Pattern patternCRLF = Pattern.compile("\\r\\n", Pattern.MULTILINE);
     public static final Pattern patternLF = Pattern.compile("\\n", Pattern.MULTILINE);
     // ZAP: Issue 410: charset wrapped in quotation marks
-    private static final Pattern patternCharset = Pattern.compile("charset *= *\"?([^\";\\s]+)\"?", Pattern.CASE_INSENSITIVE);
+    private static final Pattern patternCharset = Pattern.compile("charset *= *(?:(?:'([^';\\s]+))|(?:\"?([^\";\\s]+)\"?))", Pattern.CASE_INSENSITIVE);
     protected static final String p_TEXT = "[^\\x00-\\x1f\\r\\n]*";
     protected static final String p_METHOD = "(\\w+)";
     protected static final String p_SP = " +";
@@ -564,11 +565,14 @@ public abstract class HttpHeader implements java.io.Serializable {
             return null;
         }
 
-        String charset = null;
         Matcher matcher = patternCharset.matcher(contentType);
         if (matcher.find()) {
-            charset = matcher.group(1);
+            String charset = matcher.group(2);
+            if (charset == null) {
+                return matcher.group(1);
+            }
+            return charset;
         }
-        return charset;
+        return null;
     }
 }
