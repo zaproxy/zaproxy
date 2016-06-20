@@ -22,20 +22,25 @@ package org.parosproxy.paros.core.scanner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 
-import org.apache.commons.httpclient.URIException;
-import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeaderField;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 
 /**
+ * A {@code Variant} for HTTP headers, allowing to attack the values of the headers.
+ * <p>
+ * Some headers are ignored as attacking them would have unwanted side effects (for example, changing or removing a
+ * Proxy-Authorization header or Content-Length header).
  *
+ * @since 2.2.0
  * @author andy
+ * @see Variant
+ * @see VariantCookie
  */
 public class VariantHeader implements Variant {
 	
@@ -69,78 +74,45 @@ public class VariantHeader implements Variant {
     //a hashset of (lowercase) headers that we can look up quickly and easily
     private static final HashSet <String> NON_INJECTABLE_HEADERS = new HashSet<String>(Arrays.asList(injectablesTempArray));
 
-    
-    private final List<NameValuePair> params = new ArrayList<>();
-    private static final Logger log = Logger.getLogger(VariantHeader.class);
-
-    private static ScannerParam scannerOptions;
+    /**
+     * The list of parameters (that is, headers) extracted from the request header of the message, never {@code null}.
+     */
+    private List<NameValuePair> params = Collections.emptyList();
 
     /**
-     * 
-     * @param msg 
+     * @throws IllegalArgumentException if {@code message} is {@code null}.
      */
     @Override
-    public void setMessage(HttpMessage msg) {
-        if (!isValidMessageToScan(msg)) {
-            return;
+    public void setMessage(HttpMessage message) {
+        if (message == null) {
+            throw new IllegalArgumentException("Parameter message must not be null.");
         }
         
-        //httpHeaders is never null, so no need to check for null
-        List<HttpHeaderField> httpHeaders = msg.getRequestHeader().getHeaders();
-        int headerPos=0;
+        ArrayList<NameValuePair> extractedParameters = new ArrayList<>();
+        List<HttpHeaderField> httpHeaders = message.getRequestHeader().getHeaders();
         for (HttpHeaderField header : httpHeaders) {
 	        if (! NON_INJECTABLE_HEADERS.contains(header.getName().toLowerCase(Locale.ROOT))) {
-	        	params.add(new NameValuePair(NameValuePair.TYPE_HEADER, header.getName(), header.getValue(), headerPos++));             
+                extractedParameters.add(
+                        new NameValuePair(
+                                NameValuePair.TYPE_HEADER,
+                                header.getName(),
+                                header.getValue(),
+                                extractedParameters.size()));
 	        }
         }
-    }
 
-    private boolean isValidMessageToScan(HttpMessage msg) {
-        if (getScannerOptions().isScanHeadersAllRequests()) {
-            return true;
-        }
-
-        // First we check if it's a dynamic or static page
-        // I'd to do this because scanning starts to be veeeeery slow
-        // --
-        // this is a trivial implementation, should be good to have 
-        // a page dynamic check at the parent plugin level which should 
-        // use or not Variants according to the behavior of the request
-        // (e.g. different content or status error/redirect)
-        String query = null;
-        try {
-            query = msg.getRequestHeader().getURI().getQuery();
-            
-        } catch (URIException e) {
-        	log.error(e.getMessage(), e);
-        }
-
-        // If there's almost one GET parameter go ahead
-        if (query == null || query.isEmpty()) {
-            // If also the Request body is null maybe it's a static page oer a null parameter page
-            if (msg.getRequestBody().length() == 0) {
-                return false;
-            }
-        }        
-        return true;
-    }
-
-    private static ScannerParam getScannerOptions() {
-        if (scannerOptions == null) {
-            getScannerOptionsSync();
-        }
-        return scannerOptions;
-    }
-
-    private static synchronized void getScannerOptionsSync() {
-        if (scannerOptions == null) {
-            scannerOptions = Model.getSingleton().getOptionsParam().getParamSet(ScannerParam.class);
+        if (extractedParameters.isEmpty()) {
+            params = Collections.emptyList();
+        } else {
+            extractedParameters.trimToSize();
+            params = Collections.unmodifiableList(extractedParameters);
         }
     }
 
     /**
+     * Gets the list of parameters (that is, headers) extracted from the request header of the message.
      * 
-     * @return 
+     * @return an unmodifiable {@code List} containing the extracted parameters, never {@code null}.
      */
     @Override
     public List<NameValuePair> getParamList() {
@@ -157,7 +129,11 @@ public class VariantHeader implements Variant {
      */
     @Override
     public String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return setParameter(msg, originalPair, name, value, false);
+        msg.getRequestHeader().setHeader(originalPair.getName(), value);
+        if (value == null) {
+            return "";
+        }
+        return originalPair.getName() + ": " + value;
     }
     
     /**
@@ -170,22 +146,6 @@ public class VariantHeader implements Variant {
      */
     @Override
     public String setEscapedParameter(HttpMessage msg, NameValuePair originalPair, String name, String value) {
-    	return setParameter(msg, originalPair, name, value, true);
+    	return setParameter(msg, originalPair, name, value);
     }
-    
-    /**
-     * 
-     * @param msg
-     * @param originalPair
-     * @param name
-     * @param value
-     * @param escaped
-     * @return 
-     */
-    private String setParameter(HttpMessage msg, NameValuePair originalPair, String name, String value, boolean escaped) {        
-        // Here gives null pointer exception...
-        // maybe bacause the name value isn't equal to the original value one
-        msg.getRequestHeader().setHeader(originalPair.getName(), value);
-        return name + ":" + value;
-    }    
 }
