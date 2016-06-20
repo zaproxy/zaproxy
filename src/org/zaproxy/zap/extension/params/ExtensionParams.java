@@ -77,23 +77,7 @@ public class ExtensionParams extends ExtensionAdaptor
      * 
      */
     public ExtensionParams() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionParams(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(58);
 
         API.getInstance().registerApiImplementor(new ParamsAPI(this));

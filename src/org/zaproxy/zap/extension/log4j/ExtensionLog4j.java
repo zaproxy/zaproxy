@@ -47,22 +47,7 @@ public class ExtensionLog4j extends ExtensionAdaptor {
      * 
      */
     public ExtensionLog4j() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionLog4j(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName("ExtensionLog4j");
+        super("ExtensionLog4j");
         this.setOrder(56);
 
 		if (Constant.isDevBuild()) {

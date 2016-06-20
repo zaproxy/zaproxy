@@ -122,22 +122,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
      *
      */
     public ExtensionActiveScan() {
-        super();
-        initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionActiveScan(String name) {
-        super(name);
-    }
-
-    /**
-     * This method initializes this
-     */
-    private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(28);
         policyManager = new PolicyManager(this);
         ascanController = new ActiveScanController(this);
