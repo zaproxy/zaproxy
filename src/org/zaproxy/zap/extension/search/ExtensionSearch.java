@@ -67,22 +67,7 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
      * 
      */
     public ExtensionSearch() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionSearch(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(20);
 
 	}

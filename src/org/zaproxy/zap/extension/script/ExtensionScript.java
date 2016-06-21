@@ -129,22 +129,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	private boolean shouldLoadTemplatesOnScriptTypeRegistration;
 	
     public ExtensionScript() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionScript(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(EXTENSION_ORDER);
         
         ScriptEngine se = mgr.getEngineByName("ECMAScript");

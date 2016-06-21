@@ -42,22 +42,7 @@ public class ExtensionAPI extends ExtensionAdaptor {
     private CoreAPI coreApi = null;
 	
     public ExtensionAPI() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionAPI(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(10);
 	}
 

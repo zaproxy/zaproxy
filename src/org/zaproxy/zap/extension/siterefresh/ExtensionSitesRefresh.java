@@ -31,22 +31,7 @@ public class ExtensionSitesRefresh extends ExtensionAdaptor {
      * 
      */
     public ExtensionSitesRefresh() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionSitesRefresh(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName("ExtensionSitesRefresh");
+        super("ExtensionSitesRefresh");
         this.setOrder(1000);	// Want this to be as low as possible :)
 	}
 	

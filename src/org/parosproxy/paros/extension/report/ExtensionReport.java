@@ -27,6 +27,7 @@
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
 // ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
+// ZAP: 2016/06/20 Removed unnecessary/unused constructor
 
 package org.parosproxy.paros.extension.report;
 
@@ -53,26 +54,10 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
      * 
      */
     public ExtensionReport() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionReport(String name) {
-        super(name);
+        super("ExtensionReport");
         this.setOrder(14);
     }
 
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setName("ExtensionReport");
-			
-	}
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);

@@ -49,23 +49,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
      * 
      */
     public ExtensionUiUtils() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionUiUtils(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 * 
-	 */
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(200);
 
 	}

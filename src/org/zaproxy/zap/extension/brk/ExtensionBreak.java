@@ -105,18 +105,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	
     public ExtensionBreak() {
-        super();
- 		initialize();
-    }
-
-    
-    public ExtensionBreak(String name) {
-        super(name);
-    }
-
-	
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(24);
 	}
 	

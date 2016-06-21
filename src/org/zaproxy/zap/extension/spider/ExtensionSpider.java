@@ -111,15 +111,6 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	}
 
 	/**
-	 * Instantiates a new extension spider.
-	 * 
-	 * @param name the name
-	 */
-	public ExtensionSpider(String name) {
-		super(name);
-	}
-
-	/**
 	 * This method initializes this extension.
 	 */
 	private void initialize() {
