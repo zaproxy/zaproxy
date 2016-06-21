@@ -39,10 +39,9 @@ if [ "`echo ${JAVA_OUTPUT} | grep "continuing with system-provided Java"`" ] ; t
   echo "    " $JAVA_OUTPUT
   echo "Unsetting JAVA_HOME and continuing with ZAP start-up"
   unset JAVA_HOME
-  JAVA_OUTPUT=$(java -version 2>&1)
 fi
 
-JAVA_VERSION=$(echo ${JAVA_OUTPUT} | awk -F\" 'NR == 1 { print $2 }')
+JAVA_VERSION=$(java -version 2>&1 | awk -F\" '/version/ { print $2 }')
 JAVA_MAJOR_VERSION=${JAVA_VERSION%%.*}
 JAVA_MINOR_VERSION=$(echo $JAVA_VERSION | awk -F\. '{ print $2 }')
 
