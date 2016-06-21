@@ -25,6 +25,7 @@
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2014/05/20 Issue 377: Unfulfilled dependencies hang the active scan
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2016/04/04 Use StatusUI in scanners' dialogues
 
 package org.zaproxy.zap.extension.ascan;
 
@@ -32,7 +33,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Vector;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -42,13 +42,13 @@ import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
 import org.parosproxy.paros.core.scanner.Plugin.AttackStrength;
 import org.parosproxy.paros.core.scanner.PluginFactory;
 import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.view.StatusUI;
 
 
 public class CategoryTableModel extends DefaultTableModel {
 
 	private static final long serialVersionUID = 1L;
 	private Map<String, String> i18nToStr = null;
-    private Map<Integer, String> scannersQuality = new HashMap<>();
 	
 	// ZAP: i18n
 	private static final String[] columnNames = {
@@ -56,8 +56,10 @@ public class CategoryTableModel extends DefaultTableModel {
 		Constant.messages.getString("ascan.policy.table.threshold"), 
 		Constant.messages.getString("ascan.policy.table.strength"),
 		Constant.messages.getString("ascan.policy.table.quality")};
+
+	private static final int QUALITY_COLUMN_IDX = 3;
 	
-    private Vector<Plugin> listTestCategory = new Vector<Plugin>();
+    private List<PluginWrapper> listTestCategory;
 
     private PluginFactory pluginFactory;
     private int category;
@@ -77,9 +79,7 @@ public class CategoryTableModel extends DefaultTableModel {
         this.defaultThreshold = defaultThreshold;
         for (Plugin test : pluginFactory.getAllPlugin()) {
             if (test.getCategory() == category) {
-                listTestCategory.add(test);
-                scannersQuality.put(test.getId(),
-                		Constant.messages.getString("ascan.policy.table.quality."+ test.getStatus().name()));
+                listTestCategory.add(new PluginWrapper(test, View.getSingleton().getStatusUI(test.getStatus())));
             }
         }
         fireTableDataChanged();
@@ -88,6 +88,9 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
 	public Class<?> getColumnClass(int c) {
+        if (c == QUALITY_COLUMN_IDX) {
+            return StatusUI.class;
+        }
         return String.class;
         
     }
@@ -106,7 +109,7 @@ public class CategoryTableModel extends DefaultTableModel {
 	        	return true;
 	        case 2: // Alert
 	        	return true;
-	        case 3: // Quality
+	        case QUALITY_COLUMN_IDX:
 	        	return false;
 	        default:
 	        	return false;
@@ -115,7 +118,7 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public void setValueAt(Object value, int row, int col) {
-        Plugin test = listTestCategory.get(row);
+        Plugin test = listTestCategory.get(row).getPlugin();
         switch (col) {
         	case 0:	break;
         	case 1: AlertThreshold af = AlertThreshold.valueOf(i18nToStr((String)value));
@@ -222,27 +225,44 @@ public class CategoryTableModel extends DefaultTableModel {
 
     @Override
     public Object getValueAt(int row, int col) {
-        Plugin test = listTestCategory.get(row);
-        Object result = null;
+        PluginWrapper wrapper = listTestCategory.get(row);
         switch (col) {
-        	case 0:	result = test.getName();
-        			break;
-        	case 1: result = strToI18n(test.getAlertThreshold(true).name());
-        			break;
-        	case 2: result = strToI18n(test.getAttackStrength(true).name());
-    				break;
-        	case 3: result = scannersQuality.get(test.getId());
-        			break;
-        	default: result = "";
+        	case 0:
+        		return wrapper.getPlugin().getName();
+        	case 1:
+        		return strToI18n(wrapper.getPlugin().getAlertThreshold(true).name());
+        	case 2:
+        		return strToI18n(wrapper.getPlugin().getAttackStrength(true).name());
+        	case QUALITY_COLUMN_IDX:
+        		return wrapper.getQuality();
+        	default:
+        		return "";
         }
-        return result;
     }
     
-    private List<Plugin> getTestList() {
+    private List<PluginWrapper> getTestList() {
         if (listTestCategory == null) {
-            listTestCategory = new Vector<>();
+            listTestCategory = new ArrayList<>();
         }
         return listTestCategory;
     }
     
+    private static class PluginWrapper {
+
+        private final Plugin plugin;
+        private final StatusUI quality;
+
+        public PluginWrapper(Plugin plugin, StatusUI quality) {
+            this.plugin = plugin;
+            this.quality = quality;
+        }
+
+        public Plugin getPlugin() {
+            return plugin;
+        }
+
+        public StatusUI getQuality() {
+            return quality;
+        }
+    }
 }

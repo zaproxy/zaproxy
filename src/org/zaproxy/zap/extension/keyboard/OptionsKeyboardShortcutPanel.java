@@ -17,8 +17,6 @@
  */
 package org.zaproxy.zap.extension.keyboard;
 
-import java.awt.Container;
-import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.event.ActionEvent;
@@ -239,16 +237,7 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
         public void showModifyDialogue(KeyboardShortcut shortcut) {
             if (modifyDialog == null) {
-            	Container c = View.getSingleton().getOptionsDialog(null);
-            	Frame f = null;
-            	while (f == null && c != null) {
-            		if (c instanceof Frame) {
-            			f = (Frame)c;
-            		} else {
-            			c = c.getParent(); 
-            		}
-            	}
-                modifyDialog = new DialogEditShortcut(f);
+                modifyDialog = new DialogEditShortcut(View.getSingleton().getOptionsDialog(null));
                 modifyDialog.pack();
             }
             modifyDialog.init(shortcut, model);

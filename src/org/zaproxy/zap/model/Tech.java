@@ -106,12 +106,18 @@ public class Tech implements Comparable<Tech> {
         }
     }
 
-    public boolean equals(Tech tech) {
+    @Override
+    public boolean equals(Object tech) {
         if (tech == null) {
             return false;
         }
         
         return this.toString().equals(tech.toString());
+    }
+    
+    @Override
+    public int hashCode() {
+    	return this.toString().hashCode();
     }
 
     public boolean is(Tech other) {

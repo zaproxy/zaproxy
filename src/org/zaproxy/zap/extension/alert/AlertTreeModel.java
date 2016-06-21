@@ -44,7 +44,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     private String getRiskString (Alert alert) {
-		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getAlert() + "<html>";
+		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getName() + "<html>";
     }
     
     void addPath(final Alert alert) {
@@ -99,7 +99,7 @@ class AlertTreeModel extends DefaultTreeModel {
     }
     
     void updatePath(final Alert originalAlert, final Alert alert) {
-        if (EventQueue.isDispatchThread()) {
+        if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	updatePathEventHandler(originalAlert, alert);
         } else {
             try {
@@ -215,31 +215,7 @@ class AlertTreeModel extends DefaultTreeModel {
 
         @Override
         public int compare(AlertNode alertNode, AlertNode anotherAlertNode) {
-            int result = alertNode.getNodeName().compareTo(anotherAlertNode.getNodeName());
-            if (result != 0) {
-                return result;
-            }
-
-            Alert alert = alertNode.getUserObject();
-            Alert anotherAlert = anotherAlertNode.getUserObject();
-
-            result = alert.getParam().compareTo(anotherAlert.getParam());
-            if (result != 0) {
-                return result;
-            }
-
-            if (alert.getAttack() == null) {
-                if (anotherAlert.getAttack() == null) {
-                    return 0;
-                }
-                return -1;
-            }
-
-            if (anotherAlert.getAttack() == null) {
-                return 1;
-            }
-
-            return alert.getAttack().compareTo(anotherAlert.getAttack());
+            return alertNode.getUserObject().compareTo(anotherAlertNode.getUserObject());
         }
     }
 }

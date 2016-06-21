@@ -42,6 +42,7 @@ public class BreakpointsParam extends AbstractParam {
     private static final String PARAM_CONFIRM_DROP_MESSAGE_KEY = PARAM_BASE_KEY + ".confirmDropMessage";
     private static final String PARAM_UI_BUTTON_MODE = PARAM_BASE_KEY + ".buttonMode";
     private static final String PARAM_BRK_ALWAYS_ON_TOP = PARAM_BASE_KEY + ".alwaysOnTop";
+    private static final String PARAM_BRK_IN_SCOPE_ONLY = PARAM_BASE_KEY + ".inScopeOnly";
 
     /**
      * Default is {@code false}.
@@ -49,6 +50,7 @@ public class BreakpointsParam extends AbstractParam {
     private boolean confirmDropMessage;
     private int buttonMode = BUTTON_MODE_SIMPLE;
     private Boolean alwaysOnTop = null;
+    private boolean inScopeOnly = false;
 
     public BreakpointsParam() {
         super();
@@ -70,6 +72,7 @@ public class BreakpointsParam extends AbstractParam {
         confirmDropMessage = getConfig().getBoolean(PARAM_CONFIRM_DROP_MESSAGE_KEY, false);
         buttonMode = getConfig().getInt(PARAM_UI_BUTTON_MODE, BUTTON_MODE_SIMPLE);
         alwaysOnTop = getConfig().getBoolean(PARAM_BRK_ALWAYS_ON_TOP, null);
+        inScopeOnly = getConfig().getBoolean(PARAM_BRK_IN_SCOPE_ONLY, false);
     }
 
     /**
@@ -114,5 +117,12 @@ public class BreakpointsParam extends AbstractParam {
         getConfig().setProperty(PARAM_BRK_ALWAYS_ON_TOP, Boolean.valueOf(alwaysOnTop));
 	}
 
-    
+	public boolean isInScopeOnly() {
+		return inScopeOnly;
+	}
+
+	public void setInScopeOnly(boolean inScopeOnly) {
+		this.inScopeOnly = inScopeOnly;
+        getConfig().setProperty(PARAM_BRK_IN_SCOPE_ONLY, inScopeOnly);
+	}
 }

@@ -24,28 +24,12 @@ package org.zaproxy.zap.view;
 
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map.Entry;
-import java.util.Set;
 
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreeNode;
-import javax.swing.tree.TreePath;
 
-import org.apache.commons.lang.ArrayUtils;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.model.Context;
-import org.zaproxy.zap.model.Tech;
-import org.zaproxy.zap.model.TechSet;
 
 public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 
@@ -53,11 +37,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	private static final long serialVersionUID = -8337361808959321380L;
 
 	private JPanel panelSession = null;
-	private JScrollPane jScrollPane = null;
-	private TreeModel model = null;
-	private HashMap<Tech, DefaultMutableTreeNode> techToNodeMap = new HashMap<>();
-
-	private JCheckBoxTree techTree = null;
+	private TechnologyTreePanel techPanel;
 
 	public static String getPanelName(int contextId) {
 		// Panel names have to be unique, so precede with the context id
@@ -91,78 +71,16 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 			panelSession = new JPanel();
 			panelSession.setLayout(new BorderLayout());
 			panelSession.setName("SessionTech");
-			panelSession.add(getJScrollPane(), BorderLayout.CENTER);
+			panelSession.add(getTechTree(), BorderLayout.CENTER);
 		}
 		return panelSession;
 	}
 
-	private TreePath getPath(TreeNode node) {
-		List<TreeNode> list = new ArrayList<>();
-
-		// Add all nodes to list
-		while (node != null) {
-			list.add(node);
-			node = node.getParent();
+	private TechnologyTreePanel getTechTree() {
+		if (techPanel == null) {
+			techPanel = new TechnologyTreePanel(Constant.messages.getString("context.technology.tree.root"));
 		}
-		Collections.reverse(list);
-
-		// Convert array of nodes to TreePath
-		return new TreePath(list.toArray());
-	}
-
-	private JCheckBoxTree getTechTree() {
-		if (techTree == null) {
-			techTree = new JCheckBoxTree() {
-				private static final long serialVersionUID = 1L;
-
-				@Override
-				protected void setExpandedState(TreePath path, boolean state) {
-					// Ignore all collapse requests; collapse events will not be fired
-					if (state) {
-						super.setExpandedState(path, state);
-					}
-				}
-			};
-			// Initialise the structure based on all the tech we know about
-			TechSet ts = new TechSet(Tech.builtInTech);
-			Iterator<Tech> iter = ts.getIncludeTech().iterator();
-
-			DefaultMutableTreeNode root = new DefaultMutableTreeNode(Constant.messages.getString("context.technology.tree.root"));
-			Tech tech;
-			DefaultMutableTreeNode parent;
-			DefaultMutableTreeNode node;
-			while (iter.hasNext()) {
-				tech = iter.next();
-				if (tech.getParent() != null) {
-					parent = techToNodeMap.get(tech.getParent());
-				} else {
-					parent = null;
-				}
-				if (parent == null) {
-					parent = root;
-				}
-				node = new DefaultMutableTreeNode(tech.getUiName());
-				parent.add(node);
-				techToNodeMap.put(tech, node);
-			}
-
-			model = new DefaultTreeModel(root);
-			techTree.setModel(model);
-			techTree.expandAll();
-			techTree.setCheckBoxEnabled(new TreePath(root), false);
-
-		}
-		return techTree;
-	}
-
-	private JScrollPane getJScrollPane() {
-		if (jScrollPane == null) {
-			jScrollPane = new JScrollPane();
-			jScrollPane.setViewportView(getTechTree());
-			jScrollPane.setBorder(javax.swing.BorderFactory
-					.createEtchedBorder(javax.swing.border.EtchedBorder.RAISED));
-		}
-		return jScrollPane;
+		return techPanel;
 	}
 
 	@Override
@@ -173,29 +91,7 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	@Override
 	public void initContextData(Session session, Context uiContext) {
 		// Init model from context
-		TechSet techSet = uiContext.getTechSet();
-		Set<Tech> includedTech = techSet.getIncludeTech();
-		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-			TreePath tp = this.getPath(node.getValue());
-			Tech tech = node.getKey();
-			if (ArrayUtils.contains(Tech.builtInTopLevelTech, tech)) {
-				this.getTechTree().check(tp, containsAnyOfTopLevelTech(includedTech, tech));
-			} else {
-				this.getTechTree().check(tp, techSet.includes(tech));
-			}
-		}
-
-	}
-
-	private static boolean containsAnyOfTopLevelTech(Set<Tech> techSet, Tech topLevelTech) {
-		for (Tech tech : techSet) {
-			if (topLevelTech.equals(tech.getParent())) {
-				return true;
-			}
-		}
-		return false;
+		getTechTree().setTechSet(uiContext.getTechSet());
 	}
 
 	@Override
@@ -207,30 +103,13 @@ public class ContextTechnologyPanel extends AbstractContextPropertiesPanel {
 	@Override
 	public void saveContextData(Session session) throws Exception {
 
-		session.getContext(getContextIndex()).setTechSet(buildTechSet());
+		session.getContext(getContextIndex()).setTechSet(getTechTree().getTechSet());
 
-	}
-
-	private TechSet buildTechSet(){
-		TechSet techSet = new TechSet();
-
-		Iterator<Entry<Tech, DefaultMutableTreeNode>> iter = techToNodeMap.entrySet().iterator();
-		while (iter.hasNext()) {
-			Entry<Tech, DefaultMutableTreeNode> node = iter.next();
-			TreePath tp = this.getPath(node.getValue());
-			Tech tech = node.getKey();
-			if (this.getTechTree().isSelectedFully(tp)) {
-				techSet.include(tech);
-			} else {
-				techSet.exclude(tech);
-			}
-		}
-		return techSet;
 	}
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		uiSharedContext.setTechSet(buildTechSet());
+		uiSharedContext.setTechSet(getTechTree().getTechSet());
 	}
 
 }

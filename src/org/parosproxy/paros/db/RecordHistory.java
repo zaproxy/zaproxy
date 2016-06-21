@@ -23,7 +23,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/09/26 Issue 716: ZAP flags its own HTTP responses
 // ZAP: 2013/11/16 Issue 869: Differentiate proxied requests from (ZAP) user requests
-
+// ZAP: 2016/01/26 Fixed findbugs warning (tag field no longer used in history table)
 
 package org.parosproxy.paros.db;
 
@@ -52,12 +52,6 @@ public class RecordHistory {
 		httpMessage = new HttpMessage(reqHeader, reqBody, resHeader, resBody);
 		httpMessage.setTimeSentMillis(timeSentMillis);
 		httpMessage.setTimeElapsedMillis(timeElapsedMillis);
-        // ZAP: Support for multiple tags
-        //httpMessage.setTag(tag);
-		if (tag != null && tag.length() > 0) {
-			// TODO decide how to handle these
-			//httpMessage.addTag(tag);
-		}
         httpMessage.setNote(note);
         httpMessage.setResponseFromTargetHost(responseFromTargetHost);
 	}

@@ -482,19 +482,12 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	    if (EventQueue.isDispatchThread()) {
 	    	scanProgressEventHandler(id, host, progress, maximum);
 	    } else {
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	                	scanProgressEventHandler(id, host, progress, maximum);
-	                }
-	            });
-	        } catch (InterruptedException e) {
-				log.info("Interrupt scan progress update on GUI.");
-			} 
-	        catch (Exception e) {
-	            log.error(e.getMessage(), e);
-	        }
+            EventQueue.invokeLater(new Runnable() {
+                @Override
+                public void run() {
+                	scanProgressEventHandler(id, host, progress, maximum);
+                }
+            });
 	    }
 	}
 
@@ -545,6 +538,8 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		progressModel.removeAllElements();
 		progressSelect.addItem(selectScanEntry);
 		progressSelect.setSelectedIndex(0);
+
+		clearScansButton.setEnabled(false);
 	}
 
 	public void sessionScopeChanged(Session session) {
@@ -615,9 +610,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
             }
             ScanEntry<?> other = (ScanEntry<?>) obj;
             if (scan == null) {
-                if (other.scan != null) {
-                    return false;
-                }
+                return (other.scan == null);
             } else if (other.scan == null) {
                 return false;
             }

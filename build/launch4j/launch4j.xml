@@ -2,7 +2,7 @@
 <launch4jConfig>
   <dontWrapJar>true</dontWrapJar>
   <headerType>gui</headerType>
-  <jar>zap-2.4.2.jar</jar>
+  <jar>zap-2.4.3.jar</jar>
   <outfile>..\zap\ZAP.exe</outfile>
   <errTitle></errTitle>
   <cmdLine></cmdLine>
@@ -16,7 +16,7 @@
   <icon>..\..\src\resource\zap.ico</icon>
   <classPath>
     <mainClass>org.zaproxy.zap.ZAP</mainClass>
-    <cp>zap-2.4.2.jar</cp>
+    <cp>zap-2.4.3.jar</cp>
   </classPath>
   <jre>
     <path></path>
@@ -31,12 +31,12 @@
     <opt>-XX:PermSize=256M</opt>
   </jre>
   <versionInfo>
-    <fileVersion>2.4.2.0</fileVersion>
-    <txtFileVersion>2.4.2</txtFileVersion>
+    <fileVersion>2.4.3.0</fileVersion>
+    <txtFileVersion>2.4.3</txtFileVersion>
     <fileDescription>OWASP Zed Attack Proxy</fileDescription>
     <copyright>The OWASP Zed Attack Proxy Project</copyright>
-    <productVersion>2.4.2.0</productVersion>
-    <txtProductVersion>2.4.2</txtProductVersion>
+    <productVersion>2.4.3.0</productVersion>
+    <txtProductVersion>2.4.3</txtProductVersion>
     <productName>OWASP Zed Attack Proxy</productName>
     <companyName>OWASP</companyName>
     <internalName>ZAP</internalName>

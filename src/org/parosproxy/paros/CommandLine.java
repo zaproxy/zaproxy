@@ -30,6 +30,7 @@
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 // ZAP: 2014/05/20 Issue 1191: Cmdline session params have no effect
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
+// ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
 
 package org.parosproxy.paros;
 
@@ -38,11 +39,16 @@ import java.text.MessageFormat;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.network.HttpSender;
+import org.zaproxy.zap.ZAP;
 
 public class CommandLine {
+
+	private static final Logger logger = Logger.getLogger(CommandLine.class);
 
     // ZAP: Made public
     public static final String SESSION = "-session";
@@ -385,44 +391,30 @@ public class CommandLine {
         return keywords.get(keyword);
     }
 
-    // ZAP: Made public and rebranded
-    public static String getHelpGeneral() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("GUI usage:\n");
-        
-        if (Constant.isWindows()) {
-            sb.append("\tzap.bat ");
-        } else {
-            sb.append("\tzap.sh ");
-        }
-        
-        sb.append("[-dir directory]\n\n");
-        return sb.toString();
+    public String getHelp() {
+    	return CommandLine.getHelp(commandList);
     }
 
-    // ZAP: Rebranded
-    public String getHelp() {
-        StringBuilder sb = new StringBuilder(getHelpGeneral());
-        sb.append("Command line usage:\n");
+    public static String getHelp(List<CommandLineArgument[]> cmdList) {
+        String zap;
         if (Constant.isWindows()) {
-            sb.append("\tzap.bat ");
+            zap = "zap.bat";
             
         } else {
-            sb.append("\tzap.sh ");
+            zap = "zap.sh";
         }
-        
-        sb.append("[-h |-help] [-newsession session_file_path | -session existing_session_file_path]\n"
-                + "\t\t [options] [-dir directory] [-installdir directory] [-host host] [-port port]\n"
-                + "\t\t [-daemon] [-cmd] [-version]");
-        sb.append("options:\n");
+        StringBuilder sb = new StringBuilder();
+        sb.append(MessageFormat.format(
+				Constant.messages.getString("cmdline.help"), zap));
 
-        for (CommandLineArgument[] extArgs : commandList) {
-            for (CommandLineArgument extArg : extArgs) {
-                sb.append("\t");
-                sb.append(extArg.getHelpMessage()).append("\n");
-            }
+        if (cmdList != null) {
+	        for (CommandLineArgument[] extArgs : cmdList) {
+	            for (CommandLineArgument extArg : extArgs) {
+	                sb.append("\t");
+	                sb.append(extArg.getHelpMessage()).append("\n");
+	            }
+	        }
         }
-
         return sb.toString();
     }
 
@@ -430,4 +422,50 @@ public class CommandLine {
         Object obj = keywords.get(keyword);
         return (obj != null) && (obj instanceof String);
     }
+    
+    /**
+     * A method for reporting informational messages in CommandLineListener.execute(..) implementations.
+     * It ensures that messages are written to the log file and/or written to stdout as appropriate.
+     * @param str
+     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     */
+    public static void info(String str) {
+    	switch (ZAP.getProcessType()) {
+    	case cmdline:	System.out.println(str); break;
+    	default:		// Ignore
+    	}
+    	// Always write to the log
+    	logger.info(str);
+    }
+    
+    /**
+     * A method for reporting error messages in CommandLineListener.execute(..) implementations.
+     * It ensures that messages are written to the log file and/or written to stderr as appropriate.
+     * @param str
+     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     */
+    public static void error(String str) {
+    	switch (ZAP.getProcessType()) {
+    	case cmdline:	System.err.println(str); break;
+    	default:		// Ignore
+    	}
+    	// Always write to the log
+		logger.error(str);
+    }
+    
+    /**
+     * A method for reporting error messages in CommandLineListener.execute(..) implementations.
+     * It ensures that messages are written to the log file and/or written to stderr as appropriate.
+     * @param str
+     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     */
+    public static void error(String str, Throwable e) {
+    	switch (ZAP.getProcessType()) {
+    	case cmdline:	System.err.println(str); break;
+    	default:		// Ignore
+    	}
+    	// Always write to the log
+		logger.error(str, e);
+    }
+    
 }

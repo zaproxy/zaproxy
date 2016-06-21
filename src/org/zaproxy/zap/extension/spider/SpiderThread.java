@@ -19,6 +19,7 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.EventQueue;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.LinkedList;
@@ -32,6 +33,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanListenner;
 import org.zaproxy.zap.model.ScanThread;
@@ -213,19 +215,8 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		spider.setExcludeList(extension.getExcludeList());
 
 		// Add seeds accordingly
-		if (startNode != null || justScanInScope) {
-			addSeeds(spider, startNode);
-		} else if (this.scanContext != null) {
-			if (startURI != null && scanContext.isInContext(startURI.toString())) {
-				spider.addSeed(startURI);
-			}
+		addSeeds();
 
-			for (SiteNode node : this.scanContext.getNodesInContextFromSiteTree()) {
-				addSeeds(spider, node);
-			}
-		} else if (startURI != null) {
-			spider.addSeed(startURI);
-		}
 		spider.setScanAsUser(scanUser);
 		
 		// Add any custom parsers and filters specified
@@ -250,51 +241,114 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	}
 
 	/**
-	 * Adds the seeds.
+	 * Adds the initial seeds, with following constraints:
+	 * <ul>
+	 * <li>If a {@link #scanContext context} is provided:
+	 * <ul>
+	 * <li>{@link #startURI Start URI}, if in context;</li>
+	 * <li>{@link #startNode Start node}, if in context;</li>
+	 * <li>All nodes in the context;</li>
+	 * </ul>
+	 * </li>
+	 * <li>If spidering just in {@link #justScanInScope scope}:
+	 * <ul>
+	 * <li>Start URI, if in scope;</li>
+	 * <li>Start node, if in scope;</li>
+	 * <li>All nodes in scope;</li>
+	 * </ul>
+	 * </li>
+	 * <li>If there's no context/scope restriction:
+	 * <ul>
+	 * <li>Start URI;</li>
+	 * <li>Start node, also:
+	 * <ul>
+	 * <li>Child nodes, if {@link #scanChildren spidering "recursively"}.</li>
+	 * </ul>
+	 * </ul>
+	 * </li>
+	 * </ul>
 	 * 
-	 * @param spider the spider
-	 * @param node the node
+	 * @see #addStartSeeds()
 	 */
-	private void addSeeds(Spider spider, SiteNode node) {
+	private void addSeeds() {
+		addStartSeeds();
 
-		// If the scan is of type "Scan all in scope" or "Scan all in context"
-		if (justScanInScope) {
-			List<SiteNode> nodesInScope;
-			if (scanContext == null) {
-				log.debug("Adding seed for Scan of all in scope.");
-				nodesInScope = Model.getSingleton().getSession().getNodesInScopeFromSiteTree();
-			} else {
-				log.debug("Adding seed for Scan of all in context " + scanContext.getName());
-				nodesInScope = Model.getSingleton().getSession().getNodesInContextFromSiteTree(scanContext);
+		List<SiteNode> nodesInScope = Collections.emptyList();
+		if (this.scanContext != null) {
+			log.debug("Adding seed for Scan of all in context " + scanContext.getName());
+			nodesInScope = this.scanContext.getNodesInContextFromSiteTree();
+		} else if (justScanInScope) {
+			log.debug("Adding seed for Scan of all in scope.");
+			nodesInScope = Model.getSingleton().getSession().getNodesInScopeFromSiteTree();
+		}
+
+		if (!nodesInScope.isEmpty()) {
+			for (SiteNode node : nodesInScope) {
+				addSeed(node);
 			}
-			try {
-				for (SiteNode nodeInScope : nodesInScope) {
-					if (!nodeInScope.isRoot() && nodeInScope.getHistoryReference() != null) {
-						HttpMessage msg = nodeInScope.getHistoryReference().getHttpMessage();
-						if (msg != null && !msg.getResponseHeader().isImage()) {
-							spider.addSeed(msg);
-						}
-					}
-				}
-			} catch (Exception e) {
-				log.error("Error while adding seeds for Spider scan: " + e.getMessage(), e);
+		}
+	}
+
+	/**
+	 * Adds the start seeds ({@link #startNode start node} and {@link #startURI start URI}) to the spider.
+	 * 
+	 * @see #addSeeds()
+	 */
+	private void addStartSeeds() {
+		if (scanContext != null) {
+			if (startNode != null && scanContext.isInContext(startNode)) {
+				addSeed(startNode);
+			}
+			if (startURI != null && scanContext.isInContext(startURI.toString())) {
+				spider.addSeed(startURI);
 			}
 			return;
 		}
 
-		// Add the current node
+		if (justScanInScope) {
+			if (startNode != null && Model.getSingleton().getSession().isInScope(startNode)) {
+				addSeed(startNode);
+			}
+			if (startURI != null && Model.getSingleton().getSession().isInScope(startURI.toString())) {
+				spider.addSeed(startURI);
+			}
+			return;
+		}
+
+		if (startNode != null) {
+			addSeeds(startNode);
+		}
+		if (startURI != null) {
+			spider.addSeed(startURI);
+		}
+	}
+
+	/**
+	 * Adds the given node as seed, if the corresponding message is not an image.
+	 *
+	 * @param node the node that will be added as seed
+	 */
+	private void addSeed(SiteNode node) {
 		try {
 			if (!node.isRoot() && node.getHistoryReference() != null) {
 				HttpMessage msg = node.getHistoryReference().getHttpMessage();
-				if (msg != null) {
-					if (!msg.getResponseHeader().isImage()) {
-						spider.addSeed(msg);
-					}
+				if (!msg.getResponseHeader().isImage()) {
+					spider.addSeed(msg);
 				}
 			}
 		} catch (Exception e) {
-			log.error("Error while adding seeds for Spider scan: " + e.getMessage(), e);
+			log.error("Error while adding seed for Spider scan: " + e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Adds as seeds the given node and, if {@link #scanChildren} is {@code true}, the children nodes.
+	 * 
+	 * @param node the node that will be added as seed and possible the children nodes
+	 */
+	private void addSeeds(SiteNode node) {
+		// Add the current node
+		addSeed(node);
 
 		// If the "scanChildren" option is enabled, add them
 		if (scanChildren) {
@@ -302,7 +356,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			Enumeration<SiteNode> en = node.children();
 			while (en.hasMoreElements()) {
 				SiteNode sn = en.nextElement();
-				addSeeds(spider, sn);
+				addSeeds(sn);
 			}
 		}
 	}
@@ -341,16 +395,31 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			final HistoryReference historyRef = new HistoryReference(extension.getModel().getSession(),
 					HistoryReference.TYPE_SPIDER, msg);
 
-			EventQueue.invokeLater(new Runnable() {
-                @Override
-                public void run() {
-        			SessionStructure.addPath(Model.getSingleton().getSession(), historyRef, msg);
-                }
-            });
-			
+			addMessageToSitesTree(historyRef, msg);
 		} catch (Exception e) {
 			log.error(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Adds the given message to the sites tree.
+	 *
+	 * @param historyReference the history reference of the message, must not be {@code null}
+	 * @param message the actual message, must not be {@code null}
+	 */
+	private static void addMessageToSitesTree(final HistoryReference historyReference, final HttpMessage message) {
+		if (View.isInitialised() && !EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					addMessageToSitesTree(historyReference, message);
+				}
+			});
+			return;
+		}
+
+		SessionStructure.addPath(Model.getSingleton().getSession(), historyReference, message);
 	}
 
 	@Override

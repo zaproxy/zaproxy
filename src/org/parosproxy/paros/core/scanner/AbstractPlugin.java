@@ -47,6 +47,10 @@
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2015/07/26 Issue 1618: Target Technology Not Honored
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
+// ZAP: 2016/03/22 Implement init() and getDependency() by default, most plugins do not use them
+// ZAP: 2016/04/21 Include Plugin itself when notifying of a new message sent
+// ZAP: 2016/05/03 Remove exceptions' stack trace prints
+// ZAP: 2016/06/10 Honour scan's scope when following redirections
 
 package org.parosproxy.paros.core.scanner;
 
@@ -62,11 +66,13 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.httpclient.HttpException;
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.extension.encoder.Encoder;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.extension.anticsrf.AntiCsrfToken;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
@@ -74,6 +80,8 @@ import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 
 public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
+
+    private static final String[] NO_DEPENDENCIES = {};
 
     /**
      * Default pattern used in pattern check for most plugins.
@@ -102,6 +110,15 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private AddOn.Status status = AddOn.Status.unknown;
 
     /**
+     * The redirection validator that ensures the followed redirections are in scan's scope.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #getRedirectionValidator()
+     */
+    private HttpSender.RedirectionValidator redirectionValidator;
+
+    /**
      * Default Constructor
      */
     public AbstractPlugin() {
@@ -123,8 +140,16 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         return result;
     }
 
+    /**
+     * Returns no dependencies by default.
+     * 
+     * @since 2.5.0
+     * @return an empty array (that is, no dependencies)
+     */
     @Override
-    public abstract String[] getDependency();
+    public String[] getDependency() {
+        return NO_DEPENDENCIES;
+    }
 
     @Override
     public abstract String getDescription();
@@ -148,7 +173,17 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         init();
     }
 
-    public abstract void init();
+    /**
+     * Finishes the initialisation of the plugin, subclasses should add any initialisation logic/code to this method.
+     * <p>
+     * Called after the plugin has been initialised with the message being scanned. By default it does nothing.
+     * <p>
+     * Since 2.5.0 it is no longer abstract.
+     * 
+     * @see #init(HttpMessage, HostProcess)
+     */
+    public void init() {
+    }
 
     /**
      * Obtain a new HttpMessage with the same request as the base. The response
@@ -234,13 +269,46 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         //ZAP: Runs the "beforeScan" methods of any ScannerHooks
         parent.performScannerHookBeforeScan(msg, this);
 
-        parent.getHttpSender().sendAndReceive(msg, isFollowRedirect);
+        if (isFollowRedirect) {
+            parent.getHttpSender().sendAndReceive(msg, getRedirectionValidator());
+        } else {
+            parent.getHttpSender().sendAndReceive(msg, false);
+        }
         
         // ZAP: Notify parent
-        parent.notifyNewMessage(msg);
+        parent.notifyNewMessage(this, msg);
         
         //ZAP: Set the history reference back and run the "afterScan" methods of any ScannerHooks
         parent.performScannerHookAfterScan(msg, this);
+    }
+
+    /**
+     * Gets the redirection validator, that ensures the followed redirections are in scan's scope.
+     *
+     * @return scan's scope redirection validator, never {@code null}
+     */
+    private HttpSender.RedirectionValidator getRedirectionValidator() {
+        if (redirectionValidator == null) {
+            redirectionValidator = new HttpSender.RedirectionValidator() {
+
+                @Override
+                public boolean isValid(URI redirection) {
+                    if (!getParent().nodeInScope(redirection.getEscapedURI())) {
+                        if (log.isDebugEnabled()) {
+                            log.debug("Skipping redirection out of scan's scope: " + redirection);
+                        }
+                        return false;
+                    }
+                    return true;
+                }
+
+                @Override
+                public void notifyMessageReceived(HttpMessage message) {
+                    // Nothing to do with the message.
+                }
+            };
+        }
+        return redirectionValidator;
     }
 
     private void regenerateAntiCsrfToken(HttpMessage msg, AntiCsrfToken antiCsrfToken) {
@@ -723,8 +791,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             result = URLEncoder.encode(msg, "UTF8");
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
@@ -735,8 +803,8 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
         try {
             result = URLDecoder.decode(msg, "UTF8");
 
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+        } catch (UnsupportedEncodingException ignore) {
+            // Shouldn't happen UTF-8 is a standard Charset (see java.nio.charset.StandardCharsets)
         }
 
         return result;
@@ -784,24 +852,31 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     
     @Override
     public void saveTo(Configuration conf) {
-        setProperty(conf, "enabled", getProperty("enabled"));
+        setProperty(conf, "enabled", Boolean.toString(enabled));
         setProperty(conf, "level", getProperty("level"));
         setProperty(conf, "strength", getProperty("strength"));
     }
     
     @Override
     public void loadFrom(Configuration conf) {
-        setProperty("enabled", getProperty(conf, "enabled"));
         setProperty("level", getProperty(conf, "level"));
         setProperty("strength", getProperty(conf, "strength"));
+        String enabledProperty = getProperty(conf, "enabled");
+        if (enabledProperty != null) {
+            enabled = Boolean.parseBoolean(enabledProperty);
+        } else {
+            enabled = getAlertThreshold() != AlertThreshold.OFF;
+            enabledProperty = Boolean.toString(enabled);
+        }
+        setProperty("enabled", enabledProperty);
     }
 
     @Override
     public void cloneInto(Plugin plugin) {
     	if (plugin instanceof AbstractPlugin) {
     		AbstractPlugin ap = (AbstractPlugin) plugin;
-    		ap.setEnabled(this.isEnabled());
     		ap.setAlertThreshold(this.getAlertThreshold(true));
+    		ap.setEnabled(this.isEnabled());
     		ap.setAttackStrength(this.getAttackStrength(true));
     		ap.setDefaultAlertThreshold(this.defaultAttackThreshold);
     		ap.setDefaultAttackStrength(this.defaultAttackStrength);

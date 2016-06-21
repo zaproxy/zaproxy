@@ -26,6 +26,7 @@ import org.parosproxy.paros.core.scanner.ScannerParamFilter;
 
 class ExcludedParameterModifyDialog extends ExcludedParameterAddDialog {
 
+    private static final long serialVersionUID = 1L;
     private static final String DIALOG_TITLE = Constant.messages.getString("variant.options.excludedparam.dialog.token.modify.title");    
     private static final String CONFIRM_BUTTON_LABEL = Constant.messages.getString("variant.options.excludedparam.dialog.token.modify.button.confirm");
     

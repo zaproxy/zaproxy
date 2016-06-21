@@ -27,6 +27,7 @@
 // ZAP: 2013/07/12 Issue 713: Add CWE and WASC numbers to issues
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2014/07/15 Issue 1263: Generate Report Clobbers Existing Files Without Prompting
+// ZAP: 2015/11/18 Issue 1555: Rework inclusion of HTML tags in reports 
 
 package org.parosproxy.paros.extension.report;
 
@@ -171,7 +172,7 @@ public class ReportLastScan {
         	switch(localReportType) {
         	case XML:
         		fileExtension=XML_FILE_EXTENSION;
-        		reportXSL = (Constant.getZapInstall() + "/xml/report.xml.xsl");
+        		reportXSL = null;	// Dont use XSLT
         		break;
         	case HTML:
         	default: 

@@ -18,7 +18,10 @@
 package org.zaproxy.zap.extension.api;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 
 import net.sf.json.JSONException;
@@ -36,6 +39,27 @@ public abstract class ApiImplementor {
 	private static final String ADD_OPTION_PREFIX = "addOption";
 	private static final String REMOVE_OPTION_PREFIX = "removeOption";
 
+	private static final Comparator<Method> METHOD_NAME_COMPARATOR;
+
+	static {
+		METHOD_NAME_COMPARATOR = new Comparator<Method>() {
+
+			@Override
+			public int compare(Method method, Method otherMethod) {
+				if (method == null) {
+					if (otherMethod == null) {
+						return 0;
+					}
+					return -1;
+				} else if (otherMethod == null) {
+					return 1;
+				}
+
+				return method.getName().compareTo(otherMethod.getName());
+			}
+		};
+	}
+	
 	private List<ApiAction> apiActions = new ArrayList<>();
 	private List<ApiView> apiViews = new ArrayList<>();
 	private List<ApiOther> apiOthers = new ArrayList<>();
@@ -77,6 +101,7 @@ public abstract class ApiImplementor {
 		// Add option parameter getters and setters via reflection
 		this.param = param;
 		Method[] methods = param.getClass().getDeclaredMethods();
+		Arrays.sort(methods, METHOD_NAME_COMPARATOR);
 		List<String> addedActions = new ArrayList<>();
 		// Check for string setters (which take precedence)
 		for (Method method : methods) {
@@ -132,15 +157,15 @@ public abstract class ApiImplementor {
 	/**
 	 * Tells whether or not the given {@code method} should be ignored, thus not included in the ZAP API.
 	 * <p>
-	 * This method checks if the given {@code method} has been annotated with {@code ZapApiIgnore}.
-	 * </p>
+	 * Checks if the given {@code method} has been annotated with {@code ZapApiIgnore} or if it's not public, if any of the
+	 * conditions is {@code true} the {@code method} is ignored.
 	 * 
 	 * @param method the method that will be checked
 	 * @return {@code true} if the method should be ignored, {@code false} otherwise.
 	 * @see ZapApiIgnore
 	 */
 	private static boolean isIgnored(Method method) {
-		return (method.getAnnotation(ZapApiIgnore.class) != null);
+		return method.getAnnotation(ZapApiIgnore.class) != null || !Modifier.isPublic(method.getModifiers());
 	}
 
 	public ApiResponse handleApiOptionView(String name, JSONObject params) throws ApiException {

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Img Elements - Spider HTML Parser</title>
+</head>
+<body>
+
+<img src="//img.example.com/base/scheme">
+<img src="http://img.example.com:8000/b">
+<img src="https://img.example.com/c?a=b#fragment">
+<img src="img/relative">
+<img src="">
+<img src="/img/absolute">
+<img src="ftp://img.example.com/">
+
+<!--  Ignored: -->
+<img>
+<img src="mailto:img@example.com">
+<img src="javascript:hello();">
+<img src="scheme://img.example.com/invalid">
+
+</body>
+</html>

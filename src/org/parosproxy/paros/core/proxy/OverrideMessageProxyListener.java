@@ -31,6 +31,7 @@ import org.parosproxy.paros.network.HttpMessage;
  * 
  * @since 2.3.0
  * @see ProxyListener
+ * @see ConnectRequestProxyListener
  */
 public interface OverrideMessageProxyListener extends ArrangeableProxyListener {
 

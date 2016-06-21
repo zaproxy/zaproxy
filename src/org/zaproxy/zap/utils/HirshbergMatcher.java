@@ -50,7 +50,7 @@ public class HirshbergMatcher {
      * @param b
      * @return
      */
-    private int[] algB(int m, int n, String a, String b) {
+    private static int[] algB(int m, int n, String a, String b) {
         // Step 1
         int[][] k = new int[2][n + 1];
         for (int j = 0; j <= n; j++) {
@@ -85,7 +85,7 @@ public class HirshbergMatcher {
      * @param y
      * @return
      */
-    private int max(int x, int y) {
+    private static int max(int x, int y) {
         return (x > y) ? x : y;
     }
 
@@ -98,20 +98,17 @@ public class HirshbergMatcher {
      * @param b
      * @return
      */
-    private String algC(int m, int n, String a, String b) {
+    private static void algC(StringBuilder sb, int m, int n, String a, String b) {
         int i;
         int j;
-        StringBuilder sb;
 
         // Step 1
         if (n == 0) {
-            sb = new StringBuilder();
-            
+            // Nothing to do
         } else if (m == 1) {
-            sb = new StringBuilder();
             for (j = 0; j < n; j++) {
                 if (a.charAt(0) == b.charAt(j)) {
-                    sb = new StringBuilder(a.charAt(0));
+                    sb.append(a.charAt(0));
                     break;
                 }
             }
@@ -128,12 +125,9 @@ public class HirshbergMatcher {
             int k = findK(l1, l2, n);
 
             // Step 5
-            sb = new StringBuilder(algC(i, k, a.substring(0, i), b.substring(0, k)));
-            sb.append(algC(m - i, n - k, a.substring(i), b.substring(k)));
+            algC(sb, i, k, a.substring(0, i), b.substring(0, k));
+            algC(sb, m - i, n - k, a.substring(i), b.substring(k));
         }
-
-        // Return the LCS
-        return sb.toString();
     }
 
     /**
@@ -142,7 +136,7 @@ public class HirshbergMatcher {
      * @param in
      * @return
      */
-    private String reverseString(String in) {
+    private static String reverseString(String in) {
         StringBuilder out = new StringBuilder(in).reverse();
         return out.toString();
     }
@@ -156,7 +150,7 @@ public class HirshbergMatcher {
      * @param n
      * @return
      */
-    private int findK(int[] l1, int[] l2, int n) {
+    private static int findK(int[] l1, int[] l2, int n) {
         int m = 0;
         int k = 0;
 
@@ -179,7 +173,13 @@ public class HirshbergMatcher {
      * @return the Longest Common Subsequence of strA and strB
      */
     public String getLCS(String strA, String strB) {
-        return algC(strA.length(), strB.length(), strA, strB);
+        if ("".equals(strA)) {
+            return "";
+        }
+
+        StringBuilder sb = new StringBuilder();
+        algC(sb, strA.length(), strB.length(), strA, strB);
+        return sb.toString();
     }
     
     /**

@@ -247,8 +247,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 				log.error("Unable to send authentication message: " + e.getMessage());
 				return null;
 			}
-			// Let the user know it worked
-			AuthenticationHelper.notifyOutputAuthSuccessful();
+			if (this.isAuthenticated(msg)) {
+				// Let the user know it worked
+				AuthenticationHelper.notifyOutputAuthSuccessful(msg);
+			} else {
+				// Let the user know it failed
+				AuthenticationHelper.notifyOutputAuthFailure(msg);
+			}
 
 			// Add message to history
 			AuthenticationHelper.addAuthMessageToHistory(msg);

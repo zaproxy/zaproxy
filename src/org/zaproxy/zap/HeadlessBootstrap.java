@@ -42,16 +42,22 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
 
     public HeadlessBootstrap(CommandLine args) {
         super(args);
+
+        System.setProperty("java.awt.headless", "true");
     }
 
     /**
      * Initialises the {@code Control} singleton without view.
      *
-     * @return the initialised {@code Control} singleton
+     * @param ignoreProxyError Return the {@code Control} even if there is a problem setting up the proxy
+     * @return the initialised {@code Control} singleton, unless theres a problem setting up the proxy 
+     * and ignoreProxyError is false
      * @see Control#initSingletonWithoutView(org.zaproxy.zap.control.ControlOverrides)
      */
-    protected Control initControl() {
-        Control.initSingletonWithoutView(getControlOverrides());
+    protected Control initControl(boolean ignoreProxyError) {
+    	if (!Control.initSingletonWithoutView(getControlOverrides()) && ! ignoreProxyError) {
+    		return null;
+    	}
         return Control.getSingleton();
     }
 

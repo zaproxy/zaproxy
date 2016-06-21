@@ -16,7 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
-import javax.swing.event.EventListenerList;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -60,7 +59,6 @@ public class JCheckBoxTree extends JTree {
     HashSet<TreePath> checkedPaths = new HashSet<TreePath>();
 
     // Defining a new event type for the checking mechanism and preparing event-handling mechanism
-    protected EventListenerList listenerList = new EventListenerList();
 
     public class CheckChangeEvent extends EventObject {     
         private static final long serialVersionUID = -8100230309044193368L;
@@ -100,6 +98,11 @@ public class JCheckBoxTree extends JTree {
     // New method that returns only the checked paths (totally ignores original "selection" mechanism)
     public TreePath[] getCheckedPaths() {
         return checkedPaths.toArray(new TreePath[checkedPaths.size()]);
+    }
+
+    public boolean isChecked(TreePath path) {
+        CheckedNode cn = nodesCheckingState.get(path);
+        return cn.isSelected;
     }
 
     // Returns true in case that the node is selected, has children but not all of them are selected
@@ -156,13 +159,14 @@ public class JCheckBoxTree extends JTree {
             if (cn == null) {
                 return this;
             }
+            String textRepresentation = obj != null ? obj.toString() : "";
             if (cn.isCheckBoxEnabled) {
 	            checkBox.setSelected(cn.isSelected);
 	            checkBox.setOpaque(cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected);
 	        	checkBox.setVisible(true);
 	        	checkBox.setEnabled(true);
 	        	// TODO nasty hack to prevent top level node text being truncated - need a better fix for this :/
-	        	altLabel.setText(obj.toString()+"          ");
+	        	textRepresentation += "          ";
 	        	/* Looks ok, but doesnt work correctly
 	            if (cn.isSelected && cn.hasChildren && ! cn.allChildrenSelected) {
 	                checkBox.getModel().setPressed(true);
@@ -175,8 +179,8 @@ public class JCheckBoxTree extends JTree {
             } else {
             	checkBox.setVisible(false);
             	checkBox.setEnabled(false);
-            	altLabel.setText(obj.toString());
             }
+            altLabel.setText(textRepresentation);
 
             return this;
         }       
@@ -258,7 +262,7 @@ public class JCheckBoxTree extends JTree {
             CheckedNode childCheckedNode = nodesCheckingState.get(childPath);           
             // It is enough that even one subtree is not fully selected
             // to determine that the parent is not fully selected
-            if (! childCheckedNode.allChildrenSelected) {
+            if (!allSelected(childCheckedNode)) {
                 parentCheckedNode.allChildrenSelected = false;      
             }
             // If at least one child is selected, selecting also the parent
@@ -275,6 +279,16 @@ public class JCheckBoxTree extends JTree {
         updatePredecessorsWithCheckMode(parentPath, check);
     }
 
+    private boolean allSelected(CheckedNode checkedNode) {
+        if (!checkedNode.isSelected) {
+            return false;
+        }
+        if (checkedNode.hasChildren) {
+            return checkedNode.allChildrenSelected;
+        }
+        return true;
+    }
+
     // Recursively checks/unchecks a subtree
     public void checkSubTree(TreePath tp, boolean check) {
         CheckedNode cn = nodesCheckingState.get(tp);
@@ -289,6 +303,7 @@ public class JCheckBoxTree extends JTree {
         } else {
             checkedPaths.remove(tp);
         }
+        updatePredecessorsAllChildrenSelectedState(tp);
     }
 
     public void expandAll() {
@@ -305,7 +320,7 @@ public class JCheckBoxTree extends JTree {
     
     public boolean isSelectedFully(TreePath path) {
         CheckedNode cn = nodesCheckingState.get(path);
-        return cn.isSelected && (!cn.hasChildren || cn.allChildrenSelected);
+        return allSelected(cn);
     }
 
     // Recursively checks/unchecks a subtree
@@ -317,6 +332,26 @@ public class JCheckBoxTree extends JTree {
         } else {
             checkedPaths.remove(tp);
         }
+        updatePredecessorsAllChildrenSelectedState(tp);
+    }
+
+    private void updatePredecessorsAllChildrenSelectedState(TreePath tp) {
+        TreePath parentPath = tp.getParentPath();
+        if (parentPath == null) {
+            return;
+        }
+        CheckedNode parentCheckedNode = nodesCheckingState.get(parentPath);
+        parentCheckedNode.allChildrenSelected = true;
+        DefaultMutableTreeNode parentNode = (DefaultMutableTreeNode) parentPath.getLastPathComponent();
+        for (int i = 0; i < parentNode.getChildCount(); i++) {
+            TreePath childPath = parentPath.pathByAddingChild(parentNode.getChildAt(i));
+            CheckedNode childCheckedNode = nodesCheckingState.get(childPath);
+            if (!allSelected(childCheckedNode)) {
+                parentCheckedNode.allChildrenSelected = false;
+                break;
+            }
+        }
+        updatePredecessorsAllChildrenSelectedState(parentPath);
     }
 
     public void setCheckBoxEnabled(TreePath tp, boolean enabled) {

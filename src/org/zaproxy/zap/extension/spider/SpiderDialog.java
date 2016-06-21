@@ -38,10 +38,12 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.users.ExtensionUserManagement;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.StructuralNode;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.spider.SpiderParam;
 import org.zaproxy.zap.spider.filters.MaxChildrenFetchFilter;
 import org.zaproxy.zap.spider.filters.MaxChildrenParseFilter;
+import org.zaproxy.zap.spider.filters.HttpPrefixFetchFilter;
 import org.zaproxy.zap.users.User;
 import org.zaproxy.zap.view.StandardFieldsDialog;
 
@@ -51,9 +53,11 @@ public class SpiderDialog extends StandardFieldsDialog {
     private static final String FIELD_CONTEXT = "spider.custom.label.context";
     private static final String FIELD_USER = "spider.custom.label.user";
     private static final String FIELD_RECURSE = "spider.custom.label.recurse";
+    private static final String FIELD_SUBTREE_ONLY = "spider.custom.label.spiderSubtreeOnly"; 
     private static final String FIELD_ADVANCED = "spider.custom.label.adv"; 
     private static final String FIELD_MAX_DEPTH = "spider.custom.label.maxDepth"; 
     private static final String FIELD_MAX_CHILDREN = "spider.custom.label.maxChildren"; 
+    private static final String FIELD_MAX_DURATION = "spider.custom.label.maxDuration"; 
     private static final String FIELD_SEND_REFERER = "spider.custom.label.sendReferer";
     private static final String FIELD_PROCESS_FORMS = "spider.custom.label.processForms"; 
     private static final String FIELD_POST_FORMS = "spider.custom.label.postForms"; 
@@ -72,12 +76,22 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     private ExtensionSpider extension = null;
 	private SpiderParam spiderParam = null;
+
+	/**
+	 * Flag that holds the previous checked state of the "Subtree Only" checkbox.
+	 * <p>
+	 * Used to restore the previous checked state between dialogue invocations.
+	 * 
+	 * @see #FIELD_SUBTREE_ONLY
+	 */
+	private boolean subtreeOnlyPreviousCheckedState;
     
     private ExtensionUserManagement extUserMgmt = (ExtensionUserManagement) Control.getSingleton().getExtensionLoader()
 			.getExtension(ExtensionUserManagement.NAME);
     
     private Target target = null;
     private int maxChildrenToCrawl = 0;	// This is not persisted anywhere
+    private int maxDuration = 0;	// This is not persisted anywhere
 
     public SpiderDialog(ExtensionSpider ext, Frame owner, Dimension dim) {
         super(owner, "spider.custom.title", dim, new String[]{
@@ -103,6 +117,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         this.addComboField(0, FIELD_CONTEXT, new String[] {}, "");
         this.addComboField(0, FIELD_USER, new String[] {}, "");
         this.addCheckBoxField(0, FIELD_RECURSE, true);
+        this.addCheckBoxField(0, FIELD_SUBTREE_ONLY, subtreeOnlyPreviousCheckedState);
         // This option is always read from the 'global' options
         this.addCheckBoxField(0, FIELD_ADVANCED, getSpiderParam().isShowAdvancedDialog());
         this.addPadding(0);
@@ -110,6 +125,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         // Advanced options
         this.addNumberField(1, FIELD_MAX_DEPTH, 1, 19, getSpiderParam().getMaxDepth());
         this.addNumberField(1, FIELD_MAX_CHILDREN, 0, Integer.MAX_VALUE, maxChildrenToCrawl);
+        this.addNumberField(1, FIELD_MAX_DURATION, 0, Integer.MAX_VALUE, maxDuration);
         this.addCheckBoxField(1, FIELD_SEND_REFERER, getSpiderParam().isSendRefererHeader());
         this.addCheckBoxField(1, FIELD_PROCESS_FORMS, getSpiderParam().isProcessForm());
         this.addCheckBoxField(1, FIELD_POST_FORMS, getSpiderParam().isPostForm());
@@ -246,6 +262,7 @@ public class SpiderDialog extends StandardFieldsDialog {
     private void reset(boolean refreshUi) {
     	// Reset to the global options
 		spiderParam = null;
+		subtreeOnlyPreviousCheckedState = false;
     	
         if (refreshUi) {
             init(target);
@@ -288,6 +305,7 @@ public class SpiderDialog extends StandardFieldsDialog {
         if (this.getBoolValue(FIELD_ADVANCED)) {
         	// Set the advanced options
         	spiderParam.setMaxDepth(this.getIntValue(FIELD_MAX_DEPTH));
+        	spiderParam.setMaxDuration(this.getIntValue(FIELD_MAX_DURATION));
         	spiderParam.setSendRefererHeader(this.getBoolValue(FIELD_SEND_REFERER));
         	spiderParam.setProcessForm(this.getBoolValue(FIELD_PROCESS_FORMS));
         	spiderParam.setPostForm(this.getBoolValue(FIELD_POST_FORMS));
@@ -319,19 +337,15 @@ public class SpiderDialog extends StandardFieldsDialog {
 
 		if (startUri != null) {
 			contextSpecificObjects.add(startUri);
+
+			if (getBoolValue(FIELD_SUBTREE_ONLY)) {
+				contextSpecificObjects.add(new HttpPrefixFetchFilter(startUri));
+			}
 		}
         
-        String displayName;
         if (target == null || ! this.getStringValue(FIELD_START).equals(getTargetText(target))) {
        		// Clear the target as it doesnt match the value entered manually
 			target = new Target((StructuralNode)null);
-			displayName = startUri.toString();
-    		if (displayName.length() >= 30) {
-    			// Just use the first and last 14 chrs to prevent huge urls messing up the display
-    			displayName = displayName.substring(0, 14) + ".." + displayName.substring(displayName.length()-15, displayName.length());
-    		}
-        } else {
-        	displayName = target.getDisplayName();
         }
         
         // Save the adv option permanently for next time
@@ -343,8 +357,9 @@ public class SpiderDialog extends StandardFieldsDialog {
             target.setContext(getSelectedContext());
         }
 
+        subtreeOnlyPreviousCheckedState = getBoolValue(FIELD_SUBTREE_ONLY);
+
         this.extension.startScan(
-        		displayName,
                 target,
                 getSelectedUser(), 
                 contextSpecificObjects.toArray());
@@ -352,24 +367,71 @@ public class SpiderDialog extends StandardFieldsDialog {
 
     @Override
     public String validateFields() {
+        if (Control.Mode.safe == Control.getSingleton().getMode()) {
+            // The dialogue shouldn't be shown when in safe mode but if it is warn.
+            return Constant.messages.getString("spider.custom.notSafe.error");
+        }
+
     	if (this.isEmptyField(FIELD_START)) {
             return Constant.messages.getString("spider.custom.nostart.error");
     	}
+
+    	boolean noStartUri = true;
 		if (!getStringValue(FIELD_START).equals(getTargetText(target))) {
+			String url = this.getStringValue(FIELD_START);
 			try {
 				// Need both constructors as they catch slightly different issues ;)
-				String url = this.getStringValue(FIELD_START);
 				new URI(url, true);
 				new URL(url);
 			} catch (Exception e) {
                 return Constant.messages.getString("spider.custom.nostart.error");
 			}
+
+            if (Control.getSingleton().getMode() == Control.Mode.protect) {
+                if (!extension.isTargetUriInScope(url)) {
+                    return Constant.messages.getString("spider.custom.targetNotInScope.error", url);
+                }
+            }
+            noStartUri = false;
 		}
 
-    	if (this.target != null && !this.target.isValid()) {
-            return Constant.messages.getString("spider.custom.nostart.error");
+    	if (this.target != null) {
+            if (!this.target.isValid()) {
+                return Constant.messages.getString("spider.custom.nostart.error");
+            }
+
+            if (Control.getSingleton().getMode() == Control.Mode.protect) {
+                String uri = extension.getTargetUriOutOfScope(target);
+                if (uri != null) {
+                    return Constant.messages.getString("spider.custom.targetNotInScope.error", uri);
+                }
+            }
+
+            List<StructuralNode> nodes = target.getStartNodes();
+            if (nodes != null) {
+                for (StructuralNode node : nodes) {
+                    if (node instanceof StructuralSiteNode) {
+                        noStartUri = false;
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (getBoolValue(FIELD_SUBTREE_ONLY) && noStartUri) {
+            return Constant.messages.getString("spider.custom.noStartSubtreeOnly.error");
         }
         
         return null;
+    }
+
+    /**
+     * Resets the spider dialogue to its default state.
+     * 
+     * @since 2.5.0
+     */
+    void reset() {
+        target = null;
+        reset(true);
     }
 }

@@ -11,7 +11,7 @@ addons:
     project:
       name: "zaproxy/zaproxy"
       description: "The OWASP ZAP core project"
-    notification_email: bjoern.kimminich@gmx.de
+    notification_email: bjoern.kimminich@owasp.org
     build_command_prepend: "ant -buildfile build/build.xml clean"
     build_command:   "ant -buildfile build/build.xml compile"
     branch_pattern: coverity_scan

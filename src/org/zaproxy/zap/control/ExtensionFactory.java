@@ -43,6 +43,7 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public class ExtensionFactory {
@@ -63,6 +64,22 @@ public class ExtensionFactory {
         super();
     }
 
+    private static AddOnLoader getAddOnLoader(List<File> extraDirs) {
+        if (addOnLoader == null) {
+        	File [] dirs = new File[extraDirs.size()+2];
+        	dirs [0] = new File(Constant.getZapInstall(), Constant.FOLDER_PLUGIN);
+        	dirs [1] = new File(Constant.getZapHome(), Constant.FOLDER_PLUGIN);
+        	for (int i=0; i < extraDirs.size(); i++) {
+            	dirs [2+i] = extraDirs.get(i);
+        	}
+            addOnLoader = new AddOnLoader(dirs);
+        } else {
+        	log.error("AddOnLoader initialised without additional directories");
+        }
+        return addOnLoader;
+    }
+
+
     public static AddOnLoader getAddOnLoader() {
         if (addOnLoader == null) {
             addOnLoader = new AddOnLoader(new File[]{
@@ -72,10 +89,11 @@ public class ExtensionFactory {
         return addOnLoader;
     }
 
-    public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, Configuration config) {
+    public static synchronized void loadAllExtension(ExtensionLoader extensionLoader, OptionsParam optionsParam) {
         log.info("Loading extensions");
         List<Extension> listExts = new ArrayList<>(CoreFunctionality.getBuiltInExtensions());
-        listExts.addAll(getAddOnLoader().getExtensions());
+    	
+        listExts.addAll(getAddOnLoader(optionsParam.getCheckForUpdatesParam().getAddonDirectories()).getExtensions());
 
         synchronized (mapAllExtension) {
             mapAllExtension.clear();
@@ -98,7 +116,7 @@ public class ExtensionFactory {
                     log.debug("Depreciated extension " + extension.getName());
                     continue;
                 }
-                extension.setEnabled(config.getBoolean("ext." + extension.getName(), true));
+                extension.setEnabled(optionsParam.getConfig().getBoolean("ext." + extension.getName(), true));
 
                 listAllExtension.add(extension);
                 mapAllExtension.put(extension.getName(), extension);

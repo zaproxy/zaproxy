@@ -19,6 +19,8 @@ package org.zaproxy.zap.extension.httpsessions;
 
 import java.net.HttpCookie;
 import java.text.MessageFormat;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -386,8 +388,15 @@ public class HttpSessionsSite {
 		for (HttpCookie cookie : cookiesToSet) {
 			String lcCookieName = cookie.getName();
 			if (siteTokensSet.isSessionToken(lcCookieName)) {
-				Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) cookie.getMaxAge(),cookie.getSecure());				
-				tokenValues.put(lcCookieName, ck);
+				try {
+					// Use 0 if max-age less than -1, Cookie class does not accept negative (expired) max-age (-1 has special
+					// meaning).
+					long maxAge = cookie.getMaxAge() < -1 ? 0 : cookie.getMaxAge();
+					Cookie ck = new Cookie(cookie.getDomain(),lcCookieName,cookie.getValue(),cookie.getPath(),(int) maxAge,cookie.getSecure());				
+					tokenValues.put(lcCookieName, ck);
+				} catch (IllegalArgumentException e) {
+					log.warn("Failed to create cookie [" + cookie + "] for site [" + getSite() + "]: " + e.getMessage());
+				}
 			}
 		}
 
@@ -471,8 +480,11 @@ public class HttpSessionsSite {
 	 *         all the tokens
 	 */
 	private HttpSession getMatchingHttpSession(List<HttpCookie> cookies, final HttpSessionTokensSet siteTokens) {
-
-		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessions, cookies, siteTokens);
+		Collection<HttpSession> sessionsCopy;
+		synchronized (sessions) {
+			sessionsCopy = new ArrayList<>(sessions);
+		}
+		return CookieBasedSessionManagementHelper.getMatchingHttpSession(sessionsCopy, cookies, siteTokens);
 	}
 
 	@Override

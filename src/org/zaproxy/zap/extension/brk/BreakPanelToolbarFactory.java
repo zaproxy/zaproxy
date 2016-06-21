@@ -344,7 +344,40 @@ public class BreakPanelToolbarFactory {
 		setContinue(true);
 	}
 	
+	/**
+	 * Sets the current button mode.
+	 * <p>
+	 * If the mode is already set no change is done, otherwise it does the following:
+	 * <ul>
+	 * <li>When changing from {@link BreakpointsParam#BUTTON_MODE_SIMPLE BUTTON_MODE_SIMPLE} to
+	 * {@link BreakpointsParam#BUTTON_MODE_DUAL BUTTON_MODE_DUAL} set "break on request" and "on response" enabled and
+	 * "break on all" disabled, if "break on all" is enabled;</li>
+	 * <li>When changing from {@code BUTTON_MODE_DUAL} to {@code BUTTON_MODE_SIMPLE} set "break on all" enabled and "break on
+	 * request" and "on response" disabled, if at least one of "break on request" and "on response" is enabled;</li>
+	 * <li>If none of the "break on ..." states is enabled there's no changes in its states.</li>
+	 * </ul>
+	 * The enabled state of previous mode is disabled to prevent interferences between the modes.
+	 *
+	 * @param mode the mode to be set
+	 * @see #isBreakAll()
+	 * @see #isBreakRequest()
+	 * @see #isBreakResponse()
+	 */
 	public void setButtonMode (int mode) {
+		if (this.mode == mode) {
+			return;
+		}
+		if (this.mode == BreakpointsParam.BUTTON_MODE_SIMPLE) {
+			if (isBreakAll) {
+				setBreakAll(false);
+				setBreakRequest(true);
+				setBreakResponse(true);
+			}
+		} else if (isBreakRequest || isBreakResponse) {
+			setBreakRequest(false);
+			setBreakResponse(false);
+			setBreakAll(true);
+		}
 		this.mode = mode;
 	}
 

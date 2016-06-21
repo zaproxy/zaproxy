@@ -26,6 +26,8 @@ import org.zaproxy.zap.utils.Enableable;
 
 public abstract class AbstractMultipleOptionsTableModel<E extends Enableable> extends AbstractMultipleOptionsBaseTableModel<E> {
 
+    private static final long serialVersionUID = 1L;
+
     public AbstractMultipleOptionsTableModel() {
         super();
     }

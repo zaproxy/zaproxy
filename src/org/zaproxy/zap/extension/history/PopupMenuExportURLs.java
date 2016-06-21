@@ -130,8 +130,7 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
          				node.getHistoryReference().getHistoryType() == HistoryReference.TYPE_SPIDER)) {
         		
         	 	HttpMessage msg = node.getHistoryReference().getHttpMessage();
-    			if (msg != null && msg.getRequestHeader() != null &&
-        			msg.getRequestHeader().getURI() != null) {
+    			if (msg != null && msg.getRequestHeader().getURI() != null) {
 
             		writer.write(msg.getRequestHeader().getMethod());
             		writer.write("\t");

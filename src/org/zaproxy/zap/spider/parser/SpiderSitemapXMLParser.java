@@ -67,7 +67,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 	static {		
 		try {
 			dBuilder = XmlUtils.newXxeDisabledDocumentBuilderFactory().newDocumentBuilder();
-			XPath  xpath = (XPath) XPathFactory.newInstance().newXPath();
+			XPath  xpath = XPathFactory.newInstance().newXPath();
 			xpathLocationExpression = xpath.compile("/urlset/url/loc/text()");
 		} catch (ParserConfigurationException | XPathExpressionException e) {
 			log.error(e);

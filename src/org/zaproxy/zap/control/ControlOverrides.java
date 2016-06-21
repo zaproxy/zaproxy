@@ -42,6 +42,10 @@ public class ControlOverrides {
 	}
 
 	public String getProxyHost() {
+		if (proxyHost != null && proxyHost.length() == 0) {
+			// Treat an empty string as the 'all interfaces' address (like the UI does)
+			return "0.0.0.0";
+		}
 		return proxyHost;
 	}
 

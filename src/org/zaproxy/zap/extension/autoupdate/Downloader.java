@@ -61,6 +61,28 @@ public class Downloader extends Thread {
 	@Override
 	public void run() {
 		this.started = new Date();
+
+		if (hash != null) {
+			if (hash.indexOf(":") > 0) {
+				downloadFile();
+				if (!cancelDownload) {
+					validateHashDownload();
+				}
+			} else {
+				logger.debug("Not downloading file, hash field does not have valid content (\"<ALGORITHM>:<HASH>\"): " + hash);
+			}
+		} else {
+			logger.debug("Not downloading file, does not have a hash: " + url);
+		}
+	    
+	    this.complete = true;
+		this.finished = new Date();
+		if (cancelDownload) {
+			this.targetFile.delete();
+		}
+	}
+
+	private void downloadFile() {
     	BufferedInputStream in = null;
     	FileOutputStream out = null;
 	    try {
@@ -100,33 +122,21 @@ public class Downloader extends Thread {
 				// Ignore
 			}
 		}
-	    if (hash != null && (hash.indexOf(":") > 0)) {
-	    	String algorithm = hash.substring(0, hash.indexOf(":"));
-	    	String hashValue = hash.substring(hash.indexOf(":") + 1);
-	    	try {
-				String realHash = HashUtils.getHash(targetFile, algorithm);
-				if (realHash.equalsIgnoreCase(hashValue)) {
-			    	validated = true;
-				} else {
-					logger.debug("Wrong hash - expected " + hashValue + " got " + realHash);
-				}
-			} catch (Exception e) {
-				// Ignore - we default to unvalidated
-				logger.debug("Error checking hash", e);
+	}
+
+	private void validateHashDownload() {
+		try {
+			String algorithm = hash.substring(0, hash.indexOf(":"));
+			String hashValue = hash.substring(hash.indexOf(":") + 1);
+			String realHash = HashUtils.getHash(targetFile, algorithm);
+			if (realHash.equalsIgnoreCase(hashValue)) {
+		    	validated = true;
+			} else {
+				logger.debug("Wrong hash - expected " + hashValue + " got " + realHash);
 			}
-	    } else {
-	    	/*
-	    	 * If there is no hash then for now default to validated
-	    	 * Once all of the files have hashes then this else path should be removed
-	    	 */
-			logger.debug("No hash, passing for now");
-	    	validated = true;
-	    }
-	    
-	    this.complete = true;
-		this.finished = new Date();
-		if (cancelDownload) {
-			this.targetFile.delete();
+		} catch (Exception e) {
+			// Ignore - we default to unvalidated
+			logger.debug("Error checking hash", e);
 		}
 	}
 

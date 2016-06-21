@@ -177,9 +177,11 @@ public class HttpRequestHeaderPanelSyntaxHighlightTextView extends HttpPanelSynt
                 return null;
             }
 
-            while ((pos = header.indexOf("\r\n", pos)) != -1 && pos < textLocation.getEnd()) {
-                pos += 2;
-                ++excessChars;
+            if (pos != -1) {
+                while ((pos = header.indexOf("\r\n", pos)) != -1 && pos < textLocation.getEnd()) {
+                    pos += 2;
+                    ++excessChars;
+                }
             }
 
             int finalEndPos = textLocation.getEnd() - excessChars;

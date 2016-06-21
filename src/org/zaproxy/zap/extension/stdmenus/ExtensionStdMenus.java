@@ -42,6 +42,7 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.view.popup.PopupMenuItemContextDataDriven;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
 
@@ -62,6 +63,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupMenuOpenUrlInBrowser popupMenuOpenUrlInBrowser = null;
 	private PopupMenuItemContextInclude popupContextIncludeMenu = null;
 	private PopupMenuItemContextExclude popupContextExcludeMenu = null;
+	private PopupMenuItemContextDataDriven popupContextDataDrivenMenu = null;
 	private PopupMenuCopyUrls popupMenuCopyUrls = null;
 	private PopupContextTreeMenu popupContextTreeMenuInScope = null;
 	private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
@@ -106,6 +108,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			}
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextIncludeMenu(1));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextDataDrivenMenu(2));	// TODO ??
 
 			if (isExtensionActiveScanEnabled) {
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
@@ -367,6 +370,14 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			popupContextExcludeMenu.setParentMenuIndex(menuIndex);
 		}
 		return popupContextExcludeMenu;
+	}
+
+	private PopupMenuItemContextDataDriven getPopupContextDataDrivenMenu(int menuIndex) {
+		if (popupContextDataDrivenMenu == null) {
+			popupContextDataDrivenMenu = new PopupMenuItemContextDataDriven();
+			popupContextDataDrivenMenu.setParentMenuIndex(menuIndex);
+		}
+		return popupContextDataDrivenMenu;
 	}
 
 	@Override

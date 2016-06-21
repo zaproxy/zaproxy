@@ -122,21 +122,7 @@ public class HistoryReferencesTable extends ZapTable {
     }
 
     protected void displayMessage(final HttpMessage msg) {
-        if (msg == null) {
-            return;
-        }
-
-        if (msg.getRequestHeader().isEmpty()) {
-            View.getSingleton().getRequestPanel().clearView(true);
-        } else {
-            View.getSingleton().getRequestPanel().setMessage(msg);
-        }
-
-        if (msg.getResponseHeader().isEmpty()) {
-            View.getSingleton().getResponsePanel().clearView(false);
-        } else {
-            View.getSingleton().getResponsePanel().setMessage(msg, true);
-        }
+        View.getSingleton().displayMessage(msg);
     }
 
     public HistoryReference getSelectedHistoryReference() {
@@ -239,10 +225,15 @@ public class HistoryReferencesTable extends ZapTable {
                     return;
                 }
 
+                boolean focusOwner = isFocusOwner();
                 try {
                     displayMessage(hRef.getHttpMessage());
                 } catch (HttpMalformedHeaderException | DatabaseException e) {
                     LOGGER.error(e.getMessage(), e);
+                } finally {
+                    if (focusOwner) {
+                        requestFocusInWindow();
+                    }
                 }
             }
         }

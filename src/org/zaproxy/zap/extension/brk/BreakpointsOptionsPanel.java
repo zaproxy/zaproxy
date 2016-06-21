@@ -51,6 +51,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
 
     private JCheckBox checkBoxConfirmDropMessage = null;
     private JCheckBox checkBoxAlwaysOnTop = null;
+    private JCheckBox checkBoxInScopeOnly = null;
     private JComboBox<String> buttonMode = null;
 
     public BreakpointsOptionsPanel() {
@@ -63,12 +64,13 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         panel.setBorder(new EmptyBorder(2, 2, 2, 2));
 
         panel.add(getCheckBoxConfirmDropMessage(), LayoutHelper.getGBC(0, 0, 2, 1.0, new Insets(2, 2, 2, 2)));
-        panel.add(getCheckBoxAlwaysOnTop(), LayoutHelper.getGBC(0, 1, 2, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(getCheckBoxInScopeOnly(), LayoutHelper.getGBC(0, 1, 2, 1.0, new Insets(2, 2, 2, 2)));
+        panel.add(getCheckBoxAlwaysOnTop(), LayoutHelper.getGBC(0, 2, 2, 1.0, new Insets(2, 2, 2, 2)));
         
         JLabel modeLabel = new JLabel(Constant.messages.getString("brk.optionspanel.option.breakmode.label"));
         modeLabel.setLabelFor(getButtonMode());
-        panel.add(modeLabel, LayoutHelper.getGBC(0, 2, 1, 0.5));
-        panel.add(getButtonMode(), LayoutHelper.getGBC(1, 2, 1, 0.5));
+        panel.add(modeLabel, LayoutHelper.getGBC(0, 3, 1, 0.5));
+        panel.add(getButtonMode(), LayoutHelper.getGBC(1, 3, 1, 0.5));
 		panel.add(new JLabel(), LayoutHelper.getGBC(0, 10, 1, 0.5D, 1.0D));	// Spacer
 
         add(panel);
@@ -90,6 +92,13 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
     	return checkBoxAlwaysOnTop;
     }
 
+    private JCheckBox getCheckBoxInScopeOnly() {
+    	if (checkBoxInScopeOnly == null) {
+    		checkBoxInScopeOnly = new JCheckBox(
+    				Constant.messages.getString("brk.optionspanel.option.inScopeOnly.label"));
+    	}
+    	return checkBoxInScopeOnly;
+    }
 
     private JComboBox<String> getButtonMode() {
     	if (buttonMode == null) {
@@ -108,6 +117,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         getCheckBoxConfirmDropMessage().setSelected(param.isConfirmDropMessage());
         // Note param.alwaysOnTop will be null if the user hasnt specified a preference yet
         getCheckBoxAlwaysOnTop().setSelected(param.getAlwaysOnTop() != Boolean.FALSE);
+        getCheckBoxInScopeOnly().setSelected(param.isInScopeOnly());
         getButtonMode().setSelectedIndex(param.getButtonMode()-1);
     }
 
@@ -126,6 +136,7 @@ public class BreakpointsOptionsPanel extends AbstractParamPanel {
         	// This is so that the warning message will still be shown the first time a breakpoint is hit
         	param.setAlwaysOnTop(getCheckBoxAlwaysOnTop().isSelected());
         }
+        param.setInScopeOnly(getCheckBoxInScopeOnly().isSelected());
         param.setButtonMode(this.getButtonMode().getSelectedIndex()+1);
     }
 

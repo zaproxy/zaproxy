@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.pscan.scanner;
 
-import java.io.StringWriter;
 import java.util.List;
 
 import net.htmlparser.jericho.Source;
@@ -83,7 +82,6 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 			currentHRefId = id;
 			List<ScriptWrapper> scripts = extension.getScripts(ExtensionPassiveScan.SCRIPT_TYPE_PASSIVE);
 			for (ScriptWrapper script : scripts) {
-				StringWriter writer = new StringWriter();
 				try {
 					if (script.isEnabled()) {
 						PassiveScript s = extension.getInterface(script, PassiveScript.class);
@@ -92,16 +90,14 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 							s.scan(this, msg, source);
 							
 						} else {
-							writer.append(Constant.messages.getString("scripts.interface.active.error"));
-							extension.setError(script, writer.toString());
-							extension.setEnabled(script, false);
+							extension.handleFailedScriptInterface(
+									script,
+									Constant.messages.getString("pscan.scripts.interface.passive.error", script.getName()));
 						}
 					}
 					
 				} catch (Exception e) {
-					writer.append(e.toString());
-					extension.setError(script, e);
-					extension.setEnabled(script, false);
+					extension.handleScriptException(script, e);
 				}
 			}
 		}

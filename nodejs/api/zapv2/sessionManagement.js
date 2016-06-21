@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,36 +27,28 @@ function SessionManagement(clientApi) {
   this.api = clientApi;
 }
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.getSupportedSessionManagementMethods = function (callback) {
   this.api.request('/sessionManagement/view/getSupportedSessionManagementMethods/', callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.getSessionManagementMethodConfigParams = function (methodname, callback) {
   this.api.request('/sessionManagement/view/getSessionManagementMethodConfigParams/', {'methodName' : methodname}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.getSessionManagementMethod = function (contextid, callback) {
   this.api.request('/sessionManagement/view/getSessionManagementMethod/', {'contextId' : contextid}, callback);
 };
 
-/**
- * This component is optional and therefore the API will only work if it is installed
- **/
 SessionManagement.prototype.setSessionManagementMethod = function (contextid, methodname, methodconfigparams, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/sessionManagement/action/setSessionManagementMethod/', {'contextId' : contextid, 'methodName' : methodname, 'methodConfigParams' : methodconfigparams, 'apikey' : apikey}, callback);
+  var params = {'contextId' : contextid, 'methodName' : methodname, 'apikey' : apikey};
+  if (methodconfigparams && methodconfigparams !== null) {
+    params['methodConfigParams'] = methodconfigparams;
+  }
+  this.api.request('/sessionManagement/action/setSessionManagementMethod/', params, callback);
 };
 
 module.exports = SessionManagement;

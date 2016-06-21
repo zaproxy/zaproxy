@@ -4,7 +4,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -64,28 +64,28 @@ class Pnh {
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
 	public function pnh($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'pnh/other/pnh/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'pnh/other/pnh/', array('apikey' => $apikey));
 	}
 
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
 	public function manifest($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'pnh/other/manifest/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'pnh/other/manifest/', array('apikey' => $apikey));
 	}
 
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
 	public function service($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'pnh/other/service/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'pnh/other/service/', array('apikey' => $apikey));
 	}
 
 	/**
 	 * This component is optional and therefore the API will only work if it is installed
 	 */
 	public function fx_pnhxpi($apikey='') {
-		return $this->zap->requestother($this->zap->baseother . 'pnh/other/fx_pnh.xpi/', array('apikey' => $apikey));
+		return $this->zap->requestother($this->zap->base_other . 'pnh/other/fx_pnh.xpi/', array('apikey' => $apikey));
 	}
 
 }

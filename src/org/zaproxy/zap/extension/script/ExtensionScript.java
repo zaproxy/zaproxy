@@ -19,6 +19,7 @@
  */
 package org.zaproxy.zap.extension.script;
 
+import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
@@ -47,14 +48,22 @@ import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import javax.swing.ImageIcon;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.table.AbstractTableModel;
 
 import org.apache.log4j.Logger;
+import org.jdesktop.swingx.JXTable;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
@@ -157,6 +166,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.registerScriptType(new ScriptType(TYPE_TARGETED, "script.type.targeted", TARGETED_ICON, false));
 		this.registerScriptType(new ScriptType(TYPE_HTTP_SENDER, "script.type.httpsender", HTTP_SENDER_ICON, true));
 
+		extensionHook.addSessionListener(new ClearScriptVarsOnSessionChange());
+
 		extensionHook.addProxyListener(this.getProxyListener());
 		HttpSender.addListener(getHttpSenderScriptListener());
 	    extensionHook.addOptionsParamSet(getScriptParam());
@@ -233,7 +244,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		this.loadTemplates(wrapper);
 
 		if (scriptUI != null) {
-			scriptUI.engineAdded(wrapper);
+			try {
+				scriptUI.engineAdded(wrapper);
+			} catch (Exception e) {
+				logger.error("An error occurred while notifying ScriptUI:", e);
+			}
 		}
 	}
 	
@@ -340,7 +355,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 		logger.debug("Removing script engine: " + wrapper.getLanguageName() + " : " + wrapper.getEngineName());
 		if (this.engineWrappers.remove(wrapper)) {
 			if (scriptUI != null) {
-				scriptUI.engineRemoved(wrapper);
+				try {
+					scriptUI.engineRemoved(wrapper);
+				} catch (Exception e) {
+					logger.error("An error occurred while notifying ScriptUI:", e);
+				}
 			}
 
 			setScriptEngineWrapper(getTreeModel().getScriptsNode(), wrapper, null);
@@ -596,15 +615,27 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
     @Override
     public void postInit() {
+		final List<String[]> scriptsNotAdded = new ArrayList<>(1);
 		for (ScriptWrapper script : this.getScriptParam().getScripts()) {
 			try {
 				this.loadScript(script);
-				this.addScript(script, false);
+				if (script.getType() != null) {
+					this.addScript(script, false);
+				} else {
+					logger.warn(
+							"Failed to add script \"" + script.getName() + "\", script type not found: "
+									+ script.getTypeName());
+					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+				}
 				
-			} catch (IOException e) {
+			} catch (InvalidParameterException | IOException e) {
 				logger.error(e.getMessage(), e);
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
 			}
 		}
+
+		informScriptsNotAdded(scriptsNotAdded);
+
 		this.loadTemplates();
 		
 		for (File dir : this.getScriptParam().getScriptDirs()) {
@@ -613,6 +644,60 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			logger.debug("Added " + numAdded + " scripts from dir: " + dir.getAbsolutePath());
 		}
 		shouldLoadTemplatesOnScriptTypeRegistration = true;
+    }
+
+    private static void informScriptsNotAdded(final List<String[]> scriptsNotAdded) {
+        if (!View.isInitialised() || scriptsNotAdded.isEmpty()) {
+            return;
+        }
+
+        final List<Object> optionPaneContents = new ArrayList<>(2);
+        optionPaneContents.add(Constant.messages.getString("script.info.scriptsNotAdded.message"));
+
+        JXTable table = new JXTable(new AbstractTableModel() {
+
+            private static final long serialVersionUID = -457689656746030560L;
+
+            @Override
+            public String getColumnName(int column) {
+                if (column == 0) {
+                    return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptName");
+                }
+                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
+            }
+
+            @Override
+            public Object getValueAt(int rowIndex, int columnIndex) {
+                return scriptsNotAdded.get(rowIndex)[columnIndex];
+            }
+
+            @Override
+            public int getRowCount() {
+                return scriptsNotAdded.size();
+            }
+
+            @Override
+            public int getColumnCount() {
+                return 2;
+            }
+        });
+
+        table.setColumnControlVisible(true);
+        table.setVisibleRowCount(Math.min(scriptsNotAdded.size() + 1, 5));
+        table.packAll();
+        optionPaneContents.add(new JScrollPane(table));
+
+        EventQueue.invokeLater(new Runnable() {
+
+            @Override
+            public void run() {
+                JOptionPane.showMessageDialog(
+                        View.getSingleton().getMainFrame(),
+                        optionPaneContents.toArray(),
+                        Constant.PROGRAM_NAME,
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
+        });
     }
 
 	
@@ -996,6 +1081,24 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	 * Handles exceptions thrown by scripts.
 	 * <p>
 	 * The given {@code exception} (if of type {@code ScriptException} the cause will be used instead) will be written to the
+	 * the writer(s) associated with the given {@code script}, moreover it will be disabled and flagged that has an error.
+	 *
+	 * @param script the script that resulted in an exception, must not be {@code null}
+	 * @param exception the exception thrown , must not be {@code null}
+	 * @since 2.5.0
+	 * @see #setEnabled(ScriptWrapper, boolean)
+	 * @see #setError(ScriptWrapper, Exception)
+	 * @see #handleFailedScriptInterface(ScriptWrapper, String)
+	 * @see ScriptException
+	 */
+	public void handleScriptException(ScriptWrapper script, Exception exception) {
+		handleScriptException(script, getWriters(script), exception);
+	}
+	
+	/**
+	 * Handles exceptions thrown by scripts.
+	 * <p>
+	 * The given {@code exception} (if of type {@code ScriptException} the cause will be used instead) will be written to the
 	 * given {@code writer} and the given {@code script} will be disabled and flagged that has an error.
 	 *
 	 * @param script the script that resulted in an exception, must not be {@code null}
@@ -1059,19 +1162,42 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	/**
 	 * Handles a failed attempt to convert a script into an interface.
 	 * <p>
+	 * The given {@code errorMessage} will be written to the writer(s) associated with the given {@code script}, moreover it
+	 * will be disabled and flagged that has an error.
+	 *
+	 * @param script the script that resulted in an exception, must not be {@code null}
+	 * @param errorMessage the message that will be written to the writer(s)
+	 * @since 2.5.0
+	 * @see #setEnabled(ScriptWrapper, boolean)
+	 * @see #setError(ScriptWrapper, Exception)
+	 * @see #handleScriptException(ScriptWrapper, Exception)
+	 */
+	public void handleFailedScriptInterface(ScriptWrapper script, String errorMessage) {
+		handleFailedScriptInterface(script, getWriters(script), errorMessage);
+	}
+
+	/**
+	 * Handles a failed attempt to convert a script into an interface.
+	 * <p>
 	 * The given {@code errorMessage} will be written to the given {@code writer} and the given {@code script} will be disabled
 	 * and flagged that has an error.
 	 *
 	 * @param script the script that failed to be converted to an interface, must not be {@code null}
 	 * @param writer the writer associated with the script, must not be {@code null}
 	 * @param errorMessage the message that will be written to the given {@code writer}
-	 * @throws IOException if an error occurred while writing the {@code errorMessage}
 	 * @see #setError(ScriptWrapper, String)
 	 * @see #setEnabled(ScriptWrapper, boolean)
 	 */
-	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) throws IOException {
-		writer.append(errorMessage);
-		this.setError(script, writer.toString());
+	private void handleFailedScriptInterface(ScriptWrapper script, Writer writer, String errorMessage) {
+		try {
+			writer.append(errorMessage);
+		} catch (IOException e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Failed to append script error message because of an exception:", e);
+			}
+			logger.warn("Failed to append error message: " + errorMessage);
+		}
+		this.setError(script, errorMessage);
 		this.setEnabled(script, false);
 	}
 
@@ -1134,6 +1260,17 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			this.getTreeModel().nodeStructureChanged(node.getParent());
 		}
 		
+		notifyScriptChanged(script);
+	}
+
+	/**
+	 * Notifies the {@code ScriptEventListener}s that the given {@code script} was changed.
+	 *
+	 * @param script the script that was changed, must not be {@code null}
+	 * @see #listeners
+	 * @see ScriptEventListener#scriptChanged(ScriptWrapper)
+	 */
+	private void notifyScriptChanged(ScriptWrapper script) {
 		for (ScriptEventListener listener : this.listeners) {
 			try {
 				listener.scriptChanged(script);
@@ -1144,16 +1281,23 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	public void setEnabled(ScriptWrapper script, boolean enabled) {
+		if (!script.getType().isEnableable()) {
+			return;
+		}
+
 		if (enabled && script.getEngine() == null) {
 			return;
 		}
 
 		script.setEnabled(enabled);
 		this.getTreeModel().nodeStructureChanged(script);
+
+		notifyScriptChanged(script);
 	}
 
 	public void setError(ScriptWrapper script, String details) {
 		script.setError(true);
+		script.setLastErrorDetails(details);
 		script.setLastOutput(details);
 		
 		this.getTreeModel().nodeStructureChanged(script);
@@ -1168,18 +1312,8 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 
 	public void setError(ScriptWrapper script, Exception e) {
-		script.setError(true);
 		script.setLastException(e);
-		
-		this.getTreeModel().nodeStructureChanged(script);
-		
-		for (ScriptEventListener listener : this.listeners) {
-			try {
-				listener.scriptError(script);
-			} catch (Exception e1) {
-				logger.error(e.getMessage(), e);
-			}
-		}
+		setError(script, e.getMessage());
 	}
 	
 	public void addListener(ScriptEventListener listener) {
@@ -1250,7 +1384,15 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 			Thread.currentThread().setContextClassLoader(previousContextClassLoader);
 		}
 		
-		return invokeScript(script).getInterface(class1);
+		if (script.isRunableStandalone()) {
+			return null;
+		}
+
+		Invocable invocable = invokeScript(script);
+		if (invocable != null) {
+			return invocable.getInterface(class1);
+		}
+		return null;
 
 	}
 
@@ -1297,25 +1439,25 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	
 	private void openCmdLineFile(File f) throws IOException, ScriptException {
 		if (! f.exists()) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.nofile"), f.getAbsolutePath()));
 			return;
 		}
 		if (! f.canRead()) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noread"), f.getAbsolutePath()));
 			return;
 		}
 		int dotIndex = f.getName().lastIndexOf(".");
 		if (dotIndex <= 0) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noext"), f.getAbsolutePath()));
 			return;
 		}
 		String ext = f.getName().substring(dotIndex+1);
 		String engineName = this.getEngineNameForExtension(ext);
 		if (engineName == null) {
-			System.out.println(MessageFormat.format(
+			CommandLine.info(MessageFormat.format(
 					Constant.messages.getString("script.cmdline.noengine"), ext));
 			return;
 		}
@@ -1354,7 +1496,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
     private CommandLineArgument[] getCommandLineArguments() {
     	
         arguments[ARG_SCRIPT_IDX] = new CommandLineArgument("-script", 1, null, "", 
-        		"-script [script_path]: " + Constant.messages.getString("script.cmdline.help"));
+        		"-script <script>         " + Constant.messages.getString("script.cmdline.help"));
         return arguments;
     }
 
@@ -1399,5 +1541,26 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	@Override
 	public boolean supportsDb(String type) {
 		return true;
+	}
+
+	private static class ClearScriptVarsOnSessionChange implements SessionChangedListener {
+
+		@Override
+		public void sessionChanged(Session session) {
+		}
+
+		@Override
+		public void sessionAboutToChange(Session session) {
+			ScriptVars.clear();
+		}
+
+		@Override
+		public void sessionScopeChanged(Session session) {
+		}
+
+		@Override
+		public void sessionModeChanged(Mode mode) {
+		}
+
 	}
 }

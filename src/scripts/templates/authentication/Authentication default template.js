@@ -7,7 +7,7 @@
 // NOTE: Any message sent in the function should be obtained using the 'helper.prepareMessage()' method.
 //
 // Parameters:
-//		helper - a helper class providing useful methods: prepareMessage(), sendAndReceive(msg)
+//		helper - a helper class providing useful methods: prepareMessage(), sendAndReceive(msg), getHttpSender()
 //		paramsValues - the values of the parameters configured in the Session Properties -> Authentication panel.
 //					The paramsValues is a map, having as keys the parameters names (as returned by the getRequiredParamsNames()
 //					and getOptionalParamsNames() functions below)
@@ -19,6 +19,20 @@ function authenticate(helper, paramsValues, credentials) {
 	msg = helper.prepareMessage();
 	
 	// TODO: Process message to match the authentication needs
+
+	// Configurations on how the messages are sent/handled:
+	// Set to follow redirects when sending messages (default is false).
+	// helper.getHttpSender().setFollowRedirect(true)
+
+	// Send message without following redirects (overriding the option previously set).
+	// helper.sendAndReceive(msg, false)
+
+	// Set the number of maximum redirects followed to 5 (default is 100). Main purpose is to prevent infinite loops.
+	// helper.getHttpSender().setMaxRedirects(5)
+
+	// Allow circular redirects (default is not allow). Circular redirects happen when a request
+	// redirects to itself, or when a same request was already accessed in a chain of redirects.
+	// helper.getHttpSender().setAllowCircularRedirects(true)
 
 	helper.sendAndReceive(msg);
 
@@ -44,3 +58,15 @@ function getOptionalParamsNames(){
 function getCredentialsParamsNames(){
 	return ["username", "password"];
 }
+
+// This optional function is called during the script loading to obtain the logged in indicator.
+// NOTE: although optional this function must be implemented along with the function getLoggedOutIndicator().
+//function getLoggedInIndicator() {
+//	return "LoggedInIndicator";
+//}
+
+// This optional function is called during the script loading to obtain the logged out indicator.
+// NOTE: although optional this function must be implemented along with the function getLoggedInIndicator().
+//function getLoggedOutIndicator() {
+//	return "LoggedOutIndicator";
+//}

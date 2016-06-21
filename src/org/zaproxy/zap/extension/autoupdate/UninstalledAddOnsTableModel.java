@@ -19,14 +19,15 @@
  */
 package org.zaproxy.zap.extension.autoupdate;
 
-import java.util.Comparator;
 import java.util.List;
 
 import javax.swing.Icon;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.control.AddOnCollection;
+import org.zaproxy.zap.view.StatusUI;
 
 
 public class UninstalledAddOnsTableModel extends AddOnsTableModel {
@@ -43,23 +44,11 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
     
 	private static final int COLUMN_COUNT = COLUMN_NAMES.length;
 
-    private static final Comparator<AddOnWrapper> COMPARATOR = new Comparator<AddOnWrapper>() {
-
-        @Override
-        public int compare(AddOnWrapper ao1, AddOnWrapper ao2) {
-            if (!ao1.getAddOn().getStatus().equals(ao2.getAddOn().getStatus())) {
-                // Reverse order - we want the most stable ones first
-                return ao2.getAddOn().getStatus().compareTo(ao1.getAddOn().getStatus());
-            }
-            return ao1.getAddOn().getName().toLowerCase().compareTo(ao2.getAddOn().getName().toLowerCase());
-        };
-    };
-    
     /**
      * 
      */
     public UninstalledAddOnsTableModel(AddOnCollection installedAddOns) {
-        super(COMPARATOR, installedAddOns, 4);
+        super(installedAddOns, 4);
     }
 
     @Override
@@ -79,9 +68,11 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
 
     @Override
     public Class<?> getColumnClass(int columnIndex) {
-        if (columnIndex == 0) {
+        if (columnIndex == 0) {//Icon
             return Icon.class;
-        } else if (columnIndex == 5) {
+        } else if (columnIndex == 1) {//Status (Quality)
+        	return StatusUI.class;
+        } else if (columnIndex == 5) {//update
             return Boolean.class;
         }
         return String.class;
@@ -95,7 +86,7 @@ public class UninstalledAddOnsTableModel extends AddOnsTableModel {
         case 0:
             return Boolean.valueOf(getAddOnWrapper(rowIndex).hasRunningIssues());
         case 1:
-            return Constant.messages.getString("cfu.status." + getAddOnWrapper(rowIndex).getAddOn().getStatus().toString());
+        	return View.getSingleton().getStatusUI(getAddOnWrapper(rowIndex).getAddOn().getStatus());
         case 2:
             return getAddOnWrapper(rowIndex).getAddOn().getName();
         case 3:

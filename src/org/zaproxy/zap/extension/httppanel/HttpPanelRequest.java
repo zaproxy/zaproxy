@@ -45,7 +45,7 @@ public class HttpPanelRequest extends HttpPanel {
 
 	@Override
 	protected void initComponents() {
-		addComponent(new RequestSplitComponent(), Model.getSingleton().getOptionsParam().getConfig());
+		addComponent(new RequestSplitComponent<HttpMessage>(), Model.getSingleton().getOptionsParam().getConfig());
 	}
 
 	@Override

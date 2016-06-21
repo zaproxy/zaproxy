@@ -58,6 +58,13 @@
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2015/04/12 Remove "installation" fuzzers dir, no longer in use
 // ZAP: 2015/08/01 Remove code duplication in catch of exceptions, use installation directory in default config file
+// ZAP: 2015/11/11 Issue 2045: Dont copy old configs if -dir option used 
+// ZAP: 2015/11/26 Issue 2084: Warn users if they are probably using out of date versions
+// ZAP: 2016/02/17 Convert extensions' options to not use extensions' names as XML element names
+// ZAP: 2016/05/12 Use dev/weekly dir for plugin downloads when copying the existing 'release' config file
+// ZAP: 2016/06/07 Remove commented constants and statement that had no (actual) effect, add doc to a constant and init other
+// ZAP: 2016/06/07 Use filter directory in ZAP's home directory
+// ZAP: 2016/06/13 Migrate config option "proxy.modifyAcceptEncoding" 
 
 package org.parosproxy.paros;
 
@@ -71,7 +78,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.InvalidParameterException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
@@ -113,9 +123,11 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2004002;
+    private static final long VERSION_TAG = 2005000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_5_0_TAG = 2005000;
+    private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
     private static final long V_2_2_0_TAG = 2002000;
     private static final long V_2_1_0_TAG = 2001000;
@@ -139,13 +151,6 @@ public final class Constant {
     
     public static final String SYSTEM_PAROS_USER_LOG = "zap.user.log";
     
-//  public static final String FILE_CONFIG = "xml/config.xml";
-//  public static final String FOLDER_PLUGIN = "plugin";
-//  public static final String FOLDER_FILTER = "filter";
-//  public static final String FOLDER_SESSION = "session";
-//  public static final String DBNAME_TEMPLATE = "db/parosdb";
-//  public static final String DBNAME_UNTITLED = FOLDER_SESSION + "/untitled";
-
     public static final String FILE_SEPARATOR = System.getProperty("file.separator");
     
     /**
@@ -156,7 +161,19 @@ public final class Constant {
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
+    /**
+     * The name of the directory for filter related files (the path should be built using {@link #getZapHome()} as the parent
+     * directory).
+     * 
+     * @since 1.0.0
+     */
     public static final String FOLDER_FILTER = "filter";
+
+    /**
+     * The name of the directory where the (file) sessions are saved by default.
+     * 
+     * @since 1.0.0
+     */
     public static final String FOLDER_SESSION_DEFAULT = "session";
     public static final String DBNAME_TEMPLATE = "db" + System.getProperty("file.separator") + "zapdb";
 
@@ -178,7 +195,7 @@ public final class Constant {
     public static final String DBNAME_UNTITLED_DEFAULT = FOLDER_SESSION_DEFAULT + System.getProperty("file.separator") + "untitled";
 
     public String FILE_CONFIG = FILE_CONFIG_NAME;
-    public String FOLDER_SESSION = "session";
+    public String FOLDER_SESSION = FOLDER_SESSION_DEFAULT;
     public String DBNAME_UNTITLED = FOLDER_SESSION + System.getProperty("file.separator") + "untitled";
     public String ACCEPTED_LICENSE_DEFAULT = "AcceptedLicense";
     public String ACCEPTED_LICENSE = ACCEPTED_LICENSE_DEFAULT;
@@ -333,9 +350,6 @@ public final class Constant {
         File f = null;
         Logger log = null;
 
-        // default to use application directory 'log'
-        System.setProperty(SYSTEM_PAROS_USER_LOG, "log");
-
         // Set up the version from the manifest
         PROGRAM_VERSION = getVersionFromManifest();
         PROGRAM_TITLE = PROGRAM_NAME + " " + PROGRAM_VERSION;
@@ -385,10 +399,16 @@ public final class Constant {
                 	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
                 }
             	
-            	if (oldf.exists()) {
+            	if (oldf.exists() && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
+            		// Dont copy old configs if they've specified a non std directory
             		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
             		copier.copy(oldf,f);
             		
+            		if (isDevBuild() || isDailyBuild()) {
+            		    ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
+            		    newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
+            		    newConfig.save();
+            		}
             	} else {
             		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
             		copier.copy(getPathDefaultConfigFile().toFile(),f);
@@ -425,6 +445,13 @@ public final class Constant {
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
+            f = new File(zapHome, FOLDER_FILTER);
+            if (!f.isDirectory()) {
+                log.info("Creating directory: " + f.getAbsolutePath());
+                if (!f.mkdir()) {
+                    System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
 
@@ -499,6 +526,12 @@ public final class Constant {
 	            	if (ver <= V_2_3_1_TAG) {
 	            		upgradeFrom2_3_1(config);
 	            	}
+                    if (ver <= V_2_4_3_TAG) {
+                        upgradeFrom2_4_3(config);
+                    }
+                    if (ver <= V_2_5_0_TAG) {
+                        upgradeFrom2_5_0(config);
+                    }
 	            	log.info("Upgraded from " + ver);
             		
             		// Update the version
@@ -759,6 +792,34 @@ public final class Constant {
         config.clearTree("options.auth");
     }
 
+    private void upgradeFrom2_4_3(XMLConfiguration config) {
+        List<Object[]> oldData = new ArrayList<>();
+        // Convert extensions' options to not use extensions' names as XML element names
+        for (Iterator<String> it = config.getKeys("ext"); it.hasNext();) {
+            String key = it.next();
+
+            Object[] data = new Object[2];
+            data[0] = key.substring(4);
+            data[1] = config.getBoolean(key);
+            oldData.add(data);
+        }
+        config.clearTree("ext");
+
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "extensions.extension(" + i + ").";
+            Object[] data = oldData.get(i);
+
+            config.setProperty(elementBaseKey + "name", data[0]);
+            config.setProperty(elementBaseKey + "enabled", data[1]);
+        }
+    }
+
+    private static void upgradeFrom2_5_0(XMLConfiguration config) {
+        String oldConfigKey = "proxy.modifyAcceptEncoding";
+        config.setProperty("proxy.removeUnsupportedEncodings", config.getBoolean(oldConfigKey, true));
+        config.clearProperty(oldConfigKey);
+    }
+
 	public static void setLocale (String loc) {
         String[] langArray = loc.split("_");
         Locale locale = new Locale(langArray[0], langArray[1]);
@@ -931,23 +992,64 @@ public final class Constant {
     	return zapInstall;
     }
 
-    private static String getVersionFromManifest() {
+    private static Manifest getManifest() {
     	String className = Constant.class.getSimpleName() + ".class";
     	String classPath = Constant.class.getResource(className).toString();
     	if (!classPath.startsWith("jar")) {
     	  // Class not from JAR
-    	  return DEV_VERSION;
+    	  return null;
     	}
     	String manifestPath = classPath.substring(0, classPath.lastIndexOf("!") + 1) + "/META-INF/MANIFEST.MF";
-    	Manifest manifest;
 		try {
-			manifest = new Manifest(new URL(manifestPath).openStream());
-	    	Attributes attr = manifest.getMainAttributes();
-	    	return attr.getValue("Implementation-Version");
+			return new Manifest(new URL(manifestPath).openStream());
 		} catch (Exception e) {
 			// Ignore
-			return DEV_VERSION;
+			return null;
 		}
+    }
+
+    private static String getVersionFromManifest() {
+    	Manifest manifest = getManifest();
+    	if (manifest != null) {
+	    	Attributes attr = manifest.getMainAttributes();
+	    	return attr.getValue("Implementation-Version");
+    	} else {
+			return DEV_VERSION;
+    	}
+    }
+    
+    public static Date getReleaseCreateDate() {
+    	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+    	Manifest manifest = getManifest();
+    	if (manifest != null) {
+	    	Attributes attr = manifest.getMainAttributes();
+	    	try {
+				return sdf.parse(attr.getValue("Create-Date"));
+			} catch (ParseException e) {
+				// Ignore - treat as undated
+			}
+    	}
+		return null;
+    }
+
+    public static Date getInstallDate() {
+    	String className = Constant.class.getSimpleName() + ".class";
+    	String classPath = Constant.class.getResource(className).toString();
+    	if (!classPath.startsWith("jar:file:")) {
+    	  // Class not from JAR
+    	  return null;
+    	}
+    	classPath = classPath.substring(9);
+    	int ind = classPath.indexOf("!");
+    	if (ind > 0) {
+    		classPath = classPath.substring(0, ind);
+    	}
+    	File f = new File(classPath);
+    	if (f.exists()) {
+        	// Choose the parent directories date, in case the creation date was maintained
+    		return new Date(f.getParentFile().lastModified());
+    	}
+    	return null;
     }
     
     public static boolean isDevBuild() {

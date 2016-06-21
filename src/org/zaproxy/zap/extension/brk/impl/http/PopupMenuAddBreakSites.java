@@ -20,8 +20,10 @@
 package org.zaproxy.zap.extension.brk.impl.http;
 
 import org.parosproxy.paros.Constant;
+import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.SiteNode;
 import org.zaproxy.zap.extension.brk.ExtensionBreak;
+import org.zaproxy.zap.model.StructuralSiteNode;
 import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
@@ -51,11 +53,12 @@ public class PopupMenuAddBreakSites extends PopupMenuItemSiteNodeContainer {
 
     @Override
     public void performAction(SiteNode sn) {
-        String url = sn.getHierarchicNodeName();
-        if (!sn.isLeaf()) {
-            url += "/*";
-        }
-        uiManager.handleAddBreakpoint(url);
+        try {
+			uiManager.handleAddBreakpoint(
+					new StructuralSiteNode(sn).getRegexPattern(false));
+		} catch (DatabaseException e) {
+			// Ignore
+		}
     }
 
 }

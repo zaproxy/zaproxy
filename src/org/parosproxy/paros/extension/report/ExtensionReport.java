@@ -26,13 +26,14 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/12/03 Issue 934: Handle files on the command line via extension
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
 
 package org.parosproxy.paros.extension.report;
 
 import java.io.File;
 import java.util.List;
 
-import org.apache.log4j.Logger;
+import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -44,12 +45,9 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 
     private static final int ARG_LAST_SCAN_REPORT_IDX = 0;
 
-    // ZAP: Changed to support XML reports as well
 	private ZapMenuItem menuItemHtmlReport = null;
 	private ZapMenuItem menuItemXmlReport = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
-	// ZAP Added logger
-	private Logger logger = Logger.getLogger(ExtensionReport.class);
 
     /**
      * 
@@ -134,10 +132,9 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
             String fileName = arg.getArguments().get(0);
             try {
                 report.generate(fileName, getModel(), "xml/report.html.xsl");
-                System.out.println("Last Scan Report generated at " + fileName);
+                CommandLine.info("Last Scan Report generated at " + fileName);
             } catch (Exception e) {
-            	// ZAP: Log the exception
-            	logger.error(e.getMessage(), e);
+            	CommandLine.error(e.getMessage(), e);
             }
         } else {
             return;
@@ -146,7 +143,8 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
     }
 
     private CommandLineArgument[] getCommandLineArguments() {
-        arguments[ARG_LAST_SCAN_REPORT_IDX] = new CommandLineArgument("-last_scan_report", 1, null, "", "-last_scan_report [file_path]: Generate 'Last Scan Report' into the file_path provided.");
+        arguments[ARG_LAST_SCAN_REPORT_IDX] = new CommandLineArgument("-last_scan_report", 1, null, "", 
+        		Constant.messages.getString("report.cmdline.gen.help"));
         return arguments;
     }
 	

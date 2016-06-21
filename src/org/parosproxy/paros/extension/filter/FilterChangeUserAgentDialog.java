@@ -21,6 +21,7 @@
 // ZAP: 2011/04/16 i18n
 // ZAP: 2012/04/25 Added @Override annotation to all appropriate methods.
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
+// ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
 
 package org.parosproxy.paros.extension.filter;
 
@@ -38,15 +39,11 @@ import javax.swing.JPanel;
 
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
-import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.Model;
 
 public class FilterChangeUserAgentDialog extends AbstractDialog {
 
-
-    
-    
-    
+	private static final long serialVersionUID = 1L;
 	private JPanel jPanel = null;
 	private JComboBox<String> cmbUserAgent = null;
 	private JLabel jLabel = null;
@@ -56,7 +53,6 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	private JPanel jPanel1 = null;
 	private JLabel jLabel2 = null;
 	private int exitCode = JOptionPane.CANCEL_OPTION;
-	private ViewDelegate view = null;
 
     /**
      * @throws HeadlessException
@@ -228,10 +224,6 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 		return jPanel1;
 	}
 	
-    public void setView(ViewDelegate view) {
-        this.view = view;
-    }
-    
 	public int showDialog() {
 	    setVisible(true);
 	    return exitCode;
@@ -240,4 +232,4 @@ public class FilterChangeUserAgentDialog extends AbstractDialog {
 	public int getUserAgentItem() {
 	    return getCmbUserAgent().getSelectedIndex();
 	}
-     }  //  @jve:decl-index=0:visual-constraint="10,10"
+}  //  @jve:decl-index=0:visual-constraint="10,10"

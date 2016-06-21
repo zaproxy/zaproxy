@@ -19,13 +19,26 @@
  */
 package org.zaproxy.zap.extension.pscan;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.apache.commons.configuration.Configuration;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.model.HistoryReference;
 import org.zaproxy.zap.control.AddOn;
 import org.zaproxy.zap.utils.Enableable;
 
 
 public abstract class PluginPassiveScanner extends Enableable implements PassiveScanner {
+
+	private static final Integer[] DEFAULT_HISTORY_TYPES = new Integer[] {
+		HistoryReference.TYPE_PROXIED, HistoryReference.TYPE_ZAP_USER, 
+		HistoryReference.TYPE_SPIDER,  HistoryReference.TYPE_SPIDER_AJAX};
+
+	private static final Set<Integer> DEFAULT_HISTORY_TYPES_SET = 
+			Collections.unmodifiableSet(new HashSet<Integer>(Arrays.asList(DEFAULT_HISTORY_TYPES)));
 
 	private AlertThreshold level = AlertThreshold.DEFAULT;
 	private AlertThreshold defaultLevel = AlertThreshold.MEDIUM;
@@ -95,4 +108,14 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	public void setStatus(AddOn.Status status) {
 		this.status = status;
 	}
+
+	public static Set<Integer> getDefaultHistoryTypes() {
+		return DEFAULT_HISTORY_TYPES_SET;
+	}
+	
+	@Override
+	public boolean appliesToHistoryType(int historyType) {
+		return getDefaultHistoryTypes().contains(historyType);
+	}
+	
 }

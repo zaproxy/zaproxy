@@ -36,6 +36,7 @@ import java.net.URL;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JToolBar;
@@ -234,6 +235,41 @@ public class MainFooterPanel extends JPanel {
     
     public void removeFooterToolbarRightLabel (JLabel label) {
         this.footerToolbarRight.remove(label);
+        this.validate();
+    }
+    
+    public void addFooterToolbarRightComponent (JComponent comp) {
+    	if (comp instanceof JLabel) {
+        	DisplayUtils.scaleIcon((JLabel)comp);
+    	} else if (comp instanceof JButton) {
+        	DisplayUtils.scaleIcon((JButton)comp);
+    	}
+    	this.footerToolbarRight.add(comp);
+    	this.validate();
+    }
+
+    public void removeFooterToolbarRightComponent (JComponent comp) {
+    	this.footerToolbarRight.remove(comp);
+    	this.validate();
+    }
+
+    public void addFooterToolbarLeftComponent (JComponent comp) {
+    	if (comp instanceof JLabel) {
+        	DisplayUtils.scaleIcon((JLabel)comp);
+    	} else if (comp instanceof JButton) {
+        	DisplayUtils.scaleIcon((JButton)comp);
+    	}
+    	this.footerToolbarLeft.add(comp);
+    	this.validate();
+    }
+
+    public void removeFooterToolbarLeftComponent (JComponent comp) {
+    	this.footerToolbarLeft.remove(comp);
+    	this.validate();
+    }
+
+    public void removeFooterToolbarLeftLabel (JLabel label) {
+        this.footerToolbarLeft.remove(label);
         this.validate();
     }
     

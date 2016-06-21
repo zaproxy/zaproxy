@@ -203,7 +203,7 @@ public class SimpleEventBus implements EventBus {
 		}
 		public void removeComsumer(EventConsumer consumer) {
 			for (RegisteredConsumer cons : consumers) {
-				if (cons.equals(consumer)) {
+				if (cons.getConsumer().equals(consumer)) {
 					this.consumers.remove(cons);
 					return;
 				}

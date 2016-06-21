@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,39 +28,47 @@ function HttpSessions(clientApi) {
 }
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Gets the sessions of the given site. Optionally returning just the session with the given name.
  **/
 HttpSessions.prototype.sessions = function (site, session, callback) {
-  this.api.request('/httpSessions/view/sessions/', {'site' : site, 'session' : session}, callback);
+  var params = {'site' : site};
+  if (session && session !== null) {
+    params['session'] = session;
+  }
+  this.api.request('/httpSessions/view/sessions/', params, callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Gets the name of the active session for the given site.
  **/
 HttpSessions.prototype.activeSession = function (site, callback) {
   this.api.request('/httpSessions/view/activeSession/', {'site' : site}, callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Gets the names of the session tokens for the given site.
  **/
 HttpSessions.prototype.sessionTokens = function (site, callback) {
   this.api.request('/httpSessions/view/sessionTokens/', {'site' : site}, callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Creates an empty session for the given site. Optionally with the given name.
  **/
 HttpSessions.prototype.createEmptySession = function (site, session, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/httpSessions/action/createEmptySession/', {'site' : site, 'session' : session, 'apikey' : apikey}, callback);
+  var params = {'site' : site, 'apikey' : apikey};
+  if (session && session !== null) {
+    params['session'] = session;
+  }
+  this.api.request('/httpSessions/action/createEmptySession/', params, callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Removes the session from the given site.
  **/
 HttpSessions.prototype.removeSession = function (site, session, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -71,7 +79,7 @@ HttpSessions.prototype.removeSession = function (site, session, apikey, callback
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Sets the given session as active for the given site.
  **/
 HttpSessions.prototype.setActiveSession = function (site, session, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -82,7 +90,7 @@ HttpSessions.prototype.setActiveSession = function (site, session, apikey, callb
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Unsets the active session of the given site.
  **/
 HttpSessions.prototype.unsetActiveSession = function (site, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -93,7 +101,7 @@ HttpSessions.prototype.unsetActiveSession = function (site, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Adds the session token to the given site.
  **/
 HttpSessions.prototype.addSessionToken = function (site, sessiontoken, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -104,7 +112,7 @@ HttpSessions.prototype.addSessionToken = function (site, sessiontoken, apikey, c
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Removes the session token from the given site.
  **/
 HttpSessions.prototype.removeSessionToken = function (site, sessiontoken, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -115,7 +123,7 @@ HttpSessions.prototype.removeSessionToken = function (site, sessiontoken, apikey
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Sets the value of the session token of the given session for the given site.
  **/
 HttpSessions.prototype.setSessionTokenValue = function (site, session, sessiontoken, tokenvalue, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -126,7 +134,7 @@ HttpSessions.prototype.setSessionTokenValue = function (site, session, sessionto
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Renames the session of the given site.
  **/
 HttpSessions.prototype.renameSession = function (site, oldsessionname, newsessionname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {

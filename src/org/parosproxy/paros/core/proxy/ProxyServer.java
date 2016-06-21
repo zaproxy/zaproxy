@@ -29,6 +29,9 @@
 // ZAP: 2014/01/22 Add the possibility to bound the proxy to all interfaces if null IP address has been set
 // ZAP: 2014/03/23 Issue 1022: Proxy - Allow to override a proxied message
 // ZAP: 2014/08/14 Issue 1312: Misleading error message when unable to bind the local proxy to specified address
+// ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
+// ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+
 package org.parosproxy.paros.core.proxy;
 
 import java.io.IOException;
@@ -64,6 +67,7 @@ public class ProxyServer implements Runnable {
     protected Vector<ProxyListener> listenerList = new Vector<>();
     protected Vector<OverrideMessageProxyListener> overrideListeners = new Vector<>();
     protected Vector<PersistentConnectionListener> persistentConnectionListenerList = new Vector<>();
+    private final List<ConnectRequestProxyListener> connectRequestProxyListeners;
     // ZAP: Added listenersComparator.
     private static Comparator<ArrangeableProxyListener> listenersComparator;
     protected boolean serialize = false;
@@ -98,6 +102,7 @@ public class ProxyServer implements Runnable {
     }
 
     public ProxyServer() {
+        connectRequestProxyListeners = new ArrayList<>(1);
     }
 
     public void setProxyParam(ProxyParam param) {
@@ -157,7 +162,7 @@ public class ProxyServer implements Runnable {
                     return -1;
                 } else if ("Permission denied".equals(e.getMessage()) || "Address already in use".equals(e.getMessage())) {
                     if (!isDynamicPort) {
-                        showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + port);
+                        showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + ip + ":" + port);
                         return -1;
                     } else if (port < 65535) {
                         port++;
@@ -187,6 +192,7 @@ public class ProxyServer implements Runnable {
         if (View.isInitialised()) {
             View.getSingleton().showWarningDialog(error);
         } else {
+            log.error(error);
             System.out.println(error);
         }
     }
@@ -309,6 +315,51 @@ public class ProxyServer implements Runnable {
 
     List<OverrideMessageProxyListener> getOverrideMessageProxyListeners() {
         return overrideListeners;
+    }
+
+    /**
+     * Adds the given {@code listener}, that will be notified of the received CONNECT requests.
+     *
+     * @param listener the listener that will be added
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since 2.5.0
+     */
+    public void addConnectRequestProxyListener(ConnectRequestProxyListener listener) {
+        connectRequestProxyListeners.add(listener);
+    }
+
+    /**
+     * Validates that the given {@code listener} is not {@code null}, throwing an {@code IllegalArgumentException} if it is.
+     *
+     * @param listener the listener that will be validated
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     */
+    private static void validateListenerNotNull(Object listener) {
+        if (listener == null) {
+            throw new IllegalArgumentException("Parameter listener must not be null.");
+        }
+    }
+
+    /**
+     * Removes the given {@code listener}, to no longer be notified of the received CONNECT requests.
+     *
+     * @param listener the listener that should be removed
+     * @throws IllegalArgumentException if the given {@code listener} is {@code null}.
+     * @since 2.5.0
+     */
+    public void removeConnectRequestProxyListener(ConnectRequestProxyListener listener) {
+        validateListenerNotNull(listener);
+        connectRequestProxyListeners.remove(listener);
+    }
+
+    /**
+     * Gets the {@code ConnectRequestProxyListener}s added.
+     *
+     * @return an unmodifiable {@code List} with the {@code ConnectRequestProxyListener}s, never {@code null}
+     * @since 2.5.0
+     */
+    List<ConnectRequestProxyListener> getConnectRequestProxyListeners() {
+        return Collections.unmodifiableList(connectRequestProxyListeners);
     }
 
     public boolean isAnyProxyThreadRunning() {

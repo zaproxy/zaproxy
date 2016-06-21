@@ -20,10 +20,11 @@
 package org.zaproxy.zap;
 
 import java.awt.EventQueue;
-import java.awt.Image;
+import java.awt.GraphicsEnvironment;
 import java.awt.Toolkit;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -60,11 +61,6 @@ import org.zaproxy.zap.utils.LocaleUtils;
 import org.zaproxy.zap.view.LicenseFrame;
 import org.zaproxy.zap.view.LocaleDialog;
 import org.zaproxy.zap.view.ProxyDialog;
-import org.zaproxy.zap.view.osxhandlers.OSXAboutHandler;
-import org.zaproxy.zap.view.osxhandlers.OSXPreferencesHandler;
-import org.zaproxy.zap.view.osxhandlers.OSXQuitHandler;
-
-import com.apple.eawt.Application;
 
 /**
  * The bootstrap process for GUI mode.
@@ -81,6 +77,22 @@ public class GuiBootstrap extends ZapBootstrap {
 
     @Override
     public int start() {
+        int rc = super.start();
+        if (rc != 0) {
+            return rc;
+        }
+
+        BasicConfigurator.configure();
+
+        logger.info(getStartingMessage());
+
+        if (GraphicsEnvironment.isHeadless()) {
+            String headlessMessage = Constant.messages.getString("start.gui.headless", CommandLine.HELP);
+            logger.fatal(headlessMessage);
+            System.err.println(headlessMessage);
+            return 1;
+        }
+
         EventQueue.invokeLater(new Runnable() {
 
             @Override
@@ -92,15 +104,7 @@ public class GuiBootstrap extends ZapBootstrap {
     }
 
     private void startImpl() {
-        int rc = super.start();
-        if (rc != 0) {
-            System.exit(rc);
-        }
-
-        BasicConfigurator.configure();
-
-        logger.info(getStartingMessage());
-
+        setX11AwtAppClassName();
         setDefaultViewLocale(Constant.getLocale());
         setupLookAndFeel();
 
@@ -108,6 +112,23 @@ public class GuiBootstrap extends ZapBootstrap {
             showLicense();
         } else {
             init(false);
+        }
+    }
+
+    private void setX11AwtAppClassName() {
+        Toolkit defaultToolkit = Toolkit.getDefaultToolkit();
+        // See JDK-6528430 : need system property to override default WM_CLASS
+        //     http://bugs.java.com/bugdatabase/view_bug.do?bug_id=6528430
+        // Based on NetBeans workaround linked from the issue:
+        Class<?> toolkitClass = defaultToolkit.getClass();
+        if ("sun.awt.X11.XToolkit".equals(toolkitClass.getName())) {
+            try {
+                Field awtAppClassName = toolkitClass.getDeclaredField("awtAppClassName");
+                awtAppClassName.setAccessible(true);
+                awtAppClassName.set(null, Constant.PROGRAM_NAME);
+            } catch (Exception e) {
+                logger.warn("Failed to set awt app class name: " + e.getMessage());
+            }
         }
     }
 
@@ -134,8 +155,6 @@ public class GuiBootstrap extends ZapBootstrap {
         OptionsParamView viewParam = options.getViewParam();
 
         FontUtils.setDefaultFont(viewParam.getFontName(), viewParam.getFontSize());
-
-        View.setDisplayOption(viewParam.getDisplayOption());
 
         setupLocale(options);
 
@@ -296,7 +315,7 @@ public class GuiBootstrap extends ZapBootstrap {
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 
             if (Constant.isMacOsX()) {
-                setupOsXGui();
+                OsXGui.setup();
             } else {
                 // Set Nimbus LaF if available
                 for (final LookAndFeelInfo info : UIManager.getInstalledLookAndFeels()) {
@@ -312,35 +331,6 @@ public class GuiBootstrap extends ZapBootstrap {
                  | IllegalAccessException e) {
             // handle exception
         }
-    }
-
-    /**
-     * Setups OS X related GUI properties and functionalities.
-     */
-    private void setupOsXGui() {
-        // Set the various and sundry OS X-specific system properties
-        System.setProperty("apple.laf.useScreenMenuBar", "true");
-        System.setProperty("dock:name", "ZAP"); // Broken and unfixed; thanks, Apple
-        System.setProperty("com.apple.mrj.application.apple.menu.about.name", "ZAP"); // more thx
-
-        // Override various handlers, so that About, Preferences, and Quit behave in an OS X typical fashion.
-        logger.info("Initializing OS X specific settings, despite Apple's best efforts");
-
-        // Attempt to load the apple classes
-        Application app = Application.getApplication();
-
-        // Set the dock image icon
-        Image img = Toolkit.getDefaultToolkit().getImage(GuiBootstrap.class.getResource("/resource/zap1024x1024.png"));
-        app.setDockIconImage(img);
-
-        // Set handlers for About and Preferences
-        app.setAboutHandler(new OSXAboutHandler());
-        app.setPreferencesHandler(new OSXPreferencesHandler());
-
-        // Let's not forget to clean up our database mess when we Quit
-        OSXQuitHandler quitHandler = new OSXQuitHandler();
-        // quitHandler.removeZAPViewItem(view); // TODO
-        app.setQuitHandler(quitHandler);
     }
 
     /**

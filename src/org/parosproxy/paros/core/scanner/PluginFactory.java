@@ -39,6 +39,10 @@
 // ZAP: 2015/01/04 Issue 1486: Add-on components leak
 // ZAP: 2015/07/25 Do not log error if the duplicated scanner is (apparently) a newer/older version
 // ZAP: 2015/08/19 Issue 1785: Plugin enabled even if dependencies are not, "hangs" active scan
+// ZAP: 2015/11/02 Issue 1969: Issues with installation of scanners
+// ZAP: 2015/12/21 Issue 2112: Wrong policy on active Scan
+// ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/05/04 Use existing Plugin instances when setting them as completed
 
 package org.parosproxy.paros.core.scanner;
 
@@ -51,6 +55,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
 import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
@@ -80,21 +85,69 @@ public class PluginFactory {
         super();
     }
     
-    private static List<AbstractPlugin> getLoadedPlugins() {
+    private static synchronized void initPlugins() {
     	if (loadedPlugins == null) {
 	    	loadedPlugins = new ArrayList<>(CoreFunctionality.getBuiltInActiveScanRules());
 	    	loadedPlugins.addAll(ExtensionFactory.getAddOnLoader().getActiveScanRules());
 	        //sort by the criteria below.
 	        Collections.sort(loadedPlugins, riskComparator);
     	}
+    }
+    
+    private static List<AbstractPlugin> getLoadedPlugins() {
+    	if (loadedPlugins == null) {
+    		initPlugins();
+    	}
     	return loadedPlugins;
     }
     
+    /**
+     * Tells whether or not the given {@code plugin} was already loaded.
+     *
+     * @param plugin the plugin that will be checked
+     * @return {@code true} if the plugin was already loaded, {@code false} otherwise
+     * @since 2.4.3
+     */
+    public static boolean isPluginLoaded(AbstractPlugin plugin) {
+        if (loadedPlugins == null) {
+            return false;
+        }
+        return isPluginLoadedImpl(plugin);
+    }
+
+    private static boolean isPluginLoadedImpl(AbstractPlugin plugin) {
+        for (AbstractPlugin otherPlugin : getLoadedPlugins()) {
+            if (otherPlugin == plugin) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Adds the given loaded {@code plugin} to the {@code PluginFactory}. Loaded plugins, are used by the active scanner, if
+     * enabled.
+     * <p>
+     * Call to this method has not effect it the {@code plugin} was already added.
+     *
+     * @param plugin the plugin that should be loaded
+     * @since 2.4.0
+     * @see #isPluginLoaded(AbstractPlugin)
+     */
     public static void loadedPlugin(AbstractPlugin plugin) {
-    	getLoadedPlugins().add(plugin);
-        Collections.sort(loadedPlugins, riskComparator);
+        if (!isPluginLoadedImpl(plugin)) {
+            getLoadedPlugins().add(plugin);
+            Collections.sort(loadedPlugins, riskComparator);
+        }
     }
     
+    /**
+     * @deprecated (2.4.3) Use {@link #loadedPlugin(AbstractPlugin)} instead, the status of the scanner is not
+     *             properly set.
+     * @see AbstractPlugin#getStatus()
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public static boolean loadedPlugin(String className) {
         try {
         	Class<?> c = ExtensionFactory.getAddOnLoader().loadClass(className);
@@ -107,9 +160,23 @@ public class PluginFactory {
     }
     
     public static void unloadedPlugin(AbstractPlugin plugin) {
-    	getLoadedPlugins().remove(plugin);
+        if (loadedPlugins == null) {
+            return;
+        }
+        for (Iterator<AbstractPlugin> it = getLoadedPlugins().iterator(); it.hasNext();) {
+            if (it.next() == plugin) {
+                it.remove();
+                return;
+            }
+        }
     }
     
+    /**
+     * @deprecated (2.4.3) Use {@link #unloadedPlugin(AbstractPlugin)} instead, which ensures that the exact scanner
+     *             instance is unloaded.
+     */
+    @Deprecated
+    @SuppressWarnings("javadoc")
     public static boolean unloadedPlugin(String className) {
         if (loadedPlugins == null) {
             return true;
@@ -295,30 +362,31 @@ public class PluginFactory {
             for (int i = 0; i < getLoadedPlugins().size(); i++) {
                 // ZAP: Removed unnecessary cast.
                 try {
-                    Plugin plugin = getLoadedPlugins().get(i);
-                    plugin.setConfig(config);
-                    plugin.createParamIfNotExist();
-                    if (!plugin.isVisible()) {
-                        log.info("Plugin " + plugin.getName() + " not visible");
+                    Plugin loadedPlugin = getLoadedPlugins().get(i);
+                    if (!loadedPlugin.isVisible()) {
+                        log.info("Plugin " + loadedPlugin.getName() + " not visible");
                         continue;
                     }
                     
-                    if (plugin.isDepreciated()) {
+                    if (loadedPlugin.isDepreciated()) {
                         // ZAP: ignore all depreciated plugins
-                        log.info("Plugin " + plugin.getName() + " depricated");
+                        log.info("Plugin " + loadedPlugin.getName() + " depricated");
                         continue;
                     }
                     
+                    if (!canAddPlugin(mapAllPlugin, loadedPlugin)) {
+                        continue;
+                    }
+
+                    Plugin plugin = createNewPlugin(loadedPlugin, config);
                     log.info("loaded plugin " + plugin.getName());
                     if (log.isDebugEnabled()) {
                     	log.debug("Theshold=" + plugin.getAlertThreshold().name() + " Strength=" + plugin.getAttackStrength().toString());
                     }
                     
-                    if (canAddPlugin(mapAllPlugin, plugin)) {
-                        // ZAP: Changed to use the method Integer.valueOf.
-                        mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
-                        mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
-                    }
+                    // ZAP: Changed to use the method Integer.valueOf.
+                    mapAllPlugin.put(Integer.valueOf(plugin.getId()), plugin);
+                    mapAllPluginOrderCodeName.put(plugin.getCodeName(), plugin);
                     
                 } catch (Exception e) {
                     log.error(e.getMessage(), e);
@@ -329,6 +397,17 @@ public class PluginFactory {
                 listAllPlugin.add(iterator.next());
             }
         }
+    }
+
+    private static Plugin createNewPlugin(Plugin plugin, Configuration config) throws ReflectiveOperationException {
+        Plugin newPlugin = plugin.getClass().newInstance();
+        newPlugin.setConfig(new BaseConfiguration());
+        plugin.cloneInto(newPlugin);
+
+        newPlugin.setConfig(config);
+        newPlugin.createParamIfNotExist();
+        newPlugin.loadFrom(config);
+        return newPlugin;
     }
 
     private static boolean canAddPlugin(Map<Integer, Plugin> plugins, Plugin plugin) {
@@ -559,9 +638,11 @@ public class PluginFactory {
     }
 
     synchronized void setRunningPluginCompleted(Plugin plugin) {
-        listRunning.remove(plugin);
-        listCompleted.add(plugin);
-        plugin.setTimeFinished();
+        if (listRunning.remove(plugin)) {
+            Plugin completedPlugin = mapAllPlugin.get(plugin.getId());
+            listCompleted.add(completedPlugin);
+            completedPlugin.setTimeFinished();
+        }
     }
 
     boolean isRunning(Plugin plugin) {

@@ -36,6 +36,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2015/06/01 Issue 1653: Support context menu key for trees
+// ZAP: 2016/04/14 Use View to display the HTTP messages
 
 package org.parosproxy.paros.view;
 
@@ -81,7 +82,6 @@ import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.history.HistoryFilterPlusDialog;
-import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.Target;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -370,20 +370,7 @@ public class SiteMapPanel extends AbstractPanel {
                             
                         }
 
-                        HttpPanel reqPanel = getView().getRequestPanel();
-				        HttpPanel resPanel = getView().getResponsePanel();
-				        
-				        if (msg.getRequestHeader().isEmpty()) {
-				        	reqPanel.clearView(true);
-				        } else {
-				        	reqPanel.setMessage(msg);
-				        }
-				        
-				        if (msg.getResponseHeader().isEmpty()) {
-				        	resPanel.clearView(false);
-				        } else {
-				        	resPanel.setMessage(msg, true);
-				        }
+                        getView().displayMessage(msg);
 
 			        	// ZAP: Call SiteMapListenners
 			            for (SiteMapListener listener : listeners) {
@@ -391,8 +378,7 @@ public class SiteMapPanel extends AbstractPanel {
 			            }
 				    } else {
 				    	// ZAP: clear the views when the root is selected
-                        getView().getRequestPanel().clearView(true);
-				        getView().getResponsePanel().clearView(false);
+				        getView().displayMessage(null);
 				    }
 	
 				}

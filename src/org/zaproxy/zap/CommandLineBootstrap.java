@@ -65,7 +65,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             throw new RuntimeException(e);
         }
 
-        Control control = initControl();
+        Control control = initControl(true);
 
         warnAddOnsAndExtensionsNoLongerRunnable();
 

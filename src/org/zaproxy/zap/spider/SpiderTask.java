@@ -19,6 +19,7 @@ package org.zaproxy.zap.spider;
 
 import java.io.IOException;
 import java.net.ConnectException;
+import java.net.SocketException;
 import java.net.SocketTimeoutException;
 import java.net.UnknownHostException;
 import java.util.List;
@@ -50,7 +51,13 @@ public class SpiderTask implements Runnable {
 
 	/**
 	 * The history reference to the database record where the request message has been partially filled in.
-	 * Cannot be null.
+	 * <p>
+	 * Might be {@code null} if failed to create or persist the message, if the task was already executed or if a clean up was
+	 * performed.
+	 * 
+	 * @see #cleanup()
+	 * @see #deleteHistoryReference()
+	 * @see #fetchResource()
 	 */
 	private HistoryReference reference;
 
@@ -160,24 +167,22 @@ public class SpiderTask implements Runnable {
 
 	@Override
 	public void run() {
+		if (reference == null) {
+			log.warn("Null URI. Skipping crawling task: " + this);
+			parent.postTaskExecution();
+			return;
+		}
 
 		// Log the task start
 		if (log.isDebugEnabled()) {
-			try {
-				log.debug("Spider Task Started. Processing uri at depth " + depth
-						+ " using already constructed message:  " + reference.getURI());
-			} catch (Exception e1) { // Ignore it
-			}
+			log.debug("Spider Task Started. Processing uri at depth " + depth
+					+ " using already constructed message:  " + reference.getURI());
 		}
 
 		// Check if the should stop
 		if (parent.isStopped()) {
 			log.debug("Spider process is stopped. Skipping crawling task...");
-			parent.postTaskExecution();
-			return;
-		}
-		if (reference == null) {
-			log.warn("Null URI. Skipping crawling task: " + this);
+			deleteHistoryReference();
 			parent.postTaskExecution();
 			return;
 		}
@@ -194,6 +199,10 @@ public class SpiderTask implements Runnable {
 			parent.postTaskExecution();
 			return;
 		} catch (SocketTimeoutException e) {
+			// This will have been logged at debug level with the URL (which we dont have here)
+			parent.postTaskExecution();
+			return;
+		} catch (SocketException e) {
 			// This will have been logged at debug level with the URL (which we dont have here)
 			parent.postTaskExecution();
 			return;
@@ -253,6 +262,24 @@ public class SpiderTask implements Runnable {
 	}
 
 	/**
+	 * Deletes the history reference, should be called when no longer needed.
+	 * <p>
+	 * The call to this method has no effect if the history reference no longer exists (i.e. {@code null}).
+	 *
+	 * @see #reference
+	 */
+	private void deleteHistoryReference() {
+		if (reference == null) {
+			return;
+		}
+
+		if (getExtensionHistory() != null) {
+			getExtensionHistory().delete(reference);
+			reference = null;
+		}
+	}
+
+	/**
 	 * Process a resource, searching for links (uris) to other resources.
 	 * 
 	 * @param message the HTTP Message
@@ -309,10 +336,7 @@ public class SpiderTask implements Runnable {
 		try {
 			msg = reference.getHttpMessage();
 		} finally {
-			// Remove the history reference from the database, as it's not used anymore
-			if (getExtensionHistory() != null) {
-				getExtensionHistory().delete(reference);
-			}
+			deleteHistoryReference();
 		}
 
 		msg.getRequestHeader().setHeader(HttpHeader.IF_MODIFIED_SINCE, null);
@@ -338,6 +362,9 @@ public class SpiderTask implements Runnable {
 			} catch (SocketTimeoutException e) {
 				log.debug("Socket timeout: " + msg.getRequestHeader().getURI(), e);
 				throw e;
+			} catch (SocketException e) {
+				log.debug("Socket exception: " + msg.getRequestHeader().getURI(), e);
+				throw e;
 			} catch (UnknownHostException e) {
 				log.debug("Unknown host: " + msg.getRequestHeader().getURI(), e);
 				throw e;
@@ -346,6 +373,17 @@ public class SpiderTask implements Runnable {
 
 		return msg;
 
+	}
+
+	/**
+	 * Cleans up the resources used by the task.
+	 * <p>
+	 * Should be called if the task was not executed.
+	 * 
+	 * @since 2.5.0
+	 */
+	void cleanup() {
+		deleteHistoryReference();
 	}
 
 }

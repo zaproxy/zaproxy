@@ -92,8 +92,11 @@ public class StructuralTableNode implements StructuralNode {
 
 	@Override
 	public boolean isLeaf() {
-		// TODO implement in more efficient way ;)
-		return ! this.getChildIterator().hasNext();
+		try {
+			return this.getChildNodeCount() == 0;
+		} catch (DatabaseException e) {
+			return false;
+		}
 	}
 	
 	protected RecordStructure getRecordStructure() {
@@ -113,6 +116,26 @@ public class StructuralTableNode implements StructuralNode {
 			extHistory = (ExtensionHistory) Control.getSingleton().getExtensionLoader().getExtension(ExtensionHistory.NAME);
 		}
 		return extHistory;
+	}
+
+	@Override
+	public String getRegexPattern() throws DatabaseException {
+		return this.getRegexPattern(true);
+	}
+
+	@Override
+	public String getRegexPattern(boolean incChildren) throws DatabaseException {
+		return SessionStructure.getRegexPattern(this, incChildren);
+	}
+
+	@Override
+	public boolean isDataDriven() {
+		String name = this.getName();
+		int slashIndex = name.lastIndexOf('/');
+		if (slashIndex >= 0) {
+			name = name.substring(slashIndex+1);
+		}
+		return name.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX);
 	}
 
 

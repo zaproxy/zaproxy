@@ -21,189 +21,276 @@
  */
 // ZAP: 2012/03/15 Changed to use byte[] instead of StringBuffer.
 // ZAP: 2014/11/26 Issue: 1415 Fixed file uploads > 128k
+// ZAP: 2016/05/18 Always use charset set when changing the HTTP body
 
 package org.parosproxy.paros.network;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.nio.charset.IllegalCharsetNameException;
+import java.nio.charset.StandardCharsets;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Arrays;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 
 /**
  * Abstract a HTTP body in request or response messages.
+ * 
+ * @since 1.0.0
  */
 public abstract class HttpBody {
 
 	private static final Logger log = Logger.getLogger(HttpBody.class);
 	
-	public static final String DEFAULT_CHARSET = "8859_1";
+	/**
+	 * The name of the default charset ({@code ISO-8859-1}) used for {@code String} related operations, for example,
+	 * {@link #HttpBody(String)}, {@link #append(String)}, {@link #setBody(String)}, or {@link #toString()}.
+	 * 
+	 * @see #setCharset(String)
+	 */
+	public static final String DEFAULT_CHARSET = StandardCharsets.ISO_8859_1.name();
 
+	/**
+	 * The limit for the initial capacity, prevents allocating a bigger array when the Content-Length is wrong.
+	 */
+	public static final int LIMIT_INITIAL_CAPACITY = 128000;
+	
 	private byte[] body;
 	private int pos;
     private String cachedString;
-	private String charset = DEFAULT_CHARSET;
-	protected boolean isChangedCharset;
-    
+	private Charset charset;
+
+	/**
+	 * Constructs a {@code HttpBody} with no contents (that is, zero length).
+	 */
 	public HttpBody() {
-		body = new byte[0];
+		this(0);
 	}
 
 	/**
-	 *	Preallocate HttpBody of a certain size.  A maximum of 128K is fixed to avoid overwhelming
-	 * 	by incorrect contentlength.
+	 * Constructs a {@code HttpBody} with the given initial capacity.
+	 * <p>
+	 * The initial capacity is limited to {@value #LIMIT_INITIAL_CAPACITY} to prevent allocating big arrays.
+	 * 
+	 * @param capacity the initial capacity
 	 */
 	public HttpBody(int capacity) {
-	    if (capacity > 0) {
-	        if (capacity > 128000) {
-	            capacity = 128000;
-	        }
-	        body = new byte[capacity];
-	    } else {
-	    	body = new byte[0];
-	    }
-        pos = 0;
-	}
-	
-	/**
-	 * Construct a HttpBody from a String.
-	 * @param data
-	 */
-	public HttpBody(String data) {
-		setBody(data);
+		body = new byte[Math.max(Math.min(capacity, LIMIT_INITIAL_CAPACITY), 0)];
 	}
 
-	public void setBody(byte[] buf) {
-		if (buf == null) {
+	/**
+	 * Constructs a {@code HttpBody} with the given {@code contents}.
+	 * <p>
+	 * If the given {@code contents} are {@code null} the {@code HttpBody} will have no content.
+	 * 
+	 * @param contents the contents of the body, might be {@code null}
+	 * @since 2.5.0
+	 */
+	public HttpBody(byte[] contents) {
+		if (contents != null) {
+			setBody(contents);
+		} else {
+			body = new byte[0];
+		}
+	}
+
+	/**
+	 * Constructs a {@code HttpBody} with the given {@code contents}, using default charset for {@code String} related
+	 * operations.
+	 * <p>
+	 * If the given {@code contents} are {@code null} the {@code HttpBody} will have no content.
+	 * <p>
+	 * <strong>Note:</strong> If the contents are not representable with the default charset it might lead to data loss.
+	 * 
+	 * @param contents the contents of the body, might be {@code null}
+	 * @see #DEFAULT_CHARSET
+	 * @see #HttpBody(byte[])
+	 */
+	public HttpBody(String contents) {
+		if (contents != null) {
+			setBody(contents);
+		} else {
+			body = new byte[0];
+		}
+	}
+
+	/**
+	 * Sets the given {@code contents} as the body.
+	 * <p>
+	 * If the {@code contents} are {@code null} the call to this method has no effect.
+	 *
+	 * @param contents the new contents of the body, might be {@code null}
+	 */
+	public void setBody(byte[] contents) {
+		if (contents == null) {
 			return;
 		}
 		cachedString = null;
 		
-		body = new byte[buf.length];
-		System.arraycopy(buf, 0, body, 0, buf.length);
+		body = new byte[contents.length];
+		System.arraycopy(contents, 0, body, 0, contents.length);
 		
 		pos = body.length;
 	}
 	
 	/**
-	 * Set this HttpBody to store the data supplied.
-	 * @param data
+	 * Sets the given {@code contents} as the body, using the current charset.
+	 * <p>
+	 * If the {@code contents} are {@code null} the call to this method has no effect.
+	 * <p>
+	 * <strong>Note:</strong> Setting the contents with incorrect charset might lead to data loss.
+	 *
+	 * @param contents the new contents of the body, might be {@code null}
+	 * @see #setCharset(String)
 	 */
-	public void setBody(String data)  {
-		if (data == null) {
+	public void setBody(String contents)  {
+		if (contents == null) {
 			return ;
 		}
 		
 		cachedString = null;
 		
-		try {
-			body = data.getBytes(charset);
-		} catch (UnsupportedEncodingException e) {
-			log.error(e.getMessage(), e);
-		}
+		body = contents.getBytes(getCharsetImpl());
 		
 		pos = body.length;
 	}
 
 	/**
-	 * Append a byte array with certain length to this body.
-	 * @param buf
-	 * @param len
+	 * Gets the {@code Charset} that should be used internally by the class for {@code String} related operations.
+	 * <p>
+	 * If no {@code Charset} was set (that is, is {@code null}) it falls back to {@code ISO-8859-1}, otherwise it returns the
+	 * {@code Charset} set.
+	 * 
+	 * @return the {@code Charset} to be used for {@code String} related operations, never {@code null}
+	 * @see #DEFAULT_CHARSET
+	 * @see #setCharset(String)
 	 */
-	public void append(byte[] buf, int len) {
-		if (buf == null) {
+	private Charset getCharsetImpl() {
+		if (charset != null) {
+			return charset;
+		}
+		return StandardCharsets.ISO_8859_1;
+	}
+
+	/**
+	 * Appends the given {@code contents} to the body, up to a certain length.
+	 * <p>
+	 * If the {@code contents} are {@code null} or the {@code length} negative or zero, the call to this method has no effect.
+	 * 
+	 * @param contents the contents to append, might be {@code null}
+	 * @param length the length of contents to append
+	 */
+	public void append(byte[] contents, int length) {
+		if (contents == null || length <= 0) {
 			return;
 		}
 		
+		int len = Math.min(contents.length, length);
 		if (pos + len > body.length) {
 			byte[] newBody = new byte[pos + len];
 			System.arraycopy(body, 0, newBody, 0, pos);
 			body = newBody;
 		}
-		System.arraycopy(buf, 0, body, pos, len);
+		System.arraycopy(contents, 0, body, pos, len);
 		pos += len;
 		
         cachedString = null;
 	}
 	
 	/**
-	 * Append a byte array to this body.
+	 * Appends the given {@code contents} to the body.
+	 * <p>
+	 * If the {@code contents} are {@code null} the call to this method has no effect.
 	 * 
-	 * @param buf
+	 * @param contents the contents to append, might be {@code null}
 	 */
-	public void append(byte[] buf) {
-		if (buf == null) {
+	public void append(byte[] contents) {
+		if (contents == null) {
 			return;
 		}
-		append(buf, buf.length);
+		append(contents, contents.length);
 	}
 
 	/**
-	 * Append a String to this body.
+	 * Appends the given {@code contents} to the body, using the current charset.
+	 * <p>
+	 * If the {@code contents} are {@code null} the call to this method has no effect.
+	 * <p>
+	 * <strong>Note:</strong> Setting the contents with incorrect charset might lead to data loss.
 	 * 
-	 * @param buf
+	 * @param contents the contents to append, might be {@code null}
+	 * @see #setCharset(String)
 	 */
-	public void append(String buf) {
-		if (buf == null) {
+	public void append(String contents) {
+		if (contents == null) {
 			return;
 		}
-	    try {
-	    	append(buf.getBytes(charset));
-		} catch (UnsupportedEncodingException e) {
-			log.error(e.getMessage(), e);
-		}
+		append(contents.getBytes(getCharsetImpl()));
 	}
 
-	/**
-	 * Get the content of the body as String.
-	 */
+    /**
+     * Gets the {@code String} representation of the body, using the current charset.
+     * <p>
+     * The {@code String} representation contains only the contents set so far, that is, increasing the length of the body
+     * manually (with {@link #HttpBody(int)} or {@link #setLength(int)}) does not affect the string representation.
+     * 
+     * @return the {@code String} representation of the body
+     * @see #getCharset()
+     */
 	@Override
 	public String toString() {
         if (cachedString != null) {
             return cachedString;
         }
-        
-        cachedString = createCachedString(charset);
 
+        cachedString = createString(charset);
         return cachedString;
 	}
-	
-	protected String createCachedString(String charset) {
-		String result = "";
-		
-		try {
-			if (isChangedCharset) {
-				result = new String(getBytes(), charset);
-				isChangedCharset = false;
-			} else {
-				result = new String(getBytes(), DEFAULT_CHARSET);
-				isChangedCharset = false;
-			}
-		} catch (UnsupportedEncodingException e1) {
-			log.error(e1.getMessage(), e1);
-			
-			try {
-				result = new String(getBytes(), DEFAULT_CHARSET);
-			} catch(UnsupportedEncodingException e2) {
-				log.error(e2.getMessage(), e2);
-			}
-		}
-		return result;
+
+	/**
+	 * Returns the {@code String} representation of the body.
+	 * <p>
+	 * Called when the cached string representation is no longer up-to-date.
+	 *
+	 * @param charset the current {@code Charset} set, {@code null} if none
+	 * @return the {@code String} representation of the body
+	 * @since 2.5.0
+	 * @see #getBytes()
+	 */
+	protected String createString(Charset charset) {
+		return new String(getBytes(), 0, getPos(), charset != null ? charset : getCharsetImpl());
+	}
+
+	/**
+	 * Gets the actual (end) position of the contents in the byte array (different if the array was expanded, either by setting
+	 * the initial capacity or its length). Should be used when creating the string representation of the body to only return
+	 * the actual contents, set so far.
+	 * 
+	 * @return the end position of the contents in the byte array
+	 * @since 2.5.0
+	 * @see #getBytes()
+	 * @see #createString(Charset)
+	 */
+	protected final int getPos() {
+		return pos;
 	}
 	
 	/**
-	 * Get the contents of the body as an array of bytes.
+	 * Gets the contents of the body as an array of bytes.
+	 * <p>
+	 * The returned array of bytes mustn't be modified. Is returned a reference instead of a copy to avoid more memory
+	 * allocations.
 	 * 
-	 * The returned array of bytes mustn't be modified.
-	 * Is returned a reference instead of a copy to avoid more memory allocations.
-	 * 
-	 * @return a reference to the content of this body as <code>byte[]</code>.
+	 * @return a reference to the content of this body as {@code byte[]}.
+	 * @since 1.4.0
 	 */
 	public byte[] getBytes() {
 		return body;
 	}
 
 	/**
-	 * Current length of the body.
+	 * Gets the current length of the body.
 	 * 
 	 * @return the current length of the body.
 	 */
@@ -212,41 +299,82 @@ public abstract class HttpBody {
 	}
 
 	/**
-	 * Set the current length of this body.  If the current content is
-	 * longer, the excessive data will be truncated.
+	 * Sets the current length of the body. If the current content is longer, the excessive data will be truncated.
 	 * 
 	 * @param length the new length to set.
 	 */
 	public void setLength(int length) {
-		if (body.length != length) {
-			pos = Math.min(body.length, length);
-	
-			byte[] newBody = new byte[length];
-			System.arraycopy(body, 0, newBody, 0, length);
-			body = newBody;
-			
+		if (length < 0 || body.length == length) {
+			return;
+		}
+
+		int oldPos = pos;
+		pos = Math.min(pos, length);
+
+		byte[] newBody = new byte[length];
+		System.arraycopy(body, 0, newBody, 0, pos);
+		body = newBody;
+		
+		if (oldPos > pos) {
 			cachedString = null;
 		}
 	}
 	
-	
-	
     /**
-     * @return Returns the charset.
+     * Gets the name of the charset used for {@code String} related operations.
+     * <p>
+     * If no charset was set it returns the default.
+     * 
+     * @return the name of the charset, never {@code null}
+     * @see #setCharset(String)
+     * @see #DEFAULT_CHARSET
      */
     public String getCharset() {
-        return charset;
+        if (charset != null) {
+            return charset.name();
+        }
+        return DEFAULT_CHARSET;
     }
     
     /**
-     * @param charset The charset to set.
+     * Sets the charset used for {@code String} related operations, for example, {@link #append(String)},
+     * {@link #setBody(String)}, or {@link #toString()}.
+     * <p>
+     * The charset is reset if {@code null} or empty (that is, it will use default charset or the charset determined internally
+     * by {@code HttpBody} implementations). The charset is ignored if not valid (either the name is not valid or is
+     * unsupported).
+     * <p>
+     * 
+     * @param charsetName the name of the charset to set
+     * @see #getCharset()
+     * @see #DEFAULT_CHARSET
      */
-    public void setCharset(String charset) {
-        if (charset == null || charset.equals("") || charset.equalsIgnoreCase(this.charset)) {
+    public void setCharset(String charsetName) {
+        if (StringUtils.isEmpty(charsetName)) {
+            setCharsetImpl(null);
             return;
         }
-        this.charset = charset;
-        this.isChangedCharset = true;
+
+        Charset newCharset = null;
+        try {
+            newCharset = Charset.forName(charsetName);
+            if (newCharset != charset) {
+                setCharsetImpl(newCharset);
+            }
+        } catch (IllegalCharsetNameException | UnsupportedCharsetException e) {
+            log.error("Failed to set charset: " + charsetName, e);
+        }
+    }
+
+    /**
+     * Sets the charset to the given value and resets the cached string (that is, is set to {@code null}).
+     *
+     * @param newCharset the new charset to set, might be {@code null}
+     * @see #charset
+     * @see #cachedString
+     */
+    private void setCharsetImpl(Charset newCharset) {
+        this.charset = newCharset;
         this.cachedString = null;
     }
     

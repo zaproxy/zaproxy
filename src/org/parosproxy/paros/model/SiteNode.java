@@ -44,6 +44,10 @@
 // ZAP: 2014/11/19 Issue 1412: Prevent ConcurrentModificationException when icons updated frequently
 // ZAP: 2014/12/17 Issue 1174: Support a Site filter
 // ZAP: 2015/04/02 Issue 1582: Low memory option
+// ZAP: 2015/10/21 Issue 1576: Support data driven content
+// ZAP: 2016/01/26 Fixed findbugs warning
+// ZAP: 2016/03/24 Do not access EDT in daemon mode
+// ZAP: 2016/04/12 Notify of changes when an alert is updated
 
 package org.parosproxy.paros.model;
 
@@ -59,6 +63,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
+import org.parosproxy.paros.view.View;
+import org.zaproxy.zap.model.SessionStructure;
 
 public class SiteNode extends DefaultMutableTreeNode {
 
@@ -80,11 +86,15 @@ public class SiteNode extends DefaultMutableTreeNode {
     private boolean isIncludedInScope = false;
     private boolean isExcludedFromScope = false;
     private boolean filtered = false;
-	
+    private boolean dataDriven = false;
+
     public SiteNode(SiteMap siteMap, int type, String nodeName) {
         super();
         this.siteMap = siteMap;
 		this.nodeName = nodeName;
+		if (nodeName.startsWith(SessionStructure.DATA_DRIVEN_NODE_PREFIX)) {
+			this.dataDriven = true; 
+		}
 		this.icons = new ArrayList<>();
 		this.clearIfManual = new ArrayList<>();
 		if (type == HistoryReference.TYPE_SPIDER) {
@@ -93,8 +103,9 @@ public class SiteNode extends DefaultMutableTreeNode {
 	}
     
     public void setCustomIcons(ArrayList<String> i, ArrayList<Boolean> c) {
-    	synchronized (this.icons) {  
-    		this.icons = i;
+    	synchronized (this.icons) {
+    		this.icons.clear();
+    		this.icons.addAll(i);
     		this.clearIfManual = c;
     	}
     }
@@ -171,37 +182,60 @@ public class SiteNode extends DefaultMutableTreeNode {
     public String getNodeName() {
     	return this.nodeName;
     }
-    
+
+    public String getCleanNodeName() {
+    	return getCleanNodeName(true);
+    }
+
+    public String getCleanNodeName(boolean specialNodesAsRegex) {
+    	String name = this.getNodeName();
+    	if (specialNodesAsRegex && this.isDataDriven()) {
+    		// Non-greedy regex pattern 
+			name = "(.+?)";
+
+    	} else if (this.isLeaf()) {
+    		int colonIndex = name.indexOf(":");
+    		if (colonIndex > 0) {
+    			// Strip the GET/POST etc off
+    			name = name.substring(colonIndex+1);
+    		}
+    		int bracketIndex = name.lastIndexOf("(");
+    		if (bracketIndex > 0) {
+    			// Strip the param summary off
+    			name = name.substring(0, bracketIndex);
+    		}
+    		int quesIndex = name.indexOf("?");
+    		if (quesIndex > 0) {
+    			// Strip the parameters off
+    			name = name.substring(0, quesIndex);
+    		}
+    	}
+    	return name;
+    }
+
     public String getHierarchicNodeName() {
-		if (hierarchicNodeName != null) {
+    	return getHierarchicNodeName(true);
+    }
+
+    public String getHierarchicNodeName(boolean specialNodesAsRegex) {
+		if (hierarchicNodeName != null && specialNodesAsRegex) {
+			// The regex version is used most frequently, so cache
 			return hierarchicNodeName;
 		}
 
     	if (this.isRoot()) {
     		hierarchicNodeName = "";
-    	} else if (((SiteNode)this.getParent()).isRoot()) {
+    	} else if (this.getParent().isRoot()) {
     		hierarchicNodeName = this.getNodeName();
     	} else {
-	    	String nodeName = this.getNodeName();
-	    	if (this.isLeaf()) {
-	    		// Need to clean up
-	    		int colonIndex = nodeName.indexOf(":");
-	    		if (colonIndex > 0) {
-	    			// Strip the GET/POST etc off
-	    			nodeName = nodeName.substring(colonIndex+1);
-	    		}
-	    		int bracketIndex = nodeName.indexOf("(");
-	    		if (bracketIndex > 0) {
-	    			// Strip the param summary off
-	    			nodeName = nodeName.substring(0, bracketIndex);
-	    		}
-	    		int quesIndex = nodeName.indexOf("?");
-	    		if (quesIndex > 0) {
-	    			// Strip the parameters off
-	    			nodeName = nodeName.substring(0, quesIndex);
-	    		}
-	    	}
-	    	hierarchicNodeName = ((SiteNode)this.getParent()).getHierarchicNodeName() + "/" + nodeName;
+    		String name = 
+        			this.getParent().getHierarchicNodeName(specialNodesAsRegex) + "/" + 
+        					this.getCleanNodeName(specialNodesAsRegex);
+    		if (!specialNodesAsRegex) {
+    			// Dont cache the non regex version
+    			return name;
+    		}
+    		hierarchicNodeName = name;
     	}
     	return hierarchicNodeName;
     }
@@ -260,7 +294,7 @@ public class SiteNode extends DefaultMutableTreeNode {
     }    
     
     private void nodeChanged() {
-    	if (this.siteMap == null) {
+    	if (this.siteMap == null || !View.isInitialised()) {
     		return;
     	}
         if (EventQueue.isDispatchThread()) {
@@ -288,6 +322,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public boolean hasAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
 		for (Alert a : this.getAlerts()) {
 			   if (a.equals(alert)) {
 				   // We've already recorded it
@@ -298,12 +335,15 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void addAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
     	if (this.hasAlert(alert)) {
     		return;
     	}
     	this.alerts.add(alert);
-    	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
- 			((SiteNode)this.getParent()).addAlert(alert);
+    	if (this.getParent() != null) {
+ 			this.getParent().addAlert(alert);
     	}
     	if (this.siteMap != null) {
     		// Adding alert might affect the nodes visibility in a filtered tree
@@ -313,6 +353,9 @@ public class SiteNode extends DefaultMutableTreeNode {
     }
     
     public void updateAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
 		Alert foundAlert = null;
 		for (Alert a : this.getAlerts()) {
 			if (a.getAlertId() == alert.getAlertId()) {
@@ -324,14 +367,14 @@ public class SiteNode extends DefaultMutableTreeNode {
 		if (foundAlert != null) {
 			this.alerts.remove(foundAlert);
 			this.alerts.add(alert);
-		 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-		 		((SiteNode)this.getParent()).updateAlert(alert);
+		 	if (this.getParent() != null) {
+		 		this.getParent().updateAlert(alert);
 		 	}
 	    	if (this.siteMap != null) {
 	    		// Updating an alert might affect the nodes visibility in a filtered tree
 	    		siteMap.applyFilter(this);
 	    	}
-		
+	    	this.nodeChanged();
 		}
     }
     
@@ -359,17 +402,20 @@ public class SiteNode extends DefaultMutableTreeNode {
 	    		c = (SiteNode) this.getChildAfter(c);
 	    	}
 		}
-	 	if (removed && this.getParent() != null && this.getParent() instanceof SiteNode) {
-	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
+	 	if (removed && this.getParent() != null) {
+	 		this.getParent().clearChildAlert(alert, this);
 	 	}
     }
 
 	public void deleteAlert(Alert alert) {
+    	if (alert == null) {
+    		throw new IllegalArgumentException("Alert must not be null");
+    	}
 		alerts.remove(alert);
 		
 		// Remove from parents, if not in siblings
-	 	if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-	 		((SiteNode)this.getParent()).clearChildAlert(alert, this);
+	 	if (this.getParent() != null) {
+	 		this.getParent().clearChildAlert(alert, this);
 	 	}
     	if (this.siteMap != null) {
     		// Deleting alert might affect the nodes visibility in a filtered tree
@@ -382,8 +428,8 @@ public class SiteNode extends DefaultMutableTreeNode {
         List<Alert> alertsToRemove = new ArrayList<>(alerts);
         if (this.alerts.removeAll(alertsToRemove)) {
             // Remove from parents, if not in siblings
-            if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-                ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
+            if (this.getParent() != null) {
+                this.getParent().clearChildAlerts(alertsToRemove);
             }
         	if (this.siteMap != null) {
         		// Deleting alerts might affect the nodes visibility in a filtered tree
@@ -422,8 +468,8 @@ public class SiteNode extends DefaultMutableTreeNode {
         }
         boolean changed = this.alerts.removeAll(alertsToRemove);
         if (changed) {
-            if (this.getParent() != null && this.getParent() instanceof SiteNode) {
-                ((SiteNode) this.getParent()).clearChildAlerts(alertsToRemove);
+            if (this.getParent() != null) {
+                this.getParent().clearChildAlerts(alertsToRemove);
             }
             nodeChangedEventHandler();
         }
@@ -512,11 +558,25 @@ public class SiteNode extends DefaultMutableTreeNode {
 		super.setParent(newParent);
 	}
 
+    /**
+     * Returns this node's parent or null if this node has no parent.
+     *
+     * @return  this node's parent SiteNode, or null if this node has no parent
+     */
+	@Override
+    public SiteNode getParent() {
+        return (SiteNode)super.getParent();
+    }
+
 	public boolean isFiltered() {
 		return filtered;
 	}
 
 	protected void setFiltered(boolean filtered) {
 		this.filtered = filtered;
+	}
+
+	public boolean isDataDriven() {
+		return dataDriven;
 	}
 }

@@ -159,7 +159,7 @@ public class Target {
     			return Constant.messages.getString("target.empty");
     		}
     	} else {
-    		String name = this.getStartNode().getHierarchicNodeName(); 
+    		String name = this.getStartNode().getHierarchicNodeName(false); 
     		if (name.length() < 30) {
     			return name;
     		}

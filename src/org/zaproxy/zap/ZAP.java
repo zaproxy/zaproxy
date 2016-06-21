@@ -41,6 +41,16 @@ import org.zaproxy.zap.utils.ClassLoaderUtil;
  */
 public class ZAP {
 
+    /**
+     * ZAP can be run in 4 different ways:
+     * cmdline:	an inline process that exits when it completes the tasks specified by the parameters
+     * daemon:	a single process with no Swing UI, typically run as a background process  
+     * desktop:	a Swing based desktop tool (which is how is originated, as a fork of Paros Proxy)
+     * zaas:	a highly scalable distributed system with a web based UI, aka 'ZAP as a Service' (this is 'work in progress') 
+     */
+    public enum ProcessType {cmdline, daemon, desktop, zaas}
+    private static ProcessType processType;
+
     private static final EventBus eventBus = new SimpleEventBus();
     private static final Logger logger = Logger.getLogger(ZAP.class);
 
@@ -78,7 +88,7 @@ public class ZAP {
             cmdLine = new CommandLine(args);
 
         } catch (final Exception e) {
-            System.out.println(CommandLine.getHelpGeneral());
+            System.out.println(CommandLine.getHelp(null));
             System.exit(1);
         }
 
@@ -135,13 +145,20 @@ public class ZAP {
     private static ZapBootstrap createZapBootstrap(CommandLine cmdLineArgs) {
         ZapBootstrap bootstrap;
         if (cmdLineArgs.isGUI()) {
+        	ZAP.processType = ProcessType.desktop;
             bootstrap = new GuiBootstrap(cmdLineArgs);
         } else if (cmdLineArgs.isDaemon()) {
+        	ZAP.processType = ProcessType.daemon;
             bootstrap = new DaemonBootstrap(cmdLineArgs);
         } else {
+        	ZAP.processType = ProcessType.cmdline;
             bootstrap = new CommandLineBootstrap(cmdLineArgs);
         }
         return bootstrap;
+    }
+    
+    public static ProcessType getProcessType() {
+    	return processType;
     }
 
     public static EventBus getEventBus() {

@@ -67,7 +67,7 @@ public class PopupMenuSpiderSite extends PopupMenuItemSiteNodeContainer {
 	    if (node != null) {
 	    	// Loop up to get the top parent
 			while (node.getParent() != null && node.getParent().getParent() != null) {
-				node = (SiteNode) node.getParent();
+				node = node.getParent();
 			}
 	    	getExtensionSpider().startScan(node);
 	    }

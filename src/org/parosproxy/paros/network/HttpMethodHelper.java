@@ -25,6 +25,7 @@
 // ZAP: 2013/01/23 Clean up of exception handling/logging.
 // ZAP: 2013/06/17 Issue 687: Change HTTP response header parser to be less strict
 // ZAP: 2013/07/10 Issue 721: Non POST and PUT requests receive a 504 when server expects a request body
+// ZAP: 2016/05/16 Throw exception if failed to set the request URI
 package org.parosproxy.paros.network;
 
 import java.util.regex.Pattern;
@@ -177,7 +178,7 @@ public class HttpMethodHelper {
 		try {
 			httpMethod.setURI(uri);
 		} catch (Exception e1) {
-			logger.error(e1.getMessage(), e1);
+			throw new URIException("Failed to set URI: " + e1.getMessage());
 		}
 		
 		HttpMethodParams httpParams = httpMethod.getParams();

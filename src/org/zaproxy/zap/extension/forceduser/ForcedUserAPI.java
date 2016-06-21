@@ -102,6 +102,7 @@ public class ForcedUserAPI extends ApiImplementor {
 			} catch (IllegalStateException ex) {
 				throw new ApiException(Type.USER_NOT_FOUND);
 			}
+			context.save();
 			return ApiResponseElement.OK;
 		case ACTION_SET_FORCED_USER_MODE_ENABLED:
 			if (!params.containsKey(PARAM_MODE_ENABLED))

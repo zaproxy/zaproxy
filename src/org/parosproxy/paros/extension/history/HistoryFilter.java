@@ -203,7 +203,7 @@ public class HistoryFilter {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.notes"));
 		}
-		if (urlIncPatternList.size() > 0 || urlIncPatternList.size() > 0) {
+		if (urlIncPatternList != null && urlIncPatternList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
 				sb.append(' ');
@@ -213,7 +213,7 @@ public class HistoryFilter {
 			empty = false;
 			sb.append(Constant.messages.getString("history.filter.label.urlincregex"));
 		}
-		if (urlExcPatternList.size() > 0 || urlExcPatternList.size() > 0) {
+		if (urlExcPatternList != null && urlExcPatternList.size() > 0) {
 			if (empty) {
 				sb.append(Constant.messages.getString("history.filter.label.on"));
 				sb.append(' ');

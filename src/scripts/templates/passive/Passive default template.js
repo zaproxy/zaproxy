@@ -17,4 +17,10 @@ function scan(ps, msg, src) {
 			'The param', 'Your attack', 'Any other info', 'The solution', '', 0, 0, msg);
 			
 	}
+	
+	// Raise less reliable alert (that is, prone to false positives) when in LOW alert threshold (level)
+	// Expected values: "LOW", "MEDIUM", "HIGH"
+	if (ps.getLevel() == "LOW") {
+		// ...
+	}
 }

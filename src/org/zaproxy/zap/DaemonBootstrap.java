@@ -26,6 +26,8 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.core.proxy.ProxyParam;
+import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 
 /**
@@ -70,7 +72,11 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
             @Override
             public void run() {
-                Control control = initControl();
+                Control control = initControl(false);
+                if (control == null) {
+                	// Failed to listen on the specified proxy, no point in continuing (an error will already have been shown)
+                	return;
+                }
 
                 warnAddOnsAndExtensionsNoLongerRunnable();
 
@@ -85,6 +91,9 @@ class DaemonBootstrap extends HeadlessBootstrap {
                 } catch (Exception e) {
                     logger.error(e.getMessage(), e);
                 }
+                
+                ProxyParam proxyParams = Model.getSingleton().getOptionsParam().getProxyParam();
+                logger.info("ZAP is now listening on " + proxyParams.getRawProxyIP() + ":" + proxyParams.getProxyPort());
 
                 // This is the only non-daemon thread, so should keep running
                 // CoreAPI.handleApiAction uses System.exit to shutdown

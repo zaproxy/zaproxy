@@ -42,7 +42,7 @@ public class UsersTableModel extends AbstractMultipleOptionsTableModel<User> {
 	private static final long serialVersionUID = 4463944219657112162L;
 
 	/** The users. */
-	private List<User> users = new ArrayList<>();
+	private List<User> users;
 
 	/**
 	 * Instantiates a new users table model. An internal copy of the provided list is stored.

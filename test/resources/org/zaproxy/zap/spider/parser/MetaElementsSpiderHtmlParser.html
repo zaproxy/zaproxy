@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+<base href="http://example.com/sample/">
+<meta charset="UTF-8">
+<title>Meta Elements - Spider HTML Parser</title>
+
+<meta http-equiv="refresh" content="0;URL=//meta.example.com:8443/refresh/base/scheme">
+<meta http-equiv="refresh" content="0;URL=https://meta.example.com/refresh">
+<meta http-equiv="refresh" content="0;URL=meta/refresh/relative">
+<meta http-equiv="refresh" content="0;URL=/meta/refresh/absolute">
+<meta http-equiv="refresh" content="0;URL=ftp://meta.example.com/refresh">
+
+<meta http-equiv="location" content="url=//meta.example.com:8080/location/base/scheme">
+<meta http-equiv="location" content="url=https://meta.example.com/location">
+<meta http-equiv="location" content="url=meta/location/relative">
+<meta http-equiv="location" content="url=/meta/location/absolute">
+<meta http-equiv="location" content="url=ftp://meta.example.com/location">
+
+<!-- Ignored: -->
+<meta http-equiv="refresh" content="0;URL=scheme://meta.example.com/refresh/ignored">
+<meta http-equiv="refresh" content="0;URL=">
+<meta http-equiv="refresh" content="">
+<meta http-equiv="refresh">
+
+<meta http-equiv="location" content="url=scheme://meta.example.com/location/ignored">
+<meta http-equiv="location" content="url=">
+<meta http-equiv="location" content="">
+<meta http-equiv="location">
+
+<meta http-equiv="ignored" content="0;URL=http://meta.example.com/ignored/1">
+<meta http-equiv="ignored" content="url=http://meta.example.com/ignored/2">
+
+</head>
+<body>
+</body>
+</html>

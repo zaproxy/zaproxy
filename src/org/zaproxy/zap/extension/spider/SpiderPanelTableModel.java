@@ -20,7 +20,6 @@ package org.zaproxy.zap.extension.spider;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.ImageIcon;
 import javax.swing.table.AbstractTableModel;
 
 import org.parosproxy.paros.Constant;
@@ -44,17 +43,6 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 
 	/** The Spider scan results. */
 	private List<SpiderScanResult> scanResults;
-
-	/** The Constant inScopeIcon. */
-	private static final ImageIcon skippedIcon;
-
-	/** The Constant outOfScopeIcon. */
-	private static final ImageIcon notSkippedIcon;
-
-	static {
-		skippedIcon = new ImageIcon(SpiderPanelTableModel.class.getResource("/resource/icon/16/149.png"));
-		notSkippedIcon = new ImageIcon(SpiderPanelTableModel.class.getResource("/resource/icon/16/152.png"));
-	}
 
 	/**
 	 * Instantiates a new spider panel table model.
@@ -86,11 +74,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		SpiderScanResult result = scanResults.get(row);
 		switch (col) {
 		case 0:
-			if (result.skipped) {
-				return skippedIcon;
-			} else {
-				return notSkippedIcon;
-			}
+			return result.processed;
 		case 1:
 			return result.method;
 		case 2:
@@ -119,10 +103,10 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	 * @param uri the uri
 	 * @param method the method
 	 * @param flags the flags
-	 * @param inScope the in scope
+	 * @param skipped {@code true} if the result was skipped, {@code false} otherwise
 	 */
-	public void addScanResult(String uri, String method, String flags, boolean inScope) {
-		SpiderScanResult result = new SpiderScanResult(uri, method, flags, inScope);
+	public void addScanResult(String uri, String method, String flags, boolean skipped) {
+		SpiderScanResult result = new SpiderScanResult(uri, method, flags, !skipped);
 		synchronized (scanResults) {
 			scanResults.add(result);
 			try {
@@ -160,7 +144,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 	public Class<?> getColumnClass(int columnIndex) {
 		switch (columnIndex) {
 		case 0:
-			return ImageIcon.class;
+			return Boolean.class;
 		case 1:
 			return String.class;
 		case 2:
@@ -187,7 +171,7 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		protected String flags;
 
 		/** The in scope. */
-		protected boolean skipped;
+		protected boolean processed;
 
 		/**
 		 * Instantiates a new spider scan result.
@@ -207,14 +191,14 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		 * @param uri the uri
 		 * @param method the method
 		 * @param flags the flags
-		 * @param skipped the in scope
+		 * @param processed {@code true} if the result was processed, {@code false} otherwise
 		 */
-		protected SpiderScanResult(String uri, String method, String flags, boolean skipped) {
+		protected SpiderScanResult(String uri, String method, String flags, boolean processed) {
 			super();
 			this.uri = uri;
 			this.method = method;
 			this.flags = flags;
-			this.skipped = skipped;
+			this.processed = processed;
 		}
 
 		@Override

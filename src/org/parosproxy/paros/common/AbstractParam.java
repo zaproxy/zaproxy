@@ -33,12 +33,11 @@ import java.util.Map.Entry;
 
 import org.apache.commons.configuration.ConfigurationUtils;
 import org.apache.commons.configuration.FileConfiguration;
-import org.apache.commons.configuration.XMLConfiguration;
 import org.apache.log4j.Logger;
 import org.zaproxy.zap.control.ControlOverrides;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
-public abstract class AbstractParam {
+public abstract class AbstractParam implements Cloneable {
 
     private static final Logger logger = Logger.getLogger(AbstractParam.class);
     
@@ -84,10 +83,8 @@ public abstract class AbstractParam {
     @Override
     public AbstractParam clone()  {
     	try {
-			AbstractParam clone = this.getClass().newInstance();
-			FileConfiguration fileConfig = new XMLConfiguration();
-			ConfigurationUtils.copy(this.getConfig(), fileConfig);
-			clone.load(fileConfig);
+			AbstractParam clone = (AbstractParam) super.clone();
+			clone.load((FileConfiguration) ConfigurationUtils.cloneConfiguration(config));
 			return clone;
         } catch (Exception e) {
             logger.error(e.getMessage(), e);

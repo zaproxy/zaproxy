@@ -2,7 +2,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright the ZAP development team
+ * Copyright 2016 the ZAP development team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,21 +28,21 @@ function Script(clientApi) {
 }
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Lists the script engines available
  **/
 Script.prototype.listEngines = function (callback) {
   this.api.request('/script/view/listEngines/', callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Lists the scripts available, with its engine, name, description, type and error state.
  **/
 Script.prototype.listScripts = function (callback) {
   this.api.request('/script/view/listScripts/', callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Enables the script with the given name
  **/
 Script.prototype.enable = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -53,7 +53,7 @@ Script.prototype.enable = function (scriptname, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Disables the script with the given name
  **/
 Script.prototype.disable = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -64,18 +64,22 @@ Script.prototype.disable = function (scriptname, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Loads a script into ZAP from the given local file, with the given name, type and engine, optionally with a description
  **/
 Script.prototype.load = function (scriptname, scripttype, scriptengine, filename, scriptdescription, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
     callback = apikey;
     apikey = null;
   }
-  this.api.request('/script/action/load/', {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'scriptDescription' : scriptdescription, 'apikey' : apikey}, callback);
+  var params = {'scriptName' : scriptname, 'scriptType' : scripttype, 'scriptEngine' : scriptengine, 'fileName' : filename, 'apikey' : apikey};
+  if (scriptdescription && scriptdescription !== null) {
+    params['scriptDescription'] = scriptdescription;
+  }
+  this.api.request('/script/action/load/', params, callback);
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Removes the script with the given name
  **/
 Script.prototype.remove = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {
@@ -86,7 +90,7 @@ Script.prototype.remove = function (scriptname, apikey, callback) {
 };
 
 /**
- * This component is optional and therefore the API will only work if it is installed
+ * Runs the stand alone script with the give name
  **/
 Script.prototype.runStandAloneScript = function (scriptname, apikey, callback) {
   if (!callback && typeof(apikey) === 'function') {

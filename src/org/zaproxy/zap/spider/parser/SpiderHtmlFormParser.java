@@ -375,7 +375,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	@Override
 	public boolean canParseResource(HttpMessage message, String path, boolean wasAlreadyConsumed) {
 		// Fallback parser - if it's a HTML message which has not already been processed		
-		return !wasAlreadyConsumed && message.getResponseHeader() != null
-				&& message.getResponseHeader().isHtml();
+		return !wasAlreadyConsumed && message.getResponseHeader().isHtml();
 	}
 }

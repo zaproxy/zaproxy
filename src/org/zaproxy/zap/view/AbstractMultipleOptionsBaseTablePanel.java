@@ -22,14 +22,20 @@ package org.zaproxy.zap.view;
 
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
+import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.TableModel;
+
+import org.jdesktop.swingx.JXTable;
 import org.parosproxy.paros.Constant;
 
 /**
@@ -90,15 +96,9 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
             modifyButton = new JButton(MODIFY_BUTTON_LABEL);
             modifyButton.setEnabled(false);
             modifyButton.addActionListener(new ActionListener() {
-                
                 @Override
                 public void actionPerformed(ActionEvent evt) {
-                    int row = getSelectedRow();
-                    
-                    E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
-                    if (e != null) {
-                        getMultipleOptionsModel().modifyElement(row, e);
-                    }
+                	modifyElement(getSelectedRow());
                 }
             });
         }
@@ -136,6 +136,29 @@ public abstract class AbstractMultipleOptionsBaseTablePanel<E> extends MultipleO
                 }
             }
         });
+        
+        if (allowModification) {
+	        getTable().addMouseListener(new MouseAdapter() {
+				@Override
+				public void mousePressed(MouseEvent me) {
+		        	// Bring up the modify dialog if the user double clicks on a row
+			        if (me.getClickCount() == 2 && modifyButton != null && modifyButton.isEnabled()) {
+						JXTable table =(JXTable) me.getSource();
+				        Point p = me.getPoint();
+				        int row = table.rowAtPoint(p);
+				        if (row >= 0) {
+				            modifyElement(getTable().convertRowIndexToModel(row));
+				        }
+			        }
+				}});
+        }
+    }
+    
+    private void modifyElement(int row) {
+        E e = showModifyDialogue(getMultipleOptionsModel().getElement(row));
+        if (e != null) {
+            getMultipleOptionsModel().modifyElement(row, e);
+        }
     }
     
     protected void selectionChanged(boolean entrySelected) {

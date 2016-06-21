@@ -351,10 +351,14 @@ public class ParamsPanel extends AbstractPanel{
 	}
 	
 	protected HtmlParameterStats getSelectedParam() {
+		int selectedRow = this.getParamsTable().getSelectedRow();
+		if (selectedRow == -1) {
+			return null;
+		}
 
 		// TODO type is localized :(
-		String type = (String) this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 0);
-		String name = (String) this.getParamsTable().getValueAt(this.getParamsTable().getSelectedRow(), 1);
+		String type = (String) this.getParamsTable().getValueAt(selectedRow, 0);
+		String name = (String) this.getParamsTable().getValueAt(selectedRow, 1);
 
 		SiteParameters sps = extension.getSiteParameters(currentSite);
 		if (sps != null) {
