@@ -43,6 +43,7 @@
 // ZAP: 2016/05/27 Moved the temporary types to this class
 // ZAP: 2016/05/30 Add new type for CONNECT requests received by the proxy
 // ZAP: 2016/06/15 Add TYPE_SEQUENCE_TEMPORARY
+// ZAP: 2016/06/20 Add TYPE_ZEST_SCRIPT and deprecate TYPE_RESERVED_11
 
 package org.parosproxy.paros.model;
 
@@ -123,7 +124,24 @@ public class HistoryReference {
    public static final int TYPE_AUTHENTICATION = 11;
    // ZAP: Added TYPE_ACCESS_CONTROL for use in access control testing methods
    public static final int TYPE_ACCESS_CONTROL = 13;
-   public static final int TYPE_RESERVED_11 = 12;	// Reserved by Psiinon
+
+    /**
+     * A HTTP message sent by a Zest script.
+     * <p>
+     * Not all HTTP messages sent by Zest scripts will have this type, some might use the type(s) of the underlying component
+     * (for example, Zest Active Rules will use the types of the active scanner, {@link #TYPE_SCANNER_TEMPORARY} or
+     * {@link #TYPE_SCANNER}).
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_ZEST_SCRIPT = 12;
+
+    /**
+     * @deprecated (TODO add version) Use {@link #TYPE_ZEST_SCRIPT} instead.
+     * @since 2.1.0
+     */
+    @Deprecated
+    public static final int TYPE_RESERVED_11 = TYPE_ZEST_SCRIPT;
 
     /**
      * A (temporary) HTTP message sent by the (active) scanner.
