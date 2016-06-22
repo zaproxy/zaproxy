@@ -18,8 +18,11 @@
 # limitations under the License.
 
 # This script runs a baseline scan against a target URL using ZAP
-# It is designed to run in one of the ZAP Docker containers: 
-# https://github.com/zaproxy/zaproxy/wiki/Docker
+#
+# It can either be run 'standalone', in which case depends on
+# https://pypi.python.org/pypi/python-owasp-zap-v2 and Docker, or it can be run
+# inside one of the ZAP docker containers. It automatically detects if it is
+# running in docker so the parameters are the same.
 #
 # By default it will spider the target URL for one minute, but you can change
 # that via the -m parameter.
@@ -43,6 +46,7 @@ import getopt
 import json
 import logging
 import os
+import re
 import socket
 import subprocess
 import sys
@@ -54,6 +58,10 @@ from random import randint
 from zapv2 import ZAPv2
 
 timeout = 120
+config_dict = {}
+config_msg = {}
+out_of_scope_dict = {}
+running_in_docker = os.path.exists('/.dockerenv')
 
 # Pscan rules that aren't really relevant, eg example alpha rules
 blacklist = ['-1', '50003', '60000', '60001']
@@ -75,7 +83,49 @@ def usage():
     print ('    -i                default rules not in the config file to INFO')
     print ('    -s                short output format - dont show PASSes or example URLs')
 
+def load_config(config):
+  for line in config:
+    if not line.startswith('#') and len(line) > 1:
+      (key, val, optional) = line.rstrip().split('\t', 2)
+      if key == 'OUTOFSCOPE':
+        for plugin_id in val.split(','):
+          if not plugin_id in out_of_scope_dict:
+            out_of_scope_dict[plugin_id] = []
+          out_of_scope_dict[plugin_id].append(re.compile(optional))
+      else:
+        config_dict[key] = val
+        if '\t' in optional:
+          (ignore, usermsg) = optional.rstrip().split('\t')
+          config_msg[key] = usermsg
+        else:
+          config_msg[key] = ''
+
+def is_in_scope(plugin_id, url):
+  if '*' in out_of_scope_dict:
+    for oos_prog in out_of_scope_dict['*']:
+      #print('OOS Compare ' + oos_url + ' vs ' + 'url)
+      if oos_prog.match(url):
+        #print('OOS Ignoring ' + str(plugin_id) + ' ' + url)
+        return False
+    #print 'Not in * dict'
+  if plugin_id in out_of_scope_dict:
+    for oos_prog in out_of_scope_dict[plugin_id]:
+      #print('OOS Compare ' + oos_url + ' vs ' + 'url)
+      if oos_prog.match(url):
+        #print('OOS Ignoring ' + str(plugin_id) + ' ' + url)
+        return False
+    #print 'Not in ' + plugin_id + ' dict'
+  return True  
+
+def print_rule(action, alert_list, detailed_output, user_msg):
+  print (action + ': ' + alert_list[0].get('alert') + ' [' + alert_list[0].get('pluginId') + '] x ' + str(len(alert_list)) + ' ' + user_msg)
+  if detailed_output:
+    # Show (up to) first 5 urls
+    for alert in alert_list[0:5]:
+      print ('\t' + alert.get('url'))
+
 def main(argv):
+
   config_file = ''
   config_url = ''
   generate = ''
@@ -87,6 +137,8 @@ def main(argv):
   target = ''
   zap_alpha = False
   info_unspecified = False
+  base_dir = ''
+  zap_ip = 'localhost'
 
   pass_count = 0
   warn_count = 0
@@ -134,13 +186,16 @@ def main(argv):
     logging.warning ('Target must start with \'http://\' or \'https://\'')
     usage()
     sys.exit(3)
+
+  if running_in_docker:
+    base_dir = '/zap/wrk/'
+    if len(config_file) > 0 or len(generate) > 0 or len(report_html) > 0 or len(report_xml) > 0:
+      # Check directory has been mounted
+      if not os.path.exists(base_dir): 
+        logging.warning ('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
+        usage()
+        sys.exit(3)
     
-  if len(config_file) > 0 or len(generate) > 0 or len(report_html) > 0 or len(report_xml) > 0:
-    # Check directory has been mounted
-    if not os.path.exists('/zap/wrk/'): 
-      logging.warning ('A file based option has been specified but the directory \'/zap/wrk\' is not mounted ')
-      usage()
-      sys.exit(3)
 
   # Choose a random 'ephemeral' port and check its available
   while True:
@@ -152,58 +207,77 @@ def main(argv):
 
   logging.debug ('Using port: ' + str(port))
 
-  config_dict = {}
-  config_msg = {}
   if len(config_file) > 0:
     # load config file from filestore
-    with open('/zap/wrk/' + config_file) as f:
-      for line in f:
-        if not line.startswith('#') and len(line) > 1:
-          (key, val, optional) = line.split('\t', 2)
-          config_dict[key] = val
-          if '\t' in optional:
-            (ignore, usermsg) = optional.rstrip().split('\t')
-            config_msg[key] = usermsg
-          else:
-            config_msg[key] = ''
+    with open(base_dir + config_file) as f:
+      load_config(f)
   elif len(config_url) > 0:
     # load config file from url
     try:
-      for line in urllib2.urlopen(config_url):
-        if not line.startswith('#') and len(line) > 1:
-          (key, val, optional) = line.split('\t', 2)
-          config_dict[key] = val
-          if '\t' in optional:
-            (ignore, usermsg) = optional.rstrip().split('\t')
-            config_msg[key] = usermsg
-          else:
-            config_msg[key] = ''
+      load_config(urllib2.urlopen(config_url))
     except:
       logging.warning ('Failed to read configs from ' + config_url)
       sys.exit(3)
 
-  try:
-    logging.debug ('Starting ZAP')
-    params = ['zap.sh', '-daemon', 
-              '-port', str(port), 
-              '-host', '0.0.0.0', 
-              '-config', 'api.disablekey=true', 
-              '-config', 'spider.maxDuration=' + str(mins)]
+  if running_in_docker:
+    try:
+      logging.debug ('Starting ZAP')
+      params = ['zap.sh', '-daemon', 
+                '-port', str(port), 
+                '-host', '0.0.0.0', 
+                '-config', 'api.disablekey=true', 
+                '-config', 'spider.maxDuration=' + str(mins),
+                '-addoninstall', 'pscanrulesBeta']	# In case we're running in the stable container
 
-    if (zap_alpha):
-      params.append('-addoninstall')
-      params.append('pscanrulesAlpha')
+      if (zap_alpha):
+        params.append('-addoninstall')
+        params.append('pscanrulesAlpha')
 
-    with open('zap.out', "w") as outfile:
-      subprocess.Popen(params, stdout=outfile)
+      with open('zap.out', "w") as outfile:
+        subprocess.Popen(params, stdout=outfile)
 
-  except OSError:
-    logging.warning ('Failed to start ZAP :(')
-    sys.exit(3)
+    except OSError:
+      logging.warning ('Failed to start ZAP :(')
+      sys.exit(3)
+  
+  else:
+    # Not running in docker, so start one  
+    try:
+      logging.debug ('Pulling ZAP Weekly Docker image')
+      ls_output = subprocess.check_output(['docker', 'pull', 'owasp/zap2docker-weekly'])
+    except OSError:
+      logging.warning ('Failed to run docker - is it on your path?')
+      sys.exit(3)
+
+    try:
+      logging.debug ('Starting ZAP')
+      params = ['docker', 'run', '-u', 'zap', 
+                '-p', str(port) + ':' + str(port), 
+                '-d', 'owasp/zap2docker-weekly', 
+                'zap.sh', '-daemon', 
+                '-port', str(port), 
+                '-host', '0.0.0.0', 
+                '-config', 'api.disablekey=true', 
+                '-config', 'spider.maxDuration=' + str(mins)]
+
+      if (zap_alpha):
+        params.append('-addoninstall')
+        params.append('pscanrulesAlpha')
+
+      cid = subprocess.check_output(params).rstrip()
+      logging.debug ('Docker CID: ' + cid)
+      insp_output = subprocess.check_output(['docker', 'inspect', cid])
+      #logging.debug ('Docker Inspect: ' + insp_output)
+      insp_json = json.loads(insp_output)
+      zap_ip = str(insp_json[0]['NetworkSettings']['IPAddress'])
+      logging.debug ('Docker ZAP IP Addr: ' + zap_ip)
+    except OSError:
+      logging.warning ('Failed to start ZAP in docker :(')
+      sys.exit(3)
 
   try:
     # Wait for ZAP to start
-    zap = ZAPv2(proxies={'http': 'http://localhost:' + str(port), 'https': 'http://localhost:' + str(port)})
+    zap = ZAPv2(proxies={'http': 'http://' + zap_ip + ':' + str(port), 'https': 'http://' + zap_ip + ':' + str(port)})
     for x in range(0, timeout):
       try:
         logging.debug ('ZAP Version ' + zap.core.version)
@@ -252,6 +326,8 @@ def main(argv):
         plugin_id = alert.get('pluginId')
         if plugin_id in blacklist:
           continue
+        if not is_in_scope(plugin_id, alert.get('url')):
+          continue
         if (not alert_dict.has_key(plugin_id)):
           alert_dict[plugin_id] = []
         alert_dict[plugin_id].append(alert)
@@ -266,7 +342,7 @@ def main(argv):
 
       if len(generate) > 0:
         # Create the config file
-        with open('/zap/wrk/' + generate, 'w') as f:
+        with open(base_dir + generate, 'w') as f:
           f.write ('# zap-baseline rule configuraion file\n')
           f.write ('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
           f.write ('# Only the rule identifiers are used - the names are just for info\n')
@@ -289,35 +365,50 @@ def main(argv):
 
       pass_count = len(pass_dict)
 
-      # print out the failing rules
+      # print out the ignored rules
       for key, alert_list in sorted(alert_dict.iteritems()):
         if config_dict.has_key(key) and config_dict[key] == 'IGNORE':
-          action = 'IGNORE'
+          user_msg = ''
+          if key in config_msg:
+            user_msg = config_msg[key]
+          print_rule(config_dict[key], alert_list, detailed_output, user_msg)
           ignore_count += 1
-        elif config_dict.has_key(key) and config_dict[key] == 'FAIL':
-          action = 'FAIL'
-          fail_count += 1
-        elif info_unspecified or (config_dict.has_key(key) and config_dict[key] == 'INFO'):
-          action = 'INFO'
-          info_count += 1
-        else:
-          action = 'WARN'
-          warn_count += 1
-          
-        print (action + ': ' + alert_list[0].get('alert') + ' [' + alert_list[0].get('pluginId') + '] x ' + str(len(alert_list)))
-        if detailed_output:
-          # Show (up to) first 5 urls
-          for alert in alert_list[0:5]:
-            print ('\t' + alert.get('url'))
 
+      # print out the info rules
+      for key, alert_list in sorted(alert_dict.iteritems()):
+        if config_dict.has_key(key) and config_dict[key] == 'INFO':
+          user_msg = ''
+          if key in config_msg:
+            user_msg = config_msg[key]
+          print_rule(config_dict[key], alert_list, detailed_output, user_msg)
+          info_count += 1
+
+      # print out the warning rules
+      for key, alert_list in sorted(alert_dict.iteritems()):
+        if (not config_dict.has_key(key)) or (config_dict[key] == 'WARN'):
+          user_msg = ''
+          if key in config_msg:
+            user_msg = config_msg[key]
+          print_rule('WARN', alert_list, detailed_output, user_msg)
+          warn_count += 1
+
+      # print out the failing rules
+      for key, alert_list in sorted(alert_dict.iteritems()):
+        if config_dict.has_key(key) and config_dict[key] == 'FAIL':
+          user_msg = ''
+          if key in config_msg:
+            user_msg = config_msg[key]
+          print_rule(config_dict[key], alert_list, detailed_output, user_msg)
+          fail_count += 1
+          
       if len(report_html) > 0:
-        # Save the HTML report
-        with open('/zap/wrk/' + report_html, 'w') as f:
+        # Save the report
+        with open(base_dir + report_html, 'w') as f:
           f.write (zap.core.htmlreport())
 
       if len(report_xml) > 0:
-        # Save the XML report
-        with open('/zap/wrk/' + report_xml, 'w') as f:
+        # Save the report
+        with open(base_dir + report_xml, 'w') as f:
           f.write (zap.core.xmlreport())
 
       print ('FAIL: ' + str(fail_count) + '\tWARN: ' + str(warn_count) + '\tINFO: ' + str(info_count) +  
@@ -327,11 +418,28 @@ def main(argv):
     zap.core.shutdown()
 
   except IOError as (errno, strerror):
+    logging.warning ('I/O error(' + str(errno) + '): ' + strerror)
     traceback.print_exc()
-    logging.warning ('I/O error(' + str(errno) + '): ' + str(strerror))
   except:
-    traceback.print_exc()
     logging.warning ('Unexpected error: ' + str(sys.exc_info()[0]))
+    traceback.print_exc()
+
+  if not running_in_docker:
+    # Close container - ignore failures
+    try:
+      logging.debug ('Stopping Docker container')
+      subprocess.check_output(['docker', 'stop', cid])
+      logging.debug ('Docker container stopped')
+    except OSError:
+      logging.warning ('Docker stop failed')
+
+    # Remove container - ignore failures
+    try:
+      logging.debug ('Removing Docker container')
+      subprocess.check_output(['docker', 'rm', cid])
+      logging.debug ('Docker container removed')
+    except OSError:
+      logging.warning ('Docker rm failed')
 
   if fail_count > 0:
     sys.exit(1)
