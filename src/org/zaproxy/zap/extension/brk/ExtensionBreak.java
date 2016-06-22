@@ -117,7 +117,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		return breakPanel;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -131,8 +130,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	        ExtensionHookView pv = extensionHook.getHookView();
 	        pv.addWorkPanel(getBreakPanel());
 	        pv.addOptionPanel(getOptionsPanel());
-	        
-            extensionHook.getHookMenu().addAnalyseMenuItem(extensionHook.getHookMenu().getMenuSeparator());
 
 	        extensionHook.getHookView().addStatusPanel(getBreakpointsPanel());
 
