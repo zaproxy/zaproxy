@@ -62,11 +62,6 @@ public class PopupMenuEditBreak extends ExtensionPopupMenuItem {
     @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(BreakpointsPanel.PANEL_NAME)) {
-            if (extension.canEditBreakpoint()) {
-                this.setEnabled(true);
-            } else {
-                this.setEnabled(false);
-            }
             return true;
         }
         return false;
