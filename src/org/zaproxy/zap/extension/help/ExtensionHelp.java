@@ -96,22 +96,7 @@ public class ExtensionHelp extends ExtensionAdaptor {
 	private static final Logger logger = Logger.getLogger(ExtensionHelp.class);
 	
     public ExtensionHelp() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionHelp(String name) {
-        super(name);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setName("ExtensionHelp");
+        super("ExtensionHelp");
         this.setOrder(10000);	// Set to a huge value so the help button is always on the far right of the toolbar 
 	}
 	

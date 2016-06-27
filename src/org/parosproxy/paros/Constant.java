@@ -63,6 +63,8 @@
 // ZAP: 2016/02/17 Convert extensions' options to not use extensions' names as XML element names
 // ZAP: 2016/05/12 Use dev/weekly dir for plugin downloads when copying the existing 'release' config file
 // ZAP: 2016/06/07 Remove commented constants and statement that had no (actual) effect, add doc to a constant and init other
+// ZAP: 2016/06/07 Use filter directory in ZAP's home directory
+// ZAP: 2016/06/13 Migrate config option "proxy.modifyAcceptEncoding" 
 
 package org.parosproxy.paros;
 
@@ -121,9 +123,10 @@ public final class Constant {
     public static final String ALPHA_VERSION = "alpha";
     public static final String BETA_VERSION = "beta";
     
-    private static final long VERSION_TAG = 2004003;
+    private static final long VERSION_TAG = 2005000;
     
     // Old version numbers - for upgrade
+    private static final long V_2_5_0_TAG = 2005000;
     private static final long V_2_4_3_TAG = 2004003;
     private static final long V_2_3_1_TAG = 2003001;
     private static final long V_2_2_0_TAG = 2002000;
@@ -158,6 +161,12 @@ public final class Constant {
     public static final String FILE_CONFIG_DEFAULT = "xml/config.xml";
     public static final String FILE_CONFIG_NAME = "config.xml";
     public static final String FOLDER_PLUGIN = "plugin";
+    /**
+     * The name of the directory for filter related files (the path should be built using {@link #getZapHome()} as the parent
+     * directory).
+     * 
+     * @since 1.0.0
+     */
     public static final String FOLDER_FILTER = "filter";
 
     /**
@@ -438,6 +447,13 @@ public final class Constant {
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
             }
+            f = new File(zapHome, FOLDER_FILTER);
+            if (!f.isDirectory()) {
+                log.info("Creating directory: " + f.getAbsolutePath());
+                if (!f.mkdir()) {
+                    System.out.println("Failed to create directory " + f.getAbsolutePath());
+                }
+            }
 
         } catch (Exception e) {
             System.err.println("Unable to initialize home directory! " + e.getMessage());
@@ -512,6 +528,9 @@ public final class Constant {
 	            	}
                     if (ver <= V_2_4_3_TAG) {
                         upgradeFrom2_4_3(config);
+                    }
+                    if (ver <= V_2_5_0_TAG) {
+                        upgradeFrom2_5_0(config);
                     }
 	            	log.info("Upgraded from " + ver);
             		
@@ -793,6 +812,12 @@ public final class Constant {
             config.setProperty(elementBaseKey + "name", data[0]);
             config.setProperty(elementBaseKey + "enabled", data[1]);
         }
+    }
+
+    private static void upgradeFrom2_5_0(XMLConfiguration config) {
+        String oldConfigKey = "proxy.modifyAcceptEncoding";
+        config.setProperty("proxy.removeUnsupportedEncodings", config.getBoolean(oldConfigKey, true));
+        config.clearProperty(oldConfigKey);
     }
 
 	public static void setLocale (String loc) {

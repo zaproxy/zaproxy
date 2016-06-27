@@ -27,9 +27,11 @@ import java.util.List;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
+import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
+import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.extension.manualrequest.MessageSender;
 import org.parosproxy.paros.model.HistoryReference;
@@ -38,6 +40,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.ZapGetMethod;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
@@ -82,7 +85,12 @@ public class HttpPanelSender implements MessageSender {
     public void handleSendMessage(Message aMessage) throws IllegalArgumentException, IOException {
         final HttpMessage httpMessage = (HttpMessage) aMessage;
         try {
-            getDelegate().sendAndReceive(httpMessage, getButtonFollowRedirects().isSelected());
+            final ModeRedirectionValidator redirectionValidator = new ModeRedirectionValidator();
+            if (getButtonFollowRedirects().isSelected()) {
+                getDelegate().sendAndReceive(httpMessage, redirectionValidator);
+            } else {
+                getDelegate().sendAndReceive(httpMessage, false);
+            }
 
             EventQueue.invokeAndWait(new Runnable() {
                 @Override
@@ -101,6 +109,13 @@ public class HttpPanelSender implements MessageSender {
                             SessionStructure.addPath(session, ref, httpMessage);
                         } catch (final Exception e) {
                             logger.error(e.getMessage(), e);
+                        }
+
+                        if (!redirectionValidator.isRequestValid()) {
+                            View.getSingleton().showWarningDialog(
+                                    Constant.messages.getString(
+                                            "manReq.outofscope.redirection.warning",
+                                            redirectionValidator.getInvalidRedirection()));
                         }
                     }
                 }
@@ -215,5 +230,65 @@ public class HttpPanelSender implements MessageSender {
 
     public void removePersistentConnectionListener(PersistentConnectionListener listener) {
         persistentConnectionListener.remove(listener);
+    }
+
+    /**
+     * A {@code RedirectionValidator} that enforces the {@link Mode} when validating the {@code URI} of redirections.
+     *
+     * @see #isRequestValid()
+     */
+    private static class ModeRedirectionValidator implements HttpSender.RedirectionValidator {
+
+        private boolean isRequestValid;
+        private URI invalidRedirection;
+
+        public ModeRedirectionValidator() {
+            isRequestValid = true;
+        }
+
+        @Override
+        public void notifyMessageReceived(HttpMessage message) {
+        }
+
+        @Override
+        public boolean isValid(URI redirection) {
+            if (!isValidForCurrentMode(redirection)) {
+                isRequestValid = false;
+                invalidRedirection = redirection;
+                return false;
+            }
+            return true;
+        }
+
+        private boolean isValidForCurrentMode(URI uri) {
+            switch (Control.getSingleton().getMode()) {
+            case safe:
+                return false;
+            case protect:
+                return Model.getSingleton().getSession().isInScope(uri.toString());
+            default:
+                return true;
+            }
+        }
+
+        /**
+         * Tells whether or not the request is valid, that is, all redirections were valid for the current {@link Mode}.
+         *
+         * @return {@code true} is the request is valid, {@code false} otherwise.
+         * @see #getInvalidRedirection()
+         */
+        public boolean isRequestValid() {
+            return isRequestValid;
+        }
+
+        /**
+         * Gets the invalid redirection, if any.
+         *
+         * @return the invalid redirection, {@code null} if there was none.
+         * @see #isRequestValid()
+         */
+        public URI getInvalidRedirection() {
+            return invalidRedirection;
+        }
     }
 }

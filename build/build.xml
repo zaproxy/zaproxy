@@ -148,9 +148,6 @@
 		<copy todir="${dist}/db">
 			<fileset dir="${src}/db" excludes="**/.svn/** **/_svn/**" />
 		</copy>
-		<copy todir="${dist}/filter">
-			<fileset dir="${src}/filter" excludes="**/.svn/** **/_svn/**" />
-		</copy>
 		<copy todir="${dist}/plugin">
 			<fileset dir="${src}/plugin" excludes="**/.svn/** **/_svn/**" />
 		</copy>

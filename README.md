@@ -5,6 +5,7 @@
 [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/24/badge)](https://bestpractices.coreinfrastructure.org/projects/24)
 [![Coverity Scan Build Status](https://scan.coverity.com/projects/5559/badge.svg)](https://scan.coverity.com/projects/zaproxy-zaproxy)
 [![Github Releases](https://img.shields.io/github/downloads/zaproxy/zaproxy/latest/total.svg?maxAge=2592000)](https://zapbot.github.io/zap-mgmt-scripts/downloads.html)
+[![ToolsWatch Rank 1](https://www.toolswatch.org/badges/toptools/rank1_2015.svg)](http://www.toolswatch.org/2016/02/2015-top-security-tools-as-voted-by-toolswatch-org-readers/)
 [![Twitter Follow](https://img.shields.io/twitter/follow/zaproxy.svg?style=social&label=Follow&maxAge=2592000)](https://twitter.com/zaproxy)
 
 The OWASP Zed Attack Proxy (ZAP) is one of the world’s most popular free security tools and is actively maintained by hundreds of international volunteers[*](#justification). It can help you automatically find security vulnerabilities in your web applications while you are developing and testing your applications. Its also a great tool for experienced pentesters to use for manual security testing.

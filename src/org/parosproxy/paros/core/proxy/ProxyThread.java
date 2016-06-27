@@ -60,6 +60,7 @@
 // ZAP: 2016/04/14 Delay the write of response to not attempt to write a response again when handling IOException
 // ZAP: 2016/04/29 Adjust exception logging levels and log when timeouts happen
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2016/06/13 Remove all unsupported encodings (instead of just some)
 
 package org.parosproxy.paros.core.proxy;
 
@@ -366,8 +367,8 @@ class ProxyThread implements Runnable {
 				msg.setRequestBody(reqBody);
 			}
             
-			if (proxyParam.isModifyAcceptEncodingHeader()) {
-				modifyHeader(msg);
+			if (proxyParam.isRemoveUnsupportedEncodings()) {
+				removeUnsupportedEncodings(msg);
 			}
 
             if (isProcessCache(msg)) {
@@ -737,27 +738,15 @@ class ProxyThread implements Runnable {
         }
         return false;
     }
-	    
-    private static final Pattern remove_gzip1 = Pattern.compile("(gzip|deflate|compress|x-gzip|x-compress)[^,]*,?\\s*", Pattern.CASE_INSENSITIVE);
-    private static final Pattern remove_gzip2 = Pattern.compile("[,]\\z", Pattern.CASE_INSENSITIVE);
     
-    private void modifyHeader(HttpMessage msg) {
+    private void removeUnsupportedEncodings(HttpMessage msg) {
         String encoding = msg.getRequestHeader().getHeader(HttpHeader.ACCEPT_ENCODING);
         if (encoding == null) {
             return;
         }
         
-        encoding = remove_gzip1.matcher(encoding).replaceAll("");
-        encoding = remove_gzip2.matcher(encoding).replaceAll("");
-        // avoid returning gzip encoding
-        
-        if (encoding.length() == 0) {
-            encoding = null;
-        }
-        msg.getRequestHeader().setHeader(HttpHeader.ACCEPT_ENCODING,encoding);
-        
-//        msg.getRequestHeader().setHeader("TE", "chunked;q=0");
-
+        // No encodings supported in practise (HttpResponseBody needs to support them, which it doesn't, yet).
+        msg.getRequestHeader().setHeader(HttpHeader.ACCEPT_ENCODING, null);
     }
     
 	protected HttpSender getHttpSender() {

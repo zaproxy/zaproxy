@@ -80,22 +80,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
      *
      */
     public ExtensionAlert() {
-        super();
-        initialize();
-    }
-
-    /**
-     * @param name
-     */
-    public ExtensionAlert(String name) {
-        super(name);
-    }
-
-    /**
-     * This method initializes this
-     */
-    private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(27);
     }
 

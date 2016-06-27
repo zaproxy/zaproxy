@@ -42,6 +42,8 @@
 // ZAP: 2016/04/12 Update the SiteNode when deleting alerts
 // ZAP: 2016/05/27 Moved the temporary types to this class
 // ZAP: 2016/05/30 Add new type for CONNECT requests received by the proxy
+// ZAP: 2016/06/15 Add TYPE_SEQUENCE_TEMPORARY
+// ZAP: 2016/06/20 Add TYPE_ZEST_SCRIPT and deprecate TYPE_RESERVED_11
 
 package org.parosproxy.paros.model;
 
@@ -122,7 +124,24 @@ public class HistoryReference {
    public static final int TYPE_AUTHENTICATION = 11;
    // ZAP: Added TYPE_ACCESS_CONTROL for use in access control testing methods
    public static final int TYPE_ACCESS_CONTROL = 13;
-   public static final int TYPE_RESERVED_11 = 12;	// Reserved by Psiinon
+
+    /**
+     * A HTTP message sent by a Zest script.
+     * <p>
+     * Not all HTTP messages sent by Zest scripts will have this type, some might use the type(s) of the underlying component
+     * (for example, Zest Active Rules will use the types of the active scanner, {@link #TYPE_SCANNER_TEMPORARY} or
+     * {@link #TYPE_SCANNER}).
+     * 
+     * @since TODO add version
+     */
+    public static final int TYPE_ZEST_SCRIPT = 12;
+
+    /**
+     * @deprecated (TODO add version) Use {@link #TYPE_ZEST_SCRIPT} instead.
+     * @since 2.1.0
+     */
+    @Deprecated
+    public static final int TYPE_RESERVED_11 = TYPE_ZEST_SCRIPT;
 
     /**
      * A (temporary) HTTP message sent by the (active) scanner.
@@ -148,6 +167,7 @@ public class HistoryReference {
      * <li>{@link #TYPE_SCANNER_TEMPORARY};</li>
      * <li>{@link #TYPE_AUTHENTICATION};</li>
      * <li>{@link #TYPE_SPIDER_TASK};</li>
+     * <li>{@link #TYPE_SEQUENCE_TEMPORARY};</li>
      * </ul>
      * <p>
      * Persisted messages with temporary types are deleted when the session is closed.
@@ -167,6 +187,14 @@ public class HistoryReference {
      */
     public static final int TYPE_PROXY_CONNECT = 16;
 
+    /**
+     * A (temporary) HTTP message created/used when active scanning sequences.
+     * 
+     * @since TODO add version
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+    public static final int TYPE_SEQUENCE_TEMPORARY = 17;
+
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
 	// ZAP: Support for multiple tags
@@ -180,6 +208,7 @@ public class HistoryReference {
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SCANNER_TEMPORARY));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_AUTHENTICATION));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_TASK));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SEQUENCE_TEMPORARY));
 		DEFAULT_TEMPORARY_HISTORY_TYPES = Collections.unmodifiableSet(defaultHistoryTypes);
 
 		TEMPORARY_HISTORY_TYPES.addAll(DEFAULT_TEMPORARY_HISTORY_TYPES);

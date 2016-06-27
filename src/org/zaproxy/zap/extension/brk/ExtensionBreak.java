@@ -64,6 +64,10 @@ import org.zaproxy.zap.view.ZapMenuItem;
 
 public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedListener, OptionsChangedListener {
 
+    /**
+     * @deprecated (TODO add version) Should not be used/relied on, breakpoint dialogues should be modal.
+     */
+    @Deprecated
     public enum DialogType {NONE, ADD, EDIT, REMOVE};
     
     public static final String NAME = "ExtensionBreak";
@@ -105,18 +109,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
 	
     public ExtensionBreak() {
-        super();
- 		initialize();
-    }
-
-    
-    public ExtensionBreak(String name) {
-        super(name);
-    }
-
-	
-	private void initialize() {
-        this.setName(NAME);
+        super(NAME);
         this.setOrder(24);
 	}
 	
@@ -128,7 +121,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 		return breakPanel;
 	}
 	
-	@SuppressWarnings("deprecation")
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
@@ -142,8 +134,6 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 	        ExtensionHookView pv = extensionHook.getHookView();
 	        pv.addWorkPanel(getBreakPanel());
 	        pv.addOptionPanel(getOptionsPanel());
-	        
-            extensionHook.getHookMenu().addAnalyseMenuItem(extensionHook.getHookMenu().getMenuSeparator());
 
 	        extensionHook.getHookView().addStatusPanel(getBreakpointsPanel());
 
@@ -480,22 +470,42 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
         return menuHttpBreakpoint;
     }
 
+	/**
+     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+	 */
+    @Deprecated
 	public boolean canAddBreakpoint() {
 		return (currentDialogType == DialogType.NONE || currentDialogType == DialogType.ADD);
 	}
     
+    /**
+     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     */
+    @Deprecated
 	public boolean canEditBreakpoint() {
 		return (currentDialogType == DialogType.NONE || currentDialogType == DialogType.EDIT);
 	}
 	
+    /**
+     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     */
+    @Deprecated
 	public boolean canRemoveBreakpoint() {
 		return (currentDialogType == DialogType.NONE || currentDialogType == DialogType.REMOVE);
 	}
 	
+    /**
+     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     */
+    @Deprecated
 	public void dialogShown(DialogType type) {
 	    currentDialogType = type;
 	}
 	
+    /**
+     * @deprecated (TODO add version) Use modal breakpoint dialogues instead of relying on this behaviour.
+     */
+    @Deprecated
 	public void dialogClosed() {
 	    currentDialogType = DialogType.NONE;
 	}
