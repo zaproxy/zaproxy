@@ -43,6 +43,7 @@
 // ZAP: 2015/12/21 Issue 2112: Wrong policy on active Scan
 // ZAP: 2016/01/26 Fixed findbugs warning
 // ZAP: 2016/05/04 Use existing Plugin instances when setting them as completed
+// ZAP: 2016/06/27 Reduce log level when loading the plugins
 
 package org.parosproxy.paros.core.scanner;
 
@@ -379,9 +380,10 @@ public class PluginFactory {
                     }
 
                     Plugin plugin = createNewPlugin(loadedPlugin, config);
-                    log.info("loaded plugin " + plugin.getName());
                     if (log.isDebugEnabled()) {
-                    	log.debug("Theshold=" + plugin.getAlertThreshold().name() + " Strength=" + plugin.getAttackStrength().toString());
+                        log.debug("loaded plugin " + plugin.getName() +
+                        " with: Threshold=" + plugin.getAlertThreshold().name() +
+                        " Strength=" + plugin.getAttackStrength().toString());
                     }
                     
                     // ZAP: Changed to use the method Integer.valueOf.
