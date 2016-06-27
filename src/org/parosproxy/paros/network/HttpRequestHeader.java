@@ -39,6 +39,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/12/09 Set Content-type only in case of POST or PUT HTTP methods
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
+// ZAP: 2016/06/17 Remove redundant initialisations of instance variables
 
 package org.parosproxy.paros.network;
 
@@ -80,33 +81,37 @@ public class HttpRequestHeader extends HttpHeader {
     //	= Pattern.compile("([^:]+)\\s*?:?\\s*?(\\d*?)");
     private static final Pattern patternImage = Pattern.compile("\\.(bmp|ico|jpg|jpeg|gif|tiff|tif|png)\\z", Pattern.CASE_INSENSITIVE);
     private static final Pattern patternPartialRequestLine = Pattern.compile("\\A *(OPTIONS|GET|HEAD|POST|PUT|DELETE|TRACE|CONNECT)\\b", Pattern.CASE_INSENSITIVE);
-    private String mMethod = "";
-    private URI mUri = null;
-    private String mHostName = "";
+    private String mMethod;
+    private URI mUri;
+    private String mHostName;
     
     /**
      * The host port number of this request message, a non-negative integer.
+     * <p>
+     * Default is {@code 80}.
      * <p>
      * <strong>Note:</strong> All the modifications to the instance variable
      * {@code mHostPort} must be done through the method
      * {@code setHostPort(int)}, so a valid and correct value is set when no
      * port number is defined (which is represented with the negative integer
      * -1).
-     * </p>
      *
      * @see #getHostPort()
      * @see #setHostPort(int)
      * @see URI#getPort()
      */
     private int mHostPort;
-    private boolean mIsSecure = false;
+    private boolean mIsSecure;
 
     /**
      * Constructor for an empty header.
      *
      */
     public HttpRequestHeader() {
-        clear();
+        super();
+        mMethod = "";
+        mHostName = "";
+        mHostPort = 80;
     }
 
     /**
@@ -118,7 +123,6 @@ public class HttpRequestHeader extends HttpHeader {
      * @throws HttpMalformedHeaderException
      */
     public HttpRequestHeader(String data, boolean isSecure) throws HttpMalformedHeaderException {
-        this();
         setMessage(data, isSecure);
     }
 
@@ -130,7 +134,6 @@ public class HttpRequestHeader extends HttpHeader {
      * @throws HttpMalformedHeaderException
      */
     public HttpRequestHeader(String data) throws HttpMalformedHeaderException {
-        this();
         setMessage(data);
     }
 
@@ -142,7 +145,6 @@ public class HttpRequestHeader extends HttpHeader {
         mUri = null;
         mHostName = "";
         setHostPort(-1);
-        mMsgHeader = "";
 
     }
 
