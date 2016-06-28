@@ -25,6 +25,7 @@
 // ZAP: 2013/12/03 Issue 933: Automatically determine install dir
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
+// ZAP: 2016/06/28: File chooser for PKCS#12 files now also accepts .pfx files
 
 package org.parosproxy.paros.extension.option;
 
@@ -770,12 +771,13 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 			@Override
 			public String getDescription()
 			{
-				return Constant.messages.getString("options.cert.label.client.cert") + " (*.p12)";
+				return Constant.messages.getString("options.cert.label.client.cert") + " (*.p12, *.pfx)";
 			}
 			@Override
 			public boolean accept(File f) {
 				return f.isDirectory() ||
-				f.getName().toLowerCase().endsWith( ".p12" ) ;
+				f.getName().toLowerCase().endsWith( ".p12" ) || 
+				f.getName().toLowerCase().endsWith( ".pfx" );
 			}
 		} );
 
