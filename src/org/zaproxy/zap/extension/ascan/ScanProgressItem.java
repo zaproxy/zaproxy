@@ -133,11 +133,25 @@ public class ScanProgressItem {
     }
     
     /**
+     * Tells whether or not the plugin was skipped.
      * 
-     * @return 
+     * @return {@code true} if the plugin was skipped, {@code false} otherwise.
+     * @since 2.4.0
+     * @see #getSkippedReason()
      */
     public boolean isSkipped() {
         return hProcess.isSkipped(plugin);
+    }
+
+    /**
+     * Gets the reason why the plugin was skipped.
+     *
+     * @return the reason why the plugin was skipped, might be {@code null} if there's no reason
+     * @since TODO add version
+     * @see #isSkipped()
+     */
+    public String getSkippedReason() {
+        return hProcess.getSkippedReason(plugin);
     }
 
     /**
@@ -145,7 +159,7 @@ public class ScanProgressItem {
      */
     public void skip() {
         if (isRunning()) {
-            hProcess.pluginSkipped(plugin);
+            hProcess.pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.user"));
         }
     }
     
