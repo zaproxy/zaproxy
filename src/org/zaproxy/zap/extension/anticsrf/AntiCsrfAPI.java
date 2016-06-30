@@ -78,12 +78,7 @@ public class AntiCsrfAPI extends ApiImplementor {
 				    charset = " charset=" + charset;
 				}
 
-		    	msg.setResponseHeader(
-		    			"HTTP/1.1 200 OK\r\n" +
-		    			"Pragma: no-cache\r\n" +
-		  				"Cache-Control: no-cache\r\n" + 
-		    			"Content-Length: " + response.length() + 
-						"\r\nContent-Type: text/html;" + charset);
+	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html; " + charset, response.length()));
 		    	msg.setResponseBody(response);
 				
 			} catch (NumberFormatException e) {

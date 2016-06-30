@@ -29,6 +29,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiImplementor;
 
@@ -153,14 +154,8 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
             }
             
             // Build the response
-            msg.setResponseHeader("HTTP/1.1 200 OK\r\n" + 
-                    "Pragma: no-cache\r\n" + 
-                    "Cache-Control: no-cache\r\n" + 
-                    "Access-Control-Allow-Origin: *\r\n" + 
-                    "Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n" + 
-                    "Access-Control-Allow-Headers: ZAP-Header\r\n" + 
-                    "Content-Length: " + response.length() + 
-                    "\r\nContent-Type: text/html;");
+            msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
+            msg.getResponseHeader().setHeader("Access-Control-Allow-Origin", "*");
             
             msg.setResponseBody(response);
             
