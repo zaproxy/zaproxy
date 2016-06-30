@@ -68,7 +68,6 @@ public class KeyboardAPI extends ApiImplementor {
 				true);
 	}
 
-	@SuppressWarnings({ "unchecked", "rawtypes" })
 	@Override
 	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
 		if (OTHER_CHEETSHEET_ACTION_ORDER.equals(name) ||
@@ -77,17 +76,16 @@ public class KeyboardAPI extends ApiImplementor {
 			List<KeyboardShortcut> shortcuts = this.extension.getShortcuts();
 			
 			if (OTHER_CHEETSHEET_ACTION_ORDER.equals(name)) {
-				Collections.sort(shortcuts, new Comparator() {
+				Collections.sort(shortcuts, new Comparator<KeyboardShortcut>() {
 					@Override
-					public int compare(Object o1, Object o2) {
-						return ((KeyboardShortcut)o1).getName().compareTo(((KeyboardShortcut)o2).getName());
+					public int compare(KeyboardShortcut o1, KeyboardShortcut o2) {
+						return o1.getName().compareTo(o2.getName());
 					}});
 			} else {
-				Collections.sort(shortcuts, new Comparator() {
+				Collections.sort(shortcuts, new Comparator<KeyboardShortcut>() {
 					@Override
-					public int compare(Object o1, Object o2) {
-						return ((KeyboardShortcut)o1).getKeyStrokeKeyCodeString().compareTo(
-								((KeyboardShortcut)o2).getKeyStrokeKeyCodeString());
+					public int compare(KeyboardShortcut o1, KeyboardShortcut o2) {
+						return o1.getKeyStrokeKeyCodeString().compareTo(o2.getKeyStrokeKeyCodeString());
 					}});
 			}
 			
