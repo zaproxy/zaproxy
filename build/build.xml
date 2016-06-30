@@ -213,7 +213,7 @@
 				<fileset dir="${dist}/lib">
 					<include name="**/JBroFuzz.jar"/>
 				</fileset>
-				<!--path location="lang"/-->
+				<path location="${dist}/lang/" />
 			</classpath>
 		</manifestclasspath>
 
