@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.Target;
 
 /**
@@ -30,8 +31,9 @@ import org.zaproxy.zap.model.Target;
  */
 public class AttackScan extends ActiveScan {
 
-	public AttackScan(String displayName, ScannerParam scannerParam, ConnectionParam param, ScanPolicy scanPolicy) {
-		super(displayName, scannerParam, param, scanPolicy);
+	public AttackScan(String displayName, ScannerParam scannerParam, 
+			ConnectionParam param, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
+		super(displayName, scannerParam, param, scanPolicy, ruleConfigParam);
 	}
 	
 	@Override
