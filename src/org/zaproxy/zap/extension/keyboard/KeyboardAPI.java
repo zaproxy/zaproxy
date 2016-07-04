@@ -108,12 +108,7 @@ public class KeyboardAPI extends ApiImplementor {
 			response.append(Constant.messages.getString("keyboard.api.cheatsheet.footer"));
 			
 	    	try {
-				msg.setResponseHeader(
-						"HTTP/1.1 200 OK\r\n" +
-						"Pragma: no-cache\r\n" +
-						"Cache-Control: no-cache\r\n" + 
-						"Content-Length: " + response.length() + 
-						"\r\nContent-Type: text/html;");
+	            msg.setResponseHeader(API.getDefaultResponseHeader("text/html", response.length()));
 			} catch (HttpMalformedHeaderException e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, name, e);
 			}

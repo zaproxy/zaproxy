@@ -555,6 +555,9 @@ public class API {
         sb.append("Cache-Control: no-cache\r\n");
         sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
         sb.append("Access-Control-Allow-Headers: ZAP-Header\r\n");
+        sb.append("X-Frame-Options: DENY\r\n");
+        sb.append("X-XSS-Protection: 1; mode=block\r\n");
+        sb.append("X-Content-Type-Options: nosniff\r\n");
         sb.append("X-Clacks-Overhead: GNU Terry Pratchett\r\n");
         sb.append("Content-Length: ").append(contentLength).append("\r\n");
         sb.append("Content-Type: ").append(contentType).append("\r\n");
