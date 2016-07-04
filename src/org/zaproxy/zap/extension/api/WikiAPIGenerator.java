@@ -17,17 +17,17 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
-import java.util.Locale;
-import java.util.ResourceBundle;
 
 import org.parosproxy.paros.Constant;
 
-public class WikiAPIGenerator {
+public class WikiAPIGenerator extends AbstractAPIGenerator {
 
     private static final String WIKI_FILE_EXTENSION = ".md";
 
@@ -36,70 +36,65 @@ public class WikiAPIGenerator {
 	 */
 	private String base = "ApiGen_";
 	private String title = "# ZAP " + Constant.PROGRAM_VERSION + " API\n";
-	private File dir; 
 	private int methods = 0;
-	private boolean optional = false;
-
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
-		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
 
     public WikiAPIGenerator() {
-    	dir = new File("../zaproxy-wiki"); 
+    	super("../zaproxy-wiki");
     }
 
     public WikiAPIGenerator(String path, boolean optional) {
-    	dir = new File(path); 
-    	this.optional = optional;
+    	super(path, optional);
     }
 
 	private void generateWikiIndex() throws IOException {
-		File f = new File(this.dir, base + "Index" + WIKI_FILE_EXTENSION);
-		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
-		out.write(title);
-		out.write("## Components\n");
-		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
-			out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
+		Path file = getDirectory().resolve(base + "Index" + WIKI_FILE_EXTENSION);
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			out.write(title);
+			out.write("## Components\n");
+			for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
+				out.write("  * [" + base + imp.getPrefix() + " " + imp.getPrefix() + "]\n");
+			}
+			out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
+			//out.write("Generated on " + new Date() + "\n");
 		}
-		out.write("\n\n[" + base + "Full" + " Full list.]\n\n");
-		//out.write("Generated on " + new Date() + "\n");
-		out.close();
 	}
 
 	private void generateWikiFull() throws IOException {
-		File f = new File(this.dir, base + "Full" + WIKI_FILE_EXTENSION);
-		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
-		out.write(title);
-		out.write("## Full List\n");
-		out.write("| _Component_ | _Name_ | _Type_ | _Parameters_ | _Description_ |\n");
-		out.write("|:------------|:-------|:-------|:-------------|:--------------|\n");
-		for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
-			for (ApiElement view : imp.getApiViews()) {
-				this.generateWikiElement(view, imp.getPrefix(), "view", out, true);
+		Path file = getDirectory().resolve( base + "Full" + WIKI_FILE_EXTENSION);
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			out.write(title);
+			out.write("## Full List\n");
+			out.write("| _Component_ | _Name_ | _Type_ | _Parameters_ | _Description_ |\n");
+			out.write("|:------------|:-------|:-------|:-------------|:--------------|\n");
+			for (ApiImplementor imp : ApiGeneratorUtils.getAllImplementors()) {
+				for (ApiElement view : imp.getApiViews()) {
+					this.generateWikiElement(view, imp.getPrefix(), VIEW_ENDPOINT, out, true);
+				}
+				for (ApiElement action : imp.getApiActions()) {
+					this.generateWikiElement(action, imp.getPrefix(), ACTION_ENDPOINT, out, true);
+				}
+				for (ApiElement other : imp.getApiOthers()) {
+					this.generateWikiElement(other, imp.getPrefix(), OTHER_ENDPOINT, out, true);
+				}
 			}
-			for (ApiElement action : imp.getApiActions()) {
-				this.generateWikiElement(action, imp.getPrefix(), "action", out, true);
+			out.write("\n");
+			out.write("Starred parameters are mandatory.\n\n");
+			if (isOptional()) {
+				out.write(OPTIONAL_MESSAGE + "\n\n");
 			}
-			for (ApiElement other : imp.getApiOthers()) {
-				this.generateWikiElement(other, imp.getPrefix(), "other", out, true);
-			}
+			out.write("Back to [index](" + base + "Index)\n\n");
+			//out.write("\nGenerated on " + new Date() + "\n");
 		}
-		out.write("\n");
-		out.write("Starred parameters are mandatory.\n\n");
-		if (optional) {
-			out.write("This component is optional and therefore the API will only work if it is installed.\n\n");
-		}
-		out.write("Back to [index](" + base + "Index)\n\n");
-		//out.write("\nGenerated on " + new Date() + "\n");
-		out.close();
 	}
 
-	public void generateWikiFiles(List<ApiImplementor> implementors) throws IOException {
+	@Override
+	public void generateAPIFiles(List<ApiImplementor> implementors) throws IOException {
 		// Generate index first
 		this.generateWikiIndex();
 		for (ApiImplementor imp : implementors) {
-			this.generateWikiComponent(imp);
+			this.generateAPIFiles(imp);
 		}
 		this.methods = 0;
 		this.generateWikiFull();
@@ -133,7 +128,7 @@ public class WikiAPIGenerator {
 			descTag = component + ".api." + type + "." + element.getName();
 		}
 		try {
-			out.write(msgs.getString(descTag));
+			out.write(getMessages().getString(descTag));
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
@@ -144,35 +139,36 @@ public class WikiAPIGenerator {
 		
 	}
 
-	private void generateWikiComponent(ApiImplementor imp) throws IOException {
-		File f = new File(this.dir, base + imp.getPrefix() + WIKI_FILE_EXTENSION);
-		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
-		out.write(title);
-		out.write("## Component: " + imp.getPrefix() + "\n");
-		out.write("| _Name_ | _Type_ | _Parameters_ | _Description_ |\n");
-		out.write("|:-------|:-------|:-------------|:--------------|\n");
-		for (ApiElement view : imp.getApiViews()) {
-			this.generateWikiElement(view, imp.getPrefix(), "view", out);
+	@Override
+	protected void generateAPIFiles(ApiImplementor imp) throws IOException {
+		Path file = getDirectory().resolve(base + imp.getPrefix() + WIKI_FILE_EXTENSION);
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			out.write(title);
+			out.write("## Component: " + imp.getPrefix() + "\n");
+			out.write("| _Name_ | _Type_ | _Parameters_ | _Description_ |\n");
+			out.write("|:-------|:-------|:-------------|:--------------|\n");
+			for (ApiElement view : imp.getApiViews()) {
+				this.generateWikiElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);
+			}
+			for (ApiElement action : imp.getApiActions()) {
+				this.generateWikiElement(action, imp.getPrefix(), ACTION_ENDPOINT, out);
+			}
+			for (ApiElement other : imp.getApiOthers()) {
+				this.generateWikiElement(other, imp.getPrefix(), OTHER_ENDPOINT, out);
+			}
+			out.write("\n");
+			out.write("Starred parameters are mandatory\n\n");
+			out.write("Back to [index](" + base + "Index)\n\n");
+			//out.write("\nGenerated on " + new Date() + "\n");
 		}
-		for (ApiElement action : imp.getApiActions()) {
-			this.generateWikiElement(action, imp.getPrefix(), "action", out);
-		}
-		for (ApiElement other : imp.getApiOthers()) {
-			this.generateWikiElement(other, imp.getPrefix(), "other", out);
-		}
-		out.write("\n");
-		out.write("Starred parameters are mandatory\n\n");
-		out.write("Back to [index](" + base + "Index)\n\n");
-		//out.write("\nGenerated on " + new Date() + "\n");
-		out.close();
 	}
 
 	public static void main(String[] args) throws Exception {
 		// Command for generating a wiki version of the ZAP API
 		
 		WikiAPIGenerator wapi = new WikiAPIGenerator();
-		wapi.generateWikiFiles(ApiGeneratorUtils.getAllImplementors());
+		wapi.generateCoreAPIFiles();
 		
 	}
 

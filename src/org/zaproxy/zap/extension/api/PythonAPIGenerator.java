@@ -17,31 +17,24 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
-import org.parosproxy.paros.Constant;
-
-public class PythonAPIGenerator {
+public class PythonAPIGenerator extends AbstractAPIGenerator {
 
 	/**
 	 * Default output directory in zap-api-python project.
 	 */
 	private static final String DEFAULT_OUTPUT_DIR = "../zap-api-python/src/zapv2/";
 
-	private File dir; 
-	private boolean optional = false;
-	
 	private final String HEADER = 
 			"# Zed Attack Proxy (ZAP) and its related class files.\n" +
 			"#\n" +
@@ -64,11 +57,6 @@ public class PythonAPIGenerator {
 			"This file was automatically generated.\n" +
 			"\"\"\"\n\n";
 
-	private final String OPTIONAL_MASSAGE = "This component is optional and therefore the API will only work if it is installed"; 
-
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
-		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
-	
 	/**
 	 * Map any names which are reserved in python to something legal
 	 */
@@ -80,20 +68,13 @@ public class PythonAPIGenerator {
     }
 
     public PythonAPIGenerator() {
-    	dir = new File(DEFAULT_OUTPUT_DIR); 
+    	super(DEFAULT_OUTPUT_DIR);
     }
 
     public PythonAPIGenerator(String path, boolean optional) {
-    	dir = new File(path); 
-    	this.optional = optional;
+    	super(path, optional);
     }
 
-	public void generatePythonFiles(List<ApiImplementor> implementors) throws IOException {
-		for (ApiImplementor imp : implementors) {
-			this.generatePythonComponent(imp);
-		}
-	}
-	
 	private void generatePythonElement(ApiElement element, String component, 
 			String type, Writer out) throws IOException {
 		
@@ -102,7 +83,7 @@ public class PythonAPIGenerator {
 							(element.getOptionalParamNames() != null &&
 								element.getOptionalParamNames().size() > 0);
 				
-		if (!hasParams && type.equals("view")) {
+		if (!hasParams && type.equals(VIEW_ENDPOINT)) {
 			out.write("    @property\n");
 		}
 		out.write("    def " + createFunctionName(element.getName()) + "(self");
@@ -118,7 +99,7 @@ public class PythonAPIGenerator {
 			}
 		}
 
-		if (type.equals("action") || type.equals("other")) {
+		if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
 			// Always add the API key - we've no way of knowing if it will be required or not
 			out.write(", " + API.API_KEY_PARAM + "=''");
 			hasParams = true;
@@ -133,26 +114,26 @@ public class PythonAPIGenerator {
 			descTag = component + ".api." + type + "." + element.getName();
 		}
 		try {
-			String desc = msgs.getString(descTag);
+			String desc = getMessages().getString(descTag);
 			out.write("        \"\"\"\n");
 			out.write("        " + desc + "\n");
-			if (optional) {
-				out.write("        " + OPTIONAL_MASSAGE + "\n");
+			if (isOptional()) {
+				out.write("        " + OPTIONAL_MESSAGE + "\n");
 			}
 			out.write("        \"\"\"\n");
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
-			if (optional) {
+			if (isOptional()) {
 				out.write("        \"\"\"\n");
-				out.write("        " + OPTIONAL_MASSAGE + "\n");
+				out.write("        " + OPTIONAL_MESSAGE + "\n");
 				out.write("        \"\"\"\n");
 			}
 		}
 
 		String method = "_request";
 		String baseUrl = "base";
-		if (type.equals("other")) {
+		if (type.equals(OTHER_ENDPOINT)) {
 			method += "_other";
 			baseUrl += "_other";
 		}
@@ -171,7 +152,7 @@ public class PythonAPIGenerator {
 					reqParams.append("'" + param + "' : " + param.toLowerCase());
 				}
 			}
-			if (type.equals("action") || type.equals("other")) {
+			if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
 				// Always add the API key - we've no way of knowing if it will be required or not
 				if (!first) {
 					reqParams.append(", ");
@@ -193,7 +174,7 @@ public class PythonAPIGenerator {
 			}
 		}
 		
-		if (type.equals("other")) {
+		if (type.equals(OTHER_ENDPOINT)) {
 			out.write("        return ("); 
 		} else {
 			out.write("        return next("); 
@@ -206,12 +187,12 @@ public class PythonAPIGenerator {
 			out.write(", ");
 			out.write(reqParams.toString());
 			out.write(")");
-			if (!type.equals("other")) {
+			if (!type.equals(OTHER_ENDPOINT)) {
 				out.write(".itervalues())");
 			} else {
 				out.write(")");
 			}
-		} else if (!type.equals("other")) {
+		} else if (!type.equals(OTHER_ENDPOINT)) {
 			out.write(").itervalues())");
 		} else {
 			out.write(")");
@@ -220,10 +201,11 @@ public class PythonAPIGenerator {
 		
 	}
 
-	private void generatePythonComponent(ApiImplementor imp) throws IOException {
-		File f = new File(this.dir, createFileName(imp.getPrefix()));
-		System.out.println("Generating " + f.getAbsolutePath());
-		try(FileWriter out = new FileWriter(f)) {
+	@Override
+	protected void generateAPIFiles(ApiImplementor imp) throws IOException {
+		Path file = getDirectory().resolve(createFileName(imp.getPrefix()));
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
 			out.write(HEADER);
 			out.write("class " + safeName(imp.getPrefix()) + "(object):\n\n");
 			out.write("    def __init__(self, zap):\n");
@@ -231,13 +213,13 @@ public class PythonAPIGenerator {
 			out.write("\n");
 			
 			for (ApiElement view : imp.getApiViews()) {
-				this.generatePythonElement(view, imp.getPrefix(), "view", out);
+				this.generatePythonElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);
 			}
 			for (ApiElement action : imp.getApiActions()) {
-				this.generatePythonElement(action, imp.getPrefix(), "action", out);
+				this.generatePythonElement(action, imp.getPrefix(), ACTION_ENDPOINT, out);
 			}
 			for (ApiElement other : imp.getApiOthers()) {
-				this.generatePythonElement(other, imp.getPrefix(), "other", out);
+				this.generatePythonElement(other, imp.getPrefix(), OTHER_ENDPOINT, out);
 			}
 			out.write("\n");
 		}
@@ -281,7 +263,7 @@ public class PythonAPIGenerator {
 		}
 		
 		PythonAPIGenerator wapi = new PythonAPIGenerator();
-		wapi.generatePythonFiles(ApiGeneratorUtils.getAllImplementors());
+		wapi.generateCoreAPIFiles();
 		
 		//System.out.println(camelCaseToLcUnderscores("TestCase"));
 		
