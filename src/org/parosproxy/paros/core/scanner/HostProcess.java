@@ -56,6 +56,7 @@
 // ZAP: 2015/12/16 Prevent HostProcess (and plugins run) from becoming in undefined state
 // ZAP: 2016/01/27 Prevent HostProcess from reporting progress higher than 100%
 // ZAP: 2016/04/21 Allow scanners to notify of messages sent (and tweak the progress and request count of each plugin)
+// ZAP: 2016/06/29 Allow to specify and obtain the reason why a scanner was skipped
 
 package org.parosproxy.paros.core.scanner;
 
@@ -69,6 +70,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.ThreadPool;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
@@ -105,7 +107,6 @@ public class HostProcess implements Runnable {
      * @see #processPlugin(Plugin)
      */
     private final Map<Integer, PluginStats> mapPluginStats = new HashMap<>();
-    private final Set<Integer> listPluginIdSkipped = new HashSet<>();
     private long hostProcessStartTime = 0;
 
     // ZAP: progress related
@@ -224,7 +225,7 @@ public class HostProcess implements Runnable {
         }
 
         if (techSet != null && !plugin.targets(techSet)) {
-            listPluginIdSkipped.add(plugin.getId());
+            pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.techs"));
             pluginCompleted(plugin);
             return;
         }
@@ -555,22 +556,66 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * Skip the current executing plugin
-     * @param plugin the plugin instance that need to be skipped
+     * Skips the given plugin.
+     * <p>
+     * <strong>Note:</strong> Whenever possible callers should use {@link #pluginSkipped(Plugin, String)} instead.
+     * 
+     * @param plugin the plugin that will be skipped, must not be {@code null}
+     * @since 2.4.0
      */
     public void pluginSkipped(Plugin plugin) {
-        if (pluginFactory.isRunning(plugin)) {
-            listPluginIdSkipped.add(plugin.getId());
-        }
+        pluginSkipped(plugin, null);
     }
 
     /**
-     * Check if a specific plugin has been explicitly skipped by the user 
-     * @param plugin the plugin instance currently running
-     * @return true if the user has skipped this instance
+     * Skips the given {@code plugin} with the given {@code reason}.
+     * <p>
+     * Ideally the {@code reason} should be internationalised as it is shown in the GUI.
+     *
+     * @param plugin the plugin that will be skipped, must not be {@code null}
+     * @param reason the reason why the plugin was skipped, might be {@code null}
+     * @since TODO add version
+     */
+    public void pluginSkipped(Plugin plugin, String reason) {
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            return;
+        }
+
+        pluginStats.skipped();
+        pluginStats.setSkippedReason(reason);
+    }
+
+    /**
+     * Tells whether or not the given {@code plugin} was skipped (either programmatically or by the user).
+     * 
+     * @param plugin the plugin that will be checked
+     * @return {@code true} if plugin was skipped, {@code false} otherwise
+     * @since 2.4.0
+     * @see #getSkippedReason(Plugin)
      */
     public boolean isSkipped(Plugin plugin) {
-        return (!listPluginIdSkipped.isEmpty() && listPluginIdSkipped.contains(plugin.getId()));
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            return false;
+        }
+        return pluginStats.isSkipped();
+    }
+
+    /**
+     * Gets the reason why the given plugin was skipped.
+     * 
+     * @param plugin the plugin that will be checked
+     * @return the reason why the given plugin was skipped, might be {@code null} if not skipped or there's no reason
+     * @since TODO add version
+     * @see #isSkipped(Plugin)
+     */
+    public String getSkippedReason(Plugin plugin) {
+        PluginStats pluginStats = mapPluginStats.get(plugin.getId());
+        if (pluginStats == null) {
+            return null;
+        }
+        return pluginStats.getSkippedReason();
     }
     
     /**
@@ -589,9 +634,12 @@ public class HostProcess implements Runnable {
             sb.append("stopped host/plugin ");
  
         // ZAP: added skipping notifications
-        } else if (isSkipped(plugin)) {
+        } else if (pluginStats.isSkipped()) {
             sb.append("skipped plugin ");
-                    
+            String reason = pluginStats.getSkippedReason();
+            if (reason != null) {
+                sb.append('[').append(reason).append("] ");
+            }
         } else {
             sb.append("completed host/plugin ");
         }
@@ -797,19 +845,64 @@ public class HostProcess implements Runnable {
     }
 
     /**
-     * The stats of a {@link Plugin}, when the {@code Plugin} was started, how many messages were sent and its scan progress.
+     * The stats (and skip state and reason) of a {@link Plugin}, when the {@code Plugin} was started, how many messages were
+     * sent and its scan progress.
      */
     private static class PluginStats {
 
         private final long startTime;
         private int messageCount;
         private int progress;
+        private boolean skipped;
+        private String skippedReason;
 
         /**
          * Constructs a {@code PluginStats}, initialising the starting time of the plugin.
          */
         public PluginStats() {
             startTime = System.currentTimeMillis();
+        }
+
+        /**
+         * Tells whether or not the plugin was skipped.
+         *
+         * @return {@code true} if the plugin was skipped, {@code false} otherwise
+         * @see #skipped()
+         */
+        public boolean isSkipped() {
+            return skipped;
+        }
+
+        /**
+         * Skips the plugin.
+         *
+         * @see #isSkipped()
+         * @see #setSkippedReason(String)
+         */
+        public void skipped() {
+            this.skipped = true;
+        }
+
+        /**
+         * Gets the reason why the plugin was skipped.
+         *
+         * @param reason the reason why the plugin was skipped, might be {@code null}
+         * @see #getSkippedReason()
+         * @see #isSkipped()
+         */
+        public void setSkippedReason(String reason) {
+            this.skippedReason = reason;
+        }
+
+        /**
+         * Gets the reason why the plugin was skipped.
+         *
+         * @return the reason why the plugin was skipped, might be {@code null}
+         * @see #setSkippedReason(String)
+         * @see #isSkipped()
+         */
+        public String getSkippedReason() {
+            return skippedReason;
         }
 
         /**

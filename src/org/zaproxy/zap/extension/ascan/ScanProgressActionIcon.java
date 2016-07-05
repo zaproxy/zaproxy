@@ -75,7 +75,7 @@ public class ScanProgressActionIcon extends JLabel {
 
         if (item.isSkipped()) {
             setIcon(skippedIcon);
-            setToolTipText(Constant.messages.getString("ascan.progress.label.skipped"));
+            setToolTipText(getSkipText());
 
         } else if (item.isRunning()) {
             ImageIcon icon = null;
@@ -100,6 +100,19 @@ public class ScanProgressActionIcon extends JLabel {
             setIcon(completedIcon);
             setToolTipText(Constant.messages.getString("ascan.progress.label.completed"));
         }
+    }
+
+    /**
+     * Gets the text that should be shown when the plugin is/was skipped.
+     *
+     * @return the text to show when the plugin is skipped.
+     */
+    private String getSkipText(){
+        String reason = item.getSkippedReason();
+        if (reason != null) {
+            return Constant.messages.getString("ascan.progress.label.skippedWithReason", reason);
+        }
+        return Constant.messages.getString("ascan.progress.label.skipped");
     }
 
     /**
@@ -146,7 +159,7 @@ public class ScanProgressActionIcon extends JLabel {
     @Override
     public String toString() {
         if (item.isSkipped()) {
-            return Constant.messages.getString("ascan.progress.label.skipped");
+            return getSkipText();
         }
         return item.getStatusLabel();
     }
