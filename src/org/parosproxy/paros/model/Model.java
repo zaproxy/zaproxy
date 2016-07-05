@@ -39,6 +39,7 @@
 // ZAP: 2016/03/22 Allow to remove ContextDataFactory
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 // ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
+// ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
 
 package org.parosproxy.paros.model;
 
@@ -125,6 +126,8 @@ public class Model {
 	 */
 	public Session newSession() {
 		session = new Session(this);
+		// Always start with one context
+		session.saveContext(session.getNewContext(Constant.messages.getString("context.default.name")));
 		return session;
 	}
 
