@@ -551,8 +551,8 @@ public class Context {
 		// log.debug("checkNode " + sn.getHierarchicNodeName());		// Useful for debugging
 		int origChildren = sn.getChildCount();
 		int movedChildren = 0;
-		for (int i=origChildren; i > 0; i--) {
-			if (checkNode((SiteNode)sn.getChildAt(i-1))) {
+		for (SiteNode childNode : getChildren(sn)) {
+			if (checkNode(childNode)) {
 				movedChildren++;
 			}
 		}
@@ -592,6 +592,25 @@ public class Context {
 		}
 		return false;
 		
+	}
+
+	/**
+	 * Gets the child nodes of the given site node.
+	 *
+	 * @param siteNode the site node that will be used, must not be {@code null}
+	 * @return a {@code List} with the child nodes, never {@code null}
+	 */
+	private List<SiteNode> getChildren(SiteNode siteNode) {
+		int childCount = siteNode.getChildCount();
+		if (childCount == 0) {
+			return Collections.emptyList();
+		}
+
+		List<SiteNode> children = new ArrayList<>(childCount);
+		for (int i = 0; i < childCount; i++) {
+			children.add((SiteNode) siteNode.getChildAt(i));
+		}
+		return children;
 	}
 
 	private void moveNode (SiteMap sitesTree, SiteNode sn) {
