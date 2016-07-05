@@ -17,22 +17,17 @@
  */
 package org.zaproxy.zap.extension.api;
 
-import java.io.File;
-import java.io.FileWriter;
+import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.ResourceBundle;
 
-import org.parosproxy.paros.Constant;
-
-public class DotNetAPIGenerator {
-	private File dir; 
-	private boolean optional = false;
+public class DotNetAPIGenerator extends AbstractAPIGenerator {
 	
 	private final String HEADER = 
 			"/* Zed Attack Proxy (ZAP) and its related class files.\n" +
@@ -55,11 +50,6 @@ public class DotNetAPIGenerator {
 			" */\n" +
 			"\n";
 
-	private final String OPTIONAL_MESSAGE = "This component is optional and therefore the API will only work if it is installed"; 
-
-	private ResourceBundle msgs = ResourceBundle.getBundle("lang." + Constant.MESSAGES_PREFIX, Locale.ENGLISH,
-		ResourceBundle.Control.getControl(ResourceBundle.Control.FORMAT_PROPERTIES));
-
 	/**
 	 * Map any names which are reserved in CSharp (or Dot Net) to something legal
 	 */
@@ -73,20 +63,13 @@ public class DotNetAPIGenerator {
     }
     
     public DotNetAPIGenerator() {
-    	dir = new File("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated"); 
+    	super("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated");
     }
 
     public DotNetAPIGenerator(String path, boolean optional) {
-    	dir = new File(path); 
-    	this.optional = optional;
+    	super(path, optional);
     }
 
-	public void generateCSharpFiles(List<ApiImplementor> implementors) throws IOException {
-		for (ApiImplementor imp : implementors) {
-			this.generateCSharpComponent(imp);
-		}
-	}
-	
 	private void generateCSharpElement(ApiElement element, String component, 
 			String type, Writer out) throws IOException {
 		boolean hasParams = false;
@@ -98,10 +81,10 @@ public class DotNetAPIGenerator {
 			descTag = component + ".api." + type + "." + element.getName();
 		}
 		try {
-			String desc = msgs.getString(descTag);
+			String desc = getMessages().getString(descTag);
 			out.write("\t\t/// <summary>\n");
 			out.write("\t\t///" + desc + "\n");
-			if (optional) {
+			if (isOptional()) {
 				out.write("\t\t///" + OPTIONAL_MESSAGE + "\n");
 			}
 			out.write("\t\t/// </summary>\n");
@@ -109,7 +92,7 @@ public class DotNetAPIGenerator {
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
 			System.out.println("No i18n for: " + descTag);
-			if (optional) {
+			if (isOptional()) {
 				out.write("\t\t/// <summary>\n");
 				out.write("\t\t///" + OPTIONAL_MESSAGE + "\n");
 				out.write("\t\t/// </summary>\n");
@@ -117,12 +100,12 @@ public class DotNetAPIGenerator {
 			}
 		}
 
-		if (type.equals("other")) {
+		if (type.equals(OTHER_ENDPOINT)) {
 			out.write("\t\tpublic byte[] " + createMethodName(element.getName()) + "(");
 		} else {
 			out.write("\t\tpublic IApiResponse " + createMethodName(element.getName()) + "(");
 		}
-		if (type.equals("action") || type.equals("other")) {
+		if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
 			// Always add the API key - we've no way of knowing if it will be required or not
 			hasParams = true;
 			out.write("string ");
@@ -171,7 +154,7 @@ public class DotNetAPIGenerator {
 		if (hasParams) {
 			out.write("\t\t\tparameters = new Dictionary<string, string>();\n"); 
 			
-			if (type.equals("action") || type.equals("other")) {
+			if (type.equals(ACTION_ENDPOINT) || type.equals(OTHER_ENDPOINT)) {
 				// Always add the API key (if not null) - we've no way of knowing if it will be required or not
 				out.write("\t\t\tif (!string.IsNullOrWhiteSpace(apikey)){\n");
 				out.write("\t\t\t\tparameters.Add(\"apikey\", apikey);\n");
@@ -205,7 +188,7 @@ public class DotNetAPIGenerator {
 			}
 		}
 		
-		if (type.equals("other")) {
+		if (type.equals(OTHER_ENDPOINT)) {
 			out.write("\t\t\treturn api.CallApiOther(\"" + 
 					component + "\", \"" + type + "\", \"" + element.getName() + "\", parameters);\n"); 
 		} else {
@@ -235,51 +218,52 @@ public class DotNetAPIGenerator {
 		return removeAllFullStopCharacters(name);
 	}
 
-	private void generateCSharpComponent(ApiImplementor imp) throws IOException {
+	@Override
+	protected void generateAPIFiles(ApiImplementor imp) throws IOException {
 		String className = imp.getPrefix().substring(0, 1).toUpperCase() + imp.getPrefix().substring(1);
 	
-		File f = new File(this.dir, className + ".cs");
-		System.out.println("Generating " + f.getAbsolutePath());
-		FileWriter out = new FileWriter(f);
-		out.write(HEADER);
-		out.write("\n\n");
-		
-		out.write("using System;\n");
-		out.write("using System.Collections.Generic;\n");
-		out.write("using System.Text;\n");
-		out.write("\n");
-		
-		out.write("\n");
-		out.write("/*\n");
-		out.write(" * This file was automatically generated.\n");
-		out.write(" */\n");
-		out.write("namespace OWASPZAPDotNetAPI.Generated\n");
-		out.write("{\n");
-		out.write("\tpublic class " + className + " \n\t{");
-		
-		out.write("\n\t\tprivate ClientApi api = null;\n\n");
-		out.write("\t\tpublic " + className + "(ClientApi api) \n\t\t{\n");
-		out.write("\t\t\tthis.api = api;\n");
-		out.write("\t\t}\n\n");
-
-		for (ApiElement view : imp.getApiViews()) {
-			this.generateCSharpElement(view, imp.getPrefix(), "view", out);
+		Path file = getDirectory().resolve(className + ".cs");
+		System.out.println("Generating " + file.toAbsolutePath());
+		try (BufferedWriter out = Files.newBufferedWriter(file, StandardCharsets.UTF_8)) {
+			out.write(HEADER);
+			out.write("\n\n");
+			
+			out.write("using System;\n");
+			out.write("using System.Collections.Generic;\n");
+			out.write("using System.Text;\n");
+			out.write("\n");
+			
+			out.write("\n");
+			out.write("/*\n");
+			out.write(" * This file was automatically generated.\n");
+			out.write(" */\n");
+			out.write("namespace OWASPZAPDotNetAPI.Generated\n");
+			out.write("{\n");
+			out.write("\tpublic class " + className + " \n\t{");
+			
+			out.write("\n\t\tprivate ClientApi api = null;\n\n");
+			out.write("\t\tpublic " + className + "(ClientApi api) \n\t\t{\n");
+			out.write("\t\t\tthis.api = api;\n");
+			out.write("\t\t}\n\n");
+	
+			for (ApiElement view : imp.getApiViews()) {
+				this.generateCSharpElement(view, imp.getPrefix(), VIEW_ENDPOINT, out);
+			}
+			for (ApiElement action : imp.getApiActions()) {
+				this.generateCSharpElement(action, imp.getPrefix(), ACTION_ENDPOINT, out);
+			}
+			for (ApiElement other : imp.getApiOthers()) {
+				this.generateCSharpElement(other, imp.getPrefix(), OTHER_ENDPOINT, out);
+			}
+			out.write("\t}\n");
+			out.write("}\n");
 		}
-		for (ApiElement action : imp.getApiActions()) {
-			this.generateCSharpElement(action, imp.getPrefix(), "action", out);
-		}
-		for (ApiElement other : imp.getApiOthers()) {
-			this.generateCSharpElement(other, imp.getPrefix(), "other", out);
-		}
-		out.write("\t}\n");
-		out.write("}\n");
-		out.close();
 	}
 
 	public static void main(String[] args) throws Exception {
 		// Command for generating a DotNet version of the ZAP API		
 		DotNetAPIGenerator dnapi = new DotNetAPIGenerator("../zap-api-dotnet/src/OWASPZAPDotNetAPI/OWASPZAPDotNetAPI/Generated", false);
-		dnapi.generateCSharpFiles(ApiGeneratorUtils.getAllImplementors());
+		dnapi.generateCoreAPIFiles();
 		
 	}
 
