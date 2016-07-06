@@ -75,6 +75,7 @@ public class ExtensionParam extends AbstractParam {
                 boolean enabled = sub.getBoolean(EXTENSION_ENABLED_KEY, true);
                 extensions.add(new ExtensionState(name, enabled));
             }
+            extensions = Collections.unmodifiableList(extensions);
         } catch (ConversionException e) {
             LOGGER.error("Error while loading extensions' state: " + e.getMessage(), e);
             extensions = Collections.emptyList();
@@ -87,7 +88,7 @@ public class ExtensionParam extends AbstractParam {
      * @return an unmodifiable list with the extensions' state, never {@code null}
      */
     List<ExtensionState> getExtensions() {
-        return Collections.unmodifiableList(extensions);
+        return extensions;
     }
 
     /**
@@ -101,16 +102,24 @@ public class ExtensionParam extends AbstractParam {
         }
 
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_EXTENSIONS_KEY);
+        int enabledCount = 0;
         for (int i = 0; i < extensionsState.size(); i++) {
             ExtensionState elem = extensionsState.get(i);
             // Don't persist if enabled, extensions are enabled by default.
             if (!elem.isEnabled()) {
-                String elementBaseKey = ALL_EXTENSIONS_KEY + "(" + i + ").";
+                String elementBaseKey = ALL_EXTENSIONS_KEY + "(" + enabledCount + ").";
                 getConfig().setProperty(elementBaseKey + EXTENSION_NAME_KEY, elem.getName());
                 getConfig().setProperty(elementBaseKey + EXTENSION_ENABLED_KEY, Boolean.valueOf(elem.isEnabled()));
+
+                enabledCount++;
             }
         }
-        this.extensions = extensionsState;
+        this.extensions = Collections.unmodifiableList(extensionsState);
+    }
+
+    @Override
+    public ExtensionParam clone() {
+        return (ExtensionParam) super.clone();
     }
 
     /**
@@ -118,12 +127,16 @@ public class ExtensionParam extends AbstractParam {
      * <p>
      * Contains the name of the extension and the enabled state.
      */
-    static class ExtensionState {
+    static final class ExtensionState {
 
         private final String name;
         private final boolean enabled;
 
         public ExtensionState(String name, boolean enabled) {
+            if (name == null) {
+                throw new IllegalArgumentException("Parameter name must not be null.");
+            }
+
             this.name = name;
             this.enabled = enabled;
         }
@@ -134,6 +147,37 @@ public class ExtensionParam extends AbstractParam {
 
         public boolean isEnabled() {
             return enabled;
+        }
+
+        @Override
+        public int hashCode() {
+            final int prime = 31;
+            int result = 1;
+            result = prime * result + (enabled ? 1231 : 1237);
+            result = prime * result + name.hashCode();
+            return result;
+        }
+
+        @Override
+        public boolean equals(Object object) {
+            if (this == object) {
+                return true;
+            }
+            if (object == null) {
+                return false;
+            }
+            ExtensionState other = (ExtensionState) object;
+            if (enabled != other.enabled) {
+                return false;
+            }
+            return name.equals(other.name);
+        }
+
+        @Override
+        public String toString() {
+            StringBuilder strBuilder = new StringBuilder(75);
+            strBuilder.append("[Name=").append(name).append(", Enabled=").append(enabled).append(']');
+            return strBuilder.toString();
         }
     }
 }
