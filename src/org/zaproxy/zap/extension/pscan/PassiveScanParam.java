@@ -34,7 +34,7 @@ public class PassiveScanParam extends AbstractParam {
     
     private static final Logger logger = Logger.getLogger(PassiveScanParam.class);
 
-    private static final String PASSIVE_SCANS_BASE_KEY = "pscans";
+    static final String PASSIVE_SCANS_BASE_KEY = "pscans";
     private static final String ALL_AUTO_TAG_SCANNERS_KEY = PASSIVE_SCANS_BASE_KEY + ".autoTagScanners.scanner";
 
     private static final String AUTO_TAG_SCANNER_NAME_KEY = "name";
