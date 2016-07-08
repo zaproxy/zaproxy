@@ -46,6 +46,11 @@ public class ApiException extends Exception {
 		 * @see API.Format
 		 */
 		BAD_FORMAT,
+		/**
+		 * Indicates that the requested type is not valid.
+		 * 
+		 * @see API.RequestType
+		 */
 		BAD_TYPE, NO_IMPLEMENTOR, BAD_ACTION, BAD_VIEW, BAD_OTHER, INTERNAL_ERROR, MISSING_PARAMETER, 
 		URL_NOT_FOUND, HREF_NOT_FOUND, SCAN_IN_PROGRESS, DISABLED, ALREADY_EXISTS, DOES_NOT_EXIST,
 		/**
