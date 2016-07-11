@@ -346,6 +346,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         if (menuItemCustomScan == null) {
             menuItemCustomScan = new ZapMenuItem("menu.tools.ascanadv",
                     KeyStroke.getKeyStroke(KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK, false));
+            menuItemCustomScan.setEnabled(Control.getSingleton().getMode() != Mode.safe);
 
             menuItemCustomScan.addActionListener(new java.awt.event.ActionListener() {
                 @Override
