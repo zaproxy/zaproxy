@@ -65,6 +65,7 @@
 // ZAP: 2016/06/07 Remove commented constants and statement that had no (actual) effect, add doc to a constant and init other
 // ZAP: 2016/06/07 Use filter directory in ZAP's home directory
 // ZAP: 2016/06/13 Migrate config option "proxy.modifyAcceptEncoding" 
+// ZAP: 2016/07/07 Convert passive scanners options to new structure
 
 package org.parosproxy.paros;
 
@@ -82,11 +83,13 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Properties;
+import java.util.Set;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
@@ -818,6 +821,36 @@ public final class Constant {
         String oldConfigKey = "proxy.modifyAcceptEncoding";
         config.setProperty("proxy.removeUnsupportedEncodings", config.getBoolean(oldConfigKey, true));
         config.clearProperty(oldConfigKey);
+
+        // Convert passive scanners options to new structure
+        Set<String> classnames = new HashSet<>();
+        for (Iterator<String> it = config.getKeys(); it.hasNext();) {
+            String key = it.next();
+            if (!key.startsWith("pscans.org")) {
+                continue;
+            }
+            classnames.add(key.substring(7, key.lastIndexOf('.')));
+        }
+
+        List<Object[]> oldData = new ArrayList<>();
+        for (String classname : classnames) {
+            Object[] data = new Object[3];
+            data[0] = classname;
+            data[1] = config.getBoolean("pscans." + classname + ".enabled", true);
+            data[2] = config.getString("pscans." + classname + ".level", "");
+            oldData.add(data);
+        }
+
+        config.clearTree("pscans.org");
+
+        for (int i = 0, size = oldData.size(); i < size; ++i) {
+            String elementBaseKey = "pscans.pscanner(" + i + ").";
+            Object[] data = oldData.get(i);
+
+            config.setProperty(elementBaseKey + "classname", data[0]);
+            config.setProperty(elementBaseKey + "enabled", data[1]);
+            config.setProperty(elementBaseKey + "level", data[2]);
+        }
     }
 
 	public static void setLocale (String loc) {
