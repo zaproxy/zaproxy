@@ -91,7 +91,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
     @Override
     public void init() {
         if (shouldSkipScan()) {
-            getParent().pluginSkipped(this);
+            getParent().pluginSkipped(this, Constant.messages.getString("ascan.scripts.skip.reason"));
         }
     }
 
