@@ -267,9 +267,11 @@ public interface Plugin extends Runnable {
     AttackStrength[] getAttackStrengthsSupported();
 
     /**
-     * Sets the technologies enabled for the scan. Might be {@code null} when all technologies are enabled.
+     * Sets the technologies enabled for the scan.
      *
      * @param ts the technologies enabled for the scan
+     * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+     * @since 2.0.0
      * @see #targets(TechSet)
      */
     void setTechSet(TechSet ts);
@@ -281,6 +283,7 @@ public interface Plugin extends Runnable {
      *
      * @param tech the technology that will be checked
      * @return {@code true} if the technology is enabled for the scan, {@code false} otherwise
+     * @since 2.0.0
      * @see #targets(TechSet)
      */
     boolean inScope(Tech tech);
@@ -294,6 +297,7 @@ public interface Plugin extends Runnable {
      *
      * @param technologies the technologies that are enabled for the scan, never {@code null}
      * @return {@code true} if the scanner is targeting the given technologies (or none at all), {@code false} otherwise
+     * @since 2.4.1
      * @see #setTechSet(TechSet)
      * @see #inScope(Tech)
      */

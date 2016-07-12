@@ -38,6 +38,7 @@
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/10/21 Issue 1576: Removed SiteNode cast no longer needed
 // ZAP: 2015/12/14 Prevent scans from becoming in undefined state
+// ZAP: 2016/07/12 Do not allow techSet to be null
 
 package org.parosproxy.paros.core.scanner;
 
@@ -92,7 +93,7 @@ public class Scanner implements Runnable {
 	private boolean justScanInScope = false;
 	private boolean scanChildren = true;
 	private User user = null;
-    private TechSet techSet = null;
+    private TechSet techSet;
     private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
 	private int id;
 
@@ -109,6 +110,8 @@ public class Scanner implements Runnable {
 	    
 	  //ZAP: Load all scanner hooks from extensionloader. 
 	    Control.getSingleton().getExtensionLoader().hookScannerHook(this);
+
+		techSet = TechSet.AllTech;
     }
     
     
@@ -473,11 +476,27 @@ public class Scanner implements Runnable {
 		this.user = user;
 	}
 	
+	/**
+	 * Gets the technologies used in the scan.
+	 *
+	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @since 2.4.0
+	 */
 	public TechSet getTechSet() {
 		return techSet;
 	}
 
+	/**
+	 * Sets the technologies to be used in the scan.
+	 *
+	 * @param techSet the technologies to be used during the scan
+	 * @since 2.4.0
+	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}
+	 */
 	public void setTechSet(TechSet techSet) {
+		if (techSet == null) {
+			throw new IllegalArgumentException("Parameter techSet must not be null.");
+		}
 		this.techSet = techSet;
 	}
 

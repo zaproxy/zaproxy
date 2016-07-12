@@ -57,6 +57,7 @@
 // ZAP: 2016/01/27 Prevent HostProcess from reporting progress higher than 100%
 // ZAP: 2016/04/21 Allow scanners to notify of messages sent (and tweak the progress and request count of each plugin)
 // ZAP: 2016/06/29 Allow to specify and obtain the reason why a scanner was skipped
+// ZAP: 2016/07/12 Do not allow techSet to be null
 
 package org.parosproxy.paros.core.scanner;
 
@@ -99,7 +100,7 @@ public class HostProcess implements Runnable {
     private Analyser analyser = null;
     private Kb kb = null;
     private User user = null;
-    private TechSet techSet = null;
+    private TechSet techSet;
 
     /**
      * A {@code Map} from plugin IDs to corresponding {@link PluginStats}.
@@ -146,6 +147,7 @@ public class HostProcess implements Runnable {
         }
         
         threadPool = new ThreadPool(maxNumberOfThreads, "ZAP-ActiveScanner-");
+        this.techSet = TechSet.AllTech;
     }
 
     /**
@@ -224,7 +226,7 @@ public class HostProcess implements Runnable {
             mapPluginStats.put(plugin.getId(), new PluginStats());
         }
 
-        if (techSet != null && !plugin.targets(techSet)) {
+        if (!plugin.targets(techSet)) {
             pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.techs"));
             pluginCompleted(plugin);
             return;
@@ -699,11 +701,27 @@ public class HostProcess implements Runnable {
 		}
 	}
 
+	/**
+	 * Gets the technologies to be used in the scan.
+	 *
+	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @since 2.4.0
+	 */
 	public TechSet getTechSet() {
 		return techSet;
 	}
 
+	/**
+	 * Sets the technologies to be used in the scan.
+	 *
+	 * @param techSet the technologies to be used during the scan
+	 * @since 2.4.0
+	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}.
+	 */
 	public void setTechSet(TechSet techSet) {
+		if (techSet == null) {
+			throw new IllegalArgumentException("Parameter techSet must not be null.");
+		}
 		this.techSet = techSet;
 	}
 	
