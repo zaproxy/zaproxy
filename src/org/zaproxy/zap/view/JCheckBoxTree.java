@@ -16,6 +16,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTree;
+import javax.swing.UIManager;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.DefaultTreeSelectionModel;
@@ -181,6 +182,7 @@ public class JCheckBoxTree extends JTree {
             	checkBox.setEnabled(false);
             }
             altLabel.setText(textRepresentation);
+            altLabel.setForeground(UIManager.getColor(selected ? "Tree.selectionForeground" : "Tree.textForeground"));
 
             return this;
         }       
