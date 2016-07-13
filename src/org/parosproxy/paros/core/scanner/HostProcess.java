@@ -58,6 +58,7 @@
 // ZAP: 2016/04/21 Allow scanners to notify of messages sent (and tweak the progress and request count of each plugin)
 // ZAP: 2016/06/29 Allow to specify and obtain the reason why a scanner was skipped
 // ZAP: 2016/07/12 Do not allow techSet to be null
+// ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -79,6 +80,8 @@ import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfig;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.TechSet;
@@ -101,6 +104,7 @@ public class HostProcess implements Runnable {
     private Kb kb = null;
     private User user = null;
     private TechSet techSet;
+    private RuleConfigParam ruleConfigParam;
 
     /**
      * A {@code Map} from plugin IDs to corresponding {@link PluginStats}.
@@ -125,13 +129,14 @@ public class HostProcess implements Runnable {
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
-    		ScanPolicy scanPolicy) {
+    		ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
         
         super();
         this.hostAndPort = hostAndPort;
         this.parentScanner = parentScanner;
         this.scannerParam = scannerParam;
 		this.pluginFactory = scanPolicy.getPluginFactory().clone();
+		this.ruleConfigParam = ruleConfigParam;
 		
         httpSender = new HttpSender(connectionParam, true, HttpSender.ACTIVE_SCANNER_INITIATOR);
         httpSender.setUser(this.user);
@@ -370,6 +375,12 @@ public class HostProcess implements Runnable {
 
             test = plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
+            if (this.ruleConfigParam != null) {
+	            // Set the configuration rules
+	            for (RuleConfig rc : this.ruleConfigParam.getAllRuleConfigs()) {
+	                test.getConfig().setProperty(rc.getKey(), rc.getValue());
+	            }
+            }
             test.setDelayInMs(plugin.getDelayInMs());
             test.setDefaultAlertThreshold(plugin.getAlertThreshold());
             test.setDefaultAttackStrength(plugin.getAttackStrength());

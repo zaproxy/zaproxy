@@ -26,11 +26,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
+import org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.extension.script.ScriptCollection;
 import org.zaproxy.zap.model.ScanController;
 import org.zaproxy.zap.model.Target;
@@ -102,9 +105,17 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 		activeScansLock.lock();
 		try {
 			int id = this.scanIdCounter++;
+			
+			RuleConfigParam ruleConfigParam = null;
+			ExtensionRuleConfig extRC = 
+				Control.getSingleton().getExtensionLoader().getExtension(ExtensionRuleConfig.class);
+			if (extRC != null) {
+				ruleConfigParam = extRC.getRuleConfigParam();
+			}
+			
 			ActiveScan ascan = new ActiveScan(name, extension.getScannerParam(), 
 					extension.getModel().getOptionsParam().getConnectionParam(), 
-					null) {
+					null, ruleConfigParam) {
 				@Override
 				public void alertFound(Alert alert) {
 					if (extAlert!= null) {

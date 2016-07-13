@@ -47,6 +47,8 @@ import org.zaproxy.zap.eventBus.Event;
 import org.zaproxy.zap.eventBus.EventConsumer;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.log4j.ExtensionLog4j;
+import org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.view.ScanStatus;
 
 public class AttackModeScanner implements EventConsumer {
@@ -216,8 +218,17 @@ public class AttackModeScanner implements EventConsumer {
 		public void run() {
 			log.debug("Starting attack thread");
 			this.running = true;
+
+			RuleConfigParam ruleConfigParam = null;
+			ExtensionRuleConfig extRC = 
+				Control.getSingleton().getExtensionLoader().getExtension(ExtensionRuleConfig.class);
+			if (extRC != null) {
+				ruleConfigParam = extRC.getRuleConfigParam();
+			}
+
 			ascanWrapper = new AttackScan(Constant.messages.getString("ascan.attack.scan"), extension.getScannerParam(), 
-					extension.getModel().getOptionsParam().getConnectionParam(), extension.getPolicyManager().getAttackScanPolicy());
+					extension.getModel().getOptionsParam().getConnectionParam(), 
+					extension.getPolicyManager().getAttackScanPolicy(), ruleConfigParam);
 			extension.registerScan(ascanWrapper);
 			while (running) {
 				if (scanStatus.getScanCount() != nodeStack.size()) {
@@ -239,9 +250,11 @@ public class AttackModeScanner implements EventConsumer {
 				while (nodeStack.size() > 0 && scanners.size() < scannerCount) {
 					SiteNode node = nodeStack.remove(0);
 					log.debug("Attacking node " + node.getNodeName());
+					
 					Scanner scanner = new Scanner(extension.getScannerParam(), 
 							extension.getModel().getOptionsParam().getConnectionParam(), 
-							extension.getPolicyManager().getAttackScanPolicy());
+							extension.getPolicyManager().getAttackScanPolicy(),
+							ruleConfigParam);
 					scanner.setStartNode(node);
 					scanner.setScanChildren(false);
 					scanner.addScannerListener(this);
