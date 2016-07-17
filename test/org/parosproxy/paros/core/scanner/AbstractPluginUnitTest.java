@@ -36,6 +36,23 @@ import org.zaproxy.zap.utils.ZapXmlConfiguration;
  */
 public class AbstractPluginUnitTest extends PluginTestUtils {
 
+    @Test(expected = IllegalArgumentException.class)
+    public void shouldFailToSetNullTechSet() {
+        // Given
+        AbstractPlugin plugin = createAbstractPlugin();
+        // When
+        plugin.setTechSet(null);
+        // Then = IllegalArgumentException.class
+    }
+
+    @Test
+    public void shouldHaveAllTechSetByDefault() {
+        // Given / When
+        AbstractPlugin plugin = createAbstractPlugin();
+        // Then
+        assertThat(plugin.getTechSet(), is(equalTo(TechSet.AllTech)));
+    }
+
     @Test
     public void shouldNotHaveConfigByDefault() {
         // Given / When

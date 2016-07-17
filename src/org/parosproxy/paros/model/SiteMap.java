@@ -49,6 +49,7 @@
 // ZAP: 2015/11/09 Fix NullPointerException when creating a HistoryReference with a request URI without path
 // ZAP: 2016/04/21 Issue 2342: Checks non-empty method for deletion of SiteNodes via API 
 // ZAP: 2016/04/28 Issue 1171: Raise site and node add or remove events
+// ZAP: 2016/07/07 Do not add the message to past history if it already belongs to the node
 
 package org.parosproxy.paros.model;
 
@@ -506,7 +507,7 @@ public class SiteMap extends DefaultTreeModel {
             this.applyFilter(node);
 
             handleEvent(parent, node, EventType.ADD);            
-        } else {
+        } else if (hrefMap.get(ref.getHistoryId()) != node) {
            
             // do not replace if
             // - use local copy (304). only use if 200

@@ -38,6 +38,8 @@
 // ZAP: 2015/04/02 Issue 1582: Low memory option
 // ZAP: 2015/10/21 Issue 1576: Removed SiteNode cast no longer needed
 // ZAP: 2015/12/14 Prevent scans from becoming in undefined state
+// ZAP: 2016/07/12 Do not allow techSet to be null
+// ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -63,6 +65,7 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.ascan.ScanPolicy;
+import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.extension.script.ScriptCollection;
 import org.zaproxy.zap.model.StructuralNode;
 import org.zaproxy.zap.model.StructuralSiteNode;
@@ -84,6 +87,7 @@ public class Scanner implements Runnable {
 	private ScannerParam scannerParam = null;
 	private ConnectionParam connectionParam = null;
 	private ScanPolicy scanPolicy;
+	private RuleConfigParam ruleConfigParam;
 	private boolean isStop = false;
 	private ThreadPool pool = null;
 	private Target target = null;
@@ -92,7 +96,7 @@ public class Scanner implements Runnable {
 	private boolean justScanInScope = false;
 	private boolean scanChildren = true;
 	private User user = null;
-    private TechSet techSet = null;
+    private TechSet techSet;
     private Set<ScriptCollection> scriptCollections = new HashSet<ScriptCollection>();
 	private int id;
 
@@ -101,14 +105,18 @@ public class Scanner implements Runnable {
 	
 	private List<HostProcess> hostProcesses = new ArrayList<>();
 
-    public Scanner(ScannerParam scannerParam, ConnectionParam param, ScanPolicy scanPolicy) {
+    public Scanner(ScannerParam scannerParam, ConnectionParam param, 
+    		ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
 	    this.connectionParam = param;
 	    this.scannerParam = scannerParam;
 	    this.scanPolicy = scanPolicy;
+	    this.ruleConfigParam = ruleConfigParam;
 	    pool = new ThreadPool(scannerParam.getHostPerScan());
 	    
 	  //ZAP: Load all scanner hooks from extensionloader. 
 	    Control.getSingleton().getExtensionLoader().hookScannerHook(this);
+
+		techSet = TechSet.AllTech;
     }
     
     
@@ -185,7 +193,8 @@ public class Scanner implements Runnable {
 	    		while (iter.hasNext()) {
 		        	StructuralNode child = iter.next();
 		            String hostAndPort = getHostAndPort(child);
-		            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
+		            hostProcess = new HostProcess(hostAndPort, this, scannerParam, 
+		            		connectionParam, scanPolicy, ruleConfigParam);
 		            hostProcess.setStartNode(child);
 		            hostProcess.setUser(this.user);
 		            hostProcess.setTechSet(this.techSet);
@@ -205,7 +214,8 @@ public class Scanner implements Runnable {
 		            String hostAndPort = getHostAndPort(node);
 		            hostProcess = processMap.get(hostAndPort);
 		            if (hostProcess == null) {
-			            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
+			            hostProcess = new HostProcess(hostAndPort, this, 
+			            		scannerParam, connectionParam, scanPolicy, ruleConfigParam);
 			            hostProcess.setStartNode(node);
 			            hostProcess.setUser(this.user);
 			            hostProcess.setTechSet(this.techSet);
@@ -232,7 +242,8 @@ public class Scanner implements Runnable {
 	    	for (SiteNode node : nodes) {
 			    HostProcess hostProcess = null;
 	            String hostAndPort = getHostAndPort(node);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, 
+	            		connectionParam, scanPolicy, ruleConfigParam);
 	            hostProcess.setStartNode(new StructuralSiteNode(node));
 	            hostProcess.setUser(this.user);
 	            hostProcess.setTechSet(this.techSet);
@@ -255,7 +266,8 @@ public class Scanner implements Runnable {
 	    	for (SiteNode node : nodes) {
 			    HostProcess hostProcess = null;
 	            String hostAndPort = getHostAndPort(node);
-	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, connectionParam, scanPolicy);
+	            hostProcess = new HostProcess(hostAndPort, this, scannerParam, 
+	            		connectionParam, scanPolicy, ruleConfigParam);
 	            hostProcess.setStartNode(new StructuralSiteNode(node));
 	            hostProcess.setUser(this.user);
 	            hostProcess.setTechSet(this.techSet);
@@ -473,11 +485,27 @@ public class Scanner implements Runnable {
 		this.user = user;
 	}
 	
+	/**
+	 * Gets the technologies used in the scan.
+	 *
+	 * @return the technologies, never {@code null} (since TODO add version)
+	 * @since 2.4.0
+	 */
 	public TechSet getTechSet() {
 		return techSet;
 	}
 
+	/**
+	 * Sets the technologies to be used in the scan.
+	 *
+	 * @param techSet the technologies to be used during the scan
+	 * @since 2.4.0
+	 * @throws IllegalArgumentException (since TODO add version) if the given parameter is {@code null}
+	 */
 	public void setTechSet(TechSet techSet) {
+		if (techSet == null) {
+			throw new IllegalArgumentException("Parameter techSet must not be null.");
+		}
 		this.techSet = techSet;
 	}
 

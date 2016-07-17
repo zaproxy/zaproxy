@@ -51,6 +51,7 @@
 // ZAP: 2016/04/21 Include Plugin itself when notifying of a new message sent
 // ZAP: 2016/05/03 Remove exceptions' stack trace prints
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
+// ZAP: 2016/07/12 Do not allow techSet to be null
 
 package org.parosproxy.paros.core.scanner;
 
@@ -104,7 +105,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     private static final AlertThreshold[] alertThresholdsSupported = new AlertThreshold[]{AlertThreshold.MEDIUM};
     private AttackStrength defaultAttackStrength = AttackStrength.MEDIUM;
     private static final AttackStrength[] attackStrengthsSupported = new AttackStrength[]{AttackStrength.MEDIUM};
-    private TechSet techSet = null;
+    private TechSet techSet;
     private Date started = null;
     private Date finished = null;
     private AddOn.Status status = AddOn.Status.unknown;
@@ -122,6 +123,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
      * Default Constructor
      */
     public AbstractPlugin() {
+        this.techSet = TechSet.AllTech;
     }
 
     @Override
@@ -926,18 +928,22 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
 
     @Override
     public boolean inScope(Tech tech) {
-        return this.techSet == null || this.techSet.includes(tech);
+        return this.techSet.includes(tech);
     }
 
     @Override
     public void setTechSet(TechSet ts) {
+        if (ts == null) {
+            throw new IllegalArgumentException("Parameter ts must not be null.");
+        }
         this.techSet = ts;
     }
     
     /**
      * Returns the technologies enabled for the scan.
      *
-     * @return a {@code TechSet} with the technologies enabled for the scan.
+     * @return a {@code TechSet} with the technologies enabled for the scan, never {@code null} (since TODO add version).
+     * @since 2.4.0
      * @see #inScope(Tech)
      * @see #targets(TechSet)
      */
@@ -948,6 +954,7 @@ public abstract class AbstractPlugin implements Plugin, Comparable<Object> {
     /**
      * Returns {@code true} by default.
      * 
+     * @since 2.4.1
      * @see #getTechSet()
      */
     @Override

@@ -421,6 +421,7 @@ public class HttpSessionsSite {
 			}
 		}
 
+		boolean newSession = false;
 		// If the session didn't exist, create it now
 		if (session == null) {
 			session = new HttpSession(generateUniqueSessionName(),
@@ -452,7 +453,7 @@ public class HttpSessionsSite {
 					}
 				}
 			}
-			log.info("Created a new session as no match was found: " + session);
+			newSession = true;
 		}
 
 		// Update the session
@@ -460,6 +461,10 @@ public class HttpSessionsSite {
 			for (Entry<String, Cookie> tv : tokenValues.entrySet()) {
 				session.setTokenValue(tv.getKey(), tv.getValue());
 			}
+		}
+
+		if (newSession && log.isDebugEnabled()) {
+			log.debug("Created a new session as no match was found: " + session);
 		}
 
 		// Update the count of messages matched

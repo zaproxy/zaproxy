@@ -60,6 +60,7 @@
 // ZAP: 2016/05/10 Use empty String for (URL) parameters with no value
 // ZAP: 2016/05/24 Call Database.discardSession(long) in Session.discard()
 // ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
+// ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
 
 package org.parosproxy.paros.model;
 
@@ -159,8 +160,6 @@ public class Session {
 		this.model = model;
 		
 		discardContexts();
-		// Always start with one context
-	    getNewContext(Constant.messages.getString("context.default.name"));
 	    
 	    Stats.clearAll();
 
