@@ -157,26 +157,24 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * @param credentials the credentials
 		 * @throws SQLException
 		 * @throws HttpMalformedHeaderException
-		 * @throws UnsupportedEncodingException
 		 */
 		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
-				throws URIException, NullPointerException, HttpMalformedHeaderException, DatabaseException,
-				UnsupportedEncodingException {
+				throws URIException, NullPointerException, HttpMalformedHeaderException, DatabaseException {
 
 			// Replace the username and password in the uri
 			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN,
-					URLEncoder.encode(credentials.getUsername(), ENCODING));
+					encodeParameter(credentials.getUsername()));
 			requestURL = requestURL.replace(MSG_PASS_PATTERN,
-					URLEncoder.encode(credentials.getPassword(), ENCODING));
+					encodeParameter(credentials.getPassword()));
 			URI requestURI = new URI(requestURL, false);
 
 			// Replace the username and password in the post data of the request, if needed
 			String requestBody = null;
 			if (loginRequestBody != null && !loginRequestBody.isEmpty()) {
 				requestBody = loginRequestBody.replace(MSG_USER_PATTERN,
-						URLEncoder.encode(credentials.getUsername(), ENCODING));
+						encodeParameter(credentials.getUsername()));
 				requestBody = requestBody.replace(MSG_PASS_PATTERN,
-						URLEncoder.encode(credentials.getPassword(), ENCODING));
+						encodeParameter(credentials.getPassword()));
 			}
 
 			// Prepare the actual message, either based on the existing one, or create a new one
@@ -201,6 +199,15 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			}
 
 			return requestMessage;
+		}
+
+		private static String encodeParameter(String parameter) {
+			try {
+				return URLEncoder.encode(parameter, ENCODING);
+			} catch (UnsupportedEncodingException ignore) {
+				// UTF-8 is one of the standard charsets (see StandardCharsets.UTF_8).
+			}
+			return "";
 		}
 
 		@Override
