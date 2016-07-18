@@ -44,7 +44,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.extension.CommandLineArgument;
 import org.parosproxy.paros.extension.CommandLineListener;
@@ -272,9 +271,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     	return id;
 	}
 
-    public void scannerComplete() {
-    }
-
 	private JButton getPolicyButton() {
 		if (policyButton == null) {
 			policyButton = new JButton();
@@ -358,15 +354,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         }
         
         return menuItemCustomScan;
-    }
-
-    public void hostProgress(String hostAndPort, String msg, int percentage) {
-    }
-
-    public void hostComplete(String hostAndPort) {
-    }
-
-    public void hostNewScan(String hostAndPort, HostProcess hostThread) {
     }
 
     @Override
