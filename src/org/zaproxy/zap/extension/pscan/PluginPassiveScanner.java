@@ -73,6 +73,10 @@ public abstract class PluginPassiveScanner extends Enableable implements Passive
 	private Configuration config = null;
 	private AddOn.Status status = AddOn.Status.unknown;
 
+	public PluginPassiveScanner() {
+		super(true);
+	}
+
 	/**
 	 * Sets the current configuration of the passive scanner.
 	 *
