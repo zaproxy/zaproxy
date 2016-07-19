@@ -70,7 +70,6 @@
 package org.parosproxy.paros;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -1119,26 +1118,23 @@ public final class Constant {
      */
 	public static boolean isKali() {
 		if (onKali == null) {
-	    	onKali = false;
+	    	onKali = Boolean.FALSE;
     		File osReleaseFile = new File ("/etc/os-release");
 	    	if (isLinux() && ! isDailyBuild() && osReleaseFile.exists()) {
 	    		// Ignore the fact we're on Kali if this is a daily build - they will only have been installed manually
-		    	try {
-		    		InputStream in = null;
+		    	try (InputStream in = Files.newInputStream(osReleaseFile.toPath())){
 		    		Properties osProps = new Properties();    		
-		    		in = new FileInputStream(osReleaseFile);   
 		    		osProps.load(in);
 		    		String osLikeValue = osProps.getProperty("ID");
 		    		if (osLikeValue != null) { 
 			    		String [] oSLikes = osLikeValue.split(" ");
 			    		for (String osLike: oSLikes) {
 			    			if (osLike.toLowerCase().equals("kali")) {    				
-			    				onKali = true;
+			    				onKali = Boolean.TRUE;
 			    				break;
 			    			}
 			    		}
 		    		}
-		    		in.close();
 		    	} catch (Exception e) {
 		    		// Ignore
 		    	}

@@ -69,7 +69,7 @@ public class HirshbergMatcher {
                 if (a.charAt(i - 1) == b.charAt(j - 1)) {
                     k[1][j] = k[0][j - 1] + 1;
                 } else {
-                    k[1][j] = max(k[1][j - 1], k[0][j]);
+                    k[1][j] = Math.max(k[1][j - 1], k[0][j]);
                 }
             }
         }
@@ -77,16 +77,6 @@ public class HirshbergMatcher {
         //Step 5
         return k[1];
 
-    }
-
-    /**
-     * This method returns the maximum number between two numbers.
-     * @param x
-     * @param y
-     * @return
-     */
-    private static int max(int x, int y) {
-        return (x > y) ? x : y;
     }
 
     /**
@@ -205,6 +195,6 @@ public class HirshbergMatcher {
         }
                 
         //get the percentage match against the longer of the 2 strings
-        return (double)getLCS(strA, strB).length() / max(strA.length(), strB.length());
+        return (double)getLCS(strA, strB).length() / Math.max(strA.length(), strB.length());
     }    
 }
