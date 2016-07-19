@@ -57,8 +57,8 @@ public class PluginPassiveScannerUnitTest {
 	}
 
 	@Test
-	public void shouldBeDisabledByDefault() {
-		assertThat(scanner.isEnabled(), is(equalTo(false)));
+	public void shouldBeEnabledByDefault() {
+		assertThat(scanner.isEnabled(), is(equalTo(true)));
 	}
 
 	@Test
