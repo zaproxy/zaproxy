@@ -74,18 +74,10 @@ public class DriverConfiguration extends Observable {
 				paths.add(pathElement.getValue());
 
 				final Element slotElement = ((Element) o).getChild("slot");
-				try {
-					slots.add(Integer.parseInt(slotElement.getValue()));
-				} catch (final Exception e) {
-					slots.add(0); // default value
-				}
+				slots.add(getIntValue(slotElement));
 
 				final Element slotListIndex = ((Element) o).getChild("slotListIndex");
-				try {
-					slotListIndexes.add(Integer.parseInt(slotListIndex.getValue()));
-				} catch (final Exception e) {
-					slotListIndexes.add(0); // default value
-				}
+				slotListIndexes.add(getIntValue(slotListIndex));
 			}
 
 		} catch (final JDOMException e) {
@@ -104,6 +96,25 @@ public class DriverConfiguration extends Observable {
 					JOptionPane.ERROR_MESSAGE);
 			logger.error(e.getMessage(), e);
 		}
+	}
+
+	/**
+	 * Gets an integer from the given element.
+	 * <p>
+	 * If the given element is {@code null} or does not have an integer, zero is returned.
+	 *
+	 * @param element the element with the integer value
+	 * @return an integer
+	 */
+	private int getIntValue(Element element) {
+		if (element != null) {
+			try {
+				return Integer.parseInt(element.getValue());
+			} catch (NumberFormatException e) {
+				logger.error("Failed to extract an integer from: " + element.getValue());
+			}
+		}
+		return 0;
 	}
 
 	public void write() {
