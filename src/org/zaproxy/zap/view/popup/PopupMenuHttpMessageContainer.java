@@ -363,7 +363,7 @@ public class PopupMenuHttpMessageContainer extends ExtensionPopupMenuMessageCont
         case ActiveScanPanel.MESSAGE_CONTAINER_NAME:
             invoker = Invoker.ACTIVE_SCANNER_PANEL;
             break;
-        case "HttpFuzzerResultsContentPanel":
+        case "fuzz.httpfuzzerResultsContentPanel":
             invoker = Invoker.FUZZER_PANEL;
             break;
         case "ForcedBrowseMessageContainer":
