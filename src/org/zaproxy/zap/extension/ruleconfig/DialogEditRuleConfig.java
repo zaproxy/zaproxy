@@ -61,7 +61,9 @@ public class DialogEditRuleConfig extends StandardFieldsDialog {
             desc = Constant.messages.getString(rc.getKey());
         }
         this.addMultilineField(FIELD_DESC, desc);
-        ((ZapTextArea)this.getField(FIELD_DESC)).setEditable(false);
+        ZapTextArea descField = (ZapTextArea)this.getField(FIELD_DESC);
+        descField.setEditable(false);
+        descField.setWrapStyleWord(true);
     }
 
     private JButton getResetButton () {
