@@ -1,0 +1,216 @@
+apply plugin: 'java'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+repositories {
+    mavenLocal()
+    mavenCentral()
+}
+
+sourceCompatibility = JavaVersion.VERSION_1_7
+targetCompatibility =  JavaVersion.VERSION_1_7
+
+buildDir = 'buildGradle'
+
+group = 'org.zaproxy'
+version = '2.5.0'
+
+ext.mainClassName = "org.zaproxy.zap.ZAP"
+
+sourceSets {
+    main {
+        java {
+            srcDirs = ['src']
+        }
+        resources {
+            srcDirs = ['src']
+            include 'resource/**'
+            include 'xml/log4j.properties'
+        }
+    }
+    test {
+        java {
+            srcDirs = ['test']
+        }
+        resources {
+            srcDirs = ['test']
+            include 'resources/**'
+        }
+    }
+}
+
+dependencies {
+    compile ('com.fifesoft:rsyntaxtextarea:2.5.8',
+             'com.github.zafarkhaja:java-semver:0.8.0',
+             'com.googlecode.java-diff-utils:diffutils:1.2.1',
+             'commons-beanutils:commons-beanutils:1.8.3',
+             'commons-collections:commons-collections:3.2.2',
+             'commons-configuration:commons-configuration:1.9',
+             'commons-httpclient:commons-httpclient:3.1',
+             'commons-io:commons-io:2.4',
+             'commons-lang:commons-lang:2.6',
+             'edu.stanford.ejalbert:BrowserLauncher2:1.3',
+             'edu.umass.cs.benchlab:harlib:1.1.2',
+             'javax.help:javahelp:2.0.05',
+             'log4j:log4j:1.2.17',
+             'net.htmlparser.jericho:jericho-html:3.1',
+             'net.sf.json-lib:json-lib:2.4:jdk15',
+             'org.apache.commons:commons-csv:1.1',
+             'org.apache.httpcomponents:httpclient:4.5',
+             'org.bouncycastle:bcmail-jdk15on:1.52',
+             'org.bouncycastle:bcprov-jdk15on:1.52',
+             'org.bouncycastle:bcpkix-jdk15on:1.52',
+             'org.hsqldb:hsqldb:2.3.4',
+             'org.jdom:jdom:1.1.3',
+             'org.jfree:jfreechart:1.0.19',
+             'org.jgrapht:jgrapht-core:0.9.0',
+             'org.swinglabs.swingx:swingx-all:1.6.4',
+             'org.xerial:sqlite-jdbc:3.8.11.1')
+
+    compileOnly 'com.yuvimasory:orange-extensions:1.3.0'
+
+    runtime ('commons-codec:commons-codec:1.9',
+             'commons-jxpath:commons-jxpath:1.3',
+             'commons-logging:commons-logging:1.2')
+    runtime ('org.apache.ant:ant:1.8.4') { transitive = false }
+    runtime ('org.owasp.jbrofuzz:jbrofuzz-core:2.5.1') { transitive = false }
+    runtime ('org.owasp.jbrofuzz:jbrofuzz-encoder:2.5.1') { transitive = false }
+    runtime ('xom:xom:1.2.5') { transitive = false }
+
+    testCompile ('junit:junit:4.11',
+                 'org.hamcrest:hamcrest-all:1.3',
+                 'org.mockito:mockito-all:1.10.8',
+                 'org.powermock:powermock-mockito-release-full:1.5.6')
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = 'UTF-8'
+    options.compilerArgs = [
+        '-Xlint:all',
+        '-Xlint:-options',
+        '-Werror'
+    ]
+}
+
+tasks.withType(Javadoc) {
+    title = 'OWASP Zed Attack Proxy'
+    source = sourceSets.main.allJava.matching {
+        include 'org/parosproxy/**'
+        include 'org/zaproxy/**'
+    }
+    options {
+        links = [ 'http://docs.oracle.com/javase/7/docs/api/' ]
+        encoding = 'UTF-8'
+    }
+    if (JavaVersion.current().isJava8Compatible()) {
+        options.addStringOption('Xdoclint:none', '-quiet')
+    }
+}
+
+jar {
+    manifest {
+        attributes("Main-Class": mainClassName,
+                   "Implementation-Version": version,
+                   "Create-Date": new Date().format("yyyy-MM-dd"),
+                   "Class-Path": configurations.runtime.collect { "lib/" + it.getName() }.sort().join(' '))
+    }
+}
+
+task javadocJar(type: Jar) {
+    classifier = 'javadoc'
+    from javadoc
+}
+
+task sourcesJar(type: Jar) {
+    from sourceSets.main.allJava
+    classifier "sources"
+}
+
+task copyDependencies(type: Copy) {
+    from configurations.runtime
+    into "$buildDir/dependencies"
+}
+
+ext.pomData = pom {
+    project {
+        name 'OWASP Zed Attack Proxy'
+        packaging 'jar'
+        description 'The Zed Attack Proxy (ZAP) is an easy to use integrated penetration testing tool for finding vulnerabilities in web applications. It is designed to be used by people with a wide range of security experience and as such is ideal for developers and functional testers who are new to penetration testing. ZAP provides automated scanners as well as a set of tools that allow you to find security vulnerabilities manually.'
+        url 'https://www.owasp.org/index.php/ZAP'
+        inceptionYear 2010
+
+        organization {
+            name 'OWASP'
+            url 'https://www.owasp.org/index.php/ZAP'
+        }
+
+        mailingLists {
+            mailingList {
+                name 'OWASP ZAP User Group'
+                post 'zaproxy-users@googlegroups.com'
+                archive 'https://groups.google.com/group/zaproxy-users'
+            }
+            mailingList {
+                name 'OWASP ZAP Developer Group'
+                post 'zaproxy-develop@googlegroups.com'
+                archive 'https://groups.google.com/group/zaproxy-develop'
+            }
+        }
+
+        scm {
+            url 'https://github.com/zaproxy/zaproxy'
+            connection 'scm:git:https://github.com/zaproxy/zaproxy.git'
+            developerConnection 'scm:git:https://github.com/zaproxy/zaproxy.git'
+        }
+
+        licenses {
+            license {
+                name 'The Apache License, Version 2.0'
+                url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                distribution 'repo'
+            }
+        }
+    }
+}
+
+task generatePom {
+    pomData.writeTo("$buildDir/pom.xml")
+}
+
+artifacts { archives sourcesJar, javadocJar }
+
+signing {
+    if (project.hasProperty('signing.keyId')) {
+        sign configurations.archives
+    }
+}
+
+install {
+    repositories.mavenInstaller {
+        pom = pomData
+    }
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment ->
+                signing.signPom(deployment)
+            }
+
+            repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+            }
+
+            snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                if (project.hasProperty('ossrhUsername') && project.hasProperty('ossrhPassword')) {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+            }
+
+            pom = pomData
+        }
+    }
+}
