@@ -104,7 +104,7 @@ public class ReportGenerator {
 			File stylesheet = null;
 			File outfile = null;
 			StringReader inReader = new StringReader(inxml);
-			String tempOutfilename = outfilename + ".temp"; 
+			String tempOutfilename = outfilename + ".temp";
 	
 			try {
 				stylesheet = new File(infilexsl);
