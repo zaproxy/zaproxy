@@ -41,6 +41,7 @@ public class RuleConfigParam extends AbstractParam {
     protected void parse() {
         // Add the built in rule configs
         this.addRuleConfig(new RuleConfig("rules.common.sleep", "5"));
+        this.addRuleConfig(new RuleConfig("rules.csrf.ignorelist", ""));
         
         Iterator<String> iter = this.getConfig().getKeys(RULES_BASE_KEY);
         RuleConfig rc;

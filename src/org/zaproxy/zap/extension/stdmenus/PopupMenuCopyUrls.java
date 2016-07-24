@@ -57,6 +57,11 @@ public class PopupMenuCopyUrls extends PopupMenuItemHistoryReferenceContainer im
     }
 
     @Override
+    protected boolean isButtonEnabledForHistoryReference(HistoryReference historyReference) {
+        return true;
+    }
+
+    @Override
     public boolean isSafe() {
     	return true;
     }
