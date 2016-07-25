@@ -88,7 +88,7 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
      */
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon
-        super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension, null);
+        super("ascan", new ImageIcon(ActiveScanPanel.class.getResource("/resource/icon/16/093.png")), extension);
         this.extension = extension;
 		this.setDefaultAccelerator(KeyStroke.getKeyStroke(
 				KeyEvent.VK_A, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask() | Event.ALT_MASK | Event.SHIFT_MASK, false));

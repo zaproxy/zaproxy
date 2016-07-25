@@ -168,8 +168,7 @@ public class SpiderPanel extends ScanPanel2<SpiderScan, ScanController<SpiderSca
 	 * @param spiderScanParam the spider scan parameters
 	 */
 	public SpiderPanel(ExtensionSpider extension, SpiderParam spiderScanParam) {
-		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension,
-				spiderScanParam);
+		super("spider", new ImageIcon(SpiderPanel.class.getResource("/resource/icon/16/spider.png")), extension);
 
 		tabbedPane = new JTabbedPane();
 
