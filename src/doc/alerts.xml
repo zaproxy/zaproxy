@@ -94,6 +94,7 @@ This list the alerts
 10050   Retrieved from Cache
 10051   Relative Path Confusion
 10052	X-ChromeLogger-Data Header Information Leak
+10053	Apache Range Header DoS (CVE-2011-3192)
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure
