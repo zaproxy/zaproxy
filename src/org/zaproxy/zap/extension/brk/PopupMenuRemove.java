@@ -33,18 +33,7 @@ public class PopupMenuRemove extends ExtensionPopupMenuItem {
     
     
     public PopupMenuRemove() {
-        super();
- 		initialize();
-    }
-
-    
-    public PopupMenuRemove(String label) {
-        super(label);
-    }
-
-	
-	private void initialize() {
-        this.setText(Constant.messages.getString("brk.remove.popup"));
+        super(Constant.messages.getString("brk.remove.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -36,26 +36,7 @@ public class PopupMenuAddAntiCSRF extends ExtensionPopupMenuItem {
      * 
      */
     public PopupMenuAddAntiCSRF() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuAddAntiCSRF(String label) {
-        super(label);
-    }
-
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
-
-    /**
-	 * This method initialises this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("params.anticrsf.add.popup"));
+        super(Constant.messages.getString("params.anticrsf.add.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
@@ -64,6 +45,10 @@ public class PopupMenuAddAntiCSRF extends ExtensionPopupMenuItem {
         		extension.addAntiCsrfToken();
         	}
         });
+	}
+
+	public void setExtension(ExtensionParams extension) {
+		this.extension = extension;
 	}
 
     @Override
