@@ -45,6 +45,7 @@
 // ZAP: 2016/05/04 Use existing Plugin instances when setting them as completed
 // ZAP: 2016/06/27 Reduce log level when loading the plugins
 // ZAP: 2016/06/29 Do not log when cloning PluginFactory
+// ZAP: 2016/07/25 Fix to correct handling of lists in plugins
 
 package org.parosproxy.paros.core.scanner;
 
@@ -78,13 +79,16 @@ public class PluginFactory {
     private List<Plugin> listCompleted = new ArrayList<Plugin>();
     private int totalPluginToRun = 0;
     private boolean init = false;
-    private Configuration config = new HierarchicalConfiguration();
+    private Configuration config;
 
     /**
      *
      */
     public PluginFactory() {
         super();
+        HierarchicalConfiguration configuration = new HierarchicalConfiguration();
+        configuration.setDelimiterParsingDisabled(true);
+        config = configuration;
     }
     
     private static synchronized void initPlugins() {
