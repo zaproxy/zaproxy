@@ -20,9 +20,12 @@
 package org.zaproxy.zap.utils;
 
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import java.util.List;
 import java.util.regex.Pattern;
 
 import org.junit.Test;
@@ -159,5 +162,26 @@ public class LocaleUtilsUnitTest {
         for (String file : resourceFiles) {
             assertThat(file, pattern.matcher(file).matches(), is(equalTo(false)));
         }
+    }
+
+    @Test
+    public void shoudAvailableLocalesBeNonEmpty() {
+        // Given
+        List<String> locales = LocaleUtils.getAvailableLocales();
+
+        // When/Then
+        assertThat(locales, is(not(empty())));
+    }
+
+    @Test
+    public void shouldHaveEnglishAsFirstAvailableLocale() {
+        // Given
+        List<String> locales = LocaleUtils.getAvailableLocales();
+
+        // When
+        String firstAvailableLocale = locales.get(0);
+
+        // Then
+        assertThat(firstAvailableLocale, is(equalTo("en_GB")));
     }
 }
