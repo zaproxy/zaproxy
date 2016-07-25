@@ -45,22 +45,7 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenuItem {
      * 
      */
     public PopupMenuAlertDelete() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuAlertDelete(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("scanner.delete.popup"));
+        super(Constant.messages.getString("scanner.delete.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

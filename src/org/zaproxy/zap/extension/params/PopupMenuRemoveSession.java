@@ -36,26 +36,7 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
      * 
      */
     public PopupMenuRemoveSession() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuRemoveSession(String label) {
-        super(label);
-    }
-
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
-
-    /**
-	 * This method initialises this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("params.session.remove.popup"));
+        super(Constant.messages.getString("params.session.remove.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
@@ -66,6 +47,10 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
         });
 
 			
+	}
+
+	public void setExtension(ExtensionParams extension) {
+		this.extension = extension;
 	}
 
     @Override

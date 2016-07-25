@@ -28,6 +28,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2014/03/23 Changed to a JMenuItem.
 // ZAP: 2016/04/05 Issue 2458: Fix xlint warning messages 
+// ZAP: 2016/07/25 Remove String constructor (unused/unnecessary)
 
 package org.parosproxy.paros.extension.history;
 
@@ -61,22 +62,7 @@ public class PopupMenuExportMessage extends JMenuItem {
      * 
      */
     public PopupMenuExportMessage() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuExportMessage(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("history.export.messages.popup"));	// ZAP: i18n
+        super(Constant.messages.getString("history.export.messages.popup"));	// ZAP: i18n
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 
