@@ -471,9 +471,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         return chkRPCCustom;
     }
 
-    /**
-     * 
-     */
     private static class ExcludedParameterPanel extends AbstractMultipleOptionsBaseTablePanel<ScannerParamFilter> {
 
         private static final long serialVersionUID = 1L;

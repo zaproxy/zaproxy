@@ -68,9 +68,6 @@ public class ScanProgressActionIcon extends JLabel {
         this.changeIcon();
     }
 
-    /**
-     * 
-     */
     private void changeIcon() {
 
         if (item.isSkipped()) {
@@ -115,25 +112,16 @@ public class ScanProgressActionIcon extends JLabel {
         return Constant.messages.getString("ascan.progress.label.skipped");
     }
 
-    /**
-     * 
-     */
     public void invokeAction() {
         // do the Action
         item.skip();
     }
 
-    /**
-     * 
-     */
     public void setPressed() {
         state = STATE_PRESSED;
         changeIcon();
     }
 
-    /**
-     * 
-     */
     public void setReleased() {
         if (state == STATE_PRESSED) {
             state = STATE_FOCUSED;
@@ -141,9 +129,6 @@ public class ScanProgressActionIcon extends JLabel {
         }
     }
 
-    /**
-     * 
-     */
     public void setOver() {
         if (state == STATE_NORMAL) {
             state = STATE_FOCUSED;

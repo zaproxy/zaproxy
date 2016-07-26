@@ -35,9 +35,6 @@ public class SingleColumnTableModel extends AbstractTableModel {
     private List<String> lines = new ArrayList<>();
     private boolean editable = true;
     
-    /**
-     * 
-     */
     public SingleColumnTableModel(String columnName) {
         super();
         this.columnNames = new String[] {columnName};

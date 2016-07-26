@@ -42,9 +42,6 @@ public class PopupMenuAlertEdit extends ExtensionPopupMenuItem {
 
 	private ExtensionHistory extHist = null; 
 
-    /**
-     * 
-     */
     public PopupMenuAlertEdit() {
         super(Constant.messages.getString("scanner.edit.popup"));
 

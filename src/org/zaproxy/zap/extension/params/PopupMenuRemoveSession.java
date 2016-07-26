@@ -32,9 +32,6 @@ public class PopupMenuRemoveSession extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuRemoveSession() {
         super(Constant.messages.getString("params.session.remove.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 

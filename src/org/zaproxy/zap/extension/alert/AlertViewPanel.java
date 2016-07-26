@@ -105,9 +105,6 @@ public class AlertViewPanel extends AbstractPanel {
      */
 	private HttpMessage httpMessage;
 
-	/**
-     * 
-     */
     public AlertViewPanel() {
     	this (false);
     }

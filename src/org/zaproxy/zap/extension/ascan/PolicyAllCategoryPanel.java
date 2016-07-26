@@ -89,9 +89,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
     
     private static final int[] width = {300, 100, 100};
 
-    /**
-     *
-     */
     public PolicyAllCategoryPanel(Window parent, ExtensionActiveScan extension, ScanPolicy policy) {
     	this(parent, extension, policy, false);
     }

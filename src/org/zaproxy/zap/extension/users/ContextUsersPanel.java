@@ -79,9 +79,6 @@ public class ContextUsersPanel extends AbstractContextPropertiesPanel {
 
 	public static class UsersMultipleOptionsPanel extends AbstractMultipleOptionsTablePanel<User> {
 
-		/**
-		 * 
-		 */
 		private static final long serialVersionUID = -7216673905642941770L;
 		private static final String REMOVE_DIALOG_TITLE = Constant.messages
 				.getString("users.dialog.remove.title");

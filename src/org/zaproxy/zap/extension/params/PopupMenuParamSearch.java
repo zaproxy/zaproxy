@@ -31,9 +31,6 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuParamSearch() {
         super(Constant.messages.getString("params.search.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 

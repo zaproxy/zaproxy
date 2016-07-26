@@ -180,9 +180,6 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
         regCallbacks.put(challenge, new RegisteredCallback(plugin, attack));
     }
     
-    /**
-     * 
-     */
     private static class RegisteredCallback {
         private final ChallengeCallbackPlugin plugin;
         private HistoryReference hRef;

@@ -52,9 +52,6 @@ public class PopupMenuExportResponse extends JMenuItem {
 
     private ExtensionHistory extension = null;
     
-    /**
-     * 
-     */
     public PopupMenuExportResponse() {
         super(Constant.messages.getString("history.export.response.popup"));	// ZAP: i18n
 

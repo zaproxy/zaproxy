@@ -127,9 +127,6 @@ public class ScanProgressDialog extends AbstractDialog {
         this.initialize();
     }
 
-    /**
-     * 
-     */
     private void initialize() {
         this.setSize(new Dimension(580, 504));
 

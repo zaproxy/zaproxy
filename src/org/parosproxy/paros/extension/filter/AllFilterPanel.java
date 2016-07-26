@@ -50,9 +50,7 @@ public class AllFilterPanel extends AbstractParamPanel {
 	private static final long serialVersionUID = 1L;
 	private JTable tableFilter = null;
 	private JScrollPane jScrollPane = null;
-    /**
-     * 
-     */
+
     public AllFilterPanel() {
         super();
  		initialize();

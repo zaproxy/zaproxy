@@ -95,9 +95,6 @@ public class MultipartFormParser {
         return boundary;
     }
         
-    /**
-     *
-     */
     public MultipartParam getNextParam() throws IOException {
         MultipartParam param;
         String line;

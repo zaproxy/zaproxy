@@ -66,9 +66,6 @@ public class OutputPanel extends AbstractPanel {
 	private JScrollPane jScrollPane = null;
 	private ZapTextArea txtOutput = null;
 
-	/**
-     * 
-     */
     public OutputPanel() {
         super();
  		initialize();

@@ -41,9 +41,6 @@ public class PopupMenuAlertDelete extends ExtensionPopupMenuItem {
 
 	private ExtensionAlert extension = null;
 
-    /**
-     * 
-     */
     public PopupMenuAlertDelete() {
         super(Constant.messages.getString("scanner.delete.popup"));
 

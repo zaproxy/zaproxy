@@ -47,9 +47,6 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
 	private OptionsGlobalExcludeURLTableModel globalExcludeURLModel = null;
 	
-    /**
-     * 
-     */
     public OptionsGlobalExcludeURLPanel() {
         super();
  		initialize();

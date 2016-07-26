@@ -38,9 +38,6 @@ public class KeyboardShortcutTableModel extends AbstractTableModel {
 	
     private List<KeyboardShortcut> tokens = new ArrayList<>(0);
     
-    /**
-     * 
-     */
     public KeyboardShortcutTableModel() {
         super();
     }

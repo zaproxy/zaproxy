@@ -41,9 +41,6 @@ public class OptionsAntiCsrfPanel extends AbstractParamPanel {
 
 	private OptionsAntiCsrfTableModel antiCsrfModel = null;
 	
-    /**
-     * 
-     */
     public OptionsAntiCsrfPanel() {
         super();
  		initialize();

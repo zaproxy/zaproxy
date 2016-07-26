@@ -44,9 +44,6 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 	private AntiCsrfMultipleOptionsPanel tokensOptionsPanel;
 	private OptionsScriptTableModel scriptDirModel = null;
 	
-    /**
-     * 
-     */
     public OptionsScriptPanel(ExtensionScript extension) {
         super();
         this.extension = extension;

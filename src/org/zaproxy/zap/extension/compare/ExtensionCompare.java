@@ -62,9 +62,6 @@ public class ExtensionCompare extends ExtensionAdaptor implements SessionChanged
 
     private static Logger log = Logger.getLogger(ExtensionCompare.class);
 
-	/**
-     * 
-     */
     public ExtensionCompare() {
         super("ExtensionCompare");
         this.setOrder(44);

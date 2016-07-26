@@ -53,9 +53,6 @@ public class PolicyDialog extends AbstractParamDialog {
         initialize();
     }
 
-    /**
-     * 
-     */
     private void initialize() {
         this.setTitle(POLICY);
         this.setSize(750, 420);
