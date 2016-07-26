@@ -72,3 +72,27 @@ Add-ons are a great way to extend ZAP and can be ideal for student projects - ma
 The ZAP 'core' underpins all of the other ZAP features, and so ensuring it is as robust as possible is very important.
 
 Fixing [issues](https://github.com/zaproxy/zaproxy/issues) is very valuable (ones flagged as [IdealFirstBug](https://github.com/zaproxy/zaproxy/issues?q=is%3Aopen+is%3Aissue+label%3AIdealFirstBug) are good ones to start on) and there are always many core improvements we want to make.
+
+#### Guidelines for Pull Request (PR) submission and processing:
+
+##### What should you, the author of a pull request, expect from us (ZAP Team)?
+* How much time (maximum) until the first feedback? 1 week.
+* And following iterations? 1 week.
+* This is a guideline we should normally be able to hit. If it’s been more than a week and you haven’t heard then please feel free to add a comment to your PR and @ mention the team (@zaproxy/team-zaproxy).
+
+##### What we (ZAP Team), expect from you?
+* "Atomic commits" (logical changes to be in a single commit). Please don’t group disjointed changes into a single commit/PR.
+* Descriptive commits (subject and message):
+ * For example: https://github.com/spring-projects/spring-framework/blob/master/CONTRIBUTING.md#format-commit-messages
+* Discussion about the changes:
+ * Should be done in/on the PR or via the Dev Group and a link to that Dev Group thread added to the PR comments. (i.e.: Shared information is important, if something happens via IRC or private email please ensure a summary makes it to the PR.)
+ * Discussion will be kept in the pull request unless off topic.
+* No merge commits. Please, rebase.
+* Rebase if the branch has conflicts.
+* How much time will a pull request be left open?
+ * This isn’t static, one or more members of the ZAP Team will reach out (using @ mentions in PR comments) once or twice in order to get things back on track. If no input is received after a month or two then the PR will be closed. Total stale time will likely be 2 to 3 months.
+  * Close with a message such as: "The pull request was closed because of lack of activity (as per CONTRIBUTING guidelines)". Labeled as "Stale".
+  * If the contribution is deemed important or still valuable the code may be:
+   * Manually merged (if possible).
+   * Retrieved by another member of the team, fixed up and resubmitted. In which case the commit message (PR message) should contain a reference to the original submission.
+
