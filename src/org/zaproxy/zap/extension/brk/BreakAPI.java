@@ -28,7 +28,6 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 
 public class BreakAPI extends ApiImplementor {
 
-	//private static Logger logger = Logger.getLogger(BreakAPI.class);
 
 	private static final String PREFIX = "break";
 

@@ -92,7 +92,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 	private final ViewDelegate view;
 
-    //private static Logger log = Logger.getLogger(SearchPanel.class);
 
     /**
      * @deprecated (2.5.0) Use {@link #SearchPanel(ViewDelegate)} instead.
