@@ -28,9 +28,13 @@ import java.util.Map;
 import javax.swing.tree.DefaultTreeModel;
 
 /**
- *
- * To change the template for this generated type comment go to
- * Window - Preferences - Java - Code Generation - Code and Comments
+ * A {@link javax.swing.tree.TreeModel TreeModel} of (user created) scripts and script templates.
+ * <p>
+ * The nodes of the tree model are of the type {@link ScriptNode}.
+ * 
+ * @since 2.2.0
+ * @see #addScript(ScriptWrapper)
+ * @see #addTemplate(ScriptWrapper)
  */
 public class ScriptTreeModel extends DefaultTreeModel {
 
