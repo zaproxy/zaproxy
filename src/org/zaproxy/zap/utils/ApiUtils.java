@@ -89,6 +89,7 @@ public final class ApiUtils {
 	/**
 	 * Gets an optional enum param, returning <code>null</code> if the parameter was not found.
 	 *
+	 * @param <E> the type of the enum that will be returned
 	 * @param params the params
 	 * @param paramName the param name
 	 * @return the enum, or <code>null</code>

@@ -50,7 +50,9 @@ public abstract class AuthenticationMethodType {
 	 * Builds a new, empty, authentication method. The authentication method should then be
 	 * configured through the Options panel.
 	 * 
+	 * @param contextId the ID of the context for which the authentication method is being created
 	 * @return the authentication method
+	 * @see #buildOptionsPanel(Context)
 	 */
 	public abstract AuthenticationMethod createAuthenticationMethod(int contextId);
 
@@ -79,7 +81,7 @@ public abstract class AuthenticationMethodType {
 	 * 
 	 * @param uiSharedContext the shared context on which the panel should work
 	 * @return the abstract authentication method options panel
-	 * @see AuthenticationMethodType#hasOptionsPanel()
+	 * @see #hasOptionsPanel()
 	 */
 	public abstract AbstractAuthenticationMethodOptionsPanel buildOptionsPanel(Context uiSharedContext);
 
@@ -87,9 +89,8 @@ public abstract class AuthenticationMethodType {
 	 * Checks if the corresponding {@link AuthenticationMethod} has an options panel that can be
 	 * used for configuration.
 	 * 
-	 * @see #buildOptionsPanel(Context)
-	 * 
 	 * @return true, if it needs one
+	 * @see #buildOptionsPanel(Context)
 	 */
 	public abstract boolean hasOptionsPanel();
 
@@ -137,6 +138,7 @@ public abstract class AuthenticationMethodType {
 	 * @param session the session
 	 * @param contextId the ID of the context
 	 * @return the authentication method
+	 * @throws DatabaseException if an error occurred while loading the authentication method
 	 */
 	public abstract AuthenticationMethod loadMethodFromSession(Session session, int contextId)
 			throws DatabaseException;
@@ -149,22 +151,23 @@ public abstract class AuthenticationMethodType {
 	 * @param authMethod the auth method to persist
 	 * @throws UnsupportedAuthenticationMethodException the unsupported authentication method
 	 *             exception
+	 * @throws DatabaseException if an error occurred while persisting the authentication method
 	 */
 	public abstract void persistMethodToSession(Session session, int contextId,
-			AuthenticationMethod authMethod) throws UnsupportedAuthenticationMethodException, DatabaseException;
+			AuthenticationMethod authMethod) throws DatabaseException;
 
 	/**
 	 * Export the specified method to the configuration
-	 * @param config
-	 * @param authMethod
+	 * @param config the {@code Configuration} where to export/save the authentication method
+	 * @param authMethod the authentication method to be exported
 	 */
 	public abstract void exportData(Configuration config, AuthenticationMethod authMethod);
 
 	/**
-	 * Import the method from the confuguration
-	 * @param config
-	 * @param authMethod
-	 * @throws ConfigurationException
+	 * Import the method from the configuration
+	 * @param config the {@code Configuration} from where to import/load the authentication method
+	 * @param authMethod where to set the imported authentication method data
+	 * @throws ConfigurationException if an error occurred while reading the authentication method data 
 	 */
 	public abstract void importData(Configuration config, AuthenticationMethod authMethod) throws ConfigurationException;
 

@@ -26,7 +26,7 @@ import org.parosproxy.paros.network.HttpStatusCode;
 
 /**
  * The DefaultParseFilter is an implementation of a {@link ParseFilter} that is default for
- * spidering process. Its filter rules are the following:<br/>
+ * spidering process. Its filter rules are the following:
  * <ul>
  * <li>the resource body should be under MAX_RESPONSE_BODY_SIZE bytes, otherwise it's probably a
  * binary resource.</li>

@@ -26,8 +26,8 @@ package org.zaproxy.zap.utils;
  * or the similarity ratio between two strings.
  * This implementation is using Hirschber's algorithm B and algorithm C.
  *
- * @see <a href="http://code.google.com/p/algorithm800/source/browse/trunk/src/Hirschberg.java">Hirschberg&apos;s algorithm
- *      implementation of project algorithm800</a>
+ * @see <a href="https://code.google.com/archive/p/algorithm800/source/default/source">Hirschberg's algorithm implementation of
+ *      project algorithm800</a>
  *
  * @author Valentinos Georgiades
  * @author Minh Nguyen
@@ -41,15 +41,6 @@ public class HirshbergMatcher {
     // Maximum value for comparison ratio
     public static final double MAX_RATIO = 1.0;
     
-    /**
-     * Algorithm B as described by Hirschberg
-     *
-     * @param m
-     * @param n
-     * @param a
-     * @param b
-     * @return
-     */
     private static int[] algB(int m, int n, String a, String b) {
         // Step 1
         int[][] k = new int[2][n + 1];
@@ -79,15 +70,6 @@ public class HirshbergMatcher {
 
     }
 
-    /**
-     * Algorithm C as described by Hirschberg
-     *
-     * @param m
-     * @param n
-     * @param a
-     * @param b
-     * @return
-     */
     private static void algC(StringBuilder sb, int m, int n, String a, String b) {
         int i;
         int j;
@@ -123,23 +105,14 @@ public class HirshbergMatcher {
     /**
      * This method takes a string as input reverses it and returns the result
      * 
-     * @param in
-     * @return
+     * @param in the string to be reversed
+     * @return the reversed string
      */
     private static String reverseString(String in) {
         StringBuilder out = new StringBuilder(in).reverse();
         return out.toString();
     }
 
-    /**
-     * This method finds the index of the maximum sum of L1 and L2, as described
-     * by Hirschberg
-     *
-     * @param l1
-     * @param l2
-     * @param n
-     * @return
-     */
     private static int findK(int[] l1, int[] l2, int n) {
         int m = 0;
         int k = 0;

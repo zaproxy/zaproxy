@@ -760,6 +760,8 @@ public class Spider {
 
 	/**
 	 * Notifies the listeners that the spider is complete.
+	 * 
+	 * @param successful {@code true} if the spider completed successfully (e.g. was not stopped), {@code false} otherwise
 	 */
 	protected synchronized void notifyListenersSpiderComplete(boolean successful) {
 		for (SpiderListener l : listeners) {

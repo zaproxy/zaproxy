@@ -75,14 +75,15 @@ public final class HttpUserAgent {
 	
 	/**
 	 * Return what type of browser is used based on the user-agent
-	 * @param userAgent
-	 * @return Returns the following values for Firefox, Internet Explorer, Chrome, and Safari:<br/>
-	 * - firefox<br/>
-	 * - internet explorer<br/>
-	 * - chrome<br/>
-	 * - safari<br/>
-	 * <br/>
-	 * If the browser is not know, the error string "-1" will be returned
+	 * @param userAgent the value of the {@code User-Agent} header
+	 * @return a {@code String} with one of the following values depending on the browser:
+	 *         <ul>
+	 *         <li>Firefox - firefox</li>
+	 *         <li>Internet Explorer - internet explorer</li>
+	 *         <li>Chrome - chrome</li>
+	 *         <li>Safari - safari</li>
+	 *         </ul>
+	 *         Or, if not a known browser the error string {@code -1}.
 	 */
 	public static String getBrowser(String userAgent) {
 		if (userAgent.toLowerCase().contains(FireFox)){
@@ -99,10 +100,8 @@ public final class HttpUserAgent {
 	
 	/**
 	 * Return the version of the browser used based on the user-agent
-	 * @param userAgent
-	 * @return Returns the browser version<br/>
-	 * <br/>
-	 * If the browser is not know, the error string "-1" will be returned
+	 * @param userAgent the value of the {@code User-Agent} header
+	 * @return a {@code String} with the browser version, or if not a known browser the error string {@code -1}.
 	 */
 	public static String getBrowserVersion(String userAgent) {
 		if (userAgent.toLowerCase().contains(FireFox)){

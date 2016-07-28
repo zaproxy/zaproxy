@@ -56,6 +56,7 @@ public class ViewState {
         /** 
          * encode a object to a base64 string
          * @param o is a implemented java.io.Serializable object
+         * @return the encoded object
          */
         public static String encode(Serializable o) {
                 ByteArrayOutputStream bos = new ByteArrayOutputStream(); 
@@ -75,7 +76,9 @@ public class ViewState {
         
         /**
          * decode a base64 string to a object
+         * @param <T> the type of the object
          * @param base64 a encoded string by ViewState.encode method
+         * @return the decoded object
          */
         @SuppressWarnings("unchecked")
         public static <T> T decode(String base64) {

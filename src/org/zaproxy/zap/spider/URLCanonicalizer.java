@@ -38,9 +38,8 @@ import org.zaproxy.zap.spider.SpiderParam.HandleParametersOption;
 
 /**
  * The URLCanonicalizer is used for the process of converting an URL into a canonical (normalized) form. See
- * <a href="http://en.wikipedia.org/wiki/URL_normalization">URL Normalization</a> for a reference. <br/>
- * <br/>
- * 
+ * <a href="http://en.wikipedia.org/wiki/URL_normalization">URL Normalization</a> for a reference.
+ * <p>
  * Note: some parts of the code are adapted from: <a
  * href="http://stackoverflow.com/a/4057470/405418">stackoverflow</a>
  * 

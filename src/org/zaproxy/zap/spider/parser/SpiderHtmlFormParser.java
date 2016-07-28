@@ -179,12 +179,10 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * Prepares the form data set. A form data set is a sequence of control-name/current-value pairs
 	 * constructed from successful controls, which will be sent with a GET/POST request for a form.
 	 * 
-	 * <br/>
-	 * Also see:
-	 * http://whatwg.org/specs/web-apps/current-work/multipage/association-of-controls-and-forms.
-	 * html
-	 * 
-	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-data-set
+	 * @see <a href="https://www.w3.org/TR/REC-html40/interact/forms.html#form-data-set">HTML 4.01 Specification - 17.13.3
+	 *      Processing form data</a>
+	 * @see <a href="https://html.spec.whatwg.org/multipage/forms.html#association-of-controls-and-forms">HTML 5 - 4.10.18.3
+	 *      Association of controls and forms</a>
 	 * @param form the form
 	 * @return the list
 	 */
@@ -343,8 +341,8 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	/**
 	 * Builds the query, encoded with "application/x-www-form-urlencoded".
 	 * 
-	 * 
-	 * @see http://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type
+	 * @see <a href="https://www.w3.org/TR/REC-html40/interact/forms.html#form-content-type">HTML 4.01 Specification - 17.13.4
+	 *      Form content types</a>
 	 * @param formDataSet the form data set
 	 * @return the query
 	 */

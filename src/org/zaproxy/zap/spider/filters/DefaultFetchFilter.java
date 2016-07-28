@@ -29,7 +29,7 @@ import org.zaproxy.zap.spider.DomainAlwaysInScopeMatcher;
 
 /**
  * The DefaultFetchFilter is an implementation of a FetchFilter that is default for spidering process. Its
- * filter rules are the following:<br/>
+ * filter rules are the following:
  * <ul>
  * <li>the resource protocol/scheme must be 'HTTP' or 'HTTPs'.</li>
  * <li>the resource must be found in the scope (domain) of the spidering process.</li>

@@ -31,12 +31,9 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
 
 /**
- * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.<br/>
- * 
+ * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.
  * <p>
- * NOTE: Handling of HTML Forms is not done in this Parser. Instead see {@link SpiderHtmlFormParser}
- * </p>
- * .
+ * <strong>NOTE:</strong> Handling of HTML Forms is not done in this Parser. Instead see {@link SpiderHtmlFormParser}.
  */
 public class SpiderHtmlParser extends SpiderParser {
 
