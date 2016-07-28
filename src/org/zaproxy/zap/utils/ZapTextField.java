@@ -38,6 +38,7 @@ import org.zaproxy.zap.utils.ZapTextComponentUndoManager.UndoManagerPolicy;
  * instead.
  * </p>
  * 
+ * @since 1.3.0
  * @see #discardAllEdits()
  * @see #setEditsLimit(int)
  * @see #setUndoManagerPolicy
@@ -50,35 +51,47 @@ public class ZapTextField extends JTextField {
 	private ZapTextComponentUndoManager undoManager;
 
 	/**
-	 * @see JTextField#JTextField()
+	 * Constructs a {@code ZapTextField}, with a default {@code Document}, {@code null} text and zero columns.
 	 */
 	public ZapTextField() {
 		this(null, null, 0);
 	}
 
 	/**
-	 * @see JTextField#JTextField(int)
+	 * Constructs a {@code ZapTextField}, with a default {@code Document}, {@code null} {@code text} and the given number of
+	 * columns.
+	 * 
+	 * @param columns the number of columns of the text area
 	 */
 	public ZapTextField(int columns) {
 		this(null, null, columns);
 	}
 
 	/**
-	 * @see JTextField#JTextField(String)
+	 * Constructs a {@code ZapTextField}, with a default {@code Document}, the given {@code text} and zero columns.
+	 * 
+	 * @param text the initial text of the text area
 	 */
 	public ZapTextField(String text) {
 		this(null, text, 0);
 	}
 
 	/**
-	 * @see JTextField#JTextField(String, int)
+	 * Constructs a {@code ZapTextField}, with a default {@code Document}, the given {@code text} and the given number columns.
+	 * 
+	 * @param text the initial text of the text area
+	 * @param columns the number of columns of the text area
 	 */
 	public ZapTextField(String text, int columns) {
 		this(null, text, columns);
 	}
 
 	/**
-	 * @see JTextField#JTextField(Document, String, int)
+	 * Constructs a {@code ZapTextField}, with the given {@code Document}, {@code text} and number of columns.
+	 * 
+	 * @param doc the document of the text area
+	 * @param text the initial text of the text area
+	 * @param columns the number of columns of the text area
 	 */
 	public ZapTextField(Document doc, String text, int columns) {
 		super(doc, text, columns);
