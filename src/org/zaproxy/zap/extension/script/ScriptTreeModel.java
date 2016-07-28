@@ -40,7 +40,6 @@ public class ScriptTreeModel extends DefaultTreeModel {
 
 	private static final long serialVersionUID = 1L;
 
-	//private static final Logger logger = Logger.getLogger(ScriptTreeModel.class);
 	
 	private Map<String, ScriptNode> scriptsNodeMap = new HashMap<>(); 
 	private Map<String, ScriptNode> templatesNodeMap = new HashMap<>(); 

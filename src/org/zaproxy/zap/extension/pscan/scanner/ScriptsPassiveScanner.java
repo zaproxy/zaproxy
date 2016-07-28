@@ -40,7 +40,6 @@ public class ScriptsPassiveScanner extends PluginPassiveScanner {
 	private PassiveScanThread parent = null;
 	private String name = null;
 	
-	// private Logger logger = Logger.getLogger(ScriptsPassiveScanner.class);
 
 	private int currentHRefId;
 
