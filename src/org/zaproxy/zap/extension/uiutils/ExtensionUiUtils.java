@@ -45,9 +45,6 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 	
     private Logger logger = Logger.getLogger(ExtensionUiUtils.class);
     
-	/**
-     * 
-     */
     public ExtensionUiUtils() {
         super(NAME);
         this.setOrder(200);

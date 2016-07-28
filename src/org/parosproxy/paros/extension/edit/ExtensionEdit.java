@@ -47,9 +47,6 @@ public class ExtensionEdit extends ExtensionAdaptor {
     private ZapMenuItem menuFind = null;
     private PopupFindMenu popupFindMenu = null;
 
-    /**
-     * 
-     */
     public ExtensionEdit() {
         super("ExtensionEdit");
         this.setOrder(4);

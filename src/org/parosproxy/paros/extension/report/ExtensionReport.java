@@ -50,9 +50,6 @@ public class ExtensionReport extends ExtensionAdaptor implements CommandLineList
 	private ZapMenuItem menuItemXmlReport = null;
 	private CommandLineArgument[] arguments = new CommandLineArgument[1];
 
-    /**
-     * 
-     */
     public ExtensionReport() {
         super("ExtensionReport");
         this.setOrder(14);

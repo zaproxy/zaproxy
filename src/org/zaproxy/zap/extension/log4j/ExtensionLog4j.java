@@ -43,9 +43,6 @@ public class ExtensionLog4j extends ExtensionAdaptor {
 
 	private ScanStatus scanStatus;
 	
-    /**
-     * 
-     */
     public ExtensionLog4j() {
         super("ExtensionLog4j");
         this.setOrder(56);

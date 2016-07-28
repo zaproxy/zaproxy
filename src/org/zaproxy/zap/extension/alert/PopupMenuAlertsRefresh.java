@@ -36,9 +36,6 @@ public class PopupMenuAlertsRefresh extends ExtensionPopupMenuItem {
 
 	private ExtensionAlert extension = null;
 
-    /**
-     * 
-     */
     public PopupMenuAlertsRefresh() {
         super(Constant.messages.getString("alerts.refresh.popup"));
 

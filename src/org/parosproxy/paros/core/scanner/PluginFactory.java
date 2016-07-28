@@ -81,9 +81,6 @@ public class PluginFactory {
     private boolean init = false;
     private Configuration config;
 
-    /**
-     *
-     */
     public PluginFactory() {
         super();
         HierarchicalConfiguration configuration = new HierarchicalConfiguration();

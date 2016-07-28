@@ -84,9 +84,6 @@ public class ScanProgressItem {
         return "";
     }
 
-    /**
-     *
-     */
     public long getElapsedTime() {
         if ((status == STATUS_PENDING) || (plugin.getTimeStarted() == null)) {
             return -1;
@@ -154,9 +151,6 @@ public class ScanProgressItem {
         return hProcess.getSkippedReason(plugin);
     }
 
-    /**
-     * 
-     */
     public void skip() {
         if (isRunning()) {
             hProcess.pluginSkipped(plugin, Constant.messages.getString("ascan.progress.label.skipped.reason.user"));

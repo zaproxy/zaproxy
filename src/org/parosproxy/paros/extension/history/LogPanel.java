@@ -192,7 +192,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
 		}
 		return historyPanel;
 	}
-	/**/
 
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {

@@ -63,9 +63,6 @@ public class ParamsPanel extends AbstractPanel{
 	
     //private static Log log = LogFactory.getLog(ParamsPanel.class);
     
-    /**
-     * 
-     */
     public ParamsPanel(ExtensionParams extension) {
         super();
         this.extension = extension;
@@ -93,7 +90,6 @@ public class ParamsPanel extends AbstractPanel{
 	 * @return javax.swing.JPanel	
 
 	 */    
-	/**/
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 
@@ -124,7 +120,6 @@ public class ParamsPanel extends AbstractPanel{
 		}
 		return panelCommand;
 	}
-	/**/
 
 	private javax.swing.JToolBar getPanelToolbar() {
 		if (panelToolbar == null) {

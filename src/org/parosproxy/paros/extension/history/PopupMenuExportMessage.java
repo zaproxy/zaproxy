@@ -58,9 +58,6 @@ public class PopupMenuExportMessage extends JMenuItem {
     private static final String CRLF = "\r\n";
     private ExtensionHistory extension = null;
     
-    /**
-     * 
-     */
     public PopupMenuExportMessage() {
         super(Constant.messages.getString("history.export.messages.popup"));	// ZAP: i18n
 

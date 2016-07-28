@@ -32,9 +32,6 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuRemoveAntiCSRF() {
         super(Constant.messages.getString("params.anticrsf.remove.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 

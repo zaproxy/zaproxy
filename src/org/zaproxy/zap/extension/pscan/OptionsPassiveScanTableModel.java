@@ -41,9 +41,6 @@ public class OptionsPassiveScanTableModel extends AbstractMultipleOptionsTableMo
     
 	private List <RegexAutoTagScanner> defns = new ArrayList<>(5);
     
-    /**
-     * 
-     */
     public OptionsPassiveScanTableModel() {
         super();
     }

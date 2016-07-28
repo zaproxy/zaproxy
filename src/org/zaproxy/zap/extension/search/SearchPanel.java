@@ -156,7 +156,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	/**/
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 
@@ -188,7 +187,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		}
 		return panelCommand;
 	}
-	/**/
 
 	private GridBagConstraints newGBC (int gridx) {
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();

@@ -52,9 +52,7 @@ public class ExtensionState extends ExtensionAdaptor implements SessionChangedLi
 	private JCheckBoxMenuItem menuSessionTrackingEnable = null;
 
 	private ZapMenuItem menuResetSessionState = null;
-    /**
-     * 
-     */
+
     public ExtensionState() {
         super("ExtensionState");
         this.setOrder(12);

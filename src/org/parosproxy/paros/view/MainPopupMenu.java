@@ -104,9 +104,6 @@ public class MainPopupMenu extends JPopupMenu {
      */
     private MenuElement[] pathSelectedMenu;
 
-    /**
-     * 
-     */
     public MainPopupMenu(View view) {
         super();
  		initialize();

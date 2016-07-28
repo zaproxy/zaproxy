@@ -84,9 +84,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
     private static final int STATE_READ_VALUE = 2;
     private static final int STATE_READ_POST_VALUE = 3;
     
-    /**
-     * 
-     */
     private void parseObject() {
         int state = STATE_READ_START_OBJECT;
         boolean objectRead = false;
@@ -297,9 +294,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
         }
     }
 
-    /**
-     *
-     */
     protected class SimpleStringReader {
         private static final String WS = " \t\r\n";
         private String str;
@@ -344,9 +338,6 @@ public class VariantJSONQuery extends VariantAbstractRPCQuery {
             return str.charAt(next++);
         }
 
-        /**
-         *
-         */
         public void unreadLastCharacter() {
             next--;
         }

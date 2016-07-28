@@ -32,9 +32,6 @@ public class PopupMenuAddSession extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuAddSession() {
         super(Constant.messages.getString("params.session.add.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
