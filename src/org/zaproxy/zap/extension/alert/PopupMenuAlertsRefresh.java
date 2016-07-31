@@ -36,26 +36,8 @@ public class PopupMenuAlertsRefresh extends ExtensionPopupMenuItem {
 
 	private ExtensionAlert extension = null;
 
-    /**
-     * 
-     */
     public PopupMenuAlertsRefresh() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuAlertsRefresh(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("alerts.refresh.popup"));
+        super(Constant.messages.getString("alerts.refresh.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

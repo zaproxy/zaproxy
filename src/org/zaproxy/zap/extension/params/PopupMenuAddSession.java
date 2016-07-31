@@ -32,30 +32,8 @@ public class PopupMenuAddSession extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuAddSession() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuAddSession(String label) {
-        super(label);
-    }
-
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
-
-    /**
-	 * This method initialises this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("params.session.add.popup"));
+        super(Constant.messages.getString("params.session.add.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
@@ -66,6 +44,10 @@ public class PopupMenuAddSession extends ExtensionPopupMenuItem {
         });
 
 			
+	}
+
+	public void setExtension(ExtensionParams extension) {
+		this.extension = extension;
 	}
 
     @Override

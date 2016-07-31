@@ -54,9 +54,6 @@ public class LicenseFrame extends AbstractFrame {
 
 	private Runnable postTask;
 
-    /**
-     *
-     */
     public LicenseFrame() {
         super();
  		initialize();

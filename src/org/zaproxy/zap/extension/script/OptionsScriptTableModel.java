@@ -36,9 +36,6 @@ public class OptionsScriptTableModel extends AbstractMultipleOptionsBaseTableMod
 	
     private List<File> tokens = new ArrayList<>(0);
     
-    /**
-     * 
-     */
     public OptionsScriptTableModel() {
         super();
     }

@@ -148,7 +148,6 @@ public class SqlTableHistory extends SqlAbstractTable implements TableHistory {
 			    DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("history.ps.addrespfromtarget")));
 			    DbUtils.executeUpdateAndClose(connection.prepareStatement(DbSQL.getSQL("history.ps.setrespfromtarget")));
 			}
-			/* */
 			
 			int requestbodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, REQBODY);
 			int responsebodysizeindb = DbUtils.getColumnSize(connection, TABLE_NAME, RESBODY);

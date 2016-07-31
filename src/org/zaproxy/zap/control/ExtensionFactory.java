@@ -57,9 +57,6 @@ public class ExtensionFactory {
 
     private static AddOnLoader addOnLoader = null;
 
-    /**
-     *
-     */
     public ExtensionFactory() {
         super();
     }

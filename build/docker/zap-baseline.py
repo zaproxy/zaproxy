@@ -20,7 +20,7 @@
 # This script runs a baseline scan against a target URL using ZAP
 #
 # It can either be run 'standalone', in which case depends on
-# https://pypi.python.org/pypi/python-owasp-zap-v2 and Docker, or it can be run
+# https://pypi.python.org/pypi/python-owasp-zap-v2.4 and Docker, or it can be run
 # inside one of the ZAP docker containers. It automatically detects if it is
 # running in docker so the parameters are the same.
 #
@@ -62,6 +62,8 @@ config_dict = {}
 config_msg = {}
 out_of_scope_dict = {}
 running_in_docker = os.path.exists('/.dockerenv')
+levels = ["PASS", "IGNORE", "INFO", "WARN", "FAIL"]
+min_level = 0
 
 # Pscan rules that aren't really relevant, eg example alpha rules
 blacklist = ['-1', '50003', '60000', '60001']
@@ -81,6 +83,7 @@ def usage():
     print ('    -a                include the alpha passive scan rules as well')
     print ('    -d                show debug messages')
     print ('    -i                default rules not in the config file to INFO')
+    print ('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print ('    -s                short output format - dont show PASSes or example URLs')
 
 def load_config(config):
@@ -118,6 +121,9 @@ def is_in_scope(plugin_id, url):
   return True  
 
 def print_rule(action, alert_list, detailed_output, user_msg):
+  if min_level > levels.index(action):
+    return;
+
   print (action + ': ' + alert_list[0].get('alert') + ' [' + alert_list[0].get('pluginId') + '] x ' + str(len(alert_list)) + ' ' + user_msg)
   if detailed_output:
     # Show (up to) first 5 urls
@@ -126,6 +132,7 @@ def print_rule(action, alert_list, detailed_output, user_msg):
 
 def main(argv):
 
+  global min_level
   config_file = ''
   config_url = ''
   generate = ''
@@ -147,7 +154,7 @@ def main(argv):
   ignore_count = 0
 
   try:
-    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:dais")
+    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:l:dais")
   except getopt.GetoptError:
     usage()
     sys.exit(3)
@@ -174,6 +181,14 @@ def main(argv):
       zap_alpha = True
     elif opt == '-i':
       info_unspecified = True
+    elif opt == '-l':
+      try:
+        min_level = levels.index(arg)
+      except ValueError:
+        logging.warning ('Level must be one of ' + str(levels))
+        usage()
+        sys.exit(3)
+      
     elif opt == '-s':
       detailed_output = False
 
@@ -343,7 +358,7 @@ def main(argv):
       if len(generate) > 0:
         # Create the config file
         with open(base_dir + generate, 'w') as f:
-          f.write ('# zap-baseline rule configuraion file\n')
+          f.write ('# zap-baseline rule configuration file\n')
           f.write ('# Change WARN to IGNORE to ignore rule or FAIL to fail if rule matches\n')
           f.write ('# Only the rule identifiers are used - the names are just for info\n')
           f.write ('# You can add your own messages to each rule by appending them after a tab on each line.\n')
@@ -359,7 +374,7 @@ def main(argv):
         if (not alert_dict.has_key(plugin_id)):
           pass_dict[plugin_id] = rule.get('name')
 
-      if detailed_output:
+      if min_level == levels.index("PASS") and detailed_output:
         for key, rule in sorted(pass_dict.iteritems()):
           print ('PASS: ' + rule + ' [' + key + ']')
 
@@ -367,7 +382,7 @@ def main(argv):
 
       # print out the ignored rules
       for key, alert_list in sorted(alert_dict.iteritems()):
-        if config_dict.has_key(key) and config_dict[key] == 'IGNORE':
+        if (config_dict.has_key(key) and config_dict[key] == 'IGNORE'):
           user_msg = ''
           if key in config_msg:
             user_msg = config_msg[key]
@@ -376,16 +391,16 @@ def main(argv):
 
       # print out the info rules
       for key, alert_list in sorted(alert_dict.iteritems()):
-        if config_dict.has_key(key) and config_dict[key] == 'INFO':
+        if (config_dict.has_key(key) and config_dict[key] == 'INFO') or (not config_dict.has_key(key)) and info_unspecified:
           user_msg = ''
           if key in config_msg:
             user_msg = config_msg[key]
-          print_rule(config_dict[key], alert_list, detailed_output, user_msg)
+          print_rule('INFO', alert_list, detailed_output, user_msg)
           info_count += 1
 
       # print out the warning rules
       for key, alert_list in sorted(alert_dict.iteritems()):
-        if (not config_dict.has_key(key)) or (config_dict[key] == 'WARN'):
+        if (not config_dict.has_key(key) and not info_unspecified) or (config_dict.has_key(key) and config_dict[key] == 'WARN'):
           user_msg = ''
           if key in config_msg:
             user_msg = config_msg[key]

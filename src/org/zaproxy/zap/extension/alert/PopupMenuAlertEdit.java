@@ -42,26 +42,8 @@ public class PopupMenuAlertEdit extends ExtensionPopupMenuItem {
 
 	private ExtensionHistory extHist = null; 
 
-    /**
-     * 
-     */
     public PopupMenuAlertEdit() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuAlertEdit(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("scanner.edit.popup"));
+        super(Constant.messages.getString("scanner.edit.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

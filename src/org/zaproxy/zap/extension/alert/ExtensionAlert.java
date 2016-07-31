@@ -76,9 +76,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 	private AlertParam alertParam = null;
 	private OptionsAlertPanel optionsPanel = null;
 
-    /**
-     *
-     */
     public ExtensionAlert() {
         super(NAME);
         this.setOrder(27);

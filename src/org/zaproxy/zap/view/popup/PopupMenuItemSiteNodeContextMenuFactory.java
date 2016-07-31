@@ -50,7 +50,7 @@ public abstract class PopupMenuItemSiteNodeContextMenuFactory extends PopupMenuI
         super("ContextMenuFactory", true);
         this.parentMenu = parentMenu;
     }
-    /**/
+
     @Override
     public String getParentMenuName() {
         return parentMenu;

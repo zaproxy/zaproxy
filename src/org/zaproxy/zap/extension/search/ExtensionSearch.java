@@ -63,9 +63,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 
     private Map<String, HttpSearcher> customSearchers = new HashMap<>();
 
-	/**
-     * 
-     */
     public ExtensionSearch() {
         super(NAME);
         this.setOrder(20);

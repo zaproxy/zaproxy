@@ -49,26 +49,8 @@ public class PopupMenuExportURLs extends ExtensionPopupMenuItem {
 
     private static Logger log = Logger.getLogger(PopupMenuExportURLs.class);
 
-    /**
-     * 
-     */
     public PopupMenuExportURLs() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuExportURLs(String label) {
-        super(label);
-    }
-
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("exportUrls.popup"));
+        super(Constant.messages.getString("exportUrls.popup"));
 
         this.addActionListener(new java.awt.event.ActionListener() { 
 

@@ -27,9 +27,7 @@ import org.parosproxy.paros.extension.ExtensionHook;
 public class ExtensionSitesRefresh extends ExtensionAdaptor {
 
 	private PopupMenuSitesRefresh popupMenuSitesRefresh = null;
-	/**
-     * 
-     */
+
     public ExtensionSitesRefresh() {
         super("ExtensionSitesRefresh");
         this.setOrder(1000);	// Want this to be as low as possible :)

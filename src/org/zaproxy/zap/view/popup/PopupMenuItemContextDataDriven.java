@@ -50,7 +50,6 @@ public class PopupMenuItemContextDataDriven extends PopupMenuItemSiteNodeContain
         super("DataDrivenNodeX", true);
     }
 
-    /**/
     @Override
     public String getParentMenuName() {
         return Constant.messages.getString("context.flag.popup");

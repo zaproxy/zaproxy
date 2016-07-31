@@ -92,7 +92,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 
 	private final ViewDelegate view;
 
-    //private static Logger log = Logger.getLogger(SearchPanel.class);
 
     /**
      * @deprecated (2.5.0) Use {@link #SearchPanel(ViewDelegate)} instead.
@@ -156,7 +155,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 	 * 	
 	 * @return javax.swing.JPanel	
 	 */    
-	/**/
 	private javax.swing.JPanel getPanelCommand() {
 		if (panelCommand == null) {
 
@@ -188,7 +186,6 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		}
 		return panelCommand;
 	}
-	/**/
 
 	private GridBagConstraints newGBC (int gridx) {
 		GridBagConstraints gridBagConstraints = new GridBagConstraints();

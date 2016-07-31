@@ -7,9 +7,6 @@ import org.zaproxy.zap.users.User;
 
 public class DialogModifyUser extends DialogAddUser {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 7828871270310672334L;
 	private static final String DIALOG_TITLE = Constant.messages
 			.getString("users.dialog.modify.title");

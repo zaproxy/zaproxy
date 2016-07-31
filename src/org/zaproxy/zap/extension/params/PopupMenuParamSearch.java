@@ -31,30 +31,8 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
 
     private ExtensionParams extension;
 
-	/**
-     * 
-     */
     public PopupMenuParamSearch() {
-        super();
- 		initialize();
-    }
-
-    /**
-     * @param label
-     */
-    public PopupMenuParamSearch(String label) {
-        super(label);
-    }
-
-	public void setExtension(ExtensionParams extension) {
-		this.extension = extension;
-	}
-
-    /**
-	 * This method initialises this
-	 */
-	private void initialize() {
-        this.setText(Constant.messages.getString("params.search.popup"));
+        super(Constant.messages.getString("params.search.popup"));
         this.addActionListener(new java.awt.event.ActionListener() { 
 
         	@Override
@@ -64,6 +42,10 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
         });
 
 			
+	}
+
+	public void setExtension(ExtensionParams extension) {
+		this.extension = extension;
 	}
 
     @Override

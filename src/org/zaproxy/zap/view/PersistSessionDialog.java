@@ -40,7 +40,6 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 public class PersistSessionDialog extends AbstractDialog implements ActionListener {
 
 	private static final long serialVersionUID = 1L;
-	//private static final Logger logger = Logger.getLogger(PersistSessionDialog.class);
 	
 	private JPanel jPanel = null;
 	private JButton startSessionButton = null;

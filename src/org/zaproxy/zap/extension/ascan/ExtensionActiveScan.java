@@ -117,9 +117,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     
 	private ActiveScanAPI activeScanApi;
 
-    /**
-     *
-     */
     public ExtensionActiveScan() {
         super(NAME);
         this.setOrder(28);

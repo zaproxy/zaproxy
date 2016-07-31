@@ -65,9 +65,6 @@ public class CategoryTableModel extends DefaultTableModel {
     private int category;
     private AlertThreshold defaultThreshold;
     
-    /**
-     * 
-     */
     public CategoryTableModel() {
     }
     

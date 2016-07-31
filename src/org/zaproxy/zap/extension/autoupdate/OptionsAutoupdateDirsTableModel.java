@@ -38,9 +38,6 @@ public class OptionsAutoupdateDirsTableModel extends AbstractMultipleOptionsBase
 	
     private List<File> tokens = new ArrayList<>(0);
     
-    /**
-     * 
-     */
     public OptionsAutoupdateDirsTableModel() {
         super();
     }

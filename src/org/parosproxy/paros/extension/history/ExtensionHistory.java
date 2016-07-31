@@ -152,9 +152,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	private Logger logger = Logger.getLogger(ExtensionHistory.class);
 
 
-    /**
-     * 
-     */
     public ExtensionHistory() {
         super(NAME);
         this.setOrder(16);

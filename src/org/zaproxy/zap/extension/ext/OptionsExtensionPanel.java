@@ -63,9 +63,6 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 
     private static Logger log = Logger.getLogger(OptionsExtensionPanel.class);
 
-	/**
-     * 
-     */
     public OptionsExtensionPanel(ExtensionExtension ext) {
         super();
  		initialize();

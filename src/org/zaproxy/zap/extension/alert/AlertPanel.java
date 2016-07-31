@@ -136,9 +136,6 @@ public class AlertPanel extends AbstractPanel {
 	private ExtensionHistory extHist = null; 
 
 	
-    /**
-     * 
-     */
     public AlertPanel(ExtensionAlert extension) {
         super();
         this.extension = extension;

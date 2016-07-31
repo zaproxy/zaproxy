@@ -152,9 +152,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     							ARG_CFU_LIST_IDX};
 	private CommandLineArgument[] arguments = new CommandLineArgument[ARG_IDXS.length];
 
-    /**
-     * 
-     */
     public ExtensionAutoUpdate() {
         super();
  		initialize();
@@ -579,9 +576,6 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	return (int) (diff / (1000 * 60 * 60 * 24));
     }
     
-    /*
-     * 
-     */
     public void alertIfNewVersions() {
     	// Kicks off a thread and pops up a window if there are new versions.
     	// Depending on the options the user has chosen.

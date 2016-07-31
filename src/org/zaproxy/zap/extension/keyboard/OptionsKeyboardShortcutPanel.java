@@ -51,9 +51,6 @@ public class OptionsKeyboardShortcutPanel extends AbstractParamPanel {
 
 	private KeyboardShortcutTableModel keyboardModel = null;
 	
-    /**
-     * 
-     */
     public OptionsKeyboardShortcutPanel(ExtensionKeyboard extension) {
         super();
         this.extension = extension;

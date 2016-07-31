@@ -52,9 +52,7 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 	private CategoryTableModel categoryTableModel = null;  //  @jve:decl-index=0:parse,visual-constraint="294,249"
 	private static final int[] width = {300,100, 100, 200};
 	private int category;
-    /**
-     *
-     */
+
     public PolicyCategoryPanel(int category, PluginFactory pluginFactory, AlertThreshold defaultThreshold) {
         super();
  		this.category = category;

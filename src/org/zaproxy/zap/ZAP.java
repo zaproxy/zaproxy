@@ -36,9 +36,6 @@ import org.zaproxy.zap.eventBus.EventBus;
 import org.zaproxy.zap.eventBus.SimpleEventBus;
 import org.zaproxy.zap.utils.ClassLoaderUtil;
 
-/**
- * 
- */
 public class ZAP {
 
     /**

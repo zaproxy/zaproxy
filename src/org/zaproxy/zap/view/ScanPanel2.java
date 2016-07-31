@@ -60,9 +60,9 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	private static final long serialVersionUID = 1L;
 
 	protected enum Location {start, beforeSites, beforeButtons, beforeProgressBar, afterProgressBar};
-	public String prefix;
+	private final String prefix;
 	
-	private SC controller = null;
+	private final SC controller;
 	private JPanel panelCommand = null;
 	private JToolBar panelToolbar = null;
 	private JLabel scannedCountNameLabel = null;
@@ -84,12 +84,28 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 	private static Logger log = Logger.getLogger(ScanPanel2.class);
     
     /**
-     * @param prefix
-     * @param icon
-     * @param extension
-     * @param scanParam
+     * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan controller.
+     * 
+     * @param prefix the prefix for the resource messages
+     * @param icon the icon for the tab of the panel
+     * @param controller the scan controller
+     * @param scanParam unused
+     * @deprecated (TODO add version) Use {@link #ScanPanel2(String, ImageIcon, ScanController)} instead.
      */
+    @Deprecated
     public ScanPanel2(String prefix, ImageIcon icon, SC controller, AbstractParam scanParam) {
+        this(prefix, icon, controller);
+    }
+
+    /**
+     * Constructs a {@code ScanPanel2} with the given message resources prefix, tab icon and scan controller.
+     * 
+     * @param prefix the prefix for the resource messages
+     * @param icon the icon for the tab of the panel
+     * @param controller the scan controller
+     * @since TODO add version
+     */
+    public ScanPanel2(String prefix, ImageIcon icon, SC controller) {
         super();
         this.prefix = prefix;
         this.controller = controller;

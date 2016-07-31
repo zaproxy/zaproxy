@@ -73,9 +73,6 @@ public class ExtensionParams extends ExtensionAdaptor
     private ExtensionHttpSessions extensionHttpSessions;
     private ParamScanner paramScanner;
     
-	/**
-     * 
-     */
     public ExtensionParams() {
         super(NAME);
         this.setOrder(58);

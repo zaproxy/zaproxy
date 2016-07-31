@@ -45,9 +45,6 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     private List<ScannerWrapper> listScanners = new ArrayList<>();
     private Map<String, String> i18nToStr = null;
 
-    /**
-     *
-     */
     public PolicyPassiveScanTableModel() {
     }
     
