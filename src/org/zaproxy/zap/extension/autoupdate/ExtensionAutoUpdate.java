@@ -269,7 +269,27 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		AddOnDependencyChecker dependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), latestVersionInfo == null
 				? getLocalVersionInfo()
 				: latestVersionInfo);
-		AddOnChangesResult result = dependencyChecker.calculateInstallChanges(ao);
+
+		boolean update = false;
+		AddOnChangesResult result;
+		AddOn installedAddOn = getLocalVersionInfo().getAddOn(ao.getId());
+		if (installedAddOn != null) {
+			if (!ao.isUpdateTo(installedAddOn)) {
+				View.getSingleton().showWarningDialog(
+						MessageFormat.format(
+								Constant.messages.getString("cfu.warn.addOnOlderVersion"),
+								installedAddOn.getFileVersion(),
+								View.getSingleton().getStatusUI(installedAddOn.getStatus()).toString(),
+								ao.getFileVersion(),
+								View.getSingleton().getStatusUI(ao.getStatus()).toString()));
+				return;
+			}
+
+			result = dependencyChecker.calculateUpdateChanges(ao);
+			update = true;
+		} else {
+			result = dependencyChecker.calculateInstallChanges(ao);
+		}
 
 		if (result.getOldVersions().isEmpty() && result.getUninstalls().isEmpty()) {
 			AddOnRunRequirements reqs = ao.calculateRunRequirements(getLocalVersionInfo().getAddOns());
@@ -287,11 +307,20 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 			return;
 		}
 
-		if (!dependencyChecker.confirmInstallChanges(getView().getMainFrame(), result)) {
-			return;
+		if (update) {
+			if (!dependencyChecker.confirmUpdateChanges(getView().getMainFrame(), result)) {
+				return;
+			}
+			// The new version of the add-on is installed manually
+			result.getNewVersions().remove(ao);
+		} else {
+			if (!dependencyChecker.confirmInstallChanges(getView().getMainFrame(), result)) {
+				return;
+			}
+			// The add-on is installed manually
+			result.getInstalls().remove(ao);
 		}
 		
-		result.getInstalls().remove(ao);
 		processAddOnChanges(getView().getMainFrame(), result);
 		installLocalAddOn(ao);
 	}
