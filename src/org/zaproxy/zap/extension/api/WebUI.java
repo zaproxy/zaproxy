@@ -239,6 +239,17 @@ public class WebUI {
 						sb.append("</td>");
 						sb.append("</tr>\n");
 					}
+					sb.append("<tr>");
+					sb.append("<td>");
+					sb.append(Constant.messages.getString("api.html.formMethod"));
+					sb.append("</td>");
+					sb.append("<td>");
+					sb.append("<select name=\"formMethod\">\n");
+					sb.append("<option value=\"GET\" selected>GET</option>\n");
+					sb.append("<option value=\"POST\">POST</option>\n");
+					sb.append("</select>\n");
+					sb.append("</td>");
+					sb.append("</tr>\n");
 				}
 				
 				if (mandatoryParams != null) {
