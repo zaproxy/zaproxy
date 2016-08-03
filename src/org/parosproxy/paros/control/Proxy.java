@@ -258,4 +258,15 @@ public class Proxy {
         }
 		
 	}
+
+    public void setWhiteList(List<String> urls) {
+        if (proxyServer != null) {
+            proxyServer.setIncludeList(urls);
+        }
+
+        if (proxyServerSSL != null) {
+            proxyServerSSL.setIncludeList(urls);
+        }
+
+    }
 }

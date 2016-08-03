@@ -90,6 +90,7 @@ public class OptionsParamView extends AbstractParam {
 	public static final String SHOW_DEV_WARNING = "view.showDevWarning";
 
     private static final String CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY = "view.confirmRemoveProxyExcludeRegex";
+	private static final String CONFIRM_REMOVE_PROXY_INCLUDE_REGEX_KEY = "view.confirmRemoveProxyIncludeRegex";
     private static final String CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY = "view.confirmRemoveScannerExcludeRegex";
     private static final String CONFIRM_REMOVE_SPIDER_EXCLUDE_REGEX_KEY = "view.confirmRemoveSpiderExcludeRegex";
 
@@ -127,6 +128,7 @@ public class OptionsParamView extends AbstractParam {
     private boolean showDevWarning = true;
 
     private boolean confirmRemoveProxyExcludeRegex;
+	private boolean confirmRemoveProxyIncludeRegex;
     private boolean confirmRemoveScannerExcludeRegex;
     private boolean confirmRemoveSpiderExcludeRegex;
 	
@@ -176,6 +178,12 @@ public class OptionsParamView extends AbstractParam {
         } catch (ConversionException e) {
             LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
         }
+
+		try {
+			this.confirmRemoveProxyIncludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_PROXY_INCLUDE_REGEX_KEY, false);
+		} catch (ConversionException e) {
+			LOGGER.error("Error while parsing config file: " + e.getMessage(), e);
+		}
 
         try {
             this.confirmRemoveScannerExcludeRegex = getConfig().getBoolean(CONFIRM_REMOVE_SCANNER_EXCLUDE_REGEX_KEY, false);
@@ -493,10 +501,19 @@ public class OptionsParamView extends AbstractParam {
         return this.confirmRemoveProxyExcludeRegex;
     }
 
+    public boolean isConfirmRemoveProxyIncludeRegex() {
+    	return this.confirmRemoveProxyIncludeRegex;
+	}
+
     public void setConfirmRemoveProxyExcludeRegex(boolean confirmRemove) {
         this.confirmRemoveProxyExcludeRegex = confirmRemove;
         getConfig().setProperty(CONFIRM_REMOVE_PROXY_EXCLUDE_REGEX_KEY, Boolean.valueOf(confirmRemove));
     }
+
+	public void setConfirmRemoveProxyIncludeRegex(boolean confirmRemove) {
+		this.confirmRemoveProxyIncludeRegex = confirmRemove;
+		getConfig().setProperty(CONFIRM_REMOVE_PROXY_INCLUDE_REGEX_KEY, Boolean.valueOf(confirmRemove));
+	}
 
     public boolean isConfirmRemoveScannerExcludeRegex() {
         return this.confirmRemoveScannerExcludeRegex;
