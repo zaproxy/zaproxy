@@ -59,6 +59,7 @@
 // ZAP: 2016/05/27 Issue 2484: Circular Redirects
 // ZAP: 2016/06/08 Set User-Agent header defined in options as default for (internal) CONNECT requests
 // ZAP: 2016/06/10 Allow to validate the URI of the redirections before being followed
+// ZAP: 2016/08/04 Added removeListener(..)
 
 package org.parosproxy.paros.network;
 
@@ -703,6 +704,10 @@ public class HttpSender {
 	public static void addListener(HttpSenderListener listener) {
 		listeners.add(listener);
 		Collections.sort(listeners, getListenersComparator());
+	}
+
+	public static void removeListener(HttpSenderListener listener) {
+		listeners.remove(listener);
 	}
 
 	private static Comparator<HttpSenderListener> getListenersComparator() {
