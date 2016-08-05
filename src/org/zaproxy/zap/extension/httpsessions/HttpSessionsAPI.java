@@ -78,6 +78,9 @@ public class HttpSessionsAPI extends ApiImplementor {
 	/** The mandatory parameter required for setting the value of a session token. */
 	private static final String ACTION_PARAM_TOKEN_VALUE = "tokenValue";
 
+	/** The view which lists all of the sites with session tokens. */
+	private static final String VIEW_SITES = "sites";
+
 	/** The view which describes the current existing sessions for a site. */
 	private static final String VIEW_SESSIONS = "sessions";
 
@@ -122,6 +125,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 				ACTION_PARAM_SESSION_OLD_NAME, ACTION_PARAM_SESSION_NEW_NAME }));
 
 		// Register the views
+		this.addApiView(new ApiView(VIEW_SITES));
 		this.addApiView(new ApiView(VIEW_SESSIONS, new String[] { VIEW_PARAM_SITE },
 				new String[] { VIEW_PARAM_SESSION }));
 		this.addApiView(new ApiView(VIEW_ACTIVE_SESSION, new String[] { VIEW_PARAM_SITE }));
@@ -231,6 +235,13 @@ public class HttpSessionsAPI extends ApiImplementor {
 
 		HttpSessionsSite site;
 		switch (name) {
+		case VIEW_SITES:
+			// Get all sites with sessions
+			ApiResponseList responseSites = new ApiResponseList(name);
+			for (String s : extension.getSites()) {
+				responseSites.addItem(new ApiResponseElement("site", s));
+			}
+			return responseSites;
 		case VIEW_SESSIONS:
 			// Get existing sessions
 			site = extension.getHttpSessionsSite(ApiUtils.getAuthority(params.getString(ACTION_PARAM_SITE)), false);
