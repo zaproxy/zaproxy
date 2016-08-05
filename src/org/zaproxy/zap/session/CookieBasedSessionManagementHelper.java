@@ -61,7 +61,12 @@ public class CookieBasedSessionManagementHelper {
 
 		// Make a copy of the session tokens set, as they will be modified
 		HttpSessionTokensSet tokensSet = session.getTokensNames();
-		Set<String> unsetSiteTokens = new LinkedHashSet<>(tokensSet.getTokensSet());
+		Set<String> unsetSiteTokens;
+		if (tokensSet ==  null) {
+			unsetSiteTokens = new LinkedHashSet<>();
+		} else {
+			unsetSiteTokens = new LinkedHashSet<>(tokensSet.getTokensSet());
+		}
 
 		// Iterate through the cookies in the request
 		Iterator<HttpCookie> it = requestCookies.iterator();
