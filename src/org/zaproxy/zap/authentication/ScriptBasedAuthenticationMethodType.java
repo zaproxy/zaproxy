@@ -782,6 +782,8 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 					if (log.isDebugEnabled())
 						log.debug("Loaded authentication script parameters:" + paramValues);
 
+				} catch (ApiException e) {
+					throw e;
 				} catch (Exception e) {
 					getScriptsExtension().handleScriptException(script, e);
 					log.error("Unable to load Script Based Authentication method. The script "

@@ -20,6 +20,7 @@ package org.zaproxy.zap.extension.httpsessions;
 import java.net.HttpCookie;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -565,6 +566,25 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 		return null;
 	}
+
+	/**
+	 * Gets all of the sites with http sessions.
+	 * 
+	 * @return all of the sites with http sessions
+	 */
+	public List<String> getSites() {
+		List<String> sites = new ArrayList<String>();
+		if (this.sessions == null) {
+			return sites;
+		}
+
+		synchronized (sessionLock) {
+			sites.addAll(this.sessions.keySet());
+		}
+
+		return sites;
+	}
+
 
 	@Override
 	public int getListenerOrder() {
