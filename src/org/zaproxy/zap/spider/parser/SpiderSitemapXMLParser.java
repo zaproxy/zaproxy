@@ -33,6 +33,7 @@ import javax.xml.xpath.XPathFactory;
 import net.htmlparser.jericho.Source;
 
 import org.parosproxy.paros.network.HttpMessage;
+import org.parosproxy.paros.network.HttpStatusCode;
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
@@ -89,7 +90,10 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 		
 		if (log.isDebugEnabled()) log.debug("Parsing a sitemap.xml resource...");
 		
-		if (message == null || !params.isParseSitemapXml()) {
+		if (message == null || !params.isParseSitemapXml() || 
+				!message.getResponseHeader().isXml() ||
+				HttpStatusCode.isClientError(message.getResponseHeader().getStatusCode()) ||
+				HttpStatusCode.isServerError(message.getResponseHeader().getStatusCode())) {
 			return false;
 		}		
 		
