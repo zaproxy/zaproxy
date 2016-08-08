@@ -34,9 +34,11 @@
 // ZAP: 2014/03/23 Issue 968: Allow to choose the enabled SSL/TLS protocols
 // ZAP: 2014/03/23 Issue 1100: Annotate option methods that shouldn't be exposed in the ZAP API
 // ZAP: 2041/08/14 Issue 1305: Outgoing proxy is disabled when updating from old versions
+// ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 
 package org.parosproxy.paros.network;
 
+import java.security.Security;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -85,6 +87,23 @@ public class ConnectionParam extends AbstractParam {
 
 	private static final String DEFAULT_DEFAULT_USER_AGENT = "Mozilla/5.0 (Windows NT 6.3; WOW64; rv:39.0) Gecko/20100101 Firefox/39.0";
 
+	/**
+	 * The security property for TTL of successful DNS queries.
+	 */
+	private static final String DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY = "networkaddress.cache.ttl";
+
+	/**
+	 * The default TTL (in seconds) of successful DNS queries.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final int DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES = 30;
+
+	/**
+	 * The configuration key for TTL of successful DNS queries.
+	 */
+	private static final String DNS_TTL_SUCCESSFUL_QUERIES_KEY = CONNECTION_BASE_KEY + ".dnsTtlSuccessfulQueries";
+
     private boolean useProxyChain;
 	private String proxyChainName = "";
 	private int proxyChainPort = 8080;
@@ -106,6 +125,11 @@ public class ConnectionParam extends AbstractParam {
 
 	private boolean singleCookieRequestHeader = true;
 	private String defaultUserAgent = "";
+
+	/**
+	 * The TTL (in seconds) of successful DNS queries.
+	 */
+	private int dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
 
 	/**
      * @return Returns the httpStateEnabled.
@@ -131,6 +155,14 @@ public class ConnectionParam extends AbstractParam {
 	@Override
 	protected void parse() {
 		updateOptions();
+
+		try {
+			dnsTtlSuccessfulQueries = getConfig().getInt(DNS_TTL_SUCCESSFUL_QUERIES_KEY, 30);
+			Security.setProperty(DNS_TTL_SUCCESSFUL_QUERIES_SECURITY_PROPERTY, Integer.toString(dnsTtlSuccessfulQueries));
+		} catch (ConversionException e) {
+			log.error("Failed to read '" + DNS_TTL_SUCCESSFUL_QUERIES_KEY + "'", e);
+			dnsTtlSuccessfulQueries = DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES;
+		}
 
 		useProxyChain = getConfig().getBoolean(USE_PROXY_CHAIN_KEY, false);
 		useProxyChainAuth = getConfig().getBoolean(USE_PROXY_CHAIN_AUTH_KEY, false);
@@ -704,4 +736,39 @@ public class ConnectionParam extends AbstractParam {
 		this.defaultUserAgent = defaultUserAgent;
 		getConfig().setProperty(DEFAULT_USER_AGENT, defaultUserAgent);
 	}
+
+	/**
+	 * Gets the TTL (in seconds) of successful DNS queries.
+	 *
+	 * @return the TTL in seconds
+	 * @since TODO add version
+	 * @see #setDnsTtlSuccessfulQueries(int)
+	 */
+	public int getDnsTtlSuccessfulQueries() {
+		return dnsTtlSuccessfulQueries;
+	}
+
+	/**
+	 * Sets the TTL (in seconds) of successful DNS queries.
+	 * <p>
+	 * Some values have special meaning:
+	 * <ul>
+	 * <li>Negative number, cache forever;</li>
+	 * <li>Zero, disables caching;</li>
+	 * <li>Positive number, the number of seconds the successful DNS queries will be cached.</li>
+	 * </ul>
+	 *
+	 * @param ttl the TTL in seconds
+	 * @since TODO add version
+	 * @see #getDnsTtlSuccessfulQueries()
+	 */
+	public void setDnsTtlSuccessfulQueries(int ttl) {
+		if (dnsTtlSuccessfulQueries == ttl) {
+			return;
+		}
+
+		dnsTtlSuccessfulQueries = ttl;
+		getConfig().setProperty(DNS_TTL_SUCCESSFUL_QUERIES_KEY, ttl);
+	}
+
 }
