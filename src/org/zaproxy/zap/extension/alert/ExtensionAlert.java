@@ -406,7 +406,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertEdit getPopupMenuAlertEdit() {
         if (popupMenuAlertEdit == null) {
             popupMenuAlertEdit = new PopupMenuAlertEdit();
-            popupMenuAlertEdit.setExtension(this);
         }
         return popupMenuAlertEdit;
     }
@@ -414,7 +413,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertDelete getPopupMenuAlertDelete() {
         if (popupMenuAlertDelete == null) {
             popupMenuAlertDelete = new PopupMenuAlertDelete();
-            popupMenuAlertDelete.setExtension(this);
         }
         return popupMenuAlertDelete;
     }
@@ -422,7 +420,6 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private PopupMenuAlertsRefresh getPopupMenuAlertsRefresh() {
         if (popupMenuAlertsRefresh == null) {
             popupMenuAlertsRefresh = new PopupMenuAlertsRefresh();
-            popupMenuAlertsRefresh.setExtension(this);
         }
         return popupMenuAlertsRefresh;
     }
