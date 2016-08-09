@@ -429,8 +429,8 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 			}
 
 			sb.append("</table>\n");
+			sb.append("<input id=\"submit\" type=\"submit\" value=\"Submit\"/>\n");
 			sb.append("</form>\n");
-			sb.append("<button onclick=\"document.getElementById('f1').submit()\">Submit</button>\n");
 			sb.append("</body>\n");
 			sb.append("</html>\n");
 

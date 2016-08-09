@@ -544,15 +544,26 @@ public class API {
     }
 
     public static String getDefaultResponseHeader(String contentType, int contentLength) {
-        return getDefaultResponseHeader(STATUS_OK, contentType, contentLength);
+        return getDefaultResponseHeader(STATUS_OK, contentType, contentLength, false);
+    }
+
+    public static String getDefaultResponseHeader(String contentType, int contentLength, boolean canCache) {
+        return getDefaultResponseHeader(STATUS_OK, contentType, contentLength, canCache);
     }
 
     public static String getDefaultResponseHeader(String responseStatus, String contentType, int contentLength) {
+    	return getDefaultResponseHeader(responseStatus, contentType, contentLength, false);
+    }
+
+    public static String getDefaultResponseHeader(String responseStatus, String contentType, int contentLength, boolean canCache) {
         StringBuilder sb = new StringBuilder(250);
 
         sb.append("HTTP/1.1 ").append(responseStatus).append("\r\n");
-        sb.append("Pragma: no-cache\r\n");
-        sb.append("Cache-Control: no-cache\r\n");
+        if (! canCache) {
+        	sb.append("Pragma: no-cache\r\n");
+        	sb.append("Cache-Control: no-cache\r\n");
+        }
+        sb.append("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self'\r\n");
         sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
         sb.append("Access-Control-Allow-Headers: ZAP-Header\r\n");
         sb.append("X-Frame-Options: DENY\r\n");
