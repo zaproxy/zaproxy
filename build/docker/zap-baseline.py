@@ -242,6 +242,7 @@ def main(argv):
                 '-host', '0.0.0.0', 
                 '-config', 'api.disablekey=true', 
                 '-config', 'spider.maxDuration=' + str(mins),
+                '-addonupdate', 
                 '-addoninstall', 'pscanrulesBeta']	# In case we're running in the stable container
 
       if (zap_alpha):
@@ -273,7 +274,8 @@ def main(argv):
                 '-port', str(port), 
                 '-host', '0.0.0.0', 
                 '-config', 'api.disablekey=true', 
-                '-config', 'spider.maxDuration=' + str(mins)]
+                '-config', 'spider.maxDuration=' + str(mins),
+                '-addonupdate']
 
       if (zap_alpha):
         params.append('-addoninstall')
