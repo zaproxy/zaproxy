@@ -79,9 +79,13 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 	 * Instantiates a new sitemap.xml parser.
 	 * 
 	 * @param params the params
+	 * @throws IllegalArgumentException if {@code params} is null.
 	 */
 	public SpiderSitemapXMLParser(SpiderParam params) {
 		super();
+		if (params == null) {
+			throw new IllegalArgumentException("Parameter params must not be null.");
+		}
 		this.params = params;
 	}
 
@@ -109,9 +113,7 @@ public class SpiderSitemapXMLParser extends SpiderParser {
 				Document xmldoc = dBuilder.parse(new InputSource(new ByteArrayInputStream(response)));
 				NodeList locationNodes = (NodeList) xpathLocationExpression.evaluate(xmldoc, XPathConstants.NODESET);
 			    for (int i = 0; i < locationNodes.getLength(); i++) {
-			    	String location = locationNodes.item(i).getNodeValue();			    	
-			    	if ( location != null ) 
-			    		processURL(message, depth, location, baseURL); 
+			    	processURL(message, depth, locationNodes.item(i).getNodeValue(), baseURL); 
 			    }
 			} 
 			catch (Exception e) {
