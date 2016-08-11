@@ -42,6 +42,7 @@
 // ZAP: 2015/11/16 Issue 1555: Rework inclusion of HTML tags in reports 
 // ZAP: 2016/02/26 Deprecate alert as an element of Alert in favour of name
 // ZAP: 2016/05/25 Normalise equals/hashCode/compareTo
+// ZAP: 2016/08/10 Issue 2757: Alerts with different request method are considered the same
 
 package org.parosproxy.paros.core.scanner;
 
@@ -324,6 +325,11 @@ public class Alert implements Comparable<Alert>  {
 		if (result != 0) {
 			return result;
 		}
+
+		result = method.compareToIgnoreCase(alert2.method);
+		if (result != 0) {
+			return result;
+		}
 		
 		// ZAP: changed to compare the field uri with alert2.uri
 		result = uri.compareToIgnoreCase(alert2.uri);
@@ -391,6 +397,9 @@ public class Alert implements Comparable<Alert>  {
 		if (!name.equals(item.name)) {
 			return false;
 		}
+		if (!method.equalsIgnoreCase(item.method)) {
+			return false;
+		}
 		if (!uri.equalsIgnoreCase(item.uri)) {
 			return false;
 		}
@@ -428,6 +437,7 @@ public class Alert implements Comparable<Alert>  {
 		result = prime * result + otherInfo.hashCode();
 		result = prime * result + param.hashCode();
 		result = prime * result + pluginId;
+		result = prime * result + method.hashCode();
 		result = prime * result + uri.hashCode();
 		result = prime * result + ((attack == null) ? 0 : attack.hashCode());
 		return result;
@@ -617,6 +627,7 @@ public class Alert implements Comparable<Alert>  {
     public String getUrlParamXML() {
     	StringBuilder sb = new StringBuilder(200); // ZAP: Changed the type to StringBuilder.
         sb.append("  <uri>").append(replaceEntity(uri)).append("</uri>\r\n");
+        sb.append("  <method>").append(replaceEntity(method)).append("</method>\r\n");
         if (param != null && param.length() > 0) {
         	sb.append("  <param>").append(replaceEntity(param)).append("</param>\r\n");
         }

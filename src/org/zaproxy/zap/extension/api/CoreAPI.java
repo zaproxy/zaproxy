@@ -1094,6 +1094,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
 		map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 		map.put("url", alert.getUri());
+		map.put("method", alert.getMethod());
 		map.put("other", alert.getOtherInfo());
 		map.put("param", alert.getParam());
 		map.put("attack", alert.getAttack());
