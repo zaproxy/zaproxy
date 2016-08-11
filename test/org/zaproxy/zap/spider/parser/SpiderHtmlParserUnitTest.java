@@ -72,17 +72,6 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
-    public void shouldNotParseMessageIfAlreadyParsed() {
-        // Given
-        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
-        boolean parsed = false;
-        // When
-        boolean canParse = htmlParser.canParseResource(new HttpMessage(), ROOT_PATH, parsed);
-        // Then
-        assertThat(canParse, is(equalTo(false)));
-    }
-
-    @Test
     public void shouldParseHtmlResponse() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
