@@ -18,9 +18,9 @@
  */
 package org.zaproxy.zap.extension.stats;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import net.sf.json.JSON;
 import net.sf.json.JSONArray;
@@ -93,7 +93,7 @@ public class StatsAPI extends ApiImplementor {
 		}
 
 		if (VIEW_STATS.equals(name)) {
-			Map<String, String> map = new HashMap<>();
+			Map<String, String> map = new TreeMap<>();
 
 			for (Entry<String, Long> stat : memStats.getStats(this.getParam(params, PARAM_KEY_PREFIX, "")).entrySet()) {
 				map.put(stat.getKey(), stat.getValue().toString());
@@ -139,13 +139,8 @@ public class StatsAPI extends ApiImplementor {
 		public SiteStatsApiResponse(String site, Map<String, Long> stats) {
 			super("statistics");
 			this.site = site;
-			this.stats = stats;
-			Map<String, String> map = new HashMap<>();
-			
-			for (Entry<String, Long> stat : this.stats.entrySet()) {
-				map.put(stat.getKey(), stat.getValue().toString());
-			}
-			this.addItem(new ApiResponseSet(site, map));
+			this.stats = new TreeMap<>(stats);
+			this.addItem(new ApiResponseSet(site, this.stats));
 		}
 		
 		@Override
