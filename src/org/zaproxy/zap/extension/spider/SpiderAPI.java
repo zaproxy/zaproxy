@@ -435,7 +435,7 @@ public class SpiderAPI extends ApiImplementor {
 					map.put("url", sr.getUri());
 					map.put("statusCode", Integer.toString(sr.getStatusCode()));
 					map.put("statusReason", sr.getStatusReason());
-					resultList.addItem(new ApiResponseSet("resource", map));
+					resultList.addItem(new ApiResponseSet<String>("resource", map));
 				}
 			}
 			resultUrls.addItem(resultList);
@@ -463,7 +463,7 @@ public class SpiderAPI extends ApiImplementor {
 				map.put("id", Integer.toString(spiderScan.getScanId()));
 				map.put("progress", Integer.toString(spiderScan.getProgress()));
 				map.put("state", spiderScan.getState());
-				resultList.addItem(new ApiResponseSet("scan", map));
+				resultList.addItem(new ApiResponseSet<String>("scan", map));
 			}
 			result = resultList;
 		} else {

@@ -38,7 +38,7 @@ public class ApiResponseConversionUtils {
     private ApiResponseConversionUtils() {
     }
 
-    public static ApiResponseSet httpMessageToSet(int historyId, HttpMessage msg) {
+    public static ApiResponseSet<String> httpMessageToSet(int historyId, HttpMessage msg) {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(historyId));
         map.put("cookieParams", msg.getCookieParamsAsString());
@@ -67,7 +67,7 @@ public class ApiResponseConversionUtils {
             map.put("responseBody", msg.getResponseBody().toString());
         }
 
-        return new ApiResponseSet("message", map);
+        return new ApiResponseSet<String>("message", map);
     }
 
 }
