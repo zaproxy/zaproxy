@@ -390,9 +390,33 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * parsers added will be loaded whenever starting any scan.
 	 * 
 	 * @param parser the parser
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @see #removeCustomParser(SpiderParser)
 	 */
 	public void addCustomParser(SpiderParser parser) {
+		validateParameterNonNull(parser, "parser");
 		this.customParsers.add(parser);
+	}
+
+	private static void validateParameterNonNull(Object object, String name) {
+		if (object == null) {
+			throw new IllegalArgumentException("Parameter " + name + " must not be null.");
+		}
+	}
+
+	/**
+	 * Removes the given spider parser.
+	 * <p>
+	 * Nothing happens if the given parser was not previously added.
+	 * 
+	 * @param parser the parser
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 * @see #addCustomParser(SpiderParser)
+	 */
+	public void removeCustomParser(SpiderParser parser) {
+		validateParameterNonNull(parser, "parser");
+		this.customParsers.remove(parser);
 	}
 
 	/**
@@ -402,9 +426,27 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * filters added will be loaded whenever starting any scan.
 	 * 
 	 * @param filter the filter
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @see #removeCustomFetchFilter(FetchFilter)
 	 */
 	public void addCustomFetchFilter(FetchFilter filter) {
+		validateParameterNonNull(filter, "filter");
 		this.customFetchFilters.add(filter);
+	}
+
+	/**
+	 * Removes the given fetch filter.
+	 * <p>
+	 * Nothing happens if the given filter was not previously added.
+	 * 
+	 * @param filter the filter
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 * @see #addCustomFetchFilter(FetchFilter)
+	 */
+	public void removeCustomFetchFilter(FetchFilter filter) {
+		validateParameterNonNull(filter, "filter");
+		this.customFetchFilters.remove(filter);
 	}
 
 	/**
@@ -414,9 +456,27 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * filters added will be loaded whenever starting any scan.
 	 * 
 	 * @param filter the filter
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @see #removeCustomParseFilter(ParseFilter)
 	 */
 	public void addCustomParseFilter(ParseFilter filter) {
+		validateParameterNonNull(filter, "filter");
 		this.customParseFilters.add(filter);
+	}
+
+	/**
+	 * Removes the given parse filter.
+	 * <p>
+	 * Nothing happens if the given filter was not previously added.
+	 * 
+	 * @param filter the filter
+	 * @throws IllegalArgumentException if the given parameter is {@code null}.
+	 * @since TODO add version
+	 * @see #addCustomParseFilter(ParseFilter)
+	 */
+	public void removeCustomParseFilter(ParseFilter filter) {
+		validateParameterNonNull(filter, "filter");
+		this.customParseFilters.remove(filter);
 	}
 
 	/**
