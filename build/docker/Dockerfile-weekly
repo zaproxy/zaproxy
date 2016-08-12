@@ -2,14 +2,12 @@
 FROM ubuntu:15.04
 MAINTAINER Simon Bennetts "psiinon@gmail.com"
 
-
 RUN apt-get update && apt-get install -q -y --fix-missing \
 	make \
 	automake \
 	autoconf \
 	gcc g++ \
-	openjdk-7-jre-headless \
-	openjdk-7-jdk \
+	openjdk-8-jdk \
 	ruby \
 	wget \
 	curl \
@@ -59,7 +57,7 @@ RUN curl -s https://raw.githubusercontent.com/zaproxy/zap-admin/master/ZapVersio
 	rm *.zip
 
 
-ENV JAVA_HOME /usr/lib/jvm/java-7-openjdk-amd64/
+ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/
 ENV PATH $JAVA_HOME/bin:/zap/:$PATH
 ENV ZAP_PATH /zap/zap.sh
 
