@@ -26,9 +26,8 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Used to parse OData content in Atom format<br/>
- * It's derived from the SpiderTextParser</br>
- * Even if the format of the file is XML  we will process it as a simple text file
+ * Used to parse OData content in Atom format.<p>
+ * It's derived from the SpiderTextParser. Even if the format of the file is XML we will process it as a simple text file
  */
 public class SpiderODataAtomParser extends SpiderParser {
 

@@ -28,7 +28,6 @@ import java.io.UnsupportedEncodingException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.sql.SQLException;
 import java.text.MessageFormat;
 import java.util.HashMap;
 import java.util.List;
@@ -155,11 +154,13 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * in the request URI and the POST data, if any.
 		 * 
 		 * @param credentials the credentials
-		 * @throws SQLException
-		 * @throws HttpMalformedHeaderException
+		 * @return the HTTP message prepared for authentication
+		 * @throws URIException if failed to create the request URI
+		 * @throws HttpMalformedHeaderException if the constructed HTTP request is malformed
+		 * @throws DatabaseException if an error occurred while reading the request from database
 		 */
 		private HttpMessage prepareRequestMessage(UsernamePasswordAuthenticationCredentials credentials)
-				throws URIException, NullPointerException, HttpMalformedHeaderException, DatabaseException {
+				throws URIException, HttpMalformedHeaderException, DatabaseException {
 
 			// Replace the username and password in the uri
 			String requestURL = loginRequestURL.replace(MSG_USER_PATTERN,
@@ -273,6 +274,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 		 * Sets the login request as being an existing SiteNode.
 		 * 
 		 * @param loginSiteNode the new login request
+		 * @throws Exception if an error occurred while obtaining the message from the node
 		 */
 		public void setLoginRequest(SiteNode loginSiteNode) throws Exception {
 			this.loginSiteNode = loginSiteNode;

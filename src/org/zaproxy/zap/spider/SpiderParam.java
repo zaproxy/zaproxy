@@ -696,8 +696,9 @@ public class SpiderParam extends AbstractParam {
 	 * {@code "USE_ALL"}, {@code "IGNORE_VALUE"}, {@code "IGNORE_COMPLETELY"}.
 	 * 
 	 * @param handleParametersVisited the new handle parameters visited value
+	 * @throws IllegalArgumentException if the given parameter is not a value of {@code HandleParametersOption}.
 	 */
-	public void setHandleParameters(String handleParametersVisited) throws IllegalArgumentException {
+	public void setHandleParameters(String handleParametersVisited) {
 		this.handleParametersVisited = HandleParametersOption.valueOf(handleParametersVisited);
 		getConfig().setProperty(SPIDER_HANDLE_PARAMETERS, this.handleParametersVisited.toString());
 	}
@@ -894,7 +895,7 @@ public class SpiderParam extends AbstractParam {
 
 	/**
 	 * Returns the maximum duration in minutes that the spider should run for. Zero means no limit.
-	 * @return
+	 * @return the maximum time, in minutes, that the spider should run
 	 */
     public int getMaxDuration() {
     	return maxDuration; 
@@ -902,7 +903,7 @@ public class SpiderParam extends AbstractParam {
 
     /**
      * Sets the maximum duration in minutes that the spider should run for. Zero means no limit.
-     * @param maxDuration
+     * @param maxDuration the maximum time, in minutes, that the spider should run
      */
     public void setMaxDuration(int maxDuration) {
         this.maxDuration = maxDuration;
