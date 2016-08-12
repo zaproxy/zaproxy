@@ -603,8 +603,11 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
                 int alertId = v.get(i).intValue();
                 RecordAlert recAlert = tableAlert.read(alertId);
                 Alert alert = new Alert(recAlert);
-                if (!allAlerts.contains(alert)) {
-                    allAlerts.add(alert);
+                if (alert.getHistoryRef() != null) {
+                    // Only use the alert if it has a history reference.
+                    if (!allAlerts.contains(alert)) {
+                        allAlerts.add(alert);
+                    }
                 }
             }
         } catch (DatabaseException e) {
