@@ -32,6 +32,7 @@
 // ZAP: 2015/08/07 Issue 1768: Update to use a more recent default user agent
 // ZAP: 2016/03/08 Issue 646: Outgoing proxy password as JPasswordField (pips) instead of ZapTextField
 // ZAP: 2016/03/18 Add checkbox to allow showing of the password
+// ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
 
 package org.parosproxy.paros.extension.option;
 
@@ -47,6 +48,7 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 
 import javax.swing.BorderFactory;
+import javax.swing.GroupLayout;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -65,6 +67,7 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.CommonUserAgents;
 import org.zaproxy.zap.utils.FontUtils;
+import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
@@ -95,6 +98,9 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
     private JCheckBox checkBoxSingleCookieRequestHeader;
     private JComboBox<String> commonUserAgents = null;
 	private ZapTextField defaultUserAgent = null;
+
+	private JPanel dnsPanel;
+	private ZapNumberSpinner dnsTtlSuccessfulQueriesNumberSpinner;
 
     private SecurityProtocolsPanel securityProtocolsPanel;
 
@@ -372,34 +378,19 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 			panelProxyChain.setName("ProxyChain");
 			JPanel innerPanel = new JPanel(new GridBagLayout());
 
-			java.awt.GridBagConstraints gridBagConstraints72 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints82 = new GridBagConstraints();
-			java.awt.GridBagConstraints gridBagConstraints92 = new GridBagConstraints();
+			GridBagConstraints gbc = new GridBagConstraints();
 
-			gridBagConstraints72.gridx = 0;
-			gridBagConstraints72.gridy = 0;
-			gridBagConstraints72.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints72.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints72.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc.gridx = 0;
+			gbc.insets = new java.awt.Insets(2,2,2,2);
+			gbc.anchor = java.awt.GridBagConstraints.NORTHWEST;
+			gbc.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gbc.weightx = 1.0D;
 
-			gridBagConstraints82.gridx = 0;
-			gridBagConstraints82.gridy = 2;
-			gridBagConstraints82.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints82.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints82.fill = java.awt.GridBagConstraints.HORIZONTAL;
-			gridBagConstraints82.weightx = 1.0D;
-			
-			gridBagConstraints92.gridx = 0;
-			gridBagConstraints92.gridy = 3;
-			gridBagConstraints92.insets = new java.awt.Insets(2,2,2,2);
-			gridBagConstraints92.anchor = java.awt.GridBagConstraints.NORTHWEST;
-			gridBagConstraints92.fill = java.awt.GridBagConstraints.HORIZONTAL;
-
-			innerPanel.add(getPanelGeneral(), gridBagConstraints72);
-			gridBagConstraints72.gridy = 1;
-			innerPanel.add(getSecurityProtocolsPanel(), gridBagConstraints72);
-			innerPanel.add(getJPanel(), gridBagConstraints82);
-			innerPanel.add(getPanelProxyAuth(), gridBagConstraints92);
+			innerPanel.add(getPanelGeneral(), gbc);
+			innerPanel.add(getDnsPanel(), gbc);
+			innerPanel.add(getSecurityProtocolsPanel(), gbc);
+			innerPanel.add(getJPanel(), gbc);
+			innerPanel.add(getPanelProxyAuth(), gbc);
 			
 			JScrollPane scrollPane = new JScrollPane(innerPanel);
 			scrollPane.setBorder(BorderFactory.createEmptyBorder());
@@ -408,6 +399,48 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 		}
 		return panelProxyChain;
 	}
+
+	private JPanel getDnsPanel() {
+		if (dnsPanel == null) {
+			dnsPanel = new JPanel();
+			dnsPanel.setBorder(
+					javax.swing.BorderFactory.createTitledBorder(
+							null,
+							Constant.messages.getString("conn.options.dns.title"),
+							javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION,
+							javax.swing.border.TitledBorder.DEFAULT_POSITION,
+							FontUtils.getFont(FontUtils.Size.standard),
+							Color.black));
+
+			GroupLayout layout = new GroupLayout(dnsPanel);
+			dnsPanel.setLayout(layout);
+			layout.setAutoCreateGaps(true);
+
+			JLabel valueLabel = new JLabel(Constant.messages.getString("conn.options.dns.ttlSuccessfulQueries.label"));
+			valueLabel.setToolTipText(Constant.messages.getString("conn.options.dns.ttlSuccessfulQueries.toolTip"));
+			valueLabel.setLabelFor(getDnsTtlSuccessfulQueriesNumberSpinner());
+
+			layout.setHorizontalGroup(layout.createSequentialGroup()
+					.addComponent(valueLabel)
+					.addComponent(getDnsTtlSuccessfulQueriesNumberSpinner()));
+
+			layout.setVerticalGroup(layout.createParallelGroup(GroupLayout.Alignment.BASELINE)
+					.addComponent(valueLabel)
+					.addComponent(getDnsTtlSuccessfulQueriesNumberSpinner()));
+		}
+		return dnsPanel;
+	}
+
+	private ZapNumberSpinner getDnsTtlSuccessfulQueriesNumberSpinner() {
+		if (dnsTtlSuccessfulQueriesNumberSpinner == null) {
+			dnsTtlSuccessfulQueriesNumberSpinner = new ZapNumberSpinner(
+					-1,
+					ConnectionParam.DNS_DEFAULT_TTL_SUCCESSFUL_QUERIES,
+					Integer.MAX_VALUE);
+		}
+		return dnsTtlSuccessfulQueriesNumberSpinner;
+	}
+
 	/**
 	 * This method initializes txtProxyChainName	
 	 * 	
@@ -536,6 +569,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	        txtProxyChainPassword.setText(connectionParam.getProxyChainPassword());
         }
 
+        dnsTtlSuccessfulQueriesNumberSpinner.setValue(connectionParam.getDnsTtlSuccessfulQueries());
+
         securityProtocolsPanel.setSecurityProtocolsEnabled(connectionParam.getSecurityProtocolsEnabled());
         
         defaultUserAgent.setText(connectionParam.getDefaultUserAgent());
@@ -663,6 +698,8 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 
         connectionParam.setUseProxyChain(chkUseProxyChain.isSelected());
         connectionParam.setUseProxyChainAuth(chkProxyChainAuth.isSelected());
+
+        connectionParam.setDnsTtlSuccessfulQueries(dnsTtlSuccessfulQueriesNumberSpinner.getValue());
 
         connectionParam.setSecurityProtocolsEnabled(securityProtocolsPanel.getSelectedProtocols());
         

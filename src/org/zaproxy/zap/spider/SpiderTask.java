@@ -311,9 +311,9 @@ public class SpiderTask implements Runnable {
 	 * @return the response http message
 	 * @throws HttpException the http exception
 	 * @throws IOException Signals that an I/O exception has occurred.
-	 * @throws DatabaseException
+	 * @throws DatabaseException if an error occurred while reading the HTTP message
 	 */
-	private HttpMessage fetchResource() throws HttpException, IOException, DatabaseException {
+	private HttpMessage fetchResource() throws IOException, DatabaseException {
 
 		// Build fetch the request message from the database
 		HttpMessage msg;

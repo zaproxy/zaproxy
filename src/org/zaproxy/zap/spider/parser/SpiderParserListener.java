@@ -41,8 +41,8 @@ public interface SpiderParserListener {
 
 	/**
 	 * Event triggered when a new resource URI is found. The responseMessage contains all the
-	 * required information regarding the page which contains the URI.<br/>
-	 * <br/>
+	 * required information regarding the page which contains the URI.
+	 * <p>
 	 * Also provides a {@code shouldIgnore} boolean that states that this resourceURI should be
 	 * ignored in the fetching process, as it's probably a dead end (e.g. binary data, image, etc).
 	 * 

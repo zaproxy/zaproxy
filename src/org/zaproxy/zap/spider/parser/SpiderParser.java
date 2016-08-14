@@ -108,12 +108,12 @@ public abstract class SpiderParser {
 	/**
 	 * Parses the resource. The HTTP message containing the request and the response is given. Also,
 	 * if possible, a Jericho source with the Response Body is provided.
-	 * <p/>
+	 * <p>
 	 * When a link is encountered, implementations can use
 	 * {@link #processURL(HttpMessage, int, String, String)},
 	 * {@link #notifyListenersPostResourceFound(HttpMessage, int, String, String)} and
 	 * {@link #notifyListenersResourceFound(HttpMessage, int, String)} to announce the found URIs.
-	 * <p/>
+	 * <p>
 	 * The return value specifies whether the resource should be considered 'completely
 	 * processed'/consumed and should be treated accordingly by subsequent parsers. For example, any
 	 * parsers which are meant to be 'fall-back' parsers should skip messages already processed by
@@ -129,11 +129,11 @@ public abstract class SpiderParser {
 
 	/**
 	 * Checks whether the parser should be called to parse the given HttpMessage.
-	 * <p/>
+	 * <p>
 	 * Based on the specifics of the HttpMessage and whether this message was already processed by
 	 * another Parser, this method should decide whether the
 	 * {@link #parseResource(HttpMessage, Source, int)} should be invoked.
-	 * <p/>
+	 * <p>
 	 * The {@code wasAlreadyConsumed} could be used by parsers which represent a 'fall-back' parser
 	 * to check whether any other parser has processed the message before.
 	 * 

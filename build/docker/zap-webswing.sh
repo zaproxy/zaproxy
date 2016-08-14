@@ -8,7 +8,7 @@
 # Set environment.
 export HOME=/zap/webswing-2.3/
 export OPTS="-h 0.0.0.0 -j $HOME/jetty.properties -u $HOME/user.properties -c $HOME/webswing.config"
-export JAVA_HOME=/usr/lib/jvm/java-7-openjdk-amd64/
+export JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64/
 export JAVA_OPTS="-Xmx128M"
 export LOG=$HOME/webswing.out
 export PID_PATH_NAME=$HOME/webswing.pid

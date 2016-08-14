@@ -69,6 +69,7 @@ import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
@@ -128,6 +129,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_MESSAGE_HAR = "messageHar";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
 	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
+	private static final String OTHER_SCRIPT_JS = "script.js";
 
 	private static final String PARAM_BASE_URL = "baseurl";
 	private static final String PARAM_COUNT = "count";
@@ -144,6 +146,35 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_METHOD = "method";
 	private static final String PARAM_POST_DATA = "postData";
+
+	/* Update the version whenever the script is changed (once per release) */
+	protected static final int API_SCRIPT_VERSION = 1;
+	private static final String API_SCRIPT = 
+			"function submitScript() {\n" +
+			"  var button=document.getElementById('button');\n" +
+			"  var component=button.getAttribute('zap-component')\n" +
+			"  var type=button.getAttribute('zap-type')\n" +
+			"  var name=button.getAttribute('zap-name')\n" +
+			"  var format\n" +
+			"  if (type == 'other') {\n" +
+			"    format = 'OTHER'\n" +
+			"  } else {\n" +
+			"    format = document.getElementById('zapapiformat').value\n" +
+			"  }\n" +
+			"  \n" +
+			"  var url = '/' + format + '/' + component + '/' + type + '/' + name + '/'\n" +
+			"  var form=document.getElementById('zapform');\n" +
+			"  form.action = url;\n" +
+			"  form.submit();\n" +
+			"}\n" +
+			"document.addEventListener('DOMContentLoaded', function () {\n" +
+			"  var button=document.getElementById('button');\n" +
+			"  if (button) {\n" +
+			"    document.getElementById('button').addEventListener('click',  function(e) {submitScript();}, false);\n" +
+			"  }\n" +
+			"});\n";
+	/* Allow caching for up to one day */
+	private static final String API_SCRIPT_CACHE_CONTROL = "max-age=86400";
 
     private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd-HHmmss");
 	private boolean savingSession = false;
@@ -202,6 +233,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiShortcut(OTHER_PROXY_PAC);
 		// this.addApiShortcut(OTHER_ROOT_CERT);
 		this.addApiShortcut(OTHER_SET_PROXY);
+		this.addApiShortcut(OTHER_SCRIPT_JS);
 
 	}
 
@@ -964,6 +996,17 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			msg.setResponseBody(responseBody);
 			
 			return msg;
+		} else if (OTHER_SCRIPT_JS.equals(name)) {
+			try {
+		    	msg.setResponseBody(API_SCRIPT);
+				// Allow caching
+				msg.setResponseHeader(API.getDefaultResponseHeader("text/javascript", API_SCRIPT.length(), true));
+				msg.getResponseHeader().addHeader(HttpResponseHeader.CACHE_CONTROL, API_SCRIPT_CACHE_CONTROL);
+			} catch (HttpMalformedHeaderException e) {
+				logger.error("Failed to create response header: " + e.getMessage(), e);
+			}
+	    	
+	    	return msg;
 		} else {
 			throw new ApiException(ApiException.Type.BAD_OTHER);
 		}
@@ -1003,6 +1046,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				JSONObject params = new JSONObject();
 				params.put(PARAM_PROXY_DETAILS, msg.getRequestBody());
 				return this.handleApiOther(msg, OTHER_SET_PROXY, params);
+			} else if (msg.getRequestHeader().getURI().getPath().startsWith("/" + OTHER_SCRIPT_JS)) {
+				return this.handleApiOther(msg, OTHER_SCRIPT_JS, null);
 			}
 		} catch (URIException e) {
 			logger.error(e.getMessage(), e);
@@ -1049,6 +1094,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("risk", Alert.MSG_RISK[alert.getRisk()]);
 		map.put("confidence", Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 		map.put("url", alert.getUri());
+		map.put("method", alert.getMethod());
 		map.put("other", alert.getOtherInfo());
 		map.put("param", alert.getParam());
 		map.put("attack", alert.getAttack());

@@ -71,6 +71,13 @@ public class GuiBootstrap extends ZapBootstrap {
 
     private final Logger logger = Logger.getLogger(GuiBootstrap.class);
 
+    /**
+     * Flag that indicates whether or not the look and feel was already set.
+     * 
+     * @see #setupLookAndFeel()
+     */
+    private boolean lookAndFeelSet;
+
     public GuiBootstrap(CommandLine cmdLineArgs) {
         super(cmdLineArgs);
     }
@@ -106,9 +113,9 @@ public class GuiBootstrap extends ZapBootstrap {
     private void startImpl() {
         setX11AwtAppClassName();
         setDefaultViewLocale(Constant.getLocale());
-        setupLookAndFeel();
 
         if (isFirstTime()) {
+            setupLookAndFeel();
             showLicense();
         } else {
             init(false);
@@ -140,7 +147,9 @@ public class GuiBootstrap extends ZapBootstrap {
     private void init(final boolean firstTime) {
         try {
             initModel();
+            setupLookAndFeel();
         } catch (Exception e) {
+            setupLookAndFeel();
             if (e instanceof FileNotFoundException) {
                 JOptionPane.showMessageDialog(
                         null,
@@ -308,8 +317,17 @@ public class GuiBootstrap extends ZapBootstrap {
 
     /**
      * Setups Swing's look and feel.
+     * <p>
+     * <strong>Note:</strong> Should be called only after calling {@link #initModel()}, if not initialising ZAP for the
+     * {@link #isFirstTime() first time}. The look and feel set up might initialise some network classes (e.g.
+     * {@link java.net.InetAddress InetAddress}) preventing some ZAP options from being correctly applied.
      */
     private void setupLookAndFeel() {
+        if (lookAndFeelSet) {
+            return;
+        }
+        lookAndFeelSet = true;
+
         try {
             // Set the systems Look and Feel
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());

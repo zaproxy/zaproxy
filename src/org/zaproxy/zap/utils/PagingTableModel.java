@@ -215,14 +215,16 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	 * Called by {@link PagingTableModel#getValueAt(int, int)} when requested
 	 * row is already loaded.
 	 * 
-	 * @param rowObject
-	 * @param columnIndex
+	 * @param rowObject the row object
+	 * @param columnIndex the column index
 	 * @return value from requested column
 	 */
 	protected abstract Object getRealValueAt(T rowObject, int columnIndex);
 
 	/**
-	 * @param columnIndex
+	 * Gets the placeholder value that should be shown for the given column, until the actual values are ready to be shown.
+	 * 
+	 * @param columnIndex the column index
 	 * @return Value is used to display while loading entry
 	 */
 	protected abstract Object getPlaceholderValueAt(int columnIndex);
@@ -255,7 +257,9 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	}
 
 	/**
-	 * @param rowIndex
+	 * Gets the object at the given row.
+	 * 
+	 * @param rowIndex the index of the row
 	 * @return {@code null} if object is not in the current page
 	 */
 	protected T getRowObject(int rowIndex) {
@@ -270,7 +274,7 @@ public abstract class PagingTableModel<T> extends AbstractTableModel {
 	 * Schedule the loading of the neighborhood around offset (if not already
 	 * scheduled).
 	 * 
-	 * @param offset
+	 * @param offset the offset row 
 	 */
 	private void schedule(int offset) {
 		if (isPending(offset)) {
