@@ -23,13 +23,13 @@ import java.awt.EventQueue;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.security.InvalidParameterException;
 import java.text.MessageFormat;
 import java.util.ArrayList;
@@ -535,9 +535,9 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
 	public void saveScript(ScriptWrapper script) throws IOException {
 		refreshScript(script);
-	    BufferedWriter fw = new BufferedWriter(new FileWriter(script.getFile(), false));
-        fw.append(script.getContents());
-        fw.close();
+        try ( BufferedWriter bw = Files.newBufferedWriter(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+            bw.append(script.getContents());
+        }
         this.setChanged(script, false);
         // The removal is required for script that use wrappers, like Zest
 		this.getScriptParam().removeScript(script);
@@ -886,16 +886,13 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	}
 	
 	public ScriptWrapper loadScript(ScriptWrapper script) throws IOException {
-	    BufferedReader fr = new BufferedReader(new FileReader(script.getFile()));
 	    StringBuilder sb = new StringBuilder();
         String line;
-        try {
-			while ((line = fr.readLine()) != null) {
+        try (BufferedReader br = Files.newBufferedReader(script.getFile().toPath(), StandardCharsets.UTF_8)) {
+			while ((line = br.readLine()) != null) {
 			    sb.append(line);
 			    sb.append("\n");
 			}
-		} finally {
-	        fr.close();
 		}
         script.setContents(sb.toString());
         script.setChanged(false);
