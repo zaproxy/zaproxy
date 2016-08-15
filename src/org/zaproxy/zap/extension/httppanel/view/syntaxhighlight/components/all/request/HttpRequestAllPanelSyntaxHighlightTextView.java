@@ -130,6 +130,7 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
             int end = getSelectionEnd();
             HttpMessageLocation.Location location;
 
+            String value;
             int headerLen = header.length();
             if (start + tHeader < headerLen) {
                 try {
@@ -152,20 +153,16 @@ public class HttpRequestAllPanelSyntaxHighlightTextView extends HttpPanelSyntaxH
                     end = headerLen;
                 }
                 location = HttpMessageLocation.Location.REQUEST_HEADER;
+                value = header.substring(start, end);
             } else {
                 start += tHeader - headerLen;
                 end += tHeader - headerLen;
 
                 location = HttpMessageLocation.Location.REQUEST_BODY;
+                value = httpMessage.getRequestBody().toString().substring(start, end);
             }
 
-            try {
-                return new DefaultTextHttpMessageLocation(location, start, end, getText(start, end - start));
-            } catch (BadLocationException e) {
-                // Shouldn't happen, but in case it does log it and return...
-                log.error(e.getMessage(), e);
-                return new DefaultTextHttpMessageLocation(HttpMessageLocation.Location.REQUEST_HEADER, 0);
-            }
+            return new DefaultTextHttpMessageLocation(location, start, end, value);
 		}
 
 		protected MessageLocationHighlightsManager create() {
