@@ -85,7 +85,9 @@ public class ZAP {
             cmdLine = new CommandLine(args);
 
         } catch (final Exception e) {
-            System.out.println(CommandLine.getHelp(null));
+        	// Cant use the CommandLine help here as the 
+        	// i18n messages wont have been loaded
+            System.out.println("Failed due to invalid parameters. Use '-h' for more details.");
             System.exit(1);
         }
 
