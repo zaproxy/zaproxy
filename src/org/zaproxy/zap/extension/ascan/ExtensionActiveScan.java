@@ -58,7 +58,6 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
@@ -175,7 +174,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.ascanController.setExtAlert((ExtensionAlert) Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.NAME));
         this.activeScanApi = new ActiveScanAPI(this);
         this.activeScanApi.addApiOptions(getScannerParam());
-        API.getInstance().registerApiImplementor(activeScanApi);
+        extensionHook.addApiImplementor(activeScanApi);
     }
 
     @Override

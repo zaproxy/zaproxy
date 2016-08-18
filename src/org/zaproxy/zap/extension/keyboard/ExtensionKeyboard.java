@@ -33,7 +33,6 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.utils.DesktopUtils;
 import org.zaproxy.zap.view.ZapMenuItem;
 
@@ -67,7 +66,7 @@ public class ExtensionKeyboard extends ExtensionAdaptor {
 	        
 	        // Ditto the API
 	        api = new KeyboardAPI(this);
-	        API.getInstance().registerApiImplementor(api);
+	        extensionHook.addApiImplementor(api);
 	    }
 	}
 	

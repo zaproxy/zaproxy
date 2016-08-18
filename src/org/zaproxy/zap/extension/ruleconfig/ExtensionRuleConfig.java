@@ -26,7 +26,6 @@ import java.util.List;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
-import org.zaproxy.zap.extension.api.API;
 
 public class ExtensionRuleConfig extends ExtensionAdaptor {
 
@@ -50,7 +49,7 @@ public class ExtensionRuleConfig extends ExtensionAdaptor {
             extensionHook.getHookView().addOptionPanel(getOptionsRuleConfigPanel());
         }
         
-        API.getInstance().registerApiImplementor(new RuleConfigAPI(this));
+        extensionHook.addApiImplementor(new RuleConfigAPI(this));
     }
     
     public RuleConfigParam getRuleConfigParam() {

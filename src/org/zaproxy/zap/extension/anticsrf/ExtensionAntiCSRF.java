@@ -54,7 +54,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
 
 public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChangedListener {
@@ -132,7 +131,7 @@ public class ExtensionAntiCSRF extends ExtensionAdaptor implements SessionChange
 
 	    AntiCsrfAPI api = new AntiCsrfAPI(this);
         api.addApiOptions(getParam());
-        API.getInstance().registerApiImplementor(api);
+        extensionHook.addApiImplementor(api);
 
 	}
 	

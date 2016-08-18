@@ -69,7 +69,6 @@ import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.api.API;
 
 public class ExtensionScript extends ExtensionAdaptor implements CommandLineListener {
 	
@@ -166,7 +165,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
         	this.addWriter(new PrintWriter(System.out));
 		}
 
-        API.getInstance().registerApiImplementor(new ScriptAPI(this));
+		extensionHook.addApiImplementor(new ScriptAPI(this));
 
 	}
 	

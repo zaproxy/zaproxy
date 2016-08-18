@@ -28,6 +28,7 @@
 // ZAP: 2016/04/08 Allow to add ContextDataFactory
 // ZAP: 2016/05/30 Allow to add AddOnInstallationStatusListener
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2016/08/18 Allow to add ApiImplementor
 
 package org.parosproxy.paros.extension;
 
@@ -44,6 +45,7 @@ import org.parosproxy.paros.core.scanner.ScannerHook;
 import org.parosproxy.paros.model.Model;
 import org.zaproxy.zap.PersistentConnectionListener;
 import org.zaproxy.zap.extension.AddonFilesChangedListener;
+import org.zaproxy.zap.extension.api.ApiImplementor;
 import org.zaproxy.zap.extension.AddOnInstallationStatusListener;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.view.SiteMapListener;
@@ -96,6 +98,16 @@ public class ExtensionHook {
      * @see #getAddOnInstallationStatusListeners()
      */
     private List<AddOnInstallationStatusListener> addOnInstallationStatusListeners;
+
+    /**
+     * The {@link ApiImplementor}s added to this extension hook.
+     * <p>
+     * Lazily initialised.
+     * 
+     * @see #addApiImplementor(ApiImplementor)
+     * @see #getApiImplementors()
+     */
+    private List<ApiImplementor> apiImplementors;
     
     private ViewDelegate view = null;
     private CommandLineArgument[] arg = new CommandLineArgument[0];
@@ -320,5 +332,40 @@ public class ExtensionHook {
             return Collections.emptyList();
         }
         return Collections.unmodifiableList(contextDataFactories);
+    }
+
+    /**
+     * Adds the given {@code apiImplementor} to the extension hook, to be later added to the
+     * {@link org.zaproxy.zap.extension.api.API API}.
+     * <p>
+     * By default, the {@code ApiImplementor}s added to this extension hook are removed from the {@code API} when the extension
+     * is unloaded.
+     *
+     * @param apiImplementor the ApiImplementor that will be added to the ZAP API
+     * @throws IllegalArgumentException if the given {@code apiImplementor} is {@code null}.
+     * @since 2.6.0
+     */
+    public void addApiImplementor(ApiImplementor apiImplementor) {
+        if (apiImplementor == null) {
+            throw new IllegalArgumentException("Parameter apiImplementor must not be null.");
+        }
+
+        if (apiImplementors == null) {
+            apiImplementors = new ArrayList<>();
+        }
+        apiImplementors.add(apiImplementor);
+    }
+
+    /**
+     * Gets the {@link ApiImplementor}s added to this hook.
+     *
+     * @return an unmodifiable {@code List} containing the added {@code ApiImplementor}s, never {@code null}.
+     * @since 2.6.0
+     */
+    List<ApiImplementor> getApiImplementors() {
+        if (apiImplementors == null) {
+            return Collections.emptyList();
+        }
+        return Collections.unmodifiableList(apiImplementors);
     }
 }

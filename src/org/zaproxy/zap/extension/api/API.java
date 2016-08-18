@@ -92,6 +92,20 @@ public class API {
 		return api;
 	}
 
+	/**
+	 * Registers the given {@code ApiImplementor} to the ZAP API.
+	 * <p>
+	 * The implementor is not registed if the {@link ApiImplementor#getPrefix() API implementor prefix} is already in use.
+	 * <p>
+	 * <strong>Note:</strong> The preferred method to add an {@code ApiImplementor} is through the method
+	 * {@link org.parosproxy.paros.extension.ExtensionHook#addApiImplementor(ApiImplementor)
+	 * ExtensionHook.addApiImplementor(ApiImplementor)} when the corresponding
+	 * {@link org.parosproxy.paros.extension.Extension#hook(org.parosproxy.paros.extension.ExtensionHook) extension is hooked}.
+	 * Only use this method if really necessary.
+	 *
+	 * @param impl the implementor that will be registered
+	 * @see #removeApiImplementor(ApiImplementor)
+	 */
 	public void registerApiImplementor (ApiImplementor impl) {
 		if (implementors.get(impl.getPrefix()) != null) {
 			logger.error("Second attempt to register API implementor with prefix of " + impl.getPrefix());
@@ -107,6 +121,13 @@ public class API {
 		}
 	}
 	
+	/**
+	 * Removes the given {@code ApiImplementor} from the ZAP API.
+	 *
+	 * @param impl the implementor that will be removed
+	 * @since 2.1.0
+	 * @see #registerApiImplementor(ApiImplementor)
+	 */
 	public void removeApiImplementor(ApiImplementor impl) {
 		if (!implementors.containsKey(impl.getPrefix())) {
 			logger.warn("Attempting to remove an API implementor not registered, with prefix: " + impl.getPrefix());

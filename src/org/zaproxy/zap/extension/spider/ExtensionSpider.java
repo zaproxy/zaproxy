@@ -47,7 +47,6 @@ import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ScanController;
@@ -141,7 +140,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		// Register as an API implementor
 		spiderApi = new SpiderAPI(this);
 		spiderApi.addApiOptions(getSpiderParam());
-		API.getInstance().registerApiImplementor(spiderApi);
+		extensionHook.addApiImplementor(spiderApi);
 	}
 
 	@Override

@@ -56,10 +56,9 @@ public class ExtensionAPI extends ExtensionAdaptor {
         
         coreApi = new CoreAPI();
         coreApi.addApiOptions(extensionHook.getModel().getOptionsParam().getConnectionParam());
-        API.getInstance().registerApiImplementor(coreApi);
 
-        API.getInstance().registerApiImplementor(new ContextAPI());
-
+        extensionHook.addApiImplementor(coreApi);
+        extensionHook.addApiImplementor(new ContextAPI());
 
 	}
 
