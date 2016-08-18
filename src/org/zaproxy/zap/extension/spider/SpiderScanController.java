@@ -46,7 +46,6 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 	 * 
 	 * @see #spiderScanMap
 	 * @see #scanIdCounter
-	 * @see #lastSpiderScanAvailable
 	 */
 	private final Lock spiderScansLock;
 
@@ -58,7 +57,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 	 * </p>
 	 * 
 	 * @see #spiderScansLock
-	 * @see #scanURL(String, boolean, boolean)
+	 * @see #startScan(String, Target, User, Object[])
 	 */
 	private int scanIdCounter;
 
@@ -72,7 +71,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 	 * </p>
 	 * 
 	 * @see #spiderScansLock
-	 * @see #scanURL(String, boolean, boolean)
+	 * @see #startScan(String, Target, User, Object[])
 	 * @see #scanIdCounter
 	 */
 	private Map<Integer, SpiderScan> spiderScanMap;

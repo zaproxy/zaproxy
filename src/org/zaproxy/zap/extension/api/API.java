@@ -421,12 +421,12 @@ public class API {
 	
 	/**
 	 * Returns a URI for the specified parameters. The API key will be added if required
-	 * @param format
-	 * @param prefix
-	 * @param type
-	 * @param name
+	 * @param format the format of the API response
+	 * @param prefix the prefix of the API implementor
+	 * @param type the request type
+	 * @param name the name of the endpoint
 	 * @param proxy if true then the URI returned will only work if proxying via ZAP, ie it will start with http://zap/..
-	 * @return
+	 * @return the URL to access the defined endpoint
 	 */
 	public String getBaseURL(API.Format format, String prefix, API.RequestType type, String name, boolean proxy) {
 		String key = this.getApiKey();

@@ -96,9 +96,10 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     }
 
     /**
+     * Gets the ZAP API URL to a challenge endpoint.
      *
-     * @param challenge
-     * @return
+     * @param challenge the last segment of the path for the challenge endpoint
+     * @return a ZAP API URL to access the the challenge endpoint 
      */
     public String getCallbackUrl(String challenge) {
         String callbackUrl = "http://" 
@@ -117,10 +118,11 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     }
 
     /**
+     * Handles the given message, which might contain a challenge request.
      * 
-     * @param msg
-     * @return
-     * @throws ApiException 
+     * @param msg the HTTP message of the ZAP API request
+     * @return the HTTP message containing the response to the challenge
+     * @throws ApiException if an error occurred while handling the challenge request
      */
     @Override
     public HttpMessage handleShortcut(HttpMessage msg) throws ApiException {
@@ -167,10 +169,11 @@ public abstract class ChallengeCallbackAPI extends ApiImplementor {
     }
 
     /**
-     *
-     * @param challenge
-     * @param plugin
-     * @param attack
+     * Registers a new ZAP API challenge.
+     * 
+     * @param challenge the challenge
+     * @param plugin the plugin that will be notified if the challenge is requested
+     * @param attack the message that contains the attack that reproduces the issue
      */
     public void registerCallback(String challenge, ChallengeCallbackPlugin plugin, HttpMessage attack) {
         // Maybe we'va a lot of dirty entries

@@ -299,10 +299,6 @@ public class SpiderAPI extends ApiImplementor {
 
 	/**
 	 * Starts a spider scan at the given {@code url} and, optionally, with the perspective of the given {@code user}.
-	 * <p>
-	 * The {@code scanIdCounter} is used to generate the ID of the started spider scan. The started {@code SpiderScan} is saved
-	 * in {@code spiderScans} for later access/control, accessible with the returned ID.
-	 * </p>
 	 * 
 	 * @param url the url to start the spider scan
 	 * @param user the user to scan as, or null if the scan is done without the perspective of any user
@@ -312,8 +308,6 @@ public class SpiderAPI extends ApiImplementor {
 	 * @param subtreeOnly if the scan should be done only under a site's subtree
 	 * @return the ID of the newly started scan
 	 * @throws ApiException if the {@code url} is not valid
-	 * @see #scanIdCounter
-	 * @see #spiderScans
 	 */
 	private int scanURL(String url, User user, int maxChildren, boolean recurse, Context context, boolean subtreeOnly) throws ApiException {
 		log.debug("API Spider scanning url: " + url);
