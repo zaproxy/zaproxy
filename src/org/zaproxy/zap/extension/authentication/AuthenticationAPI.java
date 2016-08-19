@@ -43,7 +43,8 @@ import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.ApiUtils;
 
 /**
- * The API for manipulating the {@link Authentication} for {@link Context Contexts}.
+ * The API for manipulating the {@link org.zaproxy.zap.authentication.AuthenticationMethod AuthenticationMethod} for
+ * {@link Context Contexts}.
  */
 public class AuthenticationAPI extends ApiImplementor {
 

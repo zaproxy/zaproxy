@@ -52,7 +52,6 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 	 * 
 	 * @see #activeScanMap
 	 * @see #scanIdCounter
-	 * @see #lastActiveScanAvailable
 	 */
 	private final Lock activeScansLock;
 
@@ -64,7 +63,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 	 * </p>
 	 * 
 	 * @see #activeScansLock
-	 * @see #scanURL(String, boolean, boolean)
+	 * @see #startScan(String, Target, User, Object[])
 	 */
 	private int scanIdCounter;
 
@@ -78,7 +77,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 	 * </p>
 	 * 
 	 * @see #activeScansLock
-	 * @see #scanURL(String, boolean, boolean)
+	 * @see #startScan(String, Target, User, Object[])
 	 * @see #scanIdCounter
 	 */
 	private Map<Integer, ActiveScan> activeScanMap;

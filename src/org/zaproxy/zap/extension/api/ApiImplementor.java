@@ -95,6 +95,9 @@ public abstract class ApiImplementor {
 	}
 	
 	/**
+	 * Adds the given options to the API implementor.
+	 * 
+	 * @param param the options for the API
 	 * @see ZapApiIgnore
 	 */
 	public void addApiOptions(AbstractParam param) {
@@ -256,10 +259,10 @@ public abstract class ApiImplementor {
 
 	/**
 	 * Override if implementing one or more views
-	 * @param name
-	 * @param params
-	 * @return
-	 * @throws ApiException
+	 * @param name the name of the requested view
+	 * @param params the API request parameters
+	 * @return the API response
+	 * @throws ApiException if an error occurred while handling the API view endpoint
 	 */
 	public ApiResponse handleApiView(String name, JSONObject params) throws ApiException {
 		throw new ApiException(ApiException.Type.BAD_VIEW, name);
@@ -267,10 +270,10 @@ public abstract class ApiImplementor {
 
 	/**
 	 * Override if implementing one or more actions
-	 * @param name
-	 * @param params
-	 * @return
-	 * @throws ApiException
+	 * @param name the name of the requested action
+	 * @param params the API request parameters
+	 * @return the API response
+	 * @throws ApiException if an error occurred while handling the API action endpoint
 	 */
 	public ApiResponse handleApiAction(String name, JSONObject params) throws ApiException {
 		throw new ApiException(ApiException.Type.BAD_ACTION, name);
@@ -278,11 +281,11 @@ public abstract class ApiImplementor {
 	
 	/**
 	 * Override if implementing one or more 'other' operations - these are operations that _dont_ return structured data
-	 * @param msg
-	 * @param name
-	 * @param params
-	 * @return
-	 * @throws ApiException
+	 * @param msg the HTTP message containing the API request
+	 * @param name the name of the requested other endpoint
+	 * @param params the API request parameters
+	 * @return the HTTP message with the API response
+	 * @throws ApiException if an error occurred while handling the API other endpoint
 	 */
 	public HttpMessage handleApiOther(HttpMessage msg, String name, JSONObject params) throws ApiException {
 		throw new ApiException(ApiException.Type.BAD_OTHER, name);
@@ -290,9 +293,9 @@ public abstract class ApiImplementor {
 	
 	/**
 	 * Override if handling callbacks
-	 * @param msg
-	 * @return
-	 * @throws ApiException
+	 * @param msg the HTTP message containing the API request and response
+	 * @return the API response (set in the HTTP response body)
+	 * @throws ApiException if an error occurred while handling the API callback
 	 */
 	public String handleCallBack(HttpMessage msg)  throws ApiException {
 		throw new ApiException (ApiException.Type.URL_NOT_FOUND, msg.getRequestHeader().getURI().toString());
@@ -363,7 +366,7 @@ public abstract class ApiImplementor {
 	 * Override to add custom headers for specific API operations
 	 * @param name	the name of the operation
 	 * @param type the type of the operation
-	 * @param header the response header to modify
+	 * @param msg the HTTP response message to the API request 
 	 */
 	public void addCustomHeaders(String name, RequestType type, HttpMessage msg) {
 		// Do nothing in the default implementation
