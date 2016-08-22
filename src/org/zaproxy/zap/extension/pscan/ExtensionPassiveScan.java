@@ -46,7 +46,6 @@ import org.zaproxy.zap.ZAP;
 import org.zaproxy.zap.control.CoreFunctionality;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.pscan.scanner.RegexAutoTagScanner;
 import org.zaproxy.zap.extension.script.ExtensionScript;
 import org.zaproxy.zap.extension.script.ScriptType;
@@ -109,7 +108,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         }
 
 
-        API.getInstance().registerApiImplementor(new PassiveScanAPI(this));
+        extensionHook.addApiImplementor(new PassiveScanAPI(this));
     }
 
     @Override

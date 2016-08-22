@@ -84,7 +84,9 @@ public class ActiveScanPanel extends ScanPanel2<ActiveScan, ScanController<Activ
 	private JLabel numRequests;
 
     /**
-     * @param extension
+     * Constructs an {@code ActiveScanPanel} with the given extension.
+     * 
+     * @param extension the active scan extension, to access options and start scans
      */
     public ActiveScanPanel(ExtensionActiveScan extension) {
     	// 'fire' icon

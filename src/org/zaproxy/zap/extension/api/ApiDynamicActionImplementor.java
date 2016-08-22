@@ -34,8 +34,6 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
 	/**
 	 * Builds an {@link ApiResponse} describing the parameters of this action.
 	 * 
-	 * @param paramName the param name
-	 * @param mandatory the mandatory
 	 * @return the api response set
 	 */
 	public ApiResponse buildParamsDescription() {
@@ -47,6 +45,13 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
 		return configParams;
 	}
 
+	/**
+	 * Builds a {@code ApiResponseSet} with the given parameter name and whether or not it is mandatory.
+	 *
+	 * @param paramName the name of the parameter
+	 * @param mandatory {@code true} if the parameter is mandatory, {@code false} otherwise
+	 * @return the {@code ApiResponseSet} with the name and mandatory fields
+	 */
 	private static ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
 		Map<String, String> m = new HashMap<>();
 		m.put("name", paramName);

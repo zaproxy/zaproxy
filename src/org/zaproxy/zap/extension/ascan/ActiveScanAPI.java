@@ -419,16 +419,13 @@ public class ActiveScanAPI extends ApiImplementor {
 	}
 
 	/**
-	 * Returns a {@code ActiveApiScan} from the available {@code activeScans} or the {@code lastActiveScanAvailable}. If a scan
-	 * ID ({@code PARAM_SCAN_ID}) is present in the given {@code params} it will be used to the get the {@code ActiveApiScan}
-	 * from the available {@code activeScans}, otherwise it's returned the {@code lastActiveScanAvailable}.
+	 * Returns a {@link ActiveScan} from the available active scans or the last active scan. If a scan ID (
+	 * {@link #PARAM_SCAN_ID}) is present in the given {@code params} it will be used to the get the {@code ActiveScan} from the
+	 * available active scans, otherwise it's returned the last active scan.
 	 *
 	 * @param params the parameters of the API call
-	 * @return the {@code ActiveApiScan} with the given scan ID or, if not present, the {@code lastActiveScanAvailable}
+	 * @return the {@code ActiveScan} with the given scan ID or, if not present, the last active scan
 	 * @throws ApiException if there's no scan with the given scan ID
-	 * @see #PARAM_SCAN_ID
-	 * @see #activeScans
-	 * @see #lastActiveScanAvailable
 	 */
 	private ActiveScan getActiveScan(JSONObject params) throws ApiException {
 		int id = getParam(params, PARAM_SCAN_ID, -1);

@@ -46,7 +46,6 @@ import org.zaproxy.zap.authentication.FormBasedAuthenticationMethodType.FormBase
 import org.zaproxy.zap.authentication.HttpAuthenticationMethodType;
 import org.zaproxy.zap.authentication.ManualAuthenticationMethodType;
 import org.zaproxy.zap.authentication.ScriptBasedAuthenticationMethodType;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.stdmenus.PopupContextMenuItemFactory;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
@@ -111,7 +110,7 @@ public class ExtensionAuthentication extends ExtensionAdaptor implements Context
 
 		// Register the api
 		this.api = new AuthenticationAPI(this);
-		API.getInstance().registerApiImplementor(api);
+		extensionHook.addApiImplementor(api);
 	}
 
 	@Override

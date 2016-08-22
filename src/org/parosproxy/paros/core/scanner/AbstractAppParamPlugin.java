@@ -258,28 +258,33 @@ public abstract class AbstractAppParamPlugin extends AbstractAppPlugin {
     }
 
     /**
-     * Set the paramter into the current message. The position will be handled
-     * by the Abstract class. If both param and value is null, the current
-     * parameter will be removed.
+     * Sets the parameter into the given {@code message}. If both parameter name and value are {@code null}, the parameter will
+     * be removed.
      *
-     * @param msg
-     * @param param
-     * @param value
-     * @return
+     * @param message the message that will be changed
+     * @param param the name of the parameter
+     * @param value the value of the parameter
+     * @return the parameter set
+     * @see #setEscapedParameter(HttpMessage, String, String)
      */
-    protected String setParameter(HttpMessage msg, String param, String value) {
-        return variant.setParameter(msg, originalPair, param, value);
+    protected String setParameter(HttpMessage message, String param, String value) {
+        return variant.setParameter(message, originalPair, param, value);
     }
 
     /**
-     *
-     * @param msg
-     * @param param
-     * @param value
-     * @return
+     * Sets the parameter into the given {@code message}. If both parameter name and value are {@code null}, the parameter will
+     * be removed.
+     * <p>
+     * The value is expected to be properly encoded/escaped.
+     * 
+     * @param message the message that will be changed
+     * @param param the name of the parameter
+     * @param value the value of the parameter
+     * @return the parameter set
+     * @see #setParameter(HttpMessage, String, String)
      */
-    protected String setEscapedParameter(HttpMessage msg, String param, String value) {
-        return variant.setEscapedParameter(msg, originalPair, param, value);
+    protected String setEscapedParameter(HttpMessage message, String param, String value) {
+        return variant.setEscapedParameter(message, originalPair, param, value);
     }
 
     private ExtensionScript getExtension() {
