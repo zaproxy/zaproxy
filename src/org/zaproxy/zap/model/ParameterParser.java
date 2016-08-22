@@ -76,18 +76,21 @@ public interface ParameterParser {
 	 * Gets the path of the URI's ancestor found at the given depth, taking into account any context
 	 * specific configuration (e.g. structural parameters). The depth could also be seen as the
 	 * number of path elements returned.
-	 * <p/>
+	 * <p>
 	 * A few examples (uri, depth):
 	 * <ul>
-	 * <li>(<i>http://example.org/path/to/element</i>, 0) -> ""</li>
-	 * <li>(<i>http://example.org/path/to/element</i>, 1) -> "/path"</li>
-	 * <li>(<i>http://example.org/path/to/element</i>, 3) -> "/path/to/element"</li>
-	 * <li>(<i>http://example.org/path?page=12&data=123</i>, 2) -> "/path?page=12", if {@code page}
+	 * <li>(<i>http://example.org/path/to/element</i>, 0) -&gt; ""</li>
+	 * <li>(<i>http://example.org/path/to/element</i>, 1) -&gt; "/path"</li>
+	 * <li>(<i>http://example.org/path/to/element</i>, 3) -&gt; "/path/to/element"</li>
+	 * <li>(<i>http://example.org/path?page=12&amp;data=123</i>, 2) -&gt; "/path?page=12", if {@code page}
 	 * is a structural parameter</li>
-	 * <li>(<i>http://example.org/path?page=12&data=123&type=1</i>, 3) -> "/path?page=12&type=1", if
+	 * <li>(<i>http://example.org/path?page=12&amp;data=123&amp;type=1</i>, 3) -&gt; "/path?page=12&amp;type=1", if
 	 * {@code page} and {@code type} are both structural parameter</li>
 	 * </ul>
 	 * 
+	 * @param uri the URI
+	 * @param depth the depth
+	 * @return the path of the ancestor
 	 * @throws URIException if an error occurred while accessing the provided uri
 	 */
 	String getAncestorPath(URI uri, int depth) throws URIException;
