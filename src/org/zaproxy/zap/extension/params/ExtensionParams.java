@@ -48,7 +48,6 @@ import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.anticsrf.ExtensionAntiCSRF;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.extension.httpsessions.ExtensionHttpSessions;
 import org.zaproxy.zap.extension.pscan.ExtensionPassiveScan;
@@ -76,13 +75,12 @@ public class ExtensionParams extends ExtensionAdaptor
     public ExtensionParams() {
         super(NAME);
         this.setOrder(58);
-
-        API.getInstance().registerApiImplementor(new ParamsAPI(this));
 	}
 	
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
+        extensionHook.addApiImplementor(new ParamsAPI(this));
 	    extensionHook.addSessionListener(this);
         extensionHook.addSiteMapListener(this);
 	    

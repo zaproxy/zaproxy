@@ -82,7 +82,6 @@ import org.zaproxy.zap.control.AddOnRunIssuesUtils;
 import org.zaproxy.zap.control.AddOnUninstallationProgressCallback;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.control.ZapRelease;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.AddOnChangesResult;
 import org.zaproxy.zap.extension.autoupdate.AddOnDependencyChecker.UninstallationResult;
 import org.zaproxy.zap.extension.autoupdate.UninstallationProgressDialogue.AddOnUninstallListener;
@@ -537,7 +536,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	    extensionHook.addCommandLine(getCommandLineArguments());
         this.api = new AutoUpdateAPI(this);
         this.api.addApiOptions(getModel().getOptionsParam().getCheckForUpdatesParam());
-        API.getInstance().registerApiImplementor(this.api);
+        extensionHook.addApiImplementor(this.api);
 	}
 	
 	private ScanStatus getScanStatus() {

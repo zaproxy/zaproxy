@@ -39,7 +39,6 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpSender;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.network.HttpSenderListener;
 import org.zaproxy.zap.view.ScanPanel;
@@ -176,8 +175,7 @@ public class ExtensionHttpSessions extends ExtensionAdaptor implements SessionCh
 		}
 
 		// Register as an API implementor
-		HttpSessionsAPI httpSessionsApi = new HttpSessionsAPI(this);
-		API.getInstance().registerApiImplementor(httpSessionsApi);
+		extensionHook.addApiImplementor(new HttpSessionsAPI(this));
 	}
 
 	/**

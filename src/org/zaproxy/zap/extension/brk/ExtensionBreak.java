@@ -52,7 +52,6 @@ import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteNode;
 import org.parosproxy.paros.view.View;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Location;
 import org.zaproxy.zap.extension.brk.impl.http.HttpBreakpointMessage.Match;
@@ -158,7 +157,7 @@ public class ExtensionBreak extends ExtensionAdaptor implements SessionChangedLi
 
             // APIs are usually loaded even if the view is null, as they are specifically for daemon mode
             // However in this case the API isnt really of any use unless the UI is available
-    		API.getInstance().registerApiImplementor(api);
+            extensionHook.addApiImplementor(api);
 
             extensionHook.addSessionListener(this);
             extensionHook.addOptionsChangedListener(this);

@@ -36,7 +36,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
-import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.ContextDataFactory;
 import org.zaproxy.zap.session.CookieBasedSessionManagementMethodType;
@@ -98,7 +97,7 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 		// Register the api
 		this.api = new SessionManagementAPI(this);
-		API.getInstance().registerApiImplementor(api);
+		extensionHook.addApiImplementor(api);
 	}
 
 	@Override
