@@ -205,11 +205,9 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				contentPanel.add(getCancelButton(), LayoutHelper.getGBC(2, 1, 1, 0.0D));
 			}
 			int x=3;
-			if (extraButtons != null) {
-				for (JButton button : extraButtons) {
-					contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
-					x++;
-				}
+			for (JButton button : extraButtons) {
+				contentPanel.add(button, LayoutHelper.getGBC(x, 1, 1, 0.0D));
+				x++;
 			}
 			contentPanel.add(getSaveButton(), LayoutHelper.getGBC(x, 1, 1, 0.0D));
 		}
