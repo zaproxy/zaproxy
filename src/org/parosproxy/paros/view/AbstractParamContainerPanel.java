@@ -21,6 +21,7 @@
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog - moved code from AbstractParamDialog
 // ZAP: 2015/02/16 Issue 1528: Support user defined font size
 // ZAP: 2016/06/14 Issue 2578: Must click on text in Options column to select row
+// ZAP: 2016/08/23 Respect sort parameter when adding intermediate panels
 
 package org.parosproxy.paros.view;
 
@@ -304,7 +305,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
         return rootNode;
     }
 
-    private DefaultMutableTreeNode addParamNode(String[] paramSeq) {
+    private DefaultMutableTreeNode addParamNode(String[] paramSeq, boolean sort) {
         String param = null;
         DefaultMutableTreeNode parent = getRootNode();
         DefaultMutableTreeNode child = null;
@@ -323,7 +324,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
 
             if (result == null) {
                 result = new DefaultMutableTreeNode(param);
-                getTreeModel().insertNodeInto(result, parent, parent.getChildCount());
+                addNewNode(parent, result, sort);
             }
 
             parent = result;
@@ -332,6 +333,22 @@ public class AbstractParamContainerPanel extends JSplitPane {
         return parent;
 
 
+    }
+
+    private void addNewNode(DefaultMutableTreeNode parent, DefaultMutableTreeNode node, boolean sort) {
+        if (!sort) {
+            getTreeModel().insertNodeInto(node, parent, parent.getChildCount());
+            return;
+        }
+
+        String name = node.toString();
+        int pos = 0;
+        for (; pos < parent.getChildCount(); pos++) {
+            if (name.compareToIgnoreCase(parent.getChildAt(pos).toString()) < 0) {
+                break;
+            }
+        }
+        getTreeModel().insertNodeInto(node, parent, pos);
     }
 
     /**
@@ -344,25 +361,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     // ZAP: Added sort option
     public void addParamPanel(String[] parentParams, String name, AbstractParamPanel panel, boolean sort) {
         if (parentParams != null) {
-            DefaultMutableTreeNode parent = addParamNode(parentParams);
-            DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(name);
-
-            boolean added = false;
-            if (sort) {
-                for (int i = 0; i < parent.getChildCount(); i++) {
-                    if (name.compareToIgnoreCase(parent.getChildAt(i).toString()) < 0) {
-                        getTreeModel().insertNodeInto(newNode, parent, i);
-
-                        added = true;
-                        break;
-                    }
-                }
-            }
-            
-            if (!added) {
-                getTreeModel().insertNodeInto(newNode, parent, parent.getChildCount());
-
-            }
+            addNewNode(addParamNode(parentParams, sort), new DefaultMutableTreeNode(name), sort);
             
         } else {
             // No need to create node.  This is the root panel.
