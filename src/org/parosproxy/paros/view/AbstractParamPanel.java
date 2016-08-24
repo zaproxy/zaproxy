@@ -46,28 +46,56 @@ public abstract class AbstractParamPanel extends JPanel {
 	    }
 	}
 	
+	/**
+	 * Initialises the panel with the given data.
+	 *
+	 * @param obj the object used to initialise the panel and save the data
+	 */
 	public abstract void initParam(Object obj);
 	
+	/**
+	 * Validates the panel, throwing an exception if there's any validation error.
+	 * <p>
+	 * The message of the exception is expected to be internationalised (as it might be shown in GUI components, for example, an
+	 * error dialogue).
+	 * 
+	 * @param obj the object used to initialise the panel and save the data
+	 * @throws Exception if there's any validation error.
+	 */
 	public abstract void validateParam(Object obj) throws Exception;
 	
+	/**
+	 * Saves (the data of) the panel, throwing an exception if there's any error.
+	 * <p>
+	 * The message of the exception is expected to be internationalised (as it might be shown in GUI components, for example, an
+	 * error dialogue).
+	 * 
+	 * @param obj the object used to initialise the panel and save the data
+	 * @throws Exception if there's any error while saving the data.
+	 */
 	public abstract void saveParam(Object obj) throws Exception;
 	
 	/**
-	 * @return The help index key, as used in JavaHelp.
-	 *         OR use return null, if no help key is available.
-	 *         When a valid key is returned, there will be a help button displayed.
+	 * Gets the index of the help page for this options panel.
+	 * <p>
+	 * The help index is the value of the {@code target} attribute of the corresponding {@code mapID} element defined in the JHM
+	 * file.
+	 * <p>
+	 * If the help index is provided a button is shown to access the help page.
+	 * 
+	 * @return the help index, or {@code null} if none.
 	 */
 	public abstract String getHelpIndex();
 	
 	/**
-	 * Called when the panel is shown (becomes visible) in the containing Abstract Param Dialog.
+	 * Called when the panel is shown (becomes visible) in the containing {@link AbstractParamDialog}.
 	 */
 	public void onShow() {
 		
 	}
 	
 	/**
-	 * Called when the panel is hidden(another panel becomes visible) in the containing Abstract Param Dialog.
+	 * Called when the panel is hidden (another panel becomes visible) in the containing {@link AbstractParamDialog}.
 	 */
 	public void onHide() {
 		
