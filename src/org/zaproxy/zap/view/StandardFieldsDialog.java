@@ -96,6 +96,13 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private Map<String, JPanel> tabNameMap = new HashMap<String, JPanel>(); 
 
 	/**
+	 * Flag that indicates whether or not the dialogue is automatically hidden when {@link #save() saved}.
+	 * 
+	 * @see #isHideOnSave()
+	 */
+	private boolean hideOnSave;
+
+	/**
 	 * For backwards binary compatibility
 	 * @param owner
 	 * @param titleLabel
@@ -133,6 +140,31 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.setTitle(Constant.messages.getString(titleLabel));
 		this.setXWeights(0.4D, 0.6D);	// Looks a bit better..
 		this.initialize(dim, tabLabels);
+		this.hideOnSave = true;
+	}
+
+	/**
+	 * Tells whether or not the dialogue is automatically hidden when {@link #save() saved}.
+	 * <p>
+	 * The default is {@code true}.
+	 * 
+	 * @return {@code true} if the dialogue should be hidden, {@code false} otherwise.
+	 * @since TODO Add version
+	 * @see #setHideOnSave(boolean)
+	 */
+	protected boolean isHideOnSave() {
+		return hideOnSave;
+	}
+
+	/**
+	 * Sets whether or not the dialogue is automatically hidden when {@link #save() saved}.
+	 *
+	 * @param hideOnSave {@code true} if the dialogue should be hidden, {@code false} otherwise.
+	 * @since TODO Add version
+	 * @see #isHideOnSave()
+	 */
+	protected void setHideOnSave(boolean hideOnSave) {
+		this.hideOnSave = hideOnSave;
 	}
 	
 	private boolean isTabbed() {
@@ -312,7 +344,10 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 						return;
 					}
 					save();
-					setVisible(false);
+
+					if (isHideOnSave()) {
+						setVisible(false);
+					}
 				}
 			});
 		}
@@ -1351,7 +1386,26 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
     	}
 	}
 
+	/**
+	 * Called when the dialogue is saved and after all validations have finished, to conclude the saving process.
+	 * <p>
+	 * Whether or not the dialogue is automatically hidden depends on the value returned by {@link #isHideOnSave()}.
+	 * 
+	 * @see #validateFields()
+	 * @see #validateFieldsCustomMessage()
+	 * @see #getSaveButtonText()
+	 */
 	public abstract void save();
 
+	/**
+	 * Called when the dialogue is {@link #save() saved}, allowing to validate the fields and show an error message (as opposed
+	 * to validations using the method {@link #validateFieldsCustomMessage()}, which allow to show custom/complex information or
+	 * warning dialogues).
+	 * <p>
+	 * If no message is returned (that is, {@code null}), the saving process continues, otherwise it is shown a warning dialogue
+	 * with the message.
+	 *
+	 * @return a {@code String} containing the error message to be shown to the user, or {@code null} if there are no errors.
+	 */
 	public abstract String validateFields();
 }
