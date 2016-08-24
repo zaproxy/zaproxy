@@ -45,6 +45,7 @@ import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
@@ -498,6 +499,56 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
 		}
 		ZapTextField field = new ZapTextField();
+		if (value != null) {
+			field.setText(value);
+		}
+
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
+		incTabOffset(tabIndex);
+	}
+
+	/**
+	 * Adds a {@link JPasswordField} field, with the given label and, optionally, the given value.
+	 *
+	 * @param fieldLabel the label of the field
+	 * @param value the value of the field, might be {@code null}
+	 * @throws IllegalArgumentException if the dialogue is a tabbed dialogue
+	 * @since TODO add version
+	 * @see #addPasswordField(int, String, String)
+	 * @see #getPasswordValue(String)
+	 */
+	public void addPasswordField(String fieldLabel, String value) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		JPasswordField field = new JPasswordField();
+		if (value != null) {
+			field.setText(value);
+		}
+		this.addField(fieldLabel, field, field, 0.0D);
+	}
+
+	/**
+	 * Adds a {@link JPasswordField} field to the tab with the given index, with the given label and, optionally, the given
+	 * value.
+	 *
+	 * @param tabIndex the index of the tab
+	 * @param fieldLabel the label of the field
+	 * @param value the value of the field, might be {@code null}
+	 * @throws IllegalArgumentException if the dialogue is not a tabbed dialogue or if the index does not correspond to an
+	 *			 existing tab
+	 * @since TODO add version
+	 * @see #addPasswordField(String, String)
+	 * @see #getPasswordValue(String)
+	 */
+	public void addPasswordField(int tabIndex, String fieldLabel, String value) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		JPasswordField field = new JPasswordField();
 		if (value != null) {
 			field.setText(value);
 		}
@@ -1159,6 +1210,27 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		}
 		return null;
 	}
+
+	/**
+	 * Gets the contents of a {@link JPasswordField} field.
+	 * <p>
+	 * For stronger security, it is recommended that the returned character array be cleared after use by setting each character
+	 * to zero.
+	 * 
+	 * @param fieldLabel the label of the field
+	 * @return the contents of the field, {@code null} if not a {@code JPassword} field.
+	 * @since TODO add version
+	 * @see #setFieldValue(String, String)
+	 * @see #addPasswordField(String, String)
+	 */
+	public char[] getPasswordValue(String fieldLabel) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (!(c instanceof JPasswordField)) {
+			return null;
+		}
+
+		return ((JPasswordField) c).getPassword();
+	}
 	
 	public Context getContextValue(String fieldLabel) {
 		Component c = this.fieldMap.get(fieldLabel);
@@ -1177,6 +1249,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		if (c != null) {
 			if (c instanceof ZapTextField) {
 				((ZapTextField)c).setText(value);
+			} else if (c instanceof JPasswordField) {
+				((JPasswordField)c).setText(value);
 			} else if (c instanceof ZapTextArea) {
 				((ZapTextArea)c).setText(value);
 			} else if (c instanceof JComboBox) {
@@ -1206,6 +1280,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			Object value = null;
 			if (c instanceof ZapTextField) {
 				value = ((ZapTextField)c).getText();
+			} else if (c instanceof JPasswordField) {
+				return ((JPasswordField) c).getDocument().getLength() == 0;
 			} else if (c instanceof ZapTextArea) {
 				value = ((ZapTextArea)c).getText();
 			} else if (c instanceof JComboBox) {
@@ -1317,6 +1393,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		if (c != null) {
 			if (c instanceof ZapTextField) {
 				((ZapTextField)c).addActionListener(listener);
+			} else if (c instanceof JPasswordField) {
+				((JPasswordField)c).addActionListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addActionListener(listener);
 			} else if (c instanceof JCheckBox) {
@@ -1334,6 +1412,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 				((ZapTextField)c).addMouseListener(listener);
 			} else if (c instanceof ZapTextArea) {
 				((ZapTextArea)c).addMouseListener(listener);
+			} else if (c instanceof JPasswordField) {
+				((JPasswordField)c).addMouseListener(listener);
 			} else if (c instanceof JComboBox) {
 				((JComboBox<?>)c).addMouseListener(listener);
 			} else {
