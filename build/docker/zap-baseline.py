@@ -159,7 +159,8 @@ def main(argv):
 
   try:
     opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:l:daijsz:")
-  except getopt.GetoptError:
+  except getopt.GetoptError, exc:
+    logging.warning ('Invalid option ' + exc.opt + ' : ' + exc.msg)
     usage()
     sys.exit(3)
 
