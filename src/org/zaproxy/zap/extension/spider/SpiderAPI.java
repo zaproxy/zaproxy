@@ -18,9 +18,12 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
 import net.sf.json.JSONObject;
@@ -30,8 +33,12 @@ import org.apache.commons.httpclient.URIException;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.DatabaseException;
+import org.parosproxy.paros.db.RecordHistory;
+import org.parosproxy.paros.db.TableHistory;
+import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
+import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.zaproxy.zap.extension.api.ApiAction;
 import org.zaproxy.zap.extension.api.ApiException;
 import org.zaproxy.zap.extension.api.ApiException.Type;
@@ -86,6 +93,7 @@ public class SpiderAPI extends ApiImplementor {
 	private static final String VIEW_RESULTS = "results";
 	private static final String VIEW_FULL_RESULTS = "fullResults";
 	private static final String VIEW_SCANS = "scans";
+	private static final String VIEW_ALL_URLS = "allUrls";
 
 	/**
 	 * The Constant PARAM_URL that defines the parameter defining the url of the scan.
@@ -138,6 +146,7 @@ public class SpiderAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_FULL_RESULTS, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCANS));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_SCAN));
+		this.addApiView(new ApiView(VIEW_ALL_URLS));
 
 	}
 
@@ -460,6 +469,36 @@ public class SpiderAPI extends ApiImplementor {
 				resultList.addItem(new ApiResponseSet("scan", map));
 			}
 			result = resultList;
+		} else if (VIEW_ALL_URLS.equals(name)) {
+			ApiResponseList resultUrls = new ApiResponseList(name);
+			Set<String> urlSet=new HashSet<String>();
+			
+			TableHistory tableHistory = extension.getModel().getDb().getTableHistory();
+			List<Integer> ids = Collections.emptyList();
+			
+			try {
+				ids = tableHistory.getHistoryIdsOfHistType(extension.getModel().getSession().getSessionId(),
+						HistoryReference.TYPE_SPIDER, HistoryReference.TYPE_SPIDER_TASK);
+			} catch (DatabaseException e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			}
+			
+			String url;
+			for (Integer id : ids) {
+				try {
+					RecordHistory rh = tableHistory.read(id.intValue());
+					if (rh != null) {
+						url = rh.getHttpMessage().getRequestHeader().getURI().toString();
+						if (urlSet.add(url)) {
+							resultUrls.addItem(new ApiResponseElement("url", url));
+						}
+					}
+				} catch (HttpMalformedHeaderException | DatabaseException e) {
+					throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+				}
+			}
+			
+			result = resultUrls;
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}

@@ -83,8 +83,10 @@ def usage():
     print ('    -a                include the alpha passive scan rules as well')
     print ('    -d                show debug messages')
     print ('    -i                default rules not in the config file to INFO')
+    print ('    -j                use the Ajax spider in addition to the traditional one')
     print ('    -l level          minimum level to show: PASS, IGNORE, INFO, WARN or FAIL, use with -s to hide example URLs')
     print ('    -s                short output format - dont show PASSes or example URLs')
+    print ('    -z zap_options    ZAP command line options e.g. -z "-config aaa=bbb -config ccc=ddd"')
 
 def load_config(config):
   for line in config:
@@ -144,8 +146,10 @@ def main(argv):
   target = ''
   zap_alpha = False
   info_unspecified = False
+  ajax = False
   base_dir = ''
   zap_ip = 'localhost'
+  zap_options = ''
 
   pass_count = 0
   warn_count = 0
@@ -154,8 +158,9 @@ def main(argv):
   ignore_count = 0
 
   try:
-    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:l:dais")
-  except getopt.GetoptError:
+    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:l:daijsz:")
+  except getopt.GetoptError, exc:
+    logging.warning ('Invalid option ' + exc.opt + ' : ' + exc.msg)
     usage()
     sys.exit(3)
 
@@ -181,6 +186,8 @@ def main(argv):
       zap_alpha = True
     elif opt == '-i':
       info_unspecified = True
+    elif opt == '-j':
+      ajax = True
     elif opt == '-l':
       try:
         min_level = levels.index(arg)
@@ -188,6 +195,8 @@ def main(argv):
         logging.warning ('Level must be one of ' + str(levels))
         usage()
         sys.exit(3)
+    elif opt == '-z':
+      zap_options = arg
       
     elif opt == '-s':
       detailed_output = False
@@ -237,7 +246,7 @@ def main(argv):
   if running_in_docker:
     try:
       logging.debug ('Starting ZAP')
-      params = ['zap.sh', '-daemon', 
+      params = ['zap-x.sh', '-daemon', 
                 '-port', str(port), 
                 '-host', '0.0.0.0', 
                 '-config', 'api.disablekey=true', 
@@ -248,6 +257,10 @@ def main(argv):
       if (zap_alpha):
         params.append('-addoninstall')
         params.append('pscanrulesAlpha')
+
+      if len(zap_options) > 0:
+        for zap_opt in zap_options.split(" "):
+          params.append(zap_opt)
 
       with open('zap.out', "w") as outfile:
         subprocess.Popen(params, stdout=outfile)
@@ -270,7 +283,7 @@ def main(argv):
       params = ['docker', 'run', '-u', 'zap', 
                 '-p', str(port) + ':' + str(port), 
                 '-d', 'owasp/zap2docker-weekly', 
-                'zap.sh', '-daemon', 
+                'zap-x.sh', '-daemon', 
                 '-port', str(port), 
                 '-host', '0.0.0.0', 
                 '-config', 'api.disablekey=true', 
@@ -280,6 +293,10 @@ def main(argv):
       if (zap_alpha):
         params.append('-addoninstall')
         params.append('pscanrulesAlpha')
+        
+      if len(zap_options) > 0:
+        for zap_opt in zap_options.split(" "):
+          params.append(zap_opt)
 
       cid = subprocess.check_output(params).rstrip()
       logging.debug ('Docker CID: ' + cid)
@@ -311,15 +328,22 @@ def main(argv):
     spider_scan_id = zap.spider.scan(target)
     time.sleep(5)
 
-    start = datetime.now()
     while (int(zap.spider.status(spider_scan_id)) < 100):
-      if (datetime.now() - start).seconds > ((mins * 60) + 10):
-        # TODO HACK to cope with API not recognising when spider has finished due to exceeding maxDuration
-        # Can be removed once the underlying fix is included in the ZAP Weekly release
-        break
       logging.debug ('Spider progress %: ' + zap.spider.status(spider_scan_id))
       time.sleep(5)
     logging.debug ('Spider complete')
+
+    if (ajax):
+      # Ajax Spider the target as well
+      logging.debug ('AjaxSpider ' + target)
+      zap.ajaxSpider.set_option_max_duration(str(mins))
+      zap.ajaxSpider.scan(target)
+      time.sleep(5)
+
+      while (zap.ajaxSpider.status == 'running'):
+        logging.debug ('Ajax Spider running, found urls: ' + zap.ajaxSpider.number_of_results)
+        time.sleep(5)
+      logging.debug ('Ajax Spider complete')
 
     # Wait for passive scanning to complete
     rtc = zap.pscan.records_to_scan
@@ -435,7 +459,7 @@ def main(argv):
     zap.core.shutdown()
 
   except IOError as (errno, strerror):
-    logging.warning ('I/O error(' + str(errno) + '): ' + strerror)
+    logging.warning ('I/O error(' + str(errno) + '): ' + str(strerror))
     traceback.print_exc()
   except:
     logging.warning ('Unexpected error: ' + str(sys.exc_info()[0]))

@@ -112,9 +112,12 @@ public abstract class AbstractContextPropertiesPanel extends AbstractParamPanel 
 	/**
 	 * Validate the context data shown in the UI. This method is the equivalent of
 	 * {@link AbstractParamPanel#validateParam(Object)}.
+	 * <p>
+	 * The message of the exception is expected to be internationalised (as it might be shown in GUI components, for example, an
+	 * error dialogue).
 	 * 
 	 * @param session the session
-	 * 
+	 * @throws Exception if there's any validation error.
 	 */
 	public abstract void validateContextData(Session session) throws Exception;
 
@@ -139,6 +142,7 @@ public abstract class AbstractContextPropertiesPanel extends AbstractParamPanel 
 	 * {@link AbstractParamPanel#saveParam(Object)}.
 	 * 
 	 * @param session the session
+	 * @throws Exception if there's any error while saving the data.
 	 */
 	public abstract void saveContextData(Session session) throws Exception;
 

@@ -61,6 +61,7 @@
 // ZAP: 2016/05/24 Call Database.discardSession(long) in Session.discard()
 // ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
 // ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
+// ZAP: 2016/08/25 Detach sites tree model when loading the session
 
 package org.parosproxy.paros.model;
 
@@ -284,6 +285,11 @@ public class Session {
 		
 		//historyList.removeAllElements();
 
+		if (View.isInitialised()) {
+			// Detach the siteTree model from the Sites tree, to reduce notification changes to the UI while loading
+			View.getSingleton().getSiteTreePanel().getTreeSite().setModel(new SiteMap(null, null));
+		}
+
     	if (! Constant.isLowMemoryOptionSet()) {
 			SiteNode newRoot = new SiteNode(siteTree, -1, Constant.messages.getString("tab.sites"));
 			siteTree.setRoot(newRoot);
@@ -461,7 +467,7 @@ public class Session {
 		}
 		
 		if (View.isInitialised()) {
-		    // ZAP: expand root
+		    View.getSingleton().getSiteTreePanel().getTreeSite().setModel(siteTree);
 		    View.getSingleton().getSiteTreePanel().expandRoot();
 		}
 	    this.refreshScope();
