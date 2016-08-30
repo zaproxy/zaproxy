@@ -136,7 +136,7 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
 			// updatable recordset does not work in hsqldb jdbc impelementation!
 			//psWrite = mConn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE);
 			psDelete = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTORYID + " = ?");
-			psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " = ?");
+			psDeleteTemp = conn.prepareStatement("DELETE FROM HISTORY WHERE " + HISTTYPE + " IN (?) LIMIT 1000");
 			psContainsURI = conn.prepareStatement("SELECT TOP 1 HISTORYID FROM HISTORY WHERE URI = ? AND  METHOD = ? AND REQBODY = ? AND SESSIONID = ? AND HISTTYPE = ?");
 
 			
@@ -716,8 +716,13 @@ public class ParosTableHistory extends ParosAbstractTable implements TableHistor
     public void deleteTemporary() throws DatabaseException {
         try {
             for (Integer type : HistoryReference.getTemporaryTypes()) {
-                psDeleteTemp.setInt(1, type);
-                psDeleteTemp.execute();
+                while (true) {
+                    psDeleteTemp.setInt(1, type);
+                    int result = psDeleteTemp.executeUpdate();
+                    if (result == 0) {
+                        break;
+                    }
+                }
             }
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
