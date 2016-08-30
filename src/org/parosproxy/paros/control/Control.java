@@ -546,8 +546,10 @@ public class Control extends AbstractControl implements SessionListener {
 		return mode;
 	}
 	public void setMode(Mode mode) {
-		this.mode = mode;
-		getExtensionLoader().sessionModeChangedAllPlugin(mode);
-		model.getOptionsParam().getViewParam().setMode(mode.name());
+		if (this.mode != mode) {
+			this.mode = mode;
+			getExtensionLoader().sessionModeChangedAllPlugin(mode);
+			model.getOptionsParam().getViewParam().setMode(mode.name());
+		}
 	}
 }

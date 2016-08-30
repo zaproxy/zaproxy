@@ -227,6 +227,7 @@ public class MainToolbarPanel extends JPanel {
 						default: return;	// Not recognised
 					}
 					Control.getSingleton().setMode(mode);
+					View.getSingleton().getMainFrame().getMainMenuBar().setMode(mode);
 				}
 			});
 		}
