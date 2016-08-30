@@ -101,12 +101,6 @@ public class Alert implements Comparable<Alert>  {
 	private int		pluginId = 0;
 	private String name = "";
 	private int risk = RISK_INFO;
-	/**
-	 * @deprecated
-	 * Use of reliability has been deprecated in favour of using confidence
-	 */
-	@Deprecated
-	private int reliability = CONFIDENCE_MEDIUM;
 	private int confidence = CONFIDENCE_MEDIUM;
 	private String 	description = "";
 	private String 	uri = "";
@@ -582,8 +576,7 @@ public class Alert implements Comparable<Alert>  {
     }
     
     public URL getIconUrl() {
-    	//TODO: Shouldn't be necessary to check both but let's be careful
-    	if (reliability == Alert.CONFIDENCE_FALSE_POSITIVE || confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
+    	if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
     		// Special case - theres no risk - use the green flag
 			return Constant.OK_FLAG_IMAGE_URL;
     	}
