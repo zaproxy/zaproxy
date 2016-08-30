@@ -43,6 +43,7 @@
 // ZAP: 2016/02/26 Deprecate alert as an element of Alert in favour of name
 // ZAP: 2016/05/25 Normalise equals/hashCode/compareTo
 // ZAP: 2016/08/10 Issue 2757: Alerts with different request method are considered the same
+// ZAP: 2016/08/25 Initialise the method to an empty string
 
 package org.parosproxy.paros.core.scanner;
 
@@ -125,7 +126,7 @@ public class Alert implements Comparable<Alert>  {
 	// ZAP: Added logger
 	private static final Logger logger = Logger.getLogger(Alert.class);
 	// Cache this info so that we dont have to keep a ref to the HttpMessage
-	private String method = null;
+	private String method = "";
 	private String postData;
 	private URI msgUri = null;
 	
