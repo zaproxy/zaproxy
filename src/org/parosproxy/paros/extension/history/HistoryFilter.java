@@ -89,11 +89,11 @@ public class HistoryFilter {
 				return false;
 			}
 			boolean foundTag = false;
-			List <String> historyTags = historyRef.getTags();
 			if (tagList.size() > 0) {
-				for (String tag: historyTags) {
+				for (String tag: historyRef.getTags()) {
 					if (tagList.contains(tag)) {
 						foundTag = true;
+						break;
 					}
 				}
 				if (! foundTag) {
@@ -101,14 +101,14 @@ public class HistoryFilter {
 				}
 			}
 			boolean foundAlert = false;
-			List <Alert> historyAlerts = historyRef.getAlerts();
 			if (riskList.size() > 0 || confidenceList.size() > 0) {
-				for (Alert alert: historyAlerts) {
+				for (Alert alert: historyRef.getAlerts()) {
 					if ((riskList.size() == 0 || 
 							riskList.contains(Alert.MSG_RISK[alert.getRisk()])) &&
 						(confidenceList.size() == 0 ||
 								confidenceList.contains(Alert.MSG_CONFIDENCE[alert.getConfidence()]))) {
 						foundAlert = true;
+						break;
 					}
 				}
 				if (! foundAlert) {
