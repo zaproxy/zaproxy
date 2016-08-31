@@ -631,15 +631,11 @@ public class Context {
 	
 	private void deleteNode (SiteMap sitesTree, SiteNode sn) {
 		log.debug("Deleting node " + sn.getHierarchicNodeName());
-		List<Alert> alerts = sn.getAlerts();
-		HistoryReference href = sn.getHistoryReference();
+		sn.deleteAlerts(sn.getAlerts());
 		
 		// Remove old one
-		for (Alert alert : alerts) {
-			sn.deleteAlert(alert);
-		}
 		sitesTree.removeNodeFromParent(sn);
-		sitesTree.removeHistoryReference(href.getHistoryId());
+		sitesTree.removeHistoryReference(sn.getHistoryReference().getHistoryId());
 	}
 	
 	
