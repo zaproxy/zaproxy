@@ -36,6 +36,7 @@
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
 // ZAP: 2016/05/26 Delete temporary history types sequentially
 // ZAP: 2016/05/27 Change to use HistoryReference to obtain the temporary types
+// ZAP: 2016/08/30 Issue 2836: Change to delete temporary history types in batches to prevent out-of-memory-exception(s)
 
 package org.parosproxy.paros.db.paros;
 
