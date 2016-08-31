@@ -498,9 +498,9 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
         	this.getFilteredTreeModel().deletePath(alert);
             List<HistoryReference> toDelete = new ArrayList<>();
             for (HistoryReference href : hrefs.values()) {
-                if (href.getAlerts().contains(alert)) {
+                if (href.hasAlert(alert)) {
                     href.deleteAlert(alert);
-                    if (href.getAlerts().size() == 0) {
+                    if (!href.hasAlerts()) {
                         toDelete.add(href);
                     }
                 }
