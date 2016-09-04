@@ -44,6 +44,7 @@
 // ZAP: 2016/05/30 Add new type for CONNECT requests received by the proxy
 // ZAP: 2016/06/15 Add TYPE_SEQUENCE_TEMPORARY
 // ZAP: 2016/06/20 Add TYPE_ZEST_SCRIPT and deprecate TYPE_RESERVED_11
+// ZAP: 2016/08/30 Use a Set instead of a List for the alerts
 
 package org.parosproxy.paros.model;
 
@@ -225,7 +226,7 @@ public class HistoryReference {
 	private ArrayList<Boolean> clearIfManual = null;
 	
 	// ZAP: Support for linking Alerts to Hrefs
-	private List<Alert> alerts;
+	private Set<Alert> alerts;
 	
 	private List<String> tags = new ArrayList<>();
 	private boolean webSocketUpgrade;
@@ -485,27 +486,19 @@ public class HistoryReference {
    public synchronized boolean addAlert(Alert alert) {
 	   //If this is the first alert
 	   if (alerts == null) {
-		   alerts = new ArrayList<>(1);
+		   alerts = new HashSet<>();
 	   }
 	   
-	   boolean add = true;
-	   
-	   for (Alert a : alerts) {
-		   if (alert.equals(a)) {
-			   // We've already recorded it
-				add = false;
-		   }
-	   }
-	   if (add) {
-		   this.alerts.add(alert);
+	   boolean added = false;
+	   if (alerts.add(alert)) {
 		   alert.setHistoryRef(this);
+		   added = true;
 	   }
 	   // Try to add to the SiteHNode anyway - that will also check if its already added
 	   if (this.siteNode != null) {
 		   siteNode.addAlert(alert);
-	   } else {
 	   }
-	   return add;
+	   return added;
    }
    
    public synchronized void updateAlert(Alert alert) {
@@ -543,6 +536,37 @@ public class HistoryReference {
         }
     }
 
+    /**
+     * Tells whether or not this history reference has the given alert.
+     *
+     * @param alert the alert to check
+     * @return {@code true} if it has the given alert, {@code false} otherwise.
+     * @since TODO add version
+     * @see #hasAlerts()
+     * @see #addAlert(Alert)
+     */
+    public synchronized boolean hasAlert(Alert alert) {
+        if (alerts == null) {
+            return false;
+        }
+        return alerts.contains(alert);
+    }
+
+    /**
+     * Tells whether or not this history reference has alerts.
+     *
+     * @return {@code true} if it has alerts, {@code false} otherwise.
+     * @since TODO add version
+     * @see #hasAlert(Alert)
+     * @see #addAlert(Alert)
+     */
+    public synchronized boolean hasAlerts() {
+        if (alerts == null) {
+            return false;
+        }
+        return !alerts.isEmpty();
+    }
+
    public int getHighestAlert() {
 	   int i = -1;
 	   //If there are no alerts
@@ -558,18 +582,21 @@ public class HistoryReference {
    }
    
    	/**
-	 * Gets the alerts. If alerts where never added, an empty list will be returned. This list
-	 * should be used as "read-only", not modifying content in the {@link HistoryReference} through
-	 * it.
+	 * Gets the alerts.
+	 * <p>
+	 * If alerts where never added, an unmodifiable empty list is returned, otherwise it's returned a copy of the internal
+	 * collection.
 	 * 
 	 * @return the alerts
+	 * @see #addAlert(Alert)
+	 * @see #hasAlerts()
+	 * @see #hasAlert(Alert)
 	 */
-   public List<Alert> getAlerts() {
-	   if (alerts != null) {
-		   return this.alerts;
-	   } else {
-		   return Collections.emptyList();
+   public synchronized List<Alert> getAlerts() {
+	   if (alerts == null) {
+	       return Collections.emptyList();
 	   }
+	   return new ArrayList<>(this.alerts);
    }
 
 	public String getMethod() {

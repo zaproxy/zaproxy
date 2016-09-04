@@ -62,6 +62,7 @@
 // ZAP: 2016/06/10 Do not clean up the database if the current session does not require it
 // ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
 // ZAP: 2016/08/25 Detach sites tree model when loading the session
+// ZAP: 2016/08/29 Issue 2736: Can't generate reports from saved Session data
 
 package org.parosproxy.paros.model;
 
@@ -355,7 +356,8 @@ public class Session {
 		
 		// update siteTree reference
 		list = model.getDb().getTableHistory().getHistoryIdsOfHistType(getSessionId(), HistoryReference.TYPE_SPIDER,
-				HistoryReference.TYPE_BRUTE_FORCE, HistoryReference.TYPE_SPIDER_AJAX);
+				HistoryReference.TYPE_BRUTE_FORCE, HistoryReference.TYPE_SPIDER_AJAX,
+				HistoryReference.TYPE_SCANNER);
 		
 		for (int i=0; i<list.size(); i++) {
 			// ZAP: Removed unnecessary cast.
@@ -377,6 +379,8 @@ public class Session {
 				} else {
 					getSiteTree().addPath(historyRef);
 				}
+
+				historyRef.loadAlerts();
 
 				if (i % 100 == 99) Thread.yield();
 

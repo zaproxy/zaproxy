@@ -96,6 +96,7 @@ This list the alerts
 10052	X-ChromeLogger-Data Header Information Leak
 10053	Apache Range Header DoS (CVE-2011-3192)
 10054	Cookie set without SameSite attribute
+10055	Content Security Policy Scanner
 10094   Base64 Disclosure
 10095   Backup File Disclosure
 10096   Timestamp Disclosure
@@ -114,6 +115,8 @@ This list the alerts
 
 10200	Beast (via HTTPS Info Extension)
 10201	Crime (via HTTPS Info Extension)
+
+10202	Absence of Anti-CSRF Tokens
 
 20000	Cold Fusion default file (Depreciated)
 20001	Lotus Domino default files (Depreciated)
