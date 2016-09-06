@@ -60,6 +60,7 @@
 // ZAP: 2016/03/23 Issue 2331: Custom Context Panels not show in existing contexts after installation of add-on
 // ZAP: 2016/04/22 Issue 2428: Memory leak on session creation/loading
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2016/09/06 Hook OverrideMessageProxyListener into the Proxy
 
 package org.parosproxy.paros.control;
 
@@ -119,6 +120,7 @@ public class Control extends AbstractControl implements SessionListener {
 		// ZAP: Start proxy even if no view
 	    Proxy proxy = getProxy(overrides);
 	    getExtensionLoader().hookProxyListener(proxy);
+	    getExtensionLoader().hookOverrideMessageProxyListener(proxy);
 	    getExtensionLoader().hookPersistentConnectionListener(proxy);
 	    getExtensionLoader().hookConnectRequestProxyListeners(proxy);
 		
