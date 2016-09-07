@@ -539,6 +539,142 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(listener.getUrlsFound(), contains("http://example.org/?a=b&field1=Text+1&field2=Text+2&submit=Submit"));
     }
 
+    @Test
+    public void shouldUseBaseHtmlUrlWhenParsingGetForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GetFormWithHtmlBase.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://base.example.com/search?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingGetForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GetFormWithHtmlBaseWithEmptyHref.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.com/search?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldIgnoreBaseHtmlWithNoHrefWhenParsingGetForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GetFormWithHtmlBaseWithoutHref.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.com/search?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldIgnoreBaseHtmlIfActionIsAbsoluteWhenParsingGetForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("GetFormWithHtmlBaseAndAbsoluteAction.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("https://example.com/search?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldUseBaseHtmlUrlWhenParsingPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("PostFormWithHtmlBase.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(postResource(msg, 1, "http://base.example.com/search", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("PostFormWithHtmlBaseWithEmptyHref.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(postResource(msg, 1, "http://example.com/search", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldIgnoreBaseHtmlWithNoHrefWhenParsingPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("PostFormWithHtmlBaseWithoutHref.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(postResource(msg, 1, "http://example.com/search", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldIgnoreBaseHtmlIfActionIsAbsoluteWhenParsingPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith("PostFormWithHtmlBaseAndAbsoluteAction.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(postResource(msg, 1, "https://example.com/search", "q=Search&submit=Submit")));
+    }
+
     private SpiderHtmlFormParser createSpiderHtmlFormParser() {
         SpiderParam spiderOptions = createSpiderParamWithConfig();
         spiderOptions.setProcessForm(true);
