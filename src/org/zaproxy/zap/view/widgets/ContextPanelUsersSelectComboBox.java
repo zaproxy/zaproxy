@@ -47,6 +47,7 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 
 	/**
 	 * Performs the same as {@link #getSelectedItem()}, but adds a convenience cast.
+	 * @return the selected user, or {@code null} if none 
 	 */
 	public User getSelectedUser() {
 		return (User) getSelectedItem();
@@ -55,6 +56,7 @@ public class ContextPanelUsersSelectComboBox extends JComboBox<User> {
 	/**
 	 * Allows adding 'custom' users besides the ones already loaded from the context. Can be used,
 	 * for example, to add a 'Any User' entry or 'Unauthenticated' entry.
+	 * @param customUsers the custom users, should not be {@code null}
 	 */
 	public void setCustomUsers(User[] customUsers) {
 		((UsersListModel) getModel()).setCustomUsers(customUsers);
