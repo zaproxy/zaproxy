@@ -41,6 +41,8 @@ public class AlertParam extends AbstractParam {
      */
     private static final String PARAM_MAXIMUM_INSTANCES = PARAM_BASE_KEY + ".maxInstances";
 
+    private static final String PARAM_OVERRIDES_FILENAME = PARAM_BASE_KEY + ".overridesFilename";
+
     private static final int DEFAULT_MAXIMUM_INSTANCES = 20;
 
     /**
@@ -52,6 +54,8 @@ public class AlertParam extends AbstractParam {
     private int maximumInstances = DEFAULT_MAXIMUM_INSTANCES;
     
     private boolean mergeRelatedIssues = true;
+    
+    private String overridesFilename;
 
     /**
      * Parses the alert options.
@@ -69,6 +73,11 @@ public class AlertParam extends AbstractParam {
         	mergeRelatedIssues = getConfig().getBoolean(PARAM_MERGE_RELATED_ISSUES, true);
         } catch (ConversionException e) {
             LOGGER.error("Failed to load the \"old format\" configuration: " + e.getMessage(), e);
+        }
+        try {
+            overridesFilename = getConfig().getString(PARAM_OVERRIDES_FILENAME, "");
+        } catch (ConversionException e) {
+            LOGGER.error("Failed to load the \"Overrides filename\" configuration: " + e.getMessage(), e);
         }
     }
 
@@ -100,5 +109,14 @@ public class AlertParam extends AbstractParam {
             getConfig().setProperty(PARAM_MERGE_RELATED_ISSUES, Boolean.valueOf(mergeRelatedIssues));
 		}
 	}
+
+    public String getOverridesFilename() {
+        return overridesFilename;
+    }
+
+    public void setOverridesFilename(String overridesFilename) {
+        this.overridesFilename = overridesFilename;
+        getConfig().setProperty(PARAM_OVERRIDES_FILENAME, overridesFilename);
+    }
 
 }
