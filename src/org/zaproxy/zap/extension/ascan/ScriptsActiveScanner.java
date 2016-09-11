@@ -56,11 +56,7 @@ public class ScriptsActiveScanner extends AbstractAppParamPlugin {
 
     @Override
     public String getName() {
-    	// TODO this npes due to loading order :(
-    	if (Constant.messages.containsKey("ascan.scripts.activescanner.title")) {
-    		return Constant.messages.getString("ascan.scripts.activescanner.title");
-    	}
-    	return "Script active scan rules";
+    	return Constant.messages.getString("ascan.scripts.activescanner.title");
     }
 
     @Override

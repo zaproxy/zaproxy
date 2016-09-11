@@ -95,8 +95,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			if (log.isDebugEnabled()) {
 				log.debug("Base tag was found in HTML: " + base.getDebugInfo());
 			}
-			if (base.getAttributeValue("href") != null) {
-				baseURL = base.getAttributeValue("href");
+			String href = base.getAttributeValue("href");
+			if (href != null && !href.isEmpty()) {
+				baseURL = href;
 			}
 		}
 
