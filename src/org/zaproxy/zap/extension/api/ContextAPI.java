@@ -122,12 +122,16 @@ public class ContextAPI extends ApiImplementor {
         case EXCLUDE_FROM_CONTEXT_REGEX:
         	try {
 				addExcludeToContext(getContext(params), params.getString(REGEX_PARAM));
-			} catch (Exception e) {
-	            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
+			} catch (IllegalArgumentException e) {
+	            throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
 			}
         	break;
         case INCLUDE_IN_CONTEXT_REGEX:
-        	addIncludeToContext(getContext(params), params.getString(REGEX_PARAM));
+            try {
+                addIncludeToContext(getContext(params), params.getString(REGEX_PARAM));
+            } catch (IllegalArgumentException e) {
+                throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, REGEX_PARAM, e);
+            }
         	break;
         case ACTION_NEW_CONTEXT:
             context = Model.getSingleton().getSession().getNewContext(params.getString(CONTEXT_NAME));
@@ -219,7 +223,7 @@ public class ContextAPI extends ApiImplementor {
         return ApiResponseElement.OK;
     }
 
-    private void addExcludeToContext(Context context, String regex) throws Exception {
+    private void addExcludeToContext(Context context, String regex) {
     	List<String> incRegexes = new ArrayList<String>(context.getIncludeInContextRegexs());
     	if (incRegexes.remove(regex)) {
     		// Its already explicitly included, removing it from the include list is safer and more useful

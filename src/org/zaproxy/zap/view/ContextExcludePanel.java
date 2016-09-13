@@ -145,11 +145,7 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		try {
-			uiSharedContext.setExcludeFromContextRegexs(regexesPanel.getRegexes());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		uiSharedContext.setExcludeFromContextRegexs(regexesPanel.getRegexes());
 	}
 
 }
