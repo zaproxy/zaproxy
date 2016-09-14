@@ -146,11 +146,7 @@ public class ContextIncludePanel extends AbstractContextPropertiesPanel {
 
 	@Override
 	public void saveTemporaryContextData(Context uiSharedContext) {
-		try {
-			uiSharedContext.setIncludeInContextRegexs(regexesPanel.getRegexes());
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+		uiSharedContext.setIncludeInContextRegexs(regexesPanel.getRegexes());
 	}
 
 }

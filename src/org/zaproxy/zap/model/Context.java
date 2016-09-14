@@ -26,6 +26,7 @@ import java.util.Enumeration;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -319,18 +320,45 @@ public class Context {
 		return Collections.unmodifiableList(includeInRegexs);
 	}
 
-	private void checkRegexs(List<String> regexs) throws Exception {
-		for (String url : regexs) {
-			url = url.trim();
-			if (url.length() > 0) {
-				Pattern.compile(url, Pattern.CASE_INSENSITIVE);
-			}
+	/**
+	 * Validates that the given regular expressions are not {@code null} nor invalid.
+	 *
+	 * @param regexs the regular expressions to be validated, must not be {@code null}
+	 * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+	 * @throws PatternSyntaxException if one of the regular expressions is invalid.
+	 */
+	private static void validateRegexs(List<String> regexs) {
+		for (String regex : regexs) {
+			validateRegex(regex);
 		}
 	}
 
-	public void setIncludeInContextRegexs(List<String> includeRegexs) throws Exception {
-		// Check they are all valid regexes first
-		checkRegexs(includeRegexs);
+	/**
+	 * Validates that the given regular expression is not {@code null} nor invalid.
+	 *
+	 * @param regex the regular expression to be validated
+	 * @throws IllegalArgumentException if the regular expression is {@code null}.
+	 * @throws PatternSyntaxException if the regular expression is invalid.
+	 */
+	private static void validateRegex(String regex) {
+		if (regex == null) {
+			throw new IllegalArgumentException("The regular expression must not be null.");
+		}
+		String trimmedRegex = regex.trim();
+		if (!trimmedRegex.isEmpty()) {
+			Pattern.compile(trimmedRegex, Pattern.CASE_INSENSITIVE);
+		}
+	}
+
+	/**
+	 * Sets the regular expressions used to include a URL in context.
+	 *
+	 * @param includeRegexs the regular expressions
+	 * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+	 * @throws PatternSyntaxException if one of the regular expressions is invalid.
+	 */
+	public void setIncludeInContextRegexs(List<String> includeRegexs) {
+		validateRegexs(includeRegexs);
 		// Check if theyve been changed
 		if (includeInRegexs.size() == includeRegexs.size()) {
 			boolean changed = false;
@@ -366,8 +394,8 @@ public class Context {
 	}
 
 	public void addIncludeInContextRegex(String includeRegex) {
-		Pattern p = Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE);
-		includeInPatterns.add(p);
+		validateRegex(includeRegex);
+		includeInPatterns.add(Pattern.compile(includeRegex, Pattern.CASE_INSENSITIVE));
 		includeInRegexs.add(includeRegex);
 	}
 
@@ -375,9 +403,15 @@ public class Context {
 		return Collections.unmodifiableList(excludeFromRegexs);
 	}
 
-	public void setExcludeFromContextRegexs(List<String> excludeRegexs) throws Exception {
-		// Check they are all valid regexes first
-		checkRegexs(excludeRegexs);
+	/**
+	 * Sets the regular expressions used to exclude a URL from the context.
+	 *
+	 * @param excludeRegexs the regular expressions
+	 * @throws IllegalArgumentException if one of the regular expressions is {@code null}.
+	 * @throws PatternSyntaxException if one of the regular expressions is invalid.
+	 */
+	public void setExcludeFromContextRegexs(List<String> excludeRegexs) {
+		validateRegexs(excludeRegexs);
 		// Check if theyve been changed
 		if (excludeFromRegexs.size() == excludeRegexs.size()) {
 			boolean changed = false;
@@ -406,8 +440,8 @@ public class Context {
 	}
 
 	public void addExcludeFromContextRegex(String excludeRegex) {
-		Pattern p = Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE);
-		excludeFromPatterns.add(p);
+		validateRegex(excludeRegex);
+		excludeFromPatterns.add(Pattern.compile(excludeRegex, Pattern.CASE_INSENSITIVE));
 		excludeFromRegexs.add(excludeRegex);
 	}
 
