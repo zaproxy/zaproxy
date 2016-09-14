@@ -41,20 +41,24 @@ public class AboutDialog extends AbstractDialog {
 	private JButton btnOK = null;
 
 	/**
-	 * @throws HeadlessException
+	 * Constructs an {@code AboutDialog} with no owner and not modal.
+	 * 
+	 * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
 	 */
-	public AboutDialog() throws HeadlessException {
+	public AboutDialog() {
 		super();
 		initialize();
 	}
 
 	/**
-	 * @param arg0
-	 * @param arg1
-	 * @throws HeadlessException
+	 * Constructs an {@code AboutDialog} with the given owner and whether or not it's modal.
+	 * 
+	 * @param owner the {@code Frame} from which the dialog is displayed
+	 * @param modal {@code true} if the dialogue should be modal, {@code false} otherwise
+	 * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
 	 */
-	public AboutDialog(Frame arg0, boolean arg1) throws HeadlessException {
-		super(arg0, arg1);
+	public AboutDialog(Frame owner, boolean modal) {
+		super(owner, modal);
 		initialize();
 	}
 

@@ -113,6 +113,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	/**
 	 * Method used to setup the toolbar elements. Should not usually be overriden. Instead, use the
 	 * {@link #addToolBarElements(JToolBar, short, int)} method to add elements at various points.
+	 * @param toolbar the tool bar of the status panel
 	 */
 	protected void setupToolbarElements(JToolBar toolbar) {
 		int x = 0;
@@ -183,15 +184,15 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * <li>{@link #TOOLBAR_LOCATION_END}</li>
 	 * <li>other {@code TOOLBAR_LOCATION_*} constants defined in extending classes (if case)</li>
 	 * </ul>
-	 * <p/>
+	 * <p>
 	 * Should be overridden by all subclasses that want to add new elements to the ScanPanel's tool
 	 * bar.
-	 * <p/>
+	 * <p>
 	 * The tool bar uses a {@link GridBagLayout}, so elements have to be added with a
 	 * {@link GridBagConstraints}. For this, the {@link LayoutHelper#getGBC(int, int, int, double)}
 	 * methods can be used. The {@code gridX} parameter specifies the cell (as used in
 	 * {@link GridBagConstraints#gridx}) of the current row where the elements can be added.
-	 * <p/>
+	 * <p>
 	 * The method must return the new coordinates of the current cell, after the elements have been
 	 * added.
 	 * 
@@ -209,6 +210,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 
 	/**
 	 * Method called whenever a new context is selected.
+	 * @param context the context that was selected
 	 */
 	protected void contextSelected(Context context) {
 		log.debug("Selected new context: " + context);
@@ -248,6 +250,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * Called during initialization to check whether an Options button should be added to the
 	 * toolbar or not. Implementations can override this method to remove the default Options
 	 * button.
+	 * @return {@code true} if the tool bar should show an Options button, {@code false} otherwise
 	 */
 	protected boolean hasOptions() {
 		return true;
@@ -255,6 +258,7 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 
 	/**
 	 * Called in order to build the main panel displayed below the toolbar.
+	 * @return the main panel
 	 */
 	protected abstract Component getWorkPanel();
 
@@ -262,10 +266,9 @@ public abstract class AbstractContextSelectToolbarStatusPanel extends AbstractPa
 	 * Called in order to switch the data displayed on the main panel below the toolbar for a new
 	 * context.
 	 * <p>
-	 * NOTE: Should not recreate a new work panel, but change the existing one (obtained through the
+	 * <strong>NOTE:</strong> Should not recreate a new work panel, but change the existing one (obtained through the
 	 * first call to {@link #getWorkPanel()}) to show the new data (e.g. change the DataModel for a
 	 * table).
-	 * </p>
 	 * 
 	 * @param context the context for which to display the panel
 	 */

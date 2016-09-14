@@ -43,8 +43,10 @@ public abstract class PopupMenuItemSiteNodeContextMenuFactory extends PopupMenuI
     private String parentMenu;
 
     /**
-     * This method initializes 
+     * Constructs a {@code PopupMenuItemSiteNodeContextMenuFactory} with the given parent pop up menu.
      * 
+     * @param parentMenu the name of the parent pop up menu
+     * @see #getParentMenuName()
      */
     public PopupMenuItemSiteNodeContextMenuFactory(String parentMenu) {
         super("ContextMenuFactory", true);

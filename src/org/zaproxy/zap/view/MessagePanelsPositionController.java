@@ -47,6 +47,7 @@ public class MessagePanelsPositionController {
 
     /**
      * Restores the original parent of the panels and the panel.
+     * @return always {@code null}
      */
     public TabbedPanel restoreOriginalParentTabbedPanel() {
         return null;
