@@ -170,6 +170,15 @@ ext.pomData = pom {
                 distribution 'repo'
             }
         }
+
+        developers {
+            developer {
+                id 'AllZapDevs'
+                name 'Everyone who has contributed to ZAP'
+                email 'zaproxy-develop@googlegroups.com'
+                url 'https://github.com/zaproxy/zap-core-help/wiki/HelpCredits'
+            }
+        }
     }
 }
 
