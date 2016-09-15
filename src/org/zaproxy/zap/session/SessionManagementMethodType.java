@@ -36,9 +36,6 @@ import org.zaproxy.zap.model.Context;
  * The implementors of new Session Management Methods should also implement a corresponding type.
  * The system automatically detects and loads {@link SessionManagementMethodType} classes and,
  * through them, the corresponding session management methods.
- * </p>
- * 
- * @param <T> the corresponding session management method
  */
 public abstract class SessionManagementMethodType {
 
