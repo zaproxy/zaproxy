@@ -1,8 +1,12 @@
 package org.zaproxy.zap.model;
 
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.parosproxy.paros.Constant;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -12,54 +16,75 @@ import static org.junit.Assert.assertThat;
 
 public class SessionUtilsUnitTest {
 
-    private static final String ZAP_HOME = "/zap/";
-    private static final String ZAP_SESSION_DIR = ZAP_HOME + Constant.FOLDER_SESSION_DEFAULT;
+    @Rule
+    public TemporaryFolder tempFolder = new TemporaryFolder();
+
+    @Before
+    public void setUp() throws Exception {
+        tempFolder.create();
+    }
 
     @Test
     public void shouldRetrieveExistingSessionFileFromAbsolutePath() throws Exception {
         // Given
-        String session = "/test.session";
+        Path path = newFile("test.session");
+        String session = path.toString();
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(sessionPath, is(equalTo(Paths.get("/test.session"))));
+        assertThat(sessionPath, is(equalTo(path)));
     }
 
     @Test
     public void shouldAppendSessionFiletypeAndRetrieveSessionFileFromAbsolutePath() throws Exception {
         // Given
-        String session = "/test";
+        Path path = newFile("test.session");
+        String session = path.toString().replace(".session$", "");
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(sessionPath, is(equalTo(Paths.get("/test.session"))));
+        assertThat(sessionPath, is(equalTo(path)));
     }
 
     @Test
     public void shouldRetrieveExistingSessionFileFromRelativePath() throws Exception {
         // Given
-        Constant.setZapHome(ZAP_HOME);
+        String zapHome = createZapHome();
         String session = "test.session";
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(sessionPath, is(equalTo(Paths.get(ZAP_SESSION_DIR, "test.session"))));
+        assertThat(sessionPath, is(equalTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"))));
     }
 
     @Test
     public void shouldAppendSessionFiletypeAndRetrieveSessionFileFromRelativePath() throws Exception {
         // Given
-        Constant.setZapHome(ZAP_HOME);
+        String zapHome = createZapHome();
         String session = "test";
         // When
         Path sessionPath = SessionUtils.getSessionPath(session);
         // Then
-        assertThat(sessionPath, is(equalTo(Paths.get(ZAP_SESSION_DIR, "test.session"))));
+        assertThat(sessionPath, is(equalTo(pathWith(zapHome, Constant.FOLDER_SESSION_DEFAULT, "test.session"))));
     }
 
     @Test(expected = NullPointerException.class)
     public void shouldFailOnNullForSessionInput() throws Exception {
         SessionUtils.getSessionPath(null);
+    }
+
+    private Path newFile(String name) throws IOException {
+        return tempFolder.newFile(name).toPath();
+    }
+
+    private Path pathWith(String baseDir, String... paths) {
+        return Paths.get(baseDir, paths);
+    }
+
+    private String createZapHome() throws IOException {
+        String zapHome = tempFolder.newFolder("zap").toPath().toString();
+        Constant.setZapHome(zapHome);
+        return zapHome;
     }
 
 }
