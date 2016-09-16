@@ -49,12 +49,13 @@ public class PersistSessionDialog extends AbstractDialog implements ActionListen
 	private JCheckBox dontAskAgainCheckbox = null;
 
     /**
-     * @param arg0
-     * @param arg1
-     * @throws HeadlessException
+     * Constructs a modal {@code PersistSessionDialog} with the given owner.
+     * 
+     * @param owner the {@code Frame} from which the dialog is displayed
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
-    public PersistSessionDialog(Frame arg0) throws HeadlessException {
-        super(arg0, true);
+    public PersistSessionDialog(Frame owner) {
+        super(owner, true);
         this.setModalityType(ModalityType.DOCUMENT_MODAL);
  		initialize();
     }

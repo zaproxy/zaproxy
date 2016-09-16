@@ -92,10 +92,12 @@ public abstract class ScanPanel extends AbstractPanel {
 	private static Logger log = Logger.getLogger(ScanPanel.class);
     
     /**
-     * @param prefix
-     * @param icon
-     * @param extension
-     * @param scanParam
+     * Constructs a {@code ScanPanel} with the given message resources prefix, tab icon, extension and options.
+     * 
+     * @param prefix the prefix of the message resources
+     * @param icon the icon for the tab
+     * @param extension the extension
+     * @param scanParam the options
      */
     public ScanPanel(String prefix, ImageIcon icon, ExtensionAdaptor extension, AbstractParam scanParam) {
         super();
@@ -450,7 +452,6 @@ public abstract class ScanPanel extends AbstractPanel {
 	 * 
 	 * @param node the node
 	 * @param incPort the inc port
-	 * @param user the user
 	 */
 	public void scanNode(SiteNode node, boolean incPort) {
 		this.scanNode(node, incPort, null);
@@ -673,8 +674,8 @@ public abstract class ScanPanel extends AbstractPanel {
 	
 	/**
 	 * Does nothing. Override to handle context specific objects
-	 * @param scanThread
-	 * @param contextSpecificObjects
+	 * @param scanThread the thread of the scan
+	 * @param contextSpecificObjects context specific objects to configure the scan
 	 */
 	protected void handleContextSpecificObject(GenericScanner scanThread, Object[] contextSpecificObjects) {
 	}

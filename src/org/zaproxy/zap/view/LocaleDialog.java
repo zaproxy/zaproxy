@@ -44,20 +44,24 @@ public class LocaleDialog extends AbstractDialog {
 	private Logger logger = Logger.getLogger(LocaleDialog.class);
 
     /**
-     * @throws HeadlessException
+     * Constructs an {@code LocaleDialog} with no owner and not modal.
+     * 
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
-    public LocaleDialog() throws HeadlessException {
+    public LocaleDialog() {
         super();
  		initialize();
     }
 
     /**
-     * @param arg0
-     * @param arg1
-     * @throws HeadlessException
+     * Constructs an {@code LocaleDialog} with the given owner and whether or not it's modal.
+     * 
+     * @param owner the {@code Frame} from which the dialog is displayed
+     * @param modal {@code true} if the dialogue should be modal, {@code false} otherwise
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
-    public LocaleDialog(Frame arg0, boolean arg1) throws HeadlessException {
-        super(arg0, arg1);
+    public LocaleDialog(Frame owner, boolean modal) throws HeadlessException {
+        super(owner, modal);
  		initialize();
     }
 

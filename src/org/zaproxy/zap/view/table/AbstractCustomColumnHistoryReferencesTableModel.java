@@ -189,7 +189,6 @@ public abstract class AbstractCustomColumnHistoryReferencesTableModel<T extends 
      * </pre>
      * 
      * </blockquote>
-     * </p>
      * 
      * @param columnIndex the column index
      * @return the custom column index as if no default columns existed or -1 if not a custom column.
