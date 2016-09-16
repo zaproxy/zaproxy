@@ -23,6 +23,8 @@ package org.parosproxy.paros.core.scanner;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
@@ -32,6 +34,8 @@ import org.parosproxy.paros.network.HttpMessage;
  * @author andy
  */
 public abstract class VariantAbstractRPCQuery implements Variant {
+    
+    private final Logger logger = Logger.getLogger(this.getClass());
     
     private final List<RPCParameter> listParam = new ArrayList<>();
     private final List<NameValuePair> params = new ArrayList<>();
@@ -43,7 +47,11 @@ public abstract class VariantAbstractRPCQuery implements Variant {
         // Otherwise give back an empty param list
         String contentType = msg.getRequestHeader().getHeader(HttpHeader.CONTENT_TYPE);
         if (contentType != null && isValidContentType(contentType)) {
-            setRequestContent(msg.getRequestBody().toString());
+            try {
+                setRequestContent(msg.getRequestBody().toString());
+            } catch (Exception e) {
+                logger.warn("Failed to parse the request body: " + e.getMessage(), e);
+            }
         }
     }
 
