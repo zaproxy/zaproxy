@@ -603,9 +603,7 @@ public class HttpMethodDirector {
     /**
      * Fake response
      * @param method
-     * @return
      */
-    
     private void fakeResponse(final HttpMethod method)
         throws IOException, HttpException {
         // What is to follow is an ugly hack.

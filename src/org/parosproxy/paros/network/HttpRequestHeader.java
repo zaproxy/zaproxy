@@ -357,7 +357,6 @@ public class HttpRequestHeader extends HttpHeader {
      * Parse this request header.
      *
      * @param isSecure
-     * @return
      * @throws URIException
      * @throws NullPointerException
      */

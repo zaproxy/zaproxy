@@ -71,8 +71,6 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
     
 	/**
 	 * This method initializes this
-	 * 
-	 * @return void
 	 */
 	private void initialize() {
         regexesPanel = new MultipleRegexesOptionsPanel(View.getSingleton().getSessionDialog());

@@ -28,8 +28,6 @@ import org.zaproxy.zap.session.SessionManagementMethodType.UnsupportedSessionMan
  * {@link SessionManagementMethod}.<br/>
  * <br/>
  * This panel will be displayed to users in a separate dialog.
- * 
- * @param <T> the session management method type
  */
 public abstract class AbstractSessionManagementMethodOptionsPanel extends JPanel {
 
