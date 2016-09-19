@@ -40,12 +40,12 @@ import org.zaproxy.zap.model.Context;
 public abstract class SessionManagementMethodType {
 
 	/**
-	 * Builds a new, empty, session management method. The session mangement method should then be
+	 * Builds a new, empty, session management method. The session management method should then be
 	 * configured through its corresponding Options panel.
 	 * 
 	 * @param contextId the context id
 	 * @return the session management method
-	 * @see SessionManagementMethodType#buildOptionsPanel(SessionManagementMethod, int)
+	 * @see #buildOptionsPanel(Context)
 	 */
 	public abstract SessionManagementMethod createSessionManagementMethod(int contextId);
 
@@ -69,7 +69,7 @@ public abstract class SessionManagementMethodType {
 	 * 
 	 * @param uiSharedContext the ui shared context on which the panel should work
 	 * @return the abstract session method options panel
-	 * @see SessionManagementMethodType#hasOptionsPanel
+	 * @see #hasOptionsPanel()
 	 */
 	public abstract AbstractSessionManagementMethodOptionsPanel buildOptionsPanel(Context uiSharedContext);
 
@@ -77,7 +77,7 @@ public abstract class SessionManagementMethodType {
 	 * Checks if the corresponding {@link SessionManagementMethod} has an options panel that can be
 	 * used for configuration.
 	 * 
-	 * @see SessionManagementMethodType#buildOptionsPanel
+	 * @see #buildOptionsPanel(Context)
 	 * 
 	 * @return true, if successful
 	 */
@@ -86,7 +86,7 @@ public abstract class SessionManagementMethodType {
 	/**
 	 * Checks if is this the type for the Session Management Method provided as parameter.
 	 * 
-	 * @param methodClass the method class
+	 * @param method the method
 	 * @return true, if is type for method
 	 */
 	public abstract boolean isTypeForMethod(SessionManagementMethod method);
@@ -112,8 +112,9 @@ public abstract class SessionManagementMethodType {
 	 * session management method type.
 	 * 
 	 * @param session the session
-	 * @param context the context
+	 * @param contextId the context ID
 	 * @return the session management method
+	 * @throws DatabaseException if an error occurred while loading the authentication method
 	 */
 	public abstract SessionManagementMethod loadMethodFromSession(Session session, int contextId)
 			throws DatabaseException;
@@ -126,23 +127,23 @@ public abstract class SessionManagementMethodType {
 	 * @param method the session management method to persist
 	 * @throws UnsupportedSessionManagementMethodException the unsupported session management method
 	 *             exception
-	 * @throws DatabaseException the sQL exception
+	 * @throws DatabaseException if an error occurred while persisting the authentication method
 	 */
 	public abstract void persistMethodToSession(Session session, int contextId, SessionManagementMethod method)
-			throws UnsupportedSessionManagementMethodException, DatabaseException;
+			throws DatabaseException;
 
 	/**
 	 * Export the method to the configuration
-	 * @param config
-	 * @param sessionMethod
+	 * @param config the configurations where to export/save the session management method
+	 * @param sessionMethod the session management method to be exported
 	 */
 	public abstract void exportData(Configuration config, SessionManagementMethod sessionMethod);
 
 	/**
 	 * Import the method from the configuration
-	 * @param config
-	 * @param sessionMethod
-	 * @throws ConfigurationException
+	 * @param config the configurations from where to import/load the session management method
+	 * @param sessionMethod where to set the imported session management method data
+	 * @throws ConfigurationException if an error occurred while reading the session management method data 
 	 */
 	public abstract void importData(Configuration config, SessionManagementMethod sessionMethod) throws ConfigurationException;
 
