@@ -41,6 +41,8 @@ import net.htmlparser.jericho.Source;
  */
 public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
+    private static final String FORM_METHOD_TOKEN = "%%METHOD%%";
+
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
@@ -481,7 +483,40 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GetFormActionWithFragment.html");
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "FormActionWithFragment.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.org/?field1=Text+1&field2=Text+2&submit=Submit"));
+    }
+
+    @Test
+    public void shouldRemoveFragmentFromActionWhenParsingPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("POST", "FormActionWithFragment.html");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getResourcesFound(), contains(
+                postResource(messageHtmlResponse, 1, "http://example.org/", "field1=Text+1&field2=Text+2&submit=Submit")));
+    }
+
+    @Test
+    public void shouldRemoveFragmentFromActionWhenParsingNeitherGetNorPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("NeitherGetNorPost", "FormActionWithFragment.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -683,9 +718,16 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     private static HttpMessage createMessageWith(String filename) {
+        return createMessageWith(null, filename);
+    }
+
+    private static HttpMessage createMessageWith(String formMethod, String filename) {
         HttpMessage message = new HttpMessage();
         try {
             String fileContents = readFile(BASE_DIR_HTML_FILES.resolve(filename));
+            if (formMethod != null) {
+                fileContents = fileContents.replace(FORM_METHOD_TOKEN, formMethod);
+            }
             message.setRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
                     "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html; charset=UTF-8\r\n" + "Content-Length: "

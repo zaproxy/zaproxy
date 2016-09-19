@@ -122,6 +122,12 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				continue;
 			}
 
+			// Clear the fragment, if any, as it does not have any relevance for the server
+			if (action.contains("#")) {
+				int fs = action.lastIndexOf("#");
+				action = action.substring(0, fs);
+			}
+
 			FormData formData = prepareFormDataSet(form.getFormFields());
 
 			// Process the case of a POST method
@@ -155,11 +161,6 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 			} // Process anything else as a GET method
 			else {
-				// Clear the fragment, if any, as it does not have any relevance for the server
-				if (action.contains("#")) {
-					int fs = action.lastIndexOf("#");
-					action = action.substring(0, fs);
-				}
 
 				// Process the final URL
 				if (action.contains("?")) {
