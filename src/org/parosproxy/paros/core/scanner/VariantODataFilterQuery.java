@@ -30,18 +30,19 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpMessage;
 
 /**
- * Specialized variant able to handles the filter parameters of OData URIs<p/>
- * It's focused on OData v2
- *
- * Example of query:<br/>
+ * Specialized variant able to handle the filter parameters of OData URIs (focused on OData v2)
+ * <p>
+ * Example of query:<br>
  * http://services.odata.org/OData/OData.svc/Product?$filter=startswith(name,'Foo')
  * and price lt 10
- * <p/>
- * Reference: <br/>
- * http://www.odata.org/documentation/uri-conventions<br/>
- * http://msdn.microsoft.com/en-us/library/gg309461.aspx#BKMK_filter<br/>
- * <p/>
- * TODO:<br/>
+ * <p>
+ * References:
+ * <ul>
+ * <li>http://www.odata.org/documentation/uri-conventions</li>
+ * <li>http://msdn.microsoft.com/en-us/library/gg309461.aspx#BKMK_filter</li>
+ * </ul>
+ * 
+ * TODO:<br>
  * - Properly handle escaped vs. unescaped parameters<br/>
  * - Handle OData functions (startwith, substringof, ...)<br/>
  *
@@ -182,23 +183,28 @@ public class VariantODataFilterQuery implements Variant {
         private String stringAfterOperation;
 
         /**
-         * @param parameterName
-         * @param originalValue
-         * @param uriBeforeParameter
-         * @param uriAfterParamter
+         * Constructs an {@code OperationParameter} with the given name, operator, value and surrounding strings.
+         * 
+         * @param name the name
+         * @param operator the operator
+         * @param value the value
+         * @param stringBeforeOperation the string before the operation (parameter + operator + value)
+         * @param stringAfterOperation the string after the operation (parameter + operator + value)
          */
-        public OperationParameter(String paramName, String operator, String originalValue, String stringBeforeOperation, String stringAfterOperation) {
+        public OperationParameter(String name, String operator, String value, String stringBeforeOperation, String stringAfterOperation) {
             super();
 
-            this.paramName = paramName;
+            this.paramName = name;
             this.operator = operator;
-            this.originalValue = originalValue;
+            this.originalValue = value;
             this.stringBeforeOperation = stringBeforeOperation;
             this.stringAfterOperation = stringAfterOperation;
         }
 
         /**
-         * @return
+         * Gets the value of the parameter.
+         * 
+         * @return the value of the parameter
          */
         public String getValue() {
             return this.originalValue;
