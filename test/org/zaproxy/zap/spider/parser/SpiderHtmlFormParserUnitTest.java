@@ -26,6 +26,8 @@ import static org.junit.Assert.assertThat;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
@@ -708,6 +710,80 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         assertThat(
                 listener.getResourcesFound(),
                 contains(postResource(msg, 1, "https://example.com/search", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldSetValuesToFieldsWithNoValueWhenParsingGetForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        Date date = new Date(1474370354555L);
+        htmlParser.setDefaultDate(date);
+        HttpMessage msg = createMessageWith("GET", "FormNoDefaultValues.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains(
+                        "http://example.org/?_file=test_file.txt&_hidden&_no-type=ZAP&_password=ZAP&_text=ZAP&submit=Submit",
+                        "http://example.org/html5/number?_number=1&_number-max=2&_number-min=1&submit=Submit",
+                        "http://example.org/html5/range?_range=1&_range-max=4&_range-min=3&submit=Submit",
+                        "http://example.org/html5/misc?_color=%23ffffff&_email=foo-bar%40example.com&_tel=9999999999&_url=http%3A%2F%2Fwww.example.com&submit=Submit",
+                        "http://example.org/unknown?_unknown&submit=Submit",
+                        "http://example.org/selects?_select-one-option=first-option&_select-selected-option=selected-option&_select-two-options=last-option&submit=Submit",
+                        "http://example.org/radio?_radio=second-radio&submit=Submit",
+                        "http://example.org/checkbox?_checkbox=second-checkbox&submit=Submit",
+                        "http://example.org/html5/date-time?" + params(
+                                param("_date", formattedDate("yyyy-MM-dd", date)),
+                                param("_datetime", formattedDate("yyyy-MM-dd'T'HH:mm:ss'Z'", date)),
+                                param("_datetime-local", formattedDate("yyyy-MM-dd'T'HH:mm:ss", date)),
+                                param("_month", formattedDate("yyyy-MM", date)),
+                                param("_time", formattedDate("HH:mm:ss", date)),
+                                param("_week", formattedDate("yyyy-'W'ww", date)),
+                                param("submit", "Submit"))));
+    }
+
+    @Test
+    public void shouldSetValuesToFieldsWithNoValueWhenParsingPostForm() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        Date date = new Date(1474370354555L);
+        htmlParser.setDefaultDate(date);
+        HttpMessage msg = createMessageWith("POST", "FormNoDefaultValues.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(9)));
+        assertThat(listener.getResourcesFound(), contains(
+                postResource(msg, 1, "http://example.org/", "_hidden=&_no-type=ZAP&_text=ZAP&_password=ZAP&_file=test_file.txt&submit=Submit"),
+                postResource(msg, 1, "http://example.org/html5/number", "_number=1&_number-min=1&_number-max=2&submit=Submit"),
+                postResource(msg, 1, "http://example.org/html5/range", "_range=1&_range-min=3&_range-max=4&submit=Submit"),
+                postResource(msg, 1, "http://example.org/html5/misc", "_url=http%3A%2F%2Fwww.example.com&_email=foo-bar%40example.com&_color=%23ffffff&_tel=9999999999&submit=Submit"),
+                postResource(msg, 1, "http://example.org/unknown", "_unknown=&submit=Submit"),
+                postResource(msg, 1, "http://example.org/selects", "_select-one-option=first-option&_select-two-options=last-option&_select-selected-option=selected-option&submit=Submit"),
+                postResource(msg, 1, "http://example.org/radio", "_radio=second-radio&submit=Submit"),
+                postResource(msg, 1, "http://example.org/checkbox", "_checkbox=second-checkbox&submit=Submit"),
+                postResource(msg, 1, "http://example.org/html5/date-time", params(
+                        param("_datetime", formattedDate("yyyy-MM-dd'T'HH:mm:ss'Z'", date)),
+                        param("_datetime-local", formattedDate("yyyy-MM-dd'T'HH:mm:ss", date)),
+                        param("_date", formattedDate("yyyy-MM-dd", date)),
+                        param("_time", formattedDate("HH:mm:ss", date)),
+                        param("_month", formattedDate("yyyy-MM", date)),
+                        param("_week", formattedDate("yyyy-'W'ww", date)),
+                        param("submit", "Submit")))));
+    }
+
+    private static String formattedDate(String format, Date date) {
+        return new SimpleDateFormat(format).format(date);
     }
 
     private SpiderHtmlFormParser createSpiderHtmlFormParser() {
