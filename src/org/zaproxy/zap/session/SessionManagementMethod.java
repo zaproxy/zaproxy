@@ -55,25 +55,8 @@ public interface SessionManagementMethod {
 	public SessionManagementMethod clone();
 
 	/**
-	 * Identifies the web session, from a list of existing sessions, which matches the given
-	 * HttpMesage. The callers of this method <b>must</b> make sure that the provided list contains
-	 * sessions that are the same type and are adequate.
-	 * 
-	 * @param sessions the list of existing sessions for this Session Management method.
-	 * @param msg the http message
-	 * @return the matching Web Session, if any, or {@code null} otherwise
-	 * @throws UnsupportedWebSessionException if the web session type is unsupported
-	 */
-	// public WebSession identifyMatchingWebSession(List<WebSession> sessions, HttpMessage msg)
-	// throws UnsupportedWebSessionException;
-
-	/**
 	 * Extracts the web session information from a Http Message, creating a {@link WebSession}
 	 * object corresponding to the Session Management Method.
-	 * <p>
-	 * This method should not store the extracted web session. Future calls to
-	 * {@link SessionManagementMethod#setWebSession(WebSession)} will be made.
-	 * </p>
 	 * 
 	 * @param msg the msg
 	 * @return the web session
