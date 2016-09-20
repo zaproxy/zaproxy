@@ -50,6 +50,12 @@ public final class URLCanonicalizer {
 	/** The Constant log. */
 	private static final Logger log = Logger.getLogger(URLCanonicalizer.class);
 
+	private static final String HTTP_SCHEME = "http";
+	private static final int HTTP_DEFAULT_PORT = 80;
+
+	private static final String HTTPS_SCHEME = "https";
+	private static final int HTTPS_DEFAULT_PORT = 443;
+
 	/** The Constant IRRELEVANT_PARAMETERS defining the parameter names which are ignored in the URL. */
 	private static final Set<String> IRRELEVANT_PARAMETERS = new HashSet<>(3);
 	static {
@@ -163,7 +169,7 @@ public final class URLCanonicalizer {
 
 			/* Drop default port: example.com:80 -> example.com */
 			int port = canonicalURI.getPort();
-			if (port == 80) {
+			if (isDefaultPort(canonicalURI.getScheme(), port)) {
 				port = -1;
 			}
 
@@ -180,6 +186,20 @@ public final class URLCanonicalizer {
 					+ ex.getMessage());
 			return null;
 		}
+	}
+
+	/**
+	 * Tells whether or not the given port is the default for the given scheme.
+	 * <p>
+	 * <strong>Note:</strong> Only HTTP and HTTPS schemes are taken into account.
+	 *
+	 * @param scheme the scheme
+	 * @param port the port
+	 * @return {@code true} if given the port is the default port for the given scheme, {@code false} otherwise.
+	 */
+	private static boolean isDefaultPort(String scheme, int port) {
+		return HTTP_SCHEME.equalsIgnoreCase(scheme) && port == HTTP_DEFAULT_PORT
+				|| HTTPS_SCHEME.equalsIgnoreCase(scheme) && port == HTTPS_DEFAULT_PORT;
 	}
 
 	/**
