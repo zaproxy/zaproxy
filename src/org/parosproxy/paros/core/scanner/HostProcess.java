@@ -59,6 +59,7 @@
 // ZAP: 2016/06/29 Allow to specify and obtain the reason why a scanner was skipped
 // ZAP: 2016/07/12 Do not allow techSet to be null
 // ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
+// ZAP: 2016/09/20 Reorder statements to prevent (potential) NullPointerException in scanSingleNode
 
 package org.parosproxy.paros.core.scanner;
 
@@ -343,27 +344,26 @@ public class HostProcess implements Runnable {
         Thread thread;
         Plugin test;
         HttpMessage msg;
-        
-        log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
 
         // do not poll for isStop here to allow every plugin to run but terminate immediately.
         //if (isStop()) return;
 
-        try {
-            if (node == null || node.getHistoryReference() == null) {
-                log.debug("scanSingleNode node or href null, returning: node=" + node);
-                return false;
-            }
-            
-            if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
-                log.debug("Ignoring \"scanner\" type href");
-                return false;
-            }
+        if (node == null || node.getHistoryReference() == null) {
+            log.debug("scanSingleNode node or href null, returning: node=" + node);
+            return false;
+        }
+        
+        if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
+            log.debug("Ignoring \"scanner\" type href");
+            return false;
+        }
 
-            if (!nodeInScope(node.getName())) {
-                log.debug("scanSingleNode node not in scope");
-                return false;
-            }
+        if (!nodeInScope(node.getName())) {
+            log.debug("scanSingleNode node not in scope");
+            return false;
+        }
+
+        try {
             
             msg = node.getHistoryReference().getHttpMessage();
 
@@ -372,6 +372,8 @@ public class HostProcess implements Runnable {
                 log.debug("scanSingleNode msg null");
                 return false;
             }
+
+            log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
 
             test = plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
