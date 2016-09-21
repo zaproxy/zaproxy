@@ -805,7 +805,7 @@ public class AddOnLoader extends URLClassLoader {
                 }
             } catch (Throwable e) {
             	// Often not an error
-            	logger.debug(e.getMessage());
+            	logger.debug(e.getMessage(), e);
             }
         }
         return listClass;
