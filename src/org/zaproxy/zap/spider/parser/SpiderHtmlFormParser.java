@@ -60,6 +60,15 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	private final SpiderParam param;
 
 	/**
+	 * The default {@code Date} to be used for default values of date fields.
+	 * <p>
+	 * Default is {@code null}.
+	 * 
+	 * @see #setDefaultDate(Date)
+	 */
+	private Date defaultDate;
+
+	/**
 	 * Instantiates a new spider html form parser.
 	 * 
 	 * @param param the parameters for the spider
@@ -249,7 +258,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * @return a list with the values
 	 * @see #getDefaultTextValue(FormField)
 	 */
-	private static List<String> getValues(FormField field) {
+	private List<String> getValues(FormField field) {
 		if (field.getFormControl().getFormControlType().isSubmit()) {
 			return new ArrayList<>(field.getPredefinedValues());
 		}
@@ -329,8 +338,9 @@ public class SpiderHtmlFormParser extends SpiderParser {
 	 * 
 	 * @param field the field
 	 * @return the default text value
+	 * @see #getDefaultDate()
 	 */
-	private static String getDefaultTextValue(FormField field) {
+	private String getDefaultTextValue(FormField field) {
 		FormControl fc = field.getFormControl();
 		if (fc.getFormControlType() == FormControlType.TEXT) {
 			// If the control type was reduced to a TEXT type by the Jericho library, check the
@@ -345,7 +355,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 				if (min != null) {
 					return min;
 				}
-				String max = fc.getAttributesMap().get("min");
+				String max = fc.getAttributesMap().get("max");
 				if (max != null) {
 					return max;
 				}
@@ -370,27 +380,27 @@ public class SpiderHtmlFormParser extends SpiderParser {
 
 			if (type.equalsIgnoreCase("datetime")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("datetime-local")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("date")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("time")) {
 				SimpleDateFormat format = new SimpleDateFormat("HH:mm:ss");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("month")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-MM");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 			if (type.equalsIgnoreCase("week")) {
 				SimpleDateFormat format = new SimpleDateFormat("yyyy-'W'ww");
-				return format.format(new Date());
+				return format.format(getDefaultDate());
 			}
 		} else if (fc.getFormControlType() == FormControlType.PASSWORD) {
 			return DEFAULT_PASS_VALUE;
@@ -398,6 +408,31 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			return DEFAULT_FILE_VALUE;
 		}
 		return DEFAULT_EMPTY_VALUE;
+	}
+
+	/**
+	 * Gets the default {@code Date}, to be used for default values of date fields.
+	 *
+	 * @return the date, never {@code null}.
+	 * @see #setDefaultDate(Date)
+	 */
+	private Date getDefaultDate() {
+		if (defaultDate == null) {
+			return new Date();
+		}
+		return defaultDate;
+	}
+
+	/**
+	 * Sets the default {@code Date}, to be used for default values of date fields.
+	 * <p>
+	 * If none ({@code null}) is set it's used the current date when generating the values for the fields.
+	 *
+	 * @param date the default date, might be {@code null}.
+	 * @since TODO add version
+	 */
+	public void setDefaultDate(Date date) {
+		this.defaultDate = date;
 	}
 
 	/**
