@@ -69,7 +69,6 @@ import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
  * At least, Firefox v3.x does.
  *
  * @author MaWoKi
- * @see org.bouncycastle.x509.examples.AttrCertExample how to manage CAs and stuff
  * @see CachedSslCertifificateServiceImpl for a cached SslCertificateService
  */
 public final class SslCertificateServiceImpl implements SslCertificateService {
@@ -164,8 +163,8 @@ public final class SslCertificateServiceImpl implements SslCertificateService {
 	/**
 	 * Generates a 2048 bit RSA key pair using SHA1PRNG.
 	 *
-	 * @return
-	 * @throws NoSuchAlgorithmException
+	 * @return the key pair
+	 * @throws NoSuchAlgorithmException if no provider supports the used algorithms.
 	 */
 	private KeyPair createKeyPair() throws NoSuchAlgorithmException {
 		final KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");

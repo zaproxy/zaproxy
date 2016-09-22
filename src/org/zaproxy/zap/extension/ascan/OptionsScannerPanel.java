@@ -65,8 +65,9 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     private ExtensionActiveScan extension;
     
     /**
-     * General Constructor
-     * @param extensionn 
+     * Constructs an {@code OptionsScannerPanel} with the given active scan extension.
+     * 
+     * @param extension the active scan extension, to obtain scan policy names
      */
     public OptionsScannerPanel(ExtensionActiveScan extension) {
         super();

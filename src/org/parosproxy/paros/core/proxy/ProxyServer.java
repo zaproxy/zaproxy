@@ -31,6 +31,7 @@
 // ZAP: 2014/08/14 Issue 1312: Misleading error message when unable to bind the local proxy to specified address
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
+// ZAP: 2016/09/22 JavaDoc tweaks
 
 package org.parosproxy.paros.core.proxy;
 
@@ -122,8 +123,15 @@ public class ProxyServer implements Runnable {
     }
 
     /**
-     *
-     * @return	true = the server is started successfully.
+     * Starts the proxy server.
+     * <p>
+     * If the proxy server was already running it's stopped first.
+     * 
+     * @param ip the IP/address the server should bind to
+     * @param port the port
+     * @param isDynamicPort {@code true} if it should use another port if the given one is already in use, {@code false}
+     *            otherwise.
+     * @return the port the server is listening to, or {@code -1} if not able to start
      */
     public synchronized int startServer(String ip, int port, boolean isDynamicPort) {
 
@@ -203,9 +211,9 @@ public class ProxyServer implements Runnable {
     }
 
     /**
-     * Stop this server
+     * Stops the proxy server.
      *
-     * @return true if server can be stopped.
+     * @return {@code true} if the proxy server was stopped, {@code false} if it was not running.
      */
     public synchronized boolean stopServer() {
 

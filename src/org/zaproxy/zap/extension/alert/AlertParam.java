@@ -83,6 +83,7 @@ public class AlertParam extends AbstractParam {
 
     /**
      * Sets the maximum instances of an alert to include in a report.
+     * @param maximumInstances the maximum number of instances for each alert
      */
     public void setMaximumInstances(int maximumInstances) {
         if (this.maximumInstances != maximumInstances) {
@@ -94,6 +95,7 @@ public class AlertParam extends AbstractParam {
 
     /**
      * Returns the maximum instances of an alert to include in a report.
+     * @return the maximum number of instances for each alert
      */
     public int getMaximumInstances() {
         return maximumInstances;
