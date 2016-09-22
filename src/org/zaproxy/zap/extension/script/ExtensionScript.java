@@ -887,11 +887,11 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 	public ScriptWrapper loadScript(ScriptWrapper script) throws IOException {
 	    BufferedReader fr = new BufferedReader(new FileReader(script.getFile()));
 	    StringBuilder sb = new StringBuilder();
-        String line;
         try {
-			while ((line = fr.readLine()) != null) {
-			    sb.append(line);
-			    sb.append("\n");
+			int len;
+			char[] buf = new char[1024];
+			while ((len = fr.read(buf)) != -1) {
+			    sb.append(buf, 0, len);
 			}
 		} finally {
 	        fr.close();
