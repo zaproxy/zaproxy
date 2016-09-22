@@ -34,6 +34,7 @@
 // ZAP: 2016/01/26 Fixed findbugs warning
 // ZAP: 2016/04/21 Allow to obtain the number of requests sent during the analysis
 // ZAP: 2016/06/10 Honour scan's scope when following redirections
+// ZAP: 2016/09/20 JavaDoc tweaks
 
 package org.parosproxy.paros.core.scanner;
 
@@ -119,6 +120,8 @@ public class Analyser {
     /**
      * Analyse a single folder entity. Results are stored into
      * mAnalysedEntityTable.
+     * @param node the node that will be analysed
+     * @throws Exception if an error occurred while analysing the node (for example, failed to send the message)
      */
     private void analyse(StructuralNode node) throws Exception {
 	// if analysed already, return;
@@ -207,7 +210,7 @@ public class Analyser {
      * option is provided to check recursively. Note that the immediate children
      * are always checked first before further recursive check is done.
      *
-     * @param	entity	The current entity.
+     * @param	node the node used to obtain the suffix
      * @param	performRecursiveCheck	True = get recursively the suffix from all
      * the children.
      * @return	The suffix ".xxx" is returned. If there is no suffix found, an
@@ -282,11 +285,11 @@ public class Analyser {
      * a suffix exist in the children according to a priority of
      * staticSuffixList.
      *
-     * @param	entity	The current entity.
+     * @param	node the node used to construct the random path
      * @param	uri	The uri of the current entity.
      * @return	A random path (eg /folder1/folder2/1234567.chm) relative the
      * entity.
-     * @throws URIException
+     * @throws URIException if unable to decode the path of the given URI 
      */
     private String getRandomPathSuffix(StructuralNode node, URI uri) throws URIException {
         String resultSuffix = getChildSuffix(node, true);
@@ -314,6 +317,7 @@ public class Analyser {
 
     /**
      * Analyse node (should be a folder unless it is host level) in-order.
+     * @param node the node to analyse
      * @return the number of nodes available at this layer
      */
     private int inOrderAnalyse(StructuralNode node) {
