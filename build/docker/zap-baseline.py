@@ -360,18 +360,23 @@ def main(argv):
     else:
       if detailed_output:
         print ('Total of ' + str(len(zap.core.urls)) + ' URLs')
-      # Retrieve the alerts
+      # Retrieve the alerts using paging in case there are lots of them
+      st = 0
+      pg = 100
       alert_dict = {}
-      alerts = zap.core.alerts()
-      for alert in alerts:
-        plugin_id = alert.get('pluginId')
-        if plugin_id in blacklist:
-          continue
-        if not is_in_scope(plugin_id, alert.get('url')):
-          continue
-        if (not alert_dict.has_key(plugin_id)):
-          alert_dict[plugin_id] = []
-        alert_dict[plugin_id].append(alert)
+      alerts = zap.core.alerts(start=st, count=pg)
+      while len(alerts) > 0:
+        for alert in alerts:
+          plugin_id = alert.get('pluginId')
+          if plugin_id in blacklist:
+            continue
+          if not is_in_scope(plugin_id, alert.get('url')):
+            continue
+          if (not alert_dict.has_key(plugin_id)):
+            alert_dict[plugin_id] = []
+          alert_dict[plugin_id].append(alert)
+        st += pg
+        alerts = zap.core.alerts(start=st, count=pg)
 
       all_rules = zap.pscan.scanners
       all_dict = {}
