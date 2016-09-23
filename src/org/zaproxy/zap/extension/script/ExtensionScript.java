@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.MalformedInputException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.security.InvalidParameterException;
@@ -609,12 +610,18 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 					logger.warn(
 							"Failed to add script \"" + script.getName() + "\", script type not found: "
 									+ script.getTypeName());
-					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+					scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(),
+							Constant.messages.getString("script.info.scriptsNotAdded.error.missingType", script.getTypeName()) });
 				}
 				
+			} catch (MalformedInputException e) {
+				logger.warn("Failed to add script \"" + script.getName() + "\", contains invalid character sequence (UTF-8).");
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(),
+						Constant.messages.getString("script.info.scriptsNotAdded.error.invalidChars") });
 			} catch (InvalidParameterException | IOException e) {
 				logger.error(e.getMessage(), e);
-				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName() });
+				scriptsNotAdded.add(new String[] { script.getName(), script.getEngineName(), 
+						Constant.messages.getString("script.info.scriptsNotAdded.error.other") });
 			}
 		}
 
@@ -646,8 +653,10 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
             public String getColumnName(int column) {
                 if (column == 0) {
                     return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptName");
+                } else if (column == 1) {
+                    return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
                 }
-                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.scriptEngine");
+                return Constant.messages.getString("script.info.scriptsNotAdded.table.column.errorCause");
             }
 
             @Override
@@ -662,7 +671,7 @@ public class ExtensionScript extends ExtensionAdaptor implements CommandLineList
 
             @Override
             public int getColumnCount() {
-                return 2;
+                return 3;
             }
         });
 
