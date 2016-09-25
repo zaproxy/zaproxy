@@ -59,6 +59,8 @@
 // ZAP: 2016/06/29 Allow to specify and obtain the reason why a scanner was skipped
 // ZAP: 2016/07/12 Do not allow techSet to be null
 // ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
+// ZAP: 2016/09/20 - Reorder statements to prevent (potential) NullPointerException in scanSingleNode
+//                 - JavaDoc tweaks
 
 package org.parosproxy.paros.core.scanner;
 
@@ -119,13 +121,14 @@ public class HostProcess implements Runnable {
     private int percentage = 0;
     
     /**
-     * Intantiate a new HostProcess service
+     * Constructs a {@code HostProcess}.
      * 
      * @param hostAndPort the host:port value of the site that need to be processed
      * @param parentScanner the scanner instance which instantiated this process
      * @param scannerParam the session scanner parameters
      * @param connectionParam the connection parameters
-     * @param pluginFactory the Factory object for plugin management and instantiation
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
@@ -335,35 +338,34 @@ public class HostProcess implements Runnable {
     /**
      * Create new plugin instance and run against a node
      *
-     * @param plugin
-     * @param node. If node == null, run for server level plugin
+     * @param plugin the scanner
+     * @param node the node to scan, ignored if {@code null}.
      * @return {@code true} if the {@code plugin} was run, {@code false} otherwise.
      */
     private boolean scanSingleNode(Plugin plugin, StructuralNode node) {
         Thread thread;
         Plugin test;
         HttpMessage msg;
-        
-        log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
 
         // do not poll for isStop here to allow every plugin to run but terminate immediately.
         //if (isStop()) return;
 
-        try {
-            if (node == null || node.getHistoryReference() == null) {
-                log.debug("scanSingleNode node or href null, returning: node=" + node);
-                return false;
-            }
-            
-            if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
-                log.debug("Ignoring \"scanner\" type href");
-                return false;
-            }
+        if (node == null || node.getHistoryReference() == null) {
+            log.debug("scanSingleNode node or href null, returning: node=" + node);
+            return false;
+        }
+        
+        if (HistoryReference.TYPE_SCANNER == node.getHistoryReference().getHistoryType()) {
+            log.debug("Ignoring \"scanner\" type href");
+            return false;
+        }
 
-            if (!nodeInScope(node.getName())) {
-                log.debug("scanSingleNode node not in scope");
-                return false;
-            }
+        if (!nodeInScope(node.getName())) {
+            log.debug("scanSingleNode node not in scope");
+            return false;
+        }
+
+        try {
             
             msg = node.getHistoryReference().getHttpMessage();
 
@@ -372,6 +374,8 @@ public class HostProcess implements Runnable {
                 log.debug("scanSingleNode msg null");
                 return false;
             }
+
+            log.debug("scanSingleNode node plugin=" + plugin.getName() + " node=" + node.getName());
 
             test = plugin.getClass().newInstance();
             test.setConfig(plugin.getConfig());
@@ -432,9 +436,10 @@ public class HostProcess implements Runnable {
     /**
      * @deprecated (2.5.0) No longer used/needed, Plugin's progress is automatically updated/maintained by
      *             {@code HostProcess}.
+     * @param plugin unused
+     * @param value unused
      */
     @Deprecated
-    @SuppressWarnings("javadoc")
     public void setTestCurrentCount(Plugin plugin, int value) {        
         // No longer used.
     }
@@ -674,8 +679,9 @@ public class HostProcess implements Runnable {
     }
 
     /**
+     * Gets the knowledge base of the current scan.
      * 
-     * @return 
+     * @return the knowledge base of the current scan, never {@code null}.
      */
     Kb getKb() {
         if (kb == null) {
@@ -703,7 +709,7 @@ public class HostProcess implements Runnable {
 
 	/**
 	 * Set the user to scan as. If null then the current session will be used.
-	 * @param user
+	 * @param user the user to scan as
 	 */
     public void setUser(User user) {
 		this.user = user;
@@ -738,8 +744,8 @@ public class HostProcess implements Runnable {
 	
 	/** 
      * ZAP: abstract plugin will call this method in order to invoke any extensions that have hooked into the active scanner
-     * @param msg
-     * @param plugin
+     * @param msg the message being scanned
+     * @param plugin the plugin being run
      */
     protected synchronized void performScannerHookBeforeScan(HttpMessage msg, AbstractPlugin plugin) {
 		Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
@@ -757,8 +763,8 @@ public class HostProcess implements Runnable {
     
     /** 
      * ZAP: abstract plugin will call this method in order to invoke any extensions that have hooked into the active scanner 
-     * @param msg
-     * @param plugin
+     * @param msg the message being scanned
+     * @param plugin the plugin being run
      */
     protected synchronized void performScannerHookAfterScan(HttpMessage msg, AbstractPlugin plugin) {
 		Iterator<ScannerHook> iter = this.parentScanner.getScannerHooks().iterator();
@@ -781,6 +787,8 @@ public class HostProcess implements Runnable {
 	/**
 	 * @deprecated (2.5.0) No longer used/needed, Plugin's request count is automatically updated/maintained by
 	 *             {@code HostProcess}.
+     * @param pluginId the ID of the plugin
+     * @param reqCount the number of requests sent
 	 */
 	@Deprecated
 	public void setPluginRequestCount(int pluginId, int reqCount) {

@@ -86,7 +86,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 	private enum ScanReportType {
 		HTML,
-		XML
+		XML,
+		MD
 	}
 
 	private static final String PREFIX = "core";
@@ -126,6 +127,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String OTHER_ROOT_CERT = "rootcert";
 	private static final String OTHER_XML_REPORT = "xmlreport";
 	private static final String OTHER_HTML_REPORT = "htmlreport";
+    private static final String OTHER_MD_REPORT = "mdreport";
 	private static final String OTHER_MESSAGE_HAR = "messageHar";
 	private static final String OTHER_MESSAGES_HAR = "messagesHar";
 	private static final String OTHER_SEND_HAR_REQUEST = "sendHarRequest";
@@ -223,6 +225,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiOthers(new ApiOther(OTHER_SET_PROXY, new String[] {PARAM_PROXY_DETAILS}));
 		this.addApiOthers(new ApiOther(OTHER_XML_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_HTML_REPORT));
+        this.addApiOthers(new ApiOther(OTHER_MD_REPORT));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGE_HAR, new String[] {PARAM_ID}));
 		this.addApiOthers(new ApiOther(OTHER_MESSAGES_HAR, null, new String[] {PARAM_BASE_URL, PARAM_START, PARAM_COUNT}));
 		this.addApiOthers(new ApiOther(
@@ -876,6 +879,15 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 				logger.error(e.getMessage(), e);
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR);
 			}
+        } else if (OTHER_MD_REPORT.equals(name)) {
+            try {
+                writeReportLastScanTo(msg, ScanReportType.MD);
+
+                return msg;
+            } catch (Exception e) {
+                logger.error(e.getMessage(), e);
+                throw new ApiException(ApiException.Type.INTERNAL_ERROR);
+            }
 		} else if (OTHER_MESSAGE_HAR.equals(name)) {
 			byte[] responseBody;
 			try {
@@ -1026,6 +1038,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			// Copy as is
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/xml; charset=UTF-8"));
 			response = report.toString();
+		} else if (ScanReportType.MD == reportType) {
+            msg.setResponseHeader(API.getDefaultResponseHeader("text/markdown; charset=UTF-8"));
+            response = ReportGenerator.stringToHtml(
+                    report.toString(),
+                    Paths.get(Constant.getZapInstall(), "xml/report.md.xsl").toString());
 		} else {
 			msg.setResponseHeader(API.getDefaultResponseHeader("text/html; charset=UTF-8"));
 			response = ReportGenerator.stringToHtml(

@@ -29,6 +29,7 @@
 // ZAP: 2014/02/08 Used the same constants used in ScanParam Target settings
 // ZAP: 2016/05/04 Changes to address issues related to ParameterParser
 // ZAP: 2016/05/26 Use non-null String for names and values of parameters, scanners might not handle null names/values well
+// ZAP: 2016/09/13 Issue 2863: Attack query string even if not originally specified
 
 package org.parosproxy.paros.core.scanner;
 
@@ -123,6 +124,10 @@ public abstract class VariantAbstractQuery implements Variant {
             listParam.add(new NameValuePair(type, nonNullString(parameter.getName()), nonNullString(parameter.getValue()), i));
             i++;
         }
+        if (i == 0) {
+        	// No query params, lets add one just to make sure
+            listParam.add(new NameValuePair(type, "query", "query", i));
+        }
     }
 
     private static String nonNullString(String string) {
@@ -178,7 +183,11 @@ public abstract class VariantAbstractQuery implements Variant {
                 sb.append(parser.getDefaultKeyValuePairSeparator());
             }
         }
-
+        
+        if (sb.length() == 0) {
+            // No original query string
+            sb.append(encodedValue);
+        }
         String query = sb.toString();
         buildMessage(msg, query);
         return query;

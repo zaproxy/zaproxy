@@ -67,9 +67,10 @@ public class NodeSelectDialog extends AbstractDialog {
 	private boolean allowRoot = false;
 	
     /**
-     * @param arg0
-     * @param arg1
-     * @throws HeadlessException
+     * Constructs a modal {@code NodeSelectDialog} with the given parent.
+     * 
+     * @param parent the {@code Window} from which the dialog is displayed or {@code null} if this dialog has no parent
+     * @throws HeadlessException when {@code GraphicsEnvironment.isHeadless()} returns {@code true}
      */
     public NodeSelectDialog(Window parent) throws HeadlessException {
         super(parent, true);	// Modal, ie always on top

@@ -284,7 +284,7 @@ CSRF attacks are effective in a number of situations, including:
 CSRF has primarily been used to perform an action against a target site using the victim's privileges, but recent techniques have been discovered to disclose information by gaining access to the response. The risk of information disclosure is dramatically increased when the target site is vulnerable to XSS, because XSS can be used as a platform for CSRF, allowing the attack to operate within the bounds of the same-origin policy.</desc>
 	<solution>フェーズ： アーキテクチャと設計
 同脆弱性を引き起こさせない、あるいは容易に回避可能な精査されたライブラリ、あるいはフレームワークを使用してください。
-For example, use anti-CSRF packages such as the OWASP CSRFGuard.
+たとえば、OWASP CSRFGuard などのアンチCSRFパッケージを使用します。
 
 Phase: Implementation
 Ensure that your application is free of cross-site scripting issues, because most CSRF defenses can be bypassed using attacker-controlled script.

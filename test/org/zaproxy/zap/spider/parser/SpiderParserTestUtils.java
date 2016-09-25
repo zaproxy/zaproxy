@@ -20,6 +20,8 @@
 package org.zaproxy.zap.spider.parser;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -120,6 +122,30 @@ public class SpiderParserTestUtils {
 
     public static SpiderResource postResource(HttpMessage message, int depth, String uri, String requestBody) {
         return new SpiderResource(message, depth, uri, requestBody);
+    }
+
+    public static String params(String... params) {
+        if (params == null || params.length == 0) {
+            return "";
+        }
+
+        StringBuilder strBuilder = new StringBuilder();
+        for (String param : params) {
+            if (strBuilder.length() > 0) {
+                strBuilder.append('&');
+            }
+            strBuilder.append(param);
+        }
+        return strBuilder.toString();
+    }
+
+    public static String param(String name, String value) {
+        try {
+            return URLEncoder.encode(name, StandardCharsets.UTF_8.name()) + "="
+                    + URLEncoder.encode(value, StandardCharsets.UTF_8.name());
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public static class SpiderResource {

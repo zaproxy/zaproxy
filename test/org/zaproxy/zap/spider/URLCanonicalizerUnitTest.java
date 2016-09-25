@@ -37,6 +37,36 @@ public class URLCanonicalizerUnitTest {
     }
 
     @Test
+    public void shouldNotRemoveNonDefaultPortOfHttpUriWhenCanonicalizing() {
+        // Given
+        String uri = "http://example.com:443/";
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("http://example.com:443/")));
+    }
+
+    @Test
+    public void shouldRemoveDefaultPortOfHttpsUriWhenCanonicalizing() {
+        // Given
+        String uri = "https://example.com:443/";
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("https://example.com/")));
+    }
+
+    @Test
+    public void shouldNotRemoveNonDefaultPortOfHttpsUriWhenCanonicalizing() {
+        // Given
+        String uri = "https://example.com:80/";
+        // When
+        String canonicalizedUri = URLCanonicalizer.getCanonicalURL(uri);
+        // Then
+        assertThat(canonicalizedUri, is(equalTo("https://example.com:80/")));
+    }
+
+    @Test
     public void shouldAddEmptyPathIfUriHasNoPathWhenCanonicalizing() {
         // Given
         String uri = "http://example.com";

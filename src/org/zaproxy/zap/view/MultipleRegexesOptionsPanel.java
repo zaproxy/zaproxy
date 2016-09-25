@@ -22,7 +22,6 @@ package org.zaproxy.zap.view;
 import java.awt.Dialog;
 import java.text.MessageFormat;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -311,7 +310,7 @@ public class MultipleRegexesOptionsPanel extends AbstractMultipleOptionsBaseTabl
         private List<String> elements;
 
         public RegexesTableModel() {
-            elements = Collections.emptyList();
+            elements = new ArrayList<>();
         }
 
         @Override

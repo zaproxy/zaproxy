@@ -133,10 +133,10 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	}
 	
 	/**
-	 * Extract HttpMessage out of {@link SiteMap} node.
+	 * Extracts a HistoryReference out of {@link SiteMap} node.
 	 * 
-	 * @param value
-	 * @return
+	 * @param value the node
+	 * @return the {@code HistoryReference}, or {@code null} if it has none
 	 */
 	public HistoryReference getHistoryReferenceFromNode(Object value) {
 		SiteNode node = null;

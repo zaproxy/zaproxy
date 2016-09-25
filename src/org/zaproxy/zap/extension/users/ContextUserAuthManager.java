@@ -76,7 +76,6 @@ public class ContextUserAuthManager {
 	 * Sets a new list of users for this context. An internal copy of the provided list is stored.
 	 * 
 	 * @param users the users
-	 * @return the list
 	 */
 	public void setUsers(List<User> users) {
 		this.users = new ArrayList<>(users);

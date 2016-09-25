@@ -44,6 +44,7 @@
 // ZAP: 2016/05/25 Normalise equals/hashCode/compareTo
 // ZAP: 2016/08/10 Issue 2757: Alerts with different request method are considered the same
 // ZAP: 2016/08/25 Initialise the method to an empty string
+// ZAP: 2016/09/20 JavaDoc tweaks
 
 package org.parosproxy.paros.core.scanner;
 
@@ -172,6 +173,8 @@ public class Alert implements Comparable<Alert>  {
 	/**
 	 * @deprecated  (2.4.0) Replaced by {@link #setRiskConfidence(int, int)}.
 	 * Use of reliability has been deprecated in favour of using confidence
+	 * @param risk the new risk
+	 * @param confidence the new confidence
 	 */
 	@Deprecated
 	public void setRiskReliability(int risk, int confidence) {
@@ -186,6 +189,7 @@ public class Alert implements Comparable<Alert>  {
 	/**
 	 * @deprecated (2.5.0) Replaced by {@link #setName}.
 	 * Use of alert has been deprecated in favour of using name.
+	 * @param alert the new name
 	 */
 	@Deprecated
 	public void setAlert(String alert) {
@@ -202,18 +206,40 @@ public class Alert implements Comparable<Alert>  {
 	}
 	
 	/**
+	 * Sets the details of the alert.
+	 * 
+	 * @param description the description of the alert
+	 * @param uri the URI that has the issue
+	 * @param param the parameter that has the issue
+	 * @param attack the attack that triggers the issue
+	 * @param otherInfo other information about the issue
+	 * @param solution the solution for the issue
+	 * @param reference references about the issue
+	 * @param msg the HTTP message that triggers/triggered the issue
 	 * @deprecated (2.2.0) Replaced by
 	 *             {@link #setDetail(String, String, String, String, String, String, String, String, int, int, HttpMessage)}. It
 	 *             will be removed in a future release.
 	 */
 	@Deprecated
-	@SuppressWarnings("javadoc")
 	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
 			String solution, String reference, HttpMessage msg) {
 		setDetail(description, uri, param, attack, otherInfo, solution, reference, "", -1, -1, msg);
 	}
 
 	/**
+	 * Sets the details of the alert.
+	 * 
+	 * @param description the description of the alert
+	 * @param uri the URI that has the issue
+	 * @param param the parameter that has the issue
+	 * @param attack the attack that triggers the issue
+	 * @param otherInfo other information about the issue
+	 * @param solution the solution for the issue
+	 * @param reference references about the issue
+	 * @param evidence the evidence (in the HTTP response) that the issue exists
+	 * @param cweId the CWE ID of the issue
+	 * @param wascId the WASC ID of the issue
+	 * @param msg the HTTP message that triggers/triggered the issue
 	 * @since 2.2.0
 	 */
 	public void setDetail(String description, String uri, String param, String attack, String otherInfo, 
@@ -439,8 +465,9 @@ public class Alert implements Comparable<Alert>  {
 	}
 
 	/**
-	Create a new instance of AlertItem with same members.
-	*/
+	 * Creates a new instance of {@code Alert} with same members.
+	 * @return a new {@code Alert} instance
+	 */
 	public Alert newInstance() {
 		Alert item = new Alert(this.pluginId);
 		item.setRiskConfidence(this.risk, this.confidence);

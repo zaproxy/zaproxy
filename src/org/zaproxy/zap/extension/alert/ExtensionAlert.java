@@ -20,12 +20,18 @@
 package org.zaproxy.zap.extension.alert;
 
 import java.awt.EventQueue;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Vector;
@@ -41,11 +47,13 @@ import org.parosproxy.paros.db.RecordScan;
 import org.parosproxy.paros.db.TableAlert;
 import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
+import org.parosproxy.paros.extension.OptionsChangedListener;
 import org.parosproxy.paros.extension.SessionChangedListener;
 import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -60,7 +68,8 @@ import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.model.SessionStructure;
 import org.zaproxy.zap.model.Target;
 
-public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedListener, XmlReporterExtension {
+public class ExtensionAlert extends ExtensionAdaptor implements 
+		SessionChangedListener, XmlReporterExtension, OptionsChangedListener {
 
     public static final String NAME = "ExtensionAlert";
     private Map<Integer, HistoryReference> hrefs = new HashMap<>();
@@ -75,6 +84,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
     private Logger logger = Logger.getLogger(ExtensionAlert.class);
 	private AlertParam alertParam = null;
 	private OptionsAlertPanel optionsPanel = null;
+	private Properties alertOverrides = new Properties();
 
     public ExtensionAlert() {
         super(NAME);
@@ -97,8 +107,39 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             ExtensionHelp.enableHelpKey(getAlertPanel(), "ui.tabs.alerts");
         }
         extensionHook.addSessionListener(this);
+        extensionHook.addOptionsChangedListener(this);
 
     }
+
+	@Override
+	public void optionsLoaded() {
+		reloadOverridesFile();
+	}
+
+	@Override
+	public void optionsChanged(OptionsParam optionsParam) {
+		reloadOverridesFile();
+	}
+	
+	private void reloadOverridesFile() {
+		this.alertOverrides.clear();
+
+		String filename = this.getAlertParam().getOverridesFilename();
+		if (filename != null && filename.length() > 0) {
+			File file = new File(filename);
+			if (! file.isFile() || ! file.canRead()) {
+				logger.error("Cannot read alert overrides file " + file.getAbsolutePath());
+			} else {
+				try (BufferedReader br = Files.newBufferedReader(file.toPath(), StandardCharsets.UTF_8)) {
+					this.alertOverrides.load(br);
+					logger.info("Read " + this.alertOverrides.size() + 
+							" overrides from " + file.getAbsolutePath());
+				} catch (IOException e) {
+					logger.error("Failed to read alert overrides file " + file.getAbsolutePath(), e);
+				}
+			}
+		}
+	}
 
 	private OptionsAlertPanel getOptionsPanel() {
 		if (optionsPanel == null) {
@@ -128,6 +169,8 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
             alert.setSourceHistoryId(ref.getHistoryId());
 
             hrefs.put(Integer.valueOf(ref.getHistoryId()), ref);
+            
+            this.applyOverrides(alert);
 
             writeAlertToDB(alert, ref);
 
@@ -160,6 +203,54 @@ public class ExtensionAlert extends ExtensionAdaptor implements SessionChangedLi
 
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
+        }
+    }
+
+    /*
+     * This method is intended for internal use only, and should only
+     * be called by other classes for unit testing.
+     */
+    protected void applyOverrides(Alert alert) {
+        if (this.alertOverrides.isEmpty()) {
+            // Nothing to do
+            return;
+        }
+        String changedName = this.alertOverrides.getProperty(alert.getPluginId() + ".name");
+        if (changedName != null) {
+            alert.setName(applyOverride(alert.getName(), changedName));
+        }
+        String changedDesc = this.alertOverrides.getProperty(alert.getPluginId() + ".description");
+        if (changedDesc != null) {
+            alert.setDescription(applyOverride(alert.getDescription(), changedDesc));
+        }
+        String changedSolution = this.alertOverrides.getProperty(alert.getPluginId() + ".solution");
+        if (changedSolution != null) {
+            alert.setSolution(applyOverride(alert.getSolution(), changedSolution));
+        }
+        String changedOther = this.alertOverrides.getProperty(alert.getPluginId() + ".otherInfo");
+        if (changedOther != null) {
+            alert.setOtherInfo(applyOverride(alert.getOtherInfo(), changedOther));
+        }
+        String changedReference = this.alertOverrides.getProperty(alert.getPluginId() + ".reference");
+        if (changedReference != null) {
+            alert.setReference(applyOverride(alert.getReference(), changedReference));
+        }
+    }
+    
+    /*
+     * This method should only be used for testing
+     */
+    protected void setAlertOverrideProperty(String key, String value) {
+        this.alertOverrides.put(key, value);
+    }
+
+    private String applyOverride(String original, String override) {
+        if (override.startsWith("+")) {
+            return original + override.substring(1);
+        } else if (override.startsWith("-")) {
+            return override.substring(1) + original;
+        } else {
+            return override;
         }
     }
 

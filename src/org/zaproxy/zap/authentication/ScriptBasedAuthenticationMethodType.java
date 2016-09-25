@@ -104,17 +104,15 @@ public class ScriptBasedAuthenticationMethodType extends AuthenticationMethodTyp
 		/**
 		 * Load a script and fills in the method's filled according to the values specified by the
 		 * script.
-		 * 
-		 * If an error occurs while loading the script, an {@link IllegalArgumentException} is
-		 * thrown.
-		 * 
+		 * <p>
 		 * If the method already had a loaded script and a set of values for the parameters, it
 		 * tries to provide new values for the new parameters if they match any previous parameter
 		 * names.
 		 * 
 		 * @param scriptW the script wrapper
+		 * @throws IllegalArgumentException if an error occurs while loading the script.
 		 */
-		public void loadScript(ScriptWrapper scriptW) throws IllegalArgumentException {
+		public void loadScript(ScriptWrapper scriptW) {
 			AuthenticationScript script = getScriptInterfaceV2(scriptW);
 			if (script == null) {
 				script = getScriptInterface(scriptW);

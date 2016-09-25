@@ -76,7 +76,6 @@ public class ExtensionPopupMenuMessageContainer extends ExtensionPopupMenu {
      * {@code true};</li>
      * </ul>
      * The separators will be dynamically added and removed as needed when the pop up menu is shown.
-     * </p>
      * <p>
      * <strong>Implementation Note:</strong> The method {@code isEnableForMessageContainer(MessageContainer)} is called on all
      * child {@code ExtensionPopupMenuComponent}s, even if a previous child has returned {@code true}, as it allows to notify
