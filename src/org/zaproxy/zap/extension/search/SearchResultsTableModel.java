@@ -28,6 +28,7 @@ import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
+import org.zaproxy.zap.utils.StringUIUtils;
 import org.zaproxy.zap.view.table.AbstractCustomColumnHistoryReferencesTableModel;
 import org.zaproxy.zap.view.table.AbstractHistoryReferencesTableEntry;
 
@@ -178,11 +179,13 @@ public class SearchResultsTableModel extends
             this.method = method;
             this.uri = uri;
 
+            String temp;
             if (stringFound.length() > MAX_CHARS_FOUND_STRING) {
-                this.stringFound = stringFound.substring(0, MAX_CHARS_FOUND_STRING) + "...";
+                temp = stringFound.substring(0, MAX_CHARS_FOUND_STRING) + "...";
             } else {
-                this.stringFound = stringFound;
+                temp = stringFound;
             }
+            this.stringFound = StringUIUtils.replaceWithVisibleWhiteSpaceChars(temp);
             this.sr = new HistoryReferenceSearchResult(sr, stringFound);
         }
 
