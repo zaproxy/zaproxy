@@ -31,32 +31,33 @@ public interface CustomScanPanel {
 	
 	/**
 	 * The i18n label to use for the panel title
-	 * @return
+	 * @return the title of the panel
 	 */
 	String getLabel();
 
 	/**
 	 * The panel to add to the custom active scan dialog
-	 * @return
+	 * @param init {@code true} if the panel should be (re)initialised, {@code false} otherwise
+	 * @return the panel that will be shown
 	 */
 	AbstractParamPanel getPanel(boolean init);
 	
 	/**
 	 * The target to use if (and only if) the user has not specified a target
 	 * Return null if a target just for the information specified in this panel does not make sense
-	 * @return
+	 * @return the target built from the panel
 	 */
 	Target getTarget();
 
 	/**
 	 * A translated error message to display if the information the user has provided in incorrect or incomplete
-	 * @return
+	 * @return a message indicating the error, {@code null} if none.
 	 */
 	String validateFields();
 	
 	/**
 	 * Any context specific objects to add to the scan - return null for none.
-	 * @return
+	 * @return an array containing custom scan objects
 	 */
 	Object[] getContextSpecificObjects();
 

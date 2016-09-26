@@ -286,6 +286,7 @@ public class ExtensionFactory {
     /**
      * If there are help files within the extension, they are loaded and merged
      * with existing help files if the core help was correctly loaded.
+     * @param ext the extension being initialised
      */
     private static void intitializeHelpSet(Extension ext) {
         HelpBroker hb = ExtensionHelp.getHelpBroker();
@@ -417,7 +418,6 @@ public class ExtensionFactory {
      * </pre>
      *
      * The URL of the first existent resource is returned.
-     * </p>
      *
      * @param cl the class loader that will be used to get the resource,
      * {@code null} the system class loader is used.

@@ -337,8 +337,8 @@ public class AttackModeScanner implements EventConsumer {
 		}
 		
 		/**
-		 * Returns true if any of the scan threads are currently active
-		 * @return
+		 * Tells whether or not any of the scan threads are currently active.
+		 * @return {@code true} if there's at least one scan active, {@code false} otherwise
 		 */
 		public boolean isActive() {
 			synchronized (this.scanners) {

@@ -66,6 +66,7 @@
 // ZAP: 2016/06/07 Use filter directory in ZAP's home directory
 // ZAP: 2016/06/13 Migrate config option "proxy.modifyAcceptEncoding" 
 // ZAP: 2016/07/07 Convert passive scanners options to new structure
+// ZAP: 2016/09/22 JavaDoc tweaks
 
 package org.parosproxy.paros;
 
@@ -869,13 +870,12 @@ public final class Constant {
 	}
 
     /**
-     * Returns the system's {@code Locale} (as determined by the JVM at startup, {@code Locale#getDefault()}). Should be used to
+     * Returns the system's {@code Locale} (as determined by the JVM at startup, {@link Locale#getDefault()}). Should be used to
      * show locale dependent information in the system's locale.
      * <p>
      * <strong>Note:</strong> The default locale is overridden with the ZAP's user defined locale/language.
      *
      * @return the system's {@code Locale}
-     * @see Locale#getDefault()
      * @see Locale#setDefault(Locale)
      */
     public static Locale getSystemsLocale() {
@@ -1114,7 +1114,9 @@ public final class Constant {
     }
     
     /**
-     * Returns true if running on Kali and not a daily build 
+     * Tells whether or not ZAP is running in Kali (and it's not a daily build).
+     *
+     * @return {@code true} if running in Kali (and it's not daily build), {@code false} otherwise
      */
 	public static boolean isKali() {
 		if (onKali == null) {

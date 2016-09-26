@@ -37,7 +37,9 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 	private static final long serialVersionUID = 1L;
 
     /**
-     * @param label
+     * Constructs a {@code PopupMenuShowAlerts} with the given label.
+     * 
+     * @param label the text shown in the pop up menu
      */
     public PopupMenuShowAlerts(String label) {
         super(label);

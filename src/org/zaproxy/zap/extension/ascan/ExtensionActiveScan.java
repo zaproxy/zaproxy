@@ -207,6 +207,7 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     /**
      * Start the scanning process beginning to a specific node 
      * @param startNode the start node where the scanning should begin to work
+     * @return the ID of the scan
      */
     public int startScan(SiteNode startNode) {
     	return this.startScan(new Target(startNode, true));
