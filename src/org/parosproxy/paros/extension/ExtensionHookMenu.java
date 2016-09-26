@@ -26,6 +26,7 @@
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts
 // ZAP: 2014/05/02 Fixed method links in Javadocs
 // ZAP: 2014/11/11 Issue 1406: Move online menu items to an add-on
+// ZAP: 2016/09/26 JavaDoc tweaks
 
 package org.parosproxy.paros.extension;
 
@@ -98,8 +99,9 @@ public class ExtensionHookMenu {
 
     
     /**
-     * Get the plugin popup menu used for the whole workbench.
-     * @return
+     * Gets the popup menu items used for the whole workbench.
+     * 
+     * @return a {@code List} containing the popup menu items of the extension
      */
     List<JMenuItem> getPopupMenus() {
         return popupMenuList;
@@ -119,6 +121,7 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the File menu
+     * @param menuItem the file menu item
      *
      * @deprecated use {@link #addFileMenuItem(ZapMenuItem menuItem)} instead.
      */
@@ -129,6 +132,7 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the Edit menu
+     * @param menuItem the edit menu item
      *
      * @deprecated use {@link #addEditMenuItem(ZapMenuItem menuItem)} instead.
      */
@@ -139,6 +143,7 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the View menu
+     * @param menuItem the view menu item
      *
      * @deprecated use {@link #addViewMenuItem(ZapMenuItem menuItem)} instead.
      */
@@ -149,6 +154,7 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the Analyse menu
+     * @param menuItem the analyse menu item
      *
      * @deprecated use {@link #addAnalyseMenuItem(ZapMenuItem menuItem)} instead.
      */
@@ -159,6 +165,7 @@ public class ExtensionHookMenu {
 
     /**
      * Add a menu item to the Tools menu
+     * @param menuItem the tools menu item
      *
      * @deprecated use {@link #addToolsMenuItem(ZapMenuItem menuItem)} instead.
      */
@@ -195,7 +202,7 @@ public class ExtensionHookMenu {
     /**
      * Add a popup menu item used for the whole workbench.  Conditions can be set in PluginMenu
      * when the popup menu can be used.
-     * @param menuItem
+     * @param menuItem the popup menu item
      */
     public void addPopupMenuItem(ExtensionPopupMenuItem menuItem) {
         getPopupMenus().add(menuItem);        
@@ -208,6 +215,7 @@ public class ExtensionHookMenu {
     
     /**
      * Add a menu item to the Help menu
+     * @param menuItem the help menu item
      *
      * @deprecated use {@link #addHelpMenuItem(ZapMenuItem menuItem)} instead.
      */
@@ -218,6 +226,7 @@ public class ExtensionHookMenu {
     
     /**
      * Add a menu item to the Report menu
+     * @param menuItem the report menu item
      *
      * @deprecated use {@link #addReportMenuItem(ZapMenuItem menuItem)} instead.
      */

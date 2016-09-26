@@ -84,10 +84,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         this.add(new JScrollPane(getPanelScanner()));
     }
 
-    /**
-     * 
-     * @return 
-     */
     private JPanel getPanelScanner() {
         if (panelScanner == null) {
             panelScanner = new JPanel();
@@ -186,10 +182,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     	
     }
 
-    /**
-     * 
-     * @param obj 
-     */
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
@@ -213,20 +205,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
 
     }
 
-    /**
-     * 
-     * @param obj 
-     */
     @Override
     public void validateParam(Object obj) {
         // no validation needed
     }
 
-    /**
-     * 
-     * @param obj
-     * @throws Exception 
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
@@ -309,19 +292,11 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return sliderDelayInMs;
     }
 
-    /**
-     * 
-     * @return 
-     */
-    public int getDelayInMs() {
+    private int getDelayInMs() {
         return this.sliderDelayInMs.getValue();
     }
 
-    /**
-     * 
-     * @param value 
-     */
-    public void setLabelDelayInMsValue(int value) {
+    private void setLabelDelayInMsValue(int value) {
         if (labelDelayInMsValue == null) {
             labelDelayInMsValue = new JLabel();
         }
@@ -346,11 +321,7 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         labelDelayInMsValue.setText(val);
     }
 
-    /**
-     * 
-     * @return 
-     */
-    public JLabel getLabelDelayInMsValue() {
+    private JLabel getLabelDelayInMsValue() {
         if (labelDelayInMsValue == null) {
             setLabelDelayInMsValue(getSliderDelayInMs().getValue());
         }
@@ -387,10 +358,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
         return spinnerMaxChartTime;
     }
 
-    /**
-     * 
-     * @return 
-     */
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.options.ascan";

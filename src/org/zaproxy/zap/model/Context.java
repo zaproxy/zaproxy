@@ -296,10 +296,10 @@ public class Context {
 	}
 
 	/**
-	 * Fills a given list with nodes in scope, searching recursively.
+	 * Tells whether or not the given node or any of its child nodes are in context.
 	 * 
-	 * @param rootNode the root node
-	 * @param nodesList the nodes list
+	 * @param node the node to start the check
+	 * @return {@code true} if at least one node is in context, {@code false} otherwise
 	 */
 	private boolean isContainsNodesInContext(SiteNode node) {
 		if (isInContext(node)) {
