@@ -21,12 +21,10 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.swing.text.BadLocationException;
-
-import org.apache.log4j.Logger;
 import org.zaproxy.zap.extension.httppanel.view.impl.models.http.response.ResponseHeaderStringHttpPanelViewModel;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextArea;
 import org.zaproxy.zap.extension.httppanel.view.syntaxhighlight.HttpPanelSyntaxHighlightTextView;
+import org.zaproxy.zap.extension.httppanel.view.util.HttpTextViewUtils;
 import org.zaproxy.zap.extension.search.SearchMatch;
 
 public class HttpResponseHeaderPanelSyntaxHighlightTextView extends HttpPanelSyntaxHighlightTextView {
@@ -44,8 +42,6 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView extends HttpPanelSyn
 
 		private static final long serialVersionUID = 6197189781594557597L;
 		
-		private static final Logger log = Logger.getLogger(HttpResponseHeaderPanelSyntaxHighlightTextArea.class);
-
 		//private static final String HTTP_RESPONSE_HEADER = "HTTP Response Header";
 		
 		//private static final String SYNTAX_STYLE_HTTP_RESPONSE_HEADER = "text/http-response-header";
@@ -60,33 +56,15 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView extends HttpPanelSyn
 		
 		@Override
 		public void search(Pattern p, List<SearchMatch> matches) {
-			int start;
-			int end;
 			Matcher m = p.matcher(getText());
 			while (m.find()) {
 
-				//This only happens in the Request/Response Header
-				//As we replace all \r\n with \n we must add one character
-				//for each line until the line where the match is.
-				start = m.start();
-				try {
-					start += getLineOfOffset(start);
-				} catch (BadLocationException e) {
-					//Shouldn't happen, but in case it does log it and return.
-					log.error(e.getMessage(), e);
-					return;
-				}
-
-				end = m.end();
-				try {
-					end += getLineOfOffset(end);
-				} catch (BadLocationException e) {
-					//Shouldn't happen, but in case it does log it and return.
-					log.error(e.getMessage(), e);
+				int[] position = HttpTextViewUtils.getViewToHeaderPosition(this, m.start(), m.end());
+				if (position.length == 0) {
 					return;
 				}
 				
-				matches.add(new SearchMatch(SearchMatch.Location.REQUEST_HEAD, start, end));
+				matches.add(new SearchMatch(SearchMatch.Location.RESPONSE_HEAD, position[0], position[1]));
 			}
 		}
 		
@@ -96,23 +74,15 @@ public class HttpResponseHeaderPanelSyntaxHighlightTextView extends HttpPanelSyn
 				return;
 			}
 			
-			//As we replace all \r\n with \n we must subtract one character
-			//for each line until the line where the selection is.
-			int t = 0;
-			String header = sm.getMessage().getResponseHeader().toString();
-			
-			int pos = 0;
-			while ((pos = header.indexOf("\r\n", pos)) != -1 && pos < sm.getStart()) {
-				pos += 2;
-				++t;
-			}
-			
-			int len = this.getText().length();
-			if (sm.getStart()-t > len || sm.getEnd()-t > len) {
+			int[] pos = HttpTextViewUtils.getHeaderToViewPosition(
+					this,
+					sm.getMessage().getResponseHeader().toString(),
+					sm.getStart(),
+					sm.getEnd());
+			if (pos.length == 0) {
 				return;
 			}
-			
-			highlight(sm.getStart()-t, sm.getEnd()-t);
+			highlight(pos[0], pos[1]);
 		}
 
 		@Override
