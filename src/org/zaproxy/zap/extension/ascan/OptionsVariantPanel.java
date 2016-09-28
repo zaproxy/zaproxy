@@ -90,10 +90,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.add(getPanelScanner(), getPanelScanner().getName());
     }
 
-    /**
-     * 
-     * @return 
-     */
     private JPanel getPanelScanner() {
         if (panelVariant == null) {
             panelVariant = new JPanel();
@@ -184,10 +180,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         return panelVariant;
     }
 
-    /**
-     * 
-     * @param obj 
-     */
     @Override
     public void initParam(Object obj) {
         OptionsParam options = (OptionsParam) obj;
@@ -196,8 +188,9 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     }    
     
     /**
-     * 
-     * @param param 
+     * Initialises the panel (that is, the options shown in it) with the given options.
+     *
+     * @param param the options to initialise the panel
      */
     public void initParam(ScannerParam param) {        
         // Set targets and RPC selections
@@ -225,20 +218,11 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         this.getExcludedParameterModel().setTokens(param.getExcludedParamList());
     }
 
-    /**
-     * 
-     * @param obj 
-     */
     @Override
     public void validateParam(Object obj) {
         // no validation needed
     }
 
-    /**
-     * 
-     * @param obj
-     * @throws Exception 
-     */
     @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
@@ -247,9 +231,9 @@ public class OptionsVariantPanel extends AbstractParamPanel {
     }
 
     /**
-     * Save the current parameters to the param object
+     * Saves the options shown in the panel to the given options object.
      * 
-     * @param param
+     * @param param the options object where to save the options shown
      */
     public void saveParam(ScannerParam param) {        
         // Set Injectable Targets
@@ -347,10 +331,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         return excludedParamModel;
     }
     
-    /**
-     * 
-     * @return 
-     */
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.options.ascaninput";
@@ -485,10 +465,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
         private ExcludedParameterAddDialog addDialog = null;
         private ExcludedParameterModifyDialog modifyDialog = null;
 
-        /**
-         * 
-         * @param model 
-         */
         public ExcludedParameterPanel(ExcludedParameterTableModel model) {
             super(model);
             getTable().setSortOrder(0, SortOrder.ASCENDING);
@@ -497,10 +473,6 @@ public class OptionsVariantPanel extends AbstractParamPanel {
             getTable().getColumnModel().getColumn(2).setPreferredWidth(200);
         }
 
-        /**
-         * 
-         * @return 
-         */
         @Override
         public ScannerParamFilter showAddDialogue() {
             if (addDialog == null) {

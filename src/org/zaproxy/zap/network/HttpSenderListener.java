@@ -55,8 +55,6 @@ public interface HttpSenderListener {
      * the value is {@code false} the message <i>will not</i> be forwarded and
      * no more listeners will be notified.
      * <p>
-     * 
-     * <p>
      * <strong>Note:</strong> In the presence of more than one listener there
      * are <i>no</i> guarantees that:
      * <ul>
@@ -68,10 +66,11 @@ public interface HttpSenderListener {
      * <li>the {@code int} {@code initiator} as defined in the {@code HttpSender}
      * class. </li>
      * </ul>
-     * </p>
      * 
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the server
+     * @param initiator the ID of the entity that's sending the message
+     * @param sender the sender of the message
      */
     void onHttpRequestSend(HttpMessage msg, int initiator, HttpSender sender);
 
@@ -85,8 +84,6 @@ public interface HttpSenderListener {
      * the value is {@code false} the message <i>will not</i> be forwarded and
      * no more listeners will be notified.
      * <p>
-     * 
-     * <p>
      * <strong>Note:</strong> In the presence of more than one listener there
      * are <i>no</i> guarantees that:
      * <ul>
@@ -98,10 +95,11 @@ public interface HttpSenderListener {
      * <li>the {@code int} {@code initiator} as defined in the {@code HttpSender}
      * class. </li>
      * </ul>
-     * </p>
      * 
      * @param msg
      *            the {@code HttpMessage} that may be forwarded to the client
+     * @param initiator the ID of the entity that's sending the message
+     * @param sender the sender of the message
      */
     void onHttpResponseReceive(HttpMessage msg, int initiator, HttpSender sender);
 

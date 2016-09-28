@@ -20,6 +20,7 @@
  */
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/04/16 Issue 638: Persist and snapshot sessions instead of saving them
+// ZAP: 2016/09/26 JavaDoc tweaks
 
 package org.parosproxy.paros.model;
 
@@ -29,6 +30,7 @@ public interface SessionListener {
 
     /**
      * Callback method when a session was opened.
+     * @param file the {@code File} of the session
      * @param e = exception thrown during session opening.  null = no exception.
      */
     void sessionOpened(File file, Exception e);

@@ -215,16 +215,24 @@ public class DatabaseParam extends AbstractParam {
     }
 
     /**
-     * Gets the new session option
-     * @return
+     * Gets the new session option.
+     * 
+     * @return the value of the new session option
+     * @see #setNewSessionOption(int)
      */
 	public int getNewSessionOption() {
 		return newSessionOption;
 	}
 
 	/**
-	 * Sets the new session option
-	 * @param newSessionOption
+	 * Sets the new session option.
+	 * 
+	 * @param newSessionOption the value of the new session option
+	 * @see #getNewSessionOption()
+	 * @see #NEW_SESSION_NOT_SPECIFIED
+	 * @see #NEW_SESSION_TIMESTAMPED
+	 * @see #NEW_SESSION_USER_SPECIFIED
+	 * @see #NEW_SESSION_TEMPORARY
 	 */
 	public void setNewSessionOption(int newSessionOption) {
 		this.newSessionOption = newSessionOption;
