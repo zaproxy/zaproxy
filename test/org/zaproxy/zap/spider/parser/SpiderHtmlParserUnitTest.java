@@ -406,7 +406,6 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
         assertThat(listener.getNumberOfUrlsFound(), is(equalTo(9)));
-        System.err.println(listener.getUrlsFound());
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -451,7 +450,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
         // Then
         assertThat(completelyParsed, is(equalTo(false)));
-        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(7)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(10)));
         assertThat(
                 listener.getUrlsFound(),
                 contains(
@@ -460,6 +459,9 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
                         "http://plaincomment.example.com/c.pl?x=y",
                         "https://plaincomment.example.com/d.asp?x=y",
                         "https://plaincomment.example.com/e/e1/e2.html?x=y",
+                        "https://plaincomment.example.com/surrounded/with/parenthesis",
+                        "https://plaincomment.example.com/surrounded/with/brackets",
+                        "https://plaincomment.example.com/surrounded/with/curly/brackets",
                         "http://plaincomment.example.com/variant1",
                         "http://plaincomment.example.com/variant2"));
     }
