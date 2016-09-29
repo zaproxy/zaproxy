@@ -29,8 +29,9 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 
 
 RUN gem install zapr
-RUN pip install python-owasp-zap-v2.4
 RUN pip install zapcli
+# Install latest dev version of the python API
+RUN pip install https://github.com/zaproxy/zap-api-python/releases/download/0.0.9.dev1/python-owasp-zap-v2.4-0.0.9.dev1.tar.gz
 
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd
