@@ -79,6 +79,7 @@ def usage():
     print ('    -g gen_file       generate default config file (all rules set to WARN)')
     print ('    -m mins           the number of minutes to spider for (default 1)')
     print ('    -r report_html    file to write the full ZAP HTML report')
+    print ('    -w report_md      file to write the full ZAP Wiki (Markdown) report')
     print ('    -x report_xml     file to write the full ZAP XML report')
     print ('    -a                include the alpha passive scan rules as well')
     print ('    -d                show debug messages')
@@ -142,6 +143,7 @@ def main(argv):
   port = 0
   detailed_output = True
   report_html = ''
+  report_md = ''
   report_xml = ''
   target = ''
   zap_alpha = False
@@ -158,7 +160,7 @@ def main(argv):
   ignore_count = 0
 
   try:
-    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:x:l:daijsz:")
+    opts, args = getopt.getopt(argv,"t:c:u:g:m:r:w:x:l:daijsz:")
   except getopt.GetoptError, exc:
     logging.warning ('Invalid option ' + exc.opt + ' : ' + exc.msg)
     usage()
@@ -180,6 +182,8 @@ def main(argv):
       mins = int(arg)
     elif opt == '-r':
       report_html = arg
+    elif opt == '-w':
+      report_md = arg
     elif opt == '-x':
       report_xml = arg
     elif opt == '-a':
@@ -451,6 +455,11 @@ def main(argv):
         # Save the report
         with open(base_dir + report_html, 'w') as f:
           f.write (zap.core.htmlreport())
+
+      if len(report_md) > 0:
+        # Save the report
+        with open(base_dir + report_md, 'w') as f:
+          f.write (zap.core.mdreport())
 
       if len(report_xml) > 0:
         # Save the report
