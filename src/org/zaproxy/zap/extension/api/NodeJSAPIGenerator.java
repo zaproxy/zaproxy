@@ -58,6 +58,7 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
         initMap.put("boolean", "bool");
+        initMap.put("continue", "cont");
         nameMap = Collections.unmodifiableMap(initMap);
     }
 
