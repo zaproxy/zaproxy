@@ -66,11 +66,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowStartGreaterThanLengthWhenGettingHeaderToViewPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingHeaderToViewPosition() {
         // Given / When
-        HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, HEADER_LENGTH + 1, HEADER_LENGTH + 2);
-        // Then = IllegalArgumentException
+        int pos[] = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, HEADER_LENGTH + 1, HEADER_LENGTH + 2);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -80,11 +81,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowEndGreaterThanLengthWhenGettingHeaderToViewPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingHeaderToViewPosition() {
         // Given / When
-        HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 0, HEADER_LENGTH + 1);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getHeaderToViewPosition(VIEW, HEADER, 0, HEADER_LENGTH + 1);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -207,11 +209,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowStartGreaterThanLengthWhenGettingViewToHeaderPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderPosition() {
         // Given / When
-        HttpTextViewUtils.getViewToHeaderPosition(VIEW, VIEW_LENGTH + 1, VIEW_LENGTH + 2);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, VIEW_LENGTH + 1, VIEW_LENGTH + 2);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -221,11 +224,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowEndGreaterThanLengthWhenGettingViewToHeaderPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderPosition() {
         // Given / When
-        HttpTextViewUtils.getViewToHeaderPosition(VIEW, 0, VIEW_LENGTH + 1);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getViewToHeaderPosition(VIEW, 0, VIEW_LENGTH + 1);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -333,11 +337,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowStartGreaterThanLengthWhenGettingBodyToViewPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingBodyToViewPosition() {
         // Given / When
-        HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, VIEW_WITH_BODY_LENGTH + 1, VIEW_WITH_BODY_LENGTH + 2);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, VIEW_WITH_BODY_LENGTH + 1, VIEW_WITH_BODY_LENGTH + 2);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -347,11 +352,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowEndGreaterThanLengthWhenGettingBodyToViewPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingBodyToViewPosition() {
         // Given / When
-        HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getBodyToViewPosition(VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -434,12 +440,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowStartGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfStartGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
         // Given / When
-        HttpTextViewUtils
-                .getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, VIEW_WITH_BODY_LENGTH + 1, VIEW_WITH_BODY_LENGTH + 2);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, VIEW_WITH_BODY_LENGTH + 1, VIEW_WITH_BODY_LENGTH + 2);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -449,11 +455,12 @@ public class HttpTextViewUtilsUnitTest {
         // Then = IllegalArgumentException
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void shouldNotAllowEndGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
+    @Test
+    public void shouldReturnInvalidPositionIfEndGreaterThanLengthWhenGettingViewToHeaderBodyPosition() {
         // Given / When
-        HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
-        // Then = IllegalArgumentException
+        int[] pos = HttpTextViewUtils.getViewToHeaderBodyPosition(VIEW_WITH_BODY, HEADER, 0, VIEW_WITH_BODY_LENGTH + 1);
+        // Then
+        assertThat(pos, is(equalTo(HttpTextViewUtils.INVALID_POSITION)));
     }
 
     @Test(expected = IllegalArgumentException.class)

@@ -54,8 +54,8 @@ public final class HttpTextViewUtils {
      * @param header the header shown in the view
      * @param start the start position
      * @param end the end position
-     * @return the positions offset for the {@code view}, or {@link #INVALID_POSITION} if the offset positions are greater than
-     *         {@code view}'s length.
+     * @return the positions offset for the {@code view}, or {@link #INVALID_POSITION} if the {@code start}, {@code end} or
+     *         offset positions are greater than {@code view}'s length.
      * @throws IllegalArgumentException if any of the conditions is true:
      *             <ul>
      *             <li>the {@code view} is {@code null} or it has no {@link JTextArea#getDocument() Document};</li>
@@ -70,7 +70,11 @@ public final class HttpTextViewUtils {
     public static int[] getHeaderToViewPosition(JTextArea view, String header, int start, int end) {
         validateView(view);
         validateHeader(header);
-        validateStartEnd(start, end, header.length());
+        validateStartEnd(start, end);
+
+        if (!isValidStartEndForLength(start, end, header.length())) {
+            return INVALID_POSITION;
+        }
 
         int excessChars = 0;
 
@@ -131,15 +135,14 @@ public final class HttpTextViewUtils {
      * 
      * @param start the start position to be validated
      * @param end the end position to be validated
-     * @param length the length of the contents
      * @throws IllegalArgumentException if any of the conditions is true:
      *             <ul>
-     *             <li>the {@code start} position is negative or greater than {@code length};</li>
-     *             <li>the {@code end} position is negative or greater than {@code length};</li>
+     *             <li>the {@code start} position is negative;</li>
+     *             <li>the {@code end} position is negative;</li>
      *             <li>the {@code start} position is greater than the {@code end} position.</li>
      *             </ul>
      */
-    private static void validateStartEnd(int start, int end, int length) {
+    private static void validateStartEnd(int start, int end) {
         if (start < 0) {
             throw new IllegalArgumentException("Parameter start must not be negative.");
         }
@@ -149,12 +152,22 @@ public final class HttpTextViewUtils {
         if (start > end) {
             throw new IllegalArgumentException("Parameter start must not be greater than end.");
         }
-        if (start > length) {
-            throw new IllegalArgumentException("Parameter start must not be greater than the length.");
+    }
+
+    /**
+     * Tells whether or not the given start and end are valid for the given length, that is both start and end are lower that
+     * the length.
+     *
+     * @param start the start position to be validated
+     * @param end the end position to be validated
+     * @param length the length of the contents
+     * @return {@code true} if the start and end positions are lower than the length, {@code false} otherwise.
+     */
+    private static boolean isValidStartEndForLength(int start, int end, int length) {
+        if (start > length || end > length) {
+            return false;
         }
-        if (end > length) {
-            throw new IllegalArgumentException("Parameter end must not be greater than the length.");
-        }
+        return true;
     }
 
     /**
@@ -168,8 +181,8 @@ public final class HttpTextViewUtils {
      * @param header the header shown in the view
      * @param start the start position
      * @param end the end position
-     * @return the positions offset for the {@code view}, or {@link #INVALID_POSITION} if the start and end positions are
-     *         greater than body's length.
+     * @return the positions offset for the {@code view}, or {@link #INVALID_POSITION} if the {@code start} and {@code end}
+     *         positions are greater than the length of the body or the {@code view}.
      * @throws IllegalArgumentException if any of the conditions is true:
      *             <ul>
      *             <li>the {@code view} is {@code null} or it has no {@link JTextArea#getDocument() Document};</li>
@@ -184,7 +197,11 @@ public final class HttpTextViewUtils {
     public static int[] getBodyToViewPosition(JTextArea view, String header, int start, int end) {
         validateView(view);
         validateHeader(header);
-        validateStartEnd(start, end, view.getDocument().getLength());
+        validateStartEnd(start, end);
+
+        if (!isValidStartEndForLength(start, end, view.getDocument().getLength())) {
+            return INVALID_POSITION;
+        }
 
         int excessChars = 0;
 
@@ -215,12 +232,13 @@ public final class HttpTextViewUtils {
      * @param view the view that contains the contents of a header
      * @param start the start position
      * @param end the end position
-     * @return the positions offset for the header
+     * @return the positions offset for the header, or {@link #INVALID_POSITION} if the {@code start} or {@code end} is greater
+     *         than the length of the {@code view}
      * @throws IllegalArgumentException if any of the conditions is true:
      *             <ul>
      *             <li>the {@code view} is {@code null} or it has no {@link JTextArea#getDocument() Document};</li>
-     *             <li>the {@code start} position is negative or greater than the length of the {@code view};</li>
-     *             <li>the {@code end} position is negative or greater than the length of the {@code view};</li>
+     *             <li>the {@code start} position is negative;</li>
+     *             <li>the {@code end} position is negative;</li>
      *             <li>the {@code start} position is greater than the {@code end} position.</li>
      *             </ul>
      * @see #getHeaderToViewPosition(JTextArea, String, int, int)
@@ -228,7 +246,12 @@ public final class HttpTextViewUtils {
      */
     public static int[] getViewToHeaderPosition(JTextArea view, int start, int end) {
         validateView(view);
-        validateStartEnd(start, end, view.getDocument().getLength());
+        validateStartEnd(start, end);
+
+        if (!isValidStartEndForLength(start, end, view.getDocument().getLength())) {
+            return INVALID_POSITION;
+        }
+
         return getViewToHeaderPositionImpl(view, start, end);
     }
 
@@ -247,7 +270,8 @@ public final class HttpTextViewUtils {
      * @param end the end position
      * @return the positions offset for the header
      * @see #validateView(JTextArea)
-     * @see #validateStartEnd(int, int, int)
+     * @see #validateStartEnd(int, int)
+     * @see #isValidStartEndForLength(int, int, int)
      */
     private static int[] getViewToHeaderPositionImpl(JTextArea view, int start, int end) {
         int finalStartPos = start;
@@ -282,19 +306,24 @@ public final class HttpTextViewUtils {
      * @param start the start position
      * @param end the end position
      * @return the positions offset for the header or, 3 positions, for after the body (the third position is just to indicate
-     *         that it's the body, the value is meaningless)
+     *         that it's the body, the value is meaningless), or {@link #INVALID_POSITION} if the {@code start} or {@code end}
+     *         is greater than the length of the {@code view}
      * @throws IllegalArgumentException if any of the conditions is true:
      *             <ul>
      *             <li>the {@code view} is {@code null} or it has no {@link JTextArea#getDocument() Document};</li>
-     *             <li>the {@code start} position is negative or greater than the length of the {@code view};</li>
-     *             <li>the {@code end} position is negative or greater than the length of the {@code view};</li>
+     *             <li>the {@code start} position is negative;</li>
+     *             <li>the {@code end} position is negative;</li>
      *             <li>the {@code start} position is greater than the {@code end} position.</li>
      *             </ul>
      */
     public static int[] getViewToHeaderBodyPosition(JTextArea view, String header, int start, int end) {
         validateView(view);
         validateHeader(header);
-        validateStartEnd(start, end, view.getDocument().getLength());
+        validateStartEnd(start, end);
+
+        if (!isValidStartEndForLength(start, end, view.getDocument().getLength())) {
+            return INVALID_POSITION;
+        }
 
         int excessChars = 0;
         int pos = 0;
