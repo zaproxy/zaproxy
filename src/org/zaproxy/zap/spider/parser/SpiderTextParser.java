@@ -34,12 +34,6 @@ public class SpiderTextParser extends SpiderParser {
 	/** The Constant urlPattern defining the pattern for an url. */
 	private static final Pattern patternURL = Pattern.compile("\\W(http(s?)://[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+)", Pattern.CASE_INSENSITIVE);
 
-	public static void main(String[] args) {
-        for (char x = 00; x <= 0x1f; x++) {
-            System.err.println(x);
-        }
-    }
-	
 	@Override
 	public boolean parseResource(HttpMessage message, Source source, int depth) {
 		log.debug("Parsing a non-HTML text resource.");
