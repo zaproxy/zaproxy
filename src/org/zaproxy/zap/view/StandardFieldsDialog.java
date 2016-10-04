@@ -104,38 +104,73 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	private boolean hideOnSave;
 
 	/**
-	 * For backwards binary compatibility
-	 * @param owner
-	 * @param titleLabel
-	 * @param dim
+	 * Constructs a {@code StandardFieldsDialog} with the given owner, title and dimensions.
+	 * 
+	 * @param owner the owner of the dialogue
+	 * @param titleLabel the title of the dialogue
+	 * @param dim the dimensions of the dialogue
 	 */
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim) {
 		this((Window)owner, titleLabel, dim);
 	}
 
+	/**
+	 * Constructs a {@code StandardFieldsDialog} with the given owner, title, dimensions and whether or not it's modal.
+	 * 
+	 * @param owner the owner of the dialogue
+	 * @param titleLabel the title of the dialogue
+	 * @param dim the dimensions of the dialogue
+	 * @param modal {@code true} if the dialogue should be modal, {@code false} otherwise
+	 */
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, boolean modal) {
 		this(owner, titleLabel, dim, null, modal);
 	}
 
+	/**
+	 * Constructs a {@code StandardFieldsDialog} with the given owner, title and dimensions.
+	 * 
+	 * @param owner the owner of the dialogue
+	 * @param titleLabel the title of the dialogue
+	 * @param dim the dimensions of the dialogue
+	 */
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim) {
 		this(owner, titleLabel, dim, null);
 	}
 
 	/**
-	 * For backwards binary compatibility
-	 * @param owner
-	 * @param titleLabel
-	 * @param dim
-	 * @param tabLabels
+	 * Constructs a {@code StandardFieldsDialog} with the given owner, title, dimensions and tab names.
+	 * 
+	 * @param owner the owner of the dialogue
+	 * @param titleLabel the title of the dialogue
+	 * @param dim the dimensions of the dialogue
+	 * @param tabLabels the names of the tabs
 	 */
 	public StandardFieldsDialog(Frame owner, String titleLabel, Dimension dim, String[] tabLabels) {
 		this((Window)owner, titleLabel, dim, tabLabels);
 	}
 	
+	/**
+	 * Constructs a {@code StandardFieldsDialog} with the given owner, title, dimensions and tab names.
+	 * 
+	 * @param owner the owner of the dialogue
+	 * @param titleLabel the title of the dialogue
+	 * @param dim the dimensions of the dialogue
+	 * @param tabLabels the names of the tabs
+	 */
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels) {
 		this(owner, titleLabel, dim, tabLabels, false);
 	}
 
+	/**
+	 * Constructs a {@code StandardFieldsDialog} with the given owner, title, dimensions, tab names and whether or not it's
+	 * modal.
+	 * 
+	 * @param owner the owner of the dialogue
+	 * @param titleLabel the title of the dialogue
+	 * @param dim the dimensions of the dialogue
+	 * @param tabLabels the names of the tabs
+	 * @param modal {@code true} if the dialogue should be modal, {@code false} otherwise
+	 */
 	public StandardFieldsDialog(Window owner, String titleLabel, Dimension dim, String[] tabLabels, boolean modal) {
 		super(owner, modal);
 		this.setTitle(Constant.messages.getString(titleLabel));
@@ -293,7 +328,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	
 	/**
 	 * Override if you need to add extra buttons inbetween the Cancel and Save ones
-	 * @return
+	 * @return an array with the extra buttons, or {@code null} if none needed.
 	 */
 	public JButton[] getExtraButtons () {
 		return null;
@@ -671,7 +706,7 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	/**
 	 * Add a table field.
 	 * @param fieldLabel If null then the table will be full width
-	 * @param field
+	 * @param field the table field
 	 * @param buttons if not null then the buttons will be added to the right of the table
 	 */
 	public void addTableField(String fieldLabel, JTable field, List<JButton> buttons) {
@@ -1143,15 +1178,27 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.incTabOffset(tabIndex);
 	}
 
-	/*
-	 * Override to do something useful
+	/**
+	 * Notifies that a site node was selected.
+	 * <p>
+	 * By default it does nothing.
+	 * 
+	 * @param field the name of the field that triggered the selection
+	 * @param node the node selected
+	 * @see #addNodeSelectField(String, SiteNode, boolean, boolean)
 	 */
 	public void siteNodeSelected(String field, SiteNode node) {
 		
 	}
 
-	/*
-	 * Override to do something useful
+	/**
+	 * Notifies that a target was selected.
+	 * <p>
+	 * By default it does nothing.
+	 * 
+	 * @param field the name of the field that triggered the selection
+	 * @param target the target selected
+	 * @see #addTargetSelectField(int, String, Target, boolean, boolean)
 	 */
 	public void targetSelected(String field, Target target) {
 		
@@ -1159,8 +1206,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 
 	/**
 	 * Allow the caller to get the field component in order to, for example, change its properties
-	 * @param fieldLabel
-	 * @return
+	 * @param fieldLabel the name of the field
+	 * @return the field, or {@code null} if there's no field with the given name
 	 */
 	public Component getField(String fieldLabel) {
 		return this.fieldMap.get(fieldLabel);
@@ -1418,8 +1465,8 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 	/**
 	 * Set the visibility of the specified tabs.
 	 * The labels must have been used to create the tabs in the constructor
-	 * @param tabLabels
-	 * @param visible
+	 * @param tabLabels the names of the tabs
+	 * @param visible {@code true} if the tabs should be visible, {@code false} otherwise
 	 */
     public void setTabsVisible(String[] tabLabels, boolean visible) {
     	if (visible) {
