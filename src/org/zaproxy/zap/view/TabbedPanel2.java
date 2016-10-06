@@ -104,10 +104,13 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 	
 	/**
+	 * Clones the given tabbed panel.
+	 * 
+	 * @param tabbedPanel the tabbed panel to clone
+	 * @return the cloned tabbed panel
 	 * @deprecated (2.5.0) The implementation is not correct, not all state is correctly cloned.
 	 */
 	@Deprecated
-	@SuppressWarnings("javadoc")
 	public TabbedPanel2 clone(TabbedPanel2 tabbedPanel) {
 		TabbedPanel2 t = new TabbedPanel2();
 		t.fullTabList = new ArrayList<>(tabbedPanel.fullTabList);
@@ -149,9 +152,10 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 
 	/**
-	 * Returns a name save to be used in the XML config file
-	 * @param str
-	 * @return
+	 * Returns a name safe to be used in the XML config file.
+	 * 
+	 * @param str the name to be made safe
+	 * @return a name safe to be used in XML
 	 */
 	private String safeName(String str) {
 		return str.replaceAll("[^A-Za-z0-9]", "");
@@ -291,10 +295,12 @@ public class TabbedPanel2 extends TabbedPanel {
 	}
 	
 	/**
-	 * Temporarily lock/unlock the specified tab, eg if its active and mustnt be closed.
-	 * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed 
-	 * @param panel
-	 * @param hideable
+	 * Temporarily locks/unlocks the specified tab, eg if its active and mustn't be closed.
+	 * <p>
+	 * Locked (AbstractPanel) tabs will not have the pin/close tab buttons displayed.
+	 * 
+	 * @param panel the panel being changed
+	 * @param lock {@code true} if the panel should be locked, {@code false} otherwise.
 	 */
 	public void setTabLocked(AbstractPanel panel, boolean lock) {
         for (int i = 0; i < this.getTabCount(); i++) {
