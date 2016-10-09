@@ -393,11 +393,11 @@ public class GuiBootstrap extends ZapBootstrap {
     /**
      * Determines the {@link Locale} of the current user's system.
      * <p>
-     * It will match the {@link Constant#getSystemsLocale()} with the available locales from ZAPs translation files.
+     * It will match the {@link Constant#getSystemsLocale()} with the available locales from ZAP's translation files.
      * <p>
-     * It may return {@code null}, if the users system locale is not in the list of available translations of ZAP.
+     * It may return {@code null}, if the user's system locale is not in the list of available translations of ZAP.
      *
-     * @return
+     * @return the {@code Locale} that best matches the user's locale, or {@code null} if none found
      */
     private static Locale determineUsersSystemLocale() {
         Locale userloc = null;

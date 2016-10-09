@@ -1,5 +1,5 @@
 # This dockerfile builds the zap weekly release
-FROM ubuntu:15.04
+FROM ubuntu:16.04
 MAINTAINER Simon Bennetts "psiinon@gmail.com"
 
 RUN apt-get update && apt-get install -q -y --fix-missing \
@@ -27,10 +27,11 @@ RUN apt-get update && apt-get install -q -y --fix-missing \
 	apt-get clean && \
 	rm -rf /var/lib/apt/lists/*
 
-
+RUN pip install --upgrade pip
 RUN gem install zapr
-RUN pip install python-owasp-zap-v2.4
 RUN pip install zapcli
+# Install latest dev version of the python API
+RUN pip install https://github.com/zaproxy/zap-api-python/releases/download/0.0.9.dev1/python-owasp-zap-v2.4-0.0.9.dev1.tar.gz
 
 RUN useradd -d /home/zap -m -s /bin/bash zap 
 RUN echo zap:zap | chpasswd

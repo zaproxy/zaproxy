@@ -577,10 +577,6 @@ public class PolicyAllCategoryPanel extends AbstractParamPanel {
         return comboStrength;
     }
 
-    /**
-     * 
-     * @return 
-     */
     @Override
     public String getHelpIndex() {
         return "ui.dialogs.scanpolicy";

@@ -40,7 +40,7 @@ public class SpiderHtmlParser extends SpiderParser {
 	/** The Constant urlPattern defining the pattern for a meta url. */
 	private static final Pattern urlPattern = Pattern.compile("url\\s*=\\s*([^;]+)", Pattern.CASE_INSENSITIVE);
 	private static final Pattern PLAIN_COMMENTS_URL_PATTERN = Pattern
-			.compile("(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#]+", Pattern.CASE_INSENSITIVE);
+			.compile("(?:http(?:s?):)?//[^\\x00-\\x1f\"'\\s<>#()\\[\\]{}]+", Pattern.CASE_INSENSITIVE);
 
 	/** The params. */
 	private SpiderParam params;

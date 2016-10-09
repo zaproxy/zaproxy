@@ -32,6 +32,7 @@
 // ZAP: 2015/04/02 Issue 321: Support multiple databases and Issue 1582: Low memory option
 // ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
 // ZAP: 2016/08/19 Issue 2782: Support -configfile
+// ZAP: 2016/09/22 JavaDoc tweaks
 
 package org.parosproxy.paros;
 
@@ -361,14 +362,18 @@ public class CommandLine {
     }
 
     /**
-     * @return Returns the noGUI.
+     * Tells whether or not ZAP was started with GUI.
+     * 
+     * @return {@code true} if ZAP was started with GUI, {@code false} otherwise
      */
     public boolean isGUI() {
         return GUI;
     }
 
     /**
-     * @param GUI The noGUI to set.
+     * Sets whether or not ZAP was started with GUI.
+     * 
+     * @param GUI {@code true} if ZAP was started with GUI, {@code false} otherwise
      */
     public void setGUI(boolean GUI) {
         this.GUI = GUI;
@@ -451,10 +456,9 @@ public class CommandLine {
     }
     
     /**
-     * A method for reporting informational messages in CommandLineListener.execute(..) implementations.
-     * It ensures that messages are written to the log file and/or written to stdout as appropriate.
-     * @param str
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     * A method for reporting informational messages in {@link CommandLineListener#execute(CommandLineArgument[])}
+     * implementations. It ensures that messages are written to the log file and/or written to stdout as appropriate.
+     * @param str the informational message
      */
     public static void info(String str) {
     	switch (ZAP.getProcessType()) {
@@ -466,10 +470,9 @@ public class CommandLine {
     }
     
     /**
-     * A method for reporting error messages in CommandLineListener.execute(..) implementations.
+     * A method for reporting error messages in {@link CommandLineListener#execute(CommandLineArgument[])} implementations.
      * It ensures that messages are written to the log file and/or written to stderr as appropriate.
-     * @param str
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     * @param str the error message
      */
     public static void error(String str) {
     	switch (ZAP.getProcessType()) {
@@ -481,10 +484,10 @@ public class CommandLine {
     }
     
     /**
-     * A method for reporting error messages in CommandLineListener.execute(..) implementations.
+     * A method for reporting error messages in {@link CommandLineListener#execute(CommandLineArgument[])} implementations.
      * It ensures that messages are written to the log file and/or written to stderr as appropriate.
-     * @param str
-     * @see org.parosproxy.paros.extension.CommandLineListener#execute()
+     * @param str the error message
+     * @param e the cause of the error
      */
     public static void error(String str, Throwable e) {
     	switch (ZAP.getProcessType()) {

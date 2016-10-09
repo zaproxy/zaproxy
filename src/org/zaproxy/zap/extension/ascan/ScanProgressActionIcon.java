@@ -48,8 +48,9 @@ public class ScanProgressActionIcon extends JLabel {
     private ScanProgressItem item;
 
     /**
+     * Constructs a {@code ScanProgressActionIcon} for the given scan progress item.
      *
-     * @param plugin
+     * @param item the scan progress item
      */
     public ScanProgressActionIcon(ScanProgressItem item) {
         this.item = item;
@@ -60,8 +61,9 @@ public class ScanProgressActionIcon extends JLabel {
     }
 
     /**
+     * Updates this action icon with the given scan progress item.
      * 
-     * @param item 
+     * @param item new the scan progress item
      */
     public void updateStatus(ScanProgressItem item) {
         this.item = item;

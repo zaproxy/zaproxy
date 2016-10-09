@@ -46,6 +46,7 @@ public interface ScannerThreadManager<ScannerThread extends BaseScannerThread<?>
 
 	/**
 	 * Gets the all threads.
+	 * @return all scanner threads
 	 */
 	public Collection<ScannerThread> getAllThreads();
 

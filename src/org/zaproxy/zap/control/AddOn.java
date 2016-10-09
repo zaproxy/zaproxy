@@ -738,9 +738,9 @@ public class AddOn  {
 	
 	/**
 	 * @deprecated (2.4.0) Use {@link #calculateRunRequirements(Collection)} instead. Returns {@code false}.
+	 * @return {@code false} always.
 	 */
 	@Deprecated
-	@SuppressWarnings("javadoc")
 	public boolean canLoad() {
 		return false;
 	}

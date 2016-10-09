@@ -30,7 +30,9 @@ public class PopupMenuGenerateForm extends PopupMenuItemHistoryReferenceContaine
 	private static final long serialVersionUID = 1L;
 	
     /**
-     * @param label
+     * Constructs a {@code PopupMenuGenerateForm} with the given label.
+     * 
+     * @param label the text shown in the pop up menu
      */
     public PopupMenuGenerateForm(String label) {
     	super(label);

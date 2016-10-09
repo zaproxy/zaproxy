@@ -1848,7 +1848,6 @@ public abstract class HttpMethodBase implements HttpMethod {
      * Subclasses may want to override one or more of the above methods to to
      * customize the processing. (Or they may choose to override this method
      * if dramatically different processing is required.)
-     * </p>
      *
      * @param state the {@link HttpState state} information associated with this method
      * @param conn the {@link HttpConnection connection} used to execute

@@ -67,8 +67,9 @@ public class PolicyDialog extends AbstractParamDialog {
     }
 
     /**
-     * 
-     * @param panel 
+     * Adds the given panel, positioned under the root node and in alphabetic order.
+     *
+     * @param panel the panel to add, must not be {@code null}.
      */
     public void addPolicyPanel(AbstractParamPanel panel) {
         this.additionalPanels.add(panel);

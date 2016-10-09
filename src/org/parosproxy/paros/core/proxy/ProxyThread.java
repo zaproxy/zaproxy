@@ -61,6 +61,7 @@
 // ZAP: 2016/04/29 Adjust exception logging levels and log when timeouts happen
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/06/13 Remove all unsupported encodings (instead of just some)
+// ZAP: 2016/09/22 JavaDoc tweaks
 
 package org.parosproxy.paros.core.proxy;
 
@@ -164,7 +165,7 @@ class ProxyThread implements Runnable {
 	
 	/**
 	 * @param targethost the host where you want to connect to
-	 * @throws IOException
+	 * @throws IOException if an error occurred while establishing the SSL/TLS connection
 	 */
 	private void beginSSL(String targethost) throws IOException {
 		// ZAP: added parameter 'targethost'
@@ -553,7 +554,8 @@ class ProxyThread implements Runnable {
 	/**
 	 * Go through each observers to process a request in each observers.
 	 * The method can be modified in each observers.
-	 * @param httpMessage
+	 * @param httpMessage the request that was received from the client and may be forwarded to the server
+	 * @return {@code true} if the message should be forwarded to the server, {@code false} otherwise
 	 */
 	private boolean notifyListenerRequestSend(HttpMessage httpMessage) {
 		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
@@ -577,7 +579,8 @@ class ProxyThread implements Runnable {
 	/**
 	 * Go thru each observers and process the http message in each observers.
 	 * The msg can be changed by each observers.
-	 * @param msg
+	 * @param httpMessage the response that was received from the server and may be forwarded to the client
+	 * @return {@code true} if the message should be forwarded to the client, {@code false} otherwise
 	 */
 	private boolean notifyListenerResponseReceive(HttpMessage httpMessage) {
 		if (parentServer.excludeUrl(httpMessage.getRequestHeader().getURI())) {
@@ -628,7 +631,7 @@ class ProxyThread implements Runnable {
 	 * Go thru each listener and offer him to take over the connection. The
 	 * first observer that returns true gets exclusive rights.
 	 * 
-	 * @param httpMessage Contains HTTP request & response.
+	 * @param httpMessage Contains HTTP request &amp; response.
 	 * @param inSocket Encapsulates the TCP connection to the browser.
 	 * @param method Provides more power to process response.
 	 * 

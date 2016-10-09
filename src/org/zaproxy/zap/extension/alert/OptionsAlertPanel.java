@@ -49,7 +49,6 @@ import org.zaproxy.zap.view.LayoutHelper;
  * <ul>
  * <li>The number of maximum instances of each vulnerability included in a report.</li>
  * </ul>
- * </p>
  */
 public class OptionsAlertPanel extends AbstractParamPanel {
 

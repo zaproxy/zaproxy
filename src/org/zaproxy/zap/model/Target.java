@@ -71,14 +71,16 @@ public class Target {
 	}
 
 	/**
-	 * Constructor.
+	 * Constructs a {@code Target} with the given data.
+	 * <p>
 	 * One or both startNode and context should be specified. If both a used then the startNode should 
 	 * belong to the context. Note that nodes can belong to multiple contexts. 
-	 * @param startNode
-	 * @param context
-	 * @param inScopeOnly Only scan nodes that are in scope - opnly relevant if context not specified
-	 * @param maxChildren
-	 * @param maxDepth
+	 * @param startNode the starting node
+	 * @param context the context
+	 * @param inScopeOnly {@code true} to only scan nodes that are in scope (only relevant if context not specified),
+	 *            {@code false} otherwise
+	 * @param maxChildren maximum number of child nodes to scan
+	 * @param maxDepth maximum depth to scan
 	 */
 	public Target(SiteNode startNode, Context context, boolean inScopeOnly,
 			int maxChildren, int maxDepth) {
