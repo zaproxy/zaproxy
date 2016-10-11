@@ -45,6 +45,7 @@
 // ZAP: 2016/08/10 Issue 2757: Alerts with different request method are considered the same
 // ZAP: 2016/08/25 Initialise the method to an empty string
 // ZAP: 2016/09/20 JavaDoc tweaks
+// ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 
 package org.parosproxy.paros.core.scanner;
 
@@ -62,6 +63,87 @@ import org.parosproxy.paros.network.HttpMessage;
 
 
 public class Alert implements Comparable<Alert>  {
+
+    /**
+     * The source of the alerts.
+     *
+     * @since TODO add version
+     */
+    public enum Source {
+        /**
+         * An alert raised by unknown tool/functionality, mostly for old alerts which source is not (well) known.
+         */
+        UNKNOWN(0, "alert.source.unknown"),
+        /**
+         * An alert raised by an active scanner.
+         */
+        ACTIVE(1, "alert.source.active"),
+        /**
+         * An alert raised manually (by the user).
+         */
+        MANUAL(2, "alert.source.manual"),
+        /**
+         * An alert raised by a passive scanner.
+         */
+        PASSIVE(3, "alert.source.passive"),
+        /**
+         * An alert raised by other tools/functionalities in ZAP (for example, fuzzer, HTTPS Info add-on, custom scripts...).
+         */
+        TOOL(4, "alert.source.tool");
+
+        private final int id;
+        private final String i18nKey;
+
+        private Source(int id, String i18nKey) {
+            this.id = id;
+            this.i18nKey = i18nKey;
+        }
+
+        /**
+         * Gets the identifier of this {@code Source}.
+         * <p>
+         * Should be used for persistence.
+         *
+         * @return the identifier.
+         * @see #getSource(int)
+         */
+        public int getId() {
+            return id;
+        }
+
+        /**
+         * Gets the key for the internationalised name.
+         *
+         * @return the key for the internationalised name.
+         */
+        public String getI18nKey() {
+            return i18nKey;
+        }
+
+        /**
+         * Gets the {@code Source} with the given identifier.
+         *
+         * @param id the identifier of the {@code Source}
+         * @return the {@code Source} with the given identifier, or {@link #UNKNOWN} if not a recognised identifier.
+         * @see #getId()
+         */
+        public static Source getSource(int id) {
+            switch (id) {
+            case 0:
+                return UNKNOWN;
+            case 1:
+                return ACTIVE;
+            case 2:
+                return MANUAL;
+            case 3:
+                return PASSIVE;
+            case 4:
+                return TOOL;
+            default:
+                return UNKNOWN;
+            }
+        }
+    }
 
 	public static final int RISK_INFO 	= 0;
 	public static final int RISK_LOW 	= 1;
@@ -124,6 +206,7 @@ public class Alert implements Comparable<Alert>  {
 	private String method = "";
 	private String postData;
 	private URI msgUri = null;
+	private Source source = Source.UNKNOWN;
 	
 	public Alert(int pluginId) {
 		this.pluginId = pluginId;
@@ -140,6 +223,7 @@ public class Alert implements Comparable<Alert>  {
 	    this(recordAlert.getPluginId(), recordAlert.getRisk(), recordAlert.getConfidence(), recordAlert.getAlert());
 	    // ZAP: Set the alertId
 	    this.alertId = recordAlert.getAlertId();
+	    this.source = Source.getSource(recordAlert.getSourceId());
         try {
         	HistoryReference hRef = new HistoryReference(recordAlert.getHistoryId());
             setDetail(recordAlert.getDescription(), recordAlert.getUri(), 
@@ -473,6 +557,7 @@ public class Alert implements Comparable<Alert>  {
 		item.setRiskConfidence(this.risk, this.confidence);
 		item.setName(this.name);
 		item.setDetail(this.description, this.uri, this.param, this.attack, this.otherInfo, this.solution, this.reference, this.historyRef);
+		item.setSource(this.source);
 		return item;
 	}
 	
@@ -501,6 +586,7 @@ public class Alert implements Comparable<Alert>  {
 		if (wascId > 0) {
 			sb.append("  <wascid>" ).append(wascId).append("</wascid>\r\n");
 		}
+		sb.append("  <sourceid>" ).append(source.getId()).append("</sourceid>\r\n");
 		
 		sb.append("</alertitem>\r\n");
 		return sb.toString();
@@ -727,5 +813,31 @@ public class Alert implements Comparable<Alert>  {
 	public void setWascId(int wascId) {
 		this.wascId = wascId;
 	}
+
+	/**
+	 * Gets the source of the alert.
+	 *
+	 * @return the source of the alert, never {@code null}.
+	 * @since TODO add version
+	 */
+	public Source getSource() {
+		return source;
+	}
     
+	/**
+	 * Sets the source of the alert.
+	 * <p>
+	 * <strong>Note:</strong> The source should be considered immutable and should be set before the alert is persisted
+	 * (normally by the tool/functionality raising the alert).
+	 *
+	 * @param source the source of the alert.
+	 * @throws IllegalArgumentException if the given {@code source} is {@code null}.
+	 * @since TODO add version
+	 */
+	public void setSource(Source source) {
+		if (source == null) {
+			throw new IllegalArgumentException("Parameter source must not be null.");
+		}
+		this.source = source;
+	}
 }	

@@ -320,6 +320,7 @@ public class AttackModeScanner implements EventConsumer {
 
 		@Override
 		public void alertFound(Alert alert) {
+			alert.setSource(Alert.Source.ACTIVE);
 			getExtensionAlert().alertFound(alert, alert.getHistoryRef());
 		}
 

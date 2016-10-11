@@ -56,6 +56,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 	private static final String WASCID		= DbSQL.getSQL("alert.field.wascid");
 	private static final String HISTORYID	= DbSQL.getSQL("alert.field.historyid");
 	private static final String SOURCEHISTORYID	= DbSQL.getSQL("alert.field.sourcehistoryid");
+	private static final String SOURCEID = DbSQL.getSQL("alert.field.sourceid");
 
     public SqlTableAlert() {
     }
@@ -93,6 +94,11 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 				// this speads up session loading
 				DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("alert.ps.addalertindex")));
 			}
+
+			if (!DbUtils.hasColumn(connection, TABLE_NAME, SOURCEID)) {
+				DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("alert.ps.addsourceid")));
+				DbUtils.executeAndClose(connection.prepareStatement(DbSQL.getSQL("alert.ps.addsourceidindex")));
+			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -127,7 +133,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 	public synchronized RecordAlert write(int scanId, int pluginId, String alert, 
             int risk, int confidence, String description, String uri, String param, String attack, 
             String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
-            int sourceHistoryId) throws DatabaseException {
+            int sourceHistoryId, int sourceId) throws DatabaseException {
         
     	SqlPreparedStatementWrapper psInsert = null;
         try {
@@ -149,6 +155,7 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 			psInsert.getPs().setInt(15, wascId);
 			psInsert.getPs().setInt(16, historyId);
 			psInsert.getPs().setInt(17, sourceHistoryId);
+			psInsert.getPs().setInt(18, sourceId);
 			
 			psInsert.getPs().executeUpdate();
 			
@@ -187,7 +194,8 @@ public class SqlTableAlert extends SqlAbstractTable implements TableAlert {
 			            rs.getInt(CWEID),
 			            rs.getInt(WASCID),
 			            rs.getInt(HISTORYID),
-			            rs.getInt(SOURCEHISTORYID)
+			            rs.getInt(SOURCEHISTORYID),
+			            rs.getInt(SOURCEID)
 			    );
 			}
 			return alert;

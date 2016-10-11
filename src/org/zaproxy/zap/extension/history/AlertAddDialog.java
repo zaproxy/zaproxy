@@ -218,6 +218,7 @@ public class AlertAddDialog extends AbstractDialog {
 						        historyRef = new HistoryReference(Model.getSingleton().getSession(), historyType, httpMessage);
 						    }
 						    
+						    alert.setSource(Alert.Source.MANUAL);
 						    // Raise it
 							if (extAlert != null) {
 								extAlert.alertFound(alert, historyRef);

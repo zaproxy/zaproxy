@@ -1119,6 +1119,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		map.put("reference", alert.getReference());
 		map.put("cweid", String.valueOf(alert.getCweId()));
 		map.put("wascid", String.valueOf(alert.getWascId()));
+		map.put("sourceid", String.valueOf(alert.getSource().getId()));
 		map.put("solution", alert.getSolution());
 		if (alert.getHistoryRef() != null) {
 			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));

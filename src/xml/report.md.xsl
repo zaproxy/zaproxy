@@ -34,7 +34,7 @@
 
   <!-- Top Level Heading -->
   <xsl:template match="alertitem">
-<xsl:apply-templates select="text()|name|desc|uri|method|param|attack|evidence|instances|count|otherinfo|solution|reference|cweid|wascid|p|br|wbr|ul|li"/>
+<xsl:apply-templates select="text()|name|desc|uri|method|param|attack|evidence|instances|count|otherinfo|solution|reference|cweid|wascid|sourceid|p|br|wbr|ul|li"/>
   </xsl:template>
 
   <xsl:template match="name[following-sibling::riskcode='3']">
@@ -144,6 +144,10 @@ Instances: <xsl:apply-templates select="text()|*"/>
   
   <xsl:template match="wascid">
 #### WASC Id : <xsl:apply-templates select="text()|*"/>
+  </xsl:template>
+
+  <xsl:template match="sourceid">
+#### Source ID : <xsl:apply-templates select="text()|*"/>
   </xsl:template>
   
   <xsl:template match="p">

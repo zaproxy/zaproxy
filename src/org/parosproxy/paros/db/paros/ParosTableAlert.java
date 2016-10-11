@@ -32,6 +32,7 @@
 // ZAP: 2014/08/14 Issue 1283: SQLDataException: data exception: string data,
 // right truncation while writing an alert to DB
 // ZAP: 2015/02/09 Issue 1525: Introduce a database interface layer to allow for alternative implementations
+// ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
 
 package org.parosproxy.paros.db.paros;
 
@@ -75,6 +76,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 	private static final String WASCID		= "WASCID";
 	private static final String HISTORYID	= "HISTORYID";
 	private static final String SOURCEHISTORYID	= "SOURCEHISTORYID";
+	private static final String SOURCEID = "SOURCEID";
 
     private PreparedStatement psRead = null;
     private PreparedStatement psInsert = null;
@@ -104,7 +106,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 			        + SCANID + "," + PLUGINID + "," + ALERT + "," + RISK + "," + RELIABILITY + "," + DESCRIPTION + ","
 			        + URI + "," + PARAM + "," + ATTACK + "," + OTHERINFO + "," + SOLUTION + "," + REFERENCE + "," 
 			        + EVIDENCE + "," + CWEID + "," + WASCID + "," + HISTORYID
-			         + "," + SOURCEHISTORYID + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+			         + "," + SOURCEHISTORYID + "," + SOURCEID + ") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
 			psGetIdLastInsert = conn.prepareCall("CALL IDENTITY();");
 			psDeleteAlert = conn.prepareStatement("DELETE FROM " + TABLE_NAME + " WHERE " + ALERTID + " = ?");
 			psDeleteAllAlerts = conn.prepareStatement("DELETE FROM " + TABLE_NAME);
@@ -165,6 +167,11 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 				// this speads up session loading
 				DbUtils.executeAndClose(connection.prepareStatement("CREATE INDEX "+ALERT_INDEX+" ON "+TABLE_NAME+" ("+SOURCEHISTORYID+")"));
 			}
+
+			if (!DbUtils.hasColumn(connection, TABLE_NAME, SOURCEID)) {
+				DbUtils.executeAndClose(connection.prepareStatement("ALTER TABLE "+TABLE_NAME+" ADD COLUMN "+SOURCEID+" INT DEFAULT 0"));
+				DbUtils.executeAndClose(connection.prepareStatement("CREATE INDEX INDEX_ALERT_SOURCEID ON "+TABLE_NAME+" ("+SOURCEID+")"));
+			}
 		} catch (SQLException e) {
 			throw new DatabaseException(e);
 		}
@@ -195,7 +202,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 	public synchronized RecordAlert write(int scanId, int pluginId, String alert, 
             int risk, int confidence, String description, String uri, String param, String attack, 
             String otherInfo, String solution, String reference, String evidence, int cweId, int wascId, int historyId,
-            int sourceHistoryId) throws DatabaseException {
+            int sourceHistoryId, int sourceId) throws DatabaseException {
         
         try {
 			psInsert.setInt(1, scanId);
@@ -215,6 +222,7 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 			psInsert.setInt(15, wascId);
 			psInsert.setInt(16, historyId);
 			psInsert.setInt(17, sourceHistoryId);
+			psInsert.setInt(18, sourceId);
 			psInsert.executeUpdate();
 			
 			int id;
@@ -250,7 +258,8 @@ public class ParosTableAlert extends ParosAbstractTable implements TableAlert {
 			            rs.getInt(CWEID),
 			            rs.getInt(WASCID),
 			            rs.getInt(HISTORYID),
-			            rs.getInt(SOURCEHISTORYID)
+			            rs.getInt(SOURCEHISTORYID),
+			            rs.getInt(SOURCEID)
 			    );
 			}
 			return alert;
