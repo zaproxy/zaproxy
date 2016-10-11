@@ -109,7 +109,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
 		String paramMan = "";
 		if (element.getMandatoryParamNames() != null) {
 			for (String param : element.getMandatoryParamNames()) {
-			    if (paramMan != "") {
+			    if (!paramMan.isEmpty()) {
 			        paramMan += ", ";
 			    }
 				paramMan += "$" + param.toLowerCase();
@@ -119,7 +119,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
 		String paramOpt = "";
 		if (element.getOptionalParamNames() != null) {
 			for (String param : element.getOptionalParamNames()) {
-			    if (paramMan != "" || paramOpt != "") {
+			    if (!paramMan.isEmpty() || !paramOpt.isEmpty()) {
 			        paramOpt += ", ";
 			    }
 				paramOpt += "$" + param.toLowerCase() + "=NULL";
