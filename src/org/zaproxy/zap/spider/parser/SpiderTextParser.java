@@ -38,11 +38,13 @@ public class SpiderTextParser extends SpiderParser {
 	public boolean parseResource(HttpMessage message, Source source, int depth) {
 		log.debug("Parsing a non-HTML text resource.");
 
+		String baseURL = message.getRequestHeader().getURI().toString();
+
 		// Use a simple pattern matcher to find urls
 		Matcher matcher = patternURL.matcher(message.getResponseBody().toString());
 		while (matcher.find()) {
 			String s = matcher.group(1);
-			processURL(message, depth, s, "");
+			processURL(message, depth, s, baseURL);
 		}
 
 		return false;

@@ -127,7 +127,7 @@ public final class URLCanonicalizer {
 			}
 
 			if (canonicalURI.getRawAuthority() == null) {
-				log.debug("Ignoring URI with no authority (host[\":\"port]): " + canonicalURI);
+				log.debug("Ignoring URI with no authority (host[\":\"port]): " + canonicalURI + " (on base " + baseURL + ")");
 				return null;
 			}
 
