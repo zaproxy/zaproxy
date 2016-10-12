@@ -39,7 +39,7 @@ import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 import org.zaproxy.zap.view.ZapMenuItem;
 
-public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedListener {
+public class ExtensionSearch extends ExtensionAdaptor {
 
     private static final Logger LOGGER = Logger.getLogger(ExtensionSearch.class);
 
@@ -71,9 +71,9 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
-	    extensionHook.addSessionListener(this);
 	    extensionHook.addOptionsParamSet(getSearchParam());
 	    if (getView() != null) {
+	        extensionHook.addSessionListener(new ViewSessionChangedListener());
 	        extensionHook.getHookView().addOptionPanel(getOptionsPanel());
 	        extensionHook.getHookView().addStatusPanel(getSearchPanel());
 	        extensionHook.getHookMenu().addEditMenuItem(getMenuSearch());
@@ -142,30 +142,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
             });
         }
     }
-
-	@Override
-	public void sessionChanged(final Session session)  {
-	    if (EventQueue.isDispatchThread()) {
-		    sessionChangedEventHandler(session);
-
-	    } else {
-	        
-	        try {
-	            EventQueue.invokeAndWait(new Runnable() {
-	                @Override
-	                public void run() {
-	        		    sessionChangedEventHandler(session);
-	                }
-	            });
-	        } catch (Exception e) {
-	            logger.error(e.getMessage(), e);
-	        }
-	    }
-	}
-	
-	private void sessionChangedEventHandler(Session session) {
-		this.getSearchPanel().resetSearchResults();
-	}
 	
 	public void search(String filter, Type reqType) {
 		this.search(filter, reqType, false, false);
@@ -273,14 +249,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
     }
 
 	@Override
-	public void sessionAboutToChange(Session session) {
-	}
-	
-	@Override
-	public void sessionScopeChanged(Session session) {
-	}
-
-	@Override
 	public String getAuthor() {
 		return Constant.ZAP_TEAM;
 	}
@@ -302,11 +270,6 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	public void setSearchJustInScope(boolean searchJustInScope) {
 		this.searchJustInScope = searchJustInScope;
 	}
-	
-	@Override
-	public void sessionModeChanged(Mode mode) {
-		// Ignore
-	}
 
 	/**
 	 * No database tables used, so all supported
@@ -314,5 +277,46 @@ public class ExtensionSearch extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public boolean supportsDb(String type) {
 		return true;
+	}
+
+	/**
+	 * A {@code SessionChangedListener} for view/UI related functionalities.
+	 */
+	private class ViewSessionChangedListener implements SessionChangedListener {
+
+		@Override
+		public void sessionAboutToChange(Session session) {
+			// Nothing to do.
+		}
+
+		@Override
+		public void sessionScopeChanged(Session session) {
+			// Nothing to do.
+		}
+
+		@Override
+		public void sessionChanged(final Session session) {
+			if (EventQueue.isDispatchThread()) {
+				getSearchPanel().resetSearchResults();
+				return;
+			}
+
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+
+					@Override
+					public void run() {
+						sessionChanged(session);
+					}
+				});
+			} catch (Exception e) {
+				logger.error(e.getMessage(), e);
+			}
+		}
+
+		@Override
+		public void sessionModeChanged(Mode mode) {
+			// Nothing to do.
+		}
 	}
 }
