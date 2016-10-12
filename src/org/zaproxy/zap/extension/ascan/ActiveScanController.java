@@ -117,6 +117,7 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 					null, ruleConfigParam) {
 				@Override
 				public void alertFound(Alert alert) {
+					alert.setSource(Alert.Source.ACTIVE);
 					if (extAlert!= null) {
 						extAlert.alertFound(alert, null);
 					}

@@ -70,7 +70,7 @@
   <xsl:template match="alertitem">
 <p></p>
 <table width="100%" border="0">
-<xsl:apply-templates select="text()|name|desc|uri|method|param|attack|evidence|instances|count|otherinfo|solution|reference|cweid|wascid|p|br|wbr|ul|li"/>
+<xsl:apply-templates select="text()|name|desc|uri|method|param|attack|evidence|instances|count|otherinfo|solution|reference|cweid|wascid|sourceid|p|br|wbr|ul|li"/>
 </table>
   </xsl:template>
 
@@ -326,6 +326,16 @@
     <td width="80%">
     <font size="2" face="Arial, Helvetica, sans-serif">
 	<p><xsl:apply-templates select="text()|*"/></p>
+    </font></td>
+  </tr>
+  </xsl:template>
+  
+  <xsl:template match="sourceid">
+  <tr bgcolor="#e8e8e8" valign="top"> 
+    <td width="20%"><font size="2" face="Arial, Helvetica, sans-serif"><p>Source ID</p></font></td>
+    <td width="80%">
+    <font size="2" face="Arial, Helvetica, sans-serif">
+    <p><xsl:apply-templates select="text()|*"/></p>
     </font></td>
   </tr>
   </xsl:template>
