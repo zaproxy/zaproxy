@@ -650,7 +650,11 @@
 
 	<!-- Load the version from version.txt, set ${zap.jar} -->
 	<target name="setup">
-		<loadfile property="version" srcfile="version.txt" />
+		<loadfile property="version" srcfile="version.txt">
+			<filterchain>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
 		<if>
 			<equals arg1="${version}" arg2="Dev Build" />
 			<then>
