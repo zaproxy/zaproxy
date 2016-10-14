@@ -55,13 +55,8 @@ public class ApiResponseSet extends ApiResponse {
 		parent.setAttribute("type", "set");
 		for (Entry<String, ?> val : values.entrySet()) {
 			Element el = doc.createElement(val.getKey());
-			Text text;
-			if (val.getValue() instanceof String) {
-				text = doc.createTextNode(XMLStringUtil.escapeControlChrs(
-						(String)val.getValue()));
-			} else {
-				text = doc.createTextNode(""+val.getValue());
-			}
+			String textValue = val.getValue() == null ? "" : val.getValue().toString();
+			Text text = doc.createTextNode(XMLStringUtil.escapeControlChrs(textValue));
 			el.appendChild(text);
 			parent.appendChild(el);
 		}
@@ -75,10 +70,9 @@ public class ApiResponseSet extends ApiResponse {
 			sb.append("<tr><td>\n");
 			sb.append(StringEscapeUtils.escapeHtml(val.getKey()));
 			sb.append("</td><td>\n");
-			if (val.getValue() instanceof String) {
-				sb.append(StringEscapeUtils.escapeHtml((String)val.getValue()));
-			} else {
-				sb.append(val.getValue());
+			Object value = val.getValue();
+			if (value != null) {
+				sb.append(StringEscapeUtils.escapeHtml(value.toString()));
 			}
 			sb.append("</td></tr>\n");
 		}
