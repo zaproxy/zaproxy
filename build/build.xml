@@ -129,7 +129,7 @@
 
 	</target>
 
-	<target name="dist" depends="compile" description="Generates the distribution">
+	<target name="dist" depends="setup, compile" description="Generates the distribution">
 		<echo message="Creating the distribution set..." />
 
 		<!-- Create the distribution directory -->
@@ -345,13 +345,13 @@
 		</java>
 	</target>
 
-    <target name="copy-jar-to-extension-projects" depends="setup, dist">
+    <target name="copy-jar-to-extension-projects" depends="dist">
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.trunk.dir}/lib/${zap.jar}"/>
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.beta.dir}/lib/${zap.jar}"/>
         <copy file="${dist}/${zap.jar}" tofile="${zap.extensions.alpha.dir}/lib/${zap.jar}"/>
     </target>
 
-	<target name="test" depends="setup, dist">
+	<target name="test" depends="dist">
         <!-- Run the JUnit tests NOTE THAT THIS IS WORK IN PROGRESS ;) -->
         <junit printsummary="yes" haltonerror="true" failureproperty="TestsFailed">
             <classpath>
@@ -650,7 +650,11 @@
 
 	<!-- Load the version from version.txt, set ${zap.jar} -->
 	<target name="setup">
-		<loadfile property="version" srcfile="version.txt" />
+		<loadfile property="version" srcfile="version.txt">
+			<filterchain>
+				<striplinebreaks/>
+			</filterchain>
+		</loadfile>
 		<if>
 			<equals arg1="${version}" arg2="Dev Build" />
 			<then>
@@ -665,10 +669,10 @@
 		<echo message="Jar file for build is: ${zap.jar}" />
 	</target>
 
-	<target name="lite-release" depends="setup, dist, package-lite"
+	<target name="lite-release" depends="dist, package-lite"
 		description="Generates the distribution and (lite) cross-platform packages" />
 
-	<target name="full-release" depends="setup, dist, package-linux, package-macosx"
+	<target name="full-release" depends="dist, package-linux, package-macosx"
 		description="Generates the distribution and Linux/MacOS X packages [default]" />
 
 	<target name="day-stamped-release" description="Generates the day-stamped package, as well as the distribution and help jars">
@@ -677,7 +681,6 @@
 		</tstamp>
 		<property name="version" value="D-${yyyymmdd}" />
 		<echo message="Version is ${version}" />
-		<property name="zap.jar" value="zap-${version}.jar" />
 
 		<antcall target="generate-help-jars" />
 		<!-- Set to compile with debug information -->

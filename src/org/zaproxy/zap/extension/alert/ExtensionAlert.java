@@ -166,6 +166,10 @@ public class ExtensionAlert extends ExtensionAdaptor implements
                 alert.setHistoryRef(ref);
             }
 
+            if (alert.getSource() == Alert.Source.UNKNOWN) {
+                alert.setSource(Alert.Source.TOOL);
+            }
+
             alert.setSourceHistoryId(ref.getHistoryId());
 
             hrefs.put(Integer.valueOf(ref.getHistoryId()), ref);
@@ -366,7 +370,7 @@ public class ExtensionAlert extends ExtensionAdaptor implements
                 alert.getDescription(), alert.getUri(), alert.getParam(), alert.getAttack(),
                 alert.getOtherInfo(), alert.getSolution(), alert.getReference(),
                 alert.getEvidence(), alert.getCweId(), alert.getWascId(),
-                ref.getHistoryId(), alert.getSourceHistoryId());
+                ref.getHistoryId(), alert.getSourceHistoryId(), alert.getSource().getId());
         
         alert.setAlertId(recordAlert.getAlertId());
 
