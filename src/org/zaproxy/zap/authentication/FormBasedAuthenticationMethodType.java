@@ -281,10 +281,11 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 
 			HttpMessage requestMessage = loginSiteNode.getHistoryReference().getHttpMessage();
 			this.loginRequestURL = requestMessage.getRequestHeader().getURI().toString();
-			if (requestMessage.getRequestHeader().getMethod() != HttpRequestHeader.GET)
+			if (!requestMessage.getRequestHeader().getMethod().equalsIgnoreCase(HttpRequestHeader.GET)) {
 				this.loginRequestBody = requestMessage.getRequestBody().toString();
-			else
+			} else {
 				this.loginRequestBody = null;
+			}
 		}
 
 		/**
