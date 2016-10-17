@@ -78,19 +78,10 @@ elif [ -z "$MEM" ]; then
   echo "Failed to obtain current memory, using jvm default memory settings"
 else
   echo "Available memory: $MEM MB"
-  if [ "$MEM" -gt 1500 ]
-  then
-    JMEM="-Xmx512m"
-  else
-    if [ "$MEM" -gt 900 ]
-    then
-      JMEM="-Xmx256m"
-    else
-      if [ "$MEM" -gt 512 ]
-      then
-        JMEM="-Xmx128m"
-      fi
-    fi
+  if [ "$MEM" -gt 512 ]; then
+    # Always go with 1/4 of the available memory - specific JVMs may round this up or down
+    QMEM=$(($MEM/4))
+    JMEM="-Xmx${QMEM}m"
   fi
 fi
 
