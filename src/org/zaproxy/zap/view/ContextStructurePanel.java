@@ -60,10 +60,10 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 	private ZapTextField postKvPairSeparators = null;
 
 	/**
-	 * Returns the name of the panel "Structure" for the given {@code contextIndex}.
+	 * Returns the name of the panel "Structure" for the given context index.
 	 * 
-	 * @param contextIndex the context index that will be used to create the name of the panel
-	 * @return the name of the panel "Include in context" for the given {@code contextIndex}
+	 * @param contextId the context index that will be used to create the name of the panel
+	 * @return the name of the panel "Include in context" for the given context index
 	 * @since 2.2.0
 	 * @see Context#getIndex()
 	 */
@@ -72,15 +72,16 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 		return contextId + ": " + PANEL_NAME;
 	}
 
+	/**
+	 * Constructs a {@code ContextStructurePanel} for the given context.
+	 * 
+	 * @param context the target context, must not be {@code null}.
+	 */
 	public ContextStructurePanel(Context context) {
 		super(context.getIndex());
-		initialize();
-	}
 
-	private void initialize() {
 		this.setLayout(new CardLayout());
 		this.setName(getPanelName(this.getContextIndex()));
-		//this.add(new JScrollPane(getPanel()), getPanel().getName());
 		this.add(getPanel(), getPanel().getName());
 	}
 
@@ -219,6 +220,8 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 	 * Save the data from this panel to the provided context.
 	 *
 	 * @param context the context
+	 * @param updateSiteStructure {@code true} if the nodes of the context should be restructured, {@code false} otherwise
+	 * @see Context#restructureSiteTree()
 	 */
 	private void saveToContext(Context context, boolean updateSiteStructure) {
 		ParameterParser urlParamParser = context.getUrlParamParser();
