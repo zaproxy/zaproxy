@@ -32,16 +32,16 @@ public class ContextGeneralPanel extends AbstractContextPropertiesPanel {
 		return index + ":" + name;
 	}
 
-	public ContextGeneralPanel(String name, int index) {
-		super(index);
-		this.setName(name);
-		initialize();
-	}
-
 	/**
-	 * This method initializes this
+	 * Constructs a {@code ContextGeneralPanel} for the given context.
+	 * 
+	 * @param name the name of the panel
+	 * @param contextId the context id
 	 */
-	private void initialize() {
+	public ContextGeneralPanel(String name, int contextId) {
+		super(contextId);
+		this.setName(name);
+
 		this.setLayout(new CardLayout());
 		this.add(getPanelSession(), this.getName() + "gen");
 	}
