@@ -22,6 +22,7 @@
 // ZAP: 2012/03/15 Changed to use byte[] instead of StringBuffer.
 // ZAP: 2014/11/26 Issue: 1415 Fixed file uploads > 128k
 // ZAP: 2016/05/18 Always use charset set when changing the HTTP body
+// ZAP: 2016/10/18 Attempt to determine the charset when setting a String with unknown charset
 
 package org.parosproxy.paros.network;
 
@@ -150,10 +151,29 @@ public abstract class HttpBody {
 		}
 		
 		cachedString = null;
+		if (charset == null) {
+			// Attempt to determine the charset to avoid data loss.
+			charset = determineCharset(contents);
+		}
 		
 		body = contents.getBytes(getCharsetImpl());
 		
 		pos = body.length;
+	}
+
+	/**
+	 * Determines the {@code Charset} of the given {@code contents}, that are being set to the body.
+	 * <p>
+	 * An attempt to prevent data loss when {@link #setBody(String) new contents} are set without a {@code Charset}.
+	 * <p>
+	 * By default returns {@code null}.
+	 * 
+	 * @param contents the contents being set to the body
+	 * @return the {@code Charset}, or {@code null} if not known.
+	 * @since TODO add version
+	 */
+	protected Charset determineCharset(String contents) {
+		return null;
 	}
 
 	/**
