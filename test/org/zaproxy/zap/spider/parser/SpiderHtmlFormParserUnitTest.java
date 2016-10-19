@@ -189,7 +189,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GetForm.html");
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "Form.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -205,7 +205,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GetForms.html");
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "Forms.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -223,7 +223,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GetFormMultipleSubmitFields.html");
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "FormMultipleSubmitFields.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -246,7 +246,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostForm.html");
+        HttpMessage msg = createMessageWith("POST", "Form.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -264,7 +264,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostForms.html");
+        HttpMessage msg = createMessageWith("POST", "Forms.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -284,7 +284,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostFormMultipleSubmitFields.html");
+        HttpMessage msg = createMessageWith("POST", "FormMultipleSubmitFields.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -334,7 +334,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("PostForm.html");
+        HttpMessage messageHtmlResponse = createMessageWith("POST", "Form.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -352,7 +352,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = new SpiderHtmlFormParser(spiderOptions);
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GetForm.html");
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "Form.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -451,7 +451,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage messageHtmlResponse = createMessageWith("GetFormNoSubmitField.html");
+        HttpMessage messageHtmlResponse = createMessageWith("GET", "FormNoSubmitField.html");
         Source source = createSource(messageHtmlResponse);
         // When
         boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
@@ -467,7 +467,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostFormNoSubmitField.html");
+        HttpMessage msg = createMessageWith("POST", "FormNoSubmitField.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -582,7 +582,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GetFormWithHtmlBase.html");
+        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBase.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -598,7 +598,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GetFormWithHtmlBaseWithEmptyHref.html");
+        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBaseWithEmptyHref.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -614,7 +614,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GetFormWithHtmlBaseWithoutHref.html");
+        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBaseWithoutHref.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -630,7 +630,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GetFormWithHtmlBaseAndAbsoluteAction.html");
+        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBaseAndAbsoluteAction.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -646,7 +646,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostFormWithHtmlBase.html");
+        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBase.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -664,7 +664,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostFormWithHtmlBaseWithEmptyHref.html");
+        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBaseWithEmptyHref.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -682,7 +682,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostFormWithHtmlBaseWithoutHref.html");
+        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBaseWithoutHref.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -700,7 +700,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("PostFormWithHtmlBaseAndAbsoluteAction.html");
+        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBaseAndAbsoluteAction.html");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
