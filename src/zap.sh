@@ -11,7 +11,7 @@ done
 cd "`dirname "${SCRIPTNAME}"`" > /dev/null
 
 # Base directory where ZAP is installed
-BASEDIR="`pwd -P`"
+BASEDIR="${ZAP_HOME:-`pwd -P`}"
 
 # Switch to the directory where ZAP is installed
 cd "$BASEDIR"
