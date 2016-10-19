@@ -45,7 +45,7 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
 
-    private static final Path BASE_DIR_HTML_FILES = Paths.get("test/resources/org/zaproxy/zap/spider/parser");
+    private static final Path BASE_DIR_HTML_FILES = Paths.get("test/resources/org/zaproxy/zap/spider/parser/html");
 
     @BeforeClass
     public static void suppressLogging() {
