@@ -183,6 +183,42 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    public void shouldUseAbsolutePathBaseElement() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("BaseWithAbsolutePathHrefAElementSpiderHtmlParser.html", "/a/b");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(2)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/base/absolute/path/relative/a/element", "http://example.com/absolute/a/element"));
+    }
+
+    @Test
+    public void shouldUseRelativePathBaseElement() {
+        // Given
+        SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage messageHtmlResponse = createMessageWith("BaseWithRelativePathHrefAElementSpiderHtmlParser.html", "/a/b");
+        Source source = createSource(messageHtmlResponse);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(messageHtmlResponse, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(2)));
+        assertThat(listener.getUrlsFound(), contains(
+                "http://example.com/a/base/relative/path/relative/a/element",
+                "http://example.com/absolute/a/element"));
+    }
+
+    @Test
     public void shouldIgnoreBaseAndUseMessageUriIfBaseElementDoesNotHaveHref() {
         // Given
         SpiderHtmlParser htmlParser = new SpiderHtmlParser(new SpiderParam());
@@ -485,10 +521,14 @@ public class SpiderHtmlParserUnitTest extends SpiderParserTestUtils {
     }
 
     private static HttpMessage createMessageWith(String filename) {
+        return createMessageWith(filename, "/");
+    }
+
+    private static HttpMessage createMessageWith(String filename, String requestUri) {
         HttpMessage message = new HttpMessage();
         try {
             String fileContents = readFile(BASE_DIR_HTML_FILES.resolve(filename));
-            message.setRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n");
+            message.setRequestHeader("GET " + requestUri + " HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
                     "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html; charset=UTF-8\r\n" + "Content-Length: "
                             + fileContents.length());

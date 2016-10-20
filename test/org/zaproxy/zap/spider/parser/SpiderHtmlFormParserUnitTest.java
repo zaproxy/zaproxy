@@ -44,6 +44,8 @@ import net.htmlparser.jericho.Source;
 public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
 
     private static final String FORM_METHOD_TOKEN = "%%METHOD%%";
+    private static final String FORM_ACTION_TOKEN = "%%ACTION%%";
+    private static final String BASE_HTML_TOKEN = "%%BASE_HTML%%";
 
     private static final String ROOT_PATH = "/";
     private static final int BASE_DEPTH = 0;
@@ -582,7 +584,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBase.html");
+        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBase.html", "search", "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -593,12 +595,100 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    public void shouldUseAbsolutePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "GET",
+                "FormWithHtmlBase.html",
+                "action/relative",
+                "/base/absolute/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/base/absolute/path/action/relative?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldIgnoreAbsolutePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "GET",
+                "FormWithHtmlBase.html",
+                "/action/absolute",
+                "/base/absolute/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.com/action/absolute?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldUseRelativePathBaseHtmlUrlWhenParsingGetFormWithRelativeAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "GET",
+                "FormWithHtmlBase.html",
+                "action/relative",
+                "base/relative/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(
+                listener.getUrlsFound(),
+                contains("http://example.com/a/base/relative/path/action/relative?q=Search&submit=Submit"));
+    }
+
+    @Test
+    public void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingGetFormWithAbsoluteAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "GET",
+                "FormWithHtmlBase.html",
+                "/action/absolute",
+                "base/relative/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfUrlsFound(), is(equalTo(1)));
+        assertThat(listener.getUrlsFound(), contains("http://example.com/action/absolute?q=Search&submit=Submit"));
+    }
+
+    @Test
     public void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingGetForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBaseWithEmptyHref.html");
+        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBase.html", "search", "");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -630,7 +720,11 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("GET", "FormWithHtmlBaseAndAbsoluteAction.html");
+        HttpMessage msg = createMessageWith(
+                "GET",
+                "FormWithHtmlBase.html",
+                "https://example.com/search",
+                "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -646,7 +740,7 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBase.html");
+        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBase.html", "search", "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -659,12 +753,102 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     @Test
+    public void shouldUseAbsolutePathBaseHtmlUrlWhenParsingPostFormWithRelativeAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "POST",
+                "FormWithHtmlBase.html",
+                "action/relative",
+                "/base/absolute/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(listener.getResourcesFound(), contains(
+                postResource(msg, 1, "http://example.com/base/absolute/path/action/relative", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldIgnoreAbsolutePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "POST",
+                "FormWithHtmlBase.html",
+                "/action/absolute",
+                "/base/absolute/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(postResource(msg, 1, "http://example.com/action/absolute", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldUseRelativePathBaseHtmlUrlWhenParsingPostFormWithRelativeAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "POST",
+                "FormWithHtmlBase.html",
+                "action/relative",
+                "base/relative/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(listener.getResourcesFound(), contains(
+                postResource(msg, 1, "http://example.com/a/base/relative/path/action/relative", "q=Search&submit=Submit")));
+    }
+
+    @Test
+    public void shouldIgnoreRelativePathBaseHtmlUrlWhenParsingPostFormWithAbsoluteAction() {
+        // Given
+        SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
+        TestSpiderParserListener listener = createTestSpiderParserListener();
+        htmlParser.addSpiderParserListener(listener);
+        HttpMessage msg = createMessageWith(
+                "POST",
+                "FormWithHtmlBase.html",
+                "/action/absolute",
+                "base/relative/path/",
+                "/a/b.html");
+        Source source = createSource(msg);
+        // When
+        boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
+        // Then
+        assertThat(completelyParsed, is(equalTo(false)));
+        assertThat(listener.getNumberOfResourcesFound(), is(equalTo(1)));
+        assertThat(
+                listener.getResourcesFound(),
+                contains(postResource(msg, 1, "http://example.com/action/absolute", "q=Search&submit=Submit")));
+    }
+
+    @Test
     public void shouldIgnoreBaseHtmlIfEmptyHrefWhenParsingPostForm() {
         // Given
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBaseWithEmptyHref.html");
+        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBase.html", "search", "");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -700,7 +884,11 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
         SpiderHtmlFormParser htmlParser = createSpiderHtmlFormParser();
         TestSpiderParserListener listener = createTestSpiderParserListener();
         htmlParser.addSpiderParserListener(listener);
-        HttpMessage msg = createMessageWith("POST", "FormWithHtmlBaseAndAbsoluteAction.html");
+        HttpMessage msg = createMessageWith(
+                "POST",
+                "FormWithHtmlBase.html",
+                "https://example.com/search",
+                "http://base.example.com/");
         Source source = createSource(msg);
         // When
         boolean completelyParsed = htmlParser.parseResource(msg, source, BASE_DEPTH);
@@ -798,13 +986,32 @@ public class SpiderHtmlFormParserUnitTest extends SpiderParserTestUtils {
     }
 
     private static HttpMessage createMessageWith(String formMethod, String filename) {
+        return createMessageWith(formMethod, filename, null, null, "/");
+    }
+
+    private static HttpMessage createMessageWith(String formMethod, String filename, String formAction, String baseHtml) {
+        return createMessageWith(formMethod, filename, formAction, baseHtml, "/");
+    }
+
+    private static HttpMessage createMessageWith(
+            String formMethod,
+            String filename,
+            String formAction,
+            String baseHtml,
+            String requestUri) {
         HttpMessage message = new HttpMessage();
         try {
             String fileContents = readFile(BASE_DIR_HTML_FILES.resolve(filename));
             if (formMethod != null) {
                 fileContents = fileContents.replace(FORM_METHOD_TOKEN, formMethod);
             }
-            message.setRequestHeader("GET / HTTP/1.1\r\nHost: example.com\r\n");
+            if (formAction != null) {
+                fileContents = fileContents.replace(FORM_ACTION_TOKEN, formAction);
+            }
+            if (baseHtml != null) {
+                fileContents = fileContents.replace(BASE_HTML_TOKEN, baseHtml);
+            }
+            message.setRequestHeader("GET " + requestUri + " HTTP/1.1\r\nHost: example.com\r\n");
             message.setResponseHeader(
                     "HTTP/1.1 200 OK\r\n" + "Content-Type: text/html; charset=UTF-8\r\n" + "Content-Length: "
                             + fileContents.length());
