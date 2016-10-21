@@ -64,28 +64,19 @@ public class ExtensionDynSSL extends ExtensionAdaptor {
 	}
 	
 	@Override
-	public void postInit() {
-		if (this.getParams().getRootca() == null) {
-            // Create a new root cert in a background thread
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        createNewRootCa();
-                    } catch (Exception e) {
-                        logger.error("Failed to create new root CA certificate:", e);
-                    }
-                }
-            }).start();
-		}
-	}
-
-	@Override
 	public void start() {
-	    final SslCertificateService service = SslCertificateServiceImpl.getService();
+		final KeyStore rootca = getParams().getRootca();
+		if (rootca == null) {
+			try {
+				createNewRootCa();
+			} catch (Exception e) {
+				logger.error("Failed to create new root CA certificate:", e);
+			}
+			return;
+		}
+
 	    try {
-			final KeyStore rootca = getParams().getRootca();
-			service.initializeRootCA(rootca);
+			setRootCa(rootca);
 		} catch (final Exception e) {
 			logger.error("Couldn't initialize Root CA", e);
 		}
