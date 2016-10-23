@@ -56,23 +56,25 @@ public class ContextExcludePanel extends AbstractContextPropertiesPanel {
 	}
 	
     /**
+     * Gets the name of the panel for the given context.
+     * 
+     * @param context the context
+     * @return the name of the panel
      * @deprecated (2.2.0) Replaced by {@link #getPanelName(int)}. It will be removed in a future release.
      */
     @Deprecated
-    @SuppressWarnings("javadoc")
     public static String getPanelName(Context context) {
         return getPanelName(context.getIndex());
     }
 
+    /**
+     * Constructs a {@code ContextIncludePanel} for the given context.
+     * 
+     * @param context the target context, must not be {@code null}.
+     */
     public ContextExcludePanel(Context context) {
         super(context.getIndex());
- 		initialize();
-   }
-    
-	/**
-	 * This method initializes this
-	 */
-	private void initialize() {
+
         regexesPanel = new MultipleRegexesOptionsPanel(View.getSingleton().getSessionDialog());
 
         this.setLayout(new CardLayout());

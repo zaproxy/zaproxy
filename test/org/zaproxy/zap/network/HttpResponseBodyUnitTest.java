@@ -84,13 +84,25 @@ public class HttpResponseBodyUnitTest extends HttpBodyTestUtils {
     @Test
     public void shouldCreateBodyWithStringUsingDefaultCharset() {
         // Given
-        HttpResponseBody httpBody = new HttpResponseBody(BODY_1_STRING);
+        HttpResponseBody httpBody = new HttpResponseBody(BODY_1_BYTES_DEFAULT_CHARSET);
         // When / Then
         assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.getBytes(), is(not(nullValue())));
         assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET)));
         assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_DEFAULT_CHARSET.length)));
         assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_DEFAULT_CHARSET)));
+    }
+
+    @Test
+    public void shouldCreateBodyWithStringDeterminingItsCharset() {
+        // Given
+        HttpResponseBody httpBody = new HttpResponseBody(BODY_1_STRING);
+        // When / Then
+        assertThat(httpBody.length(), is(equalTo(BODY_1_BYTES_UTF_8.length)));
+        assertThat(httpBody.getBytes(), is(not(nullValue())));
+        assertThat(httpBody.getBytes(), is(equalTo(BODY_1_BYTES_UTF_8)));
+        assertThat(httpBody.getBytes().length, is(equalTo(BODY_1_BYTES_UTF_8.length)));
+        assertThat(httpBody.toString(), is(equalTo(BODY_1_STRING_UTF_8)));
     }
 
     @Test
