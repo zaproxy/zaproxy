@@ -120,8 +120,7 @@ public class SpiderScanController implements ScanController<SpiderScan> {
 				}
 			}
 			
-			SpiderScan scan = new SpiderScan(extension, spiderParams, target, startUri, user, id);
-			scan.setDisplayName(name);
+			SpiderScan scan = new SpiderScan(extension, spiderParams, target, startUri, user, id, name);
 			scan.setCustomSpiderParsers(customSpiderParsers);
 			scan.setCustomFetchFilters(customFetchFilters);
 			scan.setCustomParseFilters(customParseFilters);

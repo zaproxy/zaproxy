@@ -25,7 +25,9 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.RejectedExecutionException;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.regex.Matcher;
@@ -133,6 +135,8 @@ public class Spider {
 	/**	we do not want to recurse into a Git folder, or a subfolder of a Git folder, if one was created from a previous Spider run */
 	private static final Pattern gitUrlPattern = Pattern.compile("\\.git/"); //case sensitive
 
+	private final String id;
+
 	/**
 	 * Instantiates a new spider.
 	 *
@@ -141,11 +145,31 @@ public class Spider {
 	 * @param connectionParam the connection param
 	 * @param model the model
 	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
+	 * @deprecated (TODO add version) Use {@link #Spider(String, ExtensionSpider, SpiderParam, ConnectionParam, Model, Context)}
+	 *             instead.
 	 */
+	@Deprecated
 	public Spider(ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
+			Model model, Context scanContext) {
+		this("?", extension, spiderParam, connectionParam, model, scanContext);
+	}
+
+	/**
+	 * Constructs a {@code Spider} with the given data.
+	 * 
+	 * @param id the ID of the spider, usually a unique integer
+	 * @param extension the extension
+	 * @param spiderParam the spider param
+	 * @param connectionParam the connection param
+	 * @param model the model
+	 * @param scanContext if a scan context is set, only URIs within the context are fetched and processed
+	 * @since TODO add version
+	 */
+	public Spider(String id, ExtensionSpider extension, SpiderParam spiderParam, ConnectionParam connectionParam,
 			Model model, Context scanContext) {
 		super();
 		log.info("Spider initializing...");
+		this.id = id;
 		this.spiderParam = spiderParam;
 		this.connectionParam = connectionParam;
 		this.model = model;
@@ -449,7 +473,8 @@ public class Spider {
 		this.initialized = false;
 
 		// Initialize the thread pool
-		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount());
+		this.threadPool = Executors.newFixedThreadPool(spiderParam.getThreadCount(),
+				new SpiderThreadFactory("ZAP-SpiderThreadPool-" + id + "-thread-"));
 
 		// Initialize the HTTP sender
 		httpSender = new HttpSender(connectionParam, true, HttpSender.SPIDER_INITIATOR);
@@ -567,7 +592,7 @@ public class Spider {
 				controller.reset();
 				threadPool = null;
 			}
-		}).start();
+		}, "ZAP-SpiderShutdownThread-" + id).start();
 	}
 
 	/**
@@ -773,4 +798,29 @@ public class Spider {
 		this.controller.addSpiderParser(sp);
 	}
 
+	private static class SpiderThreadFactory implements ThreadFactory {
+
+		private final AtomicInteger threadNumber;
+		private final String namePrefix;
+		private final ThreadGroup group;
+
+		public SpiderThreadFactory(String namePrefix) {
+			threadNumber = new AtomicInteger(1);
+			this.namePrefix = namePrefix;
+			SecurityManager s = System.getSecurityManager();
+			group = (s != null) ? s.getThreadGroup() : Thread.currentThread().getThreadGroup();
+		}
+
+		@Override
+		public Thread newThread(Runnable r) {
+			Thread t = new Thread(group, r, namePrefix + threadNumber.getAndIncrement(), 0);
+			if (t.isDaemon()) {
+				t.setDaemon(false);
+			}
+			if (t.getPriority() != Thread.NORM_PRIORITY) {
+				t.setPriority(Thread.NORM_PRIORITY);
+			}
+			return t;
+		}
+	}
 }

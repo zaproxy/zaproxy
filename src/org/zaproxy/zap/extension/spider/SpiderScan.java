@@ -107,9 +107,39 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 */
 	private SpiderMessagesTableModel messagesTableModel;
 
+	/**
+	 * Constructs a {@code SpiderScan} with the given data.
+	 *
+	 * @param extension the extension to obtain configurations and notify the view
+	 * @param spiderParams the spider options
+	 * @param target the spider target
+	 * @param spiderURI the starting URI, may be {@code null}.
+	 * @param scanUser the user to be used in the scan, may be {@code null}.
+	 * @param scanId the ID of the scan
+	 * @deprecated (TODO add version) Use {@link #SpiderScan(ExtensionSpider, SpiderParam, Target, URI, User, int, String)}
+	 *             instead.
+	 */
+	@Deprecated
 	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId) {
+		this(extension, spiderParams, target, spiderURI, scanUser, scanId, "SpiderScan" + scanId);
+	}
+
+	/**
+	 * Constructs a {@code SpiderScan} with the given data.
+	 *
+	 * @param extension the extension to obtain configurations and notify the view
+	 * @param spiderParams the spider options
+	 * @param target the spider target
+	 * @param spiderURI the starting URI, may be {@code null}.
+	 * @param scanUser the user to be used in the scan, may be {@code null}.
+	 * @param scanId the ID of the scan
+	 * @param name the name that identifies the target
+	 * @since TODO add version
+	 */
+	public SpiderScan(ExtensionSpider extension, SpiderParam spiderParams, Target target, URI spiderURI, User scanUser, int scanId, String name) {
 		lock = new ReentrantLock();
 		this.scanId = scanId;
+		setDisplayName(name);
 
 		numberOfURIsFound = new AtomicInteger();
 		foundURIs = Collections.synchronizedSet(new HashSet<String>());
@@ -118,7 +148,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 
 		state = State.NOT_STARTED;
 
-		spiderThread = new SpiderThread(extension, spiderParams, "SpiderApi-" + scanId, this);
+		spiderThread = new SpiderThread(Integer.toString(scanId), extension, spiderParams, name, this);
 
 		spiderThread.setStartURI(spiderURI);
 		spiderThread.setStartNode(target.getStartNode());
