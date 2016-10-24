@@ -1262,6 +1262,28 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		return null;
 	}
 	
+	/**
+	 * Sets the (selected) context of a {@link ContextSelectComboBox} field.
+	 * <p>
+	 * The call to this method has no effect it the context is not present in the combo box.
+	 * 
+	 * @param fieldLabel the label of the field
+	 * @param context the context to be set/selected, {@code null} to clear the selection. 
+	 * @since TODO add version
+	 * @see #getContextValue(String)
+	 * @see #addContextSelectField(String, Context)
+	 */
+	public void setContextValue(String fieldLabel, Context context) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c != null) {
+			if (c instanceof ContextSelectComboBox) {
+				((ContextSelectComboBox) c).setSelectedItem(context);
+			} else {
+				logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+			}
+		}
+	}
+	
 	public void setFieldValue(String fieldLabel, String value) {
 		Component c = this.fieldMap.get(fieldLabel);
 		if (c != null) {
