@@ -62,6 +62,7 @@
 // ZAP: 2016/09/20 - Reorder statements to prevent (potential) NullPointerException in scanSingleNode
 //                 - JavaDoc tweaks
 // ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
+// ZAP: 2016/12/13 Issue 2951:  Support active scan rule and scan max duration
 
 package org.parosproxy.paros.core.scanner;
 
@@ -73,6 +74,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
@@ -108,6 +110,7 @@ public class HostProcess implements Runnable {
     private User user = null;
     private TechSet techSet;
     private RuleConfigParam ruleConfigParam;
+    private String stopReason = null;
 
     /**
      * A {@code Map} from plugin IDs to corresponding {@link PluginStats}.
@@ -475,6 +478,13 @@ public class HostProcess implements Runnable {
      * @return true if the process has been stopped
      */
     public boolean isStop() {
+        if (this.scannerParam.getMaxScanDurationInMins() > 0) {
+        	if (System.currentTimeMillis() - this.hostProcessStartTime > 
+        			TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxScanDurationInMins())) {
+        	    this.stopReason = Constant.messages.getString("ascan.progress.label.skipped.reason.maxScan");
+        	    this.stop();
+            }
+        }
         return (isStop || parentScanner.isStop());
     }
     
@@ -633,10 +643,28 @@ public class HostProcess implements Runnable {
      */
     public boolean isSkipped(Plugin plugin) {
         PluginStats pluginStats = mapPluginStats.get(plugin.getId());
-        if (pluginStats == null) {
-            return false;
+
+        if (pluginStats != null && pluginStats.isSkipped()) {
+            return true;
         }
-        return pluginStats.isSkipped();
+
+        if (plugin.getTimeFinished() == null && stopReason != null) {
+            this.pluginSkipped(plugin, stopReason);
+            return true;
+        
+        } else if (this.scannerParam.getMaxRuleDurationInMins() > 0 && plugin.getTimeStarted() != null) {
+        	long endtime = System.currentTimeMillis();
+        	if (plugin.getTimeFinished() != null) {
+        		endtime = plugin.getTimeFinished().getTime();
+        	}
+        	if (endtime - plugin.getTimeStarted().getTime() > 
+        			TimeUnit.MINUTES.toMillis(this.scannerParam.getMaxRuleDurationInMins())) {
+        	    this.pluginSkipped(plugin,
+        	            Constant.messages.getString("ascan.progress.label.skipped.reason.maxRule"));
+            	return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -650,7 +678,7 @@ public class HostProcess implements Runnable {
     public String getSkippedReason(Plugin plugin) {
         PluginStats pluginStats = mapPluginStats.get(plugin.getId());
         if (pluginStats == null) {
-            return null;
+            return stopReason;
         }
         return pluginStats.getSkippedReason();
     }

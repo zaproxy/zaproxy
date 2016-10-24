@@ -34,6 +34,7 @@ import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
@@ -634,7 +635,17 @@ public class ActiveScanAPI extends ApiImplementor {
 					for (Plugin plugin : hp.getCompleted()) {
 						long timeTaken = plugin.getTimeFinished().getTime() - plugin.getTimeStarted().getTime();
 						int reqs = hp.getPluginRequestCount(plugin.getId());
-						hpList.addItem(createPluginProgressEntry(plugin, "Complete", timeTaken, reqs));
+						if (hp.isSkipped(plugin)) {
+						    String skippedReason = hp.getSkippedReason(plugin);
+						    if (skippedReason == null) {
+						        skippedReason = Constant.messages.getString("ascan.progress.label.skipped");
+						    } else {
+						        skippedReason = Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
+						    }
+							hpList.addItem(createPluginProgressEntry(plugin, skippedReason, timeTaken, reqs));
+						} else {
+							hpList.addItem(createPluginProgressEntry(plugin, "Complete", timeTaken, reqs));
+						}
 			        }
 
 			        for (Plugin plugin : hp.getRunning()) {
@@ -650,7 +661,17 @@ public class ActiveScanAPI extends ApiImplementor {
 			        }
 
 			        for (Plugin plugin : hp.getPending()) {
-						hpList.addItem(createPluginProgressEntry(plugin, "Pending", 0, 0));
+						if (hp.isSkipped(plugin)) {
+                            String skippedReason = hp.getSkippedReason(plugin);
+                            if (skippedReason == null) {
+                                skippedReason = Constant.messages.getString("ascan.progress.label.skipped");
+                            } else {
+                                skippedReason = Constant.messages.getString("ascan.progress.label.skippedWithReason", skippedReason);
+                            }
+                            hpList.addItem(createPluginProgressEntry(plugin, skippedReason, 0, 0));
+						} else {
+							hpList.addItem(createPluginProgressEntry(plugin, "Pending", 0, 0));
+						}
 			        }
 					resultList.addItem(hpList);
 
