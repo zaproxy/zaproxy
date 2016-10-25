@@ -29,6 +29,7 @@ import net.htmlparser.jericho.StartTagType;
 
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.spider.SpiderParam;
+import org.zaproxy.zap.spider.URLCanonicalizer;
 
 /**
  * The Class SpiderHtmlParser is used for parsing of HTML files, gathering resource urls from them.
@@ -81,7 +82,7 @@ public class SpiderHtmlParser extends SpiderParser {
 			}
 			String href = base.getAttributeValue("href");
 			if (href != null && !href.isEmpty()) {
-				baseURL = href;
+				baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
 			}
 		}
 
