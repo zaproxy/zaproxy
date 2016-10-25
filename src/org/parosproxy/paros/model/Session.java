@@ -63,6 +63,7 @@
 // ZAP: 2016/07/05 Issue 2218: Persisted Sessions don't save unconfigured Default Context
 // ZAP: 2016/08/25 Detach sites tree model when loading the session
 // ZAP: 2016/08/29 Issue 2736: Can't generate reports from saved Session data
+// ZAP: 2016/10/24 Delay addition of imported context until it's known that it has no errors
 
 package org.parosproxy.paros.model;
 
@@ -1178,11 +1179,31 @@ public class Session {
 		}
 	}
 	
+	/**
+	 * Gets a newly created context with the given name.
+	 * <p>
+	 * The context is automatically added to the session.
+	 *
+	 * @param name the name of the context
+	 * @return the new {@code Context}.
+	 */
 	public Context getNewContext(String name) {
-		Context c = new Context(this, this.nextContextIndex++);
-		c.setName(name);
+		Context c = createContext(name);
 		this.addContext(c);
 		return c;
+	}
+
+	/**
+	 * Creates a new context with the given name.
+	 *
+	 * @param name the name of the context
+	 * @return the new {@code Context}.
+	 * @see #getNewContext(String)
+	 */
+	private Context createContext(String name) {
+		Context context = new Context(this, this.nextContextIndex++);
+		context.setName(name);
+		return context;
 	}
 
 	public void addContext(Context c) {
@@ -1313,7 +1334,7 @@ public class Session {
 	public Context importContext (File file) throws ConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		ZapXmlConfiguration config = new ZapXmlConfiguration(file);
 		
-		Context c = this.getNewContext(config.getString(Context.CONTEXT_CONFIG_NAME));
+		Context c = createContext(config.getString(Context.CONTEXT_CONFIG_NAME));
 
 		c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
 		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
@@ -1372,7 +1393,8 @@ public class Session {
 		
 		c.restructureSiteTree();
 		
-		Model.getSingleton().getSession().saveContext(c);
+		addContext(c);
+		saveContext(c);
 		return c;
 	}
 
