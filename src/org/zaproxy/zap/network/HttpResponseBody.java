@@ -90,10 +90,14 @@ public class HttpResponseBody extends HttpBody {
 			} catch (IllegalArgumentException e) {
 				log.warn("Unable to determine (valid) charset with the (X)HTML meta charset: " + e.getMessage());
 			}
-		} else if (contents.getBytes(StandardCharsets.UTF_8).length == contents.getBytes().length) {
+		} else if (isUtf8String(contents)) {
 			return StandardCharsets.UTF_8;
 		}
 		return null;
+	}
+
+	private static boolean isUtf8String(String string) {
+		return new String(string.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8).length() == string.length();
 	}
 
 	@Override
