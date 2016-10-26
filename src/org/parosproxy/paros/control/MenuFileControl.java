@@ -42,6 +42,7 @@
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/04/02 Issue 321: Support multiple databases
 // ZAP: 2015/12/14 Log exception and internationalise error message
+// ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
 
 package org.parosproxy.paros.control;
  
@@ -68,6 +69,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.view.View;
 import org.parosproxy.paros.view.WaitMessageDialog;
+import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.PersistSessionDialog;
 import org.zaproxy.zap.view.SessionTableSelectDialog;
@@ -593,6 +595,17 @@ public class MenuFileControl implements SessionListener {
 			    		Model.getSingleton().getSession(), 
 			    		Constant.messages.getString("context.list"), true);
 				
+			} catch (IllegalContextNameException e) {
+				String detailError;
+				if (e.getReason() == IllegalContextNameException.Reason.EMPTY_NAME) {
+					detailError = Constant.messages.getString("context.error.name.empty");
+				} else if (e.getReason() == IllegalContextNameException.Reason.DUPLICATED_NAME) {
+					detailError = Constant.messages.getString("context.error.name.duplicated");
+				} else {
+					detailError = Constant.messages.getString("context.error.name.unknown");
+				}
+				View.getSingleton().showWarningDialog(
+						MessageFormat.format(Constant.messages.getString("context.import.error"), detailError));
 			} catch (Exception e1) {
 				log.debug(e1.getMessage(), e1);
 				View.getSingleton().showWarningDialog(MessageFormat.format(

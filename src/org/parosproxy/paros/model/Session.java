@@ -64,6 +64,7 @@
 // ZAP: 2016/08/25 Detach sites tree model when loading the session
 // ZAP: 2016/08/29 Issue 2736: Can't generate reports from saved Session data
 // ZAP: 2016/10/24 Delay addition of imported context until it's known that it has no errors
+// ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
 
 package org.parosproxy.paros.model;
 
@@ -99,6 +100,7 @@ import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
 import org.zaproxy.zap.model.ParameterParser;
 import org.zaproxy.zap.model.StandardParameterParser;
@@ -1186,8 +1188,11 @@ public class Session {
 	 *
 	 * @param name the name of the context
 	 * @return the new {@code Context}.
+	 * @throws IllegalContextNameException (since TODO add version) if the given name is {@code null} or empty or if a context
+	 *             with the given name already exists.
 	 */
 	public Context getNewContext(String name) {
+		validateContextName(name);
 		Context c = createContext(name);
 		this.addContext(c);
 		return c;
@@ -1206,7 +1211,41 @@ public class Session {
 		return context;
 	}
 
+	/**
+	 * Validates the given name is not {@code null} nor empty and that no context already exists with the given name.
+	 *
+	 * @param name the name to be validated
+	 * @throws IllegalContextNameException if the given name is {@code null} or empty or if a context with the given name
+	 *             already exists.
+	 */
+	private void validateContextName(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalContextNameException(
+					IllegalContextNameException.Reason.EMPTY_NAME,
+					"The context name must not be null nor empty.");
+		}
+
+		if (getContext(name) != null) {
+			throw new IllegalContextNameException(
+					IllegalContextNameException.Reason.DUPLICATED_NAME,
+					"A context with the given name [" + name + "] already exists.");
+		}
+	}
+
+	/**
+	 * Adds the given context.
+	 *
+	 * @param c the context to be added
+	 * @throws IllegalArgumentException (since TODO add version) if the given context is {@code null}.
+	 * @throws IllegalContextNameException (since TODO add version) if context's name is {@code null} or empty or if a context
+	 *             with the same name already exists.
+	 */
 	public void addContext(Context c) {
+		if (c == null) {
+			throw new IllegalArgumentException("The context must not be null. ");
+		}
+		validateContextName(c.getName());
+
 		this.contexts.add(c);
 		this.model.loadContext(c);
 
@@ -1319,9 +1358,10 @@ public class Session {
 	}
 
 	/**
-	 * Import a context from the specified file
-	 * @param file
-	 * @return
+	 * Imports a context from the specified (XML) file.
+	 * 
+	 * @param file the (XML) file that contains the context data
+	 * @return the imported {@code Context}, already added to the session.
 	 * @throws ConfigurationException
 	 * @throws ClassNotFoundException
 	 * @throws InstantiationException
@@ -1330,11 +1370,16 @@ public class Session {
 	 * @throws InvocationTargetException
 	 * @throws NoSuchMethodException
 	 * @throws SecurityException
+	 * @throws IllegalContextNameException (since TODO add version) if context's name is not provided or it's empty or if a
+	 *             context with the same name already exists.
 	 */
 	public Context importContext (File file) throws ConfigurationException, ClassNotFoundException, InstantiationException, IllegalAccessException, IllegalArgumentException, InvocationTargetException, NoSuchMethodException, SecurityException {
 		ZapXmlConfiguration config = new ZapXmlConfiguration(file);
 		
-		Context c = createContext(config.getString(Context.CONTEXT_CONFIG_NAME));
+		String name = config.getString(Context.CONTEXT_CONFIG_NAME);
+		validateContextName(name);
+
+		Context c = createContext(name);
 
 		c.setDescription(config.getString(Context.CONTEXT_CONFIG_DESC));
 		c.setInScope(config.getBoolean(Context.CONTEXT_CONFIG_INSCOPE));
