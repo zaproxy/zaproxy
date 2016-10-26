@@ -69,6 +69,7 @@
 // ZAP: 2016/04/04 Do not require a restart to show/hide the tool bar
 // ZAP: 2016/04/06 Fix layouts' issues
 // ZAP: 2016/04/14 Allow to display a message
+// ZAP: 2016/10/26 Create UI shared context in the session dialogue when adding a context
 
 package org.parosproxy.paros.view;
 
@@ -693,6 +694,8 @@ public class View implements ViewDelegate {
     }
 
     public void addContext(Context c) {
+        getSessionDialog().createUISharedContext(c);
+
         String contextsNodeName = Constant.messages.getString("context.list");
         ContextGeneralPanel contextGenPanel = new ContextGeneralPanel(c.getName(), c.getIndex());
         contextGenPanel.setSessionDialog(getSessionDialog());
