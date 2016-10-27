@@ -202,7 +202,9 @@ public class ExtensionSessionManagement extends ExtensionAdaptor implements Cont
 
 	@Override
 	public void exportContextData(Context ctx, Configuration config) {
-		config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, ctx.getSessionManagementMethod().getType().getUniqueIdentifier());
+		SessionManagementMethodType type = ctx.getSessionManagementMethod().getType();
+		config.setProperty(CONTEXT_CONFIG_SESSION_TYPE, type.getUniqueIdentifier());
+		type.exportData(config, ctx.getSessionManagementMethod());
 	}
 
 	@Override
