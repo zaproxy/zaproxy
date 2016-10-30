@@ -108,21 +108,43 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	private List<ParseFilter> customParseFilters = null;
 
+	private final String id;
+
 	/**
-	 * Instantiates a new spider thread.
+	 * Constructs a {@code SpiderThread} with the given data.
 	 * 
-	 * @param extension the extension
-	 * @param site the site
+	 * @param extension the extension to obtain configurations and notify the view
+	 * @param spiderParams the spider options
+	 * @param site the name that identifies the target site
 	 * @param listenner the scan listener
+	 * @deprecated (TODO add version) Use {@link #SpiderThread(String, ExtensionSpider, SpiderParam, String, ScanListenner)}
 	 */
+	@Deprecated
 	public SpiderThread(ExtensionSpider extension, SpiderParam spiderParams, String site, ScanListenner listenner) {
+		this("?", extension, spiderParams, site, listenner);
+	}
+
+	/**
+	 * Constructs a {@code SpiderThread} with the given data.
+	 * 
+	 * @param id the ID of the spider, usually a unique integer
+	 * @param extension the extension to obtain configurations and notify the view
+	 * @param spiderParams the spider options
+	 * @param site the name that identifies the target site
+	 * @param listenner the scan listener
+	 * @since TODO add version
+	 */
+	public SpiderThread(String id, ExtensionSpider extension, SpiderParam spiderParams, String site, ScanListenner listenner) {
 		super(site, listenner);
 		log.debug("Initializing spider thread for site: " + site);
+		this.id = id;
 		this.extension = extension;
 		this.site = site;
 		this.pendingSpiderListeners = new LinkedList<>();
 		this.resultsModel = new SpiderPanelTableModel();
 		this.spiderParams = spiderParams;
+
+		setName("ZAP-SpiderInitThread-"+ id);
 	}
 
 	@Override
@@ -199,7 +221,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 	 */
 	private void startSpider() {
 
-		spider = new Spider(extension, spiderParams, extension.getModel().getOptionsParam()
+		spider = new Spider(id, extension, spiderParams, extension.getModel().getOptionsParam()
 				.getConnectionParam(), extension.getModel(), this.scanContext);
 
 		// Register this thread as a Spider Listener, so it gets notified of events and is able

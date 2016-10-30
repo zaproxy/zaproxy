@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 import org.apache.log4j.Logger;
@@ -42,6 +43,8 @@ import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.utils.DisplayUtils;
+import org.zaproxy.zap.view.ContextExportDialog;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextDataDriven;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextExclude;
 import org.zaproxy.zap.view.popup.PopupMenuItemContextInclude;
@@ -68,6 +71,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	private PopupContextTreeMenu popupContextTreeMenuInScope = null;
 	private PopupContextTreeMenu popupContextTreeMenuOutScope = null;
 	private PopupContextTreeMenu popupContextTreeMenuDelete = null;
+	private PopupContextTreeMenu popupContextTreeMenuExport;
 
 	// Still being developed
 	// private PopupMenuShowResponseInBrowser popupMenuShowResponseInBrowser = null;
@@ -135,6 +139,7 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuInScope());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuOutScope());
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuDelete());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextTreeMenuExport());
 		}
 	}
 	
@@ -201,6 +206,26 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 		}
 		return popupContextTreeMenuDelete;
 	}
+
+    private PopupContextTreeMenu getPopupContextTreeMenuExport() {
+        if (popupContextTreeMenuExport == null) {
+            popupContextTreeMenuExport = new PopupContextTreeMenu();
+            popupContextTreeMenuExport.setText(Constant.messages.getString("menu.file.context.export"));
+            popupContextTreeMenuExport.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(
+                    ExtensionStdMenus.class.getResource("/resource/icon/fugue/application-blue-export.png"))));
+            popupContextTreeMenuExport.addActionListener(new java.awt.event.ActionListener() {
+
+                @Override
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    Context context = Model.getSingleton().getSession().getContext(popupContextTreeMenuExport.getContextId());
+                    ContextExportDialog exportDialog = new ContextExportDialog(View.getSingleton().getMainFrame());
+                    exportDialog.setSelectedContext(context);
+                    exportDialog.setVisible(true);
+                }
+            });
+        }
+        return popupContextTreeMenuExport;
+    }
 
     private PopupCopyMenu getPopupMenuCopy() {
         if (popupCopyMenu== null) {

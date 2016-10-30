@@ -106,7 +106,7 @@ public class SpiderHtmlFormParser extends SpiderParser {
 			}
 			String href = base.getAttributeValue("href");
 			if (href != null && !href.isEmpty()) {
-				baseURL = href;
+				baseURL = URLCanonicalizer.getCanonicalURL(href, baseURL);
 			}
 		}
 

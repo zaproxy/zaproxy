@@ -22,6 +22,7 @@
 // ZAP: 2015/02/16 Issue 1528: Support user defined font size
 // ZAP: 2016/06/14 Issue 2578: Must click on text in Options column to select row
 // ZAP: 2016/08/23 Respect sort parameter when adding intermediate panels
+// ZAP: 2016/10/27 Explicitly show other panel when the selected panel is removed.
 
 package org.parosproxy.paros.view;
 
@@ -80,6 +81,7 @@ public class AbstractParamContainerPanel extends JSplitPane {
     
     // ZAP: show the last selected panel
     private String nameLastSelectedPanel = null;
+    private AbstractParamPanel currentShownPanel;
     private ShowHelpAction showHelpAction = null;
     
     // ZAP: Added logger
@@ -401,6 +403,19 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @param panel the panel that will be removed
      */
     public void removeParamPanel(AbstractParamPanel panel) {
+        if (currentShownPanel == panel) {
+            currentShownPanel = null;
+            nameLastSelectedPanel = null;
+            if (isShowing()) {
+                if (tablePanel.isEmpty()) {
+                    getTxtHeadline().setText("");
+                    getHelpButton().setVisible(false);
+                } else {
+                    getTreeParam().setSelectionPath(new TreePath(getFirstAvailableNode().getPath()));
+                }
+            }
+        }
+
         DefaultMutableTreeNode node = this.getTreeNodeFromPanelName(panel.getName(), true);
         if (node != null) {
             getTreeModel().removeNodeFromParent(node);
@@ -408,6 +423,13 @@ public class AbstractParamContainerPanel extends JSplitPane {
         
         getPanelParam().remove(panel);
         tablePanel.remove(panel.getName());
+    }
+
+    private DefaultMutableTreeNode getFirstAvailableNode() {
+        if (((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildCount() > 0) {
+            return (DefaultMutableTreeNode) ((DefaultMutableTreeNode) getTreeModel().getRoot()).getChildAt(0);
+        }
+        return getTreeNodeFromPanelName(tablePanel.keys().nextElement());
     }
 
     // ZAP: Made public so that other classes can specify which panel is displayed
@@ -458,15 +480,17 @@ public class AbstractParamContainerPanel extends JSplitPane {
      * @see AbstractParamPanel#onShow()
      */
     public void showParamPanel(AbstractParamPanel panel, String name) {
+        if (currentShownPanel == panel) {
+            return;
+        }
+
         // ZAP: Notify previously shown panel that it was hidden
-        if (nameLastSelectedPanel != null) {
-            AbstractParamPanel currentPanel = tablePanel.get(nameLastSelectedPanel);
-            if (currentPanel != null) {
-                currentPanel.onHide();
-            }
+        if (currentShownPanel != null) {
+            currentShownPanel.onHide();
         }
         
         nameLastSelectedPanel = name;
+        currentShownPanel = panel; 
 
         getPanelHeadline();
         getTxtHeadline().setText(name);
@@ -655,7 +679,11 @@ public class AbstractParamContainerPanel extends JSplitPane {
             int index = parent.getIndex(node);
             getTreeModel().removeNodeFromParent(node);
             getTreeModel().insertNodeInto(node, parent, index);
-            this.nameLastSelectedPanel = newPanelName;
+
+            if (panel == currentShownPanel) {
+                this.nameLastSelectedPanel = newPanelName;
+                this.currentShownPanel = null;
+            }
 
             this.getPanelParam().remove(panel);
 

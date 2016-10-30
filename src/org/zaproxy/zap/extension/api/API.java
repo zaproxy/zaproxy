@@ -201,6 +201,9 @@ public class API {
 
 		HttpMessage msg = new HttpMessage();
 		msg.setRequestHeader(requestHeader);
+		if (requestHeader.getContentLength() > 0) {
+			msg.setRequestBody(httpIn.readRequestBody(requestHeader));
+		}
 		String component = null;
 		ApiImplementor impl = null;
 		RequestType reqType = null;
