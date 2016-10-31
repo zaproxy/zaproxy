@@ -458,11 +458,28 @@ public class Context {
 		this.techSet = techSet;
 	}
 
+	/**
+	 * Gets the name of the context.
+	 *
+	 * @return the name of the context, never {@code null} (since TODO add version).
+	 */
 	public String getName() {
 		return name;
 	}
 
+	/**
+	 * Sets the name of the context.
+	 *
+	 * @param name the new name of the context
+	 * @throws IllegalContextNameException (since TODO add version) if the given name is {@code null} or empty.
+	 */
 	public void setName(String name) {
+		if (name == null || name.isEmpty()) {
+			throw new IllegalContextNameException(
+					IllegalContextNameException.Reason.EMPTY_NAME,
+					"The context name must not be null nor empty.");
+		}
+
 		this.name = name;
 	}
 

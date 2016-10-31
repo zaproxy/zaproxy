@@ -78,6 +78,9 @@ public class ContextCreateDialog extends StandardFieldsDialog {
 		if (this.isEmptyField(NAME_FIELD)) {
 			return Constant.messages.getString("context.create.warning.noname");
 		}
+		if (Model.getSingleton().getSession().getContext(getStringValue(NAME_FIELD)) != null) {
+			return Constant.messages.getString("context.error.name.duplicated");
+		}
 		return null;
 	}
 
