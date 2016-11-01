@@ -42,6 +42,7 @@ import net.sf.json.JSONObject;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.core.proxy.ProxyParam;
 import org.parosproxy.paros.model.Model;
+import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpInputStream;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
@@ -313,13 +314,17 @@ public class API {
 
 					ApiResponse res;
 					switch (reqType) {
-					case action:	
-						// TODO Handle POST requests - need to read these in and then parse params from POST body
-						/*
-						if (getOptionsParamApi().isPostActions()) {
-							throw new ApiException(ApiException.Type.DISABLED);
+					case action:
+						if (requestHeader.getMethod().equalsIgnoreCase(HttpRequestHeader.POST)) {
+							String contentTypeHeader = requestHeader.getHeader(HttpHeader.CONTENT_TYPE);
+							if(contentTypeHeader != null &&
+									contentTypeHeader.equals(HttpHeader.FORM_URLENCODED_CONTENT_TYPE)) {
+								params = getParams(msg.getRequestBody().toString());
+							} else {
+								throw new ApiException(ApiException.Type.CONTENT_TYPE_NOT_SUPPORTED);
+							}
 						}
-						*/
+
 						if (key != null && key.length() > 0) {
 							// Check if the right api key has been used
 							if ( ! params.has(API_KEY_PARAM) || ! key.equals(params.getString(API_KEY_PARAM))) {
