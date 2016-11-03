@@ -366,7 +366,7 @@ def main(argv):
         print ('Total of ' + str(len(zap.core.urls)) + ' URLs')
       # Retrieve the alerts using paging in case there are lots of them
       st = 0
-      pg = 100
+      pg = 5000
       alert_dict = {}
       alerts = zap.core.alerts(start=st, count=pg)
       while len(alerts) > 0:
