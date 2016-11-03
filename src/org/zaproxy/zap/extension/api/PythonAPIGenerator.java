@@ -64,6 +64,7 @@ public class PythonAPIGenerator extends AbstractAPIGenerator {
     static {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
+        initMap.put("continue", "cont");
         nameMap = Collections.unmodifiableMap(initMap);
     }
 

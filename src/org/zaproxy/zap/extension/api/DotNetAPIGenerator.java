@@ -57,6 +57,7 @@ public class DotNetAPIGenerator extends AbstractAPIGenerator {
     static {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("break", "brk");
+        initMap.put("continue", "cont");
         initMap.put("string", "str");
         initMap.put("params", "parameters");
         nameMap = Collections.unmodifiableMap(initMap);

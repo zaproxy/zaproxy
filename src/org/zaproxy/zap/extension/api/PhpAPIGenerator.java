@@ -60,6 +60,7 @@ public class PhpAPIGenerator extends AbstractAPIGenerator {
         Map<String, String> initMap = new HashMap<>();
         initMap.put("Break", "Brk");
         initMap.put("break", "brk");
+        initMap.put("continue", "cont");
         nameMap = Collections.unmodifiableMap(initMap);
     }
 
