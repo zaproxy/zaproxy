@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -56,7 +55,7 @@ public class AttackModeScanner implements EventConsumer {
 	private static final String ATTACK_ICON_RESOURCE = "/resource/icon/16/093.png";
 
 	private ExtensionActiveScan extension;
-	private Date lastUpdated = new Date(); 
+	private long lastUpdated;
 	private ScanStatus scanStatus;
 	private ExtensionAlert extAlert = null;
 	private AttackModeThread attackModeThread = null;
@@ -70,10 +69,13 @@ public class AttackModeScanner implements EventConsumer {
 		this.extension = extension;
 		ZAP.getEventBus().registerConsumer(this, SiteMapEventPublisher.class.getCanonicalName());
 		
-        scanStatus = new ScanStatus(
+		if (extension.getView() != null) {
+			lastUpdated = System.currentTimeMillis();
+			scanStatus = new ScanStatus(
 				new ImageIcon(
 						ExtensionLog4j.class.getResource("/resource/icon/fugue/target.png")),
 					Constant.messages.getString("ascan.attack.icon.title"));
+		}
 
 	}
 	
@@ -130,6 +132,11 @@ public class AttackModeScanner implements EventConsumer {
 		}
 	}
 	
+	/**
+	 * Gets the {@link ScanStatus}.
+	 *
+	 * @return the {@code ScanStatus}, or {@code null} if there's no view/UI.
+	 */
 	public ScanStatus getScanStatus() {
 		return scanStatus;
 	}
@@ -166,9 +173,18 @@ public class AttackModeScanner implements EventConsumer {
 
     }
 
+	/**
+	 * Updates the count of the {@link #scanStatus scan status}' label.
+	 * <p>
+	 * The call to this method has no effect if the view was not initialised.
+	 */
 	private void updateCount() {
-		Date now = new Date();
-		if (now.getTime() - this.lastUpdated.getTime() > 200) {
+		if (scanStatus == null) {
+			return;
+		}
+
+		long now = System.currentTimeMillis();
+		if (now - this.lastUpdated > 200) {
 			// Dont update too frequently, eg using the spider could hammer the UI unnecessarily
 			this.lastUpdated = now;
 			SwingUtilities.invokeLater(new Runnable(){
@@ -231,7 +247,7 @@ public class AttackModeScanner implements EventConsumer {
 					extension.getPolicyManager().getAttackScanPolicy(), ruleConfigParam);
 			extension.registerScan(ascanWrapper);
 			while (running) {
-				if (scanStatus.getScanCount() != nodeStack.size()) {
+				if (scanStatus != null && scanStatus.getScanCount() != nodeStack.size()) {
 					updateCount();
 				}
 				if (nodeStack.size() == 0 || scanners.size() == scannerCount) {
