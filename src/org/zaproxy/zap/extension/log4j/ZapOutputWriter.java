@@ -30,22 +30,18 @@ public class ZapOutputWriter extends WriterAppender {
 	private final static char NEWLINE = '\n';
 	private ScanStatus scanStatus = null;
 	
-	public ZapOutputWriter () {
-		System.out.println("ZapOutputWriter constructor");
-		
-	}
-
 	public ZapOutputWriter(ScanStatus scanStatus) {
+		if (!View.isInitialised()) {
+			throw new IllegalStateException("View must be initialised.");
+		}
+		if (scanStatus == null) {
+			throw new IllegalArgumentException("The parameter scanStatus must not be null.");
+		}
 		this.scanStatus = scanStatus;
 	}
 
 	@Override
 	public void append(final LoggingEvent event) {
-		if (! View.isInitialised()) {
-			// Running in daemon mode
-			return;
-		}
-
 		if (event.getLevel().equals(Level.ERROR)) {
 			if (! SwingUtilities.isEventDispatchThread()) {
 				SwingUtilities.invokeLater(new Runnable(){
@@ -56,9 +52,7 @@ public class ZapOutputWriter extends WriterAppender {
 				return;
 			}
 
-			if (scanStatus != null) {
-				scanStatus.incScanCount();
-			}
+			scanStatus.incScanCount();
 			
 			String renderedmessage=event.getRenderedMessage();
 			if (renderedmessage!=null) {
