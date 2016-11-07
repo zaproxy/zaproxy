@@ -121,7 +121,6 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         this.setOrder(28);
         policyManager = new PolicyManager(this);
         ascanController = new ActiveScanController(this);
-        attackModeScanner = new AttackModeScanner(this);
 
     }
     
@@ -143,6 +142,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
     @Override
     public void hook(ExtensionHook extensionHook) {
         super.hook(extensionHook);
+
+        attackModeScanner = new AttackModeScanner(this);
 
         if (getView() != null) {
             extensionHook.getHookMenu().addAnalyseMenuItem(getMenuItemPolicy());
