@@ -89,7 +89,9 @@ public class GuiBootstrap extends ZapBootstrap {
             return rc;
         }
 
-        BasicConfigurator.configure();
+        if (!getArgs().isNoStdOutLog()) {
+            BasicConfigurator.configure();
+        }
 
         logger.info(getStartingMessage());
 

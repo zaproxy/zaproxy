@@ -52,7 +52,9 @@ class DaemonBootstrap extends HeadlessBootstrap {
 
         View.setDaemon(true); // Prevents the View ever being initialised
 
-        BasicConfigurator.configure();
+        if (!getArgs().isNoStdOutLog()) {
+            BasicConfigurator.configure();
+        }
         logger.info(getStartingMessage());
 
         try {
@@ -93,7 +95,11 @@ class DaemonBootstrap extends HeadlessBootstrap {
                 }
                 
                 ProxyParam proxyParams = Model.getSingleton().getOptionsParam().getProxyParam();
-                logger.info("ZAP is now listening on " + proxyParams.getRawProxyIP() + ":" + proxyParams.getProxyPort());
+                String message = "ZAP is now listening on " + proxyParams.getRawProxyIP() + ":" + proxyParams.getProxyPort();
+                logger.info(message);
+                if (getArgs().isNoStdOutLog()) {
+                    System.out.println(message);
+                }
 
                 // This is the only non-daemon thread, so should keep running
                 // CoreAPI.handleApiAction uses System.exit to shutdown
