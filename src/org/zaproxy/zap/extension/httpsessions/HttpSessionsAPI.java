@@ -250,7 +250,7 @@ public class HttpSessionsAPI extends ApiImplementor {
 			}
 
 			ApiResponseList response = new ApiResponseList(name);
-			String vsName = params.getString(VIEW_PARAM_SESSION);
+			String vsName = getParam(params, VIEW_PARAM_SESSION, "");
 			// If a session name was not provided
 			if (vsName == null || vsName.isEmpty()) {
 				Set<HttpSession> sessions = site.getHttpSessions();
