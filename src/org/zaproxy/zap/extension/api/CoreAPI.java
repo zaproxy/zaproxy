@@ -167,7 +167,9 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			"  var url = '/' + format + '/' + component + '/' + type + '/' + name + '/'\n" +
 			"  var form=document.getElementById('zapform');\n" +
 			"  form.action = url;\n" +
-			"  form.method = form.elements[\"formMethod\"].value;\n" +
+			"  if (form.elements[\"formMethod\"]) {\n" +
+			"    form.method = form.elements[\"formMethod\"].value;\n" +
+			"  }\n" +
 			"  form.submit();\n" +
 			"}\n" +
 			"document.addEventListener('DOMContentLoaded', function () {\n" +
