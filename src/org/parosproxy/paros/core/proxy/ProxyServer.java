@@ -32,6 +32,7 @@
 // ZAP: 2015/11/04 Issue 1920: Report the host:port ZAP is listening on in daemon mode, or exit if it cant
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/08 Tweak how exception's message is checked to show a specific error/info message
 
 package org.parosproxy.paros.core.proxy;
 
@@ -165,10 +166,16 @@ public class ProxyServer implements Runnable {
                 
                 return -1;
             } catch (BindException e) {
-                if ("Cannot assign requested address".equals(e.getMessage())) {
+                String message = e.getMessage();
+                if (message == null || message.isEmpty()) {
+                    handleUnknownException(e);
+                    return -1;
+                }
+
+                if (message.startsWith("Cannot assign requested address")) {
                     showErrorMessage(Constant.messages.getString("proxy.error.address") + " " + ip);
                     return -1;
-                } else if ("Permission denied".equals(e.getMessage()) || "Address already in use".equals(e.getMessage())) {
+                } else if (message.startsWith("Permission denied") || message.startsWith("Address already in use")) {
                     if (!isDynamicPort) {
                         showErrorMessage(Constant.messages.getString("proxy.error.port") + " " + ip + ":" + port);
                         return -1;
