@@ -89,8 +89,8 @@ public class AttackModeScanner implements EventConsumer {
 			attackModeThread.shutdown();
 		}
 		attackModeThread = new AttackModeThread();
-		Thread t = new Thread(attackModeThread);
-		t.setName("ZAP-AttackMode");
+		Thread t = new Thread(attackModeThread, "ZAP-AttackMode");
+		t.setDaemon(true);
 		t.start();
 		
 	}
