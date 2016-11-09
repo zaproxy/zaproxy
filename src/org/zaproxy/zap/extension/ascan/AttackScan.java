@@ -21,6 +21,7 @@ package org.zaproxy.zap.extension.ascan;
 
 import org.parosproxy.paros.core.scanner.ScannerParam;
 import org.parosproxy.paros.network.ConnectionParam;
+import org.zaproxy.zap.extension.ascan.AttackModeScanner.AttackModeScannerThread;
 import org.zaproxy.zap.extension.ruleconfig.RuleConfigParam;
 import org.zaproxy.zap.model.Target;
 
@@ -31,9 +32,18 @@ import org.zaproxy.zap.model.Target;
  */
 public class AttackScan extends ActiveScan {
 
+	private final AttackModeScannerThread attackModeScannerThread;
+
 	public AttackScan(String displayName, ScannerParam scannerParam, 
 			ConnectionParam param, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
+		this(displayName, scannerParam, param, scanPolicy, ruleConfigParam, null);
+	}
+
+	AttackScan(String displayName, ScannerParam scannerParam,
+			ConnectionParam param, ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam,
+			AttackModeScannerThread attackModeScannerThread) {
 		super(displayName, scannerParam, param, scanPolicy, ruleConfigParam);
+		this.attackModeScannerThread = attackModeScannerThread;
 	}
 	
 	@Override
@@ -79,6 +89,13 @@ public class AttackScan extends ActiveScan {
 	@Override
     public boolean isRunning() {
 		return true;
+	}
+
+	boolean isDone() {
+		if (attackModeScannerThread == null) {
+			return false;
+		}
+		return !attackModeScannerThread.isRunning() || !attackModeScannerThread.isActive();
 	}
 
 }

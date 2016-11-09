@@ -223,7 +223,7 @@ public class AttackModeScanner implements EventConsumer {
 		return extAlert;
 	}
 
-	private class AttackModeThread implements Runnable, ScannerListener {
+	private class AttackModeThread implements Runnable, ScannerListener, AttackModeScannerThread {
 
 		private int scannerCount = 4; 
 		private List<Scanner> scanners = new ArrayList<Scanner>();
@@ -244,7 +244,7 @@ public class AttackModeScanner implements EventConsumer {
 
 			ascanWrapper = new AttackScan(Constant.messages.getString("ascan.attack.scan"), extension.getScannerParam(), 
 					extension.getModel().getOptionsParam().getConnectionParam(), 
-					extension.getPolicyManager().getAttackScanPolicy(), ruleConfigParam);
+					extension.getPolicyManager().getAttackScanPolicy(), ruleConfigParam, this);
 			extension.registerScan(ascanWrapper);
 			while (running) {
 				if (scanStatus != null && scanStatus.getScanCount() != nodeStack.size()) {
@@ -349,6 +349,7 @@ public class AttackModeScanner implements EventConsumer {
 			this.running = false;
 		}
 		
+		@Override
 		public boolean isRunning() {
 			return this.running;
 		}
@@ -357,6 +358,7 @@ public class AttackModeScanner implements EventConsumer {
 		 * Tells whether or not any of the scan threads are currently active.
 		 * @return {@code true} if there's at least one scan active, {@code false} otherwise
 		 */
+		@Override
 		public boolean isActive() {
 			synchronized (this.scanners) {
 				for (Scanner scanner : this.scanners) {
@@ -367,5 +369,12 @@ public class AttackModeScanner implements EventConsumer {
 			}
 			return false;
 		}
+	}
+
+	interface AttackModeScannerThread {
+
+		boolean isRunning();
+
+		boolean isActive();
 	}
 }
