@@ -188,6 +188,9 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         String activeActionPrefix = Constant.messages.getString("ascan.activeActionPrefix");
         List<String> activeActions = new ArrayList<>(activeScans.size());
         for (ActiveScan activeScan : activeScans) {
+            if (activeScan instanceof AttackScan && ((AttackScan) activeScan).isDone()) {
+                continue;
+            }
             activeActions.add(MessageFormat.format(activeActionPrefix, activeScan.getDisplayName()));
         }
         return activeActions;
