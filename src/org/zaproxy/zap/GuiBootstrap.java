@@ -328,6 +328,20 @@ public class GuiBootstrap extends ZapBootstrap {
         }
         lookAndFeelSet = true;
 
+        String lookAndFeelClassname = System.getProperty("swing.defaultlaf");
+        if (lookAndFeelClassname != null) {
+            try {
+                UIManager.setLookAndFeel(lookAndFeelClassname);
+                return;
+            } catch (final UnsupportedLookAndFeelException
+                     | ClassNotFoundException
+                     | ClassCastException
+                     | InstantiationException
+                     | IllegalAccessException e) {
+                logger.warn("Failed to set the specified look and feel: " + e.getMessage());
+            }
+        }
+
         try {
             // Set the systems Look and Feel
             UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -347,7 +361,7 @@ public class GuiBootstrap extends ZapBootstrap {
                  | ClassNotFoundException
                  | InstantiationException
                  | IllegalAccessException e) {
-            // handle exception
+            logger.warn("Failed to set the \"default\" look and feel: " + e.getMessage());
         }
     }
 

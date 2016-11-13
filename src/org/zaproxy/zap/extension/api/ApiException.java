@@ -64,11 +64,20 @@ public class ApiException extends Exception {
 		 */
 		ILLEGAL_PARAMETER,
 		CONTEXT_NOT_FOUND,
+		CONTENT_TYPE_NOT_SUPPORTED,
 		USER_NOT_FOUND, URL_NOT_IN_CONTEXT, BAD_API_KEY, SCRIPT_NOT_FOUND, BAD_SCRIPT_FORMAT, NO_ACCESS,
 		/*
 		 * Indicates that the requested operation is not allowed in the current mode
 		 */
-		MODE_VIOLATION};
+		MODE_VIOLATION,
+		/**
+		 * Indicates that the external data (provided by other means other than the API parameters, for example, obtained from
+		 * the file system) is not correct.
+		 * 
+		 * @since TODO add version
+		 */
+		BAD_EXTERNAL_DATA
+	}
 	
 	private final Type type;
 	private final String detail;

@@ -3,7 +3,7 @@
  *
  * ZAP is an HTTP/HTTPS proxy for assessing web application security.
  *
- * Copyright 2010 psiinon@gmail.com
+ * Copyright 2016 The ZAP core team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,42 +19,36 @@
  */
 package org.zaproxy.zap.extension.brk;
 
-import java.awt.EventQueue;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control.Mode;
-import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.Message;
 
-/**
- * @deprecated (TODO add version) Use {@link BreakpointMessageHandler2} instead
- */
-@Deprecated
-public class BreakpointMessageHandler {
+public class BreakpointMessageHandler2 {
 
-    private static final Logger logger = Logger.getLogger(BreakpointMessageHandler.class);
+    private static final Logger LOGGER = Logger.getLogger(BreakpointMessageHandler2.class);
     
-    protected static final java.lang.Object semaphore = new java.lang.Object();
+    protected static final Object SEMAPHORE = new Object();
     
-    protected final BreakPanel breakPanel;
+    protected final BreakpointManagementInterface breakMgmt;
     
     protected List<BreakpointMessageInterface> enabledBreakpoints;
     
     private List<String> enabledKeyBreakpoints = new ArrayList<>();
     
     public List<String> getEnabledKeyBreakpoints() {
-		return enabledKeyBreakpoints;
-	}
+        return enabledKeyBreakpoints;
+    }
 
-	public void setEnabledKeyBreakpoints(List<String> enabledKeyBreakpoints) {
-		this.enabledKeyBreakpoints = enabledKeyBreakpoints;
-	}
+    public void setEnabledKeyBreakpoints(List<String> enabledKeyBreakpoints) {
+        this.enabledKeyBreakpoints = enabledKeyBreakpoints;
+    }
 
-	public BreakpointMessageHandler(BreakPanel aBreakPanel) {
-        this.breakPanel = aBreakPanel;
+    public BreakpointMessageHandler2(BreakpointManagementInterface aBreakPanel) {
+        this.breakMgmt = aBreakPanel;
     }
     
     public void setEnabledBreakpoints(List<BreakpointMessageInterface> breakpoints) {
@@ -75,16 +69,16 @@ public class BreakpointMessageHandler {
         
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
         // but be reset when the next break point is hit
-        breakPanel.breakpointHit();
+        breakMgmt.breakpointHit();
 
-        synchronized(semaphore) {
-            if (breakPanel.isHoldMessage()) {
+        synchronized(SEMAPHORE) {
+            if (breakMgmt.isHoldMessage(aMessage)) {
                 setBreakDisplay(aMessage, true);
-                waitUntilContinue(true);
+                waitUntilContinue(aMessage, true);
             }
         }
-        breakPanel.clearAndDisableRequest();
-        return ! breakPanel.isToBeDropped();
+        breakMgmt.clearAndDisableRequest();
+        return ! breakMgmt.isToBeDropped();
     }
     
     /**
@@ -101,47 +95,34 @@ public class BreakpointMessageHandler {
         
         // Do this outside of the semaphore loop so that the 'continue' button can apply to all queued break points
         // but be reset when the next break point is hit
-        breakPanel.breakpointHit();
+        breakMgmt.breakpointHit();
 
-        synchronized(semaphore) {
-            //breakPanel.breakpointHit();
-            if (breakPanel.isHoldMessage()) {
+        synchronized(SEMAPHORE) {
+            if (breakMgmt.isHoldMessage(aMessage)) {
                 setBreakDisplay(aMessage, false);
-                waitUntilContinue(false);
+                waitUntilContinue(aMessage, false);
             }
         }
-        breakPanel.clearAndDisableResponse();
-
-        return ! breakPanel.isToBeDropped();
+        breakMgmt.clearAndDisableResponse();
+        return ! breakMgmt.isToBeDropped();
     }
     
     private void setBreakDisplay(final Message msg, boolean isRequest) {
-        breakPanel.setMessage(msg, isRequest);
-        breakPanel.breakpointDisplayed();
-        try {
-            EventQueue.invokeAndWait(new Runnable() {
-                @Override
-                public void run() {
-                    View.getSingleton().getMainFrame().toFront();
-                }
-            });
-        } catch (Exception e) {
-            logger.warn(e.getMessage(), e);
-        }
+        breakMgmt.setMessage(msg, isRequest);
+        breakMgmt.breakpointDisplayed();
     }
     
-    private void waitUntilContinue(final boolean isRequest) {
+    private void waitUntilContinue(Message aMessage, final boolean isRequest) {
         // Note that multiple requests and responses can get built up, so pressing continue only
         // releases the current break, not all of them.
-        //breakPanel.setContinue(false);
-        while (breakPanel.isHoldMessage()) {
+        while (breakMgmt.isHoldMessage(aMessage)) {
             try {
                 Thread.sleep(100);
             } catch (InterruptedException e) {
-                logger.warn(e.getMessage(), e);
+                LOGGER.warn(e.getMessage(), e);
             }
         }
-        breakPanel.saveMessage(isRequest);
+        breakMgmt.saveMessage(isRequest);
     }
 
     /**
@@ -153,34 +134,15 @@ public class BreakpointMessageHandler {
      * @return True if a breakpoint for given message exists.
      */
     public boolean isBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-    	if (aMessage.isForceIntercept()) {
-			// The browser told us to do it Your Honour
-			return true;
-    	}
-    	
-    	/* Disable pending other changes
-    	String secHeader = aMessage.getHeader(HttpHeader.X_SECURITY_PROXY);
-    	if (secHeader != null) {
-			for (String val : secHeader.split(",")) {
-				if (val.trim().startsWith(HttpHeader.SEC_PROXY_KEY) && val.indexOf("=") > 0) {
-					String[] keyValue = val.split("=");
-					// Have we been told to intercept messages with this key?
-					for (String k : this.enabledKeyBreakpoints) {
-						if (k.equals(keyValue[1].trim())) {
-							// Yes, we have
-							logger.debug("isBreakpoint match on key " + k);
-							return true;
-						}
-					}
-				}
-    		}
-    	}
-    	*/
-    	
-    	if (onlyIfInScope && ! aMessage.isInScope()) {
-    		return false;
-    	}
-    	
+        if (aMessage.isForceIntercept()) {
+            // The browser told us to do it Your Honour
+            return true;
+        }
+        
+        if (onlyIfInScope && ! aMessage.isInScope()) {
+            return false;
+        }
+        
         if (isBreakOnAllRequests(aMessage, isRequest)) {
             // Break on all requests
             return true;
@@ -195,20 +157,20 @@ public class BreakpointMessageHandler {
         return isBreakOnEnabledBreakpoint(aMessage, isRequest, onlyIfInScope);
     }
 
-	protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
-    	return isRequest && breakPanel.isBreakRequest();
-	}
+    protected boolean isBreakOnAllRequests(Message aMessage, boolean isRequest) {
+        return isRequest && breakMgmt.isBreakRequest();
+    }
     
-	protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
-    	return !isRequest && breakPanel.isBreakResponse();
-	}
+    protected boolean isBreakOnAllResponses(Message aMessage, boolean isRequest) {
+        return !isRequest && breakMgmt.isBreakResponse();
+    }
 
-	protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
-		return breakPanel.isStepping();
-	}
+    protected boolean isBreakOnStepping(Message aMessage, boolean isRequest) {
+        return breakMgmt.isStepping();
+    }
 
     protected boolean isBreakOnEnabledBreakpoint(Message aMessage, boolean isRequest, boolean onlyIfInScope) {
-		if (enabledBreakpoints.isEmpty()) {
+        if (enabledBreakpoints.isEmpty()) {
             // No break points
             return false;
         }
@@ -227,5 +189,5 @@ public class BreakpointMessageHandler {
         }
 
         return false;
-	}
+    }
 }

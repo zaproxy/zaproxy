@@ -23,6 +23,7 @@ package org.zaproxy.zap.extension.brk;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
 import java.awt.Event;
+import java.awt.EventQueue;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 
@@ -36,6 +37,7 @@ import javax.swing.JToggleButton;
 import javax.swing.JToolBar;
 import javax.swing.KeyStroke;
 
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.AbstractPanel;
@@ -49,9 +51,10 @@ import org.zaproxy.zap.extension.httppanel.HttpPanelResponse;
 import org.zaproxy.zap.extension.httppanel.Message;
 import org.zaproxy.zap.extension.tab.Tab;
 
-public class BreakPanel extends AbstractPanel implements Tab {
+public class BreakPanel extends AbstractPanel implements Tab, BreakpointManagementInterface {
 
 	private static final long serialVersionUID = 1L;
+	private static final Logger LOGGER = Logger.getLogger(BreakPanel.class);
 
 	private static final String REQUEST_PANEL = "request";
 	private static final String RESPONSE_PANEL = "response";
@@ -72,7 +75,9 @@ public class BreakPanel extends AbstractPanel implements Tab {
 	private final JButton toolBarBtnDrop;
 	private final JButton toolBarBtnBreakPoint;
 	
+	private Message msg;
 	private boolean isAlwaysOnTop = false;
+	private boolean request;
 
 	/**
 	 * The break buttons shown in the main panel of the Break tab.
@@ -207,42 +212,54 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		return !extension.getModel().getOptionsParam().getViewParam().isShowMainToolbar();
 	}
 
+	@Override
 	public boolean isBreakRequest() {
 		return breakToolbarFactory.isBreakRequest();
 	}
 	
+	@Override
 	public boolean isBreakResponse() {
 		return breakToolbarFactory.isBreakResponse();
 	}
 	
+	@Override
 	public boolean isBreakAll() {
 		return breakToolbarFactory.isBreakAll();
 	}
 	
+	@Override
 	public void breakpointHit () {
 		breakToolbarFactory.breakpointHit();
+	}
+	
+	@Override
+	public boolean isHoldMessage(Message aMessage) {
+		return breakToolbarFactory.isHoldMessage();
 	}
 	
 	public boolean isHoldMessage() {
 		return breakToolbarFactory.isHoldMessage();
 	}
 	
+	@Override
 	public boolean isStepping() {
 		return breakToolbarFactory.isStepping();
 	}
-    
-    public boolean isToBeDropped() {
-        return breakToolbarFactory.isToBeDropped();
-    }
 	
-	protected void breakpointDisplayed () {
+	@Override
+	public boolean isToBeDropped() {
+		return breakToolbarFactory.isToBeDropped();
+	}
+	
+	@Override
+	public void breakpointDisplayed () {
 		final Boolean alwaysOnTopOption = breakpointsParams.getAlwaysOnTop();
 		if (alwaysOnTopOption == null || alwaysOnTopOption.booleanValue()) {
 		
 			java.awt.EventQueue.invokeLater(new Runnable() {
-			    @Override
-			    public void run() {
-			    	
+				@Override
+				public void run() {
+					
 					View.getSingleton().getMainFrame().setAlwaysOnTop(true);
 					View.getSingleton().getMainFrame().toFront();
 					setTabFocus();
@@ -260,8 +277,18 @@ public class BreakPanel extends AbstractPanel implements Tab {
 							isAlwaysOnTop = false;
 						}
 					}
-			    }
+				}
 			});
+		}
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					View.getSingleton().getMainFrame().toFront();
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.warn(e.getMessage(), e);
 		}
 	}
 
@@ -276,30 +303,62 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		toolBarBtnBreakPoint.setVisible(visible);
 	}
 	
-	public void setMessage(Message aMessage, boolean isRequest) {
-		CardLayout cl = (CardLayout)(panelContent.getLayout());
+	@Override
+	public void setMessage(final Message aMessage, final boolean isRequest) {
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					msg = aMessage;
+					CardLayout cl = (CardLayout)(panelContent.getLayout());
+					request = isRequest;
 
-		if (isRequest) {
-            requestPanel.setMessage(aMessage, true);
-            requestPanel.setEditable(true);
-			cl.show(panelContent, REQUEST_PANEL);
-		} else {
-            responsePanel.setMessage(aMessage, true);
-            responsePanel.setEditable(true);
-			cl.show(panelContent, RESPONSE_PANEL);
+					if (isRequest) {
+						requestPanel.setMessage(aMessage, true);
+						requestPanel.setEditable(true);
+						cl.show(panelContent, REQUEST_PANEL);
+					} else {
+						responsePanel.setMessage(aMessage, true);
+						responsePanel.setEditable(true);
+						cl.show(panelContent, RESPONSE_PANEL);
+					}
+				}
+			});
+		} catch (Exception e) {
+			LOGGER.warn(e.getMessage(), e);
 		}
+
+	}
+	
+	@Override
+	public boolean isRequest() {
+		return this.request;
 	}
 
+	@Override
+	public Message getMessage() {
+		return msg;
+	}
 	
-	public void saveMessage(boolean isRequest) {
-		CardLayout cl = (CardLayout)(panelContent.getLayout());
+	@Override
+	public void saveMessage(final boolean isRequest) {
+		try {
+			EventQueue.invokeAndWait(new Runnable() {
+				@Override
+				public void run() {
+					CardLayout cl = (CardLayout)(panelContent.getLayout());
 
-		if (isRequest) {
-			requestPanel.saveData();
-			cl.show(panelContent, REQUEST_PANEL);
-		} else {
-			responsePanel.saveData();
-			cl.show(panelContent, RESPONSE_PANEL);
+					if (isRequest) {
+						requestPanel.saveData();
+						cl.show(panelContent, REQUEST_PANEL);
+					} else {
+						responsePanel.saveData();
+						cl.show(panelContent, RESPONSE_PANEL);
+					}
+				}
+			});
+		} catch (Exception ie) {
+			LOGGER.warn(ie.getMessage(), ie);
 		}
 	}
 
@@ -308,13 +367,51 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		responsePanel.saveConfig(Model.getSingleton().getOptionsParam().getConfig());
 	}
 	
+	@Override
 	public void clearAndDisableRequest() {
+		if (EventQueue.isDispatchThread()) {
+			clearAndDisableRequestEventHandler();
+		} else {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						clearAndDisableRequestEventHandler();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.warn(e.getMessage(), e);
+			}
+		}
+
+	}
+	private void clearAndDisableRequestEventHandler() {
+		this.msg = null;
 		requestPanel.clearView(false);
 		requestPanel.setEditable(false);
 		breakpointLeft();
 	}
 	
+	@Override
 	public void clearAndDisableResponse() {
+		if (EventQueue.isDispatchThread()) {
+			clearAndDisableResponseEventHandler();
+		} else {
+			try {
+				EventQueue.invokeAndWait(new Runnable() {
+					@Override
+					public void run() {
+						clearAndDisableResponseEventHandler();
+					}
+				});
+			} catch (Exception e) {
+				LOGGER.warn(e.getMessage(), e);
+			}
+		}
+
+	}
+	private void clearAndDisableResponseEventHandler() {
+		this.msg = null;
 		responsePanel.clearView(false);
 		responsePanel.setEditable(false);
 		breakpointLeft();
@@ -327,14 +424,18 @@ public class BreakPanel extends AbstractPanel implements Tab {
 		}
 	}
 	
+	@Override
 	public void init() {
 		breakToolbarFactory.init();
 	}
 	
+	@Override
 	public void reset() {
+		this.msg = null;
 		breakToolbarFactory.reset();
 	}
 
+	@Override
 	public void sessionModeChanged(Mode mode) {
 		if (mode.equals(Mode.safe)) {
 			this.breakToolbarFactory.setBreakEnabled(false);
@@ -344,28 +445,37 @@ public class BreakPanel extends AbstractPanel implements Tab {
 
 	}
 
+	@Override
 	public void setBreakAllRequests(boolean brk) {
 		breakToolbarFactory.setBreakRequest(brk);
 	}
 
+	@Override
 	public void setBreakAllResponses(boolean brk) {
 		breakToolbarFactory.setBreakResponse(brk);
 	}
 
+	@Override
 	public void setBreakAll(boolean brk) {
 		breakToolbarFactory.setBreakAll(brk);
 	}
 
+	@Override
 	public void step() {
 		breakToolbarFactory.setStep(true);
 	}
 	
+	@Override
 	public void cont() {
 		breakToolbarFactory.setContinue(true);
+		breakToolbarFactory.setBreakAll(false);
+		breakToolbarFactory.setBreakRequest(false);
+		breakToolbarFactory.setBreakResponse(false);
 	}
 
+	@Override
 	public void drop() {
-		breakToolbarFactory.drop();
+		breakToolbarFactory.setDrop(true);
 	}
 
 	public void showNewBreakPointDialog() {

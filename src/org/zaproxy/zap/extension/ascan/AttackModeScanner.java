@@ -20,7 +20,6 @@
 package org.zaproxy.zap.extension.ascan;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.ImageIcon;
@@ -56,7 +55,7 @@ public class AttackModeScanner implements EventConsumer {
 	private static final String ATTACK_ICON_RESOURCE = "/resource/icon/16/093.png";
 
 	private ExtensionActiveScan extension;
-	private Date lastUpdated = new Date(); 
+	private long lastUpdated;
 	private ScanStatus scanStatus;
 	private ExtensionAlert extAlert = null;
 	private AttackModeThread attackModeThread = null;
@@ -70,10 +69,13 @@ public class AttackModeScanner implements EventConsumer {
 		this.extension = extension;
 		ZAP.getEventBus().registerConsumer(this, SiteMapEventPublisher.class.getCanonicalName());
 		
-        scanStatus = new ScanStatus(
+		if (extension.getView() != null) {
+			lastUpdated = System.currentTimeMillis();
+			scanStatus = new ScanStatus(
 				new ImageIcon(
 						ExtensionLog4j.class.getResource("/resource/icon/fugue/target.png")),
 					Constant.messages.getString("ascan.attack.icon.title"));
+		}
 
 	}
 	
@@ -87,8 +89,8 @@ public class AttackModeScanner implements EventConsumer {
 			attackModeThread.shutdown();
 		}
 		attackModeThread = new AttackModeThread();
-		Thread t = new Thread(attackModeThread);
-		t.setName("ZAP-AttackMode");
+		Thread t = new Thread(attackModeThread, "ZAP-AttackMode");
+		t.setDaemon(true);
 		t.start();
 		
 	}
@@ -130,6 +132,11 @@ public class AttackModeScanner implements EventConsumer {
 		}
 	}
 	
+	/**
+	 * Gets the {@link ScanStatus}.
+	 *
+	 * @return the {@code ScanStatus}, or {@code null} if there's no view/UI.
+	 */
 	public ScanStatus getScanStatus() {
 		return scanStatus;
 	}
@@ -166,9 +173,18 @@ public class AttackModeScanner implements EventConsumer {
 
     }
 
+	/**
+	 * Updates the count of the {@link #scanStatus scan status}' label.
+	 * <p>
+	 * The call to this method has no effect if the view was not initialised.
+	 */
 	private void updateCount() {
-		Date now = new Date();
-		if (now.getTime() - this.lastUpdated.getTime() > 200) {
+		if (scanStatus == null) {
+			return;
+		}
+
+		long now = System.currentTimeMillis();
+		if (now - this.lastUpdated > 200) {
 			// Dont update too frequently, eg using the spider could hammer the UI unnecessarily
 			this.lastUpdated = now;
 			SwingUtilities.invokeLater(new Runnable(){
@@ -207,7 +223,7 @@ public class AttackModeScanner implements EventConsumer {
 		return extAlert;
 	}
 
-	private class AttackModeThread implements Runnable, ScannerListener {
+	private class AttackModeThread implements Runnable, ScannerListener, AttackModeScannerThread {
 
 		private int scannerCount = 4; 
 		private List<Scanner> scanners = new ArrayList<Scanner>();
@@ -228,10 +244,10 @@ public class AttackModeScanner implements EventConsumer {
 
 			ascanWrapper = new AttackScan(Constant.messages.getString("ascan.attack.scan"), extension.getScannerParam(), 
 					extension.getModel().getOptionsParam().getConnectionParam(), 
-					extension.getPolicyManager().getAttackScanPolicy(), ruleConfigParam);
+					extension.getPolicyManager().getAttackScanPolicy(), ruleConfigParam, this);
 			extension.registerScan(ascanWrapper);
 			while (running) {
-				if (scanStatus.getScanCount() != nodeStack.size()) {
+				if (scanStatus != null && scanStatus.getScanCount() != nodeStack.size()) {
 					updateCount();
 				}
 				if (nodeStack.size() == 0 || scanners.size() == scannerCount) {
@@ -333,6 +349,7 @@ public class AttackModeScanner implements EventConsumer {
 			this.running = false;
 		}
 		
+		@Override
 		public boolean isRunning() {
 			return this.running;
 		}
@@ -341,6 +358,7 @@ public class AttackModeScanner implements EventConsumer {
 		 * Tells whether or not any of the scan threads are currently active.
 		 * @return {@code true} if there's at least one scan active, {@code false} otherwise
 		 */
+		@Override
 		public boolean isActive() {
 			synchronized (this.scanners) {
 				for (Scanner scanner : this.scanners) {
@@ -351,5 +369,12 @@ public class AttackModeScanner implements EventConsumer {
 			}
 			return false;
 		}
+	}
+
+	interface AttackModeScannerThread {
+
+		boolean isRunning();
+
+		boolean isActive();
 	}
 }

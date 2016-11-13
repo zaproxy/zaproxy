@@ -35,6 +35,7 @@ import org.zaproxy.zap.extension.api.ApiResponseElement;
 import org.zaproxy.zap.extension.api.ApiException.Type;
 import org.zaproxy.zap.extension.authorization.AuthorizationDetectionMethod;
 import org.zaproxy.zap.model.Context;
+import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.Tech;
 import org.zaproxy.zap.model.TechSet;
 import org.zaproxy.zap.utils.ApiUtils;
@@ -134,7 +135,12 @@ public class ContextAPI extends ApiImplementor {
             }
         	break;
         case ACTION_NEW_CONTEXT:
-            context = Model.getSingleton().getSession().getNewContext(params.getString(CONTEXT_NAME));
+            String contextName = params.getString(CONTEXT_NAME);
+            try {
+                context = Model.getSingleton().getSession().getNewContext(contextName);
+            } catch (IllegalContextNameException e) {
+                throw new ApiException(ApiException.Type.ALREADY_EXISTS, contextName, e);
+            }
             Model.getSingleton().getSession().saveContext(context);
             return new ApiResponseElement(CONTEXT_ID, String.valueOf(context.getIndex()));
         case ACTION_REMOVE_CONTEXT:
@@ -158,6 +164,8 @@ public class ContextAPI extends ApiImplementor {
             } else {
             	try {
 					context = Model.getSingleton().getSession().importContext(f);
+				} catch (IllegalContextNameException e) {
+					throw new ApiException(ApiException.Type.BAD_EXTERNAL_DATA, e);
 				} catch (Exception e) {
 					log.error(e.getMessage(), e);
 		            throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
