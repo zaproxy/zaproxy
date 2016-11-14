@@ -61,6 +61,7 @@
 // ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
 // ZAP: 2016/09/20 - Reorder statements to prevent (potential) NullPointerException in scanSingleNode
 //                 - JavaDoc tweaks
+// ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
 
 package org.parosproxy.paros.core.scanner;
 
@@ -121,6 +122,23 @@ public class HostProcess implements Runnable {
     private int percentage = 0;
     
     /**
+     * Constructs a {@code HostProcess}, with no rules' configurations.
+     * 
+     * @param hostAndPort the host:port value of the site that need to be processed
+     * @param parentScanner the scanner instance which instantiated this process
+     * @param scannerParam the session scanner parameters
+     * @param connectionParam the connection parameters
+     * @param scanPolicy the scan policy
+     * @deprecated Use {@link #HostProcess(String, Scanner, ScannerParam, ConnectionParam, ScanPolicy, RuleConfigParam)}
+     *             instead. It will be removed in a future version.
+     */
+    @Deprecated
+    public HostProcess(String hostAndPort, Scanner parentScanner, ScannerParam scannerParam,
+            ConnectionParam connectionParam, ScanPolicy scanPolicy) {
+        this(hostAndPort, parentScanner, scannerParam, connectionParam, scanPolicy, null);
+    }
+    
+    /**
      * Constructs a {@code HostProcess}.
      * 
      * @param hostAndPort the host:port value of the site that need to be processed
@@ -128,7 +146,8 @@ public class HostProcess implements Runnable {
      * @param scannerParam the session scanner parameters
      * @param connectionParam the connection parameters
      * @param scanPolicy the scan policy
-     * @param ruleConfigParam the rules' configurations
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since TODO add version
      */
     public HostProcess(String hostAndPort, Scanner parentScanner, 
     		ScannerParam scannerParam, ConnectionParam connectionParam, 
