@@ -106,7 +106,7 @@ public class ExtensionUiUtils extends ExtensionAdaptor implements SessionChanged
 
 	@Override
 	public String getDescription() {
-		return Constant.messages.getString("uituils.desc");
+		return Constant.messages.getString("uiutils.desc");
 	}
 
 	@Override
