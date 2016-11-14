@@ -33,6 +33,7 @@
 // ZAP: 2015/10/06 Issue 1962: Install and update add-ons from the command line
 // ZAP: 2016/08/19 Issue 2782: Support -configfile
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/07 Allow to disable default standard output logging
 
 package org.parosproxy.paros;
 
@@ -72,6 +73,14 @@ public class CommandLine {
     public static final String LOWMEM = "-lowmem";
     public static final String EXPERIMENTALDB = "-experimentaldb";
 
+    /**
+     * Command line option to disable the default logging through standard output.
+     * 
+     * @see #isNoStdOutLog()
+     * @since TODO add version
+     */
+    public static final String NOSTDOUT = "-nostdout";
+
     static final String NO_USER_AGENT = "-nouseragent";
     static final String SP = "-sp";
 
@@ -86,6 +95,11 @@ public class CommandLine {
     private final Hashtable<String, String> configs = new Hashtable<>();
     private final Hashtable<String, String> keywords = new Hashtable<>();
     private List<CommandLineArgument[]> commandList = null;
+
+    /**
+     * Flag that indicates whether or not the default logging through standard output should be disabled.
+     */
+    private boolean noStdOutLog;
 
     public CommandLine(String[] args) throws Exception {
         this.args = args;
@@ -298,6 +312,8 @@ public class CommandLine {
             reportVersion = true;
             setDaemon(false);
             setGUI(false);
+        } else if (checkSwitch(args, NOSTDOUT, i)) {
+            noStdOutLog = true;
         }
 
         return result;
@@ -425,6 +441,16 @@ public class CommandLine {
 
     public String getHelp() {
     	return CommandLine.getHelp(commandList);
+    }
+
+    /**
+     * Tells whether or not the default logging through standard output should be disabled.
+     *
+     * @return {@code true} if the default logging through standard output should be disabled, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public boolean isNoStdOutLog() {
+        return noStdOutLog;
     }
 
     public static String getHelp(List<CommandLineArgument[]> cmdList) {
