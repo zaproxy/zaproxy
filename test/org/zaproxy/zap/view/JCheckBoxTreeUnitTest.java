@@ -44,14 +44,14 @@ import org.junit.Test;
  */
 public class JCheckBoxTreeUnitTest {
 
-    @Test(expected = NullPointerException.class)
-    public void shouldFailToSetAnUndefinedTreeModel() {
+    @Test
+    public void shouldNotFailToSetAnUndefinedTreeModel() {
         // Given
         TreeModel undefinedTreeModel = null;
         JCheckBoxTree checkBoxTree = new JCheckBoxTree();
         // When
         checkBoxTree.setModel(undefinedTreeModel);
-        // Then = NullPointerException
+        // Then = No exception.
     }
 
     @Test(expected = ClassCastException.class)
