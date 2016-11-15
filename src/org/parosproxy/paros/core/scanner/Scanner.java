@@ -40,6 +40,7 @@
 // ZAP: 2015/12/14 Prevent scans from becoming in undefined state
 // ZAP: 2016/07/12 Do not allow techSet to be null
 // ZAP: 2016/07/01 Issue 2647 Support a/pscan rule configuration 
+// ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
 
 package org.parosproxy.paros.core.scanner;
 
@@ -105,6 +106,29 @@ public class Scanner implements Runnable {
 	
 	private List<HostProcess> hostProcesses = new ArrayList<>();
 
+    /**
+     * Constructs a {@code Scanner}, with no rules' configurations.
+     *
+     * @param scannerParam the scanner parameters
+     * @param param the connection parameters
+     * @param scanPolicy the scan policy
+     * @deprecated Use {@link #Scanner(ScannerParam, ConnectionParam, ScanPolicy, RuleConfigParam)} instead. It will be removed
+     *             in a future version.
+     */
+    @Deprecated
+    public Scanner(ScannerParam scannerParam, ConnectionParam param, ScanPolicy scanPolicy) {
+        this(scannerParam, param, scanPolicy, null);
+    }
+
+    /**
+     * Constructs a {@code Scanner}.
+     * 
+     * @param scannerParam the scanner parameters
+     * @param param the connection parameters
+     * @param scanPolicy the scan policy
+     * @param ruleConfigParam the rules' configurations, might be {@code null}.
+     * @since TODO add version
+     */
     public Scanner(ScannerParam scannerParam, ConnectionParam param, 
     		ScanPolicy scanPolicy, RuleConfigParam ruleConfigParam) {
 	    this.connectionParam = param;
