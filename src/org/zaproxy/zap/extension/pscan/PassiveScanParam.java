@@ -48,9 +48,18 @@ public class PassiveScanParam extends AbstractParam {
     
     private static final String CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY = PASSIVE_SCANS_BASE_KEY + ".confirmRemoveAutoTagScanner";
 
+    private static final String SCAN_ONLY_IN_SCOPE_KEY = PASSIVE_SCANS_BASE_KEY + ".scanOnlyInScope";
+
     private List<RegexAutoTagScanner> autoTagScanners = new ArrayList<>(0);
     
     private boolean confirmRemoveAutoTagScanner = true;
+
+    /**
+     * Flag that indicates whether or not the passive scan should be performed only on messages that are in scope.
+     * <p>
+     * Default is {@code false}, all messages are scanned.
+     */
+    private boolean scanOnlyInScope;
     
     public PassiveScanParam() {
     }
@@ -87,6 +96,12 @@ public class PassiveScanParam extends AbstractParam {
             this.confirmRemoveAutoTagScanner = getConfig().getBoolean(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, true);
         } catch (ConversionException e) {
             logger.error("Error while loading the confirm remove option: " + e.getMessage(), e);
+        }
+
+        try {
+            this.scanOnlyInScope = getConfig().getBoolean(SCAN_ONLY_IN_SCOPE_KEY, false);
+        } catch (ConversionException e) {
+            logger.error("Error while loading \"scanOnlyInScope\" option: " + e.getMessage(), e);
         }
     }
 
@@ -125,4 +140,28 @@ public class PassiveScanParam extends AbstractParam {
         getConfig().setProperty(CONFIRM_REMOVE_AUTO_TAG_SCANNER_KEY, Boolean.valueOf(confirmRemoveAutoTagScanner));
     }
     
+    /**
+     * Sets whether or not the passive scan should be performed only on messages that are in scope.
+     *
+     * @param scanOnlyInScope {@code true} if the scan should be performed only on messages that are in scope, {@code false}
+     *            otherwise.
+     * @since TODO add version
+     * @see #isScanOnlyInScope()
+     * @see org.parosproxy.paros.model.Session#isInScope(String) Session.isInScope(String)
+     */
+    public void setScanOnlyInScope(boolean scanOnlyInScope) {
+        this.scanOnlyInScope = scanOnlyInScope;
+        getConfig().setProperty(SCAN_ONLY_IN_SCOPE_KEY, Boolean.valueOf(scanOnlyInScope));
+    }
+
+    /**
+     * Tells whether or not the passive scan should be performed only on messages that are in scope.
+     *
+     * @return {@code true} if the scan should be performed only on messages that are in scope, {@code false} otherwise.
+     * @since TODO add version
+     * @see #setScanOnlyInScope(boolean)
+     */
+    public boolean isScanOnlyInScope() {
+        return scanOnlyInScope;
+    }
 }

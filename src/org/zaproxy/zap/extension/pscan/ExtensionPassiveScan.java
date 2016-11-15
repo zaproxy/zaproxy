@@ -72,6 +72,8 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         DEPENDENCIES = Collections.unmodifiableList(dep);
     }
 
+    private PassiveScannerOptionsPanel passiveScannerOptionsPanel;
+
     public ExtensionPassiveScan() {
         super();
         initialize();
@@ -98,6 +100,7 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
         extensionHook.addProxyListener(getPassiveScanThread());
         extensionHook.addSessionListener(this);
         if (getView() != null) {
+            extensionHook.getHookView().addOptionPanel(getPassiveScannerOptionsPanel());
             extensionHook.getHookView().addOptionPanel(getOptionsPassiveScan(getPassiveScanThread()));
             extensionHook.getHookView().addOptionPanel(getPolicyPanel());
         }
@@ -406,18 +409,25 @@ public class ExtensionPassiveScan extends ExtensionAdaptor implements SessionCha
             final ExtensionHistory extHist = (ExtensionHistory) extensionLoader.getExtension(ExtensionHistory.NAME);
             final ExtensionAlert extAlert = (ExtensionAlert) extensionLoader.getExtension(ExtensionAlert.NAME);
 
-            pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert);
+            pst = new PassiveScanThread(getPassiveScannerList(), extHist, extAlert, getPassiveScanParam());
 
             pst.start();
         }
         return pst;
     }
 
-    private PassiveScanParam getPassiveScanParam() {
+    PassiveScanParam getPassiveScanParam() {
         if (passiveScanParam == null) {
             passiveScanParam = new PassiveScanParam();
         }
         return passiveScanParam;
+    }
+
+    private PassiveScannerOptionsPanel getPassiveScannerOptionsPanel() {
+        if (passiveScannerOptionsPanel == null) {
+            passiveScannerOptionsPanel = new PassiveScannerOptionsPanel(Constant.messages);
+        }
+        return passiveScannerOptionsPanel;
     }
 
     private OptionsPassiveScan getOptionsPassiveScan(PassiveScanThread passiveScanThread) {
