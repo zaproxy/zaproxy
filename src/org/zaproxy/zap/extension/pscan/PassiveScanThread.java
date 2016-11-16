@@ -39,11 +39,14 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 	
 	private final ExtensionHistory extHist;
 	private final ExtensionAlert extAlert;
+	private final PassiveScanParam pscanOptions;
 
 	private TableHistory historyTable = null;
 	private HistoryReference href = null;
+	private Session session;
 
-	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert) {
+	public PassiveScanThread (PassiveScannerList passiveScannerList, ExtensionHistory extHist, ExtensionAlert extensionAlert,
+			PassiveScanParam pscanOptions) {
 		super("ZAP-PassiveScanner");
 		this.setDaemon(true);
 		
@@ -60,11 +63,13 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 
 		extAlert = extensionAlert;
 		this.extHist = extHist;
+		this.pscanOptions = pscanOptions;
 	}
 	
 	@Override
 	public void run() {
 		historyTable = Model.getSingleton().getDb().getTableHistory();
+		session = Model.getSingleton().getSession();
 		// Get the last id - in case we've just opened an existing session
 		currentId = this.getLastHistoryId();
 		lastId = currentId;
@@ -100,7 +105,7 @@ public class PassiveScanThread extends Thread implements ProxyListener, SessionC
 					logger.error("Failed to read record " + currentId + " from History table", e);
 				}
 
-				if (href != null) {
+				if (href != null && (!pscanOptions.isScanOnlyInScope() || session.isInScope(href))) {
 					try {
 						// Parse the record
 						HttpMessage msg = href.getHttpMessage();

@@ -40,10 +40,12 @@ public class PassiveScanAPI extends ApiImplementor {
 
 	private static final String PREFIX = "pscan";
 	
+	private static final String VIEW_SCAN_ONLY_IN_SCOPE = "scanOnlyInScope";
 	private static final String VIEW_RECORDS_TO_SCAN = "recordsToScan";
 	private static final String VIEW_SCANNERS = "scanners";
 
 	private static final String ACTION_SET_ENABLED = "setEnabled";
+	private static final String ACTION_SET_SCAN_ONLY_IN_SCOPE = "setScanOnlyInScope";
 	private static final String ACTION_ENABLE_ALL_SCANNERS = "enableAllScanners";
 	private static final String ACTION_DISABLE_ALL_SCANNERS = "disableAllScanners";
 	private static final String ACTION_ENABLE_SCANNERS = "enableScanners";
@@ -51,6 +53,7 @@ public class PassiveScanAPI extends ApiImplementor {
 	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
 
 	private static final String PARAM_ENABLED = "enabled";
+	private static final String PARAM_ONLY_IN_SCOPE = "onlyInScope";
 	private static final String PARAM_IDS = "ids";
 	private static final String PARAM_ID = "id";
 	private static final String PARAM_ALERT_THRESHOLD = "alertThreshold";
@@ -61,12 +64,14 @@ public class PassiveScanAPI extends ApiImplementor {
 		this.extension = extension;
 
 		this.addApiAction(new ApiAction(ACTION_SET_ENABLED, new String[] {PARAM_ENABLED}));
+		this.addApiAction(new ApiAction(ACTION_SET_SCAN_ONLY_IN_SCOPE, new String[] { PARAM_ONLY_IN_SCOPE }));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_SCANNERS));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_SCANNERS));
 		this.addApiAction(new ApiAction(ACTION_ENABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_DISABLE_SCANNERS, new String[] {PARAM_IDS}));
 		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD, new String[] {PARAM_ID, PARAM_ALERT_THRESHOLD}));
 
+		this.addApiView(new ApiView(VIEW_SCAN_ONLY_IN_SCOPE));
 		this.addApiView(new ApiView(VIEW_RECORDS_TO_SCAN));
 		this.addApiView(new ApiView(VIEW_SCANNERS));
 
@@ -84,6 +89,9 @@ public class PassiveScanAPI extends ApiImplementor {
 			boolean enabled = getParam(params, PARAM_ENABLED, false);
 			
 			extension.setPassiveScanEnabled(enabled);
+			break;
+		case ACTION_SET_SCAN_ONLY_IN_SCOPE:
+			extension.getPassiveScanParam().setScanOnlyInScope(params.getBoolean(PARAM_ONLY_IN_SCOPE));
 			break;
 		case ACTION_ENABLE_ALL_SCANNERS:
 			extension.setAllPluginPassiveScannersEnabled(true);
@@ -150,6 +158,9 @@ public class PassiveScanAPI extends ApiImplementor {
 		ApiResponse result;
 
 		switch (name) {
+		case VIEW_SCAN_ONLY_IN_SCOPE:
+			result = new ApiResponseElement(name, Boolean.toString(extension.getPassiveScanParam().isScanOnlyInScope()));
+			break;
 		case VIEW_RECORDS_TO_SCAN:
 			result = new ApiResponseElement(name, String.valueOf(extension.getRecordsToScan()));
 			break;
