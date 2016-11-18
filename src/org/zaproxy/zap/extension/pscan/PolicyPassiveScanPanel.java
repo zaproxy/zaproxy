@@ -198,6 +198,12 @@ public class PolicyPassiveScanPanel extends AbstractParamPanel {
     public void saveParam(Object obj) throws Exception {
     	this.getPassiveScanTableModel().persistChanges();
     }
+    
+    @Override
+    public void reset() {
+        this.getPassiveScanTableModel().applyThresholdToAll(AlertThreshold.MEDIUM);
+        this.getPassiveScanTableModel().persistChanges();
+    }
 
     /**
      * This method initializes jScrollPane

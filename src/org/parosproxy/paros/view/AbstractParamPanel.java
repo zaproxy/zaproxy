@@ -20,6 +20,8 @@
  */
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
+// ZAP: 2016/11/17 Issue 2701 Support Factory Reset
+
 package org.parosproxy.paros.view;
 
 import javax.swing.JPanel;
@@ -99,5 +101,12 @@ public abstract class AbstractParamPanel extends JPanel {
 	 */
 	public void onHide() {
 		
+	}
+	
+	/**
+	 * Called when the 'Reset to Factory Settings' option is selected
+	 */
+	public void reset() {
+	    
 	}
 }

@@ -29,13 +29,18 @@
 // ZAP: 2013/11/28 Issue 923: Allow a footer to be set.
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2014/12/10 Issue 1427: Standardize on [Cancel] [OK] button order
+// ZAP: 2016/11/17 Issue 2701 Added support for additional buttons to support Factory Reset
 
 package org.parosproxy.paros.view;
 
+import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.Insets;
 import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.Collection;
 
 import javax.swing.JButton;
@@ -46,6 +51,7 @@ import javax.swing.JPanel;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractDialog;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.view.LayoutHelper;
 
 public class AbstractParamDialog extends AbstractDialog {
 
@@ -114,50 +120,35 @@ public class AbstractParamDialog extends AbstractDialog {
      */
     private javax.swing.JPanel getJContentPane() {
         if (jContentPane == null) {
-            java.awt.GridBagConstraints gridBagConstraints1 = new GridBagConstraints();
 
-            java.awt.GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
-
-            java.awt.GridBagConstraints gridBagConstraints13 = new GridBagConstraints();
-
-            java.awt.GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-
+            jContentPane = new JPanel();
+            jContentPane.setLayout(new GridBagLayout());
+            jContentPane.add(getJSplitPane(), LayoutHelper.getGBC(0, 0, 1, 1.0, 1.0));
+            
+            // Create the footer
+            JPanel footerPane = new JPanel();
+            footerPane.setLayout(new GridBagLayout());
             footer = new JLabel();
 
-            jContentPane = new javax.swing.JPanel();
-            jContentPane.setLayout(new GridBagLayout());
-            gridBagConstraints12.gridx = 0;
-            gridBagConstraints12.gridy = 1;
-            gridBagConstraints12.ipadx = 0;
-            gridBagConstraints12.ipady = 0;
-            gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints12.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints12.insets = new java.awt.Insets(2, 2, 2, 2);
-            gridBagConstraints12.weightx = 1.0D;
-            gridBagConstraints13.gridx = 1;
-            gridBagConstraints13.gridy = 1;
-            gridBagConstraints13.ipadx = 0;
-            gridBagConstraints13.ipady = 0;
-            gridBagConstraints13.fill = java.awt.GridBagConstraints.NONE;
-            gridBagConstraints13.anchor = java.awt.GridBagConstraints.EAST;
-            gridBagConstraints13.insets = new java.awt.Insets(2, 2, 2, 2);
-            gridBagConstraints14.gridx = 2;
-            gridBagConstraints14.gridy = 1;
-            gridBagConstraints14.ipadx = 0;
-            gridBagConstraints14.ipady = 0;
-            gridBagConstraints14.anchor = java.awt.GridBagConstraints.EAST;
-            gridBagConstraints14.insets = new java.awt.Insets(2, 2, 2, 2);
-            gridBagConstraints1.weightx = 1.0;
-            gridBagConstraints1.weighty = 1.0;
-            gridBagConstraints1.fill = java.awt.GridBagConstraints.BOTH;
-            gridBagConstraints1.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints1.gridwidth = 3;
-            gridBagConstraints1.gridx = 0;
-            gridBagConstraints1.gridy = 0;
-            jContentPane.add(getJSplitPane(), gridBagConstraints1);
-            jContentPane.add(footer, gridBagConstraints12);
-            jContentPane.add(getBtnCancel(), gridBagConstraints13);
-            jContentPane.add(getBtnOK(), gridBagConstraints14);
+            int x = 0;
+            JButton[]  extraButtons = this.getExtraButtons();
+            if (extraButtons  != null) {
+                for (JButton button : extraButtons) {
+                    footerPane.add(button,  
+                            LayoutHelper.getGBC(x++, 0, 1, 0.0, 0.0, GridBagConstraints.NONE, 
+                                    GridBagConstraints.WEST, new Insets(2, 2, 2, 2)));
+                }
+            }
+
+            footerPane.add(footer,  LayoutHelper.getGBC(x++, 0, 1, 1.0, new Insets(2, 2, 2, 2)));
+            footerPane.add(getBtnCancel(),  
+                    LayoutHelper.getGBC(x++, 0, 1, 0.0, 0.0, GridBagConstraints.NONE, 
+                            GridBagConstraints.EAST, new Insets(2, 2, 2, 2)));
+            footerPane.add(getBtnOK(),  
+                    LayoutHelper.getGBC(x++, 0, 1, 0.0, 0.0, GridBagConstraints.NONE, 
+                            GridBagConstraints.EAST, new Insets(2, 2, 2, 2)));
+
+            jContentPane.add(footerPane,  LayoutHelper.getGBC(0, 1, 1, 1.0, 0.0));
         }
         
         return jContentPane;
@@ -171,6 +162,10 @@ public class AbstractParamDialog extends AbstractDialog {
     public void setFooter(String text) {
         footer.setText(text);
     }
+    
+    public JButton[] getExtraButtons() {
+        return null;
+    }
 
     /**
      * This method initializes btnOK
@@ -182,9 +177,9 @@ public class AbstractParamDialog extends AbstractDialog {
             btnOK = new JButton();
             btnOK.setName("btnOK");
             btnOK.setText(Constant.messages.getString("all.button.ok"));
-            btnOK.addActionListener(new java.awt.event.ActionListener() {
+            btnOK.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(ActionEvent e) {
 
                     try {
                         validateParam();
@@ -194,10 +189,9 @@ public class AbstractParamDialog extends AbstractDialog {
                         AbstractParamDialog.this.setVisible(false);
 
                     } catch (Exception ex) {
-                    	// The exception messages should be internationalized!
-                        View.getSingleton().showWarningDialog(ex.getMessage());
+                        View.getSingleton().showWarningDialog(
+                                Constant.messages.getString("options.dialog.save.error", ex.getMessage()));
                     }
-
                 }
             });
 
@@ -215,9 +209,9 @@ public class AbstractParamDialog extends AbstractDialog {
             btnCancel = new JButton();
             btnCancel.setName("btnCancel");
             btnCancel.setText(Constant.messages.getString("all.button.cancel"));
-            btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            btnCancel.addActionListener(new ActionListener() {
                 @Override
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+                public void actionPerformed(ActionEvent e) {
 
                     exitResult = JOptionPane.CANCEL_OPTION;
                     AbstractParamDialog.this.setVisible(false);
@@ -261,7 +255,7 @@ public class AbstractParamDialog extends AbstractDialog {
     }
 
     /**
-     * Adds the given panel, with its {@link java.awt.Component#getName() own name}, positioned under the given parents (or root
+     * Adds the given panel, with its {@link Component#getName() own name}, positioned under the given parents (or root
      * node if none given).
      * <p>
      * If not sorted the panel is appended to existing panels.

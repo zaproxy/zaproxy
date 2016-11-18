@@ -27,6 +27,7 @@
 // ZAP: 2014/01/17 Issue 987: Allow arbitrary config file values to be set via the command line
 // ZAP: 2014/02/21 Issue 1043: Custom active scan dialog
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 
 package org.parosproxy.paros.common;
 
@@ -118,4 +119,12 @@ public abstract class AbstractParam implements Cloneable {
      * @see #getConfig()
      */
     protected abstract void parse();
+    
+    /**
+     * Will be called to reset the options to factory defaults.
+     * Most classes will not need to do anything, but those that do can override this method.
+     */
+    public void reset() {
+        // Do nothing
+    }
 }

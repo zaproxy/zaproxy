@@ -67,6 +67,7 @@
 // ZAP: 2016/06/13 Migrate config option "proxy.modifyAcceptEncoding" 
 // ZAP: 2016/07/07 Convert passive scanners options to new structure
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 
 package org.parosproxy.paros;
 
@@ -295,6 +296,8 @@ public final class Constant {
 	public static final URL BLANK_IMAGE_URL = Constant.class.getResource("/resource/icon/10/blank.png");
 	public static final URL SPIDER_IMAGE_URL = Constant.class.getResource("/resource/icon/10/spider.png");
 
+    private static Logger LOG = Logger.getLogger(Constant.class);
+
     public static String getEyeCatcher() {
         return staticEyeCatcher;
     }
@@ -346,12 +349,39 @@ public final class Constant {
         return zapStd;
     		
     }
+    
+    public void copyDefaultConfigs(File f, boolean forceReset) throws IOException, ConfigurationException {
+        FileCopier copier = new FileCopier();
+        File oldf;
+        if (isDevBuild() || isDailyBuild()) {
+            // try standard location
+            oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
+        } else {
+            // try old location
+            oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
+        }
+        
+        if (!forceReset && oldf.exists() && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
+            // Dont copy old configs if forcedReset or they've specified a non std directory
+            LOG.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
+            copier.copy(oldf,f);
+            
+            if (isDevBuild() || isDailyBuild()) {
+                ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
+                newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
+                newConfig.save();
+            }
+        } else {
+            LOG.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
+            copier.copy(getPathDefaultConfigFile().toFile(),f);
+        }
+
+    }
     	
-    private void initializeFilesAndDirectories() {
+    public void initializeFilesAndDirectories() {
 
     	FileCopier copier = new FileCopier();
         File f = null;
-        Logger log = null;
 
         // Set up the version from the manifest
         PROGRAM_VERSION = getVersionFromManifest();
@@ -389,38 +419,15 @@ public final class Constant {
             }
             System.setProperty("log4j.configuration", logFile.getAbsolutePath());
             PropertyConfigurator.configure(logFile.getAbsolutePath());
-            log = Logger.getLogger(Constant.class);
             
             f = new File(FILE_CONFIG);
             if (!f.isFile()) {
-            	File oldf;
-                if (isDevBuild() || isDailyBuild()) {
-                	// try standard location
-                	oldf = new File (getDefaultHomeDirectory(false) + FILE_SEPARATOR + FILE_CONFIG_NAME);
-                } else {
-                	// try old location
-                	oldf = new File (zapHome + FILE_SEPARATOR + "zap" + FILE_SEPARATOR + FILE_CONFIG_NAME);
-                }
-            	
-            	if (oldf.exists() && Paths.get(zapHome).equals(Paths.get(getDefaultHomeDirectory(true)))) {
-            		// Dont copy old configs if they've specified a non std directory
-            		log.info("Copying defaults from " + oldf.getAbsolutePath() + " to " + FILE_CONFIG);
-            		copier.copy(oldf,f);
-            		
-            		if (isDevBuild() || isDailyBuild()) {
-            		    ZapXmlConfiguration newConfig = new ZapXmlConfiguration(f);
-            		    newConfig.setProperty(OptionsParamCheckForUpdates.DOWNLOAD_DIR, Constant.FOLDER_LOCAL_PLUGIN);
-            		    newConfig.save();
-            		}
-            	} else {
-            		log.info("Copying defaults from " + getPathDefaultConfigFile() + " to " + FILE_CONFIG);
-            		copier.copy(getPathDefaultConfigFile().toFile(),f);
-            	}
+                this.copyDefaultConfigs(f, false);
             }
             
             f = new File(FOLDER_SESSION);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FOLDER_SESSION);
+                LOG.info("Creating directory " + FOLDER_SESSION);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -428,7 +435,7 @@ public final class Constant {
             }
             f = new File(DIRBUSTER_CUSTOM_DIR);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
+                LOG.info("Creating directory " + DIRBUSTER_CUSTOM_DIR);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -436,7 +443,7 @@ public final class Constant {
             }
             f = new File(FUZZER_DIR);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FUZZER_DIR);
+                LOG.info("Creating directory " + FUZZER_DIR);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -444,7 +451,7 @@ public final class Constant {
             }
             f = new File(FOLDER_LOCAL_PLUGIN);
             if (!f.isDirectory()) {
-                log.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
+                LOG.info("Creating directory " + FOLDER_LOCAL_PLUGIN);
                 if (! f.mkdir() ) {
                 	// ZAP: report failure to create directory
                 	System.out.println("Failed to create directory " + f.getAbsolutePath());
@@ -452,7 +459,7 @@ public final class Constant {
             }
             f = new File(zapHome, FOLDER_FILTER);
             if (!f.isDirectory()) {
-                log.info("Creating directory: " + f.getAbsolutePath());
+                LOG.info("Creating directory: " + f.getAbsolutePath());
                 if (!f.mkdir()) {
                     System.out.println("Failed to create directory " + f.getAbsolutePath());
                 }
@@ -481,7 +488,7 @@ public final class Constant {
 	            	// Nothing to do
 	            } else {
 	            	// Backup the old one
-	            	log.info("Backing up config file to " + FILE_CONFIG + ".bak");
+	            	LOG.info("Backing up config file to " + FILE_CONFIG + ".bak");
             		f = new File(FILE_CONFIG);
 	                try {
 						copier.copy(f, new File(FILE_CONFIG + ".bak"));
@@ -489,7 +496,7 @@ public final class Constant {
 						String msg = "Failed to backup config file " + 
 	            			FILE_CONFIG + " to " + FILE_CONFIG + ".bak " + e.getMessage();
 			            System.err.println(msg);
-			            log.error(msg, e);
+			            LOG.error(msg, e);
 					}
 	                
 		            if (ver == V_PAROS_TAG) {
@@ -535,7 +542,7 @@ public final class Constant {
                     if (ver <= V_2_5_0_TAG) {
                         upgradeFrom2_5_0(config);
                     }
-	            	log.info("Upgraded from " + ver);
+	            	LOG.info("Upgraded from " + ver);
             		
             		// Update the version
             		config.setProperty("version", VERSION_TAG);
