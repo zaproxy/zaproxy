@@ -33,6 +33,12 @@ For help using ZAP:
   * [Add-ons](https://github.com/zaproxy/zap-extensions/wiki) - help for the optional add-ons you can install
   * [StackOverflow](https://stackoverflow.com/questions/tagged/zap) - because some people use this for everything ;)
 
+Information about the official ZAP Jenkins plugin:
+  * [Wiki](https://wiki.jenkins-ci.org/display/JENKINS/zap+plugin)
+  * [Group](https://groups.google.com/forum/#%21forum/zaproxy-jenkins)
+  * [Issue tracker](https://issues.jenkins-ci.org/issues/?jql=project%20%3D%20JENKINS%20AND%20component%20%3D%20zap-plugin)
+  * [Source code](https://github.com/jenkinsci/zap-plugin)
+
 To learn more about ZAP development:
   * [Source Code](https://github.com/zaproxy) - for all of the ZAP related projects
   * [Wiki](https://github.com/zaproxy/zaproxy/wiki/Introduction) - lots of detailed info
@@ -41,6 +47,7 @@ To learn more about ZAP development:
   * [Crowdin (User Guide)](https://crowdin.com/project/owasp-zap-help) - help translate the ZAP User Guide
   * [OpenHub](https://www.openhub.net/p/zaproxy)	- FOSS analytics
   * [BountySource](https://www.bountysource.com/teams/zap/issues)	- Vote on ZAP issues (you can also donate money here, but 10% taken out)
+  * [Bug Bounty Program](https://bugcrowd.com/owaspzap) - please use this to report any potential vulnerabilities you find in ZAP
 
 #### Justification
 Justification for the statements made in the tagline at the top;)

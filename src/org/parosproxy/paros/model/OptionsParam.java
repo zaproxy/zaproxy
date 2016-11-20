@@ -36,6 +36,7 @@
 // ZAP: 2014-02-04 Added GlobalExcludeURL functionality:  Issue: TODO - insert list here.
 // ZAP: 2014/03/23 Issue 1097: Move "Run applications" (invoke) extension to zap-extensions project
 // ZAP: 2015/04/09 Generify getParamSet(Class) to avoid unnecessary casts
+// ZAP: 2016/11/17 Issue 2701 Support Factory Reset
 
 package org.parosproxy.paros.model;
 
@@ -211,11 +212,18 @@ public class OptionsParam extends AbstractParam {
 				logger.error(e1.getMessage(), e1);
 			}
 		}
-		
-//		for (int i=0; i<paramSetList.size(); i++) {
-//		    AbstractParam param = (AbstractParam) paramSetList.get(i);
-//		    param.load(getConfig());
-//		}
+    }
+    
+    public void reloadConfigParamSets() {
+        for (int i=0; i<paramSetList.size(); i++) {
+            paramSetList.get(i).load(getConfig());
+        }
+    }
+    
+    public void resetAll() {
+        for (int i=0; i<paramSetList.size(); i++) {
+            paramSetList.get(i).reset();
+        }
     }
     
     public boolean isGUI() {

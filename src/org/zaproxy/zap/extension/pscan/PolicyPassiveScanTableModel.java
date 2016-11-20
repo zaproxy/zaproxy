@@ -81,12 +81,14 @@ public class PolicyPassiveScanTableModel extends DefaultTableModel {
     			ss.setThreshold(threshold);
     		}
     	}
+    	this.fireTableRowsUpdated(0, getRowCount());
     }
 
     public void applyThresholdToAll(AlertThreshold threshold) {
     	for (ScannerWrapper ss : this.listScanners) {
    			ss.setThreshold(threshold);
     	}
+    	this.fireTableRowsUpdated(0, getRowCount());
     }
 
     /**
