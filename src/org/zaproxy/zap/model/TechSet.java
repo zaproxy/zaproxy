@@ -49,10 +49,14 @@ public class TechSet {
 	}
 	
 	public TechSet(TechSet techSet){
+		this.merge(techSet);
+	}
+	
+	public void merge(TechSet techSet){
 		this.includeTech.addAll(techSet.includeTech);
 		this.excludeTech.addAll(techSet.excludeTech);
 	}
-	
+
 	public void include(Tech tech) {
 		excludeTech.remove(tech);
 		includeTech.add(tech);
