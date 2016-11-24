@@ -363,6 +363,20 @@ public abstract class ApiImplementor {
 	}
 
 	/**
+	 * Validates that a parameter with the given {@code name} exists (and it has a value) in the given {@code parameters}.
+	 *
+	 * @param parameters the parameters
+	 * @param name the name of the parameter that must exist
+	 * @throws ApiException if the parameter with the given name does not exist or it has no value.
+	 * @since TODO add version
+	 */
+	protected void validateParamExists(JSONObject parameters, String name) throws ApiException {
+		if (!parameters.has(name) || parameters.getString(name).length() == 0) {
+			throw new ApiException(ApiException.Type.MISSING_PARAMETER, name);
+		}
+	}
+	
+	/**
 	 * Override to add custom headers for specific API operations
 	 * @param name	the name of the operation
 	 * @param type the type of the operation
