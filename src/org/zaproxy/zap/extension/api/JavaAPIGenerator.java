@@ -26,6 +26,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class JavaAPIGenerator extends AbstractAPIGenerator {
@@ -78,6 +79,18 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 
     public JavaAPIGenerator(String path, boolean optional) {
     	super(path, optional);
+    }
+
+    /**
+     * Generates the API client files of the given API implementors.
+     *
+     * @param implementors the implementors
+     * @throws IOException if an error occurred while generating the APIs.
+     * @deprecated (TODO add version) Use {@link #generateAPIFiles(List)} instead.
+     */
+    @Deprecated
+    public void generateJavaFiles(List<ApiImplementor> implementors) throws IOException {
+        generateAPIFiles(implementors);
     }
 
 	private void generateJavaElement(ApiElement element, String component, 
