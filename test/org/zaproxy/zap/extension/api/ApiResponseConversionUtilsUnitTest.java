@@ -61,6 +61,24 @@ public class ApiResponseConversionUtilsUnitTest {
 	}
 
 	@Test
+	public void shouldHaveUndefinedHistoryTypeByDefault() {
+		// Given / When
+		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		// Then
+		assertThat(response.getValues(), hasEntry("type", (Object) "-1"));
+	}
+
+	@Test
+	public void shouldIncludeHistoryTypeInApiResponse() {
+		// Given
+		int historyType = 2;
+		// When
+		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, historyType, message);
+		// Then
+		assertThat(response.getValues(), hasEntry("type", (Object) "2"));
+	}
+
+	@Test
 	public void propertiesFromGivenHttpMessageShouldReflectInApiResponse() {
 		given(message.getCookieParamsAsString()).willReturn("testCookieParams");
 		given(message.getNote()).willReturn("testNote");
