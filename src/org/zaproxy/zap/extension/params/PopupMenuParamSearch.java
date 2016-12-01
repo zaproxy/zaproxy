@@ -51,7 +51,7 @@ public class PopupMenuParamSearch extends ExtensionPopupMenuItem {
     @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
-            this.setEnabled(true);
+            this.setEnabled(extension.getParamsPanel().isOnlyOneParamSelected());
             return true;
         }
         return false;

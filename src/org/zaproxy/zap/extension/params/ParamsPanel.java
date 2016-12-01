@@ -238,7 +238,6 @@ public class ParamsPanel extends AbstractPanel{
 
 			paramsTable.setName(PANEL_NAME);
 			paramsTable.setDoubleBuffered(true);
-			paramsTable.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 			paramsTable.addMouseListener(new java.awt.event.MouseAdapter() { 
 			    @Override
 			    public void mousePressed(java.awt.event.MouseEvent e) {
@@ -360,5 +359,16 @@ public class ParamsPanel extends AbstractPanel{
 			return sps.getParam(HtmlParameter.Type.valueOf(type.toLowerCase()), name);	// TODO HACK!
 		}
 		return null;
+	}
+
+	/**
+	 * Tells whether or not only one of the parameters is selected.
+	 *
+	 * @return {@code true} if only one parameter is selected, {@code false} otherwise.
+	 * @see #getSelectedParam()
+	 * @since TODO add version
+	 */
+	boolean isOnlyOneParamSelected() {
+		return getParamsTable().getSelectedRowCount() == 1;
 	}
 }
