@@ -27,7 +27,26 @@ import java.util.Map;
 
 import org.parosproxy.paros.common.AbstractParam;
 
+/**
+ * Manages the Rule Configurations saved in the configuration file.
+ * <p>
+ * It also exposes the names of the (core) rules that can be accessed by the scanners (through the {@code Configuration}
+ * set/used by the passive/active scans).
+ * 
+ * @since TODO add version
+ */
 public class RuleConfigParam extends AbstractParam {
+
+    /**
+     * The name of the rule to obtain the time, in seconds, for time-based attacks.
+     */
+    public static final String RULE_COMMON_SLEEP_TIME = "rules.common.sleep";
+
+    /**
+     * The name of the rule to obtain the string containing a comma separated list of names/IDs of forms that should be ignored
+     * when checking for CSRF issues.
+     */
+    public static final String RULE_CSRF_IGNORE_LIST = "rules.csrf.ignorelist";
 
     private static final String RULES_BASE_KEY = "rules";
     private static final String RULES_DEFAULT_KEY_EXT = ".default";
@@ -40,8 +59,8 @@ public class RuleConfigParam extends AbstractParam {
     @Override
     protected void parse() {
         // Add the built in rule configs
-        this.addRuleConfig(new RuleConfig("rules.common.sleep", "5"));
-        this.addRuleConfig(new RuleConfig("rules.csrf.ignorelist", ""));
+        this.addRuleConfig(new RuleConfig(RULE_COMMON_SLEEP_TIME, "5"));
+        this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_LIST, ""));
         
         Iterator<String> iter = this.getConfig().getKeys(RULES_BASE_KEY);
         RuleConfig rc;
