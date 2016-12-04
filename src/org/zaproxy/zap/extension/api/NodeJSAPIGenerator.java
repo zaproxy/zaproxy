@@ -25,6 +25,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class NodeJSAPIGenerator extends AbstractAPIGenerator {
@@ -68,6 +69,18 @@ public class NodeJSAPIGenerator extends AbstractAPIGenerator {
 
     public NodeJSAPIGenerator(String path, boolean optional) {
     	super(path, optional);
+    }
+
+    /**
+     * Generates the API client files of the given API implementors.
+     *
+     * @param implementors the implementors
+     * @throws IOException if an error occurred while generating the APIs.
+     * @deprecated (TODO add version) Use {@link #generateAPIFiles(List)} instead.
+     */
+    @Deprecated
+    public void generateNodeJSFiles(List<ApiImplementor> implementors) throws IOException {
+        this.generateAPIFiles(implementors);
     }
 
     private void generateNodeJSElement(ApiElement element, String component, 

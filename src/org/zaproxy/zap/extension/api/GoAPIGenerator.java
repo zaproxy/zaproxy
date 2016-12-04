@@ -52,6 +52,18 @@ public class GoAPIGenerator extends AbstractAPIGenerator {
 		super(path, optional);
 	}
 
+	/**
+	 * Generates the API client files of the given API implementors.
+	 *
+	 * @param implementors the implementors
+	 * @throws IOException if an error occurred while generating the APIs.
+	 * @deprecated (TODO add version) Use {@link #generateAPIFiles(List)} instead.
+	 */
+	@Deprecated
+	public void generateGoFiles(List<ApiImplementor> implementors) throws IOException {
+		this.generateAPIFiles(implementors);
+	}
+
 	@Override
 	protected void generateAPIFiles(ApiImplementor imp) throws IOException {
 		String className = imp.getPrefix().substring(0, 1).toUpperCase() + imp.getPrefix().substring(1);
