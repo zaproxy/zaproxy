@@ -31,16 +31,44 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMessage;
 
-public class ApiResponseConversionUtils {
+/**
+ * A class with utility methods to convert common (ZAP) objects into {@link ApiResponse} objects.
+ * 
+ * @since 2.3.0
+ */
+public final class ApiResponseConversionUtils {
 
-    private static Logger logger = Logger.getLogger(ApiResponseConversionUtils.class);
+    private static final Logger LOGGER = Logger.getLogger(ApiResponseConversionUtils.class);
 
     private ApiResponseConversionUtils() {
     }
 
+    /**
+     * Converts the given HTTP message, of unknown type, into an {@code ApiResponseSet}.
+     * <p>
+     * Prefer the use of {@link #httpMessageToSet(int, int, HttpMessage)}, which allows to provide the type of the message.
+     * 
+     * @param historyId the ID of the message
+     * @param msg the HTTP message to be converted
+     * @return the {@code ApiResponseSet} with the ID, type and the HTTP message
+     */
     public static ApiResponseSet httpMessageToSet(int historyId, HttpMessage msg) {
+        return httpMessageToSet(historyId, -1, msg);
+    }
+
+    /**
+     * Converts the given HTTP message into an {@code ApiResponseSet}.
+     *
+     * @param historyId the ID of the message
+     * @param historyType the type of the message
+     * @param msg the HTTP message to be converted
+     * @return the {@code ApiResponseSet} with the ID, type and the HTTP message
+     * @since TODO add version
+     */
+    public static ApiResponseSet httpMessageToSet(int historyId, int historyType, HttpMessage msg) {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(historyId));
+        map.put("type", String.valueOf(historyType));
         map.put("cookieParams", msg.getCookieParamsAsString());
         map.put("note", msg.getNote());
         map.put("requestHeader", msg.getRequestHeader().toString());
@@ -60,7 +88,7 @@ public class ApiResponseConversionUtils {
                 }
                 map.put("responseBody", sb.toString());
             } catch (IOException e) {
-                logger.error("Unable to uncompress gzip content: " + e.getMessage(), e);
+                LOGGER.error("Unable to uncompress gzip content: " + e.getMessage(), e);
                 map.put("responseBody", msg.getResponseBody().toString());
             }
         } else {
