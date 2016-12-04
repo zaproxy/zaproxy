@@ -53,6 +53,9 @@ public class PopupMenuRemoveAntiCSRF extends ExtensionPopupMenuItem {
     @Override
     public boolean isEnableForComponent(Component invoker) {
         if (invoker.getName() != null && invoker.getName().equals(ParamsPanel.PANEL_NAME)) {
+            if (!extension.getParamsPanel().isOnlyOneParamSelected()) {
+                return false;
+            }
         	
         	HtmlParameterStats item = extension.getParamsPanel().getSelectedParam();
         	// Note that only form params are currently supported
