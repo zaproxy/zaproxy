@@ -127,13 +127,13 @@ public class ActiveScanAPI extends ApiImplementor {
 
 	public ActiveScanAPI (ExtensionActiveScan controller) {
 		this.controller = controller;
-        this.addApiAction(new ApiAction(ACTION_SCAN,
-        		new String[] {PARAM_URL}, 
-        		new String[] {PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA}));
+        this.addApiAction(new ApiAction(ACTION_SCAN, null,
+        	new String[] {PARAM_URL, PARAM_RECURSE, PARAM_JUST_IN_SCOPE, PARAM_SCAN_POLICY_NAME, 
+        					PARAM_METHOD, PARAM_POST_DATA, PARAM_CONTEXT_ID}));
 		this.addApiAction(new ApiAction(
-				ACTION_SCAN_AS_USER,
-				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID },
-				new String[] { PARAM_RECURSE, PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA }));
+				ACTION_SCAN_AS_USER, null,
+				new String[] { PARAM_URL, PARAM_CONTEXT_ID, PARAM_USER_ID, PARAM_RECURSE, 
+								PARAM_SCAN_POLICY_NAME, PARAM_METHOD, PARAM_POST_DATA }));
 		this.addApiAction(new ApiAction(ACTION_PAUSE_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_RESUME_SCAN, new String[] { PARAM_SCAN_ID }));
 		this.addApiAction(new ApiAction(ACTION_STOP_SCAN, new String[] { PARAM_SCAN_ID }));
@@ -186,9 +186,15 @@ public class ActiveScanAPI extends ApiImplementor {
 		int policyId;
 
 		User user = null;
+		Context context = null;
 		try {
 			switch(name) {
 			case ACTION_SCAN_AS_USER:
+				// These are not mandatory parameters on purpose, to keep the same order
+				// of the parameters while having PARAM_URL as (now) optional.
+				validateParamExists(params, PARAM_CONTEXT_ID);
+				validateParamExists(params, PARAM_USER_ID);
+
 				int userID = ApiUtils.getIntParam(params, PARAM_USER_ID);
 				ExtensionUserManagement usersExtension = Control.getSingleton()
 						.getExtensionLoader()
@@ -196,7 +202,7 @@ public class ActiveScanAPI extends ApiImplementor {
 				if (usersExtension == null) {
 					throw new ApiException(Type.NO_IMPLEMENTOR, ExtensionUserManagement.NAME);
 				}
-				Context context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+				context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
 				if (!context.isIncluded(params.getString(PARAM_URL))) {
 					throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_CONTEXT_ID);
 				}
@@ -208,9 +214,13 @@ public class ActiveScanAPI extends ApiImplementor {
 				// Same behaviour but with addition of the user to scan
 				// $FALL-THROUGH$
 			case ACTION_SCAN:
-				URI url = getTargetUrl(params.getString(PARAM_URL));
+				String url = ApiUtils.getOptionalStringParam(params, PARAM_URL);
 
-				boolean scanJustInScope = user == null ? this.getParam(params, PARAM_JUST_IN_SCOPE, false) : false;
+				if (context == null && params.has(PARAM_CONTEXT_ID) && !params.getString(PARAM_CONTEXT_ID).isEmpty()) {
+					context = ApiUtils.getContextByParamId(params, PARAM_CONTEXT_ID);
+				}
+
+				boolean scanJustInScope = context != null ? false : this.getParam(params, PARAM_JUST_IN_SCOPE, false);
 
 				String policyName = null;
 				policy = null;
@@ -244,7 +254,8 @@ public class ActiveScanAPI extends ApiImplementor {
 						scanJustInScope,
 						method,
 						this.getParam(params, PARAM_POST_DATA, ""),
-						policy);
+						policy,
+						context);
 
 				return new ApiResponseElement(name, Integer.toString(scanId));
 
@@ -387,19 +398,6 @@ public class ActiveScanAPI extends ApiImplementor {
 		return ApiResponseElement.OK;
 	}
 
-	private static URI getTargetUrl(String url) throws ApiException {
-		try {
-			URI targetUrl = new URI(url, false);
-			String scheme = targetUrl.getScheme();
-			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
-				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
-			}
-			return targetUrl;
-		} catch (URIException e) {
-			throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
-		}
-	}
-
 	private ScanPolicy getScanPolicyFromParams(JSONObject params) throws ApiException {
 		String policyName = null;
 		try {
@@ -525,52 +523,76 @@ public class ActiveScanAPI extends ApiImplementor {
 		return scanner;
 	}
 
-	private int scanURL(URI url, User user, boolean scanChildren, boolean scanJustInScope, String method, String postData, ScanPolicy policy) throws ApiException {
-		// Try to find node
-		StructuralNode node;
-		
-		try {
-			node = SessionStructure.find(Model.getSingleton().getSession().getSessionId(), url, method, postData);
+	private int scanURL(String url, User user, boolean scanChildren, boolean scanJustInScope, String method,
+			String postData, ScanPolicy policy, Context context) throws ApiException {
+
+		boolean useUrl = true;
+		if (url == null || url.isEmpty()) {
+			if (context == null || !context.hasNodesInContextFromSiteTree()) {
+				throw new ApiException(Type.MISSING_PARAMETER, PARAM_URL);
+			}
+			useUrl = false;
+		} else if (context != null && !context.isInContext(url)) {
+			throw new ApiException(Type.URL_NOT_IN_CONTEXT, PARAM_URL);
+		}
+
+		StructuralNode node = null;
+		if (useUrl) {
+			URI startURI;
+			try {
+				startURI = new URI(url, true);
+			} catch (URIException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+			String scheme = startURI.getScheme();
+			if (scheme == null || (!scheme.equalsIgnoreCase("http") && !scheme.equalsIgnoreCase("https"))) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL);
+			}
+
+			try {
+				node = SessionStructure
+						.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), method, postData);
+			} catch (Exception e) {
+				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+			}
+
 			if (node == null) {
 				throw new ApiException(ApiException.Type.URL_NOT_FOUND);
 			}
-			
-			switch (Control.getSingleton().getMode()) {
-			case safe:
+		}
+		Target target;
+		if (useUrl) {
+			target = new Target(node);
+			target.setContext(context);
+		} else {
+			target = new Target(context);
+		}
+		target.setRecurse(scanChildren);
+		target.setInScopeOnly(scanJustInScope);
+
+		switch (Control.getSingleton().getMode()) {
+		case safe:
+			throw new ApiException(ApiException.Type.MODE_VIOLATION);
+		case protect:
+			if ((useUrl && !Model.getSingleton().getSession().isInScope(url)) || (context != null && !context.isInScope())) {
 				throw new ApiException(ApiException.Type.MODE_VIOLATION);
-			case protect:
-				if (!Model.getSingleton().getSession().isInScope(url.toString())) {
-					throw new ApiException(ApiException.Type.MODE_VIOLATION);
-				}
-				// No problem
-				break;
-			case standard:
-				// No problem
-				break;
-			case attack:
-				// No problem
-				break;
 			}
-			
-			Target target = new Target(node);
-			target.setRecurse(scanChildren);
-			target.setInScopeOnly(scanJustInScope);
-			if (user != null) {
-				target.setContext(user.getContext());
-			}
-
-			Object [] objs = new Object[]{};
-			if (policy != null) {
-				objs = new Object[]{policy};
-			}
-
-			return controller.startScan(null, target, user, objs);
-		} catch(ApiException e) {
-			throw e;
-		} catch (Exception e) {
-			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
+			// No problem
+			break;
+		case standard:
+			// No problem
+			break;
+		case attack:
+			// No problem
+			break;
 		}
 
+		Object[] objs = new Object[] {};
+		if (policy != null) {
+			objs = new Object[] { policy };
+		}
+
+		return controller.startScan(null, target, user, objs);
 	}
 
 	@Override
