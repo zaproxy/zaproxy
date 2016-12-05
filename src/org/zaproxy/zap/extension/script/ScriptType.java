@@ -5,11 +5,19 @@ import java.util.Set;
 
 import javax.swing.ImageIcon;
 
+/**
+ * A type of script supported by ZAP, which allows to customise and extend ZAP's functionalities through its scripts.
+ *
+ * @since 2.2.0
+ * @see ScriptWrapper
+ */
 public class ScriptType {
 	
 	/**
-	 * Script types with the CAPABILITY_APPEND can sensibly have requests appended to them. 
-	 * Typically this will just apply to Zest scripts
+	 * Script types with this capability can sensibly have requests appended to them. Typically this will just apply to Zest
+	 * scripts.
+	 * 
+	 * @since 2.4.0
 	 */
 	public static final String CAPABILITY_APPEND = "append";
 	
@@ -61,6 +69,7 @@ public class ScriptType {
 	 * @param icon the icon of the script type.
 	 * @param isEnableable {@code true} if the scripts of the script type can be enabled, {@code false} otherwise.
 	 * @param capabilities the capabilities of the scripts of the script type.
+	 * @since 2.4.0
 	 * @see #ScriptType(String, String, ImageIcon, boolean, boolean, String[])
 	 */
 	public ScriptType(String name, String i18nKey, ImageIcon icon, boolean isEnableable, String[] capabilities) {
@@ -128,12 +137,25 @@ public class ScriptType {
 		return enabledByDefault;
 	}
 	
+	/**
+	 * Adds the given capability to this script type.
+	 *
+	 * @param capability the new capability of the script type.
+	 * @since 2.4.0
+	 * @see #hasCapability(String)
+	 */
 	public void addCapability(String capability) {
 		this.capabilitiesSet.add(capability);
 	}
 
-	/*
-	 * Returns true if the script type has the specified capability
+	/**
+	 * Tells whether or not this script type has the given capability.
+	 * 
+	 * @param capability the capability to check.
+	 * @return {@code true} if the script type has the capability, {@code false} otherwise.
+	 * @since 2.4.0
+	 * @see #ScriptType(String, String, ImageIcon, boolean, String[])
+	 * @see #addCapability(String)
 	 */
 	public boolean hasCapability(String capability) {
 		return this.capabilitiesSet.contains(capability);
