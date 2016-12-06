@@ -21,7 +21,6 @@
 
 package org.zaproxy.zap.spider;
 
-import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
 import java.util.HashSet;
@@ -122,8 +121,8 @@ public final class URLCanonicalizer {
 
 			/* Some checking. */
 			if (canonicalURI.getScheme() == null) {
-				throw new MalformedURLException("Protocol could not be reliably evaluated from uri: " + canonicalURI
-						+ " and base url: " + baseURL);
+				log.warn("Protocol could not be reliably evaluated from uri: " + canonicalURI + " and base url: " + baseURL);
+				return null;
 			}
 
 			if (canonicalURI.getRawAuthority() == null) {
@@ -132,7 +131,8 @@ public final class URLCanonicalizer {
 			}
 
 			if (canonicalURI.getHost() == null) {
-				throw new MalformedURLException("Host could not be reliably evaluated from: " + canonicalURI);
+				log.warn("Host could not be reliably evaluated from: " + canonicalURI + " (on base " + baseURL + ")");
+				return null;
 			}
 
 			/*
@@ -182,7 +182,7 @@ public final class URLCanonicalizer {
 			return result.toExternalForm();
 
 		} catch (Exception ex) {
-			log.warn("Error while Processing URL in the spidering process (on base " + baseURL + "): "
+			log.warn("Error while Processing URL [" + url + "] in the spidering process (on base " + baseURL + "): "
 					+ ex.getMessage());
 			return null;
 		}
