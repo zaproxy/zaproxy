@@ -65,6 +65,7 @@
 // ZAP: 2016/08/29 Issue 2736: Can't generate reports from saved Session data
 // ZAP: 2016/10/24 Delay addition of imported context until it's known that it has no errors
 // ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
+// ZAP: 2016/12/06 Remove contexts before refreshing the UI when discarding the contexts
 
 package org.parosproxy.paros.model;
 
@@ -171,10 +172,10 @@ public class Session {
 	}
 	
 	private void discardContexts() {
-	    if (View.isInitialised()) {
-	    	View.getSingleton().discardContexts();
-		}
 	    this.contexts.clear();
+	    if (View.isInitialised()) {
+	        View.getSingleton().discardContexts();
+	    }
 	    for(OnContextsChangedListener l:contextsChangedListeners)
 	    	l.contextsChanged();
 	    nextContextIndex = 1;
