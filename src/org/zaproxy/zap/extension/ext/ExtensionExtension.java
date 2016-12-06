@@ -56,8 +56,6 @@ public class ExtensionExtension extends ExtensionAdaptor implements CommandLineL
 	public void hook(ExtensionHook extensionHook) {
 	    super.hook(extensionHook);
 
-		extensionHook.addOptionsParamSet(new ExtensionParam());
-
 	    if (getView() != null) {
 	        extensionHook.getHookView().addOptionPanel(getOptionsExtensionPanel());
 	    }
