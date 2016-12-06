@@ -85,6 +85,8 @@ public class ApiResponseConversionUtilsUnitTest {
 		given(requestHeader.toString()).willReturn("testRequestHeader");
 		given(requestBody.toString()).willReturn("testRequestBody");
 		given(responseHeader.toString()).willReturn("testResponseHeader");
+		given(message.getTimeSentMillis()).willReturn(1010101010101L);
+		given(message.getTimeElapsedMillis()).willReturn(200);
 		
 		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 		
@@ -94,6 +96,8 @@ public class ApiResponseConversionUtilsUnitTest {
 		assertThat(response.getValues(), hasEntry("requestHeader", (Object)requestHeader.toString()));
 		assertThat(response.getValues(), hasEntry("requestBody", (Object)requestBody.toString()));
 		assertThat(response.getValues(), hasEntry("responseHeader", (Object)responseHeader.toString()));
+		assertThat(response.getValues(), hasEntry("timestamp", (Object) "1010101010101"));
+		assertThat(response.getValues(), hasEntry("rtt", (Object) "200"));
 	}
 
 	@Test

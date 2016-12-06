@@ -69,6 +69,8 @@ public final class ApiResponseConversionUtils {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(historyId));
         map.put("type", String.valueOf(historyType));
+        map.put("timestamp", String.valueOf(msg.getTimeSentMillis()));
+        map.put("rtt", String.valueOf(msg.getTimeElapsedMillis()));
         map.put("cookieParams", msg.getCookieParamsAsString());
         map.put("note", msg.getNote());
         map.put("requestHeader", msg.getRequestHeader().toString());
