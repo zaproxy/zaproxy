@@ -44,6 +44,7 @@ import org.parosproxy.paros.extension.Extension;
 import org.parosproxy.paros.extension.ExtensionLoader;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
+import org.zaproxy.zap.extension.ext.ExtensionParam;
 import org.zaproxy.zap.extension.help.ExtensionHelp;
 
 public class ExtensionFactory {
@@ -92,6 +93,7 @@ public class ExtensionFactory {
     	
         listExts.addAll(getAddOnLoader(optionsParam.getCheckForUpdatesParam().getAddonDirectories()).getExtensions());
 
+        ExtensionParam extParam = optionsParam.getExtensionParam();
         synchronized (mapAllExtension) {
             mapAllExtension.clear();
             for (int i = 0; i < listExts.size(); i++) {
@@ -113,7 +115,7 @@ public class ExtensionFactory {
                     log.debug("Depreciated extension " + extension.getName());
                     continue;
                 }
-                extension.setEnabled(optionsParam.getConfig().getBoolean("ext." + extension.getName(), true));
+                extension.setEnabled(extParam.isExtensionEnabled(extension.getName()));
 
                 listAllExtension.add(extension);
                 mapAllExtension.put(extension.getName(), extension);
@@ -185,7 +187,7 @@ public class ExtensionFactory {
             Configuration config,
             Extension extension) {
         synchronized (mapAllExtension) {
-            addExtensionImpl(config, extension);
+            addExtensionImpl(extension);
 
             if (extension.isEnabled()) {
                 log.debug("Adding new extension " + extension.getName());
@@ -194,7 +196,7 @@ public class ExtensionFactory {
         }
     }
 
-    private static void addExtensionImpl(Configuration config, Extension extension) {
+    private static void addExtensionImpl(Extension extension) {
         if (mapAllExtension.containsKey(extension.getName())) {
             if (mapAllExtension.get(extension.getName()).getClass().equals(extension.getClass())) {
                 // Same name, same class cant currently replace exts already loaded
@@ -210,7 +212,8 @@ public class ExtensionFactory {
             log.debug("Depreciated extension " + extension.getName());
             return;
         }
-        extension.setEnabled(config.getBoolean("ext." + extension.getName(), true));
+        ExtensionParam extensionParam = Model.getSingleton().getOptionsParam().getExtensionParam();
+        extension.setEnabled(extensionParam.isExtensionEnabled(extension.getName()));
 
         listAllExtension.add(extension);
         mapAllExtension.put(extension.getName(), extension);
@@ -235,7 +238,7 @@ public class ExtensionFactory {
         synchronized (mapAllExtension) {
 
             for (Extension extension : listExts) {
-                addExtensionImpl(config, extension);
+                addExtensionImpl(extension);
             }
             for (Extension ext : listExts) {
                 if (ext.isEnabled()) {
