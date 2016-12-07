@@ -60,6 +60,7 @@
 // ZAP: 2016/06/08 Set User-Agent header defined in options as default for (internal) CONNECT requests
 // ZAP: 2016/06/10 Allow to validate the URI of the redirections before being followed
 // ZAP: 2016/08/04 Added removeListener(..)
+// ZAP: 2016/12/07 Add initiator constant for AJAX spider requests
 
 package org.parosproxy.paros.network;
 
@@ -110,6 +111,7 @@ public class HttpSender {
 	public static final int CHECK_FOR_UPDATES_INITIATOR = 7;
 	public static final int BEAN_SHELL_INITIATOR = 8;
 	public static final int ACCESS_CONTROL_SCANNER_INITIATOR = 9;
+	public static final int AJAX_SPIDER_INITIATOR = 10;
 
 	private static Logger log = Logger.getLogger(HttpSender.class);
 
