@@ -24,16 +24,15 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.Assert.assertThat;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.apache.commons.configuration.FileConfiguration;
 import org.apache.log4j.Logger;
 import org.apache.log4j.varia.NullAppender;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.zaproxy.zap.extension.ext.ExtensionParam.ExtensionState;
 import org.zaproxy.zap.utils.ZapXmlConfiguration;
 
 /**
@@ -44,15 +43,6 @@ public class ExtensionParamUnitTest {
     @BeforeClass
     public static void suppressLogging() {
         Logger.getRootLogger().addAppender(new NullAppender());
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldNotAllowToChangeReturnedExtensionsStateList() {
-        // Given
-        ExtensionParam param = new ExtensionParam();
-        // When
-        param.getExtensions().add(extensionState("Extension", false));
-        // Then = UnsupportedOperationException
     }
 
     @Test
@@ -71,17 +61,6 @@ public class ExtensionParamUnitTest {
         ExtensionParam clone = param.clone();
         // Then
         assertThat(clone, is(not(equalTo(null))));
-        assertThat(clone.getExtensions(), is(not(equalTo(null))));
-        assertThat(param.getExtensions().size(), is(equalTo(0)));
-    }
-
-    @Test
-    public void shouldNotHaveExtensionsStateByDefault() {
-        // Given / When
-        ExtensionParam param = new ExtensionParam();
-        // Then
-        assertThat(param.getExtensions(), is(not(equalTo(null))));
-        assertThat(param.getExtensions().size(), is(equalTo(0)));
     }
 
     @Test
@@ -92,34 +71,23 @@ public class ExtensionParamUnitTest {
         // When
         param.load(config);
         // Then
-        assertThat(param.getExtensions(), is(not(equalTo(null))));
-        assertThat(param.getExtensions().size(), is(equalTo(5)));
-        assertThat(param.getExtensions().get(0), is(equalTo(extensionState("Extension 1", false))));
-        assertThat(param.getExtensions().get(1), is(equalTo(extensionState("Extension 2", true))));
-        assertThat(param.getExtensions().get(2), is(equalTo(extensionState("Extension 3", false))));
-        assertThat(param.getExtensions().get(3), is(equalTo(extensionState("Extension 4", true))));
-        assertThat(param.getExtensions().get(4), is(equalTo(extensionState("Extension 5", true))));
+        assertThat(param.isExtensionEnabled("Extension 1"), is(equalTo(false)));
+        assertThat(param.isExtensionEnabled("Extension 2"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 3"), is(equalTo(false)));
+        assertThat(param.isExtensionEnabled("Extension 4"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 5"), is(equalTo(true)));
     }
 
     @Test
-    public void shouldDefaultToEmptyExtensionsStateIfLoadingMalformedFileConfiguration() {
+    public void shouldDefaultToAllExtensionsEnabledIfLoadingMalformedFileConfiguration() {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
         param.load(createMalformedTestConfig());
         // Then
-        assertThat(param.getExtensions(), is(not(equalTo(null))));
-        assertThat(param.getExtensions().size(), is(equalTo(0)));
-    }
-
-    @Test(expected = UnsupportedOperationException.class)
-    public void shouldNotAllowToChangeReturnedListAfterLoadingTheConfigurations() {
-        // Given
-        ExtensionParam param = new ExtensionParam();
-        param.load(createTestConfig());
-        // When
-        param.getExtensions().add(extensionState("Extension", false));
-        // Then = UnsupportedOperationException
+        assertThat(param.isExtensionEnabled("Extension 1"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 2"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 3"), is(equalTo(true)));
     }
 
     @Test
@@ -131,11 +99,9 @@ public class ExtensionParamUnitTest {
         // When
         ExtensionParam clone = param.clone();
         // Then
-        assertThat(clone.getExtensions(), is(not(equalTo(null))));
-        assertThat(clone.getExtensions().size(), is(equalTo(3)));
-        assertThat(clone.getExtensions().get(0), is(equalTo(extensionState("Extension 1", false))));
-        assertThat(clone.getExtensions().get(1), is(equalTo(extensionState("Extension 2", true))));
-        assertThat(clone.getExtensions().get(2), is(equalTo(extensionState("Extension 3", false))));
+        assertThat(clone.isExtensionEnabled("Extension 1"), is(equalTo(false)));
+        assertThat(clone.isExtensionEnabled("Extension 2"), is(equalTo(true)));
+        assertThat(clone.isExtensionEnabled("Extension 3"), is(equalTo(false)));
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -143,7 +109,7 @@ public class ExtensionParamUnitTest {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
-        param.setExtensions(null);
+        param.setExtensionsState(null);
         // Then = IllegalArgumentException
     }
 
@@ -152,7 +118,7 @@ public class ExtensionParamUnitTest {
         // Given
         ExtensionParam param = new ExtensionParam();
         // When
-        param.setExtensions(Collections.<ExtensionState> emptyList());
+        param.setExtensionsState(Collections.<String, Boolean> emptyMap());
         // Then = NullPointerException
     }
 
@@ -162,18 +128,16 @@ public class ExtensionParamUnitTest {
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig();
         param.load(config);
-        List<ExtensionState> states = extensionsState(true, false, true, false, true, true);
+        Map<String, Boolean> states = extensionsState(true, false, true, false, true, true);
         // When
-        param.setExtensions(states);
+        param.setExtensionsState(states);
         // Then
-        assertThat(param.getExtensions(), is(not(equalTo(null))));
-        assertThat(param.getExtensions().size(), is(equalTo(6)));
-        assertThat(param.getExtensions().get(0), is(equalTo(extensionState("Extension 1", true))));
-        assertThat(param.getExtensions().get(1), is(equalTo(extensionState("Extension 2", false))));
-        assertThat(param.getExtensions().get(2), is(equalTo(extensionState("Extension 3", true))));
-        assertThat(param.getExtensions().get(3), is(equalTo(extensionState("Extension 4", false))));
-        assertThat(param.getExtensions().get(4), is(equalTo(extensionState("Extension 5", true))));
-        assertThat(param.getExtensions().get(5), is(equalTo(extensionState("Extension 6", true))));
+        assertThat(param.isExtensionEnabled("Extension 1"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 2"), is(equalTo(false)));
+        assertThat(param.isExtensionEnabled("Extension 3"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 4"), is(equalTo(false)));
+        assertThat(param.isExtensionEnabled("Extension 5"), is(equalTo(true)));
+        assertThat(param.isExtensionEnabled("Extension 6"), is(equalTo(true)));
     }
 
     @Test
@@ -182,9 +146,9 @@ public class ExtensionParamUnitTest {
         ExtensionParam param = new ExtensionParam();
         FileConfiguration config = createTestConfig();
         param.load(config);
-        List<ExtensionState> states = extensionsState(true, false, true, false, true, true);
+        Map<String, Boolean> states = extensionsState(true, false, true, false, true, true);
         // When
-        param.setExtensions(states);
+        param.setExtensionsState(states);
         // Then
         assertThat(config.getString("extensions.extension(0).name"), is(equalTo("Extension 2")));
         assertThat(config.getBoolean("extensions.extension(0).enabled"), is(equalTo(false)));
@@ -194,18 +158,29 @@ public class ExtensionParamUnitTest {
         assertThat(config.containsKey("extensions.extension(2).enabled"), is(equalTo(false)));
     }
 
-    private static ExtensionState extensionState(String name, boolean enabled) {
-        return new ExtensionState(name, enabled);
+    @Test
+    public void shouldNotPersistNullExtensionNamesOrNullEnabledState() {
+        // Given
+        ExtensionParam param = new ExtensionParam();
+        FileConfiguration config = createTestConfig();
+        param.load(config);
+        Map<String, Boolean> states = new HashMap<>();
+        states.put(null, Boolean.FALSE);
+        states.put("Extension 2", null);
+        // When
+        param.setExtensionsState(states);
+        // Then
+        assertThat(param.getConfig().getKeys().hasNext(), is(equalTo(false)));
     }
 
-    private static List<ExtensionState> extensionsState(boolean... states) {
-        List<ExtensionState> extensionsState = new ArrayList<>();
+    private static Map<String, Boolean> extensionsState(boolean... states) {
+        Map<String, Boolean> extensionsState = new HashMap<>();
         if (states == null || states.length == 0) {
             return extensionsState;
         }
 
         for (int i = 0; i < states.length; ++i) {
-            extensionsState.add(new ExtensionState("Extension " + (i + 1), states[i]));
+            extensionsState.put("Extension " + (i + 1), states[i]);
         }
         return extensionsState;
     }

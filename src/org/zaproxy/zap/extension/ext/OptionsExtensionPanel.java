@@ -24,7 +24,6 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -115,19 +114,11 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
 	@Override
     public void initParam(Object obj) {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-		ExtensionParam extParam = optionsParam.getParamSet(ExtensionParam.class);
+		ExtensionParam extParam = optionsParam.getExtensionParam();
 
-		Map<String, Boolean> extensionsState = new HashMap<>();
-		for (ExtensionParam.ExtensionState extEntry : extParam.getExtensions()) {
-			extensionsState.put(extEntry.getName(), extEntry.isEnabled());
-		}
 		List<Extension> exts = extensionModel.getExtensions();
 		for (Extension ext : exts) {
-			Boolean enabled = extensionsState.get(ext.getName());
-			if (enabled == null) {
-				enabled = Boolean.TRUE;
-			}
-			ext.setEnabled(enabled);
+			ext.setEnabled(extParam.isExtensionEnabled(ext.getName()));
 		}
     	extensionModel.fireTableRowsUpdated(0, extensionModel.getRowCount());
     }
@@ -142,13 +133,13 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;
-		ExtensionParam extParam = optionsParam.getParamSet(ExtensionParam.class);
 
-		List<ExtensionParam.ExtensionState> extensions = new ArrayList<>(extensionModel.getExtensions().size());
-		for (Extension ext : extensionModel.getExtensions()) {
-			extensions.add(new ExtensionParam.ExtensionState(ext.getName(), ext.isEnabled()));
-		}
-		extParam.setExtensions(extensions);
+        Map<String, Boolean> extensionsState = new HashMap<>();
+        List<Extension> exts = extensionModel.getExtensions();
+        for (Extension ext : exts) {
+            extensionsState.put(ext.getName(), ext.isEnabled());
+        }
+        optionsParam.getExtensionParam().setExtensionsState(extensionsState);
     }
 
 	/**

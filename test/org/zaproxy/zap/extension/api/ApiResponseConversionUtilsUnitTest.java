@@ -61,12 +61,32 @@ public class ApiResponseConversionUtilsUnitTest {
 	}
 
 	@Test
+	public void shouldHaveUndefinedHistoryTypeByDefault() {
+		// Given / When
+		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		// Then
+		assertThat(response.getValues(), hasEntry("type", (Object) "-1"));
+	}
+
+	@Test
+	public void shouldIncludeHistoryTypeInApiResponse() {
+		// Given
+		int historyType = 2;
+		// When
+		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, historyType, message);
+		// Then
+		assertThat(response.getValues(), hasEntry("type", (Object) "2"));
+	}
+
+	@Test
 	public void propertiesFromGivenHttpMessageShouldReflectInApiResponse() {
 		given(message.getCookieParamsAsString()).willReturn("testCookieParams");
 		given(message.getNote()).willReturn("testNote");
 		given(requestHeader.toString()).willReturn("testRequestHeader");
 		given(requestBody.toString()).willReturn("testRequestBody");
 		given(responseHeader.toString()).willReturn("testResponseHeader");
+		given(message.getTimeSentMillis()).willReturn(1010101010101L);
+		given(message.getTimeElapsedMillis()).willReturn(200);
 		
 		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 		
@@ -76,6 +96,8 @@ public class ApiResponseConversionUtilsUnitTest {
 		assertThat(response.getValues(), hasEntry("requestHeader", (Object)requestHeader.toString()));
 		assertThat(response.getValues(), hasEntry("requestBody", (Object)requestBody.toString()));
 		assertThat(response.getValues(), hasEntry("responseHeader", (Object)responseHeader.toString()));
+		assertThat(response.getValues(), hasEntry("timestamp", (Object) "1010101010101"));
+		assertThat(response.getValues(), hasEntry("rtt", (Object) "200"));
 	}
 
 	@Test

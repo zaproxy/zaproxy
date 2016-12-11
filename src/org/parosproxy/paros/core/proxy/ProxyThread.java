@@ -62,6 +62,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/06/13 Remove all unsupported encodings (instead of just some)
 // ZAP: 2016/09/22 JavaDoc tweaks
+// ZAP: 2016/11/28 Correct proxy errors' Content-Length value.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -75,6 +76,7 @@ import java.net.NetworkInterface;
 import java.net.Socket;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Vector;
 import java.util.regex.Pattern;
@@ -95,6 +97,7 @@ import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpOutputStream;
 import org.parosproxy.paros.network.HttpRequestHeader;
+import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
 import org.parosproxy.paros.network.HttpUtil;
 import org.parosproxy.paros.security.MissingRootCertificateException;
@@ -309,14 +312,14 @@ class ProxyThread implements Runnable {
 
     private static void setErrorResponse(HttpMessage msg, String responseStatus, String message)
             throws HttpMalformedHeaderException {
-        msg.setResponseHeader("HTTP/1.1 " + responseStatus);
+        HttpResponseHeader responseHeader = new HttpResponseHeader("HTTP/1.1 " + responseStatus);
+        responseHeader.setHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
+        responseHeader.setHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(message.getBytes(StandardCharsets.UTF_8).length));
+        msg.setResponseHeader(responseHeader);
 
         if (!HttpRequestHeader.HEAD.equals(msg.getRequestHeader().getMethod())) {
             msg.setResponseBody(message);
         }
-
-        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_LENGTH, Integer.toString(message.length()));
-        msg.getResponseHeader().addHeader(HttpHeader.CONTENT_TYPE, "text/plain; charset=UTF-8");
     }
 
     private static void writeHttpResponse(HttpMessage msg, HttpOutputStream outputStream) throws IOException {

@@ -588,13 +588,27 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 		int id = this.scanController.startScan(displayName, target, user, customConfigurations);
     	if (View.isInitialised()) {
-    		SpiderScan scanner = this.scanController.getScan(id);
-			this.getSpiderPanel().scannerStarted(scanner);
-    		scanner.setListener(getSpiderPanel());	// So the UI gets updated
-    		this.getSpiderPanel().switchView(scanner);
-    		this.getSpiderPanel().setTabFocus();
+    		addScanToUi(this.scanController.getScan(id));
     	}
     	return id;
+	}
+
+	private void addScanToUi(final SpiderScan scan) {
+		if (!EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					addScanToUi(scan);
+				}
+			});
+			return;
+		}
+
+		this.getSpiderPanel().scannerStarted(scan);
+		scan.setListener(getSpiderPanel()); // So the UI gets updated
+		this.getSpiderPanel().switchView(scan);
+		this.getSpiderPanel().setTabFocus();
 	}
 
 	/**

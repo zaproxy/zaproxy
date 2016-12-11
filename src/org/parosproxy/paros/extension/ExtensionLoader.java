@@ -65,6 +65,7 @@
 // ZAP: 2016/05/30 Notification of installation status of the add-ons
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/08/18 Hook ApiImplementor
+// ZAP: 2016/11/23 Call postInit() when starting an extension, startLifeCycle(Extension).
 
 package org.parosproxy.paros.extension;
 
@@ -663,6 +664,7 @@ public class ExtensionLoader {
             
             hookOptions(extHook);
             ext.optionsLoaded();
+            ext.postInit();
         } catch (Exception e) {
             logger.error(e.getMessage(), e);
         }

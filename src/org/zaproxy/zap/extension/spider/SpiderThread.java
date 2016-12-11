@@ -141,7 +141,7 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		this.extension = extension;
 		this.site = site;
 		this.pendingSpiderListeners = new LinkedList<>();
-		this.resultsModel = new SpiderPanelTableModel();
+		this.resultsModel = extension.getView() != null ? new SpiderPanelTableModel() : null;
 		this.spiderParams = spiderParams;
 
 		setName("ZAP-SpiderInitThread-"+ id);
@@ -393,21 +393,34 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	@Override
 	public void foundURI(String uri, String method, FetchStatus status) {
-		if (extension.getView() != null) {
-
-			// Add the new result
-			if (status == FetchStatus.VALID) {
-				resultsModel.addScanResult(uri, method, null, false);
-			} else if (status == FetchStatus.SEED) {
-				resultsModel.addScanResult(uri, method, "SEED", false);
-			} else {
-				resultsModel.addScanResult(uri, method, status.toString(), true);
-			}
-
-			// Update the count of found URIs
-			extension.getSpiderPanel().updateFoundCount();
-
+		if (resultsModel != null) {
+			addUriToResultsModel(uri, method, status);
 		}
+	}
+
+	private void addUriToResultsModel(final String uri, final String method, final FetchStatus status) {
+		if (!EventQueue.isDispatchThread()) {
+			EventQueue.invokeLater(new Runnable() {
+
+				@Override
+				public void run() {
+					addUriToResultsModel(uri, method, status);
+				}
+			});
+			return;
+		}
+
+		// Add the new result
+		if (status == FetchStatus.VALID) {
+			resultsModel.addScanResult(uri, method, null, false);
+		} else if (status == FetchStatus.SEED) {
+			resultsModel.addScanResult(uri, method, "SEED", false);
+		} else {
+			resultsModel.addScanResult(uri, method, status.toString(), true);
+		}
+
+		// Update the count of found URIs
+		extension.getSpiderPanel().updateFoundCount();
 	}
 
 	@Override
@@ -472,7 +485,9 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	@Override
 	public void reset() {
-		this.resultsModel.removeAllElements();
+	    if (resultsModel != null) {
+	        this.resultsModel.removeAllElements();
+	    }
 	}
 
 	/**

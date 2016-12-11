@@ -97,6 +97,8 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	
 	private ScanListenner2 listener = null;
 
+	private volatile boolean cleared;
+
 	/**
 	 * The table model of the messages sent.
 	 * <p>
@@ -327,7 +329,11 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	}
 
 	private void addMessageToMessagesTableModel(final HttpMessage msg) {
-		if (EventQueue.isDispatchThread()) {
+		if (EventQueue.isDispatchThread() || cleared) {
+			if (cleared) {
+				return;
+			}
+
 			if (messagesTableModel == null) {
 				messagesTableModel = new SpiderMessagesTableModel();
 			}
@@ -474,6 +480,7 @@ public class SpiderScan implements ScanListenner, SpiderListener, GenericScanner
 	 * @see #getMessagesTableModel()
 	 */
 	void clear() {
+		cleared = true;
 		if (messagesTableModel != null) {
 			messagesTableModel.clear();
 			messagesTableModel = null;

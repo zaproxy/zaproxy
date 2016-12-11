@@ -546,8 +546,14 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 
 				@Override
 				public void process(HttpMessage msg) {
-					int id = msg.getHistoryRef() != null ? msg.getHistoryRef().getHistoryId() : -1;
-					resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(id, msg));
+					int id = -1;
+					int type = -1;
+					HistoryReference hRef = msg.getHistoryRef();
+					if (hRef != null) {
+						id = hRef.getHistoryId();
+						type = hRef.getHistoryType();
+					}
+					resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(id, type, msg));
 				}
 			});
 
@@ -724,7 +730,8 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			if (recordHistory == null || recordHistory.getHistoryType() == HistoryReference.TYPE_TEMPORARY) {
 				throw new ApiException(ApiException.Type.DOES_NOT_EXIST);
 			}
-			result = new ApiResponseElement(ApiResponseConversionUtils.httpMessageToSet(recordHistory.getHistoryId(), recordHistory.getHttpMessage()));
+			result = new ApiResponseElement(ApiResponseConversionUtils.httpMessageToSet(recordHistory.getHistoryId(),
+					recordHistory.getHistoryType(), recordHistory.getHttpMessage()));
 		} else if (VIEW_MESSAGES.equals(name)) {
 			final ApiResponseList resultList = new ApiResponseList(name);
 			processHttpMessages(
@@ -737,6 +744,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 						public void process(RecordHistory recordHistory) {
 							resultList.addItem(ApiResponseConversionUtils.httpMessageToSet(
 									recordHistory.getHistoryId(),
+									recordHistory.getHistoryType(),
 									recordHistory.getHttpMessage()));
 						}
 					});
