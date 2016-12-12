@@ -18,28 +18,30 @@
 package org.zaproxy.zap.extension.api;
 
 import org.apache.commons.configuration.ConfigurationException;
+import org.apache.commons.configuration.ConversionException;
+import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 
 public class OptionsParamApi extends AbstractParam {
 
+	private static final Logger LOGGER = Logger.getLogger(OptionsParamApi.class);
+
 	public static final String ENABLED = "api.enabled";
 	public static final String SECURE_ONLY = "api.secure";
-	public static final String POST_ACTIONS = "api.postactions";
 	public static final String API_KEY = "api.key";
 	private static final String DISABLE_KEY = "api.disablekey";
 	private static final String INC_ERROR_DETAILS = "api.incerrordetails";
 	private static final String AUTOFILL_KEY = "api.autofillkey";
 	private static final String ENABLE_JSONP = "api.enablejsonp";
 	
-	private boolean enabled = false;
-	private boolean secureOnly = false;
-	private boolean disableKey = false;
-	private boolean incErrorDetails = false;
-	private boolean autofillKey = false;
-	private boolean enableJSONP = false;
+	private boolean enabled = true;
+	private boolean secureOnly;
+	private boolean disableKey;
+	private boolean incErrorDetails;
+	private boolean autofillKey;
+	private boolean enableJSONP;
 
 	private String key = "";
-	//private boolean postActions = false;
 	
 	
     public OptionsParamApi() {
@@ -48,15 +50,33 @@ public class OptionsParamApi extends AbstractParam {
     @Override
     protected void parse() {
         
-	    enabled = getConfig().getBoolean(ENABLED, true);
-	    secureOnly = getConfig().getBoolean(SECURE_ONLY, false);
-		disableKey = getConfig().getBoolean(DISABLE_KEY, false);
-		incErrorDetails = getConfig().getBoolean(INC_ERROR_DETAILS, false);
-		autofillKey = getConfig().getBoolean(AUTOFILL_KEY, false);
-		enableJSONP = getConfig().getBoolean(ENABLE_JSONP, false);
-	    key = getConfig().getString(API_KEY, "");
-	    //postActions = getConfig().getBoolean(POST_ACTIONS, false);
+		enabled = getBooleanFromConfig(ENABLED, true);
+		secureOnly = getBooleanFromConfig(SECURE_ONLY, false);
+		disableKey = getBooleanFromConfig(DISABLE_KEY, false);
+		incErrorDetails = getBooleanFromConfig(INC_ERROR_DETAILS, false);
+		autofillKey = getBooleanFromConfig(AUTOFILL_KEY, false);
+		enableJSONP = getBooleanFromConfig(ENABLE_JSONP, false);
+		try {
+			key = getConfig().getString(API_KEY, "");
+		} catch (ConversionException e) {
+			LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
+			key = "";
+		}
     }
+
+	private boolean getBooleanFromConfig(String key, boolean defaultValue) {
+		try {
+			return getConfig().getBoolean(key, defaultValue);
+		} catch (ConversionException e) {
+			LOGGER.warn("Failed to load the option '" + key + "' caused by:", e);
+			return defaultValue;
+		}
+	}
+
+	@Override
+	public OptionsParamApi clone() {
+		return (OptionsParamApi) super.clone();
+	}
 
 	public boolean isEnabled() {
 		return enabled;
@@ -121,11 +141,13 @@ public class OptionsParamApi extends AbstractParam {
 			return "";
 		} else if (key == null || key.length() == 0) {
 			key = ExtensionAPI.generateApiKey();
-			getConfig().setProperty(API_KEY, key);
-			try {
-				getConfig().save();
-			} catch (ConfigurationException e) {
-				// Ignore
+			if (getConfig() != null) {
+				getConfig().setProperty(API_KEY, key);
+				try {
+					getConfig().save();
+				} catch (ConfigurationException e) {
+					// Ignore
+				}
 			}
 		}
 		return key;
@@ -136,15 +158,4 @@ public class OptionsParamApi extends AbstractParam {
 		getConfig().setProperty(API_KEY, key);
 	}
 
-	/*
-	public boolean isPostActions() {
-		return postActions;
-	}
-
-	public void setPostActions(boolean postActions) {
-		this.postActions = postActions;
-		getConfig().setProperty(POST_ACTIONS, postActions);
-	}
-	*/
-    
 }
