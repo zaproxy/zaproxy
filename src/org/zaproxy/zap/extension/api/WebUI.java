@@ -124,6 +124,16 @@ public class WebUI {
 			}
 			sb.append("</a>");
 			sb.append("</td><td>");
+
+			if (element.isDeprecated()) {
+				sb.append(Constant.messages.getString("api.html.deprecated.endpoint"));
+				sb.append("<br />");
+				String text = element.getDeprecatedDescription();
+				if (text != null && !text.isEmpty()) {
+					sb.append(text);
+					sb.append("<br />");
+				}
+			}
 			
 			String descTag = element.getDescriptionTag();
 			if (descTag == null) {

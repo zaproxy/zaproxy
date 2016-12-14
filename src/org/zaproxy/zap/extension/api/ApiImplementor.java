@@ -27,6 +27,7 @@ import java.util.List;
 import net.sf.json.JSONException;
 import net.sf.json.JSONObject;
 
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.common.AbstractParam;
 import org.parosproxy.paros.network.HttpMessage;
 import org.zaproxy.zap.extension.api.API.RequestType;
@@ -112,28 +113,40 @@ public abstract class ApiImplementor {
 				continue;
 			}
 
+			boolean deprecated = method.getAnnotation(Deprecated.class) != null;
+
 			if (method.getName().startsWith("get") && method.getParameterTypes().length == 0) {
-				this.addApiView(new ApiView(GET_OPTION_PREFIX + method.getName().substring(3)));
+				ApiView view = new ApiView(GET_OPTION_PREFIX + method.getName().substring(3));
+				setApiOptionDeprecated(view, deprecated);
+				addApiView(view);
 			}
 			if (method.getName().startsWith("is") && method.getParameterTypes().length == 0) {
-				this.addApiView(new ApiView(GET_OPTION_PREFIX + method.getName().substring(2)));
+				ApiView view = new ApiView(GET_OPTION_PREFIX + method.getName().substring(2));
+				setApiOptionDeprecated(view, deprecated);
+				addApiView(view);
 			}
 			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && 
 					method.getParameterTypes()[0].equals(String.class)) {
-				this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), 
-						new String[]{"String"}));
+				ApiAction action = new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), 
+						new String[]{"String"});
+				setApiOptionDeprecated(action, deprecated);
+				this.addApiAction(action);
 				addedActions.add(method.getName());
 			}
 			if (method.getName().startsWith("add") && method.getParameterTypes().length == 1 && 
 					method.getParameterTypes()[0].equals(String.class)) {
-				this.addApiAction(new ApiAction(ADD_OPTION_PREFIX + method.getName().substring(3), 
-						new String[]{"String"}));
+				ApiAction action = new ApiAction(ADD_OPTION_PREFIX + method.getName().substring(3), 
+						new String[]{"String"});
+				setApiOptionDeprecated(action, deprecated);
+				this.addApiAction(action);
 				addedActions.add(method.getName());
 			}
 			if (method.getName().startsWith("remove") && method.getParameterTypes().length == 1 && 
 					method.getParameterTypes()[0].equals(String.class)) {
-				this.addApiAction(new ApiAction(REMOVE_OPTION_PREFIX + method.getName().substring(6), 
-						new String[]{"String"}));
+				ApiAction action = new ApiAction(REMOVE_OPTION_PREFIX + method.getName().substring(6), 
+						new String[]{"String"});
+				setApiOptionDeprecated(action, deprecated);
+				this.addApiAction(action);
 				addedActions.add(method.getName());
 			}
 		}
@@ -143,13 +156,21 @@ public abstract class ApiImplementor {
 				continue;
 			}
 
+			boolean deprecated = method.getAnnotation(Deprecated.class) != null;
+
 			if (method.getName().startsWith("set") && method.getParameterTypes().length == 1 && ! addedActions.contains(method.getName())) {
 				// Non String setter
 				if (method.getParameterTypes()[0].equals(Integer.class) || method.getParameterTypes()[0].equals(int.class)) {
-					this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), new String[]{"Integer"}));
+					ApiAction action = new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3),
+							new String[]{"Integer"});
+					setApiOptionDeprecated(action, deprecated);
+					this.addApiAction(action);
 					addedActions.add(method.getName());	// Just in case there are more overloads
 				} else if (method.getParameterTypes()[0].equals(Boolean.class) || method.getParameterTypes()[0].equals(boolean.class)) {
-					this.addApiAction(new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3), new String[]{"Boolean"}));
+					ApiAction action = new ApiAction(SET_OPTION_PREFIX + method.getName().substring(3),
+							new String[]{"Boolean"});
+					setApiOptionDeprecated(action, deprecated);
+					this.addApiAction(action);
 					addedActions.add(method.getName());	// Just in case there are more overloads
 				}
 			}
@@ -171,6 +192,16 @@ public abstract class ApiImplementor {
 		return method.getAnnotation(ZapApiIgnore.class) != null || !Modifier.isPublic(method.getModifiers());
 	}
 
+	private void setApiOptionDeprecated(ApiElement apiOption, boolean deprecated) {
+		if (deprecated) {
+			apiOption.setDeprecated(deprecated);
+			if (Constant.messages != null) {
+				// Add a custom message when running from ZAP.
+				apiOption.setDeprecatedDescription(Constant.messages.getString("api.deprecated.option.endpoint"));
+			}
+		}
+	}
+	
 	public ApiResponse handleApiOptionView(String name, JSONObject params) throws ApiException {
 		if (this.param == null) {
 			return null;
