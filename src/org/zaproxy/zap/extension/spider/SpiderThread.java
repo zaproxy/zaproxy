@@ -149,7 +149,12 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 
 	@Override
 	public void run() {
-		runScan();
+		try {
+			runScan();
+		} catch (Exception e) {
+			log.error("An error occurred while starting the spider:", e);
+			stopScan();
+		}
 	}
 
 	/**
