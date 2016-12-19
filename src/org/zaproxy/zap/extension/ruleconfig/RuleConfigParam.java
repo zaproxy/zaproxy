@@ -39,6 +39,7 @@ public class RuleConfigParam extends AbstractParam {
 
     /**
      * The name of the rule to obtain the time, in seconds, for time-based attacks.
+     * @see #RULE_DEFAULT_COMMON_SLEEP_TIME
      */
     public static final String RULE_COMMON_SLEEP_TIME = "rules.common.sleep";
 
@@ -53,6 +54,12 @@ public class RuleConfigParam extends AbstractParam {
      * when checking for issues.
      */
     public static final String RULE_COOKIE_IGNORE_LIST = "rules.cookie.ignorelist";
+    
+    /**
+     * The default time, in seconds, to use for time-based attacks
+     * @see #RULE_COMMON_SLEEP_TIME
+     */
+    public static final int RULE_DEFAULT_COMMON_SLEEP_TIME = 15;
 
     private static final String RULES_BASE_KEY = "rules";
     private static final String RULES_DEFAULT_KEY_EXT = ".default";
@@ -65,7 +72,7 @@ public class RuleConfigParam extends AbstractParam {
     @Override
     protected void parse() {
         // Add the built in rule configs
-        this.addRuleConfig(new RuleConfig(RULE_COMMON_SLEEP_TIME, "20"));
+        this.addRuleConfig(new RuleConfig(RULE_COMMON_SLEEP_TIME, Integer.toString(RULE_DEFAULT_COMMON_SLEEP_TIME)));
         this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_LIST, ""));
         this.addRuleConfig(new RuleConfig(RULE_COOKIE_IGNORE_LIST, ""));
         
