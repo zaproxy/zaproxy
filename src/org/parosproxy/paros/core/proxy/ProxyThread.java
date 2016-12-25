@@ -63,6 +63,7 @@
 // ZAP: 2016/06/13 Remove all unsupported encodings (instead of just some)
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/28 Correct proxy errors' Content-Length value.
+// ZAP: 2016/12/07 Allow to extend the ProxyThread and use a custom HttpSender
 
 package org.parosproxy.paros.core.proxy;
 
@@ -107,7 +108,7 @@ import org.zaproxy.zap.extension.api.API;
 import org.zaproxy.zap.network.HttpRequestBody;
 
 
-class ProxyThread implements Runnable {
+public class ProxyThread implements Runnable {
 
 //	private static final int		BUFFEREDSTREAM_SIZE = 4096;
 	private static final String		CONNECT_HTTP_200 = "HTTP/1.1 200 Connection established\r\nProxy-connection: Keep-alive\r\n\r\n";
@@ -141,10 +142,23 @@ class ProxyThread implements Runnable {
     
     private static Vector<Thread> proxyThreadList = new Vector<>();
     
-	ProxyThread(ProxyServer server, Socket socket) {
+	protected ProxyThread(ProxyServer server, Socket socket) {
+		this(server, socket, null);
+	}
+
+	/**
+	 * Constructs a {@code ProxyThread} with the given proxy server, socket and HTTP sender.
+	 *
+	 * @param server the parent proxy server.
+	 * @param socket the connected socket to read/write the messages.
+	 * @param httpSender the object used to send the messages, might be {@code null} in which case a default is used.
+	 * @since TODO add version
+	 */
+	protected ProxyThread(ProxyServer server, Socket socket, HttpSender httpSender) {
 		parentServer = server;
 		proxyParam = parentServer.getProxyParam();
 		connectionParam = parentServer.getConnectionParam();
+		this.httpSender = httpSender;
 
 		inSocket = socket;
     	try {

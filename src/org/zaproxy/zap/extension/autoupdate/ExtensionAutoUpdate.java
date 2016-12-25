@@ -219,7 +219,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 						       public boolean accept(File file) {
 						            if (file.isDirectory()) {
 						                return true;
-						            } else if (file.isFile() && file.getName().endsWith(".zap")) {
+						            } else if (file.isFile() && file.getName().endsWith(AddOn.FILE_EXTENSION)) {
 						                return true;
 						            }
 						            return false;

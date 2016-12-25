@@ -633,9 +633,9 @@ Filtrez ou mettez entre guillemets les séquences CRLF dans les entrées contrô
 <vuln_items>wasc_25</vuln_items>
 <vuln_item_wasc_25>
 	<alert>Fractionnement de réponse HTTP</alert>
-	<desc>In the HTTP Response Splitting attack, there are always 3 parties (at least) involved:
-    * Web server, which has a security hole enabling HTTP Response Splitting
-    * Target - an entity that interacts with the web server perhaps on behalf of the attacker. En général, il s'agit d'un serveur cache (proxy direct/inverse), ou d'un navigateur (éventuellement avec un cache de navigateur).
+	<desc>Dans une attaque de fractionnement de réponse HTTP, il y a généralement 3 parties impliquées:
+    * Le serveur web, vulnérable au fractionnement de réponse HTTP;
+    * La cible, une entité qui interagit avec le serveur web, parfois sous contrôle de l'attaquant. En général, il s'agit d'un serveur cache (proxy direct/inverse), ou d'un navigateur (éventuellement avec un cache de navigateur).
     * l'agresseur - lance l'attaque
 
 Le principe du fractionnement de réponse HTTP consiste pour l'agresseur à envoyer une requête HTTP unique qui force le serveur internet à établir un flux de sortie, qui est ensuite interprété par la cible comme deux réponses HTTP, au lieu d'une seule dans le cas normal. La première réponse peut être partiellement contrôlée par l'agresseur, mais cela est moins important. Ce qui est crucial, c'est que l'agresseur contrôle complètement la forme de la deuxième réponse, de la première ligne du status HTTP jusqu'au dernier octet du corps de la réponse HTTP. Une fois que ceci est possible, l'agresseur réalise l'attaque en envoyant deux requêtes par l'intermédiaire de la cible. La première appelle deux réponses du serveur internet, quant à la deuxième requête, elle demanderait typiquement quelque "innocente" ressource au serveur internet. Toutefois, la deuxième requête serait associée par la cible à la deuxième réponse HTTP, qui est entièrement contrôlée par l'agresseur. Le pirate trompe par conséquent la cible en lui faisant croire qu'une ressource particulière sur le serveur internet (désigné par la deuxième requête) est la réponse HTTP du serveur (serveur de contenu), alors qu'il s'agit en fait de données manipulées par l'agresseur via le serveur internet - cette fois la deuxième réponse.
@@ -875,9 +875,9 @@ De manière générale, il existe deux types de systèmes de gestion de session,
 Sans une protection active contre la Fixation de Session, l'attaque peut être montée contre n'importe quel site internet qui utilise des sessions pour reconnaître les utilisateurs authentifiés. Les sites internet utilisant les ID de sessions sont normalement basés sur les cookies, mais les URLs et des champs de formulaire masqués sont également utilisés. Malheureusement, les sessions basées sur les cookies sont les plus faciles à attaquer. La plupart des méthodes d'attaque actuellement identifiées visent la fixation des cookies.
 
 Contrairement au vol des ID de session après que l'utilisateur se soit connecté à un site internet, la Fixation de Session fournit un champ d'opportunités beaucoup plus large. La partie active de l'attaque a lieu avant qu'un utilisateur se connecte.</desc>
-	<solution>Invalidate any existing session identifiers prior to authorizing a new user session
+	<solution>Invalider le ou les identifiants de session existants avant d'autoriser une nouvelle session utilisateur.
 
-For platforms such as ASP that do not generate new values for sessionid cookies, utilize a secondary cookie. Dans cette approche, fixez à une valeur aléatoire le cookie secondaire sur le navigateur de l'utilisateur et définissez une variable de session à la même valeur. S'il arrive que la variable de session et la valeur du cookie ne correspondent plus, invalidez la session et forcez l'utilisateur à se reconnecter.</solution>
+Pour les plateformes ne générant pas automatiquement de nouveaux identifiants de session (p. ex.: ASP), utiliser un second cookie de session. Dans cette approche, fixez à une valeur aléatoire le cookie secondaire sur le navigateur de l'utilisateur et définissez une variable de session à la même valeur. S'il arrive que la variable de session et la valeur du cookie ne correspondent plus, invalidez la session et forcez l'utilisateur à se reconnecter.</solution>
 	<reference>http://projects.webappsec.org/Session-Fixation</reference>
 	<reference>http://cwe.mitre.org/data/definitions/384.html</reference>
 </vuln_item_wasc_37>

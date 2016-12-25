@@ -48,6 +48,12 @@ public class RuleConfigParam extends AbstractParam {
      */
     public static final String RULE_CSRF_IGNORE_LIST = "rules.csrf.ignorelist";
 
+    /**
+     * The name of the rule to obtain the string containing a comma separated list of cookies that should be ignored
+     * when checking for issues.
+     */
+    public static final String RULE_COOKIE_IGNORE_LIST = "rules.cookie.ignorelist";
+
     private static final String RULES_BASE_KEY = "rules";
     private static final String RULES_DEFAULT_KEY_EXT = ".default";
     
@@ -59,8 +65,9 @@ public class RuleConfigParam extends AbstractParam {
     @Override
     protected void parse() {
         // Add the built in rule configs
-        this.addRuleConfig(new RuleConfig(RULE_COMMON_SLEEP_TIME, "5"));
+        this.addRuleConfig(new RuleConfig(RULE_COMMON_SLEEP_TIME, "20"));
         this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_LIST, ""));
+        this.addRuleConfig(new RuleConfig(RULE_COOKIE_IGNORE_LIST, ""));
         
         Iterator<String> iter = this.getConfig().getKeys(RULES_BASE_KEY);
         RuleConfig rc;

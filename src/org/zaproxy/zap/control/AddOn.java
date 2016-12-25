@@ -100,6 +100,13 @@ public class AddOn  {
 		SOFT_UNINSTALLATION_FAILED
 	}
 	
+	/**
+	 * The file extension of ZAP add-ons.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final String FILE_EXTENSION = ".zap";
+
 	private String id;
 	private String name;
 	private String description = "";
@@ -161,7 +168,7 @@ public class AddOn  {
 	private static final Logger logger = Logger.getLogger(AddOn.class);
 	
 	public static boolean isAddOn(String fileName) {
-		if (! fileName.toLowerCase().endsWith(".zap")) {
+		if (! fileName.toLowerCase().endsWith(FILE_EXTENSION)) {
 			return false;
 		}
 		if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 3) {

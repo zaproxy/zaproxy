@@ -14,6 +14,7 @@
 // 		7	CHECK_FOR_UPDATES_INITIATOR
 // 		8	BEAN_SHELL_INITIATOR
 // 		9	ACCESS_CONTROL_SCANNER_INITIATOR
+// 		10	AJAX_SPIDER_INITIATOR
 // For the latest list of values see the HttpSender class:
 // https://github.com/zaproxy/zaproxy/blob/master/src/org/parosproxy/paros/network/HttpSender.java
 // 'helper' just has one method at the moment: helper.getHttpSender() which returns the HttpSender 
