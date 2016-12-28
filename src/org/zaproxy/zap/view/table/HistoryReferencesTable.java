@@ -20,11 +20,15 @@
 package org.zaproxy.zap.view.table;
 
 import java.awt.Component;
+import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
+import javax.swing.Action;
+import javax.swing.Icon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPopupMenu;
 import javax.swing.ListSelectionModel;
@@ -35,12 +39,14 @@ import javax.swing.table.TableModel;
 
 import org.apache.log4j.Logger;
 import org.jdesktop.swingx.JXTable;
+import org.jdesktop.swingx.action.AbstractActionExt;
 import org.jdesktop.swingx.renderer.DefaultTableRenderer;
 import org.jdesktop.swingx.renderer.IconValues;
 import org.jdesktop.swingx.renderer.MappedValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.jdesktop.swingx.table.ColumnFactory;
 import org.jdesktop.swingx.table.TableColumnExt;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
@@ -65,8 +71,6 @@ public class HistoryReferencesTable extends ZapTable {
     private static final long serialVersionUID = -6988769961088738602L;
 
     private static final Logger LOGGER = Logger.getLogger(HistoryReferencesTable.class);
-
-    private static final HistoryReferencesTableColumnFactory DEFAULT_COLUMN_FACTORY = new HistoryReferencesTableColumnFactory();
 
     private static final int MAXIMUM_ROWS_FOR_TABLE_CONFIG = 75;
 
@@ -116,7 +120,7 @@ public class HistoryReferencesTable extends ZapTable {
     }
 
     protected void installColumnFactory() {
-        setColumnFactory(DEFAULT_COLUMN_FACTORY);
+        setColumnFactory(new HistoryReferencesTableColumnFactory());
         createDefaultColumnsFromModel();
         initializeColumnWidths();
     }
@@ -267,7 +271,9 @@ public class HistoryReferencesTable extends ZapTable {
         }
     }
 
-    protected static class HistoryReferencesTableColumnFactory extends ColumnFactory {
+    protected class HistoryReferencesTableColumnFactory extends ColumnFactory {
+
+        private SizeBytesStringValue sizeBytesStringValue;
 
         public HistoryReferencesTableColumnFactory() {
         }
@@ -323,13 +329,62 @@ public class HistoryReferencesTable extends ZapTable {
             installSizeBytesRenderer(columnExt, hRefModel.getColumnIndex(Column.SIZE_RESPONSE_BODY), model);
         }
         
-        private void installSizeBytesRenderer(TableColumnExt columnExt, int columnIndex, TableModel model) {
+        protected void installSizeBytesRenderer(TableColumnExt columnExt, int columnIndex, TableModel model) {
             if (columnIndex != -1) {
                 if (columnExt.getModelIndex() == columnIndex
                         && SizeBytesStringValue.isTargetClass(model.getColumnClass(columnIndex))) {
-                    columnExt.setCellRenderer(new DefaultTableRenderer(new SizeBytesStringValue()));
+                    columnExt.setCellRenderer(new DefaultTableRenderer(getSizeBytesStringValue()));
                 }
             }
+        }
+
+        protected SizeBytesStringValue getSizeBytesStringValue() {
+            if (sizeBytesStringValue == null) {
+                sizeBytesStringValue = new SizeBytesStringValue();
+
+                JComponent columnControl = getColumnControl();
+                if (columnControl instanceof ZapColumnControlButton) {
+                    ZapColumnControlButton zapColumnControl = (ZapColumnControlButton) columnControl;
+                    zapColumnControl.addAction(new ChangeByteUnitAction(HistoryReferencesTable.this, sizeBytesStringValue));
+                    zapColumnControl.populatePopup();
+                }
+            }
+            return sizeBytesStringValue;
+        }
+    }
+
+    protected static class ChangeByteUnitAction extends AbstractActionExt {
+
+        private static final long serialVersionUID = 5518182106427836717L;
+
+        private final JXTable table;
+        private final SizeBytesStringValue sizeBytesStringValue;
+
+        public ChangeByteUnitAction(JXTable table, SizeBytesStringValue sizeBytesStringValue) {
+            super(Constant.messages.getString("view.table.useJustBytes.label"));
+            putValue(Action.SHORT_DESCRIPTION, Constant.messages.getString("view.table.useJustBytes.tooltip"));
+
+            this.table = table;
+            this.sizeBytesStringValue = sizeBytesStringValue;
+            this.putValue(SELECTED_KEY, sizeBytesStringValue.isUseJustBytesUnit());
+        }
+
+        public ChangeByteUnitAction(String label, Icon icon, JXTable table, SizeBytesStringValue sizeBytesStringValue) {
+            super(label, icon);
+
+            this.table = table;
+            this.sizeBytesStringValue = sizeBytesStringValue;
+        }
+
+        @Override
+        public boolean isStateAction() {
+            return true;
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            sizeBytesStringValue.setUseJustBytesUnit(!sizeBytesStringValue.isUseJustBytesUnit());
+            table.repaint();
         }
     }
 }
