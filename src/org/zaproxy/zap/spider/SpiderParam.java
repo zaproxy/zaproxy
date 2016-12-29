@@ -86,6 +86,8 @@ public class SpiderParam extends AbstractParam {
     private static final String SHOW_ADV_DIALOG = "spider.advDialog";
     private static final String MAX_DURATION = "spider.maxDuration";
 
+    private static final String MAX_CHILDREN = "spider.maxChildren";
+
 	/**
 	 * Configuration key to write/read the {@code sendRefererHeader} flag.
 	 * 
@@ -156,6 +158,11 @@ public class SpiderParam extends AbstractParam {
 	/** The maximum duration in minutes that the spider is allowed to run for, 0 meaning no limit */
 	private int maxDuration = 0;
 
+	/**
+	 * The maximum number of child nodes (per node) that can be crawled, 0 means no limit.
+	 */
+	private int maxChildren;
+
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScope = new ArrayList<>(0);
     private List<DomainAlwaysInScopeMatcher> domainsAlwaysInScopeEnabled = new ArrayList<>(0);
     private boolean confirmRemoveDomainAlwaysInScope;
@@ -204,6 +211,12 @@ public class SpiderParam extends AbstractParam {
 
 		try {
 			this.maxDuration = getConfig().getInt(MAX_DURATION, 0);
+		} catch (ConversionException e) {
+			log.error("Error while parsing config file: " + e.getMessage(), e);
+		}
+
+		try {
+			this.maxChildren = getConfig().getInt(MAX_CHILDREN, 0);
 		} catch (ConversionException e) {
 			log.error("Error while parsing config file: " + e.getMessage(), e);
 		}
@@ -908,6 +921,27 @@ public class SpiderParam extends AbstractParam {
     public void setMaxDuration(int maxDuration) {
         this.maxDuration = maxDuration;
         getConfig().setProperty(MAX_DURATION, Integer.valueOf(maxDuration));
+    }
+
+    /**
+     * Gets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
+     * 
+     * @return the maximum number of child nodes that can be crawled.
+     * @since TODO add version
+     */
+    public int getMaxChildren() {
+        return maxChildren;
+    }
+
+    /**
+     * Sets the maximum number of child nodes (per node) that can be crawled, 0 means no limit.
+     * 
+     * @param maxChildren the maximum number of child nodes that can be crawled.
+     * @since TODO add version
+     */
+    public void setMaxChildren(int maxChildren) {
+        this.maxChildren = maxChildren;
+        getConfig().setProperty(MAX_CHILDREN, Integer.valueOf(maxChildren));
     }
 
 }
