@@ -26,7 +26,6 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  * <p>
  * It also reads:
  * <ul>
- * <li>status;</li>
  * <li>file;</li>
  * <li>size;</li>
  * <li>info;</li>
@@ -37,13 +36,11 @@ import org.apache.commons.configuration.HierarchicalConfiguration;
  */
 public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {
 
-    private static final String STATUS = "status";
     private static final String FILE = "file";
     private static final String SIZE = "size";
     private static final String INFO = "info";
     private static final String HASH = "hash";
 
-    private String status;
     private String file;
     private long size;
     private String info;
@@ -55,20 +52,10 @@ public class ZapVersionsAddOnEntry extends BaseZapAddOnXmlData {
 
     @Override
     protected void readAdditionalData(HierarchicalConfiguration zapAddOnData) {
-        status = zapAddOnData.getString(STATUS);
         file = zapAddOnData.getString(FILE);
         size = zapAddOnData.getLong(SIZE);
         info = zapAddOnData.getString(INFO);
         hash = zapAddOnData.getString(HASH, null);
-    }
-
-    /**
-     * Returns the status of the add-on, ("alpha", "beta" or "release").
-     *
-     * @return the status of the add-on
-     */
-    public String getStatus() {
-        return status;
     }
 
     /**
