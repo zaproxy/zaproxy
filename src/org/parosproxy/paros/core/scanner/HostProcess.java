@@ -63,6 +63,7 @@
 //                 - JavaDoc tweaks
 // ZAP: 2016/11/14 Restore and deprecate old constructor, to keep binary compatibility
 // ZAP: 2016/12/13 Issue 2951:  Support active scan rule and scan max duration
+// ZAP: 2016/12/20 Include the name of the user when logging the scan info
 
 package org.parosproxy.paros.core.scanner;
 
@@ -223,7 +224,7 @@ public class HostProcess implements Runnable {
             }
             nodeInScopeCount = counter.getCount();
 
-            log.info("Scanning " + nodeInScopeCount + " node(s) from " + hostAndPort);
+            logScanInfo();
             
             Plugin plugin;
             
@@ -249,6 +250,24 @@ public class HostProcess implements Runnable {
             notifyHostComplete();
             getHttpSender().shutdown();
         }
+    }
+
+    /**
+     * Logs information about the scan.
+     * <p>
+     * It logs the {@link #nodeInScopeCount number of nodes} that will be scanned and the name of the {@link #user}, if any.
+     */
+    private void logScanInfo() {
+        StringBuilder strBuilder = new StringBuilder(150);
+        strBuilder.append("Scanning ");
+        strBuilder.append(nodeInScopeCount);
+        strBuilder.append(" node(s) from ");
+        strBuilder.append(hostAndPort);
+        if (user != null) {
+            strBuilder.append(" as ");
+            strBuilder.append(user.getName());
+        }
+        log.info(strBuilder.toString());
     }
 
     private void processPlugin(final Plugin plugin) {

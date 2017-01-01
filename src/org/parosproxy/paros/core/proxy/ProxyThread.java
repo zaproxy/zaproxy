@@ -64,6 +64,7 @@
 // ZAP: 2016/09/22 JavaDoc tweaks
 // ZAP: 2016/11/28 Correct proxy errors' Content-Length value.
 // ZAP: 2016/12/07 Allow to extend the ProxyThread and use a custom HttpSender
+// ZAP: 2016/12/23 Make SocketTimeoutException less verbose for general use
 
 package org.parosproxy.paros.core.proxy;
 
@@ -270,7 +271,10 @@ public class ProxyThread implements Runnable {
 	    	if (firstHeader != null) {
 	    		log.warn("Timeout accessing " + firstHeader.getURI());
 	    	} else {
-	    		log.warn("Timeout", e);
+	    		log.warn("Socket timeout while reading first message.");
+	    		if (log.isDebugEnabled()) {
+	    			log.debug(e, e);
+	    		}
 	    	}
 	    } catch (HttpMalformedHeaderException e) {
 	    	log.warn("Malformed Header: ", e);

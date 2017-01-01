@@ -110,6 +110,15 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 			if (isOptional()) {
 				out.write("\t * " + OPTIONAL_MESSAGE + "\n");
 			}
+
+			if (element.isDeprecated()) {
+				out.write("\t * @deprecated");
+				String deprecationDesc = element.getDeprecatedDescription();
+				if (deprecationDesc != null && !deprecationDesc.isEmpty()) {
+					out.write(" " + deprecationDesc);
+				}
+				out.write("\n");
+			}
 			out.write("\t */\n");
 		} catch (Exception e) {
 			// Might not be set, so just print out the ones that are missing
@@ -119,6 +128,10 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 				out.write("\t * " + OPTIONAL_MESSAGE + "\n");
 				out.write("\t */\n");
 			}
+		}
+
+		if (element.isDeprecated()) {
+			out.write("\t@Deprecated\n");
 		}
 
 		if (type.equals(OTHER_ENDPOINT)) {

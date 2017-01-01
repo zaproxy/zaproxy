@@ -21,9 +21,7 @@ package org.zaproxy.zap;
 
 import java.io.FileNotFoundException;
 
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.log4j.varia.NullAppender;
 import org.parosproxy.paros.CommandLine;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -49,10 +47,7 @@ public class CommandLineBootstrap extends HeadlessBootstrap {
             return rc;
         }
 
-        // Turn off log4j
-        Logger.getRootLogger().removeAllAppenders();
-        Logger.getRootLogger().addAppender(new NullAppender());
-        Logger.getRootLogger().setLevel(Level.OFF);
+        logger.info(getStartingMessage());
 
         try {
             initModel();

@@ -33,6 +33,7 @@ import org.apache.commons.configuration.ConfigurationException;
 import org.apache.commons.httpclient.URI;
 import org.apache.commons.httpclient.URIException;
 import org.apache.commons.lang.StringEscapeUtils;
+import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
@@ -94,6 +95,7 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String ACTION_SET_SCANNER_ALERT_THRESHOLD = "setScannerAlertThreshold";
 	private static final String ACTION_ADD_SCAN_POLICY = "addScanPolicy";
 	private static final String ACTION_REMOVE_SCAN_POLICY = "removeScanPolicy";
+	private static final String ACTION_UPDATE_SCAN_POLICY = "updateScanPolicy";
 
 	private static final String VIEW_STATUS = "status";
 	private static final String VIEW_SCANS = "scans";
@@ -158,8 +160,11 @@ public class ActiveScanAPI extends ApiImplementor {
 				new String[] { PARAM_ID, PARAM_ATTACK_STRENGTH }, new String[] {PARAM_SCAN_POLICY_NAME}));
 		this.addApiAction(new ApiAction(ACTION_SET_SCANNER_ALERT_THRESHOLD,
 				new String[] { PARAM_ID, PARAM_ALERT_THRESHOLD }, new String[] {PARAM_SCAN_POLICY_NAME}));
-		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_ADD_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
+				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 		this.addApiAction(new ApiAction(ACTION_REMOVE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME}));
+		this.addApiAction(new ApiAction(ACTION_UPDATE_SCAN_POLICY, new String[] {PARAM_SCAN_POLICY_NAME},
+				new String[] {PARAM_ALERT_THRESHOLD, PARAM_ATTACK_STRENGTH}));
 
 		this.addApiView(new ApiView(VIEW_STATUS, null, new String[] { PARAM_SCAN_ID }));
 		this.addApiView(new ApiView(VIEW_SCAN_PROGRESS, null, new String[] { PARAM_SCAN_ID }));
@@ -379,6 +384,8 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				policy = controller.getPolicyManager().getTemplatePolicy();
 				policy.setName(newPolicyName);
+				setAlertThreshold(policy, params);
+				setAttackStrength(policy, params);
 				controller.getPolicyManager().savePolicy(policy);
 				break;
 			case ACTION_REMOVE_SCAN_POLICY:
@@ -390,6 +397,15 @@ public class ActiveScanAPI extends ApiImplementor {
 				}
 				controller.getPolicyManager().deletePolicy(policy.getName());
 				break;
+			case ACTION_UPDATE_SCAN_POLICY:
+				policy = getScanPolicyFromParams(params);
+				if (!isParamsChanged(policy, params)) {
+					break;
+				}
+				updateAlertThreshold(policy, params);
+				updateAttackStrength(policy, params);
+				controller.getPolicyManager().savePolicy(policy);
+				break;
 			default:
 				throw new ApiException(ApiException.Type.BAD_ACTION);
 			}
@@ -397,6 +413,58 @@ public class ActiveScanAPI extends ApiImplementor {
 			throw new ApiException(ApiException.Type.INTERNAL_ERROR, e.getMessage());
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private void setAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+		}
+	}
+
+	private void setAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+		}
+	}
+
+	private boolean isParamsChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		return isAlertThresholdChanged(policy, params) || isAttackStrengthChanged(policy, params);
+	}
+
+	private boolean isAlertThresholdChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (!isParamExists(params, PARAM_ALERT_THRESHOLD)) {
+			return false;
+		}
+
+		AlertThreshold updatedAlertThreshold = getAlertThresholdFromParamAlertThreshold(params);
+		AlertThreshold currentThreshold = policy.getDefaultThreshold();
+		return !currentThreshold.equals(updatedAlertThreshold);
+	}
+
+	private boolean isAttackStrengthChanged(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (!isParamExists(params, PARAM_ATTACK_STRENGTH)) {
+			return false;
+		}
+
+		Plugin.AttackStrength updatedAttackStrength = getAttackStrengthFromParamAttack(params);
+		Plugin.AttackStrength currentAttackStrength = policy.getDefaultStrength();
+		return !currentAttackStrength.equals(updatedAttackStrength);
+	}
+
+	private void updateAlertThreshold(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isAlertThresholdChanged(policy, params)) {
+			policy.setDefaultThreshold(getAlertThresholdFromParamAlertThreshold(params));
+		}
+	}
+
+	private void updateAttackStrength(ScanPolicy policy, JSONObject params) throws ApiException {
+		if (isAttackStrengthChanged(policy, params)) {
+			policy.setDefaultStrength(getAttackStrengthFromParamAttack(params));
+		}
+	}
+
+	private boolean isParamExists(JSONObject params, String key) {
+		return params.has(key) && StringUtils.isNotBlank(params.getString(key));
 	}
 
 	private ScanPolicy getScanPolicyFromParams(JSONObject params) throws ApiException {

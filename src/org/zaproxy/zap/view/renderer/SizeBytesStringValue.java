@@ -26,6 +26,11 @@ import org.jdesktop.swingx.renderer.StringValue;
 import org.jdesktop.swingx.renderer.StringValues;
 import org.parosproxy.paros.Constant;
 
+/**
+ * A {@link StringValue} for byte values.
+ *
+ * @since 2.4.0
+ */
 public class SizeBytesStringValue implements StringValue {
 
     private static final long serialVersionUID = 8021369832769317695L;
@@ -48,25 +53,51 @@ public class SizeBytesStringValue implements StringValue {
     private static final int ONE_MB_IN_BYTES = 1024 * ONE_KB_IN_BYTES;
     private static final int ONE_GB_IN_BYTES = 1024 * ONE_MB_IN_BYTES;
 
+    private boolean useJustBytesUnit = true;
+    
     public SizeBytesStringValue() {
+    }
+
+    /**
+     * Tells whether or not the conversion to {@code String} should use just bytes, that is, it should not use bigger units
+     * (e.g. KiB, MiB).
+     * <p>
+     * Default is {@code true}.
+     *
+     * @return {@code true} if it should use just bytes, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public boolean isUseJustBytesUnit() {
+        return useJustBytesUnit;
+    }
+
+    /**
+     * Sets whether or not the conversion to {@code String} should use just bytes, that is, it should not do use bigger units
+     * (e.g. KiB, MiB).
+     *
+     * @param useJustBytesUnit {@code true} if it should use just bytes, {@code false} otherwise.
+     * @since TODO add version
+     */
+    public void setUseJustBytesUnit(boolean useJustBytesUnit) {
+        this.useJustBytesUnit = useJustBytesUnit;
     }
 
     @Override
     public String getString(Object value) {
         if (value instanceof Number) {
             double size = ((Number) value).doubleValue();
-            String unit;
-            if (size < ONE_KB_IN_BYTES) {
-                unit = UNIT_BYTES;
-            } else if (size < ONE_MB_IN_BYTES) {
-                size = size / ONE_KB_IN_BYTES;
-                unit = UNIT_KBYTES;
-            } else if (size < ONE_GB_IN_BYTES) {
-                size = size / ONE_MB_IN_BYTES;
-                unit = UNIT_MBYTES;
-            } else {
-                size = size / ONE_GB_IN_BYTES;
-                unit = UNIT_GBYTES;
+            String unit = UNIT_BYTES;
+            if (!isUseJustBytesUnit() && size >= ONE_KB_IN_BYTES) {
+                if (size < ONE_MB_IN_BYTES) {
+                    size = size / ONE_KB_IN_BYTES;
+                    unit = UNIT_KBYTES;
+                } else if (size < ONE_GB_IN_BYTES) {
+                    size = size / ONE_MB_IN_BYTES;
+                    unit = UNIT_MBYTES;
+                } else {
+                    size = size / ONE_GB_IN_BYTES;
+                    unit = UNIT_GBYTES;
+                }
             }
             return TIME_DURATION_WITH_UNIT_FORMAT.format(new Object[] { NUMBER_FORMAT.format(size), unit });
         }

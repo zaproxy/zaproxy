@@ -75,6 +75,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	private JSlider sliderMaxDepth = null;
 	private JSlider sliderThreads = null;
 	private ZapNumberSpinner durationNumberSpinner = null;
+	private ZapNumberSpinner maxChildrenNumberSpinner;
 	private JCheckBox chkPostForm = null;
 	private JCheckBox chkProcessForm = null;
 	private JCheckBox parseComments = null;
@@ -153,10 +154,15 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			innerPanel.add(noThreadsLabel, gbc);
 			innerPanel.add(getSliderThreads(), gbc);
 			
-			JPanel maxDurPanel = new JPanel(new GridBagLayout());
-			maxDurPanel.add(maxDuration, LayoutHelper.getGBC(0, 0, 1, 1.0D));
-			maxDurPanel.add(getDurationNumberSpinner(), LayoutHelper.getGBC(1, 0, 1, 1.0D));
-			innerPanel.add(maxDurPanel, gbc);
+			JPanel inlineOptionsPanel = new JPanel(new GridBagLayout());
+			inlineOptionsPanel.add(maxDuration, LayoutHelper.getGBC(0, 0, 1, 1.0D));
+			inlineOptionsPanel.add(getDurationNumberSpinner(), LayoutHelper.getGBC(1, 0, 1, 1.0D));
+
+			inlineOptionsPanel.add(
+					new JLabel(Constant.messages.getString("spider.options.label.maxChildren")),
+					LayoutHelper.getGBC(0, 1, 1, 1.0D));
+			inlineOptionsPanel.add(getMaxChildrenNumberSpinner(), LayoutHelper.getGBC(1, 1, 1, 1.0D));
+			innerPanel.add(inlineOptionsPanel, gbc);
 			
 			innerPanel.add(domainsLabel, gbc);
 			gbc.fill = GridBagConstraints.BOTH;
@@ -194,6 +200,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		getSliderMaxDepth().setValue(param.getMaxDepth());
 		getSliderThreads().setValue(param.getThreadCount());
 		getDurationNumberSpinner().setValue(param.getMaxDuration());
+		getMaxChildrenNumberSpinner().setValue(param.getMaxChildren());
 		getDomainsAlwaysInScopeTableModel().setDomainsAlwaysInScope(param.getDomainsAlwaysInScope());
 		getDomainsAlwaysInScopePanel().setRemoveWithoutConfirmation(param.isConfirmRemoveDomainAlwaysInScope());
 		getChkProcessForm().setSelected(param.isProcessForm());
@@ -221,6 +228,7 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 		param.setMaxDepth(getSliderMaxDepth().getValue());
 		param.setThreadCount(getSliderThreads().getValue());
 		param.setMaxDuration(getDurationNumberSpinner().getValue());
+		param.setMaxChildren(getMaxChildrenNumberSpinner().getValue());
 		param.setDomainsAlwaysInScope(getDomainsAlwaysInScopeTableModel().getDomainsAlwaysInScope());
 		param.setConfirmRemoveDomainAlwaysInScope(getDomainsAlwaysInScopePanel().isRemoveWithoutConfirmation());
 		param.setSendRefererHeader(getChkSendRefererHeader().isSelected());
@@ -273,6 +281,13 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 			durationNumberSpinner = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
 		}
 		return durationNumberSpinner;
+	}
+
+	private ZapNumberSpinner getMaxChildrenNumberSpinner() {
+		if (maxChildrenNumberSpinner == null) {
+			maxChildrenNumberSpinner = new ZapNumberSpinner(0, 0, Integer.MAX_VALUE);
+		}
+		return maxChildrenNumberSpinner;
 	}
 
 	private JCheckBox getChkSendRefererHeader() {
