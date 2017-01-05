@@ -32,6 +32,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Path;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -219,7 +220,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 						       public boolean accept(File file) {
 						            if (file.isDirectory()) {
 						                return true;
-						            } else if (file.isFile() && file.getName().endsWith(AddOn.FILE_EXTENSION)) {
+						            } else if (file.isFile() && AddOn.isAddOnFileName(file.getName())) {
 						                return true;
 						            }
 						            return false;
@@ -235,7 +236,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							if (file == null) {
 								return;
 							}
-							installLocalAddOn(file);
+							installLocalAddOn(file.toPath());
 						}
 					} catch (Exception e1) {
 						logger.error(e1.getMessage(), e1);
@@ -246,7 +247,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		return menuItemLoadAddOn;
 	}
 	
-	private void installLocalAddOn(File file) throws Exception {
+	private void installLocalAddOn(Path file) throws Exception {
 		if (!AddOn.isAddOn(file)) {
 			showWarningMessageInvalidAddOnFile();
 			return;
@@ -327,7 +328,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	private void installLocalAddOn(AddOn ao) {
 		File addOnFile;
 		try {
-			addOnFile = copyAddOnFileToLocalPluginFolder(ao.getFile());
+			addOnFile = copyAddOnFileToLocalPluginFolder(ao);
 		} catch (FileAlreadyExistsException e) {
 			showWarningMessageAddOnFileAlreadyExists(e.getFile(), e.getOtherFile());
 			logger.warn("Unable to copy add-on, a file with the same name already exists.", e);
@@ -355,18 +356,18 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 		View.getSingleton().showWarningDialog(message);
 	}
 
-	private static File copyAddOnFileToLocalPluginFolder(File file) throws IOException {
-		if (isFileInLocalPluginFolder(file)) {
-			return file;
+	private static File copyAddOnFileToLocalPluginFolder(AddOn addOn) throws IOException {
+		if (isFileInLocalPluginFolder(addOn.getFile())) {
+			return addOn.getFile();
 		}
 
-		File targetFile = new File(Constant.FOLDER_LOCAL_PLUGIN, file.getName());
+		File targetFile = new File(Constant.FOLDER_LOCAL_PLUGIN, addOn.getNormalisedFileName());
 		if (targetFile.exists()) {
-			throw new FileAlreadyExistsException(file.getAbsolutePath(), targetFile.getAbsolutePath(), "");
+			throw new FileAlreadyExistsException(addOn.getFile().getAbsolutePath(), targetFile.getAbsolutePath(), "");
 		}
 
 		FileCopier fileCopier = new FileCopier();
-		fileCopier.copy(file, targetFile);
+		fileCopier.copy(addOn.getFile(), targetFile);
 
 		return targetFile;
 	}
@@ -470,7 +471,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 							}
 						}
 					}
-				} else if (AddOn.isAddOn(dl.getTargetFile())) {
+				} else if (AddOn.isAddOn(dl.getTargetFile().toPath())) {
 					File f = dl.getTargetFile();
 					if (! options.getDownloadDirectory().equals(dl.getTargetFile().getParentFile())) {
 						// Move the file to the specified directory - we do this after its been downloaded
@@ -494,7 +495,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 						}
 					}
 					
-					AddOn ao = new AddOn(f);
+					AddOn ao = new AddOn(f.toPath());
 					if (ao.canLoadInCurrentVersion()) {
 						install(ao);
 					} else {

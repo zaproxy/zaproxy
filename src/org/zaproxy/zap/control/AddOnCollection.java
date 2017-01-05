@@ -22,6 +22,9 @@ package org.zaproxy.zap.control;
 
 import java.io.File;
 import java.net.URL;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -163,11 +166,10 @@ public class AddOnCollection {
     	if (! dir.isDirectory()) {
     		logger.error("Not a directory: " + dir.getAbsolutePath());
     	}
-    	// Load the addons
-        File[] listFile = dir.listFiles();
 
-        if (listFile != null) {
-        	for (File addOnFile : listFile) {
+    	// Load the addons
+    	try (DirectoryStream<Path> addOnFiles = Files.newDirectoryStream(dir.toPath(), "*" + AddOn.FILE_EXTENSION)) {
+        	for (Path addOnFile : addOnFiles) {
         		if (AddOn.isAddOn(addOnFile)) {
 	            	AddOn ao = createAddOn(addOnFile);
                     if (ao == null) {
@@ -210,7 +212,7 @@ public class AddOnCollection {
         }
     }
 
-    private static AddOn createAddOn(File addOnFile) {
+    private static AddOn createAddOn(Path addOnFile) {
         try {
             return new AddOn(addOnFile);
         } catch (Exception e) {
