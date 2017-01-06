@@ -71,6 +71,7 @@ public class ExtensionFactory {
             	dirs [2+i] = extraDirs.get(i);
         	}
             addOnLoader = new AddOnLoader(dirs);
+            log.info("Installed add-ons: " + addOnLoader.getAddOnCollection().getInstalledAddOns());
         } else {
         	log.error("AddOnLoader initialised without additional directories");
         }
@@ -83,6 +84,7 @@ public class ExtensionFactory {
             addOnLoader = new AddOnLoader(new File[]{
                 new File(Constant.getZapInstall(), Constant.FOLDER_PLUGIN),
                 new File(Constant.getZapHome(), Constant.FOLDER_PLUGIN)});
+            log.info("Installed add-ons: " + addOnLoader.getAddOnCollection().getInstalledAddOns());
         }
         return addOnLoader;
     }
