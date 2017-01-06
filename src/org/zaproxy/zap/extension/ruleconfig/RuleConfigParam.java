@@ -50,6 +50,19 @@ public class RuleConfigParam extends AbstractParam {
     public static final String RULE_CSRF_IGNORE_LIST = "rules.csrf.ignorelist";
 
     /**
+     * The name of an HTML attribute that can be used to indicate that a form does not need an Anti CSRF Token. 
+     * If 'rules.csrf.ignore.attvalue' is specified then this must also match the attribute's value. 
+     * If found any related alerts will be raised at INFO level.
+     */
+    public static final String RULE_CSRF_IGNORE_ATT_NAME = "rules.csrf.ignore.attname";
+
+    /**
+     * The value of an HTML attribute named by 'rules.csrf.ignore.attname' that can be used to indicate that a form does not need an Anti CSRF Token. 
+     * If found any related alerts will be raised at INFO level.
+     */
+    public static final String RULE_CSRF_IGNORE_ATT_VALUE = "rules.csrf.ignore.attvalue";
+
+    /**
      * The name of the rule to obtain the string containing a comma separated list of cookies that should be ignored
      * when checking for issues.
      */
@@ -74,6 +87,8 @@ public class RuleConfigParam extends AbstractParam {
         // Add the built in rule configs
         this.addRuleConfig(new RuleConfig(RULE_COMMON_SLEEP_TIME, Integer.toString(RULE_DEFAULT_COMMON_SLEEP_TIME)));
         this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_LIST, ""));
+        this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_ATT_NAME, ""));
+        this.addRuleConfig(new RuleConfig(RULE_CSRF_IGNORE_ATT_VALUE, ""));
         this.addRuleConfig(new RuleConfig(RULE_COOKIE_IGNORE_LIST, ""));
         
         Iterator<String> iter = this.getConfig().getKeys(RULES_BASE_KEY);
