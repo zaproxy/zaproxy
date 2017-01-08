@@ -24,12 +24,15 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -54,6 +57,14 @@ import org.zaproxy.zap.control.BaseZapAddOnXmlData.ExtensionWithDeps;
 import org.zaproxy.zap.extension.pscan.PluginPassiveScanner;
 
 public class AddOn  {
+
+	/**
+	 * The name of the manifest file, contained in the add-ons.
+	 * 
+	 * @since TODO add version
+	 */
+	public static final String MANIFEST_FILE_NAME = "ZapAddOn.xml";
+
 	public enum Status {unknown, example, alpha, beta, weekly, release}
 	
 	private static ZapRelease v2_4 = new ZapRelease("2.4.0");
@@ -167,8 +178,21 @@ public class AddOn  {
 
 	private static final Logger logger = Logger.getLogger(AddOn.class);
 	
+	/**
+	 * Tells whether or not the given file name matches the name of a ZAP add-on.
+	 * <p>
+	 * The file name must have the format "{@code <id>-<status>-<version>.zap}". The {@code id} is a string, the {@code status}
+	 * must be a value from {@link Status} and the {@code version} must be an integer.
+	 *
+	 * @param fileName the name of the file to check
+	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
+	 * @deprecated (TODO add version) Use {@link #isAddOnFileName(String)} instead, the checks done in this method are more
+	 *             strict than it needs to.
+	 * @see #isAddOnFileName(String)
+	 */
+	@Deprecated
 	public static boolean isAddOn(String fileName) {
-		if (! fileName.toLowerCase().endsWith(FILE_EXTENSION)) {
+		if (! isAddOnFileName(fileName)) {
 			return false;
 		}
 		if (fileName.substring(0, fileName.indexOf(".")).split("-").length < 3) {
@@ -185,13 +209,76 @@ public class AddOn  {
 		return true;
 		
 	}
-	public static boolean isAddOn(File f) {
-		if (! f.exists()) {
+
+	/**
+	 * Tells whether or not the given file name matches the name of a ZAP add-on.
+	 * <p>
+	 * The file name must have as file extension {@link #FILE_EXTENSION}.
+	 *
+	 * @param fileName the name of the file to check
+	 * @return {@code true} if the given file name is the name of an add-on, {@code false} otherwise.
+	 * @since TODO add version
+	 */
+	public static boolean isAddOnFileName(String fileName) {
+		if (fileName == null) {
 			return false;
 		}
-		return isAddOn(f.getName());
+		return fileName.toLowerCase(Locale.ROOT).endsWith(FILE_EXTENSION);
 	}
 
+	/**
+	 * Tells whether or not the given file is an add-on.
+	 *
+	 * @param f the file to be checked
+	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
+	 * @deprecated (TODO add version) Use {@link #isAddOn(Path)} instead.
+	 */
+	@Deprecated
+	public static boolean isAddOn(File f) {
+		return isAddOn(f.toPath());
+	}
+
+	/**
+	 * Tells whether or not the given file is a ZAP add-on.
+	 * <p>
+	 * An add-on is a ZIP file that contains, at least, a {@value #MANIFEST_FILE_NAME} file.
+	 * 
+	 * @param file the file to be checked
+	 * @return {@code true} if the given file is an add-on, {@code false} otherwise.
+	 * @since TODO add version
+	 * @see #isAddOnFileName(String)
+	 */
+	public static boolean isAddOn(Path file) {
+		if (file == null || file.getNameCount() == 0) {
+			return false;
+		}
+
+		if (!isAddOnFileName(file.getFileName().toString())) {
+			return false;
+		}
+
+		if (!Files.isRegularFile(file) || !Files.isReadable(file)) {
+			return false;
+		}
+
+		try (ZipFile zip = new ZipFile(file.toFile())) {
+			return zip.getEntry(MANIFEST_FILE_NAME) != null;
+		} catch (Exception e) {
+			if (logger.isDebugEnabled()) {
+				logger.debug("Failed to obtain " + MANIFEST_FILE_NAME + " entry:", e);
+			}
+			return false;
+		}
+	}
+
+	/**
+	 * Constructs an {@code AddOn} with the given file name.
+	 *
+	 * @param fileName the file name of the add-on
+	 * @throws Exception if the file name is not valid.
+	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
+	 */
+	@Deprecated
 	public AddOn(String fileName) throws Exception {
 		// Format is <name>-<status>-<version>.zap
 		if (! isAddOn(fileName)) {
@@ -207,21 +294,43 @@ public class AddOn  {
 	/**
 	 * Constructs an {@code AddOn} from the given {@code file}.
 	 * <p>
-	 * The {@code ZapAddOn.xml} ZIP file entry is read after validating that the add-on has a valid add-on file name.
+	 * The {@value #MANIFEST_FILE_NAME} ZIP file entry is read after validating that the add-on has a valid add-on file name.
 	 * <p>
 	 * The installation status of the add-on is 'not installed'.
 	 * 
 	 * @param file the file of the add-on
 	 * @throws Exception if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
-	 *			 while reading the {@code ZapAddOn.xml} ZIP file entry
+	 *             while reading the {@code value #ZAP_ADD_ON_XML} ZIP file entry
+	 * @deprecated (TODO add version) Use {@link #AddOn(Path)} instead.
 	 */
+	@Deprecated
 	public AddOn(File file) throws Exception {
-		this(file.getName());
+		this(file.toPath());
+	}
+
+	/**
+	 * Constructs an {@code AddOn} from the given {@code file}.
+	 * <p>
+	 * The {@value #MANIFEST_FILE_NAME} ZIP file entry is read after validating that the add-on is a valid add-on.
+	 * <p>
+	 * The installation status of the add-on is 'not installed'.
+	 * 
+	 * @param file the file of the add-on
+	 * @throws IOException if the given {@code file} does not exist, does not have a valid add-on file name or an error occurred
+	 *             while reading the {@value #MANIFEST_FILE_NAME} ZIP file entry
+	 * @see #isAddOn(Path)
+	 */
+	public AddOn(Path file) throws IOException {
 		if (! isAddOn(file)) {
-			throw new Exception("Invalid ZAP add-on file " + file.getAbsolutePath());
+			throw new IOException("Invalid ZAP add-on file " + (file != null ? file.toAbsolutePath() : "[null]"));
 		}
-		this.file = file;
+		this.id = extractAddOnId(file.getFileName().toString());
+		this.file = file.toFile();
 		loadManifestFile();
+	}
+
+	private static String extractAddOnId(String fileName) {
+		return fileName.substring(0, fileName.indexOf('.')).split("-")[0];
 	}
 	
 	private void loadManifestFile() throws IOException {
@@ -229,31 +338,34 @@ public class AddOn  {
 		if (file.exists()) {
 			// Might not exist in the tests
 			try (ZipFile zip = new ZipFile(file)) {
-				ZipEntry zapAddOnEntry = zip.getEntry("ZapAddOn.xml");
-				if (zapAddOnEntry != null) {
-					try (InputStream zis = zip.getInputStream(zapAddOnEntry)) {
-						ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
+				ZipEntry zapAddOnEntry = zip.getEntry(MANIFEST_FILE_NAME);
+				if (zapAddOnEntry == null) {
+					throw new IOException("Add-on does not have the " + MANIFEST_FILE_NAME + " file.");
+				}
 
-						this.name = zapAddOnXml.getName();
-						this.version = zapAddOnXml.getVersion();
-						this.description = zapAddOnXml.getDescription();
-						this.changes = zapAddOnXml.getChanges();
-						this.author = zapAddOnXml.getAuthor();
-						this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
-						this.notFromVersion = zapAddOnXml.getNotFromVersion();
-						this.dependencies = zapAddOnXml.getDependencies();
+				try (InputStream zis = zip.getInputStream(zapAddOnEntry)) {
+					ZapAddOnXmlFile zapAddOnXml = new ZapAddOnXmlFile(zis);
 
-						this.ascanrules = zapAddOnXml.getAscanrules();
-						this.extensions = zapAddOnXml.getExtensions();
-						this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
-						this.files = zapAddOnXml.getFiles();
-						this.pscanrules = zapAddOnXml.getPscanrules();
+					this.name = zapAddOnXml.getName();
+					this.fileVersion = zapAddOnXml.getPackageVersion();
+					this.version = zapAddOnXml.getVersion();
+					this.status = AddOn.Status.valueOf(zapAddOnXml.getStatus());
+					this.description = zapAddOnXml.getDescription();
+					this.changes = zapAddOnXml.getChanges();
+					this.author = zapAddOnXml.getAuthor();
+					this.notBeforeVersion = zapAddOnXml.getNotBeforeVersion();
+					this.notFromVersion = zapAddOnXml.getNotFromVersion();
+					this.dependencies = zapAddOnXml.getDependencies();
 
-						this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
+					this.ascanrules = zapAddOnXml.getAscanrules();
+					this.extensions = zapAddOnXml.getExtensions();
+					this.extensionsWithDeps = zapAddOnXml.getExtensionsWithDeps();
+					this.files = zapAddOnXml.getFiles();
+					this.pscanrules = zapAddOnXml.getPscanrules();
 
-						hasZapAddOnEntry = true;
-					}
+					this.addOnClassnames = zapAddOnXml.getAddOnClassnames();
 
+					hasZapAddOnEntry = true;
 				}
 			}
 		}
@@ -266,7 +378,7 @@ public class AddOn  {
 	 * <p>
 	 * The given {@code SubnodeConfiguration} must have a {@code XPathExpressionEngine} installed.
 	 * <p>
-	 * The {@code ZapAddOn.xml} ZIP file entry is read, if the add-on file exists locally.
+	 * The {@value #MANIFEST_FILE_NAME} ZIP file entry is read, if the add-on file exists locally.
 	 * 
 	 * @param id the id of the add-on
 	 * @param baseDir the base directory where the add-on is located
@@ -360,6 +472,25 @@ public class AddOn  {
 		this.changes = changes;
 	}
 
+	/**
+	 * Gets the normalised file name of the add-on.
+	 * <p>
+	 * Should be used when copying the file from an "unknown" source (e.g. manually installed).
+	 *
+	 * @return the normalised file name.
+	 * @since TODO add version
+	 * @see #getFile()
+	 */
+	public String getNormalisedFileName() {
+		return getId() + "-" + getFileVersion() + FILE_EXTENSION;
+	}
+
+	/**
+	 * Gets the file of the add-on.
+	 *
+	 * @return the file of the add-on.
+	 * @see #getNormalisedFileName()
+	 */
 	public File getFile() {
 		return file;
 	}
@@ -425,7 +556,7 @@ public class AddOn  {
 					this.loadManifestFile();
 				} catch (IOException e) {
 					if (logger.isDebugEnabled()) {
-						logger.debug("Failed to read the ZapAddOn.xml file of " + id + ":", e);
+						logger.debug("Failed to read the " + AddOn.MANIFEST_FILE_NAME + " file of " + id + ":", e);
 					}
 				}
 			}

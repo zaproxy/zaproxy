@@ -28,7 +28,10 @@ import org.zaproxy.zap.users.User;
 
 /**
  * The Popup Menu used to Spider a Context As an User.
+ * 
+ * @deprecated (TODO add version) Superseded by {@link PopupMenuSpiderDialog}.
  */
+@Deprecated
 public class PopupMenuSpiderContextAsUser extends PopupUserMenuItemHolder {
 
 	/** The Constant serialVersionUID. */
