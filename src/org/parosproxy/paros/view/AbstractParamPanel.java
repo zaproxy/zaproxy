@@ -21,6 +21,7 @@
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2013/08/21 Added support for detecting when AbstractParamPanels are being shown/hidden in a AbstractParamDialog
 // ZAP: 2016/11/17 Issue 2701 Support Factory Reset
+// ZAP: 2017/01/09 Add default implementations to some methods.
 
 package org.parosproxy.paros.view;
 
@@ -60,11 +61,15 @@ public abstract class AbstractParamPanel extends JPanel {
 	 * <p>
 	 * The message of the exception is expected to be internationalised (as it might be shown in GUI components, for example, an
 	 * error dialogue).
+	 * <p>
+	 * Does nothing by default.
 	 * 
 	 * @param obj the object used to initialise the panel and save the data
 	 * @throws Exception if there's any validation error.
 	 */
-	public abstract void validateParam(Object obj) throws Exception;
+	public void validateParam(Object obj) throws Exception {
+		// Nothing to validate.
+	}
 	
 	/**
 	 * Saves (the data of) the panel, throwing an exception if there's any error.
@@ -87,7 +92,9 @@ public abstract class AbstractParamPanel extends JPanel {
 	 * 
 	 * @return the help index, or {@code null} if none.
 	 */
-	public abstract String getHelpIndex();
+	public String getHelpIndex() {
+		return null;
+	}
 	
 	/**
 	 * Called when the panel is shown (becomes visible) in the containing {@link AbstractParamDialog}.

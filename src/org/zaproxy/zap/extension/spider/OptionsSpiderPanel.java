@@ -217,11 +217,6 @@ public class OptionsSpiderPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) {
-		// no validation needed
-	}
-
-	@Override
 	public void saveParam(Object obj) throws Exception {
 		OptionsParam options = (OptionsParam) obj;
 		SpiderParam param = options.getParamSet(SpiderParam.class);

@@ -26,6 +26,7 @@
 // ZAP: 2014/03/23 Issue 412: Enable unsafe SSL/TLS renegotiation option not saved
 // ZAP: 2014/08/14 Issue 1184: Improve support for IBM JDK
 // ZAP: 2016/06/28: File chooser for PKCS#12 files now also accepts .pfx files
+// ZAP: 2017/01/09 Remove method no longer needed.
 
 package org.parosproxy.paros.extension.option;
 
@@ -948,11 +949,6 @@ public class OptionsCertificatePanel extends AbstractParamPanel implements Obser
 		//getBtnLocation().setEnabled(getChkUseClientCertificate().isSelected());
 		//getTxtLocation().setText(options.getCertificateParam().getClientCertLocation());
 		enableUnsafeSSLRenegotiationCheckBox.setSelected(certParam.isAllowUnsafeSslRenegotiation());
-	}
-
-	@Override
-	public void validateParam(Object obj) {
-		// no validation needed
 	}
 
 	@Override

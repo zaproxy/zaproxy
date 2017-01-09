@@ -129,10 +129,6 @@ public class EncodeDecodeParamPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
-	}
-
-	@Override
 	public void saveParam(Object obj) throws Exception {
 		final OptionsParam options = (OptionsParam) obj;
 		final EncodeDecodeParam param = options.getParamSet(EncodeDecodeParam.class);

@@ -124,11 +124,6 @@ public class OptionsExtensionPanel extends AbstractParamPanel {
     }
 
 
-    @Override
-    public void validateParam(Object obj) throws Exception {
-
-    }
-
 
     @Override
     public void saveParam(Object obj) throws Exception {
