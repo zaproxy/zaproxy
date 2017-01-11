@@ -35,6 +35,7 @@
 // ZAP: 2014/03/23 Issue 1100: Annotate option methods that shouldn't be exposed in the ZAP API
 // ZAP: 2041/08/14 Issue 1305: Outgoing proxy is disabled when updating from old versions
 // ZAP: 2016/08/08 Issue 2742: Allow for override/customization of Java's "networkaddress.cache.ttl" value
+// ZAP: 2017/01/11 Exclude some options from the API (manually handled to return correct values).
 
 package org.parosproxy.paros.network;
 
@@ -368,6 +369,7 @@ public class ConnectionParam extends AbstractParam {
 	 *             <strong>Note:</strong> Newer regular expression excluded domains will not be returned by this method.
 	 */
 	@Deprecated
+	@ZapApiIgnore
 	@SuppressWarnings({ "javadoc" })
 	public String getProxyChainSkipName() {
 		StringBuilder skipNamesStringBuilder = new StringBuilder("");
@@ -555,6 +557,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #getProxyExcludedDomainsEnabled()
      * @see #setProxyExcludedDomains(List)
      */
+    @ZapApiIgnore
     public List<ProxyExcludedDomainMatcher> getProxyExcludedDomains() {
         return proxyExcludedDomains;
     }
@@ -568,6 +571,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #getProxyExcludedDomains()
      * @see #setProxyExcludedDomains(List)
      */
+    @ZapApiIgnore
     public List<ProxyExcludedDomainMatcher> getProxyExcludedDomainsEnabled() {
         return proxyExcludedDomainsEnabled;
     }

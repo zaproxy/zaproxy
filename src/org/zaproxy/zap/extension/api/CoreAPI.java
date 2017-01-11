@@ -65,12 +65,14 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.model.SessionListener;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
+import org.parosproxy.paros.network.ConnectionParam;
 import org.parosproxy.paros.network.HttpHeader;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.network.HttpRequestHeader;
 import org.parosproxy.paros.network.HttpResponseHeader;
 import org.parosproxy.paros.network.HttpSender;
+import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.dynssl.ExtensionDynSSL;
@@ -107,6 +109,11 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String ACTION_COLLECT_GARBAGE = "runGarbageCollection";
 	private static final String ACTION_SET_MODE = "setMode";
 	private static final String ACTION_DELETE_SITE_NODE = "deleteSiteNode";
+	private static final String ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN = "addProxyChainExcludedDomain";
+	private static final String ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN = "modifyProxyChainExcludedDomain";
+	private static final String ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN = "removeProxyChainExcludedDomain";
+	private static final String ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "enableAllProxyChainExcludedDomains";
+	private static final String ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS = "disableAllProxyChainExcludedDomains";
 	
 	private static final String VIEW_ALERT = "alert";
 	private static final String VIEW_ALERTS = "alerts";
@@ -121,6 +128,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String VIEW_VERSION = "version";
 	private static final String VIEW_EXCLUDED_FROM_PROXY = "excludedFromProxy";
 	private static final String VIEW_HOME_DIRECTORY = "homeDirectory";
+	private static final String VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS = "proxyChainExcludedDomains";
+	private static final String VIEW_OPTION_PROXY_CHAIN_SKIP_NAME = "optionProxyChainSkipName";
+	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS = "optionProxyExcludedDomains";
+	private static final String VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED = "optionProxyExcludedDomainsEnabled";
 
 	private static final String OTHER_PROXY_PAC = "proxy.pac";
 	private static final String OTHER_SET_PROXY = "setproxy";
@@ -148,6 +159,10 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_METHOD = "method";
 	private static final String PARAM_POST_DATA = "postData";
+	private static final String PARAM_VALUE = "value";
+	private static final String PARAM_IDX = "idx";
+	private static final String PARAM_IS_REGEX = "isRegex";
+	private static final String PARAM_IS_ENABLED = "isEnabled";
 
 	/* Update the version whenever the script is changed (once per release) */
 	protected static final int API_SCRIPT_VERSION = 1;
@@ -206,6 +221,19 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiAction(new ApiAction(ACTION_DELETE_ALL_ALERTS));
 		this.addApiAction(new ApiAction(ACTION_COLLECT_GARBAGE));
 		this.addApiAction(new ApiAction(ACTION_DELETE_SITE_NODE, new String[] {PARAM_URL}, new String[] {PARAM_METHOD, PARAM_POST_DATA}));
+		this.addApiAction(
+				new ApiAction(
+						ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN,
+						new String[] { PARAM_VALUE },
+						new String[] { PARAM_IS_REGEX, PARAM_IS_ENABLED }));
+		this.addApiAction(
+				new ApiAction(
+						ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN,
+						new String[] { PARAM_IDX },
+						new String[] { PARAM_VALUE, PARAM_IS_REGEX, PARAM_IS_ENABLED }));
+		this.addApiAction(new ApiAction(ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN, new String[] { PARAM_IDX }));
+		this.addApiAction(new ApiAction(ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
+		this.addApiAction(new ApiAction(ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS));
 		
 		this.addApiView(new ApiView(VIEW_ALERT, new String[] {PARAM_ID}));
 		this.addApiView(new ApiView(VIEW_ALERTS, null, 
@@ -222,6 +250,16 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		this.addApiView(new ApiView(VIEW_VERSION));
 		this.addApiView(new ApiView(VIEW_EXCLUDED_FROM_PROXY));
 		this.addApiView(new ApiView(VIEW_HOME_DIRECTORY));
+		this.addApiView(new ApiView(VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS));
+		ApiView apiView = new ApiView(VIEW_OPTION_PROXY_CHAIN_SKIP_NAME);
+		apiView.setDeprecated(true);
+		this.addApiView(apiView);
+		apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS);
+		apiView.setDeprecated(true);
+		this.addApiView(apiView);
+		apiView = new ApiView(VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED);
+		apiView.setDeprecated(true);
+		this.addApiView(apiView);
 		
 		this.addApiOthers(new ApiOther(OTHER_PROXY_PAC, false));
 		this.addApiOthers(new ApiOther(OTHER_ROOT_CERT, false));
@@ -500,10 +538,88 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			} catch (URIException e) {
 				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_URL, e);
 			}
+		} else if (ACTION_ADD_PROXY_CHAIN_EXCLUDED_DOMAIN.equals(name)) {
+			try {
+				ConnectionParam connectionParam = Model.getSingleton().getOptionsParam().getConnectionParam();
+				String value = params.getString(PARAM_VALUE);
+				ProxyExcludedDomainMatcher domain;
+				if (getParam(params, PARAM_IS_REGEX, false)) {
+					domain = new ProxyExcludedDomainMatcher(ProxyExcludedDomainMatcher.createPattern(value));
+				} else {
+					domain = new ProxyExcludedDomainMatcher(value);
+				}
+				domain.setEnabled(getParam(params, PARAM_IS_ENABLED, true));
+
+				List<ProxyExcludedDomainMatcher> domains = new ArrayList<>(connectionParam.getProxyExcludedDomains());
+				domains.add(domain);
+				connectionParam.setProxyExcludedDomains(domains);
+			} catch (IllegalArgumentException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_VALUE, e);
+			}
+		} else if (ACTION_MODIFY_PROXY_CHAIN_EXCLUDED_DOMAIN.equals(name)) {
+			try {
+				ConnectionParam connectionParam = Model.getSingleton().getOptionsParam().getConnectionParam();
+				int idx = params.getInt(PARAM_IDX);
+				if (idx < 0 || idx >= connectionParam.getProxyExcludedDomains().size()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
+				}
+
+				ProxyExcludedDomainMatcher oldDomain = connectionParam.getProxyExcludedDomains().get(idx);
+				String value = getParam(params, PARAM_VALUE, oldDomain.getValue());
+				if (value.isEmpty()) {
+					value = oldDomain.getValue();
+				}
+
+				ProxyExcludedDomainMatcher newDomain;
+				if (getParam(params, PARAM_IS_REGEX, oldDomain.isRegex())) {
+					newDomain = new ProxyExcludedDomainMatcher(ProxyExcludedDomainMatcher.createPattern(value));
+				} else {
+					newDomain = new ProxyExcludedDomainMatcher(value);
+				}
+				newDomain.setEnabled(getParam(params, PARAM_IS_ENABLED, oldDomain.isEnabled()));
+
+				if (!oldDomain.equals(newDomain)) {
+					List<ProxyExcludedDomainMatcher> domains = new ArrayList<>(connectionParam.getProxyExcludedDomains());
+					domains.set(idx, newDomain);
+					connectionParam.setProxyExcludedDomains(domains);
+				}
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
+			} catch (IllegalArgumentException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_VALUE, e);
+			}
+		} else if (ACTION_REMOVE_PROXY_CHAIN_EXCLUDED_DOMAIN.equals(name)) {
+			try {
+				ConnectionParam connectionParam = Model.getSingleton().getOptionsParam().getConnectionParam();
+				int idx = params.getInt(PARAM_IDX);
+				if (idx < 0 || idx >= connectionParam.getProxyExcludedDomains().size()) {
+					throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX);
+				}
+
+				List<ProxyExcludedDomainMatcher> domains = new ArrayList<>(
+						connectionParam.getProxyExcludedDomains());
+				domains.remove(idx);
+				connectionParam.setProxyExcludedDomains(domains);
+			} catch (JSONException e) {
+				throw new ApiException(ApiException.Type.ILLEGAL_PARAMETER, PARAM_IDX, e);
+			}
+		} else if (ACTION_ENABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name)) {
+			setProxyChainExcludedDomainsEnabled(true);
+		} else if (ACTION_DISABLE_ALL_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name)) {
+			setProxyChainExcludedDomainsEnabled(false);
 		} else {
 			throw new ApiException(ApiException.Type.BAD_ACTION);
 		}
 		return ApiResponseElement.OK;
+	}
+
+	private void setProxyChainExcludedDomainsEnabled(boolean enabled) {
+		ConnectionParam connectionParam = Model.getSingleton().getOptionsParam().getConnectionParam();
+		List<ProxyExcludedDomainMatcher> domains = connectionParam.getProxyExcludedDomains();
+		for (ProxyExcludedDomainMatcher domain : domains) {
+			domain.setEnabled(enabled);
+		}
+		connectionParam.setProxyExcludedDomains(domains);
 	}
 
 	/**
@@ -771,10 +887,41 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		} else if (VIEW_HOME_DIRECTORY.equals(name)) {
 			result = new ApiResponseElement(name, Model.getSingleton().getOptionsParam().getUserDirectory().getAbsolutePath());
 
+		} else if (VIEW_PROXY_CHAIN_EXCLUDED_DOMAINS.equals(name) || VIEW_OPTION_PROXY_EXCLUDED_DOMAINS.equals(name)
+				|| VIEW_OPTION_PROXY_CHAIN_SKIP_NAME.equals(name)) {
+			result = proxyChainExcludedDomainsToApiResponseList(
+					name,
+					Model.getSingleton().getOptionsParam().getConnectionParam().getProxyExcludedDomains(),
+					false);
+		} else if (VIEW_OPTION_PROXY_EXCLUDED_DOMAINS_ENABLED.equals(name)) {
+			result = proxyChainExcludedDomainsToApiResponseList(
+					name,
+					Model.getSingleton().getOptionsParam().getConnectionParam().getProxyExcludedDomains(),
+					true);
 		} else {
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
 		return result;
+	}
+
+	private ApiResponse proxyChainExcludedDomainsToApiResponseList(
+			String name,
+			List<ProxyExcludedDomainMatcher> domains,
+			boolean excludeDisabled) {
+		ApiResponseList apiResponse = new ApiResponseList(name);
+		for (int i = 0; i < domains.size(); i++) {
+			ProxyExcludedDomainMatcher domain = domains.get(i);
+			if (!domain.isEnabled() && excludeDisabled) {
+				continue;
+			}
+			Map<String, Object> domainData = new HashMap<>();
+			domainData.put("idx", i);
+			domainData.put("value", domain.getValue());
+			domainData.put("regex", domain.isRegex());
+			domainData.put("enabled", domain.isEnabled());
+			apiResponse.addItem(new ApiResponseSet("domain", domainData));
+		}
+		return apiResponse;
 	}
 	
 	@Override
