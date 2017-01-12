@@ -798,7 +798,7 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
     	return outOfDateButton;	
     }
     
-    private AddOnCollection getLocalVersionInfo () {
+    protected AddOnCollection getLocalVersionInfo () {
     	if (localVersionInfo == null) {
     		localVersionInfo = ExtensionFactory.getAddOnLoader().getAddOnCollection(); 
     	}
@@ -900,15 +900,35 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
 	}
 
     
-    private List<AddOn> getUpdatedAddOns() {
+	protected List<AddOn> getUpdatedAddOns() {
     	return getLocalVersionInfo().getUpdatedAddOns(this.getLatestVersionInfo());
     }
     
-    private List<AddOn> getNewAddOns() {
+	protected List<AddOn> getNewAddOns() {
     	if (this.getPreviousVersionInfo() != null) {
     		return this.getPreviousVersionInfo().getNewAddOns(this.getLatestVersionInfo());
     	}
     	return getLocalVersionInfo().getNewAddOns(this.getLatestVersionInfo());
+    }
+
+	protected AddOn getAddOn(String id) {
+        AddOnCollection aoc = getLatestVersionInfo();
+        if (aoc != null) {
+            return aoc.getAddOn(id);
+        }
+        return null;
+    }
+    
+	protected List<AddOn> getInstalledAddOns() {
+        return getLocalVersionInfo().getInstalledAddOns();
+    }
+
+	protected List<AddOn> getMarketplaceAddOns() {
+        AddOnCollection aoc = this.getLatestVersionInfo();
+        if (aoc != null) {
+            return aoc.getAddOns();
+        }
+        return Collections.<AddOn>emptyList();
     }
 
     protected AddOnCollection getLatestVersionInfo () {
@@ -1558,7 +1578,131 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         		"-addonlist               " + Constant.messages.getString("cfu.cmdline.list.help"));
         return arguments;
     }
+    
+    /**
+     * Installs the specified add-ons
+     * @param addons The identifiers of the add-ons to be installed
+     * @return A string containing any error messages, will be empty if there were no problems
+     */
+    public synchronized String installAddOns(List<String> addons) {
+        StringBuilder errorMessages = new StringBuilder();
+        AddOnCollection aoc = getLatestVersionInfo();
+        if (aoc == null) {
+            String error = Constant.messages.getString("cfu.cmdline.nocfu");
+            errorMessages.append(error);
+            CommandLine.error(error);
+        } else {
+            for (String aoName : addons) {
+                AddOn ao = aoc.getAddOn(aoName);
+                if (ao == null) {
+                    String error = MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.noaddon"), aoName);
+                    errorMessages.append(error);
+                    errorMessages.append("\n");
+                    CommandLine.error(error);
+                    continue;
+                }
+                AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+                AddOnDependencyChecker.AddOnChangesResult result;
+                // Check to see if its already installed
+                AddOn iao = getLocalVersionInfo().getAddOn(aoName);
+                if (iao != null) {
+                    if (!ao.isUpdateTo(iao)) {
+                        CommandLine.info(MessageFormat.format(
+                                Constant.messages.getString("cfu.cmdline.addoninst"),
+                                iao.getFile().getAbsolutePath()));
+                        continue;
+                    }
 
+                    result = addOnDependencyChecker.calculateUpdateChanges(ao);
+                } else {
+                    result = addOnDependencyChecker.calculateInstallChanges(ao);
+                }
+                
+                if (!result.getUninstalls().isEmpty()) {
+                    String error = MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.addoninst.uninstalls.required"),
+                            result.getUninstalls());
+                    errorMessages.append(error);
+                    errorMessages.append("\n");
+                    CommandLine.error(error);
+                    continue;
+                }
+
+                Set<AddOn> allAddOns = new HashSet<>();
+                allAddOns.addAll(result.getInstalls());
+                allAddOns.addAll(result.getNewVersions());
+                for (AddOn addOn : allAddOns) {
+                    CommandLine.info(MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.addonurl"),
+                            addOn.getUrl()));
+                }
+
+                processAddOnChanges(null, result);
+            }
+            waitAndInstallDownloads();
+        }
+        return errorMessages.toString();
+    }
+
+    /**
+     * Uninstalls the specified add-ons
+     * @param addons The identifiers of the add-ons to be installed
+     * @return A string containing any error messages, will be empty if there were no problems
+     */
+    public synchronized String uninstallAddOns(List<String> addons) {
+        StringBuilder errorMessages = new StringBuilder();
+        AddOnCollection aoc = this.getLocalVersionInfo();
+        if (aoc == null) {
+            String error = Constant.messages.getString("cfu.cmdline.nocfu");
+            errorMessages.append(error);
+            CommandLine.error(error);
+        } else {
+            for (String aoName : addons) {
+                AddOn ao = aoc.getAddOn(aoName);
+                if (ao == null) {
+                    String error = MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.noaddon"), aoName);
+                    errorMessages.append(error);
+                    errorMessages.append("\n");
+                    CommandLine.error(error);
+                    continue;
+                }
+                AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
+                
+                Set<AddOn> addonSet = new HashSet<AddOn>();
+                addonSet.add(ao);
+                UninstallationResult result = addOnDependencyChecker.calculateUninstallChanges(addonSet);
+                
+                // Check to see if other add-ons depend on it
+                if (result.getUninstallations().size() > 1) {
+                    // Will always report this add-on as needing to be uninstalled
+                    // Remove the specified add-on for the error message
+                    result.getUninstallations().remove(ao);
+                    String error = MessageFormat.format(
+                                    Constant.messages.getString("cfu.cmdline.addonuninst.uninstalls.required"),
+                                    result.getUninstallations());
+                    errorMessages.append(error);
+                    errorMessages.append("\n");
+                    CommandLine.error(error);
+                    continue;
+                }
+
+                if (this.uninstallAddOn(null, ao, false)) {
+                    CommandLine.info(MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.uninstallok"), aoName));
+
+                } else {
+                    String error = MessageFormat.format(
+                            Constant.messages.getString("cfu.cmdline.uninstallfail"), aoName);
+                    errorMessages.append(error);
+                    errorMessages.append("\n");
+                    CommandLine.error(error);
+                }
+            }
+        }
+        return errorMessages.toString();
+    }
 
 	@Override
 	public void execute(CommandLineArgument[] args) {
@@ -1633,98 +1777,11 @@ public class ExtensionAutoUpdate extends ExtensionAdaptor implements CheckForUpd
         }
         if (arguments[ARG_CFU_INSTALL_IDX].isEnabled()) {
         	Vector<String> params = arguments[ARG_CFU_INSTALL_IDX].getArguments();
-			AddOnCollection aoc = getLatestVersionInfo();
-			if (aoc == null) {
-				CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
-			} else {
-				for (String aoName : params) {
-            		AddOn ao = aoc.getAddOn(aoName);
-            		if (ao == null) {
-                		CommandLine.error(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
-            			continue;
-            		}
-            		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
-            		AddOnDependencyChecker.AddOnChangesResult result;
-            		// Check to see if its already installed
-            		AddOn iao = getLocalVersionInfo().getAddOn(aoName);
-            		if (iao != null) {
-            			if (!ao.isUpdateTo(iao)) {
-                    		CommandLine.info(MessageFormat.format(
-                                    Constant.messages.getString("cfu.cmdline.addoninst"),
-                                    iao.getFile().getAbsolutePath()));
-                			continue;
-            			}
-
-                        result = addOnDependencyChecker.calculateUpdateChanges(ao);
-                    } else {
-                        result = addOnDependencyChecker.calculateInstallChanges(ao);
-            		}
-            		
-                    if (!result.getUninstalls().isEmpty()) {
-                        CommandLine.info(
-                                MessageFormat.format(
-                                        Constant.messages.getString("cfu.cmdline.addoninst.uninstalls.required"),
-                                        result.getUninstalls()));
-                        continue;
-                    }
-
-                    Set<AddOn> allAddOns = new HashSet<>();
-                    allAddOns.addAll(result.getInstalls());
-                    allAddOns.addAll(result.getNewVersions());
-                    for (AddOn addOn : allAddOns) {
-                        CommandLine.info(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.addonurl"),
-                                addOn.getUrl()));
-                    }
-
-                    processAddOnChanges(null, result);
-            	}
-                waitAndInstallDownloads();
-            }
+        	installAddOns(params);
         }
         if (arguments[ARG_CFU_UNINSTALL_IDX].isEnabled()) {
         	Vector<String> params = arguments[ARG_CFU_UNINSTALL_IDX].getArguments();
-			AddOnCollection aoc = this.getLocalVersionInfo();
-			if (aoc == null) {
-				CommandLine.error(Constant.messages.getString("cfu.cmdline.nocfu"));
-			} else {
-				for (String aoName : params) {
-            		AddOn ao = aoc.getAddOn(aoName);
-            		if (ao == null) {
-                		CommandLine.error(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.noaddon"), aoName));
-            			continue;
-            		}
-            		AddOnDependencyChecker addOnDependencyChecker = new AddOnDependencyChecker(getLocalVersionInfo(), aoc);
-            		
-            		Set<AddOn> addonSet = new HashSet<AddOn>();
-            		addonSet.add(ao);
-            		UninstallationResult result = addOnDependencyChecker.calculateUninstallChanges(addonSet);
-            		
-            		// Check to see if other add-ons depend on it
-            		if (result.getUninstallations().size() > 1) {
-            			// Will always report this add-on as needing to be uninstalled
-                    	// Remove the specified add-on for the error message
-                    	result.getUninstallations().remove(ao);
-                        CommandLine.info(
-                                MessageFormat.format(
-                                        Constant.messages.getString("cfu.cmdline.addonuninst.uninstalls.required"),
-                                        result.getUninstallations()));
-            			continue;
-            		}
-
-            		if (this.uninstallAddOn(null, ao, false)) {
-                		CommandLine.info(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.uninstallok"), aoName));
-
-            		} else {
-                		CommandLine.error(MessageFormat.format(
-                                Constant.messages.getString("cfu.cmdline.uninstallfail"), aoName));
-
-            		}
-            	}
-            }
+            uninstallAddOns(params);
         }
         if (arguments[ARG_CFU_LIST_IDX].isEnabled()) {
 			AddOnCollection aoc = this.getLocalVersionInfo();
