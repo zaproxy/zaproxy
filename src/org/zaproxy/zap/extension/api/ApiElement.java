@@ -143,7 +143,7 @@ public class ApiElement {
 	 * @since TODO add version
 	 * @see #setDeprecatedDescription(String)
 	 */
-	protected void setDeprecated(boolean deprecated) {
+	public void setDeprecated(boolean deprecated) {
 		this.deprecated = deprecated;
 	}
 

@@ -42,6 +42,7 @@
 // ZAP: 2015/10/01 Issue 1944:  Chart responses per second in ascan progress
 // ZAP: 2016/01/20 Issue 1959: Allow to active scan headers of all requests
 // ZAP: 2016/10/24 Issue 2951:  Support active scan rule and scan max duration
+// ZAP: 2017/01/13 Exclude getExcludedParamList from the ZAP API 
 
 package org.parosproxy.paros.core.scanner;
 
@@ -54,6 +55,7 @@ import org.apache.commons.configuration.ConversionException;
 import org.apache.commons.configuration.HierarchicalConfiguration;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
+import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
 public class ScannerParam extends AbstractParam {
 
@@ -338,6 +340,7 @@ public class ScannerParam extends AbstractParam {
         subList.add(filter);
     }
 
+    @ZapApiIgnore
     public List<ScannerParamFilter> getExcludedParamList() {
         return excludedParams;
     }
