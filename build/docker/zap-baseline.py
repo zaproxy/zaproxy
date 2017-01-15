@@ -376,6 +376,9 @@ def main(argv):
             continue
           if not is_in_scope(plugin_id, alert.get('url')):
             continue
+          if alert.get('risk') == 'Informational':
+            # Ignore all info alerts - some of them may have been downgraded by security annotations
+            continue
           if (not alert_dict.has_key(plugin_id)):
             alert_dict[plugin_id] = []
           alert_dict[plugin_id].append(alert)
