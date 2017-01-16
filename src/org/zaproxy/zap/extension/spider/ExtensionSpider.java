@@ -30,6 +30,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -103,7 +104,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
 	 * Popup Menu.
 	 */
-	private List<String> excludeList = null;
+	private List<String> excludeList = Collections.emptyList();
 
 	private ZapMenuItem menuItemCustomScan = null;
 
@@ -260,6 +261,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param ignoredRegexs the new exclude list
 	 */
 	public void setExcludeList(List<String> ignoredRegexs) {
+		if (ignoredRegexs == null || ignoredRegexs.isEmpty()) {
+			excludeList = Collections.emptyList();
+			return;
+		}
+
 		this.excludeList = ignoredRegexs;
 	}
 
