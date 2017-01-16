@@ -744,6 +744,7 @@ public class SpiderParam extends AbstractParam {
      * @see #getDomainsAlwaysInScopeEnabled()
      * @see #setDomainsAlwaysInScope(List)
      */
+    @ZapApiIgnore
     public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScope() {
         return domainsAlwaysInScope;
     }
@@ -756,6 +757,7 @@ public class SpiderParam extends AbstractParam {
      * @see #getDomainsAlwaysInScope()
      * @see #setDomainsAlwaysInScope(List)
      */
+    @ZapApiIgnore
     public List<DomainAlwaysInScopeMatcher> getDomainsAlwaysInScopeEnabled() {
         return domainsAlwaysInScopeEnabled;
     }
