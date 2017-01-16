@@ -3,6 +3,10 @@
 // Note that new passive scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 /**
  * Passively scans an HTTP message. The scan function will be called for 
  * request/response made via ZAP, excluding some of the automated tools.

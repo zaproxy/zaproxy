@@ -25,6 +25,10 @@
 // helper.getHttpSender().sendAndReceive(msg2, false);
 // println('msg2 response=' + msg2.getResponseHeader().getStatusCode())
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 function sendingRequest(msg, initiator, helper) {
 	// Debugging can be done using println like this
 	println('sendingRequest called for url=' + msg.getRequestHeader().getURI().toString())
