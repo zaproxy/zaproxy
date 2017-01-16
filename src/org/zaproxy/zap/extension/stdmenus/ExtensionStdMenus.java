@@ -41,7 +41,6 @@ import org.parosproxy.paros.extension.history.ExtensionHistory;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.view.ContextExportDialog;
@@ -56,7 +55,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
     private PopupCopyMenu popupCopyMenu = null;
     private PopupPasteMenu popupPaste = null;
 	private PopupMenuActiveScanCustom popupMenuActiveScanCustom = null;
-	private PopupMenuSpiderDialog popupMenuSpiderDialog = null;
 	private PopupExcludeFromProxyMenu popupExcludeFromProxyMenu = null;
 	private PopupExcludeFromScanMenu popupExcludeFromScanMenu = null;
 	private PopupExcludeFromSpiderMenu popupExcludeFromSpiderMenu = null;
@@ -100,26 +98,19 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 			final ExtensionLoader extensionLoader = Control.getSingleton().getExtensionLoader();
 			boolean isExtensionHistoryEnabled = extensionLoader.isExtensionEnabled(ExtensionHistory.NAME);
 			boolean isExtensionActiveScanEnabled = extensionLoader.isExtensionEnabled(ExtensionActiveScan.NAME);
-			boolean isExtensionSpiderEnabled = extensionLoader.isExtensionEnabled(ExtensionSpider.NAME);
 			// Be careful when changing the menu indexes (and order above) - its easy to get unexpected
 			// results!
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromProxyMenu(0));
 			if (isExtensionActiveScanEnabled) {
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromScanMenu(0));
 			}
-			if (isExtensionSpiderEnabled) {
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(0));
-			}
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupExcludeFromSpiderMenu(0));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextIncludeMenu(1));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextExcludeMenu(2));
 			extensionHook.getHookMenu().addPopupMenuItem(getPopupContextDataDrivenMenu(2));	// TODO ??
 
 			if (isExtensionActiveScanEnabled) {
 				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuActiveScanCustom(3));
-			}
-
-			if (isExtensionSpiderEnabled) {
-				extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuSpiderDialog(3));
 			}
 
 			if (isExtensionHistoryEnabled) {
@@ -280,13 +271,6 @@ public class ExtensionStdMenus extends ExtensionAdaptor implements ClipboardOwne
 	@Override
 	public void lostOwnership(Clipboard arg0, Transferable arg1) {
 		// Ignore
-	}
-
-	private PopupMenuSpiderDialog getPopupMenuSpiderDialog(int menuIndex) {
-		if (popupMenuSpiderDialog == null) {
-			popupMenuSpiderDialog = new PopupMenuSpiderDialog(Constant.messages.getString("spider.custom.popup"));
-		}
-		return popupMenuSpiderDialog;
 	}
 
 	private PopupMenuActiveScanCustom getPopupMenuActiveScanCustom(int menuIndex) {

@@ -27,6 +27,11 @@ import org.zaproxy.zap.view.messagecontainer.http.HttpMessageContainer;
 import org.zaproxy.zap.view.popup.PopupMenuItemSiteNodeContainer;
 
 
+/**
+ * @deprecated (TODO add version) No longer in use, replaced by
+ *             {@link org.zaproxy.zap.extension.spider.PopupMenuItemSpiderDialog}.
+ */
+@Deprecated
 public class PopupMenuSpiderDialog extends PopupMenuItemSiteNodeContainer {
 
 	private static final long serialVersionUID = 1L;

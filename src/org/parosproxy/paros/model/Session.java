@@ -66,6 +66,7 @@
 // ZAP: 2016/10/24 Delay addition of imported context until it's known that it has no errors
 // ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
 // ZAP: 2016/12/06 Remove contexts before refreshing the UI when discarding the contexts
+// ZAP: 2017/01/04 Remove dependency on ExtensionSpider
 
 package org.parosproxy.paros.model;
 
@@ -99,7 +100,6 @@ import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
 import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
-import org.zaproxy.zap.extension.spider.ExtensionSpider;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
@@ -991,29 +991,40 @@ public class Session {
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
 
+	/**
+	 * Gets the regular expressions used to exclude URLs from the spiders (e.g. traditional, AJAX).
+	 *
+	 * @return a {@code List} containing the regular expressions, never {@code null}.
+	 */
 	public List<String> getExcludeFromSpiderRegexs() {
 		return excludeFromSpiderRegexs;
 	}
 
+	/**
+	 * Adds the given regular expression to the list of regular expressions used to exclude URLs from the spiders (e.g.
+	 * traditional, AJAX).
+	 *
+	 * @param ignoredRegex the regular expression to be added
+	 * @throws IllegalArgumentException if the regular expression is not valid.
+	 * @throws DatabaseException if an error occurred while persisting the list.
+	 */
 	public void addExcludeFromSpiderRegex(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 
 		this.excludeFromSpiderRegexs.add(ignoredRegex);
-		ExtensionSpider extSpider = 
-			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
-		if (extSpider != null) {
-			// ZAP: Added fullList & globalExcludeURLRegexs code.
-		    List<String> fullList = new ArrayList<String>();
-		    fullList.addAll(this.excludeFromSpiderRegexs);
-		    fullList.addAll(this.globalExcludeURLRegexs);
-
-		    extSpider.setExcludeList(fullList);
-		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
 	}
 
 
+	/**
+	 * Sets the given regular expressions as the list of regular expressions used to exclude URLs from the spiders (e.g.
+	 * traditional, AJAX).
+	 *
+	 * @param ignoredRegexs the regular expressions to be set
+	 * @throws IllegalArgumentException if any of the regular expressions is not valid.
+	 * @throws DatabaseException if an error occurred while persisting the list.
+	 */
 	public void setExcludeFromSpiderRegexs(List<String> ignoredRegexs) throws DatabaseException {
 		// Validate its a valid regex first
 	    for (String url : ignoredRegexs) {
@@ -1021,16 +1032,6 @@ public class Session {
 	    }
 
 		this.excludeFromSpiderRegexs = stripEmptyLines(ignoredRegexs);
-		ExtensionSpider extSpider = 
-			(ExtensionSpider) Control.getSingleton().getExtensionLoader().getExtension(ExtensionSpider.NAME);
-		if (extSpider != null) {
-			// ZAP: Added fullList & globalExcludeURLRegexs code.
-		    List<String> fullList = new ArrayList<String>();
-		    fullList.addAll(this.excludeFromSpiderRegexs);
-		    fullList.addAll(this.globalExcludeURLRegexs);
-
-		    extSpider.setExcludeList(fullList);
-		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
 	}
 
