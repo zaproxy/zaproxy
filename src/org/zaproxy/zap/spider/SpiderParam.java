@@ -349,7 +349,7 @@ public class SpiderParam extends AbstractParam {
                 if (domain.contains("*")) {
                     domain = domain.replace(".", "\\.").replace("+", "\\+").replace("*", ".*?");
                     try {
-                        Pattern pattern = Pattern.compile(name, Pattern.CASE_INSENSITIVE);
+                        Pattern pattern = Pattern.compile(domain, Pattern.CASE_INSENSITIVE);
                         domainsInScope.add(new DomainAlwaysInScopeMatcher(pattern));
                     } catch (IllegalArgumentException e) {
                         log.error("Failed to migrate a domain always in scope, name: " + name, e);
