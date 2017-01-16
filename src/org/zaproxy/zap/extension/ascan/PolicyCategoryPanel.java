@@ -21,6 +21,7 @@
 // ZAP: 2013/03/03 Issue 546: Remove all template Javadoc comments
 // ZAP: 2013/11/28 Issue 923: Allow individual rule thresholds and strengths to be set via GUI
 // ZAP: 2014/11/19 Issue 1412: Manage scan policies
+// ZAP: 2017/01/09 Remove method no longer needed.
 
 package org.zaproxy.zap.extension.ascan;
 
@@ -119,11 +120,6 @@ public class PolicyCategoryPanel extends AbstractParamPanel {
 
     @Override
     public void initParam(Object obj) {
-
-    }
-
-    @Override
-    public void validateParam(Object obj) throws Exception {
 
     }
 

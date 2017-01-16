@@ -212,11 +212,6 @@ public class DynamicSSLPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
-		// nothing to do here ...
-	}
-
-	@Override
 	public void saveParam(Object obj) throws Exception {
 		final OptionsParam options = (OptionsParam) obj;
 		final DynSSLParam param = options.getParamSet(DynSSLParam.class);

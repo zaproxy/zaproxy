@@ -222,11 +222,6 @@ public class OptionsScannerPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) {
-        // no validation needed
-    }
-
-    @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam options = (OptionsParam) obj;
         ScannerParam param = options.getParamSet(ScannerParam.class);

@@ -164,11 +164,6 @@ public class ContextListPanel extends AbstractParamPanel {
 	}
 	
 	@Override
-	public void validateParam(Object obj) {
-	    // no validation needed
-	}
-	
-	@Override
 	public void saveParam (Object obj) throws Exception {
 		// Nothing to do, the table does not allow to edit its values.
 		// NOTE: If changed to be editable it should be in sync with the view state (share view models?) of

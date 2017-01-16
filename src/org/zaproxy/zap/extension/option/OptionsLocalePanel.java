@@ -162,11 +162,6 @@ public class OptionsLocalePanel extends AbstractParamPanel {
 	}
 	
 	@Override
-	public void validateParam(Object obj) {
-	    // no validation needed
-	}
-	
-	@Override
 	public void saveParam (Object obj) throws Exception {
 	    OptionsParam options = (OptionsParam) obj;
 	    ViewLocale selectedLocale = (ViewLocale) localeSelect.getSelectedItem();

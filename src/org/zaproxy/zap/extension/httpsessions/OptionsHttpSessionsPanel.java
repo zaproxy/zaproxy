@@ -98,10 +98,6 @@ public class OptionsHttpSessionsPanel extends AbstractParamPanel {
 	}
 
 	@Override
-	public void validateParam(Object obj) throws Exception {
-	}
-
-	@Override
 	public void saveParam(Object obj) throws Exception {
 		OptionsParam optionsParam = (OptionsParam) obj;
 		HttpSessionsParam sessionParam = optionsParam.getParamSet(HttpSessionsParam.class);
