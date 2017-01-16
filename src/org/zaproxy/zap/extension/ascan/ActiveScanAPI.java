@@ -41,6 +41,7 @@ import org.parosproxy.paros.core.scanner.Category;
 import org.parosproxy.paros.core.scanner.HostProcess;
 import org.parosproxy.paros.core.scanner.Plugin;
 import org.parosproxy.paros.core.scanner.Plugin.AlertThreshold;
+import org.parosproxy.paros.core.scanner.ScannerParamFilter;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
@@ -108,6 +109,8 @@ public class ActiveScanAPI extends ApiImplementor {
 	private static final String VIEW_SCAN_POLICY_NAMES = "scanPolicyNames";
 	private static final String VIEW_ATTACK_MODE_QUEUE = "attackModeQueue";
 	private static final String VIEW_SCAN_PROGRESS = "scanProgress";
+	private static final String VIEW_EXCLUDED_PARAMS = "excludedParams";
+	private static final String VIEW_OPTION_EXCLUDED_PARAM_LIST = "optionExcludedParamList";
 
 	private static final String PARAM_URL = "url";
 	private static final String PARAM_CONTEXT_ID = "contextId";
@@ -177,6 +180,10 @@ public class ActiveScanAPI extends ApiImplementor {
 		this.addApiView(new ApiView(VIEW_POLICIES, null, new String[] {PARAM_SCAN_POLICY_NAME, PARAM_CATEGORY_ID}));
 		this.addApiView(new ApiView(VIEW_ATTACK_MODE_QUEUE));
 
+		this.addApiView(new ApiView(VIEW_EXCLUDED_PARAMS));
+		ApiView view = new ApiView(VIEW_OPTION_EXCLUDED_PARAM_LIST);
+		view.setDeprecated(true);
+		this.addApiView(view);
 	}
 
 	@Override
@@ -826,6 +833,15 @@ public class ActiveScanAPI extends ApiImplementor {
 		case VIEW_ATTACK_MODE_QUEUE:
 			result = new ApiResponseElement(name, String.valueOf(controller.getAttackModeStackSize()));
 			break;
+		case VIEW_OPTION_EXCLUDED_PARAM_LIST:
+		case VIEW_EXCLUDED_PARAMS:
+			resultList = new ApiResponseList(name);
+			List<ScannerParamFilter> excludedParams = controller.getScannerParam().getExcludedParamList();
+			for (int i = 0; i < excludedParams.size(); i++) {
+				resultList.addItem(new ExcludedParamApiResponse(excludedParams.get(i), i));
+			}
+			result = resultList;
+			break;
 		default:
 			throw new ApiException(ApiException.Type.BAD_VIEW);
 		}
@@ -880,6 +896,107 @@ public class ActiveScanAPI extends ApiImplementor {
 			}
 		}
 		return alertThreshold;
+	}
+
+	private static class ExcludedParamApiResponse extends ApiResponse {
+
+		private final Map<String, String> excludedParamData;
+		private final ApiResponseSet type;
+		private final Map<String, String> typeData;
+
+		public ExcludedParamApiResponse(ScannerParamFilter param, int idx) {
+			super("excludedParam");
+
+			excludedParamData = new HashMap<>();
+			excludedParamData.put("idx", Integer.toString(idx));
+			excludedParamData.put("parameter", param.getParamName());
+			excludedParamData.put("url", param.getWildcardedUrl());
+
+			typeData = new HashMap<>();
+			typeData.put("id", Integer.toString(param.getType()));
+			typeData.put("name", param.getTypeString());
+			type = new ApiResponseSet("type", typeData);
+		}
+
+		@Override
+		public void toXML(Document doc, Element parent) {
+			parent.setAttribute("type", "set");
+			for (Entry<String, String> val : excludedParamData.entrySet()) {
+				Element el = doc.createElement(val.getKey());
+				el.appendChild(doc.createTextNode(XMLStringUtil.escapeControlChrs(val.getValue())));
+				parent.appendChild(el);
+			}
+
+			Element el = doc.createElement(type.getName());
+			type.toXML(doc, el);
+			parent.appendChild(el);
+		}
+
+		@Override
+		public JSON toJSON() {
+			JSONObject jo = new JSONObject();
+			for (Entry<String, String> val : excludedParamData.entrySet()) {
+				jo.put(val.getKey(), val.getValue());
+			}
+			jo.put(type.getName(), type.toJSON());
+			return jo;
+		}
+
+		@Override
+		public void toHTML(StringBuilder sb) {
+			sb.append("<h2>" + this.getName() + "</h2>\n");
+			sb.append("<table border=\"1\">\n");
+			for (Entry<String, String> val : excludedParamData.entrySet()) {
+				sb.append("<tr><td>\n");
+				sb.append(val.getKey());
+				sb.append("</td><td>\n");
+				sb.append(StringEscapeUtils.escapeHtml(val.getValue()));
+				sb.append("</td></tr>\n");
+			}
+			sb.append("<tr><td>\n");
+			sb.append(type.getName());
+			sb.append("</td><td>\n");
+			sb.append("<table border=\"1\">\n");
+			for (Entry<String, ?> val : typeData.entrySet()) {
+				sb.append("<tr><td>\n");
+				sb.append(StringEscapeUtils.escapeHtml(val.getKey()));
+				sb.append("</td><td>\n");
+				Object value = val.getValue();
+				if (value != null) {
+					sb.append(StringEscapeUtils.escapeHtml(value.toString()));
+				}
+				sb.append("</td></tr>\n");
+			}
+			sb.append("</table>\n");
+			sb.append("</td></tr>\n");
+			sb.append("</table>\n");
+		}
+
+		@Override
+		public String toString(int indent) {
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < indent; i++) {
+				sb.append("\t");
+			}
+			sb.append("ApiResponseSet ");
+			sb.append(this.getName());
+			sb.append(" : [\n");
+			for (Entry<String, String> val : excludedParamData.entrySet()) {
+				for (int i = 0; i < indent + 1; i++) {
+					sb.append("\t");
+				}
+				sb.append(val.getKey());
+				sb.append(" = ");
+				sb.append(val.getValue());
+				sb.append("\n");
+			}
+			sb.append(type.toString(indent + 1));
+			for (int i = 0; i < indent; i++) {
+				sb.append("\t");
+			}
+			sb.append("]\n");
+			return sb.toString();
+		}
 	}
 
 	private class ScannerApiResponse extends ApiResponse {
