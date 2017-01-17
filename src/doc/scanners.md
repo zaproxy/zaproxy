@@ -138,6 +138,7 @@ Scanners:
 40024   SQL Injection SQLite
 40025   Proxy Disclosure
 40026   Cross site scripting (DOM)
+40027   SQL Injection MsSQL
 
 50000   Active Scan scripts
 50001   Passive Scan scripts
