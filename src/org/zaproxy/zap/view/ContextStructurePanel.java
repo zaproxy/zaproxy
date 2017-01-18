@@ -426,7 +426,7 @@ public class ContextStructurePanel extends AbstractContextPropertiesPanel {
 
 		@Override
 		public String validateFields() {
-			if (! this.getStringValue(FIELD_NAME).matches("[A-Za-z0-9]+")) {
+			if (! this.getStringValue(FIELD_NAME).matches("[A-Za-z0-9_]+")) {
 				// Must supply a name just made up of alphanumeric characters
 				return Constant.messages.getString("context.ddn.dialog.error.name");
 			}
