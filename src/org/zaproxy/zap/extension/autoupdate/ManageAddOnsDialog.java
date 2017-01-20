@@ -26,6 +26,9 @@ import java.awt.Desktop;
 import java.awt.EventQueue;
 import java.awt.GridBagLayout;
 import java.awt.HeadlessException;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.net.URL;
 import java.text.MessageFormat;
@@ -35,6 +38,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.regex.PatternSyntaxException;
 
+import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -48,6 +52,7 @@ import javax.swing.RowSorter;
 import javax.swing.SortOrder;
 import javax.swing.UIManager;
 import javax.swing.JTextField;
+import javax.swing.KeyStroke;
 import javax.swing.RowFilter;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.DocumentEvent;
@@ -159,6 +164,18 @@ public class ManageAddOnsDialog extends AbstractFrame implements CheckForUpdateC
         	this.setSize(700, 500);
         }
         state = State.IDLE;
+        
+        // Handle escape key to close the dialog
+        KeyStroke escape = KeyStroke.getKeyStroke(KeyEvent.VK_ESCAPE, 0, false);
+        AbstractAction escapeAction = new AbstractAction() {
+            private static final long serialVersionUID = 3516424501887406165L;
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispatchEvent(new WindowEvent(ManageAddOnsDialog.this, WindowEvent.WINDOW_CLOSING));
+            }
+	    };
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
+        getRootPane().getActionMap().put("ESCAPE",escapeAction);
 	}
 
 	private JPanel getTopPanel() {
