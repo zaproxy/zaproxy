@@ -1,3 +1,7 @@
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 // The authenticate function will be called for authentications made via ZAP.
 
 // The authenticate function is called whenever ZAP requires to authenticate, for a Context for which this script

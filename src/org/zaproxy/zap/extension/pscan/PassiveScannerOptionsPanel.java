@@ -74,11 +74,6 @@ class PassiveScannerOptionsPanel extends AbstractParamPanel {
     }
 
     @Override
-    public void validateParam(Object obj) throws Exception {
-        // Nothing to validate.
-    }
-
-    @Override
     public void saveParam(Object obj) throws Exception {
         OptionsParam optionsParam = (OptionsParam) obj;
         PassiveScanParam pscanOptions = optionsParam.getParamSet(PassiveScanParam.class);

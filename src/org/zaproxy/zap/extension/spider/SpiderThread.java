@@ -19,6 +19,7 @@
 package org.zaproxy.zap.extension.spider;
 
 import java.awt.EventQueue;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Enumeration;
@@ -238,8 +239,12 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 			spider.addSpiderListener(l);
 		}
 
-		// Add the list of excluded uris (added through the Exclude from Spider Popup Menu)
-		spider.setExcludeList(extension.getExcludeList());
+		// Add the list of (regex) URIs that should be excluded
+		List<String> excludeList = new ArrayList<>();
+		excludeList.addAll(extension.getExcludeList());
+		excludeList.addAll(extension.getModel().getSession().getExcludeFromSpiderRegexs());
+		excludeList.addAll(extension.getModel().getSession().getGlobalExcludeURLRegexs());
+		spider.setExcludeList(excludeList);
 
 		// Add seeds accordingly
 		addSeeds();

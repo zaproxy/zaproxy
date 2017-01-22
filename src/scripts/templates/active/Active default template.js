@@ -1,6 +1,10 @@
 // Note that new active scripts will initially be disabled
 // Right click the script in the Scripts tree and select "enable"  
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 /**
  * Scans a "node", i.e. an individual entry in the Sites Tree.
  * The scanNode function will typically be called once for every page. 

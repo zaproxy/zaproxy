@@ -79,13 +79,6 @@ public class OptionsScriptPanel extends AbstractParamPanel {
 	    tokensOptionsPanel.setRemoveWithoutConfirmation(!param.isConfirmRemoveDir());
     }
 
-
-    @Override
-    public void validateParam(Object obj) throws Exception {
-
-    }
-
-
     @Override
     public void saveParam(Object obj) throws Exception {
 	    OptionsParam optionsParam = (OptionsParam) obj;

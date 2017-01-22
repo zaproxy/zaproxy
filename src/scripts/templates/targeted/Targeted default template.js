@@ -1,5 +1,9 @@
 // Targeted scripts can only be invoked by you, the user, eg via a right-click option on the Sites or History tabs
 
+// The following handles differences in printing between Java 7's Rhino JS engine
+// and Java 8's Nashorn JS engine
+if (typeof println == 'undefined') this.println = print;
+
 /**
  * A function which will be invoked against a specific "targeted" message.
  *

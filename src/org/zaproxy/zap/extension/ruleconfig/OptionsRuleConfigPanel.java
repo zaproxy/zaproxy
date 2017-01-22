@@ -82,11 +82,6 @@ public class OptionsRuleConfigPanel extends AbstractParamPanel {
         ruleConfigOptionsPanel.packAll();
     }
 
-    @Override
-    public void validateParam(Object obj) throws Exception {
-        // Nothing to do
-    }
-
     private JButton getResetButton() {
         if (resetButton == null) {
             resetButton = new JButton(Constant.messages.getString("ruleconfig.options.button.reset"));

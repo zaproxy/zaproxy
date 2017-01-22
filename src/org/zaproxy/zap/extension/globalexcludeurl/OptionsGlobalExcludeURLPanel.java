@@ -84,11 +84,6 @@ public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
     }
 
 
-    @Override
-    public void validateParam(Object obj) throws Exception {
-
-    }
-
     private static Logger log = Logger.getLogger(OptionsGlobalExcludeURLPanel.class);
 
 

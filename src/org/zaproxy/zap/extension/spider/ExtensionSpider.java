@@ -30,9 +30,12 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.MessageFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.KeyStroke;
 
 import org.apache.commons.httpclient.URI;
@@ -79,6 +82,8 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 
 	SpiderDialog spiderDialog = null;
 
+	private PopupMenuItemSpiderDialog popupMenuItemSpiderDialog;
+
 	/** The options spider panel. */
 	private OptionsSpiderPanel optionsSpiderPanel = null;
 
@@ -93,11 +98,13 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	
 	private SpiderScanController scanController = null;
 
+	private Icon icon;
+
 	/**
 	 * The list of excluded patterns of sites. Patterns are added here with the ExcludeFromSpider
 	 * Popup Menu.
 	 */
-	private List<String> excludeList = null;
+	private List<String> excludeList = Collections.emptyList();
 
 	private ZapMenuItem menuItemCustomScan = null;
 
@@ -131,6 +138,7 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 			extensionHook.getHookMenu().addToolsMenuItem(getMenuItemCustomScan());
 			extensionHook.getHookView().addStatusPanel(getSpiderPanel());
 			extensionHook.getHookView().addOptionPanel(getOptionsSpiderPanel());
+			extensionHook.getHookMenu().addPopupMenuItem(getPopupMenuItemSpiderDialog());
 			ExtensionHelp.enableHelpKey(getSpiderPanel(), "ui.tabs.spider");
 		}
 
@@ -141,6 +149,13 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 		spiderApi = new SpiderAPI(this);
 		spiderApi.addApiOptions(getSpiderParam());
 		extensionHook.addApiImplementor(spiderApi);
+	}
+
+	private PopupMenuItemSpiderDialog getPopupMenuItemSpiderDialog() {
+		if (popupMenuItemSpiderDialog == null) {
+			popupMenuItemSpiderDialog = new PopupMenuItemSpiderDialog(this);
+		}
+		return popupMenuItemSpiderDialog;
 	}
 
 	@Override
@@ -246,6 +261,11 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	 * @param ignoredRegexs the new exclude list
 	 */
 	public void setExcludeList(List<String> ignoredRegexs) {
+		if (ignoredRegexs == null || ignoredRegexs.isEmpty()) {
+			excludeList = Collections.emptyList();
+			return;
+		}
+
 		this.excludeList = ignoredRegexs;
 	}
 
@@ -808,5 +828,17 @@ public class ExtensionSpider extends ExtensionAdaptor implements SessionChangedL
 	@Override
 	public boolean supportsDb(String type) {
 		return true;
+	}
+
+	/**
+	 * Gets the icon for spider related functionality.
+	 *
+	 * @return the icon
+	 */
+	public Icon getIcon() {
+		if (icon == null) {
+			icon = new ImageIcon(ExtensionSpider.class.getResource("/resource/icon/16/spider.png"));
+		}
+		return icon;
 	}
 }

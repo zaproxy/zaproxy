@@ -25,6 +25,7 @@
 // ZAP: 2012/10/02 Issue 385: Added support for Contexts
 // ZAP: 2015/02/05 Issue 1524: New Persist Session dialog
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2017/01/09 Remove method no longer needed.
 
 package org.parosproxy.paros.view;
 
@@ -139,11 +140,6 @@ public class SessionGeneralPanel extends AbstractParamPanel {
 	    	getSessionLocation().setText(session.getFileName());
 	    	getSessionLocation().setToolTipText(session.getFileName());	// In case its really long
 	    }
-	}
-	
-	@Override
-	public void validateParam(Object obj) {
-	    // no validation needed
 	}
 	
 	@Override
