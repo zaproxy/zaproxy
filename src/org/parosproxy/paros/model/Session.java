@@ -67,6 +67,7 @@
 // ZAP: 2016/10/26 Issue 1952: Do not allow Contexts with same name
 // ZAP: 2016/12/06 Remove contexts before refreshing the UI when discarding the contexts
 // ZAP: 2017/01/04 Remove dependency on ExtensionSpider
+// ZAP: 2017/01/26 Remove dependency on ExtensionActiveScan
 
 package org.parosproxy.paros.model;
 
@@ -99,7 +100,6 @@ import org.parosproxy.paros.network.HtmlParameter;
 import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.control.ExtensionFactory;
-import org.zaproxy.zap.extension.ascan.ExtensionActiveScan;
 import org.zaproxy.zap.model.Context;
 import org.zaproxy.zap.model.IllegalContextNameException;
 import org.zaproxy.zap.model.NameValuePair;
@@ -958,16 +958,6 @@ public class Session {
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
 		
 		this.excludeFromScanRegexs.add(ignoredRegex);
-		ExtensionActiveScan extAscan = 
-			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
-		if (extAscan != null) {
-			// ZAP: Added fullList & globalExcludeURLRegexs code.
-		    List<String> fullList = new ArrayList<String>();
-		    fullList.addAll(this.excludeFromScanRegexs);
-		    fullList.addAll(this.globalExcludeURLRegexs);
-
-			extAscan.setExcludeList(fullList);
-		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
 
@@ -978,16 +968,6 @@ public class Session {
 	    }
 
 		this.excludeFromScanRegexs = stripEmptyLines(ignoredRegexs);
-		ExtensionActiveScan extAscan = 
-			(ExtensionActiveScan) Control.getSingleton().getExtensionLoader().getExtension(ExtensionActiveScan.NAME);
-		if (extAscan != null) {
-			// ZAP: Added fullList & globalExcludeURLRegexs code.
-		    List<String> fullList = new ArrayList<String>();
-		    fullList.addAll(this.excludeFromScanRegexs);
-		    fullList.addAll(this.globalExcludeURLRegexs);
-
-			extAscan.setExcludeList(fullList);
-		}
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SCAN, this.excludeFromScanRegexs);
 	}
 

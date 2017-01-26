@@ -114,6 +114,8 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
 	private PolicyManager policyManager = null;
     private List<CustomScanPanel> customScanPanels = new ArrayList<CustomScanPanel>();
     
+    private List<String> excludeList = Collections.emptyList();
+
 	private ActiveScanAPI activeScanApi;
 
     public ExtensionActiveScan() {
@@ -460,12 +462,28 @@ public class ExtensionActiveScan extends ExtensionAdaptor implements
         return arguments;
     }
 
+	/**
+	 * Sets the exclude list.
+	 * 
+	 * @param urls the new exclude list
+	 */
 	public void setExcludeList(List<String> urls) {
-		for (ActiveScan scanner : ascanController.getActiveScans()) {
-			scanner.setExcludeList(urls);
+		if (urls == null || urls.isEmpty()) {
+			excludeList = Collections.emptyList();
+			return;
 		}
+
+		this.excludeList = urls;
 	}
 
+    /**
+     * Gets the exclude list.
+     * 
+     * @return the exclude list
+     */
+    public List<String> getExcludeList() {
+        return excludeList;
+    }
 
     public void addPolicyPanel(AbstractParamPanel panel) {
         this.policyPanels.add(panel);
