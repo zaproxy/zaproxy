@@ -415,13 +415,12 @@ public class SSLContextManager {
 		String name = file.getName();
 
 		// Open the file
-		InputStream is = new FileInputStream(file);
-
-		// create the keystore
-		KeyStore ks = KeyStore.getInstance("PKCS12");
-		ks.load(is, ksPassword == null ? null : ksPassword.toCharArray());
-
-		return addKeyStore(ks, "PKCS#12: " + name, ksPassword);
+		try (InputStream is = new FileInputStream(file)) {
+			// create the keystore
+			KeyStore ks = KeyStore.getInstance("PKCS12");
+			ks.load(is, ksPassword == null ? null : ksPassword.toCharArray());
+			return addKeyStore(ks, "PKCS#12: " + name, ksPassword);
+		}
 	}
 
 	public boolean unlockKeyWithDefaultPassword(int keystoreIndex, int aliasIndex)
