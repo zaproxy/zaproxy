@@ -108,6 +108,7 @@ public class JavaAPIGenerator extends AbstractAPIGenerator {
 			out.write("\t/**\n");
 			out.write("\t * " + desc + "\n");
 			if (isOptional()) {
+				out.write("\t * <p>\n");
 				out.write("\t * " + OPTIONAL_MESSAGE + "\n");
 			}
 
