@@ -69,6 +69,7 @@
 // ZAP: 2016/05/30 Issue 2494: ZAP Proxy is not showing the HTTP CONNECT Request in history tab
 // ZAP: 2016/06/20 Removed unnecessary/unused constructor
 // ZAP: 2016/06/21 Prevent deadlock between EDT and threads adding messages to the History tab
+// ZAP: 2017/01/30 Use HistoryTableModel.
 
 package org.parosproxy.paros.extension.history;
 
@@ -112,17 +113,16 @@ import org.zaproxy.zap.extension.history.PopupMenuExportURLs;
 import org.zaproxy.zap.extension.history.PopupMenuNote;
 import org.zaproxy.zap.extension.history.PopupMenuPurgeHistory;
 import org.zaproxy.zap.extension.history.PopupMenuTag;
-import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableModel;
 
 public class ExtensionHistory extends ExtensionAdaptor implements SessionChangedListener {
 
 	public static final String NAME = "ExtensionHistory";
 
-	private static final DefaultHistoryReferencesTableModel EMPTY_MODEL = new DefaultHistoryReferencesTableModel();
+	private static final HistoryTableModel EMPTY_MODEL = new HistoryTableModel();
 
 	private LogPanel logPanel = null;  //  @jve:decl-index=0:visual-constraint="161,134"
 	private ProxyListenerLog proxyListener = null;
-	private DefaultHistoryReferencesTableModel historyTableModel;
+	private HistoryTableModel historyTableModel;
     
 	// ZAP: added filter plus dialog
 	private HistoryFilterPlusDialog filterPlusDialog = null;
@@ -178,8 +178,11 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 		return logPanel;
 	}
 	
+    /**
+     * @deprecated (TODO add version) No longer used/needed.
+     */
+    @Deprecated
 	public void clearLogPanelDisplayQueue() {
-		this.getLogPanel().clearDisplayQueue();
 	}
 	
 	public HistoryReference getSelectedHistoryReference () {
@@ -194,7 +197,7 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 	public void init() {
 		super.init();
 
-		historyTableModel = new DefaultHistoryReferencesTableModel();
+		historyTableModel = new HistoryTableModel();
 		ZAP.getEventBus().registerConsumer(new AlertEventConsumer(), AlertEventPublisher.getPublisher().getPublisherName());
 	}
 
@@ -725,9 +728,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
 
             // delete reference in node
             removeFromHistoryList(node.getHistoryReference());
-            if (View.isInitialised()) {
-                clearLogPanelDisplayQueue();
-            }
 
             ExtensionAlert extAlert =
                     Control.getSingleton().getExtensionLoader().getExtension(ExtensionAlert.class);
@@ -743,9 +743,6 @@ public class ExtensionHistory extends ExtensionAdaptor implements SessionChanged
                 HistoryReference ref = node.getPastHistoryReference().get(0);
                 deleteAlertsFromExtensionAlert(extAlert, ref);
                 removeFromHistoryList(ref);
-                if (View.isInitialised()) {
-                    clearLogPanelDisplayQueue();
-                }
                 delete(ref);
                 node.getPastHistoryReference().remove(0);
                 map.removeHistoryReference(ref.getHistoryId());
