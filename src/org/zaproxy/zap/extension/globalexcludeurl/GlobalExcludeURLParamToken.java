@@ -22,7 +22,6 @@ package org.zaproxy.zap.extension.globalexcludeurl;
 
 import org.zaproxy.zap.utils.Enableable;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 class GlobalExcludeURLParamToken extends Enableable {
 
     private String regex;

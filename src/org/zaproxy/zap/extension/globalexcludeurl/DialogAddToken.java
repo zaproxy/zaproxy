@@ -35,7 +35,6 @@ import org.parosproxy.paros.Constant;
 import org.zaproxy.zap.utils.ZapTextField;
 import org.zaproxy.zap.view.AbstractFormDialog;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 class DialogAddToken extends AbstractFormDialog {
 
     private static final long serialVersionUID = 4460797449668634319L;

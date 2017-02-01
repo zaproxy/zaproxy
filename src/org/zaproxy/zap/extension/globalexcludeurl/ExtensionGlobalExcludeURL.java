@@ -26,7 +26,6 @@ import org.parosproxy.paros.extension.ExtensionAdaptor;
 import org.parosproxy.paros.extension.ExtensionHook;
 import org.parosproxy.paros.model.Model;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class ExtensionGlobalExcludeURL extends ExtensionAdaptor  {
 
 	public static final String NAME = "ExtensionGlobalExcludeURL"; 
