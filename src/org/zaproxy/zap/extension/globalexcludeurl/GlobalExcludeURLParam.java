@@ -109,7 +109,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"Site - Bing API queries",
 				"false"
 			}, {
-				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com",
+				"^https?://(safebrowsing-cache|sb-ssl|sb|safebrowsing\\.clients)\\.google\\.com/.*$",
 				"Site - Google malware detector updates",
 				"false"
 			}, {
@@ -117,7 +117,7 @@ public class GlobalExcludeURLParam extends AbstractParam {
 				"Site - Lastpass manager",
 				"false"
 			}, {
-				"^https?://(.*addons|au[0-9])\\.mozilla\\.(org|net|com)",
+				"^https?://(.*addons|aus[0-9])\\.mozilla\\.(org|net|com)/.*$",
 				"Site - Mozilla Firefox browser updates",
 				"false"
 			}, {
