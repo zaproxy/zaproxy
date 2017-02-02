@@ -38,7 +38,6 @@ import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.view.AbstractMultipleOptionsTablePanel;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class OptionsGlobalExcludeURLPanel extends AbstractParamPanel {
 
 	private static final long serialVersionUID = 1L;

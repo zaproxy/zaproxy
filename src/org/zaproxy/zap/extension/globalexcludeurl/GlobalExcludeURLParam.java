@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 public class GlobalExcludeURLParam extends AbstractParam {
 
     private static final Logger logger = Logger.getLogger(GlobalExcludeURLParam.class);
