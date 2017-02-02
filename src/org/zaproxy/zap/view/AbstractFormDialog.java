@@ -57,7 +57,7 @@ public abstract class AbstractFormDialog extends JDialog {
 	}
 
 	public AbstractFormDialog(Dialog owner, String title, boolean initView) {
-		super(owner, title, true);
+		super(owner, title, ModalityType.DOCUMENT_MODAL);
 		initialise(initView);
 	}
 
