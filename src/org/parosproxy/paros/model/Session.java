@@ -1035,7 +1035,6 @@ public class Session {
 		model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_EXCLUDE_FROM_SPIDER, this.excludeFromSpiderRegexs);
 	}
 
-	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
 	public void forceGlobalExcludeURLRefresh() throws DatabaseException {
 		List<String> temp;
@@ -1053,25 +1052,19 @@ public class Session {
 		setExcludeFromSpiderRegexs(temp);
 	}
 
-	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
 	public List<String> getGlobalExcludeURLRegexs() {
 		return globalExcludeURLRegexs;
 	}
 
-	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
 	public void addGlobalExcludeURLRegexs(String ignoredRegex) throws DatabaseException {
 		// Validate its a valid regex first
 		Pattern.compile(ignoredRegex, Pattern.CASE_INSENSITIVE);
     
 		this.globalExcludeURLRegexs.add(ignoredRegex);
-		
-		// XXX This probably isn't needed in the active session, need advice here. 
-		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
 	}
 
-	/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 	// ZAP: Added function.
 	public void setGlobalExcludeURLRegexs(List<String> ignoredRegexs) throws DatabaseException {
 		// Validate its a valid regex first
@@ -1080,8 +1073,6 @@ public class Session {
 	    }
 		this.globalExcludeURLRegexs = stripEmptyLines(ignoredRegexs);
 
-		// XXX This probably isn't needed in the active session, need advice here. 
-		//model.getDb().getTableSessionUrl().setUrls(RecordSessionUrl.TYPE_GLOBAL_EXCLUDE_URL, this.globalExcludeURLRegexs);
 	    log.debug("setGlobalExcludeURLRegexs" );
 	}
 	

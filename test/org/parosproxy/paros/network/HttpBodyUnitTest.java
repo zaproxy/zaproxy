@@ -26,6 +26,7 @@ import static org.hamcrest.Matchers.nullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.junit.Assert.assertThat;
 
+import java.nio.charset.Charset;
 import java.util.Arrays;
 
 import org.junit.Test;
@@ -150,6 +151,50 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
         assertThat(httpBody.getBytes(), is(allZeroBytes()));
         assertThat(httpBody.getBytes().length, is(equalTo(LIMIT_INITIAL_CAPACITY)));
         assertThat(httpBody.toString(), is(equalTo("")));
+    }
+
+    @Test
+    public void shouldDetermineCharsetByDefault() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        // When
+        boolean determineCharset = httpBody.isDetermineCharset();
+        // Then
+        assertThat(determineCharset, is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldSetDetermineCharset() {
+        // Given
+        HttpBody httpBody = new HttpBodyImpl();
+        // When
+        httpBody.setDetermineCharset(false);
+        // Then
+        assertThat(httpBody.isDetermineCharset(), is(equalTo(false)));
+    }
+
+    @Test
+    public void shouldDetermineCharsetIfSetAndHasNoCharset() {
+        // Given
+        HttpBodyImpl httpBody = new HttpBodyImpl();
+        httpBody.setDetermineCharset(true);
+        httpBody.setCharset(null);
+        // When
+        httpBody.setBody("X Y Z");
+        // Then
+        assertThat(httpBody.isDetermineCharsetCalled(), is(equalTo(true)));
+    }
+
+    @Test
+    public void shouldNotDetermineCharsetIfNotSet() {
+        // Given
+        HttpBodyImpl httpBody = new HttpBodyImpl();
+        httpBody.setDetermineCharset(false);
+        httpBody.setCharset(null);
+        // When
+        httpBody.setBody("X Y Z");
+        // Then
+        assertThat(httpBody.isDetermineCharsetCalled(), is(equalTo(false)));
     }
 
     @Test
@@ -674,6 +719,8 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
 
     private static class HttpBodyImpl extends HttpBody {
 
+        private boolean determineCharsetCalled;
+
         public HttpBodyImpl() {
         }
 
@@ -687,6 +734,16 @@ public class HttpBodyUnitTest extends HttpBodyTestUtils {
 
         public HttpBodyImpl(byte[] data) {
             super(data);
+        }
+
+        @Override
+        protected Charset determineCharset(String contents) {
+            determineCharsetCalled = true;
+            return super.determineCharset(contents);
+        }
+
+        public boolean isDetermineCharsetCalled() {
+            return determineCharsetCalled;
         }
     }
 

@@ -57,15 +57,8 @@ public abstract class AbstractFormDialog extends JDialog {
 	}
 
 	public AbstractFormDialog(Dialog owner, String title, boolean initView) {
-		super(owner, title, true);
+		super(owner, title, ModalityType.DOCUMENT_MODAL);
 		initialise(initView);
-	}
-
-	private void initialise(boolean initView) {
-		firstTime = true;
-		if (initView) {
-			initView();
-		}
 	}
 
 	public AbstractFormDialog(Frame owner, String title) {
@@ -73,7 +66,7 @@ public abstract class AbstractFormDialog extends JDialog {
 	}
 
 	public AbstractFormDialog(Frame owner, String title, boolean initView) {
-		super(owner, title, true);
+		super(owner, title, ModalityType.DOCUMENT_MODAL);
 		initialise(initView);
 	}
 
@@ -82,8 +75,15 @@ public abstract class AbstractFormDialog extends JDialog {
 	}
 
 	public AbstractFormDialog(Window owner, String title, boolean initView) {
-		super(owner, title, Dialog.DEFAULT_MODALITY_TYPE);
+		super(owner, title, ModalityType.DOCUMENT_MODAL);
 		initialise(initView);
+	}
+
+	private void initialise(boolean initView) {
+		firstTime = true;
+		if (initView) {
+			initView();
+		}
 	}
 
 	protected void initView() {

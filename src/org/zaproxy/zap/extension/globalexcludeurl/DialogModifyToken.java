@@ -24,7 +24,6 @@ import java.awt.Dialog;
 
 import org.parosproxy.paros.Constant;
 
-/** TODO The GlobalExcludeURL functionality is currently alpha and subject to change.  */
 class DialogModifyToken extends DialogAddToken {
 
     private static final long serialVersionUID = 6675509994290748494L;
