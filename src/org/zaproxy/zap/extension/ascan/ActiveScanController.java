@@ -29,7 +29,6 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.core.scanner.ScannerParam;
-import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.Session;
 import org.zaproxy.zap.extension.alert.ExtensionAlert;
 import org.zaproxy.zap.extension.ruleconfig.ExtensionRuleConfig;
@@ -125,9 +124,12 @@ public class ActiveScanController implements ScanController<ActiveScan> {
 				}
 			};
 			
-			// Set session level configs
-			Session session = Model.getSingleton().getSession();
-			ascan.setExcludeList(session.getExcludeFromScanRegexs());
+			Session session = extension.getModel().getSession();
+			List<String> excludeList = new ArrayList<>();
+			excludeList.addAll(extension.getExcludeList());
+			excludeList.addAll(session.getExcludeFromScanRegexs());
+			excludeList.addAll(session.getGlobalExcludeURLRegexs());
+			ascan.setExcludeList(excludeList);
 			ScanPolicy policy = null;
 			
 			ascan.setId(id);
