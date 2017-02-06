@@ -76,7 +76,6 @@ public class PopupMenuPurgeHistory extends PopupMenuItemHistoryReferenceContaine
         }
 
         extension.removeFromHistoryList(ref);
-        extension.clearLogPanelDisplayQueue();
 
         ExtensionAlert extAlert = (ExtensionAlert) Control.getSingleton()
                 .getExtensionLoader()
