@@ -45,6 +45,7 @@
 // ZAP: 2016/06/15 Add TYPE_SEQUENCE_TEMPORARY
 // ZAP: 2016/06/20 Add TYPE_ZEST_SCRIPT and deprecate TYPE_RESERVED_11
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
+// ZAP: 2017/02/07 Add TYPE_SPIDER_AJAX_TEMPORARY.
 
 package org.parosproxy.paros.model;
 
@@ -114,7 +115,13 @@ public class HistoryReference {
      * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
      */
    public static final int TYPE_SPIDER_TASK = 9;
-   // ZAP: Added TYPE_SPIDER_AJAX to use in spider ajax.
+
+   /**
+    * A HTTP message sent by the AJAX Spider.
+    * 
+    * @since 2.0.0
+    * @see #TYPE_SPIDER_AJAX_TEMPORARY
+    */
    public static final int TYPE_SPIDER_AJAX = 10;
     /**
      * A (temporary) HTTP message that (attempts to) authenticates a {@link org.zaproxy.zap.users.User User}.
@@ -169,6 +176,7 @@ public class HistoryReference {
      * <li>{@link #TYPE_AUTHENTICATION};</li>
      * <li>{@link #TYPE_SPIDER_TASK};</li>
      * <li>{@link #TYPE_SEQUENCE_TEMPORARY};</li>
+     * <li>{@link #TYPE_SPIDER_AJAX_TEMPORARY};</li>
      * </ul>
      * <p>
      * Persisted messages with temporary types are deleted when the session is closed.
@@ -196,6 +204,17 @@ public class HistoryReference {
      */
     public static final int TYPE_SEQUENCE_TEMPORARY = 17;
 
+    /**
+     * A (temporary) HTTP message of the AJAX spider.
+     * <p>
+     * Normally a message that was not processed (i.e. not on spider scope).
+     * 
+     * @since TODO add version
+     * @see #TYPE_SPIDER_AJAX
+     * @see #DEFAULT_TEMPORARY_HISTORY_TYPES
+     */
+   public static final int TYPE_SPIDER_AJAX_TEMPORARY = 18;
+
    private static java.text.DecimalFormat decimalFormat = new java.text.DecimalFormat("##0.###");
 	private static TableHistory staticTableHistory = null;
 	// ZAP: Support for multiple tags
@@ -210,6 +229,7 @@ public class HistoryReference {
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_AUTHENTICATION));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_TASK));
 		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SEQUENCE_TEMPORARY));
+		defaultHistoryTypes.add(Integer.valueOf(HistoryReference.TYPE_SPIDER_AJAX_TEMPORARY));
 		DEFAULT_TEMPORARY_HISTORY_TYPES = Collections.unmodifiableSet(defaultHistoryTypes);
 
 		TEMPORARY_HISTORY_TYPES.addAll(DEFAULT_TEMPORARY_HISTORY_TYPES);
