@@ -34,6 +34,7 @@
 // ZAP: 2015/03/26 Issue 1573: Add option to inject plugin ID in header for all ascan requests
 // ZAP: 2016/06/17 Be lenient when parsing charset and accept single quote chars around the value
 // ZAP: 2016/06/17 Remove redundant initialisations of instance variables
+// ZAP: 2017/02/08 Change isEmpty to check start line instead of headers (if it has the status/request line it's not empty).
 
 package org.parosproxy.paros.network;
 
@@ -549,8 +550,15 @@ public abstract class HttpHeader implements java.io.Serializable {
         return mMsgHeader;
     }
 
+    /**
+     * Tells whether or not the header is empty.
+     * <p>
+     * A header is empty if it has no content (for example, no start line nor headers).
+     *
+     * @return {@code true} if the header is empty, {@code false} otherwise.
+     */
     public boolean isEmpty() {
-        if (mMsgHeader == null || mMsgHeader.equals("")) {
+        if (mStartLine == null || mStartLine.isEmpty()) {
             return true;
         }
 
