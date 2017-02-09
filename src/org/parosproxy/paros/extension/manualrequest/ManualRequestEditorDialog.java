@@ -34,6 +34,7 @@
 // ZAP: 2012/11/21 Heavily refactored extension to support non-HTTP messages.
 // ZAP: 2013/05/02 Re-arranged all modifiers into Java coding standard order
 // ZAP: 2014/01/28 Issue 207: Support keyboard shortcuts 
+// ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 
 package org.parosproxy.paros.extension.manualrequest;
 
@@ -47,14 +48,17 @@ import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 
+import javax.net.ssl.SSLException;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 
+import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.control.Control.Mode;
 import org.parosproxy.paros.extension.option.OptionsParamView;
+import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.AbstractFrame;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanelRequest;
@@ -206,6 +210,22 @@ public abstract class ManualRequestEditorDialog extends AbstractFrame implements
                 try {
                 	getMessageSender().handleSendMessage(aMessage);                    
                     postSend();
+                } catch (SSLException sslEx) {
+                    StringBuilder strBuilder = new StringBuilder();
+
+                    strBuilder.append(Constant.messages.getString("network.ssl.error.connect"));
+                    strBuilder.append(((HttpMessage) aMessage).getRequestHeader().getURI().toString()).append('\n');
+                    strBuilder.append(Constant.messages.getString("network.ssl.error.exception")).append(sslEx.getMessage())
+                        .append('\n');
+                    strBuilder.append(Constant.messages.getString("network.ssl.error.exception.rootcause"))
+                        .append(ExceptionUtils.getRootCauseMessage(sslEx)).append('\n');
+                    strBuilder.append(Constant.messages.getString("network.ssl.error.help",
+                        Constant.messages.getString("network.ssl.error.help.url")));
+                    logger.warn(strBuilder.toString());
+                    if (logger.isDebugEnabled()) {
+                        logger.debug(sslEx, sslEx);
+                    }
+                    View.getSingleton().showWarningDialog(strBuilder.toString());
                 } catch (Exception e) {
                 	logger.warn(e.getMessage(), e);
                     View.getSingleton().showWarningDialog(e.getMessage());
