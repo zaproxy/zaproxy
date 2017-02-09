@@ -66,6 +66,7 @@
 // ZAP: 2016/12/07 Allow to extend the ProxyThread and use a custom HttpSender
 // ZAP: 2016/12/23 Make SocketTimeoutException less verbose for general use
 // ZAP: 2017/02/08 Differentiate client read timeout after CONNECT, from server read timeout.
+// ZAP: 2017/02/08 Change CONNECT response to contain just the status line, helps Android emulator consume the response.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -113,7 +114,7 @@ import org.zaproxy.zap.network.HttpRequestBody;
 public class ProxyThread implements Runnable {
 
 //	private static final int		BUFFEREDSTREAM_SIZE = 4096;
-	private static final String		CONNECT_HTTP_200 = "HTTP/1.1 200 Connection established\r\nProxy-connection: Keep-alive\r\n\r\n";
+	private static final String		CONNECT_HTTP_200 = "HTTP/1.1 200 Connection established\r\n\r\n";
 //	private static ArrayList 		processForwardList = new ArrayList();
     
 	private static Logger log = Logger.getLogger(ProxyThread.class);
