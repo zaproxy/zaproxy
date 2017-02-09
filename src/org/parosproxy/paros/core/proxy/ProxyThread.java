@@ -65,6 +65,7 @@
 // ZAP: 2016/11/28 Correct proxy errors' Content-Length value.
 // ZAP: 2016/12/07 Allow to extend the ProxyThread and use a custom HttpSender
 // ZAP: 2016/12/23 Make SocketTimeoutException less verbose for general use
+// ZAP: 2017/02/08 Differentiate client read timeout after CONNECT, from server read timeout.
 
 package org.parosproxy.paros.core.proxy;
 
@@ -269,7 +270,11 @@ public class ProxyThread implements Runnable {
 	    } catch (SocketTimeoutException e) {
         	// ZAP: Log the exception
 	    	if (firstHeader != null) {
-	    		log.warn("Timeout accessing " + firstHeader.getURI());
+	    		if (HttpRequestHeader.CONNECT.equalsIgnoreCase(firstHeader.getMethod())) {
+	    			log.warn("Timeout reading (client) message after CONNECT to " + firstHeader.getURI());
+	    		} else {
+	    			log.warn("Timeout accessing " + firstHeader.getURI());
+	    		}
 	    	} else {
 	    		log.warn("Socket timeout while reading first message.");
 	    		if (log.isDebugEnabled()) {
