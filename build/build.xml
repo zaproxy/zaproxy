@@ -232,6 +232,7 @@
 		<replace file="${dist}/zap.bat" token="zap-dev.jar" value="${zap.jar}"/>
 		<replace file="${dist}/zap.sh" token="zap-dev.jar" value="${zap.jar}"/>
 
+		<chmod perm="755" file="${dist}/zap.sh" />
 	</target>
 
 	<target name="dist-with-source" description="Builds ZAP jar with source to be used in zap-extensions">
