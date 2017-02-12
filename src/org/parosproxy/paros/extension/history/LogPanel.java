@@ -39,17 +39,16 @@
 // with tables instead of lists
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
 // ZAP: 2016/04/14 Use View to display the HTTP messages
+// ZAP: 2017/01/30 Use HistoryTable.
 
 package org.parosproxy.paros.extension.history;
 
 import java.awt.BorderLayout;
 import java.awt.Event;
-import java.awt.EventQueue;
 import java.awt.GridBagConstraints;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.util.List;
-import java.util.Vector;
 
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -69,7 +68,6 @@ import org.parosproxy.paros.extension.ViewDelegate;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
-import org.parosproxy.paros.network.HttpMessage;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.extension.httppanel.HttpPanel;
 import org.zaproxy.zap.utils.DisplayUtils;
@@ -79,7 +77,7 @@ import org.zaproxy.zap.view.table.DefaultHistoryReferencesTableEntry;
 import org.zaproxy.zap.view.table.HistoryReferencesTable;
 import org.zaproxy.zap.view.table.HistoryReferencesTableModel;
 
-public class LogPanel extends AbstractPanel implements Runnable {
+public class LogPanel extends AbstractPanel {
 	private static final long serialVersionUID = 1L;
 	// ZAP: Added logger.
 	private static final Logger logger = Logger.getLogger(LogPanel.class);
@@ -323,9 +321,7 @@ public class LogPanel extends AbstractPanel implements Runnable {
 
 	private HistoryReferencesTable getHistoryReferenceTable() {
 		if (historyReferencesTable == null) {
-			historyReferencesTable = new HistoryReferencesTable();
-			historyReferencesTable.setSelectionMode(javax.swing.ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-			historyReferencesTable.setName("History Table");
+			historyReferencesTable = new HistoryTable();
 			historyReferencesTable.addMouseListener(new java.awt.event.MouseAdapter() {
 
 				@Override
@@ -336,90 +332,21 @@ public class LogPanel extends AbstractPanel implements Runnable {
 				    }
 				}
 			});
-			
-			historyReferencesTable.getSelectionModel().addListSelectionListener(new javax.swing.event.ListSelectionListener() {
-
-				@Override
-				public void valueChanged(javax.swing.event.ListSelectionEvent e) {
-					// ZAP: Changed to only display the message when there are no more selection changes.
-					if (!e.getValueIsAdjusting()) {
-						HistoryReference historyRef = getHistoryReferenceTable().getSelectedHistoryReference();
-						if (historyRef == null) {
-					        return;
-					    }
-	
-	                    readAndDisplay(historyRef);
-					}
-
-				}
-
-
-			});
 
 		}
 		return historyReferencesTable;
 	}
 	
-//    private void readAndDisplay(HistoryReference historyRef) {
-//
-//        HttpMessage msg = null;
-//        try {
-//            msg = historyRef.getHttpMessage();
-//            if (msg.getRequestHeader().isEmpty()) {
-//                requestPanel.setMessage(null, true);
-//            } else {
-//                requestPanel.setMessage(msg, true);
-//            }
-//            
-//            if (msg.getResponseHeader().isEmpty()) {
-//                responsePanel.setMessage(null, false);
-//            } else {
-//                responsePanel.setMessage(msg, false);
-//            }
-//        } catch (Exception e1) {
-//            e1.printStackTrace();
-//        }
-//        
-//    }
-
-    
-
-    
-    private Vector<HistoryReference> displayQueue = new Vector<>();
-    private Thread thread = null;
-    
     protected void display(final HistoryReference historyRef) {
-    	this.readAndDisplay(historyRef);
     	getHistoryReferenceTable().selectHistoryReference(historyRef.getHistoryId());
     }
 
+    /**
+     * @deprecated (TODO add version) No longer used/needed.
+     */
+    @Deprecated
     public void clearDisplayQueue() {
-    	synchronized(displayQueue) {
-    		displayQueue.clear();
-    	}
     }
-    
-    private void readAndDisplay(final HistoryReference historyRef) {
-
-        synchronized(displayQueue) {
-            if (displayQueue.size() > 0) {
-                displayQueue.clear();
-            }
-            
-            displayQueue.add(historyRef);
-
-        }
-        
-        if (thread != null && thread.isAlive()) {
-            return;
-        }
-        
-        thread = new Thread(this);
-
-        thread.setPriority(Thread.NORM_PRIORITY);
-        thread.start();
-    }
-    
     
     /**
      * @deprecated (2.5.0) No longer used/needed.
@@ -427,47 +354,6 @@ public class LogPanel extends AbstractPanel implements Runnable {
     @Deprecated
     @SuppressWarnings("javadoc")
     public void setDisplayPanel(HttpPanel requestPanel, HttpPanel responsePanel) {
-    }
-
-    @Override
-    public void run() {
-        HistoryReference ref = null;
-        int count = 0;
-        
-        do {
-            synchronized(displayQueue) {
-                count = displayQueue.size();
-                if (count == 0) {
-                    break;
-                }
-                
-                ref = displayQueue.get(0);
-                displayQueue.remove(0);
-            }
-            
-            try {
-                final HttpMessage msg = ref.getHttpMessage();
-                EventQueue.invokeAndWait(new Runnable() {
-                    @Override
-                    public void run() {
-                        view.displayMessage(msg);
-                        getHistoryReferenceTable().requestFocus();
-
-                    }
-                });
-                
-            } catch (Exception e) {
-                // ZAP: Added logging.
-                logger.error(e.getMessage(), e);
-            }
-            
-            // wait some time to allow another selection event to be triggered
-            try {
-                Thread.sleep(200);
-            } catch (Exception e) {}
-        } while (true);
-        
-        
     }
 
     public void setFilterStatus (HistoryFilter filter) {

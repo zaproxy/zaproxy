@@ -224,8 +224,12 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 
 			@Override
             public void actionPerformed(ActionEvent e) {
-				StandardFieldsDialog.this.setVisible(false);
-				StandardFieldsDialog.this.dispose();
+				if (hasCancelSaveButtons()) {
+					cancelPressed();
+					return;
+				}
+
+				savePressed();
             }
         };
         getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(escape, "ESCAPE");
@@ -341,24 +345,28 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			saveButton.addActionListener(new ActionListener() { 
 				@Override
 				public void actionPerformed(java.awt.event.ActionEvent e) {
-					if (!validateFieldsCustomMessage()) {
-						return;
-					}
-
-					String errorMsg = validateFields();
-					if (errorMsg != null) {
-						View.getSingleton().showWarningDialog(StandardFieldsDialog.this, errorMsg);
-						return;
-					}
-					save();
-
-					if (isHideOnSave()) {
-						setVisible(false);
-					}
+					savePressed();
 				}
 			});
 		}
 		return saveButton;
+	}
+
+	private void savePressed() {
+		if (!validateFieldsCustomMessage()) {
+			return;
+		}
+
+		String errorMsg = validateFields();
+		if (errorMsg != null) {
+			View.getSingleton().showWarningDialog(this, errorMsg);
+			return;
+		}
+		save();
+
+		if (isHideOnSave()) {
+			setVisible(false);
+		}
 	}
 
 	/**
