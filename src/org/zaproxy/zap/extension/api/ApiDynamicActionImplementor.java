@@ -52,11 +52,11 @@ public abstract class ApiDynamicActionImplementor extends ApiElement {
 	 * @param mandatory {@code true} if the parameter is mandatory, {@code false} otherwise
 	 * @return the {@code ApiResponseSet} with the name and mandatory fields
 	 */
-	private static ApiResponseSet buildParamMap(String paramName, boolean mandatory) {
+	private static ApiResponseSet<String> buildParamMap(String paramName, boolean mandatory) {
 		Map<String, String> m = new HashMap<>();
 		m.put("name", paramName);
 		m.put("mandatory", mandatory ? "true" : "false");
-		return new ApiResponseSet("param", m);
+		return new ApiResponseSet<String>("param", m);
 	}
 
 }

@@ -52,7 +52,7 @@ public final class ApiResponseConversionUtils {
      * @param msg the HTTP message to be converted
      * @return the {@code ApiResponseSet} with the ID, type and the HTTP message
      */
-    public static ApiResponseSet httpMessageToSet(int historyId, HttpMessage msg) {
+    public static ApiResponseSet<String> httpMessageToSet(int historyId, HttpMessage msg) {
         return httpMessageToSet(historyId, -1, msg);
     }
 
@@ -65,7 +65,7 @@ public final class ApiResponseConversionUtils {
      * @return the {@code ApiResponseSet} with the ID, type and the HTTP message
      * @since TODO add version
      */
-    public static ApiResponseSet httpMessageToSet(int historyId, int historyType, HttpMessage msg) {
+    public static ApiResponseSet<String> httpMessageToSet(int historyId, int historyType, HttpMessage msg) {
         Map<String, String> map = new HashMap<>();
         map.put("id", String.valueOf(historyId));
         map.put("type", String.valueOf(historyType));
@@ -97,7 +97,7 @@ public final class ApiResponseConversionUtils {
             map.put("responseBody", msg.getResponseBody().toString());
         }
 
-        return new ApiResponseSet("message", map);
+        return new ApiResponseSet<String>("message", map);
     }
 
 }

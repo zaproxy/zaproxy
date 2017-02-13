@@ -919,7 +919,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 			domainData.put("value", domain.getValue());
 			domainData.put("regex", domain.isRegex());
 			domainData.put("enabled", domain.isEnabled());
-			apiResponse.addItem(new ApiResponseSet("domain", domainData));
+			apiResponse.addItem(new ApiResponseSet<Object>("domain", domainData));
 		}
 		return apiResponse;
 	}
@@ -1259,7 +1259,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		}
 	}
 
-	private ApiResponseSet alertToSet(Alert alert) {
+	private ApiResponseSet<String> alertToSet(Alert alert) {
 		Map<String, String> map = new HashMap<>();
 		map.put("id", String.valueOf(alert.getAlertId()));
 		map.put("pluginId", String.valueOf(alert.getPluginId()));
@@ -1282,7 +1282,7 @@ public class CoreAPI extends ApiImplementor implements SessionListener {
 		if (alert.getHistoryRef() != null) {
 			map.put("messageId", String.valueOf(alert.getHistoryRef().getHistoryId()));
 		}
-		return new ApiResponseSet("alert", map);
+		return new ApiResponseSet<String>("alert", map);
 	}
 
 	private void processAlerts(String baseUrl, int start, int count, Processor<Alert> processor) throws ApiException {
