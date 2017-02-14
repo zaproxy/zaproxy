@@ -80,7 +80,6 @@ public class SpiderPanelTableModel extends AbstractTableModel {
 		case 2:
 			return result.uri;
 		case 3:
-			// TODO: Internationalize flags
 			return result.flags;
 		default:
 			return null;
