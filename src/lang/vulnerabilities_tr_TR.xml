@@ -33,19 +33,19 @@ Eğer uygulama, kimliği doğrulanmış kullanıcının okuma hakkı olup olmad�
 
 Yetersiz Veri yetkilendirmesi, Yetersiz İşlev Yetkilendirmesinden daha yaygındır, çünkü programcılar genellikle uygulama işlevleri açısından tam bilgiye sahiptir, fakat uygulamanın erişebileceği veri hakkında tam bir eşleştirmeye sahip değildir. Programcılar sıklıkla işlev yetkilendirme mekanizmaları hakkında sıkı bir kontrole sahiptir, fakat veri yetkilendirmesi için veritabanları gibi başka sistemlere güvenirler.</desc>
 	<solution>Fazlar: Mimari ve Tasarım: Operasyon
-Ayarları, yönetimi ve ayrıcalıkların ele alınmasını çok dikkatli bir şekilde yönetin. Explicitly manage trust zones in the software.
+Ayarları, yönetimi ve ayrıcalıkların ele alınmasını çok dikkatli bir şekilde yönetin. Yazılımdaki güven sınırlarını kesin bir şekilde yönetin.
 
 Phase: Architecture and Design	
-Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Architects and designers should rely on the principle of least privilege to decide when it is appropriate to use and to drop system privileges.</solution>
-	<reference>http://projects.webappsec.org/Insufficient-Authorization</reference>
+Ensure that appropriate compartmentalization is built into the system design and that the compartmentalization serves to allow for and further reinforce privilege separation functionality. Mimarlar ve tasarımcılar, sistem ayrıcalıklarının kullanılması ve bırakılmasının uygun olduğuna karar verdiği durumlarda en düşük ayrıcalık prensiplerine güvenmeliler.</solution>
+	<reference>http://projects.webappsec.org/Insufficient-Authentication</reference>
 	<reference>http://cwe.mitre.org/data/definitions/284.html</reference>
-	<reference>http://cwe.mitre.org/data/definitions/285.html</reference>
+	<reference>http://cwe.mitre.org/data/definitions/287.html</reference>
 </vuln_item_wasc_2>
 
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
-	<alert>Integer Overflows</alert>
-	<desc>An Integer Overflow is the condition that occurs when the result of an arithmetic operation, such as multiplication or addition, exceeds the maximum size of the integer type used to store it. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<alert>Tamsayı taşması</alert>
+	<desc>Bir tamsayı taşması, çarpma veya ekleme gibi bir aritmetik işlemin sonucu, onu saklayan integer tipinin boyutunu aştığı durumda gerçekleşir. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
 
 For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
 	<solution>Phase: Requirements
