@@ -139,7 +139,7 @@ public class HttpAuthenticationMethodType extends AuthenticationMethodType {
 			values.put("host", this.hostname);
 			values.put("port", Integer.toString(this.port));
 			values.put("realm", this.realm);
-			return new ApiResponseSet("method", values);
+			return new ApiResponseSet<String>("method", values);
 		}
 
 	}

@@ -37,6 +37,7 @@ import java.util.List;
 import java.util.Map;
 
 import javax.swing.AbstractAction;
+import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -703,6 +704,114 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 		this.addField(fieldLabel, field, field, 0.0D);
 	}
 
+	/**
+	 * Adds a combo box field with the given label and model, to the tab with the given index.
+	 * <p>
+	 * Control of selection state (i.e. set/get selected item) is done through the combo box model.
+	 * 
+	 * @param <E> the type of the elements of the combo box model.
+	 * @param tabIndex the index of the tab where the combo box should be added.
+	 * @param fieldLabel the name of the label of the combo box field.
+	 * @param comboBoxModel the model to set into the combo box.
+	 * @since TODO add version
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue does not have tabs;</li>
+	 *             <li>the dialogue has tabs but the given tab index is not valid;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @see #addComboField(String, ComboBoxModel)
+	 * @see #addComboField(int, String, ComboBoxModel, boolean)
+	 * @see #setComboBoxModel(String, ComboBoxModel)
+	 */
+	public <E> void addComboField(int tabIndex, String fieldLabel, ComboBoxModel<E> comboBoxModel) {
+		addComboField(tabIndex, fieldLabel, comboBoxModel, false);
+	}
+
+	/**
+	 * Adds a combo box field, possibly editable, with the given label and model, to the tab with the given index.
+	 * <p>
+	 * Control of selection state (i.e. set/get selected item) is done through the combo box model.
+	 * 
+	 * @param <E> the type of the elements of the combo box model.
+	 * @param tabIndex the index of the tab where the combo box should be added.
+	 * @param fieldLabel the name of the label of the combo box field.
+	 * @param comboBoxModel the model to set into the combo box.
+	 * @param editable {@code true} if the combo box should be editable, {@code false} otherwise.
+	 * @since TODO add version
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue does not have tabs;</li>
+	 *             <li>the dialogue has tabs but the given tab index is not valid;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @see #addComboField(String, ComboBoxModel, boolean)
+	 * @see #addComboField(int, String, ComboBoxModel)
+	 * @see #setComboBoxModel(String, ComboBoxModel)
+	 */
+	public <E> void addComboField(int tabIndex, String fieldLabel, ComboBoxModel<E> comboBoxModel, boolean editable) {
+		if (!isTabbed()) {
+			throw new IllegalArgumentException("Not initialised as a tabbed dialog - must use method without tab parameters");
+		}
+		if (tabIndex < 0 || tabIndex >= this.tabPanels.size()) {
+			throw new IllegalArgumentException("Invalid tab index: " + tabIndex);
+		}
+		JComboBox<E> field = new JComboBox<>(comboBoxModel);
+		field.setEditable(editable);
+		this.addField(this.tabPanels.get(tabIndex), this.tabOffsets.get(tabIndex), fieldLabel, field, field, 0.0D);
+		this.incTabOffset(tabIndex);
+	}
+
+	/**
+	 * Adds a combo box field with the given label and model.
+	 * <p>
+	 * Control of selection state (i.e. set/get selected item) is done through the combo box model.
+	 *
+	 * @param <E> the type of the elements of the combo box model.
+	 * @param fieldLabel the name of the label of the combo box field.
+	 * @param comboBoxModel the model to set into the combo box.
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue has tabs;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @since TODO add version
+	 * @see #addComboField(String, ComboBoxModel, boolean)
+	 * @see #addComboField(int, String, ComboBoxModel)
+	 * @see #setComboBoxModel(String, ComboBoxModel)
+	 */
+	public <E> void addComboField(String fieldLabel, ComboBoxModel<E> comboBoxModel) {
+		addComboField(fieldLabel, comboBoxModel, false);
+	}
+
+	/**
+	 * Adds a combo box field, possibly editable, with the given label and model.
+	 * <p>
+	 * Control of selection state (i.e. set/get selected item) is done through the combo box model.
+	 *
+	 * @param <E> the type of the elements of the combo box model.
+	 * @param fieldLabel the name of the label of the combo box field.
+	 * @param comboBoxModel the model to set into the combo box.
+	 * @param editable {@code true} if the combo box should be editable, {@code false} otherwise.
+	 * @throws IllegalArgumentException if any of the following conditions is true:
+	 *             <ul>
+	 *             <li>the dialogue has tabs;</li>
+	 *             <li>a field with the given label already exists.</li>
+	 *             </ul>
+	 * @since TODO add version
+	 * @see #addComboField(String, ComboBoxModel)
+	 * @see #addComboField(int, String, ComboBoxModel, boolean)
+	 * @see #setComboBoxModel(String, ComboBoxModel)
+	 */
+	public <E> void addComboField(String fieldLabel, ComboBoxModel<E> comboBoxModel, boolean editable) {
+		if (isTabbed()) {
+			throw new IllegalArgumentException("Initialised as a tabbed dialog - must use method with tab parameters");
+		}
+		JComboBox<E> field = new JComboBox<>(comboBoxModel);
+		field.setEditable(editable);
+		this.addField(fieldLabel, field, field, 0.0D);
+	}
+
 	public void addTableField(String fieldLabel, JTable field) {
 		this.addTableField(fieldLabel, field, null);
 	}
@@ -853,6 +962,32 @@ public abstract class StandardFieldsDialog extends AbstractDialog {
 			if (value != null) {
 				comboBox.setSelectedItem(value);
 			}
+		} else if (c == null) {
+			// Ignore - could be during init
+			logger.debug("No field for " + fieldLabel);
+		} else {
+			logger.error("Unrecognised field class " + fieldLabel + ": " + c.getClass().getCanonicalName());
+		}
+	}
+
+	/**
+	 * Sets the given combo box model into the combo box with the given label.
+	 * <p>
+	 * Control of selection state (i.e. set/get selected item) is done through the combo box model.
+	 * 
+	 * @param <E> the type of the elements of the combo box model.
+	 * @param fieldLabel the name of the label of the combo box field
+	 * @param comboBoxModel the model to set into the combo box
+	 * @since TODO add version
+	 * @see #addComboField(String, ComboBoxModel)
+	 * @see #addComboField(int, String, ComboBoxModel)
+	 */
+	public <E> void setComboBoxModel(String fieldLabel, ComboBoxModel<E> comboBoxModel) {
+		Component c = this.fieldMap.get(fieldLabel);
+		if (c instanceof JComboBox) {
+			@SuppressWarnings("unchecked")
+			JComboBox<E> comboBox = (JComboBox<E>) c;
+			comboBox.setModel(comboBoxModel);
 		} else if (c == null) {
 			// Ignore - could be during init
 			logger.debug("No field for " + fieldLabel);

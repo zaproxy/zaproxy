@@ -30,6 +30,7 @@ import javax.swing.DefaultListModel;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.SiteNode;
@@ -423,14 +424,29 @@ public class SpiderThread extends ScanThread implements SpiderListener {
 		// Add the new result
 		if (status == FetchStatus.VALID) {
 			resultsModel.addScanResult(uri, method, null, false);
-		} else if (status == FetchStatus.SEED) {
-			resultsModel.addScanResult(uri, method, "SEED", false);
 		} else {
-			resultsModel.addScanResult(uri, method, status.toString(), true);
+			resultsModel.addScanResult(uri, method, getStatusLabel(status), status != FetchStatus.SEED);
 		}
 
 		// Update the count of found URIs
 		extension.getSpiderPanel().updateFoundCount();
+	}
+
+	private String getStatusLabel(FetchStatus status) {
+		switch (status) {
+		case SEED:
+			return Constant.messages.getString("spider.table.flags.seed");
+		case OUT_OF_CONTEXT:
+			return Constant.messages.getString("spider.table.flags.outofcontext");
+		case OUT_OF_SCOPE:
+			return Constant.messages.getString("spider.table.flags.outofscope");
+		case ILLEGAL_PROTOCOL:
+			return Constant.messages.getString("spider.table.flags.illegalprotocol");
+		case USER_RULES:
+			return Constant.messages.getString("spider.table.flags.userrules");
+		default:
+			return status.toString();
+		}
 	}
 
 	@Override

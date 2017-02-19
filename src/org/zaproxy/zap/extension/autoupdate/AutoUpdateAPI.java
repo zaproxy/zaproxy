@@ -157,7 +157,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 		return result;
 	}
 	
-	private ApiResponseSet addonToSet(AddOn ao) {
+	private ApiResponseSet<String> addonToSet(AddOn ao) {
 		Map<String, String> map = new HashMap<>();
 		map.put("id", ao.getId());
 		map.put("name", ao.getName());
@@ -171,7 +171,7 @@ public class AutoUpdateAPI extends ApiImplementor {
 		map.put("url", ObjectUtils.toString(ao.getUrl()));
 		map.put("fileVersion", String.valueOf(ao.getFileVersion()));
 		map.put("version", ObjectUtils.toString(ao.getVersion()));
-		return new ApiResponseSet("addon", map);
+		return new ApiResponseSet<String>("addon", map);
 	}
 	
     public String getLatestVersionNumber() {

@@ -48,24 +48,24 @@ public class ApiResponseConversionUtilsUnitTest {
 	
 	@Test
 	public void nameOfApiResponseShouldBeConstant() {
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 
 		assertThat(response.getName(), is("message"));
 	}
 
 	@Test
 	public void historyIdShouldBecomeIdOfApiResponse() {
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(42, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(42, message);
 
-		assertThat(response.getValues(), hasEntry("id", (Object)"42"));
+		assertThat(response.getValues(), hasEntry("id", "42"));
 	}
 
 	@Test
 	public void shouldHaveUndefinedHistoryTypeByDefault() {
 		// Given / When
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 		// Then
-		assertThat(response.getValues(), hasEntry("type", (Object) "-1"));
+		assertThat(response.getValues(), hasEntry("type", "-1"));
 	}
 
 	@Test
@@ -73,7 +73,7 @@ public class ApiResponseConversionUtilsUnitTest {
 		// Given
 		int historyType = 2;
 		// When
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, historyType, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, historyType, message);
 		// Then
 		assertThat(response.getValues(), hasEntry("type", (Object) "2"));
 	}
@@ -88,16 +88,15 @@ public class ApiResponseConversionUtilsUnitTest {
 		given(message.getTimeSentMillis()).willReturn(1010101010101L);
 		given(message.getTimeElapsedMillis()).willReturn(200);
 		
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 		
-			
-		assertThat(response.getValues(), hasEntry("cookieParams", (Object)"testCookieParams"));
-		assertThat(response.getValues(), hasEntry("note", (Object)"testNote"));
-		assertThat(response.getValues(), hasEntry("requestHeader", (Object)requestHeader.toString()));
-		assertThat(response.getValues(), hasEntry("requestBody", (Object)requestBody.toString()));
-		assertThat(response.getValues(), hasEntry("responseHeader", (Object)responseHeader.toString()));
-		assertThat(response.getValues(), hasEntry("timestamp", (Object) "1010101010101"));
-		assertThat(response.getValues(), hasEntry("rtt", (Object) "200"));
+		assertThat(response.getValues(), hasEntry("cookieParams", "testCookieParams"));
+		assertThat(response.getValues(), hasEntry("note", "testNote"));
+		assertThat(response.getValues(), hasEntry("requestHeader", requestHeader.toString()));
+		assertThat(response.getValues(), hasEntry("requestBody", requestBody.toString()));
+		assertThat(response.getValues(), hasEntry("responseHeader", responseHeader.toString()));
+		assertThat(response.getValues(), hasEntry("timestamp", "1010101010101"));
+		assertThat(response.getValues(), hasEntry("rtt", "200"));
 	}
 
 	@Test
@@ -105,9 +104,9 @@ public class ApiResponseConversionUtilsUnitTest {
 		given(responseHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
 		given(responseBody.getBytes()).willReturn(gzip(new byte[] {97, 98, 99}));
 
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 		
-		assertThat(response.getValues(), hasEntry("responseBody", (Object)"abc"));
+		assertThat(response.getValues(), hasEntry("responseBody", "abc"));
 	}
 
 	@Test
@@ -115,9 +114,9 @@ public class ApiResponseConversionUtilsUnitTest {
 		given(responseHeader.getHeader(HttpHeader.CONTENT_ENCODING)).willReturn(HttpHeader.GZIP);
 		given(responseBody.getBytes()).willReturn(new byte[] {0,0,0});
 
-		ApiResponseSet response = ApiResponseConversionUtils.httpMessageToSet(0, message);
+		ApiResponseSet<String> response = ApiResponseConversionUtils.httpMessageToSet(0, message);
 		
-		assertThat(response.getValues(), hasEntry("responseBody", (Object)responseBody.toString()));
+		assertThat(response.getValues(), hasEntry("responseBody", responseBody.toString()));
 	}
 	
 	private byte[] gzip(byte[] raw) throws Exception {
