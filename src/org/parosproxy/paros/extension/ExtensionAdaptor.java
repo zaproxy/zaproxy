@@ -35,6 +35,7 @@
 // ZAP: 2015/02/10 Issue 1208: Search classes/resources in add-ons declared as dependencies
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
+// ZAP: 2017/02/17 Let core code remove/unhook the extension.
 
 package org.parosproxy.paros.extension;
 
@@ -43,7 +44,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.ResourceBundle;
 
-import org.parosproxy.paros.control.Control;
 import org.parosproxy.paros.db.Database;
 import org.parosproxy.paros.db.DatabaseException;
 import org.parosproxy.paros.db.DatabaseUnsupportedException;
@@ -190,6 +190,11 @@ public abstract class ExtensionAdaptor implements Extension {
     }
 
     @Override
+    public ExtensionHook getExtensionHook() {
+        return hook;
+    }
+
+    @Override
     public boolean isDepreciated () {
     	return false;
     }
@@ -276,15 +281,13 @@ public abstract class ExtensionAdaptor implements Extension {
     }
 	
     /**
-	 * Removes extension from ZAP. Override to undo things setup in
-	 * {@link #hook(ExtensionHook)} method.
+	 * {@inheritDoc}
+	 * <p>
+	 * Does nothing by default.
 	 */
     @Override
 	public void unload() {
-		Control control = Control.getSingleton();
-		ExtensionLoader extLoader = control.getExtensionLoader();
-
-		extLoader.removeExtension(this, hook);
+		// Nothing to do.
 	}
 
     @Override
