@@ -28,8 +28,8 @@
 	<property name="app.executable" value="${app.bundle}/Contents/MacOS/OWASP ZAP.sh" />
 	<property name="app.java" value="${app.bundle}/Contents/Java" />
 	<!--This version downloaded from http://www.oracle.com/technetwork/java/javase/downloads/jre8-downloads-2133155.html -->
-	<property name="app.jrearchive" value="jre-8u92-macosx-x64.tar.gz" />
-	<property name="app.jredir" value="jre1.8.0_92.jre" />
+	<property name="app.jrearchive" value="jre-8u121-macosx-x64.tar.gz" />
+	<property name="app.jredir" value="jre1.8.0_121.jre" />
 	<property name="app.plugins" value="${app.bundle}/Contents/PlugIns" />
 
 	<!-- Detect Operating system (Though only the Mac check is used, the other OS checks might be useful for future purposes -->
@@ -474,6 +474,8 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
+				<exclude name="**/plugin/*macos*" />
+				<exclude name="**/plugin/*windows*" />
 				<exclude name="zap.sh" />
 			</tarfileset>
 			<tarfileset dir="${dist}" prefix="ZAP_${version}" filemode="755" preserveLeadingSlashes="false">
@@ -542,16 +544,9 @@
 	<target name="package-macosx">
 		<echo message="Packaging the Mac OS X build..." />
 
-		<!-- We can't store the JRE in SVN currently, so error out if it isn't manually put there -->
-		<fail message="Note that ${app.jrearchive} must be in ${mac-skeleton}/${app.name}/Contents/PlugIns for build to complete.">
-			<condition>
-				<not>
-					<resourcecount count="1" >
-						<fileset id="fs" dir="${mac-skeleton}/${app.name}/Contents/PlugIns" includes="${app.jrearchive}" />
-					</resourcecount>
-				</not>
-			</condition>
-		</fail>
+		<!-- Pull down the latest JRE in zap-libs-->
+		<get src="https://github.com/zaproxy/zap-libs/raw/master/files/jre/${app.jrearchive}" 
+			dest="${mac-skeleton}/${app.name}/Contents/PlugIns/${app.jrearchive}"/>
 
 		<!-- New Mac housekeeping procedure, so that you don't delete your entire /Applications directory -->
 		<delete dir="${dist-mac}" includeEmptyDirs="true" followsymlinks="false" removeNotFollowedSymlinks="true" />
@@ -566,6 +561,8 @@
 				<include name="**" />
 				<exclude name="**/.svn/**" />
 				<exclude name="**/_svn/**" />
+				<exclude name="**/plugin/*linux*" />
+				<exclude name="**/plugin/*windows*" />
 				<exclude name="**/*.bat" />
 				<exclude name="**/*.ico" />
 			</fileset>
