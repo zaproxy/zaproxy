@@ -333,10 +333,10 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 			regEx = new ZapTextField();
 			regEx.setHorizontalAlignment(ZapTextField.LEFT);
 			regEx.setAlignmentX(0.0F);
-			regEx.setPreferredSize(new java.awt.Dimension(250,25));
+			regEx.setPreferredSize(DisplayUtils.getScaledDimension(250,25));
 			regEx.setText("");
 			regEx.setToolTipText(Constant.messages.getString("search.toolbar.tooltip.regex"));
-			regEx.setMinimumSize(new java.awt.Dimension(250,25));
+			regEx.setMinimumSize(DisplayUtils.getScaledDimension(250,25));
 			
 			regEx.addActionListener(new java.awt.event.ActionListener() { 
 
@@ -367,7 +367,7 @@ public class SearchPanel extends AbstractPanel implements SearchListenner {
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString("search.toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(SearchPanel.class.getResource("/resource/icon/16/041.png"))));
 			optionsButton.addActionListener(new ActionListener() {
 
 				@Override

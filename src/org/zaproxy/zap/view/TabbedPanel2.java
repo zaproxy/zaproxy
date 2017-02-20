@@ -36,8 +36,8 @@ public class TabbedPanel2 extends TabbedPanel {
 	private List<Component> fullTabList = new ArrayList<>();
 	private List<Component> removedTabList = new ArrayList<>();
 
-	private static final Icon PLUS_ICON = new ImageIcon(
-			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png"));
+	private static final Icon PLUS_ICON = DisplayUtils.getScaledIcon(new ImageIcon(
+			TabbedPanel2.class.getResource("/resource/icon/fugue/plus.png")));
 
 	// A fake component that never actually get displayed - used for the 'hidden tab list tab'
 	private Component hiddenComponent = new JLabel();
