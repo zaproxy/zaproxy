@@ -593,6 +593,7 @@ public class API {
         	sb.append("Cache-Control: no-cache\r\n");
         }
         sb.append("Content-Security-Policy: default-src 'none'; script-src 'self'; connect-src 'self'; child-src 'self'; img-src 'self' data:; font-src 'self' data:; style-src 'self'\r\n");
+        sb.append("Referrer-Policy: no-referrer\r\n");
         sb.append("Access-Control-Allow-Methods: GET,POST,OPTIONS\r\n");
         sb.append("Access-Control-Allow-Headers: ZAP-Header\r\n");
         sb.append("X-Frame-Options: DENY\r\n");
