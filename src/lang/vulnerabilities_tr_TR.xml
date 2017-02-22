@@ -45,14 +45,14 @@ Ensure that appropriate compartmentalization is built into the system design and
 <vuln_items>wasc_3</vuln_items>
 <vuln_item_wasc_3>
 	<alert>Tamsayı taşması</alert>
-	<desc>Bir tamsayı taşması, çarpma veya ekleme gibi bir aritmetik işlemin sonucu, onu saklayan integer tipinin boyutunu aştığı durumda gerçekleşir. When an integer overflow occurs, the interpreted value will appear to have “wrapped around” the maximum value and started again at the minimum value, similar to a clock that represents 13:00 by pointing at 1:00.
+	<desc>Bir tamsayı taşması, çarpma veya ekleme gibi bir aritmetik işlemin sonucu, onu saklayan integer tipinin boyutunu aştığı durumda gerçekleşir. Bir tamsayı taşması oluştuğunda, bir saatin 13.00'ı belirttiğinde 1.00'ı göstermesi gibi, belirtilen değer, maksimum değer ile sarmalanıp, minimum değerden başlayacak şekilde gösterilecektir.
 
-For example, an 8-bit signed integer on most common computer architectures has a maximum value of 127 and a minimum value of -128. If a programmer stores the value 127 in such a variable and adds 1 to it, the result should be 128. However, this value exceeds the maximum for this integer type, so the interpreted value will “wrap around” and become -128.</desc>
-	<solution>Phase: Requirements
-Ensure that all protocols are strictly defined, such that all out-of-bounds behavior can be identified simply, and require strict conformance to the protocol.
+Örnek olarak, 8 bit signed integer, çoğu bilgisayar mimarisinde maksimum 127, minimum -128 değerine sahiptir. Eğer bir programcı, bu tipte bir değişkende 127 değerini tutar ve bu değere 1 eklerse, sonuç 128 olmalıdır. Fakat, bu değer integer tipinin maksimum değerini aşacağı için, belirtilen değer sarmalanacak ve -128 olacaktır.</desc>
+	<solution>Faz: Gereksinimler
+Tüm protokollerin katı bir şekilde tanımlandığına emin olun, mesela sınır dışı davranışların basit bir şekilde tanımlandığı ve protokole sıkı bir şekilde uyumlandığı gibi.
 
-Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+Faz: Gereksinimler
+Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
 If possible, choose a language or compiler that performs automatic bounds checking.
 
 Phase: Architecture and Design
@@ -196,8 +196,8 @@ In many cases, the function pointer is modified to reference a location where th
 
 Buffer overflows are most often associated with software written in the C and C++ programming languages due to their widespread use and ability to perform direct memory manipulation with common programming constructs. It should be emphasized, however, that buffer overflows can exist in any programming environment where direct memory manipulation is allowed, whether through flaws in the compiler, runtime libraries, or features of the language itself.
 </desc>
-	<solution>Phase: Requirements
-Use a language that does not allow this weakness to occur or provides constructs that make this weakness easier to avoid.
+	<solution>Faz: Gereksinimler
+Bu zayıflığın oluşmasına izin vermeyecek bir dil kullanın, ya da bu zayıflıktan kolay bir şekilde kaçınılabilecek yapılar oluşturun.
 For example, many languages that perform their own memory management, such as Java and Perl, are not subject to buffer overflows. Other languages, such as Ada and C#, typically provide overflow protection, but the protection can be disabled by the programmer.
 Be wary that a language's interface to native code may still be subject to overflows, even if the language itself is theoretically safe.
 
