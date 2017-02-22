@@ -508,6 +508,7 @@ public class AlertPanel extends AbstractPanel {
 				    }
 				}
 			});
+			treeAlert.setCellRenderer(new AlertTreeCellRenderer());
 		}
 		return treeAlert;
 	}

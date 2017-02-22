@@ -22,6 +22,7 @@ package org.zaproxy.zap.utils;
 import java.awt.Dimension;
 import java.awt.Image;
 import java.awt.Toolkit;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -47,6 +48,19 @@ public class DisplayUtils {
 			scaleImages = Model.getSingleton().getOptionsParam().getViewParam().isScaleImages();
 		}
 		return scaleImages;
+	}
+
+	/**
+	 * Gets a correctly scaled icon from the specified url
+	 * @param url
+	 * @return
+	 * @since TODO add version
+	 */
+	public static ImageIcon getScaledIcon(URL url) {
+		if (url == null) {
+			return null;
+		}
+		return getScaledIcon(new ImageIcon(url));
 	}
 
 	public static ImageIcon getScaledIcon(ImageIcon icon) {
