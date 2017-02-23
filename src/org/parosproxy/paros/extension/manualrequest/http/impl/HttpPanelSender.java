@@ -15,6 +15,7 @@
  * See the License for the specific language governing permissions and 
  * limitations under the License. 
  */
+// ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 package org.parosproxy.paros.extension.manualrequest.http.impl;
 
 import java.awt.EventQueue;
@@ -24,6 +25,7 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.net.ssl.SSLException;
 import javax.swing.ImageIcon;
 import javax.swing.JToggleButton;
 
@@ -130,6 +132,8 @@ public class HttpPanelSender implements MessageSender {
         } catch (final UnknownHostException uhe) {
             throw new IOException("Error forwarding to an Unknown host: " + uhe.getMessage(), uhe);
 
+        } catch (final SSLException sslEx) {
+        	throw sslEx;
         } catch (final IOException ioe) {
             throw new IOException("IO error in sending request: " + ioe.getClass() + ": " + ioe.getMessage(), ioe);
 
