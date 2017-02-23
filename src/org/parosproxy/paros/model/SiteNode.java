@@ -49,6 +49,7 @@
 // ZAP: 2016/03/24 Do not access EDT in daemon mode
 // ZAP: 2016/04/12 Notify of changes when an alert is updated
 // ZAP: 2016/08/30 Use a Set instead of a List for the alerts
+// ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 
 package org.parosproxy.paros.model;
 
@@ -61,10 +62,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.Vector;
 
+import javax.swing.ImageIcon;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.MutableTreeNode;
 
-import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.core.scanner.Alert;
@@ -148,30 +149,25 @@ public class SiteNode extends DefaultMutableTreeNode {
 	    	}
     	}
     }
-    
-    private void appendIcons(StringBuilder sb) {
-    	if (calculateHighestAlert) {
-    		calculateHighestAlert();
-    	}
-    	if (highestAlert != null) {
-    		sb.append("&nbsp;<img src=\"");
-    		sb.append(highestAlert.getIconUrl());
-    		sb.append("\">&nbsp;");
-    	}
-    	if (justSpidered) {
-        	sb.append("&nbsp;<img src=\"");
-        	sb.append(Constant.class.getResource("/resource/icon/10/spider.png"));
-        	sb.append("\">&nbsp;");
-    	}
-    	synchronized (this.icons) {  
-	    	if (!this.icons.isEmpty()) {
-	    		for(String icon : this.icons) {
-	    			sb.append("&nbsp;<img src=\"");
-	    			sb.append(Constant.class.getResource(icon));
-	    			sb.append("\">&nbsp;");
-	    		}
-	    	}
-    	}
+
+    /**
+     * Gets any custom icons that have been set for this node
+     * @return any custom icons that have been set for this node
+     * @since TODO add version
+     */
+    public List<ImageIcon> getCustomIcons() {
+        List<ImageIcon> iconList = new ArrayList<ImageIcon>();
+        if (justSpidered) {
+            iconList.add(new ImageIcon(Constant.class.getResource("/resource/icon/10/spider.png")));
+        }
+        synchronized (this.icons) {  
+            if (!this.icons.isEmpty()) {
+                for(String icon : this.icons) {
+                    iconList.add(new ImageIcon(Constant.class.getResource(icon)));
+                }
+            }
+        }
+        return iconList;
     }
 
     /**
@@ -212,15 +208,16 @@ public class SiteNode extends DefaultMutableTreeNode {
         return alert.getRisk() > highestAlert.getRisk();
     }
     
+    public Alert getHighestAlert() {
+        return this.highestAlert;
+    }
+    
     @Override
     public String toString() {
-    	StringBuilder sb = new StringBuilder();
-    	sb.append("<html><body>");
-    	appendIcons(sb);
-    	sb.append(StringEscapeUtils.escapeHtml(nodeName));
-    	sb.append("</body></html>");
-    	
-    	return sb.toString();
+        if (calculateHighestAlert) {
+            calculateHighestAlert();
+        }
+        return nodeName;
     }
     
     public boolean isParentOf (String nodeName) {

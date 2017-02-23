@@ -43,10 +43,6 @@ class AlertTreeModel extends DefaultTreeModel {
         super(new AlertNode(-1, Constant.messages.getString("alerts.tree.title"), GROUP_ALERT_CHILD_COMPARATOR));
     }
     
-    private String getRiskString (Alert alert) {
-		return "<html><img src=\"" + alert.getIconUrl() + "\">&nbsp;" + alert.getName() + "<html>";
-    }
-    
     void addPath(final Alert alert) {
         if (!View.isInitialised() || EventQueue.isDispatchThread()) {
         	addPathEventHandler(alert);
@@ -66,9 +62,7 @@ class AlertTreeModel extends DefaultTreeModel {
     
     private synchronized void addPathEventHandler(Alert alert) {
         AlertNode parent = (AlertNode) getRoot();
-        String alertNodeName = getRiskString(alert);
-    
-        parent = findAndAddChild(parent, alertNodeName, alert);
+        parent = findAndAddChild(parent, alert.getName(), alert);
         // Show the method first, if present
         String method = "";
         if (alert.getMethod() != null) {

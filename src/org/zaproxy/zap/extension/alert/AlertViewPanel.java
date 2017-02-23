@@ -36,7 +36,6 @@ import java.util.List;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -446,13 +445,7 @@ public class AlertViewPanel extends AbstractPanel {
 			alertName.setText(alert.getName());
 	
 			alertRisk.setText(Alert.MSG_RISK[alert.getRisk()]);
-	    	if (alert.getConfidence() == Alert.CONFIDENCE_FALSE_POSITIVE) {
-	    		// Special case - theres no risk - use the green flag
-				alertRisk.setIcon(new ImageIcon(Constant.OK_FLAG_IMAGE_URL));
-	    	} else {
-				alertRisk.setIcon(new ImageIcon(alert.getIconUrl()));
-	    	}
-			
+			alertRisk.setIcon(alert.getIcon());
 			alertConfidence.setText(Alert.MSG_CONFIDENCE[alert.getConfidence()]);
 			alertParam.setText(alert.getParam());
 			alertAttack.setText(alert.getAttack());
