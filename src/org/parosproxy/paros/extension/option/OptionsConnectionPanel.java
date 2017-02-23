@@ -62,10 +62,10 @@ import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.model.Model;
 import org.parosproxy.paros.model.OptionsParam;
 import org.parosproxy.paros.network.ConnectionParam;
-import org.parosproxy.paros.network.ProxyExcludedDomainMatcher;
 import org.parosproxy.paros.view.AbstractParamPanel;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.CommonUserAgents;
+import org.zaproxy.zap.network.DomainMatcher;
 import org.zaproxy.zap.utils.FontUtils;
 import org.zaproxy.zap.utils.ZapNumberSpinner;
 import org.zaproxy.zap.utils.ZapPortNumberSpinner;
@@ -875,7 +875,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
 	}
 	
     private static class ProxyExcludedDomainsMultipleOptionsPanel extends
-            AbstractMultipleOptionsTablePanel<ProxyExcludedDomainMatcher> {
+            AbstractMultipleOptionsTablePanel<DomainMatcher> {
 
         private static final long serialVersionUID = 2332044353650231701L;
 
@@ -898,21 +898,21 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
         @Override
-        public ProxyExcludedDomainMatcher showAddDialogue() {
+        public DomainMatcher showAddDialogue() {
             if (addDialog == null) {
                 addDialog = new DialogAddProxyExcludedDomain(View.getSingleton().getOptionsDialog(null));
                 addDialog.pack();
             }
             addDialog.setVisible(true);
 
-            ProxyExcludedDomainMatcher hostAuthentication = addDialog.getProxyExcludedDomain();
+            DomainMatcher hostAuthentication = addDialog.getProxyExcludedDomain();
             addDialog.clear();
 
             return hostAuthentication;
         }
 
         @Override
-        public ProxyExcludedDomainMatcher showModifyDialogue(ProxyExcludedDomainMatcher e) {
+        public DomainMatcher showModifyDialogue(DomainMatcher e) {
             if (modifyDialog == null) {
                 modifyDialog = new DialogModifyProxyExcludedDomain(View.getSingleton().getOptionsDialog(null));
                 modifyDialog.pack();
@@ -920,7 +920,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
             modifyDialog.setProxyExcludedDomain(e);
             modifyDialog.setVisible(true);
 
-            ProxyExcludedDomainMatcher excludedDomain = modifyDialog.getProxyExcludedDomain();
+            DomainMatcher excludedDomain = modifyDialog.getProxyExcludedDomain();
             modifyDialog.clear();
 
             if (!excludedDomain.equals(e)) {
@@ -931,7 +931,7 @@ public class OptionsConnectionPanel extends AbstractParamPanel {
         }
 
         @Override
-        public boolean showRemoveDialogue(ProxyExcludedDomainMatcher e) {
+        public boolean showRemoveDialogue(DomainMatcher e) {
             JCheckBox removeWithoutConfirmationCheckBox = new JCheckBox(REMOVE_DIALOG_CHECKBOX_LABEL);
             Object[] messages = { REMOVE_DIALOG_TEXT, " ", removeWithoutConfirmationCheckBox };
             int option = JOptionPane.showOptionDialog(

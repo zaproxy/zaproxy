@@ -52,6 +52,7 @@ import org.apache.commons.httpclient.HttpState;
 import org.apache.log4j.Logger;
 import org.parosproxy.paros.common.AbstractParam;
 import org.zaproxy.zap.extension.api.ZapApiIgnore;
+import org.zaproxy.zap.network.DomainMatcher;
 
 public class ConnectionParam extends AbstractParam {
 
@@ -115,8 +116,8 @@ public class ConnectionParam extends AbstractParam {
 	private String proxyChainPassword = "";
 	private HttpState httpState = null;
 	private boolean httpStateEnabled = false;
-    private List<ProxyExcludedDomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
-    private List<ProxyExcludedDomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
+    private List<DomainMatcher> proxyExcludedDomains = new ArrayList<>(0);
+    private List<DomainMatcher> proxyExcludedDomainsEnabled = new ArrayList<>(0);
 
     private String[] securityProtocolsEnabled;
 	
@@ -258,19 +259,19 @@ public class ConnectionParam extends AbstractParam {
 	}
 	
     private void migrateOldSkipNameOption(String skipNames) {
-        List<ProxyExcludedDomainMatcher> excludedDomains = convertOldSkipNameOption(skipNames);
+        List<DomainMatcher> excludedDomains = convertOldSkipNameOption(skipNames);
 
         if (!excludedDomains.isEmpty()) {
             setProxyExcludedDomains(excludedDomains);
         }
     }
 
-    private static List<ProxyExcludedDomainMatcher> convertOldSkipNameOption(String skipNames) {
+    private static List<DomainMatcher> convertOldSkipNameOption(String skipNames) {
         if (skipNames == null || skipNames.isEmpty()) {
             return Collections.emptyList();
         }
 
-        ArrayList<ProxyExcludedDomainMatcher> excludedDomains = new ArrayList<>();
+        ArrayList<DomainMatcher> excludedDomains = new ArrayList<>();
         String[] names = skipNames.split(";");
         for (String name : names) {
             String excludedDomain = name.trim();
@@ -279,12 +280,12 @@ public class ConnectionParam extends AbstractParam {
                     excludedDomain = excludedDomain.replace(".", "\\.").replace("*", ".*?");
                     try {
                         Pattern pattern = Pattern.compile(excludedDomain, Pattern.CASE_INSENSITIVE);
-                        excludedDomains.add(new ProxyExcludedDomainMatcher(pattern));
+                        excludedDomains.add(new DomainMatcher(pattern));
                     } catch (IllegalArgumentException e) {
                         log.error("Failed to migrate the excluded domain name: " + name, e);
                     }
                 } else {
-                    excludedDomains.add(new ProxyExcludedDomainMatcher(excludedDomain));
+                    excludedDomains.add(new DomainMatcher(excludedDomain));
                 }
             }
         }
@@ -373,7 +374,7 @@ public class ConnectionParam extends AbstractParam {
 	@SuppressWarnings({ "javadoc" })
 	public String getProxyChainSkipName() {
 		StringBuilder skipNamesStringBuilder = new StringBuilder("");
-		for (ProxyExcludedDomainMatcher excludedDomain : proxyExcludedDomains) {
+		for (DomainMatcher excludedDomain : proxyExcludedDomains) {
 			if (!excludedDomain.isRegex()) {
 				skipNamesStringBuilder.append(excludedDomain.getValue()).append(';');
 			}
@@ -485,7 +486,7 @@ public class ConnectionParam extends AbstractParam {
             return false;
         }
 
-        for (ProxyExcludedDomainMatcher excludedDomain : proxyExcludedDomainsEnabled) {
+        for (DomainMatcher excludedDomain : proxyExcludedDomainsEnabled) {
             if (excludedDomain.matches(domainName)) {
                 return true;
             }
@@ -558,7 +559,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #setProxyExcludedDomains(List)
      */
     @ZapApiIgnore
-    public List<ProxyExcludedDomainMatcher> getProxyExcludedDomains() {
+    public List<DomainMatcher> getProxyExcludedDomains() {
         return proxyExcludedDomains;
     }
 
@@ -572,7 +573,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #setProxyExcludedDomains(List)
      */
     @ZapApiIgnore
-    public List<ProxyExcludedDomainMatcher> getProxyExcludedDomainsEnabled() {
+    public List<DomainMatcher> getProxyExcludedDomainsEnabled() {
         return proxyExcludedDomainsEnabled;
     }
 
@@ -584,7 +585,7 @@ public class ConnectionParam extends AbstractParam {
      * @see #getProxyExcludedDomains()
      * @see #getProxyExcludedDomainsEnabled()
      */
-    public void setProxyExcludedDomains(List<ProxyExcludedDomainMatcher> proxyExcludedDomains) {
+    public void setProxyExcludedDomains(List<DomainMatcher> proxyExcludedDomains) {
         if (proxyExcludedDomains == null || proxyExcludedDomains.isEmpty()) {
             ((HierarchicalConfiguration) getConfig()).clearTree(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
 
@@ -598,10 +599,10 @@ public class ConnectionParam extends AbstractParam {
         ((HierarchicalConfiguration) getConfig()).clearTree(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
 
         int size = proxyExcludedDomains.size();
-        ArrayList<ProxyExcludedDomainMatcher> enabledExcludedDomains = new ArrayList<>(size);
+        ArrayList<DomainMatcher> enabledExcludedDomains = new ArrayList<>(size);
         for (int i = 0; i < size; ++i) {
             String elementBaseKey = ALL_PROXY_EXCLUDED_DOMAINS_KEY + "(" + i + ").";
-            ProxyExcludedDomainMatcher excludedDomain = proxyExcludedDomains.get(i);
+            DomainMatcher excludedDomain = proxyExcludedDomains.get(i);
 
             getConfig().setProperty(elementBaseKey + PROXY_EXCLUDED_DOMAIN_VALUE_KEY, excludedDomain.getValue());
             getConfig().setProperty(elementBaseKey + PROXY_EXCLUDED_DOMAIN_REGEX_KEY, Boolean.valueOf(excludedDomain.isRegex()));
@@ -621,7 +622,7 @@ public class ConnectionParam extends AbstractParam {
     private void loadProxyExcludedDomains() {
         List<HierarchicalConfiguration> fields = ((HierarchicalConfiguration) getConfig()).configurationsAt(ALL_PROXY_EXCLUDED_DOMAINS_KEY);
         this.proxyExcludedDomains = new ArrayList<>(fields.size());
-        ArrayList<ProxyExcludedDomainMatcher> excludedDomainsEnabled = new ArrayList<>(fields.size());
+        ArrayList<DomainMatcher> excludedDomainsEnabled = new ArrayList<>(fields.size());
         for (HierarchicalConfiguration sub : fields) {
             String value = sub.getString(PROXY_EXCLUDED_DOMAIN_VALUE_KEY, "");
             if (value.isEmpty()) {
@@ -629,17 +630,17 @@ public class ConnectionParam extends AbstractParam {
                 continue;
             }
 
-            ProxyExcludedDomainMatcher excludedDomain = null;
+            DomainMatcher excludedDomain = null;
             boolean regex = sub.getBoolean(PROXY_EXCLUDED_DOMAIN_REGEX_KEY, false);
             if (regex) {
                 try {
-                    Pattern pattern = ProxyExcludedDomainMatcher.createPattern(value);
-                    excludedDomain = new ProxyExcludedDomainMatcher(pattern);
+                    Pattern pattern = DomainMatcher.createPattern(value);
+                    excludedDomain = new DomainMatcher(pattern);
                 } catch (IllegalArgumentException e) {
                     log.error("Failed to read an outgoing proxy excluded domain entry with regex: " + value, e);
                 }
             } else {
-                excludedDomain = new ProxyExcludedDomainMatcher(value);
+                excludedDomain = new DomainMatcher(value);
             }
 
             if (excludedDomain != null) {
