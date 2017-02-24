@@ -230,7 +230,7 @@ public class FormBasedAuthenticationMethodType extends AuthenticationMethodType 
 			try {
 				msg = prepareRequestMessage(cred);
 			} catch (Exception e) {
-				log.error("Unable to prepare authentication message: " + e.getMessage());
+				log.error("Unable to prepare authentication message: " + e.getMessage(), e);
 				return null;
 			}
 
