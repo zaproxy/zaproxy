@@ -43,7 +43,9 @@ abstract class HeadlessBootstrap extends ZapBootstrap {
     public HeadlessBootstrap(CommandLine args) {
         super(args);
 
-        System.setProperty("java.awt.headless", "true");
+        // XXX Do not force headless to allow to run JxBrowser in daemon mode,
+        // at least until it can be run without a window/dialogue.
+        // System.setProperty("java.awt.headless", "true");
     }
 
     /**
