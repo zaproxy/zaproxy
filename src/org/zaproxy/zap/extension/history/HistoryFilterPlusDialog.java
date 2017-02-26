@@ -19,7 +19,6 @@
  */
 package org.zaproxy.zap.extension.history;
 
-import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -135,7 +134,6 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private void initialize() {
         this.setContentPane(getJPanel());
         this.setVisible(false);
-        this.setResizable(false);
         this.setTitle(Constant.messages.getString("history.filter.title"));
         if (Model.getSingleton().getOptionsParam().getViewParam().getWmUiHandlingOption() == 0) {
         	this.setSize(600, 300);
@@ -188,8 +186,6 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			gridBagConstraints6.ipadx = 3;
 			gridBagConstraints6.ipady = 3;
 			jLabel1.setText(MSG);
-			jLabel1.setMaximumSize(new java.awt.Dimension(2147483647,80));
-			jLabel1.setMinimumSize(new java.awt.Dimension(350,24));
 			jLabel1.setPreferredSize(new java.awt.Dimension(350,50));
 			gridBagConstraints11.gridx = 0;
 			gridBagConstraints11.gridy = 0;
@@ -201,9 +197,10 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 			gridBagConstraints11.ipadx = 3;
 			gridBagConstraints11.ipady = 3;
 			gridBagConstraints12.gridx = 0;
+			gridBagConstraints12.weighty = 1.0D;
 			gridBagConstraints12.gridwidth = 3;
 			gridBagConstraints12.gridy = 2;
-			gridBagConstraints12.fill = java.awt.GridBagConstraints.HORIZONTAL;
+			gridBagConstraints12.fill = java.awt.GridBagConstraints.BOTH;
 			gridBagConstraints12.insets = new java.awt.Insets(2,10,2,10);
 			gridBagConstraints12.ipadx = 0;
 			gridBagConstraints12.ipady = 1;
@@ -366,11 +363,11 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
 			GridBagConstraints gbc13 = LayoutHelper.getGBC(3, 1, 1, 2, 1.0, 1.0, 
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
-			GridBagConstraints gbc14 = LayoutHelper.getGBC(4, 1, 1, 1, 0.0, 0.0, 
+			GridBagConstraints gbc14 = LayoutHelper.getGBC(4, 1, 1, 1, 1.0, 1.0, 
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
 
-			GridBagConstraints gbc24 = LayoutHelper.getGBC(4, 2, 1, 1, 1.0, 1.0, 
-					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, null); // stdInset());
+			GridBagConstraints gbc24 = LayoutHelper.getGBC(4, 2, 1, 1, 0.0, 0.0, 
+					GridBagConstraints.NONE, GridBagConstraints.NORTHWEST, stdInset());
 
 			GridBagConstraints gbc33 = LayoutHelper.getGBC(3, 3, 1, 1, 1.0, 1.0, 
 					GridBagConstraints.BOTH, GridBagConstraints.NORTHWEST, stdInset());
@@ -457,10 +454,8 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JScrollPane getUrlRegxIncScroller() {
 		if (urlRegxIncScroller == null) {
 			regexInc = new JTextArea();
+			regexInc.setRows(4);
 			urlRegxIncScroller = new JScrollPane(regexInc);
-			urlRegxIncScroller.setPreferredSize(new Dimension(65, 80));
-			urlRegxIncScroller.setMinimumSize(new Dimension(65, 80));
-			urlRegxIncScroller.setMaximumSize(new Dimension(65, 80));
 		}
 		return urlRegxIncScroller;
 	}
@@ -468,10 +463,8 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JScrollPane getUrlRegxExcScroller() {
 		if (urlRegxExcScroller == null) {
 			regexExc = new JTextArea();
+			regexExc.setRows(5);
 			urlRegxExcScroller = new JScrollPane(regexExc);
-			urlRegxExcScroller.setPreferredSize(new Dimension(65, 80));
-			urlRegxExcScroller.setMinimumSize(new Dimension(65, 80));
-			urlRegxExcScroller.setMaximumSize(new Dimension(65, 80));
 		}
 		return urlRegxExcScroller;
 	}
@@ -486,8 +479,8 @@ public class HistoryFilterPlusDialog extends AbstractDialog {
 	private JScrollPane getTagScroller() {
 		if (tagScroller == null) {
 			tagList = new JList<>(getTagModel());
+			tagList.setPrototypeCellValue("Tags are short...");
 			tagScroller = new JScrollPane(tagList);
-			tagScroller.setPreferredSize(new Dimension(120, 160));
 			tagScroller.setHorizontalScrollBarPolicy(javax.swing.JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 			tagScroller.setVerticalScrollBarPolicy(javax.swing.JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		}

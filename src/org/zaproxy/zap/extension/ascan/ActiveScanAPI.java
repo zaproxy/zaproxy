@@ -712,8 +712,13 @@ public class ActiveScanAPI extends ApiImplementor {
 			}
 
 			try {
-				node = SessionStructure
-						.find(Model.getSingleton().getSession().getSessionId(), new URI(url, false), method, postData);
+				long sessionId = Model.getSingleton().getSession().getSessionId();
+				node = SessionStructure.find(sessionId, startURI, method, postData);
+				if (node == null && "GET".equalsIgnoreCase(method)) {
+					// Check if there's a non-leaf node that matches the URI, to scan the subtree.
+					// (GET is the default method, but non-leaf nodes do not have any method.)
+					node = SessionStructure.find(sessionId, startURI, null, postData);
+				}
 			} catch (Exception e) {
 				throw new ApiException(ApiException.Type.INTERNAL_ERROR, e);
 			}

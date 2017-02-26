@@ -19,15 +19,20 @@
  */
 package org.zaproxy.zap.view;
 
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.util.List;
 
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultTreeCellRenderer;
 
 import org.apache.log4j.Logger;
+import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.model.SiteMap;
 import org.parosproxy.paros.model.SiteNode;
@@ -58,9 +63,13 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 	private static Logger log = Logger.getLogger(SiteMapPanel.class);
 
 	private List<SiteMapListener> listeners;
+	private JPanel component; 
 
 	public SiteMapTreeCellRenderer(List<SiteMapListener> listeners) {
 		this.listeners = listeners;
+		this.component = new JPanel(new FlowLayout(FlowLayout.CENTER, 4, 2));
+		component.setOpaque(false);
+		this.putClientProperty("html.disable", Boolean.TRUE);
 	}
 
 	/**
@@ -71,6 +80,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 			boolean sel, boolean expanded, boolean leaf, int row,
 			boolean hasFocus) {
 
+		component.removeAll();
 		SiteNode node = null;
 		if (value instanceof SiteNode) {
 			node = (SiteNode) value;
@@ -87,7 +97,7 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 
 			// folder / file icons with scope 'target' if relevant
 			if (node.isRoot()) {
-				setIcon(DisplayUtils.getScaledIcon(ROOT_ICON));	// 'World' icon
+				component.add(wrap(ROOT_ICON)); // 'World' icon
 			} else {
 				OverlayIcon icon;
 		        if (node.isDataDriven()) {
@@ -121,17 +131,54 @@ public class SiteMapTreeCellRenderer extends DefaultTreeCellRenderer {
 					// Add lock icon to site nodes with https
 					icon.add(LOCK_OVERLAY_ICON);
 				}
-				setIcon(DisplayUtils.getScaledIcon(icon));
+				
+				component.add(wrap(DisplayUtils.getScaledIcon(icon)));
+				
+				Alert alert = node.getHighestAlert();
+				if (alert != null) {
+					component.add(wrap(alert.getIcon()));
+				}
+
+				for (ImageIcon ci : node.getCustomIcons()){
+					component.add(wrap(DisplayUtils.getScaledIcon(ci)));
+				}
+				
+			}
+			if (sel) {
+				component.add(wrap(node.toString(), Color.WHITE));
+			} else {
+				component.add(wrap(node.toString()));
 			}
 
 	        for (SiteMapListener listener : listeners) {
 	        	listener.onReturnNodeRendererComponent(this, leaf, node);
 	        }
+	        return component;
 		}
 
 		return this;
 	}
 	
+    private JLabel wrap (String str) {
+        JLabel label = new JLabel(str);
+        label.setOpaque(false);
+        label.putClientProperty("html.disable", Boolean.TRUE);
+        return label;
+    }
+	
+    private JLabel wrap (String str, Color color) {
+        JLabel label = wrap(str);
+        label.setForeground(color);
+        return label;
+    }
+    
+    private JLabel wrap (ImageIcon icon) {
+        JLabel label = new JLabel(icon);
+        label.setOpaque(false);
+        label.putClientProperty("html.disable", Boolean.TRUE);
+        return label;
+    }
+    
 	/**
 	 * Extracts a HistoryReference out of {@link SiteMap} node.
 	 * 

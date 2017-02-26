@@ -67,6 +67,7 @@
 // ZAP: 2016/12/23 Make SocketTimeoutException less verbose for general use
 // ZAP: 2017/02/08 Differentiate client read timeout after CONNECT, from server read timeout.
 // ZAP: 2017/02/08 Change CONNECT response to contain just the status line, helps Android emulator consume the response.
+// ZAP: 2017/02/20 Issue 2699: Make SSLException handling more user friendly
 
 package org.parosproxy.paros.core.proxy;
 
@@ -87,6 +88,8 @@ import java.util.regex.Pattern;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.Inflater;
 import java.util.zip.InflaterInputStream;
+
+import javax.net.ssl.SSLException;
 
 import org.apache.commons.httpclient.HttpException;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -321,14 +324,35 @@ public class ProxyThread implements Runnable {
     private static void setErrorResponse(HttpMessage msg, String responseStatus, Exception cause, String errorType)
             throws HttpMalformedHeaderException {
         StringBuilder strBuilder = new StringBuilder();
-        strBuilder.append(errorType)
-                .append(" [")
-                .append(cause.getClass().getName())
-                .append("]: ")
-                .append(cause.getLocalizedMessage())
-                .append("\n\nStack Trace:\n");
-        for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
-            strBuilder.append(stackTraceFrame).append('\n');
+		
+        if (cause instanceof SSLException) {
+            strBuilder.append(Constant.messages.getString("network.ssl.error.connect"));
+            strBuilder.append(msg.getRequestHeader().getURI().toString()).append('\n');
+            strBuilder.append(Constant.messages.getString("network.ssl.error.exception")).append(cause.getMessage())
+                .append('\n');
+            strBuilder.append(Constant.messages.getString("network.ssl.error.exception.rootcause"))
+                .append(ExceptionUtils.getRootCauseMessage(cause)).append('\n');
+            strBuilder.append(Constant.messages.getString("network.ssl.error.help",
+                Constant.messages.getString("network.ssl.error.help.url")));
+            
+            log.warn(strBuilder.toString());
+            if (log.isDebugEnabled()) {
+                log.debug(cause, cause);
+                strBuilder.append("\n\nStack Trace:\n");
+                for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+                    strBuilder.append(stackTraceFrame).append('\n');
+                }
+            }
+        } else {
+            strBuilder.append(errorType)
+            .append(" [")
+            .append(cause.getClass().getName())
+            .append("]: ")
+            .append(cause.getLocalizedMessage())
+            .append("\n\nStack Trace:\n");
+            for (String stackTraceFrame : ExceptionUtils.getRootCauseStackTrace(cause)) {
+                strBuilder.append(stackTraceFrame).append('\n');
+            }
         }
 
         setErrorResponse(msg, responseStatus, strBuilder.toString());

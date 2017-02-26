@@ -46,10 +46,13 @@
 // ZAP: 2016/08/25 Initialise the method to an empty string
 // ZAP: 2016/09/20 JavaDoc tweaks
 // ZAP: 2016/10/11 Issue 2592: Differentiate the source of alerts
+// ZAP: 2017/02/22 Issue 3224: Use TreeCellRenderers to prevent HTML injection issues
 
 package org.parosproxy.paros.core.scanner;
 
 import java.net.URL;
+
+import javax.swing.ImageIcon;
 
 import org.apache.commons.httpclient.URI;
 import org.apache.log4j.Logger;
@@ -60,6 +63,7 @@ import org.parosproxy.paros.extension.report.ReportGenerator;
 import org.parosproxy.paros.model.HistoryReference;
 import org.parosproxy.paros.network.HttpMalformedHeaderException;
 import org.parosproxy.paros.network.HttpMessage;
+import org.zaproxy.zap.utils.DisplayUtils;
 
 
 public class Alert implements Comparable<Alert>  {
@@ -688,6 +692,31 @@ public class Alert implements Comparable<Alert>  {
         return risk;
     }
     
+    /**
+     * Gets the correctly scaled icon for this alert.
+     * @return the correctly scaled icon for this alert
+     * @since TODO add version
+     */
+    public ImageIcon getIcon() {
+        if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
+            // Special case - theres no risk - use the green flag
+            return DisplayUtils.getScaledIcon(Constant.OK_FLAG_IMAGE_URL);
+        }
+
+        switch (risk) {
+        case Alert.RISK_INFO:
+            return DisplayUtils.getScaledIcon(Constant.INFO_FLAG_IMAGE_URL);
+        case Alert.RISK_LOW:
+            return DisplayUtils.getScaledIcon(Constant.LOW_FLAG_IMAGE_URL);
+        case Alert.RISK_MEDIUM:
+            return DisplayUtils.getScaledIcon(Constant.MED_FLAG_IMAGE_URL);
+        case Alert.RISK_HIGH:
+            return DisplayUtils.getScaledIcon(Constant.HIGH_FLAG_IMAGE_URL);
+        }
+        return null;
+    }
+    
+    @Deprecated
     public URL getIconUrl() {
     	if (confidence == Alert.CONFIDENCE_FALSE_POSITIVE) {
     		// Special case - theres no risk - use the green flag

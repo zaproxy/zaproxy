@@ -32,6 +32,7 @@
 // ZAP: 2015/03/16 Issue 1525: Further database independence changes
 // ZAP: 2015/03/30 Issue 1582: Enablers for low memory option
 // ZAP: 2016/09/26 JavaDoc tweaks
+// ZAP: 2017/02/17 Expose ExtensionHook to allow core code remove/unhook the extension.
 
 package org.parosproxy.paros.extension;
 
@@ -138,6 +139,17 @@ public interface Extension {
     void initXML(Session session, OptionsParam options);
     
     void hook(ExtensionHook pluginHook);
+
+    /**
+     * Gets the {@code ExtensionHook} used to hook the components during initialisation.
+     * <p>
+     * Should be called only by core functionality (e.g. to unload the hooked components).
+     * 
+     * @return the {@code ExtensionHook} used to hook the components.
+     * @since TODO add version
+     * @see #hook(ExtensionHook)
+     */
+    ExtensionHook getExtensionHook();
     
     boolean isDepreciated ();
     
@@ -175,6 +187,14 @@ public interface Extension {
 	
 	boolean canUnload();
 	
+	/**
+	 * Unloads any component manually added to ZAP or other extensions (that is, a component that was not added through the
+	 * {@code ExtensionHook}).
+	 * <p>
+	 * Should be called only by core functionality (e.g. during uninstallation of the extension).
+	 * 
+	 * @see #hook(ExtensionHook)
+	 */
 	void unload();
 
 	/**

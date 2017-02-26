@@ -26,6 +26,7 @@
 // ZAP: 2014/04/25 Issue 642: Add timestamps to Output tab(s)
 // ZAP: 2014/10/07 Issue 1357: Hide unused tabs
 // ZAP: 2015/02/10 Issue 1528: Support user defined font size
+// ZAP: 2017/02/20 Issue 3221: Some icons not scaled correctly
 
 package org.parosproxy.paros.view;
 
@@ -48,6 +49,7 @@ import org.apache.log4j.Logger;
 import org.parosproxy.paros.Constant;
 import org.parosproxy.paros.extension.AbstractPanel;
 import org.parosproxy.paros.model.Model;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.TimeStampUtils;
 import org.zaproxy.zap.utils.ZapTextArea;
 
@@ -107,7 +109,7 @@ public class OutputPanel extends AbstractPanel {
 
             JButton clearButton = new JButton(CLEAR_BUTTON_LABEL);
             clearButton.setToolTipText(CLEAR_BUTTON_TOOL_TIP);
-            clearButton.setIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/fugue/broom.png")));
+            clearButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(OutputPanel.class.getResource("/resource/icon/fugue/broom.png"))));
             clearButton.addActionListener(new java.awt.event.ActionListener() {
 
                 @Override

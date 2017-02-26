@@ -50,6 +50,7 @@ import org.parosproxy.paros.model.Session;
 import org.parosproxy.paros.view.View;
 import org.zaproxy.zap.model.GenericScanner2;
 import org.zaproxy.zap.model.ScanController;
+import org.zaproxy.zap.utils.DisplayUtils;
 import org.zaproxy.zap.utils.SortedComboBoxModel;
 
 /*
@@ -315,7 +316,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (stopScanButton == null) {
 			stopScanButton = new JButton();
 			stopScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.stop"));
-			stopScanButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/142.png")));
+			stopScanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/142.png"))));
 			stopScanButton.setEnabled(false);
 			stopScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -335,10 +336,10 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 			pauseScanButton = new ZapToggleButton();
 			pauseScanButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.pause"));
 			pauseScanButton.setSelectedToolTipText(Constant.messages.getString(prefix + ".toolbar.button.unpause"));
-			pauseScanButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png")));
-			pauseScanButton.setRolloverIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png")));
-			pauseScanButton.setSelectedIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png")));
-			pauseScanButton.setRolloverSelectedIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png")));
+			pauseScanButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png"))));
+			pauseScanButton.setRolloverIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/141.png"))));
+			pauseScanButton.setSelectedIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png"))));
+			pauseScanButton.setRolloverSelectedIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/131.png"))));
 			pauseScanButton.setEnabled(false);
 			pauseScanButton.addActionListener(new ActionListener () {
 				@Override
@@ -361,7 +362,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (optionsButton == null) {
 			optionsButton = new JButton();
 			optionsButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.options"));
-			optionsButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/041.png")));
+			optionsButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/16/041.png"))));
 			optionsButton.addActionListener(new ActionListener () {
 				@Override
 				public void actionPerformed(ActionEvent e) {
@@ -377,7 +378,7 @@ public abstract class ScanPanel2<GS extends GenericScanner2, SC extends ScanCont
 		if (clearScansButton == null) {
 			clearScansButton = new JButton();
 			clearScansButton.setToolTipText(Constant.messages.getString(prefix + ".toolbar.button.clear"));
-			clearScansButton.setIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/fugue/broom.png")));
+			clearScansButton.setIcon(DisplayUtils.getScaledIcon(new ImageIcon(ScanPanel2.class.getResource("/resource/icon/fugue/broom.png"))));
 			clearScansButton.setEnabled(false);
 			clearScansButton.addActionListener(new ActionListener () {
 				@Override

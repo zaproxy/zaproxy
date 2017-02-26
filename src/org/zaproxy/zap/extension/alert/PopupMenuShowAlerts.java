@@ -23,8 +23,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-import javax.swing.ImageIcon;
-
 import org.apache.commons.httpclient.URI;
 import org.parosproxy.paros.core.scanner.Alert;
 import org.parosproxy.paros.model.HistoryReference;
@@ -74,7 +72,7 @@ public class PopupMenuShowAlerts extends PopupMenuHistoryReferenceContainer {
 				continue;
 			}
 			final PopupMenuShowAlert menuItem = new PopupMenuShowAlert(alert.getName(), alert);
-			menuItem.setIcon(new ImageIcon(alert.getIconUrl()));
+			menuItem.setIcon(alert.getIcon());
 			
 			alertList.add(menuItem);
 		}
